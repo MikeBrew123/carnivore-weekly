@@ -1,0 +1,44 @@
+name: Weekly Content Update
+
+  on:
+    # Manual trigger from GitHub mobile app or web
+    workflow_dispatch:
+
+    # Optional: Automatic schedule (every Monday at 9 AM EST)
+    # schedule:
+    #   - cron: '0 14 * * 1'  # 9 AM EST = 2 PM UTC
+
+  jobs:
+    update-content:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: '3.9'
+
+        - name: Install dependencies
+          run: |
+            pip install google-api-python-client python-dotenv anthropic jinja2 requests
+
+        - name: Create .env file
+          run: |
+            echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" >> .env
+            echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
+
+        - name: Run weekly update workflow
+          run: |
+            chmod +x run_weekly_update.sh
+            ./run_weekly_update.sh
+
+        - name: Commit and push changes
+          run: |
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add .
+            git commit -m "Weekly content update - $(date +%Y-%m-%d) 🤖" || echo "No changes to commit"
+            git push
