@@ -78,3 +78,6 @@ secrets/
 
 # OS specific
 Thumbs.db
+
+# Third-party repos
+gemini-code-assist-mcp/

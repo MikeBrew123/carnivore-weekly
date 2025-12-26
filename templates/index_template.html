@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnivore Weekly - The Meat-Eater's Digest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Merriweather', serif;
+            line-height: 1.8;
+            color: #2c1810;
+            background: #1a120b;
+            min-height: 100vh;
+        }
+
+        /* Leather texture background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(58, 35, 23, 0.7), rgba(58, 35, 23, 0.7)),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="4" seed="0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.3"/></svg>');
+            background-color: #3a2317;
+            background-size: 200px 200px, 100% 100%;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header with cow/meat imagery */
+        header {
+            background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+            color: #f4e4d4;
+            padding: 60px 0 40px 0;
+            margin-bottom: 40px;
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.5),
+                inset 0 2px 0 rgba(255,255,255,0.1);
+            border-bottom: 4px solid #8b4513;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        header > .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5em;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #f4e4d4;
+        }
+
+        header .subtitle {
+            text-align: center;
+            font-size: 1.6em;
+            opacity: 0.95;
+            font-style: italic;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        header .tagline {
+            text-align: center;
+            font-size: 1.1em;
+            opacity: 0.8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-top: 2px solid rgba(244, 228, 212, 0.3);
+            border-bottom: 2px solid rgba(244, 228, 212, 0.3);
+            padding: 10px;
+            margin: 20px auto 0;
+            max-width: 600px;
+        }
+
+        header .update-date {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1em;
+            opacity: 0.7;
+            letter-spacing: 1px;
+        }
+
+        /* Leather-textured sections */
+        .section {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.3),
+                inset 0 -1px 0 rgba(0,0,0,0.3);
+            border: 3px solid #8b4513;
+            position: relative;
+        }
+
+        .section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise2"><feTurbulence baseFrequency="0.6" numOctaves="3"/></filter><rect width="100%" height="100%" filter="url(%23noise2)" opacity="0.15"/></svg>');
+            border-radius: 15px;
+            pointer-events: none;
+        }
+
+        .section h2 {
+            color: #2c1810;
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            border-bottom: 4px solid #8b4513;
+            padding-bottom: 15px;
+            text-shadow: 2px 2px 0 rgba(255,255,255,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Removed emoji from section headers */
+
+        .summary {
+            font-size: 1.2em;
+            line-height: 2;
+            color: #1a120b;
+            background: rgba(255,255,255,0.4);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #8b4513;
+            position: relative;
+            z-index: 1;
+        }
+
+        .trending-topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .topic-card {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            border-left: 6px solid #d4a574;
+            padding: 25px;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .topic-card h3 {
+            color: #f4e4d4;
+            margin-bottom: 15px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+        }
+
+        .topic-card .mentioned-by {
+            font-size: 0.9em;
+            margin-top: 15px;
+            opacity: 0.9;
+            font-style: italic;
+            border-top: 1px solid rgba(244, 228, 212, 0.3);
+            padding-top: 10px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 25px;
+        }
+
+        .video-card {
+            background: linear-gradient(135deg, #1a120b 0%, #2c1810 100%);
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+        }
+
+        .video-card .video-header {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 20px;
+            border-bottom: 3px solid #d4a574;
+        }
+
+        .video-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .video-card h3 a {
+            color: #f4e4d4;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .video-card h3 a:hover {
+            color: #ffd700;
+        }
+
+        .video-card .creator {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .video-card .creator a {
+            color: #d4a574;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .video-card .creator a:hover {
+            color: #ffd700;
+        }
+
+        .video-card .video-body {
+            padding: 20px;
+            background: #2c1810;
+            color: #f4e4d4;
+        }
+
+        .video-card .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.3);
+            border-radius: 8px;
+            border: 2px solid #8b4513;
+        }
+
+        .video-card .stat {
+            text-align: center;
+        }
+
+        .video-card .stat-value {
+            font-weight: 900;
+            color: #ffd700;
+            font-size: 1.4em;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .video-card .stat-label {
+            font-size: 0.85em;
+            color: #d4a574;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .insights-list {
+            list-style: none;
+            margin-top: 25px;
+        }
+
+        .insights-list li {
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(139, 69, 19, 0.3);
+            border-left: 6px solid #8b4513;
+            border-radius: 8px;
+            font-size: 1.1em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .insights-list li::before {
+            content: "• ";
+            margin-right: 12px;
+            font-size: 1.3em;
+            font-weight: 900;
+        }
+
+        .sentiment {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 35px;
+            border-radius: 12px;
+            margin-top: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            border: 3px solid #d4a574;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sentiment h3 {
+            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+        }
+
+        .questions-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .questions-list li {
+            padding: 15px;
+            margin-bottom: 15px;
+            background: rgba(244, 228, 212, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #d4a574;
+        }
+
+        .questions-list li::before {
+            content: "→ ";
+            margin-right: 12px;
+            font-weight: 700;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #d4a574;
+            margin-top: 60px;
+            border-top: 3px solid #8b4513;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #d4a574;
+            color: #1a120b;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            margin: 8px;
+            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            border: 2px solid #8b4513;
+        }
+
+        .watch-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            color: #1a120b;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 15px;
+            transition: all 0.3s;
+            border: 2px solid #8b4513;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .watch-btn:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5em;
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .trending-topics {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Steak divider */
+        .divider {
+            text-align: center;
+            font-size: 3em;
+            margin: 40px 0;
+            opacity: 0.3;
+        }
+
+        /* Q&A Accordion */
+        .qa-accordion {
+            margin-top: 25px;
+        }
+
+        .qa-item {
+            margin-bottom: 15px;
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(139, 69, 19, 0.2);
+        }
+
+        .qa-question {
+            padding: 20px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: background 0.3s;
+            position: relative;
+            user-select: none;
+        }
+
+        .qa-question:hover {
+            background: linear-gradient(135deg, #a0522d 0%, #8b4513 100%);
+        }
+
+        .qa-question::after {
+            content: "▼";
+            position: absolute;
+            right: 20px;
+            transition: transform 0.3s;
+        }
+
+        .qa-question.active::after {
+            transform: rotate(180deg);
+        }
+
+        .qa-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            padding: 0 20px;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1a120b;
+        }
+
+        .qa-answer.active {
+            max-height: 1000px;
+            padding: 20px;
+        }
+
+        .qa-answer p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .citations {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.1);
+            border-left: 4px solid #8b4513;
+            border-radius: 5px;
+        }
+
+        .citations h4 {
+            margin-bottom: 10px;
+            color: #8b4513;
+        }
+
+        .citation {
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .citation a {
+            color: #8b4513;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .citation a:hover {
+            text-decoration: underline;
+        }
+
+        .caveats {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 165, 0, 0.1);
+            border-left: 4px solid #ffa500;
+            border-radius: 5px;
+            font-style: italic;
+            font-size: 0.95em;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 25px;
+            margin: 40px 0 20px 0;
+            border-radius: 10px;
+            border: 3px solid #d4a574;
+            font-size: 0.9em;
+            line-height: 1.8;
+        }
+
+        .disclaimer h3 {
+            margin-bottom: 15px;
+            color: #ffd700;
+            font-size: 1.2em;
+        }
+
+        /* Advertising Spaces */
+        .sponsor-banner {
+            background: linear-gradient(135deg, #2c1810 0%, #1a120b 100%);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sponsor-banner::before {
+            content: "SPONSORED";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #8b4513;
+            color: #f4e4d4;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .sponsor-banner h3 {
+            color: #d4a574;
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .sponsor-banner p {
+            color: #f4e4d4;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .sponsor-cta {
+            display: inline-block;
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            color: #1a120b;
+            padding: 15px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2px solid #8b4513;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sponsor-cta:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .inline-ad {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 40px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .inline-ad::before {
+            content: "ADVERTISEMENT";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #d4a574;
+            color: #1a120b;
+            padding: 3px 15px;
+            border-radius: 5px;
+            font-size: 0.7em;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .inline-ad img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .inline-ad h4 {
+            color: #2c1810;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .inline-ad p {
+            color: #1a120b;
+            margin-bottom: 15px;
+        }
+
+        .ad-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .ad-link:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>CARNIVORE WEEKLY</h1>
+            <p class="subtitle">The Meat-Eater's Digest</p>
+            <p class="tagline">Premium Cuts of Carnivore Content</p>
+            <p class="update-date">Week of {{ analysis_date }}</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Premium Sponsor Banner -->
+        <div class="sponsor-banner">
+            <h3>Premium Grass-Fed Beef Delivered to Your Door</h3>
+            <p>
+                Get 100% grass-fed, grass-finished beef from regenerative farms.
+                No hormones, no antibiotics, just clean protein the way nature intended.
+            </p>
+            <a href="#" class="sponsor-cta">Get $20 Off Your First Box</a>
+        </div>
+
+        <!-- Weekly Summary -->
+        <section class="section">
+            <h2>This Week's Roundup</h2>
+            <div class="summary">
+                {{ weekly_summary }}
+            </div>
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- Trending Topics -->
+        <section class="section">
+            <h2>What's Sizzling</h2>
+            <div class="trending-topics">
+                {% for topic in trending_topics %}
+                <div class="topic-card">
+                    <h3>{{ topic.topic }}</h3>
+                    <p>{{ topic.description }}</p>
+                    <div class="mentioned-by">
+                        <strong>Featured in:</strong>
+                        {% for creator in topic.mentioned_by %}
+                            {% if creator_channels.get(creator) %}
+                                <a href="https://youtube.com/channel/{{ creator_channels[creator] }}" target="_blank" style="color: #f4e4d4; text-decoration: underline;">{{ creator }}</a>{% if not loop.last %}, {% endif %}
+                            {% else %}
+                                {{ creator }}{% if not loop.last %}, {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- Top Videos -->
+        <section class="section">
+            <h2>Prime Cuts - Top Videos</h2>
+            <div class="video-grid">
+                {% for video in top_videos %}
+                <div class="video-card">
+                    <div class="video-header">
+                        <h3>
+                            {% if video.video_id %}
+                            <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                                {{ video.title }}
+                            </a>
+                            {% else %}
+                            {{ video.title }}
+                            {% endif %}
+                        </h3>
+                        <p class="creator">
+                            by
+                            {% if video.channel_id %}
+                            <a href="https://youtube.com/channel/{{ video.channel_id }}" target="_blank">
+                                {{ video.creator }}
+                            </a>
+                            {% else %}
+                            {{ video.creator }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">{{ "{:,}".format(video.views) }}</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+                        <p>{{ video.why_notable }}</p>
+
+                        {% if video.comment_sentiment %}
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
+                            <strong>Comment Sentiment:</strong> {{ video.comment_sentiment.overall|upper }}
+                            <div style="margin-top: 10px; display: flex; gap: 15px;">
+                                <span style="color: #90ee90;">👍 {{ video.comment_sentiment.positive_percent }}%</span>
+                                <span style="color: #ffa07a;">👎 {{ video.comment_sentiment.negative_percent }}%</span>
+                                <span style="color: #d4a574;">➖ {{ video.comment_sentiment.neutral_percent }}%</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">{{ video.comment_sentiment.summary }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if video.video_id %}
+                        <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank" class="watch-btn">
+                            ▶ Watch Now
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- Inline Ad 1 -->
+        <div class="inline-ad">
+            <h4>Electrolytes Made for Carnivores</h4>
+            <p>
+                No sugar, no fillers, just pure sodium, potassium, and magnesium.
+                Perfect for maintaining electrolyte balance on a meat-based diet.
+            </p>
+            <a href="#" class="ad-link">Try LMNT Risk-Free →</a>
+        </div>
+
+        <!-- Key Insights -->
+        <section class="section">
+            <h2>Butcher's Wisdom</h2>
+            <ul class="insights-list">
+                {% for insight in key_insights %}
+                <li>{{ insight }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- Community Voice -->
+        <section class="section">
+            <h2>Community Voice</h2>
+            <div class="sentiment">
+                <h3>Overall Mood: <span class="badge">{{ community_sentiment.overall_tone|upper }}</span></h3>
+
+                {% if community_sentiment.success_stories %}
+                <h3 style="margin-top: 30px;">Success Stories:</h3>
+                <ul class="questions-list">
+                    {% for story in community_sentiment.success_stories %}
+                    <li>
+                        {% if story is mapping %}
+                            {{ story.story }}
+                            <br>
+                            <em style="font-size: 0.9em; opacity: 0.8;">
+                                — {{ story.username }}
+                                {% if story.video_id %}
+                                on <a href="https://youtube.com/watch?v={{ story.video_id }}" target="_blank" style="color: #f4e4d4; text-decoration: underline;">{{ story.video_title }}</a>
+                                {% endif %}
+                            </em>
+                        {% else %}
+                            {{ story }}
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+
+            <!-- Q&A Section -->
+            {% if qa_section %}
+            <h3 style="margin-top: 40px; color: #2c1810; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
+            <p style="margin-bottom: 20px; font-style: italic; color: #2c1810;">Click any question to reveal the evidence-based answer with scientific citations</p>
+
+            <div class="qa-accordion">
+                {% for qa in qa_section %}
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        {{ qa.question }}
+                    </div>
+                    <div class="qa-answer">
+                        <p>{{ qa.answer }}</p>
+
+                        {% if qa.citations %}
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            {% for citation in qa.citations %}
+                            <div class="citation">
+                                <a href="{{ citation.url }}" target="_blank">{{ citation.title }}</a><br>
+                                <em>{{ citation.authors }} ({{ citation.year }})</em><br>
+                                <span style="color: #666;">{{ citation.summary }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if qa.caveats %}
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> {{ qa.caveats }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- Inline Ad 2 -->
+        <div class="inline-ad">
+            <h4>Carnivore-Friendly Cookware</h4>
+            <p>
+                Cast iron and stainless steel cookware perfect for searing steaks.
+                Built to last a lifetime. No toxic non-stick coatings.
+            </p>
+            <a href="#" class="ad-link">Shop Premium Cookware →</a>
+        </div>
+
+        <!-- Recommended Watching -->
+        <section class="section">
+            <h2>Must-Watch Content</h2>
+            <div class="video-grid">
+                {% for video in recommended_watching %}
+                <div class="video-card">
+                    <div class="video-header">
+                        <h3>
+                            {% if video.video_id %}
+                            <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                                {{ video.title }}
+                            </a>
+                            {% else %}
+                            {{ video.title }}
+                            {% endif %}
+                        </h3>
+                        <p class="creator">
+                            by
+                            {% if video.channel_id %}
+                            <a href="https://youtube.com/channel/{{ video.channel_id }}" target="_blank">
+                                {{ video.creator }}
+                            </a>
+                            {% else %}
+                            {{ video.creator }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="video-body">
+                        <p><strong>Why watch:</strong> {{ video.reason }}</p>
+
+                        {% if video.comment_sentiment %}
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
+                            <strong>Comment Sentiment:</strong> {{ video.comment_sentiment.overall|upper }}
+                            <div style="margin-top: 10px; display: flex; gap: 15px;">
+                                <span style="color: #90ee90;">👍 {{ video.comment_sentiment.positive_percent }}%</span>
+                                <span style="color: #ffa07a;">👎 {{ video.comment_sentiment.negative_percent }}%</span>
+                                <span style="color: #d4a574;">➖ {{ video.comment_sentiment.neutral_percent }}%</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">{{ video.comment_sentiment.summary }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if video.video_id %}
+                        <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank" class="watch-btn">
+                            ▶ Watch Now
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <!-- Medical Disclaimer -->
+    <div class="container">
+        <div class="disclaimer">
+            <h3>⚕ Medical Disclaimer</h3>
+            <p>
+                The information provided on this website is for educational and informational purposes only and is not intended as medical advice.
+                The content presented here, including diet recommendations, nutritional information, and health-related discussions, should not be
+                used as a substitute for professional medical advice, diagnosis, or treatment.
+            </p>
+            <p>
+                <strong>Always seek the advice of your physician or other qualified health provider</strong> with any questions you may have regarding
+                a medical condition or dietary changes. Never disregard professional medical advice or delay in seeking it because of something you have
+                read on this website. The carnivore diet may not be suitable for everyone, and individual results may vary.
+            </p>
+            <p>
+                Scientific research cited on this site is provided for informational purposes and should be evaluated in consultation with healthcare
+                professionals. Nutritional science is continually evolving, and what works for one person may not work for another.
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <div style="width: 100%; height: 200px; background-image: url('https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=1200&q=80'); background-size: cover; background-position: center; border-radius: 10px; margin-bottom: 30px; opacity: 0.6;"></div>
+        <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
+        <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
+        <p style="margin-top: 20px;">{{ total_creators }} Creators • {{ total_videos }} Videos • Powered by AI</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated {{ generation_timestamp }}</p>
+    </footer>
+
+    <script>
+        function toggleAnswer(element) {
+            // Toggle active class on question
+            element.classList.toggle('active');
+
+            // Get the answer div (next sibling)
+            const answer = element.nextElementSibling;
+
+            // Toggle active class on answer
+            answer.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
