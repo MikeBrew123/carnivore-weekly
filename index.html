@@ -198,6 +198,47 @@
             z-index: 1;
         }
 
+        .summary-with-image {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .summary-text {
+            font-size: 1.2em;
+            line-height: 2;
+            color: #1a120b;
+            background: rgba(255,255,255,0.4);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #8b4513;
+        }
+
+        .summary-image {
+            position: relative;
+            height: 100%;
+        }
+
+        .summary-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 3px solid #8b4513;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 968px) {
+            .summary-with-image {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-image {
+                height: 300px;
+            }
+        }
+
         .trending-topics {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -725,10 +766,15 @@
         <!-- Weekly Summary -->
         <section class="section">
             <h2>This Week's Roundup</h2>
-            <div class="summary">
-                This week in the carnivore diet community showcased a fascinating mix of practical advice for beginners and advanced optimization strategies. The dominant theme was 'starting fresh' or 'doing it right from the beginning,' with multiple creators including Steak and Butter Gal, Kelly Hogan, and Dr. Tony Hampton addressing common mistakes and offering refined approaches for 2026. There's a strong emphasis on sustainability and troubleshooting - from travel tips to gut health optimization. The community is actively debating the role of dairy in carnivore diets, with Dr. Anthony Chaffee taking a strict stance while others acknowledge it as a tool for adherence.
+            <div class="summary-with-image">
+                <div class="summary-text">
+                    This week in the carnivore diet community showcased a fascinating mix of practical advice for beginners and advanced optimization strategies. The dominant theme was 'starting fresh' or 'doing it right from the beginning,' with multiple creators including Steak and Butter Gal, Kelly Hogan, and Dr. Tony Hampton addressing common mistakes and offering refined approaches for 2026. There's a strong emphasis on sustainability and troubleshooting - from travel tips to gut health optimization. The community is actively debating the role of dairy in carnivore diets, with Dr. Anthony Chaffee taking a strict stance while others acknowledge it as a tool for adherence.
 
 A significant undercurrent this week involves gut health and fermented foods, with HomesteadHow's sauerkraut juice video generating massive engagement (157K views) and sparking discussions about probiotics and digestive optimization. Meanwhile, the community is pushing back against extreme restrictions, with practical voices like Dr. Tony Hampton emphasizing that ground beef can be just as effective as expensive ribeyes. Interestingly, there's also cross-community tension, with Dr. Layne Norton challenging carnivore claims about fiber and diabetes, creating a battleground in the comments sections between different dietary camps.
+                </div>
+                <div class="summary-image">
+                    <img src="https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=600&q=80" alt="Premium beef cuts">
+                </div>
             </div>
         </section>
 
@@ -1791,7 +1837,7 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
         <p style="margin-top: 20px;">10 Creators • 40 Videos • Powered by AI</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 10:24:40</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 10:27:00</p>
     </footer>
 
     <script>
