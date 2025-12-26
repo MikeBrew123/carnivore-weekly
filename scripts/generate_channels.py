@@ -16,6 +16,10 @@ from pathlib import Path
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # ============================================================================
 # CONFIGURATION
@@ -27,7 +31,7 @@ TEMPLATES_DIR = PROJECT_ROOT / 'templates'
 PUBLIC_DIR = PROJECT_ROOT / 'public'
 
 # YouTube API setup
-YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY', '')
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
 
 # ============================================================================
 # FEATURED CHANNELS GENERATOR CLASS
