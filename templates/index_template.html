@@ -28,6 +28,33 @@
 
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <title>Carnivore Weekly - The Meat-Eater's Digest | Weekly Carnivore Content Hub</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+
+        // Track affiliate link clicks
+        function trackAffiliateClick(product, link) {
+            gtag('event', 'click', {
+                'event_category': 'Affiliate',
+                'event_label': product,
+                'value': link
+            });
+        }
+
+        // Track YouTube video clicks
+        function trackVideoClick(videoTitle) {
+            gtag('event', 'click', {
+                'event_category': 'YouTube Video',
+                'event_label': videoTitle
+            });
+        }
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -908,7 +935,7 @@
                 No sugar, no fillers, just pure sodium, potassium, and magnesium.
                 Perfect for maintaining electrolyte balance on a meat-based diet.
             </p>
-            <a href="https://amzn.to/4ayLBG4" class="ad-link" target="_blank" rel="noopener">Try LMNT Risk-Free →</a>
+            <a href="https://amzn.to/4ayLBG4" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('LMNT Electrolytes', this.href)">Try LMNT Risk-Free →</a>
         </div>
 
         <!-- Key Insights -->
@@ -1000,7 +1027,7 @@
                 Cast iron and stainless steel cookware perfect for searing steaks.
                 Built to last a lifetime. No toxic non-stick coatings.
             </p>
-            <a href="https://amzn.to/4pYLqZx" class="ad-link" target="_blank" rel="noopener">Shop Premium Cookware →</a>
+            <a href="https://amzn.to/4pYLqZx" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('Lodge Cast Iron', this.href)">Shop Premium Cookware →</a>
         </div>
 
         <!-- Recommended Watching -->
