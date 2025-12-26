@@ -91,7 +91,8 @@ class ChannelsGenerator:
             'appearances': 0,
             'total_videos': 0,
             'latest_date': '',
-            'thumbnail_url': ''
+            'thumbnail_url': '',
+            'all_videos': []  # Track all videos to find top 3
         })
 
         # Get all archived weeks
@@ -111,13 +112,22 @@ class ChannelsGenerator:
                     for creator in data['creators_data']:
                         channel_name = creator['channel_name']
                         channel_id = creator['channel_id']
-                        # Count videos in the videos array
-                        video_count = len(creator.get('videos', []))
+                        videos = creator.get('videos', [])
+                        video_count = len(videos)
 
                         channel_stats[channel_id]['name'] = channel_name
                         channel_stats[channel_id]['channel_id'] = channel_id
                         channel_stats[channel_id]['appearances'] += 1
                         channel_stats[channel_id]['total_videos'] += video_count
+
+                        # Collect all videos for this channel
+                        for video in videos:
+                            channel_stats[channel_id]['all_videos'].append({
+                                'video_id': video.get('video_id', ''),
+                                'title': video.get('title', ''),
+                                'view_count': int(video.get('statistics', {}).get('view_count', 0)),
+                                'published_at': video.get('published_at', '')
+                            })
 
                         # Update latest date if this week is more recent
                         if not channel_stats[channel_id]['latest_date'] or week_date > channel_stats[channel_id]['latest_date']:
@@ -128,6 +138,16 @@ class ChannelsGenerator:
         # Convert to list and sort by appearances (descending)
         channels_list = list(channel_stats.values())
         channels_list.sort(key=lambda x: (x['appearances'], x['total_videos']), reverse=True)
+
+        # Get top 3 videos for each channel
+        print(f"\n🎬 Finding top videos for each channel...")
+        for channel in channels_list:
+            # Sort videos by view count and take top 3
+            all_videos = channel['all_videos']
+            all_videos.sort(key=lambda x: x['view_count'], reverse=True)
+            channel['top_videos'] = all_videos[:3]
+            # Remove the all_videos list as we don't need it in the template
+            del channel['all_videos']
 
         # Fetch thumbnails
         print(f"\n🖼️  Fetching channel thumbnails...")
