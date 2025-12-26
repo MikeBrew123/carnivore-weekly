@@ -94,6 +94,7 @@ class ContentAnalyzer:
             for video in creator['videos']:
                 video_info = f"\n### {video['title']}\n"
                 video_info += f"- Video ID: {video['video_id']}\n"
+                video_info += f"- Published: {video['published_at']}\n"
                 video_info += f"- Views: {video['statistics']['view_count']:,}\n"
                 video_info += f"- Likes: {video['statistics']['like_count']:,}\n"
                 video_info += f"- Comments: {video['statistics']['comment_count']:,}\n"
