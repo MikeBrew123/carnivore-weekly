@@ -46,9 +46,15 @@ echo "✓ Archive updated"
 echo ""
 
 # Step 7: Generate Channels Page
-echo "📺 Step 7/7: Updating featured channels..."
+echo "📺 Step 7/8: Updating featured channels..."
 python3 scripts/generate_channels.py
 echo "✓ Channels page updated"
+echo ""
+
+# Step 8: Generate Newsletter
+echo "📧 Step 8/8: Generating newsletter..."
+python3 scripts/generate_newsletter.py
+echo "✓ Newsletter generated"
 echo ""
 
 # Copy to root for GitHub Pages
