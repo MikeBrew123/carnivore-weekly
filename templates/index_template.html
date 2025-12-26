@@ -977,7 +977,7 @@
                                 {{ video.creator }}
                                 {% endif %}
                                 {% if video.published_at %}
-                                <br>On: {{ video.published_at[:10] }}
+                                <br>On: {{ video.published_at|format_date }}
                                 {% endif %}
                             </p>
                         </div>
@@ -1153,7 +1153,7 @@
                                 {{ video.creator }}
                                 {% endif %}
                                 {% if video.published_at %}
-                                <br>On: {{ video.published_at[:10] }}
+                                <br>On: {{ video.published_at|format_date }}
                                 {% endif %}
                             </p>
                         </div>
