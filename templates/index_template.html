@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name='impact-site-verification' value='165bca80-d4fc-46f0-8717-1c7589c6e98c'>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <title>Carnivore Weekly - The Meat-Eater's Digest</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -77,11 +78,18 @@
         }
 
         .logo {
-            max-width: 300px;
+            max-width: 180px;
             height: auto;
-            margin: 0 auto 20px auto;
+            margin: 0 auto 15px auto;
             display: block;
-            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+            opacity: 0.95;
+            filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4));
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                max-width: 140px;
+            }
         }
 
         header h1 {
