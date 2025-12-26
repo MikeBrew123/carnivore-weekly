@@ -41,6 +41,8 @@ echo ""
 
 # Copy to root for GitHub Pages
 cp public/index.html index.html
+cp -r public/images images/ 2>/dev/null || true
+cp public/favicon.ico favicon.ico 2>/dev/null || true
 echo "✓ Copied to root directory"
 echo ""
 
