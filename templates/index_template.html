@@ -379,6 +379,23 @@
             opacity: 0.9;
         }
 
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .video-thumbnail:hover {
+            opacity: 0.9;
+        }
+
+        .video-content {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+        }
+
         .video-card .creator a {
             color: #d4a574;
             text-decoration: none;
@@ -923,28 +940,37 @@
             <div class="video-grid">
                 {% for video in top_videos %}
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            {% if video.video_id %}
-                            <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                    {% if video.video_id %}
+                    <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                        <img src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg"
+                             alt="{{ video.title }}"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    {% endif %}
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                {% if video.video_id %}
+                                <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                                    {{ video.title }}
+                                </a>
+                                {% else %}
                                 {{ video.title }}
-                            </a>
-                            {% else %}
-                            {{ video.title }}
-                            {% endif %}
-                        </h3>
-                        <p class="creator">
-                            by
-                            {% if video.channel_id %}
-                            <a href="https://youtube.com/channel/{{ video.channel_id }}" target="_blank">
+                                {% endif %}
+                            </h3>
+                            <p class="creator">
+                                by
+                                {% if video.channel_id %}
+                                <a href="https://youtube.com/channel/{{ video.channel_id }}" target="_blank">
+                                    {{ video.creator }}
+                                </a>
+                                {% else %}
                                 {{ video.creator }}
-                            </a>
-                            {% else %}
-                            {{ video.creator }}
-                            {% endif %}
-                        </p>
-                    </div>
-                    <div class="video-body">
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="video-body">
                         <div class="stats">
                             <div class="stat">
                                 <div class="stat-value">{{ "{:,}".format(video.views) }}</div>
@@ -1086,28 +1112,37 @@
             <div class="video-grid">
                 {% for video in recommended_watching %}
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            {% if video.video_id %}
-                            <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                    {% if video.video_id %}
+                    <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                        <img src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg"
+                             alt="{{ video.title }}"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    {% endif %}
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                {% if video.video_id %}
+                                <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
+                                    {{ video.title }}
+                                </a>
+                                {% else %}
                                 {{ video.title }}
-                            </a>
-                            {% else %}
-                            {{ video.title }}
-                            {% endif %}
-                        </h3>
-                        <p class="creator">
-                            by
-                            {% if video.channel_id %}
-                            <a href="https://youtube.com/channel/{{ video.channel_id }}" target="_blank">
+                                {% endif %}
+                            </h3>
+                            <p class="creator">
+                                by
+                                {% if video.channel_id %}
+                                <a href="https://youtube.com/channel/{{ video.channel_id }}" target="_blank">
+                                    {{ video.creator }}
+                                </a>
+                                {% else %}
                                 {{ video.creator }}
-                            </a>
-                            {% else %}
-                            {{ video.creator }}
-                            {% endif %}
-                        </p>
-                    </div>
-                    <div class="video-body">
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="video-body">
                         <p><strong>Why watch:</strong> {{ video.reason }}</p>
 
                         {% if video.comment_sentiment %}
@@ -1127,6 +1162,7 @@
                             ▶ Watch Now
                         </a>
                         {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
