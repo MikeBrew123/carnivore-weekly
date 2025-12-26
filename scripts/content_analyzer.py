@@ -135,6 +135,7 @@ Please provide a comprehensive analysis in JSON format with the following struct
       "title": "Video title",
       "creator": "Creator name",
       "views": number,
+      "published_at": "published_at from data",
       "why_notable": "What makes this video stand out"
     }}
   ],
@@ -161,6 +162,7 @@ Please provide a comprehensive analysis in JSON format with the following struct
       "channel_id": "channel_id from data",
       "title": "Video title",
       "creator": "Creator name",
+      "published_at": "published_at from data",
       "reason": "Why viewers should watch this"
     }}
   ]
@@ -173,7 +175,7 @@ Focus on:
 4. Any notable success stories or testimonials?
 5. Which videos provide the most value to viewers?
 
-**IMPORTANT**: Make sure to include video_id and channel_id (from the data provided above) in top_videos and recommended_watching so we can create clickable links.
+**IMPORTANT**: Make sure to include video_id, channel_id, and published_at (from the data provided above) in top_videos and recommended_watching so we can create clickable links and show publish dates.
 
 Provide actionable, interesting insights that would help someone stay up-to-date with the carnivore diet community."""
 
