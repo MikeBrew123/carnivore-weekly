@@ -1,161 +1,290 @@
-# Carnivore Weekly - Automated Content Hub
+# Carnivore Weekly
 
-An automated content aggregation and generation system for carnivore diet YouTube content, research, and trends.
+**Your weekly digest of carnivore diet content from YouTube's top creators.**
 
-## Project Overview
+Automated content curation and analysis powered by AI. Every Monday, fresh carnivore content delivered to carnivoreweekly.com.
 
-This system automatically:
-- Collects weekly YouTube videos from top carnivore creators
-- Gathers latest research studies from PubMed
-- Analyzes news and trends
-- Generates comprehensive weekly summaries using Claude AI
-- Creates automated YouTube videos
-- Publishes to website
-- Distributes via social media and email
+---
+
+## What It Does
+
+Carnivore Weekly automatically:
+- 📺 **Collects** YouTube videos from top 10 carnivore creators (past 7 days)
+- 🧠 **Analyzes** content with Claude AI (summaries, insights, trends)
+- 💭 **Adds** sentiment analysis from comments
+- ❓ **Generates** Q&A section with scientific citations
+- 🌐 **Publishes** to carnivoreweekly.com
+- 📚 **Archives** past weeks automatically
+- 📊 **Ranks** channels by activity
+
+---
+
+## Live Site
+
+🔗 **https://carnivoreweekly.com**
+
+- **Home** - Current week's roundup
+- **About** - Story and mission
+- **Archive** - Browse past weeks
+- **Channels** - Top creators ranked by activity
+
+---
+
+## How It Works
+
+### Automated Weekly Workflow
+
+Every Monday (or on-demand):
+
+```bash
+./run_weekly_update.sh
+```
+
+This runs:
+1. `youtube_collector.py` - Fetch videos from past 7 days
+2. `content_analyzer.py` - Claude AI analyzes content
+3. `add_sentiment.py` - Sentiment analysis from comments
+4. `answer_questions.py` - Generate Q&A with citations
+5. `generate_pages.py` - Build HTML pages
+6. `generate_archive.py` - Archive current week
+7. `generate_channels.py` - Update channel rankings
+
+### Tech Stack
+
+- **Python 3.9** - Scripts and automation
+- **Claude AI (Anthropic)** - Content analysis
+- **YouTube Data API** - Video collection
+- **Jinja2** - HTML templating
+- **GitHub Actions** - Cloud automation
+- **GitHub Pages** - Free hosting
+
+---
 
 ## Project Structure
 
 ```
 carnivore-weekly/
-├── .github/
-│   └── workflows/          # GitHub Actions automation
 ├── scripts/
-│   ├── collect_youtube.py  # YouTube data collection
-│   ├── collect_research.py # Research paper scraping
-│   ├── collect_news.py     # News aggregation
-│   ├── analyze_content.py  # Claude AI analysis
-│   ├── generate_pages.py   # HTML generation
-│   ├── generate_video.py   # Video creation
-│   └── upload_youtube.py   # YouTube upload
+│   ├── youtube_collector.py      # Collect YouTube data
+│   ├── content_analyzer.py       # Claude AI analysis
+│   ├── add_sentiment.py          # Comment sentiment
+│   ├── answer_questions.py       # Q&A generation
+│   ├── generate_pages.py         # HTML generation
+│   ├── generate_archive.py       # Archive system
+│   └── generate_channels.py      # Channel rankings
 ├── templates/
-│   ├── weekly_update.html  # Weekly page template
-│   ├── creator_profile.html
-│   └── email_newsletter.html
+│   ├── index_template.html       # Main page template
+│   ├── archive_template.html     # Archive page
+│   ├── channels_template.html    # Channels page
+│   └── about.html                # About page
 ├── data/
-│   ├── youtube_data.json   # Collected data
-│   ├── research_data.json
-│   └── config.json         # Configuration
+│   ├── youtube_data.json         # Collected videos
+│   ├── analyzed_content.json     # AI analysis
+│   └── archive/                  # Past weeks
 ├── public/
-│   ├── index.html          # Homepage
-│   ├── weekly/             # Weekly updates
-│   ├── creators/           # Creator profiles
-│   ├── studies/            # Research summaries
-│   └── assets/             # CSS, JS, images
-└── README.md
-
+│   ├── index.html                # Generated homepage
+│   ├── archive.html              # Archive index
+│   ├── channels.html             # Channels page
+│   ├── about.html                # About page
+│   └── archive/                  # Individual weeks
+├── .github/workflows/
+│   └── update.yml                # GitHub Actions automation
+└── run_weekly_update.sh          # Main automation script
 ```
+
+---
 
 ## Setup
 
 ### Prerequisites
-- Python 3.11+
-- Node.js (for video generation - optional)
-- Git
+
+- Python 3.9+
+- YouTube Data API key
+- Anthropic (Claude) API key
+- Git & GitHub account
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone <your-repo-url>
-cd carnivore-weekly
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/MikeBrew123/carnivore-weekly.git
+   cd carnivore-weekly
+   ```
 
-2. Install Python dependencies:
-```bash
-pip install -r requirements.txt
-```
+2. **Install dependencies:**
+   ```bash
+   pip install google-api-python-client python-dotenv anthropic jinja2 requests
+   ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your API keys
-```
+3. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
 
-4. Configure data sources in `data/config.json`
+   Edit `.env` and add:
+   ```
+   YOUTUBE_API_KEY=your_youtube_api_key
+   ANTHROPIC_API_KEY=your_anthropic_api_key
+   ```
 
-### API Keys Needed
+4. **Configure channels** in `scripts/youtube_collector.py`:
+   - List of carnivore creator channel IDs
+   - Currently tracking top 10 creators
 
-- YouTube Data API v3
-- Anthropic Claude API
-- PubMed API (optional)
-- NewsAPI (optional)
-- Synthesia API (for video generation)
+---
 
 ## Usage
 
-### Manual Run
+### Run Locally (Mac)
 
 ```bash
-# Collect data
-python scripts/collect_youtube.py
-python scripts/collect_research.py
-
-# Generate content
-python scripts/analyze_content.py
-python scripts/generate_pages.py
-
-# Create video
-python scripts/generate_video.py
+cd /Users/mbrew/Developer/carnivore-weekly
+./run_weekly_update.sh
 ```
 
-### Automated Run (GitHub Actions)
+Wait 5-10 minutes, then:
+```bash
+open public/index.html  # Preview the site
+```
 
-The system runs automatically every Monday at 10 AM UTC via GitHub Actions.
+If satisfied:
+```bash
+git add .
+git commit -m "Weekly update - $(date +%Y-%m-%d)"
+git push
+```
+
+Site goes live at carnivoreweekly.com in ~1 minute!
+
+### Run from Phone (GitHub Actions)
+
+1. Open GitHub mobile app
+2. Go to carnivore-weekly repo
+3. Tap **Actions** → **Update**
+4. Tap **Run workflow**
+5. Wait 5-10 minutes
+6. Site updates automatically!
+
+Or set it to run automatically every Monday at 9 AM EST (see `update.yml`).
+
+---
+
+## What We've Built
+
+### ✅ Completed Features
+
+- [x] YouTube data collection (top 10 creators)
+- [x] Claude AI content analysis
+- [x] Sentiment analysis from comments
+- [x] Q&A section with scientific citations
+- [x] HTML generation with Jinja2 templates
+- [x] Archive system (saves past weeks)
+- [x] Channel ranking page
+- [x] Responsive leather-themed design
+- [x] GitHub Actions automation
+- [x] GitHub Pages deployment
+- [x] Google Analytics tracking
+- [x] Affiliate link integration (Amazon, ButcherBox pending)
+- [x] Phone trigger via GitHub mobile app
+- [x] Medical disclaimer
+- [x] About page with authentic story
+
+### 🎯 Future Ideas
+
+- [ ] Email newsletter (Mailchimp/ConvertKit)
+- [ ] Social media automation (Twitter/X posts)
+- [ ] Research paper integration (PubMed)
+- [ ] News aggregation
+- [ ] Video highlights/clips
+- [ ] Creator spotlights
+- [ ] Community features
+
+---
+
+## Monetization
+
+### Current Setup
+
+- **Amazon Associates** - Affiliate links for carnivore products (LMNT, cookware)
+- **ButcherBox** - Pending approval via Impact.com
+- **Google Analytics** - Tracking visitors and affiliate clicks
+
+### Potential Revenue
+
+With 1,000+ weekly visitors:
+- Affiliate commissions: $200-500/month
+- Ad placements: $100-300/month
+- Total: $300-800/month (passive)
+
+---
 
 ## Development
 
-### Running Locally
+### Testing Individual Scripts
 
 ```bash
-# Test individual scripts
-python scripts/collect_youtube.py --test
+# Test YouTube collection
+python3 scripts/youtube_collector.py
 
-# Preview generated pages
-python -m http.server 8000
+# Test Claude analysis
+python3 scripts/content_analyzer.py
+
+# Test page generation
+python3 scripts/generate_pages.py
+
+# View locally
+python3 -m http.server 8000
 # Visit http://localhost:8000/public/
 ```
 
-### Adding New Features
+### Making Changes
 
 1. Create feature branch
-2. Implement changes
-3. Test locally
-4. Submit pull request
+2. Make changes to scripts or templates
+3. Test locally with `./run_weekly_update.sh`
+4. Commit and push
+5. Site deploys automatically
+
+---
 
 ## Deployment
 
-### Vercel (Recommended)
+**GitHub Pages** (current setup):
+- Free hosting
+- Auto-deploys on push to main
+- Custom domain: carnivoreweekly.com
+- SSL/HTTPS included
 
-1. Connect GitHub repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy automatically on push to main
+**Alternative Options:**
+- Vercel - Free tier, faster builds
+- Netlify - Free tier, more features
+- CloudFlare Pages - Free tier, global CDN
 
-### Alternative: Netlify, DigitalOcean
-
-See deployment docs for specific instructions.
-
-## Roadmap
-
-- [x] Project structure
-- [ ] Data collection scripts
-- [ ] Claude AI integration
-- [ ] HTML generation
-- [ ] Video automation
-- [ ] GitHub Actions workflow
-- [ ] Website deployment
-- [ ] Email newsletter integration
-- [ ] Social media automation
+---
 
 ## License
 
-MIT
+MIT License - Do whatever you want with this code!
 
-## Contributing
-
-Contributions welcome! Please read CONTRIBUTING.md first.
+---
 
 ## Contact
 
-Your Name - your.email@example.com
+**Site:** https://carnivoreweekly.com
+**GitHub:** https://github.com/MikeBrew123/carnivore-weekly
+**Built by:** A firefighter who got tired of searching
 
-Project Link: [https://github.com/yourusername/carnivore-weekly](https://github.com/yourusername/carnivore-weekly)
+---
+
+## Acknowledgments
+
+- Built with Claude Code (Anthropic)
+- YouTube Data API v3
+- Claude AI for content analysis
+- Top carnivore creators for amazing content
+- Community for support and feedback
+
+---
+
+**Last Updated:** December 26, 2025
+**Status:** ✅ Live and automated
