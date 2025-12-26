@@ -14,10 +14,12 @@ Date: 2025-12-26
 
 import json
 import os
+import re
 from datetime import datetime
 from pathlib import Path
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from jinja2 import Environment, FileSystemLoader
 
 # Load environment variables
 load_dotenv()
@@ -30,8 +32,15 @@ PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / 'data'
 ARCHIVE_DIR = DATA_DIR / 'archive'
 OUTPUT_DIR = PROJECT_ROOT / 'newsletters'
+TEMPLATES_DIR = PROJECT_ROOT / 'templates'
 
 CURRENT_DATA = DATA_DIR / 'analyzed_content.json'
+
+# Affiliate Links
+AFFILIATE_LINKS = {
+    'lmnt': 'https://amzn.to/4ayLBG4',
+    'butcherbox': 'https://www.butcherbox.com',  # Update when approved
+}
 
 # ============================================================================
 # NEWSLETTER GENERATOR CLASS
@@ -310,6 +319,123 @@ P.S. - Reply to this email with questions or suggestions!
         return output_file
 
 
+    def parse_newsletter_sections(self, content):
+        """Parse AI-generated content into sections"""
+        sections = {}
+
+        # Extract subject line (first line after opening)
+        lines = content.strip().split('\n')
+        sections['subject_line'] = lines[0] if lines else "This Week's Carnivore Roundup"
+
+        # Simple parsing - split by section headers
+        sections['opening'] = self._extract_section(content, start_marker='', end_marker='📊')
+        sections['by_the_numbers'] = self._extract_section(content, start_marker='📊', end_marker='🚀')
+        sections['movers_shakers'] = self._extract_section(content, start_marker='🚀', end_marker='🔥')
+        sections['whats_trending'] = self._extract_section(content, start_marker='🔥', end_marker='💭')
+        sections['community_pulse'] = self._extract_section(content, start_marker='💭', end_marker='🔮')
+        sections['looking_ahead'] = self._extract_section(content, start_marker='🔮', end_marker='━━━')
+        sections['closing'] = self._extract_section(content, start_marker='━━━', end_marker=None)
+
+        return sections
+
+
+    def _extract_section(self, content, start_marker, end_marker):
+        """Extract text between two markers"""
+        try:
+            if start_marker:
+                start_idx = content.find(start_marker)
+                if start_idx == -1:
+                    return ""
+                # Find end of line after marker
+                start_idx = content.find('\n', start_idx) + 1
+            else:
+                start_idx = 0
+
+            if end_marker:
+                end_idx = content.find(end_marker, start_idx)
+                if end_idx == -1:
+                    end_idx = len(content)
+            else:
+                end_idx = len(content)
+
+            return content[start_idx:end_idx].strip()
+        except:
+            return ""
+
+
+    def generate_html_newsletter(self, content, current, stats):
+        """Generate HTML version of newsletter"""
+        print(f"\n🎨 Generating HTML newsletter...")
+
+        # Parse sections
+        sections = self.parse_newsletter_sections(content)
+
+        # Get featured videos
+        top_videos = current['analysis']['top_videos'][:3]
+        featured_videos = []
+
+        for video in top_videos:
+            featured_videos.append({
+                'url': f"https://youtube.com/watch?v={video['video_id']}",
+                'thumbnail': f"https://img.youtube.com/vi/{video['video_id']}/mqdefault.jpg",
+                'title': video['title'],
+                'creator': video['creator'],
+                'views': f"{video['views']:,}",
+                'date': video.get('published_at', '')[:10] if video.get('published_at') else ''
+            })
+
+        # Load template
+        env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
+        template = env.get_template('newsletter_template.html')
+
+        # Render HTML
+        html = template.render(
+            date=current['analysis_date'],
+            subject_line=sections.get('subject_line', 'This Week in Carnivore'),
+            opening=sections.get('opening', ''),
+            by_the_numbers=sections.get('by_the_numbers', ''),
+            movers_shakers=sections.get('movers_shakers', ''),
+            whats_trending=sections.get('whats_trending', ''),
+            community_pulse=sections.get('community_pulse', ''),
+            looking_ahead=sections.get('looking_ahead', ''),
+            closing=sections.get('closing', ''),
+            featured_video_1=featured_videos[0] if len(featured_videos) > 0 else None,
+            featured_video_2=featured_videos[1] if len(featured_videos) > 1 else None,
+            affiliate_link_lmnt=AFFILIATE_LINKS['lmnt'],
+            affiliate_link_butcherbox=AFFILIATE_LINKS['butcherbox'],
+            unsubscribe_link='{{ unsubscribe_url }}'  # Email service will replace
+        )
+
+        print("✓ HTML newsletter generated!")
+        return html
+
+
+    def save_html_newsletter(self, html, current_data):
+        """Save HTML newsletter"""
+        # Create output directory
+        OUTPUT_DIR.mkdir(exist_ok=True)
+
+        # Generate filename
+        date_str = current_data['analysis_date']
+        filename = f"newsletter_{date_str}.html"
+        output_file = OUTPUT_DIR / filename
+
+        # Save
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(html)
+
+        print(f"✓ HTML saved: {output_file}")
+
+        # Also save as "latest"
+        latest_file = OUTPUT_DIR / 'latest_newsletter.html'
+        with open(latest_file, 'w', encoding='utf-8') as f:
+            f.write(html)
+
+        print(f"✓ Latest HTML saved: {latest_file}")
+
+        return output_file
+
+
     def generate(self):
         """Main method to generate newsletter"""
         print("\n" + "="*70)
@@ -326,22 +452,27 @@ P.S. - Reply to this email with questions or suggestions!
         # Generate content with AI
         content = self.generate_newsletter_content(current, last_week, stats)
 
-        # Format newsletter
+        # Format plain text newsletter
         newsletter = self.format_newsletter(content, current, stats)
 
-        # Save
+        # Save plain text
         output_file = self.save_newsletter(newsletter, current)
+
+        # Generate HTML version
+        html = self.generate_html_newsletter(content, current, stats)
+        html_file = self.save_html_newsletter(html, current)
 
         print("\n" + "="*70)
         print("✓ NEWSLETTER GENERATION COMPLETE!")
         print("="*70)
-        print(f"\n📁 Newsletter saved to: {output_file}")
+        print(f"\n📁 Plain text: {output_file}")
+        print(f"📁 HTML: {html_file}")
         print(f"\n💡 Next steps:")
-        print(f"   1. Review: cat {output_file}")
-        print(f"   2. Send via email service (Mailchimp, ConvertKit, etc.)")
-        print(f"   3. Or integrate with API for automatic sending")
+        print(f"   1. Preview HTML: open {html_file}")
+        print(f"   2. Copy HTML to email service (Mailchimp, ConvertKit, etc.)")
+        print(f"   3. Or use plain text for simple email")
 
-        return output_file
+        return output_file, html_file
 
 
 # ============================================================================
