@@ -221,6 +221,53 @@
             margin-top: 10px;
         }
 
+        .top-videos {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #8b4513;
+        }
+
+        .top-videos-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2em;
+            color: #1a120b;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .video-link {
+            display: block;
+            padding: 10px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid rgba(139, 69, 19, 0.2);
+        }
+
+        .video-link:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateX(5px);
+            border-color: #8b4513;
+        }
+
+        .video-title {
+            color: #1a120b;
+            font-size: 0.95em;
+            line-height: 1.4;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .video-stats {
+            color: #2c1810;
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
         .back-link {
             display: inline-block;
             background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
@@ -308,6 +355,22 @@
                         <div class="stat-label">Videos</div>
                     </div>
                 </div>
+
+                {% if channel.top_videos %}
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    {% for video in channel.top_videos %}
+                    <a href="https://www.youtube.com/watch?v={{ video.video_id }}"
+                       class="video-link"
+                       target="_blank"
+                       rel="noopener"
+                       onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': '{{ channel.name }} - {{ video.title }}'});">
+                        <div class="video-title">{{ loop.index }}. {{ video.title }}</div>
+                        <div class="video-stats">{{ "{:,}".format(video.view_count) }} views</div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
                 <a href="https://www.youtube.com/channel/{{ channel.channel_id }}"
                    class="channel-link"
