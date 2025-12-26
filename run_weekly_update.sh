@@ -34,14 +34,22 @@ echo "✓ Q&A generated"
 echo ""
 
 # Step 5: Generate Website Pages
-echo "🎨 Step 5/5: Generating website..."
+echo "🎨 Step 5/6: Generating website..."
 python3 scripts/generate_pages.py
 echo "✓ Website generated"
 echo ""
 
+# Step 6: Generate Archive
+echo "📚 Step 6/6: Updating archive..."
+python3 scripts/generate_archive.py
+echo "✓ Archive updated"
+echo ""
+
 # Copy to root for GitHub Pages
 cp public/index.html index.html
+cp public/archive.html archive.html 2>/dev/null || true
 cp -r public/images images/ 2>/dev/null || true
+cp -r public/archive archive/ 2>/dev/null || true
 cp public/favicon.ico favicon.ico 2>/dev/null || true
 echo "✓ Copied to root directory"
 echo ""
