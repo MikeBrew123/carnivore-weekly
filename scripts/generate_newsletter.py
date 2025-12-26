@@ -34,6 +34,9 @@ ARCHIVE_DIR = DATA_DIR / 'archive'
 OUTPUT_DIR = PROJECT_ROOT / 'newsletters'
 TEMPLATES_DIR = PROJECT_ROOT / 'templates'
 
+# Google Drive path for n8n automation
+GOOGLE_DRIVE_PATH = Path('/Users/mbrew/Library/CloudStorage/GoogleDrive-iambrew@gmail.com/My Drive/Carnivore Weekly/Newsletters')
+
 CURRENT_DATA = DATA_DIR / 'analyzed_content.json'
 
 # Affiliate Links
@@ -370,8 +373,8 @@ P.S. - Reply to this email with questions or suggestions!
         # Parse sections
         sections = self.parse_newsletter_sections(content)
 
-        # Get featured videos
-        top_videos = current['analysis']['top_videos'][:3]
+        # Get featured videos (top 4-5)
+        top_videos = current['analysis']['top_videos'][:5]
         featured_videos = []
 
         for video in top_videos:
@@ -401,6 +404,8 @@ P.S. - Reply to this email with questions or suggestions!
             closing=sections.get('closing', ''),
             featured_video_1=featured_videos[0] if len(featured_videos) > 0 else None,
             featured_video_2=featured_videos[1] if len(featured_videos) > 1 else None,
+            featured_video_3=featured_videos[2] if len(featured_videos) > 2 else None,
+            featured_video_4=featured_videos[3] if len(featured_videos) > 3 else None,
             affiliate_link_lmnt=AFFILIATE_LINKS['lmnt'],
             affiliate_link_butcherbox=AFFILIATE_LINKS['butcherbox'],
             unsubscribe_link='{{ unsubscribe_url }}'  # Email service will replace
@@ -420,7 +425,7 @@ P.S. - Reply to this email with questions or suggestions!
         filename = f"newsletter_{date_str}.html"
         output_file = OUTPUT_DIR / filename
 
-        # Save
+        # Save to project folder
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(html)
 
@@ -432,6 +437,17 @@ P.S. - Reply to this email with questions or suggestions!
             f.write(html)
 
         print(f"✓ Latest HTML saved: {latest_file}")
+
+        # Save to Google Drive for n8n automation
+        try:
+            GOOGLE_DRIVE_PATH.mkdir(parents=True, exist_ok=True)
+            gdrive_file = GOOGLE_DRIVE_PATH / filename
+            with open(gdrive_file, 'w', encoding='utf-8') as f:
+                f.write(html)
+            print(f"✓ Saved to Google Drive: {gdrive_file}")
+            print(f"  → n8n will pick this up automatically!")
+        except Exception as e:
+            print(f"⚠ Could not save to Google Drive: {e}")
 
         return output_file
 

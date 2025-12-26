@@ -202,7 +202,7 @@
 
             <!-- By The Numbers -->
             <div class="section">
-                <div class="section-header">📊 BY THE NUMBERS</div>
+                <div class="section-header">BY THE NUMBERS</div>
                 <div class="section-content">
                     {{ by_the_numbers }}
                 </div>
@@ -234,17 +234,9 @@
 
             <!-- Movers & Shakers -->
             <div class="section">
-                <div class="section-header">🚀 MOVERS & SHAKERS</div>
+                <div class="section-header">MOVERS & SHAKERS</div>
                 <div class="section-content">
                     {{ movers_shakers }}
-                </div>
-            </div>
-
-            <!-- What's Trending -->
-            <div class="section">
-                <div class="section-header">🔥 WHAT'S TRENDING</div>
-                <div class="section-content">
-                    {{ whats_trending }}
                 </div>
             </div>
 
@@ -262,15 +254,51 @@
             </div>
             {% endif %}
 
+            <!-- What's Trending -->
+            <div class="section">
+                <div class="section-header">WHAT'S TRENDING</div>
+                <div class="section-content">
+                    {{ whats_trending }}
+                </div>
+            </div>
+
+            <!-- Featured Video #3 -->
+            {% if featured_video_3 %}
+            <div class="video-card">
+                <a href="{{ featured_video_3.url }}" target="_blank">
+                    <img src="{{ featured_video_3.thumbnail }}" alt="{{ featured_video_3.title }}" class="video-thumbnail">
+                </a>
+                <div class="video-info">
+                    <div class="video-title">{{ featured_video_3.title }}</div>
+                    <div class="video-creator">by {{ featured_video_3.creator }}</div>
+                    <div class="video-stats">{{ featured_video_3.views }} views • {{ featured_video_3.date }}</div>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="divider">• • •</div>
 
             <!-- Community Pulse -->
             <div class="section">
-                <div class="section-header">💭 COMMUNITY PULSE</div>
+                <div class="section-header">COMMUNITY PULSE</div>
                 <div class="section-content">
                     {{ community_pulse }}
                 </div>
             </div>
+
+            <!-- Featured Video #4 -->
+            {% if featured_video_4 %}
+            <div class="video-card">
+                <a href="{{ featured_video_4.url }}" target="_blank">
+                    <img src="{{ featured_video_4.thumbnail }}" alt="{{ featured_video_4.title }}" class="video-thumbnail">
+                </a>
+                <div class="video-info">
+                    <div class="video-title">{{ featured_video_4.title }}</div>
+                    <div class="video-creator">by {{ featured_video_4.creator }}</div>
+                    <div class="video-stats">{{ featured_video_4.views }} views • {{ featured_video_4.date }}</div>
+                </div>
+            </div>
+            {% endif %}
 
             <!-- Ad Block #2 -->
             <div class="ad-block">
@@ -284,7 +312,7 @@
 
             <!-- Looking Ahead -->
             <div class="section">
-                <div class="section-header">🔮 LOOKING AHEAD</div>
+                <div class="section-header">LOOKING AHEAD</div>
                 <div class="section-content">
                     {{ looking_ahead }}
                 </div>
