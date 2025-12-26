@@ -4,8 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name='impact-site-verification' value='165bca80-d4fc-46f0-8717-1c7589c6e98c'>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, expert insights, and community discussions. Stay updated on the latest in meat-based nutrition.">
+    <meta name="keywords" content="carnivore diet, meat-based diet, keto, animal-based nutrition, carnivore lifestyle, grass-fed beef, carnivore recipes, low-carb diet, metabolic health, YouTube carnivore">
+    <meta name="author" content="Carnivore Weekly">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://carnivoreweekly.com">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://carnivoreweekly.com">
+    <meta property="og:title" content="Carnivore Weekly - The Meat-Eater's Digest">
+    <meta property="og:description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, and expert insights on meat-based nutrition.">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://carnivoreweekly.com">
+    <meta name="twitter:title" content="Carnivore Weekly - The Meat-Eater's Digest">
+    <meta name="twitter:description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, and expert insights on meat-based nutrition.">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
+
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <title>Carnivore Weekly - The Meat-Eater's Digest</title>
+    <title>Carnivore Weekly - The Meat-Eater's Digest | Weekly Carnivore Content Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -80,8 +102,8 @@
         .logo {
             position: absolute;
             top: 20px;
-            right: 30px;
-            max-width: 360px;
+            right: 10px;
+            max-width: 450px;
             height: auto;
             opacity: 0.4;
             filter:
@@ -97,9 +119,9 @@
 
         @media (max-width: 768px) {
             .logo {
-                max-width: 180px;
+                max-width: 200px;
                 top: 15px;
-                right: 15px;
+                right: 5px;
             }
         }
 
@@ -196,6 +218,47 @@
             border-left: 5px solid #8b4513;
             position: relative;
             z-index: 1;
+        }
+
+        .summary-with-image {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .summary-text {
+            font-size: 1.2em;
+            line-height: 2;
+            color: #1a120b;
+            background: rgba(255,255,255,0.4);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #8b4513;
+        }
+
+        .summary-image {
+            position: relative;
+            height: 100%;
+        }
+
+        .summary-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 3px solid #8b4513;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 968px) {
+            .summary-with-image {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-image {
+                height: 300px;
+            }
         }
 
         .trending-topics {
@@ -635,6 +698,19 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
 
+        .sponsor-cta.coming-soon {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #d4a574;
+            cursor: default;
+            opacity: 0.85;
+        }
+
+        .sponsor-cta.coming-soon:hover {
+            transform: none;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            box-shadow: none;
+        }
+
         .inline-ad {
             background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
             border: 3px solid #8b4513;
@@ -719,16 +795,23 @@
                 Get 100% grass-fed, grass-finished beef from regenerative farms.
                 No hormones, no antibiotics, just clean protein the way nature intended.
             </p>
-            <a href="#" class="sponsor-cta">Get $20 Off Your First Box</a>
+            <div class="sponsor-cta coming-soon">
+                🔜 Coming Soon - Premium Meat Delivery Partnership
+            </div>
         </div>
 
         <!-- Weekly Summary -->
         <section class="section">
             <h2>This Week's Roundup</h2>
-            <div class="summary">
-                This week in the carnivore diet community showcased a fascinating mix of practical advice for beginners and advanced optimization strategies. The dominant theme was 'starting fresh' or 'doing it right from the beginning,' with multiple creators including Steak and Butter Gal, Kelly Hogan, and Dr. Tony Hampton addressing common mistakes and offering refined approaches for 2026. There's a strong emphasis on sustainability and troubleshooting - from travel tips to gut health optimization. The community is actively debating the role of dairy in carnivore diets, with Dr. Anthony Chaffee taking a strict stance while others acknowledge it as a tool for adherence.
+            <div class="summary-with-image">
+                <div class="summary-text">
+                    This week in the carnivore diet community showcased a fascinating mix of practical advice for beginners and advanced optimization strategies. The dominant theme was 'starting fresh' or 'doing it right from the beginning,' with multiple creators including Steak and Butter Gal, Kelly Hogan, and Dr. Tony Hampton addressing common mistakes and offering refined approaches for 2026. There's a strong emphasis on sustainability and troubleshooting - from travel tips to gut health optimization. The community is actively debating the role of dairy in carnivore diets, with Dr. Anthony Chaffee taking a strict stance while others acknowledge it as a tool for adherence.
 
 A significant undercurrent this week involves gut health and fermented foods, with HomesteadHow's sauerkraut juice video generating massive engagement (157K views) and sparking discussions about probiotics and digestive optimization. Meanwhile, the community is pushing back against extreme restrictions, with practical voices like Dr. Tony Hampton emphasizing that ground beef can be just as effective as expensive ribeyes. Interestingly, there's also cross-community tension, with Dr. Layne Norton challenging carnivore claims about fiber and diabetes, creating a battleground in the comments sections between different dietary camps.
+                </div>
+                <div class="summary-image">
+                    <img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&q=80" alt="Premium ribeye steak">
+                </div>
             </div>
         </section>
 
@@ -1114,7 +1197,7 @@ A significant undercurrent this week involves gut health and fermented foods, wi
                 No sugar, no fillers, just pure sodium, potassium, and magnesium.
                 Perfect for maintaining electrolyte balance on a meat-based diet.
             </p>
-            <a href="#" class="ad-link">Try LMNT Risk-Free →</a>
+            <a href="https://amzn.to/4ayLBG4" class="ad-link" target="_blank" rel="noopener">Try LMNT Risk-Free →</a>
         </div>
 
         <!-- Key Insights -->
@@ -1791,7 +1874,7 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
         <p style="margin-top: 20px;">10 Creators • 40 Videos • Powered by AI</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 10:21:16</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 10:38:10</p>
     </footer>
 
     <script>
