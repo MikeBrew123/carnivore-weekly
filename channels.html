@@ -49,21 +49,67 @@
             color: #f4e4d4;
             padding: 60px 0 40px 0;
             margin-bottom: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.5),
+                inset 0 2px 0 rgba(255,255,255,0.1);
             border-bottom: 4px solid #8b4513;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        header > .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            right: 10px;
+            max-width: 450px;
+            height: auto;
+            opacity: 0.4;
+            filter:
+                sepia(0.8)
+                brightness(0.6)
+                contrast(1.5)
+                drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))
+                drop-shadow(-1px -1px 2px rgba(255, 255, 255, 0.1));
+            transform: rotate(12deg);
+            mix-blend-mode: multiply;
+            z-index: 2;
         }
 
         header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 3.5em;
-            text-align: center;
+            font-size: 4.5em;
             margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #f4e4d4;
         }
 
         header p {
             text-align: center;
             font-size: 1.2em;
             opacity: 0.9;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .container {
@@ -337,6 +383,12 @@
         }
 
         @media (max-width: 768px) {
+            .logo {
+                max-width: 200px;
+                top: 15px;
+                right: 5px;
+            }
+
             header h1 {
                 font-size: 2em;
             }
@@ -354,6 +406,7 @@
 <body>
     <header>
         <div class="container">
+            <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>FEATURED CHANNELS</h1>
             <p>The Most Active Carnivore Content Creators</p>
         </div>
@@ -1032,7 +1085,7 @@
     <footer>
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 12:21:10</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 12:25:06</p>
     </footer>
 </body>
 </html>
