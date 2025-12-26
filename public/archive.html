@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse past weekly carnivore diet content roundups. Archive of all Carnivore Weekly digests with top videos, trending topics, and community insights.">
+    <link rel="canonical" href="https://carnivoreweekly.com/archive.html">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Archive - Carnivore Weekly</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Merriweather', serif;
+            line-height: 1.8;
+            color: #2c1810;
+            background: #1a120b;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(58, 35, 23, 0.7), rgba(58, 35, 23, 0.7));
+            z-index: -1;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+            color: #f4e4d4;
+            padding: 60px 0 40px 0;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-bottom: 4px solid #8b4513;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        header p {
+            text-align: center;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .archive-stats {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #8b4513;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .archive-stats h2 {
+            font-family: 'Playfair Display', serif;
+            color: #1a120b;
+            margin-bottom: 15px;
+        }
+
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .week-card {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .week-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .week-date {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: #1a120b;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #8b4513;
+        }
+
+        .week-meta {
+            font-size: 0.95em;
+            color: #2c1810;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .week-preview {
+            font-size: 1em;
+            color: #1a120b;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .week-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .week-link:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            color: #1a120b;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid #8b4513;
+            margin: 40px 0;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: linear-gradient(135deg, #c49a6c 0%, #b8936a 100%);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #d4a574;
+            border-top: 3px solid #8b4513;
+            margin-top: 60px;
+        }
+
+        footer a {
+            color: #d4a574;
+            text-decoration: none;
+            border-bottom: 2px solid #8b4513;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .week-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>ARCHIVE</h1>
+            <p>Browse Past Weekly Roundups</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="archive-stats">
+            <h2>1 Weeks of Carnivore Content</h2>
+            <p>Every Monday, we curate the best carnivore diet content from YouTube. Browse past weeks below.</p>
+        </div>
+
+        <div class="week-grid">
+            
+            <div class="week-card">
+                <div class="week-date">Week of 2025-12-26</div>
+                <div class="week-meta">
+                    10 Creators • 40 Videos
+                </div>
+                <div class="week-preview">
+                    This week in the carnivore diet community showcased a fascinating mix of practical advice for beginners and advanced optimization strategies. The dominant theme was 'starting fresh' or 'doing it right...
+                </div>
+                <a href="archive/2025-12-26.html" class="week-link">View Full Roundup →</a>
+            </div>
+            
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Current Week</a>
+    </div>
+
+    <footer>
+        <p>Carnivore Weekly - Your Weekly Digest</p>
+        <p style="margin-top: 10px;"><a href="index.html">Home</a> • <a href="about.html">About</a> • <a href="archive.html">Archive</a></p>
+    </footer>
+</body>
+</html>
