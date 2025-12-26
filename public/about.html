@@ -183,6 +183,48 @@
             padding: 30px;
             color: #d4a574;
             font-size: 0.9em;
+            border-top: 3px solid #8b4513;
+            margin-top: 60px;
+        }
+
+        footer a {
+            color: #d4a574;
+            text-decoration: none;
+            border-bottom: 2px solid #8b4513;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-left: none;
+            border-right: none;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .nav-menu a {
+            color: #1a120b;
+            text-decoration: none;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            padding: 10px 20px;
+            margin: 0 5px;
+            display: inline-block;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu a:hover {
+            border-bottom-color: #8b4513;
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            border-bottom-color: #8b4513;
         }
 
         @media (max-width: 768px) {
@@ -212,6 +254,14 @@
             <h1>ABOUT</h1>
         </div>
     </header>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <a href="index.html">Home</a>
+        <a href="about.html" class="active">About</a>
+        <a href="archive.html">Archive</a>
+        <a href="channels.html">Channels</a>
+    </nav>
 
     <div class="container">
         <div class="content">
@@ -267,13 +317,20 @@
 
             <p><strong>This is carnivore content, unfiltered and uncurated for bias—just organized for convenience.</strong></p>
 
-            <a href="index.html" class="back-link">← Back to This Week's Roundup</a>
         </div>
     </div>
 
+    <!-- Bottom Navigation Menu -->
+    <nav class="nav-menu" style="margin-top: 60px;">
+        <a href="index.html">Home</a>
+        <a href="about.html" class="active">About</a>
+        <a href="archive.html">Archive</a>
+        <a href="channels.html">Channels</a>
+    </nav>
+
     <footer>
         <p>Carnivore Weekly - Built by a firefighter who got tired of searching.</p>
-        <p>© 2025 Carnivore Weekly | <a href="index.html" style="color: #d4a574;">Home</a> • <a href="about.html" style="color: #d4a574;">About</a> • <a href="archive.html" style="color: #d4a574;">Archive</a> • <a href="channels.html" style="color: #d4a574;">Channels</a></p>
+        <p style="margin-top: 10px;">© 2025 Carnivore Weekly</p>
     </footer>
 </body>
 </html>
