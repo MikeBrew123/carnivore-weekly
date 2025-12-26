@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name='impact-site-verification' value='165bca80-d4fc-46f0-8717-1c7589c6e98c'>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <title>Carnivore Weekly - The Meat-Eater's Digest</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -77,11 +78,29 @@
         }
 
         .logo {
-            max-width: 300px;
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            max-width: 120px;
             height: auto;
-            margin: 0 auto 20px auto;
-            display: block;
-            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+            opacity: 0.4;
+            filter:
+                sepia(0.8)
+                brightness(0.6)
+                contrast(1.5)
+                drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))
+                drop-shadow(-1px -1px 2px rgba(255, 255, 255, 0.1));
+            transform: rotate(-12deg);
+            mix-blend-mode: multiply;
+            z-index: 2;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                max-width: 80px;
+                top: 15px;
+                right: 15px;
+            }
         }
 
         header h1 {
@@ -1772,7 +1791,7 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
         <p style="margin-top: 20px;">10 Creators • 40 Videos • Powered by AI</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 10:03:44</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 10:16:55</p>
     </footer>
 
     <script>

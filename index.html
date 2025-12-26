@@ -78,17 +78,28 @@
         }
 
         .logo {
-            max-width: 180px;
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            max-width: 120px;
             height: auto;
-            margin: 0 auto 15px auto;
-            display: block;
-            opacity: 0.95;
-            filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4));
+            opacity: 0.4;
+            filter:
+                sepia(0.8)
+                brightness(0.6)
+                contrast(1.5)
+                drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))
+                drop-shadow(-1px -1px 2px rgba(255, 255, 255, 0.1));
+            transform: rotate(-12deg);
+            mix-blend-mode: multiply;
+            z-index: 2;
         }
 
         @media (max-width: 768px) {
             .logo {
-                max-width: 140px;
+                max-width: 80px;
+                top: 15px;
+                right: 15px;
             }
         }
 
@@ -1780,7 +1791,7 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
         <p style="margin-top: 20px;">10 Creators • 40 Videos • Powered by AI</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 10:07:42</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 10:16:55</p>
     </footer>
 
     <script>
