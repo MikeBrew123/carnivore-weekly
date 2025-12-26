@@ -40,14 +40,21 @@ echo "✓ Website generated"
 echo ""
 
 # Step 6: Generate Archive
-echo "📚 Step 6/6: Updating archive..."
+echo "📚 Step 6/7: Updating archive..."
 python3 scripts/generate_archive.py
 echo "✓ Archive updated"
+echo ""
+
+# Step 7: Generate Channels Page
+echo "📺 Step 7/7: Updating featured channels..."
+python3 scripts/generate_channels.py
+echo "✓ Channels page updated"
 echo ""
 
 # Copy to root for GitHub Pages
 cp public/index.html index.html
 cp public/archive.html archive.html 2>/dev/null || true
+cp public/channels.html channels.html 2>/dev/null || true
 cp -r public/images images/ 2>/dev/null || true
 cp -r public/archive archive/ 2>/dev/null || true
 cp public/favicon.ico favicon.ico 2>/dev/null || true
