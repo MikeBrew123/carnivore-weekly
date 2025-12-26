@@ -976,6 +976,9 @@
                                 {% else %}
                                 {{ video.creator }}
                                 {% endif %}
+                                {% if video.published_at %}
+                                <br>On: {{ video.published_at[:10] }}
+                                {% endif %}
                             </p>
                         </div>
                         <div class="video-body">
@@ -1148,6 +1151,9 @@
                                 </a>
                                 {% else %}
                                 {{ video.creator }}
+                                {% endif %}
+                                {% if video.published_at %}
+                                <br>On: {{ video.published_at[:10] }}
                                 {% endif %}
                             </p>
                         </div>
