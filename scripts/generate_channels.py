@@ -45,6 +45,21 @@ class ChannelsGenerator:
     def __init__(self):
         """Initialize the Jinja2 environment"""
         self.env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
+
+        # Add custom filter for date formatting
+        def format_date(date_str):
+            """Format ISO date string to 'Dec 23/25' format"""
+            if not date_str or date_str == 'N/A':
+                return 'N/A'
+            try:
+                # Parse ISO format date (e.g., "2025-12-23T22:25:13Z")
+                dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                # Format as "Dec 23/25"
+                return dt.strftime('%b %-d/%y')
+            except:
+                return date_str[:10]  # Fallback to YYYY-MM-DD
+
+        self.env.filters['format_date'] = format_date
         print("✓ Channels generator initialized")
 
 

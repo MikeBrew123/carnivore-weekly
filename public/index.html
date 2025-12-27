@@ -104,7 +104,7 @@
                 inset 0 2px 0 rgba(255,255,255,0.1);
             border-bottom: 4px solid #8b4513;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         header::after {
@@ -128,27 +128,28 @@
 
         .logo {
             position: absolute;
-            top: 20px;
-            right: 10px;
-            max-width: 450px;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
             height: auto;
-            opacity: 0.4;
+            opacity: 0.95;
             filter:
                 sepia(0.8)
-                brightness(0.6)
+                brightness(0.85)
                 contrast(1.5)
-                drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))
-                drop-shadow(-1px -1px 2px rgba(255, 255, 255, 0.1));
-            transform: rotate(12deg);
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
             mix-blend-mode: multiply;
-            z-index: 2;
+            z-index: 0;
         }
 
         @media (max-width: 768px) {
             .logo {
-                max-width: 200px;
-                top: 15px;
-                right: 5px;
+                max-width: 250px;
+                top: -30px;
+                right: -40px;
+                transform: rotate(25deg);
             }
         }
 
@@ -161,6 +162,8 @@
             font-weight: 900;
             letter-spacing: 3px;
             color: #f4e4d4;
+            position: relative;
+            z-index: 10;
         }
 
         header .subtitle {
@@ -170,6 +173,8 @@
             font-style: italic;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             margin-bottom: 10px;
+            position: relative;
+            z-index: 10;
         }
 
         header .tagline {
@@ -184,6 +189,8 @@
             padding: 10px;
             margin: 20px auto 0;
             max-width: 600px;
+            position: relative;
+            z-index: 10;
         }
 
         header .update-date {
@@ -192,6 +199,8 @@
             font-size: 1em;
             opacity: 0.7;
             letter-spacing: 1px;
+            position: relative;
+            z-index: 10;
         }
 
         /* Leather-textured sections */
@@ -458,22 +467,38 @@
         }
 
         .insights-list li {
-            padding: 20px;
+            padding: 25px 25px 25px 60px;
             margin-bottom: 20px;
-            background: rgba(139, 69, 19, 0.3);
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.4) 0%, rgba(139, 69, 19, 0.2) 100%);
             border-left: 6px solid #8b4513;
             border-radius: 8px;
             font-size: 1.1em;
             position: relative;
             z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .insights-list li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
         .insights-list li::before {
-            content: "• ";
-            margin-right: 12px;
-            font-size: 1.3em;
-            font-weight: 900;
+            content: "🔪";
+            position: absolute;
+            left: 20px;
+            font-size: 1.8em;
+            top: 50%;
+            transform: translateY(-50%);
         }
+
+        /* Rotate through different kitchen icons */
+        .insights-list li:nth-child(5n+1)::before { content: "🔪"; }
+        .insights-list li:nth-child(5n+2)::before { content: "🥩"; }
+        .insights-list li:nth-child(5n+3)::before { content: "🔥"; }
+        .insights-list li:nth-child(5n+4)::before { content: "⚖️"; }
+        .insights-list li:nth-child(5n+5)::before { content: "🧂"; }
 
         .sentiment {
             background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
@@ -535,8 +560,9 @@
             border-left: none;
             border-right: none;
             padding: 20px 0;
+            margin-bottom: 50px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .nav-menu a {
@@ -576,14 +602,17 @@
         }
 
         .watch-btn {
-            display: inline-block;
+            display: block;
+            width: 100%;
             background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
             color: #1a120b;
-            padding: 12px 30px;
+            padding: 16px 30px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 700;
+            font-size: 16px;
             margin-top: 15px;
+            text-align: center;
             transition: all 0.3s;
             border: 2px solid #8b4513;
             text-transform: uppercase;
@@ -1362,6 +1391,11 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
         <!-- Key Insights -->
         <section class="section">
             <h2>Butcher's Wisdom</h2>
+            <div class="section-intro">
+                <p style="font-size: 1.2em; color: #2c1810; line-height: 1.8; margin-bottom: 30px; font-style: italic; border-left: 4px solid #8b4513; padding-left: 20px; background: rgba(255,255,255,0.3); padding: 20px;">
+                    <strong>Sharp insights, expertly cut.</strong> The week's most important takeaways distilled from hours of carnivore content — what you need to know, trimmed of the fat.
+                </p>
+            </div>
             <ul class="insights-list">
                 
                 <li>The community is shifting from 'carnivore evangelism' to 'carnivore optimization' - people want to fine-tune results rather than just start the diet</li>
@@ -1864,7 +1898,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
         <p style="margin-top: 20px;">10 Creators • 40 Videos • Powered by AI</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 15:03:08</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 17:42:40</p>
     </footer>
 
     <script>
