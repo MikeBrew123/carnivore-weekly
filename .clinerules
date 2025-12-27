@@ -1,0 +1,53 @@
+# Claude Code Rules for Carnivore Weekly
+# This file contains project-specific instructions and preferences
+
+## Project Context
+This is carnivoreweekly.com - a weekly newsletter analyzing trending carnivore diet content from YouTube.
+- **Website:** https://carnivoreweekly.com
+- **Tech Stack:** Python, Jinja2, Claude AI, YouTube API
+- **Deployment:** GitHub Pages (auto-deploys from /public folder)
+
+## User Preferences
+- **Design Philosophy:** Clean, minimal, avoid over-engineering
+- **Emoji Usage:** Minimal - only when explicitly requested, prefer custom images/icons
+- **Commit Messages:** Include "🤖 Generated with Claude Code" footer
+- **Communication Style:** Direct, concise, professional - avoid excessive praise
+
+## Automation
+- **Weekly Update:** Runs every Monday via GitHub Actions
+  - Fetches latest YouTube videos
+  - Generates AI-powered content analysis
+  - Creates newsletter
+  - Auto-commits and deploys
+
+## Design Guidelines
+- **Navigation:** 50px margin-bottom for breathing room, dual shadow for depth
+- **Logo:** Positioned at top: -100px, right: -140px, 28deg rotation, z-index: 0
+- **Butcher's Wisdom Icons:** Rotating pattern (🔪🥩🔥⚖️🧂)
+- **Container Width:** 1200px max-width (consistent across all pages)
+- **Watch Now Buttons:** Full-width, 16px padding
+
+## File Structure
+- `/public/` - Generated static site (deployed to web)
+- `/templates/` - Jinja2 HTML templates
+- `/scripts/` - Python content generation scripts
+- `/data/` - JSON data files
+- `/newsletters/` - Generated newsletter HTML
+- `/screenshots/` - Playwright screenshots for design feedback
+
+## Affiliate Links
+- ButcherBox: https://www.butcherbox.com
+- LMNT: https://amzn.to/4ayLBG4
+
+## Common Tasks
+- **Regenerate site:** `python3 scripts/generate_pages.py`
+- **Create newsletter:** `python3 scripts/generate_newsletter.py`
+- **Update archive:** `python3 scripts/generate_archive.py`
+- **Weekly update:** `./run_weekly_update.sh`
+- **Deploy:** Auto-deploys on push to main
+
+## Important Notes
+- Always regenerate pages after template changes
+- Test changes locally before deploying
+- Keep design consistent across all pages (index, about, archive, channels)
+- Use Playwright screenshots for visual verification

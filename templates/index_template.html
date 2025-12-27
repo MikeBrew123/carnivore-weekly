@@ -537,6 +537,27 @@
             font-weight: 700;
         }
 
+        /* Feedback Button */
+        .feedback-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid #d4a574;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+
+        .feedback-btn:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
         footer {
             text-align: center;
             padding: 40px;
@@ -1253,6 +1274,11 @@
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
         <p style="margin-top: 20px;">{{ total_creators }} Creators • {{ total_videos }} Videos • Powered by AI</p>
+        <p style="margin-top: 30px;">
+            <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn">
+                💬 Share Your Feedback
+            </a>
+        </p>
         <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated {{ generation_timestamp }}</p>
     </footer>
 
