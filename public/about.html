@@ -53,7 +53,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border-bottom: 4px solid #8b4513;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         header::after {
@@ -77,29 +77,45 @@
 
         .logo {
             position: absolute;
-            top: 20px;
-            right: 10px;
-            max-width: 450px;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
             height: auto;
-            opacity: 0.4;
-            filter: sepia(0.8) brightness(0.6) contrast(1.5) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
-            transform: rotate(12deg);
+            opacity: 0.95;
+            filter:
+                sepia(0.8)
+                brightness(0.85)
+                contrast(1.5)
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
             mix-blend-mode: multiply;
-            z-index: 2;
+            z-index: 0;
         }
 
         header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 3.5em;
+            font-size: 4.5em;
             font-weight: 900;
             letter-spacing: 3px;
             text-align: center;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
             margin-bottom: 15px;
+            position: relative;
+            z-index: 10;
+        }
+
+        header p {
+            text-align: center;
+            font-size: 1.2em;
+            opacity: 0.9;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 10;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
@@ -200,8 +216,9 @@
             border-left: none;
             border-right: none;
             padding: 20px 0;
+            margin-bottom: 50px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .nav-menu a {
@@ -252,6 +269,7 @@
         <div class="container">
             <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>ABOUT</h1>
+            <p>Your Weekly Carnivore Content Digest</p>
         </div>
     </header>
 

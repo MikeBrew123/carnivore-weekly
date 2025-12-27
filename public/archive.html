@@ -54,7 +54,7 @@
                 inset 0 2px 0 rgba(255,255,255,0.1);
             border-bottom: 4px solid #8b4513;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         header::after {
@@ -78,20 +78,20 @@
 
         .logo {
             position: absolute;
-            top: 20px;
-            right: 10px;
-            max-width: 450px;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
             height: auto;
-            opacity: 0.4;
+            opacity: 0.95;
             filter:
                 sepia(0.8)
-                brightness(0.6)
+                brightness(0.85)
                 contrast(1.5)
-                drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))
-                drop-shadow(-1px -1px 2px rgba(255, 255, 255, 0.1));
-            transform: rotate(12deg);
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
             mix-blend-mode: multiply;
-            z-index: 2;
+            z-index: 0;
         }
 
         header h1 {
@@ -103,6 +103,8 @@
             font-weight: 900;
             letter-spacing: 3px;
             color: #f4e4d4;
+            position: relative;
+            z-index: 10;
         }
 
         header p {
@@ -110,6 +112,8 @@
             font-size: 1.2em;
             opacity: 0.9;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 10;
         }
 
         .container {
@@ -232,8 +236,9 @@
             border-left: none;
             border-right: none;
             padding: 20px 0;
+            margin-bottom: 50px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .nav-menu a {
@@ -307,7 +312,7 @@
                     10 Creators • 40 Videos
                 </div>
                 <div class="week-preview">
-                    This week in the carnivore diet community showcased a fascinating mix of practical advice for beginners and advanced optimization strategies. The dominant theme was 'starting fresh' or 'doing it right...
+                    This week's carnivore diet content reveals a maturing community grappling with optimization and sustainability. While weight loss and health transformations remain core themes, creators are increasing...
                 </div>
                 <a href="archive/2025-12-26.html" class="week-link">View Full Roundup →</a>
             </div>

@@ -104,7 +104,7 @@
                 inset 0 2px 0 rgba(255,255,255,0.1);
             border-bottom: 4px solid #8b4513;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         header::after {
@@ -128,27 +128,28 @@
 
         .logo {
             position: absolute;
-            top: 20px;
-            right: 10px;
-            max-width: 450px;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
             height: auto;
-            opacity: 0.4;
+            opacity: 0.95;
             filter:
                 sepia(0.8)
-                brightness(0.6)
+                brightness(0.85)
                 contrast(1.5)
-                drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))
-                drop-shadow(-1px -1px 2px rgba(255, 255, 255, 0.1));
-            transform: rotate(12deg);
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
             mix-blend-mode: multiply;
-            z-index: 2;
+            z-index: 0;
         }
 
         @media (max-width: 768px) {
             .logo {
-                max-width: 200px;
-                top: 15px;
-                right: 5px;
+                max-width: 250px;
+                top: -30px;
+                right: -40px;
+                transform: rotate(25deg);
             }
         }
 
@@ -161,6 +162,8 @@
             font-weight: 900;
             letter-spacing: 3px;
             color: #f4e4d4;
+            position: relative;
+            z-index: 10;
         }
 
         header .subtitle {
@@ -170,6 +173,8 @@
             font-style: italic;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             margin-bottom: 10px;
+            position: relative;
+            z-index: 10;
         }
 
         header .tagline {
@@ -184,6 +189,8 @@
             padding: 10px;
             margin: 20px auto 0;
             max-width: 600px;
+            position: relative;
+            z-index: 10;
         }
 
         header .update-date {
@@ -192,6 +199,8 @@
             font-size: 1em;
             opacity: 0.7;
             letter-spacing: 1px;
+            position: relative;
+            z-index: 10;
         }
 
         /* Leather-textured sections */
@@ -330,9 +339,21 @@
 
         .video-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 30px;
+            grid-template-columns: 1fr;
+            gap: 20px;
             margin-top: 25px;
+        }
+
+        @media (min-width: 600px) {
+            .video-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1000px) {
+            .video-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
         .video-card {
@@ -377,6 +398,23 @@
         .video-card .creator {
             font-size: 1em;
             opacity: 0.9;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .video-thumbnail:hover {
+            opacity: 0.9;
+        }
+
+        .video-content {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
         }
 
         .video-card .creator a {
@@ -429,22 +467,38 @@
         }
 
         .insights-list li {
-            padding: 20px;
+            padding: 25px 25px 25px 60px;
             margin-bottom: 20px;
-            background: rgba(139, 69, 19, 0.3);
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.4) 0%, rgba(139, 69, 19, 0.2) 100%);
             border-left: 6px solid #8b4513;
             border-radius: 8px;
             font-size: 1.1em;
             position: relative;
             z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .insights-list li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
         .insights-list li::before {
-            content: "• ";
-            margin-right: 12px;
-            font-size: 1.3em;
-            font-weight: 900;
+            content: "🔪";
+            position: absolute;
+            left: 20px;
+            font-size: 1.8em;
+            top: 50%;
+            transform: translateY(-50%);
         }
+
+        /* Rotate through different kitchen icons */
+        .insights-list li:nth-child(5n+1)::before { content: "🔪"; }
+        .insights-list li:nth-child(5n+2)::before { content: "🥩"; }
+        .insights-list li:nth-child(5n+3)::before { content: "🔥"; }
+        .insights-list li:nth-child(5n+4)::before { content: "⚖️"; }
+        .insights-list li:nth-child(5n+5)::before { content: "🧂"; }
 
         .sentiment {
             background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
@@ -506,8 +560,9 @@
             border-left: none;
             border-right: none;
             padding: 20px 0;
+            margin-bottom: 50px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .nav-menu a {
@@ -547,14 +602,17 @@
         }
 
         .watch-btn {
-            display: inline-block;
+            display: block;
+            width: 100%;
             background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
             color: #1a120b;
-            padding: 12px 30px;
+            padding: 16px 30px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 700;
+            font-size: 16px;
             margin-top: 15px;
+            text-align: center;
             transition: all 0.3s;
             border: 2px solid #8b4513;
             text-transform: uppercase;
@@ -571,10 +629,6 @@
         @media (max-width: 768px) {
             header h1 {
                 font-size: 2.5em;
-            }
-
-            .video-grid {
-                grid-template-columns: 1fr;
             }
 
             .trending-topics {
@@ -882,9 +936,9 @@
             <h2>This Week's Roundup</h2>
             <div class="summary-with-image">
                 <div class="summary-text">
-                    This week in the carnivore diet community showcased a fascinating mix of practical advice for beginners and advanced optimization strategies. The dominant theme was 'starting fresh' or 'doing it right from the beginning,' with multiple creators including Steak and Butter Gal, Kelly Hogan, and Dr. Tony Hampton addressing common mistakes and offering refined approaches for 2026. There's a strong emphasis on sustainability and troubleshooting - from travel tips to gut health optimization. The community is actively debating the role of dairy in carnivore diets, with Dr. Anthony Chaffee taking a strict stance while others acknowledge it as a tool for adherence.
+                    This week's carnivore diet content reveals a maturing community grappling with optimization and sustainability. While weight loss and health transformations remain core themes, creators are increasingly addressing why people quit carnivore, the nuances of strict vs. flexible approaches, and practical implementation strategies. A notable debate emerged around dairy consumption, with Dr. Anthony Chaffee advocating for strict elimination while others suggest it helps adherence. The gut health conversation dominated multiple channels, with fermented foods, bone broth, and B1 deficiency receiving significant attention.
 
-A significant undercurrent this week involves gut health and fermented foods, with HomesteadHow's sauerkraut juice video generating massive engagement (157K views) and sparking discussions about probiotics and digestive optimization. Meanwhile, the community is pushing back against extreme restrictions, with practical voices like Dr. Tony Hampton emphasizing that ground beef can be just as effective as expensive ribeyes. Interestingly, there's also cross-community tension, with Dr. Layne Norton challenging carnivore claims about fiber and diabetes, creating a battleground in the comments sections between different dietary camps.
+OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brought carnivore-adjacent content to mainstream audiences, while established creators like Steak and Butter Gal and HomeSteadHow focused on practical year-end guides and budget-friendly approaches. The community shows strong engagement around electrolyte management, travel strategies, and recipe innovations that make the lifestyle sustainable. Dr. Layne Norton's critical perspective on carnivore created friction, defending fiber consumption and challenging metabolic claims, highlighting ongoing tensions between carnivore advocates and mainstream nutrition science.
                 </div>
                 <div class="summary-image">
                     <img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&q=80" alt="Premium ribeye steak">
@@ -901,37 +955,16 @@ A significant undercurrent this week involves gut health and fermented foods, wi
                 
                 <div class="topic-card">
                     <h3>Gut Health & Fermented Foods</h3>
-                    <p>Multiple creators are discussing the role of fermented foods, probiotics, and gut healing beyond just meat. Sauerkraut juice and L. reuteri yogurt are being promoted as game-changers for digestive health, even within carnivore frameworks.</p>
+                    <p>Multiple creators emphasized gut healing through fermented foods (especially sauerkraut juice), bone broth, and addressing the liver as the root of disease. HomeSteadHow's video on sauerkraut juice generated 1,779 comments with significant engagement around 'perfect poop' and microbiome optimization.</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
                             
-                                HomesteadHow, 
+                                <a href="https://youtube.com/channel/UCHXjZagCrWdnkkx1rlpuqVg" target="_blank" style="color: #f4e4d4; text-decoration: underline;">HomeSteadHow</a>, 
                             
                         
                             
                                 <a href="https://youtube.com/channel/UC4FClv972f68pvPJMBmDPjQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">OptimalHealth</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Steak and Butter Gal</a>
-                            
-                        
-                    </div>
-                </div>
-                
-                <div class="topic-card">
-                    <h3>The Dairy Debate</h3>
-                    <p>A heated discussion about whether dairy belongs in carnivore diets. Dr. Chaffee identifies dairy as the #1 reason people quit carnivore, while others argue it helps with adherence and provides valuable nutrients.</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Anthony Chaffee MD</a>, 
-                            
-                        
-                            
-                                HomesteadHow, 
                             
                         
                             
@@ -942,8 +975,67 @@ A significant undercurrent this week involves gut health and fermented foods, wi
                 </div>
                 
                 <div class="topic-card">
-                    <h3>Carnivore on a Budget</h3>
-                    <p>Creators are pushing back against the 'expensive ribeye' stereotype, emphasizing that ground beef and affordable cuts can deliver the same health benefits. This is making carnivore more accessible.</p>
+                    <h3>Vitamin B1 (Thiamine) Deficiency</h3>
+                    <p>Dr. Ken Berry led a series on B1 deficiency, highlighting how coffee, tea, and alcohol block absorption. This sparked debate in the community about beverage choices and supplement needs on carnivore.</p>
+                    <div class="mentioned-by">
+                        <strong>Featured in:</strong>
+                        
+                            
+                                <a href="https://youtube.com/channel/UCIma2WOQs1Mz2AuOt6wRSUw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">KenDBerryMD</a>, 
+                            
+                        
+                            
+                                <a href="https://youtube.com/channel/UC3ymdZTdzHvpDEFhEXqQqpQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Dr. Tony Hampton</a>
+                            
+                        
+                    </div>
+                </div>
+                
+                <div class="topic-card">
+                    <h3>Why People Quit Carnivore</h3>
+                    <p>Dr. Anthony Chaffee's video directly addressed quitting, pointing to dairy as a major culprit causing inflammation. This sparked significant discussion about purity vs. sustainability in the diet.</p>
+                    <div class="mentioned-by">
+                        <strong>Featured in:</strong>
+                        
+                            
+                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Anthony Chaffee MD</a>, 
+                            
+                        
+                            
+                                <a href="https://youtube.com/channel/UC3ymdZTdzHvpDEFhEXqQqpQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Dr. Tony Hampton</a>, 
+                            
+                        
+                            
+                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Steak and Butter Gal</a>
+                            
+                        
+                    </div>
+                </div>
+                
+                <div class="topic-card">
+                    <h3>Budget Carnivore & Ground Beef Focus</h3>
+                    <p>Creators pushed back against the 'ribeye lifestyle' narrative, emphasizing that ground beef, cheaper cuts, and even hot dogs are more sustainable and accessible than expensive steaks.</p>
+                    <div class="mentioned-by">
+                        <strong>Featured in:</strong>
+                        
+                            
+                                <a href="https://youtube.com/channel/UCHXjZagCrWdnkkx1rlpuqVg" target="_blank" style="color: #f4e4d4; text-decoration: underline;">HomeSteadHow</a>, 
+                            
+                        
+                            
+                                <a href="https://youtube.com/channel/UC3ymdZTdzHvpDEFhEXqQqpQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Dr. Tony Hampton</a>, 
+                            
+                        
+                            
+                                <a href="https://youtube.com/channel/UCIma2WOQs1Mz2AuOt6wRSUw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">KenDBerryMD</a>
+                            
+                        
+                    </div>
+                </div>
+                
+                <div class="topic-card">
+                    <h3>Electrolytes & Salt Loading</h3>
+                    <p>Salt management emerged as a critical topic, with multiple creators addressing proper sodium intake on carnivore to prevent cramping and maintain performance.</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
@@ -952,66 +1044,20 @@ A significant undercurrent this week involves gut health and fermented foods, wi
                             
                         
                             
-                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Anthony Chaffee MD</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Steak and Butter Gal</a>
+                                <a href="https://youtube.com/channel/UCzgj3pQycdp7SUUbz56wNCw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Courtney Luna</a>
                             
                         
                     </div>
                 </div>
                 
                 <div class="topic-card">
-                    <h3>Vitamin B1 (Thiamine) Deficiency</h3>
-                    <p>Dr. Ken Berry is leading a focused campaign on B1 deficiency, highlighting how coffee, tea, and alcohol block absorption. This is resonating with viewers experiencing neuropathy and fatigue.</p>
+                    <h3>Carnivore vs. Mainstream Nutrition Science</h3>
+                    <p>Dr. Layne Norton's videos defending fiber and challenging carnivore metabolic claims created controversy, with carnivore advocates pushing back in comments about 'oxalate dumping' and dismissing mainstream recommendations.</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
                             
-                                <a href="https://youtube.com/channel/UCIma2WOQs1Mz2AuOt6wRSUw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">KenDBerryMD</a>
-                            
-                        
-                    </div>
-                </div>
-                
-                <div class="topic-card">
-                    <h3>Starting Fresh in 2026</h3>
-                    <p>Multiple creators are releasing 'if I started over' content, refining their advice based on years of experience. This is perfect timing for New Year's resolution seekers.</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Steak and Butter Gal</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCaKl8Lth6h6GWreFyeO1keA" target="_blank" style="color: #f4e4d4; text-decoration: underline;">myzerocarblife</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UC3ymdZTdzHvpDEFhEXqQqpQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Dr. Tony Hampton</a>
-                            
-                        
-                    </div>
-                </div>
-                
-                <div class="topic-card">
-                    <h3>Insulin Resistance Reversal</h3>
-                    <p>Success stories and protocols for reversing insulin resistance are dominating comment sections, with people reporting rapid weight loss and blood sugar improvements.</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Steak and Butter Gal</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UC4FClv972f68pvPJMBmDPjQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">OptimalHealth</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UC3ymdZTdzHvpDEFhEXqQqpQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Dr. Tony Hampton</a>
+                                <a href="https://youtube.com/channel/UCqMBA83S0TnfTlTeE5j1mgQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Dr. Layne Norton</a>
                             
                         
                     </div>
@@ -1028,172 +1074,103 @@ A significant undercurrent this week involves gut health and fermented foods, wi
             <div class="video-grid">
                 
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank">
-                                Carnivore Got Me 90% There. This One Drink Changed Everything
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCHXjZagCrWdnkkx1rlpuqVg" target="_blank">
-                                HomesteadHow
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
+                    
+                    <a href="https://youtube.com/watch?v=p7f8U3owfDY" target="_blank">
+                        <img src="https://img.youtube.com/vi/p7f8U3owfDY/mqdefault.jpg"
+                             alt="The Diet Change That Transformed India"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=p7f8U3owfDY" target="_blank">
+                                    The Diet Change That Transformed India
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UC4FClv972f68pvPJMBmDPjQ" target="_blank">
+                                    OptimalHealth
+                                </a>
+                                
+                                
+                                <br>On: Dec 23/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
                         <div class="stats">
                             <div class="stat">
-                                <div class="stat-value">157,145</div>
+                                <div class="stat-value">4,562,841</div>
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>The most engaging video of the week with 1,779 comments. Reveals sauerkraut juice as a breakthrough for digestive issues. The 'perfect poop' discussion resonated deeply with the community, and the video challenges the idea that carnivore alone is sufficient for optimal health.</p>
+                        <p>Massive viral reach (4.5M+ views, 95K likes) bringing carnivore-adjacent content about seed oils and traditional fats to mainstream audiences. Comments show international awareness of US food industry influence.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
-                            <strong>Comment Sentiment:</strong> MIXED
+                            <strong>Comment Sentiment:</strong> NEGATIVE
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 50%</span>
-                                <span style="color: #ffa07a;">👎 20%</span>
-                                <span style="color: #d4a574;">➖ 30%</span>
+                                <span style="color: #90ee90;">👍 20%</span>
+                                <span style="color: #ffa07a;">👎 60%</span>
+                                <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share personal experiences with carnivore diet and gut health, with mixed opinions on dietary approaches and supplementation.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters express strong criticism of US food practices and industrial dietary changes, with a critical tone towards processed foods and their health impacts</p>
                         </div>
                         
 
                         
-                        <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank" class="watch-btn">
+                        <a href="https://youtube.com/watch?v=p7f8U3owfDY" target="_blank" class="watch-btn">
                             ▶ Watch Now
                         </a>
                         
+                        </div>
                     </div>
                 </div>
                 
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=_dGUfg2nfRs" target="_blank">
-                                High Protein Carnivore Dip Recipe!
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank">
-                                Steak and Butter Gal
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
+                    
+                    <a href="https://youtube.com/watch?v=Rc4tmtpc378" target="_blank">
+                        <img src="https://img.youtube.com/vi/Rc4tmtpc378/mqdefault.jpg"
+                             alt="This Is Why People Put Butter in Coffee ☕🧈"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=Rc4tmtpc378" target="_blank">
+                                    This Is Why People Put Butter in Coffee ☕🧈
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UC4FClv972f68pvPJMBmDPjQ" target="_blank">
+                                    OptimalHealth
+                                </a>
+                                
+                                
+                                <br>On: Dec 22/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
                         <div class="stats">
                             <div class="stat">
-                                <div class="stat-value">172,624</div>
+                                <div class="stat-value">819,258</div>
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Highest views from the week's carnivore-specific content. Practical recipe content performs exceptionally well, though it sparked debate about including non-carnivore ingredients like lettuce for strict adherents.</p>
-
-                        
-                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
-                            <strong>Comment Sentiment:</strong> POSITIVE
-                            <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 60%</span>
-                                <span style="color: #ffa07a;">👎 0%</span>
-                                <span style="color: #d4a574;">➖ 40%</span>
-                            </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters are generally supportive and interested in the carnivore diet recipe, with mostly constructive and lighthearted remarks.</p>
-                        </div>
-                        
-
-                        
-                        <a href="https://youtube.com/watch?v=_dGUfg2nfRs" target="_blank" class="watch-btn">
-                            ▶ Watch Now
-                        </a>
-                        
-                    </div>
-                </div>
-                
-                <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=fXP5lfB8wkU" target="_blank">
-                                This gives you electrolytes, collagen, and amino acids without stressing your gut
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCIma2WOQs1Mz2AuOt6wRSUw" target="_blank">
-                                KenDBerryMD
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
-                        <div class="stats">
-                            <div class="stat">
-                                <div class="stat-value">212,792</div>
-                                <div class="stat-label">Views</div>
-                            </div>
-                        </div>
-                        <p>Highest performing video across all channels this week. Dr. Berry's focus on bone broth as a healing tool during illness provides actionable advice that bridges carnivore and ancestral health approaches.</p>
-
-                        
-                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
-                            <strong>Comment Sentiment:</strong> POSITIVE
-                            <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 60%</span>
-                                <span style="color: #ffa07a;">👎 10%</span>
-                                <span style="color: #d4a574;">➖ 30%</span>
-                            </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters express strong support for health advice, sharing personal wellness strategies with enthusiasm and gratitude.</p>
-                        </div>
-                        
-
-                        
-                        <a href="https://youtube.com/watch?v=fXP5lfB8wkU" target="_blank" class="watch-btn">
-                            ▶ Watch Now
-                        </a>
-                        
-                    </div>
-                </div>
-                
-                <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank">
-                                If I Started Carnivore in 2026, I'd Do This
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank">
-                                Steak and Butter Gal
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
-                        <div class="stats">
-                            <div class="stat">
-                                <div class="stat-value">43,284</div>
-                                <div class="stat-label">Views</div>
-                            </div>
-                        </div>
-                        <p>Perfect timing for New Year's audience. Comments reveal strong testimonials from former vegetarians and people with IBS finding relief. This represents the 'refined wisdom' trend happening across the community.</p>
+                        <p>Second highest views this week (819K), tapping into bulletproof coffee trend with high engagement (18K+ likes). Shows crossover appeal between keto and carnivore communities.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1203,54 +1180,187 @@ A significant undercurrent this week involves gut health and fermented foods, wi
                                 <span style="color: #ffa07a;">👎 0%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share enthusiastic personal success stories with the carnivore diet, highlighting health improvements and gratitude towards the content creator.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share enthusiastic personal experiences and appreciation for adding butter to coffee and other beverages, with an overall positive and curious tone.</p>
                         </div>
                         
 
                         
-                        <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank" class="watch-btn">
+                        <a href="https://youtube.com/watch?v=Rc4tmtpc378" target="_blank" class="watch-btn">
                             ▶ Watch Now
                         </a>
                         
+                        </div>
                     </div>
                 </div>
                 
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=gwS7-tvGkC0" target="_blank">
-                                This Is Why People Quit The Carnivore Diet 👉
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank">
-                                Anthony Chaffee MD
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
+                    
+                    <a href="https://youtube.com/watch?v=_dGUfg2nfRs" target="_blank">
+                        <img src="https://img.youtube.com/vi/_dGUfg2nfRs/mqdefault.jpg"
+                             alt="High Protein Carnivore Dip Recipe!"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=_dGUfg2nfRs" target="_blank">
+                                    High Protein Carnivore Dip Recipe!
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank">
+                                    Steak and Butter Gal
+                                </a>
+                                
+                                
+                                <br>On: Dec 20/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
                         <div class="stats">
                             <div class="stat">
-                                <div class="stat-value">70,516</div>
+                                <div class="stat-value">172,624</div>
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Addresses the elephant in the room - adherence issues. Dr. Chaffee's strong stance against dairy is controversial but generating important discussions about what constitutes 'true' carnivore.</p>
+                        <p>Highest performing strict carnivore content (172K views, 4.7K likes). Recipe content continues to drive engagement, though sparked debate about ingredient purity in comments.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
                             <strong>Comment Sentiment:</strong> MIXED
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
                                 <span style="color: #90ee90;">👍 50%</span>
-                                <span style="color: #ffa07a;">👎 20%</span>
+                                <span style="color: #ffa07a;">👎 0%</span>
+                                <span style="color: #d4a574;">➖ 50%</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Comments are mostly neutral with some supportive and practical remarks about the recipe and diet approach.</p>
+                        </div>
+                        
+
+                        
+                        <a href="https://youtube.com/watch?v=_dGUfg2nfRs" target="_blank" class="watch-btn">
+                            ▶ Watch Now
+                        </a>
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card">
+                    
+                    <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank">
+                        <img src="https://img.youtube.com/vi/99VmySFleMY/mqdefault.jpg"
+                             alt="Carnivore Got Me 90% There. This One Drink Changed Everything"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank">
+                                    Carnivore Got Me 90% There. This One Drink Changed Everything
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCHXjZagCrWdnkkx1rlpuqVg" target="_blank">
+                                    HomeSteadHow
+                                </a>
+                                
+                                
+                                <br>On: Dec 20/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">157,145</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+                        <p>Massive engagement (9.1K likes, 1,779 comments) around sauerkraut juice for gut health. Community eager for optimization strategies beyond basic carnivore, with mentions of wanting Dr. Chaffee's response.</p>
+
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
+                            <strong>Comment Sentiment:</strong> MIXED
+                            <div style="margin-top: 10px; display: flex; gap: 15px;">
+                                <span style="color: #90ee90;">👍 40%</span>
+                                <span style="color: #ffa07a;">👎 30%</span>
                                 <span style="color: #d4a574;">➖ 30%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share personal experiences with the carnivore diet, expressing both support and criticism of its implementation and challenges.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share varied personal experiences with carnivore diet, digestive health, and dietary modifications with a mix of positive outcomes and skepticism.</p>
+                        </div>
+                        
+
+                        
+                        <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank" class="watch-btn">
+                            ▶ Watch Now
+                        </a>
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card">
+                    
+                    <a href="https://youtube.com/watch?v=gwS7-tvGkC0" target="_blank">
+                        <img src="https://img.youtube.com/vi/gwS7-tvGkC0/mqdefault.jpg"
+                             alt="This Is Why People Quit The Carnivore Diet 👉"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=gwS7-tvGkC0" target="_blank">
+                                    This Is Why People Quit The Carnivore Diet 👉
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank">
+                                    Anthony Chaffee MD
+                                </a>
+                                
+                                
+                                <br>On: Dec 24/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">70,516</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+                        <p>Addresses elephant in the room - diet adherence. Strong engagement (3K+ likes, 358 comments) with debate about dairy elimination vs. sustainable carnivore practice.</p>
+
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
+                            <strong>Comment Sentiment:</strong> MIXED
+                            <div style="margin-top: 10px; display: flex; gap: 15px;">
+                                <span style="color: #90ee90;">👍 50%</span>
+                                <span style="color: #ffa07a;">👎 30%</span>
+                                <span style="color: #d4a574;">➖ 20%</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share personal experiences with the carnivore diet, highlighting both benefits and challenges of maintaining the diet strictly.</p>
                         </div>
                         
 
@@ -1259,6 +1369,7 @@ A significant undercurrent this week involves gut health and fermented foods, wi
                             ▶ Watch Now
                         </a>
                         
+                        </div>
                     </div>
                 </div>
                 
@@ -1280,23 +1391,32 @@ A significant undercurrent this week involves gut health and fermented foods, wi
         <!-- Key Insights -->
         <section class="section">
             <h2>Butcher's Wisdom</h2>
+            <div class="section-intro">
+                <p style="font-size: 1.2em; color: #2c1810; line-height: 1.8; margin-bottom: 30px; font-style: italic; border-left: 4px solid #8b4513; padding-left: 20px; background: rgba(255,255,255,0.3); padding: 20px;">
+                    <strong>Sharp insights, expertly cut.</strong> The week's most important takeaways distilled from hours of carnivore content — what you need to know, trimmed of the fat.
+                </p>
+            </div>
             <ul class="insights-list">
                 
-                <li>The carnivore community is maturing beyond 'just eat meat' to include nuanced discussions about fermented foods, probiotics, and gut health optimization. This suggests the diet is evolving into a more comprehensive health protocol.</li>
+                <li>The community is shifting from 'carnivore evangelism' to 'carnivore optimization' - people want to fine-tune results rather than just start the diet</li>
                 
-                <li>There's a growing divide between 'purist' carnivore advocates (like Dr. Chaffee) and 'flexible' practitioners who include dairy or fermented foods. This tension is healthy and helping people find what works for their individual needs.</li>
+                <li>A significant tension exists between strict carnivore purists (Chaffee) and flexible advocates (those allowing dairy, fermented foods, etc.) - this debate centers on sustainability vs. maximum healing</li>
                 
-                <li>Accessibility is becoming a major focus - multiple creators are emphasizing that expensive cuts aren't necessary, which could significantly expand the diet's reach in 2026.</li>
+                <li>Budget accessibility is becoming a priority message - creators are actively countering the 'expensive ribeye lifestyle' stereotype with ground beef and cheap cut content</li>
                 
-                <li>The community is increasingly data-driven, with discussions about HbA1c, insulin resistance, and specific nutrient deficiencies like vitamin B1. This adds credibility beyond anecdotal evidence.</li>
+                <li>Gut health has emerged as the next frontier after weight loss - community wants to understand microbiome, fermentation, and digestive optimization within carnivore framework</li>
                 
-                <li>Travel and social situations remain significant barriers. Creators who address practical implementation (like Steak and Butter Gal's travel video) are filling an important need.</li>
+                <li>The B1/thiamine conversation reveals growing awareness of potential nutrient gaps, especially for coffee drinkers - supplement discussion is becoming more nuanced</li>
                 
-                <li>Former vegetarians and vegans are becoming some of the most vocal carnivore advocates after experiencing dramatic health improvements, particularly with IBS and digestive issues.</li>
+                <li>Travel and social sustainability content is gaining traction - people need practical strategies for maintaining carnivore in real-world situations</li>
                 
-                <li>The medical establishment's resistance to carnivore diets is a recurring frustration in comments, with many reporting their doctors accuse them of lying or refuse to acknowledge their improvements.</li>
+                <li>Recipe content remains king for engagement, even when it sparks purity debates - people want variety within constraints</li>
                 
-                <li>There's significant skepticism and pushback from mainstream nutrition advocates (like Dr. Layne Norton), creating a 'culture war' dynamic that may be driving engagement on both sides.</li>
+                <li>Medical establishment frustration is a powerful motivator - many success stories mention doctors dismissing symptoms or accusing patients of lying</li>
+                
+                <li>The 'carnivore didn't fix everything' conversation is opening up - creators addressing plateaus and additional interventions (fermented foods, supplements) without abandoning the core diet</li>
+                
+                <li>Mainstream nutrition criticism from figures like Dr. Layne Norton is met with dismissive humor rather than engagement - the community feels confident in anecdotal results over traditional studies</li>
                 
             </ul>
         </section>
@@ -1307,7 +1427,7 @@ A significant undercurrent this week involves gut health and fermented foods, wi
         <section class="section">
             <h2>Community Voice</h2>
             <div class="sentiment">
-                <h3>Overall Mood: <span class="badge">POSITIVE WITH CRITICAL THINKING</span></h3>
+                <h3>Overall Mood: <span class="badge">POSITIVE WITH GROWING SOPHISTICATION</span></h3>
 
                 
                 <h3 style="margin-top: 30px;">Success Stories:</h3>
@@ -1315,43 +1435,79 @@ A significant undercurrent this week involves gut health and fermented foods, wi
                     
                     <li>
                         
-                            Former vegetarian with IBS for 2 years finding complete relief on carnivore (Steak and Butter Gal comments)
+                            Lost 40 lbs in 4 months (205 to 165), inflammation disappeared completely
+                            <br>
+                            <em style="font-size: 0.9em; opacity: 0.8;">
+                                — User comment on HomeSteadHow video
+                                
+                                on <a href="https://youtube.com/watch?v=rGqawowe9wA" target="_blank" style="color: #f4e4d4; text-decoration: underline;">The (2ND) Greatest Carnivore Meal EVER... (SO CHEAP!)</a>
+                                
+                            </em>
                         
                     </li>
                     
                     <li>
                         
-                            337 lbs to 270 lbs rapid weight loss with people assuming it's Ozempic (Steak and Butter Gal comments)
+                            Rapid weight loss from 337 to 270 - everyone thinks they're on Ozempic, loves the results
+                            <br>
+                            <em style="font-size: 0.9em; opacity: 0.8;">
+                                — User comment on Steak and Butter Gal video
+                                
+                                on <a href="https://youtube.com/watch?v=mUDocNDA5tY" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Reverse Insulin Resistance FAST – Do These 5 Things NOW!</a>
+                                
+                            </em>
                         
                     </li>
                     
                     <li>
                         
-                            4 months carnivore: 40 lbs lost (205 to 165), inflammation disappeared (HomesteadHow comments)
+                            Former vegetarian with IBS for 20 years, considering carnivore after zero help from doctors
+                            <br>
+                            <em style="font-size: 0.9em; opacity: 0.8;">
+                                — User comment on Steak and Butter Gal video
+                                
+                                on <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">If I Started Carnivore in 2026, I'd Do This</a>
+                                
+                            </em>
                         
                     </li>
                     
                     <li>
                         
-                            Blood sugar dropping from over 200 to normal ranges by eliminating vegetables (Steak and Butter Gal comments)
+                            Vegetarian with intestinal issues completely cleared on carnivore diet
+                            <br>
+                            <em style="font-size: 0.9em; opacity: 0.8;">
+                                — User comment on OptimalHealth video
+                                
+                                on <a href="https://youtube.com/watch?v=Au7UkOO6t1E" target="_blank" style="color: #f4e4d4; text-decoration: underline;">The Best Ways to Fix Your Gut (That Actually Work)</a>
+                                
+                            </em>
                         
                     </li>
                     
                     <li>
                         
-                            Three years strict carnivore with raw dairy resulting in 'perfect poop' and no digestive issues (HomesteadHow comments)
+                            Blood sugar over 200 with vegetables, under control eating only meat
+                            <br>
+                            <em style="font-size: 0.9em; opacity: 0.8;">
+                                — User comment on Steak and Butter Gal video
+                                
+                                on <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">If I Started Carnivore in 2026, I'd Do This</a>
+                                
+                            </em>
                         
                     </li>
                     
                     <li>
                         
-                            Joint pain improvement and no more farting reported by multiple community members
-                        
-                    </li>
-                    
-                    <li>
-                        
-                            Former vegetarian with severe intestinal issues completely healed on carnivore (OptimalHealth comments)
+                            317 days carnivore, down 55 lbs with occasional keto variations
+                            <br>
+                            <em style="font-size: 0.9em; opacity: 0.8;">
+                                — User comment on Dr. Tony Hampton video
+                                
+                                on <a href="https://youtube.com/watch?v=VcWFlQHPlY0" target="_blank" style="color: #f4e4d4; text-decoration: underline;">What I Wish I Knew About CARNIVORE Before I STARTED</a>
+                                
+                            </em>
                         
                     </li>
                     
@@ -1360,301 +1516,6 @@ A significant undercurrent this week involves gut health and fermented foods, wi
             </div>
 
             <!-- Q&A Section -->
-            
-            <h3 style="margin-top: 40px; color: #2c1810; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
-            <p style="margin-bottom: 20px; font-style: italic; color: #2c1810;">Click any question to reveal the evidence-based answer with scientific citations</p>
-
-            <div class="qa-accordion">
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        Is dairy acceptable on carnivore or does it cause inflammation?
-                    </div>
-                    <div class="qa-answer">
-                        <p>The impact of dairy on inflammation within a carnivore diet context is nuanced. While some individuals report reduced inflammation, scientific evidence suggests dairy's effects vary based on individual metabolic responses and dairy type. Full-fat dairy products like butter and hard cheeses typically cause less inflammatory response compared to milk and soft cheeses due to lower lactose and casein content.
-
-Research indicates that dairy's inflammatory potential depends on multiple factors including individual lactose tolerance, dairy protein sensitivity, and underlying metabolic health. Some studies suggest that fermented dairy products like aged cheeses and full-fat options may actually have anti-inflammatory properties due to their saturated fat profile and potential probiotic components.</p>
-
-                        
-                        <div class="citations">
-                            <h4>Scientific References:</h4>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/26188275/" target="_blank">Dairy Consumption and Systemic Inflammation</a><br>
-                                <em>Bordoni A, et al. (2015)</em><br>
-                                <span style="color: #666;">Found varied inflammatory responses to different dairy products</span>
-                            </div>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/19463169/" target="_blank">Saturated Fat and Inflammation Markers</a><br>
-                                <em>Kratz M, et al. (2009)</em><br>
-                                <span style="color: #666;">Demonstrated complex relationship between saturated fat and inflammatory markers</span>
-                            </div>
-                            
-                        </div>
-                        
-
-                        
-                        <div class="caveats">
-                            <strong>⚠ Note:</strong> Individual metabolic responses vary significantly. Those with known dairy sensitivities, lactose intolerance, or autoimmune conditions should consult healthcare professionals before integrating dairy into a carnivore diet approach.
-                        </div>
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        How can I afford carnivore on a budget?
-                    </div>
-                    <div class="qa-answer">
-                        <p>Implementing a carnivore diet on a budget requires strategic food selection and purchasing. Focus on less expensive protein sources like chicken thighs, ground beef, eggs, and organ meats, which offer high nutritional density at lower price points. Buying in bulk from wholesale providers, purchasing larger cuts and processing them yourself, and selecting frozen meats can significantly reduce costs.
-
-Consider purchasing less premium cuts like chuck roast, chicken legs, and ground beef (80/20 or 70/30 fat content) which are typically more affordable. Organ meats like liver are extremely nutrient-dense and often cheaper per pound. Buying directly from local farmers, participating in meat share programs, or purchasing whole animals can further reduce expenses. Freezing meats when on sale and meal prepping can also help manage nutrition costs.</p>
-
-                        
-                        <div class="citations">
-                            <h4>Scientific References:</h4>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/33657038/" target="_blank">Nutritional and Metabolic Impacts of a Carnivore Diet</a><br>
-                                <em>Lennerz B, et al. (2021)</em><br>
-                                <span style="color: #666;">Examined nutritional composition and potential metabolic effects of animal-based diets</span>
-                            </div>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/30987390/" target="_blank">Economic Aspects of Meat Consumption</a><br>
-                                <em>Perez-Cueto FJA (2019)</em><br>
-                                <span style="color: #666;">Analyzed cost-effectiveness of different protein sources and dietary strategies</span>
-                            </div>
-                            
-                        </div>
-                        
-
-                        
-                        <div class="caveats">
-                            <strong>⚠ Note:</strong> While potentially cost-effective, carnivore diets lack comprehensive long-term research on health outcomes. Potential nutritional deficiencies in micronutrients like vitamin C, fiber, and certain minerals should be carefully monitored. Consultation with a registered dietitian is recommended to ensure nutritional adequacy.
-                        </div>
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        Why am I not losing weight on carnivore?
-                    </div>
-                    <div class="qa-answer">
-                        <p>Weight loss on a carnivore diet depends on multiple metabolic factors beyond simply eliminating carbohydrates. While high-protein, low-carbohydrate diets can promote weight loss through increased satiety and metabolic adaptation, total caloric intake remains the primary determinant. If you're not losing weight, you may be consuming excess calories from protein and fat sources, which can still lead to weight maintenance or gain.
-
-Research suggests that individual metabolic responses vary significantly. Factors like baseline insulin sensitivity, muscle mass, activity level, and hormonal status influence weight loss trajectories. Some individuals may experience metabolic compensation, where basal metabolic rate decreases in response to dietary changes, potentially slowing weight loss. Additionally, the carnivore diet's high protein and fat content might lead to spontaneous overconsumption due to reduced hunger signaling.</p>
-
-                        
-                        <div class="citations">
-                            <h4>Scientific References:</h4>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/26055827/" target="_blank">Effects of a high-protein diet on appetite, weight loss and metabolic adaptations</a><br>
-                                <em>Leidy HJ, et al. (2015)</em><br>
-                                <span style="color: #666;">Demonstrated individual variability in metabolic responses to high-protein diets</span>
-                            </div>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/22735432/" target="_blank">Energy balance and its components: implications for body weight regulation</a><br>
-                                <em>Hall KD, et al. (2012)</em><br>
-                                <span style="color: #666;">Confirmed caloric intake as primary driver of weight change</span>
-                            </div>
-                            
-                        </div>
-                        
-
-                        
-                        <div class="caveats">
-                            <strong>⚠ Note:</strong> Limited long-term research specifically on carnivore diet. Potential nutritional deficiencies and cardiovascular risks. Individual metabolic responses vary widely. Recommend consulting healthcare professional for personalized nutritional guidance.
-                        </div>
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        Do I need supplements like vitamin B1 on carnivore?
-                    </div>
-                    <div class="qa-answer">
-                        <p>On a strict carnivore diet, supplementation with vitamin B1 (thiamine) may be necessary due to limited dietary sources. While animal products contain some thiamine, the bioavailability and quantity can be insufficient, especially with high muscle meat consumption. Ruminant meats and organ meats like liver provide more thiamine, but may not meet recommended daily intake.
-
-Research suggests that prolonged high-protein, low-carbohydrate diets can increase thiamine requirements. Thiamine is crucial for metabolic processes, particularly carbohydrate metabolism and neurological function. Individuals on carnivore diets might experience increased metabolic stress that could deplete thiamine stores more rapidly.</p>
-
-                        
-                        <div class="citations">
-                            <h4>Scientific References:</h4>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/32184991/" target="_blank">Thiamine Status in Humans on Extreme Diets</a><br>
-                                <em>Kraft M, et al. (2020)</em><br>
-                                <span style="color: #666;">Documented potential thiamine deficiency risks in metabolically challenging dietary patterns</span>
-                            </div>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/27184581/" target="_blank">Nutritional Considerations of Carnivore and Ketogenic Diets</a><br>
-                                <em>Volek JS, et al. (2016)</em><br>
-                                <span style="color: #666;">Analyzed micronutrient requirements in high-protein, low-carbohydrate dietary approaches</span>
-                            </div>
-                            
-                        </div>
-                        
-
-                        
-                        <div class="caveats">
-                            <strong>⚠ Note:</strong> Individual metabolic variations exist. Consultation with a healthcare professional for personalized nutritional assessment is recommended. Periodic blood testing can help monitor potential deficiencies.
-                        </div>
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        How do I handle social situations and travel while carnivore?
-                    </div>
-                    <div class="qa-answer">
-                        <p>Navigating social situations and travel on a carnivore diet requires strategic planning and flexibility. Prepare by packing portable protein sources like jerky, canned fish, and pre-cooked meats that can be easily transported through airports and stored without refrigeration. Many restaurants can accommodate meat-based requests, such as ordering grilled chicken, steak, or fish without sides.
-
-For social events, consider bringing your own food discreetly or eating beforehand. Communicate dietary preferences in advance to hosts or restaurants. When traveling internationally, research local meat availability and consider supplements like electrolytes and multivitamins to mitigate potential nutritional gaps. Some travelers find success with meal replacement powders or protein bars that align with carnivore principles.</p>
-
-                        
-                        <div class="citations">
-                            <h4>Scientific References:</h4>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/23763765/" target="_blank">Nutritional Adequacy of Plant-Based Protein Diets and Potential Micronutrient Deficiency Risks</a><br>
-                                <em>Pawlak R, et al. (2013)</em><br>
-                                <span style="color: #666;">Highlighted potential nutritional challenges of restrictive diets</span>
-                            </div>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/30626757/" target="_blank">Travel and Diet: Strategies for Maintaining Nutritional Intake</a><br>
-                                <em>Ritz BW, et al. (2019)</em><br>
-                                <span style="color: #666;">Discussed dietary adaptation strategies during travel</span>
-                            </div>
-                            
-                        </div>
-                        
-
-                        
-                        <div class="caveats">
-                            <strong>⚠ Note:</strong> Limited long-term research specifically on carnivore diet travel strategies. Individual nutritional needs vary, and consultation with a healthcare professional is recommended. Potential risks include micronutrient deficiencies and limited dietary flexibility.
-                        </div>
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        Should I be adding fermented foods or is meat enough?
-                    </div>
-                    <div class="qa-answer">
-                        <p>While the carnivore diet primarily consists of animal products, incorporating fermented foods can provide additional microbiome and digestive health benefits. Fermented foods like kefir, kimchi, and certain fermented meats contain beneficial probiotics and can enhance gut microbiota diversity, which may be limited in a strict meat-only diet. Research suggests that diverse microbial populations contribute to immune function, metabolic health, and potentially mitigate some inflammatory responses.
-
-Specifically, fermented foods introduce beneficial bacterial strains like Lactobacillus and Bifidobacterium, which can support digestive enzyme production, improve nutrient absorption, and potentially modulate immune responses. While carnivore diet advocates argue that meat provides comprehensive nutrition, the microbiome diversity from fermentation could offer complementary metabolic advantages not fully addressed by animal proteins alone.</p>
-
-                        
-                        <div class="citations">
-                            <h4>Scientific References:</h4>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/33445974/" target="_blank">The Impact of Fermented Foods on Gut Microbiota and Health</a><br>
-                                <em>Marco ML, et al. (2021)</em><br>
-                                <span style="color: #666;">Comprehensive review highlighting probiotic benefits of fermented foods on gut health</span>
-                            </div>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/29734298/" target="_blank">Fermented Meat Products: Potential Probiotic Carriers</a><br>
-                                <em>Leroy F, et al. (2018)</em><br>
-                                <span style="color: #666;">Explored probiotic potential in fermented meat products compatible with carnivore diet approach</span>
-                            </div>
-                            
-                        </div>
-                        
-
-                        
-                        <div class="caveats">
-                            <strong>⚠ Note:</strong> Limited long-term studies specifically on carnivore diet microbiome composition. Individual metabolic responses vary. Consultation with healthcare professional recommended for personalized nutritional guidance.
-                        </div>
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        What's the optimal fat-to-protein ratio?
-                    </div>
-                    <div class="qa-answer">
-                        <p>The optimal fat-to-protein ratio for a carnivore diet is not definitively established, but current research suggests a range of 1.5:1 to 2:1 fat-to-protein ratio may provide metabolic benefits. This ratio appears to support ketogenic metabolism while providing adequate protein for muscle maintenance and metabolic functions.
-
-Key considerations include individual metabolic factors, activity level, and overall health goals. Protein intake should typically range from 1.6-2.2 g/kg of body weight, with fat making up 70-80% of total caloric intake. Some metabolically healthy individuals may tolerate higher protein ratios, while those seeking deeper ketosis might prefer a higher fat percentage.</p>
-
-                        
-                        <div class="citations">
-                            <h4>Scientific References:</h4>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/24435468/" target="_blank">Dietary Protein and Resistance Training Effects on Muscle and Body Composition in Older Persons</a><br>
-                                <em>Bauer J, et al. (2013)</em><br>
-                                <span style="color: #666;">Supports optimal protein intake for muscle preservation</span>
-                            </div>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/18175977/" target="_blank">Long-term effects of a ketogenic diet in obese patients</a><br>
-                                <em>Johnstone AM, et al. (2008)</em><br>
-                                <span style="color: #666;">Provides insights into macronutrient ratios in ketogenic diets</span>
-                            </div>
-                            
-                        </div>
-                        
-
-                        
-                        <div class="caveats">
-                            <strong>⚠ Note:</strong> Individual metabolic responses vary. Long-term carnivore diet impacts are not fully understood. Consultation with a healthcare professional is recommended, especially for individuals with pre-existing health conditions. Micronutrient sufficiency and potential nutrient deficiencies should be carefully monitored.
-                        </div>
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        How do I deal with constipation or digestive issues on carnivore?
-                    </div>
-                    <div class="qa-answer">
-                        <p>Constipation on a carnivore diet can occur due to several factors, primarily the significant reduction in dietary fiber and potential electrolyte imbalances. Animal-based diets are typically low in fermentable fibers that support gut motility and microbiome health. To mitigate digestive issues, consider increasing water intake, supplementing with electrolytes like magnesium, and potentially incorporating bone broth or collagen to support digestive function.
-
-Research suggests that dramatic dietary shifts can temporarily disrupt gut microbiome composition and bowel movements. Strategic interventions might include gradual diet adaptation, consuming fattier cuts of meat to support intestinal lubrication, and monitoring mineral intake. Some individuals may benefit from temporary supplementation with magnesium citrate or gentle digestive enzymes to support bowel regularity.</p>
-
-                        
-                        <div class="citations">
-                            <h4>Scientific References:</h4>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/30487605/" target="_blank">Dietary Fiber Intake and Microbiota in Gastrointestinal Health</a><br>
-                                <em>Makki K, et al. (2018)</em><br>
-                                <span style="color: #666;">Highlighted importance of dietary fiber for gut microbiome and motility</span>
-                            </div>
-                            
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/32251710/" target="_blank">Low Carbohydrate Diet Effects on Gut Microbiome</a><br>
-                                <em>Abelson P, et al. (2020)</em><br>
-                                <span style="color: #666;">Documented metabolic and microbiome shifts with restrictive diets</span>
-                            </div>
-                            
-                        </div>
-                        
-
-                        
-                        <div class="caveats">
-                            <strong>⚠ Note:</strong> Limited long-term research specifically on carnivore diet. Individual metabolic responses vary. Consultation with healthcare professional recommended for persistent digestive issues.
-                        </div>
-                        
-                    </div>
-                </div>
-                
-            </div>
             
         </section>
 
@@ -1676,66 +1537,37 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
             <div class="video-grid">
                 
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank">
-                                Carnivore Got Me 90% There. This One Drink Changed Everything
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCHXjZagCrWdnkkx1rlpuqVg" target="_blank">
-                                HomesteadHow
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
-                        <p><strong>Why watch:</strong> Essential viewing for anyone struggling with digestive issues on carnivore. The sauerkraut juice protocol could be the missing piece for many practitioners. The engagement level shows this resonated with a real community need.</p>
-
-                        
-                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
-                            <strong>Comment Sentiment:</strong> MIXED
-                            <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 50%</span>
-                                <span style="color: #ffa07a;">👎 20%</span>
-                                <span style="color: #d4a574;">➖ 30%</span>
-                            </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share personal carnivore diet experiences with mixed outcomes, highlighting individual variations in dietary approaches and gut health</p>
+                    
+                    <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank">
+                        <img src="https://img.youtube.com/vi/cPIYOqSF1aQ/mqdefault.jpg"
+                             alt="If I Started Carnivore in 2026, I'd Do This"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank">
+                                    If I Started Carnivore in 2026, I'd Do This
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank">
+                                    Steak and Butter Gal
+                                </a>
+                                
+                                
+                                <br>On: Dec 24/25
+                                
+                            </p>
                         </div>
-                        
-
-                        
-                        <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank" class="watch-btn">
-                            ▶ Watch Now
-                        </a>
-                        
-                    </div>
-                </div>
-                
-                <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank">
-                                If I Started Carnivore in 2026, I'd Do This
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank">
-                                Steak and Butter Gal
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
-                        <p><strong>Why watch:</strong> Perfect for beginners or anyone looking to restart. Bella synthesizes years of experience into actionable advice, and the comment section is filled with encouraging success stories that provide social proof.</p>
+                        <div class="video-body">
+                        <p><strong>Why watch:</strong> Perfect year-end guide for new starters with lessons learned from years of experience. High engagement shows the community values this practical, reflective content.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1745,7 +1577,7 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
                                 <span style="color: #ffa07a;">👎 0%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Users share overwhelmingly positive personal experiences with the carnivore diet, highlighting health improvements and gratitude towards the content creator.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share overwhelmingly positive personal health experiences with the carnivore diet, highlighting improved medical conditions and gratitude towards the content creator.</p>
                         </div>
                         
 
@@ -1754,70 +1586,96 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
                             ▶ Watch Now
                         </a>
                         
+                        </div>
                     </div>
                 </div>
                 
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=mUDocNDA5tY" target="_blank">
-                                Reverse Insulin Resistance FAST – Do These 5 Things NOW!
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank">
-                                Steak and Butter Gal
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
-                        <p><strong>Why watch:</strong> Critical for anyone dealing with metabolic issues. The strong engagement (4,049 likes, 361 comments) and testimonials about rapid improvement make this a must-watch for diabetics or pre-diabetics considering carnivore.</p>
+                    
+                    <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank">
+                        <img src="https://img.youtube.com/vi/99VmySFleMY/mqdefault.jpg"
+                             alt="Carnivore Got Me 90% There. This One Drink Changed Everything"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank">
+                                    Carnivore Got Me 90% There. This One Drink Changed Everything
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCHXjZagCrWdnkkx1rlpuqVg" target="_blank">
+                                    HomeSteadHow
+                                </a>
+                                
+                                
+                                <br>On: Dec 20/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <p><strong>Why watch:</strong> Essential viewing for anyone plateauing on carnivore. The sauerkraut juice/gut health angle represents important evolution in carnivore thinking beyond just meat consumption.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
-                            <strong>Comment Sentiment:</strong> POSITIVE
+                            <strong>Comment Sentiment:</strong> MIXED
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 70%</span>
+                                <span style="color: #90ee90;">👍 50%</span>
                                 <span style="color: #ffa07a;">👎 20%</span>
-                                <span style="color: #d4a574;">➖ 10%</span>
+                                <span style="color: #d4a574;">➖ 30%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Users express strong satisfaction with alternative health approaches and personal weight loss success, criticizing traditional medical advice while advocating for self-directed health research.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share personal carnivore diet experiences with varying degrees of success and skepticism about dietary approaches</p>
                         </div>
                         
 
                         
-                        <a href="https://youtube.com/watch?v=mUDocNDA5tY" target="_blank" class="watch-btn">
+                        <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank" class="watch-btn">
                             ▶ Watch Now
                         </a>
                         
+                        </div>
                     </div>
                 </div>
                 
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=gwS7-tvGkC0" target="_blank">
-                                This Is Why People Quit The Carnivore Diet 👉
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank">
-                                Anthony Chaffee MD
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
-                        <p><strong>Why watch:</strong> Addresses adherence head-on, which is the real challenge for most people. Understanding why people quit (Dr. Chaffee blames dairy) can help you troubleshoot your own issues before giving up.</p>
+                    
+                    <a href="https://youtube.com/watch?v=gwS7-tvGkC0" target="_blank">
+                        <img src="https://img.youtube.com/vi/gwS7-tvGkC0/mqdefault.jpg"
+                             alt="This Is Why People Quit The Carnivore Diet 👉"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=gwS7-tvGkC0" target="_blank">
+                                    This Is Why People Quit The Carnivore Diet 👉
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank">
+                                    Anthony Chaffee MD
+                                </a>
+                                
+                                
+                                <br>On: Dec 24/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <p><strong>Why watch:</strong> Critical for understanding long-term adherence. Dr. Chaffee's dairy elimination argument addresses why some people don't see full results and provides troubleshooting framework.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1827,7 +1685,7 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
                                 <span style="color: #ffa07a;">👎 30%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share personal experiences with the carnivore diet, highlighting both its benefits and challenges while offering practical advice and critiques of diet influencers.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share personal experiences with the carnivore diet, highlighting both its benefits and challenges while offering nuanced perspectives on diet adherence.</p>
                         </div>
                         
 
@@ -1836,88 +1694,169 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
                             ▶ Watch Now
                         </a>
                         
+                        </div>
                     </div>
                 </div>
                 
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=RJHZVc-sE40" target="_blank">
-                                The RIBEYE LIE That's Keeping You STUCK
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UC3ymdZTdzHvpDEFhEXqQqpQ" target="_blank">
-                                Dr. Tony Hampton
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
-                        <p><strong>Why watch:</strong> Crucial for making carnivore financially sustainable. Dr. Hampton's message that ground beef works just as well as expensive cuts could be the difference between someone trying the diet or dismissing it as too expensive.</p>
+                    
+                    <a href="https://youtube.com/watch?v=VcWFlQHPlY0" target="_blank">
+                        <img src="https://img.youtube.com/vi/VcWFlQHPlY0/mqdefault.jpg"
+                             alt="What I Wish I Knew About CARNIVORE Before I STARTED"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=VcWFlQHPlY0" target="_blank">
+                                    What I Wish I Knew About CARNIVORE Before I STARTED
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UC3ymdZTdzHvpDEFhEXqQqpQ" target="_blank">
+                                    Dr. Tony Hampton
+                                </a>
+                                
+                                
+                                <br>On: Dec 24/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <p><strong>Why watch:</strong> Comprehensive 'don't quit too soon' guide with practical fixes for common early mistakes. The comments show strong community resonance with people committing to 2026 starts.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
-                            <strong>Comment Sentiment:</strong> POSITIVE
+                            <strong>Comment Sentiment:</strong> MIXED
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 70%</span>
-                                <span style="color: #ffa07a;">👎 0%</span>
-                                <span style="color: #d4a574;">➖ 30%</span>
+                                <span style="color: #90ee90;">👍 60%</span>
+                                <span style="color: #ffa07a;">👎 30%</span>
+                                <span style="color: #d4a574;">➖ 10%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters enthusiastically share their meat-eating experiences and dietary strategies with a supportive, celebratory tone around low-carb protein consumption.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Users share personal struggles and experiences with the carnivore diet, showing a mix of hope, challenges, and determination to improve their health.</p>
                         </div>
                         
 
                         
-                        <a href="https://youtube.com/watch?v=RJHZVc-sE40" target="_blank" class="watch-btn">
+                        <a href="https://youtube.com/watch?v=VcWFlQHPlY0" target="_blank" class="watch-btn">
                             ▶ Watch Now
                         </a>
                         
+                        </div>
                     </div>
                 </div>
                 
                 <div class="video-card">
-                    <div class="video-header">
-                        <h3>
-                            
-                            <a href="https://youtube.com/watch?v=d6--HvvHOQo" target="_blank">
-                                That's it. 'Starting Over.' (With 16-year Carnivore, Kelly Hogan)
-                            </a>
-                            
-                        </h3>
-                        <p class="creator">
-                            by
-                            
-                            <a href="https://youtube.com/channel/UCaKl8Lth6h6GWreFyeO1keA" target="_blank">
-                                myzerocarblife
-                            </a>
-                            
-                        </p>
-                    </div>
-                    <div class="video-body">
-                        <p><strong>Why watch:</strong> Kelly Hogan represents the longest-term success story in the carnivore space (16 years). Her perspective on 'starting over' after years of experience provides wisdom that only time can teach. High engagement (3,281 likes) shows the community values her voice.</p>
+                    
+                    <a href="https://youtube.com/watch?v=mUDocNDA5tY" target="_blank">
+                        <img src="https://img.youtube.com/vi/mUDocNDA5tY/mqdefault.jpg"
+                             alt="Reverse Insulin Resistance FAST – Do These 5 Things NOW!"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=mUDocNDA5tY" target="_blank">
+                                    Reverse Insulin Resistance FAST – Do These 5 Things NOW!
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank">
+                                    Steak and Butter Gal
+                                </a>
+                                
+                                
+                                <br>On: Dec 22/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <p><strong>Why watch:</strong> Strong engagement (4K likes, 361 comments) with metabolic health focus. Comments reveal medical establishment frustration that drives many to carnivore - important context for understanding the movement.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
                             <strong>Comment Sentiment:</strong> POSITIVE
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
                                 <span style="color: #90ee90;">👍 70%</span>
-                                <span style="color: #ffa07a;">👎 10%</span>
+                                <span style="color: #ffa07a;">👎 20%</span>
+                                <span style="color: #d4a574;">➖ 10%</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share enthusiastic personal health transformation stories and frustration with traditional medical advice while expressing empowerment through diet changes.</p>
+                        </div>
+                        
+
+                        
+                        <a href="https://youtube.com/watch?v=mUDocNDA5tY" target="_blank" class="watch-btn">
+                            ▶ Watch Now
+                        </a>
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card">
+                    
+                    <a href="https://youtube.com/watch?v=OMNbgB6CHNY" target="_blank">
+                        <img src="https://img.youtube.com/vi/OMNbgB6CHNY/mqdefault.jpg"
+                             alt="If I had to keep my grocery list as simple as possible, this is what I'd buy every single time"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=OMNbgB6CHNY" target="_blank">
+                                    If I had to keep my grocery list as simple as possible, this is what I'd buy every single time
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCIma2WOQs1Mz2AuOt6wRSUw" target="_blank">
+                                    KenDBerryMD
+                                </a>
+                                
+                                
+                                <br>On: Dec 23/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <p><strong>Why watch:</strong> Budget-friendly, simple approach from trusted voice. The unexpected inclusion of chicken liver sparked positive discussion about organ meat accessibility.</p>
+
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
+                            <strong>Comment Sentiment:</strong> POSITIVE
+                            <div style="margin-top: 10px; display: flex; gap: 15px;">
+                                <span style="color: #90ee90;">👍 80%</span>
+                                <span style="color: #ffa07a;">👎 0%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Viewers express gratitude and share personal success stories about their carnivore diet journey with enthusiasm and hope</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters enthusiastically endorse the recommended grocery list, particularly celebrating carnivore diet foods with excitement and emojis.</p>
                         </div>
                         
 
                         
-                        <a href="https://youtube.com/watch?v=d6--HvvHOQo" target="_blank" class="watch-btn">
+                        <a href="https://youtube.com/watch?v=OMNbgB6CHNY" target="_blank" class="watch-btn">
                             ▶ Watch Now
                         </a>
                         
+                        </div>
                     </div>
                 </div>
                 
@@ -1959,7 +1898,7 @@ Research suggests that dramatic dietary shifts can temporarily disrupt gut micro
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
         <p style="margin-top: 20px;">10 Creators • 40 Videos • Powered by AI</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 12:25:04</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 17:42:40</p>
     </footer>
 
     <script>

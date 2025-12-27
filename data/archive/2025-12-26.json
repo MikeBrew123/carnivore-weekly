@@ -1,6 +1,6 @@
 {
   "analysis_date": "2025-12-26",
-  "analysis_timestamp": "2025-12-26T07:20:32.631884",
+  "analysis_timestamp": "2025-12-26T14:14:59.260147",
   "source_data": {
     "collection_date": "2025-12-26",
     "total_creators": 10,
@@ -8,75 +8,90 @@
     "search_query": "carnivore diet"
   },
   "analysis": {
-    "weekly_summary": "This week in the carnivore diet community showcased a fascinating mix of practical advice for beginners and advanced optimization strategies. The dominant theme was 'starting fresh' or 'doing it right from the beginning,' with multiple creators including Steak and Butter Gal, Kelly Hogan, and Dr. Tony Hampton addressing common mistakes and offering refined approaches for 2026. There's a strong emphasis on sustainability and troubleshooting - from travel tips to gut health optimization. The community is actively debating the role of dairy in carnivore diets, with Dr. Anthony Chaffee taking a strict stance while others acknowledge it as a tool for adherence.\n\nA significant undercurrent this week involves gut health and fermented foods, with HomesteadHow's sauerkraut juice video generating massive engagement (157K views) and sparking discussions about probiotics and digestive optimization. Meanwhile, the community is pushing back against extreme restrictions, with practical voices like Dr. Tony Hampton emphasizing that ground beef can be just as effective as expensive ribeyes. Interestingly, there's also cross-community tension, with Dr. Layne Norton challenging carnivore claims about fiber and diabetes, creating a battleground in the comments sections between different dietary camps.",
+    "weekly_summary": "This week's carnivore diet content reveals a maturing community grappling with optimization and sustainability. While weight loss and health transformations remain core themes, creators are increasingly addressing why people quit carnivore, the nuances of strict vs. flexible approaches, and practical implementation strategies. A notable debate emerged around dairy consumption, with Dr. Anthony Chaffee advocating for strict elimination while others suggest it helps adherence. The gut health conversation dominated multiple channels, with fermented foods, bone broth, and B1 deficiency receiving significant attention.\n\nOptimalHealth's viral video on India's dietary transformation (4.5M+ views) brought carnivore-adjacent content to mainstream audiences, while established creators like Steak and Butter Gal and HomeSteadHow focused on practical year-end guides and budget-friendly approaches. The community shows strong engagement around electrolyte management, travel strategies, and recipe innovations that make the lifestyle sustainable. Dr. Layne Norton's critical perspective on carnivore created friction, defending fiber consumption and challenging metabolic claims, highlighting ongoing tensions between carnivore advocates and mainstream nutrition science.",
     "trending_topics": [
       {
         "topic": "Gut Health & Fermented Foods",
-        "description": "Multiple creators are discussing the role of fermented foods, probiotics, and gut healing beyond just meat. Sauerkraut juice and L. reuteri yogurt are being promoted as game-changers for digestive health, even within carnivore frameworks.",
+        "description": "Multiple creators emphasized gut healing through fermented foods (especially sauerkraut juice), bone broth, and addressing the liver as the root of disease. HomeSteadHow's video on sauerkraut juice generated 1,779 comments with significant engagement around 'perfect poop' and microbiome optimization.",
         "mentioned_by": [
-          "HomesteadHow",
+          "HomeSteadHow",
           "OptimalHealth",
-          "Steak and Butter Gal"
-        ]
-      },
-      {
-        "topic": "The Dairy Debate",
-        "description": "A heated discussion about whether dairy belongs in carnivore diets. Dr. Chaffee identifies dairy as the #1 reason people quit carnivore, while others argue it helps with adherence and provides valuable nutrients.",
-        "mentioned_by": [
-          "Anthony Chaffee MD",
-          "HomesteadHow",
           "KenDBerryMD"
-        ]
-      },
-      {
-        "topic": "Carnivore on a Budget",
-        "description": "Creators are pushing back against the 'expensive ribeye' stereotype, emphasizing that ground beef and affordable cuts can deliver the same health benefits. This is making carnivore more accessible.",
-        "mentioned_by": [
-          "Dr. Tony Hampton",
-          "Anthony Chaffee MD",
-          "Steak and Butter Gal"
         ]
       },
       {
         "topic": "Vitamin B1 (Thiamine) Deficiency",
-        "description": "Dr. Ken Berry is leading a focused campaign on B1 deficiency, highlighting how coffee, tea, and alcohol block absorption. This is resonating with viewers experiencing neuropathy and fatigue.",
+        "description": "Dr. Ken Berry led a series on B1 deficiency, highlighting how coffee, tea, and alcohol block absorption. This sparked debate in the community about beverage choices and supplement needs on carnivore.",
         "mentioned_by": [
+          "KenDBerryMD",
+          "Dr. Tony Hampton"
+        ]
+      },
+      {
+        "topic": "Why People Quit Carnivore",
+        "description": "Dr. Anthony Chaffee's video directly addressed quitting, pointing to dairy as a major culprit causing inflammation. This sparked significant discussion about purity vs. sustainability in the diet.",
+        "mentioned_by": [
+          "Anthony Chaffee MD",
+          "Dr. Tony Hampton",
+          "Steak and Butter Gal"
+        ]
+      },
+      {
+        "topic": "Budget Carnivore & Ground Beef Focus",
+        "description": "Creators pushed back against the 'ribeye lifestyle' narrative, emphasizing that ground beef, cheaper cuts, and even hot dogs are more sustainable and accessible than expensive steaks.",
+        "mentioned_by": [
+          "HomeSteadHow",
+          "Dr. Tony Hampton",
           "KenDBerryMD"
         ]
       },
       {
-        "topic": "Starting Fresh in 2026",
-        "description": "Multiple creators are releasing 'if I started over' content, refining their advice based on years of experience. This is perfect timing for New Year's resolution seekers.",
+        "topic": "Electrolytes & Salt Loading",
+        "description": "Salt management emerged as a critical topic, with multiple creators addressing proper sodium intake on carnivore to prevent cramping and maintain performance.",
         "mentioned_by": [
-          "Steak and Butter Gal",
-          "myzerocarblife",
-          "Dr. Tony Hampton"
+          "Dr. Tony Hampton",
+          "Courtney Luna"
         ]
       },
       {
-        "topic": "Insulin Resistance Reversal",
-        "description": "Success stories and protocols for reversing insulin resistance are dominating comment sections, with people reporting rapid weight loss and blood sugar improvements.",
+        "topic": "Carnivore vs. Mainstream Nutrition Science",
+        "description": "Dr. Layne Norton's videos defending fiber and challenging carnivore metabolic claims created controversy, with carnivore advocates pushing back in comments about 'oxalate dumping' and dismissing mainstream recommendations.",
         "mentioned_by": [
-          "Steak and Butter Gal",
-          "OptimalHealth",
-          "Dr. Tony Hampton"
+          "Dr. Layne Norton"
         ]
       }
     ],
     "top_videos": [
       {
-        "video_id": "99VmySFleMY",
-        "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg",
-        "title": "Carnivore Got Me 90% There. This One Drink Changed Everything",
-        "creator": "HomesteadHow",
-        "views": 157145,
-        "why_notable": "The most engaging video of the week with 1,779 comments. Reveals sauerkraut juice as a breakthrough for digestive issues. The 'perfect poop' discussion resonated deeply with the community, and the video challenges the idea that carnivore alone is sufficient for optimal health.",
+        "video_id": "p7f8U3owfDY",
+        "channel_id": "UC4FClv972f68pvPJMBmDPjQ",
+        "title": "The Diet Change That Transformed India",
+        "creator": "OptimalHealth",
+        "views": 4562841,
+        "published_at": "2025-12-23T22:25:13Z",
+        "why_notable": "Massive viral reach (4.5M+ views, 95K likes) bringing carnivore-adjacent content about seed oils and traditional fats to mainstream audiences. Comments show international awareness of US food industry influence.",
         "comment_sentiment": {
-          "positive_percent": 50,
-          "negative_percent": 20,
-          "neutral_percent": 30,
-          "overall": "mixed",
-          "summary": "Commenters share personal experiences with carnivore diet and gut health, with mixed opinions on dietary approaches and supplementation."
+          "positive_percent": 20,
+          "negative_percent": 60,
+          "neutral_percent": 20,
+          "overall": "negative",
+          "summary": "Commenters express strong criticism of US food practices and industrial dietary changes, with a critical tone towards processed foods and their health impacts"
+        }
+      },
+      {
+        "video_id": "Rc4tmtpc378",
+        "channel_id": "UC4FClv972f68pvPJMBmDPjQ",
+        "title": "This Is Why People Put Butter in Coffee ☕🧈",
+        "creator": "OptimalHealth",
+        "views": 819258,
+        "published_at": "2025-12-22T16:41:51Z",
+        "why_notable": "Second highest views this week (819K), tapping into bulletproof coffee trend with high engagement (18K+ likes). Shows crossover appeal between keto and carnivore communities.",
+        "comment_sentiment": {
+          "positive_percent": 80,
+          "negative_percent": 0,
+          "neutral_percent": 20,
+          "overall": "positive",
+          "summary": "Commenters share enthusiastic personal experiences and appreciation for adding butter to coffee and other beverages, with an overall positive and curious tone."
         }
       },
       {
@@ -85,43 +100,30 @@
         "title": "High Protein Carnivore Dip Recipe!",
         "creator": "Steak and Butter Gal",
         "views": 172624,
-        "why_notable": "Highest views from the week's carnivore-specific content. Practical recipe content performs exceptionally well, though it sparked debate about including non-carnivore ingredients like lettuce for strict adherents.",
+        "published_at": "2025-12-20T16:23:58Z",
+        "why_notable": "Highest performing strict carnivore content (172K views, 4.7K likes). Recipe content continues to drive engagement, though sparked debate about ingredient purity in comments.",
         "comment_sentiment": {
-          "positive_percent": 60,
+          "positive_percent": 50,
           "negative_percent": 0,
-          "neutral_percent": 40,
-          "overall": "positive",
-          "summary": "Commenters are generally supportive and interested in the carnivore diet recipe, with mostly constructive and lighthearted remarks."
+          "neutral_percent": 50,
+          "overall": "mixed",
+          "summary": "Comments are mostly neutral with some supportive and practical remarks about the recipe and diet approach."
         }
       },
       {
-        "video_id": "fXP5lfB8wkU",
-        "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw",
-        "title": "This gives you electrolytes, collagen, and amino acids without stressing your gut",
-        "creator": "KenDBerryMD",
-        "views": 212792,
-        "why_notable": "Highest performing video across all channels this week. Dr. Berry's focus on bone broth as a healing tool during illness provides actionable advice that bridges carnivore and ancestral health approaches.",
+        "video_id": "99VmySFleMY",
+        "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg",
+        "title": "Carnivore Got Me 90% There. This One Drink Changed Everything",
+        "creator": "HomeSteadHow",
+        "views": 157145,
+        "published_at": "2025-12-20T15:07:24Z",
+        "why_notable": "Massive engagement (9.1K likes, 1,779 comments) around sauerkraut juice for gut health. Community eager for optimization strategies beyond basic carnivore, with mentions of wanting Dr. Chaffee's response.",
         "comment_sentiment": {
-          "positive_percent": 60,
-          "negative_percent": 10,
+          "positive_percent": 40,
+          "negative_percent": 30,
           "neutral_percent": 30,
-          "overall": "positive",
-          "summary": "Commenters express strong support for health advice, sharing personal wellness strategies with enthusiasm and gratitude."
-        }
-      },
-      {
-        "video_id": "cPIYOqSF1aQ",
-        "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw",
-        "title": "If I Started Carnivore in 2026, I'd Do This",
-        "creator": "Steak and Butter Gal",
-        "views": 43284,
-        "why_notable": "Perfect timing for New Year's audience. Comments reveal strong testimonials from former vegetarians and people with IBS finding relief. This represents the 'refined wisdom' trend happening across the community.",
-        "comment_sentiment": {
-          "positive_percent": 80,
-          "negative_percent": 0,
-          "neutral_percent": 20,
-          "overall": "positive",
-          "summary": "Commenters share enthusiastic personal success stories with the carnivore diet, highlighting health improvements and gratitude towards the content creator."
+          "overall": "mixed",
+          "summary": "Commenters share varied personal experiences with carnivore diet, digestive health, and dietary modifications with a mix of positive outcomes and skepticism."
         }
       },
       {
@@ -130,89 +132,110 @@
         "title": "This Is Why People Quit The Carnivore Diet 👉",
         "creator": "Anthony Chaffee MD",
         "views": 70516,
-        "why_notable": "Addresses the elephant in the room - adherence issues. Dr. Chaffee's strong stance against dairy is controversial but generating important discussions about what constitutes 'true' carnivore.",
+        "published_at": "2025-12-24T22:46:36Z",
+        "why_notable": "Addresses elephant in the room - diet adherence. Strong engagement (3K+ likes, 358 comments) with debate about dairy elimination vs. sustainable carnivore practice.",
         "comment_sentiment": {
           "positive_percent": 50,
-          "negative_percent": 20,
-          "neutral_percent": 30,
+          "negative_percent": 30,
+          "neutral_percent": 20,
           "overall": "mixed",
-          "summary": "Commenters share personal experiences with the carnivore diet, expressing both support and criticism of its implementation and challenges."
+          "summary": "Commenters share personal experiences with the carnivore diet, highlighting both benefits and challenges of maintaining the diet strictly."
         }
       }
     ],
     "community_sentiment": {
-      "overall_tone": "positive with critical thinking",
+      "overall_tone": "positive with growing sophistication",
       "common_questions": [
-        "Is dairy acceptable on carnivore or does it cause inflammation?",
-        "How can I afford carnivore on a budget?",
-        "Why am I not losing weight on carnivore?",
-        "Do I need supplements like vitamin B1 on carnivore?",
-        "How do I handle social situations and travel while carnivore?",
-        "Should I be adding fermented foods or is meat enough?",
-        "What's the optimal fat-to-protein ratio?",
-        "How do I deal with constipation or digestive issues on carnivore?"
+        "How do I make carnivore sustainable long-term without expensive cuts?",
+        "Should I eliminate dairy completely or keep it for adherence?",
+        "How much salt do I actually need on carnivore?",
+        "What supplements are truly necessary (especially B1)?",
+        "How do I optimize gut health and achieve 'perfect poop' on carnivore?",
+        "What do I do when carnivore gets me 90% there but I plateau?",
+        "How do I handle social situations, travel, and holidays on carnivore?",
+        "Is coffee/tea problematic for B1 absorption?",
+        "Why am I not losing weight on carnivore?"
       ],
       "success_stories": [
-        "Former vegetarian with IBS for 2 years finding complete relief on carnivore (Steak and Butter Gal comments)",
-        "337 lbs to 270 lbs rapid weight loss with people assuming it's Ozempic (Steak and Butter Gal comments)",
-        "4 months carnivore: 40 lbs lost (205 to 165), inflammation disappeared (HomesteadHow comments)",
-        "Blood sugar dropping from over 200 to normal ranges by eliminating vegetables (Steak and Butter Gal comments)",
-        "Three years strict carnivore with raw dairy resulting in 'perfect poop' and no digestive issues (HomesteadHow comments)",
-        "Joint pain improvement and no more farting reported by multiple community members",
-        "Former vegetarian with severe intestinal issues completely healed on carnivore (OptimalHealth comments)"
+        {
+          "story": "Lost 40 lbs in 4 months (205 to 165), inflammation disappeared completely",
+          "username": "User comment on HomeSteadHow video",
+          "video_id": "rGqawowe9wA",
+          "video_title": "The (2ND) Greatest Carnivore Meal EVER... (SO CHEAP!)"
+        },
+        {
+          "story": "Rapid weight loss from 337 to 270 - everyone thinks they're on Ozempic, loves the results",
+          "username": "User comment on Steak and Butter Gal video",
+          "video_id": "mUDocNDA5tY",
+          "video_title": "Reverse Insulin Resistance FAST – Do These 5 Things NOW!"
+        },
+        {
+          "story": "Former vegetarian with IBS for 20 years, considering carnivore after zero help from doctors",
+          "username": "User comment on Steak and Butter Gal video",
+          "video_id": "cPIYOqSF1aQ",
+          "video_title": "If I Started Carnivore in 2026, I'd Do This"
+        },
+        {
+          "story": "Vegetarian with intestinal issues completely cleared on carnivore diet",
+          "username": "User comment on OptimalHealth video",
+          "video_id": "Au7UkOO6t1E",
+          "video_title": "The Best Ways to Fix Your Gut (That Actually Work)"
+        },
+        {
+          "story": "Blood sugar over 200 with vegetables, under control eating only meat",
+          "username": "User comment on Steak and Butter Gal video",
+          "video_id": "cPIYOqSF1aQ",
+          "video_title": "If I Started Carnivore in 2026, I'd Do This"
+        },
+        {
+          "story": "317 days carnivore, down 55 lbs with occasional keto variations",
+          "username": "User comment on Dr. Tony Hampton video",
+          "video_id": "VcWFlQHPlY0",
+          "video_title": "What I Wish I Knew About CARNIVORE Before I STARTED"
+        }
       ]
     },
     "key_insights": [
-      "The carnivore community is maturing beyond 'just eat meat' to include nuanced discussions about fermented foods, probiotics, and gut health optimization. This suggests the diet is evolving into a more comprehensive health protocol.",
-      "There's a growing divide between 'purist' carnivore advocates (like Dr. Chaffee) and 'flexible' practitioners who include dairy or fermented foods. This tension is healthy and helping people find what works for their individual needs.",
-      "Accessibility is becoming a major focus - multiple creators are emphasizing that expensive cuts aren't necessary, which could significantly expand the diet's reach in 2026.",
-      "The community is increasingly data-driven, with discussions about HbA1c, insulin resistance, and specific nutrient deficiencies like vitamin B1. This adds credibility beyond anecdotal evidence.",
-      "Travel and social situations remain significant barriers. Creators who address practical implementation (like Steak and Butter Gal's travel video) are filling an important need.",
-      "Former vegetarians and vegans are becoming some of the most vocal carnivore advocates after experiencing dramatic health improvements, particularly with IBS and digestive issues.",
-      "The medical establishment's resistance to carnivore diets is a recurring frustration in comments, with many reporting their doctors accuse them of lying or refuse to acknowledge their improvements.",
-      "There's significant skepticism and pushback from mainstream nutrition advocates (like Dr. Layne Norton), creating a 'culture war' dynamic that may be driving engagement on both sides."
+      "The community is shifting from 'carnivore evangelism' to 'carnivore optimization' - people want to fine-tune results rather than just start the diet",
+      "A significant tension exists between strict carnivore purists (Chaffee) and flexible advocates (those allowing dairy, fermented foods, etc.) - this debate centers on sustainability vs. maximum healing",
+      "Budget accessibility is becoming a priority message - creators are actively countering the 'expensive ribeye lifestyle' stereotype with ground beef and cheap cut content",
+      "Gut health has emerged as the next frontier after weight loss - community wants to understand microbiome, fermentation, and digestive optimization within carnivore framework",
+      "The B1/thiamine conversation reveals growing awareness of potential nutrient gaps, especially for coffee drinkers - supplement discussion is becoming more nuanced",
+      "Travel and social sustainability content is gaining traction - people need practical strategies for maintaining carnivore in real-world situations",
+      "Recipe content remains king for engagement, even when it sparks purity debates - people want variety within constraints",
+      "Medical establishment frustration is a powerful motivator - many success stories mention doctors dismissing symptoms or accusing patients of lying",
+      "The 'carnivore didn't fix everything' conversation is opening up - creators addressing plateaus and additional interventions (fermented foods, supplements) without abandoning the core diet",
+      "Mainstream nutrition criticism from figures like Dr. Layne Norton is met with dismissive humor rather than engagement - the community feels confident in anecdotal results over traditional studies"
     ],
     "recommended_watching": [
-      {
-        "video_id": "99VmySFleMY",
-        "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg",
-        "title": "Carnivore Got Me 90% There. This One Drink Changed Everything",
-        "creator": "HomesteadHow",
-        "reason": "Essential viewing for anyone struggling with digestive issues on carnivore. The sauerkraut juice protocol could be the missing piece for many practitioners. The engagement level shows this resonated with a real community need.",
-        "comment_sentiment": {
-          "positive_percent": 50,
-          "negative_percent": 20,
-          "neutral_percent": 30,
-          "overall": "mixed",
-          "summary": "Commenters share personal carnivore diet experiences with mixed outcomes, highlighting individual variations in dietary approaches and gut health"
-        }
-      },
       {
         "video_id": "cPIYOqSF1aQ",
         "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw",
         "title": "If I Started Carnivore in 2026, I'd Do This",
         "creator": "Steak and Butter Gal",
-        "reason": "Perfect for beginners or anyone looking to restart. Bella synthesizes years of experience into actionable advice, and the comment section is filled with encouraging success stories that provide social proof.",
+        "published_at": "2025-12-24T19:00:40Z",
+        "reason": "Perfect year-end guide for new starters with lessons learned from years of experience. High engagement shows the community values this practical, reflective content.",
         "comment_sentiment": {
           "positive_percent": 80,
           "negative_percent": 0,
           "neutral_percent": 20,
           "overall": "positive",
-          "summary": "Users share overwhelmingly positive personal experiences with the carnivore diet, highlighting health improvements and gratitude towards the content creator."
+          "summary": "Commenters share overwhelmingly positive personal health experiences with the carnivore diet, highlighting improved medical conditions and gratitude towards the content creator."
         }
       },
       {
-        "video_id": "mUDocNDA5tY",
-        "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw",
-        "title": "Reverse Insulin Resistance FAST – Do These 5 Things NOW!",
-        "creator": "Steak and Butter Gal",
-        "reason": "Critical for anyone dealing with metabolic issues. The strong engagement (4,049 likes, 361 comments) and testimonials about rapid improvement make this a must-watch for diabetics or pre-diabetics considering carnivore.",
+        "video_id": "99VmySFleMY",
+        "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg",
+        "title": "Carnivore Got Me 90% There. This One Drink Changed Everything",
+        "creator": "HomeSteadHow",
+        "published_at": "2025-12-20T15:07:24Z",
+        "reason": "Essential viewing for anyone plateauing on carnivore. The sauerkraut juice/gut health angle represents important evolution in carnivore thinking beyond just meat consumption.",
         "comment_sentiment": {
-          "positive_percent": 70,
+          "positive_percent": 50,
           "negative_percent": 20,
-          "neutral_percent": 10,
-          "overall": "positive",
-          "summary": "Users express strong satisfaction with alternative health approaches and personal weight loss success, criticizing traditional medical advice while advocating for self-directed health research."
+          "neutral_percent": 30,
+          "overall": "mixed",
+          "summary": "Commenters share personal carnivore diet experiences with varying degrees of success and skepticism about dietary approaches"
         }
       },
       {
@@ -220,212 +243,60 @@
         "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ",
         "title": "This Is Why People Quit The Carnivore Diet 👉",
         "creator": "Anthony Chaffee MD",
-        "reason": "Addresses adherence head-on, which is the real challenge for most people. Understanding why people quit (Dr. Chaffee blames dairy) can help you troubleshoot your own issues before giving up.",
+        "published_at": "2025-12-24T22:46:36Z",
+        "reason": "Critical for understanding long-term adherence. Dr. Chaffee's dairy elimination argument addresses why some people don't see full results and provides troubleshooting framework.",
         "comment_sentiment": {
           "positive_percent": 50,
           "negative_percent": 30,
           "neutral_percent": 20,
           "overall": "mixed",
-          "summary": "Commenters share personal experiences with the carnivore diet, highlighting both its benefits and challenges while offering practical advice and critiques of diet influencers."
+          "summary": "Commenters share personal experiences with the carnivore diet, highlighting both its benefits and challenges while offering nuanced perspectives on diet adherence."
         }
       },
       {
-        "video_id": "RJHZVc-sE40",
+        "video_id": "VcWFlQHPlY0",
         "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ",
-        "title": "The RIBEYE LIE That's Keeping You STUCK",
+        "title": "What I Wish I Knew About CARNIVORE Before I STARTED",
         "creator": "Dr. Tony Hampton",
-        "reason": "Crucial for making carnivore financially sustainable. Dr. Hampton's message that ground beef works just as well as expensive cuts could be the difference between someone trying the diet or dismissing it as too expensive.",
+        "published_at": "2025-12-24T11:58:14Z",
+        "reason": "Comprehensive 'don't quit too soon' guide with practical fixes for common early mistakes. The comments show strong community resonance with people committing to 2026 starts.",
         "comment_sentiment": {
-          "positive_percent": 70,
-          "negative_percent": 0,
-          "neutral_percent": 30,
-          "overall": "positive",
-          "summary": "Commenters enthusiastically share their meat-eating experiences and dietary strategies with a supportive, celebratory tone around low-carb protein consumption."
+          "positive_percent": 60,
+          "negative_percent": 30,
+          "neutral_percent": 10,
+          "overall": "mixed",
+          "summary": "Users share personal struggles and experiences with the carnivore diet, showing a mix of hope, challenges, and determination to improve their health."
         }
       },
       {
-        "video_id": "d6--HvvHOQo",
-        "channel_id": "UCaKl8Lth6h6GWreFyeO1keA",
-        "title": "That's it. 'Starting Over.' (With 16-year Carnivore, Kelly Hogan)",
-        "creator": "myzerocarblife",
-        "reason": "Kelly Hogan represents the longest-term success story in the carnivore space (16 years). Her perspective on 'starting over' after years of experience provides wisdom that only time can teach. High engagement (3,281 likes) shows the community values her voice.",
+        "video_id": "mUDocNDA5tY",
+        "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw",
+        "title": "Reverse Insulin Resistance FAST – Do These 5 Things NOW!",
+        "creator": "Steak and Butter Gal",
+        "published_at": "2025-12-22T16:01:22Z",
+        "reason": "Strong engagement (4K likes, 361 comments) with metabolic health focus. Comments reveal medical establishment frustration that drives many to carnivore - important context for understanding the movement.",
         "comment_sentiment": {
           "positive_percent": 70,
-          "negative_percent": 10,
+          "negative_percent": 20,
+          "neutral_percent": 10,
+          "overall": "positive",
+          "summary": "Commenters share enthusiastic personal health transformation stories and frustration with traditional medical advice while expressing empowerment through diet changes."
+        }
+      },
+      {
+        "video_id": "OMNbgB6CHNY",
+        "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw",
+        "title": "If I had to keep my grocery list as simple as possible, this is what I'd buy every single time",
+        "creator": "KenDBerryMD",
+        "published_at": "2025-12-23T20:36:14Z",
+        "reason": "Budget-friendly, simple approach from trusted voice. The unexpected inclusion of chicken liver sparked positive discussion about organ meat accessibility.",
+        "comment_sentiment": {
+          "positive_percent": 80,
+          "negative_percent": 0,
           "neutral_percent": 20,
           "overall": "positive",
-          "summary": "Viewers express gratitude and share personal success stories about their carnivore diet journey with enthusiasm and hope"
+          "summary": "Commenters enthusiastically endorse the recommended grocery list, particularly celebrating carnivore diet foods with excitement and emojis."
         }
-      }
-    ],
-    "qa_section": [
-      {
-        "question": "Is dairy acceptable on carnivore or does it cause inflammation?",
-        "answer": "The impact of dairy on inflammation within a carnivore diet context is nuanced. While some individuals report reduced inflammation, scientific evidence suggests dairy's effects vary based on individual metabolic responses and dairy type. Full-fat dairy products like butter and hard cheeses typically cause less inflammatory response compared to milk and soft cheeses due to lower lactose and casein content.\n\nResearch indicates that dairy's inflammatory potential depends on multiple factors including individual lactose tolerance, dairy protein sensitivity, and underlying metabolic health. Some studies suggest that fermented dairy products like aged cheeses and full-fat options may actually have anti-inflammatory properties due to their saturated fat profile and potential probiotic components.",
-        "citations": [
-          {
-            "title": "Dairy Consumption and Systemic Inflammation",
-            "authors": "Bordoni A, et al.",
-            "year": 2015,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/26188275/",
-            "summary": "Found varied inflammatory responses to different dairy products"
-          },
-          {
-            "title": "Saturated Fat and Inflammation Markers",
-            "authors": "Kratz M, et al.",
-            "year": 2009,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/19463169/",
-            "summary": "Demonstrated complex relationship between saturated fat and inflammatory markers"
-          }
-        ],
-        "caveats": "Individual metabolic responses vary significantly. Those with known dairy sensitivities, lactose intolerance, or autoimmune conditions should consult healthcare professionals before integrating dairy into a carnivore diet approach."
-      },
-      {
-        "question": "How can I afford carnivore on a budget?",
-        "answer": "Implementing a carnivore diet on a budget requires strategic food selection and purchasing. Focus on less expensive protein sources like chicken thighs, ground beef, eggs, and organ meats, which offer high nutritional density at lower price points. Buying in bulk from wholesale providers, purchasing larger cuts and processing them yourself, and selecting frozen meats can significantly reduce costs.\n\nConsider purchasing less premium cuts like chuck roast, chicken legs, and ground beef (80/20 or 70/30 fat content) which are typically more affordable. Organ meats like liver are extremely nutrient-dense and often cheaper per pound. Buying directly from local farmers, participating in meat share programs, or purchasing whole animals can further reduce expenses. Freezing meats when on sale and meal prepping can also help manage nutrition costs.",
-        "citations": [
-          {
-            "title": "Nutritional and Metabolic Impacts of a Carnivore Diet",
-            "authors": "Lennerz B, et al.",
-            "year": 2021,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/33657038/",
-            "summary": "Examined nutritional composition and potential metabolic effects of animal-based diets"
-          },
-          {
-            "title": "Economic Aspects of Meat Consumption",
-            "authors": "Perez-Cueto FJA",
-            "year": 2019,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/30987390/",
-            "summary": "Analyzed cost-effectiveness of different protein sources and dietary strategies"
-          }
-        ],
-        "caveats": "While potentially cost-effective, carnivore diets lack comprehensive long-term research on health outcomes. Potential nutritional deficiencies in micronutrients like vitamin C, fiber, and certain minerals should be carefully monitored. Consultation with a registered dietitian is recommended to ensure nutritional adequacy."
-      },
-      {
-        "question": "Why am I not losing weight on carnivore?",
-        "answer": "Weight loss on a carnivore diet depends on multiple metabolic factors beyond simply eliminating carbohydrates. While high-protein, low-carbohydrate diets can promote weight loss through increased satiety and metabolic adaptation, total caloric intake remains the primary determinant. If you're not losing weight, you may be consuming excess calories from protein and fat sources, which can still lead to weight maintenance or gain.\n\nResearch suggests that individual metabolic responses vary significantly. Factors like baseline insulin sensitivity, muscle mass, activity level, and hormonal status influence weight loss trajectories. Some individuals may experience metabolic compensation, where basal metabolic rate decreases in response to dietary changes, potentially slowing weight loss. Additionally, the carnivore diet's high protein and fat content might lead to spontaneous overconsumption due to reduced hunger signaling.",
-        "citations": [
-          {
-            "title": "Effects of a high-protein diet on appetite, weight loss and metabolic adaptations",
-            "authors": "Leidy HJ, et al.",
-            "year": 2015,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/26055827/",
-            "summary": "Demonstrated individual variability in metabolic responses to high-protein diets"
-          },
-          {
-            "title": "Energy balance and its components: implications for body weight regulation",
-            "authors": "Hall KD, et al.",
-            "year": 2012,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/22735432/",
-            "summary": "Confirmed caloric intake as primary driver of weight change"
-          }
-        ],
-        "caveats": "Limited long-term research specifically on carnivore diet. Potential nutritional deficiencies and cardiovascular risks. Individual metabolic responses vary widely. Recommend consulting healthcare professional for personalized nutritional guidance."
-      },
-      {
-        "question": "Do I need supplements like vitamin B1 on carnivore?",
-        "answer": "On a strict carnivore diet, supplementation with vitamin B1 (thiamine) may be necessary due to limited dietary sources. While animal products contain some thiamine, the bioavailability and quantity can be insufficient, especially with high muscle meat consumption. Ruminant meats and organ meats like liver provide more thiamine, but may not meet recommended daily intake.\n\nResearch suggests that prolonged high-protein, low-carbohydrate diets can increase thiamine requirements. Thiamine is crucial for metabolic processes, particularly carbohydrate metabolism and neurological function. Individuals on carnivore diets might experience increased metabolic stress that could deplete thiamine stores more rapidly.",
-        "citations": [
-          {
-            "title": "Thiamine Status in Humans on Extreme Diets",
-            "authors": "Kraft M, et al.",
-            "year": 2020,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/32184991/",
-            "summary": "Documented potential thiamine deficiency risks in metabolically challenging dietary patterns"
-          },
-          {
-            "title": "Nutritional Considerations of Carnivore and Ketogenic Diets",
-            "authors": "Volek JS, et al.",
-            "year": 2016,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/27184581/",
-            "summary": "Analyzed micronutrient requirements in high-protein, low-carbohydrate dietary approaches"
-          }
-        ],
-        "caveats": "Individual metabolic variations exist. Consultation with a healthcare professional for personalized nutritional assessment is recommended. Periodic blood testing can help monitor potential deficiencies."
-      },
-      {
-        "question": "How do I handle social situations and travel while carnivore?",
-        "answer": "Navigating social situations and travel on a carnivore diet requires strategic planning and flexibility. Prepare by packing portable protein sources like jerky, canned fish, and pre-cooked meats that can be easily transported through airports and stored without refrigeration. Many restaurants can accommodate meat-based requests, such as ordering grilled chicken, steak, or fish without sides.\n\nFor social events, consider bringing your own food discreetly or eating beforehand. Communicate dietary preferences in advance to hosts or restaurants. When traveling internationally, research local meat availability and consider supplements like electrolytes and multivitamins to mitigate potential nutritional gaps. Some travelers find success with meal replacement powders or protein bars that align with carnivore principles.",
-        "citations": [
-          {
-            "title": "Nutritional Adequacy of Plant-Based Protein Diets and Potential Micronutrient Deficiency Risks",
-            "authors": "Pawlak R, et al.",
-            "year": 2013,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/23763765/",
-            "summary": "Highlighted potential nutritional challenges of restrictive diets"
-          },
-          {
-            "title": "Travel and Diet: Strategies for Maintaining Nutritional Intake",
-            "authors": "Ritz BW, et al.",
-            "year": 2019,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/30626757/",
-            "summary": "Discussed dietary adaptation strategies during travel"
-          }
-        ],
-        "caveats": "Limited long-term research specifically on carnivore diet travel strategies. Individual nutritional needs vary, and consultation with a healthcare professional is recommended. Potential risks include micronutrient deficiencies and limited dietary flexibility."
-      },
-      {
-        "question": "Should I be adding fermented foods or is meat enough?",
-        "answer": "While the carnivore diet primarily consists of animal products, incorporating fermented foods can provide additional microbiome and digestive health benefits. Fermented foods like kefir, kimchi, and certain fermented meats contain beneficial probiotics and can enhance gut microbiota diversity, which may be limited in a strict meat-only diet. Research suggests that diverse microbial populations contribute to immune function, metabolic health, and potentially mitigate some inflammatory responses.\n\nSpecifically, fermented foods introduce beneficial bacterial strains like Lactobacillus and Bifidobacterium, which can support digestive enzyme production, improve nutrient absorption, and potentially modulate immune responses. While carnivore diet advocates argue that meat provides comprehensive nutrition, the microbiome diversity from fermentation could offer complementary metabolic advantages not fully addressed by animal proteins alone.",
-        "citations": [
-          {
-            "title": "The Impact of Fermented Foods on Gut Microbiota and Health",
-            "authors": "Marco ML, et al.",
-            "year": 2021,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/33445974/",
-            "summary": "Comprehensive review highlighting probiotic benefits of fermented foods on gut health"
-          },
-          {
-            "title": "Fermented Meat Products: Potential Probiotic Carriers",
-            "authors": "Leroy F, et al.",
-            "year": 2018,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/29734298/",
-            "summary": "Explored probiotic potential in fermented meat products compatible with carnivore diet approach"
-          }
-        ],
-        "caveats": "Limited long-term studies specifically on carnivore diet microbiome composition. Individual metabolic responses vary. Consultation with healthcare professional recommended for personalized nutritional guidance."
-      },
-      {
-        "question": "What's the optimal fat-to-protein ratio?",
-        "answer": "The optimal fat-to-protein ratio for a carnivore diet is not definitively established, but current research suggests a range of 1.5:1 to 2:1 fat-to-protein ratio may provide metabolic benefits. This ratio appears to support ketogenic metabolism while providing adequate protein for muscle maintenance and metabolic functions.\n\nKey considerations include individual metabolic factors, activity level, and overall health goals. Protein intake should typically range from 1.6-2.2 g/kg of body weight, with fat making up 70-80% of total caloric intake. Some metabolically healthy individuals may tolerate higher protein ratios, while those seeking deeper ketosis might prefer a higher fat percentage.",
-        "citations": [
-          {
-            "title": "Dietary Protein and Resistance Training Effects on Muscle and Body Composition in Older Persons",
-            "authors": "Bauer J, et al.",
-            "year": 2013,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/24435468/",
-            "summary": "Supports optimal protein intake for muscle preservation"
-          },
-          {
-            "title": "Long-term effects of a ketogenic diet in obese patients",
-            "authors": "Johnstone AM, et al.",
-            "year": 2008,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/18175977/",
-            "summary": "Provides insights into macronutrient ratios in ketogenic diets"
-          }
-        ],
-        "caveats": "Individual metabolic responses vary. Long-term carnivore diet impacts are not fully understood. Consultation with a healthcare professional is recommended, especially for individuals with pre-existing health conditions. Micronutrient sufficiency and potential nutrient deficiencies should be carefully monitored."
-      },
-      {
-        "question": "How do I deal with constipation or digestive issues on carnivore?",
-        "answer": "Constipation on a carnivore diet can occur due to several factors, primarily the significant reduction in dietary fiber and potential electrolyte imbalances. Animal-based diets are typically low in fermentable fibers that support gut motility and microbiome health. To mitigate digestive issues, consider increasing water intake, supplementing with electrolytes like magnesium, and potentially incorporating bone broth or collagen to support digestive function.\n\nResearch suggests that dramatic dietary shifts can temporarily disrupt gut microbiome composition and bowel movements. Strategic interventions might include gradual diet adaptation, consuming fattier cuts of meat to support intestinal lubrication, and monitoring mineral intake. Some individuals may benefit from temporary supplementation with magnesium citrate or gentle digestive enzymes to support bowel regularity.",
-        "citations": [
-          {
-            "title": "Dietary Fiber Intake and Microbiota in Gastrointestinal Health",
-            "authors": "Makki K, et al.",
-            "year": 2018,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/30487605/",
-            "summary": "Highlighted importance of dietary fiber for gut microbiome and motility"
-          },
-          {
-            "title": "Low Carbohydrate Diet Effects on Gut Microbiome",
-            "authors": "Abelson P, et al.",
-            "year": 2020,
-            "url": "https://pubmed.ncbi.nlm.nih.gov/32251710/",
-            "summary": "Documented metabolic and microbiome shifts with restrictive diets"
-          }
-        ],
-        "caveats": "Limited long-term research specifically on carnivore diet. Individual metabolic responses vary. Consultation with healthcare professional recommended for persistent digestive issues."
       }
     ]
   },
