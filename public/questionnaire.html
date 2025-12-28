@@ -591,6 +591,18 @@
     </div>
 
     <script>
+        // Load macro data from localStorage (saved from calculator)
+        let macroData = null;
+        try {
+            const savedMacros = localStorage.getItem('carnivore_macros');
+            if (savedMacros) {
+                macroData = JSON.parse(savedMacros);
+                console.log('Loaded macro data:', macroData);
+            }
+        } catch (e) {
+            console.error('Error loading macro data:', e);
+        }
+
         // Form submission handler
         document.getElementById('aiReportForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -613,13 +625,20 @@
                 }
             }
 
+            // Include macro data if available
+            if (macroData) {
+                data.macros = macroData;
+            }
+
             // Show loading state
             document.getElementById('aiReportForm').style.display = 'none';
             document.getElementById('loadingState').classList.add('active');
 
             try {
-                // TODO: Send to backend API endpoint
-                const response = await fetch('/api/generate-report', {
+                // TODO: Update this URL to your Cloudflare Worker URL
+                const apiUrl = '/api/generate-report'; // Change to: https://carnivore-report-api.YOUR-SUBDOMAIN.workers.dev
+
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -633,13 +652,15 @@
 
                 const result = await response.json();
 
-                // TODO: Handle successful report generation
-                // For now, show placeholder
-                alert('Report generation will be implemented with backend API endpoint!');
+                // Clear localStorage (privacy - no data retention)
+                localStorage.removeItem('carnivore_macros');
+
+                // Display the generated report
+                displayReport(result.report);
 
             } catch (error) {
                 console.error('Error:', error);
-                alert('Something went wrong. Please try again or contact support.');
+                alert('Something went wrong generating your report. Please contact support at your email confirmation.');
 
                 // Show form again
                 document.getElementById('loadingState').classList.remove('active');
@@ -647,15 +668,91 @@
             }
         });
 
+        // Display the generated report
+        function displayReport(reportHTML) {
+            // Hide loading
+            document.getElementById('loadingState').classList.remove('active');
+
+            // Create report display container
+            const reportContainer = document.createElement('div');
+            reportContainer.innerHTML = `
+                <div style="max-width: 900px; margin: 0 auto; padding: 20px;">
+                    <div class="warning-banner" style="margin-bottom: 30px;">
+                        <h2>⚠️ SAVE THIS REPORT NOW!</h2>
+                        <p><strong>This page will only show once.</strong> We don't save your data. Download/print this report immediately!</p>
+                        <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center;">
+                            <button onclick="window.print()" style="background: #8b4513; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1.1em; cursor: pointer; font-weight: bold;">
+                                🖨️ Print / Save as PDF
+                            </button>
+                            <button onclick="downloadReport()" style="background: #ffd700; color: #1a120b; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1.1em; cursor: pointer; font-weight: bold;">
+                                💾 Download HTML
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="reportContent" style="background: white; padding: 40px; border-radius: 12px; border: 2px solid #8b4513;">
+                        ${reportHTML}
+                    </div>
+
+                    <div class="warning-banner" style="margin-top: 30px;">
+                        <p><strong>Remember:</strong> Once you close this page, this report is gone forever. We don't keep your data!</p>
+                    </div>
+                </div>
+            `;
+
+            document.body.innerHTML = '';
+            document.body.appendChild(reportContainer);
+
+            // Store report for download
+            window.generatedReport = reportHTML;
+        }
+
+        // Download report as HTML file
+        function downloadReport() {
+            const report = window.generatedReport;
+            if (!report) return;
+
+            const blob = new Blob([`
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>My Carnivore Diet Report</title>
+    <style>
+        body { font-family: serif; max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { color: #8b4513; }
+        h2 { color: #8b4513; border-bottom: 2px solid #d4a574; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+${report}
+</body>
+</html>
+            `], { type: 'text/html' });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `carnivore-diet-report-${new Date().toISOString().split('T')[0]}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
         // Warn before leaving page
         window.addEventListener('beforeunload', function(e) {
-            if (!document.getElementById('loadingState').classList.contains('active')) {
-                return;
+            const loading = document.getElementById('loadingState');
+            if (loading && loading.classList.contains('active')) {
+                e.preventDefault();
+                e.returnValue = 'Your report is being generated. Are you sure you want to leave?';
+                return e.returnValue;
             }
 
-            e.preventDefault();
-            e.returnValue = 'Your report is being generated. Are you sure you want to leave?';
-            return e.returnValue;
+            // Also warn if report is displayed (they should save it first)
+            if (window.generatedReport) {
+                e.preventDefault();
+                e.returnValue = 'Have you saved your report? It will be gone forever if you leave!';
+                return e.returnValue;
+            }
         });
     </script>
 </body>

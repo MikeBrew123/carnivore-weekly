@@ -1545,6 +1545,11 @@
         function upgradeClick() {
             trackUpgradeClick();
 
+            // Save current macro results to localStorage for questionnaire
+            if (currentResults) {
+                localStorage.setItem('carnivore_macros', JSON.stringify(currentResults));
+            }
+
             // Redirect to Stripe checkout
             window.location.href = 'https://buy.stripe.com/00w4gzc4XdxMcW2g80ao800';
         }
