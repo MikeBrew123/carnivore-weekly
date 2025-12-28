@@ -663,9 +663,112 @@
 
         /* Print styles */
         @media print {
+            /* Hide non-essential elements */
             body::before { display: none; }
-            .no-print { display: none !important; }
+            header { display: none !important; }
+            footer { display: none !important; }
+            nav { display: none !important; }
+            .calculator-form { display: none !important; }
+            #upgradeSection { display: none !important; }
+            .free-badge { display: none !important; }
+
+            /* Clean background for print */
+            body {
+                background: white;
+                color: #000;
+            }
+
+            /* Show results section */
+            #resultsSection {
+                display: block !important;
+                margin: 0;
+                padding: 20px;
+            }
+
+            /* Print header with logo and branding */
+            #resultsSection::before {
+                content: '';
+                display: block;
+                width: 100%;
+                padding: 30px 0;
+                border-bottom: 3px solid #8b4513;
+                margin-bottom: 30px;
+                background:
+                    linear-gradient(to right, transparent 0%, #d4a574 50%, transparent 100%)
+                    no-repeat center bottom / 60% 2px;
+            }
+
+            /* Add logo and title at top */
+            .container::before {
+                content: 'CARNIVORE WEEKLY';
+                display: block;
+                font-family: 'Playfair Display', serif;
+                font-size: 2em;
+                font-weight: 900;
+                text-align: center;
+                color: #8b4513;
+                margin-bottom: 5px;
+                letter-spacing: 2px;
+            }
+
+            .container::after {
+                content: 'Your Personalized Macro Plan';
+                display: block;
+                font-family: 'Merriweather', serif;
+                font-size: 1em;
+                text-align: center;
+                color: #666;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #d4a574;
+            }
+
+            /* Clean card styling for print */
+            .card {
+                background: white;
+                border: 2px solid #8b4513;
+                box-shadow: none;
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+            }
+
+            .card h3 {
+                color: #8b4513;
+                border-bottom: 2px solid #d4a574;
+                padding-bottom: 10px;
+            }
+
+            /* Ensure readability */
+            .macro-split {
+                border: 1px solid #ddd;
+            }
+
+            .warning, .info {
+                background: white;
+                border: 2px solid #666;
+                color: #000;
+            }
+
+            .meal-example {
+                background: white;
+                border: 2px solid #8b4513;
+            }
+
+            /* Footer note on print */
+            #resultsSection::after {
+                content: 'Generated at carnivoreweekly.com/calculator.html';
+                display: block;
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #ddd;
+                text-align: center;
+                font-size: 0.85em;
+                color: #666;
+            }
+
+            /* Page breaks */
             .card { page-break-inside: avoid; }
+            h3 { page-break-after: avoid; }
         }
     </style>
 </head>
