@@ -1309,12 +1309,21 @@
                 const proteinPerMeal = Math.round(protein_g / 2);
                 const fatPerMeal = Math.round(fat_g / 2);
 
+                // Meat portions based on protein content
+                // Ribeye: ~6g protein/oz, Ground beef 80/20: ~5g protein/oz
+                const ribeyeOz = Math.round(proteinPerMeal / 6);
+                const groundBeefOz = Math.round(proteinPerMeal / 5);
+
+                // 3-meal portions (protein/oz: ground beef ~5g, salmon/beef ~6-7g)
+                const lunchBeefOz = Math.round((protein_g / 3) / 5);
+                const dinnerBeefOz = Math.round((protein_g / 3) / 6);
+
                 examples = [
                     {
                         title: `2-Meal Carnivore Day (${calories} cal)`,
                         meals: [
-                            `<strong>Meal 1 (${caloriesPerMeal} cal):</strong> ${Math.round(proteinPerMeal / 25)}oz ribeye steak + 3-4 eggs cooked in butter`,
-                            `<strong>Meal 2 (${caloriesPerMeal} cal):</strong> ${Math.round(proteinPerMeal / 20)}oz ground beef (80/20) + 2oz cheese`,
+                            `<strong>Meal 1 (${caloriesPerMeal} cal):</strong> ${ribeyeOz}oz ribeye steak + 3-4 eggs cooked in butter`,
+                            `<strong>Meal 2 (${caloriesPerMeal} cal):</strong> ${groundBeefOz}oz ground beef (80/20) + 2oz cheese`,
                             `<strong>Salt:</strong> Generously on everything`,
                             `<strong>Beverages:</strong> Water, black coffee, bone broth`
                         ]
@@ -1322,9 +1331,9 @@
                     {
                         title: `Simple 3-Meal Plan`,
                         meals: [
-                            `<strong>Breakfast:</strong> 4-6 eggs scrambled in butter + 4oz bacon`,
-                            `<strong>Lunch:</strong> ${Math.round(protein_g / 3 / 25)}oz burger patties (no bun) + cheese`,
-                            `<strong>Dinner:</strong> ${Math.round(protein_g / 3 / 25)}oz salmon or beef + butter`,
+                            `<strong>Breakfast:</strong> 4-6 eggs scrambled in butter + ${Math.round(protein_g / 3 / 6)}oz bacon`,
+                            `<strong>Lunch:</strong> ${lunchBeefOz}oz burger patties (no bun) + cheese`,
+                            `<strong>Dinner:</strong> ${dinnerBeefOz}oz salmon or beef + butter`,
                             `<strong>Tip:</strong> Eat fatty cuts. Skip lean meats.`
                         ]
                     }
