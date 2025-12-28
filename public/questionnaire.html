@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Report Questionnaire | Carnivore Weekly</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Merriweather', serif;
+            line-height: 1.8;
+            color: #2c1810;
+            background: #1a120b;
+            min-height: 100vh;
+        }
+
+        /* Leather texture background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(58, 35, 23, 0.7), rgba(58, 35, 23, 0.7)),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="4" seed="0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.3"/></svg>');
+            background-color: #3a2317;
+            background-size: 200px 200px, 100% 100%;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+            border-radius: 15px;
+            border: 3px solid #d4a574;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: #ffd700;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        header p {
+            color: #f4e4d4;
+            font-size: 1.1em;
+        }
+
+        /* Warning banner */
+        .warning-banner {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a120b;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 3px solid #d4a574;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .warning-banner h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .warning-banner ul {
+            margin: 15px 0 0 25px;
+            line-height: 1.8;
+        }
+
+        .warning-banner strong {
+            color: #8b4513;
+        }
+
+        /* Form sections */
+        .form-section {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #8b4513;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-section h3 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            font-size: 1.6em;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #d4a574;
+            padding-bottom: 10px;
+        }
+
+        .form-section .subtitle {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            color: #2c1810;
+            margin-bottom: 8px;
+        }
+
+        .optional {
+            font-weight: normal;
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d4a574;
+            border-radius: 8px;
+            font-family: 'Merriweather', serif;
+            font-size: 1em;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #8b4513;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        /* Medical disclaimer */
+        .medical-disclaimer {
+            background: rgba(255, 237, 78, 0.2);
+            border-left: 4px solid #ffd700;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .medical-disclaimer strong {
+            color: #8b4513;
+        }
+
+        /* Submit button */
+        .submit-section {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #8b4513;
+            border-radius: 12px;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a120b;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Playfair Display', serif;
+            border: 3px solid #d4a574;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-note {
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        /* Loading state */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #8b4513;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #8b4513;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CARNIVORE WEEKLY</h1>
+            <p>AI-Generated Personalized Diet Report</p>
+        </header>
+
+        <div class="warning-banner">
+            <h2>⚠️ Important: One-Time Report Generation</h2>
+            <ul>
+                <li><strong>Fill out as much or as little as you want</strong> - More info = more personalized report</li>
+                <li><strong>This generates ONCE.</strong> No saves, no redo, no second chances.</li>
+                <li><strong>Your data is deleted immediately</strong> after generation - we keep nothing.</li>
+                <li><strong>Download your report and save it</strong> when it's ready - you can't come back!</li>
+            </ul>
+        </div>
+
+        <form id="aiReportForm">
+            <!-- Section 1: Contact Info -->
+            <div class="form-section">
+                <h3>📧 Contact Information</h3>
+                <p class="subtitle">Where should we send your report?</p>
+
+                <div class="form-group">
+                    <label>Email Address <span class="optional">(required - for delivery)</span></label>
+                    <input type="email" name="email" id="email" required placeholder="your@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label>First Name <span class="optional">(optional)</span></label>
+                    <input type="text" name="firstName" placeholder="e.g., John">
+                </div>
+            </div>
+
+            <!-- Section 2: Health Restrictions -->
+            <div class="form-section">
+                <h3>🚫 Allergies & Food Restrictions</h3>
+                <p class="subtitle">Help us avoid recommending foods you can't or won't eat</p>
+
+                <div class="form-group">
+                    <label>Food Allergies <span class="optional">(optional)</span></label>
+                    <textarea name="allergies" placeholder="e.g., Shellfish allergy, lactose intolerant, egg allergy"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Foods You Can't/Won't Eat <span class="optional">(optional)</span></label>
+                    <textarea name="foodRestrictions" placeholder="e.g., No pork for religious reasons, can't afford ribeye, hate fish"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Dairy Tolerance <span class="optional">(optional)</span></label>
+                    <select name="dairyTolerance">
+                        <option value="">Select one...</option>
+                        <option value="full">Full dairy (butter, cheese, milk, cream)</option>
+                        <option value="some">Some dairy (butter and hard cheese only)</option>
+                        <option value="none">No dairy at all</option>
+                    </select>
+                </div>
+
+                <div class="medical-disclaimer">
+                    <strong>Medical Disclaimer:</strong> This information is for educational purposes only. If you have severe food allergies or medical conditions, consult your doctor before changing your diet. Bring this report with you to appointments.
+                </div>
+            </div>
+
+            <!-- Section 3: Current Health -->
+            <div class="form-section">
+                <h3>🏥 Current Health Conditions</h3>
+                <p class="subtitle">Help us tailor the plan to your situation (all optional)</p>
+
+                <div class="form-group">
+                    <label>Current Medications <span class="optional">(optional)</span></label>
+                    <textarea name="medications" placeholder="e.g., Metformin for diabetes, levothyroxine for thyroid, blood pressure medication"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Existing Health Conditions <span class="optional">(optional)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="diabetes" name="conditions" value="diabetes">
+                            <label for="diabetes">Type 2 Diabetes / Pre-diabetes</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="thyroid" name="conditions" value="thyroid">
+                            <label for="thyroid">Thyroid Issues (Hashimoto's, hypothyroid)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="autoimmune" name="conditions" value="autoimmune">
+                            <label for="autoimmune">Autoimmune Condition</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="gut" name="conditions" value="gut">
+                            <label for="gut">Digestive Issues (IBS, Crohn's, colitis)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="heart" name="conditions" value="heart">
+                            <label for="heart">Heart Disease / High Blood Pressure</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="mental" name="conditions" value="mental">
+                            <label for="mental">Mental Health (depression, anxiety)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Other Health Issues <span class="optional">(optional)</span></label>
+                    <textarea name="otherConditions" placeholder="e.g., PCOS, gout, kidney issues, anything else we should know"></textarea>
+                </div>
+
+                <div class="medical-disclaimer">
+                    <strong>Medical Disclaimer:</strong> This report is for informational purposes only and does not replace medical advice. Always consult your healthcare provider before starting a new diet, especially if you have existing health conditions or take medications. Bring this report to your doctor appointments.
+                </div>
+            </div>
+
+            <!-- Section 4: Current Symptoms -->
+            <div class="form-section">
+                <h3>💊 Current Symptoms & Issues</h3>
+                <p class="subtitle">What are you hoping to improve? (all optional)</p>
+
+                <div class="form-group">
+                    <label>Current Symptoms <span class="optional">(optional)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="bloating" name="symptoms" value="bloating">
+                            <label for="bloating">Bloating / Gas</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brainfog" name="symptoms" value="brainfog">
+                            <label for="brainfog">Brain Fog / Poor Focus</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="fatigue" name="symptoms" value="fatigue">
+                            <label for="fatigue">Chronic Fatigue / Low Energy</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="jointpain" name="symptoms" value="jointpain">
+                            <label for="jointpain">Joint Pain / Inflammation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="skin" name="symptoms" value="skin">
+                            <label for="skin">Skin Issues (acne, eczema, rosacea)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sleep" name="symptoms" value="sleep">
+                            <label for="sleep">Poor Sleep Quality</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cravings" name="symptoms" value="cravings">
+                            <label for="cravings">Sugar Cravings / Food Addiction</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Other Symptoms <span class="optional">(optional)</span></label>
+                    <textarea name="otherSymptoms" placeholder="Anything else you're dealing with that we should address?"></textarea>
+                </div>
+            </div>
+
+            <!-- Section 5: Diet History -->
+            <div class="form-section">
+                <h3>🍽️ Diet History</h3>
+                <p class="subtitle">What have you tried before? (all optional)</p>
+
+                <div class="form-group">
+                    <label>Previous Diets Tried <span class="optional">(optional)</span></label>
+                    <textarea name="previousDiets" placeholder="e.g., Keto for 6 months (lost weight but plateaued), vegan (felt terrible), Standard American Diet (gained weight)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Carnivore Experience <span class="optional">(optional)</span></label>
+                    <select name="carnivoreExperience">
+                        <option value="">Select one...</option>
+                        <option value="never">Never tried carnivore</option>
+                        <option value="dabbled">Tried it briefly (days/weeks)</option>
+                        <option value="months">Did it for months</option>
+                        <option value="current">Currently carnivore</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>What Worked / Didn't Work <span class="optional">(optional)</span></label>
+                    <textarea name="whatWorked" placeholder="e.g., Lost weight on keto but gained it back, felt great on low-carb but too restrictive, can't stick to meal plans"></textarea>
+                </div>
+            </div>
+
+            <!-- Section 6: Lifestyle -->
+            <div class="form-section">
+                <h3>🏠 Lifestyle & Practical Constraints</h3>
+                <p class="subtitle">Help us make this realistic for YOUR life (all optional)</p>
+
+                <div class="form-group">
+                    <label>Cooking Ability <span class="optional">(optional)</span></label>
+                    <select name="cookingSkill">
+                        <option value="">Select one...</option>
+                        <option value="beginner">Beginner (can barely boil water)</option>
+                        <option value="basic">Basic (can follow recipes)</option>
+                        <option value="intermediate">Intermediate (comfortable in kitchen)</option>
+                        <option value="advanced">Advanced (love cooking)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Time Available for Meal Prep <span class="optional">(optional)</span></label>
+                    <select name="mealPrepTime">
+                        <option value="">Select one...</option>
+                        <option value="minimal">Minimal (< 1 hour/week)</option>
+                        <option value="some">Some time (1-3 hours/week)</option>
+                        <option value="moderate">Moderate (3-5 hours/week)</option>
+                        <option value="plenty">Plenty (5+ hours/week)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Budget Constraints <span class="optional">(optional)</span></label>
+                    <select name="budget">
+                        <option value="">Select one...</option>
+                        <option value="tight">Tight budget (ground beef, eggs, cheap cuts)</option>
+                        <option value="moderate">Moderate (some variety)</option>
+                        <option value="flexible">Flexible (can afford ribeye, salmon)</option>
+                        <option value="unlimited">No budget concerns</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Family Situation <span class="optional">(optional)</span></label>
+                    <select name="familySituation">
+                        <option value="">Select one...</option>
+                        <option value="solo">Cooking for myself only</option>
+                        <option value="partner">Cooking for partner too (also carnivore)</option>
+                        <option value="mixed">Cooking for family (mixed diets)</option>
+                        <option value="kids">Cooking for kids (need family-friendly options)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Work/Travel Situation <span class="optional">(optional)</span></label>
+                    <textarea name="workTravel" placeholder="e.g., Travel 2 weeks/month for work, eat lunch at desk, frequent business dinners, work from home"></textarea>
+                </div>
+            </div>
+
+            <!-- Section 7: Goals & Priorities -->
+            <div class="form-section">
+                <h3>🎯 Goals & Priorities</h3>
+                <p class="subtitle">Beyond macros, what matters most to you? (all optional)</p>
+
+                <div class="form-group">
+                    <label>Primary Goals (check top 3) <span class="optional">(optional)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="weightloss" name="goals" value="weightloss">
+                            <label for="weightloss">Weight Loss</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="muscle" name="goals" value="muscle">
+                            <label for="muscle">Build Muscle</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="energy" name="goals" value="energy">
+                            <label for="energy">More Energy</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="mental" name="goals" value="mental">
+                            <label for="mental">Mental Clarity / Focus</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="guthealth" name="goals" value="guthealth">
+                            <label for="guthealth">Fix Gut Health</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="inflammation" name="goals" value="inflammation">
+                            <label for="inflammation">Reduce Inflammation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="autoimmune" name="goals" value="autoimmune">
+                            <label for="autoimmune">Manage Autoimmune Condition</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="simplify" name="goals" value="simplify">
+                            <label for="simplify">Simplify My Life / End Food Obsession</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Biggest Challenge or Fear <span class="optional">(optional)</span></label>
+                    <textarea name="biggestChallenge" placeholder="e.g., Afraid of eating too much fat, worried about cholesterol, don't know if I can give up bread, scared of social situations"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Anything Else We Should Know? <span class="optional">(optional)</span></label>
+                    <textarea name="anythingElse" placeholder="Tell us anything that would help us create the perfect plan for YOU"></textarea>
+                </div>
+            </div>
+
+            <!-- Submit Section -->
+            <div class="submit-section">
+                <button type="submit" class="submit-button" id="submitBtn">
+                    🚀 Generate My AI Report
+                </button>
+                <p class="submit-note">
+                    <strong>Remember:</strong> This generates once. Download and save your report when ready!
+                </p>
+            </div>
+        </form>
+
+        <!-- Loading State -->
+        <div class="loading" id="loadingState">
+            <div class="spinner"></div>
+            <h3>🧠 AI is analyzing your information...</h3>
+            <p>Generating your personalized carnivore diet report.</p>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">This takes 30-60 seconds. Don't close this page!</p>
+        </div>
+    </div>
+
+    <script>
+        // Form submission handler
+        document.getElementById('aiReportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Get form data
+            const formData = new FormData(this);
+            const data = {};
+
+            // Convert FormData to object
+            for (let [key, value] of formData.entries()) {
+                if (data[key]) {
+                    // Handle multiple values (checkboxes)
+                    if (Array.isArray(data[key])) {
+                        data[key].push(value);
+                    } else {
+                        data[key] = [data[key], value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            // Show loading state
+            document.getElementById('aiReportForm').style.display = 'none';
+            document.getElementById('loadingState').classList.add('active');
+
+            try {
+                // TODO: Send to backend API endpoint
+                const response = await fetch('/api/generate-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Report generation failed');
+                }
+
+                const result = await response.json();
+
+                // TODO: Handle successful report generation
+                // For now, show placeholder
+                alert('Report generation will be implemented with backend API endpoint!');
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again or contact support.');
+
+                // Show form again
+                document.getElementById('loadingState').classList.remove('active');
+                document.getElementById('aiReportForm').style.display = 'block';
+            }
+        });
+
+        // Warn before leaving page
+        window.addEventListener('beforeunload', function(e) {
+            if (!document.getElementById('loadingState').classList.contains('active')) {
+                return;
+            }
+
+            e.preventDefault();
+            e.returnValue = 'Your report is being generated. Are you sure you want to leave?';
+            return e.returnValue;
+        });
+    </script>
+</body>
+</html>
