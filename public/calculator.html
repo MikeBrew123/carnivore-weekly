@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Free carnivore diet macro calculator. Get personalized calories, protein, and fat targets with meal examples and electrolyte guidance. No email required.">
+    <meta name="keywords" content="carnivore calculator, macro calculator, carnivore diet macros, keto calculator, protein calculator, free diet calculator">
+    <meta name="author" content="Carnivore Weekly">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://carnivoreweekly.com/calculator.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://carnivoreweekly.com/calculator.html">
+    <meta property="og:title" content="Free Carnivore Macro Calculator | Carnivore Weekly">
+    <meta property="og:description" content="Calculate your personalized carnivore macros. Free, private, no email required. Includes meal examples and electrolyte guidance.">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
+    <meta property="og:site_name" content="Carnivore Weekly">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://carnivoreweekly.com/calculator.html">
+    <meta name="twitter:title" content="Free Carnivore Macro Calculator | Carnivore Weekly">
+    <meta name="twitter:description" content="Calculate your personalized carnivore macros. Free, private, no email required.">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+
+    <title>Free Carnivore Macro Calculator | Carnivore Weekly</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+
+        function trackCalculation(dietType, goal) {
+            gtag('event', 'calculate', {
+                'event_category': 'Calculator',
+                'event_label': dietType + ' - ' + goal
+            });
+        }
+
+        function trackUpgradeClick() {
+            gtag('event', 'click', {
+                'event_category': 'Upgrade',
+                'event_label': 'AI Upgrade CTA'
+            });
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Merriweather', serif;
+            line-height: 1.8;
+            color: #2c1810;
+            background: #1a120b;
+            min-height: 100vh;
+        }
+
+        /* Leather texture background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(58, 35, 23, 0.7), rgba(58, 35, 23, 0.7)),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="4" seed="0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.3"/></svg>');
+            background-color: #3a2317;
+            background-size: 200px 200px, 100% 100%;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+            color: #f4e4d4;
+            padding: 60px 0 40px 0;
+            margin-bottom: 0;
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.5),
+                inset 0 2px 0 rgba(255,255,255,0.1);
+            border-bottom: 4px solid #8b4513;
+            text-align: center;
+            position: relative;
+            overflow: visible;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        header > .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            position: absolute;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
+            height: auto;
+            opacity: 0.95;
+            filter:
+                sepia(0.8)
+                brightness(0.85)
+                contrast(1.5)
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
+            mix-blend-mode: multiply;
+            z-index: 0;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                max-width: 250px;
+                top: -30px;
+                right: -40px;
+                transform: rotate(25deg);
+            }
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        header .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            font-style: italic;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        header .tagline {
+            font-size: 1em;
+            opacity: 0.8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-left: none;
+            border-right: none;
+            padding: 20px 0;
+            margin-bottom: 50px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .nav-menu a {
+            color: #1a120b;
+            text-decoration: none;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            padding: 10px 20px;
+            margin: 0 5px;
+            display: inline-block;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu a:hover {
+            border-bottom-color: #8b4513;
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            border-bottom-color: #8b4513;
+        }
+
+        /* FREE Star Badge */
+        .free-badge {
+            position: absolute;
+            top: -25px;
+            right: 30px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+            color: #1a120b;
+            padding: 20px 30px;
+            border-radius: 50%;
+            border: 4px solid #d4a574;
+            box-shadow:
+                0 8px 25px rgba(255, 215, 0, 0.6),
+                0 4px 15px rgba(0, 0, 0, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.5);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-weight: 900;
+            z-index: 10;
+            text-align: center;
+            line-height: 1.3;
+            transform: rotate(-15deg);
+            min-width: 120px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .free-badge::before {
+            content: "★";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            color: #ffd700;
+            text-shadow:
+                0 0 10px rgba(255, 215, 0, 0.8),
+                2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .free-badge .big {
+            font-size: 2em;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .free-badge .small {
+            font-size: 0.7em;
+            font-weight: 700;
+            font-family: 'Merriweather', serif;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .free-badge {
+                position: static;
+                display: inline-flex;
+                margin: 0 auto 20px;
+                transform: rotate(-8deg);
+            }
+        }
+
+        /* Card sections */
+        .card {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.3),
+                inset 0 -1px 0 rgba(0,0,0,0.3);
+            border: 3px solid #8b4513;
+            position: relative;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise2"><feTurbulence baseFrequency="0.6" numOctaves="3"/></filter><rect width="100%" height="100%" filter="url(%23noise2)" opacity="0.15"/></svg>');
+            border-radius: 15px;
+            pointer-events: none;
+        }
+
+        .card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            color: #2c1810;
+            border-bottom: 3px solid #8b4513;
+            padding-bottom: 10px;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Grid layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Form elements */
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #2c1810;
+            font-size: 0.95em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid #8b4513;
+            background: rgba(255,255,255,0.9);
+            color: #2c1810;
+            font-family: 'Merriweather', serif;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #d4a574;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(212, 165, 116, 0.5);
+        }
+
+        .input-hint {
+            font-size: 0.85em;
+            opacity: 0.8;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* Unit toggle */
+        .unit-toggle {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #8b4513;
+            width: fit-content;
+        }
+
+        .unit-toggle button {
+            padding: 10px 20px;
+            border: none;
+            background: rgba(255,255,255,0.7);
+            color: #2c1810;
+            cursor: pointer;
+            font-family: 'Merriweather', serif;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .unit-toggle button.active {
+            background: #8b4513;
+            color: #f4e4d4;
+        }
+
+        .unit-toggle button:hover:not(.active) {
+            background: rgba(255,255,255,0.9);
+        }
+
+        /* Buttons */
+        button {
+            cursor: pointer;
+            padding: 14px 28px;
+            border-radius: 10px;
+            border: 2px solid #8b4513;
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: #f4e4d4;
+            font-weight: 700;
+            font-family: 'Merriweather', serif;
+            font-size: 1em;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #2a5f2a 0%, #3a7f3a 100%);
+            border-color: #4a9f4a;
+            font-size: 1.1em;
+        }
+
+        button.secondary {
+            background: rgba(255,255,255,0.9);
+            color: #2c1810;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        /* Results display */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-box {
+            background: rgba(255,255,255,0.6);
+            border: 2px solid #8b4513;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            font-weight: 700;
+            color: #2c1810;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .result-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            font-weight: 900;
+            color: #8b4513;
+        }
+
+        .result-unit {
+            font-size: 0.7em;
+            opacity: 0.7;
+        }
+
+        /* Warnings and info boxes */
+        .warning {
+            background: rgba(255, 140, 0, 0.2);
+            border-left: 4px solid #ff8c00;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .success {
+            background: rgba(144, 238, 144, 0.2);
+            border-left: 4px solid #90ee90;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .info {
+            background: rgba(255,255,255,0.5);
+            border-left: 4px solid #8b4513;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Meal examples */
+        .meal-example {
+            background: rgba(255,255,255,0.7);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #8b4513;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .meal-example h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #8b4513;
+        }
+
+        .meal-example ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .meal-example li {
+            padding: 5px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .meal-example li:before {
+            content: "•";
+            position: absolute;
+            left: 10px;
+            color: #8b4513;
+            font-weight: bold;
+        }
+
+        /* Timeline */
+        .timeline-week {
+            background: rgba(255,255,255,0.6);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #8b4513;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-week h4 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            margin-bottom: 8px;
+        }
+
+        /* Upgrade CTA */
+        .upgrade-cta {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+            color: #f4e4d4;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            border: 3px solid #6d3819;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            margin: 40px 0;
+        }
+
+        .upgrade-cta h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .upgrade-cta .price {
+            font-size: 3em;
+            font-weight: 900;
+            color: #ffd700;
+            margin: 20px 0;
+        }
+
+        .upgrade-cta .limited {
+            color: #ff8c00;
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .upgrade-cta ul {
+            text-align: left;
+            max-width: 600px;
+            margin: 20px auto;
+            list-style: none;
+        }
+
+        .upgrade-cta li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .upgrade-cta li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #90ee90;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .upgrade-btn {
+            background: #ffd700 !important;
+            color: #2c1810 !important;
+            border: none !important;
+            font-size: 1.3em !important;
+            padding: 18px 40px !important;
+            margin-top: 20px;
+        }
+
+        .upgrade-btn:hover {
+            background: #ffed4e !important;
+        }
+
+        /* Hide/show elements */
+        .hidden {
+            display: none;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: rgba(139, 69, 19, 0.2);
+            border: 2px solid #8b4513;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            font-size: 0.9em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .disclaimer h3 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            margin-bottom: 10px;
+        }
+
+        /* Print styles */
+        @media print {
+            body::before { display: none; }
+            .no-print { display: none !important; }
+            .card { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <h1>CARNIVORE WEEKLY</h1>
+            <p class="subtitle">Macro Calculator</p>
+            <p class="tagline">Free. Private. No Bullshit.</p>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <a href="index.html">Home</a>
+        <a href="calculator.html" class="active">Calculator</a>
+        <a href="about.html">About</a>
+        <a href="archive.html">Archive</a>
+        <a href="channels.html">Channels</a>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Calculator Card -->
+            <div class="card" style="position: relative;">
+                <!-- FREE Star Badge -->
+                <div class="free-badge">
+                    <div class="big">FREE!</div>
+                    <div class="small">No email required</div>
+                </div>
+
+                <h2>Calculate Your Macros</h2>
+
+                <!-- Unit Toggle -->
+                <div class="unit-toggle">
+                    <button id="imperialBtn" class="active" onclick="setUnits('imperial')">Imperial (lbs/in)</button>
+                    <button id="metricBtn" onclick="setUnits('metric')">Metric (kg/cm)</button>
+                </div>
+
+                <!-- Input Form -->
+                <div class="grid-2">
+                    <div>
+                        <label for="sex">Sex</label>
+                        <select id="sex">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="age">Age</label>
+                        <input type="number" id="age" min="14" max="99" value="35">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <label for="height">Height <span id="heightUnit">(feet & inches)</span></label>
+                        <div id="imperialHeight" style="display: flex; gap: 10px;">
+                            <div style="flex: 1;">
+                                <input type="number" id="heightFeet" min="3" max="8" value="5" placeholder="Feet">
+                            </div>
+                            <div style="flex: 1;">
+                                <input type="number" id="heightInches" min="0" max="11" value="10" placeholder="Inches">
+                            </div>
+                        </div>
+                        <input type="number" id="heightCm" min="120" max="230" value="178" step="1" class="hidden">
+                        <p class="input-hint" id="heightHint">Example: 5 feet 10 inches</p>
+                    </div>
+                    <div>
+                        <label for="weight">Weight <span id="weightUnit">(lbs)</span></label>
+                        <input type="number" id="weight" value="180" step="0.1">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <label for="activity">Activity Level</label>
+                        <select id="activity">
+                            <option value="1.2">Sedentary (desk job, minimal movement)</option>
+                            <option value="1.375">Light (walks, light exercise 1-3x/week)</option>
+                            <option value="1.55" selected>Moderate (exercise 3-5x/week)</option>
+                            <option value="1.725">Very Active (intense exercise 6-7x/week)</option>
+                            <option value="1.9">Athlete (training 2x/day or physical job)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="goal">Goal</label>
+                        <select id="goal" onchange="updateDeficitLabel()">
+                            <option value="lose" selected>Lose Fat</option>
+                            <option value="maintain">Maintain Weight</option>
+                            <option value="gain">Gain Muscle</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <label for="deficit" id="deficitLabel">Calorie Deficit (%)</label>
+                        <input type="number" id="deficit" min="0" max="40" value="20" step="5">
+                        <p class="input-hint">15-25% is sustainable for most people</p>
+                    </div>
+                    <div>
+                        <label for="diet">Diet Style</label>
+                        <select id="diet" onchange="updateDietOptions()">
+                            <option value="carnivore" selected>Carnivore (0-5g carbs)</option>
+                            <option value="keto">Keto (~20g net carbs)</option>
+                            <option value="lowcarb">Low-Carb (~75g net carbs)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Carnivore-specific options -->
+                <div id="carnivoreOptions">
+                    <div class="grid-2">
+                        <div>
+                            <label for="ratio">Fat/Protein Ratio (by calories)</label>
+                            <select id="ratio">
+                                <option value="65-35">65% fat / 35% protein (leaner)</option>
+                                <option value="70-30" selected>70% fat / 30% protein (standard)</option>
+                                <option value="80-20">80% fat / 20% protein (therapeutic/satiety)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="proteinMin">Protein Minimum</label>
+                            <select id="proteinMin">
+                                <option value="1.6" selected>1.6 g/kg (0.7 g/lb) - Standard</option>
+                                <option value="1.8">1.8 g/kg (0.8 g/lb) - Active</option>
+                                <option value="2.2">2.2 g/kg (1.0 g/lb) - Athlete</option>
+                            </select>
+                            <p class="input-hint">Enforces minimum protein to prevent muscle loss</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Keto/Low-carb options -->
+                <div id="ketoOptions" class="hidden">
+                    <div class="grid-2">
+                        <div>
+                            <label for="netCarbs">Net Carbs (g/day)</label>
+                            <input type="number" id="netCarbs" min="0" max="150" value="20">
+                        </div>
+                        <div>
+                            <label for="proteinSetting">Protein Target</label>
+                            <select id="proteinSetting">
+                                <option value="1.6" selected>1.6 g/kg (0.7 g/lb) - Standard</option>
+                                <option value="1.8">1.8 g/kg (0.8 g/lb) - Active</option>
+                                <option value="2.2">2.2 g/kg (1.0 g/lb) - Athlete</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="primary" onclick="calculate()">Calculate My Macros</button>
+                    <button class="secondary" onclick="resetForm()">Reset</button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden">
+                <div class="card">
+                    <h2>Your Personalized Macros</h2>
+
+                    <div class="results-grid">
+                        <div class="result-box">
+                            <div class="result-label">Daily Calories</div>
+                            <div class="result-value" id="outCalories">—</div>
+                        </div>
+                        <div class="result-box">
+                            <div class="result-label">TDEE (Maintenance)</div>
+                            <div class="result-value" id="outTdee">—</div>
+                        </div>
+                        <div class="result-box">
+                            <div class="result-label">Protein</div>
+                            <div class="result-value"><span id="outProtein">—</span><span class="result-unit">g</span></div>
+                        </div>
+                        <div class="result-box">
+                            <div class="result-label">Fat</div>
+                            <div class="result-value"><span id="outFat">—</span><span class="result-unit">g</span></div>
+                        </div>
+                        <div class="result-box">
+                            <div class="result-label">Net Carbs</div>
+                            <div class="result-value"><span id="outCarbs">—</span><span class="result-unit">g</span></div>
+                        </div>
+                        <div class="result-box">
+                            <div class="result-label">Macro Split</div>
+                            <div class="result-value" id="outSplit" style="font-size: 1.2em;">—</div>
+                        </div>
+                    </div>
+
+                    <!-- Warnings/Success Messages -->
+                    <div id="flagsContainer"></div>
+
+                    <div class="btn-group no-print">
+                        <button onclick="window.print()">🖨️ Print Summary</button>
+                        <button class="secondary" onclick="scrollToUpgrade()">See AI Upgrade</button>
+                    </div>
+                </div>
+
+                <!-- What This Looks Like -->
+                <div class="card" id="mealExamples">
+                    <h2>What This Looks Like on Your Plate</h2>
+                    <div id="mealExamplesContent">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Electrolyte Guidance -->
+                <div class="card">
+                    <h2>Electrolyte Targets (Critical for Success)</h2>
+                    <p class="info">Most carnivore beginners underestimate electrolytes. Getting these right prevents headaches, cramps, and fatigue.</p>
+
+                    <div class="grid-3">
+                        <div class="result-box">
+                            <div class="result-label">Sodium</div>
+                            <div class="result-value">5000<span class="result-unit">mg</span></div>
+                            <p style="margin-top: 10px; font-size: 0.9em;">2-3 tsp salt per day</p>
+                        </div>
+                        <div class="result-box">
+                            <div class="result-label">Potassium</div>
+                            <div class="result-value">3500<span class="result-unit">mg</span></div>
+                            <p style="margin-top: 10px; font-size: 0.9em;">Beef, fish, avocado</p>
+                        </div>
+                        <div class="result-box">
+                            <div class="result-label">Magnesium</div>
+                            <div class="result-value">400<span class="result-unit">mg</span></div>
+                            <p style="margin-top: 10px; font-size: 0.9em;">Supplement recommended</p>
+                        </div>
+                    </div>
+
+                    <div class="info" style="margin-top: 20px;">
+                        <strong>Easy wins:</strong> Salt your food generously, drink bone broth, eat fatty fish (salmon, sardines). If you get headaches or feel weak, add more salt first.
+                    </div>
+                </div>
+
+                <!-- Adaptation Timeline -->
+                <div class="card">
+                    <h2>First 4 Weeks: What to Expect</h2>
+
+                    <div class="timeline-week">
+                        <h4>Week 1: The Suck</h4>
+                        <p>Headaches, fatigue, possible diarrhea. This is normal. Your body is switching fuel sources. Double your salt intake. Rest more. Don't quit.</p>
+                    </div>
+
+                    <div class="timeline-week">
+                        <h4>Week 2: Stabilizing</h4>
+                        <p>Energy starts returning. Digestion regulating. Cravings for carbs peaking then fading. Hunger might spike - this is temporary. Stay the course.</p>
+                    </div>
+
+                    <div class="timeline-week">
+                        <h4>Week 3: Momentum</h4>
+                        <p>Mental clarity improving. Energy more stable. Body composition changes visible. You're fat-adapted now. Appetite naturally regulating.</p>
+                    </div>
+
+                    <div class="timeline-week">
+                        <h4>Week 4: The Shift</h4>
+                        <p>This feels sustainable. Hunger signals are clear. You eat when hungry, stop when full. Weight loss (if that's your goal) is consistent. You're dialed in.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>Common Mistake:</strong> Quitting during Week 1-2 because you feel terrible. That's adaptation, not failure. Give it 30 days minimum before judging results.
+                    </div>
+                </div>
+
+                <!-- Common Mistakes -->
+                <div class="card">
+                    <h2>Common Mistakes (Avoid These)</h2>
+
+                    <div class="warning">
+                        <strong>⚠️ Not Enough Salt</strong><br>
+                        You need 2-3 teaspoons per day. If you get headaches, add salt first before assuming carnivore doesn't work for you.
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Too Lean</strong><br>
+                        Fat is your primary fuel. If you only eat chicken breast, you'll be hungry and miserable. Eat fatty cuts (ribeye, ground beef 80/20, salmon).
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Not Eating Enough</strong><br>
+                        Especially in the first month, eat when hungry. Don't force a deficit while adapting. Your appetite will naturally regulate after you're fat-adapted.
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Quitting Too Soon</strong><br>
+                        Week 1-2 can feel rough. That's your body adapting, not failing. Give it 30 days minimum before deciding if this works for you.
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Overcomplicating It</strong><br>
+                        You don't need fancy recipes. Steak. Eggs. Ground beef. Salt. That's it. Save the gourmet carnivore pizza experiments for month 3.
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Upgrade CTA -->
+            <div id="upgradeSection" class="upgrade-cta no-print hidden">
+                <h2>Want Your Complete Personalized Plan?</h2>
+                <p class="limited">⏰ Limited Time: $9.99 (Normally $29)</p>
+                <p class="price">$9.99</p>
+
+                <p style="font-size: 1.1em; margin-bottom: 20px;">Get AI-generated, hyper-personalized:</p>
+
+                <ul>
+                    <li><strong>30-Day Rotating Meal Plan</strong> - Based on your exact macros, food preferences, and restrictions</li>
+                    <li><strong>4 Weeks of Grocery Lists</strong> - With estimated costs so you can budget</li>
+                    <li><strong>Stall-Breaker Decision Tree</strong> - What to check when progress stops</li>
+                    <li><strong>Doctor Prep Pack</strong> - Bloodwork suggestions, questions to ask, medication considerations</li>
+                    <li><strong>Research Citations</strong> - Studies that matter, explained in plain English</li>
+                    <li><strong>Personalized Risk Assessment</strong> - Honest evaluation of what might not work for you</li>
+                    <li><strong>Printable PDF</strong> - Everything in one organized document</li>
+                </ul>
+
+                <p style="margin-top: 30px; font-size: 0.95em; opacity: 0.9;">
+                    🔒 <strong>Still private:</strong> Report generated once, not stored. You download it, we forget it.
+                </p>
+
+                <button class="upgrade-btn" onclick="upgradeClick()">Get My AI-Powered Plan - $9.99</button>
+
+                <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.8;">
+                    One-time payment. No subscription. No email required.
+                </p>
+            </div>
+
+            <!-- Medical Disclaimer -->
+            <div class="disclaimer">
+                <h3>⚕️ Medical Disclaimer</h3>
+                <p>
+                    This calculator provides general nutritional estimates and is not medical advice. Everyone is different. If you have medical conditions, take medications, or have concerns, talk to a healthcare provider before making major diet changes. This is especially important for diabetes medications, blood pressure meds, or if you have a history of eating disorders.
+                </p>
+                <p style="margin-top: 10px;">
+                    <strong>Use your judgment.</strong> These are starting points, not gospel. Adjust based on how you feel, your results, and your doctor's input.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%); color: #f4e4d4; padding: 40px 20px; text-align: center; margin-top: 60px; border-top: 4px solid #8b4513;">
+        <div style="width: 100%; max-width: 1200px; margin: 0 auto;">
+            <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700; margin-bottom: 10px;">CARNIVORE WEEKLY</p>
+            <p style="opacity: 0.9;">The Finest Carnivore Content, Curated Weekly</p>
+            <nav style="margin-top: 20px; opacity: 0.8;">
+                <a href="index.html" style="color: #d4a574; text-decoration: none; margin: 0 15px;">Home</a>
+                <a href="calculator.html" style="color: #d4a574; text-decoration: none; margin: 0 15px;">Calculator</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script>
+        // ---------- State ----------
+        let currentUnits = 'imperial';
+        let currentResults = null;
+
+        // ---------- Unit Conversion ----------
+        function setUnits(units) {
+            currentUnits = units;
+            document.getElementById('imperialBtn').classList.toggle('active', units === 'imperial');
+            document.getElementById('metricBtn').classList.toggle('active', units === 'metric');
+
+            const imperialHeight = document.getElementById('imperialHeight');
+            const heightCm = document.getElementById('heightCm');
+            const weightInput = document.getElementById('weight');
+            const heightUnit = document.getElementById('heightUnit');
+            const weightUnit = document.getElementById('weightUnit');
+            const heightHint = document.getElementById('heightHint');
+
+            if (units === 'imperial') {
+                // Show feet/inches inputs, hide cm
+                imperialHeight.style.display = 'flex';
+                heightCm.classList.add('hidden');
+                heightUnit.textContent = '(feet & inches)';
+                weightUnit.textContent = '(lbs)';
+                heightHint.textContent = 'Example: 5 feet 10 inches';
+
+                // Convert weight if switching from metric
+                if (weightInput.value && weightInput.value < 100) {
+                    weightInput.value = Math.round(parseFloat(weightInput.value) * 2.205);
+                } else if (!weightInput.value) {
+                    weightInput.value = 180;
+                }
+            } else {
+                // Show cm input, hide feet/inches
+                imperialHeight.style.display = 'none';
+                heightCm.classList.remove('hidden');
+                heightUnit.textContent = '(cm)';
+                weightUnit.textContent = '(kg)';
+                heightHint.textContent = '178 cm = 5\'10"';
+
+                // Convert from feet/inches to cm
+                const feet = parseInt(document.getElementById('heightFeet').value) || 5;
+                const inches = parseInt(document.getElementById('heightInches').value) || 10;
+                const totalInches = (feet * 12) + inches;
+                heightCm.value = Math.round(totalInches * 2.54);
+
+                // Convert weight if switching from imperial
+                if (weightInput.value && weightInput.value > 100) {
+                    weightInput.value = Math.round(parseFloat(weightInput.value) / 2.205);
+                } else if (!weightInput.value) {
+                    weightInput.value = 82;
+                }
+            }
+        }
+
+        // ---------- UI Updates ----------
+        function updateDeficitLabel() {
+            const goal = document.getElementById('goal').value;
+            const label = document.getElementById('deficitLabel');
+            const input = document.getElementById('deficit');
+
+            if (goal === 'lose') {
+                label.textContent = 'Calorie Deficit (%)';
+                input.value = 20;
+            } else if (goal === 'gain') {
+                label.textContent = 'Calorie Surplus (%)';
+                input.value = 10;
+            } else {
+                label.textContent = 'Adjustment (%)';
+                input.value = 0;
+            }
+        }
+
+        function updateDietOptions() {
+            const diet = document.getElementById('diet').value;
+            const carnivoreOptions = document.getElementById('carnivoreOptions');
+            const ketoOptions = document.getElementById('ketoOptions');
+
+            if (diet === 'carnivore') {
+                carnivoreOptions.classList.remove('hidden');
+                ketoOptions.classList.add('hidden');
+            } else {
+                carnivoreOptions.classList.add('hidden');
+                ketoOptions.classList.remove('hidden');
+
+                if (diet === 'keto') {
+                    document.getElementById('netCarbs').value = 20;
+                } else if (diet === 'lowcarb') {
+                    document.getElementById('netCarbs').value = 75;
+                }
+            }
+        }
+
+        // ---------- Calculations ----------
+        function round(n, decimals = 0) {
+            const factor = Math.pow(10, decimals);
+            return Math.round(n * factor) / factor;
+        }
+
+        function clamp(n, min, max) {
+            return Math.max(min, Math.min(max, n));
+        }
+
+        function getWeightKg() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            return currentUnits === 'imperial' ? weight / 2.205 : weight;
+        }
+
+        function getHeightCm() {
+            if (currentUnits === 'imperial') {
+                const feet = parseInt(document.getElementById('heightFeet').value) || 0;
+                const inches = parseInt(document.getElementById('heightInches').value) || 0;
+                const totalInches = (feet * 12) + inches;
+                return totalInches * 2.54;
+            } else {
+                return parseFloat(document.getElementById('heightCm').value) || 0;
+            }
+        }
+
+        function calculateBMR(sex, age, heightCm, weightKg) {
+            const s = sex === 'male' ? 5 : -161;
+            return (10 * weightKg) + (6.25 * heightCm) - (5 * age) + s;
+        }
+
+        function calculateTDEE(bmr, activityMultiplier) {
+            return bmr * activityMultiplier;
+        }
+
+        function applyGoal(tdee, goal, deficitPct) {
+            const pct = clamp(deficitPct, 0, 40) / 100;
+            if (goal === 'lose') return tdee * (1 - pct);
+            if (goal === 'gain') return tdee * (1 + pct);
+            return tdee;
+        }
+
+        function calculateMacros(calories, diet, weightKg) {
+            let protein_g, fat_g, carbs_g;
+
+            if (diet === 'carnivore') {
+                const ratio = document.getElementById('ratio').value;
+                const [fatPct, protPct] = ratio.split('-').map(x => parseInt(x) / 100);
+                const proteinMin = parseFloat(document.getElementById('proteinMin').value);
+
+                let protein_cal = calories * protPct;
+                protein_g = protein_cal / 4;
+
+                const minProtein = proteinMin * weightKg;
+                if (protein_g < minProtein) {
+                    protein_g = minProtein;
+                    protein_cal = protein_g * 4;
+                }
+
+                const fat_cal = Math.max(0, calories - protein_cal);
+                fat_g = fat_cal / 9;
+                carbs_g = 0;
+
+            } else {
+                const netCarbs = parseFloat(document.getElementById('netCarbs').value);
+                const proteinSetting = parseFloat(document.getElementById('proteinSetting').value);
+
+                carbs_g = clamp(netCarbs, 0, 150);
+                protein_g = proteinSetting * weightKg;
+
+                const carbs_cal = carbs_g * 4;
+                const protein_cal = protein_g * 4;
+                const fat_cal = Math.max(0, calories - carbs_cal - protein_cal);
+                fat_g = fat_cal / 9;
+            }
+
+            return { protein_g, fat_g, carbs_g };
+        }
+
+        function calculateSplit(calories, protein_g, fat_g, carbs_g) {
+            const pCal = protein_g * 4;
+            const fCal = fat_g * 9;
+            const cCal = carbs_g * 4;
+            const total = Math.max(1, calories);
+
+            return {
+                p: round((pCal / total) * 100, 0),
+                f: round((fCal / total) * 100, 0),
+                c: round((cCal / total) * 100, 0)
+            };
+        }
+
+        function generateFlags(bmr, calories, goal, deficitPct, protein_g, weightKg) {
+            const flags = [];
+
+            const deficit = goal === 'lose' ? deficitPct : 0;
+            const surplus = goal === 'gain' ? deficitPct : 0;
+
+            if (deficit > 30) {
+                flags.push({ type: 'warning', text: `${deficit}% deficit is aggressive. Consider 15-25% unless you enjoy suffering.` });
+            }
+            if (surplus > 20) {
+                flags.push({ type: 'warning', text: `${surplus}% surplus is a fast bulk. If you hate gaining fat, try 5-15%.` });
+            }
+            if (goal === 'lose' && calories < bmr * 1.1) {
+                flags.push({ type: 'warning', text: `Calories are under your BMR. You might feel terrible. Consider a smaller deficit.` });
+            }
+
+            const proteinMin = 1.6 * weightKg;
+            if (protein_g < proteinMin) {
+                flags.push({ type: 'warning', text: `Protein is under 1.6 g/kg baseline. You might lose muscle. Increase protein.` });
+            }
+            if (protein_g > 2.6 * weightKg) {
+                flags.push({ type: 'warning', text: `Protein is very high (>2.6 g/kg). Not harmful, but you might feel better with more fat.` });
+            }
+
+            if (flags.length === 0) {
+                flags.push({ type: 'success', text: `Looks good. Now go eat like the apex predator you are.` });
+            }
+
+            return flags;
+        }
+
+        // ---------- Main Calculate Function ----------
+        function calculate() {
+            // Get inputs
+            const sex = document.getElementById('sex').value;
+            const age = clamp(parseInt(document.getElementById('age').value), 14, 99);
+            const heightCm = getHeightCm();
+            const weightKg = getWeightKg();
+            const activity = parseFloat(document.getElementById('activity').value);
+            const goal = document.getElementById('goal').value;
+            const deficitPct = clamp(parseFloat(document.getElementById('deficit').value), 0, 40);
+            const diet = document.getElementById('diet').value;
+
+            // Calculate
+            const bmr = calculateBMR(sex, age, heightCm, weightKg);
+            const tdee = calculateTDEE(bmr, activity);
+            const calories = applyGoal(tdee, goal, deficitPct);
+            const { protein_g, fat_g, carbs_g } = calculateMacros(calories, diet, weightKg);
+            const split = calculateSplit(calories, protein_g, fat_g, carbs_g);
+
+            // Store results
+            currentResults = {
+                bmr: round(bmr, 0),
+                tdee: round(tdee, 0),
+                calories: round(calories, 0),
+                protein_g: round(protein_g, 0),
+                fat_g: round(fat_g, 0),
+                carbs_g: round(carbs_g, 0),
+                split,
+                diet,
+                goal,
+                weightKg
+            };
+
+            // Display results
+            document.getElementById('outCalories').textContent = currentResults.calories.toLocaleString();
+            document.getElementById('outTdee').textContent = currentResults.tdee.toLocaleString();
+            document.getElementById('outProtein').textContent = currentResults.protein_g.toLocaleString();
+            document.getElementById('outFat').textContent = currentResults.fat_g.toLocaleString();
+            document.getElementById('outCarbs').textContent = currentResults.carbs_g.toLocaleString();
+            document.getElementById('outSplit').textContent = `${split.f}% / ${split.p}% / ${split.c}%`;
+
+            // Generate flags
+            const flags = generateFlags(bmr, calories, goal, deficitPct, protein_g, weightKg);
+            const flagsHTML = flags.map(f => {
+                const className = f.type === 'warning' ? 'warning' : 'success';
+                return `<div class="${className}"><strong>${f.type === 'warning' ? '⚠️' : '✓'}</strong> ${f.text}</div>`;
+            }).join('');
+            document.getElementById('flagsContainer').innerHTML = flagsHTML;
+
+            // Generate meal examples
+            generateMealExamples();
+
+            // Show results
+            document.getElementById('resultsSection').classList.remove('hidden');
+            document.getElementById('upgradeSection').classList.remove('hidden');
+
+            // Track event
+            trackCalculation(diet, goal);
+
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ---------- Meal Examples Generation ----------
+        function generateMealExamples() {
+            if (!currentResults) return;
+
+            const { calories, protein_g, fat_g, diet } = currentResults;
+
+            let examples = [];
+
+            if (diet === 'carnivore') {
+                // 2-meal carnivore day
+                const caloriesPerMeal = Math.round(calories / 2);
+                const proteinPerMeal = Math.round(protein_g / 2);
+                const fatPerMeal = Math.round(fat_g / 2);
+
+                examples = [
+                    {
+                        title: `2-Meal Carnivore Day (${calories} cal)`,
+                        meals: [
+                            `<strong>Meal 1 (${caloriesPerMeal} cal):</strong> ${Math.round(proteinPerMeal / 25)}oz ribeye steak + 3-4 eggs cooked in butter`,
+                            `<strong>Meal 2 (${caloriesPerMeal} cal):</strong> ${Math.round(proteinPerMeal / 20)}oz ground beef (80/20) + 2oz cheese`,
+                            `<strong>Salt:</strong> Generously on everything`,
+                            `<strong>Beverages:</strong> Water, black coffee, bone broth`
+                        ]
+                    },
+                    {
+                        title: `Simple 3-Meal Plan`,
+                        meals: [
+                            `<strong>Breakfast:</strong> 4-6 eggs scrambled in butter + 4oz bacon`,
+                            `<strong>Lunch:</strong> ${Math.round(protein_g / 3 / 25)}oz burger patties (no bun) + cheese`,
+                            `<strong>Dinner:</strong> ${Math.round(protein_g / 3 / 25)}oz salmon or beef + butter`,
+                            `<strong>Tip:</strong> Eat fatty cuts. Skip lean meats.`
+                        ]
+                    }
+                ];
+            } else {
+                // Keto/Low-carb examples
+                examples = [
+                    {
+                        title: `${diet === 'keto' ? 'Keto' : 'Low-Carb'} Day Example`,
+                        meals: [
+                            `<strong>Breakfast:</strong> 3-4 eggs + avocado + spinach`,
+                            `<strong>Lunch:</strong> ${Math.round(protein_g / 3)}g chicken thighs + mixed greens salad + olive oil`,
+                            `<strong>Dinner:</strong> ${Math.round(protein_g / 3)}g beef or fish + roasted vegetables + butter`,
+                            `<strong>Snack (if needed):</strong> Cheese, nuts (measured), or hard-boiled eggs`
+                        ]
+                    }
+                ];
+            }
+
+            const html = examples.map(ex => `
+                <div class="meal-example">
+                    <h4>${ex.title}</h4>
+                    <ul>
+                        ${ex.meals.map(m => `<li>${m}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+
+            document.getElementById('mealExamplesContent').innerHTML = html;
+        }
+
+        // ---------- Helper Functions ----------
+        function resetForm() {
+            if (currentUnits === 'imperial') {
+                document.getElementById('heightFeet').value = 5;
+                document.getElementById('heightInches').value = 10;
+                document.getElementById('weight').value = 180;
+            } else {
+                document.getElementById('heightCm').value = 178;
+                document.getElementById('weight').value = 82;
+            }
+            document.getElementById('age').value = 35;
+            document.getElementById('sex').value = 'male';
+            document.getElementById('activity').value = '1.55';
+            document.getElementById('goal').value = 'lose';
+            document.getElementById('deficit').value = 20;
+            document.getElementById('diet').value = 'carnivore';
+            document.getElementById('ratio').value = '70-30';
+            document.getElementById('proteinMin').value = '1.6';
+
+            updateDietOptions();
+            updateDeficitLabel();
+
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('upgradeSection').classList.add('hidden');
+        }
+
+        function scrollToUpgrade() {
+            document.getElementById('upgradeSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function upgradeClick() {
+            trackUpgradeClick();
+
+            // Placeholder for Stripe integration
+            alert('Payment integration coming soon!\n\nThis will redirect to Stripe checkout for $9.99.\n\nAfter payment, you\'ll receive your complete AI-generated plan instantly.');
+
+            // TODO: Implement Stripe checkout
+            // window.location.href = 'https://checkout.stripe.com/...';
+        }
+
+        // ---------- Init ----------
+        updateDietOptions();
+        updateDeficitLabel();
+    </script>
+</body>
+</html>
