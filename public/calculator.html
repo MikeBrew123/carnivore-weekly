@@ -1554,55 +1554,8 @@
             const urlParams = new URLSearchParams(window.location.search);
 
             if (urlParams.get('success') === 'true') {
-                // Show success message
-                const successMsg = document.createElement('div');
-                successMsg.innerHTML = `
-                    <div style="
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
-                        color: #f4e4d4;
-                        padding: 40px 50px;
-                        border-radius: 15px;
-                        border: 4px solid #ffd700;
-                        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-                        z-index: 10000;
-                        text-align: center;
-                        max-width: 500px;
-                    ">
-                        <div style="font-size: 3em; margin-bottom: 10px;">🎉</div>
-                        <h2 style="font-family: 'Playfair Display', serif; font-size: 2em; margin: 0 0 15px 0; color: #ffd700;">Payment Successful!</h2>
-                        <p style="font-size: 1.1em; margin: 0 0 20px 0; line-height: 1.6;">
-                            Thank you for upgrading! Your AI-generated personalized carnivore diet plan will be sent to your email within 24 hours.
-                        </p>
-                        <p style="font-size: 0.95em; opacity: 0.9; margin: 0 0 25px 0;">
-                            Check your spam folder if you don't see it. Questions? Reply to the confirmation email.
-                        </p>
-                        <button onclick="this.parentElement.remove(); window.history.replaceState({}, '', '/calculator.html');" style="
-                            background: #ffd700;
-                            color: #1a120b;
-                            border: none;
-                            padding: 12px 30px;
-                            border-radius: 8px;
-                            font-size: 1em;
-                            font-weight: bold;
-                            cursor: pointer;
-                            font-family: 'Merriweather', serif;
-                        ">Got It!</button>
-                    </div>
-                    <div onclick="this.parentElement.remove(); window.history.replaceState({}, '', '/calculator.html');" style="
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: rgba(0,0,0,0.7);
-                        z-index: 9999;
-                    "></div>
-                `;
-                document.body.appendChild(successMsg);
+                // Redirect to questionnaire page
+                window.location.href = 'questionnaire.html';
             }
 
             if (urlParams.get('cancelled') === 'true') {
