@@ -743,15 +743,30 @@
 
                 <div class="grid-2">
                     <div>
-                        <label for="activity">Activity Level</label>
-                        <select id="activity">
-                            <option value="1.2">Sedentary (desk job, minimal movement)</option>
-                            <option value="1.375">Light (walks, light exercise 1-3x/week)</option>
-                            <option value="1.55" selected>Moderate (exercise 3-5x/week)</option>
-                            <option value="1.725">Very Active (intense exercise 6-7x/week)</option>
-                            <option value="1.9">Athlete (training 2x/day or physical job)</option>
+                        <label for="lifestyle">Daily Lifestyle</label>
+                        <select id="lifestyle" onchange="updateActivityDisplay()">
+                            <option value="1.2" selected>Desk job, minimal walking</option>
+                            <option value="1.3">Desk job, walk 30-60 min/day</option>
+                            <option value="1.4">Standing job (retail, teaching)</option>
+                            <option value="1.5">Active job (server, nurse, on feet all day)</option>
+                            <option value="1.6">Physical labor (construction, farming)</option>
                         </select>
+                        <p class="input-hint">Your occupation, not gym time</p>
                     </div>
+                    <div>
+                        <label for="exercise">Structured Exercise</label>
+                        <select id="exercise" onchange="updateActivityDisplay()">
+                            <option value="0">None</option>
+                            <option value="0.1">1-2x/week, light (walking, yoga)</option>
+                            <option value="0.2">3-4x/week, moderate (lifting, jogging)</option>
+                            <option value="0.3" selected>4-5x/week, intense (CrossFit, HIIT)</option>
+                            <option value="0.4">6-7x/week, athlete (serious training)</option>
+                        </select>
+                        <p class="input-hint">Gym sessions only, not daily movement</p>
+                    </div>
+                </div>
+
+                <div class="grid-2">
                     <div>
                         <label for="goal">Goal</label>
                         <select id="goal" onchange="updateDeficitLabel()">
@@ -759,6 +774,11 @@
                             <option value="maintain">Maintain Weight</option>
                             <option value="gain">Gain Muscle</option>
                         </select>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: rgba(212, 165, 116, 0.1); border-radius: 8px; border: 1px solid rgba(212, 165, 116, 0.3);">
+                        <p style="margin: 0; font-size: 0.9em; color: #d4a574; text-align: center;">
+                            <strong>Total Activity:</strong> <span id="activityDisplay">1.5x BMR</span>
+                        </p>
                     </div>
                 </div>
 
@@ -1085,6 +1105,13 @@
         }
 
         // ---------- UI Updates ----------
+        function updateActivityDisplay() {
+            const lifestyle = parseFloat(document.getElementById('lifestyle').value);
+            const exercise = parseFloat(document.getElementById('exercise').value);
+            const total = lifestyle + exercise;
+            document.getElementById('activityDisplay').textContent = total.toFixed(2) + 'x BMR';
+        }
+
         function updateDeficitLabel() {
             const goal = document.getElementById('goal').value;
             const label = document.getElementById('deficitLabel');
@@ -1252,7 +1279,9 @@
             const age = clamp(parseInt(document.getElementById('age').value), 14, 99);
             const heightCm = getHeightCm();
             const weightKg = getWeightKg();
-            const activity = parseFloat(document.getElementById('activity').value);
+            const lifestyle = parseFloat(document.getElementById('lifestyle').value);
+            const exercise = parseFloat(document.getElementById('exercise').value);
+            const activity = lifestyle + exercise;
             const goal = document.getElementById('goal').value;
             const deficitPct = clamp(parseFloat(document.getElementById('deficit').value), 0, 40);
             const diet = document.getElementById('diet').value;
@@ -1390,7 +1419,8 @@
             }
             document.getElementById('age').value = 35;
             document.getElementById('sex').value = 'male';
-            document.getElementById('activity').value = '1.55';
+            document.getElementById('lifestyle').value = '1.2';
+            document.getElementById('exercise').value = '0.3';
             document.getElementById('goal').value = 'lose';
             document.getElementById('deficit').value = 20;
             document.getElementById('diet').value = 'carnivore';
@@ -1399,6 +1429,7 @@
 
             updateDietOptions();
             updateDeficitLabel();
+            updateActivityDisplay();
 
             document.getElementById('resultsSection').classList.add('hidden');
             document.getElementById('upgradeSection').classList.add('hidden');
@@ -1421,6 +1452,7 @@
         // ---------- Init ----------
         updateDietOptions();
         updateDeficitLabel();
+        updateActivityDisplay();
     </script>
 </body>
 </html>
