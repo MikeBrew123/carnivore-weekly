@@ -281,6 +281,62 @@
             }
         }
 
+        /* Introduction Section */
+        .intro-section {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border-left: 5px solid #d4a574;
+            position: relative;
+            z-index: 1;
+        }
+
+        .intro-section p {
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #2c1810;
+            margin-bottom: 18px;
+        }
+
+        .intro-section strong {
+            color: #8b4513;
+            font-weight: 700;
+        }
+
+        .intro-section em {
+            color: #d4a574;
+            font-style: italic;
+        }
+
+        .intro-image {
+            float: right;
+            margin: 0 0 25px 30px;
+            max-width: 280px;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .intro-section {
+                padding: 25px;
+                margin-bottom: 30px;
+            }
+
+            .intro-section p {
+                font-size: 1em;
+            }
+
+            .intro-image {
+                float: none;
+                margin: 0 0 20px 0;
+                max-width: 100%;
+            }
+        }
+
         /* Card sections */
         .card {
             background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
@@ -390,6 +446,163 @@
             background: rgba(139, 69, 19, 0.1);
             border-left: 3px solid #8b4513;
             border-radius: 4px;
+        }
+
+        /* Form Section Cards - "Breathing Room" */
+        .form-section-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #f3f4f6;
+            padding-bottom: 12px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Enhanced input styling */
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="tel"],
+        select,
+        textarea {
+            padding: 12px 16px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 8px !important;
+            font-size: 16px !important;
+            background-color: #f9fafb !important;
+            transition: all 0.2s !important;
+            min-height: 44px !important;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        input[type="tel"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none !important;
+            border-color: #8b4513 !important;
+            background-color: #fff !important;
+            box-shadow: 0 0 0 4px rgba(139, 69, 19, 0.1) !important;
+        }
+
+        /* Upsell Container */
+        .upsell-container {
+            border: 2px solid #b91c1c;
+            background: #fff1f2;
+            padding: 40px;
+            border-radius: 12px;
+            margin-top: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upsell-container h2 {
+            color: #991b1b;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+        }
+
+        .upsell-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 12px 0;
+            font-size: 1.05em;
+            color: #2c1810;
+            border-bottom: 1px solid #fecaca;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list strong {
+            color: #991b1b;
+            font-weight: 700;
+        }
+
+        .price-box {
+            text-align: center;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .price-original {
+            text-decoration: line-through;
+            color: #6b7280;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .price-final {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #b91c1c;
+            margin-bottom: 20px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .cta-button-pulse {
+            background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Merriweather', serif;
+            box-shadow: 0 4px 6px rgba(185, 28, 28, 0.3);
+        }
+
+        .cta-button-pulse:hover {
+            background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(185, 28, 28, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .upsell-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upsell-container {
+                padding: 25px;
+            }
+
+            .form-section-card {
+                padding: 20px;
+            }
         }
 
         .error-text.show {
@@ -596,73 +809,6 @@
         }
 
         /* Upgrade CTA */
-        .upgrade-cta {
-            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
-            color: #f4e4d4;
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            border: 3px solid #6d3819;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-            margin: 40px 0;
-        }
-
-        .upgrade-cta h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            color: #ffd700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .upgrade-cta .price {
-            font-size: 3em;
-            font-weight: 900;
-            color: #ffd700;
-            margin: 20px 0;
-        }
-
-        .upgrade-cta .limited {
-            color: #ff8c00;
-            font-weight: 700;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
-
-        .upgrade-cta ul {
-            text-align: left;
-            max-width: 600px;
-            margin: 20px auto;
-            list-style: none;
-        }
-
-        .upgrade-cta li {
-            padding: 10px 0;
-            padding-left: 30px;
-            position: relative;
-        }
-
-        .upgrade-cta li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #90ee90;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .upgrade-btn {
-            background: #ffd700 !important;
-            color: #2c1810 !important;
-            border: none !important;
-            font-size: 1.3em !important;
-            padding: 18px 40px !important;
-            margin-top: 20px;
-        }
-
-        .upgrade-btn:hover {
-            background: #ffed4e !important;
-        }
 
         /* Hide/show elements */
         .hidden {
@@ -820,6 +966,31 @@
 
     <main>
         <div class="container">
+            <!-- Introduction Section -->
+            <section class="intro-section">
+                <img src="shopping-cart.png" alt="Shopping cart filled with carnivore foods including meat, butter, and eggs" class="intro-image">
+
+                <p>I made this calculator because I kept getting <strong>pissed off</strong>.</p>
+
+                <p>You know how it goes. You're trying to figure out your macros, so you Google "carnivore diet calculator" or whatever. You find one that looks decent. Start filling it out. Age, weight, activity level... getting into it. Then BAM – paywall. Or worse, "Thanks! We'll email you the results!"</p>
+
+                <p>Yeah, no. I'm not giving you my email so you can spam me about your coaching program.</p>
+
+                <p>So here's what I built:</p>
+
+                <p><strong>The free version</strong> gives you what you actually came for. Your daily macro targets. That's it. No email required, no games. If that's all you need, you're done in 2 minutes.</p>
+
+                <p>But if you want to go deeper – and I mean <em>really</em> deep – there's a paid version for <strong>$9.99</strong>. We keep asking questions and then I basically drop everything I know on you. Meal timing, supplement suggestions, troubleshooting strategies, the whole deal. It's all AI-powered on the backend, which costs me money to run, so I have to charge something.</p>
+
+                <p><strong>Here's the catch:</strong> Your detailed report sticks around for 48 hours so you can come back and reference it. After that, it's gone. I'm not storing your data long-term, and I'm not building a profile on you. You get what you paid for, you save it if you want it, and then it disappears.</p>
+
+                <p><strong>Full transparency:</strong> This price will probably go up once I dial everything in and add more features. Right now I'm more interested in seeing how well it works and getting feedback than making a profit. Think of it as early access pricing.</p>
+
+                <p><strong>The deal:</strong> Use the free version if you just need the basics. Grab the paid version if you want me to dump my brain on your specific situation. Either way, no bullshit, no email harvesting, no bait and switch.</p>
+
+                <p style="margin-top: 25px; font-size: 1.15em;"><strong>Now let's figure out what your body needs.</strong></p>
+            </section>
+
             <!-- Calculator Card -->
             <div class="card" style="position: relative;">
                 <!-- FREE Star Badge -->
@@ -1131,32 +1302,41 @@
             </div>
 
             <!-- AI Upgrade CTA -->
-            <div id="upgradeSection" class="upgrade-cta no-print hidden">
-                <h2>Want Your Complete Personalized Plan?</h2>
-                <p class="limited">⏰ Limited Time: $9.99 (Normally $29)</p>
-                <p class="price">$9.99</p>
+            <div id="upgradeSection" class="upsell-container no-print hidden">
+                <h2>Get Your Complete Personalized 30-Day Protocol</h2>
 
-                <p style="font-size: 1.1em; margin-bottom: 20px;">Get AI-generated, hyper-personalized:</p>
+                <div class="upsell-grid">
+                    <!-- Features Column -->
+                    <div>
+                        <ul class="feature-list">
+                            <li>✅ <strong>30-Day Meal Plan</strong> - Matched to your exact macros & preferences</li>
+                            <li>✅ <strong>Weekly Grocery Lists</strong> - With portions & cost estimates</li>
+                            <li>✅ <strong>Doctor's Consultation Script</strong> - Labs to request, questions to ask</li>
+                            <li>✅ <strong>Stall-Breaker Decision Tree</strong> - What to check when progress stops</li>
+                            <li>✅ <strong>Research Guide</strong> - Studies explained in plain English</li>
+                            <li>✅ <strong>Printable PDF</strong> - All 13 reports, one organized document</li>
+                        </ul>
+                    </div>
 
-                <ul>
-                    <li><strong>30-Day Rotating Meal Plan</strong> - Based on your exact macros, food preferences, and restrictions</li>
-                    <li><strong>4 Weeks of Grocery Lists</strong> - With estimated costs so you can budget</li>
-                    <li><strong>Stall-Breaker Decision Tree</strong> - What to check when progress stops</li>
-                    <li><strong>Doctor Prep Pack</strong> - Bloodwork suggestions, questions to ask, medication considerations</li>
-                    <li><strong>Research Citations</strong> - Studies that matter, explained in plain English</li>
-                    <li><strong>Personalized Risk Assessment</strong> - Honest evaluation of what might not work for you</li>
-                    <li><strong>Printable PDF</strong> - Everything in one organized document</li>
-                </ul>
+                    <!-- Price Box Column -->
+                    <div class="price-box">
+                        <div>
+                            <div class="price-original">$29.99</div>
+                            <div class="price-final">$9.99</div>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 20px;">Limited time offer</p>
+                        </div>
+                        <button class="cta-button-pulse" onclick="upgradeClick()">Get My Plan Now</button>
+                        <p style="font-size: 0.8em; color: #666; margin-top: 15px;">One-time payment<br>No subscription</p>
+                    </div>
+                </div>
 
-                <p style="margin-top: 30px; font-size: 0.95em; opacity: 0.9;">
-                    🔒 <strong>Still private:</strong> Report generated once, not stored. You download it, we forget it.
-                </p>
-
-                <button class="upgrade-btn" onclick="upgradeClick()">Get My AI-Powered Plan - $9.99</button>
-
-                <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.8;">
-                    One-time payment. No subscription. No email required.
-                </p>
+                <!-- Privacy Note -->
+                <div style="margin-top: 30px; padding: 15px; background: rgba(185, 28, 28, 0.05); border: 1px solid #fecaca; border-radius: 8px;">
+                    <p style="font-size: 0.95em; margin: 0; color: #2c1810;">
+                        🔒 <strong>Your data is secure</strong><br>
+                        <span style="font-size: 0.9em; opacity: 0.8; margin-top: 8px; display: block;">Download your PDF anytime. Automatically deleted after 48 hours. No email required.</span>
+                    </p>
+                </div>
             </div>
 
         </div>
