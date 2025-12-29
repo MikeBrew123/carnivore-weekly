@@ -38,6 +38,9 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
 
+    <!-- Marked.js for Markdown to HTML conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -371,6 +374,127 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Report Content Styling */
+        #reportContent h1 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            font-size: 2.5em;
+            margin: 30px 0 20px 0;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #d4a574;
+        }
+
+        #reportContent h2 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            font-size: 2em;
+            margin: 25px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4a574;
+        }
+
+        #reportContent h3 {
+            font-family: 'Playfair Display', serif;
+            color: #2c1810;
+            font-size: 1.5em;
+            margin: 20px 0 10px 0;
+        }
+
+        #reportContent h4 {
+            font-family: 'Playfair Display', serif;
+            color: #2c1810;
+            font-size: 1.2em;
+            margin: 15px 0 8px 0;
+        }
+
+        #reportContent p {
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+
+        #reportContent ul,
+        #reportContent ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        #reportContent li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        #reportContent strong {
+            color: #8b4513;
+            font-weight: 700;
+        }
+
+        #reportContent em {
+            font-style: italic;
+            color: #6d3819;
+        }
+
+        #reportContent hr {
+            border: none;
+            border-top: 2px solid #d4a574;
+            margin: 30px 0;
+        }
+
+        #reportContent blockquote {
+            border-left: 4px solid #d4a574;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #6d3819;
+            background: rgba(212, 165, 116, 0.1);
+            padding: 15px 15px 15px 20px;
+            border-radius: 5px;
+        }
+
+        #reportContent code {
+            background: rgba(139, 69, 19, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        #reportContent pre {
+            background: rgba(139, 69, 19, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        #reportContent pre code {
+            background: none;
+            padding: 0;
+        }
+
+        #reportContent table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        #reportContent table th,
+        #reportContent table td {
+            border: 1px solid #d4a574;
+            padding: 12px;
+            text-align: left;
+        }
+
+        #reportContent table th {
+            background: #8b4513;
+            color: white;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        #reportContent table tr:nth-child(even) {
+            background: rgba(212, 165, 116, 0.1);
         }
     </style>
 </head>
@@ -772,7 +896,10 @@
         });
 
         // Display the generated report
-        function displayReport(reportHTML) {
+        function displayReport(reportMarkdown) {
+            // Convert Markdown to HTML
+            const reportHTML = marked.parse(reportMarkdown);
+
             // Hide loading
             document.getElementById('loadingState').classList.remove('active');
 
@@ -793,7 +920,7 @@
                         </div>
                     </div>
 
-                    <div id="reportContent" style="background: white; padding: 40px; border-radius: 12px; border: 2px solid #8b4513;">
+                    <div id="reportContent" style="background: white; padding: 40px; border-radius: 12px; border: 2px solid #8b4513; font-family: 'Merriweather', serif; line-height: 1.8; color: #2c1810;">
                         ${reportHTML}
                     </div>
 
