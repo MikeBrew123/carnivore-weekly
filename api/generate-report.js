@@ -375,8 +375,7 @@ async function generateAllReports(data, apiKey) {
  * Combine all 13 reports into a single markdown document
  */
 function combineReports(reports) {
-  let combined = '# Your Complete Personalized Carnivore Diet Report\n\n';
-  combined += `*Generated on ${new Date().toLocaleDateString()}*\n\n`;
+  let combined = '';
 
   // Add all reports in order (1-13)
   for (let i = 1; i <= 13; i++) {
@@ -951,7 +950,7 @@ async function generateAIReports(data, apiKey) {
   );
 
   return {
-    summary: `## Report #1: Your Personalized Protocol\n\n${summary}`,
+    summary: summary,
     obstacle: `## Report #6: Conquering Your Kryptonite\n\n${obstacle}`
   };
 }
