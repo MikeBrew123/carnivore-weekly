@@ -353,7 +353,7 @@
 
         input, select {
             width: 100%;
-            padding: 12px 15px;
+            padding: 16px 15px;
             border-radius: 8px;
             border: 2px solid #8b4513;
             background: rgba(255,255,255,0.9);
@@ -361,11 +361,13 @@
             font-family: 'Merriweather', serif;
             font-size: 1em;
             transition: all 0.3s;
+            min-height: 48px;
         }
 
         input:focus, select:focus {
-            outline: none;
-            border-color: #d4a574;
+            outline: 3px solid #d4a574;
+            outline-offset: 2px;
+            border-color: #8b4513;
             background: #fff;
             box-shadow: 0 0 10px rgba(212, 165, 116, 0.5);
         }
@@ -375,6 +377,30 @@
             opacity: 0.8;
             margin-top: 5px;
             font-style: italic;
+            color: #666;
+        }
+
+        /* Error messages */
+        .error-text {
+            display: none;
+            font-size: 0.9em;
+            color: #8b4513;
+            margin-top: 5px;
+            padding: 8px 12px;
+            background: rgba(139, 69, 19, 0.1);
+            border-left: 3px solid #8b4513;
+            border-radius: 4px;
+        }
+
+        .error-text.show {
+            display: block;
+        }
+
+        input[aria-invalid="true"],
+        select[aria-invalid="true"] {
+            border-color: #8b4513;
+            border-width: 3px;
+            background: rgba(139, 69, 19, 0.05);
         }
 
         /* Unit toggle */
@@ -821,7 +847,7 @@
                     </div>
                     <div>
                         <label for="age">Age</label>
-                        <input type="number" id="age" min="14" max="99" value="35">
+                        <input type="number" id="age" min="14" max="99" value="35" inputmode="numeric" autocomplete="off">
                     </div>
                 </div>
 
@@ -830,43 +856,43 @@
                         <label for="height">Height <span id="heightUnit">(feet & inches)</span></label>
                         <div id="imperialHeight" style="display: flex; gap: 10px;">
                             <div style="flex: 1;">
-                                <input type="number" id="heightFeet" min="3" max="8" value="5" placeholder="Feet">
+                                <input type="number" id="heightFeet" min="3" max="8" value="5" inputmode="numeric" autocomplete="off" aria-label="Feet">
                             </div>
                             <div style="flex: 1;">
-                                <input type="number" id="heightInches" min="0" max="11" value="10" placeholder="Inches">
+                                <input type="number" id="heightInches" min="0" max="11" value="10" inputmode="numeric" autocomplete="off" aria-label="Inches">
                             </div>
                         </div>
-                        <input type="number" id="heightCm" min="120" max="230" value="178" step="1" class="hidden">
-                        <p class="input-hint" id="heightHint">Example: 5 feet 10 inches</p>
+                        <input type="number" id="heightCm" min="120" max="230" value="178" step="1" class="hidden" inputmode="numeric" autocomplete="off">
+                        <p class="input-hint" id="height-hint">Example: 5 feet 10 inches</p>
                     </div>
                     <div>
                         <label for="weight">Weight <span id="weightUnit">(lbs)</span></label>
-                        <input type="number" id="weight" value="180" step="0.1">
+                        <input type="number" id="weight" value="180" step="0.1" inputmode="decimal" autocomplete="off">
                     </div>
                 </div>
 
                 <div class="grid-2">
                     <div>
                         <label for="lifestyle">Daily Lifestyle</label>
-                        <select id="lifestyle" onchange="updateActivityDisplay()">
+                        <select id="lifestyle" onchange="updateActivityDisplay()" aria-describedby="lifestyle-hint">
                             <option value="1.2" selected>Desk job, minimal walking</option>
                             <option value="1.3">Desk job, walk 30-60 min/day</option>
                             <option value="1.4">Standing job (retail, teaching)</option>
                             <option value="1.5">Active job (server, nurse, on feet all day)</option>
                             <option value="1.6">Physical labor (construction, farming)</option>
                         </select>
-                        <p class="input-hint">Your occupation, not gym time</p>
+                        <p class="input-hint" id="lifestyle-hint">Your occupation, not gym time</p>
                     </div>
                     <div>
                         <label for="exercise">Structured Exercise</label>
-                        <select id="exercise" onchange="updateActivityDisplay()">
+                        <select id="exercise" onchange="updateActivityDisplay()" aria-describedby="exercise-hint">
                             <option value="0">None</option>
                             <option value="0.1">1-2x/week, light (walking, yoga)</option>
                             <option value="0.2">3-4x/week, moderate (lifting, jogging)</option>
                             <option value="0.3" selected>4-5x/week, intense (CrossFit, HIIT)</option>
                             <option value="0.4">6-7x/week, athlete (serious training)</option>
                         </select>
-                        <p class="input-hint">Gym sessions only, not daily movement</p>
+                        <p class="input-hint" id="exercise-hint">Gym sessions only, not daily movement</p>
                     </div>
                 </div>
 
@@ -889,8 +915,8 @@
                 <div class="grid-2">
                     <div>
                         <label for="deficit" id="deficitLabel">Calorie Deficit (%)</label>
-                        <input type="number" id="deficit" min="0" max="40" value="0" step="5">
-                        <p class="input-hint">15-25% is sustainable for most people</p>
+                        <input type="number" id="deficit" min="0" max="40" value="0" step="5" inputmode="numeric" autocomplete="off" aria-describedby="deficit-hint">
+                        <p class="input-hint" id="deficit-hint">15-25% is sustainable for most people</p>
                     </div>
                     <div>
                         <label for="diet">Diet Style</label>
