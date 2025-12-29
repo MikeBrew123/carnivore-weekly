@@ -67,44 +67,109 @@
         /* Header */
         header {
             background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
-            padding: 30px 20px;
-            text-align: center;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            border: 3px solid #d4a574;
+            color: #f4e4d4;
+            padding: 60px 0 40px 0;
+            margin-bottom: 40px;
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.5),
+                inset 0 2px 0 rgba(255,255,255,0.1);
+            border-bottom: 4px solid #8b4513;
+            position: relative;
+            overflow: visible;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        header > .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            position: absolute;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
+            height: auto;
+            opacity: 0.95;
+            filter:
+                sepia(0.8)
+                brightness(0.85)
+                contrast(1.5)
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
+            mix-blend-mode: multiply;
+            z-index: 0;
         }
 
         header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
-            color: #ffd700;
-            letter-spacing: 2px;
+            font-size: 4.5em;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #f4e4d4;
+            position: relative;
+            z-index: 10;
         }
 
         header p {
-            color: #f4e4d4;
-            font-size: 1.1em;
-            margin-top: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            opacity: 0.9;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 10;
         }
 
+        /* Navigation Menu */
         nav {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 30px;
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-left: none;
+            border-right: none;
+            padding: 20px 0;
+            margin-bottom: 50px;
             text-align: center;
-            border: 2px solid #8b4513;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
         }
 
         nav a {
-            color: #8b4513;
+            color: #1a120b;
             text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            padding: 10px 20px;
+            margin: 0 5px;
+            display: inline-block;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            letter-spacing: 1px;
         }
 
         nav a:hover {
-            color: #ffd700;
+            border-bottom-color: #8b4513;
+            transform: translateY(-2px);
+        }
+
+        nav a.active {
+            border-bottom-color: #8b4513;
         }
 
         /* Table of Contents */
@@ -308,12 +373,18 @@
 
         /* Mobile responsive */
         @media (max-width: 768px) {
+            .logo {
+                max-width: 200px;
+                top: 15px;
+                right: 5px;
+            }
+
             .container {
                 padding: 10px;
             }
 
             header h1 {
-                font-size: 1.8em;
+                font-size: 2em;
             }
 
             .topic {
@@ -332,11 +403,15 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>CARNIVORE WEEKLY WIKI</h1>
+    <header>
+        <div class="container">
+            <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <h1>WIKI</h1>
             <p>Research-Backed Answers to Your Carnivore Questions</p>
-        </header>
+        </div>
+    </header>
+
+    <div class="container">
 
         <nav>
             <a href="index.html">Home</a>
@@ -1384,8 +1459,25 @@ When insulin drops during carbohydrate restriction, kidneys excrete more sodium 
 <li>Add <strong>4–6 g sodium/day</strong> (2–3 tsp salt).  </li>
 <li>Supplement <strong>400 mg magnesium glycinate</strong> or citrate.  </li>
 <li>Stay hydrated but avoid overhydration.  </li>
-<li>Consider <strong>electrolyte mixes</strong> (Redmond Re-Lyte, LMNT).</li>
+<li>Consider <strong>electrolyte mixes</strong> formulated for low-carb diets.</li>
 </ul>
+
+<div style="margin: 25px 0; padding: 20px; background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%); border-radius: 12px; border: 3px solid #8b4513;">
+    <h3 style="margin: 0 0 10px 0; color: #1a120b; font-family: 'Playfair Display', serif;">⚡ Electrolytes Made Simple</h3>
+    <p style="margin: 0 0 15px 0; color: #2c1810; line-height: 1.6;">
+        <strong>LMNT</strong> has the perfect sodium-to-potassium ratio for carnivore diets. Zero sugar, zero artificial ingredients, tastes great. Many carnivore athletes swear by it for preventing cramps.
+    </p>
+    <a href="http://elementallabs.refr.cc/default/u/michelbrew"
+       target="_blank"
+       rel="noopener noreferrer"
+       onclick="gtag('event', 'click', {'event_category': 'Affiliate', 'event_label': 'LMNT - Wiki Electrolytes', 'value': 'http://elementallabs.refr.cc/default/u/michelbrew'});"
+       style="display: inline-block; background: #1a120b; color: #ffd700; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1em;">
+        Try LMNT - Free Sample Pack →
+    </a>
+    <p style="margin: 15px 0 0 0; font-size: 0.85em; color: #2c1810; opacity: 0.8;">
+        Affiliate link - Supports this free wiki
+    </p>
+</div>
 
 <hr>
 
