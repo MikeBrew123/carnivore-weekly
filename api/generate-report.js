@@ -661,6 +661,19 @@ function wrapInPrintHTML(markdownContent) {
     }
   `;
 
+  // Generate the current date for the cover page
+  const generatedDate = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  // Convert markdown content to HTML (but we'll extract and move the H1 heading)
+  let contentHTML = markdownToHTML(markdownContent);
+
+  // Remove the first H1 from content since it will be on the cover page
+  contentHTML = contentHTML.replace(/<h1>[^<]*<\/h1>\n?/, '');
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -669,11 +682,60 @@ function wrapInPrintHTML(markdownContent) {
   <title>Personalized Carnivore Diet Report</title>
   <style>
     ${printCSS}
+
+    /* Cover page styles */
+    .cover-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      page-break-after: always;
+      break-after: page;
+      text-align: center;
+      padding: 0;
+      margin: 0;
+    }
+
+    .cover-logo {
+      font-size: 48pt;
+      margin-bottom: 30pt;
+      letter-spacing: 2pt;
+    }
+
+    .cover-title {
+      font-size: 36pt;
+      font-weight: bold;
+      color: #1a1a1a;
+      margin-bottom: 60pt;
+      line-height: 1.3;
+      max-width: 500pt;
+    }
+
+    .cover-date {
+      font-size: 14pt;
+      color: #666;
+      margin-top: auto;
+      padding-bottom: 40pt;
+    }
+
+    .content-start {
+      page-break-before: always;
+      break-before: page;
+    }
   </style>
 </head>
 <body>
-  <div class="report-content">
-    ${markdownToHTML(markdownContent)}
+  <!-- Cover Page -->
+  <div class="cover-page">
+    <div class="cover-logo">🥩 Carnivore Weekly</div>
+    <h1 class="cover-title">Your Complete Personalized<br>Carnivore Diet Report</h1>
+    <div class="cover-date">Generated on ${generatedDate}</div>
+  </div>
+
+  <!-- Content Pages -->
+  <div class="content-start report-content">
+    ${contentHTML}
   </div>
 </body>
 </html>`;
