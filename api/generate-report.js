@@ -278,12 +278,20 @@ export default {
       }
 
       // Generate all 13 reports using hybrid architecture
+      const startTime = Date.now();
+      console.log('[Report Generation] Starting report generation for:', data.email);
       const reports = await generateAllReports(data, env.ANTHROPIC_API_KEY);
+      const reportTime = Date.now() - startTime;
+      console.log(`[Report Generation] Reports completed in ${reportTime}ms`);
 
       // Combine all 13 reports into a single markdown document
+      const combineStart = Date.now();
       const combinedReport = combineReports(reports);
+      const combineTime = Date.now() - combineStart;
+      console.log(`[Report Generation] Report combining completed in ${combineTime}ms`);
 
       // Return combined report
+      console.log('[Report Generation] Sending response to client');
       return new Response(JSON.stringify({
         success: true,
         report: combinedReport,
@@ -324,27 +332,41 @@ async function generateAllReports(data, apiKey) {
 
   try {
     // Generate AI-personalized reports first (Reports #1 & #6)
-    console.log('Generating AI-personalized reports...');
+    console.log('[generateAllReports] Starting AI reports...');
     const aiReports = await generateAIReports(data, apiKey);
     reports[1] = aiReports.summary;
     reports[6] = aiReports.obstacle;
+    console.log('[generateAllReports] AI reports completed');
 
     // Load and customize static template reports
+    console.log('[generateAllReports] Loading template reports...');
     reports[2] = await loadAndCustomizeTemplate('foodGuide', data);
+    console.log('[generateAllReports] Report #2 loaded');
     reports[3] = await loadAndCustomizeTemplate('mealCalendar', data);
+    console.log('[generateAllReports] Report #3 loaded');
     reports[4] = await loadAndCustomizeTemplate('shoppingList', data);
+    console.log('[generateAllReports] Report #4 loaded');
     reports[5] = await loadAndCustomizeTemplate('physicianConsult', data);
+    console.log('[generateAllReports] Report #5 loaded');
     reports[7] = await loadAndCustomizeTemplate('restaurant', data);
+    console.log('[generateAllReports] Report #7 loaded');
     reports[8] = await loadAndCustomizeTemplate('science', data);
+    console.log('[generateAllReports] Report #8 loaded');
     reports[9] = await loadAndCustomizeTemplate('labs', data);
+    console.log('[generateAllReports] Report #9 loaded');
     reports[10] = await loadAndCustomizeTemplate('electrolytes', data);
+    console.log('[generateAllReports] Report #10 loaded');
     reports[11] = await loadAndCustomizeTemplate('timeline', data);
+    console.log('[generateAllReports] Report #11 loaded');
     reports[12] = await loadAndCustomizeTemplate('stallBreaker', data);
+    console.log('[generateAllReports] Report #12 loaded');
     reports[13] = await loadAndCustomizeTemplate('tracker', data);
+    console.log('[generateAllReports] Report #13 loaded - All reports complete');
 
     return reports;
   } catch (error) {
-    console.error('Error generating reports:', error);
+    console.error('[generateAllReports] ERROR:', error.message);
+    console.error('[generateAllReports] Stack:', error.stack);
     throw error;
   }
 }
