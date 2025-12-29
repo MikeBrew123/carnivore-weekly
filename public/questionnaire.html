@@ -260,6 +260,104 @@
             border-color: #8b4513;
         }
 
+        /* Validation States */
+        input.valid-field,
+        textarea.valid-field,
+        select.valid-field {
+            border-color: #4caf50 !important;
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+
+        input.invalid-field,
+        textarea.invalid-field,
+        select.invalid-field {
+            border-color: #d4574e !important;
+            background-color: rgba(212, 87, 78, 0.05);
+        }
+
+        /* Field Success Indicator */
+        .field-group {
+            position: relative;
+        }
+
+        .field-success {
+            position: absolute;
+            right: 12px;
+            top: 32px;
+            color: #4caf50;
+            font-size: 1.2em;
+            pointer-events: none;
+        }
+
+        .field-error-text {
+            color: #d4574e;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .field-error-text.show {
+            display: block;
+        }
+
+        /* Wizard Step Styling */
+        .form-step {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .step-navigation {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .step-button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Merriweather', serif;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .step-button.prev {
+            background: #e0e0e0;
+            color: #1a120b;
+        }
+
+        .step-button.prev:hover:not(:disabled) {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .step-button.next {
+            background: #d4a574;
+            color: white;
+        }
+
+        .step-button.next:hover:not(:disabled) {
+            background: #c99557;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(212, 165, 116, 0.4);
+        }
+
+        .step-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         textarea {
             min-height: 100px;
             resize: vertical;
@@ -360,6 +458,26 @@
 
         .loading.active {
             display: block;
+        }
+
+        /* Error Message Styling */
+        .error-message {
+            background: #fee;
+            border: 2px solid #d4574e;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            color: #8b2e1f;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-message::before {
+            content: "❌";
+            font-size: 1.2em;
+            flex-shrink: 0;
         }
 
         .loading h2 {
@@ -595,30 +713,41 @@
 
     <div class="container">
 
+        <!-- Step Progress Indicator -->
+        <div id="stepProgress" style="background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; display: none;">
+            <div style="color: #2c1810; font-weight: bold; margin-bottom: 10px;">Step <span id="currentStep">1</span> of <span id="totalSteps">4</span></div>
+            <div style="background: rgba(255,255,255,0.3); border-radius: 10px; height: 8px; overflow: hidden;">
+                <div id="progressBar" style="background: #4caf50; height: 100%; width: 25%; transition: width 0.3s ease;"></div>
+            </div>
+        </div>
+
         <div class="warning-banner">
-            <h2>⚠️ Important: One-Time Report Generation</h2>
+            <h2>⏰ Your Reports: 48-Hour Access Window</h2>
             <ul>
                 <li><strong>Fill out as much or as little as you want</strong> - More info = more personalized report</li>
-                <li><strong>This generates ONCE.</strong> No saves, no redo, no second chances.</li>
-                <li><strong>Your data is deleted immediately</strong> after generation - we keep nothing.</li>
-                <li><strong>Download your report and save it</strong> when it's ready - you can't come back!</li>
+                <li><strong>Access your 13 reports for 48 hours</strong> - View, download, or print anytime during this period.</li>
+                <li><strong>Auto-deleted after 48 hours</strong> - We don't store your data permanently for privacy.</li>
+                <li><strong>Download and save your report</strong> if you want to keep it beyond 48 hours!</li>
             </ul>
         </div>
 
         <form id="aiReportForm">
-            <!-- Section 1: Contact Info -->
-            <div class="form-section">
+            <!-- STEP 1: Contact & Allergies -->
+            <div class="form-step" data-step="1">
+                <!-- Section 1: Contact Info -->
+                <div class="form-section">
                 <h3>📧 Contact Information</h3>
                 <p class="subtitle">Where should we send your report?</p>
 
-                <div class="form-group">
+                <div class="form-group field-group">
                     <label>Email Address <span class="optional">(required - for delivery)</span></label>
-                    <input type="email" name="email" id="email" required placeholder="your@email.com">
+                    <input type="email" name="email" id="email" required placeholder="your@email.com" autocomplete="email">
+                    <div class="field-error-text" id="email-error"></div>
                 </div>
 
                 <div class="form-group">
                     <label>First Name <span class="optional">(optional)</span></label>
-                    <input type="text" name="firstName" placeholder="e.g., John">
+                    <input type="text" name="firstName" placeholder="e.g., John" autocomplete="given-name">
                 </div>
             </div>
 
@@ -651,9 +780,12 @@
                     <strong>Medical Disclaimer:</strong> This information is for educational purposes only. If you have severe food allergies or medical conditions, consult your doctor before changing your diet. Bring this report with you to appointments.
                 </div>
             </div>
+            </div><!-- End STEP 1 -->
 
-            <!-- Section 3: Current Health -->
-            <div class="form-section">
+            <!-- STEP 2: Health & Symptoms -->
+            <div class="form-step" data-step="2" style="display:none;">
+                <!-- Section 3: Current Health -->
+                <div class="form-section">
                 <h3>🏥 Current Health Conditions</h3>
                 <p class="subtitle">Help us tailor the plan to your situation (all optional)</p>
 
@@ -746,9 +878,12 @@
                     <textarea name="otherSymptoms" placeholder="Anything else you're dealing with that we should address?"></textarea>
                 </div>
             </div>
+            </div><!-- End STEP 2 -->
 
-            <!-- Section 5: Diet History -->
-            <div class="form-section">
+            <!-- STEP 3: Diet & Lifestyle -->
+            <div class="form-step" data-step="3" style="display:none;">
+                <!-- Section 5: Diet History -->
+                <div class="form-section">
                 <h3>🍽️ Diet History</h3>
                 <p class="subtitle">What have you tried before? (all optional)</p>
 
@@ -765,6 +900,17 @@
                         <option value="dabbled">Tried it briefly (days/weeks)</option>
                         <option value="months">Did it for months</option>
                         <option value="current">Currently carnivore</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Which Diet Protocol? <span class="optional">(optional)</span></label>
+                    <select name="selectedProtocol">
+                        <option value="">Select one...</option>
+                        <option value="carnivore">Carnivore (beef, poultry, fish, eggs, dairy)</option>
+                        <option value="pescatarian">Pescatarian Carnivore (fish, eggs, dairy only)</option>
+                        <option value="lion">Lion Diet (beef, salt, water only)</option>
+                        <option value="keto">Keto (low-carb, includes some plants)</option>
                     </select>
                 </div>
 
@@ -828,9 +974,12 @@
                     <textarea name="workTravel" placeholder="e.g., Travel 2 weeks/month for work, eat lunch at desk, frequent business dinners, work from home"></textarea>
                 </div>
             </div>
+            </div><!-- End STEP 3 -->
 
-            <!-- Section 7: Goals & Priorities -->
-            <div class="form-section">
+            <!-- STEP 4: Goals & Submit -->
+            <div class="form-step" data-step="4" style="display:none;">
+                <!-- Section 7: Goals & Priorities -->
+                <div class="form-section">
                 <h3>🎯 Goals & Priorities</h3>
                 <p class="subtitle">Beyond macros, what matters most to you? (all optional)</p>
 
@@ -883,13 +1032,26 @@
                 </div>
             </div>
 
-            <!-- Submit Section -->
-            <div class="submit-section">
-                <button type="submit" class="submit-button" id="submitBtn">
+            </div><!-- End STEP 4 -->
+
+            <!-- Step Navigation -->
+            <div class="step-navigation" id="stepNavigation" style="display:none;">
+                <button type="button" class="step-button prev" id="prevBtn">← Previous Step</button>
+                <div id="stepCounter" style="display:flex; align-items:center; color:#2c1810; font-weight:bold;"></div>
+                <button type="button" class="step-button next" id="nextBtn">Next Step →</button>
+            </div>
+
+            <!-- Submit Section (visible on all steps) -->
+            <div class="submit-section" id="submitSection">
+                <button type="submit" class="submit-button" id="submitBtn" style="display:none;">
                     🚀 Generate My AI Report
                 </button>
-                <p class="submit-note">
+                <p class="submit-note" id="submitNote" style="display:none;">
                     <strong>Remember:</strong> This generates once. Download and save your report when ready!
+                </p>
+                <p style="margin-top: 15px; font-size: 0.85em; text-align: center;">
+                    <a href="https://carnivoreweekly.com/privacy.html" style="color: #d4a574; text-decoration: none;">Privacy Policy</a> |
+                    <a href="https://carnivoreweekly.com/terms.html" style="color: #d4a574; text-decoration: none;">Terms of Service</a>
                 </p>
             </div>
         </form>
@@ -949,9 +1111,272 @@
             console.error('Error loading macro data:', e);
         }
 
+        // Pre-fill email if saved from calculator
+        try {
+            const savedEmail = localStorage.getItem('carnivore_email');
+            if (savedEmail) {
+                document.getElementById('email').value = savedEmail;
+                console.log('Pre-filled email from localStorage');
+            }
+        } catch (e) {
+            console.error('Error pre-filling email:', e);
+        }
+
+        // ========== REAL-TIME VALIDATION FUNCTIONS ==========
+
+        /**
+         * Validate email format
+         */
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        /**
+         * Mark field as valid (green border + checkmark)
+         */
+        function setFieldValid(fieldId) {
+            try {
+                const field = document.getElementById(fieldId);
+                if (!field) return;
+
+                field.classList.remove('invalid-field');
+                field.classList.add('valid-field');
+
+                // Hide error text if present
+                const errorEl = document.getElementById(fieldId + '-error');
+                if (errorEl) {
+                    errorEl.classList.remove('show');
+                }
+
+                // Add green checkmark
+                let checkmark = field.parentElement.querySelector('.field-success');
+                if (!checkmark) {
+                    checkmark = document.createElement('div');
+                    checkmark.className = 'field-success';
+                    checkmark.textContent = '✓';
+                    field.parentElement.appendChild(checkmark);
+                }
+            } catch (e) {
+                console.error('Error setting field valid:', e);
+            }
+        }
+
+        /**
+         * Mark field as invalid (red border + error message)
+         */
+        function setFieldInvalid(fieldId, errorMessage) {
+            try {
+                const field = document.getElementById(fieldId);
+                if (!field) return;
+
+                field.classList.remove('valid-field');
+                field.classList.add('invalid-field');
+
+                // Show error text
+                const errorEl = document.getElementById(fieldId + '-error');
+                if (errorEl) {
+                    errorEl.textContent = errorMessage;
+                    errorEl.classList.add('show');
+                }
+
+                // Remove checkmark if present
+                const checkmark = field.parentElement.querySelector('.field-success');
+                if (checkmark) {
+                    checkmark.remove();
+                }
+
+                // Track validation error
+                gtag('event', 'form_error', {
+                    'event_category': 'Questionnaire',
+                    'event_label': fieldId + ' validation failed',
+                    'value': 1
+                });
+            } catch (e) {
+                console.error('Error setting field invalid:', e);
+            }
+        }
+
+        /**
+         * Clear field validation state
+         */
+        function clearFieldValidation(fieldId) {
+            try {
+                const field = document.getElementById(fieldId);
+                if (!field) return;
+
+                field.classList.remove('valid-field', 'invalid-field');
+
+                const errorEl = document.getElementById(fieldId + '-error');
+                if (errorEl) {
+                    errorEl.classList.remove('show');
+                }
+
+                const checkmark = field.parentElement.querySelector('.field-success');
+                if (checkmark) {
+                    checkmark.remove();
+                }
+            } catch (e) {
+                console.error('Error clearing field validation:', e);
+            }
+        }
+
+        /**
+         * Setup real-time validation for email
+         */
+        try {
+            const emailField = document.getElementById('email');
+            if (emailField) {
+                // Validate on blur
+                emailField.addEventListener('blur', function() {
+                    if (this.value.trim() === '') {
+                        setFieldInvalid('email', 'Email is required');
+                    } else if (!validateEmail(this.value)) {
+                        setFieldInvalid('email', 'Please enter a valid email address');
+                    } else {
+                        setFieldValid('email');
+                    }
+                });
+
+                // Clear error on focus
+                emailField.addEventListener('focus', function() {
+                    if (this.classList.contains('invalid-field')) {
+                        clearFieldValidation('email');
+                    }
+                });
+
+                // Check initial value if pre-filled
+                if (emailField.value && validateEmail(emailField.value)) {
+                    setFieldValid('email');
+                }
+            }
+        } catch (e) {
+            console.error('Error setting up email validation:', e);
+        }
+
+        // ========== MULTI-STEP WIZARD FUNCTIONS ==========
+
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        /**
+         * Initialize wizard interface
+         */
+        function initializeWizard() {
+            try {
+                // Show progress bar and step navigation
+                document.getElementById('stepProgress').style.display = 'block';
+                document.getElementById('stepNavigation').style.display = 'flex';
+
+                // Show warning banner on first step only (optional refinement)
+                updateStepDisplay();
+            } catch (e) {
+                console.error('Error initializing wizard:', e);
+            }
+        }
+
+        /**
+         * Update step display and UI elements
+         */
+        function updateStepDisplay() {
+            try {
+                // Hide all steps
+                document.querySelectorAll('.form-step').forEach(step => {
+                    step.style.display = 'none';
+                });
+
+                // Show current step
+                const currentStepEl = document.querySelector(`[data-step="${currentStep}"]`);
+                if (currentStepEl) {
+                    currentStepEl.style.display = 'block';
+                }
+
+                // Update progress indicator
+                document.getElementById('currentStep').textContent = currentStep;
+                const progressPercent = (currentStep / totalSteps) * 100;
+                document.getElementById('progressBar').style.width = progressPercent + '%';
+
+                // Update step counter
+                document.getElementById('stepCounter').textContent = `Step ${currentStep} of ${totalSteps}`;
+
+                // Update button visibility and state
+                document.getElementById('prevBtn').style.display = currentStep === 1 ? 'none' : 'block';
+                document.getElementById('nextBtn').style.display = currentStep === totalSteps ? 'none' : 'block';
+                document.getElementById('submitBtn').style.display = currentStep === totalSteps ? 'block' : 'none';
+                document.getElementById('submitNote').style.display = currentStep === totalSteps ? 'block' : 'none';
+
+                // Scroll to top of form
+                document.getElementById('aiReportForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (e) {
+                console.error('Error updating step display:', e);
+            }
+        }
+
+        /**
+         * Go to next step
+         */
+        function goToNextStep() {
+            try {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateStepDisplay();
+
+                    // Track wizard step progression
+                    gtag('event', 'form_progress', {
+                        'event_category': 'Questionnaire',
+                        'event_label': 'Step ' + currentStep,
+                        'value': currentStep
+                    });
+                }
+            } catch (e) {
+                console.error('Error going to next step:', e);
+            }
+        }
+
+        /**
+         * Go to previous step
+         */
+        function goToPreviousStep() {
+            try {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateStepDisplay();
+                }
+            } catch (e) {
+                console.error('Error going to previous step:', e);
+            }
+        }
+
+        /**
+         * Setup wizard event listeners
+         */
+        try {
+            document.getElementById('nextBtn').addEventListener('click', goToNextStep);
+            document.getElementById('prevBtn').addEventListener('click', goToPreviousStep);
+
+            // Initialize wizard when page loads
+            window.addEventListener('load', function() {
+                initializeWizard();
+            });
+
+            // Also initialize immediately in case page is already loaded
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                setTimeout(initializeWizard, 100);
+            }
+        } catch (e) {
+            console.error('Error setting up wizard event listeners:', e);
+        }
+
         // Form submission handler
         document.getElementById('aiReportForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+
+            // Track form submission start
+            gtag('event', 'form_submit', {
+                'event_category': 'Questionnaire',
+                'event_label': 'Personalized Report Request',
+                'value': 1
+            });
 
             // Get form data
             const formData = new FormData(this);
@@ -1007,13 +1432,45 @@
                 // Display the generated report
                 displayReport(result.report);
 
+                // Track successful report generation
+                gtag('event', 'report_generated', {
+                    'event_category': 'Reports',
+                    'event_label': 'All 13 Personalized Reports',
+                    'value': 1
+                });
+
             } catch (error) {
                 console.error('Error:', error);
-                alert('Something went wrong generating your report. Please contact support at your email confirmation.');
 
-                // Show form again
+                // Track report generation error
+                gtag('event', 'report_error', {
+                    'event_category': 'Reports',
+                    'event_label': error.message || 'Report generation failed',
+                    'value': 1
+                });
+
+                // Hide loading state and show form again
                 document.getElementById('loadingState').classList.remove('active');
                 document.getElementById('aiReportForm').style.display = 'block';
+
+                // Create and display friendly error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.innerHTML = `<div style="flex: 1;"><strong>Report Generation Failed</strong><br>
+                Our system encountered an error while creating your report. Please check that:
+                <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #8b2e1f;">
+                    <li>You entered a valid email address</li>
+                    <li>Your internet connection is stable</li>
+                    <li>Try refreshing the page and submitting again</li>
+                </ul>
+                If problems continue, please contact support with your email: <strong>${data.email}</strong></div>`;
+
+                // Insert error at top of form
+                const form = document.getElementById('aiReportForm');
+                form.parentNode.insertBefore(errorDiv, form);
+
+                // Auto-scroll to error message
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
 
@@ -1116,8 +1573,8 @@
                 reportContainer.innerHTML = `
                     <div style="max-width: 900px; margin: 0 auto; padding: 20px;">
                         <div class="warning-banner" style="margin-bottom: 30px;">
-                            <h2>⚠️ SAVE THIS REPORT NOW!</h2>
-                            <p><strong>This page will only show once.</strong> We don't save your data. Download/print this report immediately!</p>
+                            <h2>✅ Your Reports Are Ready!</h2>
+                            <p><strong>Access your reports for 48 hours.</strong> You can view them again via your unique link, but we recommend downloading or printing now for safekeeping.</p>
                             <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center;">
                                 <button onclick="window.print()" style="background: #8b4513; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1.1em; cursor: pointer; font-weight: bold;">
                                     🖨️ Print / Save as PDF
@@ -1133,7 +1590,7 @@
                         </div>
 
                         <div class="warning-banner" style="margin-top: 30px;">
-                            <p><strong>Remember:</strong> Once you close this page, this report is gone forever. We don't keep your data!</p>
+                            <p><strong>⏰ 48-Hour Access:</strong> Your reports remain accessible via your unique link for 48 hours. After that, they're automatically deleted for your privacy. Download or save a copy if you want to keep them longer!</p>
                         </div>
                     </div>
                 `;
@@ -1186,10 +1643,10 @@ ${report}
                 return e.returnValue;
             }
 
-            // Also warn if report is displayed (they should save it first)
+            // Also warn if report is displayed (they should save it for permanence)
             if (window.generatedReport) {
                 e.preventDefault();
-                e.returnValue = 'Have you saved your report? It will be gone forever if you leave!';
+                e.returnValue = 'Your reports will be accessible for 48 hours via your unique link. Save a copy now if you want to keep them permanently!';
                 return e.returnValue;
             }
         });

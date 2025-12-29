@@ -172,37 +172,69 @@ function generateGroceryListByWeek(data) {
   const allergies = (data.allergies || '').toLowerCase();
 
   // Filter ingredients by diet, budget, and allergies
-  const proteins = foodDatabase.proteins.filter(p =>
+  let proteins = foodDatabase.proteins.filter(p =>
     p.diet.includes(diet) &&
     p.cost.includes(budget) &&
     !p.name.toLowerCase().includes('dairy')
   );
 
-  const fats = foodDatabase.fats.filter(f =>
+  // Fallback: if no proteins match, use Carnivore defaults
+  if (proteins.length === 0) {
+    proteins = foodDatabase.proteins.filter(p =>
+      p.diet.includes('Carnivore') &&
+      !p.name.toLowerCase().includes('dairy')
+    );
+  }
+
+  // Fallback: if still no proteins, use all proteins (worst case)
+  if (proteins.length === 0) {
+    proteins = foodDatabase.proteins.filter(p =>
+      !p.name.toLowerCase().includes('dairy')
+    );
+  }
+
+  let fats = foodDatabase.fats.filter(f =>
     f.diet.includes(diet) &&
     f.cost.includes(budget)
   );
+
+  // Fallback: if no fats match, use Carnivore defaults
+  if (fats.length === 0) {
+    fats = foodDatabase.fats.filter(f =>
+      f.diet.includes('Carnivore')
+    );
+  }
+
+  // Fallback: if still no fats, use all fats (worst case)
+  if (fats.length === 0) {
+    fats = foodDatabase.fats;
+  }
 
   // Generate grocery lists for each week
   const groceryLists = {};
 
   for (let week = 1; week <= 4; week++) {
+    // Safely access proteins with fallback
+    const protein1 = proteins.length > 0 ? proteins[(week - 1) % proteins.length] : { name: 'Ground Beef', quantity: '5 lbs' };
+    const protein2 = proteins.length > 1 ? proteins[week % proteins.length] : { name: 'Beef Liver', quantity: '1-2 units' };
+    const fat1 = fats.length > 0 ? fats[0] : { name: 'Butter', quantity: '1 lb' };
+
     groceryLists[`week${week}`] = {
       weekNumber: week,
       proteins: [
         {
-          name: proteins[week % proteins.length].name,
-          quantity: week === 1 ? '5 lbs' : '5 lbs'
+          name: protein1.name || 'Ground Beef',
+          quantity: protein1.quantity || '5 lbs'
         },
         {
-          name: proteins[(week + 1) % proteins.length].name,
-          quantity: week === 1 ? '2-4 units' : '2-4 units'
+          name: protein2.name || 'Beef Liver',
+          quantity: protein2.quantity || '1-2 units'
         }
       ],
       fats: [
         {
-          name: fats[0].name,
-          quantity: '1 lb'
+          name: fat1.name || 'Butter',
+          quantity: fat1.quantity || '1 lb'
         }
       ],
       pantry: [

@@ -1,0 +1,14 @@
+{
+  "name": "carnivore-report-api",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for generating personalized carnivore diet reports",
+  "main": "generate-report.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "keywords": ["carnivore", "diet", "reports", "cloudflare-worker"],
+  "author": "",
+  "license": "MIT"
+}
