@@ -698,9 +698,15 @@ function wrapInPrintHTML(markdownContent) {
     }
 
     .cover-logo {
-      font-size: 48pt;
-      margin-bottom: 30pt;
-      letter-spacing: 2pt;
+      margin-bottom: 40pt;
+    }
+
+    .cover-logo img {
+      max-width: 200pt;
+      max-height: 200pt;
+      width: auto;
+      height: auto;
+      object-fit: contain;
     }
 
     .cover-title {
@@ -728,7 +734,9 @@ function wrapInPrintHTML(markdownContent) {
 <body>
   <!-- Cover Page -->
   <div class="cover-page">
-    <div class="cover-logo">🥩 Carnivore Weekly</div>
+    <div class="cover-logo">
+      <img src="https://carnivoreweekly.com/CarnivoreWeeklySquare.png" alt="Carnivore Weekly Logo" />
+    </div>
     <h1 class="cover-title">Your Complete Personalized<br>Carnivore Diet Report</h1>
     <div class="cover-date">Generated on ${generatedDate}</div>
   </div>
