@@ -731,6 +731,17 @@
         #reportContent table tr:nth-child(even) {
             background: rgba(212, 165, 116, 0.1);
         }
+
+        /* Print styles - hide UI elements when printing */
+        @media print {
+            .warning-banner {
+                display: none !important;
+            }
+
+            body > div > div:first-child {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>

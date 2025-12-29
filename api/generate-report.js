@@ -702,8 +702,8 @@ function wrapInPrintHTML(markdownContent) {
     }
 
     .cover-logo img {
-      max-width: 200pt;
-      max-height: 200pt;
+      max-width: 400pt;
+      max-height: 400pt;
       width: auto;
       height: auto;
       object-fit: contain;
