@@ -310,6 +310,18 @@
             font-style: italic;
         }
 
+        /* Image beside text (reusable pattern) */
+        .image-aside {
+            float: right;
+            margin: 0 0 25px 30px;
+            max-width: 560px;
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Keep intro-image as alias for backwards compatibility */
         .intro-image {
             float: right;
             margin: 0 0 25px 30px;
@@ -330,6 +342,7 @@
                 font-size: 1em;
             }
 
+            .image-aside,
             .intro-image {
                 float: none;
                 margin: 0 0 20px 0;
