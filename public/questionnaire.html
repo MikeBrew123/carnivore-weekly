@@ -748,7 +748,7 @@
         <div id="stepProgress" style="background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; display: none;">
             <div style="color: #2c1810; font-weight: bold; margin-bottom: 10px;">Step <span id="currentStep">1</span> of <span id="totalSteps">4</span></div>
             <div style="background: rgba(255,255,255,0.3); border-radius: 10px; height: 8px; overflow: hidden;">
-                <div id="progressBar" style="background: #4caf50; height: 100%; width: 25%; transition: width 0.3s ease;"></div>
+                <div id="formProgressBar" style="background: #4caf50; height: 100%; width: 25%; transition: width 0.3s ease;"></div>
             </div>
         </div>
 
@@ -1325,7 +1325,7 @@
                 // Update progress indicator
                 document.getElementById('currentStep').textContent = currentStep;
                 const progressPercent = (currentStep / totalSteps) * 100;
-                document.getElementById('progressBar').style.width = progressPercent + '%';
+                document.getElementById('formProgressBar').style.width = progressPercent + '%';
 
                 // Update step counter
                 document.getElementById('stepCounter').textContent = `Step ${currentStep} of ${totalSteps}`;
