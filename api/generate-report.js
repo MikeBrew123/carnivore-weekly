@@ -330,7 +330,6 @@ async function generateAllReports(data, apiKey) {
     reports[6] = aiReports.obstacle;
 
     // Load and customize static template reports
-    console.log('Loading static templates...');
     reports[2] = await loadAndCustomizeTemplate('foodGuide', data);
     reports[3] = await loadAndCustomizeTemplate('mealCalendar', data);
     reports[4] = await loadAndCustomizeTemplate('shoppingList', data);
