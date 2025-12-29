@@ -1433,15 +1433,24 @@
             }
 
             // Show loading state
+            console.log('[Form Submit] Hiding form and showing loading state');
             document.getElementById('aiReportForm').style.display = 'none';
             document.getElementById('loadingState').classList.add('active');
 
             // Start progress animation and messages
-            startLoadingAnimation();
+            console.log('[Form Submit] Starting loading animation');
+            try {
+                startLoadingAnimation();
+                console.log('[Form Submit] Loading animation started successfully');
+            } catch (animError) {
+                console.error('[Form Submit] Error starting animation:', animError);
+            }
 
             try {
                 // Cloudflare Worker URL for report generation
                 const apiUrl = 'https://carnivore-report-api.iambrew.workers.dev';
+                console.log('[Form Submit] Sending request to:', apiUrl);
+                const requestStartTime = Date.now();
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -1451,16 +1460,26 @@
                     body: JSON.stringify(data)
                 });
 
+                const responseTime = Date.now() - requestStartTime;
+                console.log(`[Form Submit] Response received in ${responseTime}ms, status:`, response.status);
+
                 if (!response.ok) {
-                    throw new Error('Report generation failed');
+                    throw new Error(`HTTP ${response.status}: Report generation failed`);
                 }
 
+                console.log('[Form Submit] Parsing JSON response...');
                 const result = await response.json();
+                console.log('[Form Submit] Response parsed successfully, report length:', result.report?.length);
 
                 // Clear localStorage (privacy - no data retention)
                 localStorage.removeItem('carnivore_macros');
 
+                // Stop the loading animation before displaying
+                console.log('[Form Submit] Stopping loading animation');
+                stopLoadingAnimation();
+
                 // Display the generated report
+                console.log('[Form Submit] Displaying report to user');
                 displayReport(result.report);
 
                 // Track successful report generation
@@ -1471,7 +1490,8 @@
                 });
 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('[Form Submit] Error caught:', error.message);
+                console.error('[Form Submit] Full error:', error);
 
                 // Track report generation error
                 gtag('event', 'report_error', {
