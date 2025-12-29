@@ -635,8 +635,8 @@
             document.getElementById('loadingState').classList.add('active');
 
             try {
-                // TODO: Update this URL to your Cloudflare Worker URL
-                const apiUrl = '/api/generate-report'; // Change to: https://carnivore-report-api.YOUR-SUBDOMAIN.workers.dev
+                // Cloudflare Worker URL for report generation
+                const apiUrl = 'https://carnivore-report-api.iambrew.workers.dev';
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
