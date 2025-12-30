@@ -141,6 +141,34 @@ IMPORTANT: Different sections will be written by different authors with distinct
 **WEEKLY_SUMMARY (Sarah's voice):**
 {sarah_context}
 
+WIKI LINKING INSTRUCTIONS FOR WEEKLY SUMMARY:
+When you mention complex carnivore topics for the FIRST TIME, wrap them in an HTML link to the wiki.
+Available wiki sections (use these anchor links):
+- Weight loss / stalls / plateaus → <a href="wiki.html#weight-stall" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Cholesterol / LDL / HDL → <a href="wiki.html#cholesterol" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Fiber concerns → <a href="wiki.html#fiber" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Dairy questions → <a href="wiki.html#dairy" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Coffee / caffeine → <a href="wiki.html#coffee" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Scurvy / vitamin C → <a href="wiki.html#scurvy" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Digestion / constipation / diarrhea → <a href="wiki.html#digestion" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Salt / sodium → <a href="wiki.html#salt" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Electrolytes / potassium / magnesium → <a href="wiki.html#electrolytes" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Alcohol / drinking / beer → <a href="wiki.html#alcohol" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Organ meats / liver / kidney → <a href="wiki.html#organ-meats" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Budget / cost / affordable → <a href="wiki.html#budget" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+- Gout / uric acid → <a href="wiki.html#gout" style="color: #8b4513; text-decoration: none;">descriptive text</a>
+
+LINKING RULES:
+1. First mention only - don't link the same topic twice
+2. Use descriptive anchor text - the natural phrase you're writing (e.g., "weight loss stalls", "electrolyte management")
+3. NEVER use "click here" or generic phrases
+4. Only link if the topic is genuinely complex/confusing - don't over-link (max 2-3 links per summary)
+5. Link styling is already in the HTML - just use the template above
+
+Example:
+BAD: "Many people ask about weight loss. <a href="wiki.html#weight-stall">Click here</a> to learn more."
+GOOD: "The <a href="wiki.html#weight-stall" style="color: #8b4513; text-decoration: none;">weight loss stall conversation</a> is heating up, and I'm noticing something interesting..."
+
 **TRENDING_TOPICS (Chloe's voice):**
 {chloe_context}
 

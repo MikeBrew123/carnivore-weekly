@@ -231,7 +231,7 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.7);
         }
 
-        .video-card .video-header {
+.video-card .video-header {
             background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
             color: #f4e4d4;
             padding: 20px;
@@ -820,6 +820,29 @@
         header p {
             text-align: center;
         }
+
+        .calculator-ad {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .calculator-ad a {
+            display: inline-block;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .calculator-ad a:hover {
+            transform: scale(1.02);
+        }
+
+        .calculator-ad img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 3px solid #8b4513;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
     </style>
 
     <!-- Schema.org Article markup (for weekly digest) -->
@@ -864,8 +887,8 @@
     </header>
 
     <!-- Navigation Menu -->
-    <nav class="nav-menu">
-        <a href="index.html" class="active">Home</a>
+    <nav class="nav-menu" id="top-nav">
+        <a href="index.html">Home</a>
         <a href="channels.html">Channels</a>
         <a href="wiki.html">Wiki</a>
         <a href="calculator.html">Calculator</a>
@@ -879,6 +902,7 @@
     </a>
 
     <div class="container">
+        <!-- SECTION: ButcherBox Affiliate Banner | Lines 905-910 | CSS: .sponsor-banner-image | JS: trackAffiliateClick() -->
         <!-- ButcherBox Affiliate Banner -->
         <div class="sponsor-banner-image">
             <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=seasonal_offer" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')">
@@ -886,7 +910,8 @@
             </a>
         </div>
 
-        <!-- Weekly Summary -->
+        <!-- SECTION: Weekly Summary + Calculator Ad | Lines 914-933 | CSS: .section .summary-with-image .calculator-ad | JS: trackAffiliateClick() -->
+        <!-- Weekly Summary - Shows summary text with steak image, calculator promo below -->
         <section class="section">
             <h2>This Week's Roundup</h2>
             <div class="summary-with-image">
@@ -903,10 +928,18 @@ Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and 
                     <img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&q=80" alt="Premium ribeye steak">
                 </div>
             </div>
+
+            <!-- Calculator Ad -->
+            <div class="calculator-ad">
+                <a href="calculator.html" onclick="trackAffiliateClick('Diet Calculator', 'calculator.html')">
+                    <img src="images/NewYear-ad.png" alt="Carnivore Diet Calculator - Get Your Personalized Plan">
+                </a>
+            </div>
         </section>
 
         <div class="divider">• • •</div>
 
+        <!-- SECTION: Trending Topics | Lines 937-958 | CSS: .section .trending-topics .topic-card | JS: none -->
         <!-- Trending Topics -->
         <section class="section">
             <h2>What's Sizzling</h2>
@@ -1027,6 +1060,7 @@ Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and 
 
         <div class="divider">• • •</div>
 
+        <!-- SECTION: Top Videos + Filters | Lines 962-1187 | CSS: .section .video-grid .video-card .tag-filter-btn #top-videos-grid | JS: filterVideosByTag() filterVideosByCreator() -->
         <!-- Top Videos -->
         <section class="section">
             <h2>Prime Cuts - Top Videos</h2>
@@ -1479,7 +1513,7 @@ Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and 
                 </div>
             </div>
 
-            <div class="video-grid">
+            <div class="video-grid" id="top-videos-grid">
                 
                 <div class="video-card" data-tags="inflammation science beginners" data-creator="OptimalHealth">
                     <!-- VideoObject Schema for search engines -->
@@ -1951,6 +1985,7 @@ Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and 
             <img src="lmnt-box.avif" alt="LMNT electrolyte salt variety box" style="width: 100%; max-width: 500px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
         </a>
 
+        <!-- SECTION: Key Insights | Lines 1169-1185 | CSS: .section .insights-list | JS: none -->
         <!-- Key Insights -->
         <section class="section">
             <h2>Butcher's Wisdom</h2>
@@ -1986,6 +2021,7 @@ Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and 
 
         <div class="divider">• • •</div>
 
+        <!-- SECTION: Community Voice + Q&A | Lines 1188-1307 | CSS: .section .sentiment .qa-accordion .qa-item | JS: toggleAnswer() -->
         <!-- Community Voice -->
         <section class="section">
             <h2>Community Voice</h2>
@@ -2094,6 +2130,52 @@ Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and 
 
 Nutritional diversity is critical, even on a carnivore approach. Rotate between different animal protein sources to ensure a comprehensive micronutrient profile. Include fatty fish like sardines and mackerel for omega-3s, and consider organ meats like beef liver for vitamin A, B vitamins, and minerals. Frozen meats are often more affordable and retain nutritional value. Slow-cooking tougher, less expensive cuts can improve palatability and digestibility.</p>
 
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#organ-meats" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
+
                         
 
                         
@@ -2132,6 +2214,52 @@ Nutritional diversity is critical, even on a carnivore approach. Rotate between 
 
 However, individual tolerance varies significantly. Some carnivore diet practitioners report improved inflammatory markers and digestive health by eliminating dairy entirely, while others find modest dairy intake supports their metabolic goals. The key is personalized experimentation and monitoring biomarkers like inflammation indicators, body composition, and subjective well-being.</p>
 
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#dairy" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
+
                         
 
                         
@@ -2169,6 +2297,56 @@ However, individual tolerance varies significantly. Some carnivore diet practiti
                         <p>On a carnivore diet, sodium requirements are higher than traditional dietary guidelines due to the elimination of carbohydrates, which impacts electrolyte balance. The recommended sodium intake for individuals on a strict carnivore diet is typically 3,000-5,000 mg per day, significantly higher than the standard 1,500-2,300 mg recommended for most populations. This increased need stems from the metabolic adaptations in ketogenic states where sodium excretion increases and insulin levels remain low.
 
 Research suggests that individuals on very low-carbohydrate diets require additional sodium to maintain proper electrolyte balance, prevent 'keto flu' symptoms, and support kidney function. High-quality animal proteins naturally contain some sodium, but supplementation or intentional salt intake is often necessary to prevent potential deficiencies. The primary sources on a carnivore diet include sea salt, pink Himalayan salt, or added salt during meal preparation.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#electrolytes" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
 
                         
 
@@ -2210,6 +2388,44 @@ Beyond B1, key supplements typically recommended include vitamin D (due to lack 
 
 It's critical to note that while some individuals report short-term success with the carnivore diet, long-term nutritional adequacy remains a significant concern. Regular blood work and consultation with a healthcare professional who understands nutritional biochemistry are strongly recommended to monitor potential deficiencies.</p>
 
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+
                         
 
                         
@@ -2247,6 +2463,56 @@ It's critical to note that while some individuals report short-term success with
                         <p>Optimizing gut health on a carnivore diet requires strategic approaches to fiber, microbiome diversity, and nutrient absorption. While animal-based diets can potentially reduce microbiome diversity, strategic supplementation and meat selection can mitigate potential negative impacts. Key strategies include consuming nose-to-tail animal products (which provide prebiotic-like compounds), incorporating organ meats rich in micronutrients, and potentially using targeted probiotic supplements.
 
 For 'perfect poop', focus on high-quality animal proteins with adequate fat content, proper hydration, and potentially supplementing with electrolytes. Research suggests that well-formulated carnivore diets can maintain normal gastrointestinal transit time and stool consistency through easily digestible protein and fat sources. However, individual variability exists, and gradual adaptation is crucial.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#organ-meats" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
 
                         
 
@@ -2286,6 +2552,54 @@ For 'perfect poop', focus on high-quality animal proteins with adequate fat cont
 
 Metabolic plateaus often require hormonal and metabolic recalibration. Consider implementing periodic caloric cycling, intermittent fasting protocols, or subtle macronutrient adjustments. Research suggests that metabolic flexibility can be enhanced through strategic nutritional interventions, potentially breaking stagnation by signaling metabolic reset mechanisms. Consulting with a functional medicine practitioner who understands carnivore/ketogenic metabolic principles can provide personalized biochemical insights.</p>
 
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#organ-meats" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
+
                         
 
                         
@@ -2323,6 +2637,44 @@ Metabolic plateaus often require hormonal and metabolic recalibration. Consider 
                         <p>Navigating social situations, travel, and holidays on a carnivore diet requires strategic planning and flexibility. Preparation is key: consider bringing your own protein-rich foods to gatherings, researching restaurant menus in advance, and communicating dietary needs proactively. For travel, pack shelf-stable protein sources like jerky, canned fish, or vacuum-sealed meats, and identify restaurants or grocery stores that offer suitable options.
 
 Psychosocial research suggests that maintaining dietary adherence during social events can be challenging. While limited direct research exists on carnivore-specific social strategies, studies on ketogenic and low-carbohydrate diets indicate that having a clear personal rationale, social support, and practical coping mechanisms can significantly improve dietary compliance. Consider approaching social situations with confidence, explaining your dietary choice as a health optimization strategy rather than feeling defensive.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
 
                         
 
@@ -2362,6 +2714,52 @@ Psychosocial research suggests that maintaining dietary adherence during social 
 
 Specific studies have demonstrated that caffeine and polyphenols can create temporary binding interactions that may reduce thiamine uptake in the gastrointestinal tract. While the effect is not absolute, individuals consuming high quantities of coffee or tea, especially on an already low-carbohydrate diet like carnivore, might be at increased risk of marginal thiamine status. The impact appears dose-dependent, with higher consumption volumes potentially presenting greater absorption challenges.</p>
 
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#coffee" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
+
                         
 
                         
@@ -2399,6 +2797,54 @@ Specific studies have demonstrated that caffeine and polyphenols can create temp
                         <p>Weight loss on a carnivore diet is not guaranteed and depends on multiple metabolic factors beyond diet composition. While high-protein, low-carbohydrate diets can induce weight loss through increased satiety and potential metabolic advantages, total caloric intake remains the primary determinant of weight change. Some individuals may not lose weight due to consuming excess calories from fatty meats, not maintaining a caloric deficit, or having underlying metabolic adaptations that resist weight loss.
 
 Research suggests that individual metabolic responses vary significantly. Factors like basal metabolic rate, insulin sensitivity, hormonal status, and genetic predispositions influence weight loss effectiveness. The carnivore diet's high protein and fat content may initially suppress appetite, but long-term adherence and precise caloric control are critical for sustained weight reduction. Additionally, the diet's restrictive nature might lead to potential nutrient deficiencies and metabolic challenges that could impede weight loss progress.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#weight-stall" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
 
                         
 
@@ -2445,6 +2891,7 @@ Research suggests that individual metabolic responses vary significantly. Factor
             <a href="https://amzn.to/4pYLqZx" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('Lodge Cast Iron', this.href)">Shop Premium Cookware →</a>
         </div>
 
+        <!-- SECTION: Recommended Watching | Lines 1308-1388 | CSS: .section .video-grid .video-card | JS: filterVideosByCreator() -->
         <!-- Recommended Watching -->
         <section class="section">
             <h2>Must-Watch Content</h2>
@@ -2868,6 +3315,7 @@ Research suggests that individual metabolic responses vary significantly. Factor
         </section>
     </div>
 
+    <!-- SECTION: Medical Disclaimer | Lines 1391-1410 | CSS: .disclaimer | JS: none -->
     <!-- Medical Disclaimer -->
     <div class="container">
         <div class="disclaimer">
@@ -2889,14 +3337,18 @@ Research suggests that individual metabolic responses vary significantly. Factor
         </div>
     </div>
 
+    <!-- SECTION: Bottom Navigation Menu | Lines 1410-1418 | CSS: .nav-menu #bottom-nav | JS: setActiveNavigation() -->
     <!-- Bottom Navigation Menu -->
-    <nav class="nav-menu" style="margin-top: 60px;">
-        <a href="index.html" class="active">Home</a>
+    <nav class="nav-menu" style="margin-top: 60px;" id="bottom-nav">
+        <a href="index.html">Home</a>
+        <a href="channels.html">Channels</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="calculator.html">Calculator</a>
         <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
-        <a href="channels.html">Channels</a>
     </nav>
 
+    <!-- SECTION: Footer | Lines 1427-1441 | CSS: footer | JS: none -->
     <footer>
         <div style="width: 100%; height: 200px; background-image: url('https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=1200&q=80'); background-size: cover; background-position: center; border-radius: 10px; margin-bottom: 30px; opacity: 0.6;"></div>
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
@@ -2910,7 +3362,7 @@ Research suggests that individual metabolic responses vary significantly. Factor
         <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
             <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 13:21:34</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 15:31:34</p>
     </footer>
 
     <script>
@@ -2924,6 +3376,32 @@ Research suggests that individual metabolic responses vary significantly. Factor
             // Toggle active class on answer
             answer.classList.toggle('active');
         }
+
+        // Set active navigation link based on current page
+        function setActiveNavigation() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+
+            // Handle cases where URL ends with just '/' (root) or is the domain itself
+            const normalizedPage = currentPage === '' ? 'index.html' : currentPage;
+
+            // Update both top and bottom navigation menus
+            document.querySelectorAll('#top-nav a, #bottom-nav a').forEach(link => {
+                const href = link.getAttribute('href');
+
+                // Check if this link matches the current page
+                if (href === normalizedPage ||
+                    (normalizedPage === 'index.html' && href === 'index.html') ||
+                    (href === 'index.html' && (currentPage === '' || currentPage === '/'))) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        // Run on page load and when URL changes
+        document.addEventListener('DOMContentLoaded', setActiveNavigation);
+        window.addEventListener('popstate', setActiveNavigation);
     </script>
 
     <!-- Tag Filtering Script -->
