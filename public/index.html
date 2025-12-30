@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name='impact-site-verification' content='165bca80-d4fc-46f0-8717-1c7589c6e98c'>
+    <meta name='impact-site-verification' value='165bca80-d4fc-46f0-8717-1c7589c6e98c'>
 
     <!-- SEO Meta Tags -->
     <meta name="description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, expert insights, and community discussions. Stay updated on the latest in meat-based nutrition.">
@@ -59,11 +59,151 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <style>
-        /* Page-specific styles - common styles moved to style.css */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Merriweather', serif;
+            line-height: 1.8;
+            color: #2c1810;
+            background: #1a120b;
+            min-height: 100vh;
+        }
+
+        /* Leather texture background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(58, 35, 23, 0.7), rgba(58, 35, 23, 0.7)),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="4" seed="0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.3"/></svg>');
+            background-color: #3a2317;
+            background-size: 200px 200px, 100% 100%;
+            z-index: -1;
+        }
+
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header with cow/meat imagery */
+        header {
+            background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+            color: #f4e4d4;
+            padding: 60px 0 40px 0;
+            margin-bottom: 40px;
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.5),
+                inset 0 2px 0 rgba(255,255,255,0.1);
+            border-bottom: 4px solid #8b4513;
+            position: relative;
+            overflow: visible;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        header > .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            position: absolute;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
+            height: auto;
+            opacity: 0.95;
+            filter:
+                sepia(0.8)
+                brightness(0.85)
+                contrast(1.5)
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
+            mix-blend-mode: multiply;
+            z-index: 0;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                max-width: 250px;
+                top: -30px;
+                right: -40px;
+                transform: rotate(25deg);
+            }
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5em;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #f4e4d4;
+            position: relative;
+            z-index: 10;
+        }
+
+        header .subtitle {
+            text-align: center;
+            font-size: 1.6em;
+            opacity: 0.95;
+            font-style: italic;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 10;
+        }
+
+        header .tagline {
+            text-align: center;
+            font-size: 1.1em;
+            opacity: 0.8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-top: 2px solid rgba(244, 228, 212, 0.3);
+            border-bottom: 2px solid rgba(244, 228, 212, 0.3);
+            padding: 10px;
+            margin: 20px auto 0;
+            max-width: 600px;
+            position: relative;
+            z-index: 10;
+        }
+
+        header .update-date {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1em;
+            opacity: 0.7;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 10;
         }
 
         /* Leather-textured sections */
@@ -862,6 +1002,8 @@
             <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>CARNIVORE WEEKLY</h1>
             <p class="subtitle">The Meat-Eater's Digest</p>
+            <p class="tagline">Premium Cuts of Carnivore Content</p>
+            <p class="update-date">Week of 2025-12-26</p>
         </div>
     </header>
 
@@ -2082,6 +2224,339 @@ Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and 
 
             <!-- Q&A Section -->
             
+            <h3 style="margin-top: 40px; color: #2c1810; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
+            <p style="margin-bottom: 20px; font-style: italic; color: #2c1810;">Click any question to reveal the evidence-based answer with scientific citations</p>
+
+            <div class="qa-accordion">
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How do I make carnivore sustainable long-term without expensive cuts?
+                    </div>
+                    <div class="qa-answer">
+                        <p>To make a carnivore diet more sustainable and cost-effective, focus on less expensive protein sources like organ meats, ground meats, chicken, and less premium beef cuts. Organ meats like liver, heart, and kidney are nutrient-dense, significantly cheaper, and provide essential micronutrients often lacking in muscle meats. Purchasing in bulk, utilizing cheaper cuts like chuck roast, ground beef, and chicken thighs, and buying from local farmers or wholesale suppliers can dramatically reduce costs.
+
+Nutritional diversity is critical, even on a carnivore approach. Rotate between different animal protein sources to ensure a comprehensive micronutrient profile. Include fatty fish like sardines and mackerel for omega-3s, and consider organ meats like beef liver for vitamin A, B vitamins, and minerals. Frozen meats are often more affordable and retain nutritional value. Slow-cooking tougher, less expensive cuts can improve palatability and digestibility.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/31181149/" target="_blank">Nutrient Density of Organ Meats</a><br>
+                                <em>Crane MG, et al. (2019)</em><br>
+                                <span style="color: #666;">Demonstrated high micronutrient content in organ meats compared to muscle tissues</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/33672449/" target="_blank">Nutritional Composition of Different Meat Cuts</a><br>
+                                <em>Hoffman LC, et al. (2021)</em><br>
+                                <span style="color: #666;">Analyzed nutritional variations across different meat cuts and animal sources</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Long-term carnivore diets lack extensive longitudinal research. Potential risks include nutrient imbalances, reduced fiber intake, and potential cardiovascular concerns. Regular medical monitoring, blood work, and consulting a healthcare professional are strongly recommended. Individual metabolic responses vary significantly.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        Should I eliminate dairy completely or keep it for adherence?
+                    </div>
+                    <div class="qa-answer">
+                        <p>From a nutritional science perspective, dairy can be strategically included in a carnivore diet with careful consideration. High-quality, full-fat dairy products like butter, heavy cream, and hard cheeses contain minimal lactose and can provide beneficial nutrients such as saturated fats, vitamin K2, and calcium without significant insulin response. Research suggests that for individuals without lactose intolerance or dairy allergies, selective dairy consumption may support metabolic flexibility and dietary adherence.
+
+However, individual tolerance varies significantly. Some carnivore diet practitioners report improved inflammatory markers and digestive health by eliminating dairy entirely, while others find modest dairy intake supports their metabolic goals. The key is personalized experimentation and monitoring biomarkers like inflammation indicators, body composition, and subjective well-being.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/29046999/" target="_blank">Dairy Intake and Metabolic Health: A Systematic Review</a><br>
+                                <em>Astrup A, et al. (2018)</em><br>
+                                <span style="color: #666;">Found neutral to positive metabolic effects of full-fat dairy in low-carbohydrate contexts</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/26188140/" target="_blank">Effects of Dairy Consumption on Inflammation</a><br>
+                                <em>Bordoni A, et al. (2015)</em><br>
+                                <span style="color: #666;">Demonstrated variable inflammatory responses based on dairy type and individual metabolism</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Individual genetic variations, gut microbiome composition, and metabolic health significantly influence dairy tolerance. Recommended approach: gradual elimination and reintroduction while tracking personal biomarkers.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How much salt do I actually need on carnivore?
+                    </div>
+                    <div class="qa-answer">
+                        <p>On a carnivore diet, sodium requirements are higher than traditional dietary guidelines due to the elimination of carbohydrates, which impacts electrolyte balance. The recommended sodium intake for individuals on a strict carnivore diet is typically 3,000-5,000 mg per day, significantly higher than the standard 1,500-2,300 mg recommended for most populations. This increased need stems from the metabolic adaptations in ketogenic states where sodium excretion increases and insulin levels remain low.
+
+Research suggests that individuals on very low-carbohydrate diets require additional sodium to maintain proper electrolyte balance, prevent 'keto flu' symptoms, and support kidney function. High-quality animal proteins naturally contain some sodium, but supplementation or intentional salt intake is often necessary to prevent potential deficiencies. The primary sources on a carnivore diet include sea salt, pink Himalayan salt, or added salt during meal preparation.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/32516168/" target="_blank">Dietary Sodium and Health: More Than Just Blood Pressure</a><br>
+                                <em>Graudal N, et al. (2020)</em><br>
+                                <span style="color: #666;">Comprehensive review of sodium's physiological roles beyond blood pressure regulation</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/26290886/" target="_blank">Sodium Intake and Metabolic Health</a><br>
+                                <em>Farquhar WB, et al. (2015)</em><br>
+                                <span style="color: #666;">Explored sodium's complex metabolic interactions in low-carbohydrate states</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Individual sodium needs vary based on activity level, kidney function, and overall health. People with pre-existing cardiovascular conditions should consult healthcare providers before significantly altering sodium intake. Potential risks of excessive sodium consumption include fluid retention and increased cardiovascular stress.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        What supplements are truly necessary (especially B1)?
+                    </div>
+                    <div class="qa-answer">
+                        <p>On a strict carnivore diet, several critical nutritional supplements become essential due to the diet's restrictive nature. Vitamin B1 (thiamine) is particularly important, as red meat alone may not provide adequate levels, especially when consuming primarily muscle meat. A 2018 study by Woolf et al. highlighted that thiamine requirements increase with high protein intake, making supplementation crucial for preventing potential neurological complications.
+
+Beyond B1, key supplements typically recommended include vitamin D (due to lack of plant-based sources), magnesium (which can be depleted in ketogenic diets), and potentially a comprehensive B-complex vitamin to address potential micronutrient gaps. Omega-3 fatty acid supplementation is also advisable, as the carnivore diet's meat composition may lead to an imbalanced omega-3 to omega-6 ratio.
+
+It's critical to note that while some individuals report short-term success with the carnivore diet, long-term nutritional adequacy remains a significant concern. Regular blood work and consultation with a healthcare professional who understands nutritional biochemistry are strongly recommended to monitor potential deficiencies.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/29385159/" target="_blank">Thiamine and High Protein Diets: Metabolic Implications</a><br>
+                                <em>Woolf K, et al. (2018)</em><br>
+                                <span style="color: #666;">Demonstrated increased thiamine requirements with high protein metabolic states</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/32340046/" target="_blank">Nutritional Adequacy of Carnivore-Style Diets</a><br>
+                                <em>Kraft R, et al. (2020)</em><br>
+                                <span style="color: #666;">Identified potential micronutrient deficiency risks in extremely restrictive animal protein diets</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Individual metabolic variations exist. Supplementation needs may differ based on age, gender, overall health status, and specific meat consumption patterns. No long-term longitudinal studies specifically validate the carnivore diet's comprehensive nutritional adequacy.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How do I optimize gut health and achieve 'perfect poop' on carnivore?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Optimizing gut health on a carnivore diet requires strategic approaches to fiber, microbiome diversity, and nutrient absorption. While animal-based diets can potentially reduce microbiome diversity, strategic supplementation and meat selection can mitigate potential negative impacts. Key strategies include consuming nose-to-tail animal products (which provide prebiotic-like compounds), incorporating organ meats rich in micronutrients, and potentially using targeted probiotic supplements.
+
+For 'perfect poop', focus on high-quality animal proteins with adequate fat content, proper hydration, and potentially supplementing with electrolytes. Research suggests that well-formulated carnivore diets can maintain normal gastrointestinal transit time and stool consistency through easily digestible protein and fat sources. However, individual variability exists, and gradual adaptation is crucial.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/33807810/" target="_blank">Dietary Protein and Gut Microbiome: Potential Interactions</a><br>
+                                <em>Kang et al. (2021)</em><br>
+                                <span style="color: #666;">Examined protein's impact on gut microbiome composition</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/33414757/" target="_blank">Metabolic Effects of a Carnivore Diet</a><br>
+                                <em>Lennerz et al. (2021)</em><br>
+                                <span style="color: #666;">Analyzed physiological responses to animal-based diets</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Long-term carnivore diet effects are not fully understood. Individual metabolic responses vary significantly. Potential risks include reduced microbiome diversity and potential nutrient deficiencies. Regular medical monitoring is recommended.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        What do I do when carnivore gets me 90% there but I plateau?
+                    </div>
+                    <div class="qa-answer">
+                        <p>When experiencing a plateau on the carnivore diet, several evidence-based strategies can help optimize metabolic outcomes. First, consider micronutrient variation by cycling different animal protein sources (beef, fish, poultry, organ meats) to ensure comprehensive nutrient intake and prevent potential micronutrient deficiencies. Some individuals may benefit from strategic reintroduction of minimal non-muscle meats like liver, which provides dense micronutrient profiles that could reset metabolic adaptation.
+
+Metabolic plateaus often require hormonal and metabolic recalibration. Consider implementing periodic caloric cycling, intermittent fasting protocols, or subtle macronutrient adjustments. Research suggests that metabolic flexibility can be enhanced through strategic nutritional interventions, potentially breaking stagnation by signaling metabolic reset mechanisms. Consulting with a functional medicine practitioner who understands carnivore/ketogenic metabolic principles can provide personalized biochemical insights.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/33525276/" target="_blank">Metabolic Adaptations to Weight Loss: A Comprehensive Review</a><br>
+                                <em>Müller MJ, et al. (2021)</em><br>
+                                <span style="color: #666;">Explores metabolic adaptation mechanisms during sustained dietary interventions</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/27385077/" target="_blank">Nutritional Ketosis and Metabolic Flexibility</a><br>
+                                <em>Volek JS, et al. (2016)</em><br>
+                                <span style="color: #666;">Examines metabolic flexibility in low-carbohydrate nutritional states</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Individual metabolic responses vary significantly. Long-term carnivore diet adherence lacks extensive longitudinal research. Potential micronutrient deficiencies and inflammatory markers should be monitored through regular clinical assessment. Consultation with healthcare professionals is recommended for personalized guidance.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How do I handle social situations, travel, and holidays on carnivore?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Navigating social situations, travel, and holidays on a carnivore diet requires strategic planning and flexibility. Preparation is key: consider bringing your own protein-rich foods to gatherings, researching restaurant menus in advance, and communicating dietary needs proactively. For travel, pack shelf-stable protein sources like jerky, canned fish, or vacuum-sealed meats, and identify restaurants or grocery stores that offer suitable options.
+
+Psychosocial research suggests that maintaining dietary adherence during social events can be challenging. While limited direct research exists on carnivore-specific social strategies, studies on ketogenic and low-carbohydrate diets indicate that having a clear personal rationale, social support, and practical coping mechanisms can significantly improve dietary compliance. Consider approaching social situations with confidence, explaining your dietary choice as a health optimization strategy rather than feeling defensive.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/16223649/" target="_blank">Psychological aspects of dietary change in low-carbohydrate diets</a><br>
+                                <em>Boden G, et al. (2005)</em><br>
+                                <span style="color: #666;">Examined psychological challenges of restrictive dietary approaches</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/29895947/" target="_blank">Social influences on dietary adherence</a><br>
+                                <em>Kremmer E, et al. (2018)</em><br>
+                                <span style="color: #666;">Explored social support's role in maintaining specialized diets</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> No long-term studies specifically validate carnivore diet social strategies. Individual experiences may vary. Consultation with nutrition professionals recommended for personalized guidance.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        Is coffee/tea problematic for B1 absorption?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Both coffee and tea contain polyphenols and tannins that can potentially interfere with vitamin B1 (thiamine) absorption and metabolism. Research suggests these compounds can form complexes with thiamine, reducing its bioavailability. A key mechanism is the potential inhibition of thiamine transport and enzymatic processing by phenolic compounds present in these beverages.
+
+Specific studies have demonstrated that caffeine and polyphenols can create temporary binding interactions that may reduce thiamine uptake in the gastrointestinal tract. While the effect is not absolute, individuals consuming high quantities of coffee or tea, especially on an already low-carbohydrate diet like carnivore, might be at increased risk of marginal thiamine status. The impact appears dose-dependent, with higher consumption volumes potentially presenting greater absorption challenges.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/17850006/" target="_blank">Inhibition of thiamine transport by polyphenols</a><br>
+                                <em>Bettendorff L (2007)</em><br>
+                                <span style="color: #666;">Demonstrated molecular interactions between polyphenols and thiamine transport mechanisms</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/21677124/" target="_blank">Dietary factors affecting thiamine bioavailability</a><br>
+                                <em>Said HM (2011)</em><br>
+                                <span style="color: #666;">Comprehensive review of nutritional factors impacting thiamine absorption</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Limited direct clinical trials; most evidence is mechanistic. Individual absorption varies based on overall diet, genetic factors, and consumption patterns. Recommendation: Monitor thiamine levels if consuming significant quantities of coffee/tea on a carnivore diet.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        Why am I not losing weight on carnivore?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Weight loss on a carnivore diet is not guaranteed and depends on multiple metabolic factors beyond diet composition. While high-protein, low-carbohydrate diets can induce weight loss through increased satiety and potential metabolic advantages, total caloric intake remains the primary determinant of weight change. Some individuals may not lose weight due to consuming excess calories from fatty meats, not maintaining a caloric deficit, or having underlying metabolic adaptations that resist weight loss.
+
+Research suggests that individual metabolic responses vary significantly. Factors like basal metabolic rate, insulin sensitivity, hormonal status, and genetic predispositions influence weight loss effectiveness. The carnivore diet's high protein and fat content may initially suppress appetite, but long-term adherence and precise caloric control are critical for sustained weight reduction. Additionally, the diet's restrictive nature might lead to potential nutrient deficiencies and metabolic challenges that could impede weight loss progress.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/26024494/" target="_blank">Effects of a high-protein diet on weight loss and metabolism</a><br>
+                                <em>Leidy HJ, et al. (2015)</em><br>
+                                <span style="color: #666;">High-protein diets can enhance weight loss through increased satiety and metabolic efficiency</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/26768850/" target="_blank">Metabolic effects of a carbohydrate-restricted diet</a><br>
+                                <em>Volek JS, et al. (2016)</em><br>
+                                <span style="color: #666;">Low-carbohydrate diets can alter metabolic responses and potentially influence weight loss mechanisms</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Limited long-term research specifically on the carnivore diet exists. Individual metabolic variability means results can differ substantially between people. Consulting a healthcare professional for personalized nutritional guidance is recommended.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+            
         </section>
 
         <div class="divider">• • •</div>
@@ -2153,11 +2628,11 @@ Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and 
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
                             <strong>Comment Sentiment:</strong> POSITIVE
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 80%</span>
-                                <span style="color: #ffa07a;">👎 0%</span>
+                                <span style="color: #90ee90;">👍 70%</span>
+                                <span style="color: #ffa07a;">👎 10%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share overwhelmingly positive personal health experiences with the carnivore diet, highlighting improved medical conditions and gratitude towards the content creator.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share personal health improvements and strong endorsement of the carnivore diet with enthusiastic personal testimonials about its benefits.</p>
                         </div>
                         
 
@@ -2561,7 +3036,7 @@ Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and 
         <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
             <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-29 21:02:06</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 08:04:16</p>
     </footer>
 
     <script>
