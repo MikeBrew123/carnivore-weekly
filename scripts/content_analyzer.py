@@ -232,6 +232,117 @@ Provide actionable, interesting insights that would help someone stay up-to-date
             raise
 
 
+    def generate_video_summaries(self, videos: List[Dict]) -> List[Dict]:
+        """
+        Generate 2-3 sentence summaries for each video using Claude API.
+        Summaries explain why the video matters and who should watch.
+
+        Returns: List of videos with added 'summary' field
+        """
+        print("\n🧠 Generating video summaries with Claude...")
+
+        for video in videos:
+            title = video.get('title', 'Unknown')
+            creator = video.get('creator', 'Unknown')
+
+            prompt = f"""Write a 2-3 sentence summary for this carnivore diet video.
+
+Video: "{title}"
+Creator: {creator}
+
+Requirements:
+- Explain why this video matters for carnivore dieters
+- Include 1 key insight or takeaway
+- Mention who should watch (e.g., "Watch if you've hit a weight stall")
+- Keep it actionable and specific
+- Grade 8-10 reading level
+- No hype or excessive praise - direct and clear
+
+Format: Just the summary, no extra text."""
+
+            try:
+                response = self.client.messages.create(
+                    model=CLAUDE_MODEL,
+                    max_tokens=150,
+                    messages=[{"role": "user", "content": prompt}]
+                )
+
+                summary = response.content[0].text.strip()
+                video['summary'] = summary
+
+            except Exception as e:
+                print(f"  ⚠️  Failed to generate summary for '{title}': {e}")
+                video['summary'] = ""  # Fallback to empty
+
+        print(f"  ✓ Generated summaries for {len(videos)} videos")
+        return videos
+
+
+    def auto_tag_videos(self, videos: List[Dict]) -> List[Dict]:
+        """
+        Assign 2-3 topic tags to each video for filtering/search.
+
+        Tags enable:
+        - "Filter by Topic" UI on homepage
+        - Tag-based search ("Show me all cholesterol videos")
+        - Long-tail SEO ("carnivore diet cholesterol videos")
+
+        Returns: List of videos with added 'tags' field (list of strings)
+        """
+        print("\n🏷️  Auto-tagging videos with topics...")
+
+        # Define allowed tags for consistency
+        ALLOWED_TAGS = [
+            "weight loss", "cholesterol", "dairy", "gut health", "inflammation",
+            "beginners", "advanced", "fasting", "protein", "fat",
+            "electrolytes", "salt", "coffee", "alcohol", "budget",
+            "organ meats", "meal prep", "science", "testimonials", "debate"
+        ]
+
+        for video in videos:
+            title = video.get('title', 'Unknown')
+            creator = video.get('creator', 'Unknown')
+            summary = video.get('summary', '')
+
+            prompt = f"""Assign 2-3 topic tags to this carnivore diet video.
+
+Video: "{title}"
+Creator: {creator}
+Summary: {summary}
+
+Allowed tags: {', '.join(ALLOWED_TAGS)}
+
+Instructions:
+- Choose 2-3 most relevant tags from the allowed list
+- Base tags on the video's main topics
+- Return ONLY the tags as a comma-separated list
+- No explanations, just the tags
+
+Example output: cholesterol, science, advanced"""
+
+            try:
+                response = self.client.messages.create(
+                    model="claude-opus-4-5-20251101",  # Use Opus for accuracy (cost-effective for tagging)
+                    max_tokens=50,
+                    messages=[{"role": "user", "content": prompt}]
+                )
+
+                tags_text = response.content[0].text.strip()
+                # Parse comma-separated tags
+                tags = [tag.strip() for tag in tags_text.split(',')]
+                # Validate tags are in allowed list (case-insensitive)
+                tags = [tag for tag in tags if tag.lower() in [t.lower() for t in ALLOWED_TAGS]]
+
+                video['tags'] = tags[:3]  # Limit to 3 max
+
+            except Exception as e:
+                print(f"  ⚠️  Failed to tag '{title}': {e}")
+                video['tags'] = []  # Fallback to empty
+
+        print(f"  ✓ Tagged {len(videos)} videos")
+        return videos
+
+
     def save_analysis(self, analysis: Dict, youtube_data: Dict, output_file: Path):
         """
         Save the analyzed content to a JSON file
@@ -281,6 +392,13 @@ Provide actionable, interesting insights that would help someone stay up-to-date
 
             # Analyze content with Claude
             analysis = self.analyze_content(youtube_data)
+
+            # Generate summaries and tags for top videos (Phase A)
+            top_videos = analysis.get('top_videos', [])
+            if top_videos:
+                top_videos = self.generate_video_summaries(top_videos)
+                top_videos = self.auto_tag_videos(top_videos)
+                analysis['top_videos'] = top_videos
 
             # Save results
             self.save_analysis(analysis, youtube_data, OUTPUT_FILE)

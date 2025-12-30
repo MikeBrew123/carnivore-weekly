@@ -464,6 +464,44 @@
             letter-spacing: 1px;
         }
 
+        /* Video summary styling */
+        .video-summary {
+            font-size: 1em;
+            line-height: 1.6;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(244, 228, 212, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #d4a574;
+            color: #f4e4d4;
+        }
+
+        /* Video tags styling */
+        .video-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .video-tags .tag {
+            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+            color: #ffd700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid #d4a574;
+            transition: all 0.3s ease;
+        }
+
+        .video-tags .tag:hover {
+            background: linear-gradient(135deg, #6b3410 0%, #8b4513 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
         .insights-list {
             list-style: none;
             margin-top: 25px;
@@ -1036,7 +1074,22 @@
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
+
+                        <!-- Video summary (new) -->
+                        {% if video.summary %}
+                        <p class="video-summary">{{ video.summary }}</p>
+                        {% else %}
                         <p>{{ video.why_notable }}</p>
+                        {% endif %}
+
+                        <!-- Video tags (new) -->
+                        {% if video.tags %}
+                        <div class="video-tags">
+                            {% for tag in video.tags %}
+                            <span class="tag">#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
 
                         {% if video.comment_sentiment %}
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
