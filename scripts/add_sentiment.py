@@ -23,12 +23,12 @@ load_dotenv()
 # CONFIGURATION
 # ============================================================================
 
-ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / 'data'
+DATA_DIR = PROJECT_ROOT / "data"
 
-YOUTUBE_DATA_FILE = DATA_DIR / 'youtube_data.json'
-ANALYZED_FILE = DATA_DIR / 'analyzed_content.json'
+YOUTUBE_DATA_FILE = DATA_DIR / "youtube_data.json"
+ANALYZED_FILE = DATA_DIR / "analyzed_content.json"
 
 # Use Haiku for cost savings - 10x cheaper than Sonnet!
 CLAUDE_MODEL = "claude-3-5-haiku-20241022"
@@ -37,6 +37,7 @@ CLAUDE_MODEL = "claude-3-5-haiku-20241022"
 # ============================================================================
 # SENTIMENT ANALYZER
 # ============================================================================
+
 
 class SentimentAnalyzer:
     """Add sentiment analysis to videos using cheap Claude Haiku model"""
@@ -47,7 +48,6 @@ class SentimentAnalyzer:
 
         self.client = Anthropic(api_key=api_key)
         print(f"✓ Claude Haiku initialized (cost-effective mode)")
-
 
     def analyze_video_sentiment(self, video_title: str, comments: list) -> dict:
         """
@@ -64,7 +64,7 @@ class SentimentAnalyzer:
                 "negative_percent": 0,
                 "neutral_percent": 0,
                 "overall": "neutral",
-                "summary": "No comments available"
+                "summary": "No comments available",
             }
 
         # Build prompt with just the top comments
@@ -94,14 +94,14 @@ Percentages must add up to 100."""
             message = self.client.messages.create(
                 model=CLAUDE_MODEL,
                 max_tokens=300,  # Keep it small for cost savings
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             response_text = message.content[0].text
 
             # Extract JSON
-            start = response_text.find('{')
-            end = response_text.rfind('}') + 1
+            start = response_text.find("{")
+            end = response_text.rfind("}") + 1
 
             if start != -1 and end > start:
                 sentiment = json.loads(response_text[start:end])
@@ -116,74 +116,81 @@ Percentages must add up to 100."""
                 "negative_percent": 25,
                 "neutral_percent": 25,
                 "overall": "mixed",
-                "summary": "Unable to analyze sentiment"
+                "summary": "Unable to analyze sentiment",
             }
-
 
     def add_sentiment_to_analysis(self):
         """
         Load existing analyzed content and add sentiment data
         """
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("💰 COST-EFFECTIVE SENTIMENT ANALYZER")
-        print("="*70)
+        print("=" * 70)
 
         # Load YouTube data (has all the comments)
         print(f"\n📂 Loading YouTube data...")
-        with open(YOUTUBE_DATA_FILE, 'r') as f:
+        with open(YOUTUBE_DATA_FILE, "r") as f:
             youtube_data = json.load(f)
 
         # Load existing analysis
         print(f"📂 Loading existing analysis...")
-        with open(ANALYZED_FILE, 'r') as f:
+        with open(ANALYZED_FILE, "r") as f:
             analyzed_data = json.load(f)
 
         # Create a mapping of video_id -> comments
         video_comments = {}
-        for creator in youtube_data['top_creators']:
-            for video in creator['videos']:
-                video_comments[video['video_id']] = video['top_comments']
+        for creator in youtube_data["top_creators"]:
+            for video in creator["videos"]:
+                video_comments[video["video_id"]] = video["top_comments"]
 
         # Add sentiment to top_videos
         print(f"\n🤖 Analyzing sentiment for top videos...")
-        for i, video in enumerate(analyzed_data['analysis']['top_videos'], 1):
-            video_id = video.get('video_id')
+        for i, video in enumerate(analyzed_data["analysis"]["top_videos"], 1):
+            video_id = video.get("video_id")
             if video_id and video_id in video_comments:
-                print(f"   [{i}/{len(analyzed_data['analysis']['top_videos'])}] {video['title'][:50]}...")
-
-                sentiment = self.analyze_video_sentiment(
-                    video['title'],
-                    video_comments[video_id]
+                print(
+                    f"   [{i}/{len(analyzed_data['analysis']['top_videos'])}] {video['title'][:50]}..."
                 )
 
-                video['comment_sentiment'] = sentiment
-                print(f"      → {sentiment['overall'].upper()} ({sentiment['positive_percent']}% positive)")
+                sentiment = self.analyze_video_sentiment(
+                    video["title"], video_comments[video_id]
+                )
+
+                video["comment_sentiment"] = sentiment
+                print(
+                    f"      → {sentiment['overall'].upper()} ({sentiment['positive_percent']}% positive)"
+                )
 
         # Add sentiment to recommended_watching
         print(f"\n🤖 Analyzing sentiment for recommended videos...")
-        for i, video in enumerate(analyzed_data['analysis']['recommended_watching'], 1):
-            video_id = video.get('video_id')
+        for i, video in enumerate(analyzed_data["analysis"]["recommended_watching"], 1):
+            video_id = video.get("video_id")
             if video_id and video_id in video_comments:
-                print(f"   [{i}/{len(analyzed_data['analysis']['recommended_watching'])}] {video['title'][:50]}...")
-
-                sentiment = self.analyze_video_sentiment(
-                    video['title'],
-                    video_comments[video_id]
+                print(
+                    f"   [{i}/{len(analyzed_data['analysis']['recommended_watching'])}] {video['title'][:50]}..."
                 )
 
-                video['comment_sentiment'] = sentiment
-                print(f"      → {sentiment['overall'].upper()} ({sentiment['positive_percent']}% positive)")
+                sentiment = self.analyze_video_sentiment(
+                    video["title"], video_comments[video_id]
+                )
+
+                video["comment_sentiment"] = sentiment
+                print(
+                    f"      → {sentiment['overall'].upper()} ({sentiment['positive_percent']}% positive)"
+                )
 
         # Save updated analysis
         print(f"\n💾 Saving updated analysis...")
-        with open(ANALYZED_FILE, 'w', encoding='utf-8') as f:
+        with open(ANALYZED_FILE, "w", encoding="utf-8") as f:
             json.dump(analyzed_data, f, indent=2, ensure_ascii=False)
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("✓ SENTIMENT ANALYSIS COMPLETE!")
-        print("="*70)
+        print("=" * 70)
         print(f"\n💰 Cost savings: ~90% less than using Sonnet!")
-        print(f"📊 Analyzed {len(analyzed_data['analysis']['top_videos']) + len(analyzed_data['analysis']['recommended_watching'])} videos")
+        print(
+            f"📊 Analyzed {len(analyzed_data['analysis']['top_videos']) + len(analyzed_data['analysis']['recommended_watching'])} videos"
+        )
         print(f"📁 Updated file: {ANALYZED_FILE}")
         print("\nNext: Run generate_pages.py to update the website!\n")
 
@@ -198,7 +205,9 @@ def main():
 
     except FileNotFoundError as e:
         print(f"\n✗ File Error: {e}")
-        print("Make sure you've run youtube_collector.py and content_analyzer.py first!")
+        print(
+            "Make sure you've run youtube_collector.py and content_analyzer.py first!"
+        )
 
     except KeyboardInterrupt:
         print("\n\n⚠ Interrupted by user")
@@ -208,5 +217,5 @@ def main():
         raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -14,8 +14,6 @@ Date: 2025-12-26
 
 import json
 import os
-import re
-from datetime import datetime
 from pathlib import Path
 from anthropic import Anthropic
 from dotenv import load_dotenv
@@ -29,25 +27,28 @@ load_dotenv()
 # ============================================================================
 
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / 'data'
-ARCHIVE_DIR = DATA_DIR / 'archive'
-OUTPUT_DIR = PROJECT_ROOT / 'newsletters'
-TEMPLATES_DIR = PROJECT_ROOT / 'templates'
+DATA_DIR = PROJECT_ROOT / "data"
+ARCHIVE_DIR = DATA_DIR / "archive"
+OUTPUT_DIR = PROJECT_ROOT / "newsletters"
+TEMPLATES_DIR = PROJECT_ROOT / "templates"
 
 # Google Drive path for n8n automation
-GOOGLE_DRIVE_PATH = Path('/Users/mbrew/Library/CloudStorage/GoogleDrive-iambrew@gmail.com/My Drive/Carnivore Weekly/Newsletters')
+GOOGLE_DRIVE_PATH = Path(
+    "/Users/mbrew/Library/CloudStorage/GoogleDrive-iambrew@gmail.com/My Drive/Carnivore Weekly/Newsletters"
+)
 
-CURRENT_DATA = DATA_DIR / 'analyzed_content.json'
+CURRENT_DATA = DATA_DIR / "analyzed_content.json"
 
 # Affiliate Links
 AFFILIATE_LINKS = {
-    'lmnt': 'https://amzn.to/4ayLBG4',
-    'butcherbox': 'https://www.butcherbox.com',  # Update when approved
+    "lmnt": "https://amzn.to/4ayLBG4",
+    "butcherbox": "https://www.butcherbox.com",  # Update when approved
 }
 
 # ============================================================================
 # NEWSLETTER GENERATOR CLASS
 # ============================================================================
+
 
 class NewsletterGenerator:
     """
@@ -56,31 +57,29 @@ class NewsletterGenerator:
 
     def __init__(self):
         """Initialize Claude AI client"""
-        api_key = os.getenv('ANTHROPIC_API_KEY')
+        api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY not found in environment")
 
         self.client = Anthropic(api_key=api_key)
         print("✓ Claude AI client initialized")
 
-
     def load_current_week(self):
         """Load this week's analyzed content"""
         print(f"\n📂 Loading current week data...")
 
-        with open(CURRENT_DATA, 'r', encoding='utf-8') as f:
+        with open(CURRENT_DATA, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         print(f"✓ Loaded current week: {data['analysis_date']}")
         return data
-
 
     def load_last_week(self):
         """Load last week's data from archive"""
         print(f"\n📚 Looking for last week's data in archive...")
 
         # Find all archive files
-        archive_files = sorted(ARCHIVE_DIR.glob('*.json'), reverse=True)
+        archive_files = sorted(ARCHIVE_DIR.glob("*.json"), reverse=True)
 
         if not archive_files:
             print("⚠ No archive data found - this must be the first week")
@@ -89,12 +88,11 @@ class NewsletterGenerator:
         # Get the most recent archive (last week)
         last_week_file = archive_files[0]
 
-        with open(last_week_file, 'r', encoding='utf-8') as f:
+        with open(last_week_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         print(f"✓ Loaded last week: {data['analysis_date']}")
         return data
-
 
     def calculate_stats_comparison(self, current, last_week):
         """Calculate week-over-week statistics"""
@@ -103,55 +101,71 @@ class NewsletterGenerator:
         stats = {}
 
         # Video counts
-        current_videos = len(current['analysis']['top_videos']) + len(current['analysis']['recommended_watching'])
-        last_videos = len(last_week['analysis']['top_videos']) + len(last_week['analysis']['recommended_watching']) if last_week else 0
+        current_videos = len(current["analysis"]["top_videos"]) + len(
+            current["analysis"]["recommended_watching"]
+        )
+        last_videos = (
+            len(last_week["analysis"]["top_videos"])
+            + len(last_week["analysis"]["recommended_watching"])
+            if last_week
+            else 0
+        )
 
-        stats['video_count_change'] = current_videos - last_videos
-        stats['current_videos'] = current_videos
+        stats["video_count_change"] = current_videos - last_videos
+        stats["current_videos"] = current_videos
 
         # Total views (from top videos)
-        current_views = sum(v['views'] for v in current['analysis']['top_videos'])
-        last_views = sum(v['views'] for v in last_week['analysis']['top_videos']) if last_week else 0
+        current_views = sum(v["views"] for v in current["analysis"]["top_videos"])
+        last_views = (
+            sum(v["views"] for v in last_week["analysis"]["top_videos"])
+            if last_week
+            else 0
+        )
 
-        stats['view_count_change'] = current_views - last_views
-        stats['current_views'] = current_views
+        stats["view_count_change"] = current_views - last_views
+        stats["current_views"] = current_views
 
         # Top performer
-        if current['analysis']['top_videos']:
-            top = max(current['analysis']['top_videos'], key=lambda x: x['views'])
-            stats['top_performer'] = {
-                'creator': top['creator'],
-                'title': top['title'],
-                'views': top['views']
+        if current["analysis"]["top_videos"]:
+            top = max(current["analysis"]["top_videos"], key=lambda x: x["views"])
+            stats["top_performer"] = {
+                "creator": top["creator"],
+                "title": top["title"],
+                "views": top["views"],
             }
 
         # Creator rankings this week
         creator_views = {}
-        for video in current['analysis']['top_videos']:
-            creator = video['creator']
-            creator_views[creator] = creator_views.get(creator, 0) + video['views']
+        for video in current["analysis"]["top_videos"]:
+            creator = video["creator"]
+            creator_views[creator] = creator_views.get(creator, 0) + video["views"]
 
-        stats['creator_rankings'] = sorted(
-            [{'creator': k, 'views': v} for k, v in creator_views.items()],
-            key=lambda x: x['views'],
-            reverse=True
+        stats["creator_rankings"] = sorted(
+            [{"creator": k, "views": v} for k, v in creator_views.items()],
+            key=lambda x: x["views"],
+            reverse=True,
         )[:5]
 
-        print(f"✓ Stats calculated: {stats['video_count_change']:+d} videos, {stats['view_count_change']:+,} views")
+        print(
+            f"✓ Stats calculated: {stats['video_count_change']:+d} videos, {stats['view_count_change']:+,} views"
+        )
         return stats
-
 
     def generate_newsletter_content(self, current, last_week, stats):
         """Use Claude AI to generate unique newsletter content"""
         print(f"\n🤖 Generating newsletter content with Claude AI...")
 
         # Prepare data for prompt
-        current_summary = current['analysis']['weekly_summary']
-        current_topics = current['analysis']['trending_topics']
-        current_videos = current['analysis']['top_videos']
+        current_summary = current["analysis"]["weekly_summary"]
+        current_topics = current["analysis"]["trending_topics"]
+        current_videos = current["analysis"]["top_videos"]
 
-        last_summary = last_week['analysis']['weekly_summary'] if last_week else "No previous week data"
-        last_topics = last_week['analysis']['trending_topics'] if last_week else []
+        last_summary = (
+            last_week["analysis"]["weekly_summary"]
+            if last_week
+            else "No previous week data"
+        )
+        last_topics = last_week["analysis"]["trending_topics"] if last_week else []
 
         prompt = f"""You are the curator behind Carnivore Weekly, writing your weekly insider newsletter to subscribers who trust your eye for what matters in the carnivore community.
 
@@ -254,10 +268,7 @@ Write the newsletter NOW:
         response = self.client.messages.create(
             model="claude-sonnet-4-5-20250929",
             max_tokens=2000,
-            messages=[{
-                "role": "user",
-                "content": prompt
-            }]
+            messages=[{"role": "user", "content": prompt}],
         )
 
         newsletter_content = response.content[0].text
@@ -265,11 +276,10 @@ Write the newsletter NOW:
         print("✓ Newsletter content generated!")
         return newsletter_content
 
-
     def format_newsletter(self, content, current_data, stats):
         """Format the newsletter with header and footer"""
 
-        current_date = current_data['analysis_date']
+        current_date = current_data["analysis_date"]
 
         newsletter = f"""━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CARNIVORE WEEKLY INSIDER
@@ -294,7 +304,6 @@ P.S. - Reply to this email with questions or suggestions!
 
         return newsletter
 
-
     def save_newsletter(self, newsletter, current_data):
         """Save newsletter to file"""
 
@@ -302,45 +311,59 @@ P.S. - Reply to this email with questions or suggestions!
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         # Generate filename with date
-        date_str = current_data['analysis_date']
+        date_str = current_data["analysis_date"]
         filename = f"newsletter_{date_str}.txt"
         output_file = OUTPUT_DIR / filename
 
         # Save
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(newsletter)
 
         print(f"\n✓ Newsletter saved: {output_file}")
 
         # Also save as "latest" for easy access
-        latest_file = OUTPUT_DIR / 'latest_newsletter.txt'
-        with open(latest_file, 'w', encoding='utf-8') as f:
+        latest_file = OUTPUT_DIR / "latest_newsletter.txt"
+        with open(latest_file, "w", encoding="utf-8") as f:
             f.write(newsletter)
 
         print(f"✓ Latest saved: {latest_file}")
 
         return output_file
 
-
     def parse_newsletter_sections(self, content):
         """Parse AI-generated content into sections"""
         sections = {}
 
         # Extract subject line (first line after opening)
-        lines = content.strip().split('\n')
-        sections['subject_line'] = lines[0] if lines else "This Week's Carnivore Roundup"
+        lines = content.strip().split("\n")
+        sections["subject_line"] = (
+            lines[0] if lines else "This Week's Carnivore Roundup"
+        )
 
         # Simple parsing - split by section headers
-        sections['opening'] = self._extract_section(content, start_marker='', end_marker='📊')
-        sections['by_the_numbers'] = self._extract_section(content, start_marker='📊', end_marker='🚀')
-        sections['movers_shakers'] = self._extract_section(content, start_marker='🚀', end_marker='🔥')
-        sections['whats_trending'] = self._extract_section(content, start_marker='🔥', end_marker='💭')
-        sections['community_pulse'] = self._extract_section(content, start_marker='💭', end_marker='🔮')
-        sections['looking_ahead'] = self._extract_section(content, start_marker='🔮', end_marker='━━━')
-        sections['closing'] = self._extract_section(content, start_marker='━━━', end_marker=None)
+        sections["opening"] = self._extract_section(
+            content, start_marker="", end_marker="📊"
+        )
+        sections["by_the_numbers"] = self._extract_section(
+            content, start_marker="📊", end_marker="🚀"
+        )
+        sections["movers_shakers"] = self._extract_section(
+            content, start_marker="🚀", end_marker="🔥"
+        )
+        sections["whats_trending"] = self._extract_section(
+            content, start_marker="🔥", end_marker="💭"
+        )
+        sections["community_pulse"] = self._extract_section(
+            content, start_marker="💭", end_marker="🔮"
+        )
+        sections["looking_ahead"] = self._extract_section(
+            content, start_marker="🔮", end_marker="━━━"
+        )
+        sections["closing"] = self._extract_section(
+            content, start_marker="━━━", end_marker=None
+        )
 
         return sections
-
 
     def _extract_section(self, content, start_marker, end_marker):
         """Extract text between two markers"""
@@ -350,7 +373,7 @@ P.S. - Reply to this email with questions or suggestions!
                 if start_idx == -1:
                     return ""
                 # Find end of line after marker
-                start_idx = content.find('\n', start_idx) + 1
+                start_idx = content.find("\n", start_idx) + 1
             else:
                 start_idx = 0
 
@@ -362,9 +385,8 @@ P.S. - Reply to this email with questions or suggestions!
                 end_idx = len(content)
 
             return content[start_idx:end_idx].strip()
-        except:
+        except Exception:
             return ""
-
 
     def generate_html_newsletter(self, content, current, stats):
         """Generate HTML version of newsletter"""
@@ -374,46 +396,51 @@ P.S. - Reply to this email with questions or suggestions!
         sections = self.parse_newsletter_sections(content)
 
         # Get featured videos (top 4-5)
-        top_videos = current['analysis']['top_videos'][:5]
+        top_videos = current["analysis"]["top_videos"][:5]
         featured_videos = []
 
         for video in top_videos:
-            featured_videos.append({
-                'url': f"https://youtube.com/watch?v={video['video_id']}",
-                'thumbnail': f"https://img.youtube.com/vi/{video['video_id']}/mqdefault.jpg",
-                'title': video['title'],
-                'creator': video['creator'],
-                'views': f"{video['views']:,}",
-                'date': video.get('published_at', '')[:10] if video.get('published_at') else ''
-            })
+            featured_videos.append(
+                {
+                    "url": f"https://youtube.com/watch?v={video['video_id']}",
+                    "thumbnail": f"https://img.youtube.com/vi/{video['video_id']}/mqdefault.jpg",
+                    "title": video["title"],
+                    "creator": video["creator"],
+                    "views": f"{video['views']:,}",
+                    "date": (
+                        video.get("published_at", "")[:10]
+                        if video.get("published_at")
+                        else ""
+                    ),
+                }
+            )
 
         # Load template
         env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
-        template = env.get_template('newsletter_template.html')
+        template = env.get_template("newsletter_template.html")
 
         # Render HTML
         html = template.render(
-            date=current['analysis_date'],
-            subject_line=sections.get('subject_line', 'This Week in Carnivore'),
-            opening=sections.get('opening', ''),
-            by_the_numbers=sections.get('by_the_numbers', ''),
-            movers_shakers=sections.get('movers_shakers', ''),
-            whats_trending=sections.get('whats_trending', ''),
-            community_pulse=sections.get('community_pulse', ''),
-            looking_ahead=sections.get('looking_ahead', ''),
-            closing=sections.get('closing', ''),
+            date=current["analysis_date"],
+            subject_line=sections.get("subject_line", "This Week in Carnivore"),
+            opening=sections.get("opening", ""),
+            by_the_numbers=sections.get("by_the_numbers", ""),
+            movers_shakers=sections.get("movers_shakers", ""),
+            whats_trending=sections.get("whats_trending", ""),
+            community_pulse=sections.get("community_pulse", ""),
+            looking_ahead=sections.get("looking_ahead", ""),
+            closing=sections.get("closing", ""),
             featured_video_1=featured_videos[0] if len(featured_videos) > 0 else None,
             featured_video_2=featured_videos[1] if len(featured_videos) > 1 else None,
             featured_video_3=featured_videos[2] if len(featured_videos) > 2 else None,
             featured_video_4=featured_videos[3] if len(featured_videos) > 3 else None,
-            affiliate_link_lmnt=AFFILIATE_LINKS['lmnt'],
-            affiliate_link_butcherbox=AFFILIATE_LINKS['butcherbox'],
-            unsubscribe_link='{{ unsubscribe_url }}'  # Email service will replace
+            affiliate_link_lmnt=AFFILIATE_LINKS["lmnt"],
+            affiliate_link_butcherbox=AFFILIATE_LINKS["butcherbox"],
+            unsubscribe_link="{{ unsubscribe_url }}",  # Email service will replace
         )
 
         print("✓ HTML newsletter generated!")
         return html
-
 
     def save_html_newsletter(self, html, current_data):
         """Save HTML newsletter"""
@@ -421,19 +448,19 @@ P.S. - Reply to this email with questions or suggestions!
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         # Generate filename
-        date_str = current_data['analysis_date']
+        date_str = current_data["analysis_date"]
         filename = f"newsletter_{date_str}.html"
         output_file = OUTPUT_DIR / filename
 
         # Save to project folder
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(html)
 
         print(f"✓ HTML saved: {output_file}")
 
         # Also save as "latest"
-        latest_file = OUTPUT_DIR / 'latest_newsletter.html'
-        with open(latest_file, 'w', encoding='utf-8') as f:
+        latest_file = OUTPUT_DIR / "latest_newsletter.html"
+        with open(latest_file, "w", encoding="utf-8") as f:
             f.write(html)
 
         print(f"✓ Latest HTML saved: {latest_file}")
@@ -442,7 +469,7 @@ P.S. - Reply to this email with questions or suggestions!
         try:
             GOOGLE_DRIVE_PATH.mkdir(parents=True, exist_ok=True)
             gdrive_file = GOOGLE_DRIVE_PATH / filename
-            with open(gdrive_file, 'w', encoding='utf-8') as f:
+            with open(gdrive_file, "w", encoding="utf-8") as f:
                 f.write(html)
             print(f"✓ Saved to Google Drive: {gdrive_file}")
             print(f"  → n8n will pick this up automatically!")
@@ -451,12 +478,11 @@ P.S. - Reply to this email with questions or suggestions!
 
         return output_file
 
-
     def generate(self):
         """Main method to generate newsletter"""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("📧 CARNIVORE WEEKLY NEWSLETTER GENERATOR")
-        print("="*70)
+        print("=" * 70)
 
         # Load data
         current = self.load_current_week()
@@ -478,9 +504,9 @@ P.S. - Reply to this email with questions or suggestions!
         html = self.generate_html_newsletter(content, current, stats)
         html_file = self.save_html_newsletter(html, current)
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("✓ NEWSLETTER GENERATION COMPLETE!")
-        print("="*70)
+        print("=" * 70)
         print(f"\n📁 Plain text: {output_file}")
         print(f"📁 HTML: {html_file}")
         print(f"\n💡 Next steps:")
@@ -495,7 +521,7 @@ P.S. - Reply to this email with questions or suggestions!
 # MAIN EXECUTION
 # ============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         generator = NewsletterGenerator()
         generator.generate()

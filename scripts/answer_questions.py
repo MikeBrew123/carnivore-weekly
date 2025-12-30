@@ -23,10 +23,10 @@ load_dotenv()
 # CONFIGURATION
 # ============================================================================
 
-ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / 'data'
-ANALYZED_FILE = DATA_DIR / 'analyzed_content.json'
+DATA_DIR = PROJECT_ROOT / "data"
+ANALYZED_FILE = DATA_DIR / "analyzed_content.json"
 
 # Use Haiku for cost savings
 CLAUDE_MODEL = "claude-3-5-haiku-20241022"
@@ -35,6 +35,7 @@ CLAUDE_MODEL = "claude-3-5-haiku-20241022"
 # ============================================================================
 # Q&A GENERATOR
 # ============================================================================
+
 
 class QAGenerator:
     """Generates evidence-based answers with scientific citations"""
@@ -45,7 +46,6 @@ class QAGenerator:
 
         self.client = Anthropic(api_key=api_key)
         print("✓ Claude Haiku initialized for Q&A generation")
-
 
     def generate_answer(self, question: str) -> dict:
         """
@@ -79,14 +79,14 @@ Focus on peer-reviewed research. If no direct studies exist, cite related resear
             message = self.client.messages.create(
                 model=CLAUDE_MODEL,
                 max_tokens=1500,
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             response_text = message.content[0].text
 
             # Extract JSON
-            start = response_text.find('{')
-            end = response_text.rfind('}') + 1
+            start = response_text.find("{")
+            end = response_text.rfind("}") + 1
 
             if start != -1 and end > start:
                 answer_data = json.loads(response_text[start:end])
@@ -99,24 +99,23 @@ Focus on peer-reviewed research. If no direct studies exist, cite related resear
             return {
                 "answer": "Answer pending - check scientific literature for evidence-based information.",
                 "citations": [],
-                "caveats": "Consult healthcare professionals for personalized advice."
+                "caveats": "Consult healthcare professionals for personalized advice.",
             }
-
 
     def add_qa_to_analysis(self):
         """
         Load common questions and generate answers
         """
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("📚 Q&A GENERATOR WITH SCIENTIFIC CITATIONS")
-        print("="*70)
+        print("=" * 70)
 
         # Load existing analysis
         print(f"\n📂 Loading analysis...")
-        with open(ANALYZED_FILE, 'r') as f:
+        with open(ANALYZED_FILE, "r") as f:
             data = json.load(f)
 
-        questions = data['analysis']['community_sentiment'].get('common_questions', [])
+        questions = data["analysis"]["community_sentiment"].get("common_questions", [])
 
         if not questions:
             print("✗ No common questions found in analysis")
@@ -130,26 +129,30 @@ Focus on peer-reviewed research. If no direct studies exist, cite related resear
 
             answer_data = self.generate_answer(question)
 
-            qa_list.append({
-                "question": question,
-                "answer": answer_data['answer'],
-                "citations": answer_data.get('citations', []),
-                "caveats": answer_data.get('caveats', '')
-            })
+            qa_list.append(
+                {
+                    "question": question,
+                    "answer": answer_data["answer"],
+                    "citations": answer_data.get("citations", []),
+                    "caveats": answer_data.get("caveats", ""),
+                }
+            )
 
-            print(f"      ✓ Answer generated ({len(answer_data.get('citations', []))} citations)")
+            print(
+                f"      ✓ Answer generated ({len(answer_data.get('citations', []))} citations)"
+            )
 
         # Add Q&A to analysis
-        data['analysis']['qa_section'] = qa_list
+        data["analysis"]["qa_section"] = qa_list
 
         # Save updated analysis
         print(f"\n💾 Saving updated analysis...")
-        with open(ANALYZED_FILE, 'w', encoding='utf-8') as f:
+        with open(ANALYZED_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("✓ Q&A GENERATION COMPLETE!")
-        print("="*70)
+        print("=" * 70)
         print(f"\n📚 Generated {len(qa_list)} Q&A pairs with citations")
         print(f"💰 Cost: ~$0.02 (using Haiku)")
         print(f"📁 Updated: {ANALYZED_FILE}")
@@ -175,5 +178,5 @@ def main():
         raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
