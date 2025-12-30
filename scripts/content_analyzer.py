@@ -137,6 +137,14 @@ IMPORTANT: Different sections will be written by different authors with distinct
 **COMMUNITY_SENTIMENT (Sarah's voice):**
 {sarah_context}
 
+CRITICAL WRITING GUIDELINES:
+- NO em-dashes (—). Use periods, commas, or colons instead.
+- NO clichés: avoid "delve," "robust," "leverage," "navigate," "crucial," "it's important to note"
+- SPECIFIC examples over generalizations
+- CONVERSATIONAL tone - sounds like talking to a friend
+- Varied sentence lengths (mix short and long)
+- Use contractions naturally (don't, can't, won't)
+
 When generating each section, adopt the appropriate persona's voice, tone, and style above.
 
 I've collected data from the top {len(creators)} carnivore diet creators over the past week ({total_videos} total videos).

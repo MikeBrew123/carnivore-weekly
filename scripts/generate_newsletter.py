@@ -183,6 +183,15 @@ IMPORTANT - This newsletter blends perspectives from our team:
 - Community insights & trends: {chloe_context.split(chr(10))[0]}
 - Performance & strategic angles: {marcus_context.split(chr(10))[0]}
 
+CRITICAL - WRITE LIKE A HUMAN:
+- NO em-dashes (—). Use periods, commas, or colons instead.
+- NO clichés: "it's important to note," "delve," "robust," "leverage," "navigate"
+- CONVERSATIONAL - like talking to a friend
+- SHORT paragraphs (1-2 sentences when possible)
+- Contractions: use "don't," "can't," "won't"
+- Specific examples and data, not generic statements
+- Varied sentence lengths - mix short punchy lines with longer ones
+
 MISSION: Create compelling, fun content that makes subscribers EXCITED to read every Monday. Hook them immediately and keep them engaged throughout.
 
 THE DATA YOU'RE WORKING WITH:
