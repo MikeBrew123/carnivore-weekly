@@ -55,11 +55,12 @@ SECTION_TO_TOPICS = {
 # Metadata Management Functions
 # ============================================================================
 
+
 def load_video_metadata():
     """Load existing video metadata from file."""
     if METADATA_FILE.exists():
         try:
-            with open(METADATA_FILE, 'r') as f:
+            with open(METADATA_FILE, "r") as f:
                 return json.load(f)
         except Exception as e:
             print(f"⚠️  Error loading metadata: {e}")
@@ -71,7 +72,7 @@ def save_video_metadata(metadata):
     """Save video metadata to file."""
     try:
         METADATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(METADATA_FILE, 'w') as f:
+        with open(METADATA_FILE, "w") as f:
             json.dump(metadata, f, indent=2)
     except Exception as e:
         print(f"❌ Error saving metadata: {e}")
@@ -82,7 +83,7 @@ def initialize_metadata():
     return {
         "last_updated": datetime.now().strftime("%Y-%m-%d"),
         "expiration_days": EXPIRATION_DAYS,
-        "sections": {section_id: [] for section_id in SECTION_TO_TOPICS.keys()}
+        "sections": {section_id: [] for section_id in SECTION_TO_TOPICS.keys()},
     }
 
 
@@ -134,7 +135,7 @@ def add_video_to_metadata(metadata, section_id, video):
         "title": video.get("title"),
         "channel": video.get("creator"),
         "injected_date": datetime.now().strftime("%Y-%m-%d"),
-        "url": f"https://www.youtube.com/watch?v={video.get('video_id')}"
+        "url": f"https://www.youtube.com/watch?v={video.get('video_id')}",
     }
 
     metadata["sections"][section_id].append(metadata_entry)
@@ -143,6 +144,7 @@ def add_video_to_metadata(metadata, section_id, video):
 # ============================================================================
 # Video Ranking Functions
 # ============================================================================
+
 
 def score_video_relevance(video, section_id, trending_topics):
     """
@@ -183,7 +185,7 @@ def load_analyzed_content():
         print(f"⚠️  No analyzed content found at {DATA_FILE}")
         return None
 
-    with open(DATA_FILE, 'r') as f:
+    with open(DATA_FILE, "r") as f:
         return json.load(f)
 
 
@@ -210,7 +212,9 @@ def create_video_links(videos, section_id, trending_topics, metadata=None):
             # Find trending topic by name
             for topic in trending_topics:
                 if topic.get("topic") == topic_name:
-                    mentioned_creators = [c.lower() for c in topic.get("mentioned_by", [])]
+                    mentioned_creators = [
+                        c.lower() for c in topic.get("mentioned_by", [])
+                    ]
                     # Normalize creator name for matching
                     if creator_matches(creator, mentioned_creators):
                         matching_videos.append(video)
@@ -265,9 +269,14 @@ def creator_matches(video_creator, mentioned_creators):
             return True
 
         # Partial match (handles channel names vs display names)
-        if video_normalized in mentioned_normalized or mentioned_normalized in video_normalized:
+        if (
+            video_normalized in mentioned_normalized
+            or mentioned_normalized in video_normalized
+        ):
             # But require at least 3 chars match to avoid false positives
-            common = sum(1 for a, b in zip(video_normalized, mentioned_normalized) if a == b)
+            common = sum(
+                1 for a, b in zip(video_normalized, mentioned_normalized) if a == b
+            )
             if common >= 3:
                 return True
 
@@ -295,7 +304,10 @@ def update_wiki_file(wiki_content, videos, trending_topics, metadata=None):
     for section_id in SECTION_TO_TOPICS.keys():
         # Find the specific placeholder in this section's related-videos div
         # Pattern: <div class="topic" id="{id}"> ... <!-- placeholder --> ... </div>
-        section_pattern = f'<div class="topic" id="{section_id}">(.*?){re.escape(placeholder)}(.*?)</div>(?=\s*(?:<!--|\<div class="topic"|$))'
+        section_pattern = (
+            f'<div class="topic" id="{section_id}">(.*?){re.escape(placeholder)}'
+            r'(.*?)</div>(?=\s*(?:<!--|\<div class="topic"|$))'
+        )
 
         match = re.search(section_pattern, updated_content, re.DOTALL)
 
@@ -306,10 +318,14 @@ def update_wiki_file(wiki_content, videos, trending_topics, metadata=None):
             # CRITICAL FIX: Remove any existing auto-injected video divs from after_placeholder
             # This prevents accumulating duplicates on each run
             auto_video_pattern = r'<div class="wiki-auto-video"[^>]*>.*?</div>\s*'
-            cleaned_after = re.sub(auto_video_pattern, '', after_placeholder, flags=re.DOTALL)
+            cleaned_after = re.sub(
+                auto_video_pattern, "", after_placeholder, flags=re.DOTALL
+            )
 
             # Get video links for this section (respects metadata and limits to top videos)
-            video_links_html, selected_videos = create_video_links(videos, section_id, trending_topics, metadata)
+            video_links_html, selected_videos = create_video_links(
+                videos, section_id, trending_topics, metadata
+            )
 
             if video_links_html:
                 # This section is getting updated, so track it
@@ -317,33 +333,36 @@ def update_wiki_file(wiki_content, videos, trending_topics, metadata=None):
 
                 # Build replacement with video list
                 # Use class="wiki-auto-video" marker so we can identify and clean these later
+                injected_date = datetime.now().strftime("%Y-%m-%d")
                 video_list_html = (
-                    f'{placeholder}\n'
-                    f'                <div class="wiki-auto-video" data-injected="{datetime.now().strftime("%Y-%m-%d")}">\n'
-                    f'                    <p style="margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 8px;"><strong>Related videos this week:</strong></p>\n'
-                    f'                    <ul style="margin: 10px 0; padding-left: 20px; background: #f5f5f5; border-radius: 8px; padding: 15px;">\n'
-                    f'{video_links_html}\n'
-                    f'                    </ul>\n'
-                    f'                </div>'
+                    f"{placeholder}\n"
+                    f'                <div class="wiki-auto-video" data-injected="{injected_date}">\n'
+                    f'                    <p style="margin: 20px 0; padding: 15px; background: #f5f5f5; '
+                    f'border-radius: 8px;"><strong>Related videos this week:</strong></p>\n'
+                    f'                    <ul style="margin: 10px 0; padding-left: 20px; background: #f5f5f5; '
+                    f'border-radius: 8px; padding: 15px;">\n'
+                    f"{video_links_html}\n"
+                    f"                    </ul>\n"
+                    f"                </div>"
                 )
 
                 # Build the replacement section with updated timestamp
                 today = datetime.now().strftime("%B %d, %Y")
-                old_timestamp_pattern = r'<span class="last-updated">📅 Last Updated: .*?</span>'
-                new_timestamp = f'<span class="last-updated">📅 Last Updated: {today}</span>'
+                old_timestamp_pattern = (
+                    r'<span class="last-updated">📅 Last Updated: .*?</span>'
+                )
+                new_timestamp = (
+                    f'<span class="last-updated">📅 Last Updated: {today}</span>'
+                )
 
                 # Update the timestamp in this section's content
                 new_before = re.sub(
-                    old_timestamp_pattern,
-                    new_timestamp,
-                    before_placeholder
+                    old_timestamp_pattern, new_timestamp, before_placeholder
                 )
 
                 # Build the replacement section with cleaned content
                 # Use cleaned_after instead of after_placeholder to avoid duplicates
-                new_section = (
-                    f'<div class="topic" id="{section_id}">{new_before}{video_list_html}{cleaned_after}</div>'
-                )
+                new_section = f'<div class="topic" id="{section_id}">{new_before}{video_list_html}{cleaned_after}</div>'
 
                 # Replace in the document
                 old_section = match.group(0)
@@ -352,7 +371,9 @@ def update_wiki_file(wiki_content, videos, trending_topics, metadata=None):
                 # Track videos in metadata
                 if metadata:
                     for video in selected_videos:
-                        if not is_video_already_tracked(section_id, video.get("video_id"), metadata):
+                        if not is_video_already_tracked(
+                            section_id, video.get("video_id"), metadata
+                        ):
                             add_video_to_metadata(metadata, section_id, video)
 
     return updated_content, updated_sections
@@ -361,7 +382,9 @@ def update_wiki_file(wiki_content, videos, trending_topics, metadata=None):
 def main():
     """Main workflow."""
     print("🔄 Updating wiki with video links...")
-    print(f"   📁 Settings: Max {MAX_VIDEOS_PER_SECTION} videos/section, {EXPIRATION_DAYS} day expiration")
+    print(
+        f"   📁 Settings: Max {MAX_VIDEOS_PER_SECTION} videos/section, {EXPIRATION_DAYS} day expiration"
+    )
     print()
 
     # Load or initialize metadata
@@ -382,8 +405,8 @@ def main():
     if expired_removed > 0:
         print(f"      ✓ Removed {expired_removed} expired video(s)")
     else:
-        print(f"      ✓ No expired videos found")
-    print()
+        print("      ✓ No expired videos found")
+    print("")
 
     # Load data
     data = load_analyzed_content()
@@ -403,15 +426,17 @@ def main():
         print(f"❌ Wiki file not found: {WIKI_FILE}")
         return
 
-    with open(WIKI_FILE, 'r') as f:
+    with open(WIKI_FILE, "r") as f:
         wiki_content = f.read()
 
     # Update wiki with video links (with metadata to prevent duplicates)
     print("   🔍 Processing sections...")
-    updated_wiki, updated_sections = update_wiki_file(wiki_content, videos, trending_topics, metadata)
+    updated_wiki, updated_sections = update_wiki_file(
+        wiki_content, videos, trending_topics, metadata
+    )
 
     # Write updated wiki
-    with open(WIKI_FILE, 'w') as f:
+    with open(WIKI_FILE, "w") as f:
         f.write(updated_wiki)
 
     # Save updated metadata
@@ -419,12 +444,12 @@ def main():
     save_video_metadata(metadata)
 
     print()
-    print(f"✅ Wiki updated successfully")
+    print("✅ Wiki updated successfully")
     print(f"   📅 Updated {len(updated_sections)} section(s) with new videos")
     if updated_sections:
         print(f"      Sections: {', '.join(updated_sections)}")
     else:
-        print(f"      No new videos to inject (all videos already tracked or expired)")
+        print("      No new videos to inject (all videos already tracked or expired)")
     print(f"   🎥 Processed {len(videos)} top video(s)")
     print(f"   📊 Matched against {len(trending_topics)} trending topic(s)")
     print(f"   💾 Metadata saved to {METADATA_FILE}")
