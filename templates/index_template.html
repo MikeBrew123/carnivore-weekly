@@ -960,6 +960,36 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
     </style>
+
+    <!-- Schema.org Article markup (for weekly digest) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Carnivore Weekly Digest - {{ analysis_date }}",
+      "description": "This week's carnivore diet trends, top videos, and community insights. Featured: trending topics, top videos, and key community sentiment.",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Brew"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Carnivore Weekly",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://carnivoreweekly.com/images/logo.png"
+        }
+      },
+      "datePublished": "{{ analysis_date }}",
+      "dateModified": "{{ analysis_date }}",
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://carnivoreweekly.com/images/logo.png",
+        "width": 1200,
+        "height": 630
+      }
+    }
+    </script>
 </head>
 <body>
     <header>
@@ -1034,6 +1064,21 @@
             <div class="video-grid">
                 {% for video in top_videos %}
                 <div class="video-card">
+                    <!-- VideoObject Schema for search engines -->
+                    {% if video.video_id %}
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "{{ video.title|replace('"', '\\"') }}",
+                      "description": "{{ video.summary|replace('"', '\\"')|replace('\n', ' ') if video.summary else video.why_notable|replace('"', '\\"')|replace('\n', ' ') }}",
+                      "thumbnailUrl": "https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg",
+                      "uploadDate": "{{ video.published_at }}",
+                      "contentUrl": "https://www.youtube.com/watch?v={{ video.video_id }}"
+                    }
+                    </script>
+                    {% endif %}
+
                     {% if video.video_id %}
                     <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
                         <img src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg"
@@ -1230,6 +1275,21 @@
             <div class="video-grid">
                 {% for video in recommended_watching %}
                 <div class="video-card">
+                    <!-- VideoObject Schema for search engines -->
+                    {% if video.video_id %}
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "{{ video.title|replace('"', '\\"') }}",
+                      "description": "{{ video.reason|replace('"', '\\"')|replace('\n', ' ') if video.reason else video.summary|replace('"', '\\"')|replace('\n', ' ') }}",
+                      "thumbnailUrl": "https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg",
+                      "uploadDate": "{{ video.published_at }}",
+                      "contentUrl": "https://www.youtube.com/watch?v={{ video.video_id }}"
+                    }
+                    </script>
+                    {% endif %}
+
                     {% if video.video_id %}
                     <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
                         <img src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg"
