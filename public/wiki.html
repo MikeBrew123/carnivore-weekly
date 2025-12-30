@@ -552,6 +552,27 @@
             <a href="archive.html">Archive</a>
         </nav>
 
+        <!-- Wiki Search Box -->
+        <div style="background: rgba(212, 165, 116, 0.1); border: 2px solid #d4a574; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+            <input
+                type="text"
+                id="wiki-search"
+                placeholder="🔍 Search wiki (e.g., 'cholesterol', 'dairy', 'coffee', 'weight loss')"
+                style="
+                    width: 100%;
+                    padding: 12px 16px;
+                    font-size: 16px;
+                    border: 2px solid #d4a574;
+                    border-radius: 8px;
+                    background: #f4e4d4;
+                    color: #2c1810;
+                    font-family: 'Merriweather', serif;
+                "
+                oninput="filterWikiTopics()"
+            >
+            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">Start typing to filter topics. Press Escape to clear.</p>
+        </div>
+
         <!-- Table of Contents -->
         <div class="toc" id="top">
             <h2>📚 Quick Navigation</h2>
@@ -2294,5 +2315,86 @@ Adding alcohol (especially beer) creates a <strong>triple traffic jam</strong>, 
     </div>
 
     <a href="#top" class="back-to-top">↑ Back to Top</a>
+
+    <!-- Wiki Search & Filter Script -->
+    <script>
+        function filterWikiTopics() {
+            const searchBox = document.getElementById('wiki-search');
+            const query = searchBox.value.toLowerCase().trim();
+            const topics = document.querySelectorAll('.topic');
+            const tocItems = document.querySelectorAll('.toc-item');
+            let visibleCount = 0;
+
+            // If empty, show all topics
+            if (query === '') {
+                topics.forEach(topic => {
+                    topic.style.display = 'block';
+                });
+                tocItems.forEach(item => {
+                    item.style.opacity = '1';
+                    item.style.pointerEvents = 'auto';
+                });
+                return;
+            }
+
+            // Filter topics based on query
+            topics.forEach(topic => {
+                const topicText = topic.textContent.toLowerCase();
+                const topicId = topic.id;
+
+                if (topicText.includes(query)) {
+                    topic.style.display = 'block';
+                    visibleCount++;
+                    // Highlight matching TOC item
+                    const tocItem = document.querySelector(`a[href="#${topicId}"]`).closest('.toc-item');
+                    if (tocItem) {
+                        tocItem.style.opacity = '1';
+                        tocItem.style.pointerEvents = 'auto';
+                        tocItem.style.borderLeft = '4px solid #ffd700';
+                        tocItem.style.paddingLeft = '12px';
+                    }
+                } else {
+                    topic.style.display = 'none';
+                    // Dim matching TOC item
+                    const tocItem = document.querySelector(`a[href="#${topicId}"]`).closest('.toc-item');
+                    if (tocItem) {
+                        tocItem.style.opacity = '0.4';
+                        tocItem.style.pointerEvents = 'none';
+                        tocItem.style.borderLeft = 'none';
+                        tocItem.style.paddingLeft = '16px';
+                    }
+                }
+            });
+
+            // Show/hide "no results" message
+            let noResults = document.getElementById('wiki-no-results');
+            if (visibleCount === 0) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.id = 'wiki-no-results';
+                    noResults.style.cssText = 'background: rgba(212, 165, 116, 0.2); border: 2px solid #d4a574; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; color: #8b4513; font-size: 1.1em;';
+                    noResults.innerHTML = '❌ No topics found matching "' + query + '"<br><small>Try searching for: cholesterol, dairy, weight loss, coffee, salt, electrolytes, etc.</small>';
+                    document.querySelector('.topic').parentNode.insertBefore(noResults, document.querySelector('.topic'));
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
+        }
+
+        // Handle Escape key to clear search
+        document.getElementById('wiki-search').addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                this.value = '';
+                filterWikiTopics();
+                this.blur();
+            }
+        });
+
+        // Prevent body scrolling issues on initial load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make sure initial state shows all topics
+            filterWikiTopics();
+        });
+    </script>
 </body>
 </html>
