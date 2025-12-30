@@ -19,6 +19,8 @@ from anthropic import Anthropic
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
 
+from personas_helper import PersonaManager
+
 # Load environment variables
 load_dotenv()
 
@@ -56,13 +58,15 @@ class NewsletterGenerator:
     """
 
     def __init__(self):
-        """Initialize Claude AI client"""
+        """Initialize Claude AI client and persona manager"""
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY not found in environment")
 
         self.client = Anthropic(api_key=api_key)
+        self.persona_manager = PersonaManager()
         print("✓ Claude AI client initialized")
+        print("✓ Persona manager initialized")
 
     def load_current_week(self):
         """Load this week's analyzed content"""
@@ -152,8 +156,13 @@ class NewsletterGenerator:
         return stats
 
     def generate_newsletter_content(self, current, last_week, stats):
-        """Use Claude AI to generate unique newsletter content"""
+        """Use Claude AI to generate unique newsletter content with persona guidance"""
         print(f"\n🤖 Generating newsletter content with Claude AI...")
+
+        # Get persona contexts
+        sarah_context = self.persona_manager.get_persona_context("sarah")
+        marcus_context = self.persona_manager.get_persona_context("marcus")
+        chloe_context = self.persona_manager.get_persona_context("chloe")
 
         # Prepare data for prompt
         current_summary = current["analysis"]["weekly_summary"]
@@ -168,6 +177,11 @@ class NewsletterGenerator:
         last_topics = last_week["analysis"]["trending_topics"] if last_week else []
 
         prompt = f"""You are the curator behind Carnivore Weekly, writing your weekly insider newsletter to subscribers who trust your eye for what matters in the carnivore community.
+
+IMPORTANT - This newsletter blends perspectives from our team:
+- Opening & closing thoughts: {sarah_context.split(chr(10))[0]}
+- Community insights & trends: {chloe_context.split(chr(10))[0]}
+- Performance & strategic angles: {marcus_context.split(chr(10))[0]}
 
 MISSION: Create compelling, fun content that makes subscribers EXCITED to read every Monday. Hook them immediately and keep them engaged throughout.
 
@@ -281,6 +295,9 @@ Write the newsletter NOW:
 
         current_date = current_data["analysis_date"]
 
+        # Get Sarah's signature for the closing (she's the lead persona)
+        sarah_signature = self.persona_manager.get_persona_signature("sarah")
+
         newsletter = f"""━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CARNIVORE WEEKLY INSIDER
 Week of {current_date}
@@ -295,7 +312,7 @@ Deep analysis, top videos, Q&A, and more:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 See you next Monday,
-Carnivore Weekly
+{sarah_signature}
 
 P.S. - Reply to this email with questions or suggestions!
 

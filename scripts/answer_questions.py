@@ -17,6 +17,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from anthropic import Anthropic
 
+from personas_helper import PersonaManager
+
 load_dotenv()
 
 # ============================================================================
@@ -45,16 +47,104 @@ class QAGenerator:
             raise ValueError("ANTHROPIC_API_KEY not found")
 
         self.client = Anthropic(api_key=api_key)
+        self.persona_manager = PersonaManager()
         print("✓ Claude Haiku initialized for Q&A generation")
+        print("✓ Persona manager initialized")
+
+    def categorize_question(self, question: str) -> tuple:
+        """
+        Categorize question by type to assign appropriate persona
+
+        Returns: (persona_name, category_type)
+        - Health questions -> Sarah (health coach)
+        - Strategy questions -> Marcus (sales & partnerships)
+        - Community questions -> Chloe (marketing & community)
+        """
+        question_lower = question.lower()
+
+        # Health-related keywords
+        health_keywords = [
+            "health",
+            "disease",
+            "symptom",
+            "heal",
+            "weight",
+            "energy",
+            "sleep",
+            "digestion",
+            "inflammation",
+            "autoimmune",
+            "nutrition",
+            "vitamin",
+            "mineral",
+            "cholesterol",
+            "blood",
+            "glucose",
+            "hormone",
+        ]
+
+        # Strategy/business keywords
+        strategy_keywords = [
+            "cost",
+            "budget",
+            "price",
+            "afford",
+            "business",
+            "performance",
+            "optimization",
+            "efficiency",
+            "roi",
+            "partner",
+            "deal",
+            "growth",
+            "scale",
+        ]
+
+        # Community/social keywords
+        community_keywords = [
+            "community",
+            "social",
+            "friend",
+            "family",
+            "restaurant",
+            "dining",
+            "travel",
+            "trend",
+            "influencer",
+            "popular",
+            "lifestyle",
+            "culture",
+        ]
+
+        # Count keyword matches
+        health_count = sum(1 for kw in health_keywords if kw in question_lower)
+        strategy_count = sum(1 for kw in strategy_keywords if kw in question_lower)
+        community_count = sum(1 for kw in community_keywords if kw in question_lower)
+
+        # Determine primary category
+        if health_count >= strategy_count and health_count >= community_count:
+            return ("sarah", "health_question")
+        elif strategy_count >= community_count:
+            return ("marcus", "strategy_question")
+        else:
+            return ("chloe", "community_question")
 
     def generate_answer(self, question: str) -> dict:
         """
         Generate an evidence-based answer with scientific citations
+        Uses persona context based on question category
         """
+        # Categorize question and get persona
+        persona_name, category = self.categorize_question(question)
+        persona_context = self.persona_manager.get_persona_context(persona_name)
+        persona_signature = self.persona_manager.get_persona_signature(persona_name)
+
         prompt = f"""You are a nutrition science expert. Answer this carnivore diet question with:
 1. A clear, evidence-based answer (2-3 paragraphs)
 2. Scientific citations (PubMed links when available)
 3. Balanced perspective (acknowledge limitations/debates)
+
+IMPORTANT - Answer as: {persona_context}
 
 Question: {question}
 
@@ -90,6 +180,9 @@ Focus on peer-reviewed research. If no direct studies exist, cite related resear
 
             if start != -1 and end > start:
                 answer_data = json.loads(response_text[start:end])
+                # Add persona signature and category
+                answer_data["answered_by"] = persona_signature.strip()
+                answer_data["question_category"] = category
                 return answer_data
             else:
                 raise ValueError("No JSON in response")
@@ -100,6 +193,8 @@ Focus on peer-reviewed research. If no direct studies exist, cite related resear
                 "answer": "Answer pending - check scientific literature for evidence-based information.",
                 "citations": [],
                 "caveats": "Consult healthcare professionals for personalized advice.",
+                "answered_by": persona_signature.strip(),
+                "question_category": category,
             }
 
     def add_qa_to_analysis(self):
@@ -135,11 +230,15 @@ Focus on peer-reviewed research. If no direct studies exist, cite related resear
                     "answer": answer_data["answer"],
                     "citations": answer_data.get("citations", []),
                     "caveats": answer_data.get("caveats", ""),
+                    "answered_by": answer_data.get("answered_by", ""),
+                    "question_category": answer_data.get("question_category", ""),
                 }
             )
 
+            answered_by = answer_data.get("answered_by", "Unknown")
+            category = answer_data.get("question_category", "")
             print(
-                f"      ✓ Answer generated ({len(answer_data.get('citations', []))} citations)"
+                f"      ✓ Answer generated by {answered_by} ({len(answer_data.get('citations', []))} citations)"
             )
 
         # Add Q&A to analysis

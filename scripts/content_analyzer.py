@@ -19,6 +19,9 @@ from typing import Dict, List
 from dotenv import load_dotenv
 from anthropic import Anthropic
 
+# Local imports
+from personas_helper import PersonaManager
+
 # Load environment variables
 load_dotenv()
 
@@ -47,7 +50,7 @@ class ContentAnalyzer:
     """
 
     def __init__(self, api_key: str):
-        """Initialize the Anthropic client"""
+        """Initialize the Anthropic client and persona manager"""
         if not api_key:
             raise ValueError(
                 "Anthropic API key not found! "
@@ -55,7 +58,9 @@ class ContentAnalyzer:
             )
 
         self.client = Anthropic(api_key=api_key)
+        self.persona_manager = PersonaManager()
         print("✓ Claude AI client initialized")
+        print("✓ Persona manager initialized")
 
     def load_youtube_data(self, input_file: Path) -> Dict:
         """Load the YouTube data from JSON file"""
@@ -75,11 +80,16 @@ class ContentAnalyzer:
 
     def create_analysis_prompt(self, youtube_data: Dict) -> str:
         """
-        Create a detailed prompt for Claude to analyze the YouTube data
+        Create a detailed prompt for Claude to analyze the YouTube data with persona context
         """
         # Extract key information for the prompt
         creators = youtube_data["top_creators"]
         total_videos = sum(len(c["videos"]) for c in creators)
+
+        # Get persona contexts for different sections
+        sarah_context = self.persona_manager.get_persona_context("sarah")
+        marcus_context = self.persona_manager.get_persona_context("marcus")
+        chloe_context = self.persona_manager.get_persona_context("chloe")
 
         # Build a summary of all videos and comments
         content_summary = []
@@ -110,8 +120,24 @@ class ContentAnalyzer:
 
             content_summary.append(creator_info)
 
-        # Create the full prompt
+        # Create the full prompt with persona guidance
         prompt = f"""You are analyzing carnivore diet content from YouTube for a weekly content hub.
+
+IMPORTANT: Different sections will be written by different authors with distinct voices:
+
+**WEEKLY_SUMMARY (Sarah's voice):**
+{sarah_context}
+
+**TRENDING_TOPICS (Chloe's voice):**
+{chloe_context}
+
+**KEY_INSIGHTS (Marcus's voice):**
+{marcus_context}
+
+**COMMUNITY_SENTIMENT (Sarah's voice):**
+{sarah_context}
+
+When generating each section, adopt the appropriate persona's voice, tone, and style above.
 
 I've collected data from the top {len(creators)} carnivore diet creators over the past week ({total_videos} total videos).
 
@@ -225,6 +251,39 @@ Provide actionable, interesting insights that would help someone stay up-to-date
         except Exception as e:
             print(f"✗ Error during analysis: {e}")
             raise
+
+    def apply_persona_signatures(self, analysis: Dict) -> Dict:
+        """
+        Apply persona signatures to analysis sections
+
+        Maps sections to personas:
+        - weekly_summary -> Sarah
+        - trending_topics -> Chloe
+        - key_insights -> Marcus
+        - community_sentiment -> Sarah
+        """
+        # Apply Sarah's signature to weekly_summary
+        if "weekly_summary" in analysis:
+            analysis["weekly_summary"] += f"\n\n{self.persona_manager.get_persona_signature('sarah')}"
+
+        # Apply Chloe's signature to trending_topics
+        if "trending_topics" in analysis and analysis["trending_topics"]:
+            # Add signature as a final note
+            topics_note = f"_Curated by {self.persona_manager.get_persona_signature('chloe').strip()}_"
+            analysis["trending_topics_author"] = topics_note
+
+        # Apply Marcus's signature to key_insights
+        if "key_insights" in analysis and analysis["key_insights"]:
+            insights_note = f"_Strategic insights by {self.persona_manager.get_persona_signature('marcus').strip()}_"
+            analysis["key_insights_author"] = insights_note
+
+        # Apply Sarah's signature to community_sentiment
+        if "community_sentiment" in analysis:
+            sentiment = analysis["community_sentiment"]
+            if isinstance(sentiment, dict) and "overall_tone" in sentiment:
+                sentiment["analyst"] = self.persona_manager.get_persona_signature('sarah').strip()
+
+        return analysis
 
     def generate_video_summaries(self, videos: List[Dict]) -> List[Dict]:
         """
@@ -407,6 +466,9 @@ Example output: cholesterol, science, advanced"""
 
             # Analyze content with Claude
             analysis = self.analyze_content(youtube_data)
+
+            # Apply persona signatures to analysis sections
+            analysis = self.apply_persona_signatures(analysis)
 
             # Generate summaries and tags for top videos (Phase A)
             top_videos = analysis.get("top_videos", [])
