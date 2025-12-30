@@ -6,10 +6,12 @@ Master list of all affiliate and sponsor links used across the site. Update this
 
 ### ButcherBox
 - **Link:** `https://butcherbox.pxf.io/Z6oVMR`
-- **Offer:** Save $15 on first box
-- **Location:** Homepage banner (`public/index.html`, line ~957)
+- **Current Offer:** FREE Steaks and Bacon For A Year ($1,135+ value)
+  - 2 x premium steaks (Ribeyes, Filet Mignons, or NY Strips) + 10 oz Bacon FREE in every order for 1 year
+  - "Last and Best Sale of the Year" - Ends 1/1/26
+- **Location:** Homepage banner (`public/index.html`, line ~952)
 - **Type:** Premium sponsor banner at top of page
-- **Status:** ✅ Active
+- **Status:** ✅ Active (expires 1/1/26)
 
 ### LMNT (Elemental Labs)
 - **Link:** `http://elementallabs.refr.cc`
