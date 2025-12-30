@@ -17,11 +17,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # ANSI colors
-GREEN = '\033[92m'
-RED = '\033[91m'
-YELLOW = '\033[93m'
-RESET = '\033[0m'
-BOLD = '\033[1m'
+GREEN = "\033[92m"
+RED = "\033[91m"
+YELLOW = "\033[93m"
+RESET = "\033[0m"
+BOLD = "\033[1m"
 
 # Track results
 checks = []
@@ -59,7 +59,7 @@ def print_check(number, name, passed, message):
 
 def check_environment_variables():
     """Check .env file and required API keys"""
-    env_path = Path('.env')
+    env_path = Path(".env")
 
     if not env_path.exists():
         print_check(1, "Environment Variables", False, "CRITICAL: .env file missing")
@@ -67,14 +67,18 @@ def check_environment_variables():
 
     load_dotenv()
 
-    youtube_key = os.getenv('YOUTUBE_API_KEY')
+    youtube_key = os.getenv("YOUTUBE_API_KEY")
     if not youtube_key:
-        print_check(1, "Environment Variables", False, "CRITICAL: YOUTUBE_API_KEY not set")
+        print_check(
+            1, "Environment Variables", False, "CRITICAL: YOUTUBE_API_KEY not set"
+        )
         return False
 
-    anthropic_key = os.getenv('ANTHROPIC_API_KEY')
+    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
     if not anthropic_key:
-        print_check(1, "Environment Variables", False, "CRITICAL: ANTHROPIC_API_KEY not set")
+        print_check(
+            1, "Environment Variables", False, "CRITICAL: ANTHROPIC_API_KEY not set"
+        )
         return False
 
     print_check(1, "Environment Variables", True, "")
@@ -84,15 +88,15 @@ def check_environment_variables():
 def check_python_packages():
     """Check required Python packages are installed"""
     required_packages = [
-        'anthropic',
-        'google.auth',  # google-api-python-client
-        'jinja2',
-        'dotenv',
-        'requests',
-        'pandas',
-        'bs4',  # beautifulsoup4
-        'lxml',
-        'dateutil'
+        "anthropic",
+        "google.auth",  # google-api-python-client
+        "jinja2",
+        "dotenv",
+        "requests",
+        "pandas",
+        "bs4",  # beautifulsoup4
+        "lxml",
+        "dateutil",
     ]
 
     missing = []
@@ -103,7 +107,9 @@ def check_python_packages():
             missing.append(package)
 
     if missing:
-        print_check(2, "Python Packages", False, f"CRITICAL: Missing {', '.join(missing)}")
+        print_check(
+            2, "Python Packages", False, f"CRITICAL: Missing {', '.join(missing)}"
+        )
         return False
 
     print_check(2, "Python Packages", True, "")
@@ -112,13 +118,7 @@ def check_python_packages():
 
 def check_directory_structure():
     """Check required directories exist"""
-    required_dirs = [
-        'data',
-        'data/archive',
-        'templates',
-        'public',
-        'scripts'
-    ]
+    required_dirs = ["data", "data/archive", "templates", "public", "scripts"]
 
     missing = []
     for dir_path in required_dirs:
@@ -126,11 +126,13 @@ def check_directory_structure():
             missing.append(dir_path)
 
     if missing:
-        print_check(3, "Directory Structure", False, f"CRITICAL: Missing {', '.join(missing)}/")
+        print_check(
+            3, "Directory Structure", False, f"CRITICAL: Missing {', '.join(missing)}/"
+        )
         return False
 
     # Create newsletters if missing
-    Path('newsletters').mkdir(exist_ok=True)
+    Path("newsletters").mkdir(exist_ok=True)
 
     print_check(3, "Directory Structure", True, "")
     return True
@@ -139,9 +141,9 @@ def check_directory_structure():
 def check_templates():
     """Check critical templates exist"""
     required_templates = [
-        'templates/index_template.html',
-        'templates/archive_template.html',
-        'templates/channels_template.html'
+        "templates/index_template.html",
+        "templates/archive_template.html",
+        "templates/channels_template.html",
     ]
 
     missing = []
@@ -160,9 +162,9 @@ def check_templates():
 def check_template_integrity():
     """Check templates have required elements"""
     templates = [
-        'templates/index_template.html',
-        'templates/archive_template.html',
-        'templates/channels_template.html'
+        "templates/index_template.html",
+        "templates/archive_template.html",
+        "templates/channels_template.html",
     ]
 
     warnings = []
@@ -172,15 +174,15 @@ def check_template_integrity():
             content = Path(template_path).read_text()
 
             # Check for feedback button
-            if 'feedback-side' not in content:
+            if "feedback-side" not in content:
                 warnings.append(f"{template_path} missing feedback button")
 
             # Check for style.css reference
-            if 'style.css' not in content:
+            if "style.css" not in content:
                 warnings.append(f"{template_path} missing style.css reference")
 
             # Check for valid Jinja2 syntax (basic check)
-            if content.count('{{') != content.count('}}'):
+            if content.count("{{") != content.count("}}"):
                 warnings.append(f"{template_path} has unbalanced Jinja2 brackets")
 
         except Exception as e:
@@ -208,39 +210,56 @@ def check_api_connectivity():
 
     # Test YouTube API
     try:
-        youtube = build('youtube', 'v3',
-                       developerKey=os.getenv('YOUTUBE_API_KEY'),
-                       cache_discovery=False)
+        youtube = build(
+            "youtube",
+            "v3",
+            developerKey=os.getenv("YOUTUBE_API_KEY"),
+            cache_discovery=False,
+        )
         # Simple test query
-        result = youtube.search().list(
-            part='snippet',
-            q='carnivore',
-            maxResults=1
-        ).execute()
+        result = (
+            youtube.search().list(part="snippet", q="carnivore", maxResults=1).execute()
+        )
 
-        if 'items' not in result:
-            print_check(6, "API Connectivity", False,
-                       "CRITICAL: YouTube API test returned unexpected response")
+        if "items" not in result:
+            print_check(
+                6,
+                "API Connectivity",
+                False,
+                "CRITICAL: YouTube API test returned unexpected response",
+            )
             return False
 
     except Exception as e:
         error_msg = str(e)[:50]
-        if 'quota' in error_msg.lower():
-            print_check(6, "API Connectivity", False,
-                       f"CRITICAL: YouTube quota exceeded - {error_msg}")
+        if "quota" in error_msg.lower():
+            print_check(
+                6,
+                "API Connectivity",
+                False,
+                f"CRITICAL: YouTube quota exceeded - {error_msg}",
+            )
         else:
-            print_check(6, "API Connectivity", False,
-                       f"CRITICAL: YouTube API failed - {error_msg}")
+            print_check(
+                6,
+                "API Connectivity",
+                False,
+                f"CRITICAL: YouTube API failed - {error_msg}",
+            )
         return False
 
     # Test Anthropic API
     try:
-        client = Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+        Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
         # Just verify the client initializes (don't make actual call)
     except Exception as e:
         error_msg = str(e)[:50]
-        print_check(6, "API Connectivity", False,
-                   f"CRITICAL: Anthropic API setup failed - {error_msg}")
+        print_check(
+            6,
+            "API Connectivity",
+            False,
+            f"CRITICAL: Anthropic API setup failed - {error_msg}",
+        )
         return False
 
     print_check(6, "API Connectivity", True, "")
@@ -252,10 +271,7 @@ def check_git_status():
     try:
         # Check if git repo
         result = subprocess.run(
-            ['git', 'status'],
-            capture_output=True,
-            text=True,
-            timeout=5
+            ["git", "status"], capture_output=True, text=True, timeout=5
         )
 
         if result.returncode != 0:
@@ -263,10 +279,10 @@ def check_git_status():
             return True
 
         # Check .gitignore
-        gitignore_path = Path('.gitignore')
+        gitignore_path = Path(".gitignore")
         if gitignore_path.exists():
             content = gitignore_path.read_text()
-            if '.env' not in content:
+            if ".env" not in content:
                 print_check(7, "Git Status", True, "WARNING: .env not in .gitignore")
                 return True
 
@@ -275,19 +291,25 @@ def check_git_status():
 
     except Exception as e:
         # Git not installed or error - non-critical
-        print_check(7, "Git Status", True, f"WARNING: Git check skipped ({str(e)[:30]})")
+        print_check(
+            7, "Git Status", True, f"WARNING: Git check skipped ({str(e)[:30]})"
+        )
         return True
 
 
 def check_disk_space():
     """Check available disk space"""
     try:
-        stat = shutil.disk_usage('.')
+        stat = shutil.disk_usage(".")
         available_gb = stat.free / (1024**3)
 
         if available_gb < 0.5:  # Less than 500MB
-            print_check(8, "Disk Space", False,
-                       f"CRITICAL: Low disk space ({available_gb:.1f}GB available)")
+            print_check(
+                8,
+                "Disk Space",
+                False,
+                f"CRITICAL: Low disk space ({available_gb:.1f}GB available)",
+            )
             return False
 
         message = f"({available_gb:.1f}GB available)"
@@ -295,7 +317,9 @@ def check_disk_space():
         return True
 
     except Exception as e:
-        print_check(8, "Disk Space", False, f"CRITICAL: Disk check failed - {str(e)[:50]}")
+        print_check(
+            8, "Disk Space", False, f"CRITICAL: Disk check failed - {str(e)[:50]}"
+        )
         return False
 
 
@@ -354,5 +378,5 @@ def main():
         sys.exit(0)  # GO
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
