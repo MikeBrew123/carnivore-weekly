@@ -959,6 +959,11 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
+
+        /* Center header subtitle */
+        header p {
+            text-align: center;
+        }
     </style>
 
     <!-- Schema.org Article markup (for weekly digest) -->
@@ -1011,6 +1016,11 @@
         <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
     </nav>
+
+    <!-- Fixed Side Feedback Button -->
+    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn feedback-side feedback-btn-small">
+        💬 Feedback
+    </a>
 
     <div class="container">
         <!-- ButcherBox Affiliate Banner -->
@@ -1261,15 +1271,10 @@
 
         <div class="divider">• • •</div>
 
-        <!-- Inline Ad 1 -->
-        <div class="inline-ad">
-            <h4>Electrolytes Made for Carnivores</h4>
-            <p>
-                No sugar, no fillers, just pure sodium, potassium, and magnesium.
-                Perfect for maintaining electrolyte balance on a meat-based diet.
-            </p>
-            <a href="http://elementallabs.refr.cc" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('LMNT Electrolytes', this.href)">Try LMNT Risk-Free →</a>
-        </div>
+        <!-- Inline Ad 1: LMNT -->
+        <a href="http://elementallabs.refr.cc" target="_blank" rel="noopener" style="display: block; margin: 25px auto; text-align: center;" onclick="trackAffiliateClick('LMNT Electrolytes', this.href)">
+            <img src="lmnt-box.avif" alt="LMNT electrolyte salt variety box" style="width: 100%; max-width: 500px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+        </a>
 
         <!-- Key Insights -->
         <section class="section">

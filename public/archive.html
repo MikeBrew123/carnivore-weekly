@@ -189,6 +189,11 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Center header subtitle */
+        header p {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +201,7 @@
         <div class="container">
             <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>ARCHIVE</h1>
-            <p>Browse Past Weekly Roundups</p>
+            <p class="subtitle">Browse Past Weekly Roundups</p>
         </div>
     </header>
 
@@ -209,6 +214,11 @@
         <a href="about.html">About</a>
         <a href="archive.html" class="active">Archive</a>
     </nav>
+
+    <!-- Fixed Side Feedback Button -->
+    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn feedback-side feedback-btn-small">
+        💬 Feedback
+    </a>
 
     <div class="container">
         <div class="archive-stats">
