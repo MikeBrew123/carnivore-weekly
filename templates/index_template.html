@@ -231,13 +231,13 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.7);
         }
 
-        /* Hide videos 7 and beyond initially */
-        .video-grid .video-card:nth-child(n+7) {
+        /* Hide videos 7 and beyond initially (only for top videos grid) */
+        #top-videos-grid .video-card:nth-child(n+7) {
             display: none;
         }
 
-        .video-grid.load-more-expanded .video-card:nth-child(n+7) {
-            display: block;
+        #top-videos-grid.load-more-expanded .video-card:nth-child(n+7) {
+            display: block !important;
         }
 
         .load-more-btn {
