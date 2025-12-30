@@ -1061,9 +1061,106 @@
         <!-- Top Videos -->
         <section class="section">
             <h2>Prime Cuts - Top Videos</h2>
+
+            <!-- Tag Filter Controls -->
+            <div style="margin-bottom: 25px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-radius: 8px;">
+                <p style="margin-bottom: 12px; color: #8b4513; font-weight: 600;">Filter by topic:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <button onclick="filterVideosByTag(null)" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #ffd700;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn active"
+                    data-tag="all">
+                        ✓ Show All
+                    </button>
+                    {% set all_tags = [] %}
+                    {% for video in top_videos %}
+                        {% if video.tags %}
+                            {% for tag in video.tags %}
+                                {% if tag not in all_tags %}
+                                    {% set _ = all_tags.append(tag) %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for tag in all_tags|sort %}
+                    <button onclick="filterVideosByTag('{{ tag }}')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="{{ tag }}">
+                        #{{ tag }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Creator Filter Controls -->
+            <div style="margin-bottom: 25px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-radius: 8px;">
+                <p style="margin-bottom: 12px; color: #8b4513; font-weight: 600;">Filter by creator:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <button onclick="filterVideosByCreator(null)" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #ffd700;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn active"
+                    data-creator="all">
+                        ✓ All Creators
+                    </button>
+                    {% set all_creators = [] %}
+                    {% for video in top_videos + recommended_watching %}
+                        {% if video.creator and video.creator not in all_creators %}
+                            {% set _ = all_creators.append(video.creator) %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for creator in all_creators|sort %}
+                    <button onclick="filterVideosByCreator('{{ creator }}')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="{{ creator }}">
+                        👤 {{ creator }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
             <div class="video-grid">
                 {% for video in top_videos %}
-                <div class="video-card">
+                <div class="video-card" data-tags="{% if video.tags %}{{ video.tags|join(' ') }}{% endif %}" data-creator="{{ video.creator }}">
                     <!-- VideoObject Schema for search engines -->
                     {% if video.video_id %}
                     <script type="application/ld+json">
@@ -1274,7 +1371,7 @@
             <h2>Must-Watch Content</h2>
             <div class="video-grid">
                 {% for video in recommended_watching %}
-                <div class="video-card">
+                <div class="video-card" data-tags="{% if video.tags %}{{ video.tags|join(' ') }}{% endif %}" data-creator="{{ video.creator }}">
                     <!-- VideoObject Schema for search engines -->
                     {% if video.video_id %}
                     <script type="application/ld+json">
@@ -1403,6 +1500,137 @@
 
             // Toggle active class on answer
             answer.classList.toggle('active');
+        }
+    </script>
+
+    <!-- Tag Filtering Script -->
+    <script>
+        function filterVideosByTag(selectedTag) {
+            const videoCards = document.querySelectorAll('.video-card[data-tags]');
+            const filterButtons = document.querySelectorAll('.tag-filter-btn');
+
+            // Update active button state
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.color = '#d4a574';
+            });
+
+            // Find and activate the clicked button
+            const activeBtn = document.querySelector(`.tag-filter-btn[data-tag="${selectedTag || 'all'}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.color = '#ffd700';
+            }
+
+            // Filter videos
+            let visibleCount = 0;
+            videoCards.forEach(card => {
+                const tags = card.getAttribute('data-tags').toLowerCase().split(' ').filter(t => t);
+
+                if (!selectedTag) {
+                    // Show all
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    card.style.order = '0';
+                    visibleCount++;
+                } else if (tags.includes(selectedTag.toLowerCase())) {
+                    // Show matching videos
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    card.style.order = '0';
+                    visibleCount++;
+                } else {
+                    // Hide non-matching videos
+                    card.style.display = 'none';
+                    card.style.opacity = '0.3';
+                }
+            });
+
+            // Show/hide "no results" message
+            const grid = document.querySelector('.video-grid');
+            let noResults = grid.querySelector('[data-no-results]');
+
+            if (visibleCount === 0 && selectedTag) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.setAttribute('data-no-results', 'true');
+                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #8b4513; font-size: 1.1em;';
+                    noResults.innerHTML = '❌ No videos found with tag: <strong>#' + selectedTag + '</strong>';
+                    grid.appendChild(noResults);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
+
+            // Smooth scroll to videos
+            setTimeout(() => {
+                document.querySelector('.video-grid').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // Initialize: make "Show All" button work on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const showAllBtn = document.querySelector('.tag-filter-btn[data-tag="all"]');
+            if (showAllBtn) {
+                showAllBtn.classList.add('active');
+            }
+        });
+
+        // Creator Filter Function
+        function filterVideosByCreator(selectedCreator) {
+            const videoCards = document.querySelectorAll('.video-card[data-creator]');
+            const filterButtons = document.querySelectorAll('.creator-filter-btn');
+
+            // Update active button state
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.color = '#d4a574';
+            });
+
+            // Find and activate the clicked button
+            const activeBtn = document.querySelector(`.creator-filter-btn[data-creator="${selectedCreator || 'all'}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.color = '#ffd700';
+            }
+
+            // Filter videos
+            let visibleCount = 0;
+            videoCards.forEach(card => {
+                const creator = card.getAttribute('data-creator');
+
+                if (!selectedCreator) {
+                    // Show all
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    visibleCount++;
+                } else if (creator === selectedCreator) {
+                    // Show matching videos
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    visibleCount++;
+                } else {
+                    // Hide non-matching videos
+                    card.style.display = 'none';
+                    card.style.opacity = '0.3';
+                }
+            });
+
+            // Show/hide "no results" message
+            const grid = document.querySelector('.video-grid');
+            let noResults = grid.querySelector('[data-no-results-creator]');
+
+            if (visibleCount === 0 && selectedCreator) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.setAttribute('data-no-results-creator', 'true');
+                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #8b4513; font-size: 1.1em;';
+                    noResults.innerHTML = '❌ No videos found from: <strong>' + selectedCreator + '</strong>';
+                    grid.appendChild(noResults);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
         }
     </script>
 </body>
