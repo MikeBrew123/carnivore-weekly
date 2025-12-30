@@ -8,6 +8,38 @@ Automatically generates a unique weekly newsletter by:
 - Creating AI-powered insights
 - Formatting for email delivery
 
+IMPORTANT: All newsletter content must pass validation before publishing.
+See CONTENT_VALIDATION.md for complete requirements:
+- NO em-dashes (—). Maximum 1 per entire newsletter, preferably zero
+- NO AI tell words (delve, robust, leverage, navigate, crucial, utilize, etc.)
+- CONVERSATIONAL tone - sounds like a friend talking to you
+- Varied sentence lengths (mix short punchy with longer ones)
+- Natural contractions (don't, can't, won't, isn't)
+- Specific examples and data, NOT generic statements
+- Each section signed by responsible persona (Sarah, Marcus, or Chloe)
+
+CRITICAL WRITING GUIDELINES:
+- Avoid: "It's important to note that," "Furthermore," "Moreover," "Nevertheless"
+- Use: Direct language, short paragraphs, active voice
+- Reading level: Grade 8-10 (Flesch-Kincaid 60-70)
+- Sounds like: A real person, not marketing copy or AI
+
+Validation Workflow (MUST DO BEFORE PUBLISHING):
+1. Run /copy-editor skill - detects AI patterns, checks sentence variation, reads aloud
+2. Run /carnivore-brand skill - verifies direct/clear voice, evidence-based claims
+3. Fix ALL issues found
+4. Re-validate until both skills pass
+5. Have Sarah (or assigned persona) review one more time
+
+Newsletter Structure:
+- Hook: Compelling subject line and opening
+- Stats: BY THE NUMBERS section (data, metrics)
+- Movers: Key creators and performance
+- Trends: What's trending, why, community reaction
+- Sentiment: Overall community mood and discussion
+- Forecast: What to watch for next week
+- Closing: Call-to-action and signature
+
 Author: Created with Claude Code
 Date: 2025-12-26
 """
