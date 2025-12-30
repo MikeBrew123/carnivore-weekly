@@ -8,6 +8,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scrollbar-gutter: stable;
+}
+
 body {
     font-family: 'Merriweather', serif;
     line-height: 1.8;
