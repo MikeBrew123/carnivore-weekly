@@ -5,13 +5,16 @@ Master list of all affiliate and sponsor links used across the site. Update this
 ## Active Affiliate Links
 
 ### ButcherBox
-- **Link:** `https://butcherbox.pxf.io/Z6oVMR`
+- **Base Link:** `https://butcherbox.pxf.io/Z6oVMR`
 - **Current Offer:** FREE Steaks and Bacon For A Year ($1,135+ value)
   - 2 x premium steaks (Ribeyes, Filet Mignons, or NY Strips) + 10 oz Bacon FREE in every order for 1 year
   - "Last and Best Sale of the Year" - Ends 1/1/26
-- **Location:** Homepage banner (`public/index.html`, line ~952)
-- **Type:** Premium sponsor banner at top of page
+- **Locations & UTM Parameters:**
+  - **Homepage (seasonal):** `?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=seasonal_offer`
+  - **About page (evergreen):** `?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=evergreen_ad`
+- **Type:** Image ads with GA4 tracking
 - **Status:** ✅ Active (expires 1/1/26)
+- **GA4 Events:** Tracked as "click" event with category "Affiliate" and label "ButcherBox"
 
 ### LMNT (Elemental Labs)
 - **Link:** `http://elementallabs.refr.cc`
