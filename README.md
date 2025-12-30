@@ -42,12 +42,33 @@ Every Monday (or on-demand):
 
 This runs:
 1. `youtube_collector.py` - Fetch videos from past 7 days
-2. `content_analyzer.py` - Claude AI analyzes content
+2. `content_analyzer.py` - Claude AI analyzes content (with persona guidance)
 3. `add_sentiment.py` - Sentiment analysis from comments
-4. `answer_questions.py` - Generate Q&A with citations
+4. `answer_questions.py` - Generate Q&A with citations (persona-assigned)
 5. `generate_pages.py` - Build HTML pages
 6. `generate_archive.py` - Archive current week
 7. `generate_channels.py` - Update channel rankings
+8. `update_wiki_videos.py` - Update wiki with featured videos (30-day expiration)
+
+### Content Validation Process
+
+**Before publishing any content, run validation:**
+
+1. **Copy-Editor Review** - Ensures human-quality writing
+   - No em-dashes (max 1 per page)
+   - No AI tell words (delve, robust, leverage, navigate)
+   - Varied sentence lengths and natural contractions
+   - Conversational tone (sounds like a real person)
+   - Specific examples, not generic statements
+
+2. **Brand Compliance Review** - Ensures Carnivore Weekly standards
+   - Direct and clear voice
+   - Evidence-based claims with data
+   - No excessive praise or hype
+   - Matches persona authenticity (Sarah, Marcus, Chloe)
+   - Professional but accessible
+
+**See [CONTENT_VALIDATION.md](CONTENT_VALIDATION.md) for complete validation guidelines.**
 
 ### Tech Stack
 

@@ -17,6 +17,10 @@ Updates:
 - Limits to top 1-2 most relevant videos per section
 - Tracks video metadata in data/wiki_videos_meta.json
 - Idempotent: running multiple times won't create duplicates
+
+NOTE: This script injects ONLY links to videos that were already validated in content_analyzer.py
+Content validation requirement: NOT APPLICABLE (videos already pre-validated)
+See CONTENT_VALIDATION.md for video validation requirements in content_analyzer.py
 """
 
 import json

@@ -5,6 +5,19 @@ Content Analyzer for Carnivore Diet YouTube Data
 This script uses Claude AI (Anthropic API) to analyze the collected YouTube data
 and generate insights, summaries, and trending topics for the weekly update.
 
+IMPORTANT: All output content must pass validation before publishing.
+See CONTENT_VALIDATION.md for requirements:
+- No em-dashes (max 1 per page)
+- No AI tell words (delve, robust, leverage, navigate, etc.)
+- Conversational tone with specific examples
+- Varied sentence lengths and natural contractions
+- Each persona matches their authentic voice
+
+Personas Used:
+- Sarah (Health Coach): weekly_summary, community_sentiment
+- Chloe (Marketing & Community): trending_topics
+- Marcus (Sales & Partnerships): key_insights
+
 Author: Created with Claude Code
 Date: 2025-12-26
 """

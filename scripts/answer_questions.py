@@ -7,6 +7,26 @@ with links to scientific literature.
 
 Uses Claude Haiku for cost-effectiveness (~$0.02 per run)
 
+IMPORTANT: All Q&A answers must pass validation before publishing.
+See CONTENT_VALIDATION.md for complete requirements:
+- No em-dashes (max 1 per page)
+- No AI tell words (delve, robust, leverage, navigate, etc.)
+- NO clichés (wellness warrior, take a deep breath, it's important to note)
+- Conversational tone with specific examples
+- Varied sentence lengths and natural contractions
+- Each answer matches assigned persona's authentic voice
+
+PERSONA-SPECIFIC RULES:
+- Sarah (Health Coach): Say "research shows" or "people report," NEVER "from my clinical observations"
+- Marcus (Sales & Partnerships): Data-driven and strategic, avoid forced tech metaphors
+- Chloe (Marketing & Community): Focus on people and trends, not technology
+
+Validation Workflow (MUST DO BEFORE PUBLISHING):
+1. Run /copy-editor skill - flags AI patterns, sentence structure, readability
+2. Run /carnivore-brand skill - checks persona authenticity, voice compliance
+3. Fix all issues found
+4. Re-validate until both skills pass
+
 Author: Created with Claude Code
 Date: 2025-12-26
 """
