@@ -34,6 +34,23 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'G-NR4JVKW2JV');
+
+        // Track affiliate link clicks
+        function trackAffiliateClick(product, link) {
+            gtag('event', 'click', {
+                'event_category': 'Affiliate',
+                'event_label': product,
+                'value': link
+            });
+        }
+
+        // Track YouTube video clicks
+        function trackVideoClick(videoTitle) {
+            gtag('event', 'click', {
+                'event_category': 'YouTube Video',
+                'event_label': videoTitle
+            });
+        }
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
