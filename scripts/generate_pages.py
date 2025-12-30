@@ -159,6 +159,22 @@ def main():
         generator = PageGenerator()
         generator.run_generation()
 
+        # Auto-generate template documentation
+        print("\n📝 Updating template documentation...")
+        import subprocess
+        import os
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        result = subprocess.run(
+            ["python3", "document_template.py"],
+            cwd=script_dir,
+            capture_output=True,
+            text=True
+        )
+        if result.returncode == 0:
+            print("✅ Template documentation updated")
+        else:
+            print(f"⚠️  Could not update documentation: {result.stderr}")
+
     except KeyboardInterrupt:
         print("\n\n⚠ Generation interrupted by user")
 
