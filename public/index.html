@@ -231,37 +231,7 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.7);
         }
 
-        /* Hide videos 7 and beyond initially (only for top videos grid) */
-        #top-videos-grid .video-card:nth-child(n+7) {
-            display: none;
-        }
-
-        #top-videos-grid.load-more-expanded .video-card:nth-child(n+7) {
-            display: block !important;
-        }
-
-        .load-more-btn {
-            display: block;
-            margin: 40px auto;
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
-            color: #ffd700;
-            border: 3px solid #d4a574;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: 600;
-            font-family: 'Playfair Display', serif;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .load-more-btn:hover {
-            background: linear-gradient(135deg, #a0550a 0%, #7d3f13 100%);
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-        }
-
-        .video-card .video-header {
+.video-card .video-header {
             background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
             color: #f4e4d4;
             padding: 20px;
@@ -1863,11 +1833,6 @@ The weight loss stall conversation is heating up, and I'm noticing something int
                 </div>
                 
             </div>
-
-            <!-- Load More Videos Button -->
-            <button class="load-more-btn" id="load-more-btn">
-                Load More Videos
-            </button>
         </section>
 
         <div class="divider">• • •</div>
@@ -3000,7 +2965,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
         <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
             <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 14:38:58</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 14:41:56</p>
     </footer>
 
     <script>
@@ -3040,90 +3005,6 @@ Nutritional science suggests gradual transitions work best. Consider introducing
         // Run on page load and when URL changes
         document.addEventListener('DOMContentLoaded', setActiveNavigation);
         window.addEventListener('popstate', setActiveNavigation);
-
-        // Load More Videos functionality
-        function toggleLoadMore() {
-            const grid = document.getElementById('top-videos-grid');
-            const btn = document.getElementById('load-more-btn');
-
-            if (!grid || !btn) {
-                console.error('Load more elements not found');
-                return;
-            }
-
-            // Get all video cards in the grid
-            const videos = grid.querySelectorAll('.video-card');
-            console.log('Total videos found:', videos.length);
-
-            // Check current state by looking at video 7's visibility
-            const video7 = videos[6];
-            const isCurrentlyVisible = video7 && window.getComputedStyle(video7).display !== 'none';
-
-            console.log('Current visibility of video 7:', isCurrentlyVisible);
-
-            if (isCurrentlyVisible) {
-                // Collapse - hide videos 7+
-                for (let i = 6; i < videos.length; i++) {
-                    videos[i].setAttribute('style', 'display: none !important;');
-                }
-                btn.textContent = 'Load More Videos';
-                console.log('Collapsed - hid videos 7-' + videos.length);
-            } else {
-                // Expand - show videos 7+
-                for (let i = 6; i < videos.length; i++) {
-                    videos[i].setAttribute('style', 'display: block !important;');
-                }
-                btn.textContent = 'Show Less Videos';
-
-                // Smooth scroll to show the newly loaded videos
-                setTimeout(() => {
-                    if (video7) {
-                        video7.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }
-                }, 100);
-                console.log('Expanded - showed videos 7-' + videos.length);
-            }
-        }
-
-        // Initialize - hide videos 7+ on page load
-        function initializeLoadMore() {
-            const grid = document.getElementById('top-videos-grid');
-            const btn = document.getElementById('load-more-btn');
-
-            if (!grid) {
-                console.error('Grid not found');
-                return;
-            }
-
-            const videos = grid.querySelectorAll('.video-card');
-            console.log('Initializing load more with ' + videos.length + ' videos');
-
-            // Hide videos 7+
-            for (let i = 6; i < videos.length; i++) {
-                videos[i].setAttribute('style', 'display: none !important;');
-            }
-
-            // Add click event listener to button
-            if (btn) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log('Load more button clicked');
-                    toggleLoadMore();
-                });
-                console.log('Button event listener attached');
-            }
-        }
-
-        // Run initialization on page load
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOMContentLoaded fired');
-                initializeLoadMore();
-            });
-        } else {
-            console.log('DOM already loaded');
-            initializeLoadMore();
-        }
     </script>
 
     <!-- Tag Filtering Script -->
