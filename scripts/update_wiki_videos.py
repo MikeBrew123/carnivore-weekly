@@ -116,21 +116,10 @@ def creator_matches(video_creator, mentioned_creators):
 def update_wiki_file(wiki_content, videos, trending_topics):
     """
     Update wiki HTML with video links and timestamps.
+    Only updates timestamps for sections that receive new video content.
     """
     updated_content = wiki_content
-
-    # Get today's date for "Last Updated"
-    today = datetime.now().strftime("%B %d, %Y")
-    last_updated_pattern = r'<span class="last-updated">📅 Last Updated: .*?</span>'
-    last_updated_replacement = f'<span class="last-updated">📅 Last Updated: {today}</span>'
-
-    # Update all "Last Updated" timestamps
-    updated_content = re.sub(
-        last_updated_pattern,
-        last_updated_replacement,
-        updated_content,
-        flags=re.DOTALL
-    )
+    updated_sections = []  # Track which sections got updated
 
     # Process each section's video placeholder
     placeholder = "<!-- Add video links manually when influencers cover this topic -->"
@@ -150,6 +139,9 @@ def update_wiki_file(wiki_content, videos, trending_topics):
             video_links_html = create_video_links(videos, section_id, trending_topics)
 
             if video_links_html:
+                # This section is getting updated, so track it
+                updated_sections.append(section_id)
+
                 # Build replacement with video list
                 video_list_html = (
                     f'{placeholder}\n'
@@ -161,16 +153,28 @@ def update_wiki_file(wiki_content, videos, trending_topics):
                     f'                </div>'
                 )
 
+                # Build the replacement section with updated timestamp
+                today = datetime.now().strftime("%B %d, %Y")
+                old_timestamp_pattern = r'<span class="last-updated">📅 Last Updated: .*?</span>'
+                new_timestamp = f'<span class="last-updated">📅 Last Updated: {today}</span>'
+
+                # Update the timestamp in this section's content
+                new_before = re.sub(
+                    old_timestamp_pattern,
+                    new_timestamp,
+                    before_placeholder
+                )
+
                 # Build the replacement section
                 new_section = (
-                    f'<div class="topic" id="{section_id}">{before_placeholder}{video_list_html}{after_placeholder}</div>'
+                    f'<div class="topic" id="{section_id}">{new_before}{video_list_html}{after_placeholder}</div>'
                 )
 
                 # Replace in the document
                 old_section = match.group(0)
                 updated_content = updated_content.replace(old_section, new_section, 1)
 
-    return updated_content
+    return updated_content, updated_sections
 
 
 def main():
@@ -199,18 +203,16 @@ def main():
         wiki_content = f.read()
 
     # Update wiki with video links
-    updated_wiki = update_wiki_file(wiki_content, videos, trending_topics)
+    updated_wiki, updated_sections = update_wiki_file(wiki_content, videos, trending_topics)
 
     # Write updated wiki
     with open(WIKI_FILE, 'w') as f:
         f.write(updated_wiki)
 
-    # Count changes
-    old_dates = re.findall(r'Last Updated: (.*?)</span>', wiki_content)
-    new_dates = re.findall(r'Last Updated: (.*?)</span>', updated_wiki)
-
     print(f"✅ Wiki updated successfully")
-    print(f"   📅 Updated {len(set(old_dates))} section timestamps")
+    print(f"   📅 Updated {len(updated_sections)} section timestamps (only for sections with new videos)")
+    if updated_sections:
+        print(f"      Sections updated: {', '.join(updated_sections)}")
     print(f"   🎥 Injected video links from {len(videos)} top videos")
     print(f"   📊 Matched against {len(trending_topics)} trending topics")
 
