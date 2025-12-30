@@ -329,3 +329,26 @@ header .update-date {
     overflow: hidden;
     position: relative;
 }
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 40px;
+    color: #d4a574;
+    border-top: 3px solid #8b4513;
+    margin-top: 60px;
+}
+
+footer a {
+    color: #d4a574;
+    text-decoration: none;
+    border-bottom: 2px solid #8b4513;
+}
+
+footer p {
+    margin: 10px 0;
+}
+
+footer p:first-child {
+    margin-top: 0;
+}

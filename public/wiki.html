@@ -38,27 +38,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Page-specific styles - common styles in style.css */
-        /* Wiki container is narrower */
-        .container {
-            max-width: 1200px;
-        }
-
-        /* Wiki header has minimum height */
-        header {
-            min-height: 330px;
-        }
-
-        /* Wiki-specific header subtitle */
-        header p {
-            text-align: center;
-            font-size: 1.2em;
-            opacity: 0.9;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            position: relative;
-            z-index: 10;
-        }
-
+        /* Page-specific styles */
         /* Table of Contents */
         .toc {
             background: rgba(255, 255, 255, 0.95);
@@ -260,31 +240,12 @@
 
         /* Mobile responsive */
         @media (max-width: 768px) {
-            .logo {
-                max-width: 200px;
-                top: 15px;
-                right: 5px;
-            }
-
-            .container {
-                padding: 10px;
-            }
-
-            header h1 {
-                font-size: 2em;
-            }
-
             .topic {
                 padding: 20px;
             }
 
             .toc-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .nav-menu a {
-                margin: 0 8px;
-                font-size: 0.9em;
             }
         }
     </style>
