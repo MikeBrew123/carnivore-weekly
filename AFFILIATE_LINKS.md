@@ -13,6 +13,7 @@ Master list of all affiliate and sponsor links used across the site. Update this
   - **Homepage (seasonal):** `?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=seasonal_offer`
   - **About page (evergreen):** `?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=evergreen_ad`
   - **Calculator results (seasonal):** `?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=calculator_results`
+  - **Channels page (between top 6):** `?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=channels_top6`
 - **Type:** Image ads with GA4 tracking
 - **Status:** ✅ Active (expires 1/1/26)
 - **GA4 Events:** Tracked as "click" event with category "Affiliate" and label "ButcherBox"
