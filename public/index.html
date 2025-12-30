@@ -3000,7 +3000,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
         <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
             <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 14:28:01</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 14:29:55</p>
     </footer>
 
     <script>
@@ -3045,25 +3045,63 @@ Nutritional science suggests gradual transitions work best. Consider introducing
         function toggleLoadMore() {
             const grid = document.getElementById('top-videos-grid');
             const btn = document.getElementById('load-more-btn');
-            const isExpanded = grid.classList.contains('load-more-expanded');
+
+            if (!grid || !btn) {
+                console.error('Load more elements not found');
+                return;
+            }
+
+            // Get all video cards in the grid
+            const videos = grid.querySelectorAll('.video-card');
+            console.log('Total videos found:', videos.length);
+
+            // Check current state by looking at video 7
+            const video7 = videos[6]; // 0-indexed, so 6 = 7th video
+            const isExpanded = video7 && video7.style.display !== 'none';
+
+            console.log('Current expanded state:', isExpanded);
 
             if (isExpanded) {
                 // Collapse - hide videos 7+
-                grid.classList.remove('load-more-expanded');
+                for (let i = 6; i < videos.length; i++) {
+                    videos[i].style.display = 'none';
+                }
                 btn.textContent = 'Load More Videos';
+                console.log('Collapsed');
             } else {
                 // Expand - show videos 7+
-                grid.classList.add('load-more-expanded');
+                for (let i = 6; i < videos.length; i++) {
+                    videos[i].style.display = 'block';
+                }
                 btn.textContent = 'Show Less Videos';
 
                 // Smooth scroll to show the newly loaded videos
                 setTimeout(() => {
-                    const hiddenVideos = document.querySelectorAll('.video-grid.load-more-expanded .video-card:nth-child(n+7)');
-                    if (hiddenVideos.length > 0) {
-                        hiddenVideos[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    if (video7) {
+                        video7.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
                 }, 100);
+                console.log('Expanded');
             }
+        }
+
+        // Initialize - hide videos 7+ on page load
+        function initializeLoadMore() {
+            const grid = document.getElementById('top-videos-grid');
+            if (grid) {
+                const videos = grid.querySelectorAll('.video-card');
+                for (let i = 6; i < videos.length; i++) {
+                    videos[i].style.display = 'none';
+                }
+                console.log('Load more initialized - hid videos 7-' + videos.length);
+            }
+        }
+
+        // Run initialization on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeLoadMore);
+        } else {
+            initializeLoadMore();
         }
     </script>
 
