@@ -288,6 +288,25 @@ python3 -m http.server 8000
 # Visit http://localhost:8000/public/
 ```
 
+### Template Structure Documentation
+
+**Auto-generated reference:** See `TEMPLATE_STRUCTURE.md` for complete section map of `index_template.html`
+
+The template documentation is **automatically generated** every time you run `generate_pages.py`. It maps:
+- All 10 major sections with line numbers
+- CSS classes and which sections use them
+- JavaScript functions and their dependencies
+- Template variables
+- Critical shared dependencies (e.g., `.video-card` used by 5 sections)
+
+**When editing the template:**
+1. Check `TEMPLATE_STRUCTURE.md` to see section dependencies
+2. Use minimal inline comments (`<!-- SECTION: -->`) as navigation aids
+3. Run `python3 scripts/generate_pages.py` (auto-updates docs)
+4. Check the updated documentation to verify your changes
+
+This prevents accidental deletions like CSS or JS code used by other sections.
+
 ### Code Quality Check
 
 **Python:**
