@@ -1227,6 +1227,40 @@
                     <div class="qa-answer">
                         <p>{{ qa.answer }}</p>
 
+                        <!-- Wiki Cross-Links -->
+                        {% set wiki_topics = {
+                            'weight loss': 'weight-stall',
+                            'weight loss stall': 'weight-stall',
+                            'stall': 'weight-stall',
+                            'liver': 'organ-meats',
+                            'organ meat': 'organ-meats',
+                            'organs': 'organ-meats',
+                            'dairy': 'dairy',
+                            'digestion': 'digestion',
+                            'electrolyte': 'electrolytes',
+                            'adaptation': 'digestion',
+                            'oxalate': 'digestion',
+                            'coffee': 'coffee',
+                            'salt': 'salt',
+                            'cholesterol': 'cholesterol',
+                            'budget': 'budget'
+                        } %}
+                        {% set answer_lower = qa.answer|lower %}
+                        {% set found_topics = [] %}
+                        {% for keyword, section_id in wiki_topics.items() %}
+                            {% if keyword in answer_lower and section_id not in found_topics %}
+                                {% if found_topics.append(section_id) %}{% endif %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if found_topics %}
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html{% for topic in found_topics %}{% if loop.first %}#{{ topic }}{% endif %}{% endfor %}" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        {% endif %}
+
                         {% if qa.answered_by %}
                         <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
                             <strong>{{ qa.answered_by }}</strong>
