@@ -864,8 +864,8 @@
     </header>
 
     <!-- Navigation Menu -->
-    <nav class="nav-menu">
-        <a href="index.html" class="active">Home</a>
+    <nav class="nav-menu" id="top-nav">
+        <a href="index.html">Home</a>
         <a href="channels.html">Channels</a>
         <a href="wiki.html">Wiki</a>
         <a href="calculator.html">Calculator</a>
@@ -1339,11 +1339,13 @@
     </div>
 
     <!-- Bottom Navigation Menu -->
-    <nav class="nav-menu" style="margin-top: 60px;">
-        <a href="index.html" class="active">Home</a>
+    <nav class="nav-menu" style="margin-top: 60px;" id="bottom-nav">
+        <a href="index.html">Home</a>
+        <a href="channels.html">Channels</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="calculator.html">Calculator</a>
         <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
-        <a href="channels.html">Channels</a>
     </nav>
 
     <footer>
@@ -1373,6 +1375,32 @@
             // Toggle active class on answer
             answer.classList.toggle('active');
         }
+
+        // Set active navigation link based on current page
+        function setActiveNavigation() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+
+            // Handle cases where URL ends with just '/' (root) or is the domain itself
+            const normalizedPage = currentPage === '' ? 'index.html' : currentPage;
+
+            // Update both top and bottom navigation menus
+            document.querySelectorAll('#top-nav a, #bottom-nav a').forEach(link => {
+                const href = link.getAttribute('href');
+
+                // Check if this link matches the current page
+                if (href === normalizedPage ||
+                    (normalizedPage === 'index.html' && href === 'index.html') ||
+                    (href === 'index.html' && (currentPage === '' || currentPage === '/'))) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        // Run on page load and when URL changes
+        document.addEventListener('DOMContentLoaded', setActiveNavigation);
+        window.addEventListener('popstate', setActiveNavigation);
     </script>
 
     <!-- Tag Filtering Script -->
