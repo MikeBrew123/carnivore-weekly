@@ -46,13 +46,19 @@ echo "✓ Archive updated"
 echo ""
 
 # Step 7: Generate Channels Page
-echo "📺 Step 7/8: Updating featured channels..."
+echo "📺 Step 7/9: Updating featured channels..."
 python3 scripts/generate_channels.py
 echo "✓ Channels page updated"
 echo ""
 
-# Step 8: Generate Newsletter
-echo "📧 Step 8/8: Generating newsletter..."
+# Step 8: Update Wiki with Video Links
+echo "🎥 Step 8/9: Updating wiki with featured video links..."
+python3 scripts/update_wiki_videos.py
+echo "✓ Wiki updated with video links"
+echo ""
+
+# Step 9: Generate Newsletter
+echo "📧 Step 9/9: Generating newsletter..."
 python3 scripts/generate_newsletter.py
 echo "✓ Newsletter generated"
 echo ""
