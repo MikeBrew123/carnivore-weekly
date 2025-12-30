@@ -18,7 +18,6 @@
     <meta property="og:title" content="Carnivore Weekly - The Meat-Eater's Digest">
     <meta property="og:description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, and expert insights on meat-based nutrition.">
     <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
-    <meta property="og:site_name" content="Carnivore Weekly">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
@@ -31,7 +30,7 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
-    <title>Carnivore Weekly - Top Videos & News | Carnivore Diet</title>
+    <title>Carnivore Weekly - The Meat-Eater's Digest | Weekly Carnivore Content Hub</title>
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
@@ -463,6 +462,44 @@
             color: #d4a574;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        /* Video summary styling */
+        .video-summary {
+            font-size: 1em;
+            line-height: 1.6;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(244, 228, 212, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #d4a574;
+            color: #f4e4d4;
+        }
+
+        /* Video tags styling */
+        .video-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .video-tags .tag {
+            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+            color: #ffd700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid #d4a574;
+            transition: all 0.3s ease;
+        }
+
+        .video-tags .tag:hover {
+            background: linear-gradient(135deg, #6b3410 0%, #8b4513 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         .insights-list {
@@ -938,19 +975,16 @@
     <!-- Navigation Menu -->
     <nav class="nav-menu">
         <a href="index.html" class="active">Home</a>
-        <a href="channels.html">Channels</a>
-        <a href="wiki.html">Wiki</a>
-        <a href="calculator.html">Calculator</a>
         <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
+        <a href="channels.html">Channels</a>
     </nav>
 
-    <main>
     <div class="container">
         <!-- ButcherBox Affiliate Banner -->
         <div class="sponsor-banner-image">
             <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=seasonal_offer" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')">
-                <img src="butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; height: auto; display: block; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+                <img src="butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; height: auto; display: block; border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);">
             </a>
         </div>
 
@@ -961,7 +995,7 @@
                 <div class="summary-text">
                     This week's carnivore diet content reveals a maturing community grappling with optimization and sustainability. While weight loss and health transformations remain core themes, creators are increasingly addressing why people quit carnivore, the nuances of strict vs. flexible approaches, and practical implementation strategies. A notable debate emerged around dairy consumption, with Dr. Anthony Chaffee advocating for strict elimination while others suggest it helps adherence. The gut health conversation dominated multiple channels, with fermented foods, bone broth, and B1 deficiency receiving significant attention.
 
-OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brought carnivore-adjacent content to mainstream audiences, while established creators like Steak and Butter Gal and HomeSteadHow focused on practical year-end guides and budget-friendly approaches. The community shows strong engagement around electrolyte management, travel strategies, and recipe innovations that make the lifestyle sustainable. Dr. Layne Norton's important perspective on carnivore created friction, defending fiber consumption and challenging metabolic claims, highlighting ongoing tensions between carnivore advocates and mainstream nutrition science.
+OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brought carnivore-adjacent content to mainstream audiences, while established creators like Steak and Butter Gal and HomeSteadHow focused on practical year-end guides and budget-friendly approaches. The community shows strong engagement around electrolyte management, travel strategies, and recipe innovations that make the lifestyle sustainable. Dr. Layne Norton's critical perspective on carnivore created friction, defending fiber consumption and challenging metabolic claims, highlighting ongoing tensions between carnivore advocates and mainstream nutrition science.
                 </div>
                 <div class="summary-image">
                     <img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&q=80" alt="Premium ribeye steak">
@@ -1058,7 +1092,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                 
                 <div class="topic-card">
                     <h3>Electrolytes & Salt Loading</h3>
-                    <p>Salt management emerged as a key topic, with multiple creators addressing proper sodium intake on carnivore to prevent cramping and maintain performance.</p>
+                    <p>Salt management emerged as a critical topic, with multiple creators addressing proper sodium intake on carnivore to prevent cramping and maintain performance.</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
@@ -1133,7 +1167,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Massive viral reach (4.5M+ views, 95K likes) bringing carnivore-adjacent content about seed oils and traditional fats to mainstream audiences. Comments show international awareness of US food industry influence.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">This video examines how traditional Indian diets have shifted over time and what carnivore dieters can learn from these changes about nutrient density and food quality. The key insight is understanding how increased grain consumption affects insulin response and inflammation markers compared to animal-based proteins. Watch if you're struggling to explain the carnivore approach to family members from cultures with traditionally plant-heavy diets, or if you need help navigating social situations while staying committed to animal-based eating.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#inflammation</span>
+                            
+                            <span class="tag">#science</span>
+                            
+                            <span class="tag">#beginners</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1193,7 +1244,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Second highest views this week (819K), tapping into bulletproof coffee trend with high engagement (18K+ likes). Shows crossover appeal between keto and carnivore communities.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">This video explains how adding butter to coffee provides sustained energy and helps with fat adaptation on a carnivore diet by combining caffeine with healthy fats that slow absorption and prevent energy crashes. Watch if you're new to carnivore and struggling with energy levels between meals, or if you're trying to increase your fat intake without eating more meat. The key takeaway is that butter coffee can replace breakfast while keeping you in a fat-burning state, making it easier to extend your fasting window.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#coffee</span>
+                            
+                            <span class="tag">#fat</span>
+                            
+                            <span class="tag">#fasting</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1253,7 +1321,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Highest performing strict carnivore content (172K views, 4.7K likes). Recipe content continues to drive engagement, though sparked debate about ingredient purity in comments.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">Steak and Butter Gal shares a high-protein dip recipe that helps carnivore dieters add variety to their meals while staying within diet guidelines. The key insight is that this dip provides a practical way to increase protein intake without relying on plain meat, making the diet more sustainable long-term. Watch if you're getting bored with your current carnivore meal rotation or struggling to meet your daily protein goals.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#protein</span>
+                            
+                            <span class="tag">#meal prep</span>
+                            
+                            <span class="tag">#dairy</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1313,7 +1398,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Massive engagement (9.1K likes, 1,779 comments) around sauerkraut juice for gut health. Community eager for optimization strategies beyond basic carnivore, with mentions of wanting Dr. Chaffee's response.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">HomeSteadHow shares how adding a specific drink helped him break through the last 10% of his health goals after carnivore diet alone plateaued. The video reveals which drink improved his digestion, energy levels, and final stubborn symptoms that wouldn't budge with meat-only eating. Watch if you've seen good results on carnivore but still struggle with lingering issues like bloating, energy crashes, or weight loss stalls.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#gut health</span>
+                            
+                            <span class="tag">#testimonials</span>
+                            
+                            <span class="tag">#fasting</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1373,7 +1475,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Addresses elephant in the room - diet adherence. Strong engagement (3K+ likes, 358 comments) with debate about dairy elimination vs. sustainable carnivore practice.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">Dr. Anthony Chaffee explains the common reasons people abandon the carnivore diet, helping you avoid the mistakes that derail most beginners. The key insight is that many people quit during the adaptation phase because they don't understand the temporary symptoms or try to rush results instead of letting their body properly adjust. Watch if you're struggling with the carnivore diet, experiencing unexpected side effects, or want to prevent the pitfalls that cause most people to give up before seeing real benefits.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#beginners</span>
+                            
+                            <span class="tag">#electrolytes</span>
+                            
+                            <span class="tag">#gut health</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1408,7 +1527,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                 No sugar, no fillers, just pure sodium, potassium, and magnesium.
                 Perfect for maintaining electrolyte balance on a meat-based diet.
             </p>
-            <a href="http://elementallabs.refr.cc/default/u/michelbrew" class="ad-link" target="_blank" rel="noopener noreferrer" onclick="gtag('event', 'click', {'event_category': 'Affiliate', 'event_label': 'LMNT - Homepage'});">Try LMNT - Free Sample Pack →</a>
+            <a href="https://amzn.to/4ayLBG4" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('LMNT Electrolytes', this.href)">Try LMNT Risk-Free →</a>
         </div>
 
         <!-- Key Insights -->
@@ -1416,7 +1535,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
             <h2>Butcher's Wisdom</h2>
             <div class="section-intro">
                 <p style="font-size: 1.2em; color: #2c1810; line-height: 1.8; margin-bottom: 30px; font-style: italic; border-left: 4px solid #8b4513; padding-left: 20px; background: rgba(255,255,255,0.3); padding: 20px;">
-                    <strong>Sharp insights, expertly cut.</strong> The week's most important takeaways distilled from hours of carnivore content - what you need to know, trimmed of the fat.
+                    <strong>Sharp insights, expertly cut.</strong> The week's most important takeaways distilled from hours of carnivore content — what you need to know, trimmed of the fat.
                 </p>
             </div>
             <ul class="insights-list">
@@ -1461,7 +1580,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                             Lost 40 lbs in 4 months (205 to 165), inflammation disappeared completely
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                - User comment on HomeSteadHow video
+                                — User comment on HomeSteadHow video
                                 
                                 on <a href="https://youtube.com/watch?v=rGqawowe9wA" target="_blank" style="color: #f4e4d4; text-decoration: underline;">The (2ND) Greatest Carnivore Meal EVER... (SO CHEAP!)</a>
                                 
@@ -1474,7 +1593,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                             Rapid weight loss from 337 to 270 - everyone thinks they're on Ozempic, loves the results
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                - User comment on Steak and Butter Gal video
+                                — User comment on Steak and Butter Gal video
                                 
                                 on <a href="https://youtube.com/watch?v=mUDocNDA5tY" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Reverse Insulin Resistance FAST – Do These 5 Things NOW!</a>
                                 
@@ -1487,7 +1606,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                             Former vegetarian with IBS for 20 years, considering carnivore after zero help from doctors
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                - User comment on Steak and Butter Gal video
+                                — User comment on Steak and Butter Gal video
                                 
                                 on <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">If I Started Carnivore in 2026, I'd Do This</a>
                                 
@@ -1500,7 +1619,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                             Vegetarian with intestinal issues completely cleared on carnivore diet
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                - User comment on OptimalHealth video
+                                — User comment on OptimalHealth video
                                 
                                 on <a href="https://youtube.com/watch?v=Au7UkOO6t1E" target="_blank" style="color: #f4e4d4; text-decoration: underline;">The Best Ways to Fix Your Gut (That Actually Work)</a>
                                 
@@ -1513,7 +1632,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                             Blood sugar over 200 with vegetables, under control eating only meat
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                - User comment on Steak and Butter Gal video
+                                — User comment on Steak and Butter Gal video
                                 
                                 on <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">If I Started Carnivore in 2026, I'd Do This</a>
                                 
@@ -1526,7 +1645,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                             317 days carnivore, down 55 lbs with occasional keto variations
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                - User comment on Dr. Tony Hampton video
+                                — User comment on Dr. Tony Hampton video
                                 
                                 on <a href="https://youtube.com/watch?v=VcWFlQHPlY0" target="_blank" style="color: #f4e4d4; text-decoration: underline;">What I Wish I Knew About CARNIVORE Before I STARTED</a>
                                 
@@ -1907,16 +2026,13 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
             </p>
         </div>
     </div>
-    </main>
 
     <!-- Bottom Navigation Menu -->
     <nav class="nav-menu" style="margin-top: 60px;">
         <a href="index.html" class="active">Home</a>
-        <a href="channels.html">Channels</a>
-        <a href="wiki.html">Wiki</a>
-        <a href="calculator.html">Calculator</a>
         <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
+        <a href="channels.html">Channels</a>
     </nav>
 
     <footer>
@@ -1929,7 +2045,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                 💬 Share Your Feedback
             </a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-27 07:07:07</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-29 20:16:37</p>
     </footer>
 
     <script>
