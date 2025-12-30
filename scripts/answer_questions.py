@@ -146,6 +146,17 @@ class QAGenerator:
 
 IMPORTANT - Answer as: {persona_context}
 
+CRITICAL - Write like a human, NOT AI:
+- NO clichés like "wellness warrior," "take a deep breath," "it's important to note"
+- NO em-dashes (—), use periods or commas instead
+- CONVERSATIONAL tone - short and direct
+- Specific examples over generic advice
+- Vary sentence lengths
+
+IMPORTANT PERSONA RESTRICTIONS:
+- Sarah: You are a Health Coach, NOT a clinician. Say "research shows" or "people report," NOT "from my clinical observations"
+- Chloe: Avoid tech metaphors. Keep it about people and community, not "tech stacks"
+
 Question: {question}
 
 Provide response in JSON format:
