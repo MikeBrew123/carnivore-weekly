@@ -3000,7 +3000,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
         <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
             <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 14:35:14</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 14:38:58</p>
     </footer>
 
     <script>
@@ -3055,23 +3055,23 @@ Nutritional science suggests gradual transitions work best. Consider introducing
             const videos = grid.querySelectorAll('.video-card');
             console.log('Total videos found:', videos.length);
 
-            // Check current state by looking at video 7
-            const video7 = videos[6]; // 0-indexed, so 6 = 7th video
-            const isExpanded = video7 && video7.style.display !== 'none';
+            // Check current state by looking at video 7's visibility
+            const video7 = videos[6];
+            const isCurrentlyVisible = video7 && window.getComputedStyle(video7).display !== 'none';
 
-            console.log('Current expanded state:', isExpanded);
+            console.log('Current visibility of video 7:', isCurrentlyVisible);
 
-            if (isExpanded) {
+            if (isCurrentlyVisible) {
                 // Collapse - hide videos 7+
                 for (let i = 6; i < videos.length; i++) {
-                    videos[i].style.display = 'none';
+                    videos[i].setAttribute('style', 'display: none !important;');
                 }
                 btn.textContent = 'Load More Videos';
-                console.log('Collapsed');
+                console.log('Collapsed - hid videos 7-' + videos.length);
             } else {
                 // Expand - show videos 7+
                 for (let i = 6; i < videos.length; i++) {
-                    videos[i].style.display = 'block';
+                    videos[i].setAttribute('style', 'display: block !important;');
                 }
                 btn.textContent = 'Show Less Videos';
 
@@ -3081,7 +3081,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                         video7.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
                 }, 100);
-                console.log('Expanded');
+                console.log('Expanded - showed videos 7-' + videos.length);
             }
         }
 
@@ -3100,7 +3100,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
 
             // Hide videos 7+
             for (let i = 6; i < videos.length; i++) {
-                videos[i].style.display = 'none';
+                videos[i].setAttribute('style', 'display: none !important;');
             }
 
             // Add click event listener to button
