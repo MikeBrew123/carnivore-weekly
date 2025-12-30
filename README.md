@@ -241,6 +241,31 @@ With 1,000+ weekly visitors:
 
 ## Development
 
+### Initial Setup
+
+**One-time setup** (run once):
+```bash
+./setup_dev_environment.sh
+```
+
+This configures:
+- ✅ Code quality tools (flake8, black)
+- ✅ Git pre-commit hooks
+- ✅ Python code formatters
+- ✅ Black configuration (100 char lines)
+
+### Code Quality Standards
+
+**Automated checks:**
+- `flake8` - Code quality (see `.flake8` config)
+- `black` - Code formatting (see `pyproject.toml`)
+- Git pre-commit hooks - Runs before commits
+
+**Manual review before publishing:**
+- `/copy-editor` - AI detection, sentence structure, readability
+- `/carnivore-brand` - Voice, authenticity, evidence-based claims
+- See `VALIDATION_CHECKLIST.md` for complete checklist
+
 ### Testing Individual Scripts
 
 ```bash
@@ -258,13 +283,51 @@ python3 -m http.server 8000
 # Visit http://localhost:8000/public/
 ```
 
+### Code Quality Check
+
+```bash
+# Check code quality
+python3 -m flake8 scripts/
+
+# Auto-format code
+python3 -m black scripts/
+
+# Run full validation before publishing
+./run_weekly_update.sh
+# Then: /copy-editor
+# Then: /carnivore-brand
+```
+
 ### Making Changes
 
-1. Create feature branch
-2. Make changes to scripts or templates
-3. Test locally with `./run_weekly_update.sh`
-4. Commit and push
-5. Site deploys automatically
+1. Setup dev environment (one-time): `./setup_dev_environment.sh`
+2. Create feature branch: `git checkout -b feature-name`
+3. Make changes to scripts or templates
+4. Code is auto-checked by pre-commit hook before commits
+5. Fix any issues: `python3 -m black scripts/`
+6. Test locally: `./run_weekly_update.sh`
+7. Validate content: `/copy-editor` and `/carnivore-brand`
+8. Commit and push - site deploys automatically
+
+### Weekly Automation Workflow
+
+**Complete workflow with validation:**
+```bash
+./run_weekly_update.sh
+# Generates all content + checks Python code quality
+# (see output for validation steps)
+
+# Then REQUIRED before deploying:
+/copy-editor     # Check for AI patterns, readability
+/carnivore-brand # Check voice, personas, authenticity
+
+# If all validations PASS:
+git add .
+git commit -m "Weekly content update - $(date +%Y-%m-%d)"
+git push
+```
+
+**Site goes live:** ~1 minute after push to main
 
 ---
 

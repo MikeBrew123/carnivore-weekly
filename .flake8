@@ -1,0 +1,15 @@
+[flake8]
+max-line-length = 100
+ignore =
+    E501,     # Line too long (handled by black)
+    W503,     # Line break before binary operator
+    E203,     # Whitespace before ':' (conflicts with black)
+    F541,     # f-string without placeholders (style preference, doesn't affect functionality)
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    build,
+    dist,
+    .eggs
