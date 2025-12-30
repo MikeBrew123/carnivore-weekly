@@ -1865,7 +1865,7 @@ The weight loss stall conversation is heating up, and I'm noticing something int
             </div>
 
             <!-- Load More Videos Button -->
-            <button class="load-more-btn" onclick="toggleLoadMore()" id="load-more-btn">
+            <button class="load-more-btn" id="load-more-btn">
                 Load More Videos
             </button>
         </section>
@@ -3000,7 +3000,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
         <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
             <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 14:29:55</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 14:35:14</p>
     </footer>
 
     <script>
@@ -3088,19 +3088,40 @@ Nutritional science suggests gradual transitions work best. Consider introducing
         // Initialize - hide videos 7+ on page load
         function initializeLoadMore() {
             const grid = document.getElementById('top-videos-grid');
-            if (grid) {
-                const videos = grid.querySelectorAll('.video-card');
-                for (let i = 6; i < videos.length; i++) {
-                    videos[i].style.display = 'none';
-                }
-                console.log('Load more initialized - hid videos 7-' + videos.length);
+            const btn = document.getElementById('load-more-btn');
+
+            if (!grid) {
+                console.error('Grid not found');
+                return;
+            }
+
+            const videos = grid.querySelectorAll('.video-card');
+            console.log('Initializing load more with ' + videos.length + ' videos');
+
+            // Hide videos 7+
+            for (let i = 6; i < videos.length; i++) {
+                videos[i].style.display = 'none';
+            }
+
+            // Add click event listener to button
+            if (btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Load more button clicked');
+                    toggleLoadMore();
+                });
+                console.log('Button event listener attached');
             }
         }
 
         // Run initialization on page load
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeLoadMore);
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOMContentLoaded fired');
+                initializeLoadMore();
+            });
         } else {
+            console.log('DOM already loaded');
             initializeLoadMore();
         }
     </script>
