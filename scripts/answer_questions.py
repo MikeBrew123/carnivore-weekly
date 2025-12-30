@@ -179,7 +179,22 @@ Focus on peer-reviewed research. If no direct studies exist, cite related resear
             end = response_text.rfind("}") + 1
 
             if start != -1 and end > start:
-                answer_data = json.loads(response_text[start:end])
+                try:
+                    answer_data = json.loads(response_text[start:end])
+                except json.JSONDecodeError:
+                    # JSON parsing failed - try to extract answer field at least
+                    import re
+                    answer_match = re.search(r'"answer"\s*:\s*"([^"]+(?:\\.[^"]*)*)"', response_text)
+                    if answer_match:
+                        answer_text = answer_match.group(1).replace('\\n', '\n')
+                        answer_data = {
+                            "answer": answer_text,
+                            "citations": [],
+                            "caveats": ""
+                        }
+                    else:
+                        raise ValueError("Could not extract answer from malformed JSON")
+
                 # Add persona signature and category
                 answer_data["answered_by"] = persona_signature.strip()
                 answer_data["question_category"] = category
