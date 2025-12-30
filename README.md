@@ -256,10 +256,15 @@ This configures:
 
 ### Code Quality Standards
 
-**Automated checks:**
+**Automated checks - Python:**
 - `flake8` - Code quality (see `.flake8` config)
 - `black` - Code formatting (see `pyproject.toml`)
-- Git pre-commit hooks - Runs before commits
+
+**Automated checks - JavaScript:**
+- `eslint` - Code quality for Cloudflare Worker (see `api/.eslintrc.json`)
+- Runs in automation script as pre-flight check
+
+**Git pre-commit hooks** - Validates Python code before commits
 
 **Manual review before publishing:**
 - `/copy-editor` - AI detection, sentence structure, readability
@@ -285,15 +290,28 @@ python3 -m http.server 8000
 
 ### Code Quality Check
 
+**Python:**
 ```bash
 # Check code quality
 python3 -m flake8 scripts/
 
 # Auto-format code
 python3 -m black scripts/
+```
 
-# Run full validation before publishing
+**JavaScript (Cloudflare Worker):**
+```bash
+# Check code quality
+cd api && npm run lint
+
+# Auto-fix issues
+cd api && npm run lint:fix
+```
+
+**Full validation before publishing:**
+```bash
 ./run_weekly_update.sh
+# Automatically checks both Python and JavaScript
 # Then: /copy-editor
 # Then: /carnivore-brand
 ```

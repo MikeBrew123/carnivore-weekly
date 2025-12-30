@@ -15,6 +15,16 @@ pip install flake8 black mypy --quiet
 echo "✓ Python tools installed (flake8, black, mypy)"
 echo ""
 
+# Install JavaScript dependencies (if Node.js is available)
+if command -v node &> /dev/null; then
+    echo "📦 Installing JavaScript dependencies..."
+    cd api 2>/dev/null && npm install eslint --save-dev --quiet 2>/dev/null && cd ..
+    echo "✓ ESLint installed in api/"
+else
+    echo "⚠️  Node.js not found - skipping JavaScript setup"
+fi
+echo ""
+
 # Setup git pre-commit hook
 echo "🔗 Installing git pre-commit hook..."
 mkdir -p .git/hooks
