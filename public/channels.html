@@ -5,22 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Featured carnivore diet content creators ranked by appearance frequency. Discover the most active channels covering carnivore lifestyle, recipes, and health insights.">
     <link rel="canonical" href="https://carnivoreweekly.com/channels.html">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://carnivoreweekly.com/channels.html">
-    <meta property="og:title" content="Featured Channels - Carnivore Weekly">
-    <meta property="og:description" content="Featured carnivore diet content creators ranked by appearance frequency. Discover the most active channels covering carnivore lifestyle, recipes, and health insights.">
-    <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
-    <meta property="og:site_name" content="Carnivore Weekly">
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://carnivoreweekly.com/channels.html">
-    <meta name="twitter:title" content="Featured Channels - Carnivore Weekly">
-    <meta name="twitter:description" content="Featured carnivore diet content creators ranked by appearance frequency. Discover the most active channels covering carnivore lifestyle, recipes, and health insights.">
-    <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
-
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -37,9 +21,104 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <style>
-        /* Page-specific styles - common styles in style.css */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Merriweather', serif;
+            line-height: 1.8;
+            color: #2c1810;
+            background: #1a120b;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(58, 35, 23, 0.7), rgba(58, 35, 23, 0.7));
+            z-index: -1;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+            color: #f4e4d4;
+            padding: 60px 0 40px 0;
+            margin-bottom: 40px;
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.5),
+                inset 0 2px 0 rgba(255,255,255,0.1);
+            border-bottom: 4px solid #8b4513;
+            position: relative;
+            overflow: visible;
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            z-index: 0;
+        }
+
+        header > .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            position: absolute;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
+            height: auto;
+            opacity: 0.95;
+            filter:
+                sepia(0.8)
+                brightness(0.85)
+                contrast(1.5)
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
+            mix-blend-mode: multiply;
+            z-index: 0;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5em;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #f4e4d4;
+            position: relative;
+            z-index: 10;
+        }
+
+        header p {
+            text-align: center;
+            font-size: 1.2em;
+            opacity: 0.9;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 10;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -281,6 +360,26 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
 
+        .feedback-btn-small {
+            font-size: 0.9em;
+            padding: 10px 20px;
+        }
+
+        .feedback-side {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: right center;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .feedback-side {
+                display: none;
+            }
+        }
+
         footer {
             text-align: center;
             padding: 40px;
@@ -295,6 +394,41 @@
             border-bottom: 2px solid #8b4513;
             padding-bottom: 2px;
             font-weight: 700;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-left: none;
+            border-right: none;
+            padding: 20px 0;
+            margin-bottom: 50px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .nav-menu a {
+            color: #1a120b;
+            text-decoration: none;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            padding: 10px 20px;
+            margin: 0 5px;
+            display: inline-block;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu a:hover {
+            border-bottom-color: #8b4513;
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            border-bottom-color: #8b4513;
         }
 
         @media (max-width: 768px) {
@@ -335,11 +469,9 @@
     <!-- Navigation Menu -->
     <nav class="nav-menu">
         <a href="index.html">Home</a>
-        <a href="channels.html" class="active">Channels</a>
-        <a href="wiki.html">Wiki</a>
-        <a href="calculator.html">Calculator</a>
         <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
+        <a href="channels.html" class="active">Channels</a>
     </nav>
 
     <!-- Fixed Side Feedback Button -->
@@ -421,6 +553,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge top-3">
@@ -488,6 +623,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge top-3">
@@ -555,6 +693,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -622,6 +763,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -689,13 +833,16 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
                     6
                 </div>
 
-                <img src="https://yt3.ggpht.com/SUDjTm42UUiqeCXpKC_ZP3iwqICFfEBD9iX2CvNhpJeQy9MxUBuPH5VdDSXxbApBcnHLwTvvPw=s800-c-k-c0x00ffffff-no-rj"
+                <img src="https://yt3.ggpht.com/hvaBpqtn_zpDolO9quwSglhEzqG9tFbQNWqvWIiLab03NF9PA65K4sQDdYIIXSuH6kkZbiVB1g=s800-c-k-c0x00ffffff-no-rj"
                      alt="KolbaTrenuje"
                      class="channel-thumbnail"
                      onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
@@ -757,13 +904,15 @@
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
 
-            <!-- ButcherBox Affiliate Ad - Between Top 6 and Remaining Channels -->
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             <div style="grid-column: 1 / -1; margin: 40px 0; text-align: center;">
                 <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=channels_top6" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Affiliate', 'event_label': 'ButcherBox', 'value': 'https://butcherbox.pxf.io/Z6oVMR'});">
                     <img src="butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; max-width: 700px; height: auto; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
                 </a>
             </div>
-
+            
+            
             <div class="channel-card">
                 <div class="rank-badge">
                     7
@@ -830,6 +979,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -897,6 +1049,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -955,6 +1110,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -987,7 +1145,7 @@
                        class="video-link"
                        target="_blank"
                        rel="noopener"
-                       onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'myzerocarblife - That&apos;s it. &quot;Starting Over.&quot; (With 16-year Carnivore, Kelly Hogan)'});">
+                       onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'myzerocarblife - That's it. "Starting Over." (With 16-year Carnivore, Kelly Hogan)'});">
                         <div class="video-title">1. That's it. "Starting Over." (With 16-year Carnivore, Kelly Hogan)</div>
                         <div class="video-stats">33,718 views</div>
                     </a>
@@ -1005,6 +1163,9 @@
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
 
+            <!-- ButcherBox Ad after top 6 channels -->
+            
+            
         </div>
 
         <!-- LMNT Affiliate Promotion -->
@@ -1022,11 +1183,9 @@
     <!-- Bottom Navigation Menu -->
     <nav class="nav-menu" style="margin-top: 60px;">
         <a href="index.html">Home</a>
-        <a href="channels.html" class="active">Channels</a>
-        <a href="wiki.html">Wiki</a>
-        <a href="calculator.html">Calculator</a>
         <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
+        <a href="channels.html" class="active">Channels</a>
     </nav>
 
     <footer>
@@ -1040,7 +1199,7 @@
         <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
             <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-27 06:58:21</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 08:04:18</p>
     </footer>
 </body>
 </html>

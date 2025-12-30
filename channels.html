@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Featured carnivore diet content creators ranked by appearance frequency. Discover the most active channels covering carnivore lifestyle, recipes, and health insights.">
     <link rel="canonical" href="https://carnivoreweekly.com/channels.html">
+    <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
     <title>Featured Channels - Carnivore Weekly</title>
 
     <!-- Google Analytics -->
@@ -54,7 +57,7 @@
                 inset 0 2px 0 rgba(255,255,255,0.1);
             border-bottom: 4px solid #8b4513;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         header::after {
@@ -78,20 +81,20 @@
 
         .logo {
             position: absolute;
-            top: 20px;
-            right: 10px;
-            max-width: 450px;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
             height: auto;
-            opacity: 0.4;
+            opacity: 0.95;
             filter:
                 sepia(0.8)
-                brightness(0.6)
+                brightness(0.85)
                 contrast(1.5)
-                drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))
-                drop-shadow(-1px -1px 2px rgba(255, 255, 255, 0.1));
-            transform: rotate(12deg);
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
             mix-blend-mode: multiply;
-            z-index: 2;
+            z-index: 0;
         }
 
         header h1 {
@@ -103,6 +106,8 @@
             font-weight: 900;
             letter-spacing: 3px;
             color: #f4e4d4;
+            position: relative;
+            z-index: 10;
         }
 
         header p {
@@ -110,6 +115,8 @@
             font-size: 1.2em;
             opacity: 0.9;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 10;
         }
 
         .container {
@@ -332,6 +339,47 @@
             transform: translateY(-2px);
         }
 
+        /* Feedback Button */
+        .feedback-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid #d4a574;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+
+        .feedback-btn:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .feedback-btn-small {
+            font-size: 0.9em;
+            padding: 10px 20px;
+        }
+
+        .feedback-side {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: right center;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .feedback-side {
+                display: none;
+            }
+        }
+
         footer {
             text-align: center;
             padding: 40px;
@@ -355,8 +403,9 @@
             border-left: none;
             border-right: none;
             padding: 20px 0;
+            margin-bottom: 50px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .nav-menu a {
@@ -401,6 +450,11 @@
                 font-size: 1.3em;
             }
         }
+
+        /* Center header subtitle */
+        header p {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -408,7 +462,7 @@
         <div class="container">
             <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>FEATURED CHANNELS</h1>
-            <p>The Most Active Carnivore Content Creators</p>
+            <p class="subtitle">The Most Active Carnivore Content Creators</p>
         </div>
     </header>
 
@@ -419,6 +473,11 @@
         <a href="archive.html">Archive</a>
         <a href="channels.html" class="active">Channels</a>
     </nav>
+
+    <!-- Fixed Side Feedback Button -->
+    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn feedback-side feedback-btn-small">
+        💬 Feedback
+    </a>
 
     <div class="container">
         <div class="stats-bar">
@@ -494,6 +553,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge top-3">
@@ -561,6 +623,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge top-3">
@@ -628,6 +693,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -695,6 +763,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -762,13 +833,16 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
                     6
                 </div>
 
-                <img src="https://yt3.ggpht.com/SUDjTm42UUiqeCXpKC_ZP3iwqICFfEBD9iX2CvNhpJeQy9MxUBuPH5VdDSXxbApBcnHLwTvvPw=s800-c-k-c0x00ffffff-no-rj"
+                <img src="https://yt3.ggpht.com/hvaBpqtn_zpDolO9quwSglhEzqG9tFbQNWqvWIiLab03NF9PA65K4sQDdYIIXSuH6kkZbiVB1g=s800-c-k-c0x00ffffff-no-rj"
                      alt="KolbaTrenuje"
                      class="channel-thumbnail"
                      onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
@@ -829,6 +903,15 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
+            <div style="grid-column: 1 / -1; margin: 40px 0; text-align: center;">
+                <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=channels_top6" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Affiliate', 'event_label': 'ButcherBox', 'value': 'https://butcherbox.pxf.io/Z6oVMR'});">
+                    <img src="butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; max-width: 700px; height: auto; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+                </a>
+            </div>
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -896,6 +979,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -963,6 +1049,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -1021,6 +1110,9 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            
             
             <div class="channel-card">
                 <div class="rank-badge">
@@ -1070,7 +1162,21 @@
 
                 <div class="last-seen">Last seen: 2025-12-26</div>
             </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
             
+            
+        </div>
+
+        <!-- LMNT Affiliate Promotion -->
+        <div style="margin-top: 80px; padding: 40px; background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%); border-radius: 15px; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+            <h2 style="color: #1a120b; font-family: 'Playfair Display', serif; margin-bottom: 15px;">⚡ Stay Energized While You Binge</h2>
+            <p style="color: #2c1810; font-size: 1.1em; margin-bottom: 20px; line-height: 1.6;">
+                These carnivore creators don't take breaks. Neither should you. LMNT electrolytes keep you hydrated and energized as you catch up on the latest carnivore content. The perfect companion to your binge-watching marathon.
+            </p>
+            <a href="http://elementallabs.refr.cc" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Affiliate', 'event_label': 'LMNT - Channels Page'});" style="display: inline-block; background: #1a120b; color: #ffd700; padding: 15px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1em; border: 2px solid #8b4513;">
+                Try LMNT - Stay Hydrated →
+            </a>
         </div>
     </div>
 
@@ -1085,7 +1191,15 @@
     <footer>
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 12:25:06</p>
+        <p style="margin-top: 30px;">
+            <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn">
+                💬 Share Your Feedback
+            </a>
+        </p>
+        <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
+            <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
+        </p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 08:04:18</p>
     </footer>
 </body>
 </html>

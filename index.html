@@ -26,7 +26,10 @@
     <meta name="twitter:description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, and expert insights on meat-based nutrition.">
     <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
 
+    <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
     <title>Carnivore Weekly - The Meat-Eater's Digest | Weekly Carnivore Content Hub</title>
 
     <!-- Google Analytics -->
@@ -104,7 +107,7 @@
                 inset 0 2px 0 rgba(255,255,255,0.1);
             border-bottom: 4px solid #8b4513;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         header::after {
@@ -128,27 +131,28 @@
 
         .logo {
             position: absolute;
-            top: 20px;
-            right: 10px;
-            max-width: 450px;
+            top: -100px;
+            right: -140px;
+            max-width: 750px;
             height: auto;
-            opacity: 0.4;
+            opacity: 0.95;
             filter:
                 sepia(0.8)
-                brightness(0.6)
+                brightness(0.85)
                 contrast(1.5)
-                drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8))
-                drop-shadow(-1px -1px 2px rgba(255, 255, 255, 0.1));
-            transform: rotate(12deg);
+                drop-shadow(3px 3px 8px rgba(0, 0, 0, 0.9))
+                drop-shadow(-2px -2px 4px rgba(255, 255, 255, 0.1));
+            transform: rotate(28deg);
             mix-blend-mode: multiply;
-            z-index: 2;
+            z-index: 0;
         }
 
         @media (max-width: 768px) {
             .logo {
-                max-width: 200px;
-                top: 15px;
-                right: 5px;
+                max-width: 250px;
+                top: -30px;
+                right: -40px;
+                transform: rotate(25deg);
             }
         }
 
@@ -161,6 +165,8 @@
             font-weight: 900;
             letter-spacing: 3px;
             color: #f4e4d4;
+            position: relative;
+            z-index: 10;
         }
 
         header .subtitle {
@@ -170,6 +176,8 @@
             font-style: italic;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             margin-bottom: 10px;
+            position: relative;
+            z-index: 10;
         }
 
         header .tagline {
@@ -184,6 +192,8 @@
             padding: 10px;
             margin: 20px auto 0;
             max-width: 600px;
+            position: relative;
+            z-index: 10;
         }
 
         header .update-date {
@@ -192,6 +202,8 @@
             font-size: 1em;
             opacity: 0.7;
             letter-spacing: 1px;
+            position: relative;
+            z-index: 10;
         }
 
         /* Leather-textured sections */
@@ -452,28 +464,82 @@
             letter-spacing: 1px;
         }
 
+        /* Video summary styling */
+        .video-summary {
+            font-size: 1em;
+            line-height: 1.6;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(244, 228, 212, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #d4a574;
+            color: #f4e4d4;
+        }
+
+        /* Video tags styling */
+        .video-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .video-tags .tag {
+            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+            color: #ffd700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid #d4a574;
+            transition: all 0.3s ease;
+        }
+
+        .video-tags .tag:hover {
+            background: linear-gradient(135deg, #6b3410 0%, #8b4513 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
         .insights-list {
             list-style: none;
             margin-top: 25px;
         }
 
         .insights-list li {
-            padding: 20px;
+            padding: 25px 25px 25px 60px;
             margin-bottom: 20px;
-            background: rgba(139, 69, 19, 0.3);
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.4) 0%, rgba(139, 69, 19, 0.2) 100%);
             border-left: 6px solid #8b4513;
             border-radius: 8px;
             font-size: 1.1em;
             position: relative;
             z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .insights-list li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
         .insights-list li::before {
-            content: "• ";
-            margin-right: 12px;
-            font-size: 1.3em;
-            font-weight: 900;
+            content: "🔪";
+            position: absolute;
+            left: 20px;
+            font-size: 1.8em;
+            top: 50%;
+            transform: translateY(-50%);
         }
+
+        /* Rotate through different kitchen icons */
+        .insights-list li:nth-child(5n+1)::before { content: "🔪"; }
+        .insights-list li:nth-child(5n+2)::before { content: "🥩"; }
+        .insights-list li:nth-child(5n+3)::before { content: "🔥"; }
+        .insights-list li:nth-child(5n+4)::before { content: "⚖️"; }
+        .insights-list li:nth-child(5n+5)::before { content: "🧂"; }
 
         .sentiment {
             background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
@@ -512,6 +578,27 @@
             font-weight: 700;
         }
 
+        /* Feedback Button */
+        .feedback-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid #d4a574;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+
+        .feedback-btn:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
         footer {
             text-align: center;
             padding: 40px;
@@ -535,8 +622,9 @@
             border-left: none;
             border-right: none;
             padding: 20px 0;
+            margin-bottom: 50px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .nav-menu a {
@@ -576,14 +664,17 @@
         }
 
         .watch-btn {
-            display: inline-block;
+            display: block;
+            width: 100%;
             background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
             color: #1a120b;
-            padding: 12px 30px;
+            padding: 16px 30px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 700;
+            font-size: 16px;
             margin-top: 15px;
+            text-align: center;
             transition: all 0.3s;
             border: 2px solid #8b4513;
             text-transform: uppercase;
@@ -868,7 +959,42 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
+
+        /* Center header subtitle */
+        header p {
+            text-align: center;
+        }
     </style>
+
+    <!-- Schema.org Article markup (for weekly digest) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Carnivore Weekly Digest - 2025-12-26",
+      "description": "This week's carnivore diet trends, top videos, and community insights. Featured: trending topics, top videos, and key community sentiment.",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Brew"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Carnivore Weekly",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://carnivoreweekly.com/images/logo.png"
+        }
+      },
+      "datePublished": "2025-12-26",
+      "dateModified": "2025-12-26",
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://carnivoreweekly.com/images/logo.png",
+        "width": 1200,
+        "height": 630
+      }
+    }
+    </script>
 </head>
 <body>
     <header>
@@ -884,22 +1010,24 @@
     <!-- Navigation Menu -->
     <nav class="nav-menu">
         <a href="index.html" class="active">Home</a>
+        <a href="channels.html">Channels</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="calculator.html">Calculator</a>
         <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
-        <a href="channels.html">Channels</a>
     </nav>
 
+    <!-- Fixed Side Feedback Button -->
+    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn feedback-side feedback-btn-small">
+        💬 Feedback
+    </a>
+
     <div class="container">
-        <!-- Premium Sponsor Banner -->
-        <div class="sponsor-banner">
-            <h3>Premium Grass-Fed Beef Delivered to Your Door</h3>
-            <p>
-                Get 100% grass-fed, grass-finished beef from regenerative farms.
-                No hormones, no antibiotics, just clean protein the way nature intended.
-            </p>
-            <div class="sponsor-cta coming-soon">
-                🔜 Coming Soon - Premium Meat Delivery Partnership
-            </div>
+        <!-- ButcherBox Affiliate Banner -->
+        <div class="sponsor-banner-image">
+            <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=seasonal_offer" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')">
+                <img src="butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; height: auto; display: block; border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);">
+            </a>
         </div>
 
         <!-- Weekly Summary -->
@@ -907,9 +1035,13 @@
             <h2>This Week's Roundup</h2>
             <div class="summary-with-image">
                 <div class="summary-text">
-                    This week's carnivore diet content reveals a maturing community grappling with optimization and sustainability. While weight loss and health transformations remain core themes, creators are increasingly addressing why people quit carnivore, the nuances of strict vs. flexible approaches, and practical implementation strategies. A notable debate emerged around dairy consumption, with Dr. Anthony Chaffee advocating for strict elimination while others suggest it helps adherence. The gut health conversation dominated multiple channels, with fermented foods, bone broth, and B1 deficiency receiving significant attention.
+                    The carnivore community's growing up. Weight loss and health transformations still matter—that hasn't changed. But this week, creators dug into the harder questions: why do people actually quit? Should you be strict or flexible? What works long-term?
 
-OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brought carnivore-adjacent content to mainstream audiences, while established creators like Steak and Butter Gal and HomeSteadHow focused on practical year-end guides and budget-friendly approaches. The community shows strong engagement around electrolyte management, travel strategies, and recipe innovations that make the lifestyle sustainable. Dr. Layne Norton's critical perspective on carnivore created friction, defending fiber consumption and challenging metabolic claims, highlighting ongoing tensions between carnivore advocates and mainstream nutrition science.
+Dairy sparked the biggest debate. Dr. Anthony Chaffee says eliminate it completely. Others argue it helps people stick to the diet. Meanwhile, gut health's everywhere right now—sauerkraut juice, bone broth, B1 deficiency—because the community's ready to optimize beyond just eating meat.
+
+OptimalHealth's video on India's diet hit 4.5M views, bringing carnivore ideas to mainstream audiences. Meanwhile, creators like Steak and Butter Gal and HomeSteadHow shared practical guides showing how to actually afford this lifestyle. People are asking real questions: How do I manage electrolytes? What about traveling? How do I keep this interesting?
+
+Dr. Layne Norton threw some cold water on carnivore claims, defending fiber and challenging the metabolism story. That created friction—but it's the kind of tension that means the conversation's maturing.
                 </div>
                 <div class="summary-image">
                     <img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&q=80" alt="Premium ribeye steak">
@@ -926,7 +1058,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                 
                 <div class="topic-card">
                     <h3>Gut Health & Fermented Foods</h3>
-                    <p>Multiple creators emphasized gut healing through fermented foods (especially sauerkraut juice), bone broth, and addressing the liver as the root of disease. HomeSteadHow's video on sauerkraut juice generated 1,779 comments with significant engagement around 'perfect poop' and microbiome optimization.</p>
+                    <p>Creators are excited about fermented foods—especially sauerkraut juice—as a way to complete the healing process on carnivore. HomeSteadHow's video sparked 1,779 comments about digestion and gut optimization. People want to know: does fermented food belong on carnivore? Can it fix the issues that meat alone doesn't?</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
@@ -947,7 +1079,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                 
                 <div class="topic-card">
                     <h3>Vitamin B1 (Thiamine) Deficiency</h3>
-                    <p>Dr. Ken Berry led a series on B1 deficiency, highlighting how coffee, tea, and alcohol block absorption. This sparked debate in the community about beverage choices and supplement needs on carnivore.</p>
+                    <p>Dr. Ken Berry raised an uncomfortable question: is your coffee habit blocking B1 absorption? Turns out caffeine, tea, and alcohol can all interfere with this critical vitamin. The community's debating whether they need B1 supplements on carnivore or if they should reconsider their daily coffee ritual.</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
@@ -964,7 +1096,7 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                 
                 <div class="topic-card">
                     <h3>Why People Quit Carnivore</h3>
-                    <p>Dr. Anthony Chaffee's video directly addressed quitting, pointing to dairy as a major culprit causing inflammation. This sparked significant discussion about purity vs. sustainability in the diet.</p>
+                    <p>Dr. Anthony Chaffee asked the question nobody wants to ask: why do people quit? His answer: dairy. He argues that dairy is silently causing inflammation and derailing people's results. The community's split—is he right, or does dairy actually help people stick with carnivore long-term?</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
@@ -1042,9 +1174,473 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
         <!-- Top Videos -->
         <section class="section">
             <h2>Prime Cuts - Top Videos</h2>
+
+            <!-- Tag Filter Controls -->
+            <div style="margin-bottom: 25px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-radius: 8px;">
+                <p style="margin-bottom: 12px; color: #8b4513; font-weight: 600;">Filter by topic:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <button onclick="filterVideosByTag(null)" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #ffd700;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn active"
+                    data-tag="all">
+                        ✓ Show All
+                    </button>
+                    
+                    
+                        
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                            
+                        
+                    
+
+                    
+                    <button onclick="filterVideosByTag('beginners')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="beginners">
+                        #beginners
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('coffee')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="coffee">
+                        #coffee
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('dairy')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="dairy">
+                        #dairy
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('electrolytes')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="electrolytes">
+                        #electrolytes
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('fasting')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="fasting">
+                        #fasting
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('fat')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="fat">
+                        #fat
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('gut health')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="gut health">
+                        #gut health
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('inflammation')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="inflammation">
+                        #inflammation
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('meal prep')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="meal prep">
+                        #meal prep
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('protein')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="protein">
+                        #protein
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('science')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="science">
+                        #science
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('testimonials')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="testimonials">
+                        #testimonials
+                    </button>
+                    
+                </div>
+            </div>
+
+            <!-- Creator Filter Controls -->
+            <div style="margin-bottom: 25px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-radius: 8px;">
+                <p style="margin-bottom: 12px; color: #8b4513; font-weight: 600;">Filter by creator:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <button onclick="filterVideosByCreator(null)" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #ffd700;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn active"
+                    data-creator="all">
+                        ✓ All Creators
+                    </button>
+                    
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+
+                    
+                    <button onclick="filterVideosByCreator('Anthony Chaffee MD')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="Anthony Chaffee MD">
+                        👤 Anthony Chaffee MD
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('Dr. Tony Hampton')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="Dr. Tony Hampton">
+                        👤 Dr. Tony Hampton
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('HomeSteadHow')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="HomeSteadHow">
+                        👤 HomeSteadHow
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('KenDBerryMD')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="KenDBerryMD">
+                        👤 KenDBerryMD
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('OptimalHealth')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="OptimalHealth">
+                        👤 OptimalHealth
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('Steak and Butter Gal')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="Steak and Butter Gal">
+                        👤 Steak and Butter Gal
+                    </button>
+                    
+                </div>
+            </div>
+
             <div class="video-grid">
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="inflammation science beginners" data-creator="OptimalHealth">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "The Diet Change That Transformed India",
+                      "description": "This video examines how traditional Indian diets have shifted over time and what carnivore dieters can learn from these changes about nutrient density and food quality. The key insight is understanding how increased grain consumption affects insulin response and inflammation markers compared to animal-based proteins. Watch if you're struggling to explain the carnivore approach to family members from cultures with traditionally plant-heavy diets, or if you need help navigating social situations while staying committed to animal-based eating.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/p7f8U3owfDY/mqdefault.jpg",
+                      "uploadDate": "2025-12-23T22:25:13Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=p7f8U3owfDY"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=p7f8U3owfDY" target="_blank">
                         <img src="https://img.youtube.com/vi/p7f8U3owfDY/mqdefault.jpg"
@@ -1081,7 +1677,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Massive viral reach (4.5M+ views, 95K likes) bringing carnivore-adjacent content about seed oils and traditional fats to mainstream audiences. Comments show international awareness of US food industry influence.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">This video examines how traditional Indian diets have shifted over time and what carnivore dieters can learn from these changes about nutrient density and food quality. The key insight is understanding how increased grain consumption affects insulin response and inflammation markers compared to animal-based proteins. Watch if you're struggling to explain the carnivore approach to family members from cultures with traditionally plant-heavy diets, or if you need help navigating social situations while staying committed to animal-based eating.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#inflammation</span>
+                            
+                            <span class="tag">#science</span>
+                            
+                            <span class="tag">#beginners</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1104,7 +1717,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                     </div>
                 </div>
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="coffee fat fasting" data-creator="OptimalHealth">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "This Is Why People Put Butter in Coffee ☕🧈",
+                      "description": "This video explains how adding butter to coffee provides sustained energy and helps with fat adaptation on a carnivore diet by combining caffeine with healthy fats that slow absorption and prevent energy crashes. Watch if you're new to carnivore and struggling with energy levels between meals, or if you're trying to increase your fat intake without eating more meat. The key takeaway is that butter coffee can replace breakfast while keeping you in a fat-burning state, making it easier to extend your fasting window.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/Rc4tmtpc378/mqdefault.jpg",
+                      "uploadDate": "2025-12-22T16:41:51Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=Rc4tmtpc378"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=Rc4tmtpc378" target="_blank">
                         <img src="https://img.youtube.com/vi/Rc4tmtpc378/mqdefault.jpg"
@@ -1141,7 +1769,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Second highest views this week (819K), tapping into bulletproof coffee trend with high engagement (18K+ likes). Shows crossover appeal between keto and carnivore communities.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">This video explains how adding butter to coffee provides sustained energy and helps with fat adaptation on a carnivore diet by combining caffeine with healthy fats that slow absorption and prevent energy crashes. Watch if you're new to carnivore and struggling with energy levels between meals, or if you're trying to increase your fat intake without eating more meat. The key takeaway is that butter coffee can replace breakfast while keeping you in a fat-burning state, making it easier to extend your fasting window.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#coffee</span>
+                            
+                            <span class="tag">#fat</span>
+                            
+                            <span class="tag">#fasting</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1164,7 +1809,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                     </div>
                 </div>
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="protein meal prep dairy" data-creator="Steak and Butter Gal">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "High Protein Carnivore Dip Recipe!",
+                      "description": "Steak and Butter Gal shares a high-protein dip recipe that helps carnivore dieters add variety to their meals while staying within diet guidelines. The key insight is that this dip provides a practical way to increase protein intake without relying on plain meat, making the diet more sustainable long-term. Watch if you're getting bored with your current carnivore meal rotation or struggling to meet your daily protein goals.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/_dGUfg2nfRs/mqdefault.jpg",
+                      "uploadDate": "2025-12-20T16:23:58Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=_dGUfg2nfRs"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=_dGUfg2nfRs" target="_blank">
                         <img src="https://img.youtube.com/vi/_dGUfg2nfRs/mqdefault.jpg"
@@ -1201,7 +1861,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Highest performing strict carnivore content (172K views, 4.7K likes). Recipe content continues to drive engagement, though sparked debate about ingredient purity in comments.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">Steak and Butter Gal shares a high-protein dip recipe that helps carnivore dieters add variety to their meals while staying within diet guidelines. The key insight is that this dip provides a practical way to increase protein intake without relying on plain meat, making the diet more sustainable long-term. Watch if you're getting bored with your current carnivore meal rotation or struggling to meet your daily protein goals.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#protein</span>
+                            
+                            <span class="tag">#meal prep</span>
+                            
+                            <span class="tag">#dairy</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1224,7 +1901,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                     </div>
                 </div>
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="gut health testimonials fasting" data-creator="HomeSteadHow">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "Carnivore Got Me 90% There. This One Drink Changed Everything",
+                      "description": "HomeSteadHow shares how adding a specific drink helped him break through the last 10% of his health goals after carnivore diet alone plateaued. The video reveals which drink improved his digestion, energy levels, and final stubborn symptoms that wouldn't budge with meat-only eating. Watch if you've seen good results on carnivore but still struggle with lingering issues like bloating, energy crashes, or weight loss stalls.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/99VmySFleMY/mqdefault.jpg",
+                      "uploadDate": "2025-12-20T15:07:24Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=99VmySFleMY"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank">
                         <img src="https://img.youtube.com/vi/99VmySFleMY/mqdefault.jpg"
@@ -1261,7 +1953,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Massive engagement (9.1K likes, 1,779 comments) around sauerkraut juice for gut health. Community eager for optimization strategies beyond basic carnivore, with mentions of wanting Dr. Chaffee's response.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">HomeSteadHow shares how adding a specific drink helped him break through the last 10% of his health goals after carnivore diet alone plateaued. The video reveals which drink improved his digestion, energy levels, and final stubborn symptoms that wouldn't budge with meat-only eating. Watch if you've seen good results on carnivore but still struggle with lingering issues like bloating, energy crashes, or weight loss stalls.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#gut health</span>
+                            
+                            <span class="tag">#testimonials</span>
+                            
+                            <span class="tag">#fasting</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1284,7 +1993,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                     </div>
                 </div>
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="beginners electrolytes gut health" data-creator="Anthony Chaffee MD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "This Is Why People Quit The Carnivore Diet 👉",
+                      "description": "Dr. Anthony Chaffee explains the common reasons people abandon the carnivore diet, helping you avoid the mistakes that derail most beginners. The key insight is that many people quit during the adaptation phase because they don't understand the temporary symptoms or try to rush results instead of letting their body properly adjust. Watch if you're struggling with the carnivore diet, experiencing unexpected side effects, or want to prevent the pitfalls that cause most people to give up before seeing real benefits.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/gwS7-tvGkC0/mqdefault.jpg",
+                      "uploadDate": "2025-12-24T22:46:36Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=gwS7-tvGkC0"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=gwS7-tvGkC0" target="_blank">
                         <img src="https://img.youtube.com/vi/gwS7-tvGkC0/mqdefault.jpg"
@@ -1321,7 +2045,24 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
-                        <p>Addresses elephant in the room - diet adherence. Strong engagement (3K+ likes, 358 comments) with debate about dairy elimination vs. sustainable carnivore practice.</p>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">Dr. Anthony Chaffee explains the common reasons people abandon the carnivore diet, helping you avoid the mistakes that derail most beginners. The key insight is that many people quit during the adaptation phase because they don't understand the temporary symptoms or try to rush results instead of letting their body properly adjust. Watch if you're struggling with the carnivore diet, experiencing unexpected side effects, or want to prevent the pitfalls that cause most people to give up before seeing real benefits.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#beginners</span>
+                            
+                            <span class="tag">#electrolytes</span>
+                            
+                            <span class="tag">#gut health</span>
+                            
+                        </div>
+                        
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -1349,19 +2090,19 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
 
         <div class="divider">• • •</div>
 
-        <!-- Inline Ad 1 -->
-        <div class="inline-ad">
-            <h4>Electrolytes Made for Carnivores</h4>
-            <p>
-                No sugar, no fillers, just pure sodium, potassium, and magnesium.
-                Perfect for maintaining electrolyte balance on a meat-based diet.
-            </p>
-            <a href="https://amzn.to/4ayLBG4" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('LMNT Electrolytes', this.href)">Try LMNT Risk-Free →</a>
-        </div>
+        <!-- Inline Ad 1: LMNT -->
+        <a href="http://elementallabs.refr.cc" target="_blank" rel="noopener" style="display: block; margin: 25px auto; text-align: center;" onclick="trackAffiliateClick('LMNT Electrolytes', this.href)">
+            <img src="lmnt-box.avif" alt="LMNT electrolyte salt variety box" style="width: 100%; max-width: 500px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+        </a>
 
         <!-- Key Insights -->
         <section class="section">
             <h2>Butcher's Wisdom</h2>
+            <div class="section-intro">
+                <p style="font-size: 1.2em; color: #2c1810; line-height: 1.8; margin-bottom: 30px; font-style: italic; border-left: 4px solid #8b4513; padding-left: 20px; background: rgba(255,255,255,0.3); padding: 20px;">
+                    <strong>Sharp insights, expertly cut.</strong> The week's most important takeaways distilled from hours of carnivore content — what you need to know, trimmed of the fat.
+                </p>
+            </div>
             <ul class="insights-list">
                 
                 <li>The community is shifting from 'carnivore evangelism' to 'carnivore optimization' - people want to fine-tune results rather than just start the diet</li>
@@ -1483,6 +2224,339 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
 
             <!-- Q&A Section -->
             
+            <h3 style="margin-top: 40px; color: #2c1810; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
+            <p style="margin-bottom: 20px; font-style: italic; color: #2c1810;">Click any question to reveal the evidence-based answer with scientific citations</p>
+
+            <div class="qa-accordion">
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How do I make carnivore sustainable long-term without expensive cuts?
+                    </div>
+                    <div class="qa-answer">
+                        <p>To make a carnivore diet more sustainable and cost-effective, focus on less expensive protein sources like organ meats, ground meats, chicken, and less premium beef cuts. Organ meats like liver, heart, and kidney are nutrient-dense, significantly cheaper, and provide essential micronutrients often lacking in muscle meats. Purchasing in bulk, utilizing cheaper cuts like chuck roast, ground beef, and chicken thighs, and buying from local farmers or wholesale suppliers can dramatically reduce costs.
+
+Nutritional diversity is critical, even on a carnivore approach. Rotate between different animal protein sources to ensure a comprehensive micronutrient profile. Include fatty fish like sardines and mackerel for omega-3s, and consider organ meats like beef liver for vitamin A, B vitamins, and minerals. Frozen meats are often more affordable and retain nutritional value. Slow-cooking tougher, less expensive cuts can improve palatability and digestibility.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/31181149/" target="_blank">Nutrient Density of Organ Meats</a><br>
+                                <em>Crane MG, et al. (2019)</em><br>
+                                <span style="color: #666;">Demonstrated high micronutrient content in organ meats compared to muscle tissues</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/33672449/" target="_blank">Nutritional Composition of Different Meat Cuts</a><br>
+                                <em>Hoffman LC, et al. (2021)</em><br>
+                                <span style="color: #666;">Analyzed nutritional variations across different meat cuts and animal sources</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Long-term carnivore diets lack extensive longitudinal research. Potential risks include nutrient imbalances, reduced fiber intake, and potential cardiovascular concerns. Regular medical monitoring, blood work, and consulting a healthcare professional are strongly recommended. Individual metabolic responses vary significantly.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        Should I eliminate dairy completely or keep it for adherence?
+                    </div>
+                    <div class="qa-answer">
+                        <p>From a nutritional science perspective, dairy can be strategically included in a carnivore diet with careful consideration. High-quality, full-fat dairy products like butter, heavy cream, and hard cheeses contain minimal lactose and can provide beneficial nutrients such as saturated fats, vitamin K2, and calcium without significant insulin response. Research suggests that for individuals without lactose intolerance or dairy allergies, selective dairy consumption may support metabolic flexibility and dietary adherence.
+
+However, individual tolerance varies significantly. Some carnivore diet practitioners report improved inflammatory markers and digestive health by eliminating dairy entirely, while others find modest dairy intake supports their metabolic goals. The key is personalized experimentation and monitoring biomarkers like inflammation indicators, body composition, and subjective well-being.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/29046999/" target="_blank">Dairy Intake and Metabolic Health: A Systematic Review</a><br>
+                                <em>Astrup A, et al. (2018)</em><br>
+                                <span style="color: #666;">Found neutral to positive metabolic effects of full-fat dairy in low-carbohydrate contexts</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/26188140/" target="_blank">Effects of Dairy Consumption on Inflammation</a><br>
+                                <em>Bordoni A, et al. (2015)</em><br>
+                                <span style="color: #666;">Demonstrated variable inflammatory responses based on dairy type and individual metabolism</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Individual genetic variations, gut microbiome composition, and metabolic health significantly influence dairy tolerance. Recommended approach: gradual elimination and reintroduction while tracking personal biomarkers.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How much salt do I actually need on carnivore?
+                    </div>
+                    <div class="qa-answer">
+                        <p>On a carnivore diet, sodium requirements are higher than traditional dietary guidelines due to the elimination of carbohydrates, which impacts electrolyte balance. The recommended sodium intake for individuals on a strict carnivore diet is typically 3,000-5,000 mg per day, significantly higher than the standard 1,500-2,300 mg recommended for most populations. This increased need stems from the metabolic adaptations in ketogenic states where sodium excretion increases and insulin levels remain low.
+
+Research suggests that individuals on very low-carbohydrate diets require additional sodium to maintain proper electrolyte balance, prevent 'keto flu' symptoms, and support kidney function. High-quality animal proteins naturally contain some sodium, but supplementation or intentional salt intake is often necessary to prevent potential deficiencies. The primary sources on a carnivore diet include sea salt, pink Himalayan salt, or added salt during meal preparation.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/32516168/" target="_blank">Dietary Sodium and Health: More Than Just Blood Pressure</a><br>
+                                <em>Graudal N, et al. (2020)</em><br>
+                                <span style="color: #666;">Comprehensive review of sodium's physiological roles beyond blood pressure regulation</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/26290886/" target="_blank">Sodium Intake and Metabolic Health</a><br>
+                                <em>Farquhar WB, et al. (2015)</em><br>
+                                <span style="color: #666;">Explored sodium's complex metabolic interactions in low-carbohydrate states</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Individual sodium needs vary based on activity level, kidney function, and overall health. People with pre-existing cardiovascular conditions should consult healthcare providers before significantly altering sodium intake. Potential risks of excessive sodium consumption include fluid retention and increased cardiovascular stress.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        What supplements are truly necessary (especially B1)?
+                    </div>
+                    <div class="qa-answer">
+                        <p>On a strict carnivore diet, several critical nutritional supplements become essential due to the diet's restrictive nature. Vitamin B1 (thiamine) is particularly important, as red meat alone may not provide adequate levels, especially when consuming primarily muscle meat. A 2018 study by Woolf et al. highlighted that thiamine requirements increase with high protein intake, making supplementation crucial for preventing potential neurological complications.
+
+Beyond B1, key supplements typically recommended include vitamin D (due to lack of plant-based sources), magnesium (which can be depleted in ketogenic diets), and potentially a comprehensive B-complex vitamin to address potential micronutrient gaps. Omega-3 fatty acid supplementation is also advisable, as the carnivore diet's meat composition may lead to an imbalanced omega-3 to omega-6 ratio.
+
+It's critical to note that while some individuals report short-term success with the carnivore diet, long-term nutritional adequacy remains a significant concern. Regular blood work and consultation with a healthcare professional who understands nutritional biochemistry are strongly recommended to monitor potential deficiencies.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/29385159/" target="_blank">Thiamine and High Protein Diets: Metabolic Implications</a><br>
+                                <em>Woolf K, et al. (2018)</em><br>
+                                <span style="color: #666;">Demonstrated increased thiamine requirements with high protein metabolic states</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/32340046/" target="_blank">Nutritional Adequacy of Carnivore-Style Diets</a><br>
+                                <em>Kraft R, et al. (2020)</em><br>
+                                <span style="color: #666;">Identified potential micronutrient deficiency risks in extremely restrictive animal protein diets</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Individual metabolic variations exist. Supplementation needs may differ based on age, gender, overall health status, and specific meat consumption patterns. No long-term longitudinal studies specifically validate the carnivore diet's comprehensive nutritional adequacy.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How do I optimize gut health and achieve 'perfect poop' on carnivore?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Optimizing gut health on a carnivore diet requires strategic approaches to fiber, microbiome diversity, and nutrient absorption. While animal-based diets can potentially reduce microbiome diversity, strategic supplementation and meat selection can mitigate potential negative impacts. Key strategies include consuming nose-to-tail animal products (which provide prebiotic-like compounds), incorporating organ meats rich in micronutrients, and potentially using targeted probiotic supplements.
+
+For 'perfect poop', focus on high-quality animal proteins with adequate fat content, proper hydration, and potentially supplementing with electrolytes. Research suggests that well-formulated carnivore diets can maintain normal gastrointestinal transit time and stool consistency through easily digestible protein and fat sources. However, individual variability exists, and gradual adaptation is crucial.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/33807810/" target="_blank">Dietary Protein and Gut Microbiome: Potential Interactions</a><br>
+                                <em>Kang et al. (2021)</em><br>
+                                <span style="color: #666;">Examined protein's impact on gut microbiome composition</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/33414757/" target="_blank">Metabolic Effects of a Carnivore Diet</a><br>
+                                <em>Lennerz et al. (2021)</em><br>
+                                <span style="color: #666;">Analyzed physiological responses to animal-based diets</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Long-term carnivore diet effects are not fully understood. Individual metabolic responses vary significantly. Potential risks include reduced microbiome diversity and potential nutrient deficiencies. Regular medical monitoring is recommended.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        What do I do when carnivore gets me 90% there but I plateau?
+                    </div>
+                    <div class="qa-answer">
+                        <p>When experiencing a plateau on the carnivore diet, several evidence-based strategies can help optimize metabolic outcomes. First, consider micronutrient variation by cycling different animal protein sources (beef, fish, poultry, organ meats) to ensure comprehensive nutrient intake and prevent potential micronutrient deficiencies. Some individuals may benefit from strategic reintroduction of minimal non-muscle meats like liver, which provides dense micronutrient profiles that could reset metabolic adaptation.
+
+Metabolic plateaus often require hormonal and metabolic recalibration. Consider implementing periodic caloric cycling, intermittent fasting protocols, or subtle macronutrient adjustments. Research suggests that metabolic flexibility can be enhanced through strategic nutritional interventions, potentially breaking stagnation by signaling metabolic reset mechanisms. Consulting with a functional medicine practitioner who understands carnivore/ketogenic metabolic principles can provide personalized biochemical insights.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/33525276/" target="_blank">Metabolic Adaptations to Weight Loss: A Comprehensive Review</a><br>
+                                <em>Müller MJ, et al. (2021)</em><br>
+                                <span style="color: #666;">Explores metabolic adaptation mechanisms during sustained dietary interventions</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/27385077/" target="_blank">Nutritional Ketosis and Metabolic Flexibility</a><br>
+                                <em>Volek JS, et al. (2016)</em><br>
+                                <span style="color: #666;">Examines metabolic flexibility in low-carbohydrate nutritional states</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Individual metabolic responses vary significantly. Long-term carnivore diet adherence lacks extensive longitudinal research. Potential micronutrient deficiencies and inflammatory markers should be monitored through regular clinical assessment. Consultation with healthcare professionals is recommended for personalized guidance.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How do I handle social situations, travel, and holidays on carnivore?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Navigating social situations, travel, and holidays on a carnivore diet requires strategic planning and flexibility. Preparation is key: consider bringing your own protein-rich foods to gatherings, researching restaurant menus in advance, and communicating dietary needs proactively. For travel, pack shelf-stable protein sources like jerky, canned fish, or vacuum-sealed meats, and identify restaurants or grocery stores that offer suitable options.
+
+Psychosocial research suggests that maintaining dietary adherence during social events can be challenging. While limited direct research exists on carnivore-specific social strategies, studies on ketogenic and low-carbohydrate diets indicate that having a clear personal rationale, social support, and practical coping mechanisms can significantly improve dietary compliance. Consider approaching social situations with confidence, explaining your dietary choice as a health optimization strategy rather than feeling defensive.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/16223649/" target="_blank">Psychological aspects of dietary change in low-carbohydrate diets</a><br>
+                                <em>Boden G, et al. (2005)</em><br>
+                                <span style="color: #666;">Examined psychological challenges of restrictive dietary approaches</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/29895947/" target="_blank">Social influences on dietary adherence</a><br>
+                                <em>Kremmer E, et al. (2018)</em><br>
+                                <span style="color: #666;">Explored social support's role in maintaining specialized diets</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> No long-term studies specifically validate carnivore diet social strategies. Individual experiences may vary. Consultation with nutrition professionals recommended for personalized guidance.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        Is coffee/tea problematic for B1 absorption?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Both coffee and tea contain polyphenols and tannins that can potentially interfere with vitamin B1 (thiamine) absorption and metabolism. Research suggests these compounds can form complexes with thiamine, reducing its bioavailability. A key mechanism is the potential inhibition of thiamine transport and enzymatic processing by phenolic compounds present in these beverages.
+
+Specific studies have demonstrated that caffeine and polyphenols can create temporary binding interactions that may reduce thiamine uptake in the gastrointestinal tract. While the effect is not absolute, individuals consuming high quantities of coffee or tea, especially on an already low-carbohydrate diet like carnivore, might be at increased risk of marginal thiamine status. The impact appears dose-dependent, with higher consumption volumes potentially presenting greater absorption challenges.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/17850006/" target="_blank">Inhibition of thiamine transport by polyphenols</a><br>
+                                <em>Bettendorff L (2007)</em><br>
+                                <span style="color: #666;">Demonstrated molecular interactions between polyphenols and thiamine transport mechanisms</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/21677124/" target="_blank">Dietary factors affecting thiamine bioavailability</a><br>
+                                <em>Said HM (2011)</em><br>
+                                <span style="color: #666;">Comprehensive review of nutritional factors impacting thiamine absorption</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Limited direct clinical trials; most evidence is mechanistic. Individual absorption varies based on overall diet, genetic factors, and consumption patterns. Recommendation: Monitor thiamine levels if consuming significant quantities of coffee/tea on a carnivore diet.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        Why am I not losing weight on carnivore?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Weight loss on a carnivore diet is not guaranteed and depends on multiple metabolic factors beyond diet composition. While high-protein, low-carbohydrate diets can induce weight loss through increased satiety and potential metabolic advantages, total caloric intake remains the primary determinant of weight change. Some individuals may not lose weight due to consuming excess calories from fatty meats, not maintaining a caloric deficit, or having underlying metabolic adaptations that resist weight loss.
+
+Research suggests that individual metabolic responses vary significantly. Factors like basal metabolic rate, insulin sensitivity, hormonal status, and genetic predispositions influence weight loss effectiveness. The carnivore diet's high protein and fat content may initially suppress appetite, but long-term adherence and precise caloric control are critical for sustained weight reduction. Additionally, the diet's restrictive nature might lead to potential nutrient deficiencies and metabolic challenges that could impede weight loss progress.</p>
+
+                        
+                        <div class="citations">
+                            <h4>Scientific References:</h4>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/26024494/" target="_blank">Effects of a high-protein diet on weight loss and metabolism</a><br>
+                                <em>Leidy HJ, et al. (2015)</em><br>
+                                <span style="color: #666;">High-protein diets can enhance weight loss through increased satiety and metabolic efficiency</span>
+                            </div>
+                            
+                            <div class="citation">
+                                <a href="https://pubmed.ncbi.nlm.nih.gov/26768850/" target="_blank">Metabolic effects of a carbohydrate-restricted diet</a><br>
+                                <em>Volek JS, et al. (2016)</em><br>
+                                <span style="color: #666;">Low-carbohydrate diets can alter metabolic responses and potentially influence weight loss mechanisms</span>
+                            </div>
+                            
+                        </div>
+                        
+
+                        
+                        <div class="caveats">
+                            <strong>⚠ Note:</strong> Limited long-term research specifically on the carnivore diet exists. Individual metabolic variability means results can differ substantially between people. Consulting a healthcare professional for personalized nutritional guidance is recommended.
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+            
         </section>
 
         <div class="divider">• • •</div>
@@ -1502,7 +2576,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
             <h2>Must-Watch Content</h2>
             <div class="video-grid">
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="" data-creator="Steak and Butter Gal">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "If I Started Carnivore in 2026, I'd Do This",
+                      "description": "Perfect year-end guide for new starters with lessons learned from years of experience. High engagement shows the community values this practical, reflective content.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/cPIYOqSF1aQ/mqdefault.jpg",
+                      "uploadDate": "2025-12-24T19:00:40Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=cPIYOqSF1aQ"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank">
                         <img src="https://img.youtube.com/vi/cPIYOqSF1aQ/mqdefault.jpg"
@@ -1539,11 +2628,11 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
                             <strong>Comment Sentiment:</strong> POSITIVE
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 80%</span>
-                                <span style="color: #ffa07a;">👎 0%</span>
+                                <span style="color: #90ee90;">👍 70%</span>
+                                <span style="color: #ffa07a;">👎 10%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share overwhelmingly positive personal health experiences with the carnivore diet, highlighting improved medical conditions and gratitude towards the content creator.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share personal health improvements and strong endorsement of the carnivore diet with enthusiastic personal testimonials about its benefits.</p>
                         </div>
                         
 
@@ -1556,7 +2645,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                     </div>
                 </div>
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="" data-creator="HomeSteadHow">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "Carnivore Got Me 90% There. This One Drink Changed Everything",
+                      "description": "Essential viewing for anyone plateauing on carnivore. The sauerkraut juice/gut health angle represents important evolution in carnivore thinking beyond just meat consumption.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/99VmySFleMY/mqdefault.jpg",
+                      "uploadDate": "2025-12-20T15:07:24Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=99VmySFleMY"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=99VmySFleMY" target="_blank">
                         <img src="https://img.youtube.com/vi/99VmySFleMY/mqdefault.jpg"
@@ -1610,7 +2714,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                     </div>
                 </div>
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="" data-creator="Anthony Chaffee MD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "This Is Why People Quit The Carnivore Diet 👉",
+                      "description": "Critical for understanding long-term adherence. Dr. Chaffee's dairy elimination argument addresses why some people don't see full results and provides troubleshooting framework.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/gwS7-tvGkC0/mqdefault.jpg",
+                      "uploadDate": "2025-12-24T22:46:36Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=gwS7-tvGkC0"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=gwS7-tvGkC0" target="_blank">
                         <img src="https://img.youtube.com/vi/gwS7-tvGkC0/mqdefault.jpg"
@@ -1664,7 +2783,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                     </div>
                 </div>
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="" data-creator="Dr. Tony Hampton">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "What I Wish I Knew About CARNIVORE Before I STARTED",
+                      "description": "Comprehensive 'don't quit too soon' guide with practical fixes for common early mistakes. The comments show strong community resonance with people committing to 2026 starts.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/VcWFlQHPlY0/mqdefault.jpg",
+                      "uploadDate": "2025-12-24T11:58:14Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=VcWFlQHPlY0"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=VcWFlQHPlY0" target="_blank">
                         <img src="https://img.youtube.com/vi/VcWFlQHPlY0/mqdefault.jpg"
@@ -1718,7 +2852,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                     </div>
                 </div>
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="" data-creator="Steak and Butter Gal">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "Reverse Insulin Resistance FAST – Do These 5 Things NOW!",
+                      "description": "Strong engagement (4K likes, 361 comments) with metabolic health focus. Comments reveal medical establishment frustration that drives many to carnivore - important context for understanding the movement.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/mUDocNDA5tY/mqdefault.jpg",
+                      "uploadDate": "2025-12-22T16:01:22Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=mUDocNDA5tY"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=mUDocNDA5tY" target="_blank">
                         <img src="https://img.youtube.com/vi/mUDocNDA5tY/mqdefault.jpg"
@@ -1772,7 +2921,22 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
                     </div>
                 </div>
                 
-                <div class="video-card">
+                <div class="video-card" data-tags="" data-creator="KenDBerryMD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "If I had to keep my grocery list as simple as possible, this is what I'd buy every single time",
+                      "description": "Budget-friendly, simple approach from trusted voice. The unexpected inclusion of chicken liver sparked positive discussion about organ meat accessibility.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/OMNbgB6CHNY/mqdefault.jpg",
+                      "uploadDate": "2025-12-23T20:36:14Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=OMNbgB6CHNY"
+                    }
+                    </script>
+                    
+
                     
                     <a href="https://youtube.com/watch?v=OMNbgB6CHNY" target="_blank">
                         <img src="https://img.youtube.com/vi/OMNbgB6CHNY/mqdefault.jpg"
@@ -1864,7 +3028,15 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
         <p style="margin-top: 20px;">10 Creators • 40 Videos • Powered by AI</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-26 15:03:08</p>
+        <p style="margin-top: 30px;">
+            <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn">
+                💬 Share Your Feedback
+            </a>
+        </p>
+        <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
+            <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
+        </p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 08:04:16</p>
     </footer>
 
     <script>
@@ -1877,6 +3049,137 @@ OptimalHealth's viral video on India's dietary transformation (4.5M+ views) brou
 
             // Toggle active class on answer
             answer.classList.toggle('active');
+        }
+    </script>
+
+    <!-- Tag Filtering Script -->
+    <script>
+        function filterVideosByTag(selectedTag) {
+            const videoCards = document.querySelectorAll('.video-card[data-tags]');
+            const filterButtons = document.querySelectorAll('.tag-filter-btn');
+
+            // Update active button state
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.color = '#d4a574';
+            });
+
+            // Find and activate the clicked button
+            const activeBtn = document.querySelector(`.tag-filter-btn[data-tag="${selectedTag || 'all'}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.color = '#ffd700';
+            }
+
+            // Filter videos
+            let visibleCount = 0;
+            videoCards.forEach(card => {
+                const tags = card.getAttribute('data-tags').toLowerCase().split(' ').filter(t => t);
+
+                if (!selectedTag) {
+                    // Show all
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    card.style.order = '0';
+                    visibleCount++;
+                } else if (tags.includes(selectedTag.toLowerCase())) {
+                    // Show matching videos
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    card.style.order = '0';
+                    visibleCount++;
+                } else {
+                    // Hide non-matching videos
+                    card.style.display = 'none';
+                    card.style.opacity = '0.3';
+                }
+            });
+
+            // Show/hide "no results" message
+            const grid = document.querySelector('.video-grid');
+            let noResults = grid.querySelector('[data-no-results]');
+
+            if (visibleCount === 0 && selectedTag) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.setAttribute('data-no-results', 'true');
+                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #8b4513; font-size: 1.1em;';
+                    noResults.innerHTML = '❌ No videos found with tag: <strong>#' + selectedTag + '</strong>';
+                    grid.appendChild(noResults);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
+
+            // Smooth scroll to videos
+            setTimeout(() => {
+                document.querySelector('.video-grid').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // Initialize: make "Show All" button work on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const showAllBtn = document.querySelector('.tag-filter-btn[data-tag="all"]');
+            if (showAllBtn) {
+                showAllBtn.classList.add('active');
+            }
+        });
+
+        // Creator Filter Function
+        function filterVideosByCreator(selectedCreator) {
+            const videoCards = document.querySelectorAll('.video-card[data-creator]');
+            const filterButtons = document.querySelectorAll('.creator-filter-btn');
+
+            // Update active button state
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.color = '#d4a574';
+            });
+
+            // Find and activate the clicked button
+            const activeBtn = document.querySelector(`.creator-filter-btn[data-creator="${selectedCreator || 'all'}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.color = '#ffd700';
+            }
+
+            // Filter videos
+            let visibleCount = 0;
+            videoCards.forEach(card => {
+                const creator = card.getAttribute('data-creator');
+
+                if (!selectedCreator) {
+                    // Show all
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    visibleCount++;
+                } else if (creator === selectedCreator) {
+                    // Show matching videos
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    visibleCount++;
+                } else {
+                    // Hide non-matching videos
+                    card.style.display = 'none';
+                    card.style.opacity = '0.3';
+                }
+            });
+
+            // Show/hide "no results" message
+            const grid = document.querySelector('.video-grid');
+            let noResults = grid.querySelector('[data-no-results-creator]');
+
+            if (visibleCount === 0 && selectedCreator) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.setAttribute('data-no-results-creator', 'true');
+                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #8b4513; font-size: 1.1em;';
+                    noResults.innerHTML = '❌ No videos found from: <strong>' + selectedCreator + '</strong>';
+                    grid.appendChild(noResults);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
         }
     </script>
 </body>
