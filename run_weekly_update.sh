@@ -18,10 +18,24 @@ echo ""
 echo "🔍 Pre-flight checks..."
 echo "   Checking Python code quality..."
 python3 -m flake8 scripts/ --count --statistics || {
-    echo "   ⚠️  Code quality issues found (see above)"
+    echo "   ⚠️  Python code quality issues found (see above)"
     echo "   Continuing anyway (non-critical issues)..."
 }
-echo "   ✓ Code quality check complete"
+echo "   ✓ Python code quality check complete"
+echo ""
+
+# Check JavaScript quality if ESLint is available
+if command -v npx &> /dev/null; then
+    echo "   Checking JavaScript code quality..."
+    if [ -f "api/.eslintrc.json" ]; then
+        (cd api && npx eslint *.js --max-warnings=10 2>/dev/null) || {
+            echo "   ⚠️  JavaScript code quality issues found"
+            echo "   Fix with: cd api && npm run lint:fix"
+            echo "   Continuing anyway (non-critical issues)..."
+        }
+        echo "   ✓ JavaScript code quality check complete"
+    fi
+fi
 echo ""
 
 # Step 1: Collect YouTube Data

@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "lint": "eslint *.js --max-warnings=10",
+    "lint:fix": "eslint *.js --fix"
   },
   "keywords": ["carnivore", "diet", "reports", "cloudflare-worker"],
   "author": "",
