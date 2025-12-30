@@ -54,6 +54,14 @@
                 'event_label': 'AI Upgrade CTA'
             });
         }
+
+        function trackAffiliateClick(product, link) {
+            gtag('event', 'click', {
+                'event_category': 'Affiliate',
+                'event_label': product,
+                'value': link
+            });
+        }
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
@@ -1199,6 +1207,13 @@
                             <div class="result-label">Macro Split</div>
                             <div class="result-value" id="outSplit" style="font-size: 1.2em;">—</div>
                         </div>
+                    </div>
+
+                    <!-- ButcherBox Affiliate Ad -->
+                    <div style="margin: 40px 0; text-align: center;">
+                        <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=calculator_results" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')">
+                            <img src="butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; max-width: 600px; height: auto; display: inline-block; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+                        </a>
                     </div>
 
                     <!-- Warnings/Success Messages -->
