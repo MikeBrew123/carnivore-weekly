@@ -1192,6 +1192,12 @@
                     <div class="qa-answer">
                         <p>{{ qa.answer }}</p>
 
+                        {% if qa.answered_by %}
+                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
+                            <strong>{{ qa.answered_by }}</strong>
+                        </p>
+                        {% endif %}
+
                         {% if qa.citations %}
                         <div class="citations">
                             <h4>Scientific References:</h4>
