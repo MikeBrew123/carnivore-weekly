@@ -1,12 +1,27 @@
 #!/bin/bash
 # Carnivore Weekly - Complete Update Workflow
 # Run this script weekly to update your site with fresh content
+#
+# IMPORTANT: This workflow includes validation steps:
+# - Python code quality checks (flake8)
+# - Content validation (before publishing)
+# - See VALIDATION_CHECKLIST.md for manual review steps
 
 set -e  # Exit on any error
 
 echo "======================================================================"
 echo "🥩 CARNIVORE WEEKLY - WEEKLY UPDATE WORKFLOW"
 echo "======================================================================"
+echo ""
+
+# Pre-flight checks
+echo "🔍 Pre-flight checks..."
+echo "   Checking Python code quality..."
+python3 -m flake8 scripts/ --count --statistics || {
+    echo "   ⚠️  Code quality issues found (see above)"
+    echo "   Continuing anyway (non-critical issues)..."
+}
+echo "   ✓ Code quality check complete"
 echo ""
 
 # Step 1: Collect YouTube Data
@@ -77,9 +92,30 @@ echo "======================================================================"
 echo "✅ WEEKLY UPDATE COMPLETE!"
 echo "======================================================================"
 echo ""
-echo "Next steps:"
+echo "⚠️  VALIDATION REQUIRED BEFORE PUBLISHING:"
+echo ""
+echo "You MUST run content validation before deploying:"
+echo ""
+echo "1. Copy-Editor Validation:"
+echo "   /copy-editor"
+echo "   - Check for AI patterns, sentence structure, readability"
+echo "   - Fix any issues found"
+echo ""
+echo "2. Brand Compliance Validation:"
+echo "   /carnivore-brand"
+echo "   - Verify persona authenticity, voice, evidence-based claims"
+echo "   - Fix any issues found"
+echo ""
+echo "3. Manual Review:"
+echo "   - Read newsletter aloud (should sound like a real person)"
+echo "   - Check for specific examples (not generic statements)"
+echo "   - Verify persona signatures are correct"
+echo ""
+echo "See VALIDATION_CHECKLIST.md for complete validation process."
+echo ""
+echo "Next steps after validation:"
 echo "1. Review the generated site: open public/index.html"
-echo "2. If satisfied, deploy with:"
+echo "2. If validation PASSED, deploy with:"
 echo "   git add ."
 echo "   git commit -m 'Weekly content update - $(date +%Y-%m-%d)'"
 echo "   git push"
