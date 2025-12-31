@@ -57,9 +57,9 @@ body::before {
 header {
     background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
     color: #f4e4d4;
-    padding: 60px 0 40px 0;
-    margin-bottom: 40px;
-    min-height: 330px;
+    padding: 30px 0 20px 0;
+    margin-bottom: 25px;
+    min-height: 180px;
     box-shadow:
         0 10px 30px rgba(0,0,0,0.5),
         inset 0 2px 0 rgba(255,255,255,0.1);
@@ -108,7 +108,7 @@ header > .container {
 
 header h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 4.5em;
+    font-size: 2.8em;
     margin-bottom: 15px;
     text-align: center;
     text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
@@ -122,7 +122,7 @@ header h1 {
 header .subtitle,
 header p {
     text-align: center;
-    font-size: 1.6em;
+    font-size: 1.2em;
     opacity: 0.95;
     font-style: italic;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -133,7 +133,7 @@ header p {
 
 header .tagline {
     text-align: center;
-    font-size: 1.1em;
+    font-size: 0.95em;
     opacity: 0.8;
     font-weight: 700;
     text-transform: uppercase;
@@ -150,7 +150,7 @@ header .tagline {
 header .update-date {
     text-align: center;
     margin-top: 20px;
-    font-size: 1em;
+    font-size: 0.9em;
     opacity: 0.7;
     letter-spacing: 1px;
     position: relative;
@@ -163,8 +163,8 @@ header .update-date {
     border: 3px solid #8b4513;
     border-left: none;
     border-right: none;
-    padding: 20px 0;
-    margin-bottom: 50px;
+    padding: 12px 0;
+    margin-bottom: 30px;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
 }
@@ -173,7 +173,7 @@ header .update-date {
     color: #1a120b;
     text-decoration: none;
     font-family: 'Playfair Display', serif;
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: 700;
     padding: 10px 20px;
     margin: 0 5px;
@@ -196,7 +196,7 @@ header .update-date {
 .divider {
     text-align: center;
     font-size: 3em;
-    margin: 40px 0;
+    margin: 25px 0;
     opacity: 0.3;
 }
 
