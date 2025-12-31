@@ -436,3 +436,25 @@ footer p {
 footer p:first-child {
     margin-top: 0;
 }
+
+/* Page Header Styling */
+.page-header {
+    font-size: 48px;
+    color: #ffd700;
+    margin-bottom: 15px;
+    line-height: 1.3;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+/* Secondary Page Header (for listing pages) */
+.page-header-secondary {
+    font-size: 32px;
+    color: #ffd700;
+    margin-bottom: 10px;
+    line-height: 1.3;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
