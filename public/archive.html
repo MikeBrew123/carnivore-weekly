@@ -207,6 +207,49 @@
             border-bottom-color: #8b4513;
         }
 
+        /* Mobile optimizations for 375px viewports */
+        @media (max-width: 600px) {
+            .archive-stats {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .archive-stats h2 {
+                font-size: 1.4em;
+                margin-bottom: 10px;
+            }
+
+            .archive-stats p {
+                font-size: 0.95em;
+            }
+
+            .week-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-bottom: 40px;
+            }
+
+            .week-card {
+                padding: 20px;
+            }
+
+            .week-date {
+                font-size: 1.3em;
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+            }
+
+            .week-link {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .back-link {
+                padding: 12px 25px;
+                font-size: 0.95em;
+            }
+        }
+
         @media (max-width: 768px) {
             .logo {
                 max-width: 200px;
@@ -243,9 +286,10 @@
         <a href="index.html">Home</a>
         <a href="channels.html">Channels</a>
         <a href="wiki.html">Wiki</a>
+        <a href="blog.html">Blog</a>
         <a href="calculator.html">Calculator</a>
-        <a href="about.html">About</a>
         <a href="archive.html" class="active">Archive</a>
+        <a href="about.html">About</a>
     </nav>
 
     <!-- Fixed Side Feedback Button -->
@@ -290,9 +334,12 @@
     <!-- Bottom Navigation Menu -->
     <nav class="nav-menu" style="margin-top: 60px;">
         <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="archive.html" class="active">Archive</a>
         <a href="channels.html">Channels</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="blog.html">Blog</a>
+        <a href="calculator.html">Calculator</a>
+        <a href="archive.html" class="active">Archive</a>
+        <a href="about.html">About</a>
     </nav>
 
     <footer>
