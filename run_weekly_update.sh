@@ -16,24 +16,47 @@ echo ""
 
 # Pre-flight checks
 echo "🔍 Pre-flight checks..."
-echo "   Checking Python code quality..."
-python3 -m flake8 scripts/ --count --statistics || {
-    echo "   ⚠️  Python code quality issues found (see above)"
-    echo "   Continuing anyway (non-critical issues)..."
-}
-echo "   ✓ Python code quality check complete"
+
+# Python validation (BLOCKING)
+echo "   Running Python validation (flake8)..."
+if ! python3 -m flake8 scripts/ --count --statistics; then
+    echo "   ❌ Flake8 validation FAILED. Fix errors before deploying."
+    echo "   Run: flake8 scripts/ to see issues, or flake8 scripts/ --fix-long-lines"
+    exit 1
+fi
+echo "   ✓ Python code quality passed"
 echo ""
 
-# Check JavaScript quality if ESLint is available
+# Python code formatting (BLOCKING)
+echo "   Running Python code formatting check (black)..."
+if ! python3 -m black --check scripts/ 2>/dev/null; then
+    echo "   ❌ Black formatting check FAILED. Fix with: black scripts/"
+    exit 1
+fi
+echo "   ✓ Python formatting passed"
+echo ""
+
+# JavaScript validation (BLOCKING)
 if command -v npx &> /dev/null; then
-    echo "   Checking JavaScript code quality..."
+    echo "   Running JavaScript validation (eslint)..."
     if [ -f "api/.eslintrc.json" ]; then
-        (cd api && npx eslint *.js --max-warnings=10 2>/dev/null) || {
-            echo "   ⚠️  JavaScript code quality issues found"
-            echo "   Fix with: cd api && npm run lint:fix"
-            echo "   Continuing anyway (non-critical issues)..."
-        }
-        echo "   ✓ JavaScript code quality check complete"
+        if ! (cd api && npm run lint 2>/dev/null); then
+            echo "   ❌ ESLint validation FAILED. Fix with: cd api && npm run lint:fix"
+            exit 1
+        fi
+        echo "   ✓ JavaScript validation passed"
+    fi
+fi
+echo ""
+
+# W3C HTML validation (BLOCKING)
+if [ -f ~/.claude/skills/w3c-validator/validate.js ]; then
+    echo "   Running W3C HTML validation..."
+    if ! node ~/.claude/skills/w3c-validator/validate.js public/index.html >/dev/null 2>&1; then
+        echo "   ⚠️  W3C validation found issues (see details above)"
+        echo "   Note: W3C issues are informational, not blocking"
+    else
+        echo "   ✓ W3C HTML validation passed"
     fi
 fi
 echo ""
