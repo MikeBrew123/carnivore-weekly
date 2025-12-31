@@ -51,22 +51,12 @@ def generate_blog_posts(env, posts):
     print(f"\n📄 Generating {len(published_posts)} blog post pages...")
 
     for post in published_posts:
-        # Read content from the HTML file
-        post_file = BLOG_DIR / f"{post['slug']}.html"
+        # Get content directly from post data
+        content = post.get('content', '')
 
-        if not post_file.exists():
-            print(f"⚠️  Post file not found: {post_file}")
+        if not content:
+            print(f"⚠️  No content found for: {post['title']}")
             continue
-
-        # Read the full HTML content from the already-created file
-        with open(post_file, "r") as f:
-            html_content = f.read()
-
-        # Extract body content from the HTML (between <body> and </body>)
-        import re
-        body_match = re.search(r'<body[^>]*>(.*?)</body>', html_content, re.DOTALL)
-        if body_match:
-            post['content'] = body_match.group(1).strip()
 
         # Render the template with post data
         rendered = template.render(
@@ -74,7 +64,7 @@ def generate_blog_posts(env, posts):
             author=post.get('author'),
             author_title=post.get('author_title'),
             date=post.get('date'),
-            content=post.get('content', ''),
+            content=content,
             tags=post.get('tags', []),
             related_posts=post.get('related_posts', []),
             sponsor_callout=post.get('sponsor_callout'),
@@ -82,7 +72,8 @@ def generate_blog_posts(env, posts):
             seo=post.get('seo', {})
         )
 
-        # Write to file (overwrite)
+        # Write to file
+        post_file = BLOG_DIR / f"{post['slug']}.html"
         with open(post_file, "w") as f:
             f.write(rendered)
 
