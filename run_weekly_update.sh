@@ -17,6 +17,16 @@ echo ""
 # Pre-flight checks
 echo "🔍 Pre-flight checks..."
 
+# Structural Validation of Templates (BLOCKING)
+echo "   Validating template structure..."
+if ! python3 scripts/validate_structure.py templates/ --mode template --severity critical 2>/dev/null; then
+    echo "   ❌ Template validation FAILED - cannot generate pages"
+    echo "   Fix template structure issues before retrying"
+    exit 1
+fi
+echo "   ✓ Template validation passed"
+echo ""
+
 # Python validation (BLOCKING)
 echo "   Running Python validation (flake8)..."
 if ! python3 -m flake8 scripts/ --count --statistics; then
@@ -113,6 +123,16 @@ echo ""
 echo "📧 Step 9/9: Generating newsletter..."
 python3 scripts/generate_newsletter.py
 echo "✓ Newsletter generated"
+echo ""
+
+# Structural Validation of Generated Pages (BLOCKING)
+echo "🔍 Validating generated pages..."
+if ! python3 scripts/validate_structure.py public/ --mode generated --severity critical 2>/dev/null; then
+    echo "   ❌ Generated page validation FAILED - cannot deploy"
+    echo "   Fix structural issues in generated pages before retrying"
+    exit 1
+fi
+echo "   ✓ Generated pages validation passed"
 echo ""
 
 # Copy to root for GitHub Pages
