@@ -262,7 +262,9 @@
         <div class="week-grid">
             {% for week in weeks %}
             <div class="week-card">
-                <div class="week-date">Week of {{ week.date }}</div>
+                <a href="archive/{{ week.date }}.html" style="text-decoration: none; color: inherit;">
+                    <div class="week-date">Week of {{ week.date }}</div>
+                </a>
                 <div class="week-meta">
                     {{ week.total_creators }} Creators • {{ week.total_videos }} Videos
                 </div>
