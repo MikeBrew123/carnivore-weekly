@@ -470,6 +470,86 @@
             box-shadow: 0 8px 12px rgba(185, 28, 28, 0.4);
         }
 
+        /* Mobile optimizations for 375px viewports */
+        @media (max-width: 600px) {
+            .free-badge {
+                position: static;
+                margin: 0 auto 15px;
+                transform: rotate(-8deg);
+                min-width: 100px;
+                min-height: 100px;
+            }
+
+            .intro-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .intro-section p {
+                font-size: 1em;
+                line-height: 1.6;
+            }
+
+            .image-aside,
+            .intro-image {
+                float: none;
+                margin: 0 0 15px 0;
+                max-width: 100%;
+            }
+
+            .card {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .card h2 {
+                font-size: 1.4em;
+                margin-bottom: 15px;
+            }
+
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .unit-toggle {
+                width: 100%;
+            }
+
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upsell-container {
+                padding: 20px;
+                margin-top: 30px;
+            }
+
+            .upsell-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .price-box {
+                padding: 20px;
+            }
+
+            .price-final {
+                font-size: 2em;
+            }
+        }
+
         @media (max-width: 768px) {
             .upsell-grid {
                 grid-template-columns: 1fr;

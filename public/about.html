@@ -131,6 +131,51 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
 
+        /* Mobile optimizations for 375px viewports */
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .content h2 {
+                font-size: 1.4em;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+            }
+
+            .content h3 {
+                font-size: 1.2em;
+                margin: 20px 0 12px 0;
+            }
+
+            .content p {
+                font-size: 1em;
+                line-height: 1.6;
+                margin-bottom: 15px;
+            }
+
+            .content ul {
+                margin: 15px 0 15px 25px;
+            }
+
+            .content li {
+                font-size: 1em;
+                margin-bottom: 10px;
+            }
+
+            .highlight-box {
+                padding: 20px;
+                margin: 20px 0;
+            }
+
+            .back-link {
+                padding: 12px 25px;
+                font-size: 0.95em;
+                margin-top: 20px;
+            }
+        }
+
         @media (max-width: 768px) {
             .content {
                 padding: 30px 25px;
