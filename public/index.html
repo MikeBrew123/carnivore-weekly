@@ -544,6 +544,41 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
 
+        /* Mobile optimizations for 375px viewports */
+        @media (max-width: 600px) {
+            .section {
+                padding: 20px;
+                margin-bottom: 20px;
+                border-radius: 10px;
+            }
+
+            .section h2 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+            }
+
+            .trending-topics {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .topic-tag {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+
+            .summary {
+                font-size: 1em;
+                line-height: 1.6;
+            }
+
+            .watch-btn {
+                padding: 8px 16px;
+                font-size: 0.9em;
+            }
+        }
+
         @media (max-width: 768px) {
             header h1 {
                 font-size: 2.5em;
@@ -891,9 +926,10 @@
         <a href="index.html">Home</a>
         <a href="channels.html">Channels</a>
         <a href="wiki.html">Wiki</a>
+        <a href="blog.html">Blog</a>
         <a href="calculator.html">Calculator</a>
-        <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
+        <a href="about.html">About</a>
     </nav>
 
     <!-- Fixed Side Feedback Button -->
@@ -2961,9 +2997,10 @@ What's fascinating is how individual metabolic responses can vary. While some bi
         <a href="index.html">Home</a>
         <a href="channels.html">Channels</a>
         <a href="wiki.html">Wiki</a>
+        <a href="blog.html">Blog</a>
         <a href="calculator.html">Calculator</a>
-        <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
+        <a href="about.html">About</a>
     </nav>
 
     <!-- SECTION: Footer | Lines 1427-1441 | CSS: footer | JS: none -->
