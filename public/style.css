@@ -13,6 +13,9 @@
 
 html {
     scrollbar-gutter: stable;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 body {
@@ -21,6 +24,11 @@ body {
     color: #2c1810;
     background: #1a120b;
     min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 /* Leather texture background */
@@ -233,7 +241,78 @@ header .update-date {
     }
 }
 
-/* Mobile Responsive */
+/* Mobile Responsive - Extra Small (375px) */
+@media (max-width: 600px) {
+    .logo {
+        display: none;
+    }
+
+    .container {
+        max-width: 100% !important;
+        width: 100%;
+        padding: 12px;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    header {
+        min-height: auto;
+        padding: 30px 0 20px 0;
+        margin-bottom: 20px;
+    }
+
+    header h1 {
+        font-size: 1.6em;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+
+    header .subtitle,
+    header p {
+        font-size: 1em;
+    }
+
+    header .tagline {
+        font-size: 0.8em;
+        padding: 8px;
+        max-width: 90%;
+    }
+
+    header .update-date {
+        font-size: 0.85em;
+    }
+
+    .nav-menu {
+        padding: 12px 0;
+        margin-bottom: 20px;
+        border-radius: 0;
+    }
+
+    .nav-menu a {
+        margin: 0 4px;
+        font-size: 0.75em;
+        padding: 8px 12px;
+        display: inline-block;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .feedback-side {
+        display: none !important;
+    }
+
+    footer {
+        padding: 20px 15px;
+        margin-top: 30px;
+    }
+
+    footer p {
+        font-size: 0.85em;
+        margin: 8px 0;
+    }
+}
+
+/* Mobile Responsive - Small (768px and below) */
 @media (max-width: 768px) {
     .logo {
         max-width: 200px;

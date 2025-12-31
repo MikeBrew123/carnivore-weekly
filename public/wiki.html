@@ -238,6 +238,51 @@
             box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
         }
 
+        /* Mobile optimizations for 375px viewports */
+        @media (max-width: 600px) {
+            .toc {
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+
+            .toc h2 {
+                font-size: 1.4em;
+                margin-bottom: 15px;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .toc-item {
+                padding: 12px;
+            }
+
+            .toc-item-title {
+                font-size: 1.1em;
+            }
+
+            .toc-item-desc {
+                font-size: 0.85em;
+            }
+
+            .topic {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .topic h3 {
+                font-size: 1.3em;
+                margin-bottom: 12px;
+            }
+
+            .topic p {
+                font-size: 0.95em;
+                line-height: 1.6;
+            }
+        }
+
         /* Mobile responsive */
         @media (max-width: 768px) {
             .topic {
