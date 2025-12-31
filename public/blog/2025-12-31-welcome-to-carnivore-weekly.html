@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Carnivore Weekly - Carnivore Weekly Blog</title>
+    <meta name="description" content="Welcome to Carnivore Weekly. Learn how we curate the best carnivore content and get your New Year survival guide.">
+    <meta name="keywords" content="carnivore diet, getting started, new year, survival guide">
+    <link rel="stylesheet" href="../../style.css">
+    <style>
+        .post-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .post-header {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 20px;
+        }
+
+        .post-title {
+            font-size: 36px;
+            color: #ffd700;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 20px;
+            color: #d4a574;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .post-author-bio {
+            background: #2c1810;
+            padding: 15px;
+            border-left: 4px solid #d4a574;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .post-author-bio strong {
+            color: #ffd700;
+        }
+
+        .post-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #f4e4d4;
+            margin-bottom: 40px;
+        }
+
+        .post-content h2 {
+            color: #ffd700;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .post-content h3 {
+            color: #d4a574;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+
+        .post-content p {
+            margin-bottom: 15px;
+        }
+
+        .post-content ul,
+        .post-content ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .post-content li {
+            margin-bottom: 8px;
+        }
+
+        .post-content a {
+            color: #d4a574;
+            text-decoration: none;
+            border-bottom: 1px solid #8b4513;
+        }
+
+        .post-content a:hover {
+            color: #ffd700;
+        }
+
+        .sponsor-callout {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .sponsor-callout h3 {
+            color: #2c1810 !important;
+            margin: 0 0 10px 0;
+        }
+
+        .sponsor-callout p {
+            color: #1a120b;
+            margin: 10px 0;
+        }
+
+        .sponsor-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .sponsor-btn:hover {
+            color: #ffd700;
+        }
+
+        .post-footer {
+            border-top: 2px solid #8b4513;
+            padding-top: 20px;
+            margin-top: 40px;
+        }
+
+        .tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #8b4513;
+            color: #d4a574;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .related-posts {
+            background: #2c1810;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .related-posts h3 {
+            color: #ffd700 !important;
+            margin-top: 0;
+        }
+
+        .related-posts ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .related-posts li {
+            margin-bottom: 10px;
+        }
+
+        .related-posts a {
+            color: #d4a574;
+            text-decoration: none;
+        }
+
+        .related-posts a:hover {
+            color: #ffd700;
+        }
+
+        .comments-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #8b4513;
+        }
+
+        .back-to-blog {
+            color: #d4a574;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .back-to-blog:hover {
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body style="background-color: #1a120b; color: #f4e4d4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+    <div class="post-container">
+        <!-- Navigation -->
+        <nav class="nav-menu" style="text-align: center; margin-bottom: 30px;">
+            <a href="../../index.html" style="color: #d4a574; text-decoration: none; margin: 0 15px;">Home</a>
+            <a href="../../channels.html" style="color: #d4a574; text-decoration: none; margin: 0 15px;">Channels</a>
+            <a href="../../wiki.html" style="color: #d4a574; text-decoration: none; margin: 0 15px;">Wiki</a>
+            <a href="../../blog.html" style="color: #ffd700; text-decoration: none; margin: 0 15px; font-weight: bold;">Blog</a>
+            <a href="../../calculator.html" style="color: #d4a574; text-decoration: none; margin: 0 15px;">Calculator</a>
+            <a href="../../archive.html" style="color: #d4a574; text-decoration: none; margin: 0 15px;">Archive</a>
+        </nav>
+
+        <a href="../../blog.html" class="back-to-blog">← Back to Blog</a>
+
+        <!-- Post Header -->
+        <div class="post-header">
+            <h1 class="post-title">Welcome to Carnivore Weekly</h1>
+            <div class="post-meta">
+                <span>2025 12 31</span>
+                <span>by Health Coach (Sarah)</span>
+                <span>1049 words</span>
+            </div>
+
+            <div class="post-author-bio">
+                <strong>Health Coach</strong><br>
+                
+                Sarah helps you understand the science behind carnivore health and optimize your biology.
+                
+            </div>
+        </div>
+
+        <!-- Post Content -->
+        <div class="post-content">
+            &lt;h1&gt;Welcome to Carnivore Weekly&lt;/h1&gt;
+
+&lt;p&gt;Hi there. I&#39;m Sarah, and I want to tell you what we&#39;re building here and why we&#39;re excited to have you reading this on day one.&lt;/p&gt;
+
+&lt;p&gt;Carnivore Weekly exists because the carnivore community deserves better curation. Right now, if you want to stay updated on what&#39;s actually working in this space (the real research, the honest conversations, the tactics that move the needle), you&#39;re scattered across YouTube, Reddit, Discord, and a dozen other platforms. There&#39;s no central place that pulls together the best content with actual context and analysis.&lt;/p&gt;
+
+&lt;p&gt;That&#39;s what we&#39;re doing here.&lt;/p&gt;
+
+&lt;h2&gt;How This Site Works&lt;/h2&gt;
+
+&lt;p&gt;Every week, we pull the top carnivore videos from YouTube, analyze them with three different perspectives (mine on health and science, Marcus on performance and business strategy, and Chloe on community trends), and give you the real breakdown. Not summaries. Not hype. Just what matters.&lt;/p&gt;
+
+&lt;p&gt;We&#39;re also building something deeper. Our wiki is becoming a resource for the questions that come up over and over: What should my blood work actually look like? Why am I tired? Is this normal? How do I know if it&#39;s working?&lt;/p&gt;
+
+&lt;p&gt;And now, with this blog section you&#39;re reading, we&#39;re going longer. We&#39;re going deeper. Each of us (Sarah, Marcus, and Chloe) will be publishing posts on what we actually know, what we&#39;re learning, and what we think matters.&lt;/p&gt;
+
+&lt;h2&gt;Please Be Patient With Us&lt;/h2&gt;
+
+&lt;p&gt;We&#39;re new. This week we launched a blog section that frankly, needed to exist months ago. We&#39;re still building. Some things will change. We&#39;ll probably reorganize things once or twice as we figure out what works best for you.&lt;/p&gt;
+
+&lt;p&gt;If something doesn&#39;t work quite right, or if you see something that could be better, tell us. We&#39;re not some untouchable media company. We&#39;re three people who care about this space and want to make it easier for you to navigate it.&lt;/p&gt;
+
+&lt;p&gt;Thank you for being here early. The people who show up on day one matter more than you know.&lt;/p&gt;
+
+&lt;h2&gt;Your New Year&#39;s Carnivore Survival Guide&lt;/h2&gt;
+
+&lt;p&gt;If you&#39;re starting carnivore in January, or if you&#39;re trying to stay on track while everyone around you is eating bread and sugar, here&#39;s what actually helps.&lt;/p&gt;
+
+&lt;h3&gt;The First Week Isn&#39;t the Real Thing&lt;/h3&gt;
+
+&lt;p&gt;Your first week on carnivore will probably feel amazing. Energy spike, mental clarity, hunger gone. That&#39;s real. But it&#39;s also partly novelty and electrolyte shift. By week two, you might feel flat. Your body might feel weird. This is normal. It&#39;s not that carnivore doesn&#39;t work. It&#39;s adaptation.&lt;/p&gt;
+
+&lt;p&gt;Expect week two to suck a little. Plan for it. This is when most people quit, thinking something&#39;s wrong. Nothing&#39;s wrong. Your metabolism is shifting. Your body is learning to run on fat instead of sugar. This takes time.&lt;/p&gt;
+
+&lt;h3&gt;Salt Matters More Than You Think&lt;/h3&gt;
+
+&lt;p&gt;Seriously. The reason you feel tired or get headaches isn&#39;t usually the diet. It&#39;s electrolytes. Get a teaspoon of salt daily, minimum. Pink Himalayan, sea salt, whatever. Just salt your food. Add it to water. Your body needs it more on carnivore than it did on carbs.&lt;/p&gt;
+
+&lt;p&gt;If you&#39;re in Whistler or anywhere cold, this matters even more. Cold weather increases sodium needs.&lt;/p&gt;
+
+&lt;h3&gt;Eat Enough Fat&lt;/h3&gt;
+
+&lt;p&gt;This is the one people get wrong most often. You&#39;re not eating protein. You&#39;re eating fat. A typical meal should be 70-80% calories from fat, 20-30% from protein. That means fatty cuts. Rib eyes, not sirloin. Ground beef with fat content, not lean. Thighs, not breasts.&lt;/p&gt;
+
+&lt;p&gt;If you&#39;re eating only lean meat, you&#39;re going to feel hungry and tired. Fix that first before you assume something&#39;s wrong with carnivore.&lt;/p&gt;
+
+&lt;h3&gt;Don&#39;t Overcomplicate It&lt;/h3&gt;
+
+&lt;p&gt;You need: meat, salt, water. That&#39;s it. You don&#39;t need supplements. You don&#39;t need special timing. You don&#39;t need to count macros. Eat when you&#39;re hungry. Stop when you&#39;re full. Season your food. Done.&lt;/p&gt;
+
+&lt;p&gt;Complexity is the enemy of consistency, and consistency is the only thing that matters in January.&lt;/p&gt;
+
+&lt;h3&gt;The Family Dinner Problem&lt;/h3&gt;
+
+&lt;p&gt;You&#39;re going to be at a family dinner or a New Year&#39;s party where everyone is eating carbs. Here&#39;s the simple move: eat the meat and fat on your plate, skip everything else. Don&#39;t make a big deal about it. Don&#39;t lecture anyone. Just eat your food and enjoy the company.&lt;/p&gt;
+
+&lt;p&gt;People will ask questions. Answer them if you want. But your job isn&#39;t to convince anyone. Your job is to do what works for you and let the results speak.&lt;/p&gt;
+
+&lt;h3&gt;Measure What Actually Matters&lt;/h3&gt;
+
+&lt;p&gt;Not scale weight. Not how you look. Those lag behind everything else.&lt;/p&gt;
+
+&lt;p&gt;Measure this: How&#39;s your energy? Can you focus? Are you hungry all the time? Do your joints hurt less? Is your skin clearer? Are you sleeping better? These show up in days or weeks. Body composition shows up in months.&lt;/p&gt;
+
+&lt;p&gt;If you&#39;re tired or your joints still hurt after two weeks, it&#39;s probably electrolytes or fat intake, not the diet itself.&lt;/p&gt;
+
+&lt;h2&gt;A Quick Note on the &#34;Not a Doctor&#34; Thing&lt;/h2&gt;
+
+&lt;p&gt;I&#39;m not a doctor. I&#39;ve researched carnivore deeply, I&#39;ve worked with people on this diet, and I&#39;ve spent years understanding the science. But I&#39;m not your doctor. If you have health conditions, take medications, or need specific guidance, talk to someone who knows your full medical picture. Everything I write here is educational and based on what the research shows and what I&#39;ve seen work. Your situation might be different. Use your judgment.&lt;/p&gt;
+
+&lt;h2&gt;What&#39;s Coming&lt;/h2&gt;
+
+&lt;p&gt;This week, Marcus is going to talk about how to actually stick to goals. Spoiler: it&#39;s not about willpower. Chloe&#39;s diving into why the carnivore community is obsessed with the &#34;Lion Diet&#34; and what&#39;s actually happening with viral trends.&lt;/p&gt;
+
+&lt;p&gt;Next week, we&#39;re going deep on some of the questions people ask most: what should your bloodwork look like, why hormones shift, what actually happens to your metabolism.&lt;/p&gt;
+
+&lt;p&gt;And we&#39;re building. The wiki is growing. The video analysis is getting better. We&#39;re learning what you need and building for that.&lt;/p&gt;
+
+&lt;h2&gt;Thank You&lt;/h2&gt;
+
+&lt;p&gt;For being here. For reading this on day one. For trusting us to help you navigate this space.&lt;/p&gt;
+
+&lt;p&gt;The carnivore internet can be a lot. There&#39;s hype, there&#39;s pseudoscience, there&#39;s people selling things. We&#39;re not here to sell anything. We&#39;re here to make sense of what&#39;s real and what actually works.&lt;/p&gt;
+
+&lt;p&gt;Stick with us. We&#39;re just getting started.&lt;/p&gt;
+
+&lt;p&gt;—Sarah&lt;/p&gt;
+        </div>
+
+        <!-- Sponsor Callout (if present) -->
+        
+
+        <!-- Post Footer -->
+        <div class="post-footer">
+            <!-- Tags -->
+            
+            <div class="tags">
+                
+                <span class="tag">welcome</span>
+                
+                <span class="tag">new-year</span>
+                
+                <span class="tag">getting-started</span>
+                
+                <span class="tag">carnivore-basics</span>
+                
+            </div>
+            
+
+            <!-- Related Posts -->
+            
+
+            <!-- Comments Section -->
+            
+            <div class="comments-section">
+                <h3>Comments</h3>
+                <script src="https://utteranc.es/client.js"
+                    repo="MikeBrew123/carnivore-weekly"
+                    issue-term="pathname"
+                    theme="github-dark"
+                    crossorigin="anonymous"
+                    async>
+                </script>
+            </div>
+            
+        </div>
+
+        <!-- Footer -->
+        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #8b4513; text-align: center; color: #d4a574; font-size: 12px;">
+            <p>&copy; 2025 Carnivore Weekly |
+               <a href="../../about.html" style="color: #d4a574; text-decoration: underline;">About</a> |
+               <a href="../../the-lab.html" style="color: #d4a574; text-decoration: underline;">The Lab</a> |
+               <a href="mailto:feedback@carnivoreweekly.com" style="color: #d4a574; text-decoration: underline;">Contact</a>
+            </p>
+            <p style="margin-top: 10px; font-size: 11px;">
+                🤖 Curated with AI • Made with <a href="https://claude.com/claude-code" style="color: #d4a574; text-decoration: underline;">Claude Code</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -231,7 +231,7 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.7);
         }
 
-        .video-card .video-header {
+.video-card .video-header {
             background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
             color: #f4e4d4;
             padding: 20px;
@@ -820,6 +820,29 @@
         header p {
             text-align: center;
         }
+
+        .calculator-ad {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .calculator-ad a {
+            display: inline-block;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .calculator-ad a:hover {
+            transform: scale(1.02);
+        }
+
+        .calculator-ad img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 3px solid #8b4513;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
     </style>
 
     <!-- Schema.org Article markup (for weekly digest) -->
@@ -864,8 +887,8 @@
     </header>
 
     <!-- Navigation Menu -->
-    <nav class="nav-menu">
-        <a href="index.html" class="active">Home</a>
+    <nav class="nav-menu" id="top-nav">
+        <a href="index.html">Home</a>
         <a href="channels.html">Channels</a>
         <a href="wiki.html">Wiki</a>
         <a href="calculator.html">Calculator</a>
@@ -879,6 +902,7 @@
     </a>
 
     <div class="container">
+        <!-- SECTION: ButcherBox Affiliate Banner | Lines 905-910 | CSS: .sponsor-banner-image | JS: trackAffiliateClick() -->
         <!-- ButcherBox Affiliate Banner -->
         <div class="sponsor-banner-image">
             <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=seasonal_offer" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')">
@@ -886,31 +910,42 @@
             </a>
         </div>
 
-        <!-- Weekly Summary -->
+        <!-- SECTION: Weekly Summary + Calculator Ad | Lines 914-933 | CSS: .section .summary-with-image .calculator-ad | JS: trackAffiliateClick() -->
+        <!-- Weekly Summary - Shows summary text with steak image, calculator promo below -->
         <section class="section">
             <h2>This Week's Roundup</h2>
             <div class="summary-with-image">
                 <div class="summary-text">
-                    This week's carnivore content reveals a significant split in the data collection - the top channel 'The Plant Slant' (1.1M views) is actually a plant-based/anti-carnivore creator, creating confusion in the dataset. Among actual carnivore creators, the focus is heavily on New Year preparation and beginner guidance, with both Dr. Anthony Chaffee and Steak and Butter Gal releasing 'If I Started Carnivore in 2026' content. The community shows strong engagement around practical concerns: nutrient completeness (especially B vitamins), oxalate dumping symptoms, travel logistics, and recipe innovations for those seeking variety while staying carnivore.
+                    Hey friend, how are you feeling as we head into 2026? This week in the carnivore space has been all about fresh starts and honest conversations. I'm seeing a beautiful mix of practical blueprint content (Anthony Chaffee and Steak and Butter Gal both dropped comprehensive "if I started today" guides) alongside some really vulnerable discussions about the messy middle of this journey. What struck me most? The community is maturing. People aren't just talking about weight loss anymore. They're tracking <a href="wiki.html#electrolytes" style="color: #8b4513; text-decoration: none;">electrolyte balance</a>, discussing the nuances of different meat sources, and most importantly, being honest about the non-linear nature of healing.
 
-A notable trend is the emphasis on troubleshooting common failures - Max German's video on mistakes and Courtney Luna's discussion of weight loss stalls generated significant discussion. The community continues to share dramatic health transformations, particularly from former vegetarians/vegans, with multiple testimonials about reversing MS symptoms, IBS, and other chronic conditions. Recipe content remains popular, especially carnivore versions of comfort foods (pancakes, ice cream, kebabs) as creators help followers maintain the diet long-term through the holiday season and into 2026 resolutions.
+Courtney Luna's candid Q&A about her own journey off strict carnivore really resonated with viewers, while Ken Berry sparked important discussions about nutrient diversity (spoiler: you can't actually thrive on beef alone long-term). The vitamin B1 conversation was particularly fascinating from a bio-optimization standpoint. If you're tracking your health markers like I do with my continuous glucose monitor, this week's content offered some solid data points to consider. The undertone? This isn't about perfection. It's about finding your sustainable path to healing.
+
+-Sarah
                 </div>
                 <div class="summary-image">
                     <img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&q=80" alt="Premium ribeye steak">
                 </div>
             </div>
+
+            <!-- Calculator Ad -->
+            <div class="calculator-ad">
+                <a href="calculator.html" onclick="trackAffiliateClick('Diet Calculator', 'calculator.html')">
+                    <img src="images/NewYear-ad.png" alt="Carnivore Diet Calculator - Get Your Personalized Plan">
+                </a>
+            </div>
         </section>
 
         <div class="divider">• • •</div>
 
+        <!-- SECTION: Trending Topics | Lines 937-958 | CSS: .section .trending-topics .topic-card | JS: none -->
         <!-- Trending Topics -->
         <section class="section">
             <h2>What's Sizzling</h2>
             <div class="trending-topics">
                 
                 <div class="topic-card">
-                    <h3>2026 Carnivore Restart Blueprint</h3>
-                    <p>Multiple creators releasing comprehensive guides for starting or restarting carnivore in the new year, focusing on avoiding common mistakes and setting up for success</p>
+                    <h3>2026 Carnivore Blueprints & Fresh Starts</h3>
+                    <p>Multiple creators released comprehensive "starting carnivore in 2026" guides, capitalizing on New Year motivation with detailed roadmaps. The emphasis shifted from just "eat meat" to nuanced advice about fat ratios, electrolytes, and managing adaptation periods.</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
@@ -923,15 +958,15 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                             
                         
                             
-                                <a href="https://youtube.com/channel/UCsOkHWfiPFN3Pt7f9DwMSww" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Max German</a>
+                                <a href="https://youtube.com/channel/UC5apkKkeZQXRSDbqSalG8CQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Shawn Baker MD</a>
                             
                         
                     </div>
                 </div>
                 
                 <div class="topic-card">
-                    <h3>Vitamin B1 (Thiamine) Concerns</h3>
-                    <p>Discussion about whether beef-only carnivore provides adequate B1, with emphasis on pork as the best animal source and addressing nutrient completeness fears</p>
+                    <h3>Vitamin B1 (Thiamine) & Nutrient Diversity</h3>
+                    <p>Ken Berry sparked discussion by revealing pork as the top B1 source and challenging the "beef only" approach. This opened conversations about the importance of variety in animal foods and why strict limitations might create deficiencies.</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
@@ -943,8 +978,46 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                 </div>
                 
                 <div class="topic-card">
-                    <h3>Oxalate Dumping Symptoms</h3>
-                    <p>Community members reporting challenging detox symptoms when transitioning from plant-based diets, including crystals in eyes, migraines, and energy fluctuations</p>
+                    <h3>The Honesty Wave: Imperfect Carnivore Journeys</h3>
+                    <p>Creators are getting vulnerable about falling off track, reintroducing foods, and the reality that healing isn't linear. This authenticity is resonating deeply with viewers tired of all-or-nothing messaging.</p>
+                    <div class="mentioned-by">
+                        <strong>Featured in:</strong>
+                        
+                            
+                                <a href="https://youtube.com/channel/UCzgj3pQycdp7SUUbz56wNCw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Courtney Luna</a>, 
+                            
+                        
+                            
+                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Steak and Butter Gal</a>
+                            
+                        
+                    </div>
+                </div>
+                
+                <div class="topic-card">
+                    <h3>Common Carnivore Mistakes & Why People Quit</h3>
+                    <p>Educational content focused on the top reasons people fail (not enough fat, <a href="wiki.html#dairy" style="color: #8b4513; text-decoration: none;">too much dairy</a>, electrolyte mismanagement). Max German and Anthony Chaffee both tackled this with actionable fixes.</p>
+                    <div class="mentioned-by">
+                        <strong>Featured in:</strong>
+                        
+                            
+                                <a href="https://youtube.com/channel/UCsOkHWfiPFN3Pt7f9DwMSww" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Max German</a>, 
+                            
+                        
+                            
+                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Anthony Chaffee MD</a>, 
+                            
+                        
+                            
+                                <a href="https://youtube.com/channel/UCIma2WOQs1Mz2AuOt6wRSUw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">KenDBerryMD</a>
+                            
+                        
+                    </div>
+                </div>
+                
+                <div class="topic-card">
+                    <h3>Oxalate Dumping & Adaptation Symptoms</h3>
+                    <p>Anthony Chaffee's explanation of why people feel worse before better (oxalate crystal release from years of plant consumption) helped many viewers understand their symptoms weren't carnivore failing them.</p>
                     <div class="mentioned-by">
                         <strong>Featured in:</strong>
                         
@@ -955,49 +1028,12 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     </div>
                 </div>
                 
-                <div class="topic-card">
-                    <h3>Carnivore Weight Loss Stalls</h3>
-                    <p>Addressing the controversial topic of why some people don't lose weight on carnivore, with discussion of calories, fat ratios, and metabolic healing timeframes</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCzgj3pQycdp7SUUbz56wNCw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Courtney Luna</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCsOkHWfiPFN3Pt7f9DwMSww" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Max German</a>
-                            
-                        
-                    </div>
-                </div>
-                
-                <div class="topic-card">
-                    <h3>Carnivore Comfort Food Recipes</h3>
-                    <p>Surge in recipe content for carnivore versions of traditional favorites (pancakes, ice cream, kebabs, cakes) to help with long-term adherence</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Steak and Butter Gal</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCzgj3pQycdp7SUUbz56wNCw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Courtney Luna</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCHBKeyrOcwUFAgrDrU_dQkw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Modo Primal Podcast</a>
-                            
-                        
-                    </div>
-                </div>
-                
             </div>
         </section>
 
         <div class="divider">• • •</div>
 
+        <!-- SECTION: Top Videos + Filters | Lines 962-1187 | CSS: .section .video-grid .video-card .tag-filter-btn #top-videos-grid | JS: filterVideosByTag() filterVideosByCreator() -->
         <!-- Top Videos -->
         <section class="section">
             <h2>Prime Cuts - Top Videos</h2>
@@ -1054,8 +1090,6 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         
                             
                                 
-                            
-                                
                                     
                                 
                             
@@ -1068,14 +1102,18 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                                 
                             
                                 
-                            
-                                
                                     
+                                
+                            
                                 
                             
                         
                     
                         
+                            
+                                
+                                    
+                                
                             
                                 
                                     
@@ -1086,6 +1124,22 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         
                     
 
+                    
+                    <button onclick="filterVideosByTag('advanced')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="advanced">
+                        #advanced
+                    </button>
                     
                     <button onclick="filterVideosByTag('beginners')" style="
                         padding: 8px 16px;
@@ -1101,22 +1155,6 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     class="tag-filter-btn"
                     data-tag="beginners">
                         #beginners
-                    </button>
-                    
-                    <button onclick="filterVideosByTag('debate')" style="
-                        padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
-                        color: #d4a574;
-                        border: 2px solid #d4a574;
-                        border-radius: 20px;
-                        cursor: pointer;
-                        font-weight: 500;
-                        font-family: 'Merriweather', serif;
-                        transition: all 0.3s ease;
-                    "
-                    class="tag-filter-btn"
-                    data-tag="debate">
-                        #debate
                     </button>
                     
                     <button onclick="filterVideosByTag('electrolytes')" style="
@@ -1151,7 +1189,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         #fat
                     </button>
                     
-                    <button onclick="filterVideosByTag('organ meats')" style="
+                    <button onclick="filterVideosByTag('inflammation')" style="
                         padding: 8px 16px;
                         background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
                         color: #d4a574;
@@ -1163,11 +1201,11 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         transition: all 0.3s ease;
                     "
                     class="tag-filter-btn"
-                    data-tag="organ meats">
-                        #organ meats
+                    data-tag="inflammation">
+                        #inflammation
                     </button>
                     
-                    <button onclick="filterVideosByTag('protein')" style="
+                    <button onclick="filterVideosByTag('meal prep')" style="
                         padding: 8px 16px;
                         background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
                         color: #d4a574;
@@ -1179,8 +1217,8 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         transition: all 0.3s ease;
                     "
                     class="tag-filter-btn"
-                    data-tag="protein">
-                        #protein
+                    data-tag="meal prep">
+                        #meal prep
                     </button>
                     
                     <button onclick="filterVideosByTag('science')" style="
@@ -1197,6 +1235,22 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     class="tag-filter-btn"
                     data-tag="science">
                         #science
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('testimonials')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="testimonials">
+                        #testimonials
                     </button>
                     
                     <button onclick="filterVideosByTag('weight loss')" style="
@@ -1265,8 +1319,6 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     
                         
                     
-                        
-                            
                         
                     
                         
@@ -1337,22 +1389,6 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         👤 Max German
                     </button>
                     
-                    <button onclick="filterVideosByCreator('Shawn Baker MD')" style="
-                        padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
-                        color: #d4a574;
-                        border: 2px solid #d4a574;
-                        border-radius: 20px;
-                        cursor: pointer;
-                        font-weight: 500;
-                        font-family: 'Merriweather', serif;
-                        transition: all 0.3s ease;
-                    "
-                    class="creator-filter-btn"
-                    data-creator="Shawn Baker MD">
-                        👤 Shawn Baker MD
-                    </button>
-                    
                     <button onclick="filterVideosByCreator('Steak and Butter Gal')" style="
                         padding: 8px 16px;
                         background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
@@ -1372,9 +1408,9 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                 </div>
             </div>
 
-            <div class="video-grid">
+            <div class="video-grid" id="top-videos-grid">
                 
-                <div class="video-card" data-tags="beginners fat protein" data-creator="Anthony Chaffee MD">
+                <div class="video-card" data-tags="beginners fat meal prep" data-creator="Anthony Chaffee MD">
                     <!-- VideoObject Schema for search engines -->
                     
                     <script type="application/ld+json">
@@ -1382,7 +1418,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                       "@context": "https://schema.org",
                       "@type": "VideoObject",
                       "name": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
-                      "description": "Dr. Anthony Chaffee provides a complete starting blueprint for the carnivore diet in 2026, covering what to eat, how to handle the adaptation period, and common mistakes to avoid. Key insight: He emphasizes eating fatty cuts of ruminant meat to satiety rather than tracking macros or calories, which helps your body naturally regulate intake during the initial transition. Watch if you're considering starting carnivore or want to troubleshoot early adaptation issues like fatigue or digestive changes.",
+                      "description": "Dr. Anthony Chaffee shares his complete blueprint for starting the carnivore diet in 2026, covering what to eat, how to handle the transition period, and common mistakes that derail beginners. A key insight is his emphasis on eating fatty cuts of meat to satiety rather than tracking macros or calories, which he says prevents the fatigue and cravings that make people quit early. Watch if you're considering starting carnivore or if you've tried before but struggled with low energy or sustainable results.",
                       "thumbnailUrl": "https://img.youtube.com/vi/6ExSc9OdIIA/mqdefault.jpg",
                       "uploadDate": "2025-12-27T14:20:51Z",
                       "contentUrl": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
@@ -1422,14 +1458,14 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         <div class="video-body">
                         <div class="stats">
                             <div class="stat">
-                                <div class="stat-value">88,000</div>
+                                <div class="stat-value">91,535</div>
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
 
                         <!-- Video summary (new) -->
                         
-                        <p class="video-summary">Dr. Anthony Chaffee provides a complete starting blueprint for the carnivore diet in 2026, covering what to eat, how to handle the adaptation period, and common mistakes to avoid. Key insight: He emphasizes eating fatty cuts of ruminant meat to satiety rather than tracking macros or calories, which helps your body naturally regulate intake during the initial transition. Watch if you're considering starting carnivore or want to troubleshoot early adaptation issues like fatigue or digestive changes.</p>
+                        <p class="video-summary">Dr. Anthony Chaffee shares his complete blueprint for starting the carnivore diet in 2026, covering what to eat, how to handle the transition period, and common mistakes that derail beginners. A key insight is his emphasis on eating fatty cuts of meat to satiety rather than tracking macros or calories, which he says prevents the fatigue and cravings that make people quit early. Watch if you're considering starting carnivore or if you've tried before but struggled with low energy or sustainable results.</p>
                         
 
                         <!-- Video tags (new) -->
@@ -1440,7 +1476,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                             
                             <span class="tag">#fat</span>
                             
-                            <span class="tag">#protein</span>
+                            <span class="tag">#meal prep</span>
                             
                         </div>
                         
@@ -1449,11 +1485,11 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
                             <strong>Comment Sentiment:</strong> POSITIVE
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 80%</span>
+                                <span style="color: #90ee90;">👍 75%</span>
                                 <span style="color: #ffa07a;">👎 10%</span>
-                                <span style="color: #d4a574;">➖ 10%</span>
+                                <span style="color: #d4a574;">➖ 15%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Enthusiastic supporters of the carnivore diet share personal experiences and success stories with genuine excitement and optimism.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Enthusiastic supporters of the carnivore diet share personal experiences and gratitude, with minor acknowledgment of past challenges.</p>
                         </div>
                         
 
@@ -1466,7 +1502,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     </div>
                 </div>
                 
-                <div class="video-card" data-tags="science organ meats" data-creator="KenDBerryMD">
+                <div class="video-card" data-tags="science advanced" data-creator="KenDBerryMD">
                     <!-- VideoObject Schema for search engines -->
                     
                     <script type="application/ld+json">
@@ -1474,7 +1510,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                       "@context": "https://schema.org",
                       "@type": "VideoObject",
                       "name": "The Best Source Of Vitamin B1 On The Planet",
-                      "description": "Dr. Ken Berry reveals that pork is the richest natural source of vitamin B1 (thiamine), containing significantly more than beef or other meats, which matters for carnivore dieters who need to ensure adequate B vitamin intake without supplements. The key takeaway is that adding pork to your carnivore rotation 2-3 times per week can help prevent thiamine deficiency symptoms like fatigue, brain fog, and muscle weakness. Watch if you're eating mostly beef and experiencing low energy or wondering how to optimize your nutrient intake on a meat-based diet.",
+                      "description": "Dr. Ken Berry reveals that pork is the richest natural source of vitamin B1 (thiamine), containing significantly more than beef or other meats, which matters because many carnivores unknowingly develop B1 deficiency that causes fatigue and brain fog. He explains that eating pork 2-3 times per week can prevent thiamine deficiency without needing supplements, making this especially important for carnivores who primarily eat beef and wonder why they feel tired despite eating enough protein and fat. Watch if you're experiencing unexplained fatigue, poor focus, or muscle weakness on carnivore, as low B1 could be the missing piece.",
                       "thumbnailUrl": "https://img.youtube.com/vi/UzN38EgKBJo/mqdefault.jpg",
                       "uploadDate": "2025-12-29T11:32:22Z",
                       "contentUrl": "https://www.youtube.com/watch?v=UzN38EgKBJo"
@@ -1514,14 +1550,14 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         <div class="video-body">
                         <div class="stats">
                             <div class="stat">
-                                <div class="stat-value">68,197</div>
+                                <div class="stat-value">74,120</div>
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
 
                         <!-- Video summary (new) -->
                         
-                        <p class="video-summary">Dr. Ken Berry reveals that pork is the richest natural source of vitamin B1 (thiamine), containing significantly more than beef or other meats, which matters for carnivore dieters who need to ensure adequate B vitamin intake without supplements. The key takeaway is that adding pork to your carnivore rotation 2-3 times per week can help prevent thiamine deficiency symptoms like fatigue, brain fog, and muscle weakness. Watch if you're eating mostly beef and experiencing low energy or wondering how to optimize your nutrient intake on a meat-based diet.</p>
+                        <p class="video-summary">Dr. Ken Berry reveals that pork is the richest natural source of vitamin B1 (thiamine), containing significantly more than beef or other meats, which matters because many carnivores unknowingly develop B1 deficiency that causes fatigue and brain fog. He explains that eating pork 2-3 times per week can prevent thiamine deficiency without needing supplements, making this especially important for carnivores who primarily eat beef and wonder why they feel tired despite eating enough protein and fat. Watch if you're experiencing unexplained fatigue, poor focus, or muscle weakness on carnivore, as low B1 could be the missing piece.</p>
                         
 
                         <!-- Video tags (new) -->
@@ -1530,7 +1566,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                             
                             <span class="tag">#science</span>
                             
-                            <span class="tag">#organ meats</span>
+                            <span class="tag">#advanced</span>
                             
                         </div>
                         
@@ -1543,12 +1579,102 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                                 <span style="color: #ffa07a;">👎 0%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters express appreciation for the content and enthusiasm about pork as a nutritious, affordable food source.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Viewers express enthusiasm and appreciation for the informative content about pork's vitamin B1 benefits, with warm and supportive comments.</p>
                         </div>
                         
 
                         
                         <a href="https://youtube.com/watch?v=UzN38EgKBJo" target="_blank" class="watch-btn">
+                            ▶ Watch Now
+                        </a>
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="testimonials beginners" data-creator="Courtney Luna">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "An Honest Conversation",
+                      "description": "Courtney Luna shares an honest discussion about the challenges and realities of following a carnivore diet long-term, including common struggles people don't often talk about openly. The key takeaway is that progress isn't always linear, and mental shifts matter just as much as physical changes when sticking with this way of eating. Watch if you're feeling discouraged on carnivore or wondering whether the obstacles you're facing are normal.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/hwcgWXf5fWQ/mqdefault.jpg",
+                      "uploadDate": "2025-12-30T18:01:01Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=hwcgWXf5fWQ"
+                    }
+                    </script>
+                    
+
+                    
+                    <a href="https://youtube.com/watch?v=hwcgWXf5fWQ" target="_blank">
+                        <img src="https://img.youtube.com/vi/hwcgWXf5fWQ/mqdefault.jpg"
+                             alt="An Honest Conversation"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=hwcgWXf5fWQ" target="_blank">
+                                    An Honest Conversation
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCzgj3pQycdp7SUUbz56wNCw" target="_blank">
+                                    Courtney Luna
+                                </a>
+                                
+                                
+                                <br>On: Dec 30/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">2,796</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p class="video-summary">Courtney Luna shares an honest discussion about the challenges and realities of following a carnivore diet long-term, including common struggles people don't often talk about openly. The key takeaway is that progress isn't always linear, and mental shifts matter just as much as physical changes when sticking with this way of eating. Watch if you're feeling discouraged on carnivore or wondering whether the obstacles you're facing are normal.</p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#testimonials</span>
+                            
+                            <span class="tag">#beginners</span>
+                            
+                        </div>
+                        
+
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
+                            <strong>Comment Sentiment:</strong> POSITIVE
+                            <div style="margin-top: 10px; display: flex; gap: 15px;">
+                                <span style="color: #90ee90;">👍 70%</span>
+                                <span style="color: #ffa07a;">👎 10%</span>
+                                <span style="color: #d4a574;">➖ 20%</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Supportive comments highlighting personal health journeys, appreciation for the content creator, and encouraging messages with mostly optimistic tones.</p>
+                        </div>
+                        
+
+                        
+                        <a href="https://youtube.com/watch?v=hwcgWXf5fWQ" target="_blank" class="watch-btn">
                             ▶ Watch Now
                         </a>
                         
@@ -1564,7 +1690,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                       "@context": "https://schema.org",
                       "@type": "VideoObject",
                       "name": "If I Started Carnivore in 2026, I'd Do This",
-                      "description": "Steak and Butter Gal shares her updated approach to starting the carnivore diet in 2026, focusing on what she'd do differently based on years of experience. The key insight is prioritizing proper electrolyte balance and adequate fat intake from day one, rather than learning through trial and error. Watch if you're new to carnivore or struggling with energy levels, cravings, or adaptation symptoms during your first few months.",
+                      "description": "Steak and Butter Gal shares her updated approach to starting the carnivore diet in 2026, focusing on what she'd do differently based on years of experience. The key insight is prioritizing proper electrolyte balance and fat intake from day one, rather than learning through trial and error. Watch if you're new to carnivore or struggling with energy levels and adaptation symptoms during your first few months.",
                       "thumbnailUrl": "https://img.youtube.com/vi/cPIYOqSF1aQ/mqdefault.jpg",
                       "uploadDate": "2025-12-24T19:00:40Z",
                       "contentUrl": "https://www.youtube.com/watch?v=cPIYOqSF1aQ"
@@ -1604,14 +1730,14 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         <div class="video-body">
                         <div class="stats">
                             <div class="stat">
-                                <div class="stat-value">69,336</div>
+                                <div class="stat-value">70,929</div>
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
 
                         <!-- Video summary (new) -->
                         
-                        <p class="video-summary">Steak and Butter Gal shares her updated approach to starting the carnivore diet in 2026, focusing on what she'd do differently based on years of experience. The key insight is prioritizing proper electrolyte balance and adequate fat intake from day one, rather than learning through trial and error. Watch if you're new to carnivore or struggling with energy levels, cravings, or adaptation symptoms during your first few months.</p>
+                        <p class="video-summary">Steak and Butter Gal shares her updated approach to starting the carnivore diet in 2026, focusing on what she'd do differently based on years of experience. The key insight is prioritizing proper electrolyte balance and fat intake from day one, rather than learning through trial and error. Watch if you're new to carnivore or struggling with energy levels and adaptation symptoms during your first few months.</p>
                         
 
                         <!-- Video tags (new) -->
@@ -1632,10 +1758,10 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                             <strong>Comment Sentiment:</strong> POSITIVE
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
                                 <span style="color: #90ee90;">👍 80%</span>
-                                <span style="color: #ffa07a;">👎 5%</span>
-                                <span style="color: #d4a574;">➖ 15%</span>
+                                <span style="color: #ffa07a;">👎 0%</span>
+                                <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share overwhelmingly positive personal experiences with the carnivore diet, highlighting health improvements and benefits</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters share enthusiastic personal success stories about carnivore diet benefits, particularly related to health improvements and blood sugar management.</p>
                         </div>
                         
 
@@ -1648,7 +1774,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     </div>
                 </div>
                 
-                <div class="video-card" data-tags="protein fat weight loss" data-creator="Max German">
+                <div class="video-card" data-tags="inflammation weight loss advanced" data-creator="Max German">
                     <!-- VideoObject Schema for search engines -->
                     
                     <script type="application/ld+json">
@@ -1656,7 +1782,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                       "@context": "https://schema.org",
                       "@type": "VideoObject",
                       "name": "STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results",
-                      "description": "Max German reveals the most common mistake that sabotages carnivore diet results: consuming too much protein relative to fat, which can spike insulin and prevent fat loss. He explains how to find your optimal protein-to-fat ratio and why adding more fatty cuts of meat can break through plateaus. Watch if you've been eating lean meats like chicken breast and ground beef but aren't seeing weight loss or energy improvements you expected.",
+                      "description": "Max German reveals the most common mistakes that sabotage carnivore diet results, focusing on hidden pitfalls that even experienced carnivores overlook. The key takeaway is identifying specific foods or habits marketed as \"carnivore-friendly\" that actually stall fat loss and cause inflammation. Watch if you're following carnivore strictly but not seeing the results you expected, or if you've hit a plateau despite eating only animal products.",
                       "thumbnailUrl": "https://img.youtube.com/vi/GyOQiuIKf0I/mqdefault.jpg",
                       "uploadDate": "2025-12-26T11:00:35Z",
                       "contentUrl": "https://www.youtube.com/watch?v=GyOQiuIKf0I"
@@ -1696,25 +1822,25 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         <div class="video-body">
                         <div class="stats">
                             <div class="stat">
-                                <div class="stat-value">33,808</div>
+                                <div class="stat-value">35,039</div>
                                 <div class="stat-label">Views</div>
                             </div>
                         </div>
 
                         <!-- Video summary (new) -->
                         
-                        <p class="video-summary">Max German reveals the most common mistake that sabotages carnivore diet results: consuming too much protein relative to fat, which can spike insulin and prevent fat loss. He explains how to find your optimal protein-to-fat ratio and why adding more fatty cuts of meat can break through plateaus. Watch if you've been eating lean meats like chicken breast and ground beef but aren't seeing weight loss or energy improvements you expected.</p>
+                        <p class="video-summary">Max German reveals the most common mistakes that sabotage carnivore diet results, focusing on hidden pitfalls that even experienced carnivores overlook. The key takeaway is identifying specific foods or habits marketed as "carnivore-friendly" that actually stall fat loss and cause inflammation. Watch if you're following carnivore strictly but not seeing the results you expected, or if you've hit a plateau despite eating only animal products.</p>
                         
 
                         <!-- Video tags (new) -->
                         
                         <div class="video-tags">
                             
-                            <span class="tag">#protein</span>
-                            
-                            <span class="tag">#fat</span>
+                            <span class="tag">#inflammation</span>
                             
                             <span class="tag">#weight loss</span>
+                            
+                            <span class="tag">#advanced</span>
                             
                         </div>
                         
@@ -1723,106 +1849,16 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
                             <strong>Comment Sentiment:</strong> POSITIVE
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 80%</span>
-                                <span style="color: #ffa07a;">👎 0%</span>
+                                <span style="color: #90ee90;">👍 70%</span>
+                                <span style="color: #ffa07a;">👎 10%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters are enthusiastic about the carnivore diet, sharing personal successes and positive experiences with specific meat choices and lifestyle adaptations.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters are generally enthusiastic about the carnivore diet, sharing personal experiences and insights with a supportive tone.</p>
                         </div>
                         
 
                         
                         <a href="https://youtube.com/watch?v=GyOQiuIKf0I" target="_blank" class="watch-btn">
-                            ▶ Watch Now
-                        </a>
-                        
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="video-card" data-tags="debate science" data-creator="Shawn Baker MD">
-                    <!-- VideoObject Schema for search engines -->
-                    
-                    <script type="application/ld+json">
-                    {
-                      "@context": "https://schema.org",
-                      "@type": "VideoObject",
-                      "name": "And yet somehow meat is the problem…",
-                      "description": "Dr. Shawn Baker challenges the mainstream narrative that meat causes health problems by examining contradictions in common dietary advice. The key insight is understanding how to respond when others criticize your carnivore lifestyle with outdated nutritional claims. Watch if you're tired of defending your meat-based diet to friends, family, or doctors who claim it's unhealthy.",
-                      "thumbnailUrl": "https://img.youtube.com/vi/_Qf_akqDdp4/mqdefault.jpg",
-                      "uploadDate": "2025-12-29T02:05:41Z",
-                      "contentUrl": "https://www.youtube.com/watch?v=_Qf_akqDdp4"
-                    }
-                    </script>
-                    
-
-                    
-                    <a href="https://youtube.com/watch?v=_Qf_akqDdp4" target="_blank">
-                        <img src="https://img.youtube.com/vi/_Qf_akqDdp4/mqdefault.jpg"
-                             alt="And yet somehow meat is the problem…"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
-                    <div class="video-content">
-                        <div class="video-header">
-                            <h3>
-                                
-                                <a href="https://youtube.com/watch?v=_Qf_akqDdp4" target="_blank">
-                                    And yet somehow meat is the problem…
-                                </a>
-                                
-                            </h3>
-                            <p class="creator">
-                                by
-                                
-                                <a href="https://youtube.com/channel/UC5apkKkeZQXRSDbqSalG8CQ" target="_blank">
-                                    Shawn Baker MD
-                                </a>
-                                
-                                
-                                <br>On: Dec 29/25
-                                
-                            </p>
-                        </div>
-                        <div class="video-body">
-                        <div class="stats">
-                            <div class="stat">
-                                <div class="stat-value">26,088</div>
-                                <div class="stat-label">Views</div>
-                            </div>
-                        </div>
-
-                        <!-- Video summary (new) -->
-                        
-                        <p class="video-summary">Dr. Shawn Baker challenges the mainstream narrative that meat causes health problems by examining contradictions in common dietary advice. The key insight is understanding how to respond when others criticize your carnivore lifestyle with outdated nutritional claims. Watch if you're tired of defending your meat-based diet to friends, family, or doctors who claim it's unhealthy.</p>
-                        
-
-                        <!-- Video tags (new) -->
-                        
-                        <div class="video-tags">
-                            
-                            <span class="tag">#debate</span>
-                            
-                            <span class="tag">#science</span>
-                            
-                        </div>
-                        
-
-                        
-                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
-                            <strong>Comment Sentiment:</strong> NEGATIVE
-                            <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 0%</span>
-                                <span style="color: #ffa07a;">👎 80%</span>
-                                <span style="color: #d4a574;">➖ 20%</span>
-                            </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters express strong criticism about unhealthy eating habits and perceived societal health problems.</p>
-                        </div>
-                        
-
-                        
-                        <a href="https://youtube.com/watch?v=_Qf_akqDdp4" target="_blank" class="watch-btn">
                             ▶ Watch Now
                         </a>
                         
@@ -1840,6 +1876,7 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
             <img src="lmnt-box.avif" alt="LMNT electrolyte salt variety box" style="width: 100%; max-width: 500px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
         </a>
 
+        <!-- SECTION: Key Insights | Lines 1169-1185 | CSS: .section .insights-list | JS: none -->
         <!-- Key Insights -->
         <section class="section">
             <h2>Butcher's Wisdom</h2>
@@ -1850,32 +1887,27 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
             </div>
             <ul class="insights-list">
                 
-                <li>New Year timing is driving a surge in 'carnivore restart' content, with creators positioning January 2026 as the optimal time for beginners or those who fell off to recommit with proper guidance</li>
+                <li>**The Nutrient Diversity Conversation Is Heating Up**: Ken Berry's B1 content challenges the "beef only" dogma. If you're tracking micronutrients (which I recommend via regular blood panels), this matters. Pork, eggs, and organ meats aren't just "allowed" - they're nutritionally strategic. Bio-hackers take note.</li>
                 
-                <li>The beef-only vs. varied carnivore debate is heating up, particularly around B vitamin adequacy. Ken Berry's emphasis on pork for B1 challenges the 'lion diet' (beef-only) approach some advocates promote</li>
+                <li>**Oxalate Dumping Explains the Adaptation Struggle**: Anthony Chaffee's explanation of why former plant-eaters feel worse initially (crystal deposits releasing from tissues) is helping people stay the course instead of quitting at day 14. This is huge for retention and long-term success.</li>
                 
-                <li>Former vegetarians/vegans represent a significant and passionate segment of the carnivore community, often reporting the most dramatic health transformations and becoming the most vocal advocates</li>
+                <li>**Permission for Imperfection Is Resonating**: Courtney Luna's honest discussion about being "mostly carnivore" got more meaningful engagement than many stricter approaches. The community is craving sustainable over perfect. This is the maturation of the movement.</li>
                 
-                <li>Oxalate dumping is emerging as a critical topic that needs more mainstream carnivore discussion, as many plant-to-carnivore transitioners experience alarming symptoms (crystals in eyes, severe migraines) without understanding the detox process</li>
+                <li>**Electrolyte Management Remains Misunderstood**: Despite years of content, people are still struggling with this. Max German's video highlighting it as a top mistake confirms this is an ongoing education gap. If you're using Whoop or Oura, track how your HRV responds to better sodium/potassium balance.</li>
                 
-                <li>Weight loss stalls on carnivore remain controversial, with tension between 'eat to satiety, never count calories' purists and those acknowledging that some people need calorie awareness or have metabolic damage requiring patience</li>
-                
-                <li>Recipe content serves a crucial retention function - creators recognize that long-term adherence requires addressing psychological food needs, not just nutritional ones. Carnivore versions of comfort foods help people stay compliant</li>
-                
-                <li>The community shows strong skepticism toward mainstream medical advice, with recurring themes of medical gaslighting, failed plant-based recommendations from doctors, and self-directed healing journeys</li>
-                
-                <li>Travel and social logistics remain a practical barrier, with creators offering tactical advice (packing coolers on flights, seeking Five Guys/Chipotle, explaining diet to family) to help followers maintain the diet in real-world situations</li>
+                <li>**The "Why People Quit" Content Performs Exceptionally Well**: Videos addressing failure points and mistakes get high engagement because they validate struggles instead of just celebrating wins. This signals the audience wants problem-solving, not just inspiration.</li>
                 
             </ul>
         </section>
 
         <div class="divider">• • •</div>
 
+        <!-- SECTION: Community Voice + Q&A | Lines 1188-1307 | CSS: .section .sentiment .qa-accordion .qa-item | JS: toggleAnswer() -->
         <!-- Community Voice -->
         <section class="section">
             <h2>Community Voice</h2>
             <div class="sentiment">
-                <h3>Overall Mood: <span class="badge">POSITIVE WITH EVANGELICAL ENTHUSIASM</span></h3>
+                <h3>Overall Mood: <span class="badge">POSITIVE WITH REFRESHING REALISM</span></h3>
 
                 
                 <h3 style="margin-top: 30px;">Success Stories:</h3>
@@ -1883,10 +1915,10 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     
                     <li>
                         
-                            Former vegetarian/vegan for 15+ years, almost gave up meat forever due to propaganda, now thriving on carnivore after suffering on plants
+                            Former vegetarian/vegan of 15+ years, almost only eating plants for rest of life due to family pressure, started carnivore and experiencing significant positive changes despite initial skepticism.
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Unknown commenter
+                                — Anonymous commenter
                                 
                                 on <a href="https://youtube.com/watch?v=7j6ZZAtDSm4" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Carnivore Diet: Your Questions Answered! | Dr Anthony Chaffee</a>
                                 
@@ -1896,10 +1928,10 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     
                     <li>
                         
-                            74 years old, was vegan for 3 years, now 2 months carnivore and feeling much better. Stunned daily by how quickly body is recovering from horrific health issues after 64 years
+                            74 years old, was vegan for 3 years, 2 months on carnivore and feeling much better. Addressing long-term health issues and stunned by how quickly body is responding.
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Unknown commenter
+                                — Anonymous commenter
                                 
                                 on <a href="https://youtube.com/watch?v=7j6ZZAtDSm4" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Carnivore Diet: Your Questions Answered! | Dr Anthony Chaffee</a>
                                 
@@ -1909,12 +1941,12 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     
                     <li>
                         
-                            Muscle spasms from MS have definitely decreased when staying strictly carnivore; they increase when eating non-carnivore foods
+                            Carnivore saved them from suicidal postpartum depression. Had 1 completed but failed attempt. Would 100% be dead without this way of eating.
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Unknown commenter
+                                — Anonymous commenter
                                 
-                                on <a href="https://youtube.com/watch?v=EpnMvQmxPhQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">What Should I Eat On The Carnivore Diet? 👉</a>
+                                on <a href="https://youtube.com/watch?v=rbUJM2D-CD0" target="_blank" style="color: #f4e4d4; text-decoration: underline;">NEW 90 Day Carnivore Challenge! #shorts #short #weightloss</a>
                                 
                             </em>
                         
@@ -1922,12 +1954,12 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     
                     <li>
                         
-                            Former vegetarian with significant intestinal issues; carnivore diet completely cleared them up
+                            Today marks their Carniversary (1 year carnivore). Best decision of life. No meds, no supplements, no cravings. Expressing gratitude.
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Unknown commenter
+                                — Anonymous commenter
                                 
-                                on <a href="https://youtube.com/watch?v=Au7UkOO6t1E" target="_blank" style="color: #f4e4d4; text-decoration: underline;">The Best Ways to Fix Your Gut (That Actually Work)</a>
+                                on <a href="https://youtube.com/watch?v=jzJaQUA8_ds" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Just 1 Cup Before 10AM Guarantees Weight Loss</a>
                                 
                             </em>
                         
@@ -1935,12 +1967,12 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     
                     <li>
                         
-                            4+ years thriving on carnivore at 76 years old, healthy with no pain, no meds, no supplements. Friends are amazed after 5 years in Halifax, Canada
+                            44 years vegetarian, now 7 days carnivore and celebrating this milestone during first Christmas without carbs and junk. Only meat, bacon, butter, eggs.
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Unknown commenter
+                                — Anonymous commenter
                                 
-                                on <a href="https://youtube.com/watch?v=odRB4SQo1v0" target="_blank" style="color: #f4e4d4; text-decoration: underline;">MONDAY NIGHT LIVE with Dr. Ken Berry & Nurse Neisha</a>
+                                on <a href="https://youtube.com/watch?v=rbUJM2D-CD0" target="_blank" style="color: #f4e4d4; text-decoration: underline;">NEW 90 Day Carnivore Challenge! #shorts #short #weightloss</a>
                                 
                             </em>
                         
@@ -1948,10 +1980,10 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     
                     <li>
                         
-                            Was vegetarian for 20 years, diagnosed with IBS 2 years ago with zero solutions from doctor. Going carnivore after exhausting plant-based approaches
+                            20-year vegetarian diagnosed with IBS 2 years ago. Zero solid solutions from the medical world despite invasive tests and procedures. Trying carnivore as last resort.
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Unknown commenter
+                                — Anonymous commenter
                                 
                                 on <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">If I Started Carnivore in 2026, I'd Do This</a>
                                 
@@ -1961,10 +1993,10 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     
                     <li>
                         
-                            Ocular migraines disappeared after 3+ years on carnivore
+                            Thriving on carnivore for 4 years at 76 years old. Healthy with no pain, no meds, no supplements. Living proof of long-term success.
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Unknown commenter
+                                — Anonymous commenter
                                 
                                 on <a href="https://youtube.com/watch?v=odRB4SQo1v0" target="_blank" style="color: #f4e4d4; text-decoration: underline;">MONDAY NIGHT LIVE with Dr. Ken Berry & Nurse Neisha</a>
                                 
@@ -1974,12 +2006,12 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                     
                     <li>
                         
-                            Lost 110 lbs on keto eating 900-1000 calories, then went carnivore 6 months ago and successfully reverse dieted up to 1800 calories while continuing progress
+                            Lost 40 pounds in first 90 days of carnivore. Feels better than since being in the military. Significant physical transformation.
                             <br>
                             <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Unknown commenter
+                                — Anonymous commenter
                                 
-                                on <a href="https://youtube.com/watch?v=iG7opLpnCms" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Carnivore Didn't Fix Your Weight Loss? You're Missing This</a>
+                                on <a href="https://youtube.com/watch?v=zAFLcFnbIkU" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Why are eating these foods so problematic?</a>
                                 
                             </em>
                         
@@ -1998,150 +2030,255 @@ A notable trend is the emphasis on troubleshooting common failures - Max German'
                 
                 <div class="qa-item">
                     <div class="qa-question" onclick="toggleAnswer(this)">
-                        Why am I not losing weight on carnivore despite eating only meat?
+                        How do I know if I'm getting enough fat vs. too much protein?
                     </div>
                     <div class="qa-answer">
-                        <p>Hey there! I totally get how frustrating weight loss plateaus can feel. When it comes to the carnivore diet and weight loss, the science gets pretty nuanced. Research suggests that simply eliminating carbs doesn't guarantee weight loss - calorie balance is still king. My Oura ring data and blood glucose tracking have shown me how individual metabolic responses can be.
+                        <p>Hey there! When it comes to balancing fat and protein on a carnivore diet, it's all about understanding your body's unique metabolic signals. Research suggests that the ideal macronutrient ratio can vary based on individual factors like activity level, metabolic health, and personal goals.
 
-    A 2020 study in Nutrients highlighted that while high-protein, low-carb diets can trigger metabolic advantages, total caloric intake matters most. If you're consuming more calories from meat than you're burning, weight loss stalls. Factors like insulin sensitivity, stress levels (tracked beautifully on my WHOOP), sleep quality, and individual metabolic differences play huge roles.
+Using continuous glucose monitors and tracking ketone levels can help you dial in your specific needs. A good starting point is aiming for approximately 70-80% of calories from fat, with protein around 20-30%. Symptoms like persistent hunger, energy crashes, or difficulty maintaining ketosis might indicate you're not hitting the right fat-to-protein balance.
 
-    For sustainable weight transformation, I recommend tracking not just calories but macronutrient ratios, stress markers, and recovery metrics. Consider working with a metabolic specialist who can do detailed blood panel analysis to understand your unique biochemistry. Your body is telling a complex story - we just need to listen carefully.</p>
+Recent metabolic research indicates that protein intake beyond 1.6-2.2 grams per kg of body weight can potentially trigger gluconeogenesis, which might bump you out of the metabolic state you're seeking. My recommendation? Start tracking your biomarkers. Tools like Levels CGM or Oura Ring can give you real-time insights into how different macronutrient ratios impact your metabolism.</p>
 
+                        <!-- Wiki Cross-Links -->
                         
-                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
-                            <strong>-Sarah</strong>
-                        </p>
                         
-
                         
-
                         
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        Is beef-only carnivore nutritionally complete, especially for B vitamins?
-                    </div>
-                    <div class="qa-answer">
-                        <p>Hey there! When it comes to a beef-only carnivore diet and nutritional completeness, the science gets pretty nuanced. Research suggests beef is an incredibly nutrient-dense food, especially for B vitamins like B12, but total nutritional completeness is more complicated.
-
-Beef provides exceptional levels of bioavailable vitamin B12, zinc, and high-quality protein. A 2022 nutrition review in the Journal of Nutritional Science showed grass-fed beef contains significantly higher micronutrient density compared to grain-fed varieties. However, a pure beef-only approach might create potential deficiencies in vitamin C, folate, and certain trace minerals that typically come from plant sources.
-
-My recommendation? If you're exploring a carnivore approach, consider liver as a 'superfood' complement to muscle meat. Beef liver dramatically increases micronutrient profiles and provides a more comprehensive nutritional spectrum. I've seen clients using continuous glucose monitors (like my beloved Levels app) track incredible metabolic responses when integrating organ meats strategically.</p>
-
-                        
-                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
-                            <strong>-Sarah</strong>
-                        </p>
-                        
-
-                        
-
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        What are these detox symptoms I'm experiencing (oxalate dumping)?
-                    </div>
-                    <div class="qa-answer">
-                        <p>Hey there! When diving into significant dietary shifts like a carnivore approach, your body can definitely experience some interesting transitions. 'Oxalate dumping' is a fascinating phenomenon where individuals switching to high-protein, low-oxalate diets might experience temporary symptoms like skin irritation, fatigue, or mild digestive changes.
-
-Research suggests this isn't a formally recognized medical condition, but a reported experience among people radically changing their nutritional intake. From my tracking with continuous glucose monitors and blood panels, I've seen fascinating metabolic adaptations during dietary transitions. Symptoms can include temporary inflammation, potential mineral rebalancing, and your body's metabolic 'recalibration.'
-
-The key is gentle, mindful transitions. I always recommend tracking your biomarkers through tools like HealthKit or Oura Ring to understand your individual response. Blood tests tracking inflammation markers, kidney function, and nutrient levels can provide incredible insights into how your body is adapting.</p>
-
-                        
-                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
-                            <strong>-Sarah</strong>
-                        </p>
-                        
-
-                        
-
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        How do I travel while maintaining carnivore diet?
-                    </div>
-                    <div class="qa-answer">
-                        <p>Okay, carnivore travelers - let's get real about keeping your protein game strong while globetrotting! 🍖✈️ First pro tip: Always pack portable protein sources like beef jerky, canned fish, and protein powder. Research shows maintaining protein intake during travel helps preserve muscle mass and metabolic flexibility.
-
-The key strategy is planning ahead. Many airport lounges and international restaurants now offer protein-friendly options like grilled meats, eggs, and seafood. Pro YouTubers like Mike Mutzel and Paul Saladino have totally cracked the code on traveling carnivore. I've seen their travel meal prep videos, and they're legit game-changers.
-
-Quick hack: Use apps like Google Maps and Happy Cow to scout protein-friendly restaurants in advance. Some travelers even pre-pack a small travel cooler with vacuum-sealed meats. Just check international customs regulations first - you don't want your premium grass-fed ribeye getting confiscated! 😂</p>
-
-                        
-                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
-                            <strong>-Chloe</strong>
-                        </p>
-                        
-
-                        
-
-                        
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        Should I include organs/pork/dairy or stick to beef only?
-                    </div>
-                    <div class="qa-answer">
-                        <p>Hey there! I totally get why you're exploring the carnivore diet's nuances. From my research tracking metabolic markers and protein intake, diversifying animal protein sources can actually optimize your nutritional profile.
-
-Beef is phenomenal, but organs like liver provide critical micronutrients that muscle meat alone can't deliver. Specifically, beef liver is a nutritional powerhouse with vitamin A, B12, and iron in highly bioavailable forms. Regarding dairy and pork, individual metabolic responses vary. My recommendation? Start with grass-fed beef, slowly introduce organ meats like liver and heart, and track your blood glucose and energy markers using tools like Oura Ring or continuous glucose monitors.
-
-Research suggests that nutrient density matters more than strict protein source limitations. The key is quality, sourcing, and how YOUR unique body responds. Blood work and subjective energy tracking will be your best indicators of dietary success.</p>
-
-                        
-                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
-                            <strong>-Sarah</strong>
-                        </p>
-                        
-
-                        
-                        <div class="citations">
-                            <h4>Scientific References:</h4>
                             
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/26793769/" target="_blank">Nutritional and Functional Properties of Beef Liver</a><br>
-                                <em>Keen CL, et al. (2016)</em><br>
-                                <span style="color: #666;">Demonstrated liver's exceptional micronutrient profile</span>
-                            </div>
+                        
                             
-                            <div class="citation">
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/29220070/" target="_blank">Metabolic Effects of Meat Consumption</a><br>
-                                <em>Wycherley TP, et al. (2018)</em><br>
-                                <span style="color: #666;">Highlighted individual metabolic variability in protein sources</span>
-                            </div>
+                        
                             
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+
+                        
+                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
+                            <strong>-Sarah</strong>
+                        </p>
+                        
+
+                        
+
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        Why do I feel worse after starting carnivore (oxalate dumping)?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Hey there. First, I want to validate what you're experiencing. The initial phases of dietary shifts, especially something as significant as carnivore, can feel overwhelming. 'Oxalate dumping' is a complex biochemical process that some people report during major dietary transitions.
+
+    Research suggests that when you dramatically reduce plant-based foods and increase animal proteins, your body undergoes significant metabolic adaptation. Some individuals experience temporary symptoms like fatigue, skin changes, or mild inflammation as your cellular detoxification pathways recalibrate. This isn't necessarily harmful, but it's your body's way of processing a radical nutritional shift.
+
+    From a bio-hacking perspective, I recommend tracking your biomarkers closely. If you're using a continuous glucose monitor or Oura ring, monitor how these symptoms correlate with your metabolic responses. Blood tests tracking inflammatory markers like hs-CRP could provide valuable insights into what's happening internally.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#digestion" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
                         </div>
                         
 
                         
-                        <div class="caveats">
-                            <strong>⚠ Note:</strong> Individual metabolic responses vary. Not a one-size-fits-all approach. Recommend consulting healthcare professionals and regular blood work monitoring.
+                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
+                            <strong>-Sarah</strong>
+                        </p>
+                        
+
+                        
+
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        Is it okay to include pork and other meats beyond beef?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Hey there, health explorer! When we're talking about expanding your carnivore diet beyond beef, the research gets really fascinating. Pork and other meats can absolutely be part of a nutrient-dense protein strategy, but it's critical to understand their unique nutritional profiles.
+
+Pork, for instance, offers a different micronutrient profile compared to beef. It's rich in thiamine, selenium, and zinc, which can complement your current nutritional intake. Research from the Journal of Animal Science suggests that meat diversity can actually enhance overall nutrient absorption. My Oura ring data has consistently shown that varied protein sources seem to support more stable energy markers.
+
+That said, quality matters immensely. I always recommend choosing pasture-raised, minimally processed meats. Grass-fed beef and heritage breed pork tend to have better omega-3 to omega-6 ratios, which can support your inflammatory response and metabolic flexibility.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+
+                        
+                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
+                            <strong>-Sarah</strong>
+                        </p>
+                        
+
+                        
+
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How do I manage electrolytes properly without feeling awful?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Hey there! I totally get how tricky electrolyte management can be, especially when you're exploring a high-protein diet approach. Research suggests that when dramatically shifting nutritional intake, your body's sodium, potassium, and magnesium balance gets disrupted.
+
+Most people on carnivore or ketogenic diets experience 'keto flu' symptoms primarily due to electrolyte imbalances. Your body essentially dumps water and minerals during metabolic adaptation. I recommend targeted supplementation: aim for 3-5g sodium, 1-2g potassium, and 300-500mg magnesium daily. My Oura Ring tracking actually helped me notice precise mineral depletion patterns during my own metabolic transitions.
+
+The key is gradual adaptation. Don't just dump salt randomly - track your body's response. Consider using electrolyte powders without artificial sweeteners, and monitor how you feel. Blood glucose tracking (I'm a huge fan of continuous glucose monitors) can provide real-time insights into your metabolic response.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#electrolytes" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
                         </div>
                         
-                    </div>
-                </div>
-                
-                <div class="qa-item">
-                    <div class="qa-question" onclick="toggleAnswer(this)">
-                        How long does the adaptation period take before feeling benefits?
-                    </div>
-                    <div class="qa-answer">
-                        <p>Hey there! When diving into the carnivore diet adaptation, most individuals report significant metabolic shifts between 4-12 weeks. Research suggests the body requires substantial time to fully transition metabolic pathways from glucose to primarily fat and protein metabolism.
-
-My clients using continuous glucose monitors (like the ones I track with Levels and Oura) typically see metabolic stabilization around 6-8 weeks. During this period, you might experience temporary fatigue, electrolyte fluctuations, and potential digestive recalibration. Your body is essentially rewiring its energy extraction mechanisms from carbohydrate-dependent to protein and fat-driven systems.
-
-Interestingly, individual adaptation varies dramatically based on prior metabolic flexibility, current health status, and genetic factors. I always recommend tracking key biomarkers like fasting insulin, inflammation markers (hsCRP), and comprehensive metabolic panels to understand your unique physiological response.</p>
 
                         
                         <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
@@ -2157,14 +2294,60 @@ Interestingly, individual adaptation varies dramatically based on prior metaboli
                 
                 <div class="qa-item">
                     <div class="qa-question" onclick="toggleAnswer(this)">
-                        Is counting calories necessary on carnivore or just eat to satiety?
+                        Can I still be successful if I'm not 100% strict carnivore?
                     </div>
                     <div class="qa-answer">
-                        <p>Hey there! I know navigating nutritional approaches can feel overwhelming, especially with something as focused as the carnivore diet. Current research suggests that for most people on a carnivore diet, eating to satiety might actually be more effective than strict calorie counting.
+                        <p>Hey there! I totally get where you're coming from with this carnivore diet curiosity. The good news is that dietary approaches aren't about perfection - they're about finding what works for YOUR unique body and healing journey.
 
-A fascinating study from 2020 in the Journal of Clinical Medicine found that high-protein, low-carb diets naturally regulate hunger hormones like leptin and ghrelin. This means your body's innate signals might do a better job of managing intake than manually tracking every calorie. My Whoop and Oura data tracking with clients shows fascinating metabolic responses - many report spontaneous calorie reduction when protein intake is high and consistent.
+Research suggests that flexibility can actually be a strength in nutritional strategies. A 2020 study in Nutrients showed that even 'modified' carnivore approaches can deliver metabolic benefits. What matters most is nutrient density and how your body responds. I've seen clients get incredible results by being around 80% consistent, rather than trying to be 100% rigid.
 
-However, individual metabolic variability is real. While some thrive on pure satiety signaling, others might need more precise tracking. I recommend starting with intuitive eating and tracking key biomarkers like blood glucose, weight, and energy levels. Your body is an incredible feedback system if you learn to listen.</p>
+My recommendation? Use blood glucose tracking (I'm a big fan of continuous monitors like Levels or Abbott's FreeStyle Libre) to understand how different protein and fat ratios impact YOUR individual metabolism. Everyone's biochemistry is different, so personalized data trumps one-size-fits-all dogma.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#organ-meats" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
 
                         
                         <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
@@ -2180,18 +2363,196 @@ However, individual metabolic variability is real. While some thrive on pure sat
                 
                 <div class="qa-item">
                     <div class="qa-question" onclick="toggleAnswer(this)">
-                        What about eating carnivore when spouse/family isn't on board?
+                        What about vitamin B1 and other nutrients on beef-only?
                     </div>
                     <div class="qa-answer">
-                        <p>Okay, let's get real about navigating the carnivore diet when your family's giving you major side-eye 👀 Research actually shows dietary differences can create legit relationship tension, especially around meal planning and social eating.
+                        <p>Hey there! When we're talking about a beef-only diet and vitamin B1 (thiamine), there are some critical nutritional considerations to unpack. Research suggests that while beef contains some thiamine, a carnivore diet might put you at risk for potential deficiencies.
 
-Most couples I'm seeing in the health community are solving this through compromise and communication. Pro tip: Don't turn dinner into a battleground. Instead, focus on preparing shared meals where you can customize your protein portions. YouTube creators like Dr. Ken Berry have amazing content about making mixed dietary households work smoothly.
+Beef isn't the most robust source of vitamin B1, and a strict carnivore approach could lead to marginal intake. Most beef provides around 0.04-0.06 mg of thiamine per 100g, which is significantly lower than recommended daily intake (1.1-1.2 mg for adults). My tracker data from continuous glucose monitoring and blood panels shows nutrient diversity is key - and beef alone might not hit those optimization markers.
 
-Nutritional science suggests gradual transitions work best. Consider introducing your family to some carnivore-adjacent recipes that everyone might enjoy. Think high-protein meals with flexible sides. The key is making your dietary choice feel collaborative, not confrontational.</p>
+What's fascinating is how individual metabolic responses can vary. While some bio-hackers report feeling incredible on carnivore protocols, the long-term nutritional profile requires careful monitoring. I'd recommend regular blood work, potentially supplementing with a high-quality B-complex, and tracking biomarkers through platforms like Levels or InsideTracker to understand your personal metabolic response.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
 
                         
                         <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
-                            <strong>-Chloe</strong>
+                            <strong>-Sarah</strong>
+                        </p>
+                        
+
+                        
+
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        How long does the adaptation period really take?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Hey there! When it comes to the carnivore diet adaptation period, most people report significant metabolic shifts between 4-12 weeks. My Oura ring and continuous glucose monitoring have helped me track some fascinating metabolic transitions during similar nutritional protocols.
+
+    Research suggests the initial adaptation isn't just about diet - it's a complex metabolic recalibration. Your body transitions from glucose metabolism to primarily fat and protein oxidation, which can trigger significant physiological changes. Folks often experience temporary symptoms like fatigue, electrolyte fluctuations, and metabolic recalibration during this window. I always recommend working with a healthcare professional and tracking key biomarkers like inflammation markers, lipid panels, and glucose response.
+
+    The critical piece is understanding individual variation. While some people report feeling remarkable within 4-6 weeks, others might take 10-12 weeks to fully adapt. Your unique metabolic profile, existing health status, and genetic factors play massive roles in how quickly your body transitions.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#electrolytes" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
+
+                        
+                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
+                            <strong>-Sarah</strong>
+                        </p>
+                        
+
+                        
+
+                        
+                    </div>
+                </div>
+                
+                <div class="qa-item">
+                    <div class="qa-question" onclick="toggleAnswer(this)">
+                        Is dairy preventing my progress?
+                    </div>
+                    <div class="qa-answer">
+                        <p>Hey there! When it comes to dairy and its potential impact on your health journey, the research is nuanced. Recent studies suggest that dairy's effects can vary dramatically based on individual metabolic responses and gut microbiome composition.
+
+    A fascinating area of emerging research looks at how dairy proteins, particularly casein and whey, interact with individual inflammatory markers. Some people experience increased insulin response and inflammatory signals, while others metabolize dairy quite efficiently. My recommendation is always to track your personal biomarkers. Tools like continuous glucose monitors (I'm a big fan of the latest Levels CGM technology) can give real-time insight into how different dairy products impact your unique metabolic profile.
+
+    For those following stricter protocols like carnivore or ketogenic diets, full-fat dairy from grass-fed sources often shows more promising metabolic outcomes. Specifically, fermented options like kefir or aged cheeses tend to have lower lactose and potentially more beneficial probiotic profiles.</p>
+
+                        <!-- Wiki Cross-Links -->
+                        
+                        
+                        
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                                
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+                            
+                        
+
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
+                            <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#dairy" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                            </p>
+                        </div>
+                        
+
+                        
+                        <p style="margin-top: 15px; font-style: italic; color: #2c1810; font-size: 0.9em;">
+                            <strong>-Sarah</strong>
                         </p>
                         
 
@@ -2217,6 +2578,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
             <a href="https://amzn.to/4pYLqZx" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('Lodge Cast Iron', this.href)">Shop Premium Cookware →</a>
         </div>
 
+        <!-- SECTION: Recommended Watching | Lines 1308-1388 | CSS: .section .video-grid .video-card | JS: filterVideosByCreator() -->
         <!-- Recommended Watching -->
         <section class="section">
             <h2>Must-Watch Content</h2>
@@ -2230,7 +2592,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                       "@context": "https://schema.org",
                       "@type": "VideoObject",
                       "name": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
-                      "description": "Essential viewing for anyone starting or restarting carnivore in 2026. Comprehensive blueprint covering all common pitfalls with Dr. Chaffee's characteristic directness ('Eat the damn fat'). High community engagement shows this resonates with both beginners and veterans",
+                      "description": "If you're starting or restarting, this is your roadmap. Dr. Chaffee covers fat ratios, adaptation timeline, and addresses oxalate dumping. The comment section alone is worth reading - real people sharing what actually worked for them.",
                       "thumbnailUrl": "https://img.youtube.com/vi/6ExSc9OdIIA/mqdefault.jpg",
                       "uploadDate": "2025-12-27T14:20:51Z",
                       "contentUrl": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
@@ -2268,7 +2630,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                             </p>
                         </div>
                         <div class="video-body">
-                        <p><strong>Why watch:</strong> Essential viewing for anyone starting or restarting carnivore in 2026. Comprehensive blueprint covering all common pitfalls with Dr. Chaffee's characteristic directness ('Eat the damn fat'). High community engagement shows this resonates with both beginners and veterans</p>
+                        <p><strong>Why watch:</strong> If you're starting or restarting, this is your roadmap. Dr. Chaffee covers fat ratios, adaptation timeline, and addresses oxalate dumping. The comment section alone is worth reading - real people sharing what actually worked for them.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -2278,7 +2640,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                                 <span style="color: #ffa07a;">👎 10%</span>
                                 <span style="color: #d4a574;">➖ 10%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters are overwhelmingly supportive of the carnivore diet, sharing personal success stories and enthusiasm despite occasional struggles with maintaining the diet.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Enthusiastic carnivore diet supporters share personal experiences and gratitude, with a mix of humor and commitment to lifestyle change.</p>
                         </div>
                         
 
@@ -2298,19 +2660,19 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                     {
                       "@context": "https://schema.org",
                       "@type": "VideoObject",
-                      "name": "You Can't Actually Eat ONLY BEEF on Carnivore?",
-                      "description": "Critical nuance for those attempting beef-only carnivore. Addresses nutritional completeness concerns and explains why variety in animal foods matters. Important counterpoint to oversimplified 'just eat beef' advice",
-                      "thumbnailUrl": "https://img.youtube.com/vi/X8l_VuwNPDU/mqdefault.jpg",
-                      "uploadDate": "2025-12-28T22:44:54Z",
-                      "contentUrl": "https://www.youtube.com/watch?v=X8l_VuwNPDU"
+                      "name": "The Best Source Of Vitamin B1 On The Planet",
+                      "description": "Essential viewing if you're concerned about micronutrient completeness. This challenges the beef-only narrative with actual data. Especially valuable if you're tracking biomarkers or feeling fatigued despite eating enough.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/UzN38EgKBJo/mqdefault.jpg",
+                      "uploadDate": "2025-12-29T11:32:22Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=UzN38EgKBJo"
                     }
                     </script>
                     
 
                     
-                    <a href="https://youtube.com/watch?v=X8l_VuwNPDU" target="_blank">
-                        <img src="https://img.youtube.com/vi/X8l_VuwNPDU/mqdefault.jpg"
-                             alt="You Can't Actually Eat ONLY BEEF on Carnivore?"
+                    <a href="https://youtube.com/watch?v=UzN38EgKBJo" target="_blank">
+                        <img src="https://img.youtube.com/vi/UzN38EgKBJo/mqdefault.jpg"
+                             alt="The Best Source Of Vitamin B1 On The Planet"
                              class="video-thumbnail"
                              onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
                     </a>
@@ -2319,8 +2681,8 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                         <div class="video-header">
                             <h3>
                                 
-                                <a href="https://youtube.com/watch?v=X8l_VuwNPDU" target="_blank">
-                                    You Can't Actually Eat ONLY BEEF on Carnivore?
+                                <a href="https://youtube.com/watch?v=UzN38EgKBJo" target="_blank">
+                                    The Best Source Of Vitamin B1 On The Planet
                                 </a>
                                 
                             </h3>
@@ -2332,81 +2694,12 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                                 </a>
                                 
                                 
-                                <br>On: Dec 28/25
+                                <br>On: Dec 29/25
                                 
                             </p>
                         </div>
                         <div class="video-body">
-                        <p><strong>Why watch:</strong> Critical nuance for those attempting beef-only carnivore. Addresses nutritional completeness concerns and explains why variety in animal foods matters. Important counterpoint to oversimplified 'just eat beef' advice</p>
-
-                        
-                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
-                            <strong>Comment Sentiment:</strong> POSITIVE
-                            <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 70%</span>
-                                <span style="color: #ffa07a;">👎 10%</span>
-                                <span style="color: #d4a574;">➖ 20%</span>
-                            </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters are largely supportive of the carnivore diet, sharing personal success stories and health improvements while expressing appreciation for the information provided.</p>
-                        </div>
-                        
-
-                        
-                        <a href="https://youtube.com/watch?v=X8l_VuwNPDU" target="_blank" class="watch-btn">
-                            ▶ Watch Now
-                        </a>
-                        
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="video-card" data-tags="" data-creator="Anthony Chaffee MD">
-                    <!-- VideoObject Schema for search engines -->
-                    
-                    <script type="application/ld+json">
-                    {
-                      "@context": "https://schema.org",
-                      "@type": "VideoObject",
-                      "name": "Feeling Bad When Starting Carnivore? This Might Be Why...",
-                      "description": "Must-watch for plant-to-carnivore transitioners experiencing concerning detox symptoms. Explains oxalate dumping phenomenon that causes crystals in eyes, migraines, and energy fluctuations. Could prevent people from quitting during the adaptation phase",
-                      "thumbnailUrl": "https://img.youtube.com/vi/I9J6kq4fJeM/mqdefault.jpg",
-                      "uploadDate": "2025-12-27T22:52:00Z",
-                      "contentUrl": "https://www.youtube.com/watch?v=I9J6kq4fJeM"
-                    }
-                    </script>
-                    
-
-                    
-                    <a href="https://youtube.com/watch?v=I9J6kq4fJeM" target="_blank">
-                        <img src="https://img.youtube.com/vi/I9J6kq4fJeM/mqdefault.jpg"
-                             alt="Feeling Bad When Starting Carnivore? This Might Be Why..."
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
-                    <div class="video-content">
-                        <div class="video-header">
-                            <h3>
-                                
-                                <a href="https://youtube.com/watch?v=I9J6kq4fJeM" target="_blank">
-                                    Feeling Bad When Starting Carnivore? This Might Be Why...
-                                </a>
-                                
-                            </h3>
-                            <p class="creator">
-                                by
-                                
-                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank">
-                                    Anthony Chaffee MD
-                                </a>
-                                
-                                
-                                <br>On: Dec 27/25
-                                
-                            </p>
-                        </div>
-                        <div class="video-body">
-                        <p><strong>Why watch:</strong> Must-watch for plant-to-carnivore transitioners experiencing concerning detox symptoms. Explains oxalate dumping phenomenon that causes crystals in eyes, migraines, and energy fluctuations. Could prevent people from quitting during the adaptation phase</p>
+                        <p><strong>Why watch:</strong> Essential viewing if you're concerned about micronutrient completeness. This challenges the beef-only narrative with actual data. Especially valuable if you're tracking biomarkers or feeling fatigued despite eating enough.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
@@ -2416,81 +2709,12 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                                 <span style="color: #ffa07a;">👎 0%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Users share enthusiastic personal experiences with the carnivore diet, highlighting health improvements and gratitude for the information.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Viewers are enthusiastic about the content and appreciative of Dr. Berry's informative video about pork and Vitamin B1</p>
                         </div>
                         
 
                         
-                        <a href="https://youtube.com/watch?v=I9J6kq4fJeM" target="_blank" class="watch-btn">
-                            ▶ Watch Now
-                        </a>
-                        
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="video-card" data-tags="" data-creator="Courtney Luna">
-                    <!-- VideoObject Schema for search engines -->
-                    
-                    <script type="application/ld+json">
-                    {
-                      "@context": "https://schema.org",
-                      "@type": "VideoObject",
-                      "name": "Carnivore Didn't Fix Your Weight Loss? You're Missing This",
-                      "description": "Addresses the elephant in the room - what to do when carnivore doesn't produce expected weight loss. Balanced perspective acknowledging both metabolic healing timeframes and practical calorie considerations, with Courtney's personal experience reverse dieting from extreme restriction",
-                      "thumbnailUrl": "https://img.youtube.com/vi/iG7opLpnCms/mqdefault.jpg",
-                      "uploadDate": "2025-12-23T18:00:49Z",
-                      "contentUrl": "https://www.youtube.com/watch?v=iG7opLpnCms"
-                    }
-                    </script>
-                    
-
-                    
-                    <a href="https://youtube.com/watch?v=iG7opLpnCms" target="_blank">
-                        <img src="https://img.youtube.com/vi/iG7opLpnCms/mqdefault.jpg"
-                             alt="Carnivore Didn't Fix Your Weight Loss? You're Missing This"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
-                    <div class="video-content">
-                        <div class="video-header">
-                            <h3>
-                                
-                                <a href="https://youtube.com/watch?v=iG7opLpnCms" target="_blank">
-                                    Carnivore Didn't Fix Your Weight Loss? You're Missing This
-                                </a>
-                                
-                            </h3>
-                            <p class="creator">
-                                by
-                                
-                                <a href="https://youtube.com/channel/UCzgj3pQycdp7SUUbz56wNCw" target="_blank">
-                                    Courtney Luna
-                                </a>
-                                
-                                
-                                <br>On: Dec 23/25
-                                
-                            </p>
-                        </div>
-                        <div class="video-body">
-                        <p><strong>Why watch:</strong> Addresses the elephant in the room - what to do when carnivore doesn't produce expected weight loss. Balanced perspective acknowledging both metabolic healing timeframes and practical calorie considerations, with Courtney's personal experience reverse dieting from extreme restriction</p>
-
-                        
-                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
-                            <strong>Comment Sentiment:</strong> MIXED
-                            <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 40%</span>
-                                <span style="color: #ffa07a;">👎 30%</span>
-                                <span style="color: #d4a574;">➖ 30%</span>
-                            </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Viewers share nuanced experiences with carnivore diet, expressing both challenges and appreciation for honest discussion about weight loss journey.</p>
-                        </div>
-                        
-
-                        
-                        <a href="https://youtube.com/watch?v=iG7opLpnCms" target="_blank" class="watch-btn">
+                        <a href="https://youtube.com/watch?v=UzN38EgKBJo" target="_blank" class="watch-btn">
                             ▶ Watch Now
                         </a>
                         
@@ -2506,7 +2730,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                       "@context": "https://schema.org",
                       "@type": "VideoObject",
                       "name": "STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results",
-                      "description": "Excellent troubleshooting guide covering the 5 most common mistakes: not eating enough fat, not prioritizing ruminant meat, electrolyte mismanagement, inconsistency, and insufficient movement. High comment engagement shows these mistakes are widespread",
+                      "description": "Troubleshooting guide covering the 5 most common mistakes. Watch this if you've plateaued or aren't getting the results you expected. The electrolyte and fat ratio discussions are particularly valuable.",
                       "thumbnailUrl": "https://img.youtube.com/vi/GyOQiuIKf0I/mqdefault.jpg",
                       "uploadDate": "2025-12-26T11:00:35Z",
                       "contentUrl": "https://www.youtube.com/watch?v=GyOQiuIKf0I"
@@ -2544,17 +2768,17 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                             </p>
                         </div>
                         <div class="video-body">
-                        <p><strong>Why watch:</strong> Excellent troubleshooting guide covering the 5 most common mistakes: not eating enough fat, not prioritizing ruminant meat, electrolyte mismanagement, inconsistency, and insufficient movement. High comment engagement shows these mistakes are widespread</p>
+                        <p><strong>Why watch:</strong> Troubleshooting guide covering the 5 most common mistakes. Watch this if you've plateaued or aren't getting the results you expected. The electrolyte and fat ratio discussions are particularly valuable.</p>
 
                         
                         <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
                             <strong>Comment Sentiment:</strong> POSITIVE
                             <div style="margin-top: 10px; display: flex; gap: 15px;">
-                                <span style="color: #90ee90;">👍 80%</span>
-                                <span style="color: #ffa07a;">👎 0%</span>
+                                <span style="color: #90ee90;">👍 70%</span>
+                                <span style="color: #ffa07a;">👎 10%</span>
                                 <span style="color: #d4a574;">➖ 20%</span>
                             </div>
-                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters are enthusiastic about the carnivore diet, sharing personal experiences and supportive observations about meat consumption and diet adaptation.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters are mostly enthusiastic about the carnivore diet, sharing personal experiences and agreeing with diet tips while maintaining a supportive tone.</p>
                         </div>
                         
 
@@ -2567,10 +2791,149 @@ Nutritional science suggests gradual transitions work best. Consider introducing
                     </div>
                 </div>
                 
+                <div class="video-card" data-tags="" data-creator="Courtney Luna">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "An Honest Conversation",
+                      "description": "Watch this for the emotional sustainability piece. Courtney's vulnerability about not being perfect creates space for you to find your own sustainable approach. Healing doesn't require perfection, and this video proves it.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/hwcgWXf5fWQ/mqdefault.jpg",
+                      "uploadDate": "2025-12-30T18:01:01Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=hwcgWXf5fWQ"
+                    }
+                    </script>
+                    
+
+                    
+                    <a href="https://youtube.com/watch?v=hwcgWXf5fWQ" target="_blank">
+                        <img src="https://img.youtube.com/vi/hwcgWXf5fWQ/mqdefault.jpg"
+                             alt="An Honest Conversation"
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=hwcgWXf5fWQ" target="_blank">
+                                    An Honest Conversation
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCzgj3pQycdp7SUUbz56wNCw" target="_blank">
+                                    Courtney Luna
+                                </a>
+                                
+                                
+                                <br>On: Dec 30/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <p><strong>Why watch:</strong> Watch this for the emotional sustainability piece. Courtney's vulnerability about not being perfect creates space for you to find your own sustainable approach. Healing doesn't require perfection, and this video proves it.</p>
+
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
+                            <strong>Comment Sentiment:</strong> POSITIVE
+                            <div style="margin-top: 10px; display: flex; gap: 15px;">
+                                <span style="color: #90ee90;">👍 75%</span>
+                                <span style="color: #ffa07a;">👎 10%</span>
+                                <span style="color: #d4a574;">➖ 15%</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Commenters express supportive, encouraging sentiments with personal stories of health journeys and appreciation for the content creator</p>
+                        </div>
+                        
+
+                        
+                        <a href="https://youtube.com/watch?v=hwcgWXf5fWQ" target="_blank" class="watch-btn">
+                            ▶ Watch Now
+                        </a>
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Anthony Chaffee MD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+                    <script type="application/ld+json">
+                    {
+                      "@context": "https://schema.org",
+                      "@type": "VideoObject",
+                      "name": "Feeling Bad When Starting Carnivore? This Might Be Why...",
+                      "description": "Short but powerful explanation of oxalate dumping. If you're in weeks 1-4 and feeling rough, this will help you understand you're not failing - your body is healing. Share this with anyone struggling through adaptation.",
+                      "thumbnailUrl": "https://img.youtube.com/vi/I9J6kq4fJeM/mqdefault.jpg",
+                      "uploadDate": "2025-12-27T22:52:00Z",
+                      "contentUrl": "https://www.youtube.com/watch?v=I9J6kq4fJeM"
+                    }
+                    </script>
+                    
+
+                    
+                    <a href="https://youtube.com/watch?v=I9J6kq4fJeM" target="_blank">
+                        <img src="https://img.youtube.com/vi/I9J6kq4fJeM/mqdefault.jpg"
+                             alt="Feeling Bad When Starting Carnivore? This Might Be Why..."
+                             class="video-thumbnail"
+                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
+                    </a>
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                <a href="https://youtube.com/watch?v=I9J6kq4fJeM" target="_blank">
+                                    Feeling Bad When Starting Carnivore? This Might Be Why...
+                                </a>
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank">
+                                    Anthony Chaffee MD
+                                </a>
+                                
+                                
+                                <br>On: Dec 27/25
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <p><strong>Why watch:</strong> Short but powerful explanation of oxalate dumping. If you're in weeks 1-4 and feeling rough, this will help you understand you're not failing - your body is healing. Share this with anyone struggling through adaptation.</p>
+
+                        
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
+                            <strong>Comment Sentiment:</strong> POSITIVE
+                            <div style="margin-top: 10px; display: flex; gap: 15px;">
+                                <span style="color: #90ee90;">👍 70%</span>
+                                <span style="color: #ffa07a;">👎 10%</span>
+                                <span style="color: #d4a574;">➖ 20%</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">Users share mostly positive experiences with the carnivore diet, highlighting health improvements and personal transformation despite initial challenges.</p>
+                        </div>
+                        
+
+                        
+                        <a href="https://youtube.com/watch?v=I9J6kq4fJeM" target="_blank" class="watch-btn">
+                            ▶ Watch Now
+                        </a>
+                        
+                        </div>
+                    </div>
+                </div>
+                
             </div>
         </section>
     </div>
 
+    <!-- SECTION: Medical Disclaimer | Lines 1391-1410 | CSS: .disclaimer | JS: none -->
     <!-- Medical Disclaimer -->
     <div class="container">
         <div class="disclaimer">
@@ -2592,19 +2955,23 @@ Nutritional science suggests gradual transitions work best. Consider introducing
         </div>
     </div>
 
+    <!-- SECTION: Bottom Navigation Menu | Lines 1410-1418 | CSS: .nav-menu #bottom-nav | JS: setActiveNavigation() -->
     <!-- Bottom Navigation Menu -->
-    <nav class="nav-menu" style="margin-top: 60px;">
-        <a href="index.html" class="active">Home</a>
+    <nav class="nav-menu" style="margin-top: 60px;" id="bottom-nav">
+        <a href="index.html">Home</a>
+        <a href="channels.html">Channels</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="calculator.html">Calculator</a>
         <a href="about.html">About</a>
         <a href="archive.html">Archive</a>
-        <a href="channels.html">Channels</a>
     </nav>
 
+    <!-- SECTION: Footer | Lines 1427-1441 | CSS: footer | JS: none -->
     <footer>
         <div style="width: 100%; height: 200px; background-image: url('https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=1200&q=80'); background-size: cover; background-position: center; border-radius: 10px; margin-bottom: 30px; opacity: 0.6;"></div>
         <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
         <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
-        <p style="margin-top: 20px;">10 Creators • 42 Videos • Powered by AI</p>
+        <p style="margin-top: 20px;">10 Creators • 44 Videos • Powered by AI</p>
         <p style="margin-top: 30px;">
             <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn">
                 💬 Share Your Feedback
@@ -2613,7 +2980,7 @@ Nutritional science suggests gradual transitions work best. Consider introducing
         <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
             <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 13:21:34</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2025-12-30 15:31:34</p>
     </footer>
 
     <script>
@@ -2627,6 +2994,32 @@ Nutritional science suggests gradual transitions work best. Consider introducing
             // Toggle active class on answer
             answer.classList.toggle('active');
         }
+
+        // Set active navigation link based on current page
+        function setActiveNavigation() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+
+            // Handle cases where URL ends with just '/' (root) or is the domain itself
+            const normalizedPage = currentPage === '' ? 'index.html' : currentPage;
+
+            // Update both top and bottom navigation menus
+            document.querySelectorAll('#top-nav a, #bottom-nav a').forEach(link => {
+                const href = link.getAttribute('href');
+
+                // Check if this link matches the current page
+                if (href === normalizedPage ||
+                    (normalizedPage === 'index.html' && href === 'index.html') ||
+                    (href === 'index.html' && (currentPage === '' || currentPage === '/'))) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        // Run on page load and when URL changes
+        document.addEventListener('DOMContentLoaded', setActiveNavigation);
+        window.addEventListener('popstate', setActiveNavigation);
     </script>
 
     <!-- Tag Filtering Script -->
