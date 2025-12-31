@@ -1,0 +1,53 @@
+name: Auto-Publish Scheduled Blog Posts
+
+on:
+  schedule:
+    # Run daily at 9 AM EST (14:00 UTC)
+    - cron: '0 14 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  publish-blog-posts:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install anthropic jinja2 python-dotenv PyYAML
+
+      - name: Check for posts ready to publish
+        id: check_posts
+        run: |
+          python3 scripts/check_scheduled_posts.py
+          echo "posts_published=$(cat /tmp/posts_published.txt || echo 0)" >> $GITHUB_OUTPUT
+
+      - name: Regenerate blog pages if posts published
+        if: steps.check_posts.outputs.posts_published > 0
+        run: |
+          python3 scripts/generate_blog_pages.py
+
+      - name: Commit and push changes
+        if: steps.check_posts.outputs.posts_published > 0
+        run: |
+          git config user.name "Carnivore Weekly Bot"
+          git config user.email "bot@carnivoreweekly.com"
+          git add public/blog/ public/blog.html sitemap.xml
+          git diff --quiet && git diff --staged --quiet || (
+            git commit -m "Auto-publish scheduled blog posts - $(date -u +'%Y-%m-%d at %H:%M UTC')"
+            git push
+          )
+
+      - name: Log status
+        run: |
+          echo "Blog publishing workflow completed"
+          echo "Posts published today: ${{ steps.check_posts.outputs.posts_published }}"
