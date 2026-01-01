@@ -1,0 +1,161 @@
+<!-- Trending Topic Explorer - Interactive Expanding Cards with Sentiment Analysis -->
+<!-- This partial provides an interactive exploration of trending topics with -->
+<!-- search/filter, expand/collapse animations, sentiment visualization, and creator links -->
+
+<div class="trending-explorer-container">
+  <!-- Search and Filter Section -->
+  <div class="explorer-controls">
+    <div class="search-wrapper">
+      <input
+        type="text"
+        id="topic-search"
+        class="topic-search-input"
+        placeholder="Search trending topics..."
+        aria-label="Search trending topics"
+        autocomplete="off"
+      >
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+    </div>
+
+    <div class="filter-controls">
+      <button
+        class="filter-btn active"
+        data-filter="all"
+        aria-pressed="true"
+      >
+        All Topics
+      </button>
+      <button
+        class="filter-btn"
+        data-filter="high-sentiment"
+        aria-pressed="false"
+      >
+        Positive Sentiment
+      </button>
+      <button
+        class="filter-btn"
+        data-filter="recent"
+        aria-pressed="false"
+      >
+        Most Recent
+      </button>
+    </div>
+
+    <div class="result-count" aria-live="polite">
+      <span id="result-count">Showing <strong>0</strong> topics</span>
+    </div>
+  </div>
+
+  <!-- Topics Grid -->
+  <div class="topics-grid" id="topics-grid" role="region" aria-label="Trending topics">
+    <!-- Topics will be populated by JavaScript -->
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" id="empty-state" style="display: none;">
+    <div class="empty-state-content">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+      <h3>No topics found</h3>
+      <p>Try adjusting your search or filter criteria</p>
+    </div>
+  </div>
+</div>
+
+<!-- Topic Card Template (JavaScript will clone and populate this) -->
+<template id="topic-card-template">
+  <div class="topic-card" role="article" tabindex="0">
+    <!-- Card Header -->
+    <div class="card-header">
+      <div class="header-content">
+        <h3 class="topic-title"></h3>
+        <div class="topic-meta">
+          <span class="mention-count">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span class="count-value"></span>
+          </span>
+          <span class="engagement-score">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span class="score-value"></span>
+          </span>
+        </div>
+      </div>
+
+      <button class="expand-btn" aria-expanded="false" aria-label="Expand topic details">
+        <svg class="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Sentiment Bar -->
+    <div class="sentiment-bar" role="img" aria-label="Sentiment analysis">
+      <div class="sentiment-segment positive" aria-label="Positive sentiment percentage"></div>
+      <div class="sentiment-segment neutral" aria-label="Neutral sentiment percentage"></div>
+      <div class="sentiment-segment negative" aria-label="Negative sentiment percentage"></div>
+    </div>
+
+    <!-- Default Content -->
+    <div class="card-default-content">
+      <p class="topic-description"></p>
+    </div>
+
+    <!-- Expanded Content (Hidden by default) -->
+    <div class="card-expanded-content" aria-hidden="true">
+      <div class="expanded-text">
+        <p class="expanded-description"></p>
+      </div>
+
+      <!-- Sentiment Details -->
+      <div class="sentiment-details">
+        <h4>Sentiment Breakdown</h4>
+        <div class="sentiment-list">
+          <div class="sentiment-item positive">
+            <span class="sentiment-label">Positive</span>
+            <span class="sentiment-value"></span>
+          </div>
+          <div class="sentiment-item neutral">
+            <span class="sentiment-label">Neutral</span>
+            <span class="sentiment-value"></span>
+          </div>
+          <div class="sentiment-item negative">
+            <span class="sentiment-label">Negative</span>
+            <span class="sentiment-value"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Creator Chips -->
+      <div class="creator-section">
+        <h4>Mentioned by</h4>
+        <div class="creator-chips" role="list">
+          <!-- Creator chips will be populated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Creator Chip Template -->
+<template id="creator-chip-template">
+  <a class="creator-chip" role="listitem" target="_blank" rel="noopener noreferrer">
+    <span class="creator-name"></span>
+    <svg class="external-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+      <polyline points="13 3 20 3 20 10"></polyline>
+      <line x1="10" y1="14" x2="20" y2="4"></line>
+    </svg>
+  </a>
+</template>

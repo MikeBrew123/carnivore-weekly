@@ -1,0 +1,138 @@
+{
+  "summary": {
+    "positive": 5,
+    "neutral": 0,
+    "negative": 0,
+    "total_threads": 5
+  },
+  "threads": [
+    {
+      "id": "thread-6ExSc9OdIIA",
+      "sentiment": "positive",
+      "title": "Community response to: If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+      "summary": "Enthusiastic supporters of the carnivore diet share personal experiences and gratitude, with minor acknowledgment of past challenges.",
+      "video_id": "6ExSc9OdIIA",
+      "video_title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+      "creator": "Anthony Chaffee MD",
+      "timestamp": "2025-12-27",
+      "engagement": 9153,
+      "replies": 1830,
+      "positive_percent": 75,
+      "negative_percent": 10,
+      "neutral_percent": 15
+    },
+    {
+      "id": "thread-UzN38EgKBJo",
+      "sentiment": "positive",
+      "title": "Community response to: The Best Source Of Vitamin B1 On The Planet",
+      "summary": "Viewers express enthusiasm and appreciation for the informative content about pork's vitamin B1 benefits, with warm and supportive comments.",
+      "video_id": "UzN38EgKBJo",
+      "video_title": "The Best Source Of Vitamin B1 On The Planet",
+      "creator": "KenDBerryMD",
+      "timestamp": "2025-12-29",
+      "engagement": 7412,
+      "replies": 1482,
+      "positive_percent": 80,
+      "negative_percent": 0,
+      "neutral_percent": 20
+    },
+    {
+      "id": "thread-cPIYOqSF1aQ",
+      "sentiment": "positive",
+      "title": "Community response to: If I Started Carnivore in 2026, I'd Do This",
+      "summary": "Commenters share enthusiastic personal success stories about carnivore diet benefits, particularly related to health improvements and blood sugar management.",
+      "video_id": "cPIYOqSF1aQ",
+      "video_title": "If I Started Carnivore in 2026, I'd Do This",
+      "creator": "Steak and Butter Gal",
+      "timestamp": "2025-12-24",
+      "engagement": 7092,
+      "replies": 1418,
+      "positive_percent": 80,
+      "negative_percent": 0,
+      "neutral_percent": 20
+    },
+    {
+      "id": "thread-GyOQiuIKf0I",
+      "sentiment": "positive",
+      "title": "Community response to: STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results",
+      "summary": "Commenters are generally enthusiastic about the carnivore diet, sharing personal experiences and insights with a supportive tone.",
+      "video_id": "GyOQiuIKf0I",
+      "video_title": "STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results",
+      "creator": "Max German",
+      "timestamp": "2025-12-26",
+      "engagement": 3503,
+      "replies": 700,
+      "positive_percent": 70,
+      "negative_percent": 10,
+      "neutral_percent": 20
+    },
+    {
+      "id": "thread-hwcgWXf5fWQ",
+      "sentiment": "positive",
+      "title": "Community response to: An Honest Conversation",
+      "summary": "Supportive comments highlighting personal health journeys, appreciation for the content creator, and encouraging messages with mostly optimistic tones.",
+      "video_id": "hwcgWXf5fWQ",
+      "video_title": "An Honest Conversation",
+      "creator": "Courtney Luna",
+      "timestamp": "2025-12-30",
+      "engagement": 279,
+      "replies": 55,
+      "positive_percent": 70,
+      "negative_percent": 10,
+      "neutral_percent": 20
+    }
+  ],
+  "success_stories": [
+    {
+      "id": "story-hwcgWXf5fWQ",
+      "image": "https://img.youtube.com/vi/hwcgWXf5fWQ/mqdefault.jpg",
+      "title": "An Honest Conversation",
+      "summary": "Courtney Luna shares an honest discussion about the challenges and realities of following a carnivor...",
+      "video_id": "hwcgWXf5fWQ",
+      "video_url": "https://www.youtube.com/watch?v=hwcgWXf5fWQ",
+      "creator": "Courtney Luna",
+      "date": "2025-12-30"
+    },
+    {
+      "id": "story-UzN38EgKBJo",
+      "image": "https://img.youtube.com/vi/UzN38EgKBJo/mqdefault.jpg",
+      "title": "The Best Source Of Vitamin B1 On The Planet",
+      "summary": "Dr. Ken Berry reveals that pork is the richest natural source of vitamin B1 (thiamine), containing s...",
+      "video_id": "UzN38EgKBJo",
+      "video_url": "https://www.youtube.com/watch?v=UzN38EgKBJo",
+      "creator": "KenDBerryMD",
+      "date": "2025-12-29"
+    },
+    {
+      "id": "story-6ExSc9OdIIA",
+      "image": "https://img.youtube.com/vi/6ExSc9OdIIA/mqdefault.jpg",
+      "title": "If I Started Carnivore in 2026, This is What I'd D...",
+      "summary": "Dr. Anthony Chaffee shares his complete blueprint for starting the carnivore diet in 2026, covering ...",
+      "video_id": "6ExSc9OdIIA",
+      "video_url": "https://www.youtube.com/watch?v=6ExSc9OdIIA",
+      "creator": "Anthony Chaffee MD",
+      "date": "2025-12-27"
+    },
+    {
+      "id": "story-GyOQiuIKf0I",
+      "image": "https://img.youtube.com/vi/GyOQiuIKf0I/mqdefault.jpg",
+      "title": "STOP Doing THIS! It's The FASTEST Way To Ruin Carn...",
+      "summary": "Max German reveals the most common mistakes that sabotage carnivore diet results, focusing on hidden...",
+      "video_id": "GyOQiuIKf0I",
+      "video_url": "https://www.youtube.com/watch?v=GyOQiuIKf0I",
+      "creator": "Max German",
+      "date": "2025-12-26"
+    },
+    {
+      "id": "story-cPIYOqSF1aQ",
+      "image": "https://img.youtube.com/vi/cPIYOqSF1aQ/mqdefault.jpg",
+      "title": "If I Started Carnivore in 2026, I'd Do This",
+      "summary": "Steak and Butter Gal shares her updated approach to starting the carnivore diet in 2026, focusing on...",
+      "video_id": "cPIYOqSF1aQ",
+      "video_url": "https://www.youtube.com/watch?v=cPIYOqSF1aQ",
+      "creator": "Steak and Butter Gal",
+      "date": "2025-12-24"
+    }
+  ],
+  "generated_at": "2026-01-01T01:00:25.373570+00:00"
+}

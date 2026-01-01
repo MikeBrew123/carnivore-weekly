@@ -3,6 +3,8 @@
  * Comprehensive visual and functional testing setup
  */
 
+const { devices } = require('@playwright/test');
+
 const config = {
   testDir: './tests',
   testMatch: '**/*.spec.js',
@@ -14,8 +16,6 @@ const config = {
 
   reporter: [
     ['html'],
-    ['json', { outputFile: 'test-results/playwright-results.json' }],
-    ['junit', { outputFile: 'test-results/junit.xml' }],
     ['list']
   ],
 
@@ -45,6 +45,14 @@ const config = {
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] }
+    },
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] }
+    },
+    {
+      name: 'Mobile Safari',
+      use: { ...devices['iPhone 12'] }
     }
   ],
 

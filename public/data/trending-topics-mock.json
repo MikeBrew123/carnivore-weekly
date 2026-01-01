@@ -1,0 +1,386 @@
+[
+  {
+    "id": 1,
+    "title": "Carnivore Diet and Muscle Recovery",
+    "mention_count": 245,
+    "engagement_score": 8.7,
+    "description": "Growing discussion on how all-meat diets support muscle protein synthesis and faster recovery times.",
+    "expanded_content": "Recent research has highlighted how carnivore diets provide complete amino acid profiles essential for muscle protein synthesis. Athletes are reporting faster recovery times, reduced inflammation markers, and increased strength gains. The high bioavailability of protein from animal sources appears to optimize protein utilization compared to mixed diets.",
+    "sentiment": {
+      "positive": 72,
+      "neutral": 20,
+      "negative": 8
+    },
+    "recent": true,
+    "creators": [
+      {
+        "name": "Dr. Paul Saladino",
+        "channel_url": "https://www.youtube.com/c/DrPaulSaladino"
+      },
+      {
+        "name": "Shawn Baker",
+        "channel_url": "https://www.youtube.com/c/ShawnBakerMD"
+      },
+      {
+        "name": "Proper Nutrition",
+        "channel_url": "https://www.youtube.com/c/ProperNutrition"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Cost of Living on Carnivore Diet",
+    "mention_count": 189,
+    "engagement_score": 7.9,
+    "description": "Comparing expenses: carnivore vs standard diet, exploring budget-friendly meat options.",
+    "expanded_content": "Community members are sharing strategies for making carnivore diets affordable. Bulk purchasing, choosing fattier cuts, organ meats, and seasonal discounts are key strategies. Some report spending less than conventional diets once you eliminate processed foods and takeout. Ground beef, eggs, and chicken remain the most affordable entry points.",
+    "sentiment": {
+      "positive": 58,
+      "neutral": 32,
+      "negative": 10
+    },
+    "recent": true,
+    "creators": [
+      {
+        "name": "Georgia Ede",
+        "channel_url": "https://www.youtube.com/c/GeorgiaEde"
+      },
+      {
+        "name": "Carnivore Cast",
+        "channel_url": "https://www.youtube.com/c/CarnivoreCast"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Women's Health on Carnivore",
+    "mention_count": 312,
+    "engagement_score": 9.2,
+    "description": "Emerging focus on hormonal benefits, cycle regulation, and reproductive health on all-meat diets.",
+    "expanded_content": "Many women report improved menstrual regularity, reduced PMS symptoms, and better hormonal balance on carnivore diets. The elimination of plant antinutrients and improved nutrient bioavailability appears to support hormonal health. Testimonials highlight clearer skin, better mood stability, and improved energy throughout cycles.",
+    "sentiment": {
+      "positive": 78,
+      "neutral": 18,
+      "negative": 4
+    },
+    "recent": true,
+    "creators": [
+      {
+        "name": "Mikhaila Peterson",
+        "channel_url": "https://www.youtube.com/c/MikhailaP"
+      },
+      {
+        "name": "Kelly Hogan",
+        "channel_url": "https://www.youtube.com/user/KellyHogan"
+      },
+      {
+        "name": "Sarah Parcak",
+        "channel_url": "https://www.youtube.com/c/SarahParcak"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Cognitive Performance & Mental Clarity",
+    "mention_count": 267,
+    "engagement_score": 8.4,
+    "description": "Users reporting improved focus, mental clarity, and reduction in brain fog on carnivore diets.",
+    "expanded_content": "The ketone production from low-carb meat-based eating is being linked to enhanced cognitive function. Users report clearer thinking, improved focus, better memory, and reduced anxiety. The elimination of refined carbohydrates and their associated blood sugar crashes appears to stabilize mental performance throughout the day.",
+    "sentiment": {
+      "positive": 85,
+      "neutral": 12,
+      "negative": 3
+    },
+    "recent": false,
+    "creators": [
+      {
+        "name": "Shawn Baker",
+        "channel_url": "https://www.youtube.com/c/ShawnBakerMD"
+      },
+      {
+        "name": "Chris Palmer (Harvard)",
+        "channel_url": "https://www.youtube.com/c/ChrisPalmer"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Sustainability and Environmental Impact",
+    "mention_count": 156,
+    "engagement_score": 6.8,
+    "description": "Debate on environmental sustainability of carnivore diet vs plant-based alternatives.",
+    "expanded_content": "Critics raise concerns about livestock production's environmental footprint, while advocates point to regenerative agriculture, nose-to-tail consumption, and local sourcing benefits. Discussion includes carbon sequestration from well-managed grazing, reduced agricultural land use intensity, and ethical sourcing considerations.",
+    "sentiment": {
+      "positive": 45,
+      "neutral": 42,
+      "negative": 13
+    },
+    "recent": false,
+    "creators": [
+      {
+        "name": "Paul Vandessen",
+        "channel_url": "https://www.youtube.com/c/PaulVandessen"
+      },
+      {
+        "name": "Jillian Sidoti",
+        "channel_url": "https://www.youtube.com/user/JillianSidoti"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Autoimmune Disease Reversal Stories",
+    "mention_count": 298,
+    "engagement_score": 9.1,
+    "description": "Community sharing experiences with autoimmune conditions improving on carnivore protocols.",
+    "expanded_content": "Multiple reports of dramatic improvements in conditions like rheumatoid arthritis, lupus, and celiac-related issues. The elimination of plant lectins and other immunogenic compounds appears to reduce systemic inflammation. Case studies show reduced medication needs and improved quality of life.",
+    "sentiment": {
+      "positive": 82,
+      "neutral": 15,
+      "negative": 3
+    },
+    "recent": true,
+    "creators": [
+      {
+        "name": "Dr. Paul Saladino",
+        "channel_url": "https://www.youtube.com/c/DrPaulSaladino"
+      },
+      {
+        "name": "Carnivore MD",
+        "channel_url": "https://www.youtube.com/c/CarnivoreMD"
+      },
+      {
+        "name": "Amber O'Hearn",
+        "channel_url": "https://www.youtube.com/user/AmberOHearn"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Dental Health and Nutrition",
+    "mention_count": 124,
+    "engagement_score": 7.3,
+    "description": "Observations on improved oral health, reduced cavities, and stronger teeth on all-meat diets.",
+    "expanded_content": "The high bioavailability of vitamin A, D, K2, and calcium from animal products supports dental mineralization. Users report improved gum health, reduced plaque buildup, and reduced cavity formation. The absence of sugar and acidic foods plays a significant role in this improvement.",
+    "sentiment": {
+      "positive": 76,
+      "neutral": 20,
+      "negative": 4
+    },
+    "recent": false,
+    "creators": [
+      {
+        "name": "Dr. Weston A. Price",
+        "channel_url": "https://www.youtube.com/c/WestonAPrice"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Longevity and Aging on Carnivore",
+    "mention_count": 201,
+    "engagement_score": 8.5,
+    "description": "Long-term studies and personal experiments on lifespan, aging markers, and biological age.",
+    "expanded_content": "Early research and long-term personal experiments suggest potential benefits for aging. Reduced inflammation, improved metabolic markers, and preserved muscle mass may contribute to healthier aging. Some practitioners report improved energy and vitality in later years.",
+    "sentiment": {
+      "positive": 68,
+      "neutral": 28,
+      "negative": 4
+    },
+    "recent": true,
+    "creators": [
+      {
+        "name": "Shawn Baker",
+        "channel_url": "https://www.youtube.com/c/ShawnBakerMD"
+      },
+      {
+        "name": "Ken Berry",
+        "channel_url": "https://www.youtube.com/c/KenBerry"
+      },
+      {
+        "name": "Neisha CMain",
+        "channel_url": "https://www.youtube.com/user/NeishaMain"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Athletic Performance & Endurance",
+    "mention_count": 178,
+    "engagement_score": 7.7,
+    "description": "Athletes sharing performance metrics, strength gains, and endurance improvements on carnivore.",
+    "expanded_content": "Strength athletes and endurance sports people report improved performance markers. Faster recovery, reduced injury rates, and sustained energy without carb cycling are commonly reported. The stable energy from fat oxidation supports endurance activities.",
+    "sentiment": {
+      "positive": 79,
+      "neutral": 18,
+      "negative": 3
+    },
+    "recent": false,
+    "creators": [
+      {
+        "name": "Shawn Baker",
+        "channel_url": "https://www.youtube.com/c/ShawnBakerMD"
+      },
+      {
+        "name": "Chris Palmer",
+        "channel_url": "https://www.youtube.com/c/ChrisPalmer"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Nutrient Deficiency Concerns",
+    "mention_count": 142,
+    "engagement_score": 6.4,
+    "description": "Discussion on potential vitamin C, fiber, and mineral deficiencies on all-meat diets.",
+    "expanded_content": "Some medical professionals raise concerns about vitamin C intake from meat alone. However, advocates point to the reduced need for vitamin C due to lower inflammatory load, and the presence of other key nutrients. Organ meats provide bioavailable sources of many nutrients.",
+    "sentiment": {
+      "positive": 42,
+      "neutral": 48,
+      "negative": 10
+    },
+    "recent": false,
+    "creators": [
+      {
+        "name": "Georgia Ede",
+        "channel_url": "https://www.youtube.com/c/GeorgiaEde"
+      },
+      {
+        "name": "Ivor Cummins",
+        "channel_url": "https://www.youtube.com/c/IvorCummins"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Sleep Quality Improvements",
+    "mention_count": 215,
+    "engagement_score": 8.1,
+    "description": "Users reporting deeper sleep, faster sleep onset, and improved sleep architecture.",
+    "expanded_content": "The stable energy from fat-based nutrition eliminates blood sugar crashes that disrupt sleep. Reduced inflammation and improved nutrient status support better sleep architecture. Many users report needing less sleep while feeling more rested.",
+    "sentiment": {
+      "positive": 81,
+      "neutral": 16,
+      "negative": 3
+    },
+    "recent": true,
+    "creators": [
+      {
+        "name": "Ken Berry",
+        "channel_url": "https://www.youtube.com/c/KenBerry"
+      },
+      {
+        "name": "Shawn Baker",
+        "channel_url": "https://www.youtube.com/c/ShawnBakerMD"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Carnivore Diet for Children",
+    "mention_count": 96,
+    "engagement_score": 6.2,
+    "description": "Parents sharing experiences raising children on carnivore or similar all-meat protocols.",
+    "expanded_content": "Pediatric nutrition on carnivore diets is becoming more discussed, with parents reporting improvements in children's health, behavior, and development. Key concerns include ensuring adequate growth, nutrient needs, and social meal situations.",
+    "sentiment": {
+      "positive": 64,
+      "neutral": 30,
+      "negative": 6
+    },
+    "recent": true,
+    "creators": [
+      {
+        "name": "Mikhaila Peterson",
+        "channel_url": "https://www.youtube.com/c/MikhailaP"
+      },
+      {
+        "name": "Dr. Paul Saladino",
+        "channel_url": "https://www.youtube.com/c/DrPaulSaladino"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Digestive Health and Gut Healing",
+    "mention_count": 287,
+    "engagement_score": 8.9,
+    "description": "Reports of improved digestion, resolved IBS, and better gut health markers on carnivore.",
+    "expanded_content": "The elimination of plant antinutrients and easily digestible animal proteins support gut healing. Users report resolution of IBS symptoms, improved nutrient absorption, and healthier gut bacteria. The elimination of processed foods contributes significantly.",
+    "sentiment": {
+      "positive": 84,
+      "neutral": 13,
+      "negative": 3
+    },
+      "recent": true,
+    "creators": [
+      {
+        "name": "Shawn Baker",
+        "channel_url": "https://www.youtube.com/c/ShawnBakerMD"
+      },
+      {
+        "name": "Dr. Stephen Gundry",
+        "channel_url": "https://www.youtube.com/c/DrStephenGundry"
+      },
+      {
+        "name": "Carnivore MD",
+        "channel_url": "https://www.youtube.com/c/CarnivoreMD"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Metabolic Health & Insulin Sensitivity",
+    "mention_count": 334,
+    "engagement_score": 9.3,
+    "description": "Strong evidence of improved insulin sensitivity, stable glucose, and metabolic improvements.",
+    "expanded_content": "Multiple studies and personal experiments show significant improvements in insulin sensitivity and blood glucose stability. Fasting insulin levels drop, HbA1c improves, and metabolic rate stabilizes. This appears to be one of the most consistent benefits across users.",
+    "sentiment": {
+      "positive": 88,
+      "neutral": 10,
+      "negative": 2
+    },
+    "recent": true,
+    "creators": [
+      {
+        "name": "Dr. Paul Saladino",
+        "channel_url": "https://www.youtube.com/c/DrPaulSaladino"
+      },
+      {
+        "name": "Shawn Baker",
+        "channel_url": "https://www.youtube.com/c/ShawnBakerMD"
+      },
+      {
+        "name": "Ken Berry",
+        "channel_url": "https://www.youtube.com/c/KenBerry"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Weight Loss & Body Composition",
+    "mention_count": 421,
+    "engagement_score": 9.6,
+    "description": "Documented weight loss transformations and improved body composition on carnivore.",
+    "expanded_content": "Significant weight loss and improved body composition are among the most commonly reported benefits. Users lose fat while maintaining or building muscle. The high protein content, appetite satiety, and metabolic improvements contribute to these results. Many report sustained weight loss without calorie counting.",
+    "sentiment": {
+      "positive": 91,
+      "neutral": 7,
+      "negative": 2
+    },
+    "recent": true,
+    "creators": [
+      {
+        "name": "Shawn Baker",
+        "channel_url": "https://www.youtube.com/c/ShawnBakerMD"
+      },
+      {
+        "name": "Mikhaila Peterson",
+        "channel_url": "https://www.youtube.com/c/MikhailaP"
+      },
+      {
+        "name": "Carnivore Cast",
+        "channel_url": "https://www.youtube.com/c/CarnivoreCast"
+      }
+    ]
+  }
+]
