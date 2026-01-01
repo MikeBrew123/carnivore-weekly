@@ -1,0 +1,285 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-01-01",
+  "description": "Maps blog topics to relevant wiki sections, videos, and products using soft-conversion framework",
+  "topic_mappings": {
+    "meat-sourcing": {
+      "keywords": [
+        "butcher",
+        "sourcing",
+        "grass-fed",
+        "quality",
+        "where to buy",
+        "suppliers"
+      ],
+      "wiki_section": "budget",
+      "partner_products": [
+        {
+          "name": "ButcherBox",
+          "type": "partner",
+          "reason": "Grass-fed beef delivery, convenience for consistent sourcing",
+          "framework_stage": "4-product-as-tool",
+          "cta_text": "See how people are sourcing quality meat"
+        }
+      ]
+    },
+    "electrolytes": {
+      "keywords": [
+        "salt",
+        "electrolytes",
+        "leg cramps",
+        "sodium",
+        "potassium",
+        "magnesium",
+        "minerals"
+      ],
+      "wiki_sections": [
+        "salt",
+        "electrolytes"
+      ],
+      "featured_videos": [
+        "6ExSc9OdIIA",
+        "GyOQiuIKf0I"
+      ],
+      "partner_products": [
+        {
+          "name": "LMNT",
+          "type": "partner",
+          "reason": "Formulated electrolytes for carnivore (no sugar)",
+          "framework_stage": "4-product-as-tool",
+          "cta_text": "Convenient electrolyte option if DIY mixing isn't your thing"
+        }
+      ]
+    },
+    "performance": {
+      "keywords": [
+        "muscle",
+        "strength",
+        "training",
+        "mtor",
+        "performance",
+        "athletic"
+      ],
+      "internal_tools": [
+        {
+          "name": "Calculator",
+          "tier": "pro",
+          "reason": "Macro optimization for muscle building",
+          "cta_text": "Get personalized macros for performance goals"
+        }
+      ]
+    },
+    "fat-loss": {
+      "keywords": [
+        "weight loss",
+        "fat loss",
+        "psmf",
+        "weight",
+        "cutting"
+      ],
+      "internal_tools": [
+        {
+          "name": "Calculator",
+          "tier": "free",
+          "reason": "Macro targets for fat loss",
+          "cta_text": "Calculate your fat-loss macros"
+        }
+      ]
+    },
+    "health-science": {
+      "keywords": [
+        "research",
+        "study",
+        "science",
+        "health",
+        "metabolism",
+        "insulin",
+        "hormones"
+      ],
+      "wiki_sections": [
+        "cholesterol",
+        "insulin-resistance",
+        "digestion"
+      ],
+      "featured_videos": [
+        "6ExSc9OdIIA"
+      ]
+    },
+    "budget": {
+      "keywords": [
+        "cheap",
+        "affordable",
+        "cost",
+        "budget",
+        "money-saving",
+        "inexpensive"
+      ],
+      "wiki_section": "budget",
+      "featured_videos": [
+        "6ExSc9OdIIA",
+        "cPIYOqSF1aQ",
+        "GyOQiuIKf0I"
+      ]
+    },
+    "new-year": {
+      "keywords": [
+        "resolution",
+        "new year",
+        "goals",
+        "starting",
+        "january",
+        "motivation"
+      ],
+      "internal_tools": [
+        {
+          "name": "Calculator",
+          "tier": "free",
+          "reason": "Get started with clear macro targets",
+          "cta_text": "Start with your personalized plan"
+        }
+      ],
+      "featured_videos": [
+        "6ExSc9OdIIA",
+        "cPIYOqSF1aQ"
+      ]
+    },
+    "digestion": {
+      "keywords": [
+        "digestion",
+        "constipation",
+        "bowel",
+        "gut",
+        "poop"
+      ],
+      "wiki_section": "digestion",
+      "featured_videos": [
+        "6ExSc9OdIIA"
+      ]
+    },
+    "dairy": {
+      "keywords": [
+        "dairy",
+        "milk",
+        "cheese",
+        "butter",
+        "lactose"
+      ],
+      "wiki_section": "dairy",
+      "featured_videos": [
+        "6ExSc9OdIIA",
+        "GyOQiuIKf0I",
+        "cPIYOqSF1aQ"
+      ]
+    },
+    "coffee": {
+      "keywords": [
+        "coffee",
+        "caffeine",
+        "beverage"
+      ],
+      "wiki_section": "coffee",
+      "featured_videos": [
+        "UzN38EgKBJo"
+      ]
+    },
+    "cholesterol": {
+      "keywords": [
+        "cholesterol",
+        "ldl",
+        "hdl",
+        "triglycerides",
+        "statins",
+        "blood work"
+      ],
+      "wiki_section": "cholesterol"
+    },
+    "skin": {
+      "keywords": [
+        "acne",
+        "skin",
+        "breakout",
+        "purge",
+        "dermatology"
+      ],
+      "internal_tools": []
+    },
+    "hormones": {
+      "keywords": [
+        "pcos",
+        "hormones",
+        "menstrual",
+        "testosterone",
+        "estrogen",
+        "cycle"
+      ],
+      "wiki_sections": [
+        "hormones"
+      ],
+      "featured_videos": [
+        "6ExSc9OdIIA"
+      ]
+    },
+    "products": {
+      "keywords": [
+        "bar",
+        "snack",
+        "product",
+        "supplement"
+      ],
+      "internal_tools": []
+    }
+  },
+  "product_details": {
+    "ButcherBox": {
+      "type": "partner",
+      "url": "https://www.butcherbox.com",
+      "description": "Grass-fed beef and quality meat delivery",
+      "use_cases": [
+        "meat-sourcing",
+        "budget",
+        "new-year"
+      ],
+      "framework_application": "Product as Tool - removes sourcing friction"
+    },
+    "LMNT": {
+      "type": "partner",
+      "url": "https://drinklmnt.com",
+      "description": "Sugar-free electrolytes for low-carb diets",
+      "use_cases": [
+        "electrolytes",
+        "health-science"
+      ],
+      "framework_application": "De-Risk Decision - optional but convenient"
+    },
+    "Calculator": {
+      "type": "internal",
+      "url": "/calculator.html",
+      "description": "Free macro calculator with pro reports",
+      "use_cases": [
+        "performance",
+        "fat-loss",
+        "new-year"
+      ],
+      "framework_application": "Product as Tool - removes guesswork from macros"
+    },
+    "Wiki": {
+      "type": "internal",
+      "url": "/wiki.html",
+      "description": "Research-backed Q&A on all carnivore topics",
+      "use_cases": [
+        "health-science",
+        "cholesterol",
+        "digestion",
+        "hormones"
+      ],
+      "framework_application": "Micro Insight - provides value before product push"
+    }
+  },
+  "soft_conversion_rules": {
+    "internal_first": true,
+    "partner_only_if_better": true,
+    "always_disclose_partnership": true,
+    "no_hard_ctas": true,
+    "de_risk_every_recommendation": true
+  }
+}

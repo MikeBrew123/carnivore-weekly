@@ -277,3 +277,225 @@ input:focus, textarea:focus, select:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: #999;
 }
+
+/* Analytics Section */
+.analytics-full-width {
+  grid-column: 1 / -1;
+  margin-top: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+
+.analytics-container h2 {
+  color: var(--primary);
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.analytics-container h3 {
+  color: var(--primary);
+  font-size: 18px;
+  margin: 20px 0 15px 0;
+  font-weight: 600;
+}
+
+/* Metrics Grid - 4 columns */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+@media (max-width: 1200px) {
+  .analytics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.metric-card {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.metric-card.realtime {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+  border: 2px solid #ff6b6b;
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { box-shadow: 0 4px 8px rgba(255,107,107,0.1); }
+  50% { box-shadow: 0 4px 12px rgba(255,107,107,0.2); }
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 5px;
+  line-height: 1.1;
+}
+
+.metric-sublabel {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+/* Top Pages Table */
+.top-pages {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+
+.top-pages table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.top-pages th {
+  background: #f5f5f5;
+  padding: 12px;
+  text-align: left;
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--border);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.top-pages td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.top-pages tr:hover {
+  background: #fafafa;
+}
+
+.page-title {
+  color: var(--primary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-rank {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, var(--success), var(--warning));
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.page-views {
+  text-align: right;
+  font-weight: 600;
+  color: var(--success);
+  font-size: 14px;
+}
+
+/* Unique Visitors Section */
+.users-section {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 20px;
+  border-left: 4px solid var(--accent);
+}
+
+.users-section h3 {
+  margin: 0 0 15px 0;
+  color: var(--primary);
+  font-size: 14px;
+}
+
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .users-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.user-stat {
+  text-align: center;
+  padding: 10px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.user-stat-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.user-stat-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+/* Analytics Footer */
+.analytics-footer {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-light);
+}

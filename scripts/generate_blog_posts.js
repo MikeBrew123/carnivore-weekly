@@ -36,6 +36,19 @@ const writerProfiles = {
   }
 };
 
+// Load product mappings and wiki/video data
+let productMappings = {};
+let wikiKeywords = {};
+let videoMetadata = {};
+
+try {
+  productMappings = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/blog-topic-product-mapping.json'), 'utf-8'));
+  wikiKeywords = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/wiki-keywords.json'), 'utf-8'));
+  videoMetadata = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/wiki_videos_meta.json'), 'utf-8'));
+} catch (error) {
+  console.warn('Warning: Could not load mapping files:', error.message);
+}
+
 // Blog post definitions - past dates only (2025-12-18 through 2025-12-31)
 const blogPosts = [
   {
@@ -1133,6 +1146,193 @@ const blogPosts = [
 ];
 
 /**
+ * Extract blog topic from tags and title for product/wiki mapping
+ */
+function extractBlogTopic(tags, title) {
+  const titleLower = title.toLowerCase();
+  const tagMappings = {
+    'performance': 'performance',
+    'muscle': 'performance',
+    'fat-loss': 'fat-loss',
+    'weight-loss': 'fat-loss',
+    'nutrition': 'health-science',
+    'science': 'health-science',
+    'health': 'health-science',
+    'money-saving': 'budget',
+    'budget': 'budget',
+    'practical': 'budget',
+    'new-year': 'new-year',
+    'getting-started': 'new-year',
+    'hormones': 'hormones',
+    'health': 'health-science'
+  };
+
+  for (const tag of tags) {
+    if (tagMappings[tag]) {
+      return tagMappings[tag];
+    }
+  }
+
+  // Fallback to keyword matching in title
+  if (titleLower.includes('electrolyte') || titleLower.includes('cramp')) return 'electrolytes';
+  if (titleLower.includes('budget') || titleLower.includes('cheap')) return 'budget';
+  if (titleLower.includes('meat') || titleLower.includes('sourcing')) return 'meat-sourcing';
+  if (titleLower.includes('performance') || titleLower.includes('muscle')) return 'performance';
+  if (titleLower.includes('weight') || titleLower.includes('fat loss')) return 'fat-loss';
+  if (titleLower.includes('new year') || titleLower.includes('resolution')) return 'new-year';
+  if (titleLower.includes('hormone') || titleLower.includes('pcos')) return 'hormones';
+  if (titleLower.includes('digestion') || titleLower.includes('poop')) return 'digestion';
+
+  return null;
+}
+
+/**
+ * Find wiki sections and keywords related to blog post
+ */
+function getWikiLinks(topic) {
+  if (!productMappings.topic_mappings || !productMappings.topic_mappings[topic]) {
+    return [];
+  }
+
+  const mapping = productMappings.topic_mappings[topic];
+  const wikiSections = mapping.wiki_section ? [mapping.wiki_section] : mapping.wiki_sections || [];
+
+  const wikiLinks = [];
+  wikiSections.forEach(section => {
+    const anchor = section.replace(/\s+/g, '-').toLowerCase();
+    wikiLinks.push({
+      section: section,
+      anchor: `wiki.html#${anchor}`,
+      url: `/wiki.html#${anchor}`
+    });
+  });
+
+  return wikiLinks;
+}
+
+/**
+ * Get featured videos for blog topic
+ */
+function getFeaturedVideos(topic) {
+  if (!productMappings.topic_mappings || !productMappings.topic_mappings[topic]) {
+    return [];
+  }
+
+  const mapping = productMappings.topic_mappings[topic];
+  const videoIds = mapping.featured_videos || [];
+
+  const videos = [];
+  videoIds.forEach(videoId => {
+    // Find video in metadata
+    for (const [section, sectionVideos] of Object.entries(videoMetadata.sections || {})) {
+      const found = sectionVideos.find(v => v.video_id === videoId);
+      if (found) {
+        videos.push(found);
+        break;
+      }
+    }
+  });
+
+  return videos.slice(0, 2); // Limit to 2 featured videos
+}
+
+/**
+ * Generate soft-conversion product recommendations
+ */
+function getProductRecommendations(topic, writerName) {
+  if (!productMappings.topic_mappings || !productMappings.topic_mappings[topic]) {
+    return [];
+  }
+
+  const mapping = productMappings.topic_mappings[topic];
+  const products = (mapping.partner_products || []).concat(mapping.internal_tools || []);
+
+  return products.map(product => {
+    const productDetail = productMappings.product_details[product.name] || {};
+
+    // Voice-specific de-risking
+    let deRiskText = '';
+    if (writerName === 'sarah') {
+      deRiskText = `This is optional—no tool replaces good nutrition fundamentals.`;
+    } else if (writerName === 'marcus') {
+      deRiskText = `This solves the boring part. You don't need it, but it saves time.`;
+    } else if (writerName === 'casey') {
+      deRiskText = `Use it if it helps. No pressure either way.`;
+    }
+
+    return {
+      name: product.name,
+      type: product.type,
+      url: productDetail.url || product.url,
+      reason: product.reason,
+      cta: product.cta_text,
+      deRisk: deRiskText,
+      frameworkStage: product.framework_stage || '4-product-as-tool'
+    };
+  });
+}
+
+/**
+ * Generate HTML for wiki links section
+ */
+function renderWikiLinksSection(wikiLinks) {
+  if (wikiLinks.length === 0) return '';
+
+  const links = wikiLinks.map(link =>
+    `<a href="${link.url}" class="wiki-link">${link.section}</a>`
+  ).join(' • ');
+
+  return `
+    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
+      <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
+      <span style="color: #d4a574; font-size: 14px;">${links}</span>
+    </div>`;
+}
+
+/**
+ * Generate HTML for featured videos section
+ */
+function renderFeaturedVideosSection(videos) {
+  if (videos.length === 0) return '';
+
+  const videoCards = videos.map(video => `
+    <div style="margin-bottom: 20px; padding: 15px; background: #2c1810; border-radius: 4px;">
+      <strong style="color: #ffd700;">${video.title}</strong><br>
+      <span style="color: #d4a574; font-size: 13px;">by ${video.channel}</span><br>
+      <a href="${video.url}" target="_blank" style="color: #d4a574; text-decoration: underline; font-size: 13px;">Watch on YouTube →</a>
+    </div>
+  `).join('');
+
+  return `
+    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
+      <strong style="color: #ffd700;">📺 Featured This Week:</strong><br>
+      ${videoCards}
+    </div>`;
+}
+
+/**
+ * Generate HTML for soft-conversion product section
+ */
+function renderProductRecommendation(product) {
+  const softConversionCopy = `
+    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
+      <strong style="color: #ffd700;">${product.name}</strong><br>
+      <p style="color: #f4e4d4; margin: 10px 0; font-size: 14px;">
+        ${product.reason}
+      </p>
+      <p style="color: #d4a574; font-size: 13px; font-style: italic; margin: 10px 0;">
+        ${product.deRisk}
+      </p>
+      <a href="${product.url}" ${product.url.startsWith('http') ? 'target="_blank"' : ''}
+         style="color: #d4a574; text-decoration: underline; font-size: 13px;">
+        ${product.cta} →
+      </a>
+    </div>`;
+
+  return softConversionCopy;
+}
+
+/**
  * Generate blog post HTML
  */
 function generateBlogPostHTML(post) {
@@ -1141,6 +1341,17 @@ function generateBlogPostHTML(post) {
   const dateObj = new Date(post.date);
   const monthName = dateObj.toLocaleString('default', { month: 'long' });
   const yearDay = `${monthName} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
+
+  // Extract topic and get recommendations
+  const topic = extractBlogTopic(post.tags, post.title);
+  const wikiLinks = topic ? getWikiLinks(topic) : [];
+  const featuredVideos = topic ? getFeaturedVideos(topic) : [];
+  const productRecs = topic ? getProductRecommendations(topic, post.writer) : [];
+
+  // Render sections
+  const wikiSection = renderWikiLinksSection(wikiLinks);
+  const videoSection = renderFeaturedVideosSection(featuredVideos);
+  const productSections = productRecs.map(renderProductRecommendation).join('');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1331,6 +1542,15 @@ function generateBlogPostHTML(post) {
             ${post.content}
         </div>
 
+        <!-- Wiki Links Section -->
+        ${wikiSection}
+
+        <!-- Featured Videos Section -->
+        ${videoSection}
+
+        <!-- Product Recommendations Section (Soft Conversion) -->
+        ${productSections}
+
         <!-- Post Footer -->
         <div class="post-footer">
             <!-- Tags -->
@@ -1384,13 +1604,34 @@ async function generateBlogPosts() {
       const fileName = `${post.date}-${post.slug}.html`;
       const filePath = path.join(baseDir, fileName);
 
+      // Get topic and enhancements before generating
+      const topic = extractBlogTopic(post.tags, post.title);
+      const wikiLinks = topic ? getWikiLinks(topic) : [];
+      const featuredVideos = topic ? getFeaturedVideos(topic) : [];
+      const productRecs = topic ? getProductRecommendations(topic, post.writer) : [];
+
       const html = generateBlogPostHTML(post);
       fs.writeFileSync(filePath, html, 'utf-8');
 
       console.log(`✅ Generated: ${fileName}`);
       console.log(`   Writer: ${writerProfiles[post.writer].name} (${post.writer})`);
       console.log(`   Title: ${post.title}`);
-      console.log(`   Size: ${(html.length / 1024).toFixed(1)}KB\n`);
+      console.log(`   Size: ${(html.length / 1024).toFixed(1)}KB`);
+
+      // Show enhancements
+      if (topic) {
+        console.log(`   Topic: ${topic}`);
+        if (wikiLinks.length > 0) {
+          console.log(`   Wiki Links: ${wikiLinks.map(w => w.section).join(', ')}`);
+        }
+        if (featuredVideos.length > 0) {
+          console.log(`   Featured Videos: ${featuredVideos.length} video(s)`);
+        }
+        if (productRecs.length > 0) {
+          console.log(`   Product Recs: ${productRecs.map(p => p.name).join(', ')}`);
+        }
+      }
+      console.log('');
 
       successCount++;
     } catch (error) {
