@@ -44,7 +44,7 @@ Code: PGRST205
 
 ### Test 2: Service Role Key (Admin/Server-side)
 **Result:** ❌ FAIL
-**Key:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczNDE2MDY0MywiZXhwIjoxODkxODI3MjQzfQ.qyZNTfEcTbTqXhDPZqWKJ0J2pI5rTf6Q8VTk2xvCIZc`
+**Key:** `[REDACTED_SERVICE_ROLE_KEY]` (for security, actual key removed from documentation)
 
 ```
 Error: Invalid API key
@@ -198,7 +198,7 @@ sb_publishable_bQlgBZ7Otay8D9AErt8daA_2lQI36jk
 
 ### Service Role Key
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczNDE2MDY0MywiZXhwIjoxODkxODI3MjQzfQ.qyZNTfEcTbTqXhDPZqWKJ0J2pI5rTf6Q8VTk2xvCIZc
+[REDACTED_SERVICE_ROLE_KEY] - For security, actual key removed from documentation
 ```
 - **Purpose:** Server-side, database migrations, admin operations
 - **Permissions:** Full access (bypasses RLS)
