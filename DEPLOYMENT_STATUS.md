@@ -78,19 +78,17 @@ Version: ed55d2c2-fb7d-45d5-ae62-44dd6b602991
 **Verify at:** https://app.supabase.com/project/kwtdpvnjewtahuxjyltn/editor
 - You should see the 3 new tables in the editor
 
-### ⏳ Supabase Edge Function - READY TO DEPLOY
-- ✅ `supabase/functions/cleanup-expired-reports/index.ts` - Complete
+### ✅ Supabase Edge Function - DEPLOYED ✨
+- ✅ `supabase/functions/cleanup-expired-reports/index.ts` - Deployed
 - ✅ Cleanup logic: Deletes expired reports daily
+- ✅ Deployed: January 1, 2026 at 14:08 UTC
 
-**Status:** ⏳ **READY - Deploy after DB schema**
+**Status:** ✅ **DEPLOYED AND ACTIVE**
 
-**Deploy Once DB Schema is Ready:**
-```bash
-supabase functions deploy cleanup-expired-reports --project-id kwtdpvnjewtahuxjyltn
-```
-
-**Schedule Cron Job:**
+**Configure Cron Job:**
 Go to https://app.supabase.com/project/kwtdpvnjewtahuxjyltn/functions
+- Click: cleanup-expired-reports
+- Go to: Cron Jobs tab
 - Add cron: `0 2 * * *` (2 AM UTC daily)
 
 ---
@@ -112,9 +110,9 @@ Go to https://app.supabase.com/project/kwtdpvnjewtahuxjyltn/functions
 - [x] Redeploy Worker with Resend secret - ✅ DONE
 - [x] Get Supabase Personal Access Token - ✅ DONE
 - [x] Deploy database schema - ✅ DONE (January 1, 14:05 UTC)
+- [x] Deploy cleanup edge function - ✅ DONE (January 1, 14:08 UTC)
 
-### ⏳ FINAL STEPS (In Order)
-- [ ] Deploy cleanup edge function: `supabase functions deploy cleanup-expired-reports`
+### ⏳ FINAL STEPS (Almost Done!)
 - [ ] Schedule cron job in Supabase dashboard (0 2 * * *)
 - [ ] Test end-to-end: Free path, Paid path, Email receipt
 - [ ] Verify reports can be accessed via email link
