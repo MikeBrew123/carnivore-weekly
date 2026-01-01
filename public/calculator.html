@@ -2048,66 +2048,102 @@
 
             const { calories, protein_g, fat_g, diet } = currentResults;
 
-            let examples = [];
+            let html = '';
 
             if (diet === 'carnivore') {
-                // 2-meal carnivore day
+                // Calculate portion sizes
                 const caloriesPerMeal = Math.round(calories / 2);
                 const proteinPerMeal = Math.round(protein_g / 2);
-                const fatPerMeal = Math.round(fat_g / 2);
 
-                // Meat portions based on protein content
-                // Ribeye: ~6g protein/oz, Ground beef 80/20: ~5g protein/oz
-                const ribeyeOz = Math.round(proteinPerMeal / 6);
-                const groundBeefOz = Math.round(proteinPerMeal / 5);
+                // Different meat types and their protein per oz
+                // Ribeye: 6g protein/oz, NY Strip: 6g/oz, Ground beef 80/20: 5.5g/oz, Salmon: 6g/oz
+                const ribeye_oz = Math.round(proteinPerMeal / 6);
+                const groundBeef_oz = Math.round(proteinPerMeal / 5.5);
+                const salmon_oz = Math.round(proteinPerMeal / 6);
+                const bacon_oz = Math.round((protein_g / 3) / 5);
 
-                // 3-meal portions (protein/oz: ground beef ~5g, salmon/beef ~6-7g)
-                const lunchBeefOz = Math.round((protein_g / 3) / 5);
-                const dinnerBeefOz = Math.round((protein_g / 3) / 6);
+                html = `
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="margin-top: 0; color: #8b4513; font-size: 1.3em;">🥩 Option 1: Two Large Meals (Most Popular)</h4>
+                        <div style="background: #faf8f3; border-left: 4px solid #8b4513; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                            <p style="margin: 0 0 15px 0; font-weight: bold; color: #2c1810;">Meal 1 (${caloriesPerMeal} calories) - Breakfast or Lunch</p>
+                            <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+                                <li><strong>${ribeye_oz}oz Ribeye Steak</strong> (about the size of your palm, 2-3 fingers thick) - seared in butter until medium-rare</li>
+                                <li><strong>3-4 Large Eggs</strong> - fried, scrambled, or poached in butter (adds 150-200 calories)</li>
+                                <li><strong>Salt & Pepper</strong> - generous pinch on meat and eggs</li>
+                            </ul>
+                            <p style="margin: 15px 0 0 0; font-size: 0.95em; color: #666; font-style: italic;">What it looks like: A palm-sized steak next to a pile of golden eggs. Total plate size: standard dinner plate.</p>
+                        </div>
 
-                examples = [
-                    {
-                        title: `2-Meal Carnivore Day (${calories} cal)`,
-                        meals: [
-                            `<strong>Meal 1 (${caloriesPerMeal} cal):</strong> ${ribeyeOz}oz ribeye steak + 3-4 eggs cooked in butter`,
-                            `<strong>Meal 2 (${caloriesPerMeal} cal):</strong> ${groundBeefOz}oz ground beef (80/20) + 2oz cheese`,
-                            `<strong>Salt:</strong> Generously on everything`,
-                            `<strong>Beverages:</strong> Water, black coffee, bone broth`
-                        ]
-                    },
-                    {
-                        title: `Simple 3-Meal Plan`,
-                        meals: [
-                            `<strong>Breakfast:</strong> 4-6 eggs scrambled in butter + ${Math.round(protein_g / 3 / 6)}oz bacon`,
-                            `<strong>Lunch:</strong> ${lunchBeefOz}oz burger patties (no bun) + cheese`,
-                            `<strong>Dinner:</strong> ${dinnerBeefOz}oz salmon or beef + butter`,
-                            `<strong>Tip:</strong> Eat fatty cuts. Skip lean meats.`
-                        ]
-                    }
-                ];
+                        <div style="background: #faf8f3; border-left: 4px solid #8b4513; padding: 20px; border-radius: 8px;">
+                            <p style="margin: 0 0 15px 0; font-weight: bold; color: #2c1810;">Meal 2 (${caloriesPerMeal} calories) - Lunch or Dinner</p>
+                            <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+                                <li><strong>${groundBeef_oz}oz Ground Beef (80/20)</strong> - makes 2-3 large burger patties (no bun), juicy from the fat</li>
+                                <li><strong>2-3oz Cheddar or Brie Cheese</strong> - melted on the burger patty</li>
+                                <li><strong>Sea Salt & Butter</strong> - to finish</li>
+                            </ul>
+                            <p style="margin: 15px 0 0 0; font-size: 0.95em; color: #666; font-style: italic;">What it looks like: 2-3 thick, juicy burger patties stacked with melted cheese. Very satisfying and easy to prepare.</p>
+                        </div>
+
+                        <p style="margin-top: 20px; padding: 15px; background: #ffd700; border-radius: 8px; color: #2c1810;">
+                            <strong>💡 Why this works:</strong> Two big meals = never hungry between meals. You're eating until satisfied, not counting calories. The fat keeps you full for 6-8 hours.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="margin-top: 0; color: #8b4513; font-size: 1.3em;">🍗 Option 2: Three Regular Meals (More Structure)</h4>
+                        <div style="background: #faf8f3; border-left: 4px solid #8b4513; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                            <p style="margin: 0 0 15px 0; font-weight: bold; color: #2c1810;">Breakfast (${Math.round(calories / 3)} calories)</p>
+                            <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+                                <li><strong>5-6 Large Eggs</strong> - any style (scrambled in butter is easiest)</li>
+                                <li><strong>${bacon_oz}oz Bacon</strong> - about 6-8 strips, crispy</li>
+                            </ul>
+                            <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #666;">The ultimate breakfast: fluffy eggs + crispy bacon. Carb-free energy that lasts all morning.</p>
+                        </div>
+
+                        <div style="background: #faf8f3; border-left: 4px solid #8b4513; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                            <p style="margin: 0 0 15px 0; font-weight: bold; color: #2c1810;">Lunch (${Math.round(calories / 3)} calories)</p>
+                            <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+                                <li><strong>${Math.round(groundBeef_oz * 0.8)}oz Beef Burger Patties</strong> - with melted cheese, or as a burger bowl</li>
+                                <li><strong>Extra Butter or Fatty Sauce</strong> - to add calories and flavor</li>
+                            </ul>
+                            <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #666;">Easy lunch you can meal prep. Cook 10 patties on Sunday, heat 2-3 patties + cheese for lunch.</p>
+                        </div>
+
+                        <div style="background: #faf8f3; border-left: 4px solid #8b4513; padding: 20px; border-radius: 8px;">
+                            <p style="margin: 0 0 15px 0; font-weight: bold; color: #2c1810;">Dinner (${Math.round(calories / 3)} calories)</p>
+                            <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+                                <li><strong>${salmon_oz}oz Salmon or Prime Rib</strong> - cooked in butter or your favorite method</li>
+                                <li><strong>Lemon & Sea Salt</strong> - or garlic butter</li>
+                                <li><strong>Optional: Organ Meat</strong> - beef liver (small 2-3oz portion for nutrition)</li>
+                            </ul>
+                            <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #666;">Variety keeps it interesting. Salmon for omega-3s, liver once per week for micronutrients.</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="margin-top: 0; color: #8b4513; font-size: 1.3em;">⚠️ Common Mistakes to Avoid</h4>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            <li><strong>Using too-lean meat:</strong> Choose 80/20 ground beef, ribeye, or salmon. Avoid sirloin or lean cuts. Fat = energy and satiety.</li>
+                            <li><strong>Not eating enough eggs:</strong> Eggs are cheap, convenient, and complete nutrition. Aim for 2-4 per meal.</li>
+                            <li><strong>Forgetting salt:</strong> Carnivore requires MORE salt than normal diets. Add it generously.</li>
+                            <li><strong>Skipping butter/fat:</strong> Cook in butter, add butter to meals. This is a high-fat diet.</li>
+                        </ul>
+                    </div>
+                `;
             } else {
-                // Keto/Low-carb examples
-                examples = [
-                    {
-                        title: `${diet === 'keto' ? 'Keto' : 'Low-Carb'} Day Example`,
-                        meals: [
-                            `<strong>Breakfast:</strong> 3-4 eggs + avocado + spinach`,
-                            `<strong>Lunch:</strong> ${Math.round(protein_g / 3)}g chicken thighs + mixed greens salad + olive oil`,
-                            `<strong>Dinner:</strong> ${Math.round(protein_g / 3)}g beef or fish + roasted vegetables + butter`,
-                            `<strong>Snack (if needed):</strong> Cheese, nuts (measured), or hard-boiled eggs`
-                        ]
-                    }
-                ];
+                // Keto examples
+                html = `
+                    <div style="background: #faf8f3; border-left: 4px solid #8b4513; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4 style="margin-top: 0; color: #8b4513;">🥗 Keto Day Example</h4>
+                        <p><strong>Breakfast:</strong> 3-4 eggs (any style) + 1/2 avocado + butter</p>
+                        <p><strong>Lunch:</strong> ${Math.round(protein_g / 3)}g chicken thighs + mixed greens + olive oil dressing</p>
+                        <p><strong>Dinner:</strong> ${Math.round(protein_g / 3)}g salmon or beef + roasted broccoli cooked in butter</p>
+                        <p><strong>Snack (optional):</strong> Cheese, macadamia nuts, or pork rinds</p>
+                        <p style="font-size: 0.9em; color: #666;"><strong>Key difference:</strong> Keto includes some low-carb vegetables. Use the carbs on veggies (fiber doesn't count), not grains.</p>
+                    </div>
+                `;
             }
-
-            const html = examples.map(ex => `
-                <div class="meal-example">
-                    <h4>${ex.title}</h4>
-                    <ul>
-                        ${ex.meals.map(m => `<li>${m}</li>`).join('')}
-                    </ul>
-                </div>
-            `).join('');
 
             document.getElementById('mealExamplesContent').innerHTML = html;
         }
