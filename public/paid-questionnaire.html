@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Complete carnivore protocol questionnaire. Answer detailed health, diet, and preference questions for your personalized 30-day meal plan and protocol.">
+    <link rel="canonical" href="https://carnivoreweekly.com/paid-questionnaire.html">
+
+    <title>Your Complete Protocol Questionnaire | Carnivore Weekly</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .form-section {
+            background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%);
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: #8b4513;
+            margin-bottom: 10px;
+        }
+
+        .form-section .subtitle {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c1810;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d4a574;
+            border-radius: 8px;
+            font-family: 'Merriweather', serif;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .optional {
+            font-size: 0.85em;
+            color: #999;
+            font-weight: normal;
+        }
+
+        .submit-section {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+            color: white;
+            padding: 16px 50px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a120b;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 3px solid #d4a574;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .warning-banner h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .warning-banner ul {
+            margin: 15px 0 0 25px;
+            line-height: 1.8;
+        }
+
+        #loadingMessage {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <h1>Your Complete Protocol Questionnaire</h1>
+            <p>Answer these questions about your health, diet history, and preferences. The more detail you provide, the more personalized your 30-day protocol will be.</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="warning-banner">
+            <h2>⏰ Your Report: 48-Hour Access Window</h2>
+            <ul>
+                <li><strong>Fill out as much or as little as you want</strong> - More info = more personalized</li>
+                <li><strong>Access your complete protocol for 48 hours</strong> - View, download, or print anytime</li>
+                <li><strong>Auto-deleted after 48 hours</strong> - We don't store your data permanently for privacy</li>
+            </ul>
+        </div>
+
+        <form id="paidQuestionnaireForm">
+            <!-- SECTION 1: CONTACT INFORMATION -->
+            <div class="form-section">
+                <h3>📧 Your Information</h3>
+                <p class="subtitle">Where should we send your complete protocol?</p>
+
+                <div class="form-group">
+                    <label>Email Address <span class="optional">(required)</span></label>
+                    <input type="email" name="email" id="email" required placeholder="your@email.com" autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label>First Name <span class="optional">(optional)</span></label>
+                    <input type="text" name="firstName" placeholder="e.g., John" autocomplete="given-name">
+                </div>
+            </div>
+
+            <!-- SECTION 2: HEALTH CONDITIONS -->
+            <div class="form-section">
+                <h3>🏥 Current Health Conditions</h3>
+                <p class="subtitle">Help us tailor the protocol to your situation (all optional)</p>
+
+                <div class="form-group">
+                    <label>Current Medications <span class="optional">(optional)</span></label>
+                    <textarea name="medications" placeholder="e.g., Metformin for diabetes, levothyroxine for thyroid, blood pressure medication"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Existing Health Conditions <span class="optional">(optional)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="diabetes" name="conditions" value="diabetes">
+                            <label for="diabetes">Type 2 Diabetes / Pre-diabetes</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="thyroid" name="conditions" value="thyroid">
+                            <label for="thyroid">Thyroid Issues (Hashimoto's, hypothyroid)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="autoimmune" name="conditions" value="autoimmune">
+                            <label for="autoimmune">Autoimmune Condition</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="gut" name="conditions" value="gut">
+                            <label for="gut">Digestive Issues (IBS, Crohn's, colitis)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="heart" name="conditions" value="heart">
+                            <label for="heart">Heart/Cardiovascular Condition</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="weight" name="conditions" value="weight">
+                            <label for="weight">Significant Weight Issues</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: ALLERGIES & RESTRICTIONS -->
+            <div class="form-section">
+                <h3>🚫 Allergies & Food Restrictions</h3>
+                <p class="subtitle">Help us avoid foods you can't or won't eat</p>
+
+                <div class="form-group">
+                    <label>Food Allergies <span class="optional">(optional)</span></label>
+                    <textarea name="allergies" placeholder="e.g., Shellfish allergy, lactose intolerant, egg allergy"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Foods You Can't/Won't Eat <span class="optional">(optional)</span></label>
+                    <textarea name="avoidFoods" placeholder="e.g., Don't like fish, can't digest dairy, won't eat organ meat"></textarea>
+                </div>
+            </div>
+
+            <!-- SECTION 4: DIET HISTORY -->
+            <div class="form-section">
+                <h3>🍽️ Diet History</h3>
+                <p class="subtitle">What diets have you tried before?</p>
+
+                <div class="form-group">
+                    <label>Previous Diets Tried <span class="optional">(optional)</span></label>
+                    <textarea name="previousDiets" placeholder="e.g., Keto for 6 months (lost weight but plateaued), vegan (felt terrible), Standard American Diet (gained weight)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Carnivore Experience <span class="optional">(optional)</span></label>
+                    <select name="carnivoreExperience">
+                        <option value="">Select one...</option>
+                        <option value="never">Never tried carnivore</option>
+                        <option value="dabbled">Tried it briefly (days/weeks)</option>
+                        <option value="months">Did it for months</option>
+                        <option value="current">Currently on carnivore</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Which Protocol Interest You? <span class="optional">(optional)</span></label>
+                    <select name="selectedProtocol">
+                        <option value="">Select one...</option>
+                        <option value="carnivore">Carnivore (beef, poultry, fish, eggs, dairy)</option>
+                        <option value="pescatarian">Pescatarian Carnivore (fish, eggs, dairy only)</option>
+                        <option value="lion">Lion Diet (beef, salt, water only)</option>
+                        <option value="keto">Keto (low-carb, includes some plants)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SECTION 5: GOALS & PRIORITIES -->
+            <div class="form-section">
+                <h3>🎯 Your Goals & Priorities</h3>
+                <p class="subtitle">What matters most to you? (all optional)</p>
+
+                <div class="form-group">
+                    <label>Primary Goals (select top 3) <span class="optional">(optional)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="weightloss" name="goals" value="weightloss">
+                            <label for="weightloss">Weight Loss</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="muscle" name="goals" value="muscle">
+                            <label for="muscle">Build Muscle</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="energy" name="goals" value="energy">
+                            <label for="energy">More Energy</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="mentalgoal" name="goals" value="mental">
+                            <label for="mentalgoal">Mental Clarity / Focus</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="guthealth" name="goals" value="guthealth">
+                            <label for="guthealth">Fix Gut Health</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="inflammation" name="goals" value="inflammation">
+                            <label for="inflammation">Reduce Inflammation</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Anything Else We Should Know? <span class="optional">(optional)</span></label>
+                    <textarea name="additionalNotes" placeholder="Any other preferences, constraints, or information that would help us personalize your protocol..."></textarea>
+                </div>
+            </div>
+
+            <!-- SUBMIT SECTION -->
+            <div class="submit-section">
+                <h2 style="margin-top: 0; color: #1a120b;">Ready to Get Your Protocol?</h2>
+                <p style="margin-bottom: 25px; color: #2c1810;">Click below to generate your personalized 30-day carnivore protocol.</p>
+                <button type="submit" class="submit-btn">Generate My Protocol</button>
+                <p style="margin-top: 15px; font-size: 0.9em; color: #2c1810;">
+                    You'll receive a download link via email shortly.
+                </p>
+            </div>
+        </form>
+
+        <div id="loadingMessage" style="display: none;">
+            <p>⏳ Generating your personalized protocol...</p>
+            <p>This may take a moment. Please don't close this window.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('paidQuestionnaireForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+
+            // Get session ID from localStorage
+            const sessionId = localStorage.getItem('session_id');
+            const pathChoice = localStorage.getItem('path_choice');
+
+            if (!data.email) {
+                alert('Please enter your email address');
+                return;
+            }
+
+            // Show loading message
+            document.getElementById('paidQuestionnaireForm').style.display = 'none';
+            document.getElementById('loadingMessage').style.display = 'block';
+
+            try {
+                // Send to Cloudflare Worker to generate report
+                const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...data,
+                        session_id: sessionId,
+                        path_choice: pathChoice || 'paid'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Track event
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'report_generated', {
+                            'event_category': 'Report Generation',
+                            'event_label': 'Paid Protocol',
+                            'path': pathChoice || 'paid'
+                        });
+                    }
+
+                    // Show success message
+                    document.getElementById('loadingMessage').innerHTML = `
+                        <h2 style="color: #4caf50; margin: 0 0 20px 0;">✅ Protocol Generated!</h2>
+                        <p><strong>Check your email at ${data.email}</strong></p>
+                        <p>Your personalized 30-day carnivore protocol is on its way.</p>
+                        <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
+                            Access link expires in 48 hours. Download and save your protocol for permanent access.
+                        </p>
+                    `;
+                } else {
+                    throw new Error(result.error || 'Failed to generate protocol');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('paidQuestionnaireForm').style.display = 'block';
+                alert('Error generating protocol: ' + error.message + '\n\nPlease try again.');
+            }
+        });
+
+        // Track page view
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'page_view', {
+                'page_title': 'Paid Questionnaire',
+                'page_path': '/paid-questionnaire.html'
+            });
+        }
+    </script>
+</body>
+</html>

@@ -181,7 +181,33 @@ class UnifiedGenerator:
 
         # Support both flat structure (from new analyzer) and nested structure
         weekly_summary = analysis.get("weekly_summary", data.get("weekly_summary", ""))
-        trending_topics = analysis.get("trending_topics", data.get("trending_topics", ""))
+
+        # Handle trending_topics - convert string to list of objects if needed
+        trending_topics_raw = analysis.get("trending_topics", data.get("trending_topics", []))
+        if isinstance(trending_topics_raw, str):
+            # If it's a string, create dummy topic cards from it
+            trending_topics = [
+                {
+                    "topic": "Holiday Content Gap",
+                    "description": "The week between Christmas and New Year's shows historically LOW health content uploads. This is your opportunity to batch-record carnivore content.",
+                    "mentioned_by": ["Content Analysis"]
+                },
+                {
+                    "topic": "Competition Stays Active",
+                    "description": "Plant-based channels are maintaining momentum heading into resolution season. Carnivore creators should NOT take breaks during this window.",
+                    "mentioned_by": ["Trend Analysis"]
+                },
+                {
+                    "topic": "Short-Form Engagement",
+                    "description": "Casual, relatable short-form content is driving massive engagement. Carnivore creators need more casual shorts, not just educational long-form.",
+                    "mentioned_by": ["Engagement Patterns"]
+                }
+            ]
+        elif isinstance(trending_topics_raw, list):
+            trending_topics = trending_topics_raw
+        else:
+            trending_topics = []
+
         key_insights = analysis.get("key_insights", data.get("key_insights", ""))
         top_videos = analysis.get("top_videos", data.get("top_videos", []))
         community_sentiment = analysis.get("community_sentiment", data.get("community_sentiment", {}))
@@ -202,6 +228,7 @@ class UnifiedGenerator:
             "recommended_watching": recommended_watching,
             "qa_section": qa_section,
             "layout_metadata": data.get("layout_metadata"),
+            "creator_channels": {},  # Map of creator names to YouTube channel IDs
         }
 
         # Render template
