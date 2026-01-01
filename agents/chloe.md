@@ -214,6 +214,7 @@ tools: Read, Write, Grep, Bash
 - **ai-text-humanization:** Self-check on draft
 - **content-integrity:** Verify community references are accurate
 - **form-optimization:** Optimize engagement and signup forms
+- **soft-conversion:** Use when mentioning calculator, wiki, or partner products
 
 ---
 
