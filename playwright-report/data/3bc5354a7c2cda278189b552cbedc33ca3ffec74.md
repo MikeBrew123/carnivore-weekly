@@ -1,0 +1,199 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - img "Carnivore Weekly Logo" [ref=e4]
+      - heading "CALCULATOR" [level=1] [ref=e5]
+      - paragraph [ref=e6]: Macro Calculator
+  - navigation [ref=e7]:
+    - link "Home" [ref=e8] [cursor=pointer]:
+      - /url: index.html
+    - link "Archive" [ref=e9] [cursor=pointer]:
+      - /url: archive.html
+    - link "Channels" [ref=e10] [cursor=pointer]:
+      - /url: channels.html
+    - link "Calculator" [ref=e11] [cursor=pointer]:
+      - /url: calculator.html
+    - link "Wiki" [ref=e12] [cursor=pointer]:
+      - /url: wiki.html
+    - link "Blog" [ref=e13] [cursor=pointer]:
+      - /url: blog.html
+    - link "About" [ref=e14] [cursor=pointer]:
+      - /url: about.html
+  - link "💬 Feedback" [ref=e15] [cursor=pointer]:
+    - /url: https://forms.gle/RTzpnv4PvaP1TEZt7
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - paragraph [ref=e19]:
+          - text: I made this calculator because I kept getting
+          - strong [ref=e20]: pissed off
+          - text: .
+        - paragraph [ref=e21]: You know how it goes. You're trying to figure out your macros, so you Google "carnivore diet calculator" or whatever. You find one that looks decent. Start filling it out. Age, weight, activity level... getting into it. Then BAM – paywall. Or worse, "Thanks! We'll email you the results!"
+        - paragraph [ref=e22]: Yeah, no. I'm not giving you my email so you can spam me about your coaching program.
+        - paragraph [ref=e23]: "So here's what I built:"
+        - img "Shopping cart filled with carnivore foods including meat, butter, and eggs" [ref=e24]
+        - paragraph [ref=e25]:
+          - strong [ref=e26]: The free calculator
+          - text: gives you what you actually came for. Your daily macro targets. No email required, no games. If that's all you need, you're done in 2 minutes.
+        - paragraph [ref=e27]:
+          - text: If you want the full protocol, there's a
+          - strong [ref=e28]: $9.99 version
+          - text: .
+        - paragraph [ref=e29]: "You answer 15 more questions about your situation (health conditions, goals, food preferences). Then you get 5 AI-generated reports:"
+        - list [ref=e30]:
+          - listitem [ref=e31]:
+            - strong [ref=e32]: Executive Summary
+            - text: "- Your complete protocol in 2 pages"
+          - listitem [ref=e33]:
+            - strong [ref=e34]: Food Pyramid & Guidelines
+            - text: "- What to eat, what to avoid, portions"
+          - listitem [ref=e35]:
+            - strong [ref=e36]: Week 1 Meal Plan
+            - text: "- Exact meals matched to your macros"
+          - listitem [ref=e37]:
+            - strong [ref=e38]: 30-Day Meal Calendar
+            - text: "- Full month roadmap"
+          - listitem [ref=e39]:
+            - strong [ref=e40]: Shopping Lists
+            - text: "- What to buy, how much, estimated costs"
+        - paragraph [ref=e41]: Everything downloads as a printable PDF. No ongoing subscription. One payment, yours forever.
+        - paragraph [ref=e42]:
+          - strong [ref=e43]: "Early access pricing:"
+          - text: This is $9.99 now. Going to $19.99 on January 31, 2026 when I add the recipe database and video walkthroughs. Lock in $9.99 today, pay once, keep access forever even after the price goes up.
+        - paragraph [ref=e44]:
+          - strong [ref=e45]: "Your data:"
+          - text: Your report sticks around for 48 hours so you can download it. After that, it's gone. I'm not storing your data long-term, and I'm not building a profile on you. You get what you paid for, you save it if you want it, and then it disappears.
+        - generic [ref=e46]:
+          - paragraph [ref=e47]:
+            - strong [ref=e48]: "Two options:"
+          - generic [ref=e49]:
+            - paragraph [ref=e51]:
+              - strong [ref=e52]: Free Calculator
+              - text: Macros in 2 minutes. No email. Scroll down.
+            - generic [ref=e53]:
+              - paragraph [ref=e54]:
+                - strong [ref=e55]: Full Protocol ($9.99)
+                - text: Macros + 5 reports + meal plans + shopping lists.
+              - link "Get Complete Protocol →" [ref=e56] [cursor=pointer]:
+                - /url: https://buy.stripe.com/dRm3cv7OHalA8FM092ao801
+          - paragraph [ref=e57]: No email harvesting. No bait and switch. No bullshit.
+        - paragraph [ref=e58]:
+          - strong [ref=e59]: Choose your path below.
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - text: ★
+          - generic [ref=e62]: FREE!
+          - generic [ref=e63]: No email required
+        - heading "Calculate Your Macros" [level=2] [ref=e64]
+        - generic [ref=e65]:
+          - button "Imperial (lbs/in)" [ref=e66] [cursor=pointer]
+          - button "Metric (kg/cm)" [ref=e67] [cursor=pointer]
+        - generic [ref=e68]:
+          - generic [ref=e69]:
+            - generic [ref=e70]: Sex
+            - combobox "Sex" [ref=e71]:
+              - option "Male" [selected]
+              - option "Female"
+          - generic [ref=e72]:
+            - generic [ref=e73]: Age
+            - spinbutton "Age" [ref=e74]: "35"
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - generic [ref=e77]: Height (feet & inches)
+            - generic [ref=e78]:
+              - spinbutton "Feet" [ref=e80]: "5"
+              - spinbutton "Inches" [ref=e82]: "10"
+            - paragraph [ref=e83]: "Example: 5 feet 10 inches"
+          - generic [ref=e84]:
+            - generic [ref=e85]: Weight (lbs)
+            - spinbutton "Weight (lbs)" [ref=e86]: "180"
+        - generic [ref=e87]:
+          - generic [ref=e88]:
+            - generic [ref=e89]: Daily Lifestyle
+            - combobox "Daily Lifestyle" [ref=e90]:
+              - option "Desk job, minimal walking" [selected]
+              - option "Desk job, walk 30-60 min/day"
+              - option "Standing job (retail, teaching)"
+              - option "Active job (server, nurse, on feet all day)"
+              - option "Physical labor (construction, farming)"
+            - paragraph [ref=e91]: Your occupation, not gym time
+          - generic [ref=e92]:
+            - generic [ref=e93]: Structured Exercise
+            - combobox "Structured Exercise" [ref=e94]:
+              - option "None"
+              - option "1-2x/week, light (walking, yoga)"
+              - option "3-4x/week, moderate (lifting, jogging)"
+              - option "4-5x/week, intense (CrossFit, HIIT)" [selected]
+              - option "6-7x/week, athlete (serious training)"
+            - paragraph [ref=e95]: Gym sessions only, not daily movement
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - generic [ref=e98]: Goal
+            - combobox "Goal" [ref=e99]:
+              - option "Lose Fat" [selected]
+              - option "Maintain Weight"
+              - option "Gain Muscle"
+          - paragraph [ref=e101]:
+            - strong [ref=e102]: "Total Activity:"
+            - text: 1.50x BMR
+        - generic [ref=e103]:
+          - generic [ref=e104]:
+            - generic [ref=e105]: Calorie Deficit (%)
+            - spinbutton "Calorie Deficit (%)" [ref=e106]: "20"
+            - paragraph [ref=e107]: 15-25% is sustainable for most people
+          - generic [ref=e108]:
+            - generic [ref=e109]: Diet Style
+            - combobox "Diet Style" [ref=e110]:
+              - option "Carnivore (0-5g carbs)" [selected]
+              - option "Keto (~20g net carbs)"
+              - option "Low-Carb (~75g net carbs)"
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - generic [ref=e114]: Fat/Protein Ratio (by calories)
+            - combobox "Fat/Protein Ratio (by calories)" [ref=e115]:
+              - option "65% fat / 35% protein (leaner)"
+              - option "70% fat / 30% protein (standard)" [selected]
+              - option "80% fat / 20% protein (therapeutic/satiety)"
+          - generic [ref=e116]:
+            - generic [ref=e117]: Protein Minimum
+            - combobox "Protein Minimum" [ref=e118]:
+              - option "1.6 g/kg (0.7 g/lb) - Standard" [selected]
+              - option "1.8 g/kg (0.8 g/lb) - Active"
+              - option "2.2 g/kg (1.0 g/lb) - Athlete"
+            - paragraph [ref=e119]: Enforces minimum protein to prevent muscle loss
+        - generic [ref=e120]:
+          - button "Calculate My Macros" [ref=e121] [cursor=pointer]
+          - button "Reset" [ref=e122] [cursor=pointer]
+  - contentinfo [ref=e123]:
+    - generic [ref=e124]:
+      - paragraph [ref=e125]: CARNIVORE WEEKLY
+      - paragraph [ref=e126]: The Finest Carnivore Content, Curated Weekly
+      - navigation [ref=e127]:
+        - link "Home" [ref=e128] [cursor=pointer]:
+          - /url: index.html
+        - link "Channels" [ref=e129] [cursor=pointer]:
+          - /url: channels.html
+        - link "Wiki" [ref=e130] [cursor=pointer]:
+          - /url: wiki.html
+        - link "Calculator" [ref=e131] [cursor=pointer]:
+          - /url: calculator.html
+        - link "About" [ref=e132] [cursor=pointer]:
+          - /url: about.html
+        - link "Archive" [ref=e133] [cursor=pointer]:
+          - /url: archive.html
+      - paragraph [ref=e134]:
+        - link "Privacy Policy" [ref=e135] [cursor=pointer]:
+          - /url: privacy.html
+      - generic [ref=e136]:
+        - paragraph [ref=e137]:
+          - strong [ref=e138]: "Medical Disclaimer:"
+          - text: This calculator provides estimates based on research-validated formulas. Results vary by individual. Always consult your healthcare provider before starting any new diet, especially if you have existing health conditions or take medications.
+        - paragraph [ref=e139]:
+          - strong [ref=e140]: "Privacy First:"
+          - text: All calculations happen in your browser. We don't store, track, or collect your personal data. Ever.
+        - paragraph [ref=e141]: Macro calculations use the Mifflin-St Jeor equation (gold standard for BMR) and carnivore-specific ratios validated by peer-reviewed research. Your actual needs may differ based on genetics, metabolic health, and activity patterns.
+```

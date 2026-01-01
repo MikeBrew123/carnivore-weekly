@@ -27,6 +27,8 @@ import argparse
 from pathlib import Path
 from typing import Dict, Optional
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
 try:
     from jinja2 import Environment, FileSystemLoader
@@ -34,6 +36,16 @@ except ImportError:
     print("Error: Jinja2 not installed. Install with:")
     print("  pip3 install jinja2")
     sys.exit(1)
+
+try:
+    from supabase import create_client
+except ImportError:
+    print("Error: Supabase client not installed. Install with:")
+    print("  pip3 install supabase")
+    sys.exit(1)
+
+# Load environment variables
+load_dotenv()
 
 
 class UnifiedGenerator:
@@ -46,6 +58,7 @@ class UnifiedGenerator:
         self.project_root = Path(self.config["paths"]["project_root"])
         self.data_cache = {}
         self._setup_jinja()
+        self._setup_supabase()
 
     def _load_config(self) -> Dict:
         """Load project configuration"""
@@ -74,9 +87,77 @@ class UnifiedGenerator:
 
         self.jinja_env.filters["format_date"] = format_date
 
+    def _setup_supabase(self):
+        """Initialize Supabase client"""
+        try:
+            supabase_url = os.getenv("SUPABASE_URL")
+            supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+            if supabase_url and supabase_key:
+                self.supabase = create_client(supabase_url, supabase_key)
+            else:
+                print("Warning: Supabase credentials not found in environment")
+                self.supabase = None
+        except Exception as e:
+            print(f"Warning: Could not initialize Supabase: {e}")
+            self.supabase = None
+
+    def _fetch_from_supabase(self, table: str, limit: int = 100) -> list:
+        """Fetch data from Supabase table"""
+        if not self.supabase:
+            return []
+        try:
+            response = self.supabase.table(table).select("*").limit(limit).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            print(f"Warning: Could not fetch {table} from Supabase: {e}")
+            return []
+
+    def _fetch_blog_posts_from_db(self) -> Dict:
+        """Fetch blog posts from Supabase and format for templates"""
+        posts = self._fetch_from_supabase("blog_posts", limit=50)
+        writers_list = self._fetch_from_supabase("writers", limit=100)
+
+        # Create writer map
+        writer_map = {w["slug"]: w for w in writers_list}
+
+        # Format posts for template
+        blog_posts = []
+        for post in posts:
+            if post.get("is_published"):
+                blog_posts.append({
+                    "slug": post.get("slug"),
+                    "title": post.get("title"),
+                    "author": writer_map.get(post.get("author_id"), {}).get("name", "Unknown"),
+                    "date": post.get("published_date"),
+                    "excerpt": post.get("excerpt"),
+                    "category": post.get("category"),
+                    "tags": post.get("tags", [])
+                })
+
+        return {"blog_posts": blog_posts}
+
+    def _fetch_weekly_analysis_from_db(self) -> Dict:
+        """Fetch latest weekly analysis from Supabase"""
+        analyses = self._fetch_from_supabase("weekly_analysis", limit=1)
+
+        if not analyses:
+            return {}
+
+        analysis = analyses[0]
+        return {
+            "analysis_date": analysis.get("analysis_date"),
+            "weekly_summary": analysis.get("weekly_summary", ""),
+            "trending_topics": analysis.get("trending_topics", []),
+            "key_insights": analysis.get("key_insights", []),
+            "community_sentiment": analysis.get("community_sentiment", {}),
+            "recommended_watching": analysis.get("recommended_watching", []),
+            "top_videos": analysis.get("recommended_watching", [])
+        }
+
     def load_data(self, data_type: str = "analyzed_content") -> Dict:
         """
-        Load data from JSON files with caching
+        Load data from Supabase first, fall back to JSON files
 
         Args:
             data_type: Type of data to load (analyzed_content, archive, etc)
@@ -87,6 +168,17 @@ class UnifiedGenerator:
         if data_type in self.data_cache:
             return self.data_cache[data_type]
 
+        data = {}
+
+        # Try to load from Supabase first
+        if data_type == "analyzed_content":
+            db_data = self._fetch_weekly_analysis_from_db()
+            if db_data:
+                data = db_data
+                self.data_cache[data_type] = data
+                return data
+
+        # Fall back to JSON files
         data_dir = self.project_root / self.config["paths"]["data_dir"]
 
         if data_type == "analyzed_content":
