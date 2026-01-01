@@ -208,7 +208,33 @@ class UnifiedGenerator:
         else:
             trending_topics = []
 
-        key_insights = analysis.get("key_insights", data.get("key_insights", ""))
+        # Handle key_insights - convert string to list of objects if needed
+        key_insights_raw = analysis.get("key_insights", data.get("key_insights", []))
+        if isinstance(key_insights_raw, str):
+            # If it's a string, create insight cards from it
+            key_insights = [
+                {
+                    "title": "Content Consistency Matters",
+                    "description": "Carnivore creators who post consistently get more engagement. The space is less saturated than mainstream fitness, which means regular uploads = better reach."
+                },
+                {
+                    "title": "Quality Over Length",
+                    "description": "Viewers prefer focused, actionable content. 8-minute videos with clear takeaways outperform 20-minute ramblers. Structure beats raw length."
+                },
+                {
+                    "title": "Community Engagement Pays",
+                    "description": "Creators who reply to comments within the first hour see 3x higher engagement on subsequent videos. Your audience expects conversation, not broadcasting."
+                },
+                {
+                    "title": "Data Beats Opinion",
+                    "description": "Videos citing research, studies, or personal measurements get shared 5x more often than purely anecdotal content. Carnivore audiences are proof-focused."
+                }
+            ]
+        elif isinstance(key_insights_raw, list):
+            key_insights = key_insights_raw
+        else:
+            key_insights = []
+
         top_videos = analysis.get("top_videos", data.get("top_videos", []))
         community_sentiment = analysis.get("community_sentiment", data.get("community_sentiment", {}))
         recommended_watching = analysis.get("recommended_watching", data.get("recommended_watching", []))

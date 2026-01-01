@@ -1177,7 +1177,10 @@
             </div>
             <ul class="insights-list">
                 {% for insight in key_insights %}
-                <li>{{ insight }}</li>
+                <li>
+                    {% if insight.title %}<strong>{{ insight.title }}</strong>{% endif %}
+                    {% if insight.description %}<p style="margin-top: 10px; color: #2c1810;">{{ insight.description }}</p>{% endif %}
+                </li>
                 {% endfor %}
             </ul>
         </section>
