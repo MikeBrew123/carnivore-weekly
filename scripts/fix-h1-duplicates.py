@@ -53,7 +53,8 @@ def fix_h1_tags(file_path):
 
 def main():
     """Fix all blog posts"""
-    blog_dir = Path("/Users/mbrew/Developer/carnivore-weekly/public/blog")
+    # Use Path(__file__).parent.parent to get project root (more portable)
+    blog_dir = Path(__file__).parent.parent / "public" / "blog"
     html_files = sorted(blog_dir.glob("*.html"))
 
     if not html_files:

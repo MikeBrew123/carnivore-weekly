@@ -105,7 +105,8 @@ def fix_blog_post(file_path):
 
 def main():
     """Fix all blog posts"""
-    blog_dir = Path("/Users/mbrew/Developer/carnivore-weekly/public/blog")
+    # Use Path(__file__).parent.parent to get project root (more portable)
+    blog_dir = Path(__file__).parent.parent / "public" / "blog"
 
     if not blog_dir.exists():
         print(f"❌ Blog directory not found: {blog_dir}")

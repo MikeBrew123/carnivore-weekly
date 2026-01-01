@@ -21,6 +21,7 @@ import resourcesRouter from './api/routes/resources.js'
 import chatRouter from './api/routes/chat.js'
 import leoRouter from './api/routes/leo.js'
 import analyticsRouter from './api/routes/analytics.js'
+import oauthRouter from './api/routes/oauth.js'
 
 // Get __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -75,6 +76,7 @@ app.use('/api', resourcesRouter)
 app.use('/api', chatRouter)
 app.use('/api', leoRouter)
 app.use('/api', analyticsRouter)
+app.use('/api', oauthRouter)
 
 app.get('/api/content/recent', (req, res) => {
   res.json({ message: 'Content endpoint - coming soon' })
