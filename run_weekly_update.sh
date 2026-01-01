@@ -178,6 +178,7 @@ cp public/archive.html archive.html 2>/dev/null || true
 cp public/channels.html channels.html 2>/dev/null || true
 cp -r public/images images/ 2>/dev/null || true
 cp -r public/archive archive/ 2>/dev/null || true
+cp -r public/blog blog/ 2>/dev/null || true
 cp public/favicon.ico favicon.ico 2>/dev/null || true
 echo "✓ Copied to root directory"
 echo ""
