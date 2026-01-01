@@ -11,9 +11,11 @@
 
 **1. Anthropic API Key** ✨
 - Status: ✅✨ **DEPLOYED to Cloudflare Worker**
-- Deployed: January 1, 2026 at 13:35 UTC
+- Deployed: January 1, 2026 at 13:35 UTC (Initial)
+- **Rotated: January 1, 2026 at 22:26 UTC** (Previous key deactivated by Anthropic due to exposure)
 - Usage: Claude API for report generation
 - Verified: ✓ Secret received by Cloudflare
+- Current: ✓ New key deployed and worker redeployed (v a2ce0807-a1e2-4317-8de0-3a656410c7a2)
 
 **2. Supabase Service Role Key** ✨
 - Status: ✅✨ **DEPLOYED to Cloudflare Worker**
