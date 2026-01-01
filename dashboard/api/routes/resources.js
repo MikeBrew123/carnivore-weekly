@@ -12,6 +12,7 @@
 import express from 'express'
 import { githubService } from '../../services/github.js'
 import { logger } from '../../lib/logger.js'
+import { tokenTracker } from '../../lib/token-tracker.js'
 
 const router = express.Router()
 
@@ -42,13 +43,22 @@ router.get('/resources', async (req, res) => {
     // Estimate Supabase usage
     const supabaseUsagePercent = 25 // Placeholder
 
+    // Get token usage stats
+    const tokenStats = tokenTracker.getStats()
+
     const resources = {
       timestamp: new Date().toISOString(),
       claude: {
         sessionTimeRemaining: formatHours(remainingHours),
         estimatedReset: new Date(Date.now() + remainingHours * 60 * 60 * 1000).toISOString(),
         usagePercent: claudeUsagePercent,
-        requestCount: claudeUsageTracker.requestCount
+        requestCount: claudeUsageTracker.requestCount,
+        tokens: {
+          used: tokenStats.totalTokensUsed,
+          messagesProcessed: tokenStats.messagesProcessed,
+          averagePerMessage: tokenStats.averageTokensPerMessage,
+          sessionStart: tokenStats.sessionStartTime
+        }
       },
       github: {
         storageUsed: githubStorage.repositorySize ? `${githubStorage.repositorySize} MB` : '0 MB',

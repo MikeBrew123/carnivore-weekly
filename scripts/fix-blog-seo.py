@@ -34,7 +34,7 @@ def fix_blog_post(file_path):
     publish_date = date_match.group(1) if date_match else "2025-12-31"
 
     # Build canonical URL
-    canonical_url = f"https://carnivoreweekly.com/public/blog/{Path(file_path).name}"
+    canonical_url = f"https://carnivoreweekly.com/blog/{Path(file_path).name}"
 
     # Generate Open Graph tags
     og_tags = f"""    <meta property="og:title" content="{title}">
