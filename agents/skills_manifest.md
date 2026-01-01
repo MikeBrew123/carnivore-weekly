@@ -479,6 +479,190 @@ AFTER: "String helpers for common text operations. We use these all over the cod
 
 ---
 
+### F. Database & Infrastructure Skills (Leo)
+
+#### 19. **Schema-Architect Skill**
+**Type:** Database Architecture
+**Purpose:** Design relational database schemas and data structures
+**When to use:** Before implementing any new data storage feature
+**Owner:** Leo (Database Architect)
+**Integration:** Foundation for all data operations
+
+**What it does:**
+- Designs normalized, efficient database structures
+- Selects appropriate data types (JSONB, UUID, pgvector, etc.)
+- Creates indexes for performance optimization
+- Documents schema decisions with SQL comments
+- Ensures ACID compliance
+
+**Success Criteria:**
+- ✅ Schema properly normalized
+- ✅ Appropriate data types used
+- ✅ Indexes created for <50ms queries
+- ✅ No unnecessary NULL values
+- ✅ Documentation complete
+
+---
+
+#### 20. **RLS-Guardian Skill**
+**Type:** Security & Access Control
+**Purpose:** Create Row Level Security (RLS) policies to protect data
+**When to use:** Whenever data needs user/organization isolation
+**Owner:** Leo (Database Architect)
+**Integration:** Critical for security compliance
+
+**What it does:**
+- Writes Row Level Security policies
+- Ensures data isolation between users
+- Audits access patterns
+- Implements encryption for sensitive data
+- Tests security policies before deployment
+
+**Success Criteria:**
+- ✅ RLS policies tested and verified
+- ✅ Data properly isolated
+- ✅ No unauthorized access possible
+- ✅ Policies documented
+
+---
+
+#### 21. **Vector-Specialist Skill**
+**Type:** AI & Search Optimization
+**Purpose:** Optimize pgvector embeddings for semantic search
+**When to use:** For AI-powered search and content discovery
+**Owner:** Leo (Database Architect)
+**Integration:** Powers Sarah's research discovery, content recommendations
+
+**What it does:**
+- Manages pgvector embeddings
+- Optimizes vector queries for performance
+- Integrates with Claude API for embeddings
+- Handles embedding lifecycle (updates, deletions)
+- Monitors vector index health
+
+**Success Criteria:**
+- ✅ Vector queries fast (<100ms)
+- ✅ Embeddings accurate
+- ✅ Integration with Claude API working
+- ✅ Index health monitored
+
+---
+
+#### 22. **Migration-Engine Skill**
+**Type:** Change Management
+**Purpose:** Manage database migrations safely and reliably
+**When to use:** For all schema changes (never manual edits)
+**Owner:** Leo (Database Architect)
+**Integration:** Foundation of version control for database
+
+**What it does:**
+- Writes idempotent migrations (safe to run multiple times)
+- Version controls all schema changes
+- Tests migrations locally first
+- Creates rollback procedures
+- Documents breaking changes
+- Coordinates with team before large migrations
+
+**Success Criteria:**
+- ✅ All changes version-controlled
+- ✅ Migrations tested locally
+- ✅ Rollback procedure in place
+- ✅ Zero manual dashboard edits
+- ✅ Team communication completed
+
+---
+
+#### 23. **Edge-Deployer Skill**
+**Type:** Serverless Functions
+**Purpose:** Deploy Supabase Edge Functions for low-latency operations
+**When to use:** For API endpoints, webhooks, automation logic
+**Owner:** Leo (Database Architect)
+**Integration:** Enables event-driven automation
+
+**What it does:**
+- Writes Deno-based Edge Functions
+- Deploys serverless logic to Supabase
+- Creates webhook handlers
+- Manages function versioning
+- Monitors function performance
+
+**Success Criteria:**
+- ✅ Functions deployed and tested
+- ✅ Webhook handlers working
+- ✅ Performance meets targets (<100ms)
+- ✅ Error handling complete
+
+---
+
+#### 24. **Query-Optimizer Skill**
+**Type:** Performance Tuning
+**Purpose:** Identify and optimize slow database queries
+**When to use:** When queries exceed <50ms target
+**Owner:** Leo (Database Architect)
+**Integration:** Critical for user experience
+
+**What it does:**
+- Analyzes query performance with pg_stat_statements
+- Identifies slow queries
+- Creates optimized indexes
+- Refactors queries for speed
+- Benchmarks improvements
+
+**Success Criteria:**
+- ✅ All critical queries < 50ms
+- ✅ Indexes properly utilized
+- ✅ No N+1 query problems
+- ✅ Performance improvements verified
+
+---
+
+#### 25. **Webhook-Architect Skill**
+**Type:** Event-Driven Automation
+**Purpose:** Build database triggers and webhook orchestration
+**When to use:** For automated workflows (content to social, notifications)
+**Owner:** Leo (Database Architect)
+**Integration:** Connects database to n8n automation platform
+
+**What it does:**
+- Creates database triggers for events
+- Builds webhook payloads
+- Integrates with n8n
+- Enables Chloe's IG automation
+- Enables Marcus's email automation
+- Creates error logging and alerting
+
+**Success Criteria:**
+- ✅ Triggers working correctly
+- ✅ Webhook payloads accurate
+- ✅ n8n integration verified
+- ✅ Error handling in place
+
+---
+
+#### 26. **Data-Guardian Skill**
+**Type:** Data Quality & Integrity
+**Purpose:** Implement constraints and guardrails to prevent data corruption
+**When to use:** For all data operations (ongoing)
+**Owner:** Leo (Database Architect)
+**Integration:** Foundation of system reliability
+
+**What it does:**
+- Implements database constraints (unique, foreign keys, checks)
+- Creates validation triggers
+- Monitors for data anomalies
+- Ensures referential integrity
+- Conducts regular health checks
+- Creates audit logs for compliance
+
+**Success Criteria:**
+- ✅ All constraints in place
+- ✅ No orphaned records
+- ✅ Data integrity verified
+- ✅ Anomalies detected early
+- ✅ Audit logs complete
+
+---
+
 ## Skill Integration Map
 
 ### Before Content Submission (Sarah/Marcus/Chloe)
@@ -532,6 +716,14 @@ AFTER: "String helpers for common text operations. We use these all over the cod
 | State-Manager | Quinn | Daily | YES - operations |
 | Memory-Logger | Quinn | On error | YES - learning |
 | Deployment-Scheduler | Alex, Quinn | Daily | YES - publishing |
+| Schema-Architect | Leo | Per new data need | YES - foundation |
+| RLS-Guardian | Leo | Per new table | YES - security |
+| Vector-Specialist | Leo | Per embedding need | NO - feature dependent |
+| Migration-Engine | Leo | Per schema change | YES - change control |
+| Edge-Deployer | Leo | Per automation need | NO - feature dependent |
+| Query-Optimizer | Leo | When slow queries found | NO - ongoing |
+| Webhook-Architect | Leo | Per automation flow | NO - feature dependent |
+| Data-Guardian | Leo | Continuous | YES - reliability |
 
 ---
 
@@ -555,11 +747,11 @@ When a new capability is needed:
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-01-01 | Added Leo's 8 Database & Infrastructure Skills | Formalized database architecture layer |
 | 2025-01-01 | Created skills manifest v1.0 | Formalized skill system |
-| ... | ... | ... |
 
 ---
 
-**Last Updated:** January 1, 2025
+**Last Updated:** January 1, 2026
 **Maintained By:** Quinn (Record Keeper)
 **Review Cycle:** Monthly
