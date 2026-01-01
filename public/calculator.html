@@ -906,6 +906,204 @@
         header p {
             text-align: center;
         }
+
+        /* ========================================
+           PATH CHOICE SYSTEM
+           ======================================== */
+
+        .path-choice-container {
+            background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .choice-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            color: #8b4513;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .choice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .choice-card {
+            background: white;
+            border: 3px solid #d4a574;
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+            transition: all 0.3s;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .choice-badge {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .choice-badge--paid {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a120b;
+            font-size: 1.1em;
+        }
+
+        .choice-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: #2c1810;
+            margin: 10px 0 20px 0;
+        }
+
+        .choice-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            flex: 1;
+        }
+
+        .choice-features li {
+            padding: 10px 0 10px 30px;
+            position: relative;
+            border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+            font-size: 1.05em;
+            color: #2c1810;
+        }
+
+        .choice-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .choice-features li:last-child {
+            border-bottom: none;
+        }
+
+        .choice-time {
+            text-align: center;
+            color: #666;
+            font-size: 0.95em;
+            font-style: italic;
+            margin: 15px 0;
+        }
+
+        .choice-btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Merriweather', serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .choice-btn--free {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .choice-btn--free:hover {
+            background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+        }
+
+        .choice-btn--paid {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a120b;
+            border: 3px solid #d4a574;
+        }
+
+        .choice-btn--paid:hover {
+            background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+        }
+
+        .choice-note {
+            text-align: center;
+            color: #666;
+            font-size: 0.95em;
+            font-style: italic;
+            margin: 0;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .choice-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .path-choice-container {
+                padding: 25px 20px;
+            }
+
+            .choice-header {
+                font-size: 1.8em;
+            }
+
+            .choice-card {
+                padding: 25px;
+                min-height: 350px;
+            }
+
+            .choice-card h3 {
+                font-size: 1.5em;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .path-choice-container {
+                padding: 20px 15px;
+                margin-bottom: 25px;
+            }
+
+            .choice-header {
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+
+            .choice-card {
+                padding: 20px;
+                min-height: 320px;
+            }
+
+            .choice-features li {
+                font-size: 0.95em;
+                padding: 8px 0 8px 25px;
+            }
+        }
     </style>
 
     <!-- Schema.org WebApplication markup -->
@@ -1014,8 +1212,48 @@
                 <p style="margin-top: 25px; font-size: 1.15em;"><strong>Choose your path below.</strong></p>
             </section>
 
+            <!-- PATH CHOICE SCREEN -->
+            <div id="pathChoice" class="path-choice-container">
+                <h2 class="choice-header">Choose Your Path</h2>
+
+                <div class="choice-grid">
+                    <div class="choice-card choice-card--free">
+                        <div class="choice-badge">FREE</div>
+                        <h3>Quick Macro Calculator</h3>
+                        <ul class="choice-features">
+                            <li>Daily calorie & macro targets</li>
+                            <li>2-meal day examples</li>
+                            <li>Electrolyte guidance</li>
+                            <li>Instant results</li>
+                        </ul>
+                        <p class="choice-time">⏱️ 2 minutes</p>
+                        <button class="choice-btn choice-btn--free" onclick="choosePath('free')">
+                            Start Free Calculator →
+                        </button>
+                    </div>
+
+                    <div class="choice-card choice-card--paid">
+                        <div class="choice-badge choice-badge--paid">$9.99</div>
+                        <h3>Complete 30-Day Protocol</h3>
+                        <ul class="choice-features">
+                            <li>Everything in Free Calculator</li>
+                            <li>30-day personalized meal plan</li>
+                            <li>Weekly shopping lists</li>
+                            <li>Doctor consultation script</li>
+                            <li>48-hour report access via email</li>
+                        </ul>
+                        <p class="choice-time">⏱️ 5 minutes + payment</p>
+                        <button class="choice-btn choice-btn--paid" onclick="choosePath('paid')">
+                            Get Full Protocol →
+                        </button>
+                    </div>
+                </div>
+
+                <p class="choice-note">Both paths are valid. Pick what fits your needs today.</p>
+            </div>
+
             <!-- Calculator Card -->
-            <div class="card" style="position: relative;">
+            <div class="card hidden" id="calculatorForm" style="position: relative;">
                 <!-- FREE Star Badge -->
                 <div class="free-badge">
                     <div class="big">FREE!</div>
@@ -1409,6 +1647,108 @@
         let currentUnits = 'imperial';
         let currentResults = null;
 
+        // ---------- PATH CHOICE SYSTEM ----------
+        async function choosePath(path) {
+            try {
+                // Store path choice immediately (before API call)
+                localStorage.setItem('path_choice', path);
+
+                // Create session in Supabase (non-blocking - session creation is best-effort)
+                try {
+                    const sessionId = await createUserSession(path);
+                    localStorage.setItem('session_id', sessionId);
+                } catch (apiError) {
+                    console.warn('Could not create Supabase session:', apiError);
+                    // Still continue - user can still use calculator
+                }
+
+                // Track analytics
+                gtag('event', 'path_selected', {
+                    'event_category': 'Calculator',
+                    'event_label': path === 'free' ? 'Free Calculator' : 'Paid Protocol'
+                });
+
+                // Both paths show calculator first
+                document.getElementById('pathChoice').classList.add('hidden');
+                document.getElementById('calculatorForm').classList.remove('hidden');
+                document.getElementById('calculatorForm').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            } catch (error) {
+                console.error('Error in choosePath:', error);
+                alert('Error starting calculator. Please try again.');
+            }
+        }
+
+        async function createUserSession(pathChoice) {
+            const response = await fetch('https://kwtdpvnjewtahuxjyltn.supabase.co/rest/v1/user_sessions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNjA2NDMsImV4cCI6MTg5MTkyNzI0M30.rWArRuIUh-OGKTGLXx-5nZS8W1K03cG3X-M2RQRR-lg',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNjA2NDMsImV4cCI6MTg5MTkyNzI0M30.rWArRuIUh-OGKTGLXx-5nZS8W1K03cG3X-M2RQRR-lg'
+                },
+                body: JSON.stringify({
+                    path_choice: pathChoice,
+                    payment_status: 'unpaid'
+                })
+            });
+
+            const data = await response.json();
+            return data[0].id;
+        }
+
+        async function updateUserSession(sessionId, macroData) {
+            await fetch(`https://kwtdpvnjewtahuxjyltn.supabase.co/rest/v1/user_sessions?id=eq.${sessionId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNjA2NDMsImV4cCI6MTg5MTkyNzI0M30.rWArRuIUh-OGKTGLXx-5nZS8W1K03cG3X-M2RQRR-lg',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNjA2NDMsImV4cCI6MTg5MTkyNzI0M30.rWArRuIUh-OGKTGLXx-5nZS8W1K03cG3X-M2RQRR-lg'
+                },
+                body: JSON.stringify({
+                    macro_data: macroData
+                })
+            });
+        }
+
+        // Show paid path continue button (skip Stripe, go straight to questionnaire)
+        function showPaidPathContinueButton() {
+            const continueButton = document.createElement('div');
+            continueButton.style.cssText = 'margin-top: 40px; text-align: center; padding: 30px; background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%); border-radius: 12px; border: 3px solid #8b4513;';
+            continueButton.innerHTML = `
+                <h3 style="margin: 0 0 15px 0; color: #1a120b; font-family: 'Playfair Display', serif; font-size: 1.5em;">Next: Your Complete 30-Day Protocol</h3>
+                <p style="margin: 0 0 25px 0; color: #2c1810; font-size: 1em; line-height: 1.6;">
+                    Answer a few quick questions about your health and preferences, and we'll generate your complete personalized protocol including meal plan, shopping lists, and doctor's script.
+                </p>
+                <button style="background: #1a120b; color: #ffd700; padding: 15px 40px; border: none; border-radius: 8px; font-family: 'Playfair Display', serif; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.4)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)';"
+                        onclick="goToPaidQuestionnaire()">
+                    Continue to Full Report →
+                </button>
+                <p style="margin: 20px 0 0 0; font-size: 0.9em; color: #2c1810; opacity: 0.8;">Takes about 5 minutes</p>
+            `;
+            document.getElementById('resultsSection').appendChild(continueButton);
+        }
+
+        function goToPaidQuestionnaire() {
+            // Track analytics
+            gtag('event', 'paid_continue_clicked', {
+                'event_category': 'Paid Flow',
+                'event_label': 'Continue to Questionnaire'
+            });
+
+            // Save current macro results to localStorage for questionnaire
+            if (currentResults) {
+                localStorage.setItem('carnivore_macros', JSON.stringify(currentResults));
+            }
+
+            // Go to questionnaire (paid user, already selected paid path)
+            window.location.href = 'questionnaire.html';
+        }
+
         // ---------- Unit Conversion ----------
         function setUnits(units) {
             currentUnits = units;
@@ -1683,7 +2023,17 @@
 
             // Show results
             document.getElementById('resultsSection').classList.remove('hidden');
-            document.getElementById('upgradeSection').classList.remove('hidden');
+
+            // Check which path user chose
+            const pathChoice = localStorage.getItem('path_choice');
+            if (pathChoice === 'paid') {
+                // Hide upsell section and show "Continue to Full Report" button instead
+                document.getElementById('upgradeSection').classList.add('hidden');
+                showPaidPathContinueButton();
+            } else {
+                // Free path - show upgrade section with Stripe option
+                document.getElementById('upgradeSection').classList.remove('hidden');
+            }
 
             // Track event
             trackCalculation(diet, goal);
