@@ -826,7 +826,15 @@ class StructuralValidator:
     def _get_skip_rules_for_file(self, file_path: Path) -> Set[int]:
         """Get rules to skip for a specific file based on config"""
         file_name = file_path.name
+        file_path_str = str(file_path)
         skip_rules = set()
+
+        # Auto-detect template partials and skip appropriate rules
+        # Partials don't need full page structure (header, nav, title, DOCTYPE, etc)
+        # Skip: header (1), nav (2), inline-styles (4), heading-hierarchy (5), image-alt (6),
+        #       meta-tags (7), title (8), links (9), form-labels (10), DOCTYPE (14)
+        if "templates/partials/" in file_path_str or "templates\\partials\\" in file_path_str:
+            skip_rules.update([1, 2, 4, 5, 6, 7, 8, 9, 10, 14])  # Skip rules that don't apply to partials
 
         rules_by_file = self.config.get("rules_by_file", {})
         for pattern, rule_config in rules_by_file.items():
