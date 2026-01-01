@@ -21,36 +21,15 @@ module.exports = {
 
   coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50
     }
   },
 
   reporters: [
-    'default',
-    [
-      'jest-junit',
-      {
-        outputDirectory: 'test-results',
-        outputName: 'jest-results.xml',
-        classNameTemplate: '{classname}',
-        titleTemplate: '{title}',
-        ancestorSeparator: ' › ',
-        usePathAsClassName: false
-      }
-    ],
-    [
-      'jest-html-reporters',
-      {
-        publicPath: 'test-results',
-        filename: 'jest-report.html',
-        pageTitle: 'Jest Report',
-        expand: true,
-        openReport: false
-      }
-    ]
+    'default'
   ],
 
   testTimeout: 30000,

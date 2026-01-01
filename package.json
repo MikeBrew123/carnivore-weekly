@@ -1,4 +1,16 @@
 {
+  "scripts": {
+    "test": "jest && playwright test",
+    "test:jest": "jest --coverage",
+    "test:playwright": "playwright test",
+    "test:visual": "playwright test visual-regression.spec.js",
+    "test:a11y": "playwright test accessibility.test.js",
+    "test:performance": "playwright test performance.test.js",
+    "test:brand": "jest tests/brand-consistency.test.js",
+    "test:content": "jest tests/content-validation.test.js",
+    "test:py": "pytest tests/ -v",
+    "test:py:structure": "pytest tests/test_bento_grid_structure.py -v"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@playwright/test": "^1.57.0",

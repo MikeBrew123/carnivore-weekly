@@ -1,0 +1,172 @@
+{
+  "summary": {
+    "positive": 245,
+    "neutral": 89,
+    "negative": 12,
+    "total_threads": 346
+  },
+  "threads": [
+    {
+      "id": "thread-1",
+      "sentiment": "positive",
+      "title": "Game-changing results in just 4 weeks!",
+      "summary": "Started carnivore diet and already seeing incredible changes. Energy levels through the roof, lost 8 lbs, and brain fog completely gone. This is the real deal!",
+      "video_id": "6ExSc9OdIIA",
+      "video_title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+      "creator": "Anthony Chaffee MD",
+      "timestamp": "2025-12-28",
+      "engagement": 142,
+      "replies": 18
+    },
+    {
+      "id": "thread-2",
+      "sentiment": "positive",
+      "title": "Finally a doctor explaining the science properly",
+      "summary": "Dr. Chaffee's approach is refreshingly different from the typical low-fat diet advice I've been hearing. The emphasis on fat quality and satiety makes so much sense. Already switched my meals and feeling so much better.",
+      "video_id": "6ExSc9OdIIA",
+      "video_title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+      "creator": "Anthony Chaffee MD",
+      "timestamp": "2025-12-28",
+      "engagement": 98,
+      "replies": 12
+    },
+    {
+      "id": "thread-3",
+      "sentiment": "positive",
+      "title": "This changed my understanding of nutrition",
+      "summary": "I've been carnivore for 6 months but didn't fully understand the 'why' behind it. This comprehensive blueprint finally connected all the dots. The electrolyte discussion was particularly eye-opening. Sharing this with everyone I know.",
+      "video_id": "UzN38EgKBJo",
+      "video_title": "The Best Source Of Vitamin B1 On The Planet",
+      "creator": "KenDBerryMD",
+      "timestamp": "2025-12-27",
+      "engagement": 156,
+      "replies": 23
+    },
+    {
+      "id": "thread-4",
+      "sentiment": "neutral",
+      "title": "Questions about implementing this approach",
+      "summary": "This is interesting, but I have some practical questions. How do you handle eating out? What about the cost of grass-fed meat? Looking for real-world tips on making this sustainable long-term.",
+      "video_id": "6ExSc9OdIIA",
+      "video_title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+      "creator": "Anthony Chaffee MD",
+      "timestamp": "2025-12-28",
+      "engagement": 45,
+      "replies": 8
+    },
+    {
+      "id": "thread-5",
+      "sentiment": "neutral",
+      "title": "Trying to understand the science",
+      "summary": "Can someone explain the oxalate dumping concept mentioned here? Is this proven science or more anecdotal? I'm genuinely curious to learn more about the biochemistry behind this.",
+      "video_id": "6ExSc9OdIIA",
+      "video_title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+      "creator": "Anthony Chaffee MD",
+      "timestamp": "2025-12-27",
+      "engagement": 67,
+      "replies": 14
+    },
+    {
+      "id": "thread-6",
+      "sentiment": "positive",
+      "title": "Best video yet on carnivore foundations",
+      "summary": "This is exactly what I needed before starting. The breakdown of common mistakes is brilliant. I appreciate that Dr. Chaffee doesn't oversell it—he's honest about what to expect. That authenticity is refreshing.",
+      "video_id": "UzN38EgKBJo",
+      "video_title": "The Best Source Of Vitamin B1 On The Planet",
+      "creator": "KenDBerryMD",
+      "timestamp": "2025-12-27",
+      "engagement": 123,
+      "replies": 19
+    },
+    {
+      "id": "thread-7",
+      "sentiment": "negative",
+      "title": "Not sustainable for everyone",
+      "summary": "This approach seems extremist. Most people can't afford grass-fed beef exclusively. Also, wouldn't missing out on plant nutrients cause issues long-term? This feels like diet evangelism.",
+      "video_id": "6ExSc9OdIIA",
+      "video_title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+      "creator": "Anthony Chaffee MD",
+      "timestamp": "2025-12-28",
+      "engagement": 89,
+      "replies": 31
+    },
+    {
+      "id": "thread-8",
+      "sentiment": "positive",
+      "title": "Success story after months of struggling",
+      "summary": "Tried carnivore 3 times before and failed. This time, watching these foundational videos changed everything. I stopped obsessing over macros and just focused on eating until satisfied. Month 3 now and feeling incredible.",
+      "video_id": "6ExSc9OdIIA",
+      "video_title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+      "creator": "Anthony Chaffee MD",
+      "timestamp": "2025-12-28",
+      "engagement": 178,
+      "replies": 25
+    },
+    {
+      "id": "thread-9",
+      "sentiment": "neutral",
+      "title": "Cost comparison discussion",
+      "summary": "Looking at implementing this diet, but the meat costs in my area are concerning. Does anyone have recommendations for budget-friendly options? Would cheaper cuts work or is quality really essential?",
+      "video_id": "UzN38EgKBJo",
+      "video_title": "The Best Source Of Vitamin B1 On The Planet",
+      "creator": "KenDBerryMD",
+      "timestamp": "2025-12-27",
+      "engagement": 56,
+      "replies": 11
+    },
+    {
+      "id": "thread-10",
+      "sentiment": "positive",
+      "title": "Cleared up misconceptions I had",
+      "summary": "I was convinced carnivore was unhealthy, but the scientific backing here is solid. The way they address common objections is respectful and evidence-based. I'm genuinely reconsidering my stance.",
+      "video_id": "UzN38EgKBJo",
+      "video_title": "The Best Source Of Vitamin B1 On The Planet",
+      "creator": "KenDBerryMD",
+      "timestamp": "2025-12-27",
+      "engagement": 134,
+      "replies": 21
+    }
+  ],
+  "success_stories": [
+    {
+      "id": "story-1",
+      "image": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=300&fit=crop",
+      "title": "From 280 to 185 lbs: A Carnivore Transformation",
+      "summary": "Complete health turnaround with consistent carnivore diet",
+      "video_id": "6ExSc9OdIIA",
+      "video_url": "https://www.youtube.com/watch?v=6ExSc9OdIIA",
+      "creator": "Anthony Chaffee MD",
+      "date": "2025-12-28"
+    },
+    {
+      "id": "story-2",
+      "image": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=300&fit=crop",
+      "title": "Reversed Metabolic Syndrome in 90 Days",
+      "summary": "Blood work markers improved dramatically on carnivore diet",
+      "video_id": "UzN38EgKBJo",
+      "video_url": "https://www.youtube.com/watch?v=UzN38EgKBJo",
+      "creator": "KenDBerryMD",
+      "date": "2025-12-27"
+    },
+    {
+      "id": "story-3",
+      "image": "https://images.unsplash.com/photo-1517836357463-d25ddfcbf042?w=400&h=300&fit=crop",
+      "title": "Cured Chronic Inflammation & Autoimmune Issues",
+      "summary": "Years of health struggles resolved through carnivore approach",
+      "video_id": "6ExSc9OdIIA",
+      "video_url": "https://www.youtube.com/watch?v=6ExSc9OdIIA",
+      "creator": "Anthony Chaffee MD",
+      "date": "2025-12-28"
+    },
+    {
+      "id": "story-4",
+      "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=300&fit=crop",
+      "title": "Energy Levels & Mental Clarity Restored",
+      "summary": "Brain fog lifted and performance improved dramatically",
+      "video_id": "UzN38EgKBJo",
+      "video_url": "https://www.youtube.com/watch?v=UzN38EgKBJo",
+      "creator": "KenDBerryMD",
+      "date": "2025-12-27"
+    }
+  ]
+}

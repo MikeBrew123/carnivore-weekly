@@ -1,0 +1,566 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-12-31",
+  "description": "Complete Design Token Library for Carnivore Weekly - Figma Importable",
+  "brandName": "Carnivore Weekly",
+  "colors": {
+    "background": {
+      "primary": {
+        "value": "#1a120b",
+        "rgb": "26, 18, 11",
+        "description": "Primary page background, base color for all layouts",
+        "usage": "Body background, dark sections, main canvas"
+      },
+      "secondary": {
+        "value": "#2c1810",
+        "rgb": "44, 24, 16",
+        "description": "Secondary background for cards and elevated surfaces on dark backgrounds",
+        "usage": "Cards, boxes on dark backgrounds, secondary layers"
+      },
+      "surface": {
+        "value": "#8b4513",
+        "rgb": "139, 69, 19",
+        "description": "Elevated surfaces, headers, tertiary background",
+        "usage": "Surface elements, footer backgrounds, tertiary layers"
+      }
+    },
+    "text": {
+      "primary": {
+        "value": "#f4e4d4",
+        "rgb": "244, 228, 212",
+        "description": "Primary text color on dark backgrounds",
+        "usage": "Body text, paragraphs, default text on dark",
+        "wcagContrast": "14.2:1 vs #1a120b (AAA)"
+      },
+      "secondary": {
+        "value": "#2c1810",
+        "rgb": "44, 24, 16",
+        "description": "Secondary text color for light backgrounds",
+        "usage": "Body text on light/tan backgrounds, archive titles",
+        "wcagContrast": "12.4:1 vs #d4a574 (AAA)"
+      },
+      "accent": {
+        "value": "#d4a574",
+        "rgb": "212, 165, 116",
+        "description": "Accent text color for secondary emphasis",
+        "usage": "Secondary headings, section accents, emphasis",
+        "wcagContrast": "7.1:1 vs #1a120b (AA)"
+      }
+    },
+    "accent": {
+      "gold": {
+        "value": "#ffd700",
+        "rgb": "255, 215, 0",
+        "description": "Gold accent color for primary emphasis",
+        "usage": "Primary headings (H1, H2), highlights, premium elements",
+        "wcagContrast": "13.8:1 vs #1a120b (AAA)"
+      },
+      "tan": {
+        "value": "#d4a574",
+        "rgb": "212, 165, 116",
+        "description": "Tan accent color for secondary emphasis",
+        "usage": "Navigation links, secondary headings, section accents",
+        "wcagContrast": "7.1:1 vs #1a120b (AA)"
+      },
+      "brown": {
+        "value": "#8b4513",
+        "rgb": "139, 69, 19",
+        "description": "Brown accent for borders and dividers",
+        "usage": "Visual separation, borders, emphasis lines",
+        "wcagContrast": "6.4:1 vs #1a120b"
+      }
+    },
+    "gradients": {
+      "tan": {
+        "value": "linear-gradient(135deg, #d4a574 0%, #c49a6c 100%)",
+        "colors": ["#d4a574", "#c49a6c"],
+        "angle": "135deg",
+        "description": "Primary gradient for featured cards",
+        "usage": "Hero cards, featured sections, premium elements"
+      },
+      "brown": {
+        "value": "linear-gradient(135deg, #8b4513 0%, #6d3819 100%)",
+        "colors": ["#8b4513", "#6d3819"],
+        "angle": "135deg",
+        "description": "Dark brown gradient for buttons and secondary cards",
+        "usage": "Buttons, secondary cards, dark overlays"
+      },
+      "dark": {
+        "value": "linear-gradient(135deg, #2c1810 0%, #1a120b 100%)",
+        "colors": ["#2c1810", "#1a120b"],
+        "angle": "135deg",
+        "description": "Dark gradient for deep backgrounds",
+        "usage": "Dark cards, background overlays, deep sections"
+      }
+    }
+  },
+  "typography": {
+    "fontFamilies": {
+      "display": {
+        "name": "Playfair Display",
+        "fallback": "Georgia, serif",
+        "import": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap",
+        "usage": "Headings (H1, H2, H3, H4)",
+        "weights": [700, 900]
+      },
+      "body": {
+        "name": "Merriweather",
+        "fallback": "Georgia, serif",
+        "import": "https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap",
+        "usage": "Body text, paragraphs, regular content",
+        "weights": [400, 700]
+      }
+    },
+    "headings": {
+      "h1": {
+        "fontSize": "48px",
+        "fontSizeDesktop": "48px",
+        "fontSizeTablet": "38px",
+        "fontSizeMobile": "32px",
+        "lineHeight": 1.3,
+        "fontWeight": 900,
+        "fontFamily": "Playfair Display",
+        "color": "#ffd700",
+        "letterSpacing": "-1px",
+        "marginBottom": "20px",
+        "usage": "Page titles, main headings"
+      },
+      "h2": {
+        "fontSize": "32px",
+        "fontSizeDesktop": "32px",
+        "fontSizeTablet": "28px",
+        "fontSizeMobile": "24px",
+        "lineHeight": 1.4,
+        "fontWeight": 700,
+        "fontFamily": "Playfair Display",
+        "color": "#ffd700",
+        "letterSpacing": "-1px",
+        "marginBottom": "20px",
+        "usage": "Section headings"
+      },
+      "h3": {
+        "fontSize": "24px",
+        "fontSizeDesktop": "24px",
+        "fontSizeTablet": "20px",
+        "fontSizeMobile": "18px",
+        "lineHeight": 1.5,
+        "fontWeight": 700,
+        "fontFamily": "Playfair Display",
+        "color": "#d4a574",
+        "letterSpacing": "0.5px",
+        "marginBottom": "15px",
+        "usage": "Card titles, subsection headings"
+      },
+      "h4": {
+        "fontSize": "18px",
+        "fontSizeDesktop": "18px",
+        "fontSizeTablet": "16px",
+        "fontSizeMobile": "16px",
+        "lineHeight": 1.6,
+        "fontWeight": 700,
+        "fontFamily": "Playfair Display",
+        "color": "#d4a574",
+        "letterSpacing": "0.5px",
+        "marginBottom": "10px",
+        "usage": "Feature labels, small headings"
+      }
+    },
+    "bodyText": {
+      "default": {
+        "fontSize": "16px",
+        "lineHeight": 1.8,
+        "fontWeight": 400,
+        "fontFamily": "Merriweather",
+        "colorDark": "#f4e4d4",
+        "colorLight": "#2c1810",
+        "marginBottom": "15px",
+        "usage": "Default paragraph text"
+      },
+      "bold": {
+        "fontSize": "16px",
+        "lineHeight": 1.8,
+        "fontWeight": 700,
+        "fontFamily": "Merriweather",
+        "colorDark": "#f4e4d4",
+        "colorLight": "#2c1810",
+        "usage": "Emphasis within paragraphs using <strong>"
+      },
+      "small": {
+        "fontSize": "14px",
+        "lineHeight": 1.8,
+        "fontWeight": 400,
+        "fontFamily": "Merriweather",
+        "color": "#d4a574",
+        "usage": "Meta information, bylines, captions, timestamps"
+      },
+      "extraSmall": {
+        "fontSize": "12px",
+        "lineHeight": 1.6,
+        "fontWeight": 400,
+        "fontFamily": "Merriweather",
+        "color": "#d4a574",
+        "opacity": 0.8,
+        "usage": "Labels, badges, small metadata"
+      }
+    },
+    "letterSpacing": {
+      "tight": "-1px",
+      "normal": "0",
+      "open": "0.5px",
+      "wide": "1px"
+    }
+  },
+  "spacing": {
+    "base": "10px",
+    "scale": {
+      "xs": {
+        "value": "5px",
+        "units": 0.5,
+        "usage": "Micro-spacing inside dense components"
+      },
+      "sm": {
+        "value": "10px",
+        "units": 1,
+        "usage": "Minimal internal spacing"
+      },
+      "md": {
+        "value": "20px",
+        "units": 2,
+        "usage": "Standard spacing (70% of usage)"
+      },
+      "lg": {
+        "value": "30px",
+        "units": 3,
+        "usage": "Generous internal spacing"
+      },
+      "xl": {
+        "value": "40px",
+        "units": 4,
+        "usage": "Major section separation"
+      },
+      "xxl": {
+        "value": "60px",
+        "units": 6,
+        "usage": "Extra visual separation"
+      }
+    },
+    "padding": {
+      "container": {
+        "desktop": "40px",
+        "tablet": "30px",
+        "mobile": "20px"
+      },
+      "section": {
+        "desktop": "60px 40px",
+        "tablet": "50px 30px",
+        "mobile": "30px 20px"
+      },
+      "card": {
+        "standard": "20px",
+        "featured": "30px",
+        "compact": "15px 20px",
+        "dense": "10px 15px"
+      }
+    },
+    "margin": {
+      "headings": {
+        "h1": "0 0 20px 0",
+        "h2": "30px 0 20px 0",
+        "h3": "20px 0 15px 0",
+        "h4": "15px 0 10px 0"
+      },
+      "paragraphs": "0 0 15px 0",
+      "lists": "0 0 20px 20px",
+      "listItems": "10px 0",
+      "sections": {
+        "desktop": "60px",
+        "tablet": "40px",
+        "mobile": "30px"
+      }
+    },
+    "gaps": {
+      "grid": {
+        "desktop": "40px",
+        "tablet": "30px",
+        "mobile": "20px"
+      },
+      "flex": {
+        "standard": "20px",
+        "compact": "10px",
+        "spacious": "30px"
+      }
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": {
+        "padding": "14px 32px",
+        "minHeight": "44px",
+        "minWidth": "150px",
+        "borderRadius": "8px",
+        "fontSize": "15px",
+        "fontWeight": 700,
+        "letterSpacing": "0.5px",
+        "background": "linear-gradient(135deg, #d4a574 0%, #c49a6c 100%)",
+        "color": "#2c1810",
+        "border": "2px solid #8b4513",
+        "states": {
+          "default": {
+            "background": "linear-gradient(135deg, #d4a574 0%, #c49a6c 100%)",
+            "color": "#2c1810"
+          },
+          "hover": {
+            "background": "linear-gradient(135deg, #c49a6c 0%, #b88860 100%)",
+            "transform": "translateY(-2px)",
+            "boxShadow": "0 6px 20px rgba(212, 165, 116, 0.4)"
+          },
+          "active": {
+            "transform": "translateY(0)",
+            "boxShadow": "0 2px 8px rgba(212, 165, 116, 0.3)"
+          },
+          "focus": {
+            "outline": "2px solid #ffd700",
+            "outlineOffset": "2px"
+          },
+          "disabled": {
+            "background": "#8b4513",
+            "color": "#f4e4d4",
+            "opacity": 0.6,
+            "cursor": "not-allowed"
+          }
+        }
+      },
+      "secondary": {
+        "padding": "10px 20px",
+        "minHeight": "44px",
+        "borderRadius": "6px",
+        "fontSize": "14px",
+        "fontWeight": 600,
+        "background": "transparent",
+        "color": "#d4a574",
+        "border": "2px solid #d4a574",
+        "states": {
+          "default": {
+            "color": "#d4a574",
+            "border": "2px solid #d4a574",
+            "background": "transparent"
+          },
+          "hover": {
+            "color": "#ffd700",
+            "borderColor": "#ffd700",
+            "background": "rgba(255, 215, 0, 0.05)"
+          },
+          "active": {
+            "background": "#d4a574",
+            "color": "#2c1810"
+          },
+          "focus": {
+            "outline": "2px solid #ffd700",
+            "outlineOffset": "2px"
+          }
+        }
+      },
+      "small": {
+        "padding": "8px 16px",
+        "minHeight": "32px",
+        "borderRadius": "4px",
+        "fontSize": "12px",
+        "fontWeight": 600,
+        "background": "#8b4513",
+        "color": "#f4e4d4",
+        "border": "none"
+      }
+    },
+    "cards": {
+      "hero": {
+        "desktop": {
+          "gridColumn": "span 2",
+          "gridRow": "span 2",
+          "minHeight": "400px",
+          "padding": "30px"
+        },
+        "tablet": {
+          "gridColumn": "span 2",
+          "gridRow": "span 1",
+          "minHeight": "280px",
+          "padding": "25px"
+        },
+        "mobile": {
+          "gridColumn": "span 1",
+          "gridRow": "span 1",
+          "minHeight": "250px",
+          "padding": "20px"
+        },
+        "background": "linear-gradient(135deg, #d4a574 0%, #c49a6c 100%)",
+        "border": "3px solid #8b4513",
+        "borderRadius": "15px",
+        "boxShadow": "0 8px 25px rgba(0, 0, 0, 0.5)"
+      },
+      "featured": {
+        "desktop": {
+          "gridColumn": "span 2",
+          "minHeight": "240px",
+          "padding": "25px"
+        },
+        "tablet": {
+          "gridColumn": "span 1",
+          "minHeight": "220px",
+          "padding": "20px"
+        },
+        "mobile": {
+          "gridColumn": "span 1",
+          "minHeight": "200px",
+          "padding": "20px"
+        },
+        "background": "linear-gradient(135deg, #8b4513 0%, #6d3819 100%)",
+        "border": "left 6px solid #d4a574",
+        "borderRadius": "10px",
+        "boxShadow": "0 5px 15px rgba(0, 0, 0, 0.4)"
+      },
+      "standard": {
+        "desktop": {
+          "gridColumn": "span 1",
+          "minHeight": "220px",
+          "padding": "20px"
+        },
+        "tablet": {
+          "gridColumn": "span 1",
+          "minHeight": "220px",
+          "padding": "20px"
+        },
+        "mobile": {
+          "gridColumn": "span 1",
+          "minHeight": "180px",
+          "padding": "18px"
+        },
+        "background": "linear-gradient(135deg, #2c1810 0%, #1a120b 100%)",
+        "border": "1px solid #8b4513",
+        "borderRadius": "8px",
+        "boxShadow": "0 4px 12px rgba(0, 0, 0, 0.3)"
+      },
+      "compact": {
+        "padding": "12px 16px",
+        "background": "#8b4513",
+        "color": "#f4e4d4",
+        "borderRadius": "6px",
+        "fontSize": "13px",
+        "fontWeight": 600,
+        "display": "inline-block"
+      }
+    },
+    "forms": {
+      "input": {
+        "padding": "12px 15px",
+        "minHeight": "44px",
+        "fontSize": "14px",
+        "fontFamily": "Merriweather, Georgia, serif",
+        "background": "#2c1810",
+        "color": "#f4e4d4",
+        "border": "2px solid #8b4513",
+        "borderRadius": "6px",
+        "marginBottom": "15px",
+        "states": {
+          "focus": {
+            "borderColor": "#d4a574",
+            "outline": "2px solid #d4a574",
+            "outlineOffset": "1px",
+            "boxShadow": "0 0 0 3px rgba(212, 165, 116, 0.1)"
+          }
+        }
+      },
+      "checkbox": {
+        "width": "18px",
+        "height": "18px",
+        "cursor": "pointer",
+        "accentColor": "#d4a574"
+      },
+      "select": {
+        "padding": "12px 15px",
+        "minHeight": "44px",
+        "fontSize": "14px",
+        "background": "#2c1810",
+        "color": "#f4e4d4",
+        "border": "2px solid #8b4513",
+        "borderRadius": "6px",
+        "cursor": "pointer"
+      }
+    }
+  },
+  "breakpoints": {
+    "mobile": {
+      "min": "375px",
+      "max": "767px",
+      "columns": 1,
+      "containerPadding": "12px",
+      "gridGap": "20px",
+      "description": "Phones, small tablets"
+    },
+    "tablet": {
+      "min": "768px",
+      "max": "1099px",
+      "columns": 2,
+      "containerPadding": "15px",
+      "gridGap": "30px",
+      "description": "Tablets in portrait, small laptops"
+    },
+    "desktop": {
+      "min": "1100px",
+      "max": "1399px",
+      "columns": 3,
+      "containerPadding": "20px",
+      "gridGap": "40px",
+      "description": "Laptops, desktops"
+    },
+    "largeDesktop": {
+      "min": "1400px",
+      "columns": 3,
+      "containerPadding": "40px",
+      "gridGap": "40px",
+      "description": "Large monitors, TVs"
+    }
+  },
+  "shadows": {
+    "sm": "0 2px 8px rgba(0, 0, 0, 0.2)",
+    "md": "0 4px 15px rgba(0, 0, 0, 0.3)",
+    "lg": "0 8px 25px rgba(0, 0, 0, 0.5)",
+    "xl": "0 12px 35px rgba(0, 0, 0, 0.6)",
+    "insetLight": "inset 0 1px 0 rgba(255, 255, 255, 0.3)",
+    "insetDark": "inset 0 -1px 0 rgba(0, 0, 0, 0.3)"
+  },
+  "transitions": {
+    "fast": "0.15s ease",
+    "normal": "0.2s ease",
+    "slow": "0.3s ease",
+    "verySlow": "0.5s ease"
+  },
+  "borderRadius": {
+    "sm": "4px",
+    "md": "6px",
+    "lg": "8px",
+    "xl": "10px",
+    "xxl": "15px"
+  },
+  "accessibility": {
+    "wcagCompliance": "WCAG 2.1 AA",
+    "minContrastRatio": "4.5:1",
+    "minTouchTarget": "44px × 44px",
+    "focusOutlineWidth": "2px",
+    "focusOutlineColor": "#ffd700",
+    "focusOutlineOffset": "2px"
+  },
+  "motionPreferences": {
+    "animationsDisabled": "prefers-reduced-motion: reduce",
+    "rule": "Disable all animations and transitions for users with motion preference"
+  },
+  "codeExamples": {
+    "cssVariables": "See 'CSS Variables' section for copy-paste ready code",
+    "htmlStructure": "See 'HTML Examples' section for semantic markup",
+    "sassMixins": "Can be extended with SCSS variable maps"
+  },
+  "exportFormats": {
+    "figmaImport": "This JSON can be imported directly into Figma via Figma Tokens plugin",
+    "scss": "Can be converted to SCSS variables and maps",
+    "tailwind": "Can be converted to Tailwind config",
+    "css": "Use as :root custom properties"
+  }
+}

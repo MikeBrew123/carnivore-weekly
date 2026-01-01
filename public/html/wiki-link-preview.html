@@ -1,0 +1,271 @@
+<!-- Wiki Link Preview Popup Template
+
+This file demonstrates the HTML structure for wiki link previews.
+The actual preview is generated dynamically by wiki-preview.js,
+but this shows the expected DOM structure for styling.
+
+Usage:
+1. Include the CSS: <link rel="stylesheet" href="/css/wiki-auto-linker.css">
+2. Include the JS: <script src="/js/wiki-preview.js"><\/script>
+3. Auto-linked content will show previews on hover/click
+
+Example wiki-linked text:
+<a href="wiki.html#ketosis" class="wiki-link" data-wiki-page="wiki.html#ketosis">
+    Ketosis
+    <!-- Preview popup (inserted by JavaScript) -->
+    <div class="wiki-preview">
+        <div class="wiki-preview-title">Ketosis Explained</div>
+        <div class="wiki-preview-summary">Ketosis is a metabolic state where your body primarily burns fat for energy...</div>
+        <a href="wiki.html#ketosis" class="wiki-preview-link">Read more →</a>
+    </div>
+</a>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki Link Preview Component - Carnivore Weekly</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/css/wiki-auto-linker.css">
+    <style>
+        body {
+            font-family: 'Merriweather', serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f9f6f1;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            border-bottom: 3px solid #d4a574;
+            padding-bottom: 20px;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            margin-top: 40px;
+        }
+
+        .demo-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            border: 2px solid #d4a574;
+            margin: 20px 0;
+        }
+
+        .instruction {
+            background: #f0ebe0;
+            padding: 15px;
+            border-left: 4px solid #d4a574;
+            margin: 20px 0;
+        }
+
+        code {
+            background: #e8e0d5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .keyboard-help {
+            background: #fff8f0;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #d4a574;
+            margin: 20px 0;
+        }
+
+        .keyboard-help h3 {
+            color: #8b4513;
+            margin-top: 0;
+        }
+
+        .keyboard-help dl {
+            margin: 0;
+        }
+
+        .keyboard-help dt {
+            font-weight: 600;
+            color: #654321;
+            margin-top: 10px;
+        }
+
+        .keyboard-help dd {
+            margin: 5px 0 0 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wiki Link Preview System</h1>
+
+    <p>This page documents the wiki link preview popup component. When you hover over or click wiki-linked terms, a preview popup appears with the definition and a link to the full wiki page.</p>
+
+    <h2>Live Demo</h2>
+
+    <div class="demo-box">
+        <p>
+            Try hovering over or clicking these wiki-linked terms:
+            <a href="wiki.html#cholesterol" class="wiki-link" data-wiki-page="wiki.html#cholesterol">Cholesterol</a>,
+            <a href="wiki.html#weight-stall" class="wiki-link" data-wiki-page="wiki.html#weight-stall">Weight Stall</a>,
+            <a href="wiki.html#electrolytes" class="wiki-link" data-wiki-page="wiki.html#electrolytes">Electrolytes</a>,
+            <a href="wiki.html#dairy" class="wiki-link" data-wiki-page="wiki.html#dairy">Dairy</a>,
+            and <a href="wiki.html#ketosis" class="wiki-link" data-wiki-page="wiki.html#ketosis">Ketosis</a>.
+        </p>
+
+        <p>
+            On <strong>desktop</strong>, previews appear when you hover over a link.
+            On <strong>mobile</strong>, tap a link to see the preview.
+        </p>
+    </div>
+
+    <h2>HTML Structure</h2>
+
+    <p>Wiki links use standard HTML anchor tags with the <code>.wiki-link</code> class:</p>
+
+    <div class="demo-box">
+        <code>&lt;a href="wiki.html#ketosis" class="wiki-link"&gt;Ketosis&lt;/a&gt;</code>
+    </div>
+
+    <p>The preview popup is generated dynamically and has this structure:</p>
+
+    <div class="demo-box">
+        <pre><code>&lt;a href="wiki.html#ketosis" class="wiki-link"&gt;
+    Ketosis
+    &lt;div class="wiki-preview"&gt;
+        &lt;div class="wiki-preview-title"&gt;
+            Ketosis - The Fat-Burning State
+        &lt;/div&gt;
+        &lt;div class="wiki-preview-summary"&gt;
+            Ketosis is a metabolic state where your body burns fat
+            for energy instead of carbohydrates...
+        &lt;/div&gt;
+        &lt;a href="wiki.html#ketosis" class="wiki-preview-link"&gt;
+            Read more →
+        &lt;/a&gt;
+    &lt;/div&gt;
+&lt;/a&gt;</code></pre>
+    </div>
+
+    <h2>CSS Classes</h2>
+
+    <dl>
+        <dt><code>.wiki-link</code></dt>
+        <dd>Applied to anchor tags that are wiki links. Styled with dotted border and brown color.</dd>
+
+        <dt><code>.wiki-preview</code></dt>
+        <dd>The preview popup container. Hidden by default, shown on hover/focus/click.</dd>
+
+        <dt><code>.wiki-preview-title</code></dt>
+        <dd>The title of the preview (usually the page heading).</dd>
+
+        <dt><code>.wiki-preview-summary</code></dt>
+        <dd>A short summary excerpt from the wiki page.</dd>
+
+        <dt><code>.wiki-preview-link</code></dt>
+        <dd>The "Read more" link that takes you to the full wiki page.</dd>
+
+        <dt><code>.preview-active</code></dt>
+        <dd>Added to a wiki link when its preview is actively displayed.</dd>
+
+        <dt><code>.below</code></dt>
+        <dd>Added to preview when it appears below the link (on mobile or near viewport top).</dd>
+    </dl>
+
+    <h2>Keyboard Navigation</h2>
+
+    <div class="keyboard-help">
+        <h3>Navigation Keys</h3>
+
+        <dl>
+            <dt><kbd>Tab</kbd></dt>
+            <dd>Navigate between wiki links. The focused link will show its preview on hover.</dd>
+
+            <dt><kbd>Enter</kbd> (on mobile)</dt>
+            <dd>Show the preview for the focused link. Press Enter again to follow the link.</dd>
+
+            <dt><kbd>Escape</kbd></dt>
+            <dd>Close an open preview popup and return focus to the link.</dd>
+
+            <dt><kbd>Arrow Keys</kbd></dt>
+            <dd>Within the preview popup, use arrow keys to navigate links.</dd>
+        </dl>
+    </div>
+
+    <h2>Accessibility Features</h2>
+
+    <ul>
+        <li><strong>WCAG 2.1 AA Compliant:</strong> Proper focus indicators and semantic HTML</li>
+        <li><strong>Keyboard Navigation:</strong> Full support for Tab, Enter, and Escape keys</li>
+        <li><strong>Screen Reader Support:</strong> Previews are announced as live regions</li>
+        <li><strong>High Contrast Mode:</strong> Works in Windows High Contrast mode</li>
+        <li><strong>Reduced Motion:</strong> Respects <code>prefers-reduced-motion</code> preference</li>
+        <li><strong>Dark Mode:</strong> Automatically adapts to <code>prefers-color-scheme: dark</code></li>
+    </ul>
+
+    <h2>Mobile Behavior</h2>
+
+    <p>On mobile devices (screen width ≤ 768px), the preview system switches from hover to tap:</p>
+
+    <ul>
+        <li>Tap a wiki link to show its preview</li>
+        <li>The preview appears above the link (or below if near top of screen)</li>
+        <li>Tap the "Read more" link to navigate to the full wiki page</li>
+        <li>Tap outside the preview to close it</li>
+    </ul>
+
+    <h2>Responsive Positioning</h2>
+
+    <p>The preview popup automatically adjusts its position:</p>
+
+    <ul>
+        <li><strong>Default:</strong> Appears above the link</li>
+        <li><strong>Near top:</strong> Moves below the link to stay visible</li>
+        <li><strong>Near edges:</strong> Shifts left/right to stay within viewport</li>
+        <li><strong>Mobile:</strong> Respects viewport bounds and applies overflow scrolling</li>
+    </ul>
+
+    <h2>Implementation in Content</h2>
+
+    <p>Wiki links are automatically injected into article content by the backend Python script <code>auto_link_wiki_keywords.py</code>. When processing article HTML:</p>
+
+    <ol>
+        <li>Keywords are detected using regex patterns</li>
+        <li>Existing links are skipped (no double-linking)</li>
+        <li>Matched keywords are wrapped in <code>&lt;a class="wiki-link"&gt;</code> tags</li>
+        <li>The CSS and JavaScript styles the previews</li>
+    </ol>
+
+    <div class="instruction">
+        <strong>Note:</strong> Make sure to include both the CSS and JavaScript files in your page head:
+        <pre><code>&lt;link rel="stylesheet" href="/css/wiki-auto-linker.css"&gt;
+&lt;script src="/js/wiki-preview.js"&gt;&lt;/script&gt;</code></pre>
+    </div>
+
+    <h2>Example Integration</h2>
+
+    <div class="demo-box">
+        <p>In your HTML, after auto-linking by the backend:</p>
+
+        <pre><code>&lt;article&gt;
+    &lt;h1&gt;Understanding Ketosis&lt;/h1&gt;
+    &lt;p&gt;
+        &lt;a href="wiki.html#ketosis" class="wiki-link"&gt;Ketosis&lt;/a&gt;
+        is a metabolic state that helps with
+        &lt;a href="wiki.html#weight-stall" class="wiki-link"&gt;weight management&lt;/a&gt;.
+        Many people also benefit from proper
+        &lt;a href="wiki.html#electrolytes" class="wiki-link"&gt;electrolytes&lt;/a&gt;.
+    &lt;/p&gt;
+&lt;/article&gt;</code></pre>
+    </div>
+
+    <!-- Include the wiki preview system -->
+    <script src="/js/wiki-preview.js"></script>
+</body>
+</html>
