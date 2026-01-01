@@ -1,0 +1,416 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - img "Carnivore Weekly Logo" [ref=e4]
+      - heading "CALCULATOR" [level=1] [ref=e5]
+      - paragraph [ref=e6]: Macro Calculator
+  - navigation [ref=e7]:
+    - link "Home" [ref=e8]:
+      - /url: index.html
+    - link "Archive" [ref=e9]:
+      - /url: archive.html
+    - link "Channels" [ref=e10]:
+      - /url: channels.html
+    - link "Calculator" [ref=e11]:
+      - /url: calculator.html
+    - link "Wiki" [ref=e12]:
+      - /url: wiki.html
+    - link "Blog" [ref=e13]:
+      - /url: blog.html
+    - link "About" [ref=e14]:
+      - /url: about.html
+  - link "💬 Feedback" [ref=e15]:
+    - /url: https://forms.gle/RTzpnv4PvaP1TEZt7
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - paragraph [ref=e19]:
+          - text: I made this calculator because I kept getting
+          - strong [ref=e20]: pissed off
+          - text: .
+        - paragraph [ref=e21]: You know how it goes. You're trying to figure out your macros, so you Google "carnivore diet calculator" or whatever. You find one that looks decent. Start filling it out. Age, weight, activity level... getting into it. Then BAM – paywall. Or worse, "Thanks! We'll email you the results!"
+        - paragraph [ref=e22]: Yeah, no. I'm not giving you my email so you can spam me about your coaching program.
+        - paragraph [ref=e23]: "So here's what I built:"
+        - img "Shopping cart filled with carnivore foods including meat, butter, and eggs" [ref=e24]
+        - paragraph [ref=e25]:
+          - strong [ref=e26]: The free calculator
+          - text: gives you what you actually came for. Your daily macro targets. No email required, no games. If that's all you need, you're done in 2 minutes.
+        - paragraph [ref=e27]:
+          - text: If you want the full protocol, there's a
+          - strong [ref=e28]: $9.99 version
+          - text: .
+        - paragraph [ref=e29]: "You answer 15 more questions about your situation (health conditions, goals, food preferences). Then you get 5 AI-generated reports:"
+        - list [ref=e30]:
+          - listitem [ref=e31]:
+            - strong [ref=e32]: Executive Summary
+            - text: "- Your complete protocol in 2 pages"
+          - listitem [ref=e33]:
+            - strong [ref=e34]: Food Pyramid & Guidelines
+            - text: "- What to eat, what to avoid, portions"
+          - listitem [ref=e35]:
+            - strong [ref=e36]: Week 1 Meal Plan
+            - text: "- Exact meals matched to your macros"
+          - listitem [ref=e37]:
+            - strong [ref=e38]: 30-Day Meal Calendar
+            - text: "- Full month roadmap"
+          - listitem [ref=e39]:
+            - strong [ref=e40]: Shopping Lists
+            - text: "- What to buy, how much, estimated costs"
+        - paragraph [ref=e41]: Everything downloads as a printable PDF. No ongoing subscription. One payment, yours forever.
+        - paragraph [ref=e42]:
+          - strong [ref=e43]: "Early access pricing:"
+          - text: This is $9.99 now. Going to $19.99 on January 31, 2026 when I add the recipe database and video walkthroughs. Lock in $9.99 today, pay once, keep access forever even after the price goes up.
+        - paragraph [ref=e44]:
+          - strong [ref=e45]: "Your data:"
+          - text: Your report sticks around for 48 hours so you can download it. After that, it's gone. I'm not storing your data long-term, and I'm not building a profile on you. You get what you paid for, you save it if you want it, and then it disappears.
+        - generic [ref=e46]:
+          - paragraph [ref=e47]:
+            - strong [ref=e48]: "Two options:"
+          - generic [ref=e49]:
+            - paragraph [ref=e51]:
+              - strong [ref=e52]: Free Calculator
+              - text: Macros in 2 minutes. No email. Scroll down.
+            - generic [ref=e53]:
+              - paragraph [ref=e54]:
+                - strong [ref=e55]: Full Protocol ($9.99)
+                - text: Macros + 5 reports + meal plans + shopping lists.
+              - link "Get Complete Protocol →" [ref=e56]:
+                - /url: https://buy.stripe.com/dRm3cv7OHalA8FM092ao801
+          - paragraph [ref=e57]: No email harvesting. No bait and switch. No bullshit.
+        - paragraph [ref=e58]:
+          - strong [ref=e59]: Choose your path below.
+      - text: ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - text: ★
+          - generic [ref=e62]: FREE!
+          - generic [ref=e63]: No email required
+        - heading "Calculate Your Macros" [level=2] [ref=e64]
+        - generic [ref=e65]:
+          - button "Imperial (lbs/in)" [ref=e66] [cursor=pointer]
+          - button "Metric (kg/cm)" [ref=e67] [cursor=pointer]
+        - generic [ref=e68]:
+          - generic [ref=e69]:
+            - generic [ref=e70]: Sex
+            - combobox "Sex" [ref=e71]:
+              - option "Male" [selected]
+              - option "Female"
+          - generic [ref=e72]:
+            - generic [ref=e73]: Age
+            - spinbutton "Age" [ref=e74]: "30"
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - generic [ref=e77]: Height (feet & inches)
+            - generic [ref=e78]:
+              - spinbutton "Feet" [ref=e80]: "5"
+              - spinbutton "Inches" [ref=e82]: "10"
+            - paragraph [ref=e83]: "Example: 5 feet 10 inches"
+          - generic [ref=e84]:
+            - generic [ref=e85]: Weight (lbs)
+            - spinbutton "Weight (lbs)" [ref=e86]: "180"
+        - generic [ref=e87]:
+          - generic [ref=e88]:
+            - generic [ref=e89]: Daily Lifestyle
+            - combobox "Daily Lifestyle" [ref=e90]:
+              - option "Desk job, minimal walking" [selected]
+              - option "Desk job, walk 30-60 min/day"
+              - option "Standing job (retail, teaching)"
+              - option "Active job (server, nurse, on feet all day)"
+              - option "Physical labor (construction, farming)"
+            - paragraph [ref=e91]: Your occupation, not gym time
+          - generic [ref=e92]:
+            - generic [ref=e93]: Structured Exercise
+            - combobox "Structured Exercise" [ref=e94]:
+              - option "None"
+              - option "1-2x/week, light (walking, yoga)"
+              - option "3-4x/week, moderate (lifting, jogging)"
+              - option "4-5x/week, intense (CrossFit, HIIT)" [selected]
+              - option "6-7x/week, athlete (serious training)"
+            - paragraph [ref=e95]: Gym sessions only, not daily movement
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - generic [ref=e98]: Goal
+            - combobox "Goal" [ref=e99]:
+              - option "Lose Fat" [selected]
+              - option "Maintain Weight"
+              - option "Gain Muscle"
+          - paragraph [ref=e101]:
+            - strong [ref=e102]: "Total Activity:"
+            - text: 1.50x BMR
+        - generic [ref=e103]:
+          - generic [ref=e104]:
+            - generic [ref=e105]: Calorie Deficit (%)
+            - spinbutton "Calorie Deficit (%)" [ref=e106]: "20"
+            - paragraph [ref=e107]: 15-25% is sustainable for most people
+          - generic [ref=e108]:
+            - generic [ref=e109]: Diet Style
+            - combobox "Diet Style" [ref=e110]:
+              - option "Carnivore (0-5g carbs)" [selected]
+              - option "Keto (~20g net carbs)"
+              - option "Low-Carb (~75g net carbs)"
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - generic [ref=e114]: Fat/Protein Ratio (by calories)
+            - combobox "Fat/Protein Ratio (by calories)" [ref=e115]:
+              - option "65% fat / 35% protein (leaner)"
+              - option "70% fat / 30% protein (standard)" [selected]
+              - option "80% fat / 20% protein (therapeutic/satiety)"
+          - generic [ref=e116]:
+            - generic [ref=e117]: Protein Minimum
+            - combobox "Protein Minimum" [ref=e118]:
+              - option "1.6 g/kg (0.7 g/lb) - Standard" [selected]
+              - option "1.8 g/kg (0.8 g/lb) - Active"
+              - option "2.2 g/kg (1.0 g/lb) - Athlete"
+            - paragraph [ref=e119]: Enforces minimum protein to prevent muscle loss
+        - generic [ref=e120]:
+          - button "Calculate My Macros" [ref=e121] [cursor=pointer]
+          - button "Reset" [ref=e122] [cursor=pointer]
+      - generic [ref=e123]:
+        - generic [ref=e124]:
+          - heading "Your Personalized Macros" [level=2] [ref=e125]
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - generic [ref=e128]: Daily Calories
+              - generic [ref=e129]: 2,139
+            - generic [ref=e130]:
+              - generic [ref=e131]: TDEE (Maintenance)
+              - generic [ref=e132]: 2,674
+            - generic [ref=e133]:
+              - generic [ref=e134]: Protein
+              - generic [ref=e135]: 160g
+            - generic [ref=e136]:
+              - generic [ref=e137]: Fat
+              - generic [ref=e138]: 166g
+            - generic [ref=e139]:
+              - generic [ref=e140]: Net Carbs
+              - generic [ref=e141]: 0g
+            - generic [ref=e142]:
+              - generic [ref=e143]: Macro Split
+              - generic [ref=e144]: 70% / 30% / 0%
+          - 'link "ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" [ref=e146]':
+            - /url: https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=calculator_results
+            - 'img "ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" [ref=e147]'
+          - generic [ref=e149]:
+            - strong [ref=e150]: ✓
+            - text: Looks good. Now go eat like the apex predator you are.
+          - generic [ref=e151]:
+            - button "🖨️ Print Summary" [ref=e152] [cursor=pointer]
+            - button "See AI Upgrade" [ref=e153] [cursor=pointer]
+        - generic [ref=e154]:
+          - heading "What This Looks Like on Your Plate" [level=2] [ref=e155]
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - 'heading "🥩 Option 1: Two Large Meals (Most Popular)" [level=4] [ref=e158]'
+              - generic [ref=e159]:
+                - paragraph [ref=e160]: Meal 1 (1070 calories) - Breakfast or Lunch
+                - list [ref=e161]:
+                  - listitem [ref=e162]:
+                    - strong [ref=e163]: 13oz Ribeye Steak
+                    - text: (about the size of your palm, 2-3 fingers thick) - seared in butter until medium-rare
+                  - listitem [ref=e164]:
+                    - strong [ref=e165]: 3-4 Large Eggs
+                    - text: "- fried, scrambled, or poached in butter (adds 150-200 calories)"
+                  - listitem [ref=e166]:
+                    - strong [ref=e167]: Salt & Pepper
+                    - text: "- generous pinch on meat and eggs"
+                - paragraph [ref=e168]: "What it looks like: A palm-sized steak next to a pile of golden eggs. Total plate size: standard dinner plate."
+              - generic [ref=e169]:
+                - paragraph [ref=e170]: Meal 2 (1070 calories) - Lunch or Dinner
+                - list [ref=e171]:
+                  - listitem [ref=e172]:
+                    - strong [ref=e173]: 15oz Ground Beef (80/20)
+                    - text: "- makes 2-3 large burger patties (no bun), juicy from the fat"
+                  - listitem [ref=e174]:
+                    - strong [ref=e175]: 2-3oz Cheddar or Brie Cheese
+                    - text: "- melted on the burger patty"
+                  - listitem [ref=e176]:
+                    - strong [ref=e177]: Sea Salt & Butter
+                    - text: "- to finish"
+                - paragraph [ref=e178]: "What it looks like: 2-3 thick, juicy burger patties stacked with melted cheese. Very satisfying and easy to prepare."
+              - paragraph [ref=e179]:
+                - strong [ref=e180]: "💡 Why this works:"
+                - text: Two big meals = never hungry between meals. You're eating until satisfied, not counting calories. The fat keeps you full for 6-8 hours.
+            - generic [ref=e181]:
+              - 'heading "🍗 Option 2: Three Regular Meals (More Structure)" [level=4] [ref=e182]'
+              - generic [ref=e183]:
+                - paragraph [ref=e184]: Breakfast (713 calories)
+                - list [ref=e185]:
+                  - listitem [ref=e186]:
+                    - strong [ref=e187]: 5-6 Large Eggs
+                    - text: "- any style (scrambled in butter is easiest)"
+                  - listitem [ref=e188]:
+                    - strong [ref=e189]: 11oz Bacon
+                    - text: "- about 6-8 strips, crispy"
+                - paragraph [ref=e190]: "The ultimate breakfast: fluffy eggs + crispy bacon. Carb-free energy that lasts all morning."
+              - generic [ref=e191]:
+                - paragraph [ref=e192]: Lunch (713 calories)
+                - list [ref=e193]:
+                  - listitem [ref=e194]:
+                    - strong [ref=e195]: 12oz Beef Burger Patties
+                    - text: "- with melted cheese, or as a burger bowl"
+                  - listitem [ref=e196]:
+                    - strong [ref=e197]: Extra Butter or Fatty Sauce
+                    - text: "- to add calories and flavor"
+                - paragraph [ref=e198]: Easy lunch you can meal prep. Cook 10 patties on Sunday, heat 2-3 patties + cheese for lunch.
+              - generic [ref=e199]:
+                - paragraph [ref=e200]: Dinner (713 calories)
+                - list [ref=e201]:
+                  - listitem [ref=e202]:
+                    - strong [ref=e203]: 13oz Salmon or Prime Rib
+                    - text: "- cooked in butter or your favorite method"
+                  - listitem [ref=e204]:
+                    - strong [ref=e205]: Lemon & Sea Salt
+                    - text: "- or garlic butter"
+                  - listitem [ref=e206]:
+                    - strong [ref=e207]: "Optional: Organ Meat"
+                    - text: "- beef liver (small 2-3oz portion for nutrition)"
+                - paragraph [ref=e208]: Variety keeps it interesting. Salmon for omega-3s, liver once per week for micronutrients.
+            - generic [ref=e209]:
+              - heading "⚠️ Common Mistakes to Avoid" [level=4] [ref=e210]
+              - list [ref=e211]:
+                - listitem [ref=e212]:
+                  - strong [ref=e213]: "Using too-lean meat:"
+                  - text: Choose 80/20 ground beef, ribeye, or salmon. Avoid sirloin or lean cuts. Fat = energy and satiety.
+                - listitem [ref=e214]:
+                  - strong [ref=e215]: "Not eating enough eggs:"
+                  - text: Eggs are cheap, convenient, and complete nutrition. Aim for 2-4 per meal.
+                - listitem [ref=e216]:
+                  - strong [ref=e217]: "Forgetting salt:"
+                  - text: Carnivore requires MORE salt than normal diets. Add it generously.
+                - listitem [ref=e218]:
+                  - strong [ref=e219]: "Skipping butter/fat:"
+                  - text: Cook in butter, add butter to meals. This is a high-fat diet.
+        - generic [ref=e220]:
+          - heading "Electrolyte Targets (Critical for Success)" [level=2] [ref=e221]
+          - paragraph [ref=e222]: Most carnivore beginners underestimate electrolytes. Getting these right prevents headaches, cramps, and fatigue.
+          - generic [ref=e223]:
+            - generic [ref=e224]:
+              - generic [ref=e225]: Sodium
+              - generic [ref=e226]: 5000mg
+              - paragraph [ref=e227]: 2-3 tsp salt per day
+            - generic [ref=e228]:
+              - generic [ref=e229]: Potassium
+              - generic [ref=e230]: 3500mg
+              - paragraph [ref=e231]: Beef, fish, avocado
+            - generic [ref=e232]:
+              - generic [ref=e233]: Magnesium
+              - generic [ref=e234]: 400mg
+              - paragraph [ref=e235]: Supplement recommended
+          - generic [ref=e236]:
+            - strong [ref=e237]: "Easy wins:"
+            - text: Salt your food generously, drink bone broth, eat fatty fish (salmon, sardines). If you get headaches or feel weak, add more salt first.
+          - generic [ref=e238]:
+            - heading "⚡ The Easy Button for Electrolytes" [level=3] [ref=e239]
+            - paragraph [ref=e240]:
+              - strong [ref=e241]: LMNT
+              - text: is specifically formulated for low-carb diets. Zero sugar, optimal sodium ratio, tastes great. Used by athletes and carnivores worldwide.
+            - link "Try LMNT - Get Free Sample Pack →" [ref=e242]:
+              - /url: http://elementallabs.refr.cc/default/u/michelbrew
+            - paragraph [ref=e243]: Affiliate link - Supports this free calculator
+        - generic [ref=e244]:
+          - 'heading "First 4 Weeks: What to Expect" [level=2] [ref=e245]'
+          - generic [ref=e246]:
+            - 'heading "Week 1: The Suck" [level=4] [ref=e247]'
+            - paragraph [ref=e248]: Headaches, fatigue, possible diarrhea. This is normal. Your body is switching fuel sources. Double your salt intake. Rest more. Don't quit.
+          - generic [ref=e249]:
+            - 'heading "Week 2: Stabilizing" [level=4] [ref=e250]'
+            - paragraph [ref=e251]: Energy starts returning. Digestion regulating. Cravings for carbs peaking then fading. Hunger might spike - this is temporary. Stay the course.
+          - generic [ref=e252]:
+            - 'heading "Week 3: Momentum" [level=4] [ref=e253]'
+            - paragraph [ref=e254]: Mental clarity improving. Energy more stable. Body composition changes visible. You're fat-adapted now. Appetite naturally regulating.
+          - generic [ref=e255]:
+            - 'heading "Week 4: The Shift" [level=4] [ref=e256]'
+            - paragraph [ref=e257]: This feels sustainable. Hunger signals are clear. You eat when hungry, stop when full. Weight loss (if that's your goal) is consistent. You're dialed in.
+          - generic [ref=e258]:
+            - strong [ref=e259]: "Common Mistake:"
+            - text: Quitting during Week 1-2 because you feel terrible. That's adaptation, not failure. Give it 30 days minimum before judging results.
+        - generic [ref=e260]:
+          - heading "Common Mistakes (Avoid These)" [level=2] [ref=e261]
+          - generic [ref=e262]:
+            - strong [ref=e263]: ⚠️ Not Enough Salt
+            - text: You need 2-3 teaspoons per day. If you get headaches, add salt first before assuming carnivore doesn't work for you.
+          - generic [ref=e264]:
+            - strong [ref=e265]: ⚠️ Too Lean
+            - text: Fat is your primary fuel. If you only eat chicken breast, you'll be hungry and miserable. Eat fatty cuts (ribeye, ground beef 80/20, salmon).
+          - generic [ref=e266]:
+            - strong [ref=e267]: ⚠️ Not Eating Enough
+            - text: Especially in the first month, eat when hungry. Don't force a deficit while adapting. Your appetite will naturally regulate after you're fat-adapted.
+          - generic [ref=e268]:
+            - strong [ref=e269]: ⚠️ Quitting Too Soon
+            - text: Week 1-2 can feel rough. That's your body adapting, not failing. Give it 30 days minimum before deciding if this works for you.
+          - generic [ref=e270]:
+            - strong [ref=e271]: ⚠️ Overcomplicating It
+            - text: You don't need fancy recipes. Steak. Eggs. Ground beef. Salt. That's it. Save the gourmet carnivore pizza experiments for month 3.
+      - generic [ref=e272]:
+        - heading "Get Your Complete Personalized 30-Day Protocol" [level=2] [ref=e273]
+        - generic [ref=e274]:
+          - list [ref=e276]:
+            - listitem [ref=e277]:
+              - text: ✅
+              - strong [ref=e278]: 30-Day Meal Plan
+              - text: "- Matched to your exact macros & preferences"
+            - listitem [ref=e279]:
+              - text: ✅
+              - strong [ref=e280]: Weekly Grocery Lists
+              - text: "- With portions & cost estimates"
+            - listitem [ref=e281]:
+              - text: ✅
+              - strong [ref=e282]: Doctor's Consultation Script
+              - text: "- Labs to request, questions to ask"
+            - listitem [ref=e283]:
+              - text: ✅
+              - strong [ref=e284]: Stall-Breaker Decision Tree
+              - text: "- What to check when progress stops"
+            - listitem [ref=e285]:
+              - text: ✅
+              - strong [ref=e286]: Research Guide
+              - text: "- Studies explained in plain English"
+            - listitem [ref=e287]:
+              - text: ✅
+              - strong [ref=e288]: Printable PDF
+              - text: "- All 13 reports, one organized document"
+          - generic [ref=e289]:
+            - generic [ref=e290]:
+              - generic [ref=e291]: $29.99
+              - generic [ref=e292]: $9.99
+              - paragraph [ref=e293]: Limited time offer
+            - button "Get My Plan Now" [ref=e294] [cursor=pointer]
+            - paragraph [ref=e295]:
+              - text: One-time payment
+              - text: No subscription
+        - paragraph [ref=e297]:
+          - text: 🔒
+          - strong [ref=e298]: Your data is secure
+          - generic [ref=e299]: Download your PDF anytime. Automatically deleted after 48 hours. No email required.
+  - contentinfo [ref=e300]:
+    - generic [ref=e301]:
+      - paragraph [ref=e302]: CARNIVORE WEEKLY
+      - paragraph [ref=e303]: The Finest Carnivore Content, Curated Weekly
+      - navigation [ref=e304]:
+        - link "Home" [ref=e305]:
+          - /url: index.html
+        - link "Channels" [ref=e306]:
+          - /url: channels.html
+        - link "Wiki" [ref=e307]:
+          - /url: wiki.html
+        - link "Calculator" [ref=e308]:
+          - /url: calculator.html
+        - link "About" [ref=e309]:
+          - /url: about.html
+        - link "Archive" [ref=e310]:
+          - /url: archive.html
+      - paragraph [ref=e311]:
+        - link "Privacy Policy" [ref=e312]:
+          - /url: privacy.html
+      - generic [ref=e313]:
+        - paragraph [ref=e314]:
+          - strong [ref=e315]: "Medical Disclaimer:"
+          - text: This calculator provides estimates based on research-validated formulas. Results vary by individual. Always consult your healthcare provider before starting any new diet, especially if you have existing health conditions or take medications.
+        - paragraph [ref=e316]:
+          - strong [ref=e317]: "Privacy First:"
+          - text: All calculations happen in your browser. We don't store, track, or collect your personal data. Ever.
+        - paragraph [ref=e318]: Macro calculations use the Mifflin-St Jeor equation (gold standard for BMR) and carnivore-specific ratios validated by peer-reviewed research. Your actual needs may differ based on genetics, metabolic health, and activity patterns.
+```

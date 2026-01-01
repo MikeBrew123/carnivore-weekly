@@ -54,10 +54,6 @@ ALTER TABLE writers ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "writers_select_all" ON writers FOR SELECT USING (true);
 CREATE POLICY "writers_service_role_all" ON writers FOR ALL USING (true) WITH CHECK (true);
 
--- Grant permissions
-GRANT SELECT ON writers TO anon, authenticated;
-GRANT ALL ON writers TO service_role;
-
 -- ============================================================================
 -- TABLE: blog_posts (Blog Content)
 -- ============================================================================
@@ -116,10 +112,6 @@ ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "blog_posts_select_all" ON blog_posts FOR SELECT USING (true);
 CREATE POLICY "blog_posts_service_role_all" ON blog_posts FOR ALL USING (true) WITH CHECK (true);
 
--- Grant permissions
-GRANT SELECT ON blog_posts TO anon, authenticated;
-GRANT ALL ON blog_posts TO service_role;
-
 -- ============================================================================
 -- TABLE: youtube_videos (YouTube Content Data)
 -- ============================================================================
@@ -173,10 +165,6 @@ ALTER TABLE youtube_videos ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "youtube_videos_select_all" ON youtube_videos FOR SELECT USING (true);
 CREATE POLICY "youtube_videos_service_role_all" ON youtube_videos FOR ALL USING (true) WITH CHECK (true);
 
--- Grant permissions
-GRANT SELECT ON youtube_videos TO anon, authenticated;
-GRANT ALL ON youtube_videos TO service_role;
-
 -- ============================================================================
 -- TABLE: weekly_analysis (Weekly Analysis & Insights)
 -- ============================================================================
@@ -217,10 +205,6 @@ ALTER TABLE weekly_analysis ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "weekly_analysis_select_all" ON weekly_analysis FOR SELECT USING (true);
 CREATE POLICY "weekly_analysis_service_role_all" ON weekly_analysis FOR ALL USING (true) WITH CHECK (true);
 
--- Grant permissions
-GRANT SELECT ON weekly_analysis TO anon, authenticated;
-GRANT ALL ON weekly_analysis TO service_role;
-
 -- ============================================================================
 -- TABLE: wiki_video_links (Links between Wiki Topics and Videos)
 -- ============================================================================
@@ -251,10 +235,6 @@ ALTER TABLE wiki_video_links ENABLE ROW LEVEL SECURITY;
 -- RLS Policies for wiki_video_links
 CREATE POLICY "wiki_video_links_select_all" ON wiki_video_links FOR SELECT USING (true);
 CREATE POLICY "wiki_video_links_service_role_all" ON wiki_video_links FOR ALL USING (true) WITH CHECK (true);
-
--- Grant permissions
-GRANT SELECT ON wiki_video_links TO anon, authenticated;
-GRANT ALL ON wiki_video_links TO service_role;
 
 -- ============================================================================
 -- TABLE: topic_product_mapping (Product Recommendations by Topic)
@@ -289,10 +269,6 @@ ALTER TABLE topic_product_mapping ENABLE ROW LEVEL SECURITY;
 -- RLS Policies for topic_product_mapping
 CREATE POLICY "topic_product_select_all" ON topic_product_mapping FOR SELECT USING (true);
 CREATE POLICY "topic_product_service_role_all" ON topic_product_mapping FOR ALL USING (true) WITH CHECK (true);
-
--- Grant permissions
-GRANT SELECT ON topic_product_mapping TO anon, authenticated;
-GRANT ALL ON topic_product_mapping TO service_role;
 
 -- ============================================================================
 -- AUTO-UPDATE TIMESTAMP FUNCTION
