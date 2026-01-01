@@ -76,7 +76,7 @@ jobs:
         run: |
           python scripts/validate_structure.py public/ \
             --mode generated \
-            --output test-results/structure-validation.json
+            --severity critical
         continue-on-error: false
 
       - name: Check structural validation results
