@@ -838,3 +838,18 @@ footer p:first-child {
         min-height: 220px;
     }
 }
+
+/* Calculator intro CTA box mobile responsive */
+@media (max-width: 600px) {
+    /* Stack dual-column choice box on mobile */
+    .intro-section > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .intro-section a[style*="display: inline-block"] {
+        display: block !important;
+        width: 100%;
+        text-align: center;
+        margin-top: 10px !important;
+    }
+}
