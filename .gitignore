@@ -72,6 +72,8 @@ node_modules/
 package-lock.json
 
 # API Keys and secrets
+# CRITICAL: Never commit the secrets/ folder with actual credentials
+# Only the .gitkeep file is tracked to maintain folder structure
 secrets/
 *.key
 *.pem

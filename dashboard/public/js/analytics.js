@@ -73,13 +73,15 @@ function renderAnalytics(data) {
   const container = document.getElementById('analytics-section')
   if (!container) return
 
+  // Generate insights based on data
+  const insights = generateInsights(data)
+
   const html = `
     <div class="analytics-container">
-      <h2>Site Traffic</h2>
+      <h2>📊 Site Traffic Report</h2>
 
-      <!-- Metrics Grid -->
+      <!-- Key Metrics Grid -->
       <div class="analytics-grid">
-        <!-- Page Views -->
         <div class="metric-card">
           <div class="metric-label">Today</div>
           <div class="metric-value">${data.pageViews.today.toLocaleString()}</div>
@@ -93,37 +95,53 @@ function renderAnalytics(data) {
         </div>
 
         <div class="metric-card">
-          <div class="metric-label">Last 30 Days</div>
-          <div class="metric-value">${data.pageViews.last30Days.toLocaleString()}</div>
-          <div class="metric-sublabel">Page Views</div>
+          <div class="metric-label">Today's Visitors</div>
+          <div class="metric-value">${data.users.today.toLocaleString()}</div>
+          <div class="metric-sublabel">Unique Users</div>
         </div>
 
         <div class="metric-card realtime">
-          <div class="metric-label">🔴 Real-Time</div>
+          <div class="metric-label">🔴 Live Now</div>
           <div class="metric-value">${data.realtime.activeUsers}</div>
           <div class="metric-sublabel">Active Users</div>
         </div>
       </div>
 
+      <!-- Insights Section -->
+      <div class="insights-section">
+        <h3>📌 Key Insights</h3>
+        <div class="insights-list">
+          ${insights.map(insight => `
+            <div class="insight-item ${insight.type}">
+              <span class="insight-icon">${insight.icon}</span>
+              <span class="insight-text">${insight.text}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
       <!-- Top Pages Table -->
       <div class="top-pages">
-        <h3>Top Performing Pages (Last 7 Days)</h3>
+        <h3>🏆 Top Performing Pages</h3>
         ${data.topPages && data.topPages.length > 0 ? `
           <table>
             <thead>
               <tr>
-                <th>Page</th>
-                <th>Views</th>
+                <th style="width: 60px;">Rank</th>
+                <th>Page Title</th>
+                <th style="width: 100px; text-align: right;">Views</th>
               </tr>
             </thead>
             <tbody>
               ${data.topPages.map((page, index) => `
                 <tr>
+                  <td style="text-align: center; font-weight: bold;">
+                    ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '#' + (index + 1)}
+                  </td>
                   <td class="page-title">
-                    <span class="page-rank">#${index + 1}</span>
                     ${escapeHtml(page.title || page.path)}
                   </td>
-                  <td class="page-views">${page.views.toLocaleString()}</td>
+                  <td style="text-align: right; font-weight: bold;">${page.views.toLocaleString()}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -135,33 +153,90 @@ function renderAnalytics(data) {
         `}
       </div>
 
-      <!-- Unique Users Section -->
-      <div class="users-section">
-        <h3>Unique Visitors</h3>
-        <div class="users-grid">
-          <div class="user-stat">
-            <div class="user-stat-label">Today</div>
-            <div class="user-stat-value">${data.users.today.toLocaleString()}</div>
-          </div>
-          <div class="user-stat">
-            <div class="user-stat-label">Last 7 Days</div>
-            <div class="user-stat-value">${data.users.last7Days.toLocaleString()}</div>
-          </div>
-          <div class="user-stat">
-            <div class="user-stat-label">Last 30 Days</div>
-            <div class="user-stat-value">${data.users.last30Days.toLocaleString()}</div>
-          </div>
-        </div>
-      </div>
-
       <div class="analytics-footer">
-        Last updated: ${new Date(data.timestamp).toLocaleTimeString()}
+        ⏰ Last updated: ${new Date(data.timestamp).toLocaleTimeString()}
         ${data.error ? `<div style="color: #d4a574; margin-top: 5px;">⚠️ ${data.error}</div>` : ''}
       </div>
     </div>
   `
 
   container.innerHTML = html
+}
+
+function generateInsights(data) {
+  const insights = []
+
+  // Analyze page views
+  if (data.pageViews.today > 1000) {
+    insights.push({
+      type: 'positive',
+      icon: '✅',
+      text: `Strong traffic today: <strong>${data.pageViews.today.toLocaleString()}</strong> views`
+    })
+  } else if (data.pageViews.today > 500) {
+    insights.push({
+      type: 'positive',
+      icon: '👍',
+      text: `Good traffic: <strong>${data.pageViews.today.toLocaleString()}</strong> views today`
+    })
+  }
+
+  // Analyze top page
+  if (data.topPages && data.topPages.length > 0) {
+    const topPage = data.topPages[0]
+    insights.push({
+      type: 'info',
+      icon: '⭐',
+      text: `<strong>${topPage.title || topPage.path}</strong> is your most popular page (<strong>${topPage.views}</strong> views)`
+    })
+  }
+
+  // Check traffic diversity
+  if (data.topPages && data.topPages.length > 5) {
+    const topFiveTotal = data.topPages.slice(0, 5).reduce((sum, p) => sum + p.views, 0)
+    const totalViews = data.topPages.reduce((sum, p) => sum + p.views, 0)
+    const topFivePercent = Math.round((topFiveTotal / totalViews) * 100)
+
+    if (topFivePercent < 70) {
+      insights.push({
+        type: 'positive',
+        icon: '📊',
+        text: `Healthy traffic distribution: Top 5 pages get ${topFivePercent}% of views (not concentrated)`
+      })
+    }
+  }
+
+  // Analyze user engagement
+  const avgViewsPerUser = data.users.today > 0 ? Math.round(data.pageViews.today / data.users.today) : 0
+  if (avgViewsPerUser > 2) {
+    insights.push({
+      type: 'positive',
+      icon: '📈',
+      text: `Good engagement: <strong>${avgViewsPerUser}</strong> pages per visitor`
+    })
+  }
+
+  // Check for tracking issues
+  if (data.topPages && data.topPages.length > 0) {
+    const duplicates = data.topPages.filter(p => p.path === '/' || p.path === '/' || p.path === '/index.html')
+    if (duplicates.length > 1) {
+      insights.push({
+        type: 'warning',
+        icon: '⚠️',
+        text: 'Tracking alert: Homepage being tracked multiple times - affects accuracy'
+      })
+    }
+  }
+
+  if (insights.length === 0) {
+    insights.push({
+      type: 'info',
+      icon: '📝',
+      text: 'Check back soon - more insights as traffic data accumulates'
+    })
+  }
+
+  return insights
 }
 
 function renderAnalyticsError(message) {

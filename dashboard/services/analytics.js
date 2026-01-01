@@ -2,19 +2,25 @@
  * Google Analytics 4 Service
  *
  * Provides methods to fetch analytics data from Google Analytics Data API v1
- * Requires environment variables:
- * - GA4_PROPERTY_ID: The GA4 property ID (numeric, e.g., "123456789")
- * - GA4_CREDENTIALS_PATH: Path to service account JSON credentials file
+ * Uses OAuth 2.0 authentication with user's Google account
+ * Requires:
+ * - GA4_PROPERTY_ID: The GA4 property ID (numeric, e.g., "2173561")
+ * - oauth-credentials.json: OAuth client credentials in project directory
  */
 
 import { BetaAnalyticsDataClient } from '@google-analytics/data'
 import { logger } from '../lib/logger.js'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const CREDENTIALS_PATH = path.join(__dirname, '../ga4-credentials.json')
 
 let analyticsDataClient = null
 let propertyId = null
 
 /**
- * Initialize the Analytics client with credentials
+ * Initialize the Analytics client with service account credentials
  * Called automatically on first use
  */
 function initializeClient() {
@@ -23,20 +29,23 @@ function initializeClient() {
   }
 
   propertyId = process.env.GA4_PROPERTY_ID
-  const credentialsPath = process.env.GA4_CREDENTIALS_PATH
 
-  if (!propertyId || !credentialsPath) {
-    logger.warn('GA4 credentials not configured. Set GA4_PROPERTY_ID and GA4_CREDENTIALS_PATH environment variables.')
+  if (!propertyId) {
+    logger.warn('GA4_PROPERTY_ID not configured in environment variables.')
     return
   }
 
   try {
+    // Create Analytics client with service account credentials
     analyticsDataClient = new BetaAnalyticsDataClient({
-      keyFilename: credentialsPath
+      keyFilename: CREDENTIALS_PATH
     })
-    logger.debug(`Analytics client initialized with property ID: ${propertyId}`)
+
+    logger.info(`Analytics client initialized with service account for property ID: ${propertyId}`)
   } catch (error) {
     logger.error('Failed to initialize Analytics client:', error.message)
+    // Set to null so we can retry next time
+    analyticsDataClient = null
   }
 }
 
