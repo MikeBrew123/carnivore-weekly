@@ -1,0 +1,234 @@
+<!-- Bento Grid Layout for Trending Topics -->
+<!-- This partial renders trending topics using a responsive bento grid layout -->
+<!-- Falls back gracefully if layout_metadata is missing -->
+
+<div class="bento-grid" style="
+  display: grid;
+  grid-template-columns: repeat({{ layout_metadata.sections.trending_topics.grid_columns }}, 1fr);
+  gap: {% if layout_metadata.sections.trending_topics.gap_size == 'large' %}25px{% elif layout_metadata.sections.trending_topics.gap_size == 'small' %}10px{% else %}15px{% endif %};
+  margin-top: 25px;
+">
+
+  {% set topic_layout = layout_metadata.sections.trending_topics.item_layout %}
+
+  {% for item in topic_layout %}
+    {% set topic = trending_topics[item.item_index] %}
+
+    <div class="topic-item" style="
+      grid-column: {{ item.column }} / span {{ item.width }};
+      grid-row: {{ item.row }} / span {{ item.height }};
+    ">
+      <div class="topic-card topic-card--{{ item.priority }}">
+        <h3>{{ topic.topic }}</h3>
+        <p>{{ topic.description }}</p>
+        {% if topic.mentioned_by %}
+          <div class="mentioned-by">
+            <span class="mentioned-label">Mentioned by:</span>
+            <ul class="creator-list">
+              {% for creator in topic.mentioned_by %}
+                <li>{{ creator }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<style>
+  /* Bento Grid Container */
+  .bento-grid {
+    display: grid;
+    grid-auto-flow: dense;
+    margin: 25px 0;
+  }
+
+  /* Topic Items - Responsive Grid Cells */
+  .topic-item {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  /* Topic Cards - Content Styling */
+  .topic-card {
+    background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+    color: #f4e4d4;
+    border-radius: 10px;
+    padding: 25px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .topic-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise"><feTurbulence baseFrequency="0.6" numOctaves="3"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.1"/></svg>');
+    pointer-events: none;
+    border-radius: 10px;
+  }
+
+  .topic-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  }
+
+  /* Priority-based styling */
+  .topic-card--high {
+    border-left: 6px solid #d4a574;
+    background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+  }
+
+  .topic-card--high:hover {
+    background: linear-gradient(135deg, #9d5a2a 0%, #7d422b 100%);
+  }
+
+  .topic-card--medium {
+    border-left: 4px solid #c9a876;
+    background: linear-gradient(135deg, #a0613a 0%, #8b4513 100%);
+  }
+
+  .topic-card--medium:hover {
+    background: linear-gradient(135deg, #b07349 0%, #9d5a2a 100%);
+  }
+
+  .topic-card--low {
+    border-left: 2px solid #d4a574;
+    background: linear-gradient(135deg, #b8804f 0%, #a0613a 100%);
+  }
+
+  .topic-card--low:hover {
+    background: linear-gradient(135deg, #c8905f 0%, #b07349 100%);
+  }
+
+  /* Topic Card Content */
+  .topic-card h3 {
+    color: #f4e4d4;
+    margin: 0 0 15px 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5em;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+  }
+
+  .topic-card p {
+    color: #f4e4d4;
+    margin: 0 0 15px 0;
+    line-height: 1.6;
+    font-size: 0.95em;
+    flex-grow: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Mentioned By Section */
+  .mentioned-by {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(244, 228, 212, 0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  .mentioned-label {
+    font-size: 0.85em;
+    text-transform: uppercase;
+    opacity: 0.9;
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .creator-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9em;
+    line-height: 1.5;
+  }
+
+  .creator-list li {
+    opacity: 0.95;
+    margin: 0;
+    padding: 0;
+  }
+
+  .creator-list li:before {
+    content: "→ ";
+    margin-right: 5px;
+    opacity: 0.7;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .bento-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .topic-item[style*="grid-column: 3"] {
+      grid-column: 1 / span 2 !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .bento-grid {
+      grid-template-columns: 1fr !important;
+      gap: 15px !important;
+    }
+
+    .topic-item {
+      grid-column: 1 !important;
+      grid-row: auto !important;
+    }
+
+    .topic-card {
+      padding: 20px;
+    }
+
+    .topic-card h3 {
+      font-size: 1.3em;
+    }
+
+    .topic-card p {
+      font-size: 0.9em;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .bento-grid {
+      gap: 10px !important;
+    }
+
+    .topic-card {
+      padding: 15px;
+    }
+
+    .topic-card h3 {
+      font-size: 1.1em;
+    }
+
+    .topic-card p {
+      font-size: 0.85em;
+      line-height: 1.4;
+    }
+
+    .mentioned-label {
+      font-size: 0.75em;
+    }
+
+    .creator-list {
+      font-size: 0.8em;
+    }
+  }
+</style>

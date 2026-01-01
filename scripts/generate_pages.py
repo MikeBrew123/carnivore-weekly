@@ -55,7 +55,17 @@ class PageGenerator:
                 return date_str[:10]  # Fallback to YYYY-MM-DD
 
         self.env.filters["format_date"] = format_date
-        print("✓ Template engine initialized")
+
+        # Add layout validation filter
+        def validate_layout_metadata(layout_metadata):
+            """Validate layout_metadata structure before rendering"""
+            if not layout_metadata:
+                return False
+            required_keys = ["page_grid_mode", "layout_version", "sections"]
+            return all(key in layout_metadata for key in required_keys)
+
+        self.env.filters["validate_layout"] = validate_layout_metadata
+        print("✓ Template engine initialized with layout support")
 
     def load_analyzed_data(self, input_file: Path) -> dict:
         """Load the analyzed content from JSON file"""
@@ -86,6 +96,15 @@ class PageGenerator:
             for creator in data["creators_data"]:
                 creator_channels[creator["channel_name"]] = creator["channel_id"]
 
+        # Validate layout_metadata if present
+        layout_metadata = data.get("layout_metadata", None)
+        if layout_metadata:
+            required_keys = ["page_grid_mode", "layout_version", "sections"]
+            if not all(key in layout_metadata for key in required_keys):
+                print("⚠️  Invalid layout_metadata structure, "
+                      "falling back to standard layout")
+                layout_metadata = None
+
         # Prepare template variables
         template_vars = {
             # Analysis metadata
@@ -106,6 +125,8 @@ class PageGenerator:
             "qa_section": data["analysis"].get("qa_section", []),
             # Creator mappings for links
             "creator_channels": creator_channels,
+            # Layout metadata for template rendering
+            "layout_metadata": layout_metadata,
         }
 
         # Render the template
@@ -118,7 +139,11 @@ class PageGenerator:
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(html_content)
 
-        print(f"✓ Homepage generated: {output_file}")
+        layout_mode = (
+            layout_metadata["page_grid_mode"]
+            if layout_metadata else "standard"
+        )
+        print(f"✓ Homepage generated ({layout_mode} layout): {output_file}")
 
     def run_generation(self):
         """Main method to run the page generation"""
@@ -129,6 +154,14 @@ class PageGenerator:
         try:
             # Load analyzed data
             data = self.load_analyzed_data(INPUT_FILE)
+
+            # Check for layout_metadata
+            if "layout_metadata" not in data:
+                print("\n⚠️  Note: layout_metadata not found")
+                print("   Pages will render in standard (single-column) layout")
+                print("   Run generate_layout_metadata.py to enable Bento Grid")
+            else:
+                print("\n✓ Layout metadata present - using Bento Grid layout")
 
             # Generate homepage
             self.generate_homepage(data, OUTPUT_FILE)
