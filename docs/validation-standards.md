@@ -87,6 +87,71 @@
 
 ---
 
+#### Validator 2B: High-Risk Medical Content Detection
+**Purpose:** Automatically flag content discussing medications, diagnosed conditions, or acute symptoms that requires Category 7 (strongest) medical disclaimers
+
+**How It Works:**
+1. Scans blog content for high-risk keywords:
+   - Medications: "prescription", "medication", "drug", specific drug names (metformin, insulin, etc.)
+   - Diagnosed conditions: "diagnosed with", "type 1 diabetes", "heart disease", "kidney disease", "cancer", "autoimmune disease", "IBD", "gout", etc.
+   - Acute symptoms: "chest pain", "difficulty breathing", "severe pain", "blood in stool", "fainting", "seizures", etc.
+
+2. If high-risk keywords found, checks for Category 7 disclaimer presence:
+   - Looks for phrases like "taking medications", "diagnosed condition", "medical oversight", "consult your doctor", "healthcare provider", "work with your doctor", "professional medical management"
+
+3. If high-risk content found WITHOUT Category 7 disclaimer:
+   - **CRITICAL FAILURE** (blocks publication)
+   - Shows triggered keywords and line numbers
+   - References Medical Disclaimer Guide for fix
+
+**Example Validator 2B Failure:**
+
+```
+========================================
+VALIDATOR 2B: HIGH-RISK MEDICAL CONTENT
+========================================
+
+Status: ❌ CRITICAL FAILURE
+
+Issue: Content discusses medications without appropriate Category 7 medical disclaimer.
+
+Triggered Keywords:
+- "prescription" (line 47)
+- "metformin" (line 52)
+- "diagnosed with type 2 diabetes" (line 63)
+
+Required Action:
+Add Category 7 disclaimer in [Author]'s voice. This is the STRONGEST disclaimer category and is REQUIRED when discussing medications or diagnosed conditions.
+
+Suggested Fix (Sarah's voice):
+"If you're taking medications or have been diagnosed with any medical condition, you need individualized medical oversight. Don't make changes without consulting your doctor."
+
+Reference: /docs/medical-disclaimer-guide.md → Category 7 → [Author] Variations
+
+---
+
+Why this matters:
+Content about medications and diagnosed conditions carries significant legal and ethical risk. Category 7 disclaimers ensure readers understand they need professional medical supervision for changes affecting their health and treatment.
+```
+
+**Pass Criteria:**
+- No high-risk keywords detected, OR
+- High-risk keywords present AND appropriate Category 7 disclaimer included
+
+**Failure Criteria:**
+- High-risk content (medications, diagnoses, acute symptoms) = CRITICAL if no Category 7 disclaimer
+
+**How to Fix Validator 2B Failures:**
+1. Find the high-risk keyword mentioned in the failure report
+2. Go to `/docs/medical-disclaimer-guide.md` → Category 7 → [Your Writer] Variations
+3. Choose a variation that fits naturally into your content
+4. Add it before or after the high-risk content
+5. Resubmit to validation
+
+**Report to:** Content writers (Sarah, Marcus, Chloe, Casey)
+
+---
+
 #### Validator 3: AI-Text-Humanization Skill
 **Purpose:** Confirm authentic voice, no robotic language
 

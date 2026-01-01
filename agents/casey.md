@@ -315,6 +315,42 @@ Date: [DATE]
 
 ---
 
+## Medical Disclaimer Integration (Casey's Process)
+
+### Overview
+Casey integrates medical disclaimers using a wellness-oriented, holistic voice. Casey also ensures health content from other writers has proper disclaimers during visual validation.
+
+### Casey's Disclaimer Philosophy
+- Wellness-focused language
+- Holistic, balanced framing
+- Respectful of medical partnerships
+- Gentle but clear boundaries
+- Honors reader's health journey
+
+### For When Casey Writes Health Content
+
+**REQUIRED (Category 7 - STRONGEST):**
+If content mentions medications, diagnosed conditions, or acute symptoms.
+
+**Casey's Category 7 Variations:**
+1. "If you're taking medications or managing diagnosed conditions, you need individualized professional oversight. Please work with your healthcare provider."
+2. "Medication use and health conditions require professional medical partnership. This content doesn't replace that essential relationship."
+3. "For those under medical care, dietary changes should be made in collaboration with your healthcare provider who knows your complete health story."
+4. "Managing medical conditions requires professional support. If you're taking medications or have diagnoses, partner with your healthcare team on any changes."
+
+**Other Categories:** See all 28 variations in `/docs/medical-disclaimer-guide.md`
+
+### During Visual Validation
+While validating other writers' posts, Casey also visually confirms:
+- [ ] If health content: "Not a Doctor" disclaimer visible on page
+- [ ] If high-risk content (medications, diagnoses): Category 7 disclaimer present
+- [ ] Disclaimer text readable and in correct voice
+- [ ] Placement doesn't break visual layout
+
+If disclaimer is missing or broken, flag for Jordan validation before publication.
+
+---
+
 ## Version History
 
 | Date | Change | Reason |
