@@ -95,6 +95,12 @@ python3 scripts/answer_questions.py
 echo "✓ Q&A generated"
 echo ""
 
+# Step 4.5: Extract Wiki Keywords for Auto-Linking
+echo "🔗 Step 4.5/9: Extracting wiki keywords for auto-linking..."
+python3 scripts/extract_wiki_keywords.py
+echo "✓ Wiki keywords extracted"
+echo ""
+
 # Step 5: Generate Website Pages
 echo "🎨 Step 5/6: Generating website..."
 python3 scripts/generate_pages.py

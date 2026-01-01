@@ -13,6 +13,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
+from scripts.auto_link_wiki_keywords import insert_wiki_links
 
 # ============================================================================
 # CONFIGURATION
@@ -131,6 +132,9 @@ class PageGenerator:
 
         # Render the template
         html_content = template.render(**template_vars)
+
+        # Apply wiki auto-linking to the generated HTML
+        html_content = insert_wiki_links(html_content, max_links=10)
 
         # Create output directory
         output_file.parent.mkdir(parents=True, exist_ok=True)
