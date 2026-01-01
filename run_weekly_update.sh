@@ -21,9 +21,9 @@ echo "🔍 Pre-flight checks..."
 echo "   Validating template structure..."
 # Note: Template validation now only blocks on CRITICAL issues
 # Major/Minor issues are warnings - templates are complex and some lint issues are acceptable
-if ! python3 scripts/validate_structure.py templates/ --mode template 2>/dev/null | grep -q "Status: PASSED"; then
+if ! python3 scripts/validate.py --type structure --path templates/ --severity critical 2>/dev/null | grep -q "PASSED"; then
     # Check if it's only major/minor issues (exit code 2 or 3), which are acceptable
-    python3 scripts/validate_structure.py templates/ --mode template 2>/dev/null | tail -1
+    python3 scripts/validate.py --type structure --path templates/ --severity critical 2>/dev/null | tail -1
 fi
 echo "   ✓ Template structure checked (critical issues clear, continuing...)"
 echo ""
@@ -132,39 +132,34 @@ python3 scripts/extract_wiki_keywords.py
 echo "✓ Wiki keywords extracted"
 echo ""
 
-# Step 5: Generate Website Pages
+# Step 5: Generate Website Pages (unified generator)
 echo "🎨 Step 5/6: Generating website..."
-python3 scripts/generate_pages.py
-echo "✓ Website generated"
+python3 scripts/generate.py --type pages
 echo ""
 
-# Step 6: Generate Archive
+# Step 6: Generate Archive (unified generator)
 echo "📚 Step 6/7: Updating archive..."
-python3 scripts/generate_archive.py
-echo "✓ Archive updated"
+python3 scripts/generate.py --type archive
 echo ""
 
-# Step 7: Generate Channels Page
+# Step 7: Generate Channels Page (unified generator)
 echo "📺 Step 7/9: Updating featured channels..."
-python3 scripts/generate_channels.py
-echo "✓ Channels page updated"
+python3 scripts/generate.py --type channels
 echo ""
 
-# Step 8: Update Wiki with Video Links
+# Step 8: Update Wiki with Video Links (unified generator)
 echo "🎥 Step 8/9: Updating wiki with featured video links..."
-python3 scripts/update_wiki_videos.py
-echo "✓ Wiki updated with video links"
+python3 scripts/generate.py --type wiki
 echo ""
 
-# Step 9: Generate Newsletter
+# Step 9: Generate Newsletter (unified generator)
 echo "📧 Step 9/9: Generating newsletter..."
-python3 scripts/generate_newsletter.py
-echo "✓ Newsletter generated"
+python3 scripts/generate.py --type newsletter
 echo ""
 
-# Structural Validation of Generated Pages (BLOCKING)
+# Structural Validation of Generated Pages (BLOCKING - unified validator)
 echo "🔍 Validating generated pages..."
-if ! python3 scripts/validate_structure.py public/ --mode generated --severity critical 2>/dev/null; then
+if ! python3 scripts/validate.py --type structure --path public/ --severity critical 2>/dev/null; then
     echo "   ❌ Generated page validation FAILED - cannot deploy"
     echo "   Fix structural issues in generated pages before retrying"
     exit 1

@@ -1,0 +1,171 @@
+{
+  "project": {
+    "name": "carnivore-weekly",
+    "version": "2.0",
+    "description": "Unified configuration system for Carnivore Weekly",
+    "author": "Alex (Phase 2 Implementation)"
+  },
+  "paths": {
+    "project_root": ".",
+    "scripts_dir": "scripts",
+    "templates_dir": "templates",
+    "templates_partials": "templates/partials",
+    "public_dir": "public",
+    "data_dir": "data",
+    "data_archive": "data/archive",
+    "blog_dir": "public/blog",
+    "output_dir": "output",
+    "newsletters_dir": "newsletters",
+    "images_dir": "public/images",
+    "archive_dir": "public/archive"
+  },
+  "validation": {
+    "supported_types": [
+      "structure",
+      "seo",
+      "brand",
+      "w3c",
+      "accessibility",
+      "preflight"
+    ],
+    "severity_levels": {
+      "critical": 0,
+      "major": 1,
+      "minor": 2
+    },
+    "critical_rules": [1, 2, 3, 4, 5, 8, 14],
+    "major_rules": [6, 7, 9, 10],
+    "minor_rules": [11, 12, 13, 15],
+    "required_pages": [
+      "public/index.html",
+      "public/blog.html",
+      "public/archive.html",
+      "public/channels.html"
+    ],
+    "css_classes": {
+      "logo": [
+        "position",
+        "top",
+        "right",
+        "width",
+        "height",
+        "object-fit",
+        "object-position"
+      ],
+      "nav-menu": ["display", "gap"],
+      "container": ["max-width", "margin", "padding"],
+      "header": ["background", "color", "padding"],
+      "section": ["background", "padding", "margin"]
+    }
+  },
+  "generation": {
+    "supported_types": [
+      "pages",
+      "archive",
+      "newsletter",
+      "channels",
+      "wiki"
+    ],
+    "template_mappings": {
+      "pages": {
+        "template": "index_template.html",
+        "input": "data/analyzed_content.json",
+        "output": "public/index.html"
+      },
+      "archive": {
+        "template": "archive_template.html",
+        "input": "data/analyzed_content.json",
+        "output": "public/archive.html"
+      },
+      "newsletter": {
+        "template": "newsletter_template.html",
+        "input": "data/analyzed_content.json",
+        "output": "newsletters/latest.html"
+      },
+      "channels": {
+        "template": "channels_template.html",
+        "input": "data/analyzed_content.json",
+        "output": "public/channels.html"
+      },
+      "wiki": {
+        "template": null,
+        "input": "data/analyzed_content.json",
+        "output": "data/wiki_updates.json"
+      }
+    },
+    "output_formats": {
+      "pages": "html",
+      "archive": "html",
+      "newsletter": "html",
+      "channels": "html",
+      "wiki": "json"
+    },
+    "cache_enabled": true,
+    "auto_linking_enabled": true,
+    "auto_linking_max_links": 10
+  },
+  "api": {
+    "youtube": {
+      "key_env": "YOUTUBE_API_KEY",
+      "endpoint": "https://www.googleapis.com/youtube/v3",
+      "timeout": 30
+    },
+    "anthropic": {
+      "key_env": "ANTHROPIC_API_KEY",
+      "model": "claude-opus-4.5",
+      "timeout": 60
+    },
+    "supabase": {
+      "url_env": "SUPABASE_URL",
+      "key_env": "SUPABASE_KEY",
+      "timeout": 30
+    },
+    "news": {
+      "key_env": "NEWS_API_KEY",
+      "endpoint": "https://newsapi.org/v2",
+      "timeout": 30
+    }
+  },
+  "newsletter": {
+    "email_settings": {
+      "from_email": "newsletter@carnivoreweekly.com",
+      "from_name": "Carnivore Weekly",
+      "reply_to": "support@carnivoreweekly.com"
+    },
+    "template_paths": {
+      "html": "templates/newsletter_template.html",
+      "text": "templates/newsletter_text.txt"
+    },
+    "output_dir": "newsletters",
+    "archive_dir": "data/archive",
+    "affiliate_links": {
+      "lmnt": "https://amzn.to/4ayLBG4",
+      "butcherbox": "https://www.butcherbox.com"
+    }
+  },
+  "external_services": {
+    "convertkit": {
+      "api_key_env": "CONVERTKIT_API_KEY",
+      "endpoint": "https://api.convertkit.com/v3"
+    },
+    "google_drive": {
+      "newsletter_path": "/Users/mbrew/Library/CloudStorage/GoogleDrive-iambrew@gmail.com/My Drive/Carnivore Weekly/Newsletters"
+    },
+    "github": {
+      "repo": "carnivore-weekly",
+      "main_branch": "main"
+    }
+  },
+  "personas": {
+    "enabled": true,
+    "personas_file": "data/personas.json",
+    "default_persona": "sarah"
+  },
+  "content": {
+    "timezone": "America/Los_Angeles",
+    "language": "en",
+    "search_query": "carnivore diet",
+    "total_creators": 10,
+    "total_videos": 39
+  }
+}
