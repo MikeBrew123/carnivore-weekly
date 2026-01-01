@@ -231,14 +231,35 @@ Curate the best carnivore content from YouTube, research, and community with act
 
 ---
 
-## **NOT A DOCTOR DISCLAIMERS**
+## **MEDICAL DISCLAIMERS (HYBRID SYSTEM)**
 
-Each persona has their own version (see above). Use the appropriate one based on who's writing.
+### System Overview
+We use a two-tier disclaimer approach:
+1. **Explicit "Not a Doctor" statement** at post end (ALWAYS for health content)
+2. **Subtle contextual disclaimers** throughout content (as appropriate)
 
-**Non-negotiable placement:**
-- If post makes ANY health claims, disclaimer goes at the END
-- If post is purely lifestyle/trend, disclaimer optional
-- Disclaimer should match persona voice (not robotic legal speak)
+### End-of-Post Disclaimers
+Each persona has their own version. Use the appropriate one based on who's writing:
+- **Sarah's version:** "I'm not a doctor. I've researched this deeply and worked with many people, but I'm not your doctor. If you have health conditions, take medications, or need specific guidance, talk to someone who knows your full medical picture. Everything I write is educational based on research and what I've seen work. Your situation might be different."
+- **Marcus's version:** "I'm not a doctor. I've coached people and competed myself, so I know what works. But I'm not your doctor. If you have health issues or take meds, check with someone qualified. Everything here is based on what works in practice and what research supports. Your mileage may vary."
+- **Chloe's version:** "I'm not a doctor—I'm just someone who's deep in the community and reads everything. Take all health stuff with a grain of salt (pun intended). I can tell you what people are trying and what's trending, but you gotta make your own calls. I'm here to give you the real tea, not medical advice."
+- **Casey's version:** (See `agents/casey.md` for wellness-specific version)
+
+**Placement Rules:**
+- REQUIRED if post makes ANY health claims
+- Goes at END of post, before final sign-off
+- Must match persona voice (not robotic legal speak)
+- Optional if post is purely lifestyle/trend with no health claims
+
+### Throughout-Content Disclaimers
+Writers integrate subtle disclaimers naturally based on content type:
+- **7 Categories** (General Education → STRONGEST Medical)
+- **112 Voice-Specific Variations** (4 per category per writer)
+- **Placement based on context**, not formula
+
+**Full Guidelines:** See `/docs/medical-disclaimer-guide.md`
+
+**Key Principle:** Disclaimers should feel like natural part of the writer's voice, not legal interruptions.
 
 ---
 

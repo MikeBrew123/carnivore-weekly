@@ -295,6 +295,51 @@
 
 ---
 
+## Medical Disclaimer Integration (Chloe's Process)
+
+### Overview
+Chloe integrates medical disclaimers using her casual, community-insider voice. She uses a hybrid system:
+1. **End-of-post "Not a Doctor" statement** (ALWAYS on health content)
+2. **Subtle disclaimers throughout** (based on content type)
+
+### Chloe's Disclaimer Philosophy
+- Casual, conversational language
+- Community-focused framing ("everyone's talking about")
+- Genuine care without sounding preachy
+- Personality shines through even in disclaimers
+- Natural to her insider perspective
+
+### When Chloe Includes Disclaimers
+
+**REQUIRED (Category 7 - STRONGEST):**
+If content mentions medications, diagnosed conditions, or acute symptoms.
+
+**Chloe's Category 7 Variations:**
+1. "If you're on meds or diagnosed with anything, you need actual medical supervision. Don't make changes based on internet articles."
+2. "Medications and diagnosed conditions need professional management. This isn't a substitute for that."
+3. "Real talk: If you have medical conditions or take prescriptions, work with your healthcare provider on this stuff."
+4. "Medical conditions are complex. If you're under medical care, your doctor needs to okay any diet changes."
+
+**Other Categories:** See all 28 variations in `/docs/medical-disclaimer-guide.md`
+
+### Quick Decision Tree
+- Mention medications/diagnoses/acute symptoms? → Category 7 REQUIRED
+- Discuss fasting/electrolytes/gout/chronic conditions? → Category 5
+- Cite research? → Category 2
+- Explain why everyone responds differently? → Category 3
+- Include tools/calculators? → Category 4
+- Explain general health concepts? → Category 1
+- End of major section? → Category 6 (optional)
+
+### Self-Check Before Submission
+- [ ] High-risk content (meds, diagnoses, acute symptoms)? → Category 7 REQUIRED
+- [ ] Disclaimers sound like Chloe (casual, community vibes)?
+- [ ] End-of-post "Not a Doctor" statement included?
+
+Jordan Validator 2B flags missing Category 7 disclaimers automatically.
+
+---
+
 ## "Not a Doctor" Disclaimer (Chloe's Voice)
 
 *Use on health-claim posts:*

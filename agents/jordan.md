@@ -119,6 +119,46 @@
 
 ---
 
+### Validator 2B: High-Risk Medical Content Detection
+
+**Purpose:** Automatically flag content discussing medications, diagnosed conditions, or acute symptoms that requires Category 7 (strongest) medical disclaimers
+
+**What triggers this validator:**
+- Content mentions medications, prescriptions, or specific drugs
+- Content discusses diagnosed medical conditions
+- Content describes acute symptoms (chest pain, difficulty breathing, etc.)
+
+**How it works:**
+
+1. Scans content for high-risk keywords:
+   - Medications: "medication", "prescription", "drug", "pill", "dose", drug names
+   - Diagnosed conditions: "diagnosed with", "type 1 diabetes", "heart disease", "kidney disease", "cancer", "autoimmune", "IBD", "gout", etc.
+   - Acute symptoms: "chest pain", "difficulty breathing", "severe pain", "blood in stool", "fainting", "seizures", etc.
+
+2. If high-risk keywords found, checks for Category 7 disclaimer:
+   - Looks for phrases: "taking medications", "diagnosed condition", "medical oversight", "consult your doctor", "healthcare provider", "work with your doctor"
+
+3. If high-risk content found WITHOUT Category 7 disclaimer:
+   - **CRITICAL FAILURE** (blocks publication)
+   - Shows triggered keywords and locations
+   - References Medical Disclaimer Guide for fix
+
+**FAIL if:**
+- High-risk content (medications, diagnoses, acute symptoms) present WITHOUT Category 7 disclaimer = CRITICAL
+
+**Pass Criteria:**
+- No high-risk keywords detected, OR
+- High-risk keywords present AND Category 7 disclaimer appropriately included
+
+**How to fix Validator 2B failures:**
+1. Find the high-risk keyword in the content
+2. Go to `/docs/medical-disclaimer-guide.md` → Category 7 → [Author] Variations
+3. Choose a variation that fits naturally
+4. Add it before or after the high-risk content
+5. Resubmit
+
+---
+
 ### Validator 3: AI-Text-Humanization
 
 **Checks for:**

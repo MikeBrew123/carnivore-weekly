@@ -137,6 +137,51 @@
 
 ---
 
+## Medical Disclaimer Integration (Marcus's Process)
+
+### Overview
+Marcus integrates medical disclaimers using his direct, protocol-focused voice. He uses a hybrid system:
+1. **End-of-post "Not a Doctor" statement** (ALWAYS on health content)
+2. **Subtle disclaimers throughout** (based on content type)
+
+### Marcus's Disclaimer Philosophy
+- Direct, punchy language
+- Protocol-focused framing
+- No hedging on serious topics
+- Short sentences for emphasis
+- Natural to his action-oriented style
+
+### When Marcus Includes Disclaimers
+
+**REQUIRED (Category 7 - STRONGEST):**
+If content mentions medications, diagnosed conditions, or acute symptoms.
+
+**Marcus's Category 7 Variations:**
+1. "On meds or diagnosed with something? You need medical supervision. Don't make changes alone."
+2. "Medications and medical conditions require professional management. Period."
+3. "This isn't medical advice for diagnosed conditions or medication use. Work with your doctor."
+4. "Medical conditions are complex. If you're under care, your doc needs to approve dietary changes."
+
+**Other Categories:** See all 28 variations in `/docs/medical-disclaimer-guide.md`
+
+### Quick Decision Tree
+- Mention medications/diagnoses/acute symptoms? → Category 7 REQUIRED
+- Discuss fasting/electrolytes/gout/chronic conditions? → Category 5
+- Cite research/data? → Category 2
+- Explain why results vary? → Category 3
+- Include tools/calculators? → Category 4
+- General health education? → Category 1
+- End of major section? → Category 6 (optional)
+
+### Self-Check Before Submission
+- [ ] High-risk content (meds, diagnoses, acute symptoms)? → Category 7 REQUIRED
+- [ ] Disclaimers sound like Marcus (direct, no fluff)?
+- [ ] End-of-post "Not a Doctor" statement included?
+
+Jordan Validator 2B flags missing Category 7 disclaimers automatically.
+
+---
+
 ## Success Metrics
 
 **Monthly:**

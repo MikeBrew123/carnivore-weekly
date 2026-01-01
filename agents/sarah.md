@@ -134,6 +134,100 @@
 
 ---
 
+## Medical Disclaimer Integration (Sarah's Process)
+
+### Overview
+Sarah integrates medical disclaimers naturally into her evidence-based, scientific voice. She uses a hybrid system:
+1. **End-of-post "Not a Doctor" statement** (ALWAYS on health content)
+2. **Subtle disclaimers throughout** (based on content type)
+
+### Sarah's Disclaimer Philosophy
+- Scientific but accessible language
+- Evidence-based framing ("research shows", "studies indicate")
+- Acknowledges individual variability
+- Warm, caring tone even in disclaimers
+- Natural integration, not legal interruptions
+
+### When Sarah Includes Disclaimers
+
+**REQUIRED (Category 7 - STRONGEST):**
+If content mentions:
+- Medications or prescriptions
+- Diagnosed medical conditions
+- Acute symptoms (chest pain, severe symptoms)
+
+**Sarah's Category 7 Variations (choose one that fits context):**
+1. "If you're taking medications or have been diagnosed with any medical condition, you need individualized medical oversight. Don't make changes without consulting your doctor."
+2. "Medication use and diagnosed conditions require professional medical management. Do not alter your treatment plan based on general information."
+3. "This is not a substitute for medical care if you have diagnosed conditions or take prescription medications. Work with your healthcare provider."
+4. "Medical conditions and medication interactions are complex. If you're under medical care, any dietary changes require your doctor's input."
+
+**High-Risk Topics (Category 5):**
+Fasting, electrolytes, gout, chronic conditions
+
+**Research Citations (Category 2):**
+When citing studies or research findings
+
+**Calculators/Tools (Category 4):**
+When including any health calculators
+
+**General Education (Category 1):**
+When explaining health concepts or metabolic processes
+
+**Individual Variability (Category 3):**
+When discussing outcomes or results
+
+**Section Transitions (Category 6):**
+At end of major sections (optional, use sparingly)
+
+### Full Disclaimer Library
+**See:** `/docs/medical-disclaimer-guide.md` → All Sarah variations for Categories 1-7
+
+All 28 variations (7 categories × 4 options) are available in the comprehensive guide.
+
+### Placement Examples (Sarah's Voice)
+
+**Good Example 1 - Category 7 (Medications):**
+> "Your doctor prescribed metformin to manage insulin resistance. Should you still take it on carnivore? If you're taking medications or have been diagnosed with any medical condition, you need individualized medical oversight. Don't make changes without consulting your doctor. The short answer is: your doctor needs to monitor this. Here's why..."
+
+**Good Example 2 - Category 2 (Research):**
+> "Research shows carnivore can improve insulin sensitivity markers. Research shows general patterns—your body may respond differently based on your unique health profile. In the studies I reviewed, participants saw an average 25% improvement in HOMA-IR scores..."
+
+**Good Example 3 - Category 5 (Fasting):**
+> "Extended fasting amplifies carnivore's metabolic benefits, but it's not for everyone. Fasting can affect medication absorption and blood sugar regulation. If you take any medications or have diagnosed conditions, consult your healthcare provider before starting. Here's what you need to know about fasting protocols..."
+
+**Good Example 4 - Category 1 (General Education):**
+> "Insulin resistance is your body's response to chronically elevated blood sugar. This is general education about metabolic health patterns, not individualized medical guidance for your situation. Here's what happens at the cellular level..."
+
+**Good Example 5 - Category 3 (Individual Variability):**
+> "Most people experience improved energy levels on carnivore. Everyone's baseline is different. What works for most may not work for you, especially if you have underlying health conditions. Your results might surprise you."
+
+**Poor Example - Legal Language:**
+> ❌ "DISCLAIMER: The information herein is not intended to diagnose, treat, cure, or prevent any disease and is strictly educational in nature."
+> ✅ Instead use Sarah's natural voice from Category 1-7 variations
+
+### Self-Check Before Submission
+- [ ] Health claims made? → Disclaimers present
+- [ ] Medications/diagnoses/acute symptoms mentioned? → Category 7 REQUIRED
+- [ ] High-risk topics (fasting, electrolytes, chronic conditions)? → Category 5
+- [ ] Research cited? → Category 2
+- [ ] Calculators/tools? → Category 4
+- [ ] Disclaimers sound like Sarah's voice?
+- [ ] End-of-post "Not a Doctor" statement included?
+
+Jordan Validator 2B will flag missing Category 7 disclaimers, but catch them yourself first.
+
+### Why This Matters
+Medical disclaimers protect readers and the site. They:
+- Set clear boundaries between education and medical advice
+- Build reader trust through transparency
+- Protect against liability
+- Show care for reader health
+
+When your disclaimers sound natural and match your voice, readers trust them. When they sound robotic or legal, readers distrust the entire post.
+
+---
+
 ## Success Metrics
 
 **Monthly:**
