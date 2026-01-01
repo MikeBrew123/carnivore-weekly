@@ -28,12 +28,12 @@ test.describe('Bento Grid - Accessibility (WCAG 2.1 AA)', () => {
       await page.waitForSelector('.bento-grid', { timeout: 5000 });
 
       // Wait for axe to load
-      await page.waitForFunction(() => (window as any).axe !== undefined, { timeout: 5000 });
+      await page.waitForFunction(() => window.axe !== undefined, { timeout: 5000 });
 
       // Run axe scan
       const results = await page.evaluate(() => {
         return new Promise((resolve) => {
-          (window as any).axe.run((error: any, results: any) => {
+          window.axe.run((error, results) => {
             if (error) throw error;
             resolve({
               violations: results.violations,
@@ -45,20 +45,20 @@ test.describe('Bento Grid - Accessibility (WCAG 2.1 AA)', () => {
       });
 
       // Filter for critical violations
-      const criticalViolations = (results as any).violations.filter(
-        (v: any) => v.impact === 'critical' || v.impact === 'serious'
+      const criticalViolations = results.violations.filter(
+        (v) => v.impact === 'critical' || v.impact === 'serious'
       );
 
       expect(criticalViolations).toEqual([]);
 
       // Log any minor violations
-      const minorViolations = (results as any).violations.filter(
-        (v: any) => v.impact === 'minor'
+      const minorViolations = results.violations.filter(
+        (v) => v.impact === 'minor'
       );
 
       if (minorViolations.length > 0) {
         console.log('Minor accessibility issues found:');
-        minorViolations.forEach((v: any) => {
+        minorViolations.forEach((v) => {
           console.log(`- ${v.id}: ${v.description}`);
         });
       }
@@ -100,12 +100,7 @@ test.describe('Bento Grid - Accessibility (WCAG 2.1 AA)', () => {
         const results = {
           passed: 0,
           failed: 0,
-          violations: [] as Array<{
-            element: string;
-            text: string;
-            contrast: number;
-            required: number;
-          }>
+          violations: []
         };
 
         document.querySelectorAll('*').forEach(el => {
@@ -151,11 +146,7 @@ test.describe('Bento Grid - Accessibility (WCAG 2.1 AA)', () => {
         const results = {
           valid: 0,
           invalid: 0,
-          issues: [] as Array<{
-            src: string;
-            alt: string;
-            issue: string;
-          }>
+          issues: []
         };
 
         document.querySelectorAll('img').forEach((img, i) => {
@@ -212,7 +203,7 @@ test.describe('Bento Grid - Accessibility (WCAG 2.1 AA)', () => {
         const results = {
           valid: 0,
           invalid: 0,
-          issues: [] as string[]
+          issues: []
         };
 
         // Check for input elements
@@ -252,7 +243,7 @@ test.describe('Bento Grid - Accessibility (WCAG 2.1 AA)', () => {
         const results = {
           valid: 0,
           invalid: 0,
-          issues: [] as string[]
+          issues: []
         };
 
         document.querySelectorAll('a').forEach((link, i) => {
@@ -586,7 +577,7 @@ test.describe('Bento Grid - Accessibility (WCAG 2.1 AA)', () => {
 });
 
 // Helper functions
-function calculateWCAGContrast(fgColor: string, bgColor: string): number {
+function calculateWCAGContrast(fgColor, bgColor) {
   const fgLum = getLuminance(fgColor);
   const bgLum = getLuminance(bgColor);
 
@@ -596,7 +587,7 @@ function calculateWCAGContrast(fgColor: string, bgColor: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-function getLuminance(color: string): number {
+function getLuminance(color) {
   const rgb = color.match(/\d+/g);
   if (!rgb || rgb.length < 3) return 0;
 

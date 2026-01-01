@@ -291,7 +291,7 @@ test.describe('Bento Grid - Performance Validation', () => {
     test('should not have memory leaks on navigation', async ({ page }) => {
       // Navigate multiple times and check memory
       const initialMemory = await page.evaluate(() => {
-        return (performance as any).memory?.usedJSHeapSize || 0;
+        return performance.memory?.usedJSHeapSize || 0;
       });
 
       // Navigate to page
@@ -305,7 +305,7 @@ test.describe('Bento Grid - Performance Validation', () => {
       }
 
       const finalMemory = await page.evaluate(() => {
-        return (performance as any).memory?.usedJSHeapSize || 0;
+        return performance.memory?.usedJSHeapSize || 0;
       });
 
       // Memory increase should be reasonable

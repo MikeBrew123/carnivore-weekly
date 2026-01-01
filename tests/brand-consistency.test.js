@@ -398,8 +398,8 @@ test.describe('Bento Grid - Brand Consistency', () => {
         const rect = logo.getBoundingClientRect();
         return {
           ratio: rect.width / rect.height,
-          natural: (logo as HTMLImageElement).naturalWidth /
-                  (logo as HTMLImageElement).naturalHeight
+          natural: logo.naturalWidth /
+                  logo.naturalHeight
         };
       });
 
