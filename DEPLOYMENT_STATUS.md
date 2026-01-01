@@ -179,8 +179,8 @@ supabase db push
 # Deploy Cloudflare Worker
 echo "🔧 Deploying Cloudflare Worker..."
 cd api
-wrangler secret put ANTHROPIC_API_KEY --env production < <(echo "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")
-wrangler secret put SUPABASE_SERVICE_ROLE_KEY --env production < <(echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczNDE2MDY0MywiZXhwIjoxODkxODI3MjQzfQ.qyZNTfEcTbTqXhDPZqWKJ0J2pI5rTf6Q8VTk2xvCIZc")
+wrangler secret put ANTHROPIC_API_KEY --env production < <(echo "$ANTHROPIC_API_KEY")
+wrangler secret put SUPABASE_SERVICE_ROLE_KEY --env production < <(echo "$SUPABASE_SERVICE_ROLE_KEY")
 wrangler secret put RESEND_API_KEY --env production < <(echo "$RESEND_API_KEY")
 wrangler deploy --env production
 cd ..
