@@ -180,7 +180,7 @@
     import { initChat } from '/js/chat-interface.js'
     import { initLeo } from '/js/leo-integration.js'
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function initializeModules() {
       console.log('Dashboard loading modules...')
       initHealthMetrics()
       initContentMetrics()
@@ -189,9 +189,103 @@
       initChat()
       initLeo()
       console.log('All modules loaded!')
-    })
+    }
+
+    // Call immediately if document is ready, otherwise wait
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeModules)
+    } else {
+      initializeModules()
+    }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/dashboard.js"></script>
+
+  <!-- Direct resources fetch -->
+  <script>
+    (function loadResources() {
+      const container = document.getElementById('resources-card');
+      if (!container) return;
+
+      function renderResources(data) {
+        const html = `
+          <h2>Resource Usage</h2>
+          <div style="display: grid; gap: 15px;">
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <div style="font-size: 12px; font-weight: 600; color: #3d2817;">🧠 Claude Tokens (Session)</div>
+                <div style="font-size: 12px; color: #666;"><strong>${data.claude.tokens.used.toLocaleString()}</strong> used</div>
+              </div>
+              <div style="font-size: 11px; color: #555; margin-bottom: 8px;">
+                📊 Messages: ${data.claude.tokens.messagesProcessed} | Avg/Message: ${data.claude.tokens.averagePerMessage} tokens
+              </div>
+              <div style="font-size: 10px; color: #999; background: #f9f9f9; padding: 6px; border-radius: 3px; border-left: 3px solid #d4a574;">
+                Session started: ${new Date(data.claude.tokens.sessionStart).toLocaleString()}
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <div style="font-size: 12px; font-weight: 600; color: #3d2817;">⏱️ Session Time</div>
+                <div style="font-size: 12px; color: #666;">${data.claude.sessionTimeRemaining}</div>
+              </div>
+              <div style="width: 100%; height: 20px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                <div style="width: ${data.claude.usagePercent}%; height: 100%; background: linear-gradient(90deg, #2d5016, #a85c00); transition: width 0.3s;"></div>
+              </div>
+              <div style="font-size: 10px; color: #999; margin-top: 4px;">
+                Progress: ${data.claude.usagePercent}% • ${data.claude.requestCount} total requests
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <div style="font-size: 12px; font-weight: 600; color: #3d2817;">GitHub Storage</div>
+                <div style="font-size: 12px; color: #666;">${data.github.storageUsed} / ${data.github.storageLimit}</div>
+              </div>
+              <div style="width: 100%; height: 20px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                <div style="width: ${data.github.usagePercent}%; height: 100%; background: linear-gradient(90deg, #2d5016, #a85c00); transition: width 0.3s;"></div>
+              </div>
+              <div style="font-size: 10px; color: #999; margin-top: 4px;">
+                Usage: ${data.github.usagePercent}%
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <div style="font-size: 12px; font-weight: 600; color: #3d2817;">Supabase Storage</div>
+                <div style="font-size: 12px; color: #666;">${data.supabase.storageUsed} / ${data.supabase.storageLimit}</div>
+              </div>
+              <div style="width: 100%; height: 20px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                <div style="width: ${data.supabase.usagePercent}%; height: 100%; background: linear-gradient(90deg, #2d5016, #a85c00); transition: width 0.3s;"></div>
+              </div>
+              <div style="font-size: 10px; color: #999; margin-top: 4px;">
+                Usage: ${data.supabase.usagePercent}% • DB: ${data.supabase.databaseSize}
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; font-size: 11px; color: #999;">
+            Last updated: ${new Date(data.timestamp).toLocaleTimeString()}
+          </div>
+        `;
+        container.innerHTML = html;
+      }
+
+      function fetchResources() {
+        fetch('/api/resources')
+          .then(r => r.json())
+          .then(data => renderResources(data))
+          .catch(err => {
+            container.innerHTML = `<h2>Resource Usage</h2><div style="color: red; padding: 10px;">Error: ${err.message}</div>`;
+          });
+      }
+
+      // Fetch on load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fetchResources);
+      } else {
+        fetchResources();
+      }
+
+      // Update every 120 seconds
+      setInterval(fetchResources, 120000);
+    })();
+  </script>
 </body>
 </html>

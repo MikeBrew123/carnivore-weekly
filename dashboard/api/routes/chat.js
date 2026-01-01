@@ -15,31 +15,15 @@ import express from 'express'
 import { claudeService } from '../../services/claude.js'
 import { contextBuilder } from '../../config/context-builder.js'
 import { logger } from '../../lib/logger.js'
+import { tokenTracker } from '../../lib/token-tracker.js'
+
+export { tokenTracker }
 
 const router = express.Router()
 
 // Store conversations in memory (reset on server restart)
 const conversations = new Map()
 const MAX_HISTORY = 10
-
-// Track token usage across all chat sessions
-export const tokenTracker = {
-  totalTokensUsed: 0,
-  messagesProcessed: 0,
-  startTime: new Date(),
-  getStats: function() {
-    return {
-      totalTokensUsed: this.totalTokensUsed,
-      messagesProcessed: this.messagesProcessed,
-      averageTokensPerMessage: this.messagesProcessed > 0 ? Math.round(this.totalTokensUsed / this.messagesProcessed) : 0,
-      sessionStartTime: this.startTime.toISOString()
-    }
-  },
-  addTokens: function(tokens) {
-    this.totalTokensUsed += tokens
-    this.messagesProcessed++
-  }
-}
 
 /**
  * POST /api/chat - Send message
@@ -65,6 +49,12 @@ router.post('/chat', async (req, res) => {
 
     // Get Claude response
     const response = await claudeService.sendMessage(message, contextType, history)
+
+    // Track token usage
+    if (response.usage && response.usage.totalTokens) {
+      tokenTracker.addTokens(response.usage.totalTokens)
+      logger.debug(`Token usage: +${response.usage.totalTokens} (total: ${tokenTracker.totalTokensUsed})`)
+    }
 
     // Add to history
     history.push({ role: 'user', content: message })
