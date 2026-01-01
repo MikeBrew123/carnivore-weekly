@@ -6,12 +6,17 @@ on:
     paths:
       - 'public/**'
       - 'templates/**'
-      - 'tests/**'
-      - '**.css'
-      - '**.html'
-      - '.github/workflows/bento-grid-validation.yml'
+      - 'scripts/**'
+      - '.github/workflows/**'
+      - 'package.json'
+      - 'jest.config.js'
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
+    paths:
+      - 'public/**'
+      - 'templates/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
   schedule:
     # Daily validation at 2 AM UTC
     - cron: '0 2 * * *'
