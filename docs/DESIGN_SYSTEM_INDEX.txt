@@ -1,0 +1,401 @@
+================================================================================
+CARNIVORE WEEKLY DESIGN SYSTEM
+Complete Documentation Index
+================================================================================
+
+LOCATION: /Users/mbrew/Developer/carnivore-weekly/docs/
+
+START HERE: README_DESIGN_SYSTEM.md (16 KB)
+Overview, quick navigation by role, design decisions explained
+
+================================================================================
+COMPLETE DOCUMENTATION SET
+================================================================================
+
+1. README_DESIGN_SYSTEM.md (16 KB)
+   PURPOSE: Navigation & overview for all users
+   CONTAINS:
+   - Welcome & what this design system is
+   - Quick navigation by role (designer, developer, product)
+   - Document structure explanation
+   - Key design decisions with rationale
+   - Color palette, typography, spacing at a glance
+   - Common questions answered
+   - Contact information & update process
+   
+   START HERE if: You're new to the team or need orientation
+   REFERENCE: When navigating between documents
+
+
+2. DESIGN_SYSTEM_BENTO_GRID.md (47 KB, ~9,000 words)
+   PURPOSE: Comprehensive design specification (official reference)
+   CONTAINS:
+   
+   1. Color System
+      - 6 primary colors with hex, RGB, WCAG contrast verification
+      - Semantic color naming (--color-*, --bg-*, --text-*)
+      - Color accessibility verification (all WCAG AA minimum 4.5:1)
+      - Text on background examples
+      - Cards & surfaces examples
+      - Button & interactive state examples
+      - Forbidden combinations (fail WCAG AA)
+   
+   2. Typography System
+      - Font imports (Google Fonts: Playfair Display, Merriweather)
+      - Heading scale (H1-H4): sizes, weights, colors, usage
+      - Body text scale (base, small, extra-small): sizes, weights
+      - Letter spacing rules
+      - Typography examples with CSS
+      - Font weight usage guide
+   
+   3. Spacing System
+      - Base unit: 10px (with 2x multiplier)
+      - Spacing increments: 5, 10, 20, 30, 40, 60px
+      - When to use each increment
+      - Container & padding rules
+      - Grid gaps & layout spacing
+      - Margin rules
+      - Responsive spacing adjustments
+   
+   4. Component Library
+      - Hero Card: dimensions, CSS, hover states, responsive
+      - Featured Card: design, CSS, hover states, responsive
+      - Standard Card: design, CSS, hover states, responsive
+      - Compact Card: design, CSS
+      - Primary Button: design, CSS, all states
+      - Secondary Button: design, CSS, all states
+      - Small Button: design, CSS
+      - Form components: inputs, checkboxes, selects
+   
+   5. Responsive Design
+      - 4 breakpoints: 375px, 768px, 1100px, 1400px+
+      - Grid layouts for each breakpoint
+      - Typography scaling across breakpoints
+      - Touch target sizing (44px minimum)
+      - Mobile navigation considerations
+   
+   6. Visual Effects & Interactions
+      - Hover states: cards, buttons, links, navigation
+      - Focus states: keyboard navigation (WCAG AAA)
+      - Transition timing: fast (0.15s), normal (0.2s), slow (0.3s)
+      - Active/pressed states
+      - Loading states
+      - Forbidden animations (none with heavy effects)
+   
+   7. Accessibility Standards
+      - Color contrast requirements (all 4.5:1 minimum WCAG AA)
+      - Keyboard navigation (tab order, focus indicators)
+      - Focus indicators (all interactive elements)
+      - Button & link sizing (44px × 44px minimum)
+      - Alternative text for images (descriptive, not generic)
+      - Semantic HTML (proper heading hierarchy, etc.)
+      - Form accessibility (labels, help text, error states)
+      - Skip navigation links
+   
+   8. Code Standards
+      - CSS class naming (BEM convention: .card, .card__title, .card--featured)
+      - CSS file organization (imports, reset, typography, components, media)
+      - CSS variable usage (--color-*, --spacing-*, --font-*)
+      - HTML best practices (semantic, accessible)
+   
+   9. Design Tokens
+      - Complete CSS variable library (colors, typography, spacing, shadows, transitions)
+      - Copy-paste ready
+      - Usage examples
+   
+   10. Maintenance & Evolution
+      - Version control for design changes
+      - Process for adding new components
+      - Deprecating old patterns
+      - Updating design system when brand changes
+      - Quality assurance checklist
+   
+   START HERE if: You need comprehensive reference, full specifications, or design rationale
+   REFERENCE: When implementing components, validating accessibility, or updating system
+
+
+3. DESIGN_SYSTEM_VISUAL_GUIDE.html (39 KB, interactive)
+   PURPOSE: Browser-based visual reference (open in Chrome/Firefox/Safari)
+   CONTAINS:
+   - Color swatches with contrast badges (AAA/AA indicators)
+   - Typography examples at each scale (desktop/mobile)
+   - Spacing grid visualization (5-60px boxes)
+   - Component examples:
+     * Hero card (tan gradient, full-width)
+     * Featured card (brown gradient, tan accent)
+     * Standard card (dark gradient)
+     * Button examples (primary, secondary, small)
+     * Form elements
+   - Responsive grid demonstration (resize to see 1/2/3 column layouts)
+   - Accessibility demonstrations (contrast, focus states, touch targets)
+   - Before/after comparison (Refined Traditional vs Bento Grid)
+   - Code snippets and examples
+   - Quick reference colors, typography, spacing
+   
+   START HERE if: You want to see components in action, test colors, inspect code
+   REFERENCE: Daily reference, client presentations, design reviews
+   NOTE: Best viewed in modern browser (Chrome, Firefox, Safari, Edge)
+
+
+4. DESIGN_SYSTEM_IMPLEMENTATION.md (16 KB, developer guide)
+   PURPOSE: Ready-to-use code snippets for developers
+   CONTAINS:
+   
+   Quick Start:
+   - Font import (Google Fonts)
+   - CSS variable setup
+   
+   Copy-Paste Components (HTML + CSS for each):
+   - Hero Card
+   - Featured Card
+   - Standard Card
+   - Bento Grid Layout
+   - Button: Primary CTA
+   - Button: Secondary
+   - Button: Small
+   - Text Input & Forms
+   - Checkboxes/Radios
+   - Select Dropdown
+   
+   Typography Examples:
+   - H1, H2, H3, H4 with CSS
+   - Body text, strong, emphasis
+   - Small text (meta)
+   
+   Spacing Utilities:
+   - Optional margin/padding classes
+   
+   Responsive Media Query Template:
+   - Base styles (mobile-first)
+   - Tablet breakpoint (768px)
+   - Desktop breakpoint (1100px)
+   - Large desktop breakpoint (1400px)
+   
+   Accessibility Checklist:
+   - Before deploying any component
+   
+   Common Mistakes to Avoid:
+   - Wrong colors (with examples)
+   - Inconsistent spacing (with examples)
+   - Missing focus states (with examples)
+   - Font substitutions (with examples)
+   
+   Migration from Old Patterns:
+   - How to update existing code
+   - Find and replace strategy
+   
+   Useful Resources:
+   - Links to full documentation
+   - External tools and learning resources
+   
+   When to Ask for Help:
+   - Contact guide for different questions
+   
+   START HERE if: You're coding a new component or page
+   REFERENCE: For copy-paste code, implementation examples
+   USE: Copy HTML/CSS directly into your project
+
+
+5. DESIGN_SYSTEM_VALIDATION.md (22 KB, QA checklist)
+   PURPOSE: Comprehensive validation before launch (and ongoing)
+   CONTAINS:
+   
+   Pre-Launch Checklist:
+   - Design approval
+   - Code quality
+   - Documentation
+   
+   Color Validation:
+   - Hex value verification (DevTools inspector method)
+   - Individual color checklist (all 6 colors)
+   - Contrast ratio validation (WebAIM tool)
+   - Visual inspection (all browsers)
+   
+   Typography Validation:
+   - Font loading verification
+   - Font size verification (all headings, all body sizes)
+   - Reading level assessment
+   
+   Spacing Validation:
+   - Grid unit adherence (only 5, 10, 20, 30, 40, 60px)
+   - Card padding hierarchy
+   - Margins & gaps
+   - Container padding
+   - Visual inspection (no cramped layouts)
+   
+   Component Validation:
+   - Hero card checklist
+   - Featured card checklist
+   - Standard card checklist
+   - Button checklist (primary, secondary, small)
+   
+   Responsive Validation:
+   - Mobile testing (375px): checklist + test devices
+   - Tablet testing (768px): checklist + test devices
+   - Desktop testing (1100px): checklist + test devices
+   - Large desktop testing (1400px+): checklist
+   
+   Accessibility Validation:
+   - Color & contrast verification
+   - Keyboard navigation testing
+   - Focus indicator checklist
+   - Touch target sizing (44px minimum)
+   - Alternative text (images)
+   - Semantic HTML
+   - Forms accessibility
+   - Screen reader testing
+   
+   Performance Validation:
+   - Page load time (<3s target)
+   - Image optimization
+   - CSS & JavaScript minification
+   - Lighthouse audit (targets: performance >90, accessibility >95)
+   
+   Browser Compatibility:
+   - Desktop browsers (Chrome, Firefox, Safari, Edge)
+   - Mobile browsers (Safari iOS, Chrome Android, Samsung, Firefox Mobile)
+   - DevTools testing at each breakpoint
+   
+   Sign-Off Protocol:
+   - Designer validation
+   - Developer validation
+   - QA validation
+   - CEO approval
+   - Deployment checklist
+   - Post-launch monitoring (24 hours)
+   
+   Common Issues & Solutions:
+   - Color not matching
+   - Spacing looks off
+   - Focus indicator not visible
+   - Responsive layout breaks
+   - Accessibility audit fails
+   
+   Monthly Validation:
+   - Recurring checklist for system health
+   
+   Validation Template:
+   - For adding new components
+   
+   START HERE if: Before launching, doing QA, or troubleshooting issues
+   REFERENCE: Pre-launch validation, component sign-off, accessibility compliance
+   USE: Work through checklist before deploying anything
+
+
+================================================================================
+QUICK START BY ROLE
+================================================================================
+
+DESIGNER:
+1. Read: README_DESIGN_SYSTEM.md (overview, 10 min)
+2. Open: DESIGN_SYSTEM_VISUAL_GUIDE.html (see examples, 15 min)
+3. Reference: DESIGN_SYSTEM_BENTO_GRID.md sections 1-7 (detailed specs)
+
+DEVELOPER:
+1. Read: README_DESIGN_SYSTEM.md (orientation, 5 min)
+2. Copy: DESIGN_SYSTEM_IMPLEMENTATION.md (get code, ongoing)
+3. Test: DESIGN_SYSTEM_VISUAL_GUIDE.html (in browser, ongoing)
+4. Reference: DESIGN_SYSTEM_BENTO_GRID.md section 8-9 (code standards, tokens)
+
+QA/TESTER:
+1. Read: README_DESIGN_SYSTEM.md (overview, 5 min)
+2. Use: DESIGN_SYSTEM_VALIDATION.md (comprehensive checklist, per component)
+3. Reference: DESIGN_SYSTEM_BENTO_GRID.md section 7 (accessibility)
+4. Visual: DESIGN_SYSTEM_VISUAL_GUIDE.html (verify visuals)
+
+PRODUCT/CEO:
+1. Read: README_DESIGN_SYSTEM.md (context, 10 min)
+2. Review: DESIGN_SYSTEM_BENTO_GRID.md section 10 (maintenance & evolution)
+3. Reference: DESIGN_SYSTEM_BENTO_GRID.md "Before & After" section
+4. Validate: Use DESIGN_SYSTEM_VALIDATION.md sign-off protocol
+
+================================================================================
+KEY SPECS AT A GLANCE
+================================================================================
+
+COLORS:
+- Dark Brown #1a120b (background)
+- Text Brown #2c1810 (text on light)
+- Tan #d4a574 (links, secondary)
+- Gold #ffd700 (headings, focus)
+- Light Text #f4e4d4 (text on dark)
+- Border #8b4513 (dividers)
+
+TYPOGRAPHY:
+- Headings: Playfair Display (700/900 weight)
+- Body: Merriweather (400 weight)
+- H1: 48px, H2: 32px, H3: 24px, H4: 18px
+- Body: 16px base, 1.8 line-height
+
+SPACING:
+- Grid: 5, 10, 20, 30, 40, 60px only
+- Standard: 20px (70% of usage)
+- Cards: 20px standard, 30px featured
+
+RESPONSIVE:
+- Mobile: 375px (1 column)
+- Tablet: 768px (2 columns)
+- Desktop: 1100px (3 columns)
+- Large: 1400px+ (max-width enforced)
+
+ACCESSIBILITY:
+- Contrast: 4.5:1 minimum (WCAG AA)
+- Touch targets: 44px × 44px minimum
+- Keyboard navigation: Logical tab order
+- Focus indicators: 2px #ffd700 outline
+
+================================================================================
+FILE LOCATIONS
+================================================================================
+
+/Users/mbrew/Developer/carnivore-weekly/docs/
+├── README_DESIGN_SYSTEM.md (START HERE - orientation & navigation)
+├── DESIGN_SYSTEM_BENTO_GRID.md (comprehensive specification)
+├── DESIGN_SYSTEM_VISUAL_GUIDE.html (interactive visual reference)
+├── DESIGN_SYSTEM_IMPLEMENTATION.md (copy-paste code snippets)
+├── DESIGN_SYSTEM_VALIDATION.md (QA checklists)
+└── DESIGN_SYSTEM_INDEX.txt (this file)
+
+RELATED FILES:
+├── brand-kit.md (brand voice, personas)
+├── style-guide.md (writing standards, code organization)
+└── validation-standards.md (content validation rules)
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. All team members read: README_DESIGN_SYSTEM.md
+
+2. Bookmark in browser:
+   - DESIGN_SYSTEM_VISUAL_GUIDE.html (daily reference)
+   - DESIGN_SYSTEM_IMPLEMENTATION.md (code snippets)
+
+3. For new components:
+   - Designer: Reference DESIGN_SYSTEM_VISUAL_GUIDE.html and BENTO_GRID.md
+   - Developer: Copy code from DESIGN_SYSTEM_IMPLEMENTATION.md
+   - QA: Validate using DESIGN_SYSTEM_VALIDATION.md checklist
+
+4. Monthly:
+   - Run full validation using DESIGN_SYSTEM_VALIDATION.md
+   - Update design system docs if changes made
+   - Team review of design system health
+
+================================================================================
+VERSION
+================================================================================
+
+Design System v1.0
+Created: December 31, 2025
+Status: Active & Maintained
+Owner: CEO/Brand Team
+Audience: Designers, Developers, Product Managers
+
+Last Updated: December 31, 2025
+
+================================================================================
+QUESTIONS?
+================================================================================
+
+See "Contact Information" section in README_DESIGN_SYSTEM.md
+

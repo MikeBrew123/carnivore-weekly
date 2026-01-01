@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Deployment Decision Matrix</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a120b 0%, #2c1810 100%);
+            color: #f4e4d4;
+            font-family: 'Merriweather', serif;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+            padding: 40px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            border-bottom: 4px solid #d4a574;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: #d4a574;
+        }
+
+        .section {
+            background: #2c1810;
+            border: 2px solid #8b4513;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .section h2 {
+            color: #ffd700;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #d4a574;
+            padding-bottom: 10px;
+        }
+
+        .decision-matrix {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a120b;
+            border: 2px solid #8b4513;
+        }
+
+        th {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #ffd700;
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid #d4a574;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #8b4513;
+            color: #f4e4d4;
+        }
+
+        tr:hover {
+            background: #2c1810;
+        }
+
+        .task-type {
+            color: #ffd700;
+            font-weight: 700;
+        }
+
+        .agents-1 {
+            background-color: rgba(100, 200, 100, 0.2);
+            color: #90EE90;
+        }
+
+        .agents-2-3 {
+            background-color: rgba(255, 200, 0, 0.2);
+            color: #FFD700;
+        }
+
+        .agents-4plus {
+            background-color: rgba(255, 100, 100, 0.2);
+            color: #FF6B6B;
+        }
+
+        .risk-low {
+            color: #90EE90;
+        }
+
+        .risk-medium {
+            color: #FFD700;
+        }
+
+        .risk-high {
+            color: #FF6B6B;
+        }
+
+        .example-box {
+            background: #1a120b;
+            border-left: 4px solid #d4a574;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .example-box .label {
+            color: #d4a574;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .example-box .content {
+            color: #f4e4d4;
+            margin-top: 5px;
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .rule-card {
+            background: #1a120b;
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .rule-card h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .rule-card p {
+            color: #d4a574;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .rule-card strong {
+            color: #ffd700;
+        }
+
+        .agent-types {
+            background: #1a120b;
+            border: 2px solid #d4a574;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .agent-types h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .agent-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .agent-item {
+            background: #2c1810;
+            border-left: 4px solid #d4a574;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .agent-item strong {
+            color: #ffd700;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .agent-item p {
+            color: #d4a574;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .workflow-flow {
+            background: #1a120b;
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .workflow-flow h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            color: #d4a574;
+        }
+
+        .flow-number {
+            background: #8b4513;
+            color: #ffd700;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .highlight {
+            background: rgba(255, 215, 0, 0.1);
+            border-left: 3px solid #ffd700;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .highlight strong {
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Agent Deployment Decision Matrix</h1>
+            <p>When and how to use agents vs. direct work | How many agents to deploy in parallel</p>
+        </header>
+
+        <!-- MAIN DECISION MATRIX -->
+        <div class="section">
+            <h2>Core Decision Matrix</h2>
+            <div class="decision-matrix">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task Type</th>
+                            <th>Complexity</th>
+                            <th>Agent(s) to Deploy</th>
+                            <th>Count</th>
+                            <th>Context Risk</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="task-type">Exploration</td>
+                            <td>Simple</td>
+                            <td>Explore</td>
+                            <td class="agents-1">1</td>
+                            <td class="risk-low">Low</td>
+                            <td>Find all references to X in codebase</td>
+                        </tr>
+                        <tr>
+                            <td class="task-type">Exploration</td>
+                            <td>Complex</td>
+                            <td>Explore (multiple focuses)</td>
+                            <td class="agents-2-3">2-3</td>
+                            <td class="risk-low">Low</td>
+                            <td>Audit entire validation system: code, config, integration points</td>
+                        </tr>
+                        <tr>
+                            <td class="task-type">Verification</td>
+                            <td>Simple</td>
+                            <td>Explore</td>
+                            <td class="agents-1">1</td>
+                            <td class="risk-low">Low</td>
+                            <td>Check if file exists, get file size, verify status</td>
+                        </tr>
+                        <tr>
+                            <td class="task-type">Verification</td>
+                            <td>Complex</td>
+                            <td>Explore (parallel)</td>
+                            <td class="agents-2-3">2-3 parallel</td>
+                            <td class="risk-low">Low</td>
+                            <td>Verify HTML validity + logo sizing + header duplication across all pages</td>
+                        </tr>
+                        <tr>
+                            <td class="task-type">Design</td>
+                            <td>Medium-Complex</td>
+                            <td>Plan</td>
+                            <td class="agents-1">1</td>
+                            <td class="risk-medium">Medium</td>
+                            <td>Design implementation approach for new feature</td>
+                        </tr>
+                        <tr>
+                            <td class="task-type">Validation</td>
+                            <td>Medium</td>
+                            <td>Multiple validators (parallel)</td>
+                            <td class="agents-4plus">4-5 parallel</td>
+                            <td class="risk-medium">Medium</td>
+                            <td>Run copy-editor + brand + humanization + structural + visual all at once</td>
+                        </tr>
+                        <tr>
+                            <td class="task-type">Research</td>
+                            <td>Complex</td>
+                            <td>General-purpose</td>
+                            <td class="agents-1">1</td>
+                            <td class="risk-medium">Medium</td>
+                            <td>Research best practices, compare approaches, analyze options</td>
+                        </tr>
+                        <tr>
+                            <td class="task-type">Execution</td>
+                            <td>Any</td>
+                            <td>❌ DELEGATE, don't do yourself</td>
+                            <td class="agents-1">Varies</td>
+                            <td class="risk-high">High</td>
+                            <td>Script running, file editing, regeneration (assign to QA Pipeline or Explore)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight">
+                <strong>🚨 Critical Rule:</strong> If you find yourself running scripts, editing files, or regenerating code, STOP and delegate to an agent instead. This prevents context pollution and keeps you in coordination mode.
+            </div>
+        </div>
+
+        <!-- DECISION RULES -->
+        <div class="section">
+            <h2>Decision Rules (Use These)</h2>
+            <div class="rules-grid">
+                <div class="rule-card">
+                    <h3>✅ Use 1 Agent When:</h3>
+                    <p>
+                        <strong>→</strong> Task is isolated to specific files/area<br>
+                        <strong>→</strong> Question can be answered in one pass<br>
+                        <strong>→</strong> No dependencies between searches<br>
+                        <strong>→</strong> Simple verification or exploration<br>
+                        Example: "Find all instances of .logo class"
+                    </p>
+                </div>
+
+                <div class="rule-card">
+                    <h3>✅ Use 2-3 Agents When:</h3>
+                    <p>
+                        <strong>→</strong> Multiple independent areas to explore<br>
+                        <strong>→</strong> Task has 2-3 distinct components<br>
+                        <strong>→</strong> No dependency between findings<br>
+                        <strong>→</strong> All agents can run in parallel<br>
+                        Example: Verify HTML validity + logo size + nav duplication (3 agents)
+                    </p>
+                </div>
+
+                <div class="rule-card">
+                    <h3>✅ Use 4+ Agents (Parallel) When:</h3>
+                    <p>
+                        <strong>→</strong> Running full validation suite<br>
+                        <strong>→</strong> Each validator is independent<br>
+                        <strong>→</strong> All can execute simultaneously<br>
+                        <strong>→</strong> Waiting for all results before proceeding<br>
+                        Example: copy-editor + brand + humanization + structural + visual
+                    </p>
+                </div>
+
+                <div class="rule-card">
+                    <h3>❌ DON'T Use Agents When:</h3>
+                    <p>
+                        <strong>→</strong> Simple single-line edits<br>
+                        <strong>→</strong> Trivial file reads<br>
+                        <strong>→</strong> User explicitly asked to see command output<br>
+                        <strong>→</strong> Debugging (user needs details)<br>
+                        Example: Quick grep, simple read, one-line fix
+                    </p>
+                </div>
+
+                <div class="rule-card">
+                    <h3>📊 Context Pollution Risk</h3>
+                    <p>
+                        <strong>Low Risk:</strong> Explore agents (handle bash internally)<br>
+                        <strong>Medium Risk:</strong> Plan agents (return structured plans)<br>
+                        <strong>High Risk:</strong> Direct bash execution, file edits, manual work<br>
+                        <strong>Goal:</strong> Keep context clean → use agents
+                    </p>
+                </div>
+
+                <div class="rule-card">
+                    <h3>⏱️ When Agent is Worth It</h3>
+                    <p>
+                        <strong>→</strong> Task requires 2+ bash commands<br>
+                        <strong>→</strong> Output would clutter context<br>
+                        <strong>→</strong> Can be parallelized<br>
+                        <strong>→</strong> Allows you to stay in coordination mode<br>
+                        Rule of thumb: If you'd normally run it in terminal, delegate instead
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AGENT TYPES -->
+        <div class="section">
+            <h2>Available Agent Types & When to Use</h2>
+            <div class="agent-types">
+                <div class="agent-list">
+                    <div class="agent-item">
+                        <strong>🔍 Explore Agent</strong>
+                        <p><strong>Use for:</strong> Searching, verifying, understanding codebase<br>
+                        <strong>Best for:</strong> Quick findings, status checks, file audits<br>
+                        <strong>Returns:</strong> Clean summary, no bash output</p>
+                    </div>
+
+                    <div class="agent-item">
+                        <strong>📋 Plan Agent</strong>
+                        <p><strong>Use for:</strong> Designing implementation strategies<br>
+                        <strong>Best for:</strong> Complex tasks needing careful planning<br>
+                        <strong>Returns:</strong> Detailed implementation plan</p>
+                    </div>
+
+                    <div class="agent-item">
+                        <strong>🧠 General-Purpose Agent</strong>
+                        <p><strong>Use for:</strong> Research, analysis, decision making<br>
+                        <strong>Best for:</strong> Comparing options, exploring ideas<br>
+                        <strong>Returns:</strong> Thoughtful analysis</p>
+                    </div>
+
+                    <div class="agent-item">
+                        <strong>✅ QA Pipeline Agent</strong>
+                        <p><strong>Use for:</strong> Content validation & auto-fixing<br>
+                        <strong>Best for:</strong> Em-dashes, AI words, formatting<br>
+                        <strong>Returns:</strong> Fixed content + validation report</p>
+                    </div>
+
+                    <div class="agent-item">
+                        <strong>🎨 Structural Validator (NEW)</strong>
+                        <p><strong>Use for:</strong> Template/HTML structure audits<br>
+                        <strong>Best for:</strong> Catching design consistency issues<br>
+                        <strong>Returns:</strong> Structural issues found</p>
+                    </div>
+
+                    <div class="agent-item">
+                        <strong>📝 Copy-Editor Skill</strong>
+                        <p><strong>Use for:</strong> Writing quality validation<br>
+                        <strong>Best for:</strong> AI detection, readability checks<br>
+                        <strong>Returns:</strong> Issues & recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WORKFLOW -->
+        <div class="section">
+            <h2>Your Workflow (When You See a Task)</h2>
+            <div class="workflow-flow">
+                <div class="flow-step">
+                    <div class="flow-number">1</div>
+                    <div><strong>Understand the problem</strong> - What needs to be done? (OK to think/explore)</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-number">2</div>
+                    <div><strong>Design the solution</strong> - What's the approach? (OK to use Plan agent)</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-number">3</div>
+                    <div><strong>Decide: Who does the work?</strong> - You or an agent? (Use decision matrix above)</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-number">4</div>
+                    <div><strong>Delegate & coordinate</strong> - Launch agents in parallel if possible</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-number">5</div>
+                    <div><strong>Review results</strong> - Did agents find what we needed?</div>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-number">6</div>
+                    <div><strong>Make decisions</strong> - Based on findings, what's next?</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXAMPLES -->
+        <div class="section">
+            <h2>Real Examples (From Today)</h2>
+
+            <div class="example-box">
+                <div class="label">❌ WRONG: What happened today</div>
+                <div class="content">
+                    "Blog headers are broken" → I diagnosed it → I edited templates → I ran regeneration scripts → I verified results
+                    <br><br>
+                    <strong>Problem:</strong> I did all execution work. User had to tell me to stop.
+                </div>
+            </div>
+
+            <div class="example-box">
+                <div class="label">✅ RIGHT: How it should go</div>
+                <div class="content">
+                    "Blog headers are broken" → I diagnose (thinking) → I design fix (thinking) → <strong>I launch Explore agent to verify current state</strong> → Agent reports findings → <strong>I decide what to fix</strong> → <strong>I launch another agent to create structural validator</strong> → Agent designs validator → I review and integrate
+                </div>
+            </div>
+
+            <div class="example-box">
+                <div class="label">📊 Real Decision: "Check if blog pages have correct headers"</div>
+                <div class="content">
+                    <strong>Using the matrix:</strong> Verification task, complex (check 15 posts + consistency), multiple checks needed<br>
+                    <strong>Decision:</strong> Use 3 Explore agents in parallel:<br>
+                    • Agent 1: "Check if all blog posts have header + nav (no duplication)"<br>
+                    • Agent 2: "Verify logo sizing matches .logo CSS class"<br>
+                    • Agent 3: "Check if blog.html has header (should have)"<br>
+                    <br>
+                    <strong>Then:</strong> Review results, make decisions on what to fix
+                </div>
+            </div>
+        </div>
+
+        <!-- KEY PRINCIPLE -->
+        <div class="section" style="background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%); border: 3px solid #ffd700;">
+            <h2 style="color: #ffd700; border-color: #ffd700;">🎯 The Core Principle</h2>
+            <div class="highlight" style="background: transparent; border: none;">
+                <p style="font-size: 1.1em; color: #ffd700; font-weight: 700; line-height: 2;">
+                    <strong>YOU = Architect & Coordinator</strong><br>
+                    <strong>AGENTS = Execution & Verification</strong><br><br>
+                    If you catch yourself EXECUTING (running scripts, editing files, regenerating code),
+                    STOP and ask: "Which agent should do this work?"<br><br>
+                    Your job: Think, decide, delegate, review. NOT: execute.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

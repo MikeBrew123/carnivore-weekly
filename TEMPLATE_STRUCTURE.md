@@ -1,7 +1,7 @@
 # index_template.html Structure Map
 
-**Last Updated:** 2025-12-30 15:31:34
-**Template Version:** 70796b7
+**Last Updated:** 2025-12-31 12:38:31
+**Template Version:** 7ad9b58
 
 > This document is auto-generated. Do not edit manually.
 > Regenerate by running: `python3 scripts/document_template.py`
@@ -21,7 +21,7 @@
 | Recommended Watching | 1308-1391 | creator, disclaimer, section +9 | none | filterVideosByCreator |
 | Medical Disclaimer | 1391-1413 | disclaimer, nav-menu | none | setActiveNavigation |
 | Bottom Navigation Menu | 1413-1424 | nav-menu | none | setActiveNavigation |
-| Footer | 1424-1612 | creator, feedback-btn, tag +2 | none | filterVideosByCreator, filterVideosByTag, setActiveNavigation, toggleAnswer |
+| Footer | 1424-1614 | creator, feedback-btn, tag +2 | none | filterVideosByCreator, filterVideosByTag, setActiveNavigation, toggleAnswer |
 
 ---
 
