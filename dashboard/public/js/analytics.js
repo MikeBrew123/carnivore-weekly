@@ -153,6 +153,29 @@ function renderAnalytics(data) {
         `}
       </div>
 
+      <!-- Affiliate Links Performance -->
+      ${data.affiliateClicks && data.affiliateClicks.length > 0 ? `
+        <div class="affiliate-clicks" style="margin-top: 30px;">
+          <h3>💰 Affiliate Link Clicks (Last 7 Days)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Product/Link</th>
+                <th style="width: 120px; text-align: right;">Clicks</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.affiliateClicks.map(aff => `
+                <tr>
+                  <td style="color: #d4a574; font-weight: 500;">${escapeHtml(aff.product)}</td>
+                  <td style="text-align: right; font-weight: bold; color: #2d5016;">${aff.clicks}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      ` : ``}
+
       <div class="analytics-footer">
         ⏰ Last updated: ${new Date(data.timestamp).toLocaleTimeString()}
         ${data.error ? `<div style="color: #d4a574; margin-top: 5px;">⚠️ ${data.error}</div>` : ''}

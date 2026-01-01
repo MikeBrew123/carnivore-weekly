@@ -31,6 +31,7 @@ router.get('/analytics/summary', async (req, res) => {
       realtime: {
         activeUsers: data.realtimeUsers
       },
+      affiliateClicks: data.affiliateClicks || [],
       error: data.error || null
     })
   } catch (error) {

@@ -184,17 +184,74 @@ export async function getRealtimeUsers() {
 }
 
 /**
+ * Get affiliate link clicks (ButcherBox, LMNT, Amazon)
+ * @returns {Promise<Array<{product: string, clicks: number, lastClicked: string}>>}
+ */
+export async function getAffiliateClicks() {
+  initializeClient()
+
+  if (!analyticsDataClient || !propertyId) {
+    logger.warn('Analytics client not available')
+    return []
+  }
+
+  try {
+    const response = await analyticsDataClient.runReport({
+      property: `properties/${propertyId}`,
+      dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
+      dimensions: [{ name: 'eventName' }, { name: 'eventLabel' }],
+      metrics: [{ name: 'eventCount' }],
+      dimensionFilter: {
+        filter: {
+          fieldName: 'eventName',
+          stringFilter: {
+            matchType: 'EXACT',
+            value: 'click'
+          }
+        }
+      },
+      orderBys: [{ metric: { metricName: 'eventCount' }, desc: true }],
+      limit: 20
+    })
+
+    const rows = response[0].rows || []
+
+    // Group by eventLabel (product name) and sum clicks
+    const affiliateMap = {}
+    rows.forEach(row => {
+      const eventLabel = row.dimensionValues[1]?.value || 'Unknown'
+      const clicks = parseInt(row.metricValues[0]?.value || '0', 10)
+
+      // Filter for Affiliate events only
+      if (eventLabel && (eventLabel.includes('ButcherBox') || eventLabel.includes('LMNT') || eventLabel.includes('Amazon') || eventLabel.includes('Lodge') || eventLabel.includes('Affiliate'))) {
+        affiliateMap[eventLabel] = (affiliateMap[eventLabel] || 0) + clicks
+      }
+    })
+
+    return Object.entries(affiliateMap).map(([product, clicks]) => ({
+      product,
+      clicks,
+      lastClicked: new Date().toISOString()
+    }))
+  } catch (error) {
+    logger.error('Error fetching affiliate clicks:', error.message)
+    return []
+  }
+}
+
+/**
  * Export all analytics data in a single call
  * Uses Promise.all to fetch all metrics in parallel
- * @returns {Promise<{pageViews, users, topPages, realtime}>}
+ * @returns {Promise<{pageViews, users, topPages, realtime, affiliateClicks}>}
  */
 export async function getAllMetrics() {
   try {
-    const [pageViews, users, topPages, realtimeUsers] = await Promise.all([
+    const [pageViews, users, topPages, realtimeUsers, affiliateClicks] = await Promise.all([
       getPageViews(),
       getUsers(),
       getTopPages(),
-      getRealtimeUsers()
+      getRealtimeUsers(),
+      getAffiliateClicks()
     ])
 
     return {
@@ -202,6 +259,7 @@ export async function getAllMetrics() {
       users,
       topPages,
       realtimeUsers,
+      affiliateClicks,
       timestamp: new Date().toISOString()
     }
   } catch (error) {
@@ -211,6 +269,7 @@ export async function getAllMetrics() {
       users: { today: 0, last7Days: 0, last30Days: 0 },
       topPages: [],
       realtimeUsers: 0,
+      affiliateClicks: [],
       timestamp: new Date().toISOString(),
       error: error.message
     }
@@ -222,5 +281,6 @@ export const analyticsService = {
   getUsers,
   getTopPages,
   getRealtimeUsers,
+  getAffiliateClicks,
   getAllMetrics
 }
