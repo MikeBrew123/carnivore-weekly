@@ -169,6 +169,14 @@
         </div>
       </div>
     </main>
+
+    <!-- Site Traffic Analytics Section -->
+    <section id="analytics-section" class="analytics-full-width">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading site traffic data...</p>
+      </div>
+    </section>
   </div>
 
   <!-- Scripts -->
@@ -179,6 +187,7 @@
     import { initResources } from '/js/resources.js'
     import { initChat } from '/js/chat-interface.js'
     import { initLeo } from '/js/leo-integration.js'
+    import { initAnalytics } from '/js/analytics.js'
 
     function initializeModules() {
       console.log('Dashboard loading modules...')
@@ -188,6 +197,7 @@
       initResources()
       initChat()
       initLeo()
+      initAnalytics()
       console.log('All modules loaded!')
     }
 

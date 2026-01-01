@@ -20,6 +20,7 @@ import todosRouter from './api/routes/todos.js'
 import resourcesRouter from './api/routes/resources.js'
 import chatRouter from './api/routes/chat.js'
 import leoRouter from './api/routes/leo.js'
+import analyticsRouter from './api/routes/analytics.js'
 
 // Get __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url)
@@ -60,7 +61,8 @@ app.get('/api', (req, res) => {
       todos: '/api/todos',
       resources: '/api/resources',
       chat: '/api/chat',
-      leo: '/api/leo/*'
+      leo: '/api/leo/*',
+      analytics: '/api/analytics/summary'
     }
   })
 })
@@ -72,6 +74,7 @@ app.use('/api', todosRouter)
 app.use('/api', resourcesRouter)
 app.use('/api', chatRouter)
 app.use('/api', leoRouter)
+app.use('/api', analyticsRouter)
 
 app.get('/api/content/recent', (req, res) => {
   res.json({ message: 'Content endpoint - coming soon' })
