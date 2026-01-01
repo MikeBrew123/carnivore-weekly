@@ -1,7 +1,7 @@
 # index_template.html Structure Map
 
-**Last Updated:** 2025-12-31 12:38:31
-**Template Version:** 7ad9b58
+**Last Updated:** 2026-01-01 10:26:37
+**Template Version:** b82ac3a
 
 > This document is auto-generated. Do not edit manually.
 > Regenerate by running: `python3 scripts/document_template.py`

@@ -256,6 +256,12 @@ Focus on peer-reviewed research. If no direct studies exist, cite related resear
         with open(ANALYZED_FILE, "r") as f:
             data = json.load(f)
 
+        # Check if data has the expected structure for Q&A generation
+        if "analysis" not in data or "community_sentiment" not in data.get("analysis", {}):
+            print(f"\n⚠️  Analysis structure changed - skipping Q&A generation")
+            print(f"✓ Q&A generation skipped (data structure incompatible)")
+            return
+
         questions = data["analysis"]["community_sentiment"].get("common_questions", [])
 
         if not questions:

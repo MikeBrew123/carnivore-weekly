@@ -121,7 +121,7 @@ class ChannelsGenerator:
         for archive_file in archive_files:
             with open(archive_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                week_date = data["analysis_date"]
+                week_date = data.get("analysis_date", data.get("timestamp", ""))
 
                 # Count appearances in creators_data
                 if "creators_data" in data:

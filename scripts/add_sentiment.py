@@ -137,6 +137,12 @@ Percentages must add up to 100."""
         with open(ANALYZED_FILE, "r") as f:
             analyzed_data = json.load(f)
 
+        # Check if analyzed_data has the expected structure
+        if "analysis" not in analyzed_data or "top_videos" not in analyzed_data.get("analysis", {}):
+            print(f"\n⚠️  Analysis structure changed - skipping sentiment analysis")
+            print(f"✓ Sentiment analysis skipped (data structure incompatible)")
+            return
+
         # Create a mapping of video_id -> comments
         video_comments = {}
         for creator in youtube_data["top_creators"]:

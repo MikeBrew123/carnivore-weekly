@@ -107,7 +107,8 @@ class NewsletterGenerator:
         with open(CURRENT_DATA, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        print(f"✓ Loaded current week: {data['analysis_date']}")
+        analysis_date = data.get('analysis_date', data.get('timestamp', ''))
+        print(f"✓ Loaded current week: {analysis_date}")
         return data
 
     def load_last_week(self):
@@ -127,7 +128,8 @@ class NewsletterGenerator:
         with open(last_week_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        print(f"✓ Loaded last week: {data['analysis_date']}")
+        analysis_date = data.get('analysis_date', data.get('timestamp', ''))
+        print(f"✓ Loaded last week: {analysis_date}")
         return data
 
     def calculate_stats_comparison(self, current, last_week):
@@ -136,45 +138,51 @@ class NewsletterGenerator:
 
         stats = {}
 
-        # Video counts
-        current_videos = len(current["analysis"]["top_videos"]) + len(
-            current["analysis"]["recommended_watching"]
+        # Video counts (handle both old and new data structures)
+        current_analysis = current.get("analysis", {})
+        current_videos = len(current_analysis.get("top_videos", [])) + len(
+            current_analysis.get("recommended_watching", [])
         )
-        last_videos = (
-            len(last_week["analysis"]["top_videos"])
-            + len(last_week["analysis"]["recommended_watching"])
-            if last_week
-            else 0
-        )
+
+        if last_week:
+            last_analysis = last_week.get("analysis", {})
+            last_videos = (
+                len(last_analysis.get("top_videos", []))
+                + len(last_analysis.get("recommended_watching", []))
+            )
+        else:
+            last_videos = 0
 
         stats["video_count_change"] = current_videos - last_videos
         stats["current_videos"] = current_videos
 
         # Total views (from top videos)
-        current_views = sum(v["views"] for v in current["analysis"]["top_videos"])
-        last_views = (
-            sum(v["views"] for v in last_week["analysis"]["top_videos"])
-            if last_week
-            else 0
-        )
+        current_top_videos = current_analysis.get("top_videos", [])
+        current_views = sum(v.get("views", 0) for v in current_top_videos)
+
+        if last_week:
+            last_top_videos = last_analysis.get("top_videos", [])
+            last_views = sum(v.get("views", 0) for v in last_top_videos)
+        else:
+            last_views = 0
 
         stats["view_count_change"] = current_views - last_views
         stats["current_views"] = current_views
 
         # Top performer
-        if current["analysis"]["top_videos"]:
-            top = max(current["analysis"]["top_videos"], key=lambda x: x["views"])
+        if current_top_videos:
+            top = max(current_top_videos, key=lambda x: x.get("views", 0))
             stats["top_performer"] = {
-                "creator": top["creator"],
-                "title": top["title"],
-                "views": top["views"],
+                "creator": top.get("creator", "Unknown"),
+                "title": top.get("title", ""),
+                "views": top.get("views", 0),
             }
 
         # Creator rankings this week
         creator_views = {}
-        for video in current["analysis"]["top_videos"]:
-            creator = video["creator"]
-            creator_views[creator] = creator_views.get(creator, 0) + video["views"]
+        for video in current_top_videos:
+            creator = video.get("creator", "Unknown")
+            creator_views[creator] = creator_views.get(creator, 0) + video.get("views", 0)
 
         stats["creator_rankings"] = sorted(
             [{"creator": k, "views": v} for k, v in creator_views.items()],
@@ -196,17 +204,19 @@ class NewsletterGenerator:
         marcus_context = self.persona_manager.get_persona_context("marcus")
         chloe_context = self.persona_manager.get_persona_context("chloe")
 
-        # Prepare data for prompt
-        current_summary = current["analysis"]["weekly_summary"]
-        current_topics = current["analysis"]["trending_topics"]
-        current_videos = current["analysis"]["top_videos"]
+        # Prepare data for prompt (handle both old and new data structures)
+        current_analysis = current.get("analysis", {})
+        current_summary = current_analysis.get("weekly_summary", current.get("weekly_summary", ""))
+        current_topics = current_analysis.get("trending_topics", current.get("trending_topics", ""))
+        current_videos = current_analysis.get("top_videos", [])
 
-        last_summary = (
-            last_week["analysis"]["weekly_summary"]
-            if last_week
-            else "No previous week data"
-        )
-        last_topics = last_week["analysis"]["trending_topics"] if last_week else []
+        if last_week:
+            last_analysis = last_week.get("analysis", {})
+            last_summary = last_analysis.get("weekly_summary", last_week.get("weekly_summary", ""))
+            last_topics = last_analysis.get("trending_topics", last_week.get("trending_topics", []))
+        else:
+            last_summary = "No previous week data"
+            last_topics = []
 
         prompt = f"""You are the curator behind Carnivore Weekly, writing your weekly insider newsletter to subscribers who trust your eye for what matters in the carnivore community.
 
@@ -246,8 +256,8 @@ What Was Trending Then:
 ━━━━ THE NUMBERS STORY ━━━━
 • Videos Posted: {stats['current_videos']} ({stats['video_count_change']:+d} change from last week)
 • Total Views: {stats['current_views']:,} ({stats['view_count_change']:+,} change)
-• Top Performer: {stats['top_performer']['creator']} crushing it with {stats['top_performer']['views']:,} views
-• Creator Leaderboard: {json.dumps(stats['creator_rankings'], indent=2)}
+{f"• Top Performer: {stats['top_performer']['creator']} crushing it with {stats['top_performer']['views']:,} views" if 'top_performer' in stats else "• No top performer data available"}
+{f"• Creator Leaderboard: {json.dumps(stats['creator_rankings'], indent=2)}" if 'creator_rankings' in stats else ""}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -334,7 +344,7 @@ Write the newsletter NOW:
     def format_newsletter(self, content, current_data, stats):
         """Format the newsletter with header and footer"""
 
-        current_date = current_data["analysis_date"]
+        current_date = current_data.get("analysis_date", current_data.get("timestamp", ""))
 
         # Get Sarah's signature for the closing (she's the lead persona)
         sarah_signature = self.persona_manager.get_persona_signature("sarah")
@@ -369,7 +379,7 @@ P.S. - Reply to this email with questions or suggestions!
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         # Generate filename with date
-        date_str = current_data["analysis_date"]
+        date_str = current_data.get("analysis_date", current_data.get("timestamp", ""))
         filename = f"newsletter_{date_str}.txt"
         output_file = OUTPUT_DIR / filename
 
@@ -453,8 +463,9 @@ P.S. - Reply to this email with questions or suggestions!
         # Parse sections
         sections = self.parse_newsletter_sections(content)
 
-        # Get featured videos (top 4-5)
-        top_videos = current["analysis"]["top_videos"][:5]
+        # Get featured videos (top 4-5) - handle both data structures
+        current_analysis = current.get("analysis", {})
+        top_videos = current_analysis.get("top_videos", [])[:5]
         featured_videos = []
 
         for video in top_videos:
@@ -479,7 +490,7 @@ P.S. - Reply to this email with questions or suggestions!
 
         # Render HTML
         html = template.render(
-            date=current["analysis_date"],
+            date=current.get("analysis_date", current.get("timestamp", "")),
             subject_line=sections.get("subject_line", "This Week in Carnivore"),
             opening=sections.get("opening", ""),
             by_the_numbers=sections.get("by_the_numbers", ""),
@@ -506,7 +517,7 @@ P.S. - Reply to this email with questions or suggestions!
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         # Generate filename
-        date_str = current_data["analysis_date"]
+        date_str = current_data.get("analysis_date", current_data.get("timestamp", ""))
         filename = f"newsletter_{date_str}.html"
         output_file = OUTPUT_DIR / filename
 

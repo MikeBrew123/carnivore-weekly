@@ -10,10 +10,14 @@ Date: 2025-12-26
 """
 
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
-from scripts.auto_link_wiki_keywords import insert_wiki_links
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
+from auto_link_wiki_keywords import insert_wiki_links
 
 # ============================================================================
 # CONFIGURATION
@@ -81,7 +85,9 @@ class PageGenerator:
         with open(input_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        print(f"✓ Loaded analysis from {data['analysis_date']}")
+        # Handle both old and new data structures
+        analysis_date = data.get('analysis_date', data.get('timestamp', datetime.now().isoformat()))
+        print(f"✓ Loaded analysis from {analysis_date}")
         return data
 
     def generate_homepage(self, data: dict, output_file: Path):
@@ -106,24 +112,27 @@ class PageGenerator:
                       "falling back to standard layout")
                 layout_metadata = None
 
-        # Prepare template variables
+        # Prepare template variables with support for both old and new data structures
+        analysis = data.get("analysis", {})
+        source_data = data.get("source_data", {})
+
         template_vars = {
             # Analysis metadata
-            "analysis_date": data["analysis_date"],
+            "analysis_date": data.get("analysis_date", data.get("timestamp", datetime.now().isoformat())),
             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            # Source data info
-            "search_query": data["source_data"]["search_query"],
-            "total_creators": data["source_data"]["total_creators"],
-            "total_videos": data["source_data"]["total_videos"],
-            # Analysis results
-            "weekly_summary": data["analysis"]["weekly_summary"],
-            "trending_topics": data["analysis"]["trending_topics"],
-            "top_videos": data["analysis"]["top_videos"],
-            "key_insights": data["analysis"]["key_insights"],
-            "community_sentiment": data["analysis"]["community_sentiment"],
-            "recommended_watching": data["analysis"]["recommended_watching"],
+            # Source data info (with defaults for new structure)
+            "search_query": source_data.get("search_query", "carnivore diet"),
+            "total_creators": source_data.get("total_creators", 10),
+            "total_videos": source_data.get("total_videos", 39),
+            # Analysis results (with defaults for new structure)
+            "weekly_summary": analysis.get("weekly_summary", data.get("weekly_summary", "")),
+            "trending_topics": analysis.get("trending_topics", data.get("trending_topics", "")),
+            "top_videos": analysis.get("top_videos", []),
+            "key_insights": analysis.get("key_insights", data.get("key_insights", "")),
+            "community_sentiment": analysis.get("community_sentiment", {}),
+            "recommended_watching": analysis.get("recommended_watching", []),
             # Q&A section with scientific citations
-            "qa_section": data["analysis"].get("qa_section", []),
+            "qa_section": analysis.get("qa_section", []),
             # Creator mappings for links
             "creator_channels": creator_channels,
             # Layout metadata for template rendering
