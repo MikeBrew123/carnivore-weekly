@@ -69,22 +69,31 @@ class OptimizedContentAnalyzer:
             Dict with 'prompt' and 'token_count' or None if optimization unavailable
         """
         try:
-            # Call the Node.js script that fetches from Supabase
+            # Prepare input data to pass via stdin (secure approach)
+            input_data = json.dumps({
+                "writer": writer,
+                "topic": topic
+            })
+
+            # Build minimal, safe environment with only essential variables
+            safe_env = {
+                "PATH": os.environ.get("PATH", ""),
+                "HOME": os.environ.get("HOME", ""),
+                "SUPABASE_URL": SUPABASE_URL or "",
+                "SUPABASE_KEY": SUPABASE_KEY or "",
+            }
+
+            # Call the Node.js script with data via stdin
             result = subprocess.run(
                 [
                     "node",
                     str(PROJECT_ROOT / "scripts" / "generate_agent_prompt.js"),
-                    writer,
-                    topic,
                 ],
                 capture_output=True,
                 text=True,
                 timeout=10,
-                env={
-                    **os.environ,
-                    "SUPABASE_URL": SUPABASE_URL or "",
-                    "SUPABASE_KEY": SUPABASE_KEY or "",
-                },
+                input=input_data,
+                env=safe_env,
             )
 
             if result.returncode == 0:

@@ -957,34 +957,48 @@ async function generateAIReports(data, apiKey) {
 
 /**
  * Call Claude API with proper error handling
+ *
+ * SECURITY WARNING: Never log API keys or expose them in error messages.
+ * Always pass credentials via secure headers, never in function parameters.
+ * API keys should only be available in server environment variables.
  */
 async function callClaudeAPI(apiKey, systemPrompt, userPrompt, maxTokens) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify({
-      model: 'claude-opus-4-5-20251101',
-      max_tokens: maxTokens,
-      temperature: 1.0,
-      system: systemPrompt,
-      messages: [{
-        role: 'user',
-        content: userPrompt
-      }]
-    })
-  });
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5-20251101',
+        max_tokens: maxTokens,
+        temperature: 1.0,
+        system: systemPrompt,
+        messages: [{
+          role: 'user',
+          content: userPrompt
+        }]
+      })
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`Claude API error: ${JSON.stringify(error)}`);
+    if (!response.ok) {
+      const error = await response.json();
+      // SECURITY: Never expose API key or sensitive data in error messages
+      // Log safely without credentials
+      console.error('Claude API error status:', response.status);
+      throw new Error(`Claude API request failed with status ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.content[0].text;
+  } catch (error) {
+    // SECURITY: Catch and sanitize errors to prevent credential exposure
+    console.error('Claude API call failed');
+    // Re-throw without exposing sensitive information
+    throw new Error('Failed to generate report with AI service');
   }
-
-  const result = await response.json();
-  return result.content[0].text;
 }
 
 /**
