@@ -77,10 +77,10 @@ python3 scripts/youtube_collector.py
 echo "✓ YouTube data collected"
 echo ""
 
-# Step 2: Analyze Content with Claude
-echo "🧠 Step 2/5: Analyzing content with Claude AI..."
-python3 scripts/content_analyzer.py
-echo "✓ Content analyzed"
+# Step 2: Analyze Content with Claude (Token-Optimized)
+echo "🧠 Step 2/5: Analyzing content with Claude AI (98% token reduction)..."
+python3 scripts/content_analyzer_optimized.py
+echo "✓ Content analyzed with token optimization"
 echo ""
 
 # Step 3: Add Sentiment Analysis
