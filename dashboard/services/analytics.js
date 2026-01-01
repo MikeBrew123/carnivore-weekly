@@ -65,19 +65,30 @@ export async function getPageViews() {
     const response = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [
-        { startDate: 'today', endDate: 'today' },
-        { startDate: '7daysAgo', endDate: 'today' },
-        { startDate: '30daysAgo', endDate: 'today' }
+        { startDate: 'today', endDate: 'today' },          // index 0
+        { startDate: '7daysAgo', endDate: 'today' },       // index 1
+        { startDate: '30daysAgo', endDate: 'today' }       // index 2
       ],
       metrics: [{ name: 'screenPageViews' }]
     })
 
     const rows = response[0].rows || []
 
+    // Map date_range indices to values
+    const values = { 0: 0, 1: 0, 2: 0 }
+    rows.forEach(row => {
+      const rangeIndex = row.dimensionValues[0]?.value
+      const value = parseInt(row.metricValues[0]?.value || '0', 10)
+      if (rangeIndex && rangeIndex.includes('date_range')) {
+        const idx = parseInt(rangeIndex.replace('date_range_', ''), 10)
+        values[idx] = value
+      }
+    })
+
     return {
-      today: parseInt(rows[0]?.metricValues[0]?.value || '0', 10),
-      last7Days: parseInt(rows[1]?.metricValues[0]?.value || '0', 10),
-      last30Days: parseInt(rows[2]?.metricValues[0]?.value || '0', 10)
+      today: values[0],           // today
+      last7Days: values[1],       // 7 days
+      last30Days: values[2]       // 30 days
     }
   } catch (error) {
     logger.error('Error fetching page views:', error.message)
@@ -101,19 +112,30 @@ export async function getUsers() {
     const response = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [
-        { startDate: 'today', endDate: 'today' },
-        { startDate: '7daysAgo', endDate: 'today' },
-        { startDate: '30daysAgo', endDate: 'today' }
+        { startDate: 'today', endDate: 'today' },          // index 0
+        { startDate: '7daysAgo', endDate: 'today' },       // index 1
+        { startDate: '30daysAgo', endDate: 'today' }       // index 2
       ],
       metrics: [{ name: 'totalUsers' }]
     })
 
     const rows = response[0].rows || []
 
+    // Map date_range indices to values
+    const values = { 0: 0, 1: 0, 2: 0 }
+    rows.forEach(row => {
+      const rangeIndex = row.dimensionValues[0]?.value
+      const value = parseInt(row.metricValues[0]?.value || '0', 10)
+      if (rangeIndex && rangeIndex.includes('date_range')) {
+        const idx = parseInt(rangeIndex.replace('date_range_', ''), 10)
+        values[idx] = value
+      }
+    })
+
     return {
-      today: parseInt(rows[0]?.metricValues[0]?.value || '0', 10),
-      last7Days: parseInt(rows[1]?.metricValues[0]?.value || '0', 10),
-      last30Days: parseInt(rows[2]?.metricValues[0]?.value || '0', 10)
+      today: values[0],           // today
+      last7Days: values[1],       // 7 days
+      last30Days: values[2]       // 30 days
     }
   } catch (error) {
     logger.error('Error fetching users:', error.message)
