@@ -1,0 +1,87 @@
+{
+  "environment": "staging",
+  "description": "Staging environment configuration - testing before production",
+
+  "debug": false,
+  "log_level": "INFO",
+  "api_base_url": "https://staging.carnivoreweekly.com",
+  "database_host": "staging-db.example.com",
+  "cache_ttl": 3600,
+
+  "services": {
+    "anthropic": {
+      "timeout": 60,
+      "max_retries": 2,
+      "rate_limit_rpm": 50000
+    },
+    "supabase": {
+      "timeout": 30,
+      "max_retries": 2
+    },
+    "youtube": {
+      "timeout": 30,
+      "max_retries": 2
+    }
+  },
+
+  "content_collection": {
+    "youtube": {
+      "days_back": 7,
+      "top_creators_count": 10,
+      "videos_per_creator": 5,
+      "comments_per_video": 20,
+      "min_views": 100
+    },
+    "reddit": {
+      "days_back": 7,
+      "limit": 50
+    }
+  },
+
+  "content_analysis": {
+    "batch_size": 5,
+    "timeout": 120,
+    "token_optimization": true
+  },
+
+  "monitoring": {
+    "enabled": true,
+    "log_level": "INFO",
+    "log_format": "json",
+    "metrics": {
+      "track_api_calls": true,
+      "track_generation_time": true,
+      "track_errors": true,
+      "track_token_usage": true
+    },
+    "alerts": {
+      "email_on_error": true,
+      "alert_email": "staging-ops@carnivoreweekly.com"
+    }
+  },
+
+  "backup_recovery": {
+    "enabled": true,
+    "backup_frequency": "daily",
+    "backup_retention_days": 7
+  },
+
+  "features": {
+    "auto_linking": {
+      "enabled": true,
+      "max_links_per_page": 10
+    },
+    "sentiment_analysis": {
+      "enabled": true,
+      "cache_results": true
+    },
+    "qa_generation": {
+      "enabled": true,
+      "cache_questions": true
+    },
+    "token_optimization": {
+      "enabled": true,
+      "reduction_target": 0.98
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "environment": "production",
+  "description": "Production environment configuration - live site",
+
+  "debug": false,
+  "log_level": "WARNING",
+  "api_base_url": "https://carnivoreweekly.com",
+  "database_host": "prod-db.example.com",
+  "cache_ttl": 86400,
+
+  "services": {
+    "anthropic": {
+      "timeout": 60,
+      "max_retries": 3,
+      "rate_limit_rpm": 100000
+    },
+    "supabase": {
+      "timeout": 30,
+      "max_retries": 3
+    },
+    "youtube": {
+      "timeout": 30,
+      "max_retries": 3
+    }
+  },
+
+  "content_collection": {
+    "youtube": {
+      "days_back": 7,
+      "top_creators_count": 10,
+      "videos_per_creator": 5,
+      "comments_per_video": 20,
+      "min_views": 100
+    },
+    "reddit": {
+      "days_back": 7,
+      "limit": 100
+    }
+  },
+
+  "content_analysis": {
+    "batch_size": 10,
+    "timeout": 120,
+    "token_optimization": true
+  },
+
+  "monitoring": {
+    "enabled": true,
+    "log_level": "WARNING",
+    "log_format": "json",
+    "metrics": {
+      "track_api_calls": true,
+      "track_generation_time": true,
+      "track_errors": true,
+      "track_token_usage": true
+    },
+    "alerts": {
+      "email_on_error": true,
+      "alert_email": "ops@carnivoreweekly.com"
+    }
+  },
+
+  "backup_recovery": {
+    "enabled": true,
+    "backup_frequency": "daily",
+    "backup_retention_days": 30
+  },
+
+  "features": {
+    "auto_linking": {
+      "enabled": true,
+      "max_links_per_page": 10
+    },
+    "sentiment_analysis": {
+      "enabled": true,
+      "cache_results": true
+    },
+    "qa_generation": {
+      "enabled": true,
+      "cache_questions": true
+    },
+    "token_optimization": {
+      "enabled": true,
+      "reduction_target": 0.98
+    }
+  }
+}

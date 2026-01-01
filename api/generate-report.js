@@ -2,12 +2,15 @@
  * Cloudflare Worker: AI Report Generation Endpoint (Enhanced)
  *
  * Generates 13 personalized diet reports using Claude AI + static templates.
+ * Stores reports in Supabase with secure access tokens and sends email delivery links.
  * Architecture: Hybrid (AI-personalized core sections + static templated appendices)
  *
  * Deploy to Cloudflare Workers: https://workers.cloudflare.com/
  *
  * Environment Variables Needed:
  * - ANTHROPIC_API_KEY: Your Claude API key from console.anthropic.com
+ * - SUPABASE_SERVICE_ROLE_KEY: Supabase service role key for server-side database access
+ * - RESEND_API_KEY: Resend API key for email delivery
  */
 
 // CORS headers for cross-origin requests
@@ -16,6 +19,165 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
+
+// Supabase configuration
+const SUPABASE_URL = 'https://kwtdpvnjewtahuxjyltn.supabase.co';
+const SUPABASE_REST_ENDPOINT = `${SUPABASE_URL}/rest/v1`;
+
+/**
+ * Generate a cryptographically secure access token for report retrieval
+ * Uses UUID v4 for uniqueness (256-bit keyspace when considering the format)
+ */
+function generateAccessToken() {
+  // Generate a UUID v4 token
+  // Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+  return crypto.randomUUID();
+}
+
+/**
+ * Save generated report to Supabase with access token and expiration
+ * Reports are stored for 48 hours only (privacy-first approach)
+ */
+async function saveReportToSupabase(email, reportHTML, questionnaireData, sessionId, serviceRoleKey) {
+  const accessToken = generateAccessToken();
+
+  // 48-hour expiration: Date.now() + 48 hours in milliseconds
+  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+
+  try {
+    const response = await fetch(`${SUPABASE_REST_ENDPOINT}/generated_reports`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': serviceRoleKey,
+        'Authorization': `Bearer ${serviceRoleKey}`,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        session_id: sessionId,
+        email: email,
+        access_token: accessToken,
+        report_html: reportHTML,
+        questionnaire_data: questionnaireData,
+        expires_at: expiresAt
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('[Supabase] Insert error:', error);
+      throw new Error(`Failed to save report to Supabase: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('[Supabase] Report saved successfully, token:', accessToken);
+
+    return {
+      id: data[0]?.id,
+      accessToken: accessToken,
+      expiresAt: expiresAt
+    };
+  } catch (error) {
+    console.error('[Supabase] Error saving report:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Send email with secure report access link via Resend
+ * Email includes 48-hour expiration warning and access instructions
+ */
+async function sendReportEmail(email, accessToken, resendApiKey) {
+  const accessUrl = `https://carnivoreweekly.com/report.html?token=${accessToken}`;
+
+  const emailHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Carnivore Report is Ready</title>
+  <style>
+    body { font-family: 'Merriweather', Georgia, serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #faf8f3; }
+    .container { background: white; border: 3px solid #8b4513; border-radius: 12px; padding: 40px; }
+    h1 { color: #8b4513; font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 10px; }
+    .intro { color: #555; font-size: 16px; margin: 20px 0; }
+    .cta { display: inline-block; background: linear-gradient(135deg, #d4a574 0%, #c99463 100%); color: #1a120b; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 700; margin: 25px 0; }
+    .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; color: #856404; font-size: 14px; }
+    .footer { font-size: 12px; color: #999; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✅ Your Personalized Carnivore Report is Ready!</h1>
+
+    <p class="intro">Hi there,</p>
+
+    <p>Your complete 30-day personalized carnivore protocol has been generated based on your unique health profile, goals, and lifestyle.</p>
+
+    <p><strong>Your report includes:</strong></p>
+    <ul>
+      <li>Executive Summary with your personalized protocol</li>
+      <li>Custom 30-day meal calendar</li>
+      <li>Weekly shopping lists by budget</li>
+      <li>Physician consultation guide</li>
+      <li>Restaurant & travel strategies</li>
+      <li>Science & evidence review</li>
+      <li>Lab monitoring guidelines</li>
+      <li>Electrolyte protocol</li>
+      <li>Obstacle override protocol for your biggest challenge</li>
+      <li>And much more...</li>
+    </ul>
+
+    <a href="${accessUrl}" class="cta">→ View My Report</a>
+
+    <p style="color: #666; font-size: 14px;"><strong>Can't see the button?</strong> Copy and paste this link into your browser:<br><code style="background: #f5f1ed; padding: 8px; display: block; margin: 10px 0; word-break: break-all;">${accessUrl}</code></p>
+
+    <div class="warning">
+      <strong>⏰ Important:</strong> This link expires in 48 hours for your privacy and data security. Download or print your report now for permanent access.
+    </div>
+
+    <p style="margin-top: 30px;">We're here if you have questions. Reply to this email anytime.</p>
+
+    <p>To your health,<br><strong>Carnivore Weekly</strong></p>
+
+    <div class="footer">
+      <p>Carnivore Weekly | No BS, No Spam, No Bait and Switch</p>
+      <p>© 2026 Carnivore Weekly. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'reports@carnivoreweekly.com',
+        to: email,
+        subject: '✅ Your Personalized Carnivore Protocol is Ready',
+        html: emailHTML,
+        reply_to: 'support@carnivoreweekly.com'
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('[Resend] Email send error:', error);
+      throw new Error(`Failed to send email: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('[Resend] Email sent successfully, ID:', result.id);
+    return result;
+  } catch (error) {
+    console.error('[Resend] Error sending email:', error.message);
+    throw error;
+  }
+}
 
 /**
  * Master Ingredient Database
@@ -290,17 +452,58 @@ export default {
       const combineTime = Date.now() - combineStart;
       console.log(`[Report Generation] Report combining completed in ${combineTime}ms`);
 
-      // Return combined report
-      console.log('[Report Generation] Sending response to client');
-      return new Response(JSON.stringify({
-        success: true,
-        report: combinedReport,
-        email: data.email,
-        generatedAt: new Date().toISOString()
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      // Save report to Supabase and send email
+      console.log('[Report Generation] Saving to Supabase and sending email...');
+      const saveStart = Date.now();
+
+      try {
+        // Save report to Supabase with secure access token
+        const savedReport = await saveReportToSupabase(
+          data.email,
+          combinedReport,
+          data, // Pass entire questionnaire data for reference
+          data.session_id || null,
+          env.SUPABASE_SERVICE_ROLE_KEY
+        );
+
+        // Send email with access link
+        await sendReportEmail(
+          data.email,
+          savedReport.accessToken,
+          env.RESEND_API_KEY
+        );
+
+        const saveTime = Date.now() - saveStart;
+        console.log(`[Report Generation] Report saved and email sent in ${saveTime}ms`);
+
+        // Return success response with access token (not HTML)
+        console.log('[Report Generation] Returning token response to client');
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Report generated and sent to your email',
+          accessToken: savedReport.accessToken,
+          expiresAt: savedReport.expiresAt,
+          email: data.email,
+          reportId: savedReport.id,
+          generatedAt: new Date().toISOString(),
+          nextStep: 'Check your email for the secure access link'
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (saveError) {
+        console.error('[Report Generation] Error saving/sending:', saveError);
+        // Return error but include access token in case Supabase fails but email needs resending
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Failed to save report or send email',
+          details: saveError.message,
+          email: data.email
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
 
     } catch (error) {
       console.error('Error generating reports:', error);

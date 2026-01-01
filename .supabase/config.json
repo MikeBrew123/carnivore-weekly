@@ -1,0 +1,7 @@
+{
+  "projectId": "kwtdpvnjewtahuxjyltn",
+  "host": "db.kwtdpvnjewtahuxjyltn.supabase.co",
+  "port": 5432,
+  "database": "postgres",
+  "username": "postgres"
+}
