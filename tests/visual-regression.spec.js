@@ -445,8 +445,8 @@ test.describe('Bento Grid Visual Regression Testing', () => {
         const img = images.nth(i);
         const naturalSize = await img.evaluate(el => {
           return {
-            naturalWidth: (el as HTMLImageElement).naturalWidth,
-            naturalHeight: (el as HTMLImageElement).naturalHeight,
+            naturalWidth: el.naturalWidth,
+            naturalHeight: el.naturalHeight,
             src: el.src
           };
         });
