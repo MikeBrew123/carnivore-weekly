@@ -442,38 +442,69 @@ async function generateWriterPrompt(writerSlug, topic) {
 /**
  * CLI support for testing/debugging
  *
- * Usage:
+ * Usage (command-line):
  *   node scripts/generate_agent_prompt.js sarah "weight loss challenges"
  *   node scripts/generate_agent_prompt.js marcus "partnership opportunities"
+ *
+ * Usage (stdin - secure for subprocess calls):
+ *   echo '{"writer":"sarah","topic":"weight loss"}' | node scripts/generate_agent_prompt.js
  */
 async function main() {
   const args = process.argv.slice(2);
-
-  if (args.length < 2) {
-    console.log('Generate Agent Prompt - Token-Optimized Writer Brief System\n');
-    console.log('Usage: node generate_agent_prompt.js <writer_slug> <topic>');
-    console.log('\nExamples:');
-    console.log('  node generate_agent_prompt.js sarah "weight loss plateaus"');
-    console.log('  node generate_agent_prompt.js marcus "partnership strategy"');
-    console.log('  node generate_agent_prompt.js chloe "community engagement"');
-    console.log('\nWriter Slugs: sarah, marcus, chloe (or custom from database)');
-    process.exit(0);
-  }
-
-  const [writerSlug, ...topicParts] = args;
-  const topic = topicParts.join(' ');
+  let writerSlug, topic;
 
   try {
-    const result = await generateWriterPrompt(writerSlug, topic);
+    // Check if data is being piped via stdin (secure subprocess pattern)
+    if (process.stdin.isTTY === false && args.length === 0) {
+      // Read from stdin
+      let stdinData = '';
+      process.stdin.on('data', (chunk) => {
+        stdinData += chunk;
+      });
 
-    console.log('\n' + '='.repeat(70));
-    console.log('GENERATED PROMPT');
-    console.log('='.repeat(70) + '\n');
-    console.log(result.prompt);
-    console.log('\n' + '='.repeat(70));
+      process.stdin.on('end', async () => {
+        try {
+          const inputData = JSON.parse(stdinData);
+          writerSlug = inputData.writer;
+          topic = inputData.topic;
 
+          if (!writerSlug || !topic) {
+            throw new Error('stdin must contain valid JSON with "writer" and "topic" fields');
+          }
+
+          const result = await generateWriterPrompt(writerSlug, topic);
+          console.log(result.prompt);
+          console.log(`\nEstimated tokens: ${result.tokenCount}`);
+        } catch (error) {
+          console.error(`✗ Error: ${error.message}`);
+          process.exit(1);
+        }
+      });
+    } else if (args.length >= 2) {
+      // Command-line arguments (backward compatible)
+      [writerSlug, ...topicParts] = args;
+      topic = topicParts.join(' ');
+
+      const result = await generateWriterPrompt(writerSlug, topic);
+
+      console.log('\n' + '='.repeat(70));
+      console.log('GENERATED PROMPT');
+      console.log('='.repeat(70) + '\n');
+      console.log(result.prompt);
+      console.log('\n' + '='.repeat(70));
+    } else {
+      console.log('Generate Agent Prompt - Token-Optimized Writer Brief System\n');
+      console.log('Usage (command-line): node generate_agent_prompt.js <writer_slug> <topic>');
+      console.log('Usage (stdin): echo \'{"writer":"sarah","topic":"..."}\'  | node generate_agent_prompt.js\n');
+      console.log('Examples:');
+      console.log('  node generate_agent_prompt.js sarah "weight loss plateaus"');
+      console.log('  node generate_agent_prompt.js marcus "partnership strategy"');
+      console.log('  node generate_agent_prompt.js chloe "community engagement"');
+      console.log('\nWriter Slugs: sarah, marcus, chloe (or custom from database)');
+      process.exit(0);
+    }
   } catch (error) {
-    console.error('\n✗ Fatal error:', error.message);
+    console.error(`\n✗ Fatal error: ${error.message}`);
     process.exit(1);
   }
 }
