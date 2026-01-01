@@ -102,17 +102,7 @@ jobs:
             const status = '${{ job.status }}';
             const statusEmoji = status === 'success' ? '✅' : '❌';
 
-            const comment = `## Tier 1: Structural Validation ${statusEmoji}
-
-**Status:** ${status.toUpperCase()}
-
-### Results:
-- HTML validity: Checked
-- Element nesting: Verified
-- Semantic correctness: Validated
-- Required elements: Present
-
-[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const comment = `## Tier 1: Structural Validation ${statusEmoji}\n\n**Status:** ${status.toUpperCase()}\n\n### Results:\n- HTML validity: Checked\n- Element nesting: Verified\n- Semantic correctness: Validated\n- Required elements: Present\n\n[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -178,19 +168,7 @@ jobs:
             const status = '${{ job.status }}';
             const statusEmoji = status === 'success' ? '✅' : '⚠️';
 
-            const comment = `## Tier 2: Visual Regression Testing ${statusEmoji}
-
-**Status:** ${status.toUpperCase()}
-
-### Coverage:
-- Desktop (1920x1080): Tested
-- Tablet (768x1024): Tested
-- Mobile (375x667): Tested
-- Dark mode variants: Tested
-
-**Note:** Visual differences detected by Percy. Review needed by designer.
-
-[View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const comment = `## Tier 2: Visual Regression Testing ${statusEmoji}\n\n**Status:** ${status.toUpperCase()}\n\n### Coverage:\n- Desktop (1920x1080): Tested\n- Tablet (768x1024): Tested\n- Mobile (375x667): Tested\n- Dark mode variants: Tested\n\n**Note:** Visual differences detected by Percy. Review needed by designer.\n\n[View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -277,20 +255,7 @@ jobs:
             const status = '${{ job.status }}';
             const statusEmoji = status === 'success' ? '✅' : '❌';
 
-            const comment = `## Tier 3: Accessibility (WCAG AA) ${statusEmoji}
-
-**Status:** ${status.toUpperCase()}
-
-### Compliance Checks:
-- ✓ Heading hierarchy
-- ✓ Color contrast (4.5:1)
-- ✓ Image alt text
-- ✓ Keyboard navigation
-- ✓ Focus indicators
-- ✓ Form labels
-- ✓ Link text
-
-[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const comment = `## Tier 3: Accessibility (WCAG AA) ${statusEmoji}\n\n**Status:** ${status.toUpperCase()}\n\n### Compliance Checks:\n- ✓ Heading hierarchy\n- ✓ Color contrast (4.5:1)\n- ✓ Image alt text\n- ✓ Keyboard navigation\n- ✓ Focus indicators\n- ✓ Form labels\n- ✓ Link text\n\n[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -410,22 +375,7 @@ jobs:
             const perfScore = Math.round(scores.performance.score * 100);
             const statusEmoji = perfScore >= 90 ? '✅' : '⚠️';
 
-            const comment = `## Tier 4: Performance Validation ${statusEmoji}
-
-**Lighthouse Score:** ${perfScore}/100
-
-### Core Web Vitals:
-- Largest Contentful Paint (LCP): ${report.audits['largest-contentful-paint'].numericValue.toFixed(2)}ms
-- Cumulative Layout Shift (CLS): ${report.audits['cumulative-layout-shift'].numericValue.toFixed(3)}
-- First Contentful Paint (FCP): ${report.audits['first-contentful-paint'].numericValue.toFixed(2)}ms
-
-### Category Scores:
-- Performance: ${Math.round(scores.performance.score * 100)}/100
-- Accessibility: ${Math.round(scores.accessibility.score * 100)}/100
-- Best Practices: ${Math.round(scores['best-practices'].score * 100)}/100
-- SEO: ${Math.round(scores.seo.score * 100)}/100
-
-[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const comment = `## Tier 4: Performance Validation ${statusEmoji}\n\n**Lighthouse Score:** ${perfScore}/100\n\n### Core Web Vitals:\n- Largest Contentful Paint (LCP): ${report.audits['largest-contentful-paint'].numericValue.toFixed(2)}ms\n- Cumulative Layout Shift (CLS): ${report.audits['cumulative-layout-shift'].numericValue.toFixed(3)}\n- First Contentful Paint (FCP): ${report.audits['first-contentful-paint'].numericValue.toFixed(2)}ms\n\n### Category Scores:\n- Performance: ${Math.round(scores.performance.score * 100)}/100\n- Accessibility: ${Math.round(scores.accessibility.score * 100)}/100\n- Best Practices: ${Math.round(scores['best-practices'].score * 100)}/100\n- SEO: ${Math.round(scores.seo.score * 100)}/100\n\n[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -490,20 +440,7 @@ jobs:
             const status = '${{ job.status }}';
             const statusEmoji = status === 'success' ? '✅' : '⚠️';
 
-            const comment = `## Tier 5: Brand Consistency ${statusEmoji}
-
-**Status:** ${status.toUpperCase()}
-
-### Validations:
-- Color palette accuracy: Checked
-- Typography compliance: Checked
-- Spacing grid alignment: Verified
-- Logo placement: Validated
-- Component styling: Consistent
-
-Designer review recommended for any visual differences.
-
-[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const comment = `## Tier 5: Brand Consistency ${statusEmoji}\n\n**Status:** ${status.toUpperCase()}\n\n### Validations:\n- Color palette accuracy: Checked\n- Typography compliance: Checked\n- Spacing grid alignment: Verified\n- Logo placement: Validated\n- Component styling: Consistent\n\nDesigner review recommended for any visual differences.\n\n[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -584,21 +521,7 @@ Designer review recommended for any visual differences.
             const status = '${{ job.status }}';
             const statusEmoji = status === 'success' ? '✅' : '⚠️';
 
-            const comment = `## Tier 6: Content Validation ${statusEmoji}
-
-**Status:** ${status.toUpperCase()}
-
-### Content Checks:
-- Grammar & spelling: Validated
-- Brand voice: Verified
-- Link integrity: Checked
-- SEO metadata: Complete
-- Alt text quality: Reviewed
-- AI authenticity: Verified
-
-Content lead review recommended for any issues.
-
-[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            const comment = `## Tier 6: Content Validation ${statusEmoji}\n\n**Status:** ${status.toUpperCase()}\n\n### Content Checks:\n- Grammar & spelling: Validated\n- Brand voice: Verified\n- Link integrity: Checked\n- SEO metadata: Complete\n- Alt text quality: Reviewed\n- AI authenticity: Verified\n\nContent lead review recommended for any issues.\n\n[View full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -771,12 +694,7 @@ Content lead review recommended for any issues.
             const outcome = '${{ steps.status.outputs.outcome }}';
             const icon = outcome === 'success' ? '✅' : '❌';
 
-            const comment = `## ${{ steps.status.outputs.message }}
-
-**Run:** [${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-**Triggered by:** @${{ github.actor }}
-
-All validation tiers have completed. Check the run details for specific failures.`;
+            const comment = `## ${{ steps.status.outputs.message }}\n\n**Run:** [${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n**Triggered by:** @${{ github.actor }}\n\nAll validation tiers have completed. Check the run details for specific failures.`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
