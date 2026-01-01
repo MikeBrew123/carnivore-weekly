@@ -34,12 +34,18 @@ async function runDiagnostics() {
     // 1. Check for public schema tables
     console.log('1️⃣  Checking PUBLIC SCHEMA TABLES...\n');
 
-    const { data: publicTables, error: publicError } = await supabase.rpc('get_tables_in_schema', {
-      schema_name: 'public'
-    }).catch(() => {
+    let publicTables, publicError;
+    try {
+      const result = await supabase.rpc('get_tables_in_schema', {
+        schema_name: 'public'
+      });
+      publicTables = result.data;
+      publicError = result.error;
+    } catch (err) {
       // Fallback if RPC doesn't exist
-      return { data: null, error: 'RPC not available' };
-    });
+      publicTables = null;
+      publicError = 'RPC not available';
+    }
 
     if (publicError || !publicTables) {
       console.log('   ⚠️  Using fallback method (direct queries)...\n');
@@ -90,12 +96,19 @@ async function runDiagnostics() {
     // 2. Check all schemas
     console.log('2️⃣  Checking ALL SCHEMAS...\n');
 
-    const { data: schemas, error: schemasError } = await supabase
-      .from('information_schema.schemata')
-      .select('schema_name')
-      .neq('schema_name', 'pg_catalog')
-      .neq('schema_name', 'information_schema')
-      .catch(() => ({ data: null, error: 'Direct schema query failed' }));
+    let schemas, schemasError;
+    try {
+      const result = await supabase
+        .from('information_schema.schemata')
+        .select('schema_name')
+        .neq('schema_name', 'pg_catalog')
+        .neq('schema_name', 'information_schema');
+      schemas = result.data;
+      schemasError = result.error;
+    } catch (err) {
+      schemas = null;
+      schemasError = 'Direct schema query failed';
+    }
 
     if (!schemasError && schemas) {
       console.log('   Available schemas:');
@@ -110,11 +123,18 @@ async function runDiagnostics() {
     // 3. Check migration-related functions
     console.log('3️⃣  Checking FOR MIGRATION ARTIFACTS...\n');
 
-    const { data: functions, error: fnError } = await supabase
-      .from('information_schema.routines')
-      .select('routine_name, routine_schema')
-      .eq('routine_schema', 'public')
-      .catch(() => ({ data: null, error: 'Could not query functions' }));
+    let functions, fnError;
+    try {
+      const result = await supabase
+        .from('information_schema.routines')
+        .select('routine_name, routine_schema')
+        .eq('routine_schema', 'public');
+      functions = result.data;
+      fnError = result.error;
+    } catch (err) {
+      functions = null;
+      fnError = 'Could not query functions';
+    }
 
     if (!fnError && functions) {
       const migrationFunctions = functions.filter(f =>

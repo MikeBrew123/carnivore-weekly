@@ -1,0 +1,139 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - img "Carnivore Weekly Logo" [ref=e4]
+      - heading "CALCULATOR" [level=1] [ref=e5]
+      - paragraph [ref=e6]: Macro Calculator
+  - navigation [ref=e7]:
+    - link "Home" [ref=e8] [cursor=pointer]:
+      - /url: index.html
+    - link "Archive" [ref=e9] [cursor=pointer]:
+      - /url: archive.html
+    - link "Channels" [ref=e10] [cursor=pointer]:
+      - /url: channels.html
+    - link "Calculator" [ref=e11] [cursor=pointer]:
+      - /url: calculator.html
+    - link "Wiki" [ref=e12] [cursor=pointer]:
+      - /url: wiki.html
+    - link "Blog" [ref=e13] [cursor=pointer]:
+      - /url: blog.html
+    - link "About" [ref=e14] [cursor=pointer]:
+      - /url: about.html
+  - link "💬 Feedback" [ref=e15] [cursor=pointer]:
+    - /url: https://forms.gle/RTzpnv4PvaP1TEZt7
+  - main [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - paragraph [ref=e19]:
+          - text: I made this calculator because I kept getting
+          - strong [ref=e20]: pissed off
+          - text: .
+        - paragraph [ref=e21]: You know how it goes. You're trying to figure out your macros, so you Google "carnivore diet calculator" or whatever. You find one that looks decent. Start filling it out. Age, weight, activity level... getting into it. Then BAM – paywall. Or worse, "Thanks! We'll email you the results!"
+        - paragraph [ref=e22]: Yeah, no. I'm not giving you my email so you can spam me about your coaching program.
+        - paragraph [ref=e23]: "So here's what I built:"
+        - img "Shopping cart filled with carnivore foods including meat, butter, and eggs" [ref=e24]
+        - paragraph [ref=e25]:
+          - strong [ref=e26]: The free calculator
+          - text: gives you what you actually came for. Your daily macro targets. No email required, no games. If that's all you need, you're done in 2 minutes.
+        - paragraph [ref=e27]:
+          - text: If you want the full protocol, there's a
+          - strong [ref=e28]: $9.99 version
+          - text: .
+        - paragraph [ref=e29]: "You answer 15 more questions about your situation (health conditions, goals, food preferences). Then you get 5 AI-generated reports:"
+        - list [ref=e30]:
+          - listitem [ref=e31]:
+            - strong [ref=e32]: Executive Summary
+            - text: "- Your complete protocol in 2 pages"
+          - listitem [ref=e33]:
+            - strong [ref=e34]: Food Pyramid & Guidelines
+            - text: "- What to eat, what to avoid, portions"
+          - listitem [ref=e35]:
+            - strong [ref=e36]: Week 1 Meal Plan
+            - text: "- Exact meals matched to your macros"
+          - listitem [ref=e37]:
+            - strong [ref=e38]: 30-Day Meal Calendar
+            - text: "- Full month roadmap"
+          - listitem [ref=e39]:
+            - strong [ref=e40]: Shopping Lists
+            - text: "- What to buy, how much, estimated costs"
+        - paragraph [ref=e41]: Everything downloads as a printable PDF. No ongoing subscription. One payment, yours forever.
+        - paragraph [ref=e42]:
+          - strong [ref=e43]: "Early access pricing:"
+          - text: This is $9.99 now. Going to $19.99 on January 31, 2026 when I add the recipe database and video walkthroughs. Lock in $9.99 today, pay once, keep access forever even after the price goes up.
+        - paragraph [ref=e44]:
+          - strong [ref=e45]: "Your data:"
+          - text: Your report sticks around for 48 hours so you can download it. After that, it's gone. I'm not storing your data long-term, and I'm not building a profile on you. You get what you paid for, you save it if you want it, and then it disappears.
+        - generic [ref=e46]:
+          - paragraph [ref=e47]:
+            - strong [ref=e48]: "Two options:"
+          - generic [ref=e49]:
+            - paragraph [ref=e51]:
+              - strong [ref=e52]: Free Calculator
+              - text: Macros in 2 minutes. No email. Scroll down.
+            - generic [ref=e53]:
+              - paragraph [ref=e54]:
+                - strong [ref=e55]: Full Protocol ($9.99)
+                - text: Macros + 5 reports + meal plans + shopping lists.
+              - link "Get Complete Protocol →" [ref=e56] [cursor=pointer]:
+                - /url: https://buy.stripe.com/dRm3cv7OHalA8FM092ao801
+          - paragraph [ref=e57]: No email harvesting. No bait and switch. No bullshit.
+        - paragraph [ref=e58]:
+          - strong [ref=e59]: Choose your path below.
+      - generic [ref=e60]:
+        - heading "Choose Your Path" [level=2] [ref=e61]
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]: FREE
+            - heading "Quick Macro Calculator" [level=3] [ref=e65]
+            - list [ref=e66]:
+              - listitem [ref=e67]: ✓ Daily calorie & macro targets
+              - listitem [ref=e68]: ✓ 2-meal day examples
+              - listitem [ref=e69]: ✓ Electrolyte guidance
+              - listitem [ref=e70]: ✓ Instant results
+            - paragraph [ref=e71]: ⏱️ 2 minutes
+            - button "Start Free Calculator →" [ref=e72] [cursor=pointer]
+          - generic [ref=e73]:
+            - generic [ref=e74]: $9.99
+            - heading "Complete 30-Day Protocol" [level=3] [ref=e75]
+            - list [ref=e76]:
+              - listitem [ref=e77]: ✓ Everything in Free Calculator
+              - listitem [ref=e78]: ✓ 30-day personalized meal plan
+              - listitem [ref=e79]: ✓ Weekly shopping lists
+              - listitem [ref=e80]: ✓ Doctor consultation script
+              - listitem [ref=e81]: ✓ 48-hour report access via email
+            - paragraph [ref=e82]: ⏱️ 5 minutes + payment
+            - button "Get Full Protocol →" [ref=e83] [cursor=pointer]
+        - paragraph [ref=e84]: Both paths are valid. Pick what fits your needs today.
+      - text: ★
+  - contentinfo [ref=e85]:
+    - generic [ref=e86]:
+      - paragraph [ref=e87]: CARNIVORE WEEKLY
+      - paragraph [ref=e88]: The Finest Carnivore Content, Curated Weekly
+      - navigation [ref=e89]:
+        - link "Home" [ref=e90] [cursor=pointer]:
+          - /url: index.html
+        - link "Channels" [ref=e91] [cursor=pointer]:
+          - /url: channels.html
+        - link "Wiki" [ref=e92] [cursor=pointer]:
+          - /url: wiki.html
+        - link "Calculator" [ref=e93] [cursor=pointer]:
+          - /url: calculator.html
+        - link "About" [ref=e94] [cursor=pointer]:
+          - /url: about.html
+        - link "Archive" [ref=e95] [cursor=pointer]:
+          - /url: archive.html
+      - paragraph [ref=e96]:
+        - link "Privacy Policy" [ref=e97] [cursor=pointer]:
+          - /url: privacy.html
+      - generic [ref=e98]:
+        - paragraph [ref=e99]:
+          - strong [ref=e100]: "Medical Disclaimer:"
+          - text: This calculator provides estimates based on research-validated formulas. Results vary by individual. Always consult your healthcare provider before starting any new diet, especially if you have existing health conditions or take medications.
+        - paragraph [ref=e101]:
+          - strong [ref=e102]: "Privacy First:"
+          - text: All calculations happen in your browser. We don't store, track, or collect your personal data. Ever.
+        - paragraph [ref=e103]: Macro calculations use the Mifflin-St Jeor equation (gold standard for BMR) and carnivore-specific ratios validated by peer-reviewed research. Your actual needs may differ based on genetics, metabolic health, and activity patterns.
+```
