@@ -1745,8 +1745,8 @@
                 localStorage.setItem('carnivore_macros', JSON.stringify(currentResults));
             }
 
-            // Go to questionnaire (paid user, already selected paid path)
-            window.location.href = 'questionnaire.html';
+            // Go to paid questionnaire (paid user, already selected paid path)
+            window.location.href = 'paid-questionnaire.html';
         }
 
         // ---------- Unit Conversion ----------
@@ -2161,8 +2161,8 @@
             const urlParams = new URLSearchParams(window.location.search);
 
             if (urlParams.get('success') === 'true') {
-                // Redirect to questionnaire page
-                window.location.href = 'questionnaire.html';
+                // Redirect to paid questionnaire page
+                window.location.href = 'paid-questionnaire.html';
             }
 
             if (urlParams.get('cancelled') === 'true') {
