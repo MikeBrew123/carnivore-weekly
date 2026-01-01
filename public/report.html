@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Carnivore Report | Carnivore Weekly</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #2c1810;
+            background: #1a120b;
+        }
+
+        body {
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 80px 20px;
+            color: #d4a574;
+        }
+
+        .loading h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .loading p {
+            font-size: 16px;
+            color: #b8956a;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #8b4513;
+            border-top-color: #d4a574;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error State */
+        .error {
+            text-align: center;
+            padding: 60px 20px;
+            background: #fdf8f3;
+            border: 2px solid #8b4513;
+            border-radius: 12px;
+            color: #2c1810;
+        }
+
+        .error h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #8b4513;
+            margin-bottom: 15px;
+        }
+
+        .error p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .error a {
+            display: inline-block;
+            background: #8b4513;
+            color: #faf8f3;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .error a:hover {
+            background: #6b3410;
+            transform: translateY(-2px);
+        }
+
+        /* Expired State */
+        .expired {
+            text-align: center;
+            padding: 60px 20px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            color: #1a120b;
+        }
+
+        .expired h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #8b4513;
+            margin-bottom: 15px;
+        }
+
+        .expired p {
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .expired a {
+            display: inline-block;
+            background: #8b4513;
+            color: #faf8f3;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .expired a:hover {
+            background: #6b3410;
+            transform: translateY(-2px);
+        }
+
+        /* Report Content */
+        .report-wrapper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%);
+            border-bottom: 3px solid #8b4513;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .report-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #8b4513;
+            margin-bottom: 10px;
+        }
+
+        .report-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .report-content {
+            padding: 40px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Print and Download Options */
+        .report-actions {
+            position: sticky;
+            top: 0;
+            background: #faf8f3;
+            padding: 15px 40px;
+            border-bottom: 1px solid #d4a574;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            z-index: 100;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #8b4513;
+            color: #faf8f3;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Merriweather', serif;
+            font-weight: 700;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #6b3410;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #8b4513;
+            color: #8b4513;
+        }
+
+        .btn-secondary:hover {
+            background: #8b4513;
+            color: #faf8f3;
+        }
+
+        .expiration-notice {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+            }
+            .loading, .error, .expired, .report-header, .report-actions {
+                display: none !important;
+            }
+            .report-wrapper {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            .report-content {
+                max-height: none;
+                overflow: visible;
+            }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .report-header {
+                padding: 20px;
+            }
+
+            .report-header h1 {
+                font-size: 24px;
+            }
+
+            .report-content {
+                padding: 20px;
+                max-height: 70vh;
+            }
+
+            .report-actions {
+                padding: 10px 20px;
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Loading State -->
+        <div id="loading" class="loading" style="display: none;">
+            <h2>Loading Your Report</h2>
+            <div class="spinner"></div>
+            <p>Please wait while we retrieve your personalized protocol...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error" style="display: none;">
+            <h2>⚠️ Access Error</h2>
+            <p id="errorMessage"></p>
+            <a href="calculator.html">← Back to Calculator</a>
+        </div>
+
+        <!-- Expired State -->
+        <div id="expired" class="expired" style="display: none;">
+            <h2>⏰ Report Expired</h2>
+            <p>This report was only available for 48 hours and has been deleted for your privacy and security.</p>
+            <p>If you need to regenerate your report, please complete the questionnaire again.</p>
+            <a href="calculator.html">← Start Over</a>
+        </div>
+
+        <!-- Report Display -->
+        <div id="reportWrapper" class="report-wrapper" style="display: none;">
+            <div class="report-actions">
+                <button class="btn" onclick="window.print()">🖨️ Print Report</button>
+                <button class="btn btn-secondary" onclick="downloadReport()">⬇️ Download PDF</button>
+                <span class="expiration-notice">This link expires 48 hours after generation for your privacy.</span>
+            </div>
+            <div id="reportContent" class="report-content">
+                <!-- Report HTML injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration (same as calculator)
+        const SUPABASE_URL = 'https://kwtdpvnjewtahuxjyltn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNjA2NDMsImV4cCI6MTg5MTkyNzI0M30.rWArRuIUh-OGKTGLXx-5nZS8W1K03cG3X-M2RQRR-lg';
+
+        /**
+         * Fetch and display the report using the access token
+         */
+        async function loadReport() {
+            try {
+                // Show loading state
+                document.getElementById('loading').style.display = 'block';
+
+                // Get access token from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const token = urlParams.get('token');
+
+                if (!token) {
+                    showError('No access token provided. Please use the link from your email.');
+                    return;
+                }
+
+                // Fetch report from Supabase using the access token
+                const response = await fetch(
+                    `${SUPABASE_URL}/rest/v1/generated_reports?access_token=eq.${encodeURIComponent(token)}&select=*`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    showError(`Failed to retrieve report (${response.status})`);
+                    return;
+                }
+
+                const data = await response.json();
+
+                // Check if report exists
+                if (!data || data.length === 0) {
+                    showError('Report not found. The token may be invalid.');
+                    return;
+                }
+
+                const report = data[0];
+
+                // Check if report has expired
+                const expiresAt = new Date(report.expires_at);
+                if (expiresAt < new Date()) {
+                    showExpired();
+                    return;
+                }
+
+                // Log access attempt
+                await logReportAccess(report.id, token);
+
+                // Hide loading and display report
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('reportWrapper').style.display = 'block';
+                document.getElementById('reportContent').innerHTML = report.report_html;
+
+                // Track event in Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'report_accessed', {
+                        'event_category': 'Reports',
+                        'event_label': 'Report Viewed',
+                        'expires_at': report.expires_at
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error loading report:', error);
+                showError(`An error occurred: ${error.message}`);
+            }
+        }
+
+        /**
+         * Show error state
+         */
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+
+            console.error('Report access error:', message);
+        }
+
+        /**
+         * Show expired state
+         */
+        function showExpired() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('expired').style.display = 'block';
+
+            console.log('Report has expired');
+        }
+
+        /**
+         * Log report access to Supabase for analytics
+         */
+        async function logReportAccess(reportId, token) {
+            try {
+                // Insert access log
+                await fetch(`${SUPABASE_URL}/rest/v1/report_access_log`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({
+                        report_id: reportId,
+                        user_agent: navigator.userAgent
+                    })
+                });
+
+                // Update report's last_accessed_at timestamp
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/generated_reports?id=eq.${reportId}`,
+                    {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        },
+                        body: JSON.stringify({
+                            last_accessed_at: new Date().toISOString(),
+                            access_count: +1 // Will increment by 1
+                        })
+                    }
+                );
+
+                console.log('Access logged successfully');
+            } catch (error) {
+                console.warn('Failed to log access (non-critical):', error);
+                // Don't fail the whole report load if logging fails
+            }
+        }
+
+        /**
+         * Download report as PDF (uses browser print-to-PDF)
+         * Users can choose "Save as PDF" from print dialog
+         */
+        function downloadReport() {
+            // Open print dialog which allows saving to PDF
+            window.print();
+
+            // Note: Modern browsers also support:
+            // - Right-click → Save as PDF
+            // - Ctrl+P → Print → Save as PDF
+
+            // For a programmatic solution, we'd need a PDF library like pdfkit
+            // For now, we rely on the browser's native PDF export via print
+        }
+
+        // Load report when page loads
+        window.addEventListener('DOMContentLoaded', loadReport);
+
+        // Also support loading if DOMContentLoaded already fired
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadReport);
+        } else {
+            loadReport();
+        }
+    </script>
+</body>
+</html>

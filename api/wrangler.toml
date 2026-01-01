@@ -2,3 +2,18 @@ name = "carnivore-report-api"
 main = "generate-report.js"
 compatibility_date = "2024-12-19"
 compatibility_flags = ["nodejs_compat"]
+
+# Production environment variables
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+# Secrets (stored securely in Cloudflare, not in this file)
+# Add these via: wrangler secret put VARIABLE_NAME
+# Required secrets:
+# - ANTHROPIC_API_KEY: Your Claude API key (from console.anthropic.com)
+# - SUPABASE_SERVICE_ROLE_KEY: Supabase service role key (from Supabase project settings)
+# - RESEND_API_KEY: Resend API key (from resend.com dashboard)
+
+# Development environment variables (local testing)
+[env.staging]
+vars = { ENVIRONMENT = "staging" }

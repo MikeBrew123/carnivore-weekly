@@ -1401,6 +1401,13 @@
                 data.macros = macroData;
             }
 
+            // Include session ID from calculator (free → paid upgrade flow)
+            const sessionId = localStorage.getItem('session_id');
+            if (sessionId) {
+                data.session_id = sessionId;
+                console.log('[Form Submit] Session ID included from calculator path');
+            }
+
             // Show loading state
             console.log('[Form Submit] Hiding form and showing loading state');
             document.getElementById('aiReportForm').style.display = 'none';
@@ -1438,24 +1445,34 @@
 
                 console.log('[Form Submit] Parsing JSON response...');
                 const result = await response.json();
-                console.log('[Form Submit] Response parsed successfully, report length:', result.report?.length);
+                console.log('[Form Submit] Response parsed successfully');
+                console.log('[Form Submit] Access token:', result.accessToken);
+                console.log('[Form Submit] Report ID:', result.reportId);
 
                 // Clear localStorage (privacy - no data retention)
                 localStorage.removeItem('carnivore_macros');
+                localStorage.removeItem('session_id');
 
                 // Stop the loading animation before displaying
                 console.log('[Form Submit] Stopping loading animation');
                 stopLoadingAnimation();
 
-                // Display the generated report
-                console.log('[Form Submit] Displaying report to user');
-                displayReport(result.report);
+                // Display email confirmation message instead of showing HTML
+                console.log('[Form Submit] Displaying email confirmation message');
+                displayEmailConfirmation(result.email, result.expiresAt);
 
                 // Track successful report generation
                 gtag('event', 'report_generated', {
                     'event_category': 'Reports',
-                    'event_label': 'All 13 Personalized Reports',
+                    'event_label': 'All 13 Personalized Reports Sent via Email',
                     'value': 1
+                });
+
+                // Track email delivery event
+                gtag('event', 'report_email_sent', {
+                    'event_category': 'Reports',
+                    'event_label': 'Email Delivery',
+                    'email': result.email
                 });
 
             } catch (error) {
@@ -1621,6 +1638,85 @@
                 // Store report for download
                 window.generatedReport = reportHTML;
             }, 1000); // 1 second delay to show completion
+        }
+
+        // Display email confirmation message instead of report HTML
+        function displayEmailConfirmation(email, expiresAt) {
+            // Stop animations
+            stopLoadingAnimation();
+
+            // Small delay to show 100% completion
+            setTimeout(() => {
+                // Hide loading
+                document.getElementById('loadingState').classList.remove('active');
+
+                // Create confirmation display
+                const confirmationContainer = document.createElement('div');
+                confirmationContainer.innerHTML = `
+                    <div style="max-width: 900px; margin: 0 auto; padding: 20px;">
+                        <div class="warning-banner" style="margin-bottom: 30px; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); border-color: #2e7d32;">
+                            <h2 style="color: white; margin: 0 0 15px 0;">✅ Your Report Has Been Generated!</h2>
+                            <p style="color: rgba(255, 255, 255, 0.95); font-size: 1.1em; margin: 0;">We've sent a secure access link to <strong>${email}</strong></p>
+                        </div>
+
+                        <div style="background: white; padding: 40px; border-radius: 12px; border: 2px solid #8b4513; text-align: center; margin-bottom: 30px;">
+                            <h3 style="color: #8b4513; font-family: 'Playfair Display', serif; font-size: 1.8em; margin: 0 0 20px 0;">Check Your Email</h3>
+
+                            <div style="background: #faf8f3; padding: 30px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #d4a574;">
+                                <p style="margin: 0 0 15px 0; font-size: 1.1em;">📧 Look for an email from <strong>reports@carnivoreweekly.com</strong></p>
+                                <p style="margin: 0 0 15px 0; color: #666;">It may take a few minutes to arrive. Check your spam folder if you don't see it.</p>
+                                <p style="margin: 0; color: #999; font-size: 0.95em;">⏰ Your secure access link expires in 48 hours</p>
+                            </div>
+
+                            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                                <p style="margin: 0; color: #8b4513;"><strong>💡 What's included in your report:</strong></p>
+                                <ul style="margin: 15px 0 0 0; padding-left: 25px; text-align: left; display: inline-block;">
+                                    <li>Your personalized macro targets</li>
+                                    <li>30-day meal calendar</li>
+                                    <li>Weekly shopping lists</li>
+                                    <li>Doctor consultation guide</li>
+                                    <li>Restaurant survival strategies</li>
+                                    <li>Science & research summary</li>
+                                    <li>Lab monitoring guidelines</li>
+                                    <li>Electrolyte protocol</li>
+                                    <li>Personalized obstacle protocol</li>
+                                    <li>And much more!</li>
+                                </ul>
+                            </div>
+
+                            <div style="margin-top: 30px; padding: 20px; background: #f5f2ed; border-radius: 8px;">
+                                <p style="margin: 0 0 15px 0; color: #666;">Didn't receive the email?</p>
+                                <button onclick="resendEmail('${email}')" style="background: #8b4513; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1em; cursor: pointer; font-weight: bold;">
+                                    ↻ Resend Email
+                                </button>
+                            </div>
+
+                            <div style="margin-top: 30px; text-align: left; padding: 20px; background: #f9f6f3; border-radius: 8px; border: 1px solid #d4a574;">
+                                <p style="margin: 0 0 10px 0; font-weight: bold; color: #8b4513;">📝 What to do next:</p>
+                                <ol style="margin: 10px 0 0 0; color: #555;">
+                                    <li>Check your email (reports@carnivoreweekly.com)</li>
+                                    <li>Click the secure access link</li>
+                                    <li>Review your personalized protocol</li>
+                                    <li>Download or print for permanent access (expires in 48 hours)</li>
+                                    <li>Start implementing your plan!</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="warning-banner" style="text-align: center;">
+                            <p style="margin: 0; color: #1a120b;">Questions? <a href="mailto:support@carnivoreweekly.com" style="color: #8b4513; font-weight: bold; text-decoration: none;">Contact support@carnivoreweekly.com</a></p>
+                        </div>
+                    </div>
+                `;
+
+                document.body.innerHTML = '';
+                document.body.appendChild(confirmationContainer);
+            }, 1000); // 1 second delay to show completion
+        }
+
+        // Resend email helper function
+        async function resendEmail(email) {
+            alert('Feature coming soon! For now, please contact support@carnivoreweekly.com');
         }
 
         // Download report as HTML file

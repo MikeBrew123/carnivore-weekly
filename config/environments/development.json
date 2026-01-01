@@ -1,0 +1,81 @@
+{
+  "environment": "development",
+  "description": "Development environment configuration - localhost with test data",
+
+  "debug": true,
+  "log_level": "DEBUG",
+  "api_base_url": "http://localhost:3000",
+  "database_host": "localhost",
+  "cache_ttl": 300,
+
+  "services": {
+    "anthropic": {
+      "timeout": 60,
+      "max_retries": 1,
+      "rate_limit_rpm": 10000
+    },
+    "supabase": {
+      "timeout": 30,
+      "max_retries": 1
+    },
+    "youtube": {
+      "timeout": 30,
+      "max_retries": 1
+    }
+  },
+
+  "content_collection": {
+    "youtube": {
+      "days_back": 1,
+      "top_creators_count": 3,
+      "videos_per_creator": 2,
+      "comments_per_video": 5,
+      "min_views": 10
+    },
+    "reddit": {
+      "days_back": 1,
+      "limit": 10
+    }
+  },
+
+  "content_analysis": {
+    "batch_size": 2,
+    "timeout": 60,
+    "token_optimization": true
+  },
+
+  "monitoring": {
+    "enabled": true,
+    "log_level": "DEBUG",
+    "log_format": "text",
+    "metrics": {
+      "track_api_calls": true,
+      "track_generation_time": true,
+      "track_errors": true,
+      "track_token_usage": true
+    }
+  },
+
+  "backup_recovery": {
+    "enabled": false,
+    "backup_frequency": "manual"
+  },
+
+  "features": {
+    "auto_linking": {
+      "enabled": true,
+      "max_links_per_page": 5
+    },
+    "sentiment_analysis": {
+      "enabled": true,
+      "cache_results": false
+    },
+    "qa_generation": {
+      "enabled": true,
+      "cache_questions": false
+    },
+    "token_optimization": {
+      "enabled": true
+    }
+  }
+}

@@ -1,10 +1,38 @@
 {
+  "version": "3.0",
   "project": {
     "name": "carnivore-weekly",
-    "version": "2.0",
-    "description": "Unified configuration system for Carnivore Weekly",
-    "author": "Alex (Phase 2 Implementation)"
+    "description": "Advanced configuration system for Carnivore Weekly - Phase 3",
+    "author": "Quinn (Operations Manager - Phase 3)"
   },
+
+  "environments": {
+    "development": {
+      "name": "development",
+      "debug": true,
+      "log_level": "DEBUG",
+      "api_base_url": "http://localhost:3000",
+      "database_host": "localhost",
+      "cache_ttl": 300
+    },
+    "staging": {
+      "name": "staging",
+      "debug": false,
+      "log_level": "INFO",
+      "api_base_url": "https://staging.carnivoreweekly.com",
+      "database_host": "staging-db.example.com",
+      "cache_ttl": 3600
+    },
+    "production": {
+      "name": "production",
+      "debug": false,
+      "log_level": "WARNING",
+      "api_base_url": "https://carnivoreweekly.com",
+      "database_host": "prod-db.example.com",
+      "cache_ttl": 86400
+    }
+  },
+
   "paths": {
     "project_root": ".",
     "scripts_dir": "scripts",
@@ -17,8 +45,11 @@
     "output_dir": "output",
     "newsletters_dir": "newsletters",
     "images_dir": "public/images",
-    "archive_dir": "public/archive"
+    "archive_dir": "public/archive",
+    "logs_dir": "logs",
+    "backups_dir": "backups"
   },
+
   "validation": {
     "supported_types": [
       "structure",
@@ -58,6 +89,7 @@
       "section": ["background", "padding", "margin"]
     }
   },
+
   "generation": {
     "supported_types": [
       "pages",
@@ -104,33 +136,83 @@
     "auto_linking_enabled": true,
     "auto_linking_max_links": 10
   },
-  "api": {
+
+  "services": {
     "youtube": {
       "key_env": "YOUTUBE_API_KEY",
       "endpoint": "https://www.googleapis.com/youtube/v3",
-      "timeout": 30
+      "timeout": 30,
+      "max_retries": 3,
+      "retry_delay": 1,
+      "enabled": true
     },
     "anthropic": {
       "key_env": "ANTHROPIC_API_KEY",
-      "model": "claude-opus-4.5",
-      "timeout": 60
+      "model_opus": "claude-opus-4-5-20251101",
+      "model_haiku": "claude-3-5-haiku-20241022",
+      "model_default": "claude-opus-4-5-20251101",
+      "timeout": 60,
+      "max_retries": 2,
+      "retry_delay": 2,
+      "rate_limit_rpm": 100000,
+      "enabled": true
     },
     "supabase": {
       "url_env": "SUPABASE_URL",
       "key_env": "SUPABASE_KEY",
-      "timeout": 30
+      "timeout": 30,
+      "max_retries": 3,
+      "retry_delay": 1,
+      "enabled": true
     },
     "news": {
       "key_env": "NEWS_API_KEY",
       "endpoint": "https://newsapi.org/v2",
-      "timeout": 30
+      "timeout": 30,
+      "max_retries": 2,
+      "enabled": false
+    },
+    "convertkit": {
+      "api_key_env": "CONVERTKIT_API_KEY",
+      "endpoint": "https://api.convertkit.com/v3",
+      "timeout": 30,
+      "enabled": false
     }
   },
+
+  "content_collection": {
+    "youtube": {
+      "search_query": "carnivore diet",
+      "days_back": 7,
+      "top_creators_count": 10,
+      "videos_per_creator": 5,
+      "comments_per_video": 20,
+      "min_views": 100
+    },
+    "reddit": {
+      "search_query": "carnivore diet",
+      "days_back": 7,
+      "subreddits": ["carnivore", "zerocarb"],
+      "sort_by": "hot",
+      "limit": 100
+    }
+  },
+
+  "content_analysis": {
+    "token_optimization": true,
+    "token_target": 400,
+    "max_token_count": 10000,
+    "cache_prompts": true,
+    "batch_size": 5,
+    "timeout": 120
+  },
+
   "newsletter": {
     "email_settings": {
       "from_email": "newsletter@carnivoreweekly.com",
       "from_name": "Carnivore Weekly",
-      "reply_to": "support@carnivoreweekly.com"
+      "reply_to": "support@carnivoreweekly.com",
+      "enabled": true
     },
     "template_paths": {
       "html": "templates/newsletter_template.html",
@@ -138,34 +220,114 @@
     },
     "output_dir": "newsletters",
     "archive_dir": "data/archive",
+    "sending": {
+      "provider": "resend",
+      "api_key_env": "RESEND_API_KEY",
+      "batch_size": 100,
+      "rate_limit": 100
+    },
     "affiliate_links": {
       "lmnt": "https://amzn.to/4ayLBG4",
       "butcherbox": "https://www.butcherbox.com"
     }
   },
+
   "external_services": {
     "convertkit": {
       "api_key_env": "CONVERTKIT_API_KEY",
-      "endpoint": "https://api.convertkit.com/v3"
+      "endpoint": "https://api.convertkit.com/v3",
+      "enabled": false
     },
     "google_drive": {
-      "newsletter_path": "/Users/mbrew/Library/CloudStorage/GoogleDrive-iambrew@gmail.com/My Drive/Carnivore Weekly/Newsletters"
+      "newsletter_path": "/Users/mbrew/Library/CloudStorage/GoogleDrive-iambrew@gmail.com/My Drive/Carnivore Weekly/Newsletters",
+      "enabled": true
     },
     "github": {
       "repo": "carnivore-weekly",
-      "main_branch": "main"
+      "main_branch": "main",
+      "api_key_env": "GITHUB_TOKEN",
+      "enabled": true
     }
   },
+
   "personas": {
     "enabled": true,
     "personas_file": "data/personas.json",
-    "default_persona": "sarah"
+    "default_persona": "sarah",
+    "available_personas": ["sarah", "marcus", "chloe", "leo"]
   },
+
   "content": {
     "timezone": "America/Los_Angeles",
     "language": "en",
-    "search_query": "carnivore diet",
     "total_creators": 10,
     "total_videos": 39
+  },
+
+  "monitoring": {
+    "enabled": true,
+    "log_level": "INFO",
+    "log_format": "json",
+    "log_file": "logs/carnivore-weekly.log",
+    "error_log_file": "logs/carnivore-weekly-errors.log",
+    "metrics": {
+      "track_api_calls": true,
+      "track_generation_time": true,
+      "track_errors": true,
+      "track_token_usage": true
+    },
+    "alerts": {
+      "email_on_error": true,
+      "alert_email": "ops@carnivoreweekly.com"
+    }
+  },
+
+  "backup_recovery": {
+    "enabled": true,
+    "backup_dir": "backups",
+    "backup_retention_days": 30,
+    "backup_frequency": "daily",
+    "backup_targets": [
+      "data/analyzed_content.json",
+      "data/personas.json",
+      "data/youtube_data.json",
+      "newsletters/"
+    ]
+  },
+
+  "features": {
+    "auto_linking": {
+      "enabled": true,
+      "max_links_per_page": 10
+    },
+    "sentiment_analysis": {
+      "enabled": true,
+      "cache_results": true
+    },
+    "qa_generation": {
+      "enabled": true,
+      "model": "haiku",
+      "cache_questions": true
+    },
+    "wiki_updates": {
+      "enabled": true,
+      "auto_sync": true
+    },
+    "token_optimization": {
+      "enabled": true,
+      "reduction_target": 0.98
+    }
+  },
+
+  "security": {
+    "validate_env_vars": true,
+    "required_env_vars": [
+      "YOUTUBE_API_KEY",
+      "ANTHROPIC_API_KEY",
+      "SUPABASE_URL",
+      "SUPABASE_KEY"
+    ],
+    "encrypt_sensitive_data": false,
+    "mask_secrets_in_logs": true
   }
 }
