@@ -175,8 +175,18 @@ class UnifiedGenerator:
             return False
 
         # Prepare template variables
+        # Handle both flat and nested data structures
         analysis = data.get("analysis", {})
         source_data = data.get("source_data", {})
+
+        # Support both flat structure (from new analyzer) and nested structure
+        weekly_summary = analysis.get("weekly_summary", data.get("weekly_summary", ""))
+        trending_topics = analysis.get("trending_topics", data.get("trending_topics", ""))
+        key_insights = analysis.get("key_insights", data.get("key_insights", ""))
+        top_videos = analysis.get("top_videos", data.get("top_videos", []))
+        community_sentiment = analysis.get("community_sentiment", data.get("community_sentiment", {}))
+        recommended_watching = analysis.get("recommended_watching", data.get("recommended_watching", []))
+        qa_section = analysis.get("qa_section", data.get("qa_section", []))
 
         template_vars = {
             "analysis_date": data.get("analysis_date", data.get("timestamp", datetime.now().isoformat())),
@@ -184,13 +194,13 @@ class UnifiedGenerator:
             "search_query": source_data.get("search_query", "carnivore diet"),
             "total_creators": source_data.get("total_creators", 10),
             "total_videos": source_data.get("total_videos", 39),
-            "weekly_summary": analysis.get("weekly_summary", ""),
-            "trending_topics": analysis.get("trending_topics", ""),
-            "top_videos": analysis.get("top_videos", []),
-            "key_insights": analysis.get("key_insights", ""),
-            "community_sentiment": analysis.get("community_sentiment", {}),
-            "recommended_watching": analysis.get("recommended_watching", []),
-            "qa_section": analysis.get("qa_section", []),
+            "weekly_summary": weekly_summary,
+            "trending_topics": trending_topics,
+            "top_videos": top_videos,
+            "key_insights": key_insights,
+            "community_sentiment": community_sentiment,
+            "recommended_watching": recommended_watching,
+            "qa_section": qa_section,
             "layout_metadata": data.get("layout_metadata"),
         }
 
@@ -275,14 +285,22 @@ class UnifiedGenerator:
             return False
 
         # Prepare template variables
+        # Handle both flat and nested data structures
         analysis = data.get("analysis", {})
+
+        # Support both flat structure (from new analyzer) and nested structure
+        weekly_summary = analysis.get("weekly_summary", data.get("weekly_summary", ""))
+        trending_topics = analysis.get("trending_topics", data.get("trending_topics", ""))
+        key_insights = analysis.get("key_insights", data.get("key_insights", ""))
+        top_videos = analysis.get("top_videos", data.get("top_videos", []))
+
         template_vars = {
-            "analysis_date": data.get("analysis_date", datetime.now().isoformat()),
+            "analysis_date": data.get("analysis_date", data.get("timestamp", datetime.now().isoformat())),
             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "weekly_summary": analysis.get("weekly_summary", ""),
-            "trending_topics": analysis.get("trending_topics", ""),
-            "top_videos": analysis.get("top_videos", []),
-            "key_insights": analysis.get("key_insights", ""),
+            "weekly_summary": weekly_summary,
+            "trending_topics": trending_topics,
+            "top_videos": top_videos,
+            "key_insights": key_insights,
             "newsletter_config": self.config["newsletter"],
         }
 
