@@ -1668,13 +1668,18 @@
                     'event_label': path === 'free' ? 'Free Calculator' : 'Paid Protocol'
                 });
 
-                // Both paths show calculator first
-                document.getElementById('pathChoice').classList.add('hidden');
-                document.getElementById('calculatorForm').classList.remove('hidden');
-                document.getElementById('calculatorForm').scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+                if (path === 'free') {
+                    // Free path: Show calculator
+                    document.getElementById('pathChoice').classList.add('hidden');
+                    document.getElementById('calculatorForm').classList.remove('hidden');
+                    document.getElementById('calculatorForm').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                } else {
+                    // Paid path: Go directly to questionnaire
+                    window.location.href = 'paid-questionnaire.html';
+                }
             } catch (error) {
                 console.error('Error in choosePath:', error);
                 alert('Error starting calculator. Please try again.');

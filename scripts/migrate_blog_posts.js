@@ -46,15 +46,29 @@ async function migrateBlogPosts() {
     writerMap[w.slug] = w.id;
   });
 
+  // Valid categories according to schema
+  const validCategories = ['health', 'protocol', 'community', 'strategy', 'news', 'featured'];
+  const categoryMap = {
+    'performance': 'health',
+    'lifestyle': 'health'
+  };
+
   // Transform posts to database format
-  const blogPosts = posts.map(post => ({
+  const blogPosts = posts.map(post => {
+    let category = post.category;
+    if (categoryMap[category]) {
+      category = categoryMap[category];
+    } else if (!validCategories.includes(category)) {
+      category = 'featured'; // Default fallback
+    }
+    return {
     slug: post.slug,
     title: post.title,
     author_id: writerMap[post.author],
     published_date: post.date || post.scheduled_date,
     scheduled_date: post.scheduled_date,
     is_published: post.published,
-    category: post.category,
+    category: category,
     tags: post.tags || [],
     excerpt: post.excerpt,
     content: post.content,
@@ -63,13 +77,14 @@ async function migrateBlogPosts() {
     meta_keywords: post.seo?.keywords || [],
     wiki_links: post.wiki_links || [],
     related_post_ids: post.related_posts || [],
-    copy_editor_status: post.validation?.copy_editor || 'pending',
-    brand_validator_status: post.validation?.brand_validator || 'pending',
-    humanization_status: post.validation?.humanization || 'pending',
-    comments_enabled: post.comments_enabled !== false,
-    sponsor_callout: post.sponsor_callout || null,
-    created_at: new Date(post.date).toISOString()
-  }));
+      copy_editor_status: post.validation?.copy_editor || 'pending',
+      brand_validator_status: post.validation?.brand_validator || 'pending',
+      humanization_status: post.validation?.humanization || 'pending',
+      comments_enabled: post.comments_enabled !== false,
+      sponsor_callout: post.sponsor_callout || null,
+      created_at: new Date(post.date).toISOString()
+    };
+  });
 
   // Split into batches to avoid overwhelming the API
   const batchSize = 10;

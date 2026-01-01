@@ -69,13 +69,13 @@ ALTER TABLE report_access_log ENABLE ROW LEVEL SECURITY;
 
 -- Allow service role full access (for Cloudflare Worker)
 DROP POLICY IF EXISTS service_role_all ON user_sessions;
-CREATE POLICY service_role_all ON user_sessions FOR ALL USING (true);
+CREATE POLICY service_role_all ON user_sessions TO service_role FOR ALL USING (true);
 
 DROP POLICY IF EXISTS service_role_all ON generated_reports;
-CREATE POLICY service_role_all ON generated_reports FOR ALL USING (true);
+CREATE POLICY service_role_all ON generated_reports TO service_role FOR ALL USING (true);
 
 DROP POLICY IF EXISTS service_role_all ON report_access_log;
-CREATE POLICY service_role_all ON report_access_log FOR ALL USING (true);
+CREATE POLICY service_role_all ON report_access_log TO service_role FOR ALL USING (true);
 
 -- Allow public read access to reports by token (for retrieving reports)
 DROP POLICY IF EXISTS public_read_reports ON generated_reports;

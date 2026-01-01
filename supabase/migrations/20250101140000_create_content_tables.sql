@@ -43,14 +43,16 @@ CREATE TABLE IF NOT EXISTS writers (
 );
 
 -- Indexes for writers
-CREATE INDEX idx_writers_slug ON writers(slug);
-CREATE INDEX idx_writers_is_active ON writers(is_active);
-CREATE INDEX idx_writers_created_at ON writers(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_writers_slug ON writers(slug);
+CREATE INDEX IF NOT EXISTS idx_writers_is_active ON writers(is_active);
+CREATE INDEX IF NOT EXISTS idx_writers_created_at ON writers(created_at DESC);
 
 -- Enable RLS
 ALTER TABLE writers ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for writers
+DROP POLICY IF EXISTS "writers_select_all" ON writers;
+DROP POLICY IF EXISTS "writers_service_role_all" ON writers;
 CREATE POLICY "writers_select_all" ON writers FOR SELECT USING (true);
 CREATE POLICY "writers_service_role_all" ON writers FOR ALL USING (true) WITH CHECK (true);
 
@@ -98,17 +100,19 @@ CREATE TABLE IF NOT EXISTS blog_posts (
 );
 
 -- Indexes for blog_posts
-CREATE INDEX idx_blog_posts_author_id ON blog_posts(author_id);
-CREATE INDEX idx_blog_posts_published_date ON blog_posts(published_date DESC);
-CREATE INDEX idx_blog_posts_is_published ON blog_posts(is_published);
-CREATE INDEX idx_blog_posts_tags ON blog_posts USING GIN(tags);
-CREATE INDEX idx_blog_posts_slug ON blog_posts(slug);
-CREATE INDEX idx_blog_posts_created_at ON blog_posts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_author_id ON blog_posts(author_id);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_published_date ON blog_posts(published_date DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_is_published ON blog_posts(is_published);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_tags ON blog_posts USING GIN(tags);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_created_at ON blog_posts(created_at DESC);
 
 -- Enable RLS
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for blog_posts
+DROP POLICY IF EXISTS "blog_posts_select_all" ON blog_posts;
+DROP POLICY IF EXISTS "blog_posts_service_role_all" ON blog_posts;
 CREATE POLICY "blog_posts_select_all" ON blog_posts FOR SELECT USING (true);
 CREATE POLICY "blog_posts_service_role_all" ON blog_posts FOR ALL USING (true) WITH CHECK (true);
 
@@ -151,17 +155,19 @@ CREATE TABLE IF NOT EXISTS youtube_videos (
 );
 
 -- Indexes for youtube_videos
-CREATE INDEX idx_youtube_videos_youtube_id ON youtube_videos(youtube_id);
-CREATE INDEX idx_youtube_videos_channel_id ON youtube_videos(channel_id);
-CREATE INDEX idx_youtube_videos_published_at ON youtube_videos(published_at DESC);
-CREATE INDEX idx_youtube_videos_relevance ON youtube_videos(relevance_score DESC);
-CREATE INDEX idx_youtube_videos_topic_tags ON youtube_videos USING GIN(topic_tags);
-CREATE INDEX idx_youtube_videos_created_at ON youtube_videos(added_at DESC);
+CREATE INDEX IF NOT EXISTS idx_youtube_videos_youtube_id ON youtube_videos(youtube_id);
+CREATE INDEX IF NOT EXISTS idx_youtube_videos_channel_id ON youtube_videos(channel_id);
+CREATE INDEX IF NOT EXISTS idx_youtube_videos_published_at ON youtube_videos(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_youtube_videos_relevance ON youtube_videos(relevance_score DESC);
+CREATE INDEX IF NOT EXISTS idx_youtube_videos_topic_tags ON youtube_videos USING GIN(topic_tags);
+CREATE INDEX IF NOT EXISTS idx_youtube_videos_created_at ON youtube_videos(added_at DESC);
 
 -- Enable RLS
 ALTER TABLE youtube_videos ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for youtube_videos
+DROP POLICY IF EXISTS "youtube_videos_select_all" ON youtube_videos;
+DROP POLICY IF EXISTS "youtube_videos_service_role_all" ON youtube_videos;
 CREATE POLICY "youtube_videos_select_all" ON youtube_videos FOR SELECT USING (true);
 CREATE POLICY "youtube_videos_service_role_all" ON youtube_videos FOR ALL USING (true) WITH CHECK (true);
 
@@ -194,14 +200,16 @@ CREATE TABLE IF NOT EXISTS weekly_analysis (
 );
 
 -- Indexes for weekly_analysis
-CREATE INDEX idx_weekly_analysis_date ON weekly_analysis(analysis_date DESC);
-CREATE INDEX idx_weekly_analysis_published ON weekly_analysis(is_published);
-CREATE INDEX idx_weekly_analysis_created_at ON weekly_analysis(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_weekly_analysis_date ON weekly_analysis(analysis_date DESC);
+CREATE INDEX IF NOT EXISTS idx_weekly_analysis_published ON weekly_analysis(is_published);
+CREATE INDEX IF NOT EXISTS idx_weekly_analysis_created_at ON weekly_analysis(created_at DESC);
 
 -- Enable RLS
 ALTER TABLE weekly_analysis ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for weekly_analysis
+DROP POLICY IF EXISTS "weekly_analysis_select_all" ON weekly_analysis;
+DROP POLICY IF EXISTS "weekly_analysis_service_role_all" ON weekly_analysis;
 CREATE POLICY "weekly_analysis_select_all" ON weekly_analysis FOR SELECT USING (true);
 CREATE POLICY "weekly_analysis_service_role_all" ON weekly_analysis FOR ALL USING (true) WITH CHECK (true);
 
@@ -226,13 +234,15 @@ CREATE TABLE IF NOT EXISTS wiki_video_links (
 );
 
 -- Indexes for wiki_video_links
-CREATE INDEX idx_wiki_video_links_topic ON wiki_video_links(wiki_topic);
-CREATE INDEX idx_wiki_video_links_video_id ON wiki_video_links(youtube_video_id);
+CREATE INDEX IF NOT EXISTS idx_wiki_video_links_topic ON wiki_video_links(wiki_topic);
+CREATE INDEX IF NOT EXISTS idx_wiki_video_links_video_id ON wiki_video_links(youtube_video_id);
 
 -- Enable RLS
 ALTER TABLE wiki_video_links ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for wiki_video_links
+DROP POLICY IF EXISTS "wiki_video_links_select_all" ON wiki_video_links;
+DROP POLICY IF EXISTS "wiki_video_links_service_role_all" ON wiki_video_links;
 CREATE POLICY "wiki_video_links_select_all" ON wiki_video_links FOR SELECT USING (true);
 CREATE POLICY "wiki_video_links_service_role_all" ON wiki_video_links FOR ALL USING (true) WITH CHECK (true);
 
@@ -260,13 +270,15 @@ CREATE TABLE IF NOT EXISTS topic_product_mapping (
 );
 
 -- Indexes for topic_product_mapping
-CREATE INDEX idx_topic_product_topic ON topic_product_mapping(topic);
-CREATE INDEX idx_topic_product_product_name ON topic_product_mapping(product_name);
+CREATE INDEX IF NOT EXISTS idx_topic_product_topic ON topic_product_mapping(topic);
+CREATE INDEX IF NOT EXISTS idx_topic_product_product_name ON topic_product_mapping(product_name);
 
 -- Enable RLS
 ALTER TABLE topic_product_mapping ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for topic_product_mapping
+DROP POLICY IF EXISTS "topic_product_select_all" ON topic_product_mapping;
+DROP POLICY IF EXISTS "topic_product_service_role_all" ON topic_product_mapping;
 CREATE POLICY "topic_product_select_all" ON topic_product_mapping FOR SELECT USING (true);
 CREATE POLICY "topic_product_service_role_all" ON topic_product_mapping FOR ALL USING (true) WITH CHECK (true);
 
@@ -283,11 +295,22 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create triggers for all tables
+DROP TRIGGER IF EXISTS writers_updated_at ON writers;
 CREATE TRIGGER writers_updated_at BEFORE UPDATE ON writers FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+DROP TRIGGER IF EXISTS blog_posts_updated_at ON blog_posts;
 CREATE TRIGGER blog_posts_updated_at BEFORE UPDATE ON blog_posts FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+DROP TRIGGER IF EXISTS youtube_videos_updated_at ON youtube_videos;
 CREATE TRIGGER youtube_videos_updated_at BEFORE UPDATE ON youtube_videos FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+DROP TRIGGER IF EXISTS weekly_analysis_updated_at ON weekly_analysis;
 CREATE TRIGGER weekly_analysis_updated_at BEFORE UPDATE ON weekly_analysis FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+DROP TRIGGER IF EXISTS wiki_video_links_updated_at ON wiki_video_links;
 CREATE TRIGGER wiki_video_links_updated_at BEFORE UPDATE ON wiki_video_links FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+DROP TRIGGER IF EXISTS topic_product_mapping_updated_at ON topic_product_mapping;
 CREATE TRIGGER topic_product_mapping_updated_at BEFORE UPDATE ON topic_product_mapping FOR EACH ROW EXECUTE FUNCTION update_timestamp();
 
 -- ============================================================================
