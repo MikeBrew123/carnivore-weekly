@@ -1,0 +1,118 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-12-31T00:00:00Z",
+  "ai_tell_words": [
+    {"word": "delve", "severity": "critical", "replacement": "explore, dig into, examine", "context": "Nearly always AI - humans use more direct language"},
+    {"word": "robust", "severity": "high", "replacement": "solid, strong, reliable", "context": "Corporate AI speak"},
+    {"word": "leverage", "severity": "high", "replacement": "use, take advantage of", "context": "AI buzzword"},
+    {"word": "navigate", "severity": "medium", "replacement": "handle, work through, manage", "context": "Metaphorical overuse"},
+    {"word": "crucial", "severity": "medium", "replacement": "important, key", "context": "Excessive use"},
+    {"word": "critical", "severity": "medium", "replacement": "important, key", "context": "Excessive use"},
+    {"word": "realm", "severity": "low", "replacement": "area, field", "context": "Overwrought"},
+    {"word": "landscape", "severity": "low", "replacement": "scene, overview", "context": "Overwrought"},
+    {"word": "tapestry", "severity": "low", "replacement": "mix, blend", "context": "Overwrought"},
+    {"word": "utilize", "severity": "low", "replacement": "use", "context": "Just say use"},
+    {"word": "furthermore", "severity": "medium", "replacement": "also, plus, and", "context": "Formal connector"},
+    {"word": "moreover", "severity": "medium", "replacement": "also, plus, and", "context": "Formal connector"},
+    {"word": "nevertheless", "severity": "medium", "replacement": "but, however, yet", "context": "Overly formal"},
+    {"word": "in conclusion", "severity": "medium", "replacement": "so, ultimately, in the end", "context": "Formulaic ending"},
+    {"word": "as we have seen", "severity": "high", "replacement": "clearly, as shown", "context": "Stiff transition"},
+    {"word": "shed light on", "severity": "high", "replacement": "explain, clarify, show", "context": "Cliche metaphor"},
+    {"word": "encompasses", "severity": "medium", "replacement": "includes, covers, has", "context": "Overly formal verb"},
+    {"word": "paradoxically", "severity": "high", "replacement": "surprisingly, oddly enough", "context": "Dramatic word choice"},
+    {"word": "one could argue", "severity": "high", "replacement": "arguably, you could say", "context": "Hedging phrase"},
+    {"word": "juxtaposed", "severity": "high", "replacement": "compared to, versus", "context": "Unnecessarily formal"},
+    {"word": "seamlessly", "severity": "medium", "replacement": "smoothly, easily", "context": "Overused adverb"},
+    {"word": "multifaceted", "severity": "high", "replacement": "complex, layered", "context": "Favorite AI word"},
+    {"word": "epitomizes", "severity": "high", "replacement": "represents, shows, embodies", "context": "Overly formal"},
+    {"word": "harness the power of", "severity": "critical", "replacement": "use, take advantage of", "context": "Cliche tech phrase"},
+    {"word": "compelling evidence", "severity": "medium", "replacement": "strong evidence, proof", "context": "Overused in AI essays"},
+    {"word": "profound implications", "severity": "high", "replacement": "important effects, real impact", "context": "Dramatic language"},
+    {"word": "revolutionary", "severity": "high", "replacement": "major, significant", "context": "Hyperbolic"},
+    {"word": "heralded as", "severity": "high", "replacement": "called, known as, considered", "context": "Formal outdated phrasing"},
+    {"word": "elucidates", "severity": "high", "replacement": "explains, clarifies", "context": "Unnecessarily fancy"},
+    {"word": "synergistic", "severity": "high", "replacement": "complementary, working together", "context": "Corporate buzzword"}
+  ],
+  "ai_sentence_patterns": [
+    {
+      "pattern": "It is (important|critical|essential) to (note|understand|realize) that",
+      "severity": "critical",
+      "replacement": "Remove filler, state directly",
+      "example_before": "It is important to note that this matters.",
+      "example_after": "This matters."
+    },
+    {
+      "pattern": "Furthermore|Moreover|In addition",
+      "severity": "medium",
+      "replacement": "Use also, plus, and",
+      "example_before": "Furthermore, we found more data.",
+      "example_after": "We also found more data."
+    },
+    {
+      "pattern": "One could argue that|One might suggest",
+      "severity": "high",
+      "replacement": "Be direct with arguably or rewrite",
+      "example_before": "One could argue this is important.",
+      "example_after": "This is arguably important."
+    },
+    {
+      "pattern": "The fact that|The reality that|The truth is",
+      "severity": "high",
+      "replacement": "Delete phrase, rewrite directly",
+      "example_before": "The fact that we must adapt is key.",
+      "example_after": "We must adapt."
+    },
+    {
+      "pattern": "It would be (beneficial|advantageous|helpful)",
+      "severity": "high",
+      "replacement": "Use we should or consider",
+      "example_before": "It would be beneficial to review this.",
+      "example_after": "Review this."
+    },
+    {
+      "pattern": "In order to|So as to|With the goal of",
+      "severity": "medium",
+      "replacement": "Use to alone",
+      "example_before": "In order to succeed, we plan ahead.",
+      "example_after": "To succeed, we plan ahead."
+    },
+    {
+      "pattern": "In conclusion|As mentioned previously|As we discussed",
+      "severity": "high",
+      "replacement": "Remove or use direct reference",
+      "example_before": "As mentioned previously, this works.",
+      "example_after": "This works."
+    },
+    {
+      "pattern": "It is clear that|It is evident that|It is obvious",
+      "severity": "critical",
+      "replacement": "Delete and state directly",
+      "example_before": "It is clear that we need help.",
+      "example_after": "We need help."
+    },
+    {
+      "pattern": "appears to be|seems to be|tends to be",
+      "severity": "medium",
+      "replacement": "Use is or appears without padding",
+      "example_before": "This appears to be working well.",
+      "example_after": "This works well."
+    }
+  ],
+  "em_dash_threshold": 1,
+  "em_dash_note": "Maximum 1 per page - signals artificial composition when overused",
+  "flesch_kincaid_target": {
+    "min": 60,
+    "max": 70,
+    "description": "Grade 8-10 reading level for broad accessibility"
+  },
+  "human_quality_markers": [
+    "Varied sentence lengths and structures",
+    "Contractions naturally used (can't, don't, it's)",
+    "Direct address to reader (you)",
+    "Specific examples, not generic statements",
+    "Conversational tone throughout",
+    "Authentic emotional language",
+    "Active voice (80%+ of sentences)",
+    "Personal anecdotes or observations"
+  ]
+}
