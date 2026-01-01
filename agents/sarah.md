@@ -274,6 +274,7 @@ When your disclaimers sound natural and match your voice, readers trust them. Wh
 - **AI-Text-Humanization:** Use before every submission
 - **Copy-Editor:** Self-check on draft
 - **Carnivore-Brand:** Verify Sarah's voice consistency
+- **Soft-Conversion:** Use when mentioning calculator, wiki, or partner products
 - **Research-Assistant:** Help gathering sources
 
 ---

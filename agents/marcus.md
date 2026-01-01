@@ -228,6 +228,7 @@ Jordan Validator 2B flags missing Category 7 disclaimers automatically.
 - **AI-Text-Humanization:** Use before every submission
 - **Copy-Editor:** Self-check on draft
 - **Carnivore-Brand:** Verify Marcus's voice consistency
+- **Soft-Conversion:** Use when mentioning calculator, wiki, or partner products
 - **Research-Assistant:** Help gathering performance data
 
 ---

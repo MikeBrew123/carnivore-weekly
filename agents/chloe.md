@@ -185,6 +185,7 @@
 - **AI-Text-Humanization:** Use before every submission
 - **Copy-Editor:** Self-check on draft
 - **Carnivore-Brand:** Verify Chloe's voice consistency
+- **Soft-Conversion:** Use when mentioning calculator, wiki, or partner products
 - **Research-Assistant:** Help gathering community data
 
 ---
