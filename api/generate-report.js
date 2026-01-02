@@ -26,12 +26,13 @@ const SUPABASE_REST_ENDPOINT = `${SUPABASE_URL}/rest/v1`;
 
 /**
  * Generate a cryptographically secure access token for report retrieval
- * Uses UUID v4 for uniqueness (256-bit keyspace when considering the format)
+ * Generates a 64-character hex token (256-bit of cryptographic randomness)
  */
 function generateAccessToken() {
-  // Generate a UUID v4 token
-  // Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
-  return crypto.randomUUID();
+  // Generate a 64-character hex token (32 bytes = 64 hex characters)
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /**
@@ -54,7 +55,7 @@ async function saveReportToSupabase(email, reportHTML, questionnaireData, sessio
         'Prefer': 'return=representation'
       },
       body: JSON.stringify({
-        session_id: sessionId,
+        session_id: sessionId || Date.now(),
         email: email,
         access_token: accessToken,
         report_html: reportHTML,

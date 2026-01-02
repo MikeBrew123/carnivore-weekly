@@ -2343,28 +2343,28 @@
             // Generate meal examples
             generateMealExamples();
 
-            // Show results
-            document.getElementById('resultsSection').classList.remove('hidden');
+            // Show results only if not in silent mode
+            if (!silent) {
+                // Show results
+                document.getElementById('resultsSection').classList.remove('hidden');
 
-            // Check which path user chose
-            const pathChoice = localStorage.getItem('path_choice');
-            if (pathChoice === 'paid') {
-                // Hide upsell section and show "Continue to Full Report" button instead
-                document.getElementById('upgradeSection').classList.add('hidden');
-                showPaidPathContinueButton();
-            } else {
-                // Free path - show upgrade section with Stripe option
-                document.getElementById('upgradeSection').classList.remove('hidden');
+                // Check which path user chose
+                const pathChoice = localStorage.getItem('path_choice');
+                if (pathChoice === 'paid') {
+                    // Hide upsell section and show "Continue to Full Report" button instead
+                    document.getElementById('upgradeSection').classList.add('hidden');
+                    showPaidPathContinueButton();
+                } else {
+                    // Free path - show upgrade section with Stripe option
+                    document.getElementById('upgradeSection').classList.remove('hidden');
+                }
+
+                // Scroll to results
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
             // Track event
             trackCalculation(diet, goal);
-
-            // Show results only if not in silent mode
-            if (!silent) {
-                document.getElementById('resultsSection').classList.remove('hidden');
-                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
         }
 
         // ---------- Progressive Disclosure Logic ----------
