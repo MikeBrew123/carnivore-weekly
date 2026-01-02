@@ -1071,7 +1071,7 @@
                         {% if topic.blog_links %}
                         <p style="font-size: 0.9em;">
                             {% for blog in topic.blog_links %}
-                            Check out '<a href="blog/{{ blog.slug }}" style="color: #ffd700; text-decoration: underline; font-weight: 600;">{{ blog.title }}</a>' where I covered this - ({{ blog.author }}){% if not loop.last %}<br>{% endif %}
+                            Check out '<a href="blog/{{ blog.slug }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">{{ blog.title }}</a>' where I covered this - ({{ blog.author }}){% if not loop.last %}<br>{% endif %}
                             {% endfor %}
                         </p>
                         {% endif %}
