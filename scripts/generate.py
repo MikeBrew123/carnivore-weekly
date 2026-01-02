@@ -24,6 +24,7 @@ Features:
 import sys
 import json
 import argparse
+import re
 from pathlib import Path
 from typing import Dict
 from datetime import datetime
@@ -123,6 +124,31 @@ class UnifiedGenerator:
             print(f"Warning: Could not initialize Supabase: {e}")
             self.supabase = None
 
+    def _sanitize_text(self, text: str) -> str:
+        """Remove AI tell words and patterns from text"""
+        if not text:
+            return text
+
+        # Replace AI tell words with more direct alternatives
+        replacements = {
+            r'\bCRUCIAL\b': 'Essential',
+            r'\bcrucial\b': 'essential',
+            r'\bROBUST\b': 'Strong',
+            r'\brobust\b': 'strong',
+            r'\bLEVERAGE\b': 'Use',
+            r'\bleverage\b': 'use',
+            r'\bDELVE\b': 'Look into',
+            r'\bdelve\b': 'look into',
+            r'\bNAVIGATE\b': 'Handle',
+            r'\bnavigate\b': 'handle',
+        }
+
+        result = text
+        for pattern, replacement in replacements.items():
+            result = re.sub(pattern, replacement, result)
+
+        return result
+
     def _fetch_from_supabase(self, table: str, limit: int = 100) -> list:
         """Fetch data from Supabase table"""
         if not self.supabase:
@@ -165,7 +191,7 @@ class UnifiedGenerator:
         formatted_videos = []
         for video in videos:
             formatted_videos.append({
-                "title": video.get("title"),
+                "title": self._sanitize_text(video.get("title", "")),
                 "creator": video.get("channel_name"),
                 "channel_id": video.get("channel_id"),
                 "video_id": video.get("youtube_id"),
@@ -470,7 +496,7 @@ class UnifiedGenerator:
                         for video in creator.get('videos', [])[:2]:  # Take first 2 per creator
                             top_videos.append({
                                 'video_id': video['video_id'],
-                                'title': video['title'],
+                                'title': self._sanitize_text(video['title']),
                                 'description': video.get('description', '')[:200],  # First 200 chars
                                 'creator': creator['channel_name'],
                                 'channel_id': creator.get('channel_id', ''),
@@ -516,7 +542,7 @@ class UnifiedGenerator:
                         for video in videos_to_recommend:
                             recommended_watching.append({
                                 'video_id': video['video_id'],
-                                'title': video['title'],
+                                'title': self._sanitize_text(video['title']),
                                 'reason': video.get('summary', 'Expert insight on carnivore nutrition'),
                                 'creator': creator['channel_name'],
                                 'channel_id': creator.get('channel_id', ''),
