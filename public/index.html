@@ -5590,5 +5590,52 @@ You'll have access to the "My Zero Carb Life" Ha</p>
 
     <!-- Back-to-Top Button -->
     <a href="#" class="back-to-top" id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">↑</a>
+
+    <!-- Floating Action Button (Mobile Only) -->
+    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="fab-feedback"
+       aria-label="Send Feedback">
+        💬
+    </a>
+
+    <!-- Sticky Bottom CTA (Mobile Only, Post-Hero Scroll) -->
+    <div class="sticky-cta" id="stickyCta" style="display: none;">
+        <a href="/calculator.html" class="sticky-cta-button">
+            📊 Get Your Macro Calculator
+        </a>
+    </div>
+
+    <!-- 2026 Interactive Features Script -->
+    <script>
+    // Sticky CTA visibility on scroll
+    (function() {
+        const stickyCta = document.getElementById('stickyCta');
+        const header = document.querySelector('header');
+
+        if (!stickyCta || !header) return;
+
+        function checkScroll() {
+            if (window.innerWidth > 768) {
+                stickyCta.style.display = 'none';
+                return;
+            }
+
+            const headerHeight = header.offsetHeight;
+            const scrollPosition = window.scrollY;
+
+            if (scrollPosition > headerHeight + 200) {
+                stickyCta.style.display = 'block';
+            } else {
+                stickyCta.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('scroll', checkScroll);
+        window.addEventListener('resize', checkScroll);
+        checkScroll();
+    })();
+    </script>
 </body>
 </html>
