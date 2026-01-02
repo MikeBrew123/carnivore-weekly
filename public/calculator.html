@@ -1147,31 +1147,48 @@
             font-family: 'Merriweather', serif;
         }
 
-        .form-group input,
-        .form-group textarea,
+        /* Override generic input styles for advanced form sections */
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="number"],
+        .form-group input[type="tel"],
         .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #d4a574;
-            border-radius: 8px;
-            font-family: 'Merriweather', serif;
-            font-size: 1em;
-            box-sizing: border-box;
-            background-color: white;
-            color: #2c1810;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #8b4513;
-            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+            width: 100% !important;
+            padding: 12px !important;
+            border: 2px solid #d4a574 !important;
+            border-radius: 8px !important;
+            font-family: 'Merriweather', serif !important;
+            font-size: 1em !important;
+            box-sizing: border-box !important;
+            background-color: white !important;
+            color: #2c1810 !important;
+            height: auto !important;
+            line-height: 1.5 !important;
         }
 
         .form-group textarea {
-            min-height: 100px;
+            width: 100% !important;
+            padding: 12px !important;
+            border: 2px solid #d4a574 !important;
+            border-radius: 8px !important;
+            font-family: 'Merriweather', serif !important;
+            font-size: 1em !important;
+            box-sizing: border-box !important;
+            background-color: white !important;
+            color: #2c1810 !important;
+            min-height: 100px !important;
             resize: vertical;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group input[type="tel"]:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none !important;
+            border-color: #8b4513 !important;
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1) !important;
         }
 
         .checkbox-group {
@@ -1186,12 +1203,15 @@
         }
 
         .checkbox-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            margin-top: 2px;
+            width: 20px !important;
+            height: 20px !important;
+            margin-right: 10px !important;
+            margin-top: 2px !important;
             cursor: pointer;
             flex-shrink: 0;
+            border: 2px solid #d4a574 !important;
+            border-radius: 4px !important;
+            background-color: white !important;
         }
 
         .checkbox-item label {
@@ -1199,6 +1219,8 @@
             cursor: pointer;
             font-weight: normal;
             font-size: 0.95em;
+            font-family: 'Merriweather', serif;
+            color: #2c1810;
         }
 
         .optional {
@@ -1229,11 +1251,14 @@
                 gap: 12px;
             }
 
-            .form-group input,
-            .form-group textarea,
-            .form-group select {
-                padding: 10px;
-                font-size: 16px;
+            .form-group input[type="text"],
+            .form-group input[type="email"],
+            .form-group input[type="number"],
+            .form-group input[type="tel"],
+            .form-group select,
+            .form-group textarea {
+                padding: 10px !important;
+                font-size: 16px !important;
             }
         }
     </style>
@@ -2402,10 +2427,55 @@
                 return;
             }
 
-            // Show loading state
-            const submitBtn = event.target;
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Generating Your Protocol...';
+            // Hide form and show progress bar
+            document.getElementById('advancedSections').style.display = 'none';
+
+            // Create progress bar UI
+            const progressHTML = `
+                <div style="background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%); border: 3px solid #8b4513; border-radius: 12px; padding: 40px; text-align: center;">
+                    <h2 style="color: #8b4513; font-family: 'Playfair Display', serif; margin: 0 0 10px 0; font-size: 1.8em;">Building Your Protocol...</h2>
+                    <p style="color: #666; margin: 0 0 35px 0; font-size: 1.05em;">This is going to be amazing!</p>
+
+                    <div style="max-width: 500px; margin: 0 auto; text-align: left;">
+                        <div id="progressItem1" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.5; transition: all 0.3s;">
+                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 1.3em;">⚙️</span>
+                            </div>
+                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Calculating your personalized macros</span>
+                        </div>
+
+                        <div id="progressItem2" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
+                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 1.3em;">🍽️</span>
+                            </div>
+                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Generating meal plans</span>
+                        </div>
+
+                        <div id="progressItem3" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
+                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 1.3em;">🛒</span>
+                            </div>
+                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Creating shopping lists</span>
+                        </div>
+
+                        <div id="progressItem4" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
+                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 1.3em;">📋</span>
+                            </div>
+                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Preparing doctor's consultation script</span>
+                        </div>
+
+                        <div id="progressItem5" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
+                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 1.3em;">📄</span>
+                            </div>
+                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Compiling your complete protocol</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('advancedSubmitSection').innerHTML = progressHTML;
 
             try {
                 // Collect basic calculator data
@@ -2451,43 +2521,89 @@
                     path_choice: 'paid'
                 };
 
-                // Send to Worker
-                const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(completeData)
+                // Simulate progress with setTimeout for excitement
+                const progressSteps = [
+                    { item: 1, delay: 500 },
+                    { item: 2, delay: 1500 },
+                    { item: 3, delay: 2500 },
+                    { item: 4, delay: 3500 },
+                    { item: 5, delay: 4500 }
+                ];
+
+                // Update progress items
+                progressSteps.forEach(({ item, delay }) => {
+                    setTimeout(() => {
+                        const elem = document.getElementById(`progressItem${item}`);
+                        if (elem) {
+                            elem.style.opacity = '1';
+                            // Update icon to checkmark
+                            const icon = elem.querySelector('span');
+                            if (icon) {
+                                icon.textContent = '✅';
+                                icon.style.color = '#4caf50';
+                            }
+                        }
+                    }, delay);
                 });
 
-                const result = await response.json();
+                // Send to Worker after small delay
+                setTimeout(async () => {
+                    try {
+                        const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(completeData)
+                        });
 
-                if (result.success) {
-                    // Show success message
-                    document.getElementById('advancedSections').style.display = 'none';
-                    document.getElementById('advancedSubmitSection').innerHTML = `
-                        <div style="text-align: center; padding: 40px; background: #e8f5e9; border-radius: 12px;">
-                            <h2 style="color: #4caf50; margin: 0 0 15px 0;">✅ Protocol Generated!</h2>
-                            <p style="font-size: 1.1em; margin: 0 0 10px 0;"><strong>Check your email at ${email}</strong></p>
-                            <p style="margin: 0 0 20px 0;">Your personalized 30-day carnivore protocol is on its way.</p>
-                            <p style="font-size: 0.9em; color: #666; margin-top: 0;">
-                                Access link expires in 48 hours. Download and save your protocol for permanent access.
-                            </p>
-                        </div>
-                    `;
+                        const result = await response.json();
 
-                    // Track conversion
-                    gtag('event', 'purchase', {
-                        'event_category': 'Paid Report',
-                        'value': 9.99
-                    });
-                } else {
-                    throw new Error(result.error || 'Failed to generate protocol');
-                }
+                        if (result.success) {
+                            // Show success message
+                            document.getElementById('advancedSubmitSection').innerHTML = `
+                                <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 3px solid #4caf50; border-radius: 12px; padding: 40px; text-align: center;">
+                                    <h2 style="color: #2e7d32; font-family: 'Playfair Display', serif; margin: 0 0 10px 0; font-size: 1.8em;">✅ Protocol Complete!</h2>
+                                    <p style="color: #558b2f; margin: 0 0 20px 0; font-size: 1.1em; font-weight: bold;">Your personalized 30-day carnivore protocol is ready</p>
+
+                                    <div style="background: white; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
+                                        <p style="margin: 0 0 10px 0; color: #2c1810; font-size: 1em;">📧 <strong>Check your email at:</strong></p>
+                                        <p style="margin: 0 0 15px 0; color: #8b4513; font-size: 1.1em; font-weight: bold;">${email}</p>
+                                        <p style="margin: 0; color: #666; font-size: 0.95em;">Your access link expires in 48 hours. Download your complete protocol for permanent access.</p>
+                                    </div>
+
+                                    <p style="color: #558b2f; margin: 0; font-size: 0.95em;">Your protocol includes: macros • meal plans • shopping lists • doctor's script • complete personalization</p>
+                                </div>
+                            `;
+
+                            // Track conversion
+                            gtag('event', 'purchase', {
+                                'event_category': 'Paid Report',
+                                'value': 9.99
+                            });
+                        } else {
+                            throw new Error(result.error || 'Failed to generate protocol');
+                        }
+                    } catch (error) {
+                        console.error('Worker error:', error);
+                        document.getElementById('advancedSubmitSection').innerHTML = `
+                            <div style="background: #ffebee; border: 3px solid #c62828; border-radius: 12px; padding: 30px; text-align: center;">
+                                <h2 style="color: #c62828; margin: 0 0 10px 0;">⚠️ Processing Error</h2>
+                                <p style="color: #2c1810; margin: 0 0 15px 0;">There was an issue generating your protocol.</p>
+                                <p style="color: #666; font-size: 0.95em; margin: 0;">Error: ${error.message}</p>
+                                <p style="color: #666; font-size: 0.9em; margin-top: 15px;">Please try again or contact support.</p>
+                            </div>
+                        `;
+                    }
+                }, 5500);
 
             } catch (error) {
                 console.error('Submission error:', error);
-                alert('Error generating protocol: ' + error.message + '\n\nPlease try again.');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Generate My Complete Protocol';
+                document.getElementById('advancedSubmitSection').innerHTML = `
+                    <div style="background: #ffebee; border: 3px solid #c62828; border-radius: 12px; padding: 30px; text-align: center;">
+                        <h2 style="color: #c62828; margin: 0 0 10px 0;">❌ Error</h2>
+                        <p style="color: #2c1810; margin: 0 0 10px 0;">Could not submit your form.</p>
+                        <p style="color: #666; font-size: 0.95em; margin: 0;">Error: ${error.message}</p>
+                    </div>
+                `;
             }
         }
 
