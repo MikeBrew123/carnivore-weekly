@@ -203,7 +203,7 @@ class UnifiedGenerator:
 
     def load_data(self, data_type: str = "analyzed_content") -> Dict:
         """
-        Load data from Supabase first, fall back to JSON files
+        Load data from JSON files, with optional Supabase enrichment
 
         Args:
             data_type: Type of data to load (analyzed_content, archive, etc)
@@ -215,18 +215,10 @@ class UnifiedGenerator:
             return self.data_cache[data_type]
 
         data = {}
-
-        # Try to load from Supabase first
-        if data_type == "analyzed_content":
-            db_data = self._fetch_weekly_analysis_from_db()
-            if db_data:
-                data = db_data
-                self.data_cache[data_type] = data
-                return data
-
-        # Fall back to JSON files
         data_dir = self.project_root / self.config["paths"]["data_dir"]
 
+        # For analyzed_content, always use JSON (has full markdown that can be parsed)
+        # This is important for proper trending_topics/key_insights parsing
         if data_type == "analyzed_content":
             data_file = data_dir / "analyzed_content.json"
         elif data_type == "archive":
