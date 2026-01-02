@@ -68,7 +68,7 @@ This runs:
    - Matches persona authenticity (Sarah, Marcus, Chloe)
    - Professional but accessible
 
-**See [CONTENT_VALIDATION.md](CONTENT_VALIDATION.md) for complete validation guidelines.**
+**See [CONTENT_VALIDATION.md](docs/qa/CONTENT_VALIDATION.md) for complete validation guidelines.**
 
 ### Tech Stack
 
@@ -269,7 +269,7 @@ This configures:
 **Manual review before publishing:**
 - `/copy-editor` - AI detection, sentence structure, readability
 - `/carnivore-brand` - Voice, authenticity, evidence-based claims
-- See `VALIDATION_CHECKLIST.md` for complete checklist
+- See `docs/qa/VALIDATION_CHECKLIST.md` for complete checklist
 
 ### Testing Individual Scripts
 

@@ -1341,30 +1341,30 @@
             <div class="sentiment">
                 <h3>Overall Mood: <span class="badge">{{ community_sentiment.overall_tone|upper }}</span></h3>
                 {% if community_sentiment.overall_description %}
-                <p style="margin-top: 20px; color: #2c1810; font-style: italic; border-left: 4px solid #d4a574; padding-left: 20px; background: #ffffff; padding: 20px; border-radius: 8px; line-height: 1.8;">{{ community_sentiment.overall_description }}</p>
+                <p style="margin-top: 20px; color: #111111; font-style: italic; border-left: 4px solid #d4a574; padding-left: 20px; background: #ffffff; padding: 20px; border-radius: 8px; line-height: 1.8;">{{ community_sentiment.overall_description }}</p>
                 {% endif %}
 
                 <!-- Platform Breakdown -->
                 {% if community_sentiment.by_platform %}
-                <h3 style="margin-top: 40px; color: #2c1810; font-size: 1.4em;">What's Happening on Social</h3>
+                <h3 style="margin-top: 40px; color: #111111; font-size: 1.4em;">What's Happening on Social</h3>
 
                 {% for platform_key, platform_data in community_sentiment.by_platform.items() %}
                 <div style="margin-top: 40px; padding: 35px; background: #ffffff; border-radius: 12px; border: 2px solid #d4a574; box-shadow: 0 2px 8px rgba(44, 24, 16, 0.08); line-height: 1.8;">
-                    <h4 style="margin: 0 0 20px 0; color: #2c1810; font-size: 1.4em; font-weight: 700; padding-bottom: 12px; border-bottom: 3px solid #d4a574;">{{ platform_data.platform_name }}</h4>
-                    <p style="margin: 15px 0; color: #2c1810;">
+                    <h4 style="margin: 0 0 20px 0; color: #111111; font-size: 1.4em; font-weight: 700; padding-bottom: 12px; border-bottom: 3px solid #d4a574;">{{ platform_data.platform_name }}</h4>
+                    <p style="margin: 15px 0; color: #111111;">
                         <strong>Mood:</strong> {{ platform_data.sentiment }} | <strong>Activity:</strong> {{ platform_data.daily_activity }}
                     </p>
 
                     {% if platform_data.trending_topics %}
                     <div style="margin-top: 25px;">
-                        <p style="margin: 0 0 20px 0; font-weight: 700; color: #2c1810; font-size: 1.1em;">What they're talking about:</p>
+                        <p style="margin: 0 0 20px 0; font-weight: 700; color: #111111; font-size: 1.1em;">What they're talking about:</p>
                         <ul style="margin: 0; padding-left: 25px; list-style: disc;">
                             {% for trend in platform_data.trending_topics %}
-                            <li style="margin-bottom: 28px; color: #2c1810;">
-                                <strong style="color: #2c1810; font-size: 1.05em; display: block; margin-bottom: 8px;">{{ trend.topic }}</strong>
-                                <p style="margin: 0 0 12px 0; color: #2c1810;">{{ trend.why }}</p>
-                                <p style="margin: 12px 0; padding: 12px 18px; background: rgba(212, 165, 116, 0.05); border-left: 4px solid #d4a574; font-style: italic; color: #2c1810; border-radius: 4px;">{{ trend.typical_question }}</p>
-                                <p style="margin: 12px 0 0 0; color: #2c1810;"><strong>They need:</strong> {{ trend.what_they_need }}</p>
+                            <li style="margin-bottom: 28px; color: #111111;">
+                                <strong style="color: #111111; font-size: 1.05em; display: block; margin-bottom: 8px;">{{ trend.topic }}</strong>
+                                <p style="margin: 0 0 12px 0; color: #111111;">{{ trend.why }}</p>
+                                <p style="margin: 12px 0; padding: 12px 18px; background: rgba(212, 165, 116, 0.05); border-left: 4px solid #d4a574; font-style: italic; color: #111111; border-radius: 4px;">{{ trend.typical_question }}</p>
+                                <p style="margin: 12px 0 0 0; color: #111111;"><strong>They need:</strong> {{ trend.what_they_need }}</p>
                                 {% if trend.our_link %}
                                 <p style="margin: 12px 0 0 0;">
                                     {% if trend.our_link.wiki %}
@@ -1411,13 +1411,13 @@
 
                 <!-- Success Stories -->
                 {% if community_sentiment.success_stories %}
-                <h3 style="margin-top: 50px; margin-bottom: 25px; color: #2c1810; font-size: 1.4em;">Stories Dominating Engagement</h3>
+                <h3 style="margin-top: 50px; margin-bottom: 25px; color: #111111; font-size: 1.4em;">Stories Dominating Engagement</h3>
                 <div style="background: #ffffff; padding: 35px; border-radius: 12px; border: 2px solid #d4a574; box-shadow: 0 2px 8px rgba(44, 24, 16, 0.08);">
                     <ul class="questions-list" style="margin: 0; padding-left: 25px; list-style: disc; line-height: 1.8;">
                         {% for story in community_sentiment.success_stories %}
-                        <li style="margin-bottom: 25px; color: #2c1810;">
-                            <p style="margin: 0 0 10px 0; color: #2c1810; font-weight: 500;">{{ story.story }}</p>
-                            <p style="margin: 0; color: #2c1810; font-style: italic;">
+                        <li style="margin-bottom: 25px; color: #111111;">
+                            <p style="margin: 0 0 10px 0; color: #111111; font-weight: 500;">{{ story.story }}</p>
+                            <p style="margin: 0; color: #111111; font-style: italic;">
                                 📍 <strong>{{ story.source }}</strong> | {{ story.why_resonates }}
                             </p>
                         </li>
@@ -1429,8 +1429,8 @@
 
             <!-- Q&A Section -->
             {% if qa_section %}
-            <h3 style="margin-top: 40px; color: #2c1810; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
-            <p style="margin-bottom: 20px; font-style: italic; color: #2c1810;">Click any question to reveal the evidence-based answer with scientific citations</p>
+            <h3 style="margin-top: 40px; color: #111111; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
+            <p style="margin-bottom: 20px; font-style: italic; color: #111111;">Click any question to reveal the evidence-based answer with scientific citations</p>
 
             <div class="qa-accordion">
                 {% for qa in qa_section %}
