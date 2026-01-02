@@ -1992,14 +1992,31 @@
                     // Show pricing info above form
                     document.getElementById('upgradeSection').classList.remove('hidden');
 
-                    // Clear form values for paid users (they must fill it all out)
-                    document.getElementById('calculatorForm').reset();
-
-                    // Update button text
+                    // Update button text first
                     document.getElementById('calculateBtn').textContent = 'Next: Complete Your Profile';
 
                     // Hide advanced sections initially
                     document.getElementById('advancedSections').classList.add('hidden');
+
+                    // Clear form values for paid users (they must fill it all out)
+                    // Set each field explicitly to empty
+                    document.getElementById('age').value = '';
+                    document.getElementById('weight').value = '';
+                    document.getElementById('heightFeet').value = '';
+                    document.getElementById('heightInches').value = '';
+                    document.getElementById('heightCm').value = '';
+                    document.getElementById('sex').value = 'male';
+                    document.getElementById('goal').value = 'lose';
+                    document.getElementById('lifestyle').value = '1.2';
+                    document.getElementById('exercise').value = '0';
+                    document.getElementById('diet').value = 'carnivore';
+                    document.getElementById('deficit').value = '';
+                    if (document.getElementById('ratio')) {
+                        document.getElementById('ratio').value = '70-30';
+                    }
+                    if (document.getElementById('proteinMin')) {
+                        document.getElementById('proteinMin').value = '1.6';
+                    }
 
                     // Scroll to upgrade section
                     document.getElementById('upgradeSection').scrollIntoView({
