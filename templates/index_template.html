@@ -993,6 +993,19 @@
         <a href="archive.html">Archive</a>
     </nav>
 
+    <!-- Section Jump Menu -->
+    <nav class="section-menu" id="section-nav" style="display: none; background: #1a120b; padding: 12px 0; border-bottom: 1px solid #d4a574; overflow-x: auto;">
+        <div class="container" style="display: flex; gap: 20px; flex-wrap: wrap; padding: 0 20px;">
+            <a href="#weekly-summary" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">📰 Summary</a>
+            <a href="#trending-section" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">🔥 Trending</a>
+            <a href="#prime-cuts" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">📺 Prime Cuts</a>
+            <a href="#butchers-wisdom" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">🧠 Insights</a>
+            <a href="#community-voice" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">💬 Community</a>
+            <a href="#qa-section" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">❓ Q&A</a>
+            <a href="#recommended" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">🎬 Videos</a>
+        </div>
+    </nav>
+
     <!-- Fixed Side Feedback Button -->
     <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn feedback-side feedback-btn-small">
         💬 Feedback
@@ -1009,7 +1022,7 @@
 
         <!-- SECTION: Weekly Summary + Calculator Ad | Lines 914-933 | CSS: .section .summary-with-image .calculator-ad | JS: trackAffiliateClick() -->
         <!-- Weekly Summary - Shows summary text with steak image, calculator promo below -->
-        <section class="section">
+        <section class="section" id="weekly-summary">
             <h2>This Week's Roundup</h2>
             <div class="summary-with-image">
                 <div class="summary-text">
@@ -1032,7 +1045,7 @@
 
         <!-- SECTION: Trending Topics | Lines 937-958 | CSS: .section .trending-topics .topic-card | JS: none -->
         <!-- Trending Topics -->
-        <section class="section">
+        <section class="section" id="trending-section">
             <h2>What's Sizzling</h2>
             <div class="trending-topics">
                 {% for topic in trending_topics %}
@@ -1086,7 +1099,7 @@
 
         <!-- SECTION: Top Videos + Filters | Lines 962-1187 | CSS: .section .video-grid .video-card .tag-filter-btn #top-videos-grid | JS: filterVideosByTag() filterVideosByCreator() -->
         <!-- Top Videos -->
-        <section class="section">
+        <section class="section" id="prime-cuts">
             <h2>Prime Cuts - Top Videos</h2>
 
             <!-- Tag Filter Controls -->
@@ -1296,7 +1309,7 @@
 
         <!-- SECTION: Key Insights | Lines 1169-1185 | CSS: .section .insights-list | JS: none -->
         <!-- Key Insights -->
-        <section class="section">
+        <section class="section" id="butchers-wisdom">
             <h2>Butcher's Wisdom</h2>
             <div class="section-intro">
                 <p style="font-size: 1.2em; color: #2c1810; line-height: 1.8; margin-bottom: 30px; font-style: italic; border-left: 4px solid #2c1810; padding-left: 20px; background: rgba(255,255,255,0.3); padding: 20px;">
@@ -1336,7 +1349,7 @@
 
         <!-- SECTION: Community Voice + Q&A | Lines 1188-1307 | CSS: .section .sentiment .qa-accordion .qa-item | JS: toggleAnswer() -->
         <!-- Community Voice -->
-        <section class="section">
+        <section class="section" id="community-voice">
             <h2>Community Voice</h2>
             <div class="sentiment">
                 <h3>Overall Mood: <span class="badge">{{ community_sentiment.overall_tone|upper }}</span></h3>
@@ -1429,7 +1442,7 @@
 
             <!-- Q&A Section -->
             {% if qa_section %}
-            <h3 style="margin-top: 40px; color: #111111; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
+            <h3 id="qa-section" style="margin-top: 40px; color: #111111; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
             <p style="margin-bottom: 20px; font-style: italic; color: #111111;">Click any question to reveal the evidence-based answer with scientific citations</p>
 
             <div class="qa-accordion">
@@ -1525,7 +1538,7 @@
 
         <!-- SECTION: Recommended Watching | Lines 1308-1388 | CSS: .section .video-grid .video-card | JS: filterVideosByCreator() -->
         <!-- Recommended Watching -->
-        <section class="section">
+        <section class="section" id="recommended">
             <h2>Must-Watch Content</h2>
             <div class="video-grid">
                 {% for video in recommended_watching %}
@@ -1867,6 +1880,23 @@
 
         // Run on page load
         document.addEventListener('DOMContentLoaded', linkCreatorMentions);
+
+        // Back-to-top and section menu scroll handler
+        const backToTopBtn = document.getElementById('back-to-top');
+        const sectionNav = document.getElementById('section-nav');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTopBtn.classList.add('show');
+                sectionNav.style.display = 'block';
+            } else {
+                backToTopBtn.classList.remove('show');
+                sectionNav.style.display = 'none';
+            }
+        });
     </script>
+
+    <!-- Back-to-Top Button -->
+    <a href="#" class="back-to-top" id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">↑</a>
 </body>
 </html>
