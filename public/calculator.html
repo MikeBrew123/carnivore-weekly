@@ -800,7 +800,6 @@
             footer { display: none !important; }
             nav { display: none !important; }
             .calculator-form { display: none !important; }
-            #upgradeSection { display: none !important; }
             .free-badge { display: none !important; }
 
             /* Clean background for print */
@@ -1170,44 +1169,6 @@
 
                 <p style="margin-top: 25px; font-size: 1.15em;"><strong>Choose your path below.</strong></p>
             </section>
-
-            <!-- AI Upgrade CTA (shown above form for paid path) -->
-            <div id="upgradeSection" class="upsell-container no-print hidden">
-                <h2>Get Your Complete Personalized 30-Day Protocol</h2>
-
-                <div class="upsell-grid">
-                    <!-- Features Column -->
-                    <div>
-                        <ul class="feature-list">
-                            <li>✅ <strong>30-Day Meal Plan</strong> - Matched to your exact macros & preferences</li>
-                            <li>✅ <strong>Weekly Grocery Lists</strong> - With portions & cost estimates</li>
-                            <li>✅ <strong>Doctor's Consultation Script</strong> - Labs to request, questions to ask</li>
-                            <li>✅ <strong>Stall-Breaker Decision Tree</strong> - What to check when progress stops</li>
-                            <li>✅ <strong>Research Guide</strong> - Studies explained in plain English</li>
-                            <li>✅ <strong>Printable PDF</strong> - All 13 reports, one organized document</li>
-                        </ul>
-                    </div>
-
-                    <!-- Price Box Column -->
-                    <div class="price-box">
-                        <div>
-                            <div class="price-original">$29.99</div>
-                            <div class="price-final">$9.99</div>
-                            <p style="font-size: 0.9em; color: #666; margin-bottom: 20px;">Limited time offer</p>
-                        </div>
-                        <button class="cta-button-pulse" onclick="upgradeFromFree()">Get My Plan Now</button>
-                        <p style="font-size: 0.8em; color: #666; margin-top: 15px;">One-time payment<br>No subscription</p>
-                    </div>
-                </div>
-
-                <!-- Privacy Note -->
-                <div style="margin-top: 30px; padding: 15px; background: rgba(185, 28, 28, 0.05); border: 1px solid #fecaca; border-radius: 8px;">
-                    <p style="font-size: 0.95em; margin: 0; color: #2c1810;">
-                        🔒 <strong>Your data is secure</strong><br>
-                        <span style="font-size: 0.9em; opacity: 0.8; margin-top: 8px; display: block;">Download your PDF anytime. Automatically deleted after 48 hours. No email required.</span>
-                    </p>
-                </div>
-            </div>
 
             <!-- Calculator Card -->
             <div class="card" id="calculatorForm" style="position: relative;">
@@ -2025,16 +1986,6 @@
                 document.getElementById('resultsSection').classList.remove('hidden');
 
                 // Check which path user chose
-                const pathChoice = localStorage.getItem('path_choice');
-                if (pathChoice === 'paid') {
-                    // Hide upsell section and show "Continue to Full Report" button instead
-                    document.getElementById('upgradeSection').classList.add('hidden');
-                    showPaidPathContinueButton();
-                } else {
-                    // Free path - show upgrade section with Stripe option
-                    document.getElementById('upgradeSection').classList.remove('hidden');
-                }
-
                 // Scroll to results
                 document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
@@ -2593,24 +2544,8 @@
             updateActivityDisplay();
 
             document.getElementById('resultsSection').classList.add('hidden');
-            document.getElementById('upgradeSection').classList.add('hidden');
         }
 
-        function scrollToUpgrade() {
-            document.getElementById('upgradeSection').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function upgradeClick() {
-            trackUpgradeClick();
-
-            // Save current macro results to localStorage for questionnaire
-            if (currentResults) {
-                localStorage.setItem('carnivore_macros', JSON.stringify(currentResults));
-            }
-
-            // Redirect to Stripe checkout
-            window.location.href = 'https://buy.stripe.com/dRm3cv7OHalA8FM092ao801';
-        }
 
         // ---------- Payment Success Handling ----------
         function checkPaymentStatus() {
