@@ -674,6 +674,21 @@ header .update-date {
     color: var(--primary);
 }
 
+.wiki-link-2026 {
+    display: inline-block;
+    margin-top: var(--spacing-sm);
+    color: var(--accent-amber-dark);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: opacity 0.2s ease;
+}
+
+.wiki-link-2026:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
 /* ============================================
    CARNIVORE PANTRY - MASONRY GALLERY
    ============================================ */
