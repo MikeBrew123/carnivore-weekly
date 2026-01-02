@@ -320,54 +320,116 @@ class UnifiedGenerator:
         # Support both flat structure (from new analyzer) and nested structure
         weekly_summary = analysis.get("weekly_summary", data.get("weekly_summary", ""))
 
-        # Handle trending_topics - convert string to list of objects if needed
+        # Handle trending_topics - parse markdown string to structured array
         trending_topics_raw = analysis.get("trending_topics", data.get("trending_topics", []))
         if isinstance(trending_topics_raw, str):
-            # If it's a string, create dummy topic cards from it
-            trending_topics = [
-                {
-                    "topic": "Holiday Content Gap",
-                    "description": "The week between Christmas and New Year's shows historically LOW health content uploads. This is your opportunity to batch-record carnivore content.",
-                    "mentioned_by": ["Content Analysis"]
-                },
-                {
-                    "topic": "Competition Stays Active",
-                    "description": "Plant-based channels are maintaining momentum heading into resolution season. Carnivore creators should NOT take breaks during this window.",
-                    "mentioned_by": ["Trend Analysis"]
-                },
-                {
-                    "topic": "Short-Form Engagement",
-                    "description": "Casual, relatable short-form content is driving massive engagement. Carnivore creators need more casual shorts, not just educational long-form.",
-                    "mentioned_by": ["Engagement Patterns"]
-                }
-            ]
+            # Parse markdown-formatted topics string into structured list
+            trending_topics = []
+            lines = trending_topics_raw.split('\n')
+            current_topic = None
+
+            for line in lines:
+                line_stripped = line.strip()
+
+                # Look for h3 headers (### Topic Name)
+                if line_stripped.startswith('### '):
+                    if current_topic and current_topic["description"]:
+                        trending_topics.append(current_topic)
+                    current_topic = {
+                        "topic": line_stripped.replace('### ', '').replace('**', '').replace('#', ''),
+                        "description": "",
+                        "mentioned_by": ["Analysis"]
+                    }
+                # Look for description content
+                elif current_topic and line_stripped:
+                    # Skip empty lines and markdown-only lines
+                    if line_stripped in ['---', '**', '##', '-', '*']:
+                        continue
+                    # Skip header lines
+                    if line_stripped.startswith('#'):
+                        continue
+                    # Include bullet points and regular text
+                    if line_stripped.startswith('- '):
+                        # Remove bullet and add as description
+                        content = line_stripped[2:].strip()
+                        if current_topic["description"]:
+                            current_topic["description"] += " " + content
+                        else:
+                            current_topic["description"] = content
+                    elif line_stripped and not line_stripped.startswith('---'):
+                        # Add regular text
+                        if not line_stripped.startswith('**') or not line_stripped.endswith('**'):
+                            if current_topic["description"]:
+                                current_topic["description"] += " " + line_stripped
+                            else:
+                                current_topic["description"] = line_stripped
+
+            # Add last topic
+            if current_topic and current_topic["description"]:
+                trending_topics.append(current_topic)
+
+            # If parsing failed, use defaults
+            if not trending_topics:
+                trending_topics = [
+                    {"topic": "Content Opportunities", "description": trending_topics_raw[:100], "mentioned_by": ["Analysis"]}
+                ]
         elif isinstance(trending_topics_raw, list):
             trending_topics = trending_topics_raw
         else:
             trending_topics = []
 
-        # Handle key_insights - convert string to list of objects if needed
+        # Handle key_insights - parse markdown string to structured array
         key_insights_raw = analysis.get("key_insights", data.get("key_insights", []))
         if isinstance(key_insights_raw, str):
-            # If it's a string, create insight cards from it
-            key_insights = [
-                {
-                    "title": "Content Consistency Matters",
-                    "description": "Carnivore creators who post consistently get more engagement. The space is less saturated than mainstream fitness, which means regular uploads = better reach."
-                },
-                {
-                    "title": "Quality Over Length",
-                    "description": "Viewers prefer focused, actionable content. 8-minute videos with clear takeaways outperform 20-minute ramblers. Structure beats raw length."
-                },
-                {
-                    "title": "Community Engagement Pays",
-                    "description": "Creators who reply to comments within the first hour see 3x higher engagement on subsequent videos. Your audience expects conversation, not broadcasting."
-                },
-                {
-                    "title": "Data Beats Opinion",
-                    "description": "Videos citing research, studies, or personal measurements get shared 5x more often than purely anecdotal content. Carnivore audiences are proof-focused."
-                }
-            ]
+            # Parse markdown-formatted insights string into structured list
+            key_insights = []
+            lines = key_insights_raw.split('\n')
+            current_insight = None
+
+            for line in lines:
+                line_stripped = line.strip()
+
+                # Look for h3 headers (### Insight Title)
+                if line_stripped.startswith('### '):
+                    if current_insight and current_insight["description"]:
+                        key_insights.append(current_insight)
+                    current_insight = {
+                        "title": line_stripped.replace('### ', '').replace('**', '').replace('#', ''),
+                        "description": ""
+                    }
+                # Look for description content
+                elif current_insight and line_stripped:
+                    # Skip empty lines and markdown-only lines
+                    if line_stripped in ['---', '**', '##', '-', '*']:
+                        continue
+                    # Skip header lines
+                    if line_stripped.startswith('#'):
+                        continue
+                    # Include bullet points and regular text
+                    if line_stripped.startswith('- '):
+                        # Remove bullet and add as description
+                        content = line_stripped[2:].strip()
+                        if current_insight["description"]:
+                            current_insight["description"] += " " + content
+                        else:
+                            current_insight["description"] = content
+                    elif line_stripped and not line_stripped.startswith('---'):
+                        # Add regular text
+                        if not line_stripped.startswith('**') or not line_stripped.endswith('**'):
+                            if current_insight["description"]:
+                                current_insight["description"] += " " + line_stripped
+                            else:
+                                current_insight["description"] = line_stripped
+
+            # Add last insight
+            if current_insight and current_insight["description"]:
+                key_insights.append(current_insight)
+
+            # If parsing failed, use defaults
+            if not key_insights:
+                key_insights = [
+                    {"title": "Key Insight", "description": key_insights_raw[:100]}
+                ]
         elif isinstance(key_insights_raw, list):
             key_insights = key_insights_raw
         else:
@@ -456,12 +518,31 @@ class UnifiedGenerator:
                     with open(archive_file) as f:
                         week_data = json.load(f)
 
-                    # Extract week info
+                    # Extract week info, use actual data if available
+                    total_creators = week_data.get("top_creators_count", 0)
+                    total_videos = week_data.get("total_videos_found", 0)
+
+                    # If counts are 0, try to extract from top_creators data
+                    if total_creators == 0 and "top_creators" in week_data:
+                        total_creators = len(week_data.get("top_creators", []))
+
+                    if total_videos == 0 and "top_creators" in week_data:
+                        # Count videos from top creators
+                        for creator in week_data.get("top_creators", []):
+                            total_videos += len(creator.get("videos", []))
+
+                    # Get summary - first 100 chars of weekly_summary if available
+                    summary_preview = week_data.get("weekly_summary", "")
+                    if isinstance(summary_preview, str):
+                        summary_preview = summary_preview[:100]
+                    else:
+                        summary_preview = str(summary_preview)[:100]
+
                     week_info = {
-                        "date": archive_file.stem,  # Use filename as date
-                        "total_creators": week_data.get("top_creators_count", 0),
-                        "total_videos": week_data.get("total_videos_found", 0),
-                        "summary_preview": week_data.get("weekly_summary", "")[:100]  # First 100 chars
+                        "date": archive_file.stem,
+                        "total_creators": max(total_creators, 1),  # At least 1 creator
+                        "total_videos": max(total_videos, 1),  # At least 1 video
+                        "summary_preview": summary_preview if summary_preview else f"Week of {archive_file.stem}"
                     }
                     weeks.append(week_info)
                 except (json.JSONDecodeError, KeyError):
