@@ -940,6 +940,41 @@
             border: 3px solid #2c1810;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
+
+        /* Back-to-top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #d4a574;
+            color: #1a120b;
+            padding: 12px 16px;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1.2em;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            font-weight: bold;
+        }
+
+        .back-to-top:hover {
+            background: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
 
     <!-- Schema.org Article markup (for weekly digest) -->
