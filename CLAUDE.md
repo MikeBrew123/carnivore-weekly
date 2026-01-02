@@ -99,6 +99,15 @@ Provide a deterministic, read-only summary of Supabase institutional memory.
 This report is informational only.
 All decisions and promotions remain manual and Quinn-owned.
 
+## Output Cleanliness Rule
+- Do NOT display bash commands, SQL, or raw code by default
+- Summarize actions in plain English
+- Only show code if:
+  - There is an error
+  - Execution fails
+  - User explicitly asks to see it
+- Otherwise, log technical details silently
+
 ## Guardrails
 - Optimize for clarity over volume
 - No influencer fluff
