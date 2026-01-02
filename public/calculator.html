@@ -2086,7 +2086,7 @@
 
             try {
                 // Send to Worker
-                const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
+                const response = await fetch('https://carnivore-report-api.iambrew.workers.dev/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(basicData)
@@ -2263,7 +2263,7 @@
                 // Send to Worker after small delay
                 setTimeout(async () => {
                     try {
-                        const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
+                        const response = await fetch('https://carnivore-report-api.iambrew.workers.dev/', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(completeData)
@@ -2589,7 +2589,7 @@
 
             // Generate report
             try {
-                const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
+                const response = await fetch('https://carnivore-report-api.iambrew.workers.dev/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
