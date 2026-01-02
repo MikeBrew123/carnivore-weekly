@@ -55,7 +55,6 @@ async function saveReportToSupabase(email, reportHTML, questionnaireData, sessio
         'Prefer': 'return=representation'
       },
       body: JSON.stringify({
-        session_id: sessionId || Date.now(),
         email: email,
         access_token: accessToken,
         report_html: reportHTML,
