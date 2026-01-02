@@ -159,7 +159,7 @@ header::after {
 
 header > .container {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 header h1 {
@@ -200,7 +200,8 @@ header .update-date {
     object-fit: contain;
     object-position: center;
     opacity: 0.95;
-    z-index: -1;
+    z-index: 0;
+    pointer-events: none;
 }
 
 /* ============================================
@@ -1112,12 +1113,97 @@ header .update-date {
     }
 }
 
+/* Floating Action Button (FAB) - Mobile Only */
+.fab-feedback {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background: var(--accent-amber-dark);
+    color: white;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 90;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fab-feedback:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Show FAB on mobile only */
+@media (max-width: 768px) {
+    .fab-feedback {
+        display: flex;
+    }
+
+    /* Hide sidebar feedback button on mobile */
+    .sidebar-feedback {
+        display: none;
+    }
+}
+
+/* Sticky Bottom CTA (Mobile Only) */
+.sticky-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(26, 26, 27, 0.98), rgba(26, 26, 27, 0.95));
+    padding: 12px 20px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 80;
+    animation: slideUp 0.3s ease;
+}
+
+.sticky-cta-button {
+    display: block;
+    background: var(--accent-amber-dark);
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1em;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(184, 122, 71, 0.4);
+    transition: transform 0.2s ease;
+}
+
+.sticky-cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(184, 122, 71, 0.6);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Show sticky CTA on mobile only */
+@media (max-width: 768px) {
+    .sticky-cta {
+        display: block;
+    }
+}
+
 @media (max-width: 480px) {
-    .header-2026 .logo {
+    .logo {
         width: 100px;
     }
 
-    .header-2026 h1 {
+    header h1 {
         font-size: 1.5rem;
         letter-spacing: 1px;
     }
@@ -1127,12 +1213,15 @@ header .update-date {
     }
 
     .insights-scroll-2026 {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        overflow-x: visible;
     }
 
     .insight-card-2026 {
-        min-width: 280px;
+        min-width: unset;
+        width: 100%;
     }
 
     .layout-wrapper-2026 {
