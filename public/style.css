@@ -111,7 +111,7 @@ strong {
     display: grid;
     grid-template-columns: 70% 30%;
     gap: var(--spacing-xxl);
-    max-width: 1600px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: var(--spacing-xxl) var(--spacing-lg);
     width: 100%;
@@ -1233,7 +1233,7 @@ strong {
 .calculator-ad img {
     width: 100% !important;
     height: auto !important;
-    display: block;
+    display: block !important;
     max-width: 100% !important;
 }
 

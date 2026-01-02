@@ -520,6 +520,7 @@ const validCoupons = {
   'LAUNCH50': { percent: 50, description: 'Limited launch 50% off' },
   'FRIEND15': { percent: 15, description: 'Referral friend 15% off' },
   'TESTCOUPON5': { percent: 5, description: 'Test coupon 5% off' },
+  'TEST321': { percent: 100, description: 'Test 100% off' },
 };
 
 /**
@@ -557,12 +558,12 @@ async function createStripeCheckout(data, env) {
       });
     }
 
-    // Stripe price mapping
+    // Stripe price mapping - all tiers use the same product price
     const priceIds = {
-      bundle: 'price_1QgE8QFjwYzqK4YJ9sZcV2xt',
-      meal_plan: 'price_1QgE8hFjwYzqK4YJ9sZcXyEn',
-      shopping: 'price_1QgE9EFjwYzqK4YJ9sZcYZxJ',
-      doctor: 'price_1QgE9aFjwYzqK4YJ9sZcZAKm',
+      bundle: 'price_1SjRlBEVDfkpGz8wQK8QPE6m',
+      meal_plan: 'price_1SjRlBEVDfkpGz8wQK8QPE6m',
+      shopping: 'price_1SjRlBEVDfkpGz8wQK8QPE6m',
+      doctor: 'price_1SjRlBEVDfkpGz8wQK8QPE6m',
     };
 
     const priceId = priceIds[data.tier_id];
@@ -574,28 +575,26 @@ async function createStripeCheckout(data, env) {
     }
 
     // Create Stripe checkout session
-    const checkoutBody = new URLSearchParams({
-      payment_method_types: 'card',
-      line_items: JSON.stringify([{
-        price: priceId,
-        quantity: 1
-      }]),
-      mode: 'payment',
-      success_url: data.success_url || `${new URL(data.success_url || 'https://carnivoreweekly.com').origin}/calculator2-demo.html?payment=success`,
-      cancel_url: data.cancel_url || `${new URL(data.cancel_url || 'https://carnivoreweekly.com').origin}/calculator2-demo.html?payment=cancelled`,
-      customer_email: data.customer_email,
-      client_reference_id: data.session_token,
-      metadata: {
-        tier_id: data.tier_id,
-        tier_title: data.tier_title,
-        session_token: data.session_token
-      }
-    });
+    const checkoutBody = new URLSearchParams();
+    checkoutBody.append('payment_method_types[]', 'card');
+    checkoutBody.append('line_items[0][price]', priceId);
+    checkoutBody.append('line_items[0][quantity]', '1');
+    checkoutBody.append('mode', 'payment');
+    checkoutBody.append('success_url', data.success_url || 'https://carnivoreweekly.com/calculator2-demo.html?payment=success');
+    checkoutBody.append('cancel_url', data.cancel_url || 'https://carnivoreweekly.com/calculator2-demo.html?payment=cancelled');
+    checkoutBody.append('customer_email', data.customer_email || 'customer@example.com');
+    checkoutBody.append('client_reference_id', data.session_token);
+    checkoutBody.append('metadata[tier_id]', data.tier_id);
+    checkoutBody.append('metadata[tier_title]', data.tier_title);
+    checkoutBody.append('metadata[session_token]', data.session_token);
+
+    // Encode credentials for Basic Auth (Stripe API uses key:)
+    const credentials = btoa(`${stripeToken}:`);
 
     const checkoutResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${stripeToken}`,
+        'Authorization': `Basic ${credentials}`,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: checkoutBody

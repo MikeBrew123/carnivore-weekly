@@ -123,10 +123,10 @@ export default function StripePaymentModal({
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 20 }}
-        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden relative"
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary to-primary/90 text-accent p-6">
+        <div className="bg-gradient-to-r from-primary to-primary/90 text-accent p-6 relative">
           <button
             onClick={onCancel}
             disabled={isProcessing}
@@ -163,7 +163,7 @@ export default function StripePaymentModal({
                 <div className="flex justify-between text-sm bg-green-50 -mx-2 px-2 py-1 rounded">
                   <span className="text-green-700">Discount ({discountApplied.code})</span>
                   <span className="font-semibold text-green-700">
-                    -{((parseInt(tierPrice) * discountApplied.percent) / 100).toFixed(2)}
+                    -${((priceMap[tierId] || 999) * discountApplied.percent / 100 / 100).toFixed(2)}
                   </span>
                 </div>
               )}
