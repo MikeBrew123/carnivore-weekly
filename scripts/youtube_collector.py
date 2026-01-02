@@ -189,9 +189,9 @@ class YouTubeCollector:
                 # Extract thumbnail URL (prefer medium, fallback to default)
                 thumbnails = video["snippet"].get("thumbnails", {})
                 thumbnail_url = (
-                    thumbnails.get("medium", {}).get("url") or
-                    thumbnails.get("default", {}).get("url") or
-                    ""
+                    thumbnails.get("medium", {}).get("url")
+                    or thumbnails.get("default", {}).get("url")
+                    or ""
                 )
 
                 cleaned_videos.append(
@@ -397,9 +397,9 @@ class YouTubeCollector:
                 # Extract thumbnail URL (prefer medium, fallback to default)
                 thumbnails = snippet.get("thumbnails", {})
                 thumbnail_url = (
-                    thumbnails.get("medium", {}).get("url") or
-                    thumbnails.get("default", {}).get("url") or
-                    ""
+                    thumbnails.get("medium", {}).get("url")
+                    or thumbnails.get("default", {}).get("url")
+                    or ""
                 )
 
                 video_data = {
@@ -605,7 +605,6 @@ class YouTubeCollector:
 
             for creator in data.get("top_creators", []):
                 channel_name = creator.get("channel_name", "Unknown")
-                channel_id = creator.get("channel_id", "")
 
                 for video in creator.get("videos", []):
                     try:

@@ -25,7 +25,7 @@ import sys
 import json
 import argparse
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 from datetime import datetime
 from dotenv import load_dotenv
 import os
@@ -103,7 +103,7 @@ class UnifiedGenerator:
                 # Mark as safe for Jinja2 (won't escape HTML)
                 from markupsafe import Markup
                 return Markup(html)
-            except Exception as e:
+            except Exception:
                 return text
 
         self.jinja_env.filters["markdown"] = markdown_to_html
@@ -524,7 +524,7 @@ class UnifiedGenerator:
                                 'thumbnail_url': video.get('thumbnail_url', f"https://i.ytimg.com/vi/{video['video_id']}/mqdefault.jpg"),
                                 'tags': video.get('tags', [])[:3],
                             })
-            except Exception as e:
+            except Exception:
                 pass  # Silently fail if no additional videos available
 
         template_vars = {
