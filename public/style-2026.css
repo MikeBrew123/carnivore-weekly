@@ -200,6 +200,7 @@ header .update-date {
     object-fit: contain;
     object-position: center;
     opacity: 0.95;
+    z-index: -1;
 }
 
 /* ============================================
