@@ -92,6 +92,8 @@ header > .container {
     right: -140px;
     width: 750px;
     height: 410px;
+    aspect-ratio: 750 / 410;
+    max-width: 750px;
     object-fit: contain;
     object-position: center;
     opacity: 0.95;
