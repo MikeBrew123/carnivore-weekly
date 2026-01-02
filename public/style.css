@@ -78,10 +78,18 @@ a {
     color: var(--accent-amber-dark);
     text-decoration: none;
     transition: color 0.3s ease;
+    max-width: 100%;
+    display: inline-block;
 }
 
 a:hover {
     color: var(--primary);
+}
+
+/* Global image constraints */
+img {
+    max-width: 100%;
+    height: auto;
 }
 
 strong {
@@ -106,12 +114,18 @@ strong {
     max-width: 1600px;
     margin: 0 auto;
     padding: var(--spacing-xxl) var(--spacing-lg);
+    width: 100%;
+    box-sizing: border-box;
+    grid-auto-flow: row;
 }
 
 .main-content-2026 {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xxl);
+    min-width: 0; /* Allow flex items to shrink below content size */
+    max-width: 100%; /* Constrain to grid column width */
+    overflow: hidden; /* Prevent content overflow */
 }
 
 .sidebar-2026 {
@@ -212,12 +226,16 @@ strong {
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: var(--spacing-xxl);
+    width: 100%;
+    max-width: 100%;
 }
 
 .hero-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    max-width: 100%;
+    display: block;
 }
 
 .hero-content {
@@ -1130,5 +1148,219 @@ strong {
 
     body {
         background: white;
+    }
+}
+
+/* ============================================
+   LEGACY/MERGED CONTENT STYLES
+   ============================================ */
+
+/* Sponsor Banner - ButcherBox Ad */
+.sponsor-banner-image {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: var(--spacing-xxl);
+    overflow: hidden;
+    border-radius: 12px;
+    display: block;
+}
+
+.sponsor-banner-image a {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.sponsor-banner-image img {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    max-width: 100% !important;
+}
+
+/* Summary with Image Layout */
+.summary-with-image {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--spacing-xxl);
+    align-items: center;
+    margin-bottom: var(--spacing-xxl);
+}
+
+.summary-text {
+    flex: 1;
+}
+
+.summary-text h2 {
+    color: var(--primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.summary-text p {
+    color: var(--text-dark);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.8;
+}
+
+.summary-image {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.summary-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+/* Calculator Ad */
+.calculator-ad {
+    margin: var(--spacing-xxl) 0;
+    overflow: hidden;
+    border-radius: 12px;
+    max-width: 100%;
+    width: 100%;
+    display: block;
+}
+
+.calculator-ad a {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.calculator-ad img {
+    width: 100% !important;
+    height: auto !important;
+    display: block;
+    max-width: 100% !important;
+}
+
+/* Trending Topics */
+.trending-topics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xxl);
+}
+
+.topic-card {
+    background: white;
+    border-left: 6px solid var(--primary);
+    padding: var(--spacing-lg);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.topic-card h3 {
+    color: var(--primary);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.2rem;
+}
+
+.topic-card p {
+    color: var(--text-dark);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.6;
+}
+
+/* Section Container */
+.section {
+    margin-bottom: var(--spacing-xxl);
+}
+
+.section h2 {
+    color: var(--primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Divider */
+.divider {
+    text-align: center;
+    color: var(--accent-sage);
+    margin: var(--spacing-xxl) 0;
+    font-size: 1.5rem;
+}
+
+/* Legacy Video Grid (for backward compat if used) */
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.video-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.video-thumbnail {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+}
+
+.video-header {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.video-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--primary);
+}
+
+.video-body {
+    padding: var(--spacing-md);
+}
+
+.video-body p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.video-content {
+    padding: var(--spacing-md);
+}
+
+/* Responsive Legacy Styles */
+@media (max-width: 768px) {
+    .summary-with-image {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .trending-topics {
+        grid-template-columns: 1fr;
+    }
+
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .sponsor-banner-image,
+    .calculator-ad,
+    .summary-image {
+        border-radius: 8px;
+    }
+
+    .topic-card {
+        padding: var(--spacing-md);
+    }
+
+    .video-grid {
+        grid-template-columns: 1fr;
     }
 }

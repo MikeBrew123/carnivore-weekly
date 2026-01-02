@@ -17,7 +17,7 @@ const REPORT_SECTIONS = [
   'Community Resources',
 ]
 
-const EXPECTED_DURATION = 50000 // 50 seconds to be safe
+const EXPECTED_DURATION = 50 // 50 seconds duration for the progress animation
 
 interface ReportGeneratingScreenProps {
   isComplete?: boolean
@@ -35,28 +35,34 @@ export default function ReportGeneratingScreen({ isComplete = false }: ReportGen
       return
     }
 
+    // Calculate seconds per section for smooth progression
+    const secondsPerSection = EXPECTED_DURATION / REPORT_SECTIONS.length // ~3.85 seconds per section
+
     const interval = setInterval(() => {
       setSecondsElapsed((prev) => {
-        const next = prev + 1
-        // Progress increases slowly over 50 seconds, with some randomness to look natural
-        // Caps out at 98% until completion
-        const baseProgress = (next / EXPECTED_DURATION) * 100
-        const randomBump = Math.random() * 2
-        const newProgress = Math.min(baseProgress + randomBump, 98)
+        const nextSeconds = prev + 1
 
-        // Update completed sections based on progress
-        const sectionsComplete = Math.floor((newProgress / 100) * REPORT_SECTIONS.length)
-        setCompletedSections(Math.min(sectionsComplete, REPORT_SECTIONS.length - 1))
+        // Linear progress over expected duration, capped at 98% until completion
+        const newProgress = Math.min((nextSeconds / EXPECTED_DURATION) * 100, 98)
+
+        // Calculate sections completed based on elapsed time
+        // Each section should complete smoothly as time progresses
+        const sectionsComplete = Math.min(
+          Math.floor(nextSeconds / secondsPerSection),
+          REPORT_SECTIONS.length - 1
+        )
+
+        setCompletedSections(sectionsComplete)
         setProgress(newProgress)
 
-        return next
+        return nextSeconds
       })
-    }, 1000)
+    }, 1000) // Update every 1 second - cleaner math
 
     return () => clearInterval(interval)
   }, [isComplete])
 
-  const estimatedTimeRemaining = Math.max(1, Math.ceil(((100 - progress) / 100) * EXPECTED_DURATION / 1000))
+  const estimatedTimeRemaining = Math.max(1, Math.ceil(((100 - progress) / 100) * EXPECTED_DURATION))
 
   return (
     <motion.div

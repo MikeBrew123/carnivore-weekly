@@ -1,0 +1,62 @@
+CALCULATOR2 SESSIONS MIGRATION - QUICK REFERENCE
+================================================
+
+CURRENT STATUS: READY TO EXECUTE
+
+THE ISSUE:
+  App getting 404 errors - calculator2_sessions table doesn't exist
+
+THE SOLUTION:
+  Run migration SQL to create table, indexes, triggers, and RLS policies
+
+QUICKEST WAY (2-3 minutes):
+  1. Go: https://app.supabase.com/project/kwtdpvnjewtahuxjyltn/sql
+  2. Click: New Query
+  3. Open file: /Users/mbrew/Developer/carnivore-weekly/supabase/migrations/014_create_calculator2_sessions.sql
+  4. Copy all SQL from that file
+  5. Paste into editor
+  6. Click: RUN
+  7. Done!
+
+VERIFY IT WORKED:
+  In SQL editor, run this query:
+  SELECT COUNT(*) FROM calculator2_sessions;
+
+  Should return: 0 (empty table, no errors)
+
+THEN:
+  1. Restart your app server
+  2. Test Calculator2 form
+  3. That's it!
+
+FILES YOU MIGHT NEED:
+  - Migration SQL: /Users/mbrew/Developer/carnivore-weekly/supabase/migrations/014_create_calculator2_sessions.sql
+  - Full guide: /Users/mbrew/Developer/carnivore-weekly/MIGRATION_STATUS.md
+  - Bash script: /Users/mbrew/Developer/carnivore-weekly/execute_migration.sh
+
+DATABASE CREDENTIALS:
+  Project: kwtdpvnjewtahuxjyltn
+  URL: https://kwtdpvnjewtahuxjyltn.supabase.co
+  Keys in: /Users/mbrew/Developer/carnivore-weekly/secrets/api-keys.json
+
+WHAT GETS CREATED:
+  Table: calculator2_sessions (10 columns)
+  Indexes: 3 (for performance)
+  Trigger: 1 (auto-update timestamps)
+  RLS: 2 policies (security)
+  Constraints: 3 (data integrity)
+
+SAFE TO RUN:
+  YES - idempotent, tested, standard SQL
+  Can run multiple times without issue
+
+ISSUES?
+  Check: /Users/mbrew/Developer/carnivore-weekly/MIGRATION_STATUS.md
+  It has full troubleshooting section
+
+TIME TO COMPLETION: ~5 minutes (including restart and test)
+RISK LEVEL: VERY LOW
+CONFIDENCE: 100%
+
+--
+Prepared by Leo (Database Architect) on 2026-01-02

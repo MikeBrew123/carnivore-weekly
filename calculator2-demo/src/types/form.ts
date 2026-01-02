@@ -9,7 +9,7 @@ export interface FormData {
   exercise: string
   goal: 'lose' | 'maintain' | 'gain'
   deficit: number
-  diet: 'carnivore' | 'keto' | 'lowcarb'
+  diet: 'carnivore' | 'pescatarian' | 'keto' | 'lowcarb'
   ratio?: string
   proteinMin?: string
   netCarbs?: number

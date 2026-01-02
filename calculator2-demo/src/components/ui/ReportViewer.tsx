@@ -21,7 +21,7 @@ export default function ReportViewer({ accessToken }: ReportViewerProps) {
 
         const response = await fetch(url, {
           headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNjA2NDMsImV4cCI6MTg5MTgyNzI0M30.qyZNTfEcTbTqXhDPZqWKJ0J2pI5rTf6Q8VTk2xvCIZc'
+            'apikey': 'sb_publishable_bQlgBZ7Otay8D9AErt8daA_2lQI36jk'
           }
         })
 
@@ -92,20 +92,190 @@ export default function ReportViewer({ accessToken }: ReportViewerProps) {
     )
   }
 
+  // Parse report sections and animate them in
+  const sections = reportHTML.split('## Report #').filter(s => s.trim())
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="bg-white rounded-lg shadow-lg overflow-hidden"
+      className="space-y-6"
     >
-      {/* Report Content - Rendered as HTML */}
-      <div
-        className="prose prose-sm max-w-none p-8"
-        dangerouslySetInnerHTML={{ __html: reportHTML }}
-      />
+      <style>{`
+        @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            box-shadow: none !important;
+          }
+
+          html, body {
+            margin: 0;
+            padding: 0;
+            background: white;
+            width: 100%;
+            height: 100%;
+          }
+
+          .print-hide {
+            display: none !important;
+          }
+
+          .report-section {
+            page-break-after: always;
+            page-break-inside: avoid;
+            margin: 0;
+            padding: 1.5cm;
+            border: none;
+            border-left: 4pt solid #8b4513;
+            background: white;
+            break-inside: avoid;
+          }
+
+          .report-section:last-child {
+            page-break-after: auto;
+          }
+
+          .report-section h2 {
+            margin-top: 0;
+            margin-bottom: 0.7cm;
+            padding-top: 0;
+            page-break-after: avoid;
+            page-break-before: avoid;
+            font-size: 1.5em;
+            font-weight: bold;
+            line-height: 1.2;
+          }
+
+          .report-section h3 {
+            margin-top: 0.7cm;
+            margin-bottom: 0.3cm;
+            page-break-after: avoid;
+            font-size: 1.2em;
+            font-weight: bold;
+          }
+
+          .report-section h4 {
+            margin-top: 0.5cm;
+            margin-bottom: 0.2cm;
+            page-break-after: avoid;
+            font-size: 1.05em;
+            font-weight: bold;
+          }
+
+          .report-section p {
+            margin: 0.3cm 0;
+            line-height: 1.5;
+            orphans: 2;
+            widows: 2;
+          }
+
+          .report-section ul,
+          .report-section ol {
+            margin: 0.3cm 0;
+            padding-left: 1.5cm;
+            page-break-inside: avoid;
+          }
+
+          .report-section li {
+            margin: 0.15cm 0;
+            line-height: 1.4;
+          }
+
+          .report-section strong {
+            font-weight: 700;
+          }
+
+          .report-section em {
+            font-style: italic;
+          }
+
+          .prose {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+          }
+
+          .prose > * {
+            margin-top: 0;
+          }
+
+          .prose table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5cm 0;
+            page-break-inside: avoid;
+            font-size: 0.95em;
+          }
+
+          .prose table th,
+          .prose table td {
+            border: 1px solid #333;
+            padding: 0.25cm;
+            text-align: left;
+          }
+
+          .prose table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+          }
+
+          .prose hr,
+          .prose hr + * {
+            page-break-after: avoid;
+          }
+
+          /* Prevent widows and orphans */
+          .prose h2 + p,
+          .prose h3 + p {
+            page-break-before: avoid;
+          }
+
+          /* Ensure code blocks and blockquotes stay together */
+          .prose code,
+          .prose pre,
+          .prose blockquote {
+            page-break-inside: avoid;
+          }
+
+          /* Hide hyperlink references in print */
+          .prose a {
+            text-decoration: none;
+            color: #000;
+          }
+        }
+      `}</style>
+
+      {/* Report Sections with Staggered Animation */}
+      <div className="space-y-8">
+        {sections.map((section, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.5,
+              delay: index * 0.15,
+              ease: 'easeOut'
+            }}
+            className="report-section bg-white rounded-lg shadow-lg p-8 border-l-4 border-primary"
+          >
+            <div
+              className="prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{ __html: `## Report #${section}` }}
+            />
+          </motion.div>
+        ))}
+      </div>
 
       {/* Download/Print Actions */}
-      <div className="border-t border-gray-200 p-6 flex gap-4 justify-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: sections.length * 0.15 + 0.2 }}
+        className="print-hide border-t border-gray-200 p-6 flex gap-4 justify-center sticky bottom-0 bg-white rounded-lg shadow-lg"
+      >
         <button
           onClick={() => window.print()}
           className="btn-primary"
@@ -123,7 +293,7 @@ export default function ReportViewer({ accessToken }: ReportViewerProps) {
         >
           💾 Download Report
         </button>
-      </div>
+      </motion.div>
     </motion.div>
   )
 }
