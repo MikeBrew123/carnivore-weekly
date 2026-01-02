@@ -137,6 +137,26 @@ class UnifiedGenerator:
 
         return {"blog_posts": blog_posts}
 
+    def _fetch_top_videos_from_db(self, limit: int = 10) -> list:
+        """Fetch top videos from youtube_videos table ordered by relevance and recency"""
+        videos = self._fetch_from_supabase("youtube_videos", limit=limit)
+
+        formatted_videos = []
+        for video in videos:
+            formatted_videos.append({
+                "title": video.get("title"),
+                "creator": video.get("channel_name"),
+                "channel_id": video.get("channel_id"),
+                "video_id": video.get("youtube_id"),
+                "published_at": video.get("published_at"),
+                "views": video.get("view_count", 0),
+                "summary": video.get("analysis_summary"),
+                "why_notable": video.get("analysis_summary", ""),
+                "tags": video.get("topic_tags", [])
+            })
+
+        return formatted_videos
+
     def _fetch_weekly_analysis_from_db(self) -> Dict:
         """Fetch latest weekly analysis from Supabase"""
         analyses = self._fetch_from_supabase("weekly_analysis", limit=1)
@@ -145,13 +165,39 @@ class UnifiedGenerator:
             return {}
 
         analysis = analyses[0]
+
+        # Parse community_sentiment - may come from JSONB field as dict
+        community_sentiment = analysis.get("community_sentiment", {})
+        if isinstance(community_sentiment, str):
+            try:
+                community_sentiment = json.loads(community_sentiment)
+            except (json.JSONDecodeError, TypeError):
+                community_sentiment = {"overall_tone": community_sentiment, "success_stories": []}
+        elif not isinstance(community_sentiment, dict):
+            community_sentiment = {"overall_tone": "positive", "success_stories": []}
+
+        # Ensure required keys exist
+        if not community_sentiment.get("overall_tone"):
+            community_sentiment["overall_tone"] = "positive"
+        if not community_sentiment.get("success_stories"):
+            community_sentiment["success_stories"] = []
+
+        # Parse qa_section - may come from JSONB field
+        qa_section = analysis.get("qa_section", [])
+        if isinstance(qa_section, str):
+            try:
+                qa_section = json.loads(qa_section)
+            except (json.JSONDecodeError, TypeError):
+                qa_section = []
+
         return {
             "analysis_date": analysis.get("analysis_date"),
             "weekly_summary": analysis.get("weekly_summary", ""),
             "trending_topics": analysis.get("trending_topics", []),
             "key_insights": analysis.get("key_insights", []),
-            "community_sentiment": analysis.get("community_sentiment", {}),
+            "community_sentiment": community_sentiment,
             "recommended_watching": analysis.get("recommended_watching", []),
+            "qa_section": qa_section,
             "top_videos": analysis.get("recommended_watching", [])
         }
 
@@ -327,10 +373,23 @@ class UnifiedGenerator:
         else:
             key_insights = []
 
-        top_videos = analysis.get("top_videos", data.get("top_videos", []))
+        # Fetch top videos from database or use fallback
+        top_videos = self._fetch_top_videos_from_db(limit=10)
+        if not top_videos:
+            # Fallback to analysis data if no videos in database
+            top_videos = analysis.get("top_videos", data.get("top_videos", []))
+
+        # Get community sentiment with proper structure
         community_sentiment = analysis.get("community_sentiment", data.get("community_sentiment", {}))
-        recommended_watching = analysis.get("recommended_watching", data.get("recommended_watching", []))
+        if isinstance(community_sentiment, str):
+            community_sentiment = {"overall_tone": community_sentiment, "success_stories": []}
+        elif not isinstance(community_sentiment, dict):
+            community_sentiment = {"overall_tone": "positive", "success_stories": []}
+
+        # Get Q&A section
         qa_section = analysis.get("qa_section", data.get("qa_section", []))
+
+        recommended_watching = analysis.get("recommended_watching", data.get("recommended_watching", []))
 
         template_vars = {
             "analysis_date": data.get("analysis_date", data.get("timestamp", datetime.now().isoformat())),
@@ -486,9 +545,50 @@ class UnifiedGenerator:
             print(f"Error loading template {mapping['template']}: {e}")
             return False
 
+        # Build channels data from YouTube videos table, grouped by channel
+        videos = self._fetch_from_supabase("youtube_videos", limit=100)
+
+        # Group videos by channel
+        channels_dict = {}
+        for video in videos:
+            channel_name = video.get("channel_name", "Unknown")
+            if channel_name not in channels_dict:
+                channels_dict[channel_name] = {
+                    "name": channel_name,
+                    "channel_id": video.get("channel_id", ""),
+                    "thumbnail_url": video.get("thumbnail_url", "https://via.placeholder.com/150/8b4513/f4e4d4?text=Channel"),
+                    "appearances": 0,
+                    "total_videos": 0,
+                    "latest_date": video.get("published_at", ""),
+                    "top_videos": []
+                }
+
+            # Update channel stats
+            channels_dict[channel_name]["appearances"] += 1
+            channels_dict[channel_name]["total_videos"] += 1
+
+            # Keep latest date
+            if video.get("published_at", "") > channels_dict[channel_name]["latest_date"]:
+                channels_dict[channel_name]["latest_date"] = video.get("published_at", "")
+
+            # Add to top videos (keep top 3)
+            if len(channels_dict[channel_name]["top_videos"]) < 3:
+                channels_dict[channel_name]["top_videos"].append({
+                    "video_id": video.get("youtube_id", ""),
+                    "title": video.get("title", ""),
+                    "view_count": video.get("view_count", 0),
+                    "published_at": video.get("published_at", "")
+                })
+
+        # Convert to sorted list
+        channels_list = list(channels_dict.values())
+        channels_list.sort(key=lambda x: x["appearances"], reverse=True)
+
         # Prepare template variables
         template_vars = {
-            "creators_data": data.get("creators_data", []),
+            "channels": channels_list,
+            "total_channels": len(channels_list),
+            "total_weeks": 1,  # Currently tracking one week
             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
 

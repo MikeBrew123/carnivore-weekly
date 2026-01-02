@@ -1401,9 +1401,167 @@
                     </div>
                 </div>
 
+                <!-- ADVANCED SECTIONS (hidden by default for progressive disclosure) -->
+                <div id="advancedSections" class="hidden">
+
+                    <!-- SECTION 1: CONTACT INFORMATION -->
+                    <div class="form-section">
+                        <h3>📧 Your Information</h3>
+                        <p class="subtitle">Where should we send your complete protocol?</p>
+
+                        <div class="form-group">
+                            <label>Email Address <span class="optional">(required)</span></label>
+                            <input type="email" name="email" id="email" placeholder="your@email.com" autocomplete="email">
+                        </div>
+
+                        <div class="form-group">
+                            <label>First Name <span class="optional">(optional)</span></label>
+                            <input type="text" name="firstName" placeholder="e.g., John" autocomplete="given-name">
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: HEALTH CONDITIONS -->
+                    <div class="form-section">
+                        <h3>🏥 Current Health Conditions</h3>
+                        <p class="subtitle">Help us tailor the protocol to your situation (all optional)</p>
+
+                        <div class="form-group">
+                            <label>Current Medications <span class="optional">(optional)</span></label>
+                            <textarea name="medications" placeholder="e.g., Metformin for diabetes, levothyroxine for thyroid..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Existing Health Conditions <span class="optional">(optional)</span></label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="diabetes" name="conditions" value="diabetes">
+                                    <label for="diabetes">Type 2 Diabetes / Pre-diabetes</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="thyroid" name="conditions" value="thyroid">
+                                    <label for="thyroid">Thyroid Issues (Hashimoto's, hypothyroid)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="autoimmune" name="conditions" value="autoimmune">
+                                    <label for="autoimmune">Autoimmune Condition</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="gut" name="conditions" value="gut">
+                                    <label for="gut">Digestive Issues (IBS, Crohn's, colitis)</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="heart" name="conditions" value="heart">
+                                    <label for="heart">Heart/Cardiovascular Condition</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="weight" name="conditions" value="weight">
+                                    <label for="weight">Significant Weight Issues</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: ALLERGIES & RESTRICTIONS -->
+                    <div class="form-section">
+                        <h3>🚫 Allergies & Food Restrictions</h3>
+                        <p class="subtitle">Help us avoid foods you can't or won't eat</p>
+
+                        <div class="form-group">
+                            <label>Food Allergies <span class="optional">(optional)</span></label>
+                            <textarea name="allergies" placeholder="e.g., Shellfish allergy, lactose intolerant, egg allergy"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Foods You Can't/Won't Eat <span class="optional">(optional)</span></label>
+                            <textarea name="avoidFoods" placeholder="e.g., Don't like fish, can't digest dairy, won't eat organ meat"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: DIET HISTORY -->
+                    <div class="form-section">
+                        <h3>🍽️ Diet History</h3>
+                        <p class="subtitle">What diets have you tried before?</p>
+
+                        <div class="form-group">
+                            <label>Previous Diets Tried <span class="optional">(optional)</span></label>
+                            <textarea name="previousDiets" placeholder="e.g., Keto for 6 months (lost weight but plateaued), vegan (felt terrible)..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Carnivore Experience <span class="optional">(optional)</span></label>
+                            <select name="carnivoreExperience">
+                                <option value="">Select one...</option>
+                                <option value="never">Never tried carnivore</option>
+                                <option value="dabbled">Tried it briefly (days/weeks)</option>
+                                <option value="months">Did it for months</option>
+                                <option value="current">Currently on carnivore</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Which Protocol Interests You? <span class="optional">(optional)</span></label>
+                            <select name="selectedProtocol">
+                                <option value="">Select one...</option>
+                                <option value="carnivore">Carnivore (beef, poultry, fish, eggs, dairy)</option>
+                                <option value="pescatarian">Pescatarian Carnivore (fish, eggs, dairy only)</option>
+                                <option value="lion">Lion Diet (beef, salt, water only)</option>
+                                <option value="keto">Keto (low-carb, includes some plants)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 5: GOALS & PRIORITIES -->
+                    <div class="form-section">
+                        <h3>🎯 Your Goals & Priorities</h3>
+                        <p class="subtitle">What matters most to you? (all optional)</p>
+
+                        <div class="form-group">
+                            <label>Primary Goals (select top 3) <span class="optional">(optional)</span></label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="weightloss" name="goals" value="weightloss">
+                                    <label for="weightloss">Weight Loss</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="muscle" name="goals" value="muscle">
+                                    <label for="muscle">Build Muscle</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="energy" name="goals" value="energy">
+                                    <label for="energy">More Energy</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="mentalgoal" name="goals" value="mental">
+                                    <label for="mentalgoal">Mental Clarity / Focus</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="guthealth" name="goals" value="guthealth">
+                                    <label for="guthealth">Fix Gut Health</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="inflammation" name="goals" value="inflammation">
+                                    <label for="inflammation">Reduce Inflammation</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Anything Else We Should Know? <span class="optional">(optional)</span></label>
+                            <textarea name="additionalNotes" placeholder="Any other preferences, constraints, or information that would help us personalize your protocol..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="btn-group">
-                    <button class="primary" onclick="calculate()">Calculate My Macros</button>
+                    <button id="calculateBtn" class="primary" onclick="handlePrimaryButton()">Calculate My Macros</button>
                     <button class="secondary" onclick="resetForm()">Reset</button>
+                </div>
+
+                <!-- Advanced form submit button (hidden by default) -->
+                <div id="advancedSubmitSection" class="hidden" style="margin-top: 30px; text-align: center;">
+                    <h2 style="margin-top: 0; color: #1a120b;">Ready to Get Your Protocol?</h2>
+                    <p style="margin-bottom: 25px; color: #2c1810;">Click below to generate your personalized 30-day carnivore protocol.</p>
+                    <button class="primary" onclick="submitAdvancedForm()">Generate My Complete Protocol</button>
                 </div>
             </div>
 
