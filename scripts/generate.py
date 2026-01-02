@@ -50,6 +50,11 @@ try:
 except ImportError:
     markdown = None
 
+try:
+    from googleapiclient.discovery import build
+except ImportError:
+    build = None
+
 # Load environment variables
 load_dotenv()
 
@@ -739,6 +744,47 @@ class UnifiedGenerator:
             print(f"Error writing newsletter file {output_file}: {e}")
             return False
 
+    def _fetch_channel_profile_images(self, channel_ids: list) -> Dict[str, str]:
+        """Fetch channel profile images from YouTube API"""
+        channel_images = {}
+
+        if not build or not channel_ids:
+            return channel_images
+
+        try:
+            youtube_api_key = os.getenv("YOUTUBE_API_KEY")
+            if not youtube_api_key:
+                print("⚠ Warning: YOUTUBE_API_KEY not set, using placeholder images")
+                return channel_images
+
+            youtube = build("youtube", "v3", developerKey=youtube_api_key)
+
+            # Fetch channel info in batches (API limit is 50 per request)
+            for i in range(0, len(channel_ids), 50):
+                batch = channel_ids[i:i+50]
+                request = youtube.channels().list(
+                    part="snippet",
+                    id=",".join(batch),
+                    fields="items(id,snippet(thumbnails))"
+                )
+                response = request.execute()
+
+                for item in response.get("items", []):
+                    channel_id = item.get("id", "")
+                    thumbnails = item.get("snippet", {}).get("thumbnails", {})
+                    # Prefer high quality, fallback to medium/default
+                    image_url = (
+                        thumbnails.get("high", {}).get("url") or
+                        thumbnails.get("medium", {}).get("url") or
+                        thumbnails.get("default", {}).get("url")
+                    )
+                    if image_url:
+                        channel_images[channel_id] = image_url
+        except Exception as e:
+            print(f"⚠ Warning: Failed to fetch channel profile images: {e}")
+
+        return channel_images
+
     def _generate_channels(self) -> bool:
         """Generate channels page"""
         mapping = self.config["generation"]["template_mappings"]["channels"]
@@ -756,23 +802,90 @@ class UnifiedGenerator:
             print(f"Error loading template {mapping['template']}: {e}")
             return False
 
-        # Build channels data from YouTube videos table, grouped by channel
+        # Try to fetch videos from Supabase first
         videos = self._fetch_from_supabase("youtube_videos", limit=100)
 
-        # Group videos by channel
+        # If Supabase is empty, fall back to youtube_data.json
+        if not videos:
+            youtube_data = self.load_data("youtube_data")
+            if youtube_data and "top_creators" in youtube_data:
+                # Convert top_creators format to video-like format for channels page
+                channels_list = []
+                for creator in youtube_data["top_creators"]:
+                    channel_id = creator.get("channel_id", "")
+                    # Fetch profile image if we have it
+                    channel_images = self._fetch_channel_profile_images([channel_id]) if channel_id else {}
+
+                    channels_list.append({
+                        "name": creator.get("channel_name", "Unknown"),
+                        "channel_id": channel_id,
+                        "thumbnail_url": channel_images.get(channel_id, "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel"),
+                        "appearances": creator.get("videos_this_week", 0),
+                        "total_videos": creator.get("total_views_week", 0),
+                        "latest_date": "",
+                        "top_videos": []
+                    })
+
+                template_vars = {
+                    "channels": channels_list,
+                    "total_channels": len(channels_list),
+                    "total_weeks": 1,
+                    "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                }
+
+                # Render and output
+                try:
+                    html_content = template.render(**template_vars)
+                    output_file = self.project_root / mapping["output"]
+                    output_file.parent.mkdir(parents=True, exist_ok=True)
+                    with open(output_file, "w", encoding="utf-8") as f:
+                        f.write(html_content)
+                    print(f"✓ Generated: {output_file} (using youtube_data.json)")
+                    return True
+                except Exception as e:
+                    print(f"Error rendering channels template: {e}")
+                    return False
+            else:
+                print("⚠ Warning: No YouTube data available for channels page")
+                # Render with empty channels
+                template_vars = {
+                    "channels": [],
+                    "total_channels": 0,
+                    "total_weeks": 0,
+                    "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                }
+                try:
+                    html_content = template.render(**template_vars)
+                    output_file = self.project_root / mapping["output"]
+                    output_file.parent.mkdir(parents=True, exist_ok=True)
+                    with open(output_file, "w", encoding="utf-8") as f:
+                        f.write(html_content)
+                    print(f"✓ Generated: {output_file} (empty channels)")
+                    return True
+                except Exception as e:
+                    print(f"Error rendering channels template: {e}")
+                    return False
+
+        # Group videos by channel from Supabase
         channels_dict = {}
+        unique_channel_ids = set()
+
         for video in videos:
             channel_name = video.get("channel_name", "Unknown")
+            channel_id = video.get("channel_id", "")
+
             if channel_name not in channels_dict:
                 channels_dict[channel_name] = {
                     "name": channel_name,
-                    "channel_id": video.get("channel_id", ""),
-                    "thumbnail_url": video.get("thumbnail_url", "https://via.placeholder.com/150/8b4513/f4e4d4?text=Channel"),
+                    "channel_id": channel_id,
+                    "thumbnail_url": None,  # Will be fetched from API
                     "appearances": 0,
                     "total_videos": 0,
                     "latest_date": video.get("published_at", ""),
                     "top_videos": []
                 }
+                if channel_id:
+                    unique_channel_ids.add(channel_id)
 
             # Update channel stats
             channels_dict[channel_name]["appearances"] += 1
@@ -790,6 +903,18 @@ class UnifiedGenerator:
                     "view_count": video.get("view_count", 0),
                     "published_at": video.get("published_at", "")
                 })
+
+        # Fetch channel profile images
+        channel_images = self._fetch_channel_profile_images(list(unique_channel_ids))
+
+        # Assign profile images to channels
+        for channel_name, channel_data in channels_dict.items():
+            channel_id = channel_data.get("channel_id", "")
+            if channel_id in channel_images:
+                channel_data["thumbnail_url"] = channel_images[channel_id]
+            else:
+                # Fallback to placeholder if image not found
+                channel_data["thumbnail_url"] = "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel"
 
         # Convert to sorted list
         channels_list = list(channels_dict.values())
