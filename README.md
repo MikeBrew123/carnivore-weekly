@@ -290,7 +290,7 @@ python3 -m http.server 8000
 
 ### Template Structure Documentation
 
-**Auto-generated reference:** See `TEMPLATE_STRUCTURE.md` for complete section map of `index_template.html`
+**Auto-generated reference:** See `docs/architecture/TEMPLATE_STRUCTURE.md` for complete section map of `index_template.html`
 
 The template documentation is **automatically generated** every time you run `generate_pages.py`. It maps:
 - All 10 major sections with line numbers
@@ -300,7 +300,7 @@ The template documentation is **automatically generated** every time you run `ge
 - Critical shared dependencies (e.g., `.video-card` used by 5 sections)
 
 **When editing the template:**
-1. Check `TEMPLATE_STRUCTURE.md` to see section dependencies
+1. Check `docs/architecture/TEMPLATE_STRUCTURE.md` to see section dependencies
 2. Use minimal inline comments (`<!-- SECTION: -->`) as navigation aids
 3. Run `python3 scripts/generate_pages.py` (auto-updates docs)
 4. Check the updated documentation to verify your changes
