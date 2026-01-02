@@ -429,33 +429,43 @@ class UnifiedGenerator:
 
         # Load real YouTube videos from youtube_data.json
         top_videos = []
-        try:
-            youtube_path = self.project_root / 'data' / 'youtube_data.json'
-            if youtube_path.exists():
-                youtube_data = json.loads(youtube_path.read_text())
-                # Convert YouTube data to template format
-                for creator in youtube_data.get('top_creators', []):
-                    for video in creator.get('videos', [])[:2]:  # Take first 2 per creator
-                        top_videos.append({
-                            'video_id': video['video_id'],
-                            'title': video['title'],
-                            'description': video.get('description', '')[:200],  # First 200 chars
-                            'creator': creator['channel_name'],
-                            'channel_id': creator.get('channel_id', ''),
-                            'views': video['statistics']['view_count'],
-                            'likes': video['statistics']['like_count'],
-                            'comments': video['statistics']['comment_count'],
-                            'url': f"https://youtube.com/watch?v={video['video_id']}",
-                            'tags': video.get('tags', [])[:3],
-                        })
-        except Exception as e:
-            print(f"Warning: Could not load YouTube data: {e}")
 
-        # Fallback if no YouTube data
-        if not top_videos:
+        # Priority 1: Fetch from Supabase (cached data - no API calls needed)
+        try:
             top_videos = self._fetch_top_videos_from_db(limit=10)
+            if top_videos:
+                print("  ✓ Loaded YouTube data from Supabase cache (no API calls)")
+        except Exception as e:
+            print(f"  Warning: Could not load from Supabase: {e}")
+
+        # Priority 2: Fallback to JSON file (if Supabase is empty)
         if not top_videos:
-            # Fallback to analysis data if no videos in database
+            try:
+                youtube_path = self.project_root / 'data' / 'youtube_data.json'
+                if youtube_path.exists():
+                    youtube_data = json.loads(youtube_path.read_text())
+                    # Convert YouTube data to template format
+                    for creator in youtube_data.get('top_creators', []):
+                        for video in creator.get('videos', [])[:2]:  # Take first 2 per creator
+                            top_videos.append({
+                                'video_id': video['video_id'],
+                                'title': video['title'],
+                                'description': video.get('description', '')[:200],  # First 200 chars
+                                'creator': creator['channel_name'],
+                                'channel_id': creator.get('channel_id', ''),
+                                'views': video['statistics']['view_count'],
+                                'likes': video['statistics']['like_count'],
+                                'comments': video['statistics']['comment_count'],
+                                'url': f"https://youtube.com/watch?v={video['video_id']}",
+                                'tags': video.get('tags', [])[:3],
+                            })
+                    if top_videos:
+                        print("  ✓ Loaded YouTube data from JSON file")
+            except Exception as e:
+                print(f"  Warning: Could not load YouTube data from JSON: {e}")
+
+        # Priority 3: Fallback to analysis data (last resort)
+        if not top_videos:
             top_videos = analysis.get("top_videos", data.get("top_videos", []))
 
         # Get community sentiment with proper structure
