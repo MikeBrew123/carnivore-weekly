@@ -447,8 +447,53 @@
         </a>
     </div>
 
-    <!-- Sticky CTA Script -->
+    <!-- Sticky CTA & Analytics Script -->
     <script>
+    // Analytics tracking utility
+    const Analytics = {
+        endpoint: '/api/analytics',
+        track: function(eventData) {
+            fetch(this.endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(eventData),
+                keepalive: true
+            }).catch(err => console.log('Analytics tracking failed silently', err));
+        },
+        trackClick: function(eventType, source) {
+            this.track({
+                event_type: eventType,
+                source: source,
+                device_type: window.innerWidth <= 768 ? 'mobile' : 'desktop',
+                viewport_width: window.innerWidth,
+                scroll_depth: Math.round((window.scrollY / document.body.scrollHeight) * 100)
+            });
+        },
+        trackPerformance: function() {
+            // Use Web Vitals if available, otherwise skip
+            if ('PerformanceObserver' in window) {
+                try {
+                    // Largest Contentful Paint
+                    new PerformanceObserver((list) => {
+                        const entries = list.getEntries();
+                        const lastEntry = entries[entries.length - 1];
+                        this.track({
+                            event_type: 'performance_lcp',
+                            lcp_ms: Math.round(lastEntry.renderTime || lastEntry.loadTime),
+                            page_url: window.location.pathname,
+                            device_type: window.innerWidth <= 768 ? 'mobile' : 'desktop'
+                        });
+                    }).observe({entryTypes: ['largest-contentful-paint']});
+                } catch(e) {
+                    console.log('LCP tracking not supported');
+                }
+            }
+        }
+    };
+
+    // Track performance on page load
+    Analytics.trackPerformance();
+
     // Show sticky CTA after scrolling past hero section (mobile only)
     (function() {
         const stickyCta = document.getElementById('stickyCta');
@@ -474,6 +519,14 @@
             }
         }
 
+        // Add click tracking to sticky CTA button
+        const stickyCTAButton = stickyCta.querySelector('.sticky-cta-button');
+        if (stickyCTAButton) {
+            stickyCTAButton.addEventListener('click', function(e) {
+                Analytics.trackClick('calculator_click', 'sticky_cta');
+            });
+        }
+
         // Check on scroll
         window.addEventListener('scroll', checkScroll);
 
@@ -482,6 +535,16 @@
 
         // Initial check
         checkScroll();
+    })();
+
+    // Track FAB feedback button clicks
+    (function() {
+        const fabButton = document.querySelector('.fab-feedback');
+        if (fabButton) {
+            fabButton.addEventListener('click', function(e) {
+                Analytics.trackClick('feedback_click', 'fab');
+            });
+        }
     })();
     </script>
 </body>
