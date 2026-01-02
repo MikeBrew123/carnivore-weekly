@@ -54,7 +54,7 @@ export default function Step3Goals({ onNext, onPrev, onShowResults }: Step3Goals
     setFormField('goal', data.goal)
     setFormField('deficit', data.deficit)
     setFormField('diet', data.diet)
-    if (diet === 'carnivore') {
+    if (diet === 'carnivore' || diet === 'pescatarian') {
       setFormField('ratio', data.ratio)
     } else {
       setFormField('netCarbs', data.netCarbs)
@@ -117,13 +117,14 @@ export default function Step3Goals({ onNext, onPrev, onShowResults }: Step3Goals
             className="w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
           >
             <option value="carnivore">Carnivore (0-5g carbs)</option>
+            <option value="pescatarian">Pescatarian Carnivore (0-5g carbs)</option>
             <option value="keto">Keto (~20g net carbs)</option>
             <option value="lowcarb">Low-Carb (~75g net carbs)</option>
           </select>
         </div>
 
         {/* Carnivore Options */}
-        {diet === 'carnivore' && (
+        {(diet === 'carnivore' || diet === 'pescatarian') && (
           <div className="space-y-4 p-4 bg-secondary/10 rounded-lg border border-secondary/30">
             <div>
               <label className="block text-sm font-semibold text-dark mb-2">Fat/Protein Ratio</label>

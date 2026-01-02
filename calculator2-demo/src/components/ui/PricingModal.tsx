@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import PricingCard from './PricingCard'
-import MockPaymentModal from './MockPaymentModal'
+import StripePaymentModal from './StripePaymentModal'
 import { useFormStore } from '../../stores/formStore'
 import { supabase } from '../../lib/supabase'
 
@@ -181,10 +181,10 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
         </motion.div>
       </motion.div>
 
-      {/* Mock Payment Modal */}
+      {/* Stripe Payment Modal */}
       <AnimatePresence>
         {selectedTier && selectedOption && (
-          <MockPaymentModal
+          <StripePaymentModal
             tierId={selectedTier}
             tierTitle={selectedOption.title}
             tierPrice={selectedOption.price}

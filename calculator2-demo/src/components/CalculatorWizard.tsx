@@ -108,6 +108,7 @@ export default function CalculatorWizard() {
         console.log('Report generated successfully:', result.accessToken)
         setReportAccessToken(result.accessToken)
         setIsComplete(true)
+        setIsGenerating(false)
       } else {
         throw new Error(result.error || 'Failed to generate report')
       }
