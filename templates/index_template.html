@@ -1071,7 +1071,7 @@
                         {% if topic.blog_links %}
                         <p style="font-size: 0.9em;">
                             {% for blog in topic.blog_links %}
-                            Check out '<a href="blog/{{ blog.slug }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">{{ blog.title }}</a>' where I covered this - ({{ blog.author }}){% if not loop.last %}<br>{% endif %}
+                            Check out '<a href="blog/{{ blog.slug }}" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">{{ blog.title }}</a>' where I covered this - ({{ blog.author }}){% if not loop.last %}<br>{% endif %}
                             {% endfor %}
                         </p>
                         {% endif %}
@@ -1323,7 +1323,7 @@
                         <a href="wiki.html#{{ insight.internal_links.wiki.anchor }}" style="color: #d4a574; text-decoration: underline; margin-right: 15px;">📚 {{ insight.internal_links.wiki.title }}</a>
                         {% endif %}
                         {% if insight.internal_links.blog %}
-                        <br>Check out '<a href="blog/{{ insight.internal_links.blog.slug }}" style="color: #d4a574; text-decoration: underline; font-weight: 600;">{{ insight.internal_links.blog.title }}</a>' where I covered this - ({{ insight.internal_links.blog.author }})
+                        <br>Check out '<a href="blog/{{ insight.internal_links.blog.slug }}" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">{{ insight.internal_links.blog.title }}</a>' where I covered this - ({{ insight.internal_links.blog.author }})
                         {% endif %}
                     </p>
                     {% endif %}
@@ -1371,7 +1371,7 @@
                                     <a href="wiki.html#{{ trend.our_link.anchor }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">📚 {{ trend.our_link.wiki }}</a>
                                     {% endif %}
                                     {% if trend.our_link.blog %}
-                                    {% if trend.our_link.wiki %}<br>{% endif %}Check out '<a href="blog/{{ trend.our_link.blog.slug }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">{{ trend.our_link.blog.title }}</a>' where I covered this - ({{ trend.our_link.blog.author }})
+                                    {% if trend.our_link.wiki %}<br>{% endif %}Check out '<a href="blog/{{ trend.our_link.blog.slug }}" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">{{ trend.our_link.blog.title }}</a>' where I covered this - ({{ trend.our_link.blog.author }})
                                     {% endif %}
                                 </p>
                                 {% endif %}
@@ -1399,7 +1399,7 @@
                                 <a href="wiki.html#{{ q.our_answer_link.anchor }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">📚 Get answers in our wiki</a>
                                 {% endif %}
                                 {% if q.our_answer_link.blog %}
-                                {% if q.our_answer_link.wiki %}<br>{% endif %}Check out '<a href="blog/{{ q.our_answer_link.blog.slug }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">{{ q.our_answer_link.blog.title }}</a>' where I covered this - ({{ q.our_answer_link.blog.author }})
+                                {% if q.our_answer_link.wiki %}<br>{% endif %}Check out '<a href="blog/{{ q.our_answer_link.blog.slug }}" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">{{ q.our_answer_link.blog.title }}</a>' where I covered this - ({{ q.our_answer_link.blog.author }})
                                 {% endif %}
                             </p>
                             {% endif %}
