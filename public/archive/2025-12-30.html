@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name='impact-site-verification' value='165bca80-d4fc-46f0-8717-1c7589c6e98c'>
+    <meta name='impact-site-verification' content='165bca80-d4fc-46f0-8717-1c7589c6e98c'>
 
     <!-- SEO Meta Tags -->
     <meta name="description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, expert insights, and community discussions. Stay updated on the latest in meat-based nutrition.">
@@ -27,9 +27,9 @@
     <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
 
     <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
     <title>Carnivore Weekly - The Meat-Eater's Digest | Weekly Carnivore Content Hub</title>
 
     <!-- Google Analytics -->
@@ -59,12 +59,12 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
     <style>
         /* Page-specific styles */
         /* Leather-textured sections */
         .section {
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            background: linear-gradient(135deg, #d4a574 0%, #d4a574 100%);
             border-radius: 15px;
             padding: 40px;
             margin-bottom: 40px;
@@ -72,7 +72,7 @@
                 0 8px 25px rgba(0,0,0,0.5),
                 inset 0 1px 0 rgba(255,255,255,0.3),
                 inset 0 -1px 0 rgba(0,0,0,0.3);
-            border: 3px solid #8b4513;
+            border: 3px solid #2c1810;
             position: relative;
         }
 
@@ -94,7 +94,7 @@
             font-size: 2.8em;
             font-family: 'Playfair Display', serif;
             font-weight: 900;
-            border-bottom: 4px solid #8b4513;
+            border-bottom: 4px solid #2c1810;
             padding-bottom: 15px;
             text-shadow: 2px 2px 0 rgba(255,255,255,0.3);
             position: relative;
@@ -110,7 +110,7 @@
             background: rgba(255,255,255,0.4);
             padding: 25px;
             border-radius: 10px;
-            border-left: 5px solid #8b4513;
+            border-left: 5px solid #2c1810;
             position: relative;
             z-index: 1;
         }
@@ -129,7 +129,104 @@
             background: rgba(255,255,255,0.4);
             padding: 25px;
             border-radius: 10px;
-            border-left: 5px solid #8b4513;
+            border-left: 5px solid #2c1810;
+        }
+
+        /* Markdown rendering styles */
+        .summary-text h1,
+        .summary-text h2,
+        .summary-text h3,
+        .summary-text h4,
+        .summary-text h5,
+        .summary-text h6 {
+            color: #2c1810;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .summary-text h2 {
+            font-size: 1.8em;
+            border-bottom: 2px solid #d4a574;
+            padding-bottom: 10px;
+        }
+
+        .summary-text h3 {
+            font-size: 1.5em;
+            margin-top: 18px;
+        }
+
+        .summary-text p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .summary-text ul,
+        .summary-text ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .summary-text li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .summary-text strong {
+            color: #2c1810;
+            font-weight: 600;
+        }
+
+        .summary-text table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.6);
+            border: 1px solid #d4a574;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .summary-text table th {
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
+            color: #ffd700;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #d4a574;
+        }
+
+        .summary-text table td {
+            padding: 12px;
+            border-bottom: 1px solid #d4a574;
+        }
+
+        .summary-text table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .summary-text blockquote {
+            border-left: 4px solid #d4a574;
+            margin-left: 0;
+            padding-left: 15px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .summary-text hr {
+            border: none;
+            border-top: 2px solid #d4a574;
+            margin: 25px 0;
+        }
+
+        .summary-text code {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
         }
 
         .summary-image {
@@ -142,7 +239,7 @@
             height: 100%;
             object-fit: cover;
             border-radius: 10px;
-            border: 3px solid #8b4513;
+            border: 3px solid #2c1810;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
@@ -164,8 +261,8 @@
         }
 
         .topic-card {
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
-            color: #f4e4d4;
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
+            color: #ffd700;
             border-left: 6px solid #d4a574;
             padding: 25px;
             border-radius: 10px;
@@ -181,7 +278,7 @@
         }
 
         .topic-card h3 {
-            color: #f4e4d4;
+            color: #ffd700;
             margin-bottom: 15px;
             font-family: 'Playfair Display', serif;
             font-size: 1.5em;
@@ -217,7 +314,7 @@
 
         .video-card {
             background: linear-gradient(135deg, #1a120b 0%, #2c1810 100%);
-            border: 3px solid #8b4513;
+            border: 3px solid #2c1810;
             border-radius: 12px;
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -232,8 +329,8 @@
         }
 
 .video-card .video-header {
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
-            color: #f4e4d4;
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
+            color: #ffd700;
             padding: 20px;
             border-bottom: 3px solid #d4a574;
         }
@@ -245,7 +342,7 @@
         }
 
         .video-card h3 a {
-            color: #f4e4d4;
+            color: #ffd700;
             text-decoration: none;
             transition: color 0.3s;
         }
@@ -273,7 +370,7 @@
         }
 
         .video-content {
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            background: linear-gradient(135deg, #d4a574 0%, #d4a574 100%);
         }
 
         .video-card .creator a {
@@ -289,7 +386,7 @@
         .video-card .video-body {
             padding: 20px;
             background: #2c1810;
-            color: #f4e4d4;
+            color: #ffd700;
         }
 
         .video-card .stats {
@@ -299,7 +396,7 @@
             padding: 15px;
             background: rgba(139, 69, 19, 0.3);
             border-radius: 8px;
-            border: 2px solid #8b4513;
+            border: 2px solid #2c1810;
         }
 
         .video-card .stat {
@@ -329,7 +426,7 @@
             background: rgba(244, 228, 212, 0.1);
             border-radius: 8px;
             border-left: 3px solid #d4a574;
-            color: #f4e4d4;
+            color: #ffd700;
         }
 
         /* Video tags styling */
@@ -341,7 +438,7 @@
         }
 
         .video-tags .tag {
-            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
             color: #ffd700;
             padding: 6px 14px;
             border-radius: 20px;
@@ -353,7 +450,7 @@
         }
 
         .video-tags .tag:hover {
-            background: linear-gradient(135deg, #6b3410 0%, #8b4513 100%);
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
@@ -367,7 +464,7 @@
             padding: 25px 25px 25px 60px;
             margin-bottom: 20px;
             background: linear-gradient(135deg, rgba(139, 69, 19, 0.4) 0%, rgba(139, 69, 19, 0.2) 100%);
-            border-left: 6px solid #8b4513;
+            border-left: 6px solid #2c1810;
             border-radius: 8px;
             font-size: 1.1em;
             position: relative;
@@ -398,8 +495,8 @@
         .insights-list li:nth-child(5n+5)::before { content: "🧂"; }
 
         .sentiment {
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
-            color: #f4e4d4;
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
+            color: #ffd700;
             padding: 35px;
             border-radius: 12px;
             margin-top: 25px;
@@ -437,8 +534,8 @@
         /* Feedback Button */
         .feedback-btn {
             display: inline-block;
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
-            color: #f4e4d4;
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
+            color: #ffd700;
             padding: 12px 25px;
             border-radius: 8px;
             text-decoration: none;
@@ -450,7 +547,7 @@
         }
 
         .feedback-btn:hover {
-            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
@@ -460,21 +557,21 @@
             padding: 40px;
             color: #d4a574;
             margin-top: 60px;
-            border-top: 3px solid #8b4513;
+            border-top: 3px solid #2c1810;
         }
 
         footer a {
             color: #d4a574;
             text-decoration: none;
-            border-bottom: 2px solid #8b4513;
+            border-bottom: 2px solid #2c1810;
             padding-bottom: 2px;
             font-weight: 700;
         }
 
         /* Navigation Menu */
         .nav-menu {
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
-            border: 3px solid #8b4513;
+            background: linear-gradient(135deg, #d4a574 0%, #d4a574 100%);
+            border: 3px solid #2c1810;
             border-left: none;
             border-right: none;
             padding: 20px 0;
@@ -498,12 +595,12 @@
         }
 
         .nav-menu a:hover {
-            border-bottom-color: #8b4513;
+            border-bottom-color: #2c1810;
             transform: translateY(-2px);
         }
 
         .nav-menu a.active {
-            border-bottom-color: #8b4513;
+            border-bottom-color: #2c1810;
         }
 
         .badge {
@@ -516,13 +613,13 @@
             margin: 8px;
             font-weight: 700;
             box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-            border: 2px solid #8b4513;
+            border: 2px solid #2c1810;
         }
 
         .watch-btn {
             display: block;
             width: 100%;
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            background: linear-gradient(135deg, #d4a574 0%, #d4a574 100%);
             color: #1a120b;
             padding: 16px 30px;
             border-radius: 8px;
@@ -532,7 +629,7 @@
             margin-top: 15px;
             text-align: center;
             transition: all 0.3s;
-            border: 2px solid #8b4513;
+            border: 2px solid #2c1810;
             text-transform: uppercase;
             letter-spacing: 1px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -569,7 +666,7 @@
 
         .qa-item {
             margin-bottom: 15px;
-            border: 2px solid #8b4513;
+            border: 2px solid #2c1810;
             border-radius: 8px;
             overflow: hidden;
             background: rgba(139, 69, 19, 0.2);
@@ -578,8 +675,8 @@
         .qa-question {
             padding: 20px;
             cursor: pointer;
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
-            color: #f4e4d4;
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
+            color: #ffd700;
             font-weight: 700;
             font-size: 1.1em;
             transition: background 0.3s;
@@ -588,7 +685,7 @@
         }
 
         .qa-question:hover {
-            background: linear-gradient(135deg, #a0522d 0%, #8b4513 100%);
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
         }
 
         .qa-question::after {
@@ -625,13 +722,13 @@
             margin-top: 20px;
             padding: 15px;
             background: rgba(139, 69, 19, 0.1);
-            border-left: 4px solid #8b4513;
+            border-left: 4px solid #2c1810;
             border-radius: 5px;
         }
 
         .citations h4 {
             margin-bottom: 10px;
-            color: #8b4513;
+            color: #2c1810;
         }
 
         .citation {
@@ -640,7 +737,7 @@
         }
 
         .citation a {
-            color: #8b4513;
+            color: #2c1810;
             text-decoration: none;
             font-weight: 700;
         }
@@ -653,7 +750,7 @@
             margin-top: 15px;
             padding: 10px;
             background: rgba(255, 165, 0, 0.1);
-            border-left: 4px solid #ffa500;
+            border-left: 4px solid #d4a574;
             border-radius: 5px;
             font-style: italic;
             font-size: 0.95em;
@@ -661,8 +758,8 @@
 
         /* Disclaimer */
         .disclaimer {
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
-            color: #f4e4d4;
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
+            color: #ffd700;
             padding: 25px;
             margin: 40px 0 20px 0;
             border-radius: 10px;
@@ -680,7 +777,7 @@
         /* Advertising Spaces */
         .sponsor-banner {
             background: linear-gradient(135deg, #2c1810 0%, #1a120b 100%);
-            border: 3px solid #8b4513;
+            border: 3px solid #2c1810;
             border-radius: 15px;
             padding: 30px;
             margin: 30px 0;
@@ -695,8 +792,8 @@
             position: absolute;
             top: 10px;
             right: 15px;
-            background: #8b4513;
-            color: #f4e4d4;
+            background: #2c1810;
+            color: #ffd700;
             padding: 5px 15px;
             border-radius: 5px;
             font-size: 0.75em;
@@ -712,7 +809,7 @@
         }
 
         .sponsor-banner p {
-            color: #f4e4d4;
+            color: #ffd700;
             font-size: 1.1em;
             line-height: 1.8;
             margin-bottom: 20px;
@@ -720,14 +817,14 @@
 
         .sponsor-cta {
             display: inline-block;
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            background: linear-gradient(135deg, #d4a574 0%, #d4a574 100%);
             color: #1a120b;
             padding: 15px 40px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 700;
             font-size: 1.1em;
-            border: 2px solid #8b4513;
+            border: 2px solid #2c1810;
             transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -740,7 +837,7 @@
         }
 
         .sponsor-cta.coming-soon {
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
             color: #d4a574;
             cursor: default;
             opacity: 0.85;
@@ -748,13 +845,13 @@
 
         .sponsor-cta.coming-soon:hover {
             transform: none;
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
             box-shadow: none;
         }
 
         .inline-ad {
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
-            border: 3px solid #8b4513;
+            background: linear-gradient(135deg, #d4a574 0%, #d4a574 100%);
+            border: 3px solid #2c1810;
             border-radius: 10px;
             padding: 25px;
             margin: 40px 0;
@@ -799,8 +896,8 @@
 
         .ad-link {
             display: inline-block;
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
-            color: #f4e4d4;
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
+            color: #ffd700;
             font-weight: 700;
             text-decoration: none;
             padding: 12px 30px;
@@ -811,7 +908,7 @@
         }
 
         .ad-link:hover {
-            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
@@ -840,8 +937,43 @@
             max-width: 100%;
             height: auto;
             border-radius: 10px;
-            border: 3px solid #8b4513;
+            border: 3px solid #2c1810;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Back-to-top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #d4a574;
+            color: #1a120b;
+            padding: 12px 16px;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1.2em;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            font-weight: bold;
+        }
+
+        .back-to-top:hover {
+            background: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
         }
     </style>
 
@@ -878,7 +1010,7 @@
 <body>
     <header>
         <div class="container">
-            <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>CARNIVORE WEEKLY</h1>
             <p class="subtitle">The Meat-Eater's Digest</p>
             <p class="tagline">Premium Cuts of Carnivore Content</p>
@@ -888,12 +1020,25 @@
 
     <!-- Navigation Menu -->
     <nav class="nav-menu" id="top-nav">
-        <a href="index.html">Home</a>
-        <a href="channels.html">Channels</a>
-        <a href="wiki.html">Wiki</a>
-        <a href="blog.html">Blog</a>
-        <a href="calculator.html">Calculator</a>
-        <a href="archive.html">Archive</a>
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Channels</a>
+        <a href="/wiki.html">Wiki</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/calculator.html">Calculator</a>
+        <a href="/archive.html">Archive</a>
+    </nav>
+
+    <!-- Section Jump Menu -->
+    <nav class="section-menu" id="section-nav" style="display: none; background: #1a120b; padding: 12px 0; border-bottom: 1px solid #d4a574; overflow-x: auto;">
+        <div class="container" style="display: flex; gap: 20px; flex-wrap: wrap; padding: 0 20px;">
+            <a href="#weekly-summary" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">📰 Summary</a>
+            <a href="#trending-section" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">🔥 Trending</a>
+            <a href="#prime-cuts" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">📺 Prime Cuts</a>
+            <a href="#butchers-wisdom" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">🧠 Insights</a>
+            <a href="#community-voice" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">💬 Community</a>
+            <a href="#qa-section" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">❓ Q&A</a>
+            <a href="#recommended" style="color: #d4a574; text-decoration: none; font-size: 0.9em; white-space: nowrap; padding: 8px 0; border-bottom: 2px solid transparent; transition: all 0.3s;">🎬 Videos</a>
+        </div>
     </nav>
 
     <!-- Fixed Side Feedback Button -->
@@ -906,21 +1051,19 @@
         <!-- ButcherBox Affiliate Banner -->
         <div class="sponsor-banner-image">
             <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=seasonal_offer" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')">
-                <img src="butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; height: auto; display: block; border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);">
+                <img src="/butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; height: auto; display: block; border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);">
             </a>
         </div>
 
         <!-- SECTION: Weekly Summary + Calculator Ad | Lines 914-933 | CSS: .section .summary-with-image .calculator-ad | JS: trackAffiliateClick() -->
         <!-- Weekly Summary - Shows summary text with steak image, calculator promo below -->
-        <section class="section">
+        <section class="section" id="weekly-summary">
             <h2>This Week's Roundup</h2>
             <div class="summary-with-image">
                 <div class="summary-text">
-                    Hey friend, how are you feeling as we head into 2026? This week in the carnivore space has been all about fresh starts and honest conversations. I'm seeing a beautiful mix of practical blueprint content (Anthony Chaffee and Steak and Butter Gal both dropped comprehensive "if I started today" guides) alongside some really vulnerable discussions about the messy middle of this journey. What struck me most? The community is maturing. People aren't just talking about weight loss anymore. They're tracking <a href="wiki.html#electrolytes" style="color: #8b4513; text-decoration: none;">electrolyte balance</a>, discussing the nuances of different meat sources, and most importantly, being honest about the non-linear nature of healing.
-
-Courtney Luna's candid Q&A about her own journey off strict carnivore really resonated with viewers, while Ken Berry sparked important discussions about nutrient diversity (spoiler: you can't actually thrive on beef alone long-term). The vitamin B1 conversation was particularly fascinating from a bio-optimization standpoint. If you're tracking your health markers like I do with my continuous glucose monitor, this week's content offered some solid data points to consider. The undertone? This isn't about perfection. It's about finding your sustainable path to healing.
-
--Sarah
+                    <p>Hey friend, how are you feeling as we head into 2026? This week in the carnivore space has been all about fresh starts and honest conversations. I'm seeing a beautiful mix of practical blueprint content (Anthony Chaffee and Steak and Butter Gal both dropped comprehensive "if I started today" guides) alongside some really vulnerable discussions about the messy middle of this journey. What struck me most? The community is maturing. People aren't just talking about weight loss anymore. They're tracking <a href="wiki.html#electrolytes" style="color: #8b4513; text-decoration: none;">electrolyte balance</a>, discussing the nuances of different meat sources, and most importantly, being honest about the non-linear nature of healing.</p>
+<p>Courtney Luna's candid Q&amp;A about her own journey off strict carnivore really resonated with viewers, while Ken Berry sparked important discussions about nutrient diversity (spoiler: you can't actually thrive on beef alone long-term). The vitamin B1 conversation was particularly fascinating from a bio-optimization standpoint. If you're tracking your health markers like I do with my continuous glucose monitor, this week's content offered some solid data points to consider. The undertone? This isn't about perfection. It's about finding your sustainable path to healing.</p>
+<p>-Sarah</p>
                 </div>
                 <div class="summary-image">
                     <img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&q=80" alt="Premium ribeye steak">
@@ -929,8 +1072,8 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
 
             <!-- Calculator Ad -->
             <div class="calculator-ad">
-                <a href="calculator.html" onclick="trackAffiliateClick('Diet Calculator', 'calculator.html')">
-                    <img src="images/NewYear-ad.png" alt="Carnivore Diet Calculator - Get Your Personalized Plan">
+                <a href="/calculator.html" onclick="trackAffiliateClick('Diet Calculator', '/calculator.html')">
+                    <img src="/images/NewYear-ad.png" alt="Carnivore Diet Calculator - Get Your Personalized Plan">
                 </a>
             </div>
         </section>
@@ -939,93 +1082,68 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
 
         <!-- SECTION: Trending Topics | Lines 937-958 | CSS: .section .trending-topics .topic-card | JS: none -->
         <!-- Trending Topics -->
-        <section class="section">
+        <section class="section" id="trending-section">
             <h2>What's Sizzling</h2>
             <div class="trending-topics">
                 
-                <div class="topic-card">
-                    <h3>2026 Carnivore Blueprints & Fresh Starts</h3>
-                    <p>Multiple creators released comprehensive "starting carnivore in 2026" guides, capitalizing on New Year motivation with detailed roadmaps. The emphasis shifted from just "eat meat" to nuanced advice about fat ratios, electrolytes, and managing adaptation periods.</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Anthony Chaffee MD</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Steak and Butter Gal</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UC5apkKkeZQXRSDbqSalG8CQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Shawn Baker MD</a>
-                            
-                        
-                    </div>
+                <div class="topic-card" data-topic-id="">
+                    
+                    <h3> 2026 Carnivore Blueprints & Fresh Starts</h3>
+                    <p style="margin-bottom: 12px;">Multiple creators released comprehensive "starting carnivore in 2026" guides, capitalizing on New Year motivation with detailed roadmaps. The emphasis shifted from just "eat meat" to nuanced advice about fat ratios, electrolytes, and managing adaptation periods.</p>
+
+                    
+
+                    
+
+                    
                 </div>
                 
-                <div class="topic-card">
-                    <h3>Vitamin B1 (Thiamine) & Nutrient Diversity</h3>
-                    <p>Ken Berry sparked discussion by revealing pork as the top B1 source and challenging the "beef only" approach. This opened conversations about the importance of variety in animal foods and why strict limitations might create deficiencies.</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCIma2WOQs1Mz2AuOt6wRSUw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">KenDBerryMD</a>
-                            
-                        
-                    </div>
+                <div class="topic-card" data-topic-id="">
+                    
+                    <h3> Vitamin B1 (Thiamine) & Nutrient Diversity</h3>
+                    <p style="margin-bottom: 12px;">Ken Berry sparked discussion by revealing pork as the top B1 source and challenging the "beef only" approach. This opened conversations about the importance of variety in animal foods and why strict limitations might create deficiencies.</p>
+
+                    
+
+                    
+
+                    
                 </div>
                 
-                <div class="topic-card">
-                    <h3>The Honesty Wave: Imperfect Carnivore Journeys</h3>
-                    <p>Creators are getting vulnerable about falling off track, reintroducing foods, and the reality that healing isn't linear. This authenticity is resonating deeply with viewers tired of all-or-nothing messaging.</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCzgj3pQycdp7SUUbz56wNCw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Courtney Luna</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCvasvPW5q8Wwblqb_-6CkPw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Steak and Butter Gal</a>
-                            
-                        
-                    </div>
+                <div class="topic-card" data-topic-id="">
+                    
+                    <h3> The Honesty Wave: Imperfect Carnivore Journeys</h3>
+                    <p style="margin-bottom: 12px;">Creators are getting vulnerable about falling off track, reintroducing foods, and the reality that healing isn't linear. This authenticity is resonating deeply with viewers tired of all-or-nothing messaging.</p>
+
+                    
+
+                    
+
+                    
                 </div>
                 
-                <div class="topic-card">
-                    <h3>Common Carnivore Mistakes & Why People Quit</h3>
-                    <p>Educational content focused on the top reasons people fail (not enough fat, <a href="wiki.html#dairy" style="color: #8b4513; text-decoration: none;">too much dairy</a>, electrolyte mismanagement). Max German and Anthony Chaffee both tackled this with actionable fixes.</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCsOkHWfiPFN3Pt7f9DwMSww" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Max German</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Anthony Chaffee MD</a>, 
-                            
-                        
-                            
-                                <a href="https://youtube.com/channel/UCIma2WOQs1Mz2AuOt6wRSUw" target="_blank" style="color: #f4e4d4; text-decoration: underline;">KenDBerryMD</a>
-                            
-                        
-                    </div>
+                <div class="topic-card" data-topic-id="">
+                    
+                    <h3> Common Carnivore Mistakes & Why People Quit</h3>
+                    <p style="margin-bottom: 12px;">Educational content focused on the top reasons people fail (not enough fat, <a href="wiki.html#dairy" style="color: #8b4513; text-decoration: none;">too much dairy</a>, electrolyte mismanagement). Max German and Anthony Chaffee both tackled this with actionable fixes.</p>
+
+                    
+
+                    
+
+                    
                 </div>
                 
-                <div class="topic-card">
-                    <h3>Oxalate Dumping & Adaptation Symptoms</h3>
-                    <p>Anthony Chaffee's explanation of why people feel worse before better (oxalate crystal release from years of plant consumption) helped many viewers understand their symptoms weren't carnivore failing them.</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        
-                            
-                                <a href="https://youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Anthony Chaffee MD</a>
-                            
-                        
-                    </div>
+                <div class="topic-card" data-topic-id="">
+                    
+                    <h3> Oxalate Dumping & Adaptation Symptoms</h3>
+                    <p style="margin-bottom: 12px;">Anthony Chaffee's explanation of why people feel worse before better (oxalate crystal release from years of plant consumption) helped many viewers understand their symptoms weren't carnivore failing them.</p>
+
+                    
+
+                    
+
+                    
                 </div>
                 
             </div>
@@ -1035,16 +1153,16 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
 
         <!-- SECTION: Top Videos + Filters | Lines 962-1187 | CSS: .section .video-grid .video-card .tag-filter-btn #top-videos-grid | JS: filterVideosByTag() filterVideosByCreator() -->
         <!-- Top Videos -->
-        <section class="section">
+        <section class="section" id="prime-cuts">
             <h2>Prime Cuts - Top Videos</h2>
 
             <!-- Tag Filter Controls -->
             <div style="margin-bottom: 25px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-radius: 8px;">
-                <p style="margin-bottom: 12px; color: #8b4513; font-weight: 600;">Filter by topic:</p>
+                <p style="margin-bottom: 12px; color: #2c1810; font-weight: 600;">Filter by topic:</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                     <button onclick="filterVideosByTag(null)" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #ffd700;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1127,7 +1245,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByTag('advanced')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1143,7 +1261,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByTag('beginners')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1159,7 +1277,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByTag('electrolytes')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1175,7 +1293,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByTag('fat')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1191,7 +1309,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByTag('inflammation')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1207,7 +1325,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByTag('meal prep')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1223,7 +1341,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByTag('science')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1239,7 +1357,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByTag('testimonials')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1255,7 +1373,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByTag('weight loss')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1274,11 +1392,11 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
 
             <!-- Creator Filter Controls -->
             <div style="margin-bottom: 25px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-radius: 8px;">
-                <p style="margin-bottom: 12px; color: #8b4513; font-weight: 600;">Filter by creator:</p>
+                <p style="margin-bottom: 12px; color: #2c1810; font-weight: 600;">Filter by creator:</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
                     <button onclick="filterVideosByCreator(null)" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #ffd700;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1327,7 +1445,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByCreator('Anthony Chaffee MD')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1343,7 +1461,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByCreator('Courtney Luna')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1359,7 +1477,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByCreator('KenDBerryMD')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1375,7 +1493,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByCreator('Max German')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1391,7 +1509,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
                     <button onclick="filterVideosByCreator('Steak and Butter Gal')" style="
                         padding: 8px 16px;
-                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        background: linear-gradient(135deg, #2c1810 0%, #2c1810 100%);
                         color: #d4a574;
                         border: 2px solid #d4a574;
                         border-radius: 20px;
@@ -1427,13 +1545,6 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
 
                     
-                    <a href="https://youtube.com/watch?v=6ExSc9OdIIA" target="_blank">
-                        <img src="https://img.youtube.com/vi/6ExSc9OdIIA/mqdefault.jpg"
-                             alt="If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
                     <div class="video-content">
                         <div class="video-header">
                             <h3>
@@ -1454,6 +1565,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                                 <br>On: Dec 27/25
                                 
                             </p>
+                            
                         </div>
                         <div class="video-body">
                         <div class="stats">
@@ -1519,13 +1631,6 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
 
                     
-                    <a href="https://youtube.com/watch?v=UzN38EgKBJo" target="_blank">
-                        <img src="https://img.youtube.com/vi/UzN38EgKBJo/mqdefault.jpg"
-                             alt="The Best Source Of Vitamin B1 On The Planet"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
                     <div class="video-content">
                         <div class="video-header">
                             <h3>
@@ -1546,6 +1651,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                                 <br>On: Dec 29/25
                                 
                             </p>
+                            
                         </div>
                         <div class="video-body">
                         <div class="stats">
@@ -1609,13 +1715,6 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
 
                     
-                    <a href="https://youtube.com/watch?v=hwcgWXf5fWQ" target="_blank">
-                        <img src="https://img.youtube.com/vi/hwcgWXf5fWQ/mqdefault.jpg"
-                             alt="An Honest Conversation"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
                     <div class="video-content">
                         <div class="video-header">
                             <h3>
@@ -1636,6 +1735,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                                 <br>On: Dec 30/25
                                 
                             </p>
+                            
                         </div>
                         <div class="video-body">
                         <div class="stats">
@@ -1699,13 +1799,6 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
 
                     
-                    <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank">
-                        <img src="https://img.youtube.com/vi/cPIYOqSF1aQ/mqdefault.jpg"
-                             alt="If I Started Carnivore in 2026, I'd Do This"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
                     <div class="video-content">
                         <div class="video-header">
                             <h3>
@@ -1726,6 +1819,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                                 <br>On: Dec 24/25
                                 
                             </p>
+                            
                         </div>
                         <div class="video-body">
                         <div class="stats">
@@ -1791,13 +1885,6 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                     
 
                     
-                    <a href="https://youtube.com/watch?v=GyOQiuIKf0I" target="_blank">
-                        <img src="https://img.youtube.com/vi/GyOQiuIKf0I/mqdefault.jpg"
-                             alt="STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
                     <div class="video-content">
                         <div class="video-header">
                             <h3>
@@ -1818,6 +1905,7 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
                                 <br>On: Dec 26/25
                                 
                             </p>
+                            
                         </div>
                         <div class="video-body">
                         <div class="stats">
@@ -1873,29 +1961,64 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
 
         <!-- Inline Ad 1: LMNT -->
         <a href="http://elementallabs.refr.cc" target="_blank" rel="noopener" style="display: block; margin: 25px auto; text-align: center;" onclick="trackAffiliateClick('LMNT Electrolytes', this.href)">
-            <img src="lmnt-box.avif" alt="LMNT electrolyte salt variety box" style="width: 100%; max-width: 500px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+            <img src="/lmnt-box.avif" alt="LMNT electrolyte salt variety box" style="width: 100%; max-width: 500px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
         </a>
 
         <!-- SECTION: Key Insights | Lines 1169-1185 | CSS: .section .insights-list | JS: none -->
         <!-- Key Insights -->
-        <section class="section">
+        <section class="section" id="butchers-wisdom">
             <h2>Butcher's Wisdom</h2>
             <div class="section-intro">
-                <p style="font-size: 1.2em; color: #2c1810; line-height: 1.8; margin-bottom: 30px; font-style: italic; border-left: 4px solid #8b4513; padding-left: 20px; background: rgba(255,255,255,0.3); padding: 20px;">
-                    <strong>Sharp insights, expertly cut.</strong> The week's most important takeaways distilled from hours of carnivore content — what you need to know, trimmed of the fat.
+                <p style="font-size: 1.2em; color: #2c1810; line-height: 1.8; margin-bottom: 30px; font-style: italic; border-left: 4px solid #2c1810; padding-left: 20px; background: rgba(255,255,255,0.3); padding: 20px;">
+                    <strong>Sharp insights, expertly cut.</strong> The week's most important takeaways distilled from hours of carnivore content. What you need to know, trimmed of the fat.
                 </p>
             </div>
             <ul class="insights-list">
                 
-                <li>**The Nutrient Diversity Conversation Is Heating Up**: Ken Berry's B1 content challenges the "beef only" dogma. If you're tracking micronutrients (which I recommend via regular blood panels), this matters. Pork, eggs, and organ meats aren't just "allowed" - they're nutritionally strategic. Bio-hackers take note.</li>
+                <li>
+                    <strong><built-in method title of str object at 0x108d65c70></strong>
+                    
+
+                    
+
+                    
+                </li>
                 
-                <li>**Oxalate Dumping Explains the Adaptation Struggle**: Anthony Chaffee's explanation of why former plant-eaters feel worse initially (crystal deposits releasing from tissues) is helping people stay the course instead of quitting at day 14. This is huge for retention and long-term success.</li>
+                <li>
+                    <strong><built-in method title of str object at 0x108bd9030></strong>
+                    
+
+                    
+
+                    
+                </li>
                 
-                <li>**Permission for Imperfection Is Resonating**: Courtney Luna's honest discussion about being "mostly carnivore" got more meaningful engagement than many stricter approaches. The community is craving sustainable over perfect. This is the maturation of the movement.</li>
+                <li>
+                    <strong><built-in method title of str object at 0x108e57db0></strong>
+                    
+
+                    
+
+                    
+                </li>
                 
-                <li>**Electrolyte Management Remains Misunderstood**: Despite years of content, people are still struggling with this. Max German's video highlighting it as a top mistake confirms this is an ongoing education gap. If you're using Whoop or Oura, track how your HRV responds to better sodium/potassium balance.</li>
+                <li>
+                    <strong><built-in method title of str object at 0x108e8f1a0></strong>
+                    
+
+                    
+
+                    
+                </li>
                 
-                <li>**The "Why People Quit" Content Performs Exceptionally Well**: Videos addressing failure points and mistakes get high engagement because they validate struggles instead of just celebrating wins. This signals the audience wants problem-solving, not just inspiration.</li>
+                <li>
+                    <strong><built-in method title of str object at 0x108d74030></strong>
+                    
+
+                    
+
+                    
+                </li>
                 
             </ul>
         </section>
@@ -1904,127 +2027,89 @@ Courtney Luna's candid Q&A about her own journey off strict carnivore really res
 
         <!-- SECTION: Community Voice + Q&A | Lines 1188-1307 | CSS: .section .sentiment .qa-accordion .qa-item | JS: toggleAnswer() -->
         <!-- Community Voice -->
-        <section class="section">
+        <section class="section" id="community-voice">
             <h2>Community Voice</h2>
             <div class="sentiment">
                 <h3>Overall Mood: <span class="badge">POSITIVE WITH REFRESHING REALISM</span></h3>
-
                 
-                <h3 style="margin-top: 30px;">Success Stories:</h3>
-                <ul class="questions-list">
-                    
-                    <li>
+
+                <!-- Platform Breakdown -->
+                
+
+                <!-- Top Questions -->
+                
+
+                <!-- Success Stories -->
+                
+                <h3 style="margin-top: 50px; margin-bottom: 25px; color: #111111; font-size: 1.4em;">Stories Dominating Engagement</h3>
+                <div style="background: #ffffff; padding: 35px; border-radius: 12px; border: 2px solid #d4a574; box-shadow: 0 2px 8px rgba(44, 24, 16, 0.08);">
+                    <ul class="questions-list" style="margin: 0; padding-left: 25px; list-style: disc; line-height: 1.8;">
                         
-                            Former vegetarian/vegan of 15+ years, almost only eating plants for rest of life due to family pressure, started carnivore and experiencing significant positive changes despite initial skepticism.
-                            <br>
-                            <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Anonymous commenter
-                                
-                                on <a href="https://youtube.com/watch?v=7j6ZZAtDSm4" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Carnivore Diet: Your Questions Answered! | Dr Anthony Chaffee</a>
-                                
-                            </em>
+                        <li style="margin-bottom: 25px; color: #111111;">
+                            <p style="margin: 0 0 10px 0; color: #111111; font-weight: 500;">Former vegetarian/vegan of 15+ years, almost only eating plants for rest of life due to family pressure, started carnivore and experiencing significant positive changes despite initial skepticism.</p>
+                            <p style="margin: 0; color: #111111; font-style: italic;">
+                                📍 <strong></strong> | 
+                            </p>
+                        </li>
                         
-                    </li>
-                    
-                    <li>
+                        <li style="margin-bottom: 25px; color: #111111;">
+                            <p style="margin: 0 0 10px 0; color: #111111; font-weight: 500;">74 years old, was vegan for 3 years, 2 months on carnivore and feeling much better. Addressing long-term health issues and stunned by how quickly body is responding.</p>
+                            <p style="margin: 0; color: #111111; font-style: italic;">
+                                📍 <strong></strong> | 
+                            </p>
+                        </li>
                         
-                            74 years old, was vegan for 3 years, 2 months on carnivore and feeling much better. Addressing long-term health issues and stunned by how quickly body is responding.
-                            <br>
-                            <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Anonymous commenter
-                                
-                                on <a href="https://youtube.com/watch?v=7j6ZZAtDSm4" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Carnivore Diet: Your Questions Answered! | Dr Anthony Chaffee</a>
-                                
-                            </em>
+                        <li style="margin-bottom: 25px; color: #111111;">
+                            <p style="margin: 0 0 10px 0; color: #111111; font-weight: 500;">Carnivore saved them from suicidal postpartum depression. Had 1 completed but failed attempt. Would 100% be dead without this way of eating.</p>
+                            <p style="margin: 0; color: #111111; font-style: italic;">
+                                📍 <strong></strong> | 
+                            </p>
+                        </li>
                         
-                    </li>
-                    
-                    <li>
+                        <li style="margin-bottom: 25px; color: #111111;">
+                            <p style="margin: 0 0 10px 0; color: #111111; font-weight: 500;">Today marks their Carniversary (1 year carnivore). Best decision of life. No meds, no supplements, no cravings. Expressing gratitude.</p>
+                            <p style="margin: 0; color: #111111; font-style: italic;">
+                                📍 <strong></strong> | 
+                            </p>
+                        </li>
                         
-                            Carnivore saved them from suicidal postpartum depression. Had 1 completed but failed attempt. Would 100% be dead without this way of eating.
-                            <br>
-                            <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Anonymous commenter
-                                
-                                on <a href="https://youtube.com/watch?v=rbUJM2D-CD0" target="_blank" style="color: #f4e4d4; text-decoration: underline;">NEW 90 Day Carnivore Challenge! #shorts #short #weightloss</a>
-                                
-                            </em>
+                        <li style="margin-bottom: 25px; color: #111111;">
+                            <p style="margin: 0 0 10px 0; color: #111111; font-weight: 500;">44 years vegetarian, now 7 days carnivore and celebrating this milestone during first Christmas without carbs and junk. Only meat, bacon, butter, eggs.</p>
+                            <p style="margin: 0; color: #111111; font-style: italic;">
+                                📍 <strong></strong> | 
+                            </p>
+                        </li>
                         
-                    </li>
-                    
-                    <li>
+                        <li style="margin-bottom: 25px; color: #111111;">
+                            <p style="margin: 0 0 10px 0; color: #111111; font-weight: 500;">20-year vegetarian diagnosed with IBS 2 years ago. Zero solid solutions from the medical world despite invasive tests and procedures. Trying carnivore as last resort.</p>
+                            <p style="margin: 0; color: #111111; font-style: italic;">
+                                📍 <strong></strong> | 
+                            </p>
+                        </li>
                         
-                            Today marks their Carniversary (1 year carnivore). Best decision of life. No meds, no supplements, no cravings. Expressing gratitude.
-                            <br>
-                            <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Anonymous commenter
-                                
-                                on <a href="https://youtube.com/watch?v=jzJaQUA8_ds" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Just 1 Cup Before 10AM Guarantees Weight Loss</a>
-                                
-                            </em>
+                        <li style="margin-bottom: 25px; color: #111111;">
+                            <p style="margin: 0 0 10px 0; color: #111111; font-weight: 500;">Thriving on carnivore for 4 years at 76 years old. Healthy with no pain, no meds, no supplements. Living proof of long-term success.</p>
+                            <p style="margin: 0; color: #111111; font-style: italic;">
+                                📍 <strong></strong> | 
+                            </p>
+                        </li>
                         
-                    </li>
-                    
-                    <li>
+                        <li style="margin-bottom: 25px; color: #111111;">
+                            <p style="margin: 0 0 10px 0; color: #111111; font-weight: 500;">Lost 40 pounds in first 90 days of carnivore. Feels better than since being in the military. Significant physical transformation.</p>
+                            <p style="margin: 0; color: #111111; font-style: italic;">
+                                📍 <strong></strong> | 
+                            </p>
+                        </li>
                         
-                            44 years vegetarian, now 7 days carnivore and celebrating this milestone during first Christmas without carbs and junk. Only meat, bacon, butter, eggs.
-                            <br>
-                            <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Anonymous commenter
-                                
-                                on <a href="https://youtube.com/watch?v=rbUJM2D-CD0" target="_blank" style="color: #f4e4d4; text-decoration: underline;">NEW 90 Day Carnivore Challenge! #shorts #short #weightloss</a>
-                                
-                            </em>
-                        
-                    </li>
-                    
-                    <li>
-                        
-                            20-year vegetarian diagnosed with IBS 2 years ago. Zero solid solutions from the medical world despite invasive tests and procedures. Trying carnivore as last resort.
-                            <br>
-                            <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Anonymous commenter
-                                
-                                on <a href="https://youtube.com/watch?v=cPIYOqSF1aQ" target="_blank" style="color: #f4e4d4; text-decoration: underline;">If I Started Carnivore in 2026, I'd Do This</a>
-                                
-                            </em>
-                        
-                    </li>
-                    
-                    <li>
-                        
-                            Thriving on carnivore for 4 years at 76 years old. Healthy with no pain, no meds, no supplements. Living proof of long-term success.
-                            <br>
-                            <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Anonymous commenter
-                                
-                                on <a href="https://youtube.com/watch?v=odRB4SQo1v0" target="_blank" style="color: #f4e4d4; text-decoration: underline;">MONDAY NIGHT LIVE with Dr. Ken Berry & Nurse Neisha</a>
-                                
-                            </em>
-                        
-                    </li>
-                    
-                    <li>
-                        
-                            Lost 40 pounds in first 90 days of carnivore. Feels better than since being in the military. Significant physical transformation.
-                            <br>
-                            <em style="font-size: 0.9em; opacity: 0.8;">
-                                — Anonymous commenter
-                                
-                                on <a href="https://youtube.com/watch?v=zAFLcFnbIkU" target="_blank" style="color: #f4e4d4; text-decoration: underline;">Why are eating these foods so problematic?</a>
-                                
-                            </em>
-                        
-                    </li>
-                    
-                </ul>
+                    </ul>
+                </div>
                 
             </div>
 
             <!-- Q&A Section -->
             
-            <h3 style="margin-top: 40px; color: #2c1810; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
-            <p style="margin-bottom: 20px; font-style: italic; color: #2c1810;">Click any question to reveal the evidence-based answer with scientific citations</p>
+            <h3 id="qa-section" style="margin-top: 40px; color: #111111; font-family: 'Playfair Display', serif; font-size: 1.8em;">Common Questions Answered</h3>
+            <p style="margin-bottom: 20px; font-style: italic; color: #111111;">Click any question to reveal the evidence-based answer with scientific citations</p>
 
             <div class="qa-accordion">
                 
@@ -2141,7 +2226,7 @@ Recent metabolic research indicates that protein intake beyond 1.6-2.2 grams per
                         
                         <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
                             <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
-                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#digestion" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="/wiki.html#digestion" style="color: #111111; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
                             </p>
                         </div>
                         
@@ -2275,7 +2360,7 @@ The key is gradual adaptation. Don't just dump salt randomly - track your body's
                         
                         <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
                             <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
-                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#electrolytes" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="/wiki.html#electrolytes" style="color: #111111; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
                             </p>
                         </div>
                         
@@ -2344,7 +2429,7 @@ My recommendation? Use blood glucose tracking (I'm a big fan of continuous monit
                         
                         <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
                             <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
-                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#organ-meats" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="/wiki.html#organ-meats" style="color: #111111; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
                             </p>
                         </div>
                         
@@ -2476,7 +2561,7 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                         
                         <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
                             <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
-                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#electrolytes" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="/wiki.html#electrolytes" style="color: #111111; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
                             </p>
                         </div>
                         
@@ -2545,7 +2630,7 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                         
                         <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
                             <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
-                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html#dairy" style="color: #8b4513; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="/wiki.html#dairy" style="color: #111111; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
                             </p>
                         </div>
                         
@@ -2572,15 +2657,20 @@ What's fascinating is how individual metabolic responses can vary. While some bi
         <div class="inline-ad">
             <h4>Carnivore-Friendly Cookware</h4>
             <p>
-                Cast iron and stainless steel cookware perfect for searing steaks.
-                Built to last a lifetime. No toxic non-stick coatings.
+                Most people underestimate how much cookware affects the final product. A bad pan kills a perfect cut of meat. The difference between a mediocre sear and a perfect crust? Usually the tool.
             </p>
-            <a href="https://amzn.to/4pYLqZx" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('Lodge Cast Iron', this.href)">Shop Premium Cookware →</a>
+            <p>
+                Cast iron and stainless steel hold heat differently. Cast iron retains warmth, so your steak stays hot longer. Stainless gets hotter faster. Both have their moment.
+            </p>
+            <p>
+                If you're serious about the cooking part and don't want to replace equipment every few years, there's a reason chefs reach for Lodge. Built to last a lifetime. No toxic non-stick coatings breaking down into your food. You don't need this if you're happy with what you have—but if you're curious, it's there.
+            </p>
+            <a href="https://amzn.to/4pYLqZx" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('Lodge Cast Iron', this.href)">Check it out if it helps →</a>
         </div>
 
         <!-- SECTION: Recommended Watching | Lines 1308-1388 | CSS: .section .video-grid .video-card | JS: filterVideosByCreator() -->
         <!-- Recommended Watching -->
-        <section class="section">
+        <section class="section" id="recommended">
             <h2>Must-Watch Content</h2>
             <div class="video-grid">
                 
@@ -2600,13 +2690,6 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                     </script>
                     
 
-                    
-                    <a href="https://youtube.com/watch?v=6ExSc9OdIIA" target="_blank">
-                        <img src="https://img.youtube.com/vi/6ExSc9OdIIA/mqdefault.jpg"
-                             alt="If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
                     
                     <div class="video-content">
                         <div class="video-header">
@@ -2670,13 +2753,6 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                     
 
                     
-                    <a href="https://youtube.com/watch?v=UzN38EgKBJo" target="_blank">
-                        <img src="https://img.youtube.com/vi/UzN38EgKBJo/mqdefault.jpg"
-                             alt="The Best Source Of Vitamin B1 On The Planet"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
                     <div class="video-content">
                         <div class="video-header">
                             <h3>
@@ -2738,13 +2814,6 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                     </script>
                     
 
-                    
-                    <a href="https://youtube.com/watch?v=GyOQiuIKf0I" target="_blank">
-                        <img src="https://img.youtube.com/vi/GyOQiuIKf0I/mqdefault.jpg"
-                             alt="STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
                     
                     <div class="video-content">
                         <div class="video-header">
@@ -2808,13 +2877,6 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                     
 
                     
-                    <a href="https://youtube.com/watch?v=hwcgWXf5fWQ" target="_blank">
-                        <img src="https://img.youtube.com/vi/hwcgWXf5fWQ/mqdefault.jpg"
-                             alt="An Honest Conversation"
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
-                    
                     <div class="video-content">
                         <div class="video-header">
                             <h3>
@@ -2876,13 +2938,6 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                     </script>
                     
 
-                    
-                    <a href="https://youtube.com/watch?v=I9J6kq4fJeM" target="_blank">
-                        <img src="https://img.youtube.com/vi/I9J6kq4fJeM/mqdefault.jpg"
-                             alt="Feeling Bad When Starting Carnivore? This Might Be Why..."
-                             class="video-thumbnail"
-                             onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
-                    </a>
                     
                     <div class="video-content">
                         <div class="video-header">
@@ -2958,12 +3013,12 @@ What's fascinating is how individual metabolic responses can vary. While some bi
     <!-- SECTION: Bottom Navigation Menu | Lines 1410-1418 | CSS: .nav-menu #bottom-nav | JS: setActiveNavigation() -->
     <!-- Bottom Navigation Menu -->
     <nav class="nav-menu" style="margin-top: 60px;" id="bottom-nav">
-        <a href="index.html">Home</a>
-        <a href="channels.html">Channels</a>
-        <a href="wiki.html">Wiki</a>
-        <a href="blog.html">Blog</a>
-        <a href="calculator.html">Calculator</a>
-        <a href="archive.html">Archive</a>
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Channels</a>
+        <a href="/wiki.html">Wiki</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/calculator.html">Calculator</a>
+        <a href="/archive.html">Archive</a>
     </nav>
 
     <!-- SECTION: Footer | Lines 1427-1441 | CSS: footer | JS: none -->
@@ -2978,11 +3033,11 @@ What's fascinating is how individual metabolic responses can vary. While some bi
             </a>
         </p>
         <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
-            <a href="about.html" style="color: #8b4513; text-decoration: none;">About</a> •
-            <a href="the-lab.html" style="color: #8b4513; text-decoration: none;">The Lab</a> •
-            <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
+            <a href="/about.html" style="color: #2c1810; text-decoration: none;">About</a> •
+            <a href="/the-lab.html" style="color: #2c1810; text-decoration: none;">The Lab</a> •
+            <a href="/privacy.html" style="color: #2c1810; text-decoration: none;">Privacy Policy</a>
         </p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2026-01-01 10:26:37</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2026-01-02 10:34:07</p>
     </footer>
 
     <script>
@@ -3075,7 +3130,7 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                 if (!noResults) {
                     noResults = document.createElement('div');
                     noResults.setAttribute('data-no-results', 'true');
-                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #8b4513; font-size: 1.1em;';
+                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #2c1810; font-size: 1.1em;';
                     noResults.innerHTML = '❌ No videos found with tag: <strong>#' + selectedTag + '</strong>';
                     grid.appendChild(noResults);
                 }
@@ -3145,7 +3200,7 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                 if (!noResults) {
                     noResults = document.createElement('div');
                     noResults.setAttribute('data-no-results-creator', 'true');
-                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #8b4513; font-size: 1.1em;';
+                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #2c1810; font-size: 1.1em;';
                     noResults.innerHTML = '❌ No videos found from: <strong>' + selectedCreator + '</strong>';
                     grid.appendChild(noResults);
                 }
@@ -3153,6 +3208,64 @@ What's fascinating is how individual metabolic responses can vary. While some bi
                 noResults.remove();
             }
         }
+
+        // Link creator mentions to their YouTube channels (first mention per section)
+        function linkCreatorMentions() {
+            const creatorChannels = {"Anthony Chaffee MD": "UCzoRyR_nlesKZuOlEjWRXQQ", "Coach Carnivore Cam ": "UC3vywUwv6B-JB4jmdhZnX7A", "Courtney Luna": "UCzgj3pQycdp7SUUbz56wNCw", "KenDBerryMD": "UCIma2WOQs1Mz2AuOt6wRSUw", "Modo Primal Podcast": "UCHBKeyrOcwUFAgrDrU_dQkw", "Monique Yousfi\ud83e\udd69\ud83c\udf73": "UCzTvotnDdMfPB_v7WSX6eNA", "No Carb Life": "UCzcoPGdDRiPiWZYV4_EkzPQ", "Shawn Baker MD": "UC5apkKkeZQXRSDbqSalG8CQ", "myzerocarblife": "UCaKl8Lth6h6GWreFyeO1keA"};
+            const sections = document.querySelectorAll('.section');
+            const linkedCreators = {};
+
+            sections.forEach((section, sectionIndex) => {
+                linkedCreators[sectionIndex] = new Set();
+                const walker = document.createTreeWalker(
+                    section,
+                    NodeFilter.SHOW_TEXT,
+                    null
+                );
+
+                let node;
+                while (node = walker.nextNode()) {
+                    let modified = false;
+                    let html = node.textContent;
+
+                    for (const [creator, channelId] of Object.entries(creatorChannels)) {
+                        if (!linkedCreators[sectionIndex].has(creator) && html.includes(creator)) {
+                            const regex = new RegExp(`\\b${creator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+                            html = html.replace(regex, `<a href="https://youtube.com/channel/${channelId}" target="_blank" rel="noopener" style="color: #d4a574; text-decoration: underline; font-weight: 600;">${creator}</a>`);
+                            linkedCreators[sectionIndex].add(creator);
+                            modified = true;
+                            break;
+                        }
+                    }
+
+                    if (modified) {
+                        const span = document.createElement('span');
+                        span.innerHTML = html;
+                        node.parentNode.replaceChild(span, node);
+                    }
+                }
+            });
+        }
+
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', linkCreatorMentions);
+
+        // Back-to-top and section menu scroll handler
+        const backToTopBtn = document.getElementById('back-to-top');
+        const sectionNav = document.getElementById('section-nav');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTopBtn.classList.add('show');
+                sectionNav.style.display = 'block';
+            } else {
+                backToTopBtn.classList.remove('show');
+                sectionNav.style.display = 'none';
+            }
+        });
     </script>
+
+    <!-- Back-to-Top Button -->
+    <a href="#" class="back-to-top" id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">↑</a>
 </body>
 </html>
