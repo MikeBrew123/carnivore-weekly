@@ -1036,19 +1036,48 @@
             <h2>What's Sizzling</h2>
             <div class="trending-topics">
                 {% for topic in trending_topics %}
-                <div class="topic-card">
-                    <h3>{{ topic.topic }}</h3>
-                    <p>{{ topic.description }}</p>
-                    <div class="mentioned-by">
-                        <strong>Featured in:</strong>
-                        {% for creator in topic.mentioned_by %}
-                            {% if creator_channels.get(creator) %}
-                                <a href="https://youtube.com/channel/{{ creator_channels[creator] }}" target="_blank" style="color: #f4e4d4; text-decoration: underline;">{{ creator }}</a>{% if not loop.last %}, {% endif %}
-                            {% else %}
-                                {{ creator }}{% if not loop.last %}, {% endif %}
-                            {% endif %}
-                        {% endfor %}
+                <div class="topic-card" data-topic-id="{{ topic.id }}">
+                    {% if topic.is_non_carnivore %}
+                    <div style="background: #ff6b6b; color: white; padding: 10px; border-radius: 4px; margin-bottom: 12px; font-weight: 600; text-align: center;">
+                        ⚠️ TRIGGER WARNING: Anti-Carnivore Content Detected
                     </div>
+                    {% endif %}
+                    <h3>{{ topic.trend_strength }} {{ topic.topic }}</h3>
+                    <p style="margin-bottom: 12px;">{{ topic.description }}</p>
+
+                    {% if topic.why_trending %}
+                    <p style="font-size: 0.95em; color: #d4a574; font-style: italic; margin-bottom: 12px;">
+                        <strong>Why trending:</strong> {{ topic.why_trending }}
+                    </p>
+                    {% endif %}
+
+                    {% if topic.community_sources %}
+                    <p style="font-size: 0.9em; color: #f4e4d4; margin-bottom: 12px;">
+                        <strong>From:</strong> {{ topic.community_sources|join(', ') }}
+                    </p>
+                    {% endif %}
+
+                    {% if topic.wiki_links or topic.blog_links %}
+                    <div style="border-top: 1px solid rgba(244, 228, 212, 0.3); padding-top: 12px; margin-top: 12px;">
+                        {% if topic.wiki_links %}
+                        <p style="font-size: 0.9em; margin-bottom: 8px;">
+                            <strong>📚 Learn More:</strong>
+                            {% for wiki in topic.wiki_links %}
+                                <a href="wiki.html#{{ wiki.anchor }}" style="color: #ffd700; text-decoration: underline;">{{ wiki.title }}</a>{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                        {% endif %}
+
+                        {% if topic.blog_links %}
+                        <p style="font-size: 0.9em;">
+                            <strong>📝 Read:</strong>
+                            {% for blog in topic.blog_links %}
+                                <a href="blog.html#{{ blog.slug }}" style="color: #ffd700; text-decoration: underline;">{{ blog.title }}</a>{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
