@@ -103,17 +103,21 @@ strong {
 
 .layout-wrapper-2026 {
     display: grid;
-    grid-template-columns: 70fr 30fr;
+    grid-template-columns: 70% 30%;
     gap: var(--spacing-xxl);
-    max-width: 1600px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: var(--spacing-xxl) var(--spacing-lg);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .main-content-2026 {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xxl);
+    min-width: 0;
+    overflow: hidden;
 }
 
 .sidebar-2026 {
@@ -124,6 +128,7 @@ strong {
     height: fit-content;
     position: sticky;
     top: var(--spacing-lg);
+    min-width: 0;
 }
 
 /* ============================================
@@ -1231,6 +1236,53 @@ header .update-date {
     .sidebar-2026 {
         padding: var(--spacing-lg) var(--spacing-md);
     }
+}
+
+/* ============================================
+   IMAGE & CONTENT CONSTRAINTS (Merged Content)
+   ============================================ */
+
+/* Sponsor banner image container */
+.sponsor-banner-image {
+    width: 100%;
+    max-width: 100%;
+    margin: var(--spacing-lg) 0;
+}
+
+.sponsor-banner-image img,
+.sponsor-banner-image a {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Calculator ad container */
+.calculator-ad {
+    width: 100%;
+    max-width: 100%;
+    margin: var(--spacing-lg) 0;
+}
+
+.calculator-ad img,
+.calculator-ad a {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Global image constraints for all images */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Section containers */
+.section {
+    width: 100%;
+    max-width: 100%;
 }
 
 /* ============================================
