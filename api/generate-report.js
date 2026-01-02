@@ -458,45 +458,60 @@ export default {
 
       try {
         // Save report to Supabase with secure access token
-        const savedReport = await saveReportToSupabase(
-          data.email,
-          combinedReport,
-          data, // Pass entire questionnaire data for reference
-          data.session_id || null,
-          env.SUPABASE_SERVICE_ROLE_KEY
-        );
+        let savedReport;
+        try {
+          savedReport = await saveReportToSupabase(
+            data.email,
+            combinedReport,
+            data, // Pass entire questionnaire data for reference
+            data.session_id || null,
+            env.SUPABASE_SERVICE_ROLE_KEY
+          );
+          console.log('[Report Generation] Report saved to Supabase successfully');
+        } catch (supabaseError) {
+          console.error('[Report Generation] Supabase save failed:', supabaseError);
+          throw supabaseError;
+        }
 
-        // Send email with access link
-        await sendReportEmail(
-          data.email,
-          savedReport.accessToken,
-          env.RESEND_API_KEY
-        );
+        // Try to send email, but don't fail if it doesn't work
+        let emailSent = false;
+        try {
+          await sendReportEmail(
+            data.email,
+            savedReport.accessToken,
+            env.RESEND_API_KEY
+          );
+          emailSent = true;
+          console.log('[Report Generation] Email sent successfully');
+        } catch (emailError) {
+          console.error('[Report Generation] Email send failed (non-blocking):', emailError.message);
+          // Continue anyway - report is already saved
+        }
 
         const saveTime = Date.now() - saveStart;
-        console.log(`[Report Generation] Report saved and email sent in ${saveTime}ms`);
+        console.log(`[Report Generation] Report processed in ${saveTime}ms (Email: ${emailSent ? 'sent' : 'pending'})`);
 
-        // Return success response with access token (not HTML)
-        console.log('[Report Generation] Returning token response to client');
+        // Return success response with access token (report is saved regardless of email)
+        console.log('[Report Generation] Returning success response to client');
         return new Response(JSON.stringify({
           success: true,
-          message: 'Report generated and sent to your email',
+          message: emailSent ? 'Report generated and email sent' : 'Report generated and saved (email pending)',
           accessToken: savedReport.accessToken,
           expiresAt: savedReport.expiresAt,
           email: data.email,
           reportId: savedReport.id,
           generatedAt: new Date().toISOString(),
-          nextStep: 'Check your email for the secure access link'
+          nextStep: emailSent ? 'Check your email for the secure access link' : 'Your report is ready in your account'
         }), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       } catch (saveError) {
-        console.error('[Report Generation] Error saving/sending:', saveError);
-        // Return error but include access token in case Supabase fails but email needs resending
+        console.error('[Report Generation] Critical error:', saveError);
+        // Only return error if Supabase save itself failed
         return new Response(JSON.stringify({
           success: false,
-          error: 'Failed to save report or send email',
+          error: 'Failed to save report to database',
           details: saveError.message,
           email: data.email
         }), {
