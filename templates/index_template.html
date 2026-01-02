@@ -1204,9 +1204,9 @@
                     </script>
                     {% endif %}
 
-                    {% if video.video_id %}
+                    {% if video.thumbnail_url %}
                     <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
-                        <img src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg"
+                        <img src="{{ video.thumbnail_url }}"
                              alt="{{ video.title }}"
                              class="video-thumbnail"
                              onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
@@ -1459,9 +1459,9 @@
                     </script>
                     {% endif %}
 
-                    {% if video.video_id %}
+                    {% if video.thumbnail_url %}
                     <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
-                        <img src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg"
+                        <img src="{{ video.thumbnail_url }}"
                              alt="{{ video.title }}"
                              class="video-thumbnail"
                              onerror="this.src='https://via.placeholder.com/320x180/8b4513/f4e4d4?text=Video'">
