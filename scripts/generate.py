@@ -432,12 +432,6 @@ class UnifiedGenerator:
         """Generate archive pages"""
         mapping = self.config["generation"]["template_mappings"]["archive"]
 
-        # Load data
-        data = self.load_data("analyzed_content")
-        if not data:
-            print("Error: No data available for archive generation")
-            return False
-
         # Load template
         try:
             template = self.jinja_env.get_template(mapping["template"])
@@ -445,9 +439,38 @@ class UnifiedGenerator:
             print(f"Error loading template {mapping['template']}: {e}")
             return False
 
+        # Load all archive files
+        archive_dir = self.project_root / self.config["paths"]["data_dir"] / "archive"
+        weeks = []
+
+        if archive_dir.exists():
+            # Get all JSON files sorted by date (newest first)
+            archive_files = sorted(
+                [f for f in archive_dir.glob("*.json") if f.name[0].isdigit()],
+                key=lambda f: f.name,
+                reverse=True
+            )
+
+            for archive_file in archive_files[:10]:  # Limit to 10 most recent weeks
+                try:
+                    with open(archive_file) as f:
+                        week_data = json.load(f)
+
+                    # Extract week info
+                    week_info = {
+                        "date": archive_file.stem,  # Use filename as date
+                        "total_creators": week_data.get("top_creators_count", 0),
+                        "total_videos": week_data.get("total_videos_found", 0),
+                        "summary_preview": week_data.get("weekly_summary", "")[:100]  # First 100 chars
+                    }
+                    weeks.append(week_info)
+                except (json.JSONDecodeError, KeyError):
+                    continue
+
         # Prepare template variables
         template_vars = {
-            "data": data,
+            "weeks": weeks,
+            "total_weeks": len(weeks),
             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
 

@@ -1104,6 +1104,138 @@
                 padding: 8px 0 8px 25px;
             }
         }
+
+        /* ========================================
+           ADVANCED FORM SECTIONS STYLING
+           ======================================== */
+
+        .form-section {
+            background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%);
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: #8b4513;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .form-section .subtitle {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 25px;
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c1810;
+            font-family: 'Merriweather', serif;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d4a574;
+            border-radius: 8px;
+            font-family: 'Merriweather', serif;
+            font-size: 1em;
+            box-sizing: border-box;
+            background-color: white;
+            color: #2c1810;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #8b4513;
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            margin-top: 2px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+            font-size: 0.95em;
+        }
+
+        .optional {
+            font-weight: normal;
+            font-size: 0.85em;
+            color: #999;
+        }
+
+        /* Mobile responsiveness for form sections */
+        @media (max-width: 768px) {
+            .form-section {
+                padding: 25px;
+                margin-bottom: 20px;
+            }
+
+            .form-section h3 {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+
+            .form-section .subtitle {
+                font-size: 0.9em;
+                margin-bottom: 20px;
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                padding: 10px;
+                font-size: 16px;
+            }
+        }
     </style>
 
     <!-- Schema.org WebApplication markup -->
@@ -1751,7 +1883,7 @@
                             <div class="price-final">$9.99</div>
                             <p style="font-size: 0.9em; color: #666; margin-bottom: 20px;">Limited time offer</p>
                         </div>
-                        <button class="cta-button-pulse" onclick="upgradeClick()">Get My Plan Now</button>
+                        <button class="cta-button-pulse" onclick="upgradeFromFree()">Get My Plan Now</button>
                         <p style="font-size: 0.8em; color: #666; margin-top: 15px;">One-time payment<br>No subscription</p>
                     </div>
                 </div>
@@ -1826,17 +1958,19 @@
                     'event_label': path === 'free' ? 'Free Calculator' : 'Paid Protocol'
                 });
 
-                if (path === 'free') {
-                    // Free path: Show calculator
-                    document.getElementById('pathChoice').classList.add('hidden');
-                    document.getElementById('calculatorForm').classList.remove('hidden');
-                    document.getElementById('calculatorForm').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                // Both paths show calculator first
+                document.getElementById('pathChoice').classList.add('hidden');
+                document.getElementById('calculatorForm').classList.remove('hidden');
+                document.getElementById('calculatorForm').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+
+                // Update button text based on path
+                if (path === 'paid') {
+                    document.getElementById('calculateBtn').textContent = 'Next: Complete Your Profile';
                 } else {
-                    // Paid path: Go directly to questionnaire
-                    window.location.href = 'paid-questionnaire.html';
+                    document.getElementById('calculateBtn').textContent = 'Calculate My Macros';
                 }
             } catch (error) {
                 console.error('Error in choosePath:', error);
@@ -2131,7 +2265,7 @@
         }
 
         // ---------- Main Calculate Function ----------
-        function calculate() {
+        function calculate(silent = false) {
             // Get inputs
             const sex = document.getElementById('sex').value;
             const age = clamp(parseInt(document.getElementById('age').value), 14, 99);
@@ -2201,8 +2335,183 @@
             // Track event
             trackCalculation(diet, goal);
 
-            // Scroll to results
-            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Show results only if not in silent mode
+            if (!silent) {
+                document.getElementById('resultsSection').classList.remove('hidden');
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // ---------- Progressive Disclosure Logic ----------
+        function handlePrimaryButton() {
+            const pathChoice = localStorage.getItem('path_choice');
+
+            if (pathChoice === 'paid') {
+                // Paid path: Validate basic form, then reveal advanced sections
+                if (!validateBasicForm()) {
+                    alert('Please fill out all required fields');
+                    return;
+                }
+
+                // Calculate macros silently (store in currentResults)
+                calculate(true);
+
+                // Reveal advanced sections
+                revealAdvancedSections();
+            } else {
+                // Free path: Calculate and show results normally
+                calculate();
+            }
+        }
+
+        function validateBasicForm() {
+            const age = document.getElementById('age').value;
+            const weight = document.getElementById('weight').value;
+            const height = document.getElementById('heightFeet').value || document.getElementById('heightCm').value;
+
+            return age && weight && height;
+        }
+
+        function revealAdvancedSections() {
+            // Hide the primary button
+            document.getElementById('calculateBtn').style.display = 'none';
+
+            // Show advanced sections with smooth reveal
+            const advancedSections = document.getElementById('advancedSections');
+            advancedSections.classList.remove('hidden');
+
+            // Show submit button
+            document.getElementById('advancedSubmitSection').classList.remove('hidden');
+
+            // Smooth scroll to advanced sections
+            advancedSections.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // Track analytics
+            gtag('event', 'advanced_sections_revealed', {
+                'event_category': 'Paid Path',
+                'event_label': 'Progressive Disclosure'
+            });
+        }
+
+        async function submitAdvancedForm() {
+            // Validate email is required
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('Please enter your email address to receive your protocol');
+                document.getElementById('email').focus();
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = event.target;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Generating Your Protocol...';
+
+            try {
+                // Collect basic calculator data
+                const basicData = {
+                    sex: document.getElementById('sex').value,
+                    age: document.getElementById('age').value,
+                    weight: document.getElementById('weight').value,
+                    heightFeet: document.getElementById('heightFeet').value,
+                    heightInches: document.getElementById('heightInches').value,
+                    heightCm: document.getElementById('heightCm').value,
+                    lifestyle: document.getElementById('lifestyle').value,
+                    exercise: document.getElementById('exercise').value,
+                    goal: document.getElementById('goal').value,
+                    deficit: document.getElementById('deficit').value,
+                    diet: document.getElementById('diet').value,
+                    ratio: document.getElementById('ratio')?.value,
+                    proteinMin: document.getElementById('proteinMin')?.value,
+                    netCarbs: document.getElementById('netCarbs')?.value,
+                    proteinSetting: document.getElementById('proteinSetting')?.value
+                };
+
+                // Collect advanced form data
+                const advancedData = {
+                    email: email,
+                    firstName: document.querySelector('input[name="firstName"]')?.value,
+                    medications: document.querySelector('textarea[name="medications"]')?.value,
+                    conditions: Array.from(document.querySelectorAll('input[name="conditions"]:checked')).map(cb => cb.value),
+                    allergies: document.querySelector('textarea[name="allergies"]')?.value,
+                    avoidFoods: document.querySelector('textarea[name="avoidFoods"]')?.value,
+                    previousDiets: document.querySelector('textarea[name="previousDiets"]')?.value,
+                    carnivoreExperience: document.querySelector('select[name="carnivoreExperience"]')?.value,
+                    selectedProtocol: document.querySelector('select[name="selectedProtocol"]')?.value,
+                    goals: Array.from(document.querySelectorAll('input[name="goals"]:checked')).map(cb => cb.value),
+                    additionalNotes: document.querySelector('textarea[name="additionalNotes"]')?.value
+                };
+
+                // Combine basic + advanced data
+                const completeData = {
+                    ...basicData,
+                    ...advancedData,
+                    macros: currentResults,
+                    session_id: localStorage.getItem('session_id'),
+                    path_choice: 'paid'
+                };
+
+                // Send to Worker
+                const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(completeData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success message
+                    document.getElementById('advancedSections').style.display = 'none';
+                    document.getElementById('advancedSubmitSection').innerHTML = `
+                        <div style="text-align: center; padding: 40px; background: #e8f5e9; border-radius: 12px;">
+                            <h2 style="color: #4caf50; margin: 0 0 15px 0;">✅ Protocol Generated!</h2>
+                            <p style="font-size: 1.1em; margin: 0 0 10px 0;"><strong>Check your email at ${email}</strong></p>
+                            <p style="margin: 0 0 20px 0;">Your personalized 30-day carnivore protocol is on its way.</p>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 0;">
+                                Access link expires in 48 hours. Download and save your protocol for permanent access.
+                            </p>
+                        </div>
+                    `;
+
+                    // Track conversion
+                    gtag('event', 'purchase', {
+                        'event_category': 'Paid Report',
+                        'value': 9.99
+                    });
+                } else {
+                    throw new Error(result.error || 'Failed to generate protocol');
+                }
+
+            } catch (error) {
+                console.error('Submission error:', error);
+                alert('Error generating protocol: ' + error.message + '\n\nPlease try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Generate My Complete Protocol';
+            }
+        }
+
+        function upgradeFromFree() {
+            // Change path to paid
+            localStorage.setItem('path_choice', 'paid');
+
+            // Hide results and upgrade section
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('upgradeSection').classList.add('hidden');
+
+            // Scroll back to top of calculator
+            document.getElementById('calculatorForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // Reveal advanced sections after scroll
+            setTimeout(() => {
+                revealAdvancedSections();
+            }, 500);
+
+            // Track analytics
+            gtag('event', 'upgrade_clicked', {
+                'event_category': 'Conversion',
+                'event_label': 'Free to Paid'
+            });
         }
 
         // ---------- Meal Examples Generation ----------
