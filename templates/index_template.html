@@ -1342,7 +1342,7 @@
             <div class="sentiment">
                 <h3>Overall Mood: <span class="badge">{{ community_sentiment.overall_tone|upper }}</span></h3>
                 {% if community_sentiment.overall_description %}
-                <p style="margin-top: 15px; color: #2c1810; font-style: italic; border-left: 4px solid #d4a574; padding-left: 15px;">{{ community_sentiment.overall_description }}</p>
+                <p style="margin-top: 20px; color: #2c1810; font-style: italic; border-left: 4px solid #d4a574; padding-left: 20px; background: #ffffff; padding: 20px; border-radius: 8px; line-height: 1.8;">{{ community_sentiment.overall_description }}</p>
                 {% endif %}
 
                 <!-- Platform Breakdown -->
@@ -1350,29 +1350,29 @@
                 <h3 style="margin-top: 40px; color: #2c1810; font-size: 1.4em;">What's Happening on Social</h3>
 
                 {% for platform_key, platform_data in community_sentiment.by_platform.items() %}
-                <div style="margin-top: 40px; padding: 30px; background: rgba(212, 165, 116, 0.08); border-radius: 8px; border-left: 4px solid #d4a574; line-height: 1.7;">
-                    <h4 style="margin-top: 0; margin-bottom: 15px; color: #2c1810; font-size: 1.3em;">{{ platform_data.platform_name }}</h4>
-                    <p style="margin: 12px 0; color: #2c1810;">
+                <div style="margin-top: 40px; padding: 35px; background: #ffffff; border-radius: 12px; border: 2px solid #d4a574; box-shadow: 0 2px 8px rgba(44, 24, 16, 0.08); line-height: 1.8;">
+                    <h4 style="margin: 0 0 20px 0; color: #2c1810; font-size: 1.4em; font-weight: 700; padding-bottom: 12px; border-bottom: 3px solid #d4a574;">{{ platform_data.platform_name }}</h4>
+                    <p style="margin: 15px 0; color: #2c1810;">
                         <strong>Mood:</strong> {{ platform_data.sentiment }} | <strong>Activity:</strong> {{ platform_data.daily_activity }}
                     </p>
 
                     {% if platform_data.trending_topics %}
                     <div style="margin-top: 25px;">
-                        <p style="margin: 0 0 20px 0; font-weight: 600; color: #2c1810; font-size: 1.05em;">What they're talking about:</p>
-                        <ul style="margin: 0; padding-left: 25px; list-style-position: outside;">
+                        <p style="margin: 0 0 20px 0; font-weight: 700; color: #2c1810; font-size: 1.1em;">What they're talking about:</p>
+                        <ul style="margin: 0; padding-left: 25px; list-style: disc;">
                             {% for trend in platform_data.trending_topics %}
-                            <li style="margin-bottom: 25px; color: #2c1810;">
-                                <strong style="color: #2c1810; font-size: 1.05em;">{{ trend.topic }}</strong> <span style="color: #2c1810; font-weight: 600;">{{ trend.volume }}</span>
-                                <p style="margin: 8px 0 10px 0; color: #2c1810;">{{ trend.why }}</p>
-                                <p style="margin: 10px 0; color: #2c1810; font-style: italic; padding-left: 15px; border-left: 3px solid #d4a574;">{{ trend.typical_question }}</p>
-                                <p style="margin: 10px 0; color: #2c1810;"><strong>They need:</strong> {{ trend.what_they_need }}</p>
+                            <li style="margin-bottom: 28px; color: #2c1810;">
+                                <strong style="color: #2c1810; font-size: 1.05em; display: block; margin-bottom: 8px;">{{ trend.topic }}</strong>
+                                <p style="margin: 0 0 12px 0; color: #2c1810;">{{ trend.why }}</p>
+                                <p style="margin: 12px 0; padding: 12px 18px; background: rgba(212, 165, 116, 0.05); border-left: 4px solid #d4a574; font-style: italic; color: #2c1810; border-radius: 4px;">{{ trend.typical_question }}</p>
+                                <p style="margin: 12px 0 0 0; color: #2c1810;"><strong>They need:</strong> {{ trend.what_they_need }}</p>
                                 {% if trend.our_link %}
-                                <p style="margin: 10px 0 0 0;">
+                                <p style="margin: 12px 0 0 0;">
                                     {% if trend.our_link.wiki %}
-                                    <a href="wiki.html#{{ trend.our_link.anchor }}" style="color: #d4a574; text-decoration: underline; font-weight: 600;">📚 {{ trend.our_link.wiki }}</a>
+                                    <a href="wiki.html#{{ trend.our_link.anchor }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">📚 {{ trend.our_link.wiki }}</a>
                                     {% endif %}
                                     {% if trend.our_link.blog %}
-                                    <a href="blog.html#{{ trend.our_link.slug }}" style="color: #d4a574; text-decoration: underline; font-weight: 600;">📝 {{ trend.our_link.blog }}</a>
+                                    <a href="blog.html#{{ trend.our_link.slug }}" style="color: #2c1810; text-decoration: underline; font-weight: 600; margin-left: 15px;">📝 {{ trend.our_link.blog }}</a>
                                     {% endif %}
                                 </p>
                                 {% endif %}
@@ -1387,40 +1387,44 @@
 
                 <!-- Top Questions -->
                 {% if community_sentiment.questions_we_cant_ignore %}
-                <h3 style="margin-top: 50px; color: #2c1810; font-size: 1.4em;">Top 5 Questions We're Seeing</h3>
-                <ul class="questions-list" style="margin-top: 20px; line-height: 1.8;">
-                    {% for q in community_sentiment.questions_we_cant_ignore %}
-                    <li style="margin-bottom: 25px; color: #2c1810; list-style: disc;">
-                        <strong style="color: #2c1810; font-size: 1.05em;">{{ q.question }}</strong>
-                        <p style="margin: 8px 0 10px 0; color: #2c1810;">Volume: <strong>{{ q.volume }}</strong></p>
-                        {% if q.our_answer_link %}
-                        <p style="margin: 0;">
-                            {% if q.our_answer_link.wiki %}
-                            <a href="wiki.html#{{ q.our_answer_link.anchor }}" style="color: #d4a574; text-decoration: underline; font-weight: 600;">📚 Get answers in our wiki</a>
+                <h3 style="margin-top: 50px; margin-bottom: 25px; color: #2c1810; font-size: 1.4em;">Top 5 Questions We're Seeing</h3>
+                <div style="background: #ffffff; padding: 35px; border-radius: 12px; border: 2px solid #d4a574; box-shadow: 0 2px 8px rgba(44, 24, 16, 0.08);">
+                    <ul class="questions-list" style="margin: 0; padding-left: 25px; list-style: disc; line-height: 1.8;">
+                        {% for q in community_sentiment.questions_we_cant_ignore %}
+                        <li style="margin-bottom: 25px; color: #2c1810;">
+                            <strong style="color: #2c1810; font-size: 1.05em; display: block; margin-bottom: 8px;">{{ q.question }}</strong>
+                            <p style="margin: 8px 0 12px 0; color: #2c1810;"><strong>Volume:</strong> {{ q.volume }}</p>
+                            {% if q.our_answer_link %}
+                            <p style="margin: 0;">
+                                {% if q.our_answer_link.wiki %}
+                                <a href="wiki.html#{{ q.our_answer_link.anchor }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">📚 Get answers in our wiki</a>
+                                {% endif %}
+                                {% if q.our_answer_link.blog %}
+                                <a href="blog.html#{{ q.our_answer_link.slug }}" style="color: #2c1810; text-decoration: underline; font-weight: 600; margin-left: 15px;">📝 Read our guide</a>
+                                {% endif %}
+                            </p>
                             {% endif %}
-                            {% if q.our_answer_link.blog %}
-                            <a href="blog.html#{{ q.our_answer_link.slug }}" style="color: #d4a574; text-decoration: underline; font-weight: 600;">📝 Read our guide</a>
-                            {% endif %}
-                        </p>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
                 {% endif %}
 
                 <!-- Success Stories -->
                 {% if community_sentiment.success_stories %}
-                <h3 style="margin-top: 50px; color: #2c1810; font-size: 1.4em;">Stories Dominating Engagement</h3>
-                <ul class="questions-list" style="margin-top: 20px; line-height: 1.8;">
-                    {% for story in community_sentiment.success_stories %}
-                    <li style="margin-bottom: 25px; color: #2c1810; list-style: disc;">
-                        <p style="margin: 0 0 8px 0; color: #2c1810;">{{ story.story }}</p>
-                        <p style="margin: 0; color: #2c1810; font-style: italic;">
-                            📍 <strong>{{ story.source }}</strong> | {{ story.why_resonates }}
-                        </p>
-                    </li>
-                    {% endfor %}
-                </ul>
+                <h3 style="margin-top: 50px; margin-bottom: 25px; color: #2c1810; font-size: 1.4em;">Stories Dominating Engagement</h3>
+                <div style="background: #ffffff; padding: 35px; border-radius: 12px; border: 2px solid #d4a574; box-shadow: 0 2px 8px rgba(44, 24, 16, 0.08);">
+                    <ul class="questions-list" style="margin: 0; padding-left: 25px; list-style: disc; line-height: 1.8;">
+                        {% for story in community_sentiment.success_stories %}
+                        <li style="margin-bottom: 25px; color: #2c1810;">
+                            <p style="margin: 0 0 10px 0; color: #2c1810; font-weight: 500;">{{ story.story }}</p>
+                            <p style="margin: 0; color: #2c1810; font-style: italic;">
+                                📍 <strong>{{ story.source }}</strong> | {{ story.why_resonates }}
+                            </p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
                 {% endif %}
             </div>
 
