@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { useFormStore } from '../../stores/formStore'
 import { calculateBMR, calculateTDEE, calculateMacros, imperialToCm } from '../../lib/calculations'
 import { motion } from 'framer-motion'
+import { useEffect } from 'react'
 
 interface Step3GoalsProps {
   onNext: () => void
@@ -11,7 +12,7 @@ interface Step3GoalsProps {
 
 export default function Step3Goals({ onNext, onPrev, onShowResults }: Step3GoalsProps) {
   const { form, units, setFormField, setMacros } = useFormStore()
-  const { register, handleSubmit, watch } = useForm({
+  const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       goal: form.goal,
       deficit: form.deficit,
@@ -28,6 +29,17 @@ export default function Step3Goals({ onNext, onPrev, onShowResults }: Step3Goals
   const diet = watch('diet')
   const ratio = watch('ratio')
   const netCarbs = watch('netCarbs')
+
+  // Auto-populate deficit/surplus based on goal selection
+  useEffect(() => {
+    if (goal === 'lose') {
+      setValue('deficit', 20)
+    } else if (goal === 'gain') {
+      setValue('deficit', 10)
+    } else {
+      setValue('deficit', 0)
+    }
+  }, [goal, setValue])
 
   // Calculate macros in real-time
   const heightCm = units === 'imperial'

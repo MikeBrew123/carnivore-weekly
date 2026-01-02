@@ -75,6 +75,19 @@ export default function StripePaymentModal({
     setError('')
 
     try {
+      const finalPrice = calculateDiscountedPrice()
+
+      // If 100% discount (free), skip Stripe and go directly to success
+      if (finalPrice === 0) {
+        // Show success message
+        setError('')
+        // Redirect to success page after brief delay
+        setTimeout(() => {
+          window.location.href = `${window.location.origin}/calculator2-demo.html?payment=success&session=${sessionToken}`
+        }, 500)
+        return
+      }
+
       // Create Stripe checkout session via our API
       const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/create-checkout', {
         method: 'POST',
@@ -82,7 +95,7 @@ export default function StripePaymentModal({
         body: JSON.stringify({
           tier_id: tierId,
           tier_title: tierTitle,
-          amount: calculateDiscountedPrice(),
+          amount: finalPrice,
           original_amount: priceMap[tierId] || 999,
           coupon_code: discountApplied?.code || null,
           discount_percent: discountApplied?.percent || 0,
@@ -99,7 +112,7 @@ export default function StripePaymentModal({
       }
 
       const data = await response.json()
-      
+
       // Redirect to Stripe checkout
       if (data.url) {
         window.location.href = data.url
@@ -117,13 +130,13 @@ export default function StripePaymentModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-hidden"
     >
       <motion.div
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 20 }}
-        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden relative"
+        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden relative mx-auto"
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-primary to-primary/90 text-accent p-6 relative">
