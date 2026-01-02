@@ -478,6 +478,7 @@ class UnifiedGenerator:
                                 'likes': video['statistics']['like_count'],
                                 'comments': video['statistics']['comment_count'],
                                 'url': f"https://youtube.com/watch?v={video['video_id']}",
+                                'thumbnail_url': video.get('thumbnail_url', f"https://i.ytimg.com/vi/{video['video_id']}/mqdefault.jpg"),
                                 'tags': video.get('tags', [])[:3],
                             })
                     if top_videos:
@@ -520,6 +521,7 @@ class UnifiedGenerator:
                                 'creator': creator['channel_name'],
                                 'channel_id': creator.get('channel_id', ''),
                                 'views': video['statistics']['view_count'],
+                                'thumbnail_url': video.get('thumbnail_url', f"https://i.ytimg.com/vi/{video['video_id']}/mqdefault.jpg"),
                                 'tags': video.get('tags', [])[:3],
                             })
             except Exception as e:
