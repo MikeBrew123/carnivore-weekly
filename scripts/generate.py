@@ -44,6 +44,11 @@ except ImportError:
     print("  pip3 install supabase")
     sys.exit(1)
 
+try:
+    import markdown
+except ImportError:
+    markdown = None
+
 # Load environment variables
 load_dotenv()
 
@@ -86,6 +91,22 @@ class UnifiedGenerator:
                 return str(date_str)[:10]
 
         self.jinja_env.filters["format_date"] = format_date
+
+        # Add markdown filter
+        def markdown_to_html(text):
+            """Convert markdown text to HTML"""
+            if not text or not markdown:
+                return text
+            try:
+                # Convert markdown to HTML
+                html = markdown.markdown(text, extensions=['tables', 'nl2br'])
+                # Mark as safe for Jinja2 (won't escape HTML)
+                from markupsafe import Markup
+                return Markup(html)
+            except Exception as e:
+                return text
+
+        self.jinja_env.filters["markdown"] = markdown_to_html
 
     def _setup_supabase(self):
         """Initialize Supabase client"""
