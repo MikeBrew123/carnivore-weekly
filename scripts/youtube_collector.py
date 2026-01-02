@@ -23,6 +23,13 @@ from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+# Supabase for caching API responses
+try:
+    from supabase import create_client
+except ImportError:
+    print("Warning: Supabase client not installed. Install with: pip install supabase")
+    create_client = None
+
 # Load environment variables from .env file
 # This keeps sensitive data like API keys out of your code
 load_dotenv()
@@ -124,6 +131,19 @@ class YouTubeCollector:
             print("✓ YouTube API client initialized")
         except Exception as e:
             raise ValueError(f"Failed to initialize YouTube API: {e}")
+
+        # Initialize Supabase client for caching
+        self.supabase = None
+        try:
+            supabase_url = os.getenv("SUPABASE_URL")
+            supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+            if supabase_url and supabase_key and create_client:
+                self.supabase = create_client(supabase_url, supabase_key)
+                print("✓ Supabase client initialized (data caching enabled)")
+            else:
+                print("⚠ Supabase not configured - data will only be saved to JSON")
+        except Exception as e:
+            print(f"⚠ Warning: Could not initialize Supabase: {e}")
 
     def search_videos(self, query: str, max_results: int = 50) -> List[Dict]:
         """
@@ -564,6 +584,61 @@ class YouTubeCollector:
         )
         print(f"💬 Total comments collected: {total_comments}")
         print()
+
+        # Also save to Supabase for caching
+        self.save_to_supabase(data)
+
+    def save_to_supabase(self, data: Dict):
+        """
+        Save collected YouTube videos to Supabase for caching
+        Reduces API calls on subsequent runs by reading from cache instead of YouTube API
+
+        Args:
+            data: Dictionary with top_creators and their videos
+        """
+        if not self.supabase:
+            return
+
+        try:
+            print("\n📊 Syncing data to Supabase...")
+            videos_inserted = 0
+
+            for creator in data.get("top_creators", []):
+                channel_name = creator.get("channel_name", "Unknown")
+                channel_id = creator.get("channel_id", "")
+
+                for video in creator.get("videos", []):
+                    try:
+                        # Prepare video record for Supabase
+                        video_record = {
+                            "video_id": video.get("video_id"),
+                            "channel_name": channel_name,
+                            "title": video.get("title"),
+                            "description": video.get("description", ""),
+                            "published_at": video.get("published_at"),
+                            "view_count": video.get("statistics", {}).get("view_count", 0),
+                            "like_count": video.get("statistics", {}).get("like_count", 0),
+                            "comment_count": video.get("statistics", {}).get("comment_count", 0),
+                            "tags": video.get("tags", []),
+                            "top_comments": video.get("top_comments", []),
+                        }
+
+                        # Insert or update in Supabase (upsert on video_id)
+                        self.supabase.table("youtube_videos").upsert(
+                            video_record,
+                            on_conflict="video_id"
+                        ).execute()
+                        videos_inserted += 1
+
+                    except Exception as e:
+                        print(f"   ⚠ Failed to insert video {video.get('video_id')}: {e}")
+
+            if videos_inserted > 0:
+                print(f"   ✓ Synced {videos_inserted} videos to Supabase")
+
+        except Exception as e:
+            print(f"   ⚠ Warning: Could not sync to Supabase: {e}")
+            print("   Data saved to JSON only")
 
 
 # ============================================================================
