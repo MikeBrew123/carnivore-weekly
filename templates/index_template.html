@@ -1309,6 +1309,25 @@
                 <li>
                     {% if insight.title %}<strong>{{ insight.title }}</strong>{% endif %}
                     {% if insight.description %}<p style="margin-top: 10px; color: #2c1810;">{{ insight.description }}</p>{% endif %}
+
+                    {% if insight.creator_source %}
+                    <p style="margin-top: 12px; font-size: 0.9em; color: #8b4513; font-style: italic; border-left: 3px solid #d4a574; padding-left: 12px;">
+                        📺 <strong>From the creators:</strong> {{ insight.creator_source.creator }}
+                        <br>
+                        {{ insight.creator_source.insight }}
+                    </p>
+                    {% endif %}
+
+                    {% if insight.internal_links and (insight.internal_links.wiki or insight.internal_links.blog) %}
+                    <p style="margin-top: 12px; font-size: 0.9em;">
+                        {% if insight.internal_links.wiki %}
+                        <a href="wiki.html#{{ insight.internal_links.wiki.anchor }}" style="color: #d4a574; text-decoration: underline; margin-right: 15px;">📚 {{ insight.internal_links.wiki.title }}</a>
+                        {% endif %}
+                        {% if insight.internal_links.blog %}
+                        <a href="blog.html#{{ insight.internal_links.blog.slug }}" style="color: #d4a574; text-decoration: underline;">📝 {{ insight.internal_links.blog.title }}</a>
+                        {% endif %}
+                    </p>
+                    {% endif %}
                 </li>
                 {% endfor %}
             </ul>
