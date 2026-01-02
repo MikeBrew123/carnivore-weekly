@@ -53,3 +53,59 @@ Track these items until resolution:
 5. Deployment approval
 
 ---
+
+[2026-01-02 05:45:00] CALCULATOR2-DEMO PROJECT STATUS
+Category: Development Update
+Project: Multi-step calculator rebuild (React + TypeScript)
+Status: Form complete, Report API debugging needed
+
+WHAT'S WORKING:
+✅ Multi-step form (5 steps: basics, activity, goals, health, preferences)
+✅ Real-time macro calculations (Mifflin-St Jeor, TDEE, macro splits)
+✅ Mock payment modal (fully functional for testing)
+✅ Progress bar with section checkmarks (13 sections)
+✅ Form prefilled with detailed dummy data
+✅ Beautiful animations (Framer Motion)
+✅ Session management (48-hour recognition)
+✅ All validations working
+✅ TypeScript: 0 errors, builds cleanly
+
+WHAT'S BROKEN:
+❌ Report fetching from Supabase after API generation
+  - Form submits → API called ✅
+  - Cloudflare Worker generates report ✅ (presumably)
+  - ReportViewer tries to fetch from Supabase ❌ FAILS
+  - Error: "Failed to load report"
+
+DEBUGGING NEEDED (MORNING):
+1. Open in Chrome (NOT Safari - CORS issues)
+2. Run full form → submit
+3. Check browser console (F12 → Console)
+4. Capture exact error message from ReportViewer
+5. Check Supabase table schema (generated_reports table)
+6. Verify API actually saves to Supabase
+7. Fix ReportViewer query or schema mismatch
+
+LIKELY CAUSES:
+- Supabase table doesn't exist
+- Column name mismatch (report_html vs report_content)
+- RLS permissions issue on anon key
+- CORS headers blocking
+- API saving failed silently
+
+DOCUMENTATION:
+- Full status at: /Users/mbrew/Developer/carnivore-weekly/CALCULATOR2_STATUS.md
+- Local server running: http://localhost:8000/calculator2-demo.html
+- Entry point: /public/calculator2-demo.html
+- Source: /calculator2-demo/src/
+
+NEXT MORNING:
+1. User will open in Chrome
+2. Test form end-to-end
+3. Capture console error from ReportViewer
+4. Come back with exact error message
+5. Fix Supabase integration based on error
+
+STATUS: Ready to debug, just need error message from Chrome console
+
+---

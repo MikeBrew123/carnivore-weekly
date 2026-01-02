@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-b from-slate-50 to-slate-100 text-dark;
+  }
+}
+
+@layer components {
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-primary text-accent rounded-lg font-semibold hover:bg-primary/90 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/10 transition-colors;
+  }
+}
