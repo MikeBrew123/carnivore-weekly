@@ -499,7 +499,31 @@ class UnifiedGenerator:
         # Get Q&A section
         qa_section = analysis.get("qa_section", data.get("qa_section", []))
 
+        # Load recommended_watching (use additional videos from youtube_data.json if available)
         recommended_watching = analysis.get("recommended_watching", data.get("recommended_watching", []))
+
+        # If recommended_watching is empty, use remaining videos from youtube_data.json
+        if not recommended_watching and top_videos:
+            # Take videos beyond the first set (if we loaded from JSON)
+            try:
+                youtube_path = self.project_root / 'data' / 'youtube_data.json'
+                if youtube_path.exists():
+                    youtube_data = json.loads(youtube_path.read_text())
+                    # Collect all remaining videos (skip the first 2 from each creator already used in top_videos)
+                    for creator in youtube_data.get('top_creators', []):
+                        videos_to_recommend = creator.get('videos', [])[2:]  # Skip first 2 (used in top_videos)
+                        for video in videos_to_recommend:
+                            recommended_watching.append({
+                                'video_id': video['video_id'],
+                                'title': video['title'],
+                                'reason': video.get('summary', 'Expert insight on carnivore nutrition'),
+                                'creator': creator['channel_name'],
+                                'channel_id': creator.get('channel_id', ''),
+                                'views': video['statistics']['view_count'],
+                                'tags': video.get('tags', [])[:3],
+                            })
+            except Exception as e:
+                pass  # Silently fail if no additional videos available
 
         template_vars = {
             "analysis_date": data.get("analysis_date", data.get("timestamp", datetime.now().isoformat())),
