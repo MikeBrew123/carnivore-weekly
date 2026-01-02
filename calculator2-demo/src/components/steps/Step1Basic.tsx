@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useFormStore } from '../../stores/formStore'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 
 const step1Schema = z.object({
   sex: z.enum(['male', 'female']),
@@ -20,7 +21,15 @@ interface Step1BasicProps {
 }
 
 export default function Step1Basic({ onNext }: Step1BasicProps) {
-  const { form, units, setFormField } = useFormStore()
+  const { form, units, setFormField, setUnits } = useFormStore()
+  const [localUnits, setLocalUnits] = useState(units)
+
+  const handleUnitToggle = () => {
+    const newUnits = localUnits === 'imperial' ? 'metric' : 'imperial'
+    setLocalUnits(newUnits)
+    setUnits(newUnits)
+  }
+
   const { register, handleSubmit, formState: { errors } } = useForm<Step1FormData>({
     resolver: zodResolver(step1Schema),
     defaultValues: {
@@ -37,7 +46,7 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
   const onSubmit = (data: Step1FormData) => {
     setFormField('sex', data.sex)
     setFormField('age', data.age)
-    if (units === 'imperial') {
+    if (localUnits === 'imperial') {
       setFormField('heightFeet', data.heightFeet)
       setFormField('heightInches', data.heightInches)
     } else {
@@ -54,9 +63,37 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
       transition={{ duration: 0.3 }}
       className="space-y-6"
     >
-      <div>
-        <h2 className="text-2xl font-display font-bold text-dark mb-2">Let's Get Started</h2>
-        <p className="text-gray-600">Basic information about you</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-display font-bold text-dark mb-2">Let's Get Started</h2>
+          <p className="text-gray-600">Basic information about you</p>
+        </div>
+
+        {/* Unit Toggle */}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleUnitToggle}
+            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+              localUnits === 'imperial'
+                ? 'bg-primary text-accent'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            lbs/in
+          </button>
+          <button
+            type="button"
+            onClick={handleUnitToggle}
+            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+              localUnits === 'metric'
+                ? 'bg-primary text-accent'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            kg/cm
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -89,9 +126,9 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
         {/* Height */}
         <div>
           <label className="block text-sm font-semibold text-dark mb-2">
-            Height {units === 'imperial' ? '(feet & inches)' : '(cm)'}
+            Height {localUnits === 'imperial' ? '(feet & inches)' : '(cm)'}
           </label>
-          {units === 'imperial' ? (
+          {localUnits === 'imperial' ? (
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <input
@@ -132,7 +169,7 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
         {/* Weight */}
         <div>
           <label className="block text-sm font-semibold text-dark mb-2">
-            Weight {units === 'imperial' ? '(lbs)' : '(kg)'}
+            Weight {localUnits === 'imperial' ? '(lbs)' : '(kg)'}
           </label>
           <input
             type="number"

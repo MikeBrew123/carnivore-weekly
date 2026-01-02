@@ -12,6 +12,45 @@ interface PricingModalProps {
 
 const pricingOptions = [
   {
+    id: 'shopping',
+    title: 'Shopping Lists',
+    price: '$19',
+    description: 'Grocery focused',
+    features: [
+      '4-week organized grocery lists',
+      'Budget-aware shopping options',
+      'Macro tracking by store',
+      'Category organization',
+      'Weekly item breakdowns',
+    ],
+  },
+  {
+    id: 'meal_plan',
+    title: '30-Day Meal Plan',
+    price: '$27',
+    description: 'Just meals',
+    features: [
+      '30-day meal plan with variety',
+      'Daily recipe suggestions',
+      'Ingredient macros per meal',
+      'Prep time estimates',
+      'Substitution options',
+    ],
+  },
+  {
+    id: 'doctor',
+    title: 'Doctor Script',
+    price: '$47',
+    description: 'Talk to your MD',
+    features: [
+      'Medication review framework',
+      'Lab work discussion talking points',
+      'Safety protocols & guidelines',
+      'Doctor conversation scripts',
+      'Follow-up questions guide',
+    ],
+  },
+  {
     id: 'bundle',
     title: 'Complete Protocol Bundle',
     price: '$9.99',
@@ -25,42 +64,6 @@ const pricingOptions = [
       'Macro & electrolyte calculations',
       'AI-customized obstacle protocol',
       'Adaptation timeline',
-    ],
-  },
-  {
-    id: 'meal_plan',
-    title: '30-Day Meal Plan',
-    price: '$27',
-    description: 'Just meals',
-    features: [
-      '30-day meal plan with variety',
-      'Recipe suggestions',
-      'Ingredient macros',
-      'Based on your preferences',
-    ],
-  },
-  {
-    id: 'shopping',
-    title: 'Shopping Lists',
-    price: '$19',
-    description: 'Grocery focused',
-    features: [
-      '4-week organized lists',
-      'Budget-aware options',
-      'Macro tracking',
-      'Store organization',
-    ],
-  },
-  {
-    id: 'doctor',
-    title: 'Doctor Script',
-    price: '$15',
-    description: 'Talk to your MD',
-    features: [
-      'Medication review',
-      'Lab work discussion',
-      'Safety talking points',
-      'Doctor conversation guide',
     ],
   },
 ]
@@ -130,19 +133,32 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
             <p className="text-accent/80">Select the features that matter most to you</p>
           </div>
 
+          {/* New Years Sale Banner */}
+          <div className="bg-red-600 text-white p-4 text-center border-b-2 border-red-700">
+            <p className="text-lg font-bold">🎉 NEW YEARS SALE 🎉</p>
+            <p className="text-sm mt-1">Complete Bundle was <span className="line-through">$298</span> → NOW $9.99</p>
+          </div>
+
           {/* Pricing Cards */}
           <div className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {pricingOptions.map((option) => (
-                <PricingCard
+                <div
                   key={option.id}
-                  title={option.title}
-                  price={option.price}
-                  description={option.description}
-                  features={option.features}
-                  popular={option.popular}
-                  onClick={() => handleSelectTier(option.id)}
-                />
+                  className={option.id === 'bundle' ? 'lg:col-span-1 relative' : ''}
+                >
+                  {option.id === 'bundle' && (
+                    <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-xl blur opacity-60 -z-10"></div>
+                  )}
+                  <PricingCard
+                    title={option.title}
+                    price={option.price}
+                    description={option.description}
+                    features={option.features}
+                    popular={option.popular}
+                    onClick={() => handleSelectTier(option.id)}
+                  />
+                </div>
               ))}
             </div>
 

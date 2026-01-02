@@ -15,6 +15,8 @@ import PricingModal from './ui/PricingModal'
 import CompletionScreen from './ui/CompletionScreen'
 import ReportGeneratingScreen from './ui/ReportGeneratingScreen'
 import ReportViewer from './ui/ReportViewer'
+import MealExamples from './ui/MealExamples'
+import ElectrolyteGuidance from './ui/ElectrolyteGuidance'
 import { MacroResults } from '../types/form'
 
 const STEPS = {
@@ -179,12 +181,27 @@ export default function CalculatorWizard() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="space-y-6"
+                    className="space-y-8"
                   >
-                    <h2 className="text-2xl font-display font-bold text-dark">Your Results</h2>
-                    <MacroPreview macros={resultsData} />
+                    <div>
+                      <h2 className="text-2xl font-display font-bold text-dark mb-6">Your Results</h2>
+                      <MacroPreview macros={resultsData} />
+                    </div>
 
-                    <div className="space-y-3">
+                    {/* Meal Examples */}
+                    {resultsData && (
+                      <div className="border-t pt-8">
+                        <MealExamples macros={resultsData} diet={form.diet} />
+                      </div>
+                    )}
+
+                    {/* Electrolyte Guidance */}
+                    <div className="border-t pt-8">
+                      <ElectrolyteGuidance />
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="border-t pt-8 space-y-3">
                       <button
                         onClick={() => setShowResults(false)}
                         className="w-full btn-secondary text-sm"
