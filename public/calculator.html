@@ -1181,7 +1181,7 @@
 
                 <div class="grid-2">
                     <div>
-                        <label>Height <span id="heightUnit">(feet & inches)</span></label>
+                        <label for="imperialHeight">Height <span id="heightUnit">(feet & inches)</span></label>
                         <div id="imperialHeight" style="display: flex; gap: 10px;">
                             <div style="flex: 1;">
                                 <input type="number" id="heightFeet" min="3" max="8" value="5" inputmode="numeric" autocomplete="off" aria-label="Feet">
@@ -1190,7 +1190,7 @@
                                 <input type="number" id="heightInches" min="0" max="11" value="10" inputmode="numeric" autocomplete="off" aria-label="Inches">
                             </div>
                         </div>
-                        <input type="number" id="heightCm" min="120" max="230" value="178" step="1" class="hidden" inputmode="numeric" autocomplete="off">
+                        <input type="number" id="heightCm" min="120" max="230" value="178" step="1" class="hidden" inputmode="numeric" autocomplete="off" aria-label="Height (centimeters)">
                         <p class="input-hint" id="height-hint">Example: 5 feet 10 inches</p>
                     </div>
                     <div>
@@ -1306,13 +1306,13 @@
                         <p class="subtitle">Where should we send your complete protocol?</p>
 
                         <div class="form-group">
-                            <label>Email Address <span class="optional">(required)</span></label>
+                            <label for="email">Email Address <span class="optional">(required)</span></label>
                             <input type="email" name="email" id="email" placeholder="your@email.com" autocomplete="email">
                         </div>
 
                         <div class="form-group">
-                            <label>First Name <span class="optional">(optional)</span></label>
-                            <input type="text" name="firstName" placeholder="e.g., John" autocomplete="given-name">
+                            <label for="firstName">First Name <span class="optional">(optional)</span></label>
+                            <input type="text" name="firstName" id="firstName" placeholder="e.g., John" autocomplete="given-name">
                         </div>
                     </div>
 
@@ -1322,8 +1322,8 @@
                         <p class="subtitle">Help us tailor the protocol to your situation (all optional)</p>
 
                         <div class="form-group">
-                            <label>Current Medications <span class="optional">(optional)</span></label>
-                            <textarea name="medications" placeholder="e.g., Metformin for diabetes, levothyroxine for thyroid..."></textarea>
+                            <label for="medications">Current Medications <span class="optional">(optional)</span></label>
+                            <textarea name="medications" id="medications" placeholder="e.g., Metformin for diabetes, levothyroxine for thyroid..."></textarea>
                         </div>
 
                         <div class="form-group">
@@ -1363,13 +1363,13 @@
                         <p class="subtitle">Help us avoid foods you can't or won't eat</p>
 
                         <div class="form-group">
-                            <label>Food Allergies <span class="optional">(optional)</span></label>
-                            <textarea name="allergies" placeholder="e.g., Shellfish allergy, lactose intolerant, egg allergy"></textarea>
+                            <label for="allergies">Food Allergies <span class="optional">(optional)</span></label>
+                            <textarea name="allergies" id="allergies" placeholder="e.g., Shellfish allergy, lactose intolerant, egg allergy"></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Foods You Can't/Won't Eat <span class="optional">(optional)</span></label>
-                            <textarea name="avoidFoods" placeholder="e.g., Don't like fish, can't digest dairy, won't eat organ meat"></textarea>
+                            <label for="avoidFoods">Foods You Can't/Won't Eat <span class="optional">(optional)</span></label>
+                            <textarea name="avoidFoods" id="avoidFoods" placeholder="e.g., Don't like fish, can't digest dairy, won't eat organ meat"></textarea>
                         </div>
                     </div>
 
@@ -1379,13 +1379,13 @@
                         <p class="subtitle">What diets have you tried before?</p>
 
                         <div class="form-group">
-                            <label>Previous Diets Tried <span class="optional">(optional)</span></label>
-                            <textarea name="previousDiets" placeholder="e.g., Keto for 6 months (lost weight but plateaued), vegan (felt terrible)..."></textarea>
+                            <label for="previousDiets">Previous Diets Tried <span class="optional">(optional)</span></label>
+                            <textarea name="previousDiets" id="previousDiets" placeholder="e.g., Keto for 6 months (lost weight but plateaued), vegan (felt terrible)..."></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label>Carnivore Experience <span class="optional">(optional)</span></label>
-                            <select name="carnivoreExperience">
+                            <label for="carnivoreExperience">Carnivore Experience <span class="optional">(optional)</span></label>
+                            <select name="carnivoreExperience" id="carnivoreExperience">
                                 <option value="">Select one...</option>
                                 <option value="never">Never tried carnivore</option>
                                 <option value="dabbled">Tried it briefly (days/weeks)</option>
@@ -1395,8 +1395,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Which Protocol Interests You? <span class="optional">(optional)</span></label>
-                            <select name="selectedProtocol">
+                            <label for="selectedProtocol">Which Protocol Interests You? <span class="optional">(optional)</span></label>
+                            <select name="selectedProtocol" id="selectedProtocol">
                                 <option value="">Select one...</option>
                                 <option value="carnivore">Carnivore (beef, poultry, fish, eggs, dairy)</option>
                                 <option value="pescatarian">Pescatarian Carnivore (fish, eggs, dairy only)</option>
@@ -1442,8 +1442,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Anything Else We Should Know? <span class="optional">(optional)</span></label>
-                            <textarea name="additionalNotes" placeholder="Any other preferences, constraints, or information that would help us personalize your protocol..."></textarea>
+                            <label for="additionalNotes">Anything Else We Should Know? <span class="optional">(optional)</span></label>
+                            <textarea name="additionalNotes" id="additionalNotes" placeholder="Any other preferences, constraints, or information that would help us personalize your protocol..."></textarea>
                         </div>
                     </div>
                 </div>
