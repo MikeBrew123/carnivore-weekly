@@ -1,0 +1,195 @@
+================================================================================
+                    ROOT DIRECTORY CLEANUP - SUMMARY
+================================================================================
+
+Date: January 2, 2026
+Purpose: Remove orphaned files from project root that don't affect live site
+
+================================================================================
+                            WHAT WAS MOVED
+================================================================================
+
+IMAGES FOLDER (images/)
+├── carnivore_weekly_desktop.png  (12 MB) - Kept for potential future use
+├── carnivore_weekly_mobile.png   (11 MB) - Kept for potential future use
+├── current-desktop.png           (1.2 MB) - Kept for potential future use
+└── current-mobile.png            (243 KB) - Kept for potential future use
+
+Total: 24.5 MB → Safe, organized in images/ folder
+
+
+ARCHIVE FOLDER (_archive/)
+├── test-scripts/                 (144 KB, 19 files)
+│   └── All test-*.mjs and test-*.js files
+│   └── Not referenced in package.json or CI/CD
+│   └── Manual testing scripts only
+│
+├── deployment-scripts/           (56 KB, 30 files)
+│   └── deploy-*.js, deploy-*.sh files
+│   └── execute-*.js, check-*.js, fix-*.js, diagnostic.js
+│   └── Not used in actual deployment workflow
+│   └── Real deployment via run_weekly_update.sh
+│
+├── reports/                      (536 KB, 29 files)
+│   └── ACTIVATION_*.txt files
+│   └── DIAGNOSTIC_*.txt files
+│   └── MIGRATION_*.txt files (4 files)
+│   └── CALCULATOR_E2E_TEST_SUMMARY.txt (just summary, not active test)
+│   └── HTML report files
+│   └── Historical documentation only
+│
+├── sql/                          (32 KB, 4 files)
+│   └── Ad-hoc SQL scripts
+│   └── Should use /migrations/ folder instead
+│
+├── data/                         (4 KB, 1 file)
+│   └── token_optimization_results.json
+│
+└── RESTORATION_GUIDE.md          (8 KB)
+    └── Complete guide for recovering files if needed
+
+Total Archive Size: ~780 KB
+
+
+================================================================================
+                         WHAT WAS NOT TOUCHED
+================================================================================
+
+✅ CALCULATOR2 IS SAFE
+   ├── calculator2-demo/ directory - UNCHANGED
+   ├── tests/e2e-calculator-paths.spec.js - UNCHANGED
+   ├── public/calculator.html - UNCHANGED
+   ├── docs/guides/CALCULATOR2_DEPLOYMENT.md - UNCHANGED
+   └── No Calculator2 functionality affected
+
+✅ ACTIVE CONFIGURATION FILES (Still in root)
+   ├── package.json
+   ├── package-lock.json
+   ├── requirements.txt
+   ├── jest.config.js
+   ├── playwright.config.js
+   ├── eslint.config.js
+   ├── pyproject.toml
+   ├── .env / .env.example
+   ├── .flake8, .clinerules, .gitignore
+   └── All other active config files
+
+✅ DOCUMENTATION (Still in root)
+   ├── README.md
+   ├── CHANGELOG.md
+   └── CLAUDE.md
+
+✅ SERVED PAGES (Still in root)
+   ├── index.html
+   ├── archive.html
+   ├── channels.html
+   ├── about.html
+   └── favicon.ico
+
+✅ WEB CONFIG (Still in root)
+   ├── robots.txt
+   ├── sitemap.xml
+   └── CNAME
+
+✅ DOCUMENTATION STRUCTURE (Moved to docs/)
+   ├── docs/getting-started/
+   ├── docs/guides/
+   ├── docs/architecture/
+   ├── docs/agents/
+   ├── docs/design-system/
+   ├── docs/qa/
+   ├── docs/reports/        ← Proper place for reports
+   ├── docs/systems/
+   └── docs/project-log/
+
+================================================================================
+                         IMPACT ANALYSIS
+================================================================================
+
+SITE FUNCTIONALITY: ✅ NO IMPACT
+- Live website (carnivoreweekly.com) not affected
+- All served HTML files preserved
+- No CSS, JavaScript, or data files removed
+- Favicon and web config files intact
+
+BUILD PROCESS: ✅ NO IMPACT
+- run_weekly_update.sh unchanged
+- Python scripts in /scripts/ unchanged
+- GitHub Actions workflows unchanged
+- npm scripts and CI/CD unchanged
+
+TESTING: ✅ NO IMPACT (Calculator2 safe)
+- E2E tests for calculator still intact
+- Test infrastructure unchanged
+- Test configurations (jest, playwright) intact
+- Removed files were manual ad-hoc tests only
+
+CODE: ✅ NO IMPACT
+- No source code files affected
+- All active dependencies intact
+- No breaking changes to any systems
+
+================================================================================
+                         HOW TO RECOVER
+================================================================================
+
+If you find something is broken and need a file:
+
+1. Check _archive/RESTORATION_GUIDE.md for detailed recovery instructions
+2. Determine which file you need from the archive
+3. Copy from _archive/ to project root:
+
+   cp _archive/reports/ACTIVATION_SUMMARY.txt .
+   cp _archive/deployment-scripts/deploy-migration.js .
+   cp _archive/test-scripts/test-quick.mjs .
+
+4. Or restore entire category:
+
+   cp _archive/test-scripts/* .
+
+5. Or restore everything:
+
+   cp -r _archive/* .
+
+⚠️  IMPORTANT: Before using deployment scripts, check for hardcoded credentials
+    and sanitize before use.
+
+================================================================================
+                         DISK SPACE SAVED
+================================================================================
+
+Removed from root: ~780 KB
+- Organized into _archive/ for recovery
+- Images moved to images/ folder (not deleted)
+- Total space freed in project root: ~780 KB
+
+The 24.5 MB of PNG images is still available in images/ folder for your use.
+
+================================================================================
+                         VERIFICATION
+================================================================================
+
+Archive integrity: ✅ VERIFIED
+- 4 subdirectories created
+- 83 files archived (test scripts, deployment scripts, reports, SQL)
+- 1 restoration guide created
+- All files preserved with original names and timestamps
+
+Images folder: ✅ VERIFIED
+- 4 PNG files moved successfully
+- 24.5 MB total
+- All files readable and intact
+
+Root directory: ✅ CLEANED
+- All orphaned files removed
+- All active files preserved
+- Configuration and documentation intact
+
+================================================================================
+
+Archived by: Claude Code
+Date: January 2, 2026
+Reason: Root directory cleanup and organization
+Status: COMPLETE - Safe to use, fully recoverable
+
+For detailed information on each file, see _archive/RESTORATION_GUIDE.md

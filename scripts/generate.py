@@ -813,17 +813,29 @@ class UnifiedGenerator:
                 channels_list = []
                 for creator in youtube_data["top_creators"]:
                     channel_id = creator.get("channel_id", "")
+                    videos_list = creator.get("videos", [])
+
                     # Fetch profile image if we have it
                     channel_images = self._fetch_channel_profile_images([channel_id]) if channel_id else {}
+
+                    # Extract top 3 videos with proper structure
+                    top_videos = []
+                    for video in videos_list[:3]:
+                        top_videos.append({
+                            "video_id": video.get("video_id", ""),
+                            "title": video.get("title", ""),
+                            "view_count": video.get("statistics", {}).get("view_count", 0),
+                            "published_at": video.get("published_at", "")
+                        })
 
                     channels_list.append({
                         "name": creator.get("channel_name", "Unknown"),
                         "channel_id": channel_id,
                         "thumbnail_url": channel_images.get(channel_id, "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel"),
-                        "appearances": creator.get("videos_this_week", 0),
-                        "total_videos": creator.get("total_views_week", 0),
-                        "latest_date": "",
-                        "top_videos": []
+                        "appearances": 1,  # Only have data for 1 week currently
+                        "total_videos": len(videos_list),  # Count of videos this week
+                        "latest_date": videos_list[0].get("published_at", "") if videos_list else "",
+                        "top_videos": top_videos
                     })
 
                 template_vars = {
