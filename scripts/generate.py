@@ -690,10 +690,77 @@ class UnifiedGenerator:
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(html_content)
             print(f"✓ Generated: {output_file}")
-            return True
         except Exception as e:
             print(f"Error writing archive file {output_file}: {e}")
             return False
+
+        # Also generate individual week pages from archive data (using index template)
+        if archive_dir.exists():
+            archive_files = sorted(
+                [f for f in archive_dir.glob("*.json") if f.name[0].isdigit()],
+                key=lambda f: f.name,
+                reverse=True
+            )
+
+            archive_week_dir = self.project_root / "public" / "archive"
+            archive_week_dir.mkdir(parents=True, exist_ok=True)
+
+            # Load the pages template (index_template.html) for individual week pages
+            try:
+                pages_mapping = self.config["generation"]["template_mappings"]["pages"]
+                week_template = self.jinja_env.get_template(pages_mapping["template"])
+            except Exception as e:
+                print(f"Warning: Could not load pages template for archive weeks: {e}")
+                week_template = None
+
+            if week_template:
+                for archive_file in archive_files[:10]:
+                    try:
+                        with open(archive_file) as f:
+                            week_data = json.load(f)
+
+                        # Handle nested structure
+                        analysis = week_data.get("analysis", week_data)
+
+                        # Extract creator channels mapping
+                        creator_channels = {}
+                        youtube_path = self.project_root / 'data' / 'youtube_data.json'
+                        if youtube_path.exists():
+                            youtube_data = json.loads(youtube_path.read_text())
+                            for creator in youtube_data.get('top_creators', []):
+                                creator_channels[creator['channel_name']] = creator.get('channel_id', '')
+
+                        # Build template variables (same as _generate_pages)
+                        week_template_vars = {
+                            "analysis_date": week_data.get("analysis_date", ""),
+                            "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "search_query": week_data.get("source_data", {}).get("search_query", "carnivore diet"),
+                            "total_creators": week_data.get("source_data", {}).get("total_creators", 0),
+                            "total_videos": week_data.get("source_data", {}).get("total_videos", 0),
+                            "weekly_summary": analysis.get("weekly_summary", ""),
+                            "trending_topics": analysis.get("trending_topics", []),
+                            "top_videos": analysis.get("top_videos", []),
+                            "key_insights": analysis.get("key_insights", []),
+                            "community_sentiment": analysis.get("community_sentiment", {}),
+                            "recommended_watching": analysis.get("recommended_watching", []),
+                            "qa_section": analysis.get("qa_section", []),
+                            "layout_metadata": week_data.get("layout_metadata"),
+                            "creator_channels": creator_channels,
+                        }
+
+                        # Render week page
+                        week_html = week_template.render(**week_template_vars)
+
+                        # Write week page
+                        week_output_file = archive_week_dir / f"{archive_file.stem}.html"
+                        week_output_file.write_text(week_html, encoding="utf-8")
+                        print(f"✓ Generated: {week_output_file}")
+
+                    except (json.JSONDecodeError, KeyError, Exception) as e:
+                        print(f"Warning: Could not generate week page for {archive_file.name}: {e}")
+                        continue
+
+        return True
 
     def _generate_newsletter(self) -> bool:
         """Generate newsletter"""
