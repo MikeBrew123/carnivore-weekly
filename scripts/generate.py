@@ -553,6 +553,13 @@ class UnifiedGenerator:
             except Exception:
                 pass  # Silently fail if no additional videos available
 
+        # Build creator_channels mapping for JavaScript linking
+        creator_channels = {}
+        if youtube_path.exists():
+            youtube_data = json.loads(youtube_path.read_text())
+            for creator in youtube_data.get('top_creators', []):
+                creator_channels[creator['channel_name']] = creator.get('channel_id', '')
+
         template_vars = {
             "analysis_date": data.get("analysis_date", data.get("timestamp", datetime.now().isoformat())),
             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -567,7 +574,7 @@ class UnifiedGenerator:
             "recommended_watching": recommended_watching,
             "qa_section": qa_section,
             "layout_metadata": data.get("layout_metadata"),
-            "creator_channels": {},  # Map of creator names to YouTube channel IDs
+            "creator_channels": creator_channels,  # Map of creator names to YouTube channel IDs
         }
 
         # Render template
