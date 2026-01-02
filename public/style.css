@@ -55,15 +55,15 @@ body::before {
 
 /* Header */
 header {
-    background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+    background: linear-gradient(135deg, #1a120b 0%, #2a1a0f 50%, #1a120b 100%);
     color: #f4e4d4;
-    padding: 30px 0 20px 0;
+    padding: 40px 0 30px 0;
     margin-bottom: 25px;
-    min-height: 180px;
+    min-height: 200px;
     box-shadow:
         0 10px 30px rgba(0,0,0,0.5),
         inset 0 2px 0 rgba(255,255,255,0.1);
-    border-bottom: 4px solid #8b4513;
+    border-bottom: 4px solid #d4a574;
     position: relative;
     overflow: visible;
 }
@@ -853,5 +853,81 @@ footer p:first-child {
         width: 100%;
         text-align: center;
         margin-top: 10px !important;
+    }
+}
+
+/* ========================================
+   2026 INTERACTIVE FEATURES
+   ======================================== */
+
+/* Floating Action Button (FAB) - Mobile Only */
+.fab-feedback {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+    color: white;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 90;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fab-feedback:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+    .fab-feedback {
+        display: flex !important;
+    }
+}
+
+/* Sticky Bottom CTA - Mobile Only */
+.sticky-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(26, 18, 11, 0.98), rgba(26, 18, 11, 0.95));
+    padding: 12px 20px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 80;
+    animation: slideUp 0.3s ease;
+}
+
+.sticky-cta-button {
+    display: block;
+    background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1em;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(139, 69, 19, 0.4);
+    transition: transform 0.2s ease;
+}
+
+.sticky-cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 69, 19, 0.6);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
     }
 }
