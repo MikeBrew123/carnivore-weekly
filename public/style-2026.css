@@ -42,6 +42,12 @@
     box-sizing: border-box;
 }
 
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 html {
     font-size: 16px;
     scroll-behavior: smooth;
@@ -93,11 +99,7 @@ strong {
    LAYOUT CONTAINERS
    ============================================ */
 
-.container-2026 {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 var(--spacing-lg);
-}
+/* Note: Use .container (original) instead of .container-2026 for consistency */
 
 .layout-wrapper-2026 {
     display: grid;
@@ -125,50 +127,79 @@ strong {
 }
 
 /* ============================================
-   HEADER
+   HEADER - RESTORED ORIGINAL STYLING
    ============================================ */
 
-.header-2026 {
-    background: linear-gradient(135deg, var(--bg-dark-header) 0%, var(--bg-dark-header) 100%);
-    color: var(--text-light);
-    padding: var(--spacing-xxl) 0;
-    border-bottom: 1px solid rgba(212, 165, 116, 0.2);
-    text-align: center;
+header {
+    background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+    color: #f4e4d4;
+    padding: 30px 0 20px 0;
+    margin-bottom: 25px;
+    min-height: 180px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.1);
+    border-bottom: 4px solid #8b4513;
     position: relative;
+    overflow: visible;
+    text-align: center;
 }
 
-.header-2026 .logo {
-    width: 150px;
-    height: auto;
-    margin-bottom: var(--spacing-md);
-    opacity: 0.95;
-    aspect-ratio: 750 / 410;
-    max-width: 150px;
+header::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+    z-index: 0;
 }
 
-.header-2026 h1 {
+header > .container {
+    position: relative;
+    z-index: 1;
+}
+
+header h1 {
     color: #d4a574;
-    font-size: 3.5rem;
-    margin-bottom: var(--spacing-xs);
-    letter-spacing: 3px;
+    font-size: 4em;
+    margin: 15px 0 10px 0;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
 }
 
-.header-2026 .subtitle {
-    font-size: 1.3rem;
+header .subtitle {
     color: #ffd700;
+    font-size: 1.5em;
     font-style: italic;
-    margin-bottom: var(--spacing-xs);
+    margin-bottom: 5px;
 }
 
-.header-2026 .tagline {
-    font-size: 1rem;
+header .tagline {
     color: #d4a574;
-    margin-bottom: var(--spacing-sm);
+    font-size: 1.1em;
+    margin-bottom: 10px;
 }
 
-.header-2026 .update-date {
-    font-size: 0.9rem;
+header .update-date {
     color: rgba(212, 165, 116, 0.8);
+    font-size: 0.9em;
+}
+
+.logo {
+    position: absolute;
+    top: -100px;
+    right: -140px;
+    width: 750px;
+    height: 410px;
+    aspect-ratio: 750 / 410;
+    max-width: 750px;
+    object-fit: contain;
+    object-position: center;
+    opacity: 0.95;
 }
 
 /* ============================================
