@@ -1453,11 +1453,14 @@
                     <button class="secondary" onclick="resetForm()">Reset</button>
                 </div>
 
-                <!-- Advanced form submit button (hidden by default) -->
-                <div id="advancedSubmitSection" class="hidden" style="margin-top: 30px; text-align: center;">
-                    <h2 style="margin-top: 0; color: #1a120b;">Ready to Get Your Protocol?</h2>
-                    <p style="margin-bottom: 25px; color: #2c1810;">Click below to generate your personalized 30-day carnivore protocol.</p>
-                    <button class="primary" onclick="submitAdvancedForm()">Generate My Complete Protocol</button>
+                <!-- Advanced form submit button (hidden by default, shown on upgrade) -->
+                <div id="advancedSubmitSection" class="hidden" style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%); border-radius: 12px; border: 3px solid #8b4513; text-align: center;">
+                    <h2 style="margin: 0 0 15px 0; color: #1a120b;">Complete Your Protocol</h2>
+                    <p style="margin: 0 0 25px 0; color: #2c1810; font-size: 1.05em;">Review the health information above, then proceed to secure payment to generate your complete personalized 30-day protocol.</p>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button class="primary" style="background: #1a120b; color: #ffd700; padding: 15px 40px; font-size: 1.1em; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; flex: 0 1 auto;">💳 Proceed to Payment ($9.99)</button>
+                        <button onclick="goBackToResults()" style="background: white; color: #1a120b; padding: 15px 30px; font-size: 1em; font-weight: bold; border: 2px solid #1a120b; border-radius: 8px; cursor: pointer;">← Back to Options</button>
+                    </div>
                 </div>
             </div>
 
@@ -1503,16 +1506,16 @@
                     <!-- Warnings/Success Messages -->
                     <div id="flagsContainer"></div>
 
-                    <div class="btn-group no-print" id="resultsButtons">
-                        <button class="primary" onclick="buildFreeReport()" style="flex: 1;">
-                            📄 Build Free Report
+                    <div class="btn-group no-print" id="resultsButtons" style="gap: 15px;">
+                        <button class="primary" onclick="buildFreeReport()" style="flex: 1; padding: 15px;">
+                            📄 Get Free Report
                         </button>
-                        <button class="cta-button-pulse" onclick="upgradeForPaid()" style="flex: 1;">
-                            ⚡ Upgrade for $9.99
+                        <button class="cta-button-pulse" onclick="upgradeForPaid()" style="flex: 1; padding: 15px;">
+                            ⚡ Get Full Protocol ($9.99)
                         </button>
                     </div>
-                    <div style="text-align: center; margin-top: 15px;">
-                        <button onclick="window.print()" class="secondary" style="font-size: 0.9em;">🖨️ Print Summary</button>
+                    <div style="text-align: center; margin-top: 25px;">
+                        <button onclick="window.print()" class="secondary" style="font-size: 0.85em; opacity: 0.7;">🖨️ Print Macros Summary</button>
                     </div>
                 </div>
 
@@ -2110,194 +2113,6 @@
             }
         }
 
-        async function submitAdvancedForm() {
-            // Validate email is required
-            const email = document.getElementById('email').value;
-            if (!email) {
-                alert('Please enter your email address to receive your protocol');
-                document.getElementById('email').focus();
-                return;
-            }
-
-            // Hide form and show progress bar
-            document.getElementById('advancedSections').style.display = 'none';
-
-            // Create progress bar UI
-            const progressHTML = `
-                <div style="background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%); border: 3px solid #8b4513; border-radius: 12px; padding: 40px; text-align: center;">
-                    <h2 style="color: #8b4513; font-family: 'Playfair Display', serif; margin: 0 0 10px 0; font-size: 1.8em;">Building Your Protocol...</h2>
-                    <p style="color: #666; margin: 0 0 35px 0; font-size: 1.05em;">This is going to be amazing!</p>
-
-                    <div style="max-width: 500px; margin: 0 auto; text-align: left;">
-                        <div id="progressItem1" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.5; transition: all 0.3s;">
-                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                                <span style="font-size: 1.3em;">⚙️</span>
-                            </div>
-                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Calculating your personalized macros</span>
-                        </div>
-
-                        <div id="progressItem2" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
-                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                                <span style="font-size: 1.3em;">🍽️</span>
-                            </div>
-                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Generating meal plans</span>
-                        </div>
-
-                        <div id="progressItem3" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
-                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                                <span style="font-size: 1.3em;">🛒</span>
-                            </div>
-                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Creating shopping lists</span>
-                        </div>
-
-                        <div id="progressItem4" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
-                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                                <span style="font-size: 1.3em;">📋</span>
-                            </div>
-                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Preparing doctor's consultation script</span>
-                        </div>
-
-                        <div id="progressItem5" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
-                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                                <span style="font-size: 1.3em;">📄</span>
-                            </div>
-                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Compiling your complete protocol</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('advancedSubmitSection').innerHTML = progressHTML;
-
-            try {
-                // Collect basic calculator data
-                const basicData = {
-                    sex: document.getElementById('sex').value,
-                    age: document.getElementById('age').value,
-                    weight: document.getElementById('weight').value,
-                    heightFeet: document.getElementById('heightFeet').value,
-                    heightInches: document.getElementById('heightInches').value,
-                    heightCm: document.getElementById('heightCm').value,
-                    lifestyle: document.getElementById('lifestyle').value,
-                    exercise: document.getElementById('exercise').value,
-                    goal: document.getElementById('goal').value,
-                    deficit: document.getElementById('deficit').value,
-                    diet: document.getElementById('diet').value,
-                    ratio: document.getElementById('ratio')?.value,
-                    proteinMin: document.getElementById('proteinMin')?.value,
-                    netCarbs: document.getElementById('netCarbs')?.value,
-                    proteinSetting: document.getElementById('proteinSetting')?.value
-                };
-
-                // Collect advanced form data
-                const advancedData = {
-                    email: email,
-                    firstName: document.querySelector('input[name="firstName"]')?.value,
-                    medications: document.querySelector('textarea[name="medications"]')?.value,
-                    conditions: Array.from(document.querySelectorAll('input[name="conditions"]:checked')).map(cb => cb.value),
-                    allergies: document.querySelector('textarea[name="allergies"]')?.value,
-                    avoidFoods: document.querySelector('textarea[name="avoidFoods"]')?.value,
-                    previousDiets: document.querySelector('textarea[name="previousDiets"]')?.value,
-                    carnivoreExperience: document.querySelector('select[name="carnivoreExperience"]')?.value,
-                    selectedProtocol: document.querySelector('select[name="selectedProtocol"]')?.value,
-                    goals: Array.from(document.querySelectorAll('input[name="goals"]:checked')).map(cb => cb.value),
-                    additionalNotes: document.querySelector('textarea[name="additionalNotes"]')?.value
-                };
-
-                // Combine basic + advanced data
-                const completeData = {
-                    ...basicData,
-                    ...advancedData,
-                    macros: currentResults,
-                    session_id: localStorage.getItem('session_id'),
-                    path_choice: 'paid'
-                };
-
-                // Simulate progress with setTimeout for excitement
-                const progressSteps = [
-                    { item: 1, delay: 500 },
-                    { item: 2, delay: 1500 },
-                    { item: 3, delay: 2500 },
-                    { item: 4, delay: 3500 },
-                    { item: 5, delay: 4500 }
-                ];
-
-                // Update progress items
-                progressSteps.forEach(({ item, delay }) => {
-                    setTimeout(() => {
-                        const elem = document.getElementById(`progressItem${item}`);
-                        if (elem) {
-                            elem.style.opacity = '1';
-                            // Update icon to checkmark
-                            const icon = elem.querySelector('span');
-                            if (icon) {
-                                icon.textContent = '✅';
-                                icon.style.color = '#4caf50';
-                            }
-                        }
-                    }, delay);
-                });
-
-                // Send to Worker after small delay
-                setTimeout(async () => {
-                    try {
-                        const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(completeData)
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success) {
-                            // Show success message
-                            document.getElementById('advancedSubmitSection').innerHTML = `
-                                <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 3px solid #4caf50; border-radius: 12px; padding: 40px; text-align: center;">
-                                    <h2 style="color: #2e7d32; font-family: 'Playfair Display', serif; margin: 0 0 10px 0; font-size: 1.8em;">✅ Protocol Complete!</h2>
-                                    <p style="color: #558b2f; margin: 0 0 20px 0; font-size: 1.1em; font-weight: bold;">Your personalized 30-day carnivore protocol is ready</p>
-
-                                    <div style="background: white; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
-                                        <p style="margin: 0 0 10px 0; color: #2c1810; font-size: 1em;">📧 <strong>Check your email at:</strong></p>
-                                        <p style="margin: 0 0 15px 0; color: #8b4513; font-size: 1.1em; font-weight: bold;">${email}</p>
-                                        <p style="margin: 0; color: #666; font-size: 0.95em;">Your access link expires in 48 hours. Download your complete protocol for permanent access.</p>
-                                    </div>
-
-                                    <p style="color: #558b2f; margin: 0; font-size: 0.95em;">Your protocol includes: macros • meal plans • shopping lists • doctor's script • complete personalization</p>
-                                </div>
-                            `;
-
-                            // Track conversion
-                            gtag('event', 'purchase', {
-                                'event_category': 'Paid Report',
-                                'value': 9.99
-                            });
-                        } else {
-                            throw new Error(result.error || 'Failed to generate protocol');
-                        }
-                    } catch (error) {
-                        console.error('Worker error:', error);
-                        document.getElementById('advancedSubmitSection').innerHTML = `
-                            <div style="background: #ffebee; border: 3px solid #c62828; border-radius: 12px; padding: 30px; text-align: center;">
-                                <h2 style="color: #c62828; margin: 0 0 10px 0;">⚠️ Processing Error</h2>
-                                <p style="color: #2c1810; margin: 0 0 15px 0;">There was an issue generating your protocol.</p>
-                                <p style="color: #666; font-size: 0.95em; margin: 0;">Error: ${error.message}</p>
-                                <p style="color: #666; font-size: 0.9em; margin-top: 15px;">Please try again or contact support.</p>
-                            </div>
-                        `;
-                    }
-                }, 5500);
-
-            } catch (error) {
-                console.error('Submission error:', error);
-                document.getElementById('advancedSubmitSection').innerHTML = `
-                    <div style="background: #ffebee; border: 3px solid #c62828; border-radius: 12px; padding: 30px; text-align: center;">
-                        <h2 style="color: #c62828; margin: 0 0 10px 0;">❌ Error</h2>
-                        <p style="color: #2c1810; margin: 0 0 10px 0;">Could not submit your form.</p>
-                        <p style="color: #666; font-size: 0.95em; margin: 0;">Error: ${error.message}</p>
-                    </div>
-                `;
-            }
-        }
 
         function upgradeForPaid() {
             gtag('event', 'upgrade_clicked', {
@@ -2317,11 +2132,23 @@
             submitSection.classList.remove('hidden');
 
             const submitBtn = submitSection.querySelector('button');
-            submitBtn.textContent = 'Pay & Build Report ($9.99)';
+            submitBtn.textContent = '💳 Proceed to Payment ($9.99)';
             submitBtn.onclick = payAndBuildReport;
 
             // Scroll to advanced sections
             advancedSections.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function goBackToResults() {
+            // Show the results buttons again
+            document.getElementById('resultsButtons').style.display = 'flex';
+
+            // Hide advanced sections and submit button
+            document.getElementById('advancedSections').classList.add('hidden');
+            document.getElementById('advancedSubmitSection').classList.add('hidden');
+
+            // Scroll back to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         async function payAndBuildReport() {
