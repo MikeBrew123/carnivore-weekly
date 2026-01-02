@@ -362,6 +362,23 @@ More details in: /Users/mbrew/Developer/carnivore-weekly/TEMPORARY_PAGE_STATUS.m
         }
 
         @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 20px !important;
+                align-items: flex-start !important;
+            }
+
+            nav > div:last-child {
+                flex-direction: column;
+                gap: 15px !important;
+                width: 100%;
+                align-items: flex-start !important;
+            }
+
+            nav > div:last-child a {
+                font-size: 0.9em !important;
+            }
+
             .hero-section {
                 height: 350px;
             }
@@ -398,9 +415,17 @@ More details in: /Users/mbrew/Developer/carnivore-weekly/TEMPORARY_PAGE_STATUS.m
 </head>
 <body>
     <header>
-        <nav>
-            <h1>🥩 CARNIVORE WEEKLY</h1>
-            <p>Evidence-Based Nutrition for the Carnivore Lifestyle</p>
+        <nav style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 20px; box-sizing: border-box;">
+            <div>
+                <h1 style="margin: 0; font-size: 1.8em;">🥩 CARNIVORE WEEKLY</h1>
+                <p style="margin: 5px 0 0 0; font-size: 0.85em;">Evidence-Based Nutrition for the Carnivore Lifestyle</p>
+            </div>
+            <div style="display: flex; gap: 30px; align-items: center;">
+                <a href="wiki.html" style="color: #2c1810; text-decoration: none; font-weight: 700; font-size: 0.95em; transition: color 0.3s;">Wiki</a>
+                <a href="blog/" style="color: #2c1810; text-decoration: none; font-weight: 700; font-size: 0.95em; transition: color 0.3s;">Blog</a>
+                <a href="calculator.html" style="color: #2c1810; text-decoration: none; font-weight: 700; font-size: 0.95em; transition: color 0.3s;">Calculator</a>
+                <a href="channels.html" style="color: #2c1810; text-decoration: none; font-weight: 700; font-size: 0.95em; transition: color 0.3s;">Channels</a>
+            </div>
         </nav>
     </header>
 
