@@ -12,6 +12,7 @@ carnivore-weekly - No-bullshit carnivore diet research, tools, and weekly insigh
 | "good morning" or "standup" | Run /standup (status, blockers, priorities) |
 | "wrap up" or "done" or "end session" | Quinn updates daily note + current-status.md |
 | "decision:" or "we decided" | Quinn logs to decisions.md |
+| "validate site" or "visual check" | Run /visual-validator on all pages + report findings |
 
 ## Session Flow
 **Start:** Read docs/project-log/current-status.md
