@@ -1409,6 +1409,44 @@
                 <p class="choice-note">Both paths are valid. Pick what fits your needs today.</p>
             </div>
 
+            <!-- AI Upgrade CTA (shown above form for paid path) -->
+            <div id="upgradeSection" class="upsell-container no-print hidden">
+                <h2>Get Your Complete Personalized 30-Day Protocol</h2>
+
+                <div class="upsell-grid">
+                    <!-- Features Column -->
+                    <div>
+                        <ul class="feature-list">
+                            <li>✅ <strong>30-Day Meal Plan</strong> - Matched to your exact macros & preferences</li>
+                            <li>✅ <strong>Weekly Grocery Lists</strong> - With portions & cost estimates</li>
+                            <li>✅ <strong>Doctor's Consultation Script</strong> - Labs to request, questions to ask</li>
+                            <li>✅ <strong>Stall-Breaker Decision Tree</strong> - What to check when progress stops</li>
+                            <li>✅ <strong>Research Guide</strong> - Studies explained in plain English</li>
+                            <li>✅ <strong>Printable PDF</strong> - All 13 reports, one organized document</li>
+                        </ul>
+                    </div>
+
+                    <!-- Price Box Column -->
+                    <div class="price-box">
+                        <div>
+                            <div class="price-original">$29.99</div>
+                            <div class="price-final">$9.99</div>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 20px;">Limited time offer</p>
+                        </div>
+                        <button class="cta-button-pulse" onclick="upgradeFromFree()">Get My Plan Now</button>
+                        <p style="font-size: 0.8em; color: #666; margin-top: 15px;">One-time payment<br>No subscription</p>
+                    </div>
+                </div>
+
+                <!-- Privacy Note -->
+                <div style="margin-top: 30px; padding: 15px; background: rgba(185, 28, 28, 0.05); border: 1px solid #fecaca; border-radius: 8px;">
+                    <p style="font-size: 0.95em; margin: 0; color: #2c1810;">
+                        🔒 <strong>Your data is secure</strong><br>
+                        <span style="font-size: 0.9em; opacity: 0.8; margin-top: 8px; display: block;">Download your PDF anytime. Automatically deleted after 48 hours. No email required.</span>
+                    </p>
+                </div>
+            </div>
+
             <!-- Calculator Card -->
             <div class="card hidden" id="calculatorForm" style="position: relative;">
                 <!-- FREE Star Badge -->
@@ -1766,7 +1804,7 @@
 
                     <div class="btn-group no-print">
                         <button onclick="window.print()">🖨️ Print Summary</button>
-                        <button class="secondary" onclick="scrollToUpgrade()">See AI Upgrade</button>
+                        <button class="secondary" onclick="submitBasicReport()">✅ Submit My Report</button>
                     </div>
                 </div>
 
@@ -1884,44 +1922,6 @@
                 </div>
             </div>
 
-            <!-- AI Upgrade CTA -->
-            <div id="upgradeSection" class="upsell-container no-print hidden">
-                <h2>Get Your Complete Personalized 30-Day Protocol</h2>
-
-                <div class="upsell-grid">
-                    <!-- Features Column -->
-                    <div>
-                        <ul class="feature-list">
-                            <li>✅ <strong>30-Day Meal Plan</strong> - Matched to your exact macros & preferences</li>
-                            <li>✅ <strong>Weekly Grocery Lists</strong> - With portions & cost estimates</li>
-                            <li>✅ <strong>Doctor's Consultation Script</strong> - Labs to request, questions to ask</li>
-                            <li>✅ <strong>Stall-Breaker Decision Tree</strong> - What to check when progress stops</li>
-                            <li>✅ <strong>Research Guide</strong> - Studies explained in plain English</li>
-                            <li>✅ <strong>Printable PDF</strong> - All 13 reports, one organized document</li>
-                        </ul>
-                    </div>
-
-                    <!-- Price Box Column -->
-                    <div class="price-box">
-                        <div>
-                            <div class="price-original">$29.99</div>
-                            <div class="price-final">$9.99</div>
-                            <p style="font-size: 0.9em; color: #666; margin-bottom: 20px;">Limited time offer</p>
-                        </div>
-                        <button class="cta-button-pulse" onclick="upgradeFromFree()">Get My Plan Now</button>
-                        <p style="font-size: 0.8em; color: #666; margin-top: 15px;">One-time payment<br>No subscription</p>
-                    </div>
-                </div>
-
-                <!-- Privacy Note -->
-                <div style="margin-top: 30px; padding: 15px; background: rgba(185, 28, 28, 0.05); border: 1px solid #fecaca; border-radius: 8px;">
-                    <p style="font-size: 0.95em; margin: 0; color: #2c1810;">
-                        🔒 <strong>Your data is secure</strong><br>
-                        <span style="font-size: 0.9em; opacity: 0.8; margin-top: 8px; display: block;">Download your PDF anytime. Automatically deleted after 48 hours. No email required.</span>
-                    </p>
-                </div>
-            </div>
-
         </div>
     </main>
 
@@ -1986,16 +1986,36 @@
                 // Both paths show calculator first
                 document.getElementById('pathChoice').classList.add('hidden');
                 document.getElementById('calculatorForm').classList.remove('hidden');
-                document.getElementById('calculatorForm').scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
 
-                // Update button text based on path
+                // Show upgrade section ONLY for paid path
                 if (path === 'paid') {
+                    // Show pricing info above form
+                    document.getElementById('upgradeSection').classList.remove('hidden');
+
+                    // Clear form values for paid users (they must fill it all out)
+                    document.getElementById('calculatorForm').reset();
+
+                    // Update button text
                     document.getElementById('calculateBtn').textContent = 'Next: Complete Your Profile';
+
+                    // Hide advanced sections initially
+                    document.getElementById('advancedSections').classList.add('hidden');
+
+                    // Scroll to upgrade section
+                    document.getElementById('upgradeSection').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                 } else {
+                    // Free path: hide upgrade section and update button text
+                    document.getElementById('upgradeSection').classList.add('hidden');
                     document.getElementById('calculateBtn').textContent = 'Calculate My Macros';
+
+                    // Scroll to calculator
+                    document.getElementById('calculatorForm').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                 }
             } catch (error) {
                 console.error('Error in choosePath:', error);
@@ -2416,6 +2436,133 @@
                 'event_category': 'Paid Path',
                 'event_label': 'Progressive Disclosure'
             });
+        }
+
+        async function submitBasicReport() {
+            // Collect basic form data
+            const basicData = {
+                sex: document.getElementById('sex').value,
+                age: document.getElementById('age').value,
+                weight: document.getElementById('weight').value,
+                heightFeet: document.getElementById('heightFeet').value,
+                heightInches: document.getElementById('heightInches').value,
+                heightCm: document.getElementById('heightCm').value,
+                lifestyle: document.getElementById('lifestyle').value,
+                exercise: document.getElementById('exercise').value,
+                goal: document.getElementById('goal').value,
+                deficit: document.getElementById('deficit').value,
+                diet: document.getElementById('diet').value,
+                ratio: document.getElementById('ratio')?.value,
+                proteinMin: document.getElementById('proteinMin')?.value,
+                netCarbs: document.getElementById('netCarbs')?.value,
+                macros: currentResults,
+                path_choice: 'free',
+                session_id: localStorage.getItem('session_id')
+            };
+
+            // Show progress bar while submitting
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.style.display = 'none';
+
+            // Create progress bar UI
+            const progressHTML = `
+                <div style="background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%); border: 3px solid #8b4513; border-radius: 12px; padding: 40px; text-align: center;">
+                    <h2 style="color: #8b4513; font-family: 'Playfair Display', serif; margin: 0 0 10px 0; font-size: 1.8em;">Generating Your Report...</h2>
+                    <p style="color: #666; margin: 0 0 35px 0; font-size: 1.05em;">Creating your personalized nutrition summary.</p>
+
+                    <div style="max-width: 500px; margin: 0 auto; text-align: left;">
+                        <div id="progressItem1" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.5; transition: all 0.3s;">
+                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 1.3em;">⚙️</span>
+                            </div>
+                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Compiling your macros</span>
+                        </div>
+
+                        <div id="progressItem2" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
+                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 1.3em;">📊</span>
+                            </div>
+                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Generating meal examples</span>
+                        </div>
+
+                        <div id="progressItem3" style="display: flex; align-items: center; margin-bottom: 20px; opacity: 0.3; transition: all 0.3s;">
+                            <div style="width: 40px; height: 40px; background: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
+                                <span style="font-size: 1.3em;">✅</span>
+                            </div>
+                            <span style="font-family: 'Merriweather', serif; font-size: 1.05em; color: #2c1810;">Finalizing summary</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Show progress bar
+            const progressContainer = document.createElement('div');
+            progressContainer.id = 'reportProgressBar';
+            progressContainer.innerHTML = progressHTML;
+            resultsSection.parentNode.insertBefore(progressContainer, resultsSection.nextSibling);
+
+            // Animate progress
+            setTimeout(() => {
+                document.getElementById('progressItem1').style.opacity = '1';
+                document.getElementById('progressItem1').querySelector('span').textContent = '✅';
+            }, 800);
+
+            setTimeout(() => {
+                document.getElementById('progressItem2').style.opacity = '1';
+                document.getElementById('progressItem2').querySelector('span').textContent = '✅';
+            }, 1600);
+
+            setTimeout(() => {
+                document.getElementById('progressItem3').style.opacity = '1';
+                document.getElementById('progressItem3').querySelector('span').textContent = '✅';
+            }, 2400);
+
+            try {
+                // Send to Worker
+                const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(basicData)
+                });
+
+                const result = await response.json();
+
+                setTimeout(() => {
+                    if (result.success) {
+                        // Show success message
+                        progressContainer.innerHTML = `
+                            <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 3px solid #4caf50; border-radius: 12px; padding: 40px; text-align: center;">
+                                <h2 style="color: #2e7d32; font-family: 'Playfair Display', serif; margin: 0 0 10px 0; font-size: 1.8em;">✅ Report Generated!</h2>
+                                <p style="color: #555; margin: 0 0 20px 0; font-size: 1.05em;">Your personalized nutrition summary is ready.</p>
+                                <p style="color: #555; margin: 0 0 25px 0;">The report will open in a new window or check your email if you provided one.</p>
+                                <button class="primary" onclick="window.location.reload()" style="background: #4caf50; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 1em; cursor: pointer;">
+                                    Return to Calculator
+                                </button>
+                            </div>
+                        `;
+
+                        // Track conversion
+                        gtag('event', 'report_generated', {
+                            'event_category': 'Free Report',
+                            'event_label': basicData.goal
+                        });
+                    } else {
+                        throw new Error(result.error || 'Failed to generate report');
+                    }
+                }, 3200);
+
+            } catch (error) {
+                console.error('Submission error:', error);
+                progressContainer.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%); border: 3px solid #c62828; border-radius: 12px; padding: 40px; text-align: center;">
+                        <h2 style="color: #c62828; font-family: 'Playfair Display', serif; margin: 0 0 10px 0;">⚠️ Error</h2>
+                        <p style="color: #555; margin: 0 0 20px 0;">${error.message}</p>
+                        <button class="secondary" onclick="location.reload()" style="background: #c62828; color: white; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer;">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
         }
 
         async function submitAdvancedForm() {
