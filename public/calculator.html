@@ -908,204 +908,6 @@
         }
 
         /* ========================================
-           PATH CHOICE SYSTEM
-           ======================================== */
-
-        .path-choice-container {
-            background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%);
-            border: 3px solid #8b4513;
-            border-radius: 15px;
-            padding: 40px;
-            margin-bottom: 40px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .choice-header {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
-            color: #8b4513;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .choice-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 25px;
-        }
-
-        .choice-card {
-            background: white;
-            border: 3px solid #d4a574;
-            border-radius: 12px;
-            padding: 30px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            min-height: 400px;
-            transition: all 0.3s;
-        }
-
-        .choice-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .choice-badge {
-            position: absolute;
-            top: -15px;
-            right: 20px;
-            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 0.9em;
-        }
-
-        .choice-badge--paid {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #1a120b;
-            font-size: 1.1em;
-        }
-
-        .choice-card h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8em;
-            color: #2c1810;
-            margin: 10px 0 20px 0;
-        }
-
-        .choice-features {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 20px 0;
-            flex: 1;
-        }
-
-        .choice-features li {
-            padding: 10px 0 10px 30px;
-            position: relative;
-            border-bottom: 1px solid rgba(212, 165, 116, 0.2);
-            font-size: 1.05em;
-            color: #2c1810;
-        }
-
-        .choice-features li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #4caf50;
-            font-weight: bold;
-            font-size: 1.3em;
-        }
-
-        .choice-features li:last-child {
-            border-bottom: none;
-        }
-
-        .choice-time {
-            text-align: center;
-            color: #666;
-            font-size: 0.95em;
-            font-style: italic;
-            margin: 15px 0;
-        }
-
-        .choice-btn {
-            padding: 16px 32px;
-            border: none;
-            border-radius: 10px;
-            font-family: 'Merriweather', serif;
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            width: 100%;
-        }
-
-        .choice-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .choice-btn--free {
-            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-            color: white;
-        }
-
-        .choice-btn--free:hover {
-            background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
-        }
-
-        .choice-btn--paid {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #1a120b;
-            border: 3px solid #d4a574;
-        }
-
-        .choice-btn--paid:hover {
-            background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
-        }
-
-        .choice-note {
-            text-align: center;
-            color: #666;
-            font-size: 0.95em;
-            font-style: italic;
-            margin: 0;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .choice-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .path-choice-container {
-                padding: 25px 20px;
-            }
-
-            .choice-header {
-                font-size: 1.8em;
-            }
-
-            .choice-card {
-                padding: 25px;
-                min-height: 350px;
-            }
-
-            .choice-card h3 {
-                font-size: 1.5em;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .path-choice-container {
-                padding: 20px 15px;
-                margin-bottom: 25px;
-            }
-
-            .choice-header {
-                font-size: 1.5em;
-                margin-bottom: 20px;
-            }
-
-            .choice-card {
-                padding: 20px;
-                min-height: 320px;
-            }
-
-            .choice-features li {
-                font-size: 0.95em;
-                padding: 8px 0 8px 25px;
-            }
-        }
-
-        /* ========================================
            ADVANCED FORM SECTIONS STYLING
            ======================================== */
 
@@ -1369,46 +1171,6 @@
                 <p style="margin-top: 25px; font-size: 1.15em;"><strong>Choose your path below.</strong></p>
             </section>
 
-            <!-- PATH CHOICE SCREEN -->
-            <div id="pathChoice" class="path-choice-container">
-                <h2 class="choice-header">Choose Your Path</h2>
-
-                <div class="choice-grid">
-                    <div class="choice-card choice-card--free">
-                        <div class="choice-badge">FREE</div>
-                        <h3>Quick Macro Calculator</h3>
-                        <ul class="choice-features">
-                            <li>Daily calorie & macro targets</li>
-                            <li>2-meal day examples</li>
-                            <li>Electrolyte guidance</li>
-                            <li>Instant results</li>
-                        </ul>
-                        <p class="choice-time">⏱️ 2 minutes</p>
-                        <button class="choice-btn choice-btn--free" onclick="choosePath('free')">
-                            Start Free Calculator →
-                        </button>
-                    </div>
-
-                    <div class="choice-card choice-card--paid">
-                        <div class="choice-badge choice-badge--paid">$9.99</div>
-                        <h3>Complete 30-Day Protocol</h3>
-                        <ul class="choice-features">
-                            <li>Everything in Free Calculator</li>
-                            <li>30-day personalized meal plan</li>
-                            <li>Weekly shopping lists</li>
-                            <li>Doctor consultation script</li>
-                            <li>48-hour report access via email</li>
-                        </ul>
-                        <p class="choice-time">⏱️ 5 minutes + payment</p>
-                        <button class="choice-btn choice-btn--paid" onclick="choosePath('paid')">
-                            Get Full Protocol →
-                        </button>
-                    </div>
-                </div>
-
-                <p class="choice-note">Both paths are valid. Pick what fits your needs today.</p>
-            </div>
-
             <!-- AI Upgrade CTA (shown above form for paid path) -->
             <div id="upgradeSection" class="upsell-container no-print hidden">
                 <h2>Get Your Complete Personalized 30-Day Protocol</h2>
@@ -1448,7 +1210,7 @@
             </div>
 
             <!-- Calculator Card -->
-            <div class="card hidden" id="calculatorForm" style="position: relative;">
+            <div class="card" id="calculatorForm" style="position: relative;">
                 <!-- FREE Star Badge -->
                 <div class="free-badge">
                     <div class="big">FREE!</div>
@@ -1748,7 +1510,7 @@
                 </div>
 
                 <div class="btn-group">
-                    <button id="calculateBtn" class="primary" onclick="handlePrimaryButton()">Calculate My Macros</button>
+                    <button id="calculateBtn" class="primary" onclick="calculate()">Calculate My Macros</button>
                     <button class="secondary" onclick="resetForm()">Reset</button>
                 </div>
 
@@ -1802,9 +1564,16 @@
                     <!-- Warnings/Success Messages -->
                     <div id="flagsContainer"></div>
 
-                    <div class="btn-group no-print">
-                        <button onclick="window.print()">🖨️ Print Summary</button>
-                        <button class="secondary" onclick="submitBasicReport()">✅ Submit My Report</button>
+                    <div class="btn-group no-print" id="resultsButtons">
+                        <button class="primary" onclick="buildFreeReport()" style="flex: 1;">
+                            📄 Build Free Report
+                        </button>
+                        <button class="cta-button-pulse" onclick="upgradeForPaid()" style="flex: 1;">
+                            ⚡ Upgrade for $9.99
+                        </button>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button onclick="window.print()" class="secondary" style="font-size: 0.9em;">🖨️ Print Summary</button>
                     </div>
                 </div>
 
@@ -1963,100 +1732,6 @@
         let currentResults = null;
 
         // ---------- PATH CHOICE SYSTEM ----------
-        async function choosePath(path) {
-            try {
-                // Store path choice immediately (before API call)
-                localStorage.setItem('path_choice', path);
-
-                // Create session in Supabase (non-blocking - session creation is best-effort)
-                try {
-                    const sessionId = await createUserSession(path);
-                    localStorage.setItem('session_id', sessionId);
-                } catch (apiError) {
-                    console.warn('Could not create Supabase session:', apiError);
-                    // Still continue - user can still use calculator
-                }
-
-                // Track analytics
-                gtag('event', 'path_selected', {
-                    'event_category': 'Calculator',
-                    'event_label': path === 'free' ? 'Free Calculator' : 'Paid Protocol'
-                });
-
-                // Both paths show calculator first
-                document.getElementById('pathChoice').classList.add('hidden');
-                document.getElementById('calculatorForm').classList.remove('hidden');
-
-                // Show upgrade section ONLY for paid path
-                if (path === 'paid') {
-                    // Show pricing info above form
-                    document.getElementById('upgradeSection').classList.remove('hidden');
-
-                    // Update button text first
-                    document.getElementById('calculateBtn').textContent = 'Next: Complete Your Profile';
-
-                    // Hide advanced sections initially
-                    document.getElementById('advancedSections').classList.add('hidden');
-
-                    // Clear form values for paid users (they must fill it all out)
-                    // Set each field explicitly to empty
-                    document.getElementById('age').value = '';
-                    document.getElementById('weight').value = '';
-                    document.getElementById('heightFeet').value = '';
-                    document.getElementById('heightInches').value = '';
-                    document.getElementById('heightCm').value = '';
-                    document.getElementById('sex').value = 'male';
-                    document.getElementById('goal').value = 'lose';
-                    document.getElementById('lifestyle').value = '1.2';
-                    document.getElementById('exercise').value = '0';
-                    document.getElementById('diet').value = 'carnivore';
-                    document.getElementById('deficit').value = '';
-                    if (document.getElementById('ratio')) {
-                        document.getElementById('ratio').value = '70-30';
-                    }
-                    if (document.getElementById('proteinMin')) {
-                        document.getElementById('proteinMin').value = '1.6';
-                    }
-
-                    // Scroll to upgrade section
-                    document.getElementById('upgradeSection').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                } else {
-                    // Free path: hide upgrade section and update button text
-                    document.getElementById('upgradeSection').classList.add('hidden');
-                    document.getElementById('calculateBtn').textContent = 'Calculate My Macros';
-
-                    // Scroll to calculator
-                    document.getElementById('calculatorForm').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            } catch (error) {
-                console.error('Error in choosePath:', error);
-                alert('Error starting calculator. Please try again.');
-            }
-        }
-
-        async function createUserSession(pathChoice) {
-            const response = await fetch('https://kwtdpvnjewtahuxjyltn.supabase.co/rest/v1/user_sessions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNjA2NDMsImV4cCI6MTg5MTkyNzI0M30.rWArRuIUh-OGKTGLXx-5nZS8W1K03cG3X-M2RQRR-lg',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNjA2NDMsImV4cCI6MTg5MTkyNzI0M30.rWArRuIUh-OGKTGLXx-5nZS8W1K03cG3X-M2RQRR-lg'
-                },
-                body: JSON.stringify({
-                    path_choice: pathChoice,
-                    payment_status: 'unpaid'
-                })
-            });
-
-            const data = await response.json();
-            return data[0].id;
-        }
 
         async function updateUserSession(sessionId, macroData) {
             await fetch(`https://kwtdpvnjewtahuxjyltn.supabase.co/rest/v1/user_sessions?id=eq.${sessionId}`, {
@@ -2070,42 +1745,6 @@
                     macro_data: macroData
                 })
             });
-        }
-
-        // Show paid path continue button (skip Stripe, go straight to questionnaire)
-        function showPaidPathContinueButton() {
-            const continueButton = document.createElement('div');
-            continueButton.style.cssText = 'margin-top: 40px; text-align: center; padding: 30px; background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%); border-radius: 12px; border: 3px solid #8b4513;';
-            continueButton.innerHTML = `
-                <h3 style="margin: 0 0 15px 0; color: #1a120b; font-family: 'Playfair Display', serif; font-size: 1.5em;">Next: Your Complete 30-Day Protocol</h3>
-                <p style="margin: 0 0 25px 0; color: #2c1810; font-size: 1em; line-height: 1.6;">
-                    Answer a few quick questions about your health and preferences, and we'll generate your complete personalized protocol including meal plan, shopping lists, and doctor's script.
-                </p>
-                <button style="background: #1a120b; color: #ffd700; padding: 15px 40px; border: none; border-radius: 8px; font-family: 'Playfair Display', serif; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.3);"
-                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.4)';"
-                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.3)';"
-                        onclick="goToPaidQuestionnaire()">
-                    Continue to Full Report →
-                </button>
-                <p style="margin: 20px 0 0 0; font-size: 0.9em; color: #2c1810; opacity: 0.8;">Takes about 5 minutes</p>
-            `;
-            document.getElementById('resultsSection').appendChild(continueButton);
-        }
-
-        function goToPaidQuestionnaire() {
-            // Track analytics
-            gtag('event', 'paid_continue_clicked', {
-                'event_category': 'Paid Flow',
-                'event_label': 'Continue to Questionnaire'
-            });
-
-            // Save current macro results to localStorage for questionnaire
-            if (currentResults) {
-                localStorage.setItem('carnivore_macros', JSON.stringify(currentResults));
-            }
-
-            // Go to paid questionnaire (paid user, already selected paid path)
-            window.location.href = 'paid-questionnaire.html';
         }
 
         // ---------- Unit Conversion ----------
@@ -2405,54 +2044,14 @@
         }
 
         // ---------- Progressive Disclosure Logic ----------
-        function handlePrimaryButton() {
-            const pathChoice = localStorage.getItem('path_choice');
-
-            if (pathChoice === 'paid') {
-                // Paid path: Validate basic form, then reveal advanced sections
-                if (!validateBasicForm()) {
-                    alert('Please fill out all required fields');
-                    return;
-                }
-
-                // Calculate macros silently (store in currentResults)
-                calculate(true);
-
-                // Reveal advanced sections
-                revealAdvancedSections();
-            } else {
-                // Free path: Calculate and show results normally
-                calculate();
-            }
-        }
-
-        function validateBasicForm() {
-            const age = document.getElementById('age').value;
-            const weight = document.getElementById('weight').value;
-            const height = document.getElementById('heightFeet').value || document.getElementById('heightCm').value;
-
-            return age && weight && height;
-        }
-
-        function revealAdvancedSections() {
-            // Hide the primary button
-            document.getElementById('calculateBtn').style.display = 'none';
-
-            // Show advanced sections with smooth reveal
-            const advancedSections = document.getElementById('advancedSections');
-            advancedSections.classList.remove('hidden');
-
-            // Show submit button
-            document.getElementById('advancedSubmitSection').classList.remove('hidden');
-
-            // Smooth scroll to advanced sections
-            advancedSections.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            // Track analytics
-            gtag('event', 'advanced_sections_revealed', {
-                'event_category': 'Paid Path',
-                'event_label': 'Progressive Disclosure'
+        async function buildFreeReport() {
+            gtag('event', 'free_report_clicked', {
+                'event_category': 'Free Path',
+                'event_label': 'Build Free Report'
             });
+
+            // Call existing basic report function
+            await submitBasicReport();
         }
 
         async function submitBasicReport() {
@@ -2771,27 +2370,96 @@
             }
         }
 
-        function upgradeFromFree() {
-            // Change path to paid
-            localStorage.setItem('path_choice', 'paid');
-
-            // Hide results and upgrade section
-            document.getElementById('resultsSection').classList.add('hidden');
-            document.getElementById('upgradeSection').classList.add('hidden');
-
-            // Scroll back to top of calculator
-            document.getElementById('calculatorForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            // Reveal advanced sections after scroll
-            setTimeout(() => {
-                revealAdvancedSections();
-            }, 500);
-
-            // Track analytics
+        function upgradeForPaid() {
             gtag('event', 'upgrade_clicked', {
                 'event_category': 'Conversion',
-                'event_label': 'Free to Paid'
+                'event_label': 'Upgrade Button - Results'
             });
+
+            // Hide the two-button section
+            document.getElementById('resultsButtons').style.display = 'none';
+
+            // Show advanced sections below results
+            const advancedSections = document.getElementById('advancedSections');
+            advancedSections.classList.remove('hidden');
+
+            // Show advanced submit button with payment text
+            const submitSection = document.getElementById('advancedSubmitSection');
+            submitSection.classList.remove('hidden');
+
+            const submitBtn = submitSection.querySelector('button');
+            submitBtn.textContent = 'Pay & Build Report ($9.99)';
+            submitBtn.onclick = payAndBuildReport;
+
+            // Scroll to advanced sections
+            advancedSections.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        async function payAndBuildReport() {
+            // Validate email required
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('Please enter your email address to receive your protocol');
+                document.getElementById('email').focus();
+                return;
+            }
+
+            // Collect all form data
+            const formData = collectCompleteFormData();
+
+            // Save to localStorage for after payment
+            localStorage.setItem('pending_report_data', JSON.stringify(formData));
+            localStorage.setItem('payment_initiated', Date.now().toString());
+
+            gtag('event', 'payment_initiated', {
+                'event_category': 'Conversion',
+                'event_label': 'Stripe Checkout'
+            });
+
+            // Redirect to Stripe
+            window.location.href = 'https://buy.stripe.com/6oEg1I6Sb7gG7Zu9AA';
+        }
+
+        function collectCompleteFormData() {
+            // Basic data
+            const basicData = {
+                sex: document.getElementById('sex').value,
+                age: document.getElementById('age').value,
+                weight: document.getElementById('weight').value,
+                heightFeet: document.getElementById('heightFeet').value,
+                heightInches: document.getElementById('heightInches').value,
+                heightCm: document.getElementById('heightCm').value,
+                lifestyle: document.getElementById('lifestyle').value,
+                exercise: document.getElementById('exercise').value,
+                goal: document.getElementById('goal').value,
+                deficit: document.getElementById('deficit').value,
+                diet: document.getElementById('diet').value,
+                ratio: document.getElementById('ratio')?.value,
+                proteinMin: document.getElementById('proteinMin')?.value,
+                netCarbs: document.getElementById('netCarbs')?.value
+            };
+
+            // Advanced data
+            const advancedData = {
+                email: document.getElementById('email').value,
+                firstName: document.querySelector('input[name="firstName"]')?.value,
+                medications: document.querySelector('textarea[name="medications"]')?.value,
+                conditions: Array.from(document.querySelectorAll('input[name="conditions"]:checked')).map(cb => cb.value),
+                allergies: document.querySelector('textarea[name="allergies"]')?.value,
+                avoidFoods: document.querySelector('textarea[name="avoidFoods"]')?.value,
+                previousDiets: document.querySelector('textarea[name="previousDiets"]')?.value,
+                carnivoreExperience: document.querySelector('select[name="carnivoreExperience"]')?.value,
+                selectedProtocol: document.querySelector('select[name="selectedProtocol"]')?.value,
+                goals: Array.from(document.querySelectorAll('input[name="goals"]:checked')).map(cb => cb.value),
+                additionalNotes: document.querySelector('textarea[name="additionalNotes"]')?.value
+            };
+
+            return {
+                ...basicData,
+                ...advancedData,
+                macros: currentResults,
+                path_choice: 'paid'
+            };
         }
 
         // ---------- Meal Examples Generation ----------
@@ -2949,59 +2617,267 @@
             const urlParams = new URLSearchParams(window.location.search);
 
             if (urlParams.get('success') === 'true') {
-                // Redirect to paid questionnaire page
-                window.location.href = 'paid-questionnaire.html';
+                handlePaymentSuccess();
             }
 
             if (urlParams.get('cancelled') === 'true') {
-                // Show cancelled message
+                // Show cancellation message
                 const cancelMsg = document.createElement('div');
                 cancelMsg.innerHTML = `
-                    <div style="
-                        position: fixed;
-                        top: 20px;
-                        right: 20px;
-                        background: rgba(139, 69, 19, 0.95);
-                        color: #f4e4d4;
-                        padding: 20px 30px;
-                        border-radius: 10px;
-                        border: 2px solid #d4a574;
-                        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-                        z-index: 10000;
-                        max-width: 350px;
-                    ">
-                        <p style="margin: 0; font-size: 1em;">
-                            Payment cancelled. No worries! The free calculator is still here whenever you need it.
-                        </p>
-                        <button onclick="this.parentElement.remove(); window.history.replaceState({}, '', '/calculator.html');" style="
-                            margin-top: 15px;
-                            background: #d4a574;
-                            color: #1a120b;
-                            border: none;
-                            padding: 8px 20px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            font-weight: bold;
-                        ">Close</button>
+                    <div style="position: fixed; top: 20px; right: 20px; background: rgba(139, 69, 19, 0.95); color: #f4e4d4; padding: 20px 30px; border-radius: 10px; border: 2px solid #d4a574; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 10000; max-width: 350px;">
+                        <p style="margin: 0; font-size: 1em;">Payment cancelled. No worries! The free calculator is still here whenever you need it.</p>
+                        <button onclick="this.parentElement.remove(); window.history.replaceState({}, '', '/calculator.html');" style="margin-top: 15px; background: #d4a574; color: #1a120b; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: bold;">Continue</button>
                     </div>
                 `;
                 document.body.appendChild(cancelMsg);
-
-                // Auto-dismiss after 5 seconds
-                setTimeout(() => {
-                    if (cancelMsg.parentElement) {
-                        cancelMsg.remove();
-                        window.history.replaceState({}, '', '/calculator.html');
-                    }
-                }, 5000);
+                localStorage.removeItem('pending_report_data');
+                localStorage.removeItem('payment_initiated');
             }
         }
+
+        async function handlePaymentSuccess() {
+            const savedData = localStorage.getItem('pending_report_data');
+
+            if (!savedData) {
+                alert('Error: Form data not found. Please fill out the form again.');
+                window.location.href = '/calculator.html';
+                return;
+            }
+
+            const formData = JSON.parse(savedData);
+
+            // Hide calculator
+            document.getElementById('calculatorForm').style.display = 'none';
+
+            // Show realistic progress bar
+            showRealisticProgressBar(formData.email);
+
+            // Generate report
+            try {
+                const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccessMessage(formData.email);
+                    localStorage.removeItem('pending_report_data');
+                    localStorage.removeItem('payment_initiated');
+
+                    gtag('event', 'purchase', {
+                        'event_category': 'Paid Report',
+                        'value': 9.99
+                    });
+                } else {
+                    throw new Error(result.error || 'Failed to generate report');
+                }
+            } catch (error) {
+                console.error('Report generation error:', error);
+                showErrorMessage(error.message);
+            }
+        }
+
+        function showRealisticProgressBar(email) {
+            const container = document.createElement('div');
+            container.id = 'progressContainer';
+            container.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 18, 11, 0.95); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+
+            const content = document.createElement('div');
+            content.style.cssText = 'background: #faf8f3; border-radius: 15px; padding: 40px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);';
+
+            const title = document.createElement('h2');
+            title.textContent = 'Building Your Personalized Protocol';
+            title.style.cssText = 'color: #1a120b; margin: 0 0 30px 0; font-size: 1.8em;';
+
+            const emailDisplay = document.createElement('p');
+            emailDisplay.textContent = `Report will be sent to: ${email}`;
+            emailDisplay.style.cssText = 'color: #666; margin: 0 0 30px 0;';
+
+            const stepsContainer = document.createElement('div');
+            stepsContainer.style.cssText = 'text-align: left;';
+
+            const steps = [
+                { label: 'Analyzing your profile', duration: 8 },
+                { label: 'Generating 30-day meal plan', duration: 12 },
+                { label: 'Creating shopping lists', duration: 10 },
+                { label: 'Preparing doctor\'s consultation script', duration: 8 },
+                { label: 'Compiling your complete protocol', duration: 12 }
+            ];
+
+            steps.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.style.cssText = 'margin-bottom: 20px;';
+                stepDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #2c1810; font-weight: bold;">${step.label}</span>
+                        <span style="color: #d4a574; font-weight: bold;" class="step-indicator-${index}">0%</span>
+                    </div>
+                    <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                        <div class="progress-bar-${index}" style="height: 100%; background: linear-gradient(90deg, #4caf50 0%, #45a049 100%); width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                `;
+                stepsContainer.appendChild(stepDiv);
+            });
+
+            content.appendChild(title);
+            content.appendChild(emailDisplay);
+            content.appendChild(stepsContainer);
+            container.appendChild(content);
+            document.body.appendChild(container);
+
+            // Animate progress bars
+            animateProgressSteps(steps);
+        }
+
+        function animateProgressSteps(steps) {
+            let currentStep = 0;
+            const startTime = Date.now();
+            const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0) * 1000;
+
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+
+                if (elapsed < totalDuration) {
+                    let timeAccumulated = 0;
+
+                    steps.forEach((step, index) => {
+                        const stepStart = timeAccumulated * 1000;
+                        const stepEnd = (timeAccumulated + step.duration) * 1000;
+                        const stepDuration = step.duration * 1000;
+
+                        if (elapsed >= stepStart && elapsed < stepEnd) {
+                            const stepProgress = ((elapsed - stepStart) / stepDuration) * 100;
+                            const progressBar = document.querySelector(`.progress-bar-${index}`);
+                            if (progressBar) {
+                                progressBar.style.width = Math.min(stepProgress, 100) + '%';
+                                document.querySelector(`.step-indicator-${index}`).textContent = Math.round(stepProgress) + '%';
+                            }
+                        } else if (elapsed >= stepEnd) {
+                            const progressBar = document.querySelector(`.progress-bar-${index}`);
+                            if (progressBar) {
+                                progressBar.style.width = '100%';
+                                document.querySelector(`.step-indicator-${index}`).textContent = '✅';
+                                progressBar.style.background = 'linear-gradient(90deg, #4caf50 0%, #45a049 100%)';
+                            }
+                        }
+
+                        timeAccumulated += step.duration;
+                    });
+
+                    requestAnimationFrame(animate);
+                } else {
+                    // All steps complete
+                    steps.forEach((step, index) => {
+                        const progressBar = document.querySelector(`.progress-bar-${index}`);
+                        if (progressBar) {
+                            progressBar.style.width = '100%';
+                            document.querySelector(`.step-indicator-${index}`).textContent = '✅';
+                        }
+                    });
+                }
+            };
+
+            animate();
+        }
+
+        function showSuccessMessage(email) {
+            const container = document.getElementById('progressContainer');
+            if (container) {
+                container.innerHTML = '';
+                const content = document.createElement('div');
+                content.style.cssText = 'background: #faf8f3; border-radius: 15px; padding: 40px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);';
+
+                content.innerHTML = `
+                    <div style="font-size: 3em; margin-bottom: 20px;">✅</div>
+                    <h2 style="color: #1a120b; margin: 0 0 15px 0;">Your Protocol is Ready!</h2>
+                    <p style="color: #666; margin: 0 0 20px 0;">Check your email for your complete personalized 30-day protocol.</p>
+                    <p style="color: #d4a574; font-weight: bold; margin: 0 0 25px 0;">📧 ${email}</p>
+                    <p style="color: #999; font-size: 0.9em; margin: 0 0 25px 0;">You'll have 48 hours to download your protocol, meal plans, and doctor's consultation script.</p>
+                    <button onclick="window.location.href = '/calculator.html';" style="background: #d4a574; color: #1a120b; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1em;">Return to Calculator</button>
+                `;
+
+                container.appendChild(content);
+            }
+        }
+
+        function showErrorMessage(errorMsg) {
+            const container = document.getElementById('progressContainer');
+            if (container) {
+                container.innerHTML = '';
+                const content = document.createElement('div');
+                content.style.cssText = 'background: #faf8f3; border-radius: 15px; padding: 40px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);';
+
+                content.innerHTML = `
+                    <div style="font-size: 3em; margin-bottom: 20px;">❌</div>
+                    <h2 style="color: #1a120b; margin: 0 0 15px 0;">Oops, Something Went Wrong</h2>
+                    <p style="color: #666; margin: 0 0 15px 0;">${errorMsg}</p>
+                    <p style="color: #999; font-size: 0.9em; margin: 0 0 25px 0;">If this continues, please contact support@carnivoreweekly.com</p>
+                    <button onclick="window.location.href = '/calculator.html';" style="background: #d4a574; color: #1a120b; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1em;">Return to Calculator</button>
+                `;
+
+                container.appendChild(content);
+            }
+        }
+
+        // ---------- Test Mode Functions ----------
+        function fillTestData() {
+            // Basic fields
+            document.getElementById('age').value = '35';
+            document.getElementById('weight').value = '180';
+            document.getElementById('heightFeet').value = '5';
+            document.getElementById('heightInches').value = '10';
+            document.getElementById('sex').value = 'male';
+            document.getElementById('goal').value = 'lose';
+            document.getElementById('lifestyle').value = '1.2';
+            document.getElementById('exercise').value = '0.3';
+            document.getElementById('diet').value = 'carnivore';
+            document.getElementById('deficit').value = '20';
+
+            // Advanced fields (if visible)
+            const emailField = document.getElementById('email');
+            if (emailField && !emailField.closest('.hidden')) {
+                emailField.value = 'test@example.com';
+                const firstNameField = document.querySelector('input[name="firstName"]');
+                if (firstNameField) firstNameField.value = 'John';
+                const medicationsField = document.querySelector('textarea[name="medications"]');
+                if (medicationsField) medicationsField.value = 'None';
+                const carniExperienceField = document.querySelector('select[name="carnivoreExperience"]');
+                if (carniExperienceField) carniExperienceField.value = 'never';
+                const weightLossCheckbox = document.getElementById('weightloss');
+                if (weightLossCheckbox) weightLossCheckbox.checked = true;
+            }
+
+            console.log('✅ Test data filled!');
+        }
+
+        function checkForTestMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('test') === '1') {
+                fillTestData();
+
+                const indicator = document.createElement('div');
+                indicator.style.cssText = 'position: fixed; top: 10px; left: 10px; background: #ffd700; color: #1a120b; padding: 8px 15px; border-radius: 6px; font-size: 0.85em; z-index: 10000;';
+                indicator.textContent = '🧪 Test Mode Active';
+                document.body.appendChild(indicator);
+            }
+        }
+
+        // Keyboard shortcut: Shift+T to toggle test data
+        document.addEventListener('keydown', function(e) {
+            if (e.shiftKey && e.key === 'T') {
+                fillTestData();
+            }
+        });
 
         // ---------- Init ----------
         updateDietOptions();
         updateDeficitLabel();
         updateActivityDisplay();
         checkPaymentStatus();
+        checkForTestMode();
     </script>
 </body>
 </html>
