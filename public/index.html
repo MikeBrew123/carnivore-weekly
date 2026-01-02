@@ -1,295 +1,536 @@
-<!--
-TEMPORARY PAGE NOTICE - READ THIS IF YOU'RE CONFUSED
-
-This is a TEMPORARY landing page created on 2026-01-01 while waiting for YouTube API quota approval.
-
-SITUATION:
-- YouTube API quota was exhausted on 2026-01-01
-- The full homepage (with Prime Cuts, trending videos) requires YouTube data
-- That data collection is blocked until quota is restored
-
-CURRENT STATE:
-- This temporary page is LIVE (at public/index.html)
-- The full page is backed up (at public/index-full.html)
-- Once quota is approved, swap them back
-
-WHAT TO DO IF YOU'RE READING THIS:
-1. Check TEMPORARY_PAGE_STATUS.md in the project root (detailed documentation)
-2. Verify YouTube API quota at: https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas
-3. Once quota is approved, run: python3 scripts/youtube_collector.py
-4. Then restore full page (see TEMPORARY_PAGE_STATUS.md for commands)
-
-DO NOT:
-❌ Delete index-full.html (it's your backup)
-❌ Manually edit the data JSON files
-❌ Assume everything is broken (just waiting for quota)
-
-More details in: /Users/mbrew/Developer/carnivore-weekly/TEMPORARY_PAGE_STATUS.md
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Carnivore Weekly curates evidence-based carnivore diet content and trending topics. Access nutrition resources, top creators, and join our supportive community.">
-    <meta name="keywords" content="carnivore diet weekly, carnivore diet news, carnivore diet youtube, carnivore nutrition">
+    <meta name='impact-site-verification' value='165bca80-d4fc-46f0-8717-1c7589c6e98c'>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, expert insights, and community discussions. Stay updated on the latest in meat-based nutrition.">
+    <meta name="keywords" content="carnivore diet, meat-based diet, keto, animal-based nutrition, carnivore lifestyle, grass-fed beef, carnivore recipes, low-carb diet, metabolic health, YouTube carnivore">
+    <meta name="author" content="Carnivore Weekly">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://carnivoreweekly.com/">
-    <title>Carnivore Weekly - Evidence-Based Carnivore Diet Content</title>
+    <link rel="canonical" href="https://carnivoreweekly.com">
 
-    <!-- Open Graph Tags (Facebook/LinkedIn) -->
-    <meta property="og:title" content="Carnivore Weekly - Evidence-Based Carnivore Diet Content">
-    <meta property="og:description" content="Curated carnivore diet resources, trending topics, and top creator videos. Get evidence-based nutrition information and join our community.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=1200&q=80">
-    <meta property="og:url" content="https://carnivoreweekly.com/">
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Carnivore Weekly">
+    <meta property="og:url" content="https://carnivoreweekly.com">
+    <meta property="og:title" content="Carnivore Weekly - The Meat-Eater's Digest">
+    <meta property="og:description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, and expert insights on meat-based nutrition.">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
 
-    <!-- Twitter Card Tags -->
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Carnivore Weekly - Evidence-Based Carnivore Diet Content">
-    <meta name="twitter:description" content="Curated carnivore diet resources, trending topics, and top creator videos.">
-    <meta name="twitter:image" content="https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=1200&q=80">
+    <meta name="twitter:url" content="https://carnivoreweekly.com">
+    <meta name="twitter:title" content="Carnivore Weekly - The Meat-Eater's Digest">
+    <meta name="twitter:description" content="Weekly carnivore diet content hub featuring top YouTube videos, trending topics, and expert insights on meat-based nutrition.">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <title>Carnivore Weekly - The Meat-Eater's Digest | Weekly Carnivore Content Hub</title>
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-NR4JVKW2JV');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+
+        // Track affiliate link clicks
+        function trackAffiliateClick(product, link) {
+            gtag('event', 'click', {
+                'event_category': 'Affiliate',
+                'event_label': product,
+                'value': link
+            });
+        }
+
+        // Track YouTube video clicks
+        function trackVideoClick(videoTitle) {
+            gtag('event', 'click', {
+                'event_category': 'YouTube Video',
+                'event_label': videoTitle
+            });
+        }
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #1a120b;
-            color: #f4e4d4;
-            font-family: 'Merriweather', serif;
-            line-height: 1.6;
-        }
-
-        header {
+        /* Page-specific styles */
+        /* Leather-textured sections */
+        .section {
             background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
-            padding: 30px 20px;
-            text-align: center;
-            border-bottom: 4px solid #8b4513;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3em;
-            color: #1a120b;
-            margin-bottom: 5px;
-            font-weight: 900;
-            letter-spacing: 2px;
-        }
-
-        header p {
-            color: #2c1810;
-            font-size: 0.95em;
-            font-style: italic;
-        }
-
-        .hero-section {
-            position: relative;
-            height: 500px;
-            background: linear-gradient(135deg, rgba(26, 18, 11, 0.3), rgba(26, 18, 11, 0.5)),
-                        url('https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=1200&q=80') center/cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-            overflow: hidden;
-        }
-
-        .hero-content {
-            z-index: 2;
-            max-width: 800px;
-            padding: 40px 20px;
-            background: rgba(26, 18, 11, 0.7);
-            border-radius: 15px;
-            backdrop-filter: blur(5px);
-        }
-
-        .hero-content h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            color: #ffd700;
-        }
-
-        .hero-content p {
-            font-size: 1.1em;
-            line-height: 1.8;
-            color: #f4e4d4;
-        }
-
-        main {
-            padding: 50px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .welcome-section {
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
-            border: 3px solid #8b4513;
             border-radius: 15px;
             padding: 40px;
-            margin-bottom: 50px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-        }
-
-        .welcome-section h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2em;
-            color: #2c1810;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #8b4513;
-            padding-bottom: 15px;
-        }
-
-        .welcome-section p {
-            color: #2c1810;
-            font-size: 1.05em;
-            line-height: 1.8;
-            margin-bottom: 15px;
-        }
-
-        .welcome-section strong {
-            color: #1a120b;
-            font-weight: 700;
-        }
-
-        .welcome-section em {
-            font-style: italic;
-            color: #1a120b;
-        }
-
-        /* Two Column Layout for Featured Content */
-        .featured-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 50px;
-        }
-
-        .ad-card {
+            margin-bottom: 40px;
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.3),
+                inset 0 -1px 0 rgba(0,0,0,0.3);
             border: 3px solid #8b4513;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            background: #2c1810;
+            position: relative;
         }
 
-        .ad-card:hover {
+        .section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise2"><feTurbulence baseFrequency="0.6" numOctaves="3"/></filter><rect width="100%" height="100%" filter="url(%23noise2)" opacity="0.15"/></svg>');
+            border-radius: 15px;
+            pointer-events: none;
+        }
+
+        .section h2 {
+            color: #2c1810;
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            border-bottom: 4px solid #8b4513;
+            padding-bottom: 15px;
+            text-shadow: 2px 2px 0 rgba(255,255,255,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Removed emoji from section headers */
+
+        .summary {
+            font-size: 1.2em;
+            line-height: 2;
+            color: #1a120b;
+            background: rgba(255,255,255,0.4);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #8b4513;
+            position: relative;
+            z-index: 1;
+        }
+
+        .summary-with-image {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .summary-text {
+            font-size: 1.2em;
+            line-height: 2;
+            color: #1a120b;
+            background: rgba(255,255,255,0.4);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #8b4513;
+        }
+
+        .summary-image {
+            position: relative;
+            height: 100%;
+        }
+
+        .summary-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 3px solid #8b4513;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 968px) {
+            .summary-with-image {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-image {
+                height: 300px;
+            }
+        }
+
+        .trending-topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .topic-card {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            border-left: 6px solid #d4a574;
+            padding: 25px;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        .topic-card h3 {
+            color: #f4e4d4;
+            margin-bottom: 15px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+        }
+
+        .topic-card .mentioned-by {
+            font-size: 0.9em;
+            margin-top: 15px;
+            opacity: 0.9;
+            font-style: italic;
+            border-top: 1px solid rgba(244, 228, 212, 0.3);
+            padding-top: 10px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        @media (min-width: 600px) {
+            .video-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1000px) {
+            .video-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .video-card {
+            background: linear-gradient(135deg, #1a120b 0%, #2c1810 100%);
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .video-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 15px 40px rgba(0,0,0,0.7);
         }
 
-        .ad-card img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            display: block;
+.video-card .video-header {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 20px;
+            border-bottom: 3px solid #d4a574;
         }
 
-        .ad-card-content {
-            padding: 25px;
+        .video-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .video-card h3 a {
+            color: #f4e4d4;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .video-card h3 a:hover {
+            color: #ffd700;
+        }
+
+        .video-card .creator {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .video-thumbnail:hover {
+            opacity: 0.9;
+        }
+
+        .video-content {
             background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
         }
 
-        .ad-card h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5em;
-            color: #1a120b;
-            margin-bottom: 10px;
-        }
-
-        .ad-card p {
-            color: #2c1810;
-            font-size: 0.95em;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .ad-link {
-            display: inline-block;
-            background: #1a120b;
+        .video-card .creator a {
             color: #d4a574;
-            padding: 12px 24px;
-            border-radius: 6px;
             text-decoration: none;
             font-weight: 700;
-            font-size: 0.9em;
-            transition: all 0.3s;
+        }
+
+        .video-card .creator a:hover {
+            color: #ffd700;
+        }
+
+        .video-card .video-body {
+            padding: 20px;
+            background: #2c1810;
+            color: #f4e4d4;
+        }
+
+        .video-card .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.3);
+            border-radius: 8px;
+            border: 2px solid #8b4513;
+        }
+
+        .video-card .stat {
+            text-align: center;
+        }
+
+        .video-card .stat-value {
+            font-weight: 900;
+            color: #ffd700;
+            font-size: 1.4em;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .video-card .stat-label {
+            font-size: 0.85em;
+            color: #d4a574;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .ad-link:hover {
-            background: #8b4513;
+        /* Video summary styling */
+        .video-summary {
+            font-size: 1em;
+            line-height: 1.6;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(244, 228, 212, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #d4a574;
+            color: #f4e4d4;
+        }
+
+        /* Video tags styling */
+        .video-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .video-tags .tag {
+            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
             color: #ffd700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid #d4a574;
+            transition: all 0.3s ease;
+        }
+
+        .video-tags .tag:hover {
+            background: linear-gradient(135deg, #6b3410 0%, #8b4513 100%);
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-bottom: 50px;
+        .insights-list {
+            list-style: none;
+            margin-top: 25px;
         }
 
-        .content-card {
-            background: linear-gradient(135deg, #2c1810 0%, #1a120b 100%);
-            border: 3px solid #8b4513;
+        .insights-list li {
+            padding: 25px 25px 25px 60px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.4) 0%, rgba(139, 69, 19, 0.2) 100%);
+            border-left: 6px solid #8b4513;
+            border-radius: 8px;
+            font-size: 1.1em;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .insights-list li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .insights-list li::before {
+            content: "🔪";
+            position: absolute;
+            left: 20px;
+            font-size: 1.8em;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Rotate through different kitchen icons */
+        .insights-list li:nth-child(5n+1)::before { content: "🔪"; }
+        .insights-list li:nth-child(5n+2)::before { content: "🥩"; }
+        .insights-list li:nth-child(5n+3)::before { content: "🔥"; }
+        .insights-list li:nth-child(5n+4)::before { content: "⚖️"; }
+        .insights-list li:nth-child(5n+5)::before { content: "🧂"; }
+
+        .sentiment {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 35px;
             border-radius: 12px;
-            padding: 35px 25px;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            margin-top: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            border: 3px solid #d4a574;
+            position: relative;
+            z-index: 1;
         }
 
-        .content-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
-        }
-
-        .content-card h3 {
+        .sentiment h3 {
+            margin-bottom: 20px;
             font-family: 'Playfair Display', serif;
             font-size: 1.8em;
-            color: #d4a574;
+        }
+
+        .questions-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .questions-list li {
+            padding: 15px;
             margin-bottom: 15px;
-            border-bottom: 2px solid #8b4513;
-            padding-bottom: 12px;
+            background: rgba(244, 228, 212, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #d4a574;
         }
 
-        .content-card p {
-            color: #f4e4d4;
-            font-size: 0.95em;
-            margin-bottom: 25px;
-            line-height: 1.7;
+        .questions-list li::before {
+            content: "→ ";
+            margin-right: 12px;
+            font-weight: 700;
         }
 
-        .btn {
+        /* Feedback Button */
+        .feedback-btn {
             display: inline-block;
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
-            color: #1a120b;
-            padding: 14px 32px;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 700;
+            border: 2px solid #d4a574;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+
+        .feedback-btn:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #d4a574;
+            margin-top: 60px;
+            border-top: 3px solid #8b4513;
+        }
+
+        footer a {
+            color: #d4a574;
+            text-decoration: none;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 2px;
+            font-weight: 700;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-left: none;
+            border-right: none;
+            padding: 20px 0;
+            margin-bottom: 50px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .nav-menu a {
+            color: #1a120b;
+            text-decoration: none;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            padding: 10px 20px;
+            margin: 0 5px;
+            display: inline-block;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu a:hover {
+            border-bottom-color: #8b4513;
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            border-bottom-color: #8b4513;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #d4a574;
+            color: #1a120b;
+            padding: 8px 20px;
+            border-radius: 25px;
             font-size: 1em;
+            margin: 8px;
+            font-weight: 700;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            border: 2px solid #8b4513;
+        }
+
+        .watch-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            color: #1a120b;
+            padding: 16px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: 15px;
+            text-align: center;
             transition: all 0.3s;
             border: 2px solid #8b4513;
             text-transform: uppercase;
@@ -297,274 +538,2333 @@ More details in: /Users/mbrew/Developer/carnivore-weekly/TEMPORARY_PAGE_STATUS.m
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        .btn:hover {
+        .watch-btn:hover {
             background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
 
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5em;
+            }
+
+            .trending-topics {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Steak divider */
         .divider {
             text-align: center;
-            font-size: 2em;
-            margin: 50px 0;
+            font-size: 3em;
+            margin: 40px 0;
             opacity: 0.3;
         }
 
-        .status-note {
-            background: rgba(212, 165, 116, 0.1);
-            border-left: 4px solid #d4a574;
+        /* Q&A Accordion */
+        .qa-accordion {
+            margin-top: 25px;
+        }
+
+        .qa-item {
+            margin-bottom: 15px;
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(139, 69, 19, 0.2);
+        }
+
+        .qa-question {
             padding: 20px;
-            margin-bottom: 40px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: background 0.3s;
+            position: relative;
+            user-select: none;
+        }
+
+        .qa-question:hover {
+            background: linear-gradient(135deg, #a0522d 0%, #8b4513 100%);
+        }
+
+        .qa-question::after {
+            content: "▼";
+            position: absolute;
+            right: 20px;
+            transition: transform 0.3s;
+        }
+
+        .qa-question.active::after {
+            transform: rotate(180deg);
+        }
+
+        .qa-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            padding: 0 20px;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1a120b;
+        }
+
+        .qa-answer.active {
+            max-height: 1000px;
+            padding: 20px;
+        }
+
+        .qa-answer p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .citations {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.1);
+            border-left: 4px solid #8b4513;
             border-radius: 5px;
-            color: #d4a574;
-            font-style: italic;
-            text-align: center;
         }
 
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            color: #d4a574;
-            border-top: 3px solid #8b4513;
-            margin-top: auto;
+        .citations h4 {
+            margin-bottom: 10px;
+            color: #8b4513;
         }
 
-        footer a {
-            color: #d4a574;
+        .citation {
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .citation a {
+            color: #8b4513;
             text-decoration: none;
             font-weight: 700;
-            border-bottom: 2px solid #8b4513;
-            padding-bottom: 2px;
-            margin: 0 10px;
         }
 
-        footer a:hover {
+        .citation a:hover {
+            text-decoration: underline;
+        }
+
+        .caveats {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 165, 0, 0.1);
+            border-left: 4px solid #ffa500;
+            border-radius: 5px;
+            font-style: italic;
+            font-size: 0.95em;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 25px;
+            margin: 40px 0 20px 0;
+            border-radius: 10px;
+            border: 3px solid #d4a574;
+            font-size: 0.9em;
+            line-height: 1.8;
+        }
+
+        .disclaimer h3 {
+            margin-bottom: 15px;
             color: #ffd700;
-            border-bottom-color: #ffd700;
+            font-size: 1.2em;
         }
 
-        @media (max-width: 1000px) {
-            .featured-section {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-content h2 {
-                font-size: 1.8em;
-            }
-
-            header h1 {
-                font-size: 2em;
-            }
-
-            .welcome-section {
-                padding: 25px;
-            }
+        /* Advertising Spaces */
+        .sponsor-banner {
+            background: linear-gradient(135deg, #2c1810 0%, #1a120b 100%);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
         }
 
-        @media (max-width: 768px) {
-            nav {
-                flex-direction: column;
-                gap: 20px !important;
-                align-items: flex-start !important;
-            }
+        .sponsor-banner::before {
+            content: "SPONSORED";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #8b4513;
+            color: #f4e4d4;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
 
-            nav > div:last-child {
-                flex-direction: column;
-                gap: 15px !important;
-                width: 100%;
-                align-items: flex-start !important;
-            }
+        .sponsor-banner h3 {
+            color: #d4a574;
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
 
-            nav > div:last-child a {
-                font-size: 0.9em !important;
-            }
+        .sponsor-banner p {
+            color: #f4e4d4;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
 
-            .hero-section {
-                height: 350px;
-            }
+        .sponsor-cta {
+            display: inline-block;
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            color: #1a120b;
+            padding: 15px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1em;
+            border: 2px solid #8b4513;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-            header h1 {
-                font-size: 1.8em;
-            }
+        .sponsor-cta:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
 
-            main {
-                padding: 30px 15px;
-            }
+        .sponsor-cta.coming-soon {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #d4a574;
+            cursor: default;
+            opacity: 0.85;
+        }
 
-            .welcome-section {
-                padding: 20px;
-            }
+        .sponsor-cta.coming-soon:hover {
+            transform: none;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            box-shadow: none;
+        }
 
-            .welcome-section h2 {
-                font-size: 1.4em;
-            }
+        .inline-ad {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 40px 0;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
 
-            .content-grid {
-                gap: 20px;
-            }
+        .inline-ad::before {
+            content: "ADVERTISEMENT";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #d4a574;
+            color: #1a120b;
+            padding: 3px 15px;
+            border-radius: 5px;
+            font-size: 0.7em;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
 
-            .content-card {
-                padding: 20px 15px;
-            }
+        .inline-ad img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
 
-            .content-card h3 {
-                font-size: 1.3em;
-            }
+        .inline-ad h4 {
+            color: #2c1810;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .inline-ad p {
+            color: #1a120b;
+            margin-bottom: 15px;
+        }
+
+        .ad-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .ad-link:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Center header subtitle */
+        header p {
+            text-align: center;
+        }
+
+        .calculator-ad {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .calculator-ad a {
+            display: inline-block;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .calculator-ad a:hover {
+            transform: scale(1.02);
+        }
+
+        .calculator-ad img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 3px solid #8b4513;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
     </style>
+
+    <!-- Schema.org Article markup (for weekly digest) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Carnivore Weekly Digest - 2026-01-02T07:32:23.665440",
+      "description": "This week's carnivore diet trends, top videos, and community insights. Featured: trending topics, top videos, and key community sentiment.",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Brew"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Carnivore Weekly",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://carnivoreweekly.com/images/logo.png"
+        }
+      },
+      "datePublished": "2026-01-02T07:32:23.665440",
+      "dateModified": "2026-01-02T07:32:23.665440",
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://carnivoreweekly.com/images/logo.png",
+        "width": 1200,
+        "height": 630
+      }
+    }
+    </script>
 </head>
 <body>
     <header>
-        <nav style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 20px; box-sizing: border-box;">
-            <div>
-                <h1 style="margin: 0; font-size: 1.8em;">🥩 CARNIVORE WEEKLY</h1>
-                <p style="margin: 5px 0 0 0; font-size: 0.85em;">Evidence-Based Nutrition for the Carnivore Lifestyle</p>
-            </div>
-            <div style="display: flex; gap: 30px; align-items: center;">
-                <a href="wiki.html" style="color: #2c1810; text-decoration: none; font-weight: 700; font-size: 0.95em; transition: color 0.3s;">Wiki</a>
-                <a href="blog/" style="color: #2c1810; text-decoration: none; font-weight: 700; font-size: 0.95em; transition: color 0.3s;">Blog</a>
-                <a href="calculator.html" style="color: #2c1810; text-decoration: none; font-weight: 700; font-size: 0.95em; transition: color 0.3s;">Calculator</a>
-                <a href="channels.html" style="color: #2c1810; text-decoration: none; font-weight: 700; font-size: 0.95em; transition: color 0.3s;">Channels</a>
-            </div>
-        </nav>
+        <div class="container">
+            <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <h1>CARNIVORE WEEKLY</h1>
+            <p class="subtitle">The Meat-Eater's Digest</p>
+            <p class="tagline">Premium Cuts of Carnivore Content</p>
+            <p class="update-date">Week of 2026-01-02T07:32:23.665440</p>
+        </div>
     </header>
 
-    <div class="hero-section">
-        <div class="hero-content">
-            <h2>🎉 Happy New Year!</h2>
-            <p>Welcome to your carnivore diet journey. We're here to help you crush your health goals with real information, proven protocols, and a community that gets it.</p>
+    <!-- Navigation Menu -->
+    <nav class="nav-menu" id="top-nav">
+        <a href="index.html">Home</a>
+        <a href="channels.html">Channels</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="blog.html">Blog</a>
+        <a href="calculator.html">Calculator</a>
+        <a href="archive.html">Archive</a>
+    </nav>
+
+    <!-- Fixed Side Feedback Button -->
+    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn feedback-side feedback-btn-small">
+        💬 Feedback
+    </a>
+
+    <div class="container">
+        <!-- SECTION: ButcherBox Affiliate Banner | Lines 905-910 | CSS: .sponsor-banner-image | JS: trackAffiliateClick() -->
+        <!-- ButcherBox Affiliate Banner -->
+        <div class="sponsor-banner-image">
+            <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=seasonal_offer" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')">
+                <img src="butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; height: auto; display: block; border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);">
+            </a>
+        </div>
+
+        <!-- SECTION: Weekly Summary + Calculator Ad | Lines 914-933 | CSS: .section .summary-with-image .calculator-ad | JS: trackAffiliateClick() -->
+        <!-- Weekly Summary - Shows summary text with steak image, calculator promo below -->
+        <section class="section">
+            <h2>This Week's Roundup</h2>
+            <div class="summary-with-image">
+                <div class="summary-text">
+                    # Analysis of Carnivore Diet YouTube Trends (Week of Jan 2, 2026)
+
+## Data Summary
+
+Based on the limited data provided:
+
+- **Search Query:** "carnivore diet"
+- **Period:** 7 days back from January 2, 2026
+- **Total Videos Found:** 5
+- **Top Creator:** The Plant Slant (1.25M views this week)
+
+## Key Observations
+
+### Top Performing Content
+
+**The Plant Slant** dominated with a reposted video critiquing diet food substitutions:
+- **Views:** 684,473
+- **Likes:** 67,487
+- **Engagement Rate:** ~9.9% (exceptionally high)
+
+### Audience Sentiment (from comments)
+
+1. **Frustration with fake food substitutes** - "This is how we end up with laws about what can legally call itself a cookie" (8,156 likes)
+
+2. **Self-deprecating humor resonates** - "we fatties know pasta" comment got 4,006 likes
+
+3. **Anti-diet-culture undertones** - Comments criticizing cottage cheese desserts and ruined foods performing well
+
+## Content Themes Emerging
+
+| Theme | Audience Response |
+|-------|------------------|
+| Calling out fake "healthy" versions | Very positive |
+| Humor/relatability over preaching | High engagement |
+| Nostalgia/reposts of classics | Still performing |
+
+## Limitations
+
+⚠️ **Data is incomplete** - Only 1 video's details shown from 5 found. The top creator appears to be *anti*-carnivore/keto (satirical content), which suggests:
+
+- Debate content outperforms pure advocacy
+- Contrarian takes drive engagement in this niche
+
+## Recommendations for Content Creators
+
+1. **Lean into humor** over strict education
+2. **Address the "fake food" debate** directly
+3. **Engage with critics** - controversy = views
+4. **Authenticity wins** - audiences reject overly processed "diet" alternatives
+
+---
+
+*Need the full dataset for comprehensive trend analysis.*
+                </div>
+                <div class="summary-image">
+                    <img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=600&q=80" alt="Premium ribeye steak">
+                </div>
+            </div>
+
+            <!-- Calculator Ad -->
+            <div class="calculator-ad">
+                <a href="calculator.html" onclick="trackAffiliateClick('Diet Calculator', 'calculator.html')">
+                    <img src="images/NewYear-ad.png" alt="Carnivore Diet Calculator - Get Your Personalized Plan">
+                </a>
+            </div>
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- SECTION: Trending Topics | Lines 937-958 | CSS: .section .trending-topics .topic-card | JS: none -->
+        <!-- Trending Topics -->
+        <section class="section">
+            <h2>What's Sizzling</h2>
+            <div class="trending-topics">
+                
+                <div class="topic-card">
+                    <h3>Top Creator: The Plant Slant</h3>
+                    <p>**Weekly views**: 1,247,917 **Content style**: Comedy/reaction content, not pro-carnivore but diet-adjacent entertainment **Top video**: A repost of older content featuring "momma cusses" critiquing fake pasta alternatives</p>
+                    <div class="mentioned-by">
+                        <strong>Featured in:</strong>
+                        
+                            
+                                Analysis
+                            
+                        
+                    </div>
+                </div>
+                
+                <div class="topic-card">
+                    <h3>Viral Video Analysis</h3>
+                    <p>The featured video (684K views) is actually **anti-diet-food-substitution humor** rather than carnivore diet content per se. Key engagement signals: | Metric | Value | Engagement Rate | |--------|-------|-----------------| | Views | 684,473 | — | | Likes | 67,487 | 9.86% (excellent) | | Comments | 1,330 | 0.19% |</p>
+                    <div class="mentioned-by">
+                        <strong>Featured in:</strong>
+                        
+                            
+                                Analysis
+                            
+                        
+                    </div>
+                </div>
+                
+                <div class="topic-card">
+                    <h3>Comment Sentiment Themes</h3>
+                    <p>1. **Frustration with fake "healthy" substitutes** - "it's still not rice!" 2. **Self-deprecating diet humor** - "we fatties know pasta" 3. **Backlash against cottage cheese dessert trends** 4. **Calls for food authenticity/labeling** The data suggests audiences are: Tired of gimmicky diet food swaps Responding well to authentic, humorous takes Craving straightforward approaches (aligns with carnivore's "just eat meat" simplicity) ⚠️ Only 1 of 5 videos detailed in the provided data. Would need full dataset to identify: Actual carnivore diet creators Educational vs. entertainment content split Transformation/results content performance *Need me to generate an agent prompt for a specific writer (sarah/marcus/chloe) based on this analysis?*</p>
+                    <div class="mentioned-by">
+                        <strong>Featured in:</strong>
+                        
+                            
+                                Analysis
+                            
+                        
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- SECTION: Top Videos + Filters | Lines 962-1187 | CSS: .section .video-grid .video-card .tag-filter-btn #top-videos-grid | JS: filterVideosByTag() filterVideosByCreator() -->
+        <!-- Top Videos -->
+        <section class="section">
+            <h2>Prime Cuts - Top Videos</h2>
+
+            <!-- Tag Filter Controls -->
+            <div style="margin-bottom: 25px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-radius: 8px;">
+                <p style="margin-bottom: 12px; color: #8b4513; font-weight: 600;">Filter by topic:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <button onclick="filterVideosByTag(null)" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #ffd700;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn active"
+                    data-tag="all">
+                        ✓ Show All
+                    </button>
+                    
+                    
+                        
+                    
+                        
+                    
+                        
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                            
+                                
+                            
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                                
+                                    
+                                
+                            
+                        
+                    
+                        
+                            
+                                
+                            
+                                
+                            
+                                
+                            
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+                        
+                    
+
+                    
+                    <button onclick="filterVideosByTag('carnivore')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="carnivore">
+                        #carnivore
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('carnivore diet')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="carnivore diet">
+                        #carnivore diet
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('carnivorelife')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="carnivorelife">
+                        #carnivorelife
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('dr anthony chaffee')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="dr anthony chaffee">
+                        #dr anthony chaffee
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('dr shawn baker')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="dr shawn baker">
+                        #dr shawn baker
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('keto')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="keto">
+                        #keto
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('ketogenic')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="ketogenic">
+                        #ketogenic
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('lifehacks')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="lifehacks">
+                        #lifehacks
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('nutrition')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="nutrition">
+                        #nutrition
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('shawn')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="shawn">
+                        #shawn
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('shawn baker')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="shawn baker">
+                        #shawn baker
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('weight loss')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="weight loss">
+                        #weight loss
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('what happens when you eat carnivore')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="what happens when you eat carnivore">
+                        #what happens when you eat carnivore
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('what happens when you eat only meat')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="what happens when you eat only meat">
+                        #what happens when you eat only meat
+                    </button>
+                    
+                    <button onclick="filterVideosByTag('what is carnivore')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="tag-filter-btn"
+                    data-tag="what is carnivore">
+                        #what is carnivore
+                    </button>
+                    
+                </div>
+            </div>
+
+            <!-- Creator Filter Controls -->
+            <div style="margin-bottom: 25px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-radius: 8px;">
+                <p style="margin-bottom: 12px; color: #8b4513; font-weight: 600;">Filter by creator:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <button onclick="filterVideosByCreator(null)" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #ffd700;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn active"
+                    data-creator="all">
+                        ✓ All Creators
+                    </button>
+                    
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+                        
+                            
+                        
+                    
+                        
+                    
+
+                    
+                    <button onclick="filterVideosByCreator('Anthony Chaffee MD')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="Anthony Chaffee MD">
+                        👤 Anthony Chaffee MD
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('Coach Carnivore Cam ')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="Coach Carnivore Cam ">
+                        👤 Coach Carnivore Cam 
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('Courtney Luna')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="Courtney Luna">
+                        👤 Courtney Luna
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('KenDBerryMD')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="KenDBerryMD">
+                        👤 KenDBerryMD
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('Modo Primal Podcast')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="Modo Primal Podcast">
+                        👤 Modo Primal Podcast
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('Monique Yousfi🥩🍳')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="Monique Yousfi🥩🍳">
+                        👤 Monique Yousfi🥩🍳
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('myzerocarblife')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="myzerocarblife">
+                        👤 myzerocarblife
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('No Carb Life')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="No Carb Life">
+                        👤 No Carb Life
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('Shawn Baker MD')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="Shawn Baker MD">
+                        👤 Shawn Baker MD
+                    </button>
+                    
+                    <button onclick="filterVideosByCreator('The Plant Slant')" style="
+                        padding: 8px 16px;
+                        background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
+                        color: #d4a574;
+                        border: 2px solid #d4a574;
+                        border-radius: 20px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        font-family: 'Merriweather', serif;
+                        transition: all 0.3s ease;
+                    "
+                    class="creator-filter-btn"
+                    data-creator="The Plant Slant">
+                        👤 The Plant Slant
+                    </button>
+                    
+                </div>
+            </div>
+
+            <div class="video-grid" id="top-videos-grid">
+                
+                <div class="video-card" data-tags="" data-creator="The Plant Slant">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Reposting this classic from a couple years ago 😅 @pleasantpeasantmedia  it’s still not rice!
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                The Plant Slant
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">684,473</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="The Plant Slant">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Love a good snack box! @mariannas_pantry #snackbox #bentobox #healthyrecipe
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                The Plant Slant
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">435,638</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="carnivore diet weight loss dr anthony chaffee" data-creator="Anthony Chaffee MD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                What Should You Eat On The Carnivore Diet? 👉 #shorts #short #food
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Anthony Chaffee MD
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">40,309</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#carnivore diet</span>
+                            
+                            <span class="tag">#weight loss</span>
+                            
+                            <span class="tag">#dr anthony chaffee</span>
+                            
+                        </div>
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Anthony Chaffee MD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Carnivore Diet: Your Questions Answered! | Dr Anthony Chaffee
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Anthony Chaffee MD
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">12,714</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="KenDBerryMD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Metabolic Diseases Are Reversible!! People need to know this. #Carnivore
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                KenDBerryMD
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">80,013</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="lifehacks nutrition carnivorelife" data-creator="KenDBerryMD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                The 2ND Best Source of VITAMIN B1 👉
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                KenDBerryMD
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">44,962</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#lifehacks</span>
+                            
+                            <span class="tag">#nutrition</span>
+                            
+                            <span class="tag">#carnivorelife</span>
+                            
+                        </div>
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Modo Primal Podcast">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Como Fazer Bacon Caseiro #dietacarnivora
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Modo Primal Podcast
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">123,085</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Modo Primal Podcast">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Como Fazer Sorvete Carnívoro #dietacarnivora
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Modo Primal Podcast
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">18,431</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="shawn baker dr shawn baker shawn" data-creator="Shawn Baker MD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Should We Eat Dairy?
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Shawn Baker MD
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">30,661</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#shawn baker</span>
+                            
+                            <span class="tag">#dr shawn baker</span>
+                            
+                            <span class="tag">#shawn</span>
+                            
+                        </div>
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="shawn baker dr shawn baker shawn" data-creator="Shawn Baker MD">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                What do you think about what she eats in day? 👀
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Shawn Baker MD
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">21,985</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#shawn baker</span>
+                            
+                            <span class="tag">#dr shawn baker</span>
+                            
+                            <span class="tag">#shawn</span>
+                            
+                        </div>
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="carnivore keto ketogenic" data-creator="myzerocarblife">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                What Four Months of Carnivore Did for Janine (and why she was angry)...with Kelly Hogan and Janine
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                myzerocarblife
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">31,275</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#carnivore</span>
+                            
+                            <span class="tag">#keto</span>
+                            
+                            <span class="tag">#ketogenic</span>
+                            
+                        </div>
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="what is carnivore what happens when you eat only meat what happens when you eat carnivore" data-creator="No Carb Life">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                In Just Weeks, My Health Was Unrecognizable
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                No Carb Life
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">1,501</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#what is carnivore</span>
+                            
+                            <span class="tag">#what happens when you eat only meat</span>
+                            
+                            <span class="tag">#what happens when you eat carnivore</span>
+                            
+                        </div>
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="what is carnivore what happens when you eat only meat what happens when you eat carnivore" data-creator="No Carb Life">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Three Weeks That Made My Doctor Stop Talking
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                No Carb Life
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">6,415</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+                        <div class="video-tags">
+                            
+                            <span class="tag">#what is carnivore</span>
+                            
+                            <span class="tag">#what happens when you eat only meat</span>
+                            
+                            <span class="tag">#what happens when you eat carnivore</span>
+                            
+                        </div>
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Courtney Luna">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Let them #melrobbins #letthem #carnivorediet
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Courtney Luna
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">8,837</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Courtney Luna">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                New podcast venture coming soon 🥰 #carnivore #carnivorediet
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Courtney Luna
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">10,866</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Monique Yousfi🥩🍳">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Sushi rolls for one kid and Buldak for the other. #EasyRecipe #sushi #sushiroll #Foodie #viral
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Monique Yousfi🥩🍳
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">1,179</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Monique Yousfi🥩🍳">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                This steak was so delicious 🤤 #carnivore #steak #ribeye #carnivorelife #dinner #viral
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Monique Yousfi🥩🍳
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">4,746</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Coach Carnivore Cam ">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                How to Start a Carnivore Diet ✅🥩#carnivore #carnivorediet #health #nutrition #meat #lowcarb
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Coach Carnivore Cam 
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">4,054</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-card" data-tags="" data-creator="Coach Carnivore Cam ">
+                    <!-- VideoObject Schema for search engines -->
+                    
+
+                    
+                    <div class="video-content">
+                        <div class="video-header">
+                            <h3>
+                                
+                                Happy New Year & Let’s Smash 2026 🫡✅
+                                
+                            </h3>
+                            <p class="creator">
+                                by
+                                
+                                Coach Carnivore Cam 
+                                
+                                
+                            </p>
+                        </div>
+                        <div class="video-body">
+                        <div class="stats">
+                            <div class="stat">
+                                <div class="stat-value">8,906</div>
+                                <div class="stat-label">Views</div>
+                            </div>
+                        </div>
+
+                        <!-- Video summary (new) -->
+                        
+                        <p></p>
+                        
+
+                        <!-- Video tags (new) -->
+                        
+
+                        
+
+                        
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- Inline Ad 1: LMNT -->
+        <a href="http://elementallabs.refr.cc" target="_blank" rel="noopener" style="display: block; margin: 25px auto; text-align: center;" onclick="trackAffiliateClick('LMNT Electrolytes', this.href)">
+            <img src="lmnt-box.avif" alt="LMNT electrolyte salt variety box" style="width: 100%; max-width: 500px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+        </a>
+
+        <!-- SECTION: Key Insights | Lines 1169-1185 | CSS: .section .insights-list | JS: none -->
+        <!-- Key Insights -->
+        <section class="section">
+            <h2>Butcher's Wisdom</h2>
+            <div class="section-intro">
+                <p style="font-size: 1.2em; color: #2c1810; line-height: 1.8; margin-bottom: 30px; font-style: italic; border-left: 4px solid #8b4513; padding-left: 20px; background: rgba(255,255,255,0.3); padding: 20px;">
+                    <strong>Sharp insights, expertly cut.</strong> The week's most important takeaways distilled from hours of carnivore content — what you need to know, trimmed of the fat.
+                </p>
+            </div>
+            <ul class="insights-list">
+                
+                <li>
+                    <strong>Top Creator Identified</strong>
+                    <p style="margin-top: 10px; color: #2c1810;">**The Plant Slant** (Channel ID: UCEMj2h7pP4QWkoGnSmaiiYw) **Weekly Views:** 1,247,917 **Content Style:** Comedic/reaction content related to diet culture</p>
+                </li>
+                
+                <li>
+                    <strong>Viral Video Analysis</strong>
+                    <p style="margin-top: 10px; color: #2c1810;">**Video:** "Reposting this classic from a couple years ago 😅 @pleasantpeasantmedia it's still not rice!" **Views:** 684,473 **Likes:** 67,487 (9.9% engagement rate - exceptionally high) **Comments:** 1,330</p>
+                </li>
+                
+                <li>
+                    <strong>Key Themes from Comments</strong>
+                    <p style="margin-top: 10px; color: #2c1810;">1. **Food substitution skepticism** - Audiences are tired of fake "healthy swaps" that don't deliver on taste/texture 2. **Self-deprecating humor resonates** - "we fatties know pasta" comment got 4,000+ likes 3. **Regulatory humor** - jokes about food labeling laws 4. **Cottage cheese fatigue** - backlash against trendy "healthy dessert" hacks</p>
+                </li>
+                
+                <li>
+                    <strong>Content Opportunities</strong>
+                    <p style="margin-top: 10px; color: #2c1810;">| Angle | Why It Works | |-------|--------------| | "Foods that are actually what they claim" | Counter-programming to substitution culture | | Honest carnivore meal prep | Authenticity over gimmicks | | Debunking diet food marketing | High engagement on skepticism content | ⚠️ **Data truncation noted** - Only 1 creator's partial data was provided from the stated 5 videos/10 creators. A complete analysis would require the full dataset. Want me to generate a specific writer's agent prompt based on this data once complete information is available?</p>
+                </li>
+                
+            </ul>
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- SECTION: Community Voice + Q&A | Lines 1188-1307 | CSS: .section .sentiment .qa-accordion .qa-item | JS: toggleAnswer() -->
+        <!-- Community Voice -->
+        <section class="section">
+            <h2>Community Voice</h2>
+            <div class="sentiment">
+                <h3>Overall Mood: <span class="badge"></span></h3>
+
+                
+            </div>
+
+            <!-- Q&A Section -->
+            
+        </section>
+
+        <div class="divider">• • •</div>
+
+        <!-- Inline Ad 2 -->
+        <div class="inline-ad">
+            <h4>Carnivore-Friendly Cookware</h4>
+            <p>
+                Cast iron and stainless steel cookware perfect for searing steaks.
+                Built to last a lifetime. No toxic non-stick coatings.
+            </p>
+            <a href="https://amzn.to/4pYLqZx" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('Lodge Cast Iron', this.href)">Shop Premium Cookware →</a>
+        </div>
+
+        <!-- SECTION: Recommended Watching | Lines 1308-1388 | CSS: .section .video-grid .video-card | JS: filterVideosByCreator() -->
+        <!-- Recommended Watching -->
+        <section class="section">
+            <h2>Must-Watch Content</h2>
+            <div class="video-grid">
+                
+            </div>
+        </section>
+    </div>
+
+    <!-- SECTION: Medical Disclaimer | Lines 1391-1410 | CSS: .disclaimer | JS: none -->
+    <!-- Medical Disclaimer -->
+    <div class="container">
+        <div class="disclaimer">
+            <h3>⚕ Medical Disclaimer</h3>
+            <p>
+                The information provided on this website is for educational and informational purposes only and is not intended as medical advice.
+                The content presented here, including diet recommendations, nutritional information, and health-related discussions, should not be
+                used as a substitute for professional medical advice, diagnosis, or treatment.
+            </p>
+            <p>
+                <strong>Always seek the advice of your physician or other qualified health provider</strong> with any questions you may have regarding
+                a medical condition or dietary changes. Never disregard professional medical advice or delay in seeking it because of something you have
+                read on this website. The carnivore diet may not be suitable for everyone, and individual results may vary.
+            </p>
+            <p>
+                Scientific research cited on this site is provided for informational purposes and should be evaluated in consultation with healthcare
+                professionals. Nutritional science is continually evolving, and what works for one person may not work for another.
+            </p>
         </div>
     </div>
 
-    <main>
-        <div class="status-note">
-            ℹ️ We're upgrading our YouTube content curation system to bring you better videos from top creators. In the meantime, everything below is ready to help you get started.
-        </div>
+    <!-- SECTION: Bottom Navigation Menu | Lines 1410-1418 | CSS: .nav-menu #bottom-nav | JS: setActiveNavigation() -->
+    <!-- Bottom Navigation Menu -->
+    <nav class="nav-menu" style="margin-top: 60px;" id="bottom-nav">
+        <a href="index.html">Home</a>
+        <a href="channels.html">Channels</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="blog.html">Blog</a>
+        <a href="calculator.html">Calculator</a>
+        <a href="archive.html">Archive</a>
+    </nav>
 
-        <article class="welcome-section">
-            <h2>🎉 Welcome to Carnivore Weekly – Let's Do This Together!</h2>
-            <p>
-                Hey there, and happy New Year! If you just landed here because you're curious about carnivore, thinking about giving it a shot, or already diving in headfirst – I'm so glad you found us. Seriously.
-            </p>
-            <p>
-                I know the timing might feel a little weird. Our site's in rebuild mode right now (we're leveling up our YouTube content curation because we actually care about what we're sharing), but here's the thing – you don't need a fancy website to get started. You need <strong>real information</strong>, <strong>community support</strong>, and <strong>tools that actually work</strong>. We've got all three right now.
-            </p>
-            <p style="margin-top: 20px;">
-                Our <strong><a href="wiki.html" style="color: #1a120b; text-decoration: underline; font-weight: 700;">Wiki</a></strong> is basically our knowledge vault. Need the real story on cholesterol? Want to understand electrolytes? Curious about organ meats or your energy adaptation timeline? It's all there – no fluff, just solid information.
-            </p>
-            <p style="margin-top: 15px;">
-                The <strong><a href="calculator.html" style="color: #1a120b; text-decoration: underline; font-weight: 700;">Calculator</a></strong> is your personalized macro roadmap. Plug in your info and get numbers that actually make sense for <em>your</em> body, not some cookie-cutter plan.
-            </p>
-            <p style="margin-top: 15px;">
-                Our <strong><a href="blog/" style="color: #1a120b; text-decoration: underline; font-weight: 700;">Blog</a></strong> is where we talk about real stuff: PCOS & hormones, ADHD & meat, night sweats, energy timelines, women's health – all the topics that probably brought you here. We just dropped some awesome pieces, and there's plenty more coming.
-            </p>
-            <p style="margin-top: 20px; font-style: italic;">
-                This isn't just a website. It's a community of people who get it – the wins, the questions, the learning curve, all of it. You're not starting alone.
-            </p>
-            <p style="margin-top: 20px; font-weight: 700;">
-                Welcome home. Let's make this year count. ❤️
-            </p>
-        </article>
-
-        <div class="divider">• • •</div>
-
-        <article>
-            <h2 style="text-align: center; font-family: 'Playfair Display', serif; color: #d4a574; font-size: 2em; margin-bottom: 30px;">Tools & Resources You Can Use Right Now</h2>
-
-            <div class="featured-section">
-                <div class="ad-card">
-                <img src="butcherbox-ad.jpeg" alt="ButcherBox - Quality Grass-Fed Meat Delivered">
-                <div class="ad-card-content">
-                    <h3>ButcherBox</h3>
-                    <p>
-                        Premium grass-fed beef, wild-caught fish, and free-range chicken delivered to your door. Everything you need for optimal nutrition on carnivore, without the guesswork.
-                    </p>
-                    <a href="https://www.butcherbox.com" class="ad-link" target="_blank">Check It Out</a>
-                </div>
-            </div>
-
-            <div class="ad-card">
-                <img src="lmnt-box.avif" alt="LMNT - Electrolyte Optimization">
-                <div class="ad-card-content">
-                    <h3>LMNT Electrolytes</h3>
-                    <p>
-                        Carnivore flushes electrolytes faster than other diets. LMNT gives you the sodium, potassium, and magnesium your body needs – no sugar, just clean optimization.
-                    </p>
-                    <a href="https://drinklmnt.com" class="ad-link" target="_blank">Explore LMNT</a>
-                </div>
-            </div>
-        </div>
-        </article>
-
-        <div class="divider">• • •</div>
-
-        <article>
-        <div class="content-grid">
-            <div class="content-card">
-                <div style="font-size: 3em; margin-bottom: 15px;">📚</div>
-                <h3>The Wiki</h3>
-                <p>
-                    Complete knowledge base covering everything from cholesterol to electrolytes, digestive health to athletic performance. All your carnivore questions answered in plain language.
-                </p>
-                <a href="wiki.html" class="btn">Explore the Wiki</a>
-            </div>
-
-            <div class="content-card">
-                <div style="font-size: 3em; margin-bottom: 15px;">📝</div>
-                <h3>Blog Posts</h3>
-                <p>
-                    Deep-dive articles on trending topics: PCOS & hormones, ADHD, night sweats, energy timelines, meal prep strategies, and what to expect in your first year.
-                </p>
-                <a href="blog/" class="btn">Read Blog</a>
-            </div>
-
-            <div class="content-card">
-                <div style="font-size: 3em; margin-bottom: 15px;">🧮</div>
-                <h3>Macro Calculator</h3>
-                <p>
-                    Get your personalized macros based on your actual goals. Our free calculator gives you exact targets, with a pro version including meal plans and doctor scripts.
-                </p>
-                <a href="calculator.html" class="btn">Calculate Now</a>
-            </div>
-        </div>
-        </article>
-
-        <div class="divider">• • •</div>
-
-        <article class="welcome-section">
-            <h2>What's Coming Soon 🚀</h2>
-            <p>
-                We're upgrading our YouTube content curation to bring you <strong>real, curated videos from top carnivore creators</strong>. Not algorithm chaos – just the videos that matter, curated by people who actually know the space.
-            </p>
-            <p style="margin-top: 20px; font-weight: 700; color: #1a120b;">
-                You'll get:
-            </p>
-            <p style="margin-top: 10px;">
-                <strong>Prime Cuts:</strong> The best videos this week from credible creators – blood pressure breakthroughs, hormonal health wins, protocol optimization deep-dives
-            </p>
-            <p style="margin-top: 10px;">
-                <strong>Trending Topics:</strong> What the carnivore community is actually talking about right now – questions, wins, struggles, the real conversation
-            </p>
-            <p style="margin-top: 10px;">
-                <strong>Community Voice:</strong> Real people's stories and insights. The wins, the protocols that worked, the community vibe
-            </p>
-            <p style="margin-top: 20px; color: #1a120b; font-style: italic;">
-                In the meantime, start with the Wiki, run your numbers with the Calculator, and dive into blog posts. You'll learn more than you expected, and you'll feel ready when you jump in.
-            </p>
-        </article>
-    </main>
-
+    <!-- SECTION: Footer | Lines 1427-1441 | CSS: footer | JS: none -->
     <footer>
-        <p>
-            Made with 🥩 by the Carnivore Weekly team |
-            <a href="wiki.html">Wiki</a>
-            <a href="blog/">Blog</a>
-            <a href="calculator.html">Calculator</a>
-            <a href="channels.html">Channels</a>
+        <div style="width: 100%; height: 200px; background-image: url('https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=1200&q=80'); background-size: cover; background-position: center; border-radius: 10px; margin-bottom: 30px; opacity: 0.6;"></div>
+        <p style="font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700;">CARNIVORE WEEKLY</p>
+        <p style="margin-top: 10px;">The Finest Carnivore Content, Curated Weekly</p>
+        <p style="margin-top: 20px;">10 Creators • 39 Videos • Powered by AI</p>
+        <p style="margin-top: 30px;">
+            <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn">
+                💬 Share Your Feedback
+            </a>
         </p>
-        <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.7;">
-            © 2026 Carnivore Weekly. All rights reserved. | We're here for the real journey.
+        <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
+            <a href="about.html" style="color: #8b4513; text-decoration: none;">About</a> •
+            <a href="the-lab.html" style="color: #8b4513; text-decoration: none;">The Lab</a> •
+            <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
         </p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Generated 2026-01-02 07:32:25</p>
     </footer>
+
+    <script>
+        function toggleAnswer(element) {
+            // Toggle active class on question
+            element.classList.toggle('active');
+
+            // Get the answer div (next sibling)
+            const answer = element.nextElementSibling;
+
+            // Toggle active class on answer
+            answer.classList.toggle('active');
+        }
+
+        // Set active navigation link based on current page
+        function setActiveNavigation() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+
+            // Handle cases where URL ends with just '/' (root) or is the domain itself
+            const normalizedPage = currentPage === '' ? 'index.html' : currentPage;
+
+            // Update both top and bottom navigation menus
+            document.querySelectorAll('#top-nav a, #bottom-nav a').forEach(link => {
+                const href = link.getAttribute('href');
+
+                // Check if this link matches the current page
+                if (href === normalizedPage ||
+                    (normalizedPage === 'index.html' && href === 'index.html') ||
+                    (href === 'index.html' && (currentPage === '' || currentPage === '/'))) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        // Run on page load and when URL changes
+        document.addEventListener('DOMContentLoaded', setActiveNavigation);
+        window.addEventListener('popstate', setActiveNavigation);
+    </script>
+
+    <!-- Tag Filtering Script -->
+    <script>
+        function filterVideosByTag(selectedTag) {
+            const videoCards = document.querySelectorAll('.video-card[data-tags]');
+            const filterButtons = document.querySelectorAll('.tag-filter-btn');
+
+            // Update active button state
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.color = '#d4a574';
+            });
+
+            // Find and activate the clicked button
+            const activeBtn = document.querySelector(`.tag-filter-btn[data-tag="${selectedTag || 'all'}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.color = '#ffd700';
+            }
+
+            // Filter videos
+            let visibleCount = 0;
+            videoCards.forEach(card => {
+                const tags = card.getAttribute('data-tags').toLowerCase().split(' ').filter(t => t);
+
+                if (!selectedTag) {
+                    // Show all
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    card.style.order = '0';
+                    visibleCount++;
+                } else if (tags.includes(selectedTag.toLowerCase())) {
+                    // Show matching videos
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    card.style.order = '0';
+                    visibleCount++;
+                } else {
+                    // Hide non-matching videos
+                    card.style.display = 'none';
+                    card.style.opacity = '0.3';
+                }
+            });
+
+            // Show/hide "no results" message
+            const grid = document.querySelector('.video-grid');
+            let noResults = grid.querySelector('[data-no-results]');
+
+            if (visibleCount === 0 && selectedTag) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.setAttribute('data-no-results', 'true');
+                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #8b4513; font-size: 1.1em;';
+                    noResults.innerHTML = '❌ No videos found with tag: <strong>#' + selectedTag + '</strong>';
+                    grid.appendChild(noResults);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
+
+            // Smooth scroll to videos
+            setTimeout(() => {
+                document.querySelector('.video-grid').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // Initialize: make "Show All" button work on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const showAllBtn = document.querySelector('.tag-filter-btn[data-tag="all"]');
+            if (showAllBtn) {
+                showAllBtn.classList.add('active');
+            }
+        });
+
+        // Creator Filter Function
+        function filterVideosByCreator(selectedCreator) {
+            const videoCards = document.querySelectorAll('.video-card[data-creator]');
+            const filterButtons = document.querySelectorAll('.creator-filter-btn');
+
+            // Update active button state
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.color = '#d4a574';
+            });
+
+            // Find and activate the clicked button
+            const activeBtn = document.querySelector(`.creator-filter-btn[data-creator="${selectedCreator || 'all'}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.color = '#ffd700';
+            }
+
+            // Filter videos
+            let visibleCount = 0;
+            videoCards.forEach(card => {
+                const creator = card.getAttribute('data-creator');
+
+                if (!selectedCreator) {
+                    // Show all
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    visibleCount++;
+                } else if (creator === selectedCreator) {
+                    // Show matching videos
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                    visibleCount++;
+                } else {
+                    // Hide non-matching videos
+                    card.style.display = 'none';
+                    card.style.opacity = '0.3';
+                }
+            });
+
+            // Show/hide "no results" message
+            const grid = document.querySelector('.video-grid');
+            let noResults = grid.querySelector('[data-no-results-creator]');
+
+            if (visibleCount === 0 && selectedCreator) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.setAttribute('data-no-results-creator', 'true');
+                    noResults.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 40px; color: #8b4513; font-size: 1.1em;';
+                    noResults.innerHTML = '❌ No videos found from: <strong>' + selectedCreator + '</strong>';
+                    grid.appendChild(noResults);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
+        }
+    </script>
 </body>
 </html>
