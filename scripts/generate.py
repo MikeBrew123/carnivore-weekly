@@ -427,8 +427,30 @@ class UnifiedGenerator:
         else:
             key_insights = []
 
-        # Fetch top videos from database or use fallback
-        top_videos = self._fetch_top_videos_from_db(limit=10)
+        # Load real YouTube videos from youtube_data.json
+        top_videos = []
+        try:
+            youtube_path = self.project_root / 'data' / 'youtube_data.json'
+            if youtube_path.exists():
+                youtube_data = json.loads(youtube_path.read_text())
+                # Convert YouTube data to template format
+                for creator in youtube_data.get('top_creators', []):
+                    for video in creator.get('videos', [])[:2]:  # Take first 2 per creator
+                        top_videos.append({
+                            'title': video['title'],
+                            'creator': creator['channel_name'],
+                            'views': video['statistics']['view_count'],
+                            'likes': video['statistics']['like_count'],
+                            'comments': video['statistics']['comment_count'],
+                            'url': f"https://youtube.com/watch?v={video['video_id']}",
+                            'tags': video.get('tags', [])[:3],
+                        })
+        except Exception as e:
+            print(f"Warning: Could not load YouTube data: {e}")
+
+        # Fallback if no YouTube data
+        if not top_videos:
+            top_videos = self._fetch_top_videos_from_db(limit=10)
         if not top_videos:
             # Fallback to analysis data if no videos in database
             top_videos = analysis.get("top_videos", data.get("top_videos", []))
