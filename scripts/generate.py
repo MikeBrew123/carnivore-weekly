@@ -499,7 +499,7 @@ class UnifiedGenerator:
                     # Convert YouTube data to template format
                     for creator in youtube_data.get('top_creators', []):
                         for video in creator.get('videos', [])[:2]:  # Take first 2 per creator
-                            top_videos.append({
+                            video_obj = {
                                 'video_id': video['video_id'],
                                 'title': self._sanitize_text(video['title']),
                                 'description': video.get('description', '')[:200],  # First 200 chars
@@ -511,7 +511,11 @@ class UnifiedGenerator:
                                 'url': f"https://youtube.com/watch?v={video['video_id']}",
                                 'thumbnail_url': video.get('thumbnail_url', f"https://i.ytimg.com/vi/{video['video_id']}/mqdefault.jpg"),
                                 'tags': video.get('tags', [])[:3],
-                            })
+                            }
+                            # Include sentiment scores if available
+                            if video.get('comment_sentiment'):
+                                video_obj['comment_sentiment'] = video['comment_sentiment']
+                            top_videos.append(video_obj)
                     if top_videos:
                         print("  ✓ Loaded YouTube data from JSON file")
             except Exception as e:
