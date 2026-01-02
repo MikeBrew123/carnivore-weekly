@@ -630,25 +630,32 @@ class UnifiedGenerator:
                     with open(archive_file) as f:
                         week_data = json.load(f)
 
+                    # Handle nested structure (analysis key) or flat structure
+                    analysis = week_data.get("analysis", week_data)
+
                     # Extract week info, use actual data if available
-                    total_creators = week_data.get("top_creators_count", 0)
-                    total_videos = week_data.get("total_videos_found", 0)
+                    total_creators = analysis.get("top_creators_count", 0)
+                    total_videos = analysis.get("total_videos_found", 0)
 
-                    # If counts are 0, try to extract from top_creators data
-                    if total_creators == 0 and "top_creators" in week_data:
-                        total_creators = len(week_data.get("top_creators", []))
+                    # If counts are 0, try to extract from creators data or trending topics
+                    if total_creators == 0:
+                        if "creators_data" in analysis:
+                            total_creators = len(analysis.get("creators_data", {}))
+                        elif "trending_topics" in analysis:
+                            total_creators = len([t for t in analysis.get("trending_topics", []) if t])
 
-                    if total_videos == 0 and "top_creators" in week_data:
-                        # Count videos from top creators
-                        for creator in week_data.get("top_creators", []):
-                            total_videos += len(creator.get("videos", []))
+                    if total_videos == 0:
+                        if "trending_topics" in analysis:
+                            total_videos = len(analysis.get("trending_topics", []))
+                        elif "key_insights" in analysis:
+                            total_videos = len(analysis.get("key_insights", []))
 
-                    # Get summary - first 100 chars of weekly_summary if available
-                    summary_preview = week_data.get("weekly_summary", "")
+                    # Get summary - first 150 chars of weekly_summary if available
+                    summary_preview = analysis.get("weekly_summary", "")
                     if isinstance(summary_preview, str):
-                        summary_preview = summary_preview[:100]
+                        summary_preview = summary_preview[:150]
                     else:
-                        summary_preview = str(summary_preview)[:100]
+                        summary_preview = str(summary_preview)[:150]
 
                     week_info = {
                         "date": archive_file.stem,
@@ -657,7 +664,8 @@ class UnifiedGenerator:
                         "summary_preview": summary_preview if summary_preview else f"Week of {archive_file.stem}"
                     }
                     weeks.append(week_info)
-                except (json.JSONDecodeError, KeyError):
+                except (json.JSONDecodeError, KeyError, Exception) as e:
+                    print(f"Warning: Could not load {archive_file.name}: {e}")
                     continue
 
         # Prepare template variables
