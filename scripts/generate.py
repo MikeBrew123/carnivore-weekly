@@ -437,8 +437,11 @@ class UnifiedGenerator:
                 for creator in youtube_data.get('top_creators', []):
                     for video in creator.get('videos', [])[:2]:  # Take first 2 per creator
                         top_videos.append({
+                            'video_id': video['video_id'],
                             'title': video['title'],
+                            'description': video.get('description', '')[:200],  # First 200 chars
                             'creator': creator['channel_name'],
+                            'channel_id': creator.get('channel_id', ''),
                             'views': video['statistics']['view_count'],
                             'likes': video['statistics']['like_count'],
                             'comments': video['statistics']['comment_count'],

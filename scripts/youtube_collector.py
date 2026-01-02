@@ -166,6 +166,14 @@ class YouTubeCollector:
             # Transform API response into cleaner format
             cleaned_videos = []
             for video in videos:
+                # Extract thumbnail URL (prefer medium, fallback to default)
+                thumbnails = video["snippet"].get("thumbnails", {})
+                thumbnail_url = (
+                    thumbnails.get("medium", {}).get("url") or
+                    thumbnails.get("default", {}).get("url") or
+                    ""
+                )
+
                 cleaned_videos.append(
                     {
                         "video_id": video["id"]["videoId"],
@@ -173,6 +181,8 @@ class YouTubeCollector:
                         "channel_title": video["snippet"]["channelTitle"],
                         "title": video["snippet"]["title"],
                         "published_at": video["snippet"]["publishedAt"],
+                        "thumbnail_url": thumbnail_url,
+                        "description": video["snippet"].get("description", ""),
                     }
                 )
 
@@ -364,10 +374,19 @@ class YouTubeCollector:
                 snippet = item["snippet"]
                 stats = item["statistics"]
 
+                # Extract thumbnail URL (prefer medium, fallback to default)
+                thumbnails = snippet.get("thumbnails", {})
+                thumbnail_url = (
+                    thumbnails.get("medium", {}).get("url") or
+                    thumbnails.get("default", {}).get("url") or
+                    ""
+                )
+
                 video_data = {
                     "video_id": item["id"],
                     "title": snippet["title"],
                     "description": snippet["description"],
+                    "thumbnail_url": thumbnail_url,
                     "published_at": snippet["publishedAt"],
                     "statistics": {
                         "view_count": int(stats.get("viewCount", 0)),

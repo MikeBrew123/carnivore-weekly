@@ -1110,6 +1110,9 @@
                                 <br>On: {{ video.published_at|format_date }}
                                 {% endif %}
                             </p>
+                            {% if video.description %}
+                            <p style="margin-top: 8px; font-size: 0.95em; color: #d4a574; line-height: 1.4;">{{ video.description }}</p>
+                            {% endif %}
                         </div>
                         <div class="video-body">
                         <div class="stats">
