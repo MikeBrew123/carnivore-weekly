@@ -1320,7 +1320,7 @@
                     {% if insight.internal_links and (insight.internal_links.wiki or insight.internal_links.blog) %}
                     <p style="margin-top: 12px; font-size: 0.9em;">
                         {% if insight.internal_links.wiki %}
-                        <a href="wiki.html#{{ insight.internal_links.wiki.anchor }}" style="color: #d4a574; text-decoration: underline; margin-right: 15px;">📚 {{ insight.internal_links.wiki.title }}</a>
+                        <a href="wiki.html#{{ insight.internal_links.wiki.anchor }}" style="color: #111111; text-decoration: underline; margin-right: 15px;">📚 {{ insight.internal_links.wiki.title }}</a>
                         {% endif %}
                         {% if insight.internal_links.blog %}
                         <br>Check out '<a href="blog/{{ insight.internal_links.blog.slug }}" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">{{ insight.internal_links.blog.title }}</a>' where I covered this - ({{ insight.internal_links.blog.author }})
@@ -1368,7 +1368,7 @@
                                 {% if trend.our_link %}
                                 <p style="margin: 12px 0 0 0;">
                                     {% if trend.our_link.wiki %}
-                                    <a href="wiki.html#{{ trend.our_link.anchor }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">📚 {{ trend.our_link.wiki }}</a>
+                                    <a href="wiki.html#{{ trend.our_link.anchor }}" style="color: #111111; text-decoration: underline; font-weight: 600;">📚 {{ trend.our_link.wiki }}</a>
                                     {% endif %}
                                     {% if trend.our_link.blog %}
                                     {% if trend.our_link.wiki %}<br>{% endif %}Check out '<a href="blog/{{ trend.our_link.blog.slug }}" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">{{ trend.our_link.blog.title }}</a>' where I covered this - ({{ trend.our_link.blog.author }})
@@ -1396,7 +1396,7 @@
                             {% if q.our_answer_link %}
                             <p style="margin: 0;">
                                 {% if q.our_answer_link.wiki %}
-                                <a href="wiki.html#{{ q.our_answer_link.anchor }}" style="color: #2c1810; text-decoration: underline; font-weight: 600;">📚 Get answers in our wiki</a>
+                                <a href="wiki.html#{{ q.our_answer_link.anchor }}" style="color: #111111; text-decoration: underline; font-weight: 600;">📚 Get answers in our wiki</a>
                                 {% endif %}
                                 {% if q.our_answer_link.blog %}
                                 {% if q.our_answer_link.wiki %}<br>{% endif %}Check out '<a href="blog/{{ q.our_answer_link.blog.slug }}" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">{{ q.our_answer_link.blog.title }}</a>' where I covered this - ({{ q.our_answer_link.blog.author }})
@@ -1470,7 +1470,7 @@
                         {% if found_topics %}
                         <div style="margin-top: 20px; padding: 15px; background: rgba(212, 165, 116, 0.1); border-left: 4px solid #d4a574; border-radius: 4px;">
                             <p style="margin: 0; font-size: 0.95em; color: #2c1810;">
-                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html{% for topic in found_topics %}{% if loop.first %}#{{ topic }}{% endif %}{% endfor %}" style="color: #2c1810; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
+                                <strong>📚 Deep Dive:</strong> We have detailed guides on these topics in our <a href="wiki.html{% for topic in found_topics %}{% if loop.first %}#{{ topic }}{% endif %}{% endfor %}" style="color: #111111; text-decoration: underline; font-weight: bold;">wiki</a>. Check them out for more evidence-based information!
                             </p>
                         </div>
                         {% endif %}
