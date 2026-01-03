@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useFormStore } from '../../stores/formStore'
 
 interface StripePaymentModalProps {
@@ -30,7 +30,7 @@ export default function StripePaymentModal({
   const { sessionToken, form, setFormField } = useFormStore()
 
   // Initialize form fields when modal opens
-  React.useEffect(() => {
+  useEffect(() => {
     // ALWAYS start with empty fields - user must enter their own data
     // Do NOT pre-populate from form store for names or email
     setFirstName('')
