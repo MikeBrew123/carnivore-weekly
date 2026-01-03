@@ -39,7 +39,8 @@ const defaultForm: FormData = {
 
   // Step 4: Health (Premium)
   email: '', // Users must provide their own email during checkout
-  firstName: 'Michael',
+  firstName: '', // User enters their name during payment
+  lastName: '', // User enters their name during payment
   medications: 'Metformin 500mg twice daily, Lisinopril 10mg for blood pressure',
   conditions: ['diabetes', 'guthealth', 'inflammation'],
   allergies: 'Shellfish (anaphylaxis), tree nuts',
