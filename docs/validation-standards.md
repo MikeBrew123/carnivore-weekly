@@ -1,7 +1,13 @@
 # Validation Standards & Quality Gates
-**Last Updated:** December 31, 2025
+**Last Updated:** January 2, 2026
 **Owner:** Jordan (QA/Validator)
 **Purpose:** Pre-deployment quality checklist - nothing ships without this
+
+**Recent Updates (Jan 2, 2026):**
+- Added sentiment color standards (#228B22 for positive/👍)
+- Added homepage content quality checklist (no generic video descriptions)
+- Added navigation structure standard (Archive moved to footer)
+- Added homepage-specific validation rules
 
 ---
 
@@ -220,7 +226,17 @@ html-validator [file.html]
 - [ ] Background: #1a120b (dark brown) - EXACT
 - [ ] Text on dark: #f4e4d4 (light) - EXACT
 - [ ] Links: #d4a574 (tan) - EXACT
+- [ ] Sentiment Positive (👍): #228B22 (Forest Green) - EXACT
+- [ ] Sentiment Negative (👎): #ffa07a (Light Salmon) - EXACT
+- [ ] Sentiment Neutral (➖): #d4a574 (Accent Tan) - EXACT
 - [ ] No unexpected colors introduced
+
+**Homepage-Specific Content Quality:**
+- [ ] No generic video descriptions ("Expert insight on carnivore nutrition" NOT ALLOWED)
+- [ ] Every video has unique, specific description
+- [ ] No duplicate content sections (e.g., "This Week's Roundup" appears only once)
+- [ ] Navigation: Home, Channels, Wiki, Blog, Calculator (Archive in footer only)
+- [ ] All 23 video descriptions are compelling and unique
 
 **Fonts:**
 - [ ] H1: Playfair Display loaded
