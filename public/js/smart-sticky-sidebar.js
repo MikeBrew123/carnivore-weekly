@@ -24,7 +24,7 @@
         headerOffset: 180,          // Matches current top: 180px
         scrollThrottle: 16,         // ~60fps = 16.67ms per frame
         resizeDebounceMs: 250,
-        enableDebug: true
+        enableDebug: false
     };
 
     // =====================================================
