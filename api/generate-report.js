@@ -1584,6 +1584,9 @@ function escapeHTML(text) {
  * Generate AI-personalized reports (#1 and #6)
  */
 async function generateAIReports(data, apiKey) {
+  // No need to pre-filter for this version - system prompts are strengthened with warnings
+  // In production, could add data pre-filtering for additional safety
+
   // Report #1: Executive Summary
   const summaryPrompt = buildExecutiveSummaryPrompt(data);
   const summary = await callClaudeAPI(
@@ -1918,6 +1921,24 @@ function buildExecutiveSummarySystemPrompt(data) {
     ? `\n\n⚠️ CRITICAL - FOODS THIS USER CANNOT/WILL NOT EAT:\n${foodsToAvoid.map(f => `- ${f}`).join('\n')}\n\nDO NOT RECOMMEND ANY OF THESE FOODS. PERIOD. This is non-negotiable.`
     : '';
 
+  const medicalSafetyWarnings = `
+
+⚠️ MEDICAL SAFETY - CRITICAL RULES:
+1. NEVER suggest removing or substituting electrolytes (salt, potassium, magnesium)
+2. NEVER suggest substituting salt with butter/fat (not equivalent - salt is essential electrolyte)
+3. Electrolytes are ESSENTIAL for preventing keto flu and maintaining health
+4. If user has medical conditions, ALWAYS recommend consulting healthcare provider
+5. DO NOT provide medical advice that contradicts standard medical practice`;
+
+  const consistencyRules = `
+
+CONSISTENCY REQUIREMENTS:
+1. Only reference information EXPLICITLY provided in user profile
+2. DO NOT infer or assume past diet success/failure unless stated
+3. DO NOT contradict information from other sections
+4. If uncertain about user history, use general language ("many people find...")
+5. Cross-check all claims against user profile data`;
+
   return `You are an expert nutritional and behavioral coach creating personalized Executive Summaries for diet protocols.
 
 TONE & STYLE:
@@ -1942,6 +1963,10 @@ CONTENT REQUIREMENTS:
 - Medical Disclaimer: Required at bottom
 
 ${avoidListFormatted}
+
+${medicalSafetyWarnings}
+
+${consistencyRules}
 
 When recommending specific foods in "First Action Step" or anywhere else:
 - ONLY suggest proteins they actually want to eat
@@ -1971,6 +1996,24 @@ function buildObstacleProtocolSystemPrompt(data) {
     ? `\n\n⚠️ CRITICAL - FOODS THIS USER CANNOT/WILL NOT EAT:\n${foodsToAvoid.map(f => `- ${f}`).join('\n')}\n\nDO NOT RECOMMEND ANY OF THESE FOODS WHATSOEVER.`
     : '';
 
+  const medicalSafetyWarnings = `
+
+⚠️ MEDICAL SAFETY - CRITICAL RULES:
+1. NEVER suggest removing or substituting electrolytes (salt, potassium, magnesium)
+2. NEVER suggest substituting salt with butter/fat (not equivalent - salt is essential electrolyte)
+3. Electrolytes are ESSENTIAL for preventing keto flu and maintaining health
+4. If user has medical conditions, ALWAYS recommend consulting healthcare provider
+5. DO NOT provide medical advice that contradicts standard medical practice`;
+
+  const consistencyRules = `
+
+CONSISTENCY REQUIREMENTS:
+1. Only reference information EXPLICITLY provided in user profile
+2. DO NOT infer or assume past diet success/failure unless stated
+3. DO NOT contradict information from other sections
+4. If uncertain about user history, use general language ("many people find...")
+5. Cross-check all claims against user profile data`;
+
   return `You are an expert behavioral psychologist and diet coach creating Obstacle Override Protocols.
 
 TONE & STYLE:
@@ -1993,6 +2036,10 @@ OUTPUT FORMAT:
 - Tone is motivational but grounded in reality
 
 ${avoidListFormatted}
+
+${medicalSafetyWarnings}
+
+${consistencyRules}
 
 When suggesting food or nutrition tactics:
 - RESPECT their food preferences and restrictions absolutely

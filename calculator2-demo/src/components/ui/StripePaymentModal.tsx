@@ -181,12 +181,12 @@ export default function StripePaymentModal({
                 <p className="font-semibold text-dark">{tierTitle}</p>
                 <p className="text-xs text-gray-500 mt-1">Plan ID: {tierId}</p>
               </div>
-              <p className="text-lg font-bold text-primary">{tierPrice}</p>
+              <p className="text-lg font-bold text-primary">${(calculateDiscountedPrice() / 100).toFixed(2)}</p>
             </div>
             <div className="border-t border-gray-200 pt-2 mt-2 space-y-1">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">{tierPrice}</span>
+                <span className="font-semibold">${(calculateDiscountedPrice() / 100).toFixed(2)}</span>
               </div>
               {discountApplied && (
                 <div className="flex justify-between text-sm bg-green-50 -mx-2 px-2 py-1 rounded">
@@ -311,7 +311,7 @@ export default function StripePaymentModal({
               disabled={isProcessing}
               className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-primary to-primary/90 text-accent font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              {isProcessing ? 'Redirecting to Stripe...' : `Pay ${tierPrice}`}
+              {isProcessing ? 'Redirecting to Stripe...' : `Pay $${(calculateDiscountedPrice() / 100).toFixed(2)}`}
             </button>
           </form>
 
