@@ -24,10 +24,19 @@ export default function App() {
         const paymentStatus = params.get('payment')
         const stripeSessionId = params.get('session_id')
 
+        // Helper function to scroll to top after step change
+        const scrollToForm = () => {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          })
+        }
+
         // Handle free tier with 100% discount
         if (paymentStatus === 'free') {
           setIsPremium(true)
           setCurrentStep(4) // Jump to Health step (Step 4)
+          scrollToForm()
           console.log('[App] Premium access granted (free tier)')
           window.history.replaceState({}, '', window.location.pathname)
         }
@@ -53,6 +62,7 @@ export default function App() {
             if (verifyResult.success && verifyResult.paid) {
               setIsPremium(true)
               setCurrentStep(4) // Jump to Health step (Step 4)
+              scrollToForm()
               console.log('[App] Premium access granted after payment verification')
             } else {
               console.warn('[App] Payment verification failed or not paid')

@@ -113,7 +113,7 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-[150] p-4"
       >
         <motion.div
           initial={{ scale: 0.95, y: 20 }}
@@ -122,7 +122,7 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
           className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
         >
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-r from-primary to-primary/90 text-accent p-8 border-b-2 border-secondary">
+          <div className="sticky top-0 z-20 bg-gradient-to-r from-primary to-primary/90 text-accent p-8 border-b-2 border-secondary">
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-2xl hover:opacity-80"

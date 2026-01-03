@@ -250,8 +250,8 @@ export default function ReportViewer({ accessToken }: ReportViewerProps) {
         }
       `}</style>
 
-      {/* Report Sections with Staggered Animation */}
-      <div className="space-y-8">
+      {/* Report Sections with Staggered Animation - Wrapped in max-w-7xl container */}
+      <div className="w-full max-w-7xl mx-auto px-4 space-y-8">
         {sections.map((section, index) => (
           <motion.div
             key={index}
@@ -273,30 +273,32 @@ export default function ReportViewer({ accessToken }: ReportViewerProps) {
       </div>
 
       {/* Download/Print Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: sections.length * 0.15 + 0.2 }}
-        className="print-hide border-t border-gray-200 p-6 flex gap-4 justify-center sticky bottom-0 bg-white rounded-lg shadow-lg"
-      >
-        <button
-          onClick={() => window.print()}
-          className="btn-primary"
+      <div className="w-full max-w-7xl mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: sections.length * 0.15 + 0.2 }}
+          className="print-hide border-t border-gray-200 p-6 flex gap-4 justify-center sticky bottom-0 bg-white rounded-lg shadow-lg"
         >
-          🖨️ Print to PDF
-        </button>
-        <button
-          onClick={() => {
-            const element = document.createElement('a')
-            element.href = `data:text/html;charset=utf-8,${encodeURIComponent(reportHTML)}`
-            element.download = 'carnivore-protocol-report.html'
-            element.click()
-          }}
-          className="btn-secondary"
-        >
-          📄 Download as HTML
-        </button>
-      </motion.div>
+          <button
+            onClick={() => window.print()}
+            className="btn-primary"
+          >
+            🖨️ Print to PDF
+          </button>
+          <button
+            onClick={() => {
+              const element = document.createElement('a')
+              element.href = `data:text/html;charset=utf-8,${encodeURIComponent(reportHTML)}`
+              element.download = 'carnivore-protocol-report.html'
+              element.click()
+            }}
+            className="btn-secondary"
+          >
+            📄 Download as HTML
+          </button>
+        </motion.div>
+      </div>
     </motion.div>
   )
 }
