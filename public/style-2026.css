@@ -1566,6 +1566,17 @@ nav.nav-menu-2026 a:hover {
 }
 
 @media (max-width: 480px) {
+    .layout-wrapper-2026 {
+        grid-template-columns: 1fr;
+        padding: var(--spacing-lg) var(--spacing-sm);
+        gap: var(--spacing-md);
+    }
+
+    .sidebar-2026 {
+        margin-top: var(--spacing-lg);
+    }
+
+
     .logo {
         width: 100px;
     }

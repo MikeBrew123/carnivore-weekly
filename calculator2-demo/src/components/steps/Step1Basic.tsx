@@ -93,8 +93,9 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
         {/* Sex */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-dark mb-2">Sex</label>
+            <label htmlFor="sex" className="block text-sm font-semibold text-dark mb-2">Sex</label>
             <select
+              id="sex"
               {...register('sex')}
               className="w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
             >
@@ -104,8 +105,9 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-dark mb-2">Age</label>
+            <label htmlFor="age" className="block text-sm font-semibold text-dark mb-2">Age</label>
             <input
+              id="age"
               type="number"
               {...register('age', { valueAsNumber: true })}
               min="14"
@@ -118,13 +120,14 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
 
         {/* Height */}
         <div>
-          <label className="block text-sm font-semibold text-dark mb-2">
+          <label htmlFor="heightCm" className="block text-sm font-semibold text-dark mb-2">
             Height {localUnits === 'imperial' ? '(feet & inches)' : '(cm)'}
           </label>
           {localUnits === 'imperial' ? (
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <input
+                  id="heightFeet"
                   type="number"
                   {...register('heightFeet', { valueAsNumber: true })}
                   min="3"
@@ -135,6 +138,7 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
               </div>
               <div>
                 <input
+                  id="heightInches"
                   type="number"
                   {...register('heightInches', { valueAsNumber: true })}
                   min="0"
@@ -146,6 +150,7 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
             </div>
           ) : (
             <input
+              id="heightCm"
               type="number"
               {...register('heightCm', { valueAsNumber: true })}
               min="120"
@@ -161,10 +166,11 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
 
         {/* Weight */}
         <div>
-          <label className="block text-sm font-semibold text-dark mb-2">
+          <label htmlFor="weight" className="block text-sm font-semibold text-dark mb-2">
             Weight {localUnits === 'imperial' ? '(lbs)' : '(kg)'}
           </label>
           <input
+            id="weight"
             type="number"
             {...register('weight', { valueAsNumber: true })}
             step="0.1"
