@@ -24,14 +24,18 @@ export default function App() {
         const paymentStatus = params.get('payment')
         const stripeSessionId = params.get('session_id')
 
-        // Helper function to scroll to form (not all the way to page top)
+        // Helper function to scroll to form (minimal scroll, only if needed)
         const scrollToForm = () => {
-          // Use a small delay to let DOM settle, then scroll to reasonable position
+          // Use a small delay to let DOM settle, then scroll minimally
           setTimeout(() => {
-            window.scrollTo({
-              top: 100,
-              behavior: 'smooth'
-            })
+            const formElement = document.querySelector('[data-form-section]') || document.querySelector('form') || document.querySelector('.calculator-wizard');
+            if (formElement) {
+              // Only scroll if form is not visible in viewport
+              const rect = formElement.getBoundingClientRect();
+              if (rect.top > window.innerHeight || rect.top < 0) {
+                formElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }
+            }
           }, 50)
         }
 
