@@ -129,7 +129,7 @@ strong {
     border-radius: 12px;
     height: fit-content;
     position: sticky;
-    top: var(--spacing-lg);
+    top: 0;
     min-width: 0;
     max-width: 100%;
     width: 100%;
