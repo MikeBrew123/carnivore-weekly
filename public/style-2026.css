@@ -103,8 +103,7 @@ strong {
 /* Note: Use .container (original) instead of .container-2026 for consistency */
 
 .layout-wrapper-2026 {
-    display: grid;
-    grid-template-columns: 70% 30%;
+    display: flex;
     gap: var(--spacing-xxl);
     max-width: 1400px;
     margin: 0 auto;
@@ -112,6 +111,24 @@ strong {
     width: 100%;
     box-sizing: border-box;
     position: relative;
+}
+
+.layout-wrapper-2026 > * {
+    flex: 0 0 auto;
+}
+
+.layout-wrapper-2026 > .main-content-2026 {
+    flex: 1 1 70%;
+    min-width: 0;
+}
+
+.layout-wrapper-2026 > .sidebar-column-2026 {
+    flex: 0 0 30%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    align-items: flex-start;
+    align-self: flex-start;
 }
 
 .main-content-2026 {
@@ -128,76 +145,28 @@ strong {
     color: var(--text-light);
     padding: var(--spacing-lg);
     border-radius: 12px;
-    height: fit-content;
-    position: sticky;
-    top: 180px;
     min-width: 0;
     max-width: 100%;
     width: 100%;
+    height: fit-content;
 }
 
 /* ============================================
-   SMART STICKY SIDEBAR STATES
+   DUAL SIDEBAR POSITIONING
    ============================================ */
 
-/* Default: Normal sticky (sidebar fits in viewport) */
-.sidebar-2026.sidebar-state-sticky-top {
+/* Fixed Sidebar: Sticks to top, always visible */
+.sidebar-2026.sidebar-fixed {
     position: sticky;
-    top: 180px;
+    top: 2rem;
+    z-index: 10;
 }
 
-/* Disabled: Mobile/tablet responsive behavior */
-.sidebar-2026.sidebar-state-disabled {
-    position: static;
-    top: auto;
-}
-
-/* Scrolling: Natural scroll with page (default relative positioning) */
-.sidebar-2026.sidebar-state-scrolling {
-    position: relative;
-    top: auto;
-    will-change: auto;
-}
-
-/* Locked to bottom: Bottom visible, scroll with viewport */
-.sidebar-2026.sidebar-state-locked-bottom {
-    position: fixed;
-    /* top is dynamically calculated to align bottom */
-    will-change: transform;
-    z-index: 50;
-    width: 30vw !important;
-    max-width: 30vw !important;
-    right: auto;
-}
-
-/* Locked to top: Top visible, scroll with viewport */
-.sidebar-2026.sidebar-state-locked-top {
-    position: fixed;
-    top: 180px;
-    will-change: transform;
-    z-index: 50;
-    width: 30vw !important;
-    max-width: 30vw !important;
-    right: auto;
-}
-
-/* Performance optimization: prevent layout thrashing */
-.sidebar-2026[class*="sidebar-state-"] {
-    backface-visibility: hidden;
-    perspective: 1000px;
-}
-
-/* Maintain sidebar width in fixed positioning */
-.sidebar-2026.sidebar-state-locked-bottom,
-.sidebar-2026.sidebar-state-locked-top {
-    width: inherit;
-    max-width: inherit;
-}
-
-/* Smooth transitions between states */
-.sidebar-2026.sidebar-state-locked-bottom,
-.sidebar-2026.sidebar-state-locked-top {
-    transition: top 0.1s ease-out;
+/* Menu Sidebar: Sticky below fixed sidebar, scrolls into view */
+.sidebar-2026.sidebar-menu {
+    position: sticky;
+    top: 2rem; /* Dynamically calculated by JavaScript */
+    z-index: 9;
 }
 
 .sidebar-card {
