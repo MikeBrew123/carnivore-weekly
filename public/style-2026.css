@@ -1401,6 +1401,13 @@ nav.nav-menu-2026 a:hover {
     .layout-wrapper-2026 {
         padding: var(--spacing-lg) var(--spacing-sm);
         gap: var(--spacing-lg);
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-2026 {
+        position: static;
+        top: auto;
+        margin-top: var(--spacing-lg);
     }
 
     .container-2026 {
