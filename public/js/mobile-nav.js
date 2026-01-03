@@ -43,6 +43,9 @@
             attachEventListeners();
         }
 
+        // Highlight current page
+        highlightCurrentPage();
+
         // Listen for window resize to handle mobile/desktop transitions
         window.addEventListener('resize', handleResize);
     }
@@ -127,6 +130,7 @@
     function openMenu() {
         isMenuOpen = true;
         navElement.classList.add(config.activeClass);
+        hamburgerBtn.classList.add('active');
         hamburgerBtn.setAttribute('aria-expanded', 'true');
 
         // Prevent body scroll when menu is open (optional)
@@ -139,10 +143,32 @@
     function closeMenu() {
         isMenuOpen = false;
         navElement.classList.remove(config.activeClass);
+        hamburgerBtn.classList.remove('active');
         hamburgerBtn.setAttribute('aria-expanded', 'false');
 
         // Restore body scroll (optional)
         // document.body.style.overflow = '';
+    }
+
+    /**
+     * Detect current page and add active-page class
+     */
+    function highlightCurrentPage() {
+        const currentPath = window.location.pathname;
+        const currentPage = currentPath.split('/').pop() || 'index.html';
+
+        navElement.querySelectorAll('a').forEach(link => {
+            const href = link.getAttribute('href');
+            const linkPage = href.split('/').pop() || 'index.html';
+
+            // Match current page (handle index.html vs /)
+            if (currentPage === linkPage ||
+                (currentPage === '' && linkPage === 'index.html') ||
+                (currentPage === 'index.html' && href === '/index.html') ||
+                currentPath.includes(href)) {
+                link.classList.add('active-page');
+            }
+        });
     }
 
     /**
