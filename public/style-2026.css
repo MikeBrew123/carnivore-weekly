@@ -1423,12 +1423,13 @@ nav.nav-menu-2026 a:hover {
 
 @media (max-width: 1200px) {
     .layout-wrapper-2026 {
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 
     .sidebar-2026 {
         position: relative;
         top: 0;
+        width: 100%;
     }
 
     h1 { font-size: 2.2rem; }
@@ -1440,13 +1441,14 @@ nav.nav-menu-2026 a:hover {
     .layout-wrapper-2026 {
         padding: var(--spacing-lg) var(--spacing-sm);
         gap: var(--spacing-lg);
-        grid-template-columns: 1fr;
+        flex-direction: column;
     }
 
     .sidebar-2026 {
         position: static;
         top: auto;
         margin-top: var(--spacing-lg);
+        width: 100%;
     }
 
     .container-2026 {
