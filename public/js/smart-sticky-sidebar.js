@@ -85,27 +85,26 @@
     // =====================================================
 
     /**
-     * Determine initial state based on viewport size and sidebar height
+     * Determine initial state based on viewport size
+     * Always activates smart sticky on desktop (≥1200px)
      */
     function determineState() {
         const isDesktop = window.innerWidth > config.desktopBreakpoint;
 
         if (!isDesktop) {
+            // Mobile/tablet - disable smart sticky
             transitionToState(State.DISABLED);
+            isSmartStickyActive = false;
             return;
         }
 
         measureSidebar();
 
-        if (sidebarHeight <= viewportHeight) {
-            // Sidebar fits in viewport - use normal sticky behavior
-            transitionToState(State.STICKY_TOP);
-            isSmartStickyActive = false;
-        } else {
-            // Sidebar taller than viewport - activate smart sticky
-            transitionToState(State.SCROLLING);
-            isSmartStickyActive = true;
-        }
+        // Desktop: Always use smart sticky behavior (scroll naturally, then lock)
+        transitionToState(State.SCROLLING);
+        isSmartStickyActive = true;
+
+        logDebug(`Smart sticky ACTIVATED: sidebar will scroll naturally, then lock when top/bottom visible`);
     }
 
     /**
@@ -127,14 +126,19 @@
         // State-specific setup
         switch (newState) {
             case State.DISABLED:
+                resetSidebarPosition();
+                break;
+
             case State.STICKY_TOP:
                 resetSidebarPosition();
                 break;
 
             case State.SCROLLING:
-                // Initialize scrolling state
+                // Scrolling state: sidebar scrolls naturally with page
+                // Just reset to relative positioning (no dynamic styles needed)
                 accumulatedScroll = 0;
-                calculateScrollingOffset();
+                sidebar.style.position = '';
+                sidebar.style.top = '';
                 break;
 
             case State.LOCKED_BOTTOM:
