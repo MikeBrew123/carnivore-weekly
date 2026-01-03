@@ -237,12 +237,52 @@ export default function CalculatorWizard() {
           <div className="lg:col-span-1">
             {macros && currentStep !== 3 && <MacroPreview macros={macros} />}
 
+            {/* Pro Upgrade Path Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="mt-8 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg border-2 border-primary/30 p-6 space-y-4"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">⭐</span>
+                <h3 className="font-bold text-dark text-lg">Ready for More?</h3>
+              </div>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                Get your <strong>free macro report</strong> now. Then unlock the <strong>Pro version</strong> for just <strong>$9.99</strong>.
+              </p>
+              <div className="space-y-2 bg-white/60 rounded p-3 my-3">
+                <p className="text-xs font-semibold text-dark uppercase tracking-wide">Pro Includes:</p>
+                <div className="space-y-1.5">
+                  <div className="flex items-start gap-2 text-xs">
+                    <span className="text-primary font-bold mt-0.5">→</span>
+                    <span className="text-gray-700">30-day meal plan with recipes</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-xs">
+                    <span className="text-primary font-bold mt-0.5">→</span>
+                    <span className="text-gray-700">Weekly shopping lists</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-xs">
+                    <span className="text-primary font-bold mt-0.5">→</span>
+                    <span className="text-gray-700">Doctor's consultation guide</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-xs">
+                    <span className="text-primary font-bold mt-0.5">→</span>
+                    <span className="text-gray-700">13-section personalized protocol</span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-600 italic">
+                No pressure—the free report is complete. Pro is just optional extras.
+              </p>
+            </motion.div>
+
             {/* Confidence Badges */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mt-8 bg-white rounded-lg shadow-lg p-6 space-y-3"
+              transition={{ delay: 0.25 }}
+              className="mt-6 bg-white rounded-lg shadow-lg p-6 space-y-3"
             >
               <h3 className="font-semibold text-dark mb-4">Why Trust Us</h3>
               <div className="flex items-center gap-2 text-sm">
