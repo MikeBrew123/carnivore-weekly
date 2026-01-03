@@ -131,22 +131,6 @@ export default function CalculatorWizard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="font-display text-4xl font-bold text-dark mb-2">
-            Carnivore Calculator
-          </h1>
-          <p className="text-gray-600">
-            {isPremium
-              ? 'Get your complete personalized protocol'
-              : 'Calculate your perfect macros'}
-          </p>
-        </motion.header>
-
         {/* Progress Bar */}
         <ProgressBar currentStep={currentStep} totalSteps={totalSteps} labels={steps} />
 
