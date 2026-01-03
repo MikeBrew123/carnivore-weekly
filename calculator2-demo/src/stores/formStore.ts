@@ -38,7 +38,7 @@ const defaultForm: FormData = {
   ratio: '75-25',
 
   // Step 4: Health (Premium)
-  email: 'michael.reynolds@example.com',
+  email: '', // Users must provide their own email during checkout
   firstName: 'Michael',
   medications: 'Metformin 500mg twice daily, Lisinopril 10mg for blood pressure',
   conditions: ['diabetes', 'guthealth', 'inflammation'],

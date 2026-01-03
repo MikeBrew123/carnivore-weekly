@@ -24,7 +24,7 @@
         headerOffset: 180,          // Matches current top: 180px
         scrollThrottle: 16,         // ~60fps = 16.67ms per frame
         resizeDebounceMs: 250,
-        enableDebug: false
+        enableDebug: true
     };
 
     // =====================================================
@@ -53,6 +53,7 @@
     let resizeTimer = null;
     let isSmartStickyActive = false;
     let accumulatedScroll = 0;      // Tracks scroll offset when in SCROLLING state
+    let cachedSidebarLeft = null;   // Caches left position before locking to viewport
 
     // =====================================================
     // INITIALIZATION
@@ -140,7 +141,6 @@
                 sidebar.style.position = '';
                 sidebar.style.top = '';
                 sidebar.style.left = '';
-                sidebar.style.width = '';
                 break;
 
             case State.LOCKED_BOTTOM:
@@ -211,6 +211,8 @@
                 // When sidebar top reaches header offset, lock to top
                 // This prevents the sidebar from scrolling past the header
                 if (sidebarTop <= config.headerOffset) {
+                    // Cache the current left position BEFORE state transition
+                    cachedSidebarLeft = rect.left;
                     transitionToState(State.LOCKED_TOP);
                 }
                 break;
@@ -266,12 +268,14 @@
     /**
      * Lock sidebar to viewport top
      * Uses headerOffset to maintain spacing from page top
+     * Preserves left position so sidebar stays in same column
      */
     function lockToTop() {
         sidebar.style.position = 'fixed';
         sidebar.style.top = `${config.headerOffset}px`;
+        sidebar.style.left = `${cachedSidebarLeft}px`;
 
-        logDebug(`Locked to top: top=${config.headerOffset}px`);
+        logDebug(`Locked to top: top=${config.headerOffset}px, left=${cachedSidebarLeft}px`);
     }
 
     /**
