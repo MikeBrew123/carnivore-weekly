@@ -61,42 +61,35 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6"
+      className="space-y-5 w-full"
     >
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-2xl font-display font-bold text-dark mb-2">Let's Get Started</h2>
-          <p className="text-gray-600">Basic information about you</p>
-        </div>
-
-        {/* Unit Toggle */}
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={handleUnitToggle}
-            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-              localUnits === 'imperial'
-                ? 'bg-primary text-accent'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            lbs/in
-          </button>
-          <button
-            type="button"
-            onClick={handleUnitToggle}
-            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-              localUnits === 'metric'
-                ? 'bg-primary text-accent'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            kg/cm
-          </button>
-        </div>
+      {/* Unit Toggle */}
+      <div className="flex gap-2 mb-2">
+        <button
+          type="button"
+          onClick={handleUnitToggle}
+          className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+            localUnits === 'imperial'
+              ? 'bg-primary text-accent'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          lbs/in
+        </button>
+        <button
+          type="button"
+          onClick={handleUnitToggle}
+          className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+            localUnits === 'metric'
+              ? 'bg-primary text-accent'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          kg/cm
+        </button>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Sex */}
         <div className="grid grid-cols-2 gap-4">
           <div>

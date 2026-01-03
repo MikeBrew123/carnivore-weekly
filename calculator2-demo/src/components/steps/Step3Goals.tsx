@@ -86,14 +86,9 @@ export default function Step3Goals({ onNext, onPrev, onShowResults }: Step3Goals
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6"
+      className="space-y-5 w-full"
     >
-      <div>
-        <h2 className="text-2xl font-display font-bold text-dark mb-2">Your Goals & Diet</h2>
-        <p className="text-gray-600">Customize macros for your specific goal</p>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Goal */}
         <div>
           <label className="block text-sm font-semibold text-dark mb-2">Goal</label>
