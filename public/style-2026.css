@@ -157,19 +157,16 @@ strong {
 
 /* Fixed Sidebar: Sticks to top, always visible */
 .sidebar-2026.sidebar-fixed {
-    position: relative; /* Scrolls with page, not sticky */
-    z-index: 10; /* On top of navigation menu initially */
-    background: var(--background-dark);
+    position: sticky;
+    top: 2rem;
+    z-index: 10;
 }
 
-/* Menu Sidebar: Fixed positioning, hidden behind priority sidebar initially */
+/* Menu Sidebar: Sticky below fixed sidebar, scrolls into view */
 .sidebar-2026.sidebar-menu {
-    position: fixed; /* Always at same screen position */
-    top: 2rem; /* Same offset as where priority sidebar starts */
-    right: calc((100vw - 1400px) / 2 + 3rem); /* Aligned to sidebar column */
-    width: 401px; /* Match sidebar width */
-    z-index: 5; /* Behind priority sidebar */
-    background: var(--background-dark);
+    position: sticky;
+    top: 2rem; /* Dynamically calculated by JavaScript */
+    z-index: 9;
 }
 
 .sidebar-card {
