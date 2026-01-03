@@ -90,15 +90,27 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
   const handlePaymentSuccess = async () => {
     if (!selectedTier) return
 
-    // Update session with selected tier
-    await supabase
-      .from('user_sessions')
-      .update({ pricing_tier: selectedTier })
-      .eq('session_token', sessionToken)
+    try {
+      // Update session with selected tier
+      const { error } = await supabase
+        .from('calculator2_sessions')
+        .update({ pricing_tier: selectedTier })
+        .eq('session_token', sessionToken)
 
-    // Proceed to next step
-    setSelectedTier(null)
-    onProceed(selectedTier)
+      if (error) {
+        console.error('[PricingModal] Failed to update session:', error)
+        // Still proceed even if DB update fails
+      }
+
+      // Proceed to next step
+      setSelectedTier(null)
+      onProceed(selectedTier)
+    } catch (err) {
+      console.error('[PricingModal] Payment success handler error:', err)
+      // Proceed anyway
+      setSelectedTier(null)
+      onProceed(selectedTier)
+    }
   }
 
   const handlePaymentCancel = () => {
