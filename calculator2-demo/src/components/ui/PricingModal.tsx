@@ -113,12 +113,14 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        onClick={onClose}
         className="fixed inset-0 bg-black/50 flex items-center justify-center z-[150] p-4"
       >
         <motion.div
           initial={{ scale: 0.95, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.95, y: 20 }}
+          onClick={(e) => e.stopPropagation()}
           className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
         >
           {/* Header */}

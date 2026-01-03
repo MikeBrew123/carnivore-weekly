@@ -119,12 +119,85 @@
         .post-footer h3 {
             color: #ffd700;
         }
+
+        /* Wiki box styling */
+        .wiki-box {
+            background: #2c1810;
+            padding: 20px;
+            border-left: 4px solid #d4a574;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .wiki-box strong {
+            color: #ffd700;
+        }
+
+        .wiki-box-links {
+            color: #d4a574;
+            font-size: 14px;
+        }
+
+        /* Post header styling */
+        .post-header {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 20px;
+        }
+
+        /* Comments section */
+        .comments-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #8b4513;
+        }
+
+        /* Footer styling */
+        .blog-footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+            text-align: center;
+            color: #d4a574;
+            font-size: 12px;
+        }
+
+        /* Disclaimer text */
+        .post-disclaimer {
+            font-size: 0.9em;
+            color: #d4a574;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+        }
+
+        /* Layout wrapper */
+        .layout-wrapper-2026 {
+            display: flex;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Main content */
+        .main-content-2026 {
+            flex: 1;
+            max-width: 800px;
+        }
+
+        /* Container 2026 */
+        .container-2026 {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
     </style>
 </head>
-<body style="background-color: #1a120b; color: #f4e4d4; font-family: 'Merriweather', serif;">
+<body>
     <!-- Site Header -->
-    <header>
-        <div class="container">
+    <header class="header-2026">
+        <div class="container-2026">
             <img src="../../images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>CARNIVORE WEEKLY</h1>
             <p class="subtitle">The Meat-Eater's Digest</p>
@@ -134,35 +207,37 @@
 
     <!-- Navigation Menu -->
     <nav class="nav-menu-2026">
-        <a href="../../index.html">Home</a>
-        <a href="../../channels.html">Channels</a>
-        <a href="../../wiki.html">Wiki</a>
-        <a href="../../blog.html">Blog</a>
-        <a href="../../calculator.html">Calculator</a>
-        <a href="../../archive.html">Archive</a>
-        <a href="../../about.html">About</a>
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Channels</a>
+        <a href="/wiki.html">Wiki</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/calculator.html">Calculator</a>
+        <a href="/about.html">About</a>
     </nav>
 
-    <div class="post-container">
-        <a href="../../blog.html" class="back-to-blog">← Back to Blog</a>
+    <!-- Layout Wrapper -->
+    <div class="layout-wrapper-2026">
+        <main class="main-content-2026">
+            <a href="/blog.html" class="back-to-blog">← Back to Blog</a>
 
-        <!-- Post Header -->
-        <div class="post-header" style="margin-bottom: 40px; border-bottom: 2px solid #8b4513; padding-bottom: 20px;">
-            <h1 class="post-title page-header">Beginner's Complete Blueprint: How to Actually Start Carnivore</h1>
-            <div class="post-meta">
-                <span>January 2, 2026</span>
-                <span>by Sarah (Health Coach)</span>
-                <span>2100 words</span>
-            </div>
+            <!-- Post Header -->
+            <article>
+                <header class="post-header">
+                    <h1 class="post-title">Beginner's Complete Blueprint: How to Actually Start Carnivore</h1>
+                    <div class="post-meta">
+                        <span>January 2, 2026</span>
+                        <span>by Sarah (Health Coach)</span>
+                        <span>2100 words</span>
+                    </div>
 
-            <div class="post-author-bio">
-                <strong>Sarah</strong><br>
-                Health coach and evidence-based writer focused on metabolic health, physiological adaptation, and the science behind carnivore living.
-            </div>
-        </div>
+                    <div class="post-author-bio">
+                        <strong>Sarah</strong><br>
+                        Health coach and evidence-based writer focused on metabolic health, physiological adaptation, and the science behind carnivore living.
+                    </div>
+                </header>
 
-        <!-- Post Content -->
-        <div class="post-content">
+                <!-- Post Content -->
+                <div class="post-content">
 
 <p>If you're reading this on January 2nd and thinking "I want to try carnivore," you're not alone. Thirty percent of Reddit's carnivore traffic right now is people asking: "What should I eat?" and "Will this actually work for me?"</p>
 
@@ -186,7 +261,7 @@
 
 <p>Specifically:</p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Breakfast: 6-8 oz ground beef with salt and water</li>
     <li>Lunch: 8-10 oz steak with salt and water</li>
     <li>Dinner: 10-12 oz beef roast or ground beef with salt and water</li>
@@ -199,7 +274,7 @@
 
 <p><strong>What to expect:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Days 1-2: Probably fine. Some people feel great immediately.</li>
     <li>Days 3-5: This is the danger zone. You might feel foggy, tired, or get a headache. This is adaptation, not failure.</li>
     <li>Days 6-7: Energy usually starts returning. Sleep might be weird (too much or too little).</li>
@@ -237,7 +312,7 @@
 
 <p><strong>Signs you're low on electrolytes:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Headaches</li>
     <li>Fatigue that doesn't improve with sleep</li>
     <li>Muscle cramps</li>
@@ -252,7 +327,7 @@
 
 <p><strong>What actually matters:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>How your clothes fit (waist, chest, arms) - more accurate than scale</li>
     <li>Energy levels throughout the day (rate 1-10)</li>
     <li>Hunger patterns (fasting easier? Less snacking?)</li>
@@ -285,7 +360,7 @@ A: This is a diet based on animal foods. So no. You need meat, fish, or other an
 
 <p>By day 90, you'll know if this is working for you. You'll have:</p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Adapted metabolically (no more adaptation flu)</li>
     <li>Established your preferred food selections</li>
     <li>Seen measurable changes (weight, energy, how you look/feel)</li>
@@ -299,7 +374,7 @@ A: This is a diet based on animal foods. So no. You need meat, fish, or other an
 
 <p>Today, if you're starting:</p>
 
-<ol style="margin-left: 20px; margin-bottom: 15px;">
+<ol>
     <li>Buy beef (ground or steak, fatty cuts are better)</li>
     <li>Buy salt</li>
     <li>Plan meals for the next 3 days</li>
@@ -312,53 +387,55 @@ A: This is a diet based on animal foods. So no. You need meat, fish, or other an
 
 <p>—Sarah</p>
 
-<p style="font-size: 0.9em; color: #d4a574; margin-top: 30px; padding-top: 20px; border-top: 1px solid #8b4513;">
+<p class="post-disclaimer">
     <em>Not a doctor. The information here is educational and based on research and community experience. Consult with a qualified healthcare provider before making changes to your diet or supplementation.</em>
 </p>
 
-        </div>
+                </div>
 
-        <!-- Wiki Links Section -->
+                <!-- Wiki Links Section -->
+                <div class="wiki-box">
+                    <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
+                    <span class="wiki-box-links"><a href="/wiki.html#adaptation" class="wiki-link">adaptation</a> • <a href="/wiki.html#electrolytes" class="wiki-link">electrolytes</a> • <a href="/wiki.html#getting-started" class="wiki-link">getting-started</a></span>
+                </div>
 
-    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
-      <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
-      <span style="color: #d4a574; font-size: 14px;"><a href="/wiki.html#adaptation" class="wiki-link">adaptation</a> • <a href="/wiki.html#electrolytes" class="wiki-link">electrolytes</a> • <a href="/wiki.html#getting-started" class="wiki-link">getting-started</a></span>
+                <!-- Post Footer -->
+                <footer class="post-footer">
+                    <!-- Tags -->
+                    <div class="tags">
+                        <span class="tag">beginner</span>
+                        <span class="tag">guide</span>
+                        <span class="tag">getting-started</span>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <h3>Comments</h3>
+                        <script src="https://utteranc.es/client.js"
+                            repo="MikeBrew123/carnivore-weekly"
+                            issue-term="pathname"
+                            theme="github-dark"
+                            crossorigin="anonymous"
+                            async>
+                        </script>
+                    </div>
+                </footer>
+            </article>
+        </main>
     </div>
 
-        <!-- Post Footer -->
-        <div class="post-footer">
-            <!-- Tags -->
-            <div class="tags">
-                <span class="tag">beginner</span>
-                <span class="tag">guide</span>
-                <span class="tag">getting-started</span>
-            </div>
+    <!-- Page Footer -->
+    <footer class="blog-footer">
+        <p>&copy; 2026 Carnivore Weekly |
+           <a href="/about.html">About</a> |
+           <a href="/the-lab.html">The Lab</a> |
+           <a href="mailto:feedback@carnivoreweekly.com">Contact</a>
+        </p>
+        <p style="margin-top: 10px; font-size: 11px;">
+            Curated with AI • Made with <a href="https://claude.com/claude-code">Claude Code</a>
+        </p>
+    </footer>
 
-            <!-- Comments Section -->
-            <div class="comments-section" style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #8b4513;">
-                <h3>Comments</h3>
-                <script src="https://utteranc.es/client.js"
-                    repo="MikeBrew123/carnivore-weekly"
-                    issue-term="pathname"
-                    theme="github-dark"
-                    crossorigin="anonymous"
-                    async>
-                </script>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #8b4513; text-align: center; color: #d4a574; font-size: 12px;">
-            <p>&copy; 2026 Carnivore Weekly |
-               <a href="../../about.html" style="color: #d4a574; text-decoration: underline;">About</a> |
-               <a href="../../the-lab.html" style="color: #d4a574; text-decoration: underline;">The Lab</a> |
-               <a href="mailto:feedback@carnivoreweekly.com" style="color: #d4a574; text-decoration: underline;">Contact</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 11px;">
-                Curated with AI • Made with <a href="https://claude.com/claude-code" style="color: #d4a574; text-decoration: underline;">Claude Code</a>
-            </p>
-        </footer>
-    </div>
     <script src="/js/mobile-nav.js"></script>
 </body>
 </html>

@@ -119,12 +119,85 @@
         .post-footer h3 {
             color: #ffd700;
         }
+
+        /* Wiki box styling */
+        .wiki-box {
+            background: #2c1810;
+            padding: 20px;
+            border-left: 4px solid #d4a574;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .wiki-box strong {
+            color: #ffd700;
+        }
+
+        .wiki-box-links {
+            color: #d4a574;
+            font-size: 14px;
+        }
+
+        /* Post header styling */
+        .post-header {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 20px;
+        }
+
+        /* Comments section */
+        .comments-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #8b4513;
+        }
+
+        /* Footer styling */
+        .blog-footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+            text-align: center;
+            color: #d4a574;
+            font-size: 12px;
+        }
+
+        /* Disclaimer text */
+        .post-disclaimer {
+            font-size: 0.9em;
+            color: #d4a574;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+        }
+
+        /* Layout wrapper */
+        .layout-wrapper-2026 {
+            display: flex;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Main content */
+        .main-content-2026 {
+            flex: 1;
+            max-width: 800px;
+        }
+
+        /* Container 2026 */
+        .container-2026 {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
     </style>
 </head>
-<body style="background-color: #1a120b; color: #f4e4d4; font-family: 'Merriweather', serif;">
+<body>
     <!-- Site Header -->
-    <header>
-        <div class="container">
+    <header class="header-2026">
+        <div class="container-2026">
             <img src="../../images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>CARNIVORE WEEKLY</h1>
             <p class="subtitle">The Meat-Eater's Digest</p>
@@ -134,35 +207,37 @@
 
     <!-- Navigation Menu -->
     <nav class="nav-menu-2026">
-        <a href="../../index.html">Home</a>
-        <a href="../../channels.html">Channels</a>
-        <a href="../../wiki.html">Wiki</a>
-        <a href="../../blog.html">Blog</a>
-        <a href="../../calculator.html">Calculator</a>
-        <a href="../../archive.html">Archive</a>
-        <a href="../../about.html">About</a>
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Channels</a>
+        <a href="/wiki.html">Wiki</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/calculator.html">Calculator</a>
+        <a href="/about.html">About</a>
     </nav>
 
-    <div class="post-container">
-        <a href="../../blog.html" class="back-to-blog">← Back to Blog</a>
+    <!-- Layout Wrapper -->
+    <div class="layout-wrapper-2026">
+        <main class="main-content-2026">
+            <a href="/blog.html" class="back-to-blog">← Back to Blog</a>
 
-        <!-- Post Header -->
-        <div class="post-header" style="margin-bottom: 40px; border-bottom: 2px solid #8b4513; padding-bottom: 20px;">
-            <h1 class="post-title page-header">Organ Meats Complete Guide: Sourcing, Prep, and Nutrition</h1>
-            <div class="post-meta">
-                <span>January 4, 2026</span>
-                <span>by Sarah (Health Coach) & Marcus (Performance Coach)</span>
-                <span>2400 words</span>
-            </div>
+            <!-- Post Header -->
+            <article>
+                <header class="post-header">
+                    <h1 class="post-title">Organ Meats Complete Guide: Sourcing, Prep, and Nutrition</h1>
+                    <div class="post-meta">
+                        <span>January 4, 2026</span>
+                        <span>by Sarah (Health Coach) & Marcus (Performance Coach)</span>
+                        <span>2400 words</span>
+                    </div>
 
-            <div class="post-author-bio">
-                <strong>Sarah & Marcus</strong><br>
-                Sarah: Health science focus on micronutrients and physiological adaptation. Marcus: Performance optimization and real-world results.
-            </div>
-        </div>
+                    <div class="post-author-bio">
+                        <strong>Sarah & Marcus</strong><br>
+                        Sarah: Health science focus on micronutrients and physiological adaptation. Marcus: Performance optimization and real-world results.
+                    </div>
+                </header>
 
-        <!-- Post Content -->
-        <div class="post-content">
+                <!-- Post Content -->
+                <div class="post-content">
 
 <p>Grassland Beef is releasing liver pâté. Seven Sons Farms just launched a full line of organs. TruBeef is preparing organ meat products. The community's asking: "How do I actually cook this? What's the nutrition? Where do I source quality?"</p>
 
@@ -176,7 +251,7 @@
 
 <p>A 100-gram serving of grass-fed beef liver contains:</p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li><strong>Vitamin A (retinol):</strong> 6,421 IU (128% of daily value)</li>
     <li><strong>Vitamin B12:</strong> 60 micrograms (1000% of daily value)</li>
     <li><strong>Folate:</strong> 145 micrograms (36% of daily value)</li>
@@ -251,7 +326,7 @@
 
 <h3>Online (Best for Convenience)</h3>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li><strong>ButcherBox:</strong> Grass-fed beef organs available monthly. Frozen. Ships direct. $40-60 for variety pack. Quality is solid.</li>
     <li><strong>Grassland Beef:</strong> Grass-fed, grass-finished. Organ pâtés and individual organs. Ships frozen. Higher price point ($60-80).</li>
     <li><strong>US Wellness Meats:</strong> Grass-fed organs, variety options. Ships frozen. $50-70 for organs.</li>
@@ -260,7 +335,7 @@
 
 <h3>Local (Best for Freshness & Cost)</h3>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li><strong>Local butchers:</strong> Call and ask for organs directly. Often cheaper ($3-8 per pound) because most people don't buy them. Sometimes free if you buy regular meat.</li>
     <li><strong>Farmers markets:</strong> Find grass-fed beef vendors, ask if they have organs available. Often will order for you.</li>
     <li><strong>CSA programs:</strong> Community Supported Agriculture beef shares often include organs as add-ons.</li>
@@ -278,7 +353,7 @@
 
 <p><strong>Solution 1: Ground/Pâté (Best for Beginners)</strong></p>
 
-<ol style="margin-left: 20px; margin-bottom: 15px;">
+<ol>
     <li>Buy liver pâté or grind raw liver yourself</li>
     <li>Mix 3 parts ground beef to 1 part ground liver</li>
     <li>Cook as burger patties or ground beef dish</li>
@@ -288,7 +363,7 @@
 
 <p><strong>Solution 2: Sliced & Seared (Medium Difficulty)</strong></p>
 
-<ol style="margin-left: 20px; margin-bottom: 15px;">
+<ol>
     <li>Slice liver thin (1/4-1/2 inch)</li>
     <li>Pat dry with paper towel</li>
     <li>Season with salt only</li>
@@ -307,7 +382,7 @@
 
 <p><strong>Method 1: Diced & Stir-Fried</strong></p>
 
-<ol style="margin-left: 20px; margin-bottom: 15px;">
+<ol>
     <li>Cube heart into 1-inch pieces</li>
     <li>Heat butter or tallow until very hot</li>
     <li>Add heart cubes, season with salt</li>
@@ -317,7 +392,7 @@
 
 <p><strong>Method 2: Whole Grilled</strong></p>
 
-<ol style="margin-left: 20px; margin-bottom: 15px;">
+<ol>
     <li>Slice heart lengthwise into thin steaks (1/2 inch)</li>
     <li>Season with salt</li>
     <li>Grill or sear in hot pan, 3 minutes per side (medium-rare)</li>
@@ -328,7 +403,7 @@
 
 <p><strong>Method: Pan-Seared (Simplest)</strong></p>
 
-<ol style="margin-left: 20px; margin-bottom: 15px;">
+<ol>
     <li>Brain is usually pre-cleaned and sliced</li>
     <li>Pat dry</li>
     <li>Sear in hot butter, 2-3 minutes per side</li>
@@ -364,53 +439,55 @@
 
 <p>—Sarah & Marcus</p>
 
-<p style="font-size: 0.9em; color: #d4a574; margin-top: 30px; padding-top: 20px; border-top: 1px solid #8b4513;">
+<p class="post-disclaimer">
     <em>Not a doctor. Organ meats are nutrient-dense and safe in normal quantities, but if you have hemochromatosis (iron overload disorder) or are pregnant, consult healthcare provider about liver consumption. Standard disclaimers apply.</em>
 </p>
 
-        </div>
+                </div>
 
-        <!-- Wiki Links Section -->
+                <!-- Wiki Links Section -->
+                <div class="wiki-box">
+                    <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
+                    <span class="wiki-box-links"><a href="/wiki.html#nutrition" class="wiki-link">nutrition</a> • <a href="/wiki.html#organs" class="wiki-link">organs</a> • <a href="/wiki.html#sourcing" class="wiki-link">sourcing</a></span>
+                </div>
 
-    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
-      <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
-      <span style="color: #d4a574; font-size: 14px;"><a href="/wiki.html#nutrition" class="wiki-link">nutrition</a> • <a href="/wiki.html#organs" class="wiki-link">organs</a> • <a href="/wiki.html#sourcing" class="wiki-link">sourcing</a></span>
+                <!-- Post Footer -->
+                <footer class="post-footer">
+                    <!-- Tags -->
+                    <div class="tags">
+                        <span class="tag">nutrition</span>
+                        <span class="tag">organs</span>
+                        <span class="tag">guide</span>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <h3>Comments</h3>
+                        <script src="https://utteranc.es/client.js"
+                            repo="MikeBrew123/carnivore-weekly"
+                            issue-term="pathname"
+                            theme="github-dark"
+                            crossorigin="anonymous"
+                            async>
+                        </script>
+                    </div>
+                </footer>
+            </article>
+        </main>
     </div>
 
-        <!-- Post Footer -->
-        <div class="post-footer">
-            <!-- Tags -->
-            <div class="tags">
-                <span class="tag">nutrition</span>
-                <span class="tag">organs</span>
-                <span class="tag">guide</span>
-            </div>
+    <!-- Page Footer -->
+    <footer class="blog-footer">
+        <p>&copy; 2026 Carnivore Weekly |
+           <a href="/about.html">About</a> |
+           <a href="/the-lab.html">The Lab</a> |
+           <a href="mailto:feedback@carnivoreweekly.com">Contact</a>
+        </p>
+        <p style="margin-top: 10px; font-size: 11px;">
+            Curated with AI • Made with <a href="https://claude.com/claude-code">Claude Code</a>
+        </p>
+    </footer>
 
-            <!-- Comments Section -->
-            <div class="comments-section" style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #8b4513;">
-                <h3>Comments</h3>
-                <script src="https://utteranc.es/client.js"
-                    repo="MikeBrew123/carnivore-weekly"
-                    issue-term="pathname"
-                    theme="github-dark"
-                    crossorigin="anonymous"
-                    async>
-                </script>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #8b4513; text-align: center; color: #d4a574; font-size: 12px;">
-            <p>&copy; 2026 Carnivore Weekly |
-               <a href="../../about.html" style="color: #d4a574; text-decoration: underline;">About</a> |
-               <a href="../../the-lab.html" style="color: #d4a574; text-decoration: underline;">The Lab</a> |
-               <a href="mailto:feedback@carnivoreweekly.com" style="color: #d4a574; text-decoration: underline;">Contact</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 11px;">
-                Curated with AI • Made with <a href="https://claude.com/claude-code" style="color: #d4a574; text-decoration: underline;">Claude Code</a>
-            </p>
-        </footer>
-    </div>
     <script src="/js/mobile-nav.js"></script>
 </body>
 </html>
