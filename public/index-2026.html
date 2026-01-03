@@ -352,75 +352,83 @@
 
         </main>
 
-        <!-- SIDEBAR (30%) -->
-        <aside class="sidebar-2026">
-            <div class="sidebar-content">
-                <!-- TRENDING TOPICS -->
-                <section class="sidebar-section">
-                    <h3>What's Sizzling</h3>
-                    <div class="trending-compact-2026">
-                        <div class="trending-item-2026">
-                            <h4>New Year Surge</h4>
-                            <p>30% more newcomers on Reddit asking real questions.</p>
-                            <span class="tag">Trending</span>
+        <!-- SIDEBAR COLUMN (30%) - CONTAINS TWO STICKY SIDEBARS -->
+        <div class="sidebar-column-2026">
+            <!-- FIXED SIDEBAR (sticky to top) -->
+            <aside class="sidebar-2026 sidebar-fixed">
+                <div class="sidebar-content">
+                    <!-- TRENDING TOPICS -->
+                    <section class="sidebar-section">
+                        <h3>What's Sizzling</h3>
+                        <div class="trending-compact-2026">
+                            <div class="trending-item-2026">
+                                <h4>New Year Surge</h4>
+                                <p>30% more newcomers on Reddit asking real questions.</p>
+                                <span class="tag">Trending</span>
+                            </div>
+                            <div class="trending-item-2026">
+                                <h4>Women's Health</h4>
+                                <p>Amenorrhea, fertility, and hormonal optimization conversations.</p>
+                                <span class="tag">Community</span>
+                            </div>
+                            <div class="trending-item-2026">
+                                <h4>Organ Meats</h4>
+                                <p>Nose-to-tail nutrition going mainstream in 2026.</p>
+                                <span class="tag">Trend</span>
+                            </div>
                         </div>
-                        <div class="trending-item-2026">
-                            <h4>Women's Health</h4>
-                            <p>Amenorrhea, fertility, and hormonal optimization conversations.</p>
-                            <span class="tag">Community</span>
-                        </div>
-                        <div class="trending-item-2026">
-                            <h4>Organ Meats</h4>
-                            <p>Nose-to-tail nutrition going mainstream in 2026.</p>
-                            <span class="tag">Trend</span>
-                        </div>
-                    </div>
-                </section>
+                    </section>
 
-                <!-- CALCULATOR WIDGET -->
-                <section class="sidebar-section sidebar-cta">
-                    <h3>Personalized Macros</h3>
-                    <p>Get your exact protein, fat, and calorie targets based on your body composition and goals.</p>
-                    <a href="/calculator.html" class="sidebar-button-2026" onclick="trackAffiliateClick('Sidebar Calculator', '/calculator.html')">
-                        Open Calculator
-                    </a>
-                </section>
-
-                <!-- AFFILIATE PARTNER -->
-                <section class="sidebar-section sidebar-partner">
-                    <h3>Partner Spotlight</h3>
-                    <div class="partner-card-2026">
-                        <h4>ButcherBox</h4>
-                        <p>Pasture-raised, grass-fed meat delivered monthly. We use and recommend.</p>
-                        <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=sidebar&utm_campaign=2026" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')" class="partner-button">
-                            Get Offer
+                    <!-- CALCULATOR WIDGET -->
+                    <section class="sidebar-section sidebar-cta">
+                        <h3>Personalized Macros</h3>
+                        <p>Get your exact protein, fat, and calorie targets based on your body composition and goals.</p>
+                        <a href="/calculator.html" class="sidebar-button-2026" onclick="trackAffiliateClick('Sidebar Calculator', '/calculator.html')">
+                            Open Calculator
                         </a>
-                    </div>
-                </section>
+                    </section>
 
-                <!-- FEEDBACK -->
-                <section class="sidebar-section sidebar-feedback">
-                    <h3>Your Voice</h3>
-                    <p>Tell us what you want to see in Carnivore Weekly.</p>
-                    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-button-2026">
-                        Send Feedback
-                    </a>
-                </section>
+                    <!-- AFFILIATE PARTNER -->
+                    <section class="sidebar-section sidebar-partner">
+                        <h3>Partner Spotlight</h3>
+                        <div class="partner-card-2026">
+                            <h4>ButcherBox</h4>
+                            <p>Pasture-raised, grass-fed meat delivered monthly. We use and recommend.</p>
+                            <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=sidebar&utm_campaign=2026" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')" class="partner-button">
+                                Get Offer
+                            </a>
+                        </div>
+                    </section>
 
-                <!-- NAVIGATION MENU -->
-                <section class="sidebar-section sidebar-nav">
-                    <h3>Explore</h3>
-                    <ul class="nav-links-2026">
-                        <li><a href="/index.html">Home</a></li>
-                        <li><a href="/channels.html">Channels</a></li>
-                        <li><a href="/wiki.html">Wiki</a></li>
-                        <li><a href="/blog.html">Blog</a></li>
-                        <li><a href="/calculator.html">Calculator</a></li>
-                        <li><a href="/archive.html">Archive</a></li>
-                    </ul>
-                </section>
-            </div>
-        </aside>
+                    <!-- FEEDBACK -->
+                    <section class="sidebar-section sidebar-feedback">
+                        <h3>Your Voice</h3>
+                        <p>Tell us what you want to see in Carnivore Weekly.</p>
+                        <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-button-2026">
+                            Send Feedback
+                        </a>
+                    </section>
+                </div>
+            </aside>
+
+            <!-- MENU SIDEBAR (sticky below fixed sidebar, scrolls into view) -->
+            <aside class="sidebar-2026 sidebar-menu">
+                <div class="sidebar-content">
+                    <!-- NAVIGATION MENU -->
+                    <section class="sidebar-section sidebar-nav">
+                        <h3>Explore</h3>
+                        <ul class="nav-links-2026">
+                            <li><a href="/index.html">Home</a></li>
+                            <li><a href="/channels.html">Channels</a></li>
+                            <li><a href="/wiki.html">Wiki</a></li>
+                            <li><a href="/blog.html">Blog</a></li>
+                            <li><a href="/calculator.html">Calculator</a></li>
+                            <li><a href="/archive.html">Archive</a></li>
+                        </ul>
+                    </section>
+                </div>
+            </aside>
+        </div>
     </div>
 
     <!-- FOOTER -->
@@ -548,6 +556,51 @@
     })();
     </script>
     <script src="/js/mobile-nav.js"></script>
-    <script src="/js/smart-sticky-sidebar.js"></script>
+    <!-- <script src="/js/dual-sidebar.js"></script> --> <!-- Disabled - using inline version instead -->
+    <script>
+        // Initialize dual sidebar
+        (function initDualSidebar() {
+            const fixedSidebar = document.querySelector('.sidebar-fixed');
+            const menuSidebar = document.querySelector('.sidebar-menu');
+
+            if (!fixedSidebar || !menuSidebar) return;
+
+            function updateMenuPosition() {
+                if (window.innerWidth <= 1200) {
+                    // Mobile: no sticky
+                    menuSidebar.style.position = '';
+                    menuSidebar.style.top = '';
+                    console.log('[InitDualSidebar] Mobile mode');
+                    return;
+                }
+
+                // Desktop: Menu sticks below the fixed sidebar
+                // Get the combined height of fixed sidebar + gap
+                const fixedHeight = fixedSidebar.offsetHeight;
+                const gap = 32; // 2rem
+                const baseOffset = 32; // 2rem
+                const viewportHeight = window.innerHeight;
+
+                // Calculate where the menu should stick
+                // It should appear right below the fixed sidebar, visible in viewport
+                let menuStickPosition = Math.min(
+                    fixedHeight + baseOffset + gap,  // Position below fixed + gap
+                    viewportHeight - 200              // But keep at least 200px of menu visible
+                );
+
+                menuSidebar.style.position = 'sticky';
+                menuSidebar.style.top = menuStickPosition + 'px';
+                console.log('[InitDualSidebar] Menu top:', menuStickPosition, 'calc:', fixedHeight + baseOffset + gap, 'viewport:', viewportHeight);
+            }
+
+            updateMenuPosition();
+
+            // Update on resize or when sidebar height changes
+            window.addEventListener('resize', updateMenuPosition);
+            if ('ResizeObserver' in window) {
+                new ResizeObserver(updateMenuPosition).observe(fixedSidebar);
+            }
+        })();
+    </script>
 </body>
 </html>
