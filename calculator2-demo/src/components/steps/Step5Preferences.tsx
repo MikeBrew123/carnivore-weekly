@@ -21,9 +21,15 @@ export default function Step5Preferences({ onNext, onPrev }: Step5PreferencesPro
   const { register, handleSubmit, watch } = useForm({
     defaultValues: {
       previousDiets: form.previousDiets,
+      whatWorked: form.whatWorked,
       carnivoreExperience: form.carnivoreExperience,
       selectedProtocol: form.selectedProtocol,
       goals: form.goals || [],
+      biggestChallenge: form.biggestChallenge,
+      cookingSkill: form.cookingSkill,
+      budget: form.budget,
+      familySituation: form.familySituation,
+      workTravel: form.workTravel,
       additionalNotes: form.additionalNotes,
     },
     mode: 'onChange',
@@ -33,9 +39,15 @@ export default function Step5Preferences({ onNext, onPrev }: Step5PreferencesPro
 
   const onSubmit = (data: any) => {
     setFormField('previousDiets', data.previousDiets)
+    setFormField('whatWorked', data.whatWorked)
     setFormField('carnivoreExperience', data.carnivoreExperience)
     setFormField('selectedProtocol', data.selectedProtocol)
     setFormField('goals', data.goals)
+    setFormField('biggestChallenge', data.biggestChallenge)
+    setFormField('cookingSkill', data.cookingSkill)
+    setFormField('budget', data.budget)
+    setFormField('familySituation', data.familySituation)
+    setFormField('workTravel', data.workTravel)
     setFormField('additionalNotes', data.additionalNotes)
     onNext()
   }
@@ -114,6 +126,87 @@ export default function Step5Preferences({ onNext, onPrev }: Step5PreferencesPro
           {goals.length > 0 && (
             <p className="text-xs text-gray-500 mt-2">Selected: {goals.length}/3</p>
           )}
+        </div>
+
+        {/* What Worked */}
+        <div>
+          <label className="block text-sm font-semibold text-dark mb-2">What Has Worked Well for You? (optional)</label>
+          <textarea
+            {...register('whatWorked')}
+            placeholder="What dietary or lifestyle changes have worked well in the past? What made them successful?"
+            rows={2}
+            className="w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20 resize-none"
+          />
+        </div>
+
+        {/* Biggest Challenge */}
+        <div>
+          <label className="block text-sm font-semibold text-dark mb-2">Biggest Challenge (optional)</label>
+          <textarea
+            {...register('biggestChallenge')}
+            placeholder="What's your biggest challenge with diet or health right now?"
+            rows={2}
+            className="w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20 resize-none"
+          />
+        </div>
+
+        {/* Cooking Skill */}
+        <div>
+          <label className="block text-sm font-semibold text-dark mb-2">Cooking Skill Level (optional)</label>
+          <select
+            {...register('cookingSkill')}
+            className="w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+          >
+            <option value="">Select one...</option>
+            <option value="beginner">Beginner - Simple recipes only</option>
+            <option value="intermediate">Intermediate - Comfortable with most recipes</option>
+            <option value="advanced">Advanced - Enjoy complex cooking</option>
+            <option value="no-time">Limited - Need quick/easy meals</option>
+          </select>
+        </div>
+
+        {/* Budget */}
+        <div>
+          <label className="block text-sm font-semibold text-dark mb-2">Budget Level (optional)</label>
+          <select
+            {...register('budget')}
+            className="w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+          >
+            <option value="">Select one...</option>
+            <option value="budget-conscious">Budget Conscious - Affordable options</option>
+            <option value="moderate">Moderate - Middle of the road</option>
+            <option value="premium">Premium - Quality over price</option>
+          </select>
+        </div>
+
+        {/* Family Situation */}
+        <div>
+          <label className="block text-sm font-semibold text-dark mb-2">Family Situation (optional)</label>
+          <select
+            {...register('familySituation')}
+            className="w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+          >
+            <option value="">Select one...</option>
+            <option value="single">Single - Cooking for myself</option>
+            <option value="partner">Partner/Spouse - Just 2 of us</option>
+            <option value="family-with-kids">Family with Kids - Need variety</option>
+            <option value="extended">Extended Family - Multiple people</option>
+          </select>
+        </div>
+
+        {/* Work/Travel */}
+        <div>
+          <label className="block text-sm font-semibold text-dark mb-2">Work & Travel Schedule (optional)</label>
+          <select
+            {...register('workTravel')}
+            className="w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+          >
+            <option value="">Select one...</option>
+            <option value="office">Office-based - Regular schedule</option>
+            <option value="work-from-home">Work from Home - Flexible</option>
+            <option value="frequent-travel">Frequent Travel - Always on the go</option>
+            <option value="shift-work">Shift Work - Variable schedule</option>
+          </select>
         </div>
 
         {/* Additional Notes */}

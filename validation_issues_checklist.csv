@@ -1,0 +1,65 @@
+File,Type,Status,Priority,Category,Issue,Impact,Fix_Time,Notes
+index.html,main,FAIL,CRITICAL,SEO,Meta description 169 chars (max 160),0.5,5min,Reduce by 9 chars
+index.html,main,FAIL,CRITICAL,W3C,Unbalanced anchor tags (222 open 221 close),0.5,15min,Find missing </a>
+index.html,main,FAIL,CRITICAL,Performance,52 images missing width/height attributes,0.8,30min,Add dimensions to all img tags
+index.html,main,FAIL,CRITICAL,Performance,369 inline styles,0.6,90min,Move to external CSS (optional)
+index.html,main,FAIL,CRITICAL,Performance,File size 237.8KB,0.7,45min,Optimize and compress
+2025-12-22-mtor-muscle.html,blog,FAIL,CRITICAL,Content,"AI tell: ""leverage""",0.2,0min,FALSE POSITIVE - legitimate business term
+2025-12-22-mtor-muscle.html,blog,FAIL,CRITICAL,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-22-mtor-muscle.html,blog,FAIL,CRITICAL,SEO,Title too long (84 chars max 60),0.8,3min,Shorten title
+2025-12-26.html,archive,FAIL,CRITICAL,SEO,Missing title tag,1.0,5min,Add proper title
+2025-12-26.html,archive,FAIL,CRITICAL,SEO,Multiple H1 tags,0.8,5min,Ensure single H1
+2025-12-26.html,archive,FAIL,CRITICAL,SEO,Missing meta description,1.0,5min,Add meta desc
+index-full.html,test,FAIL,CRITICAL,Performance,File size 133.3KB + unknown purpose,0.5,5min,Clarify purpose or remove
+2025-12-18-carnivore-bar-guide.html,blog,WARN,HIGH,SEO,Title too long (77 chars max 60),0.8,3min,Shorten by 17+ chars
+2025-12-18-carnivore-bar-guide.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-18-carnivore-bar-guide.html,blog,WARN,HIGH,Performance,1 image missing dimensions,0.4,1min,Add width/height
+2025-12-19-psmf-fat-loss.html,blog,WARN,HIGH,SEO,Title too long (71 chars max 60),0.8,3min,Shorten by 11+ chars
+2025-12-19-psmf-fat-loss.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-19-psmf-fat-loss.html,blog,WARN,HIGH,Performance,1 image missing dimensions,0.4,1min,Add width/height
+2025-12-20-lipid-energy-model.html,blog,WARN,HIGH,SEO,Title too long (80 chars max 60),0.8,3min,Shorten by 20+ chars
+2025-12-20-lipid-energy-model.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-20-lipid-energy-model.html,blog,WARN,HIGH,Performance,1 image missing dimensions,0.4,1min,Add width/height
+2025-12-21-night-sweats.html,blog,WARN,HIGH,SEO,Title too long (86 chars max 60),0.8,3min,Shorten by 26+ chars
+2025-12-21-night-sweats.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-21-night-sweats.html,blog,WARN,HIGH,Performance,1 image missing dimensions,0.4,1min,Add width/height
+2025-12-23-adhd-connection.html,blog,WARN,HIGH,SEO,Title too long (77 chars),0.8,3min,Shorten title
+2025-12-23-adhd-connection.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-24-deep-freezer-strategy.html,blog,WARN,HIGH,SEO,Title too long,0.8,3min,Shorten title
+2025-12-24-deep-freezer-strategy.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-25-new-year-same-you.html,blog,WARN,HIGH,SEO,Title too long,0.8,3min,Shorten title
+2025-12-25-new-year-same-you.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-26-seven-dollar-survival-guide.html,blog,WARN,HIGH,SEO,Title too long,0.8,3min,Shorten title
+2025-12-26-seven-dollar-survival-guide.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-27-anti-resolution-playbook.html,blog,WARN,HIGH,SEO,Title too long,0.8,3min,Shorten title
+2025-12-27-anti-resolution-playbook.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-28-physiological-insulin-resistance.html,blog,WARN,HIGH,SEO,Title too long,0.8,3min,Shorten title
+2025-12-28-physiological-insulin-resistance.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-29-lion-diet-challenge.html,blog,WARN,HIGH,SEO,Title too long,0.8,3min,Shorten title
+2025-12-29-lion-diet-challenge.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-30-pcos-hormones.html,blog,WARN,HIGH,SEO,Title too long,0.8,3min,Shorten title
+2025-12-30-pcos-hormones.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+2025-12-31-acne-purge.html,blog,WARN,HIGH,SEO,Title too long,0.8,3min,Shorten title
+2025-12-31-acne-purge.html,blog,WARN,HIGH,SEO,Multiple H1 tags (2 found),0.8,5min,Remove duplicate H1
+channels.html,main,WARN,HIGH,SEO,Meta description too long (166 chars max 160),0.4,3min,Reduce by 6 chars
+channels.html,main,WARN,HIGH,Performance,11 images missing dimensions,0.6,15min,Add width/height to images
+the-lab.html,main,WARN,HIGH,SEO,Missing meta description,1.0,5min,Add meta description
+upgrade-plan.html,main,WARN,HIGH,SEO,Missing meta description,1.0,5min,Add meta description
+upgrade-plan.html,main,WARN,HIGH,SEO,Heading skip (h2 to h4),0.6,5min,Add missing h3
+upgrade-plan.html,main,WARN,HIGH,W3C,Unbalanced p tags (55 open 46 close),0.7,20min,Find and close 9 unclosed <p> tags
+wiki.html,main,WARN,HIGH,SEO,Title too long (64 chars max 60),0.4,3min,Shorten by 4 chars
+wiki.html,main,WARN,HIGH,SEO,Heading skip (h2 to h4),0.6,5min,Add missing h3
+wiki.html,main,WARN,HIGH,Performance,3 images missing dimensions,0.4,5min,Add width/height
+about.html,main,WARN,MEDIUM,Performance,3 images missing dimensions,0.4,5min,Add width/height
+archive.html,main,WARN,MEDIUM,Performance,1 image missing dimensions,0.4,1min,Add width/height
+questionnaire.html,main,WARN,MEDIUM,Performance,46 inline styles,0.5,45min,Move to external CSS
+questionnaire.html,main,WARN,MEDIUM,Performance,1 image missing dimensions,0.4,1min,Add width/height
+privacy.html,main,WARN,MEDIUM,Performance,1 image missing dimensions,0.4,1min,Add width/height
+blog.html,main,WARN,MEDIUM,Performance,1 image missing dimensions,0.4,1min,Add width/height
+bento-test.html,test,WARN,LOW,Brand,Brand colors missing,0.5,10min,Verify brand color usage
+bento-test.html,test,WARN,LOW,W3C,Unbalanced tags,0.5,5min,Validate structure
+index-2026.html,test,WARN,LOW,Brand,Brand color check (WARN),0.4,5min,Review brand colors
+index-2026.html,test,WARN,LOW,SEO,Heading skip,0.4,5min,Add missing headings
+trending-explorer-test.html,test,WARN,LOW,Brand,Brand colors missing,0.5,5min,Verify brand color usage
+trending-explorer-test.html,test,WARN,LOW,SEO,SEO issues,0.4,5min,Add proper metadata
+wiki-link-preview.html,test,WARN,LOW,SEO,Title issues,0.4,3min,Refine title

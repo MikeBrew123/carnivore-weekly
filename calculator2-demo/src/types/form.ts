@@ -22,9 +22,15 @@ export interface FormData {
   allergies?: string
   avoidFoods?: string
   previousDiets?: string
+  whatWorked?: string
   carnivoreExperience?: string
   selectedProtocol?: string
   goals?: string[]
+  biggestChallenge?: string
+  cookingSkill?: string
+  budget?: string
+  familySituation?: string
+  workTravel?: string
   additionalNotes?: string
 }
 

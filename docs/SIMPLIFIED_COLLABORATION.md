@@ -6,13 +6,22 @@
 
 ---
 
-## Core Principle
+## Core Principles
 
+**Principle 1: External Memory Over Chat**
 Everything important lives in TWO places:
 1. **Daily log** (project-log/daily/YYYY-MM-DD.md) - External working memory
 2. **Supabase** (knowledge_entries table) - Long-term institutional memory
 
 Everything else is reference (matrix, status) or behavior (how I respond).
+
+**Principle 2: Maximum Parallel Agent Deployment**
+Deploy up to 8 instances of the same agent in parallel when applicable.
+- For multi-page validation: Deploy 8 instances of Casey across 8 pages simultaneously
+- For bulk content tasks: Deploy 8 instances of Sarah across 8 topics in parallel
+- Strategy: Always max out parallel capacity when task allows it
+- Rule: Only limit if parallelization would confuse the agent or require sequential dependencies
+- Benefit: Complete large tasks in fraction of time vs. sequential approach
 
 ---
 

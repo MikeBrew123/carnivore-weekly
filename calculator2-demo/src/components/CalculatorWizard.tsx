@@ -135,14 +135,14 @@ export default function CalculatorWizard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+      <div className={isComplete && reportAccessToken ? "max-w-6xl mx-auto" : "max-w-3xl mx-auto"}>
         {/* Progress Bar */}
-        <ProgressBar currentStep={currentStep} totalSteps={totalSteps} labels={steps} />
+        {!isComplete && <ProgressBar currentStep={currentStep} totalSteps={totalSteps} labels={steps} />}
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
+        <div className={isComplete && reportAccessToken ? "w-full" : "grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8"}>
           {/* Form Section */}
-          <div className="lg:col-span-2">
+          <div className={isComplete && reportAccessToken ? "w-full" : "lg:col-span-2"}>
             <motion.div
               key={`step-${currentStep}`}
               initial={{ opacity: 0, x: 20 }}
@@ -238,8 +238,8 @@ export default function CalculatorWizard() {
             </motion.div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Sidebar - Hide when report is complete */}
+          {!(isComplete && reportAccessToken) && <div className="lg:col-span-1">
             {macros && currentStep !== 3 && <MacroPreview macros={macros} />}
 
             {/* Pro Upgrade Path Card */}
@@ -304,6 +304,7 @@ export default function CalculatorWizard() {
               </div>
             </motion.div>
           </div>
+          }
 
           {/* Sidebar */}
           <div className="hidden lg:block">
