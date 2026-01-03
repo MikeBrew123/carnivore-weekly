@@ -135,10 +135,12 @@
 
             case State.SCROLLING:
                 // Scrolling state: sidebar scrolls naturally with page
-                // Just reset to relative positioning (no dynamic styles needed)
+                // Reset all inline styles to let CSS and grid layout take over
                 accumulatedScroll = 0;
                 sidebar.style.position = '';
                 sidebar.style.top = '';
+                sidebar.style.left = '';
+                sidebar.style.width = '';
                 break;
 
             case State.LOCKED_BOTTOM:
@@ -264,10 +266,17 @@
         const sidebarHeight = sidebar.offsetHeight;
         const topPosition = Math.max(config.headerOffset, viewportHeight - sidebarHeight);
 
+        // Get the sidebar's position in the grid (left edge)
+        const rect = sidebar.getBoundingClientRect();
+        const leftPosition = rect.left;
+        const width = rect.width;
+
         sidebar.style.position = 'fixed';
         sidebar.style.top = `${topPosition}px`;
+        sidebar.style.left = `${leftPosition}px`;
+        sidebar.style.width = `${width}px`;
 
-        logDebug(`Locked to bottom: top=${topPosition}px (sidebar=${sidebarHeight}px, viewport=${viewportHeight}px)`);
+        logDebug(`Locked to bottom: top=${topPosition}px, left=${leftPosition}px, width=${width}px`);
     }
 
     /**
@@ -275,10 +284,17 @@
      * Uses headerOffset to maintain spacing from page top
      */
     function lockToTop() {
+        // Get the sidebar's position in the grid (left edge and width)
+        const rect = sidebar.getBoundingClientRect();
+        const leftPosition = rect.left;
+        const width = rect.width;
+
         sidebar.style.position = 'fixed';
         sidebar.style.top = `${config.headerOffset}px`;
+        sidebar.style.left = `${leftPosition}px`;
+        sidebar.style.width = `${width}px`;
 
-        logDebug(`Locked to top: top=${config.headerOffset}px`);
+        logDebug(`Locked to top: top=${config.headerOffset}px, left=${leftPosition}px, width=${width}px`);
     }
 
     /**
