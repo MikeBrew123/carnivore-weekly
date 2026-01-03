@@ -300,35 +300,6 @@ export default function CalculatorWizard() {
               </p>
             </motion.div>
 
-            {/* Why Users Love This - MOVED BEFORE Why Trust Us */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              className="space-y-6 mt-6"
-            >
-              {/* Sidebar Trust Badges */}
-              <div className="bg-white rounded-xl shadow-lg p-6 space-y-4">
-                <h3 className="font-semibold text-dark text-sm uppercase tracking-wide">Why Users Love This</h3>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-green-500 font-bold">✓</span>
-                  <span className="text-gray-700">Free & instant results</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-green-500 font-bold">✓</span>
-                  <span className="text-gray-700">No email required</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-green-500 font-bold">✓</span>
-                  <span className="text-gray-700">Data encrypted & private</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-green-500 font-bold">✓</span>
-                  <span className="text-gray-700">Used by 50k+ carnivores</span>
-                </div>
-              </div>
-            </motion.div>
-
             {/* Confidence Badges - Why Trust Us */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
