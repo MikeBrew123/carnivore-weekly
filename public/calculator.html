@@ -88,105 +88,46 @@
         <a href="/calculator.html">Calculator</a>
     </nav>
 
-    <!-- INTRO SECTION -->
-    <div class="layout-wrapper-2026" style="margin-top: 30px; margin-bottom: 40px;">
-        <main class="main-content-2026">
-            <div style="background: rgba(255, 255, 255, 0.95); border-radius: 12px; padding: 40px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); max-width: 850px; margin: 0 auto;">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: #2c1810; margin-top: 0; margin-bottom: 25px;">Macro Calculator</h2>
-                <p style="font-size: 16px; line-height: 1.7; color: #2d2d2d; margin-bottom: 18px;">
-                    <strong>Here's what I've seen work—</strong>people who understand their macros actually stick with the diet. Not because it's restrictive, but because it takes the guesswork out. When you know exactly how much protein your body needs, how much fat supports your hormones, and where your carbs should land, everything else becomes easier. You're not wondering if you're doing it right. You're just doing it.
-                </p>
-                <p style="font-size: 16px; line-height: 1.7; color: #2d2d2d; margin-bottom: 18px;">
-                    The calculator below takes about two minutes and gives you personalized macro targets based on your actual goal—whether that's fat loss, building muscle, or just feeling better. It works the same way I coach clients one-on-one, except it's instant and free. No email required, no strings attached. You get your numbers, you can print them, use them however you want.
-                </p>
-                <p style="font-size: 16px; line-height: 1.7; color: #2d2d2d;">
-                    From there, it's entirely up to you. Some people just want the macros and they're good. Others want the full picture—a 30-day meal plan that actually fits your life, shopping lists organized by store, even a script to bring to your doctor if you want to discuss your bloodwork. We've built options for every level of support, from the free calculator all the way to a complete protocol bundle at $9.99 that includes everything. Pick what matches where you are right now. You can always go deeper later.
-                </p>
-            </div>
-        </main>
-    </div>
+    <!-- UNIFIED LAYOUT: INTRO + CALCULATOR + SIDEBAR -->
+    <div class="layout-wrapper-2026" style="margin-top: 30px; display: flex; gap: 30px; align-items: flex-start;">
 
-    <!-- MAIN LAYOUT -->
-    <div class="layout-wrapper-2026" style="margin-top: 30px;">
-        <!-- MAIN CONTENT COLUMN -->
-        <main class="main-content-2026">
-            <!-- Calculator App -->
+        <main class="main-content-2026" style="flex: 1; max-width: 850px;">
+
+            <section style="background: rgba(255, 255, 255, 0.95); border-radius: 12px; padding: 40px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); margin-bottom: 30px;">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: #2c1810; margin-top: 0; margin-bottom: 25px;">Macro Calculator</h2>
+                <p style="font-size: 16px; line-height: 1.7; color: #2d2d2d; margin-bottom: 18px;"><strong>Here's what I've seen work—</strong>people who understand their macros actually stick with the diet. Not because it's restrictive, but because it takes the guesswork out. When you know exactly how much protein your body needs, how much fat supports your hormones, and where your carbs should land, everything else becomes easier.</p>
+                <p style="font-size: 16px; line-height: 1.7; color: #2d2d2d; margin-bottom: 18px;">The calculator below takes about two minutes and gives you personalized macro targets based on your actual goal—whether that's fat loss, building muscle, or just feeling better. It works the same way I coach clients one-on-one, except it's instant and free. No email required, no strings attached.</p>
+                <p style="font-size: 16px; line-height: 1.7; color: #2d2d2d;">Pick what matches where you are right now. You can always go deeper later.</p>
+            </section>
+
             <div id="root"></div>
         </main>
 
-        <!-- SIDEBAR COLUMN -->
-        <aside class="sidebar-2026">
-            <!-- MACRO FUNDAMENTALS ARTICLE -->
+        <aside class="sidebar-2026" style="width: 350px; position: sticky; top: 20px;">
+
             <article class="sidebar-card">
                 <h3>Understanding Your Macros</h3>
-                <p style="font-size: 14px; line-height: 1.6; color: #555;">
-                    <strong>Why macros matter:</strong> Your protein target determines muscle preservation and satiety. Fat fuels hormones and energy. The ratio isn't one-size-fits-all—it depends on your goal and how your body responds.
-                </p>
+                <p style="font-size: 14px; line-height: 1.6; color: #555;"><strong>Why macros matter:</strong> Your protein target determines muscle preservation and satiety. Fat fuels hormones and energy.</p>
                 <h4 style="margin-top: 15px; font-size: 16px; color: #2c1810; font-weight: 700;">Quick Tips:</h4>
                 <ul style="font-size: 14px; line-height: 1.7; color: #555; padding-left: 20px; margin: 10px 0;">
-                    <li><strong>Protein:</strong> 0.8–1g per lb of bodyweight keeps muscle intact</li>
-                    <li><strong>Fat:</strong> Fill the rest of your calories—satiety signals stop cravings</li>
-                    <li><strong>Tracking:</strong> Not forever—just until you understand portions</li>
-                    <li><strong>Flexibility:</strong> These are targets, not rules. Listen to your body</li>
+                    <li><strong>Protein:</strong> 0.8–1g per lb of bodyweight</li>
+                    <li><strong>Fat:</strong> Fill the rest of your calories</li>
+                    <li><strong>Tracking:</strong> Not forever—just for clarity</li>
                 </ul>
-                <p style="font-size: 14px; line-height: 1.6; color: #888; margin-top: 15px; font-style: italic;">
-                    Most people find their sweet spot within 2-3 weeks. After that, intuitive eating takes over.
-                </p>
             </article>
 
-            <!-- BLOG POST PROMO -->
             <article class="sidebar-card">
                 <h3>📖 The Macro Deep Dive</h3>
-                <p style="font-size: 14px; line-height: 1.6; color: #555; margin: 0;">
-                    Most people get their macros right but don't understand *why* those numbers matter. That's where the real progress happens.
-                </p>
-                <p style="font-size: 14px; line-height: 1.6; color: #555; margin-top: 12px;">
-                    Sarah breaks down the science behind protein ratios, fat adaptation, and how to adjust your targets when results plateau. No fluff—just what actually moves the needle.
-                </p>
-                <a href="/blog.html" style="
-                    display: inline-block;
-                    margin-top: 15px;
-                    padding: 10px 18px;
-                    background: #d4a574;
-                    color: white;
-                    text-decoration: none;
-                    border-radius: 6px;
-                    font-weight: 600;
-                    font-size: 13px;
-                    transition: background 0.2s ease;
-                " onmouseover="this.style.background='#c49563'" onmouseout="this.style.background='#d4a574'">
-                    Read the Article →
-                </a>
+                <p style="font-size: 14px; line-height: 1.6; color: #555; margin: 0;">Sarah breaks down the science behind protein ratios and fat adaptation. No fluff—just what works.</p>
+                <a href="/blog.html" style="display: inline-block; margin-top: 15px; padding: 10px 18px; background: #d4a574; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;">Read the Article →</a>
             </article>
 
-            <!-- LMNT ELECTROLYTE AD -->
             <article class="sidebar-card" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%); border: 2px solid #FF5252; color: white; padding: 0; overflow: hidden;">
-                <img src="https://images.unsplash.com/photo-1584308666744-24d5f15714ae?w=400&q=80" alt="LMNT Electrolytes" style="width: 100%; height: 200px; object-fit: cover; display: block;">
-                <div style="padding: var(--spacing-lg);">
-                    <h3 style="color: white; border-bottom-color: rgba(255,255,255,0.3); margin-top: 0;">⚡ Stay Electrolyte-Ready</h3>
-                    <p style="font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.95); margin: 0;">
-                        Carnivore flushes sodium and potassium faster than you'd think. Most people don't realize they're running a deficit until cramps hit.
-                    </p>
-                    <p style="font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.95); margin-top: 12px;">
-                        LMNT gives you sodium, potassium, and magnesium in the right ratios—no sugar, no fillers. One packet a day keeps the cramps away.
-                    </p>
-                    <a href="https://drinklmnt.com" target="_blank" rel="noopener" style="
-                        display: inline-block;
-                        margin-top: 15px;
-                        padding: 10px 18px;
-                        background: white;
-                        color: #FF6B6B;
-                        text-decoration: none;
-                        border-radius: 6px;
-                        font-weight: 600;
-                        font-size: 13px;
-                        transition: transform 0.2s ease;
-                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        Check Out LMNT →
-                    </a>
-                    <p style="font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 10px; margin-bottom: 0;">
-                        This is a partner tool we like and use.
-                    </p>
+                <img src="https://images.unsplash.com/photo-1584308666744-24d5f15714ae?w=400&q=80" alt="LMNT Electrolytes" style="width: 100%; height: 150px; object-fit: cover; display: block;">
+                <div style="padding: 20px;">
+                    <h3 style="color: white; margin-top: 0;">⚡ Stay Electrolyte-Ready</h3>
+                    <p style="font-size: 13px; line-height: 1.6; color: white;">One packet a day keeps the cramps away. No sugar, no fillers.</p>
+                    <a href="https://drinklmnt.com" target="_blank" style="display: inline-block; margin-top: 15px; padding: 10px 18px; background: white; color: #FF6B6B; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;">Check Out LMNT →</a>
                 </div>
             </article>
         </aside>
