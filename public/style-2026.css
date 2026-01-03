@@ -117,6 +117,7 @@ strong {
     flex-direction: column;
     gap: var(--spacing-xxl);
     min-width: 0;
+    max-width: 100%;
     overflow: hidden;
 }
 
@@ -129,6 +130,8 @@ strong {
     position: sticky;
     top: var(--spacing-lg);
     min-width: 0;
+    max-width: 100%;
+    width: 100%;
 }
 
 /* ============================================
@@ -339,8 +342,10 @@ nav.nav-menu-2026 a:hover {
 
 .video-grid-2026 {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-lg);
+    width: 100%;
+    max-width: 100%;
 }
 
 .video-card-2026 {
@@ -472,9 +477,11 @@ nav.nav-menu-2026 a:hover {
 
 .bento-grid-2026 {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     grid-template-rows: auto;
     gap: var(--spacing-lg);
+    width: 100%;
+    max-width: 100%;
     margin-bottom: var(--spacing-lg);
 }
 
@@ -702,8 +709,10 @@ nav.nav-menu-2026 a:hover {
 
 .masonry-grid-2026 {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-lg);
+    width: 100%;
+    max-width: 100%;
 }
 
 .product-card-2026 {
