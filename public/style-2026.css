@@ -165,7 +165,8 @@ strong {
     /* top is dynamically calculated to align bottom */
     will-change: transform;
     z-index: 50;
-    max-width: 30vw;
+    width: 30vw !important;
+    max-width: 30vw !important;
     right: auto;
 }
 
@@ -175,7 +176,8 @@ strong {
     top: 180px;
     will-change: transform;
     z-index: 50;
-    max-width: 30vw;
+    width: 30vw !important;
+    max-width: 30vw !important;
     right: auto;
 }
 

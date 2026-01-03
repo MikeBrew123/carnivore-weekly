@@ -204,24 +204,19 @@
      */
     function handleScrollDown() {
         const rect = sidebar.getBoundingClientRect();
-        const sidebarBottom = rect.bottom;
-        const viewportBottom = window.innerHeight;
+        const sidebarTop = rect.top;
 
         switch (currentState) {
             case State.SCROLLING:
-                // Check if sidebar bottom is now visible
-                if (sidebarBottom <= viewportBottom) {
-                    transitionToState(State.LOCKED_BOTTOM);
+                // When sidebar top reaches header offset, lock to top
+                // This prevents the sidebar from scrolling past the header
+                if (sidebarTop <= config.headerOffset) {
+                    transitionToState(State.LOCKED_TOP);
                 }
                 break;
 
             case State.LOCKED_TOP:
-                // Unlock when scrolling down from locked top
-                transitionToState(State.SCROLLING);
-                break;
-
-            case State.LOCKED_BOTTOM:
-                // Stay locked to bottom - no action needed
+                // Stay locked to top while scrolling down
                 break;
         }
     }
@@ -234,20 +229,16 @@
         const sidebarTop = rect.top;
 
         switch (currentState) {
-            case State.SCROLLING:
-                // Check if sidebar top is now visible
+            case State.LOCKED_TOP:
+                // When sidebar top scrolls back above header offset, unlock
+                // This allows sidebar to scroll back to its natural position
                 if (sidebarTop >= config.headerOffset) {
-                    transitionToState(State.LOCKED_TOP);
+                    transitionToState(State.SCROLLING);
                 }
                 break;
 
-            case State.LOCKED_BOTTOM:
-                // Unlock when scrolling up from locked bottom
-                transitionToState(State.SCROLLING);
-                break;
-
-            case State.LOCKED_TOP:
-                // Stay locked to top - no action needed
+            case State.SCROLLING:
+                // Stay in scrolling state while going up
                 break;
         }
     }
