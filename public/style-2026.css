@@ -134,6 +134,50 @@ strong {
     width: 100%;
 }
 
+.sidebar-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0d5c8;
+    color: #2c1810;
+}
+
+.sidebar-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #2c1810;
+    margin-bottom: 15px;
+    margin-top: 0;
+    border-bottom: 2px solid #d4a574;
+    padding-bottom: 10px;
+    font-weight: 700;
+}
+
+.sidebar-card h4 {
+    font-family: 'Merriweather', serif;
+    font-weight: 700;
+    color: #2c1810;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.sidebar-card p {
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.sidebar-card ul {
+    list-style-position: inside;
+    padding-left: 20px;
+}
+
+.sidebar-card li {
+    margin-bottom: 8px;
+    color: #555;
+}
+
 /* ============================================
    HEADER - RESTORED ORIGINAL STYLING
    ============================================ */
