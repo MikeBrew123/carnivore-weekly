@@ -48,10 +48,13 @@ export default function CalculatorWizard() {
   }, [sessionToken])
 
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
+    // Scroll to form with reasonable offset (not all the way to page top)
+    setTimeout(() => {
+      window.scrollTo({
+        top: 120,
+        behavior: 'smooth'
+      })
+    }, 50)
   }
 
   const handleNext = () => {
