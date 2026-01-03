@@ -558,44 +558,47 @@
     <script src="/js/mobile-nav.js"></script>
     <!-- <script src="/js/dual-sidebar.js"></script> --> <!-- Disabled - using inline version instead -->
     <script>
-        // Initialize layered sidebar with fixed navigation menu
-        (function initLayeredSidebar() {
+        // Initialize dual sidebar
+        (function initDualSidebar() {
+            const fixedSidebar = document.querySelector('.sidebar-fixed');
             const menuSidebar = document.querySelector('.sidebar-menu');
-            const sidebarColumn = document.querySelector('.sidebar-column-2026');
 
-            if (!menuSidebar || !sidebarColumn) return;
+            if (!fixedSidebar || !menuSidebar) return;
 
             function updateMenuPosition() {
                 if (window.innerWidth <= 1200) {
-                    // Mobile: remove fixed positioning
+                    // Mobile: no sticky
                     menuSidebar.style.position = '';
-                    menuSidebar.style.left = '';
-                    menuSidebar.style.width = '';
                     menuSidebar.style.top = '';
+                    console.log('[InitDualSidebar] Mobile mode');
                     return;
                 }
 
-                // Desktop: Position menu as fixed, aligned with sidebar column
-                const rect = sidebarColumn.getBoundingClientRect();
+                // Desktop: Menu sticks below the fixed sidebar
+                // Get the combined height of fixed sidebar + gap
+                const fixedHeight = fixedSidebar.offsetHeight;
+                const gap = 32; // 2rem
+                const baseOffset = 32; // 2rem
+                const viewportHeight = window.innerHeight;
 
-                menuSidebar.style.position = 'fixed';
-                menuSidebar.style.top = '2rem'; // 32px - same as priority sidebar offset
-                menuSidebar.style.left = rect.left + 'px'; // Align to sidebar column left
-                menuSidebar.style.width = rect.width + 'px'; // Match sidebar width
-                menuSidebar.style.right = 'auto'; // Remove right positioning
-                menuSidebar.style.zIndex = '5'; // Behind priority sidebar
+                // Calculate where the menu should stick
+                // It should appear right below the fixed sidebar, visible in viewport
+                let menuStickPosition = Math.min(
+                    fixedHeight + baseOffset + gap,  // Position below fixed + gap
+                    viewportHeight - 200              // But keep at least 200px of menu visible
+                );
 
-                console.log('[LayeredSidebar] Fixed menu at:', Math.round(rect.left), 'px, width:', Math.round(rect.width), 'px');
+                menuSidebar.style.position = 'sticky';
+                menuSidebar.style.top = menuStickPosition + 'px';
+                console.log('[InitDualSidebar] Menu top:', menuStickPosition, 'calc:', fixedHeight + baseOffset + gap, 'viewport:', viewportHeight);
             }
 
             updateMenuPosition();
 
-            // Update on resize
+            // Update on resize or when sidebar height changes
             window.addEventListener('resize', updateMenuPosition);
-
-            // Update if layout changes
             if ('ResizeObserver' in window) {
-                new ResizeObserver(updateMenuPosition).observe(sidebarColumn);
+                new ResizeObserver(updateMenuPosition).observe(fixedSidebar);
             }
         })();
     </script>
