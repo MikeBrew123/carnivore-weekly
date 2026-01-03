@@ -135,6 +135,62 @@ strong {
     width: 100%;
 }
 
+/* ============================================
+   SMART STICKY SIDEBAR STATES
+   ============================================ */
+
+/* Default: Normal sticky (sidebar fits in viewport) */
+.sidebar-2026.sidebar-state-sticky-top {
+    position: sticky;
+    top: 180px;
+}
+
+/* Disabled: Mobile/tablet responsive behavior */
+.sidebar-2026.sidebar-state-disabled {
+    position: static;
+    top: auto;
+}
+
+/* Scrolling: Natural scroll with page (sidebar > viewport) */
+.sidebar-2026.sidebar-state-scrolling {
+    position: absolute;
+    /* top is dynamically set by JS */
+    will-change: top;
+}
+
+/* Locked to bottom: Bottom visible, scroll with viewport */
+.sidebar-2026.sidebar-state-locked-bottom {
+    position: fixed;
+    /* top is dynamically calculated to align bottom */
+    will-change: transform;
+}
+
+/* Locked to top: Top visible, scroll with viewport */
+.sidebar-2026.sidebar-state-locked-top {
+    position: fixed;
+    top: 180px;
+    will-change: transform;
+}
+
+/* Performance optimization: prevent layout thrashing */
+.sidebar-2026[class*="sidebar-state-"] {
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Maintain sidebar width in fixed positioning */
+.sidebar-2026.sidebar-state-locked-bottom,
+.sidebar-2026.sidebar-state-locked-top {
+    width: inherit;
+    max-width: inherit;
+}
+
+/* Smooth transitions between states */
+.sidebar-2026.sidebar-state-locked-bottom,
+.sidebar-2026.sidebar-state-locked-top {
+    transition: top 0.1s ease-out;
+}
+
 .sidebar-card {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 12px;
