@@ -64,7 +64,7 @@ export default function MacroPreview({ macros, loading }: MacroPreviewProps) {
         <motion.div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 text-center" variants={itemVariants}>
           <p className="text-xs text-gray-600 mb-1">Macro Split</p>
           <p className="text-sm font-bold text-primary">
-            {Math.round((macros.fat * 9 / macros.calories) * 100)}%
+            {macros.calories > 0 ? Math.round((macros.fat * 9 / macros.calories) * 100) : 0}%
           </p>
           <p className="text-xs text-gray-500">fat</p>
         </motion.div>

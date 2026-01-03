@@ -72,6 +72,13 @@ export default function Step3Goals({ onNext, onPrev, onShowResults }: Step3Goals
       setFormField('netCarbs', data.netCarbs)
     }
     setMacros(macros)
+    // Track goal submission
+    window.gtag?.('event', 'submit_goals', {
+      event_category: 'Calculator',
+      event_label: `${data.diet} - ${data.goal}`,
+      deficit: data.deficit,
+      ratio: data.ratio || data.netCarbs
+    })
     onShowResults(macros)
   }
 

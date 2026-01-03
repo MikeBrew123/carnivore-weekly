@@ -63,6 +63,11 @@ export default function CalculatorWizard() {
     setResultsData(results)
     setShowResults(true)
     setCurrentStep(3) // Go to results step
+    // Track calculation completion
+    window.gtag?.('event', 'calculate', {
+      event_category: 'Calculator',
+      event_label: `${form.diet} - ${form.goal}`
+    })
   }
 
   const handleUpgrade = async () => {
