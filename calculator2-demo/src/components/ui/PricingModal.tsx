@@ -148,7 +148,7 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
                   className={option.id === 'bundle' ? 'lg:col-span-1 relative' : ''}
                 >
                   {option.id === 'bundle' && (
-                    <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-xl blur opacity-60 -z-10"></div>
+                    <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-xl blur opacity-60 -z-10 pointer-events-none"></div>
                   )}
                   <PricingCard
                     title={option.title}
