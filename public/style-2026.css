@@ -481,7 +481,6 @@ nav.nav-menu-2026 a:hover {
     grid-template-rows: auto;
     gap: var(--spacing-lg);
     width: 100%;
-    max-width: 100%;
     margin-bottom: var(--spacing-lg);
 }
 
