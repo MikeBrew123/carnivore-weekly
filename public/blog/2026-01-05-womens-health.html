@@ -119,12 +119,85 @@
         .post-footer h3 {
             color: #ffd700;
         }
+
+        /* Wiki box styling */
+        .wiki-box {
+            background: #2c1810;
+            padding: 20px;
+            border-left: 4px solid #d4a574;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .wiki-box strong {
+            color: #ffd700;
+        }
+
+        .wiki-box-links {
+            color: #d4a574;
+            font-size: 14px;
+        }
+
+        /* Post header styling */
+        .post-header {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 20px;
+        }
+
+        /* Comments section */
+        .comments-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #8b4513;
+        }
+
+        /* Footer styling */
+        .blog-footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+            text-align: center;
+            color: #d4a574;
+            font-size: 12px;
+        }
+
+        /* Disclaimer text */
+        .post-disclaimer {
+            font-size: 0.9em;
+            color: #d4a574;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+        }
+
+        /* Layout wrapper */
+        .layout-wrapper-2026 {
+            display: flex;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Main content */
+        .main-content-2026 {
+            flex: 1;
+            max-width: 800px;
+        }
+
+        /* Container 2026 */
+        .container-2026 {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
     </style>
 </head>
-<body style="background-color: #1a120b; color: #f4e4d4; font-family: 'Merriweather', serif;">
+<body>
     <!-- Site Header -->
-    <header>
-        <div class="container">
+    <header class="header-2026">
+        <div class="container-2026">
             <img src="../../images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>CARNIVORE WEEKLY</h1>
             <p class="subtitle">The Meat-Eater's Digest</p>
@@ -134,35 +207,37 @@
 
     <!-- Navigation Menu -->
     <nav class="nav-menu-2026">
-        <a href="../../index.html">Home</a>
-        <a href="../../channels.html">Channels</a>
-        <a href="../../wiki.html">Wiki</a>
-        <a href="../../blog.html">Blog</a>
-        <a href="../../calculator.html">Calculator</a>
-        <a href="../../archive.html">Archive</a>
-        <a href="../../about.html">About</a>
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Channels</a>
+        <a href="/wiki.html">Wiki</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/calculator.html">Calculator</a>
+        <a href="/about.html">About</a>
     </nav>
 
-    <div class="post-container">
-        <a href="../../blog.html" class="back-to-blog">← Back to Blog</a>
+    <!-- Layout Wrapper -->
+    <div class="layout-wrapper-2026">
+        <main class="main-content-2026">
+            <a href="/blog.html" class="back-to-blog">← Back to Blog</a>
 
-        <!-- Post Header -->
-        <div class="post-header" style="margin-bottom: 40px; border-bottom: 2px solid #8b4513; padding-bottom: 20px;">
-            <h1 class="post-title page-header">Women's Carnivore Health: The Honest Truth About Hormones</h1>
-            <div class="post-meta">
-                <span>January 5, 2026</span>
-                <span>by Sarah (Health Coach)</span>
-                <span>2200 words</span>
-            </div>
+            <!-- Post Header -->
+            <article>
+                <header class="post-header">
+                    <h1 class="post-title">Women's Carnivore Health: The Honest Truth About Hormones</h1>
+                    <div class="post-meta">
+                        <span>January 5, 2026</span>
+                        <span>by Sarah (Health Coach)</span>
+                        <span>2200 words</span>
+                    </div>
 
-            <div class="post-author-bio">
-                <strong>Sarah</strong><br>
-                Health coach and evidence-based writer focused on metabolic health, physiological adaptation, and the science behind carnivore living.
-            </div>
-        </div>
+                    <div class="post-author-bio">
+                        <strong>Sarah</strong><br>
+                        Health coach and evidence-based writer focused on metabolic health, physiological adaptation, and the science behind carnivore living.
+                    </div>
+                </header>
 
-        <!-- Post Content -->
-        <div class="post-content">
+                <!-- Post Content -->
+                <div class="post-content">
 
 <p>40-45% of people starting carnivore are women. The conversation about whether this diet is "safe" for women is polarized: either "you'll feel amazing" or "you'll wreck your hormones." The truth is more nuanced than either camp admits.</p>
 
@@ -172,7 +247,7 @@
 
 <p>Women's metabolism is different from men's, and that difference matters. Estrogen affects:</p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Energy utilization (higher reliance on carbohydrate oxidation across cycle)</li>
     <li>Satiety hormones (leptin, ghrelin responses vary by phase)</li>
     <li>Thermogenesis (calorie burn changes 5-10% across cycle)</li>
@@ -190,7 +265,7 @@
 
 <p><strong>What determines the outcome?</strong> Not just carnivore. The combination of:</p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li><strong>Starting weight/body composition:</strong> Women with very low body fat (<18%) are more likely to experience amenorrhea on any low-calorie approach</li>
     <li><strong>Caloric intake:</strong> Underrating on carnivore (easier than you'd think if you're not paying attention) can trigger hypothalamic amenorrhea</li>
     <li><strong>Exercise intensity:</strong> High exercise volume + undereating = amenorrhea risk</li>
@@ -202,7 +277,7 @@
 
 <p><strong>If it happens:</strong></p>
 
-<ol style="margin-left: 20px; margin-bottom: 15px;">
+<ol>
     <li>Track calories for 2 weeks. Are you eating enough? Most women need 1800-2200+ calories; carnivore satiety sometimes masks undereating.</li>
     <li>Reduce exercise volume by 30-50% for 4 weeks. Let your body adapt.</li>
     <li>Prioritize sleep and stress management. Amenorrhea is often a sign of system-wide stress.</li>
@@ -222,7 +297,7 @@
 
 <p><strong>If you want to conceive:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li><strong>Don't be in a caloric deficit.</strong> Eat at maintenance or slight surplus. Your body needs energy reserves for reproduction.</li>
     <li><strong>Regular periods are a green light.</strong> Irregular or absent periods suggest metabolic stress. Address it before trying to conceive.</li>
     <li><strong>Ensure adequate micronutrients.</strong> Beef + organs + eggs + salt. This covers it. Don't try to minimize calories while trying to conceive.</li>
@@ -243,7 +318,7 @@
 
 <p><strong>If on HRT and starting carnivore:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Start carnivore while continuing current HRT dosing</li>
     <li>Monitor for 4-6 weeks</li>
     <li>If you feel significantly better, talk to your prescriber about whether dosing needs adjustment</li>
@@ -271,7 +346,7 @@
 
 <p>Women often have different micronutrient requirements than men:</p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li><strong>Iron:</strong> Women of reproductive age need 18mg/day (vs. 8mg for men). Carnivore delivers highly bioavailable iron. Check levels if you have history of anemia.</li>
     <li><strong>Calcium:</strong> Common concern with carnivore. Beef has minimal calcium. Solution: Eat bones (bone broth or bone-in cuts), include organs, or consider small amounts of dairy (butter, cheese, ghee). If vegetarian dairy isn't acceptable, monitor blood calcium.</li>
     <li><strong>B vitamins:</strong> All abundant in carnivore, but especially important for women with heavy periods (more iron and B12 loss). Organ meats cover this.</li>
@@ -282,7 +357,7 @@
 
 <p>Many women report better mood, less anxiety, better focus on carnivore. Likely mechanisms:</p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Stable blood sugar (no mood crashes)</li>
     <li>Reduced inflammatory markers affecting mood</li>
     <li>Improved nutrient absorption supporting neurotransmitter production</li>
@@ -299,7 +374,7 @@
 
 <p><strong>What this means:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Your estrogen becomes more "active," which can be positive (better mood, libido, skin) or negative (more PMS symptoms)</li>
     <li>Testosterone becomes more active, which affects muscle-building and confidence</li>
     <li>This is an adaptation, not a problem. Usually resolves within 6-8 weeks as the system finds a new set point</li>
@@ -311,7 +386,7 @@
 
 <p><strong>Before starting:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Get baseline bloodwork: FSH, LH, estrogen, progesterone, thyroid (TSH, free T3, free T4), B12, folate, iron panel</li>
     <li>Document current menstrual pattern (if applicable)</li>
     <li>Discuss with healthcare provider, ideally one familiar with low-carb approaches</li>
@@ -319,7 +394,7 @@
 
 <p><strong>During first 12 weeks:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Track intake (especially calories and micronutrients) for first 4 weeks</li>
     <li>Monitor menstrual cycle, mood, energy, sleep</li>
     <li>Adjust based on how you feel (more food if tired, more rest if recovery is poor)</li>
@@ -328,7 +403,7 @@
 
 <p><strong>At 8-12 weeks:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Repeat bloodwork</li>
     <li>Assess: Do you feel better? Are your goals being met? Are any concerning changes happening?</li>
     <li>Make adjustments as needed</li>
@@ -352,53 +427,55 @@
 
 <p>—Sarah</p>
 
-<p style="font-size: 0.9em; color: #d4a574; margin-top: 30px; padding-top: 20px; border-top: 1px solid #8b4513;">
+<p class="post-disclaimer">
     <em>Not a doctor. If you have existing hormonal conditions, are pregnant, breastfeeding, or on hormone medications, consult with a healthcare provider before dietary changes. This information is educational based on research and community experience.</em>
 </p>
 
-        </div>
+                </div>
 
-        <!-- Wiki Links Section -->
+                <!-- Wiki Links Section -->
+                <div class="wiki-box">
+                    <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
+                    <span class="wiki-box-links"><a href="/wiki.html#womens-health" class="wiki-link">womens-health</a> • <a href="/wiki.html#hormones" class="wiki-link">hormones</a> • <a href="/wiki.html#fertility" class="wiki-link">fertility</a></span>
+                </div>
 
-    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
-      <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
-      <span style="color: #d4a574; font-size: 14px;"><a href="/wiki.html#womens-health" class="wiki-link">womens-health</a> • <a href="/wiki.html#hormones" class="wiki-link">hormones</a> • <a href="/wiki.html#fertility" class="wiki-link">fertility</a></span>
+                <!-- Post Footer -->
+                <footer class="post-footer">
+                    <!-- Tags -->
+                    <div class="tags">
+                        <span class="tag">women</span>
+                        <span class="tag">health</span>
+                        <span class="tag">hormones</span>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <h3>Comments</h3>
+                        <script src="https://utteranc.es/client.js"
+                            repo="MikeBrew123/carnivore-weekly"
+                            issue-term="pathname"
+                            theme="github-dark"
+                            crossorigin="anonymous"
+                            async>
+                        </script>
+                    </div>
+                </footer>
+            </article>
+        </main>
     </div>
 
-        <!-- Post Footer -->
-        <div class="post-footer">
-            <!-- Tags -->
-            <div class="tags">
-                <span class="tag">women</span>
-                <span class="tag">health</span>
-                <span class="tag">hormones</span>
-            </div>
+    <!-- Page Footer -->
+    <footer class="blog-footer">
+        <p>&copy; 2026 Carnivore Weekly |
+           <a href="/about.html">About</a> |
+           <a href="/the-lab.html">The Lab</a> |
+           <a href="mailto:feedback@carnivoreweekly.com">Contact</a>
+        </p>
+        <p style="margin-top: 10px; font-size: 11px;">
+            Curated with AI • Made with <a href="https://claude.com/claude-code">Claude Code</a>
+        </p>
+    </footer>
 
-            <!-- Comments Section -->
-            <div class="comments-section" style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #8b4513;">
-                <h3>Comments</h3>
-                <script src="https://utteranc.es/client.js"
-                    repo="MikeBrew123/carnivore-weekly"
-                    issue-term="pathname"
-                    theme="github-dark"
-                    crossorigin="anonymous"
-                    async>
-                </script>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #8b4513; text-align: center; color: #d4a574; font-size: 12px;">
-            <p>&copy; 2026 Carnivore Weekly |
-               <a href="../../about.html" style="color: #d4a574; text-decoration: underline;">About</a> |
-               <a href="../../the-lab.html" style="color: #d4a574; text-decoration: underline;">The Lab</a> |
-               <a href="mailto:feedback@carnivoreweekly.com" style="color: #d4a574; text-decoration: underline;">Contact</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 11px;">
-                Curated with AI • Made with <a href="https://claude.com/claude-code" style="color: #d4a574; text-decoration: underline;">Claude Code</a>
-            </p>
-        </footer>
-    </div>
     <script src="/js/mobile-nav.js"></script>
 </body>
 </html>
