@@ -22,7 +22,8 @@ export default function PricingCard({
     <motion.div
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className={`rounded-xl p-6 transition-all ${
+      onClick={onClick}
+      className={`rounded-xl p-6 transition-all cursor-pointer relative z-30 ${
         popular
           ? 'bg-gradient-to-br from-primary to-primary/90 text-white border-2 border-secondary shadow-2xl'
           : 'bg-white border-2 border-gray-200 hover:border-secondary text-dark'

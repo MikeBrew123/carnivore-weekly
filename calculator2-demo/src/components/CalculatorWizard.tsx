@@ -48,12 +48,16 @@ export default function CalculatorWizard() {
   }, [sessionToken])
 
   const scrollToTop = () => {
-    // Scroll to form with reasonable offset (not all the way to page top)
+    // Scroll minimally - only if form is out of view
     setTimeout(() => {
-      window.scrollTo({
-        top: 120,
-        behavior: 'smooth'
-      })
+      const formElement = document.querySelector('[data-form-section]') || document.querySelector('form');
+      if (formElement) {
+        // Only scroll if form is below viewport
+        const rect = formElement.getBoundingClientRect();
+        if (rect.top > window.innerHeight) {
+          formElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
     }, 50)
   }
 
