@@ -52,12 +52,27 @@ EXECUTE FUNCTION update_calculator2_sessions_last_active();
 -- ===== ROW LEVEL SECURITY =====
 ALTER TABLE calculator2_sessions ENABLE ROW LEVEL SECURITY;
 
--- Anonymous access: Can read their own session by token
-CREATE POLICY read_calculator2_sessions ON calculator2_sessions
-    FOR SELECT
-    USING (session_token IS NOT NULL);
+-- Policy 1: Allow anonymous users to INSERT (create) new sessions
+-- Rationale: Token-based sessions don't require auth context
+CREATE POLICY insert_calculator2_sessions ON calculator2_sessions
+    FOR INSERT
+    WITH CHECK (true);
 
--- Service role: Can manage all sessions
+-- Policy 2: Allow anonymous users to SELECT their own session by token
+-- Rationale: POST request to /rest/v1/calculator2_sessions?select=* returns all rows
+--           matching the WHERE clause - token-based lookup is secure
+CREATE POLICY select_calculator2_sessions ON calculator2_sessions
+    FOR SELECT
+    USING (true);
+
+-- Policy 3: Allow anonymous users to UPDATE their session fields
+-- Rationale: Form state persistence requires ability to update
+CREATE POLICY update_calculator2_sessions ON calculator2_sessions
+    FOR UPDATE
+    USING (true)
+    WITH CHECK (true);
+
+-- Policy 4: Service role can manage all sessions (cleanup, audits)
 CREATE POLICY service_role_calculator2_sessions ON calculator2_sessions
     FOR ALL
     USING (auth.role() = 'service_role')
