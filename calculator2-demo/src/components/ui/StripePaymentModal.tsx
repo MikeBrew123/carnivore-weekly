@@ -22,22 +22,10 @@ export default function StripePaymentModal({
   const [couponCode, setCouponCode] = useState('')
   const [discountApplied, setDiscountApplied] = useState<{ code: string; percent: number } | null>(null)
   const [couponError, setCouponError] = useState('')
-  const [userEmail, setUserEmail] = useState('')
-  const [emailError, setEmailError] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [nameError, setNameError] = useState('')
-  const { sessionToken, form, setFormField } = useFormStore()
+  const { sessionToken } = useFormStore()
 
-  // Initialize form fields when modal opens
+  // Initialize coupon fields when modal opens
   useEffect(() => {
-    // ALWAYS start with empty fields - user must enter their own data
-    // Do NOT pre-populate from form store for names or email
-    setFirstName('')
-    setLastName('')
-    setUserEmail('')
-    setNameError('')
-    setEmailError('')
     setError('')
     setCouponCode('')
     setDiscountApplied(null)
@@ -57,49 +45,6 @@ export default function StripePaymentModal({
     return Math.round(originalPrice * (1 - discountApplied.percent / 100))
   }
 
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  }
-
-  const validateName = (name: string): boolean => {
-    return name.trim().length >= 2 && /^[a-zA-Z\s'-]+$/.test(name.trim())
-  }
-
-  const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setFirstName(value)
-    validateNameFields(value, lastName)
-  }
-
-  const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setLastName(value)
-    validateNameFields(firstName, value)
-  }
-
-  const validateNameFields = (first: string, last: string) => {
-    if (!first.trim() || !last.trim()) {
-      setNameError('Both first and last name are required')
-    } else if (!validateName(first)) {
-      setNameError('First name must be at least 2 characters and contain only letters')
-    } else if (!validateName(last)) {
-      setNameError('Last name must be at least 2 characters and contain only letters')
-    } else {
-      setNameError('')
-    }
-  }
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const email = e.target.value.trim()
-    setUserEmail(email)
-
-    if (email && !validateEmail(email)) {
-      setEmailError('Please enter a valid email address')
-    } else {
-      setEmailError('')
-    }
-  }
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -137,28 +82,6 @@ export default function StripePaymentModal({
     e.preventDefault()
     setError('')
 
-    // Validate names before processing
-    if (!firstName.trim() || !lastName.trim()) {
-      setNameError('Both first and last name are required')
-      return
-    }
-
-    if (!validateName(firstName)) {
-      setNameError('First name must be at least 2 characters and contain only letters')
-      return
-    }
-
-    if (!validateName(lastName)) {
-      setNameError('Last name must be at least 2 characters and contain only letters')
-      return
-    }
-
-    // Validate email before processing
-    if (!userEmail || !validateEmail(userEmail)) {
-      setEmailError('Please enter a valid email address')
-      return
-    }
-
     // Track upgrade click
     window.gtag?.('event', 'click', {
       event_category: 'Upgrade',
@@ -173,18 +96,11 @@ export default function StripePaymentModal({
     try {
       const finalPrice = calculateDiscountedPrice()
 
-      // Update form store with user's data
-      setFormField('email', userEmail)
-      setFormField('firstName', firstName)
-      setFormField('lastName', lastName)
-
       // If 100% discount (free), skip Stripe and go directly to success
       if (finalPrice === 0) {
-        // Show success message
-        setError('')
-        // Redirect to success page after brief delay
+        // Redirect to success page after brief delay (use payment=free for free tier)
         setTimeout(() => {
-          window.location.href = `${window.location.origin}/calculator2-demo.html?payment=success&session=${sessionToken}`
+          window.location.href = `${window.location.origin}/calculator2-demo.html?payment=free`
         }, 500)
         return
       }
@@ -200,12 +116,8 @@ export default function StripePaymentModal({
           original_amount: priceMap[tierId] || 999,
           coupon_code: discountApplied?.code || null,
           discount_percent: discountApplied?.percent || 0,
-          customer_email: userEmail,
-          customer_name: `${firstName.trim()} ${lastName.trim()}`,
-          customer_first_name: firstName.trim(),
-          customer_last_name: lastName.trim(),
           session_token: sessionToken,
-          success_url: `${window.location.origin}/calculator2-demo.html?payment=success&session=${sessionToken}`,
+          success_url: `${window.location.origin}/calculator2-demo.html?payment=success`,
           cancel_url: `${window.location.origin}/calculator2-demo.html?payment=cancelled`,
         })
       })
@@ -384,105 +296,23 @@ export default function StripePaymentModal({
             </motion.div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handlePayment} className="space-y-4">
-            {/* Name Error */}
-            {nameError && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-red-50 border border-red-200 rounded-lg p-4 text-center"
-              >
-                <p className="text-sm font-semibold text-red-900">{nameError}</p>
-              </motion.div>
-            )}
-
-            {/* First Name Input */}
-            <div>
-              <label className="block text-sm font-semibold text-dark mb-2">
-                First Name <span className="text-red-600">*</span>
-              </label>
-              <input
-                type="text"
-                value={firstName}
-                onChange={handleFirstNameChange}
-                disabled={isProcessing}
-                placeholder="John"
-                maxLength={50}
-                className={`w-full px-4 py-3 rounded-lg border-2 transition focus:outline-none ${
-                  nameError
-                    ? 'border-red-500 bg-red-50 focus:border-red-600 focus:ring-2 focus:ring-red-200'
-                    : 'border-gray-200 bg-gray-50 focus:border-secondary focus:ring-2 focus:ring-secondary/20'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                required
-              />
-            </div>
-
-            {/* Last Name Input */}
-            <div>
-              <label className="block text-sm font-semibold text-dark mb-2">
-                Last Name <span className="text-red-600">*</span>
-              </label>
-              <input
-                type="text"
-                value={lastName}
-                onChange={handleLastNameChange}
-                disabled={isProcessing}
-                placeholder="Doe"
-                maxLength={50}
-                className={`w-full px-4 py-3 rounded-lg border-2 transition focus:outline-none ${
-                  nameError
-                    ? 'border-red-500 bg-red-50 focus:border-red-600 focus:ring-2 focus:ring-red-200'
-                    : 'border-gray-200 bg-gray-50 focus:border-secondary focus:ring-2 focus:ring-secondary/20'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                required
-              />
-            </div>
-
-            {/* Email Input */}
-            <div>
-              <label className="block text-sm font-semibold text-dark mb-2">
-                Email Address <span className="text-red-600">*</span>
-              </label>
-              <input
-                type="email"
-                value={userEmail}
-                onChange={handleEmailChange}
-                disabled={isProcessing}
-                placeholder="your@email.com"
-                className={`w-full px-4 py-3 rounded-lg border-2 transition focus:outline-none ${
-                  emailError
-                    ? 'border-red-500 bg-red-50 focus:border-red-600 focus:ring-2 focus:ring-red-200'
-                    : 'border-gray-200 bg-gray-50 focus:border-secondary focus:ring-2 focus:ring-secondary/20'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-                required
-              />
-              {emailError && (
-                <p className="text-sm text-red-600 mt-1">⚠️ {emailError}</p>
-              )}
-              <p className="text-xs text-gray-500 mt-2">
-                Your receipt and account details will be sent here
-              </p>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={onCancel}
-                disabled={isProcessing}
-                className="flex-1 px-4 py-3 rounded-lg border-2 border-secondary text-dark font-semibold hover:bg-secondary/10 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isProcessing || !userEmail || emailError !== '' || !firstName.trim() || !lastName.trim() || nameError !== ''}
-                className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-primary to-primary/90 text-accent font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
-              >
-                {isProcessing ? 'Redirecting...' : 'Pay ' + tierPrice}
-              </button>
-            </div>
+          {/* Payment Form - Just confirm and pay */}
+          <form onSubmit={handlePayment} className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isProcessing}
+              className="flex-1 px-4 py-3 rounded-lg border-2 border-secondary text-dark font-semibold hover:bg-secondary/10 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isProcessing}
+              className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-primary to-primary/90 text-accent font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {isProcessing ? 'Redirecting to Stripe...' : `Pay ${tierPrice}`}
+            </button>
           </form>
 
           {/* Disclaimer */}
