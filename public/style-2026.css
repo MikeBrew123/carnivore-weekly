@@ -1586,7 +1586,13 @@ nav.nav-menu-2026 a:hover {
 
 
     .logo {
-        display: none;
+        position: static;
+        width: 80px;
+        height: auto;
+        max-width: 80px;
+        top: auto;
+        right: auto;
+        margin-bottom: var(--spacing-md);
     }
 
     header h1 {
