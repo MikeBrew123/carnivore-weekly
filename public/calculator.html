@@ -71,7 +71,7 @@
 <body>
     <!-- HEADER -->
     <header>
-        <div class="container">
+        <div class="container" style="position: relative; z-index: 2;">
             <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>CARNIVORE CALCULATOR</h1>
             <p class="subtitle">Personalized Macro Protocol</p>
@@ -86,7 +86,6 @@
         <a href="/wiki.html">Wiki</a>
         <a href="/blog.html">Blog</a>
         <a href="/calculator.html">Calculator</a>
-        <a href="/archive.html">Archive</a>
     </nav>
 
     <!-- INTRO SECTION -->
@@ -113,13 +112,66 @@
             <!-- Calculator App -->
             <div id="root"></div>
         </main>
+
+        <!-- SIDEBAR COLUMN -->
+        <aside class="sidebar-2026">
+            <!-- MACRO FUNDAMENTALS ARTICLE -->
+            <article class="sidebar-card">
+                <h3>Understanding Your Macros</h3>
+                <p style="font-size: 14px; line-height: 1.6; color: #555;">
+                    <strong>Why macros matter:</strong> Your protein target determines muscle preservation and satiety. Fat fuels hormones and energy. The ratio isn't one-size-fits-all—it depends on your goal and how your body responds.
+                </p>
+                <h4 style="margin-top: 15px; font-size: 16px; color: #2c1810; font-weight: 700;">Quick Tips:</h4>
+                <ul style="font-size: 14px; line-height: 1.7; color: #555; padding-left: 20px; margin: 10px 0;">
+                    <li><strong>Protein:</strong> 0.8–1g per lb of bodyweight keeps muscle intact</li>
+                    <li><strong>Fat:</strong> Fill the rest of your calories—satiety signals stop cravings</li>
+                    <li><strong>Tracking:</strong> Not forever—just until you understand portions</li>
+                    <li><strong>Flexibility:</strong> These are targets, not rules. Listen to your body</li>
+                </ul>
+                <p style="font-size: 14px; line-height: 1.6; color: #888; margin-top: 15px; font-style: italic;">
+                    Most people find their sweet spot within 2-3 weeks. After that, intuitive eating takes over.
+                </p>
+            </article>
+
+            <!-- SIDEBAR AD / CTA -->
+            <article class="sidebar-card" style="background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); border: 2px solid #d4a574;">
+                <h3 style="color: #1a120b;">📊 Want the Full Picture?</h3>
+                <p style="font-size: 14px; line-height: 1.6; color: #2c1810; margin: 12px 0;">
+                    Get your personalized macros PLUS:
+                </p>
+                <ul style="font-size: 13px; line-height: 1.8; color: #2c1810; padding-left: 20px; margin: 10px 0;">
+                    <li>30-day meal plan tailored to your target</li>
+                    <li>Shopping lists (organized by store)</li>
+                    <li>Doctor conversation script for bloodwork</li>
+                    <li>Email support (ask questions anytime)</li>
+                </ul>
+                <button onclick="trackUpgradeClick(); window.location.href='#upgrade';" style="
+                    background: #8b4513;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    font-size: 14px;
+                    width: 100%;
+                    margin-top: 15px;
+                    transition: background 0.3s ease;
+                ">
+                    Get Full Protocol ($9.99)
+                </button>
+                <p style="font-size: 12px; color: #555; margin-top: 10px; text-align: center;">
+                    ✓ 30-day money-back guarantee
+                </p>
+            </article>
+        </aside>
     </div>
 
     <!-- FOOTER -->
     <footer>
         <div class="container">
             <p>&copy; 2026 Carnivore Weekly. All rights reserved.</p>
-            <p><a href="/privacy.html">Privacy Policy</a> | <a href="/about.html">About</a></p>
+            <p><a href="/privacy.html">Privacy Policy</a> | <a href="/about.html">About</a> | <a href="/archive.html">Archive</a></p>
         </div>
     </footer>
 
