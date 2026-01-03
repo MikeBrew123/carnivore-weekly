@@ -340,6 +340,7 @@ nav.nav-menu-2026 a:hover {
     margin-bottom: var(--spacing-lg) !important;
 }
 
+/* 2026 Video Grid */
 .video-grid-2026 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -348,6 +349,16 @@ nav.nav-menu-2026 a:hover {
     max-width: 100%;
 }
 
+/* Old video-grid (legacy) - Use 2026 styling */
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+    width: 100%;
+    max-width: 100%;
+}
+
+/* 2026 Video Card */
 .video-card-2026 {
     background: white;
     border-radius: 12px;
@@ -359,6 +370,125 @@ nav.nav-menu-2026 a:hover {
 .video-card-2026:hover {
     transform: translateY(-8px);
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+/* Old video-card (legacy) - Use 2026 styling */
+.video-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+/* Video card content sections */
+.video-card .video-thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.video-card .video-content {
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.video-card .video-header h3 {
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-sm);
+    color: var(--primary);
+    line-height: 1.4;
+}
+
+.video-card .video-header h3 a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.video-card .creator {
+    font-size: 0.9rem;
+    color: var(--accent-amber-dark);
+    font-weight: 600;
+}
+
+.video-card .video-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Sentiment/Comment styling - 2026 design */
+.video-card .stats {
+    display: flex;
+    gap: var(--spacing-lg);
+    font-size: 0.9rem;
+}
+
+.video-card .stat {
+    text-align: center;
+}
+
+.video-card .stat-value {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+.video-card .stat-label {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.video-card .video-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.video-card .tag {
+    background: rgba(106, 27, 27, 0.15);
+    color: var(--primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.video-card .watch-btn {
+    background: var(--accent-amber-dark);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.video-card .watch-btn:hover {
+    background: var(--primary);
+    transform: translateX(2px);
+}
+
+/* Sentiment score box - 2026 design */
+.video-card [style*="Comment Sentiment"] {
+    background: rgba(139, 69, 19, 0.15) !important;
+    border-left: 4px solid var(--accent-amber-dark) !important;
+    padding: var(--spacing-md) !important;
+    border-radius: 8px !important;
+    margin: var(--spacing-md) 0 !important;
 }
 
 .video-thumbnail-wrapper {
