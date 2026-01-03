@@ -111,6 +111,7 @@ strong {
     padding: var(--spacing-xxl) var(--spacing-lg);
     width: 100%;
     box-sizing: border-box;
+    position: relative;
 }
 
 .main-content-2026 {
@@ -151,11 +152,11 @@ strong {
     top: auto;
 }
 
-/* Scrolling: Natural scroll with page (sidebar > viewport) */
+/* Scrolling: Natural scroll with page (default relative positioning) */
 .sidebar-2026.sidebar-state-scrolling {
-    position: absolute;
-    /* top is dynamically set by JS */
-    will-change: top;
+    position: relative;
+    top: auto;
+    will-change: auto;
 }
 
 /* Locked to bottom: Bottom visible, scroll with viewport */
