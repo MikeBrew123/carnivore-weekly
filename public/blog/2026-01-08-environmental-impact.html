@@ -27,41 +27,29 @@
     </script>
     <style>
         /* 2026 Brand Colors - Comprehensive Styling */
-
-        /* Global link styling */
         a {
             color: #d4a574;
             text-decoration: underline;
             transition: color 0.2s ease;
         }
-
         a:hover {
             color: #ffd700;
             text-decoration: underline;
         }
-
-        /* Wiki links */
         .wiki-link {
             color: #d4a574;
             text-decoration: underline;
         }
-
         .wiki-link:hover {
             color: #ffd700;
         }
-
-        /* Strong tags and emphasis - gold for visual hierarchy */
         strong {
             color: #ffd700;
             font-weight: 600;
         }
-
-        /* Headings - ensure visual hierarchy with gold */
         h1, h2, h3, h4, h5, h6 {
             color: #ffd700;
         }
-
-        /* Post author bio styling */
         .post-author-bio {
             background-color: #2c1810;
             color: #f4e4d4;
@@ -70,12 +58,9 @@
             border-radius: 4px;
             margin: 15px 0;
         }
-
         .post-author-bio strong {
             color: #ffd700;
         }
-
-        /* Tag styling */
         .tag {
             background-color: #2c1810;
             color: #d4a574;
@@ -86,45 +71,90 @@
             display: inline-block;
             font-size: 14px;
         }
-
         .tag:hover {
             background-color: #3d2817;
             color: #ffd700;
             border-color: #ffd700;
         }
-
-        /* Back to blog link */
         .back-to-blog {
             color: #d4a574;
             text-decoration: underline;
             display: inline-block;
             margin-bottom: 20px;
         }
-
         .back-to-blog:hover {
             color: #ffd700;
         }
-
-        /* Post meta information */
         .post-meta {
             color: #d4a574;
             font-size: 14px;
         }
-
-        /* Disclaimer/footer text */
         .post-footer {
             color: #f4e4d4;
         }
-
         .post-footer h3 {
             color: #ffd700;
         }
+        .wiki-box {
+            background: #2c1810;
+            padding: 20px;
+            border-left: 4px solid #d4a574;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        .wiki-box strong {
+            color: #ffd700;
+        }
+        .wiki-box-links {
+            color: #d4a574;
+            font-size: 14px;
+        }
+        .post-header {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 20px;
+        }
+        .comments-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #8b4513;
+        }
+        .blog-footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+            text-align: center;
+            color: #d4a574;
+            font-size: 12px;
+        }
+        .post-disclaimer {
+            font-size: 0.9em;
+            color: #d4a574;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+        }
+        .layout-wrapper-2026 {
+            display: flex;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .main-content-2026 {
+            flex: 1;
+            max-width: 800px;
+        }
+        .container-2026 {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
     </style>
 </head>
-<body style="background-color: #1a120b; color: #f4e4d4; font-family: 'Merriweather', serif;">
-    <!-- Site Header -->
-    <header>
-        <div class="container">
+<body>
+    <header class="header-2026">
+        <div class="container-2026">
             <img src="../../images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>CARNIVORE WEEKLY</h1>
             <p class="subtitle">The Meat-Eater's Digest</p>
@@ -132,37 +162,35 @@
         </div>
     </header>
 
-    <!-- Navigation Menu -->
     <nav class="nav-menu-2026">
-        <a href="../../index.html">Home</a>
-        <a href="../../channels.html">Channels</a>
-        <a href="../../wiki.html">Wiki</a>
-        <a href="../../blog.html">Blog</a>
-        <a href="../../calculator.html">Calculator</a>
-        <a href="../../archive.html">Archive</a>
-        <a href="../../about.html">About</a>
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Channels</a>
+        <a href="/wiki.html">Wiki</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/calculator.html">Calculator</a>
+        <a href="/about.html">About</a>
     </nav>
 
-    <div class="post-container">
-        <a href="../../blog.html" class="back-to-blog">← Back to Blog</a>
+    <div class="layout-wrapper-2026">
+        <main class="main-content-2026">
+            <a href="/blog.html" class="back-to-blog">← Back to Blog</a>
 
-        <!-- Post Header -->
-        <div class="post-header" style="margin-bottom: 40px; border-bottom: 2px solid #8b4513; padding-bottom: 20px;">
-            <h1 class="post-title page-header">Environmental Impact Counter-Narrative: Regenerative Agriculture</h1>
-            <div class="post-meta">
-                <span>January 8, 2026</span>
-                <span>by Sarah (Health Coach)</span>
-                <span>2000 words</span>
-            </div>
+            <article>
+                <header class="post-header">
+                    <h1 class="post-title">Environmental Impact Counter-Narrative: Regenerative Agriculture</h1>
+                    <div class="post-meta">
+                        <span>January 8, 2026</span>
+                        <span>by Sarah (Health Coach)</span>
+                        <span>2000 words</span>
+                    </div>
 
-            <div class="post-author-bio">
-                <strong>Sarah</strong><br>
-                Health coach and evidence-based writer focused on metabolic health, physiological adaptation, and the science behind carnivore living.
-            </div>
-        </div>
+                    <div class="post-author-bio">
+                        <strong>Sarah</strong><br>
+                        Health coach and evidence-based writer focused on metabolic health, physiological adaptation, and the science behind carnivore living.
+                    </div>
+                </header>
 
-        <!-- Post Content -->
-        <div class="post-content">
+                <div class="post-content">
 
 <p>Criticism of carnivore on environmental grounds is fair to ask about. "Isn't raising cattle destroying the planet?" is a legitimate question.</p>
 
@@ -176,7 +204,7 @@
 
 <p>Here's the difference:</p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li><strong>CAFO model:</strong> Thousands of cattle in confined spaces, fed grain (itself requiring water, pesticides, and fertilizer), producing waste that contaminates waterways</li>
     <li><strong>Regenerative grazing model:</strong> Smaller herds on pasture, rotating frequently, mimicking wild herd patterns, actually improving soil</li>
 </ul>
@@ -191,22 +219,14 @@
 
 <p><strong>The mechanism:</strong></p>
 
-<ol style="margin-left: 20px; margin-bottom: 15px;">
+<ol>
     <li><strong>Cattle graze an area intensively for a short period (days to weeks)</strong></li>
     <li><strong>The herd is then rotated to a new pasture</strong></li>
     <li><strong>The previously grazed area recovers for months before grazing again</strong></li>
     <li><strong>This mimics wild herding patterns</strong></li>
 </ol>
 
-<p>What happens to the soil: </p>
-
-<ul style="margin-left: 20px; margin-bottom: 15px;">
-    <li>Grass is trampled and eaten</li>
-    <li>Cattle manure (nitrogen-rich) feeds soil microbes</li>
-    <li>Over months of recovery, soil builds: organic matter increases, structure improves, water retention increases</li>
-    <li>The next grazing cycle enters richer soil, producing better forage</li>
-    <li>Cycle repeats, soil gets progressively better</li>
-</ul>
+<p>What happens to the soil: Grass is trampled and eaten. Cattle manure (nitrogen-rich) feeds soil microbes. Over months of recovery, soil builds: organic matter increases, structure improves, water retention increases. The next grazing cycle enters richer soil, producing better forage. Cycle repeats, soil gets progressively better.</p>
 
 <p><strong>The carbon sequestration part:</strong> As soil organic matter increases, carbon is being pulled from the atmosphere and stored in soil. This happens because healthy soils have more plant biomass, more root systems, and more microbial activity—all carbon sinks.</p>
 
@@ -216,11 +236,11 @@
 
 <p><strong>Study highlight 1:</strong> Research from UC Davis and other institutions suggests that properly managed grazing land can sequester 0.5-2 tons of CO2 equivalent per hectare per year. A single cow on regenerative pasture may be carbon-neutral or carbon-negative.</p>
 
-<p><strong>Study highlight 2:</strong> Grassland ecosystems that evolved with grazing actually degrade without grazing. When cattle are removed from grasslands, soil carbon decreases over time (the land becomes less productive). So cattle might actually be necessary to maintain these ecosystems.</p>
+<p><strong>Study highlight 2:</strong> Grassland ecosystems that evolved with grazing actually degrade without grazing. When cattle are removed from grasslands, soil carbon decreases over time. So cattle might actually be necessary to maintain these ecosystems.</p>
 
-<p><strong>Study highlight 3:</strong> Water use is dramatically lower in grazing systems. Rain-fed pasture uses rainwater (already falling); it doesn't require irrigation the way grain farming does.</p>
+<p><strong>Study highlight 3:</strong> Water use is dramatically lower in grazing systems. Rain-fed pasture uses rainwater; it doesn't require irrigation the way grain farming does.</p>
 
-<p><strong>The honest caveat:</strong> Research on regenerative agriculture is still emerging. The data isn't as comprehensive as it is for industrial agriculture (because regenerative is newer and less funded). So there's uncertainty.</p>
+<p><strong>The honest caveat:</strong> Research on regenerative agriculture is still emerging. The data isn't as comprehensive as it is for industrial agriculture. So there's uncertainty.</p>
 
 <p>But the evidence points toward: regenerative grazing is significantly less environmentally damaging than CAFO, and may actually be regenerative (carbon-negative).</p>
 
@@ -232,7 +252,7 @@
 
 <p>Much of the land suitable for grazing is NOT suitable for crop production. Grasslands, scrubland, and marginal land can support grazing but can't support annual cropping. Using this land for cattle doesn't displace crops; it uses land that would otherwise be unproductive.</p>
 
-<p>Example: Semi-arid grassland in the American West. It's great for grazing. It's not great for corn, wheat, or vegetables. Cattle use this land productively. Without cattle, it would be... empty or degraded.</p>
+<p>Example: Semi-arid grassland in the American West. It's great for grazing. It's not great for corn, wheat, or vegetables. Cattle use this land productively. Without cattle, it would be empty or degraded.</p>
 
 <h2>The Methane Question (The Real Environmental Concern)</h2>
 
@@ -252,7 +272,7 @@
 
 <p><strong>But:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Grazing cattle drink rainwater; they don't typically require irrigation</li>
     <li>Grain production (if that's the alternative) requires irrigation in most climates</li>
     <li>Regenerative grazing improves soil water retention (healthier soil holds more water)</li>
@@ -265,7 +285,7 @@
 
 <p>If you care about the environmental impact of your diet, here's what matters:</p>
 
-<ol style="margin-left: 20px; margin-bottom: 15px;">
+<ol>
     <li><strong>Buy grass-fed or regenerative beef whenever possible.</strong> It's better for the environment than CAFO beef. Yes, it's more expensive. But if you're spending the same money on high-quality meat as you were on quantity of low-quality meat, that's a net positive environmentally.</li>
     <li><strong>Support farms that practice rotational grazing.</strong> Farms like Grassland Beef, Primal Pastures, and others explicitly practice regenerative methods. Your purchasing power directly supports these practices.</li>
     <li><strong>Understand the carbon footprint of your food.</strong> Beef from well-managed pasture is lower-impact than people assume. Grain production (if that's the alternative) isn't necessarily better.</li>
@@ -289,7 +309,7 @@
 
 <p><strong>Honest caveats:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>The data on carbon sequestration in regenerative systems is still emerging. We don't have 20-year studies yet.</li>
     <li>Scaling regenerative grazing to feed a global population is theoretically possible but practically unproven.</li>
     <li>Some regenerative farms are better managed than others. Not all "grass-fed" claims are equal.</li>
@@ -302,53 +322,50 @@
 
 <p>—Sarah</p>
 
-<p style="font-size: 0.9em; color: #d4a574; margin-top: 30px; padding-top: 20px; border-top: 1px solid #8b4513;">
+<p class="post-disclaimer">
     <em>This article represents current research and scientific understanding. Environmental science evolves as new data emerges. These arguments are educational and based on peer-reviewed research where available.</em>
 </p>
 
-        </div>
+                </div>
 
-        <!-- Wiki Links Section -->
+                <div class="wiki-box">
+                    <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
+                    <span class="wiki-box-links"><a href="/wiki.html#environment" class="wiki-link">environment</a> • <a href="/wiki.html#regenerative" class="wiki-link">regenerative</a> • <a href="/wiki.html#sustainability" class="wiki-link">sustainability</a></span>
+                </div>
 
-    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
-      <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
-      <span style="color: #d4a574; font-size: 14px;"><a href="/wiki.html#environment" class="wiki-link">environment</a> • <a href="/wiki.html#regenerative" class="wiki-link">regenerative</a> • <a href="/wiki.html#sustainability" class="wiki-link">sustainability</a></span>
+                <footer class="post-footer">
+                    <div class="tags">
+                        <span class="tag">environment</span>
+                        <span class="tag">sustainability</span>
+                        <span class="tag">science</span>
+                    </div>
+
+                    <div class="comments-section">
+                        <h3>Comments</h3>
+                        <script src="https://utteranc.es/client.js"
+                            repo="MikeBrew123/carnivore-weekly"
+                            issue-term="pathname"
+                            theme="github-dark"
+                            crossorigin="anonymous"
+                            async>
+                        </script>
+                    </div>
+                </footer>
+            </article>
+        </main>
     </div>
 
-        <!-- Post Footer -->
-        <div class="post-footer">
-            <!-- Tags -->
-            <div class="tags">
-                <span class="tag">environment</span>
-                <span class="tag">sustainability</span>
-                <span class="tag">science</span>
-            </div>
+    <footer class="blog-footer">
+        <p>&copy; 2026 Carnivore Weekly |
+           <a href="/about.html">About</a> |
+           <a href="/the-lab.html">The Lab</a> |
+           <a href="mailto:feedback@carnivoreweekly.com">Contact</a>
+        </p>
+        <p style="margin-top: 10px; font-size: 11px;">
+            Curated with AI • Made with <a href="https://claude.com/claude-code">Claude Code</a>
+        </p>
+    </footer>
 
-            <!-- Comments Section -->
-            <div class="comments-section" style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #8b4513;">
-                <h3>Comments</h3>
-                <script src="https://utteranc.es/client.js"
-                    repo="MikeBrew123/carnivore-weekly"
-                    issue-term="pathname"
-                    theme="github-dark"
-                    crossorigin="anonymous"
-                    async>
-                </script>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #8b4513; text-align: center; color: #d4a574; font-size: 12px;">
-            <p>&copy; 2026 Carnivore Weekly |
-               <a href="../../about.html" style="color: #d4a574; text-decoration: underline;">About</a> |
-               <a href="../../the-lab.html" style="color: #d4a574; text-decoration: underline;">The Lab</a> |
-               <a href="mailto:feedback@carnivoreweekly.com" style="color: #d4a574; text-decoration: underline;">Contact</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 11px;">
-                Curated with AI • Made with <a href="https://claude.com/claude-code" style="color: #d4a574; text-decoration: underline;">Claude Code</a>
-            </p>
-        </footer>
-    </div>
     <script src="/js/mobile-nav.js"></script>
 </body>
 </html>

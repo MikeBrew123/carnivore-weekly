@@ -119,12 +119,85 @@
         .post-footer h3 {
             color: #ffd700;
         }
+
+        /* Wiki box styling */
+        .wiki-box {
+            background: #2c1810;
+            padding: 20px;
+            border-left: 4px solid #d4a574;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+
+        .wiki-box strong {
+            color: #ffd700;
+        }
+
+        .wiki-box-links {
+            color: #d4a574;
+            font-size: 14px;
+        }
+
+        /* Post header styling */
+        .post-header {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 20px;
+        }
+
+        /* Comments section */
+        .comments-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #8b4513;
+        }
+
+        /* Footer styling */
+        .blog-footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+            text-align: center;
+            color: #d4a574;
+            font-size: 12px;
+        }
+
+        /* Disclaimer text */
+        .post-disclaimer {
+            font-size: 0.9em;
+            color: #d4a574;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #8b4513;
+        }
+
+        /* Layout wrapper */
+        .layout-wrapper-2026 {
+            display: flex;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Main content */
+        .main-content-2026 {
+            flex: 1;
+            max-width: 800px;
+        }
+
+        /* Container 2026 */
+        .container-2026 {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
     </style>
 </head>
-<body style="background-color: #1a120b; color: #f4e4d4; font-family: 'Merriweather', serif;">
+<body>
     <!-- Site Header -->
-    <header>
-        <div class="container">
+    <header class="header-2026">
+        <div class="container-2026">
             <img src="../../images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>CARNIVORE WEEKLY</h1>
             <p class="subtitle">The Meat-Eater's Digest</p>
@@ -134,35 +207,37 @@
 
     <!-- Navigation Menu -->
     <nav class="nav-menu-2026">
-        <a href="../../index.html">Home</a>
-        <a href="../../channels.html">Channels</a>
-        <a href="../../wiki.html">Wiki</a>
-        <a href="../../blog.html">Blog</a>
-        <a href="../../calculator.html">Calculator</a>
-        <a href="../../archive.html">Archive</a>
-        <a href="../../about.html">About</a>
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Channels</a>
+        <a href="/wiki.html">Wiki</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/calculator.html">Calculator</a>
+        <a href="/about.html">About</a>
     </nav>
 
-    <div class="post-container">
-        <a href="../../blog.html" class="back-to-blog">← Back to Blog</a>
+    <!-- Layout Wrapper -->
+    <div class="layout-wrapper-2026">
+        <main class="main-content-2026">
+            <a href="/blog.html" class="back-to-blog">← Back to Blog</a>
 
-        <!-- Post Header -->
-        <div class="post-header" style="margin-bottom: 40px; border-bottom: 2px solid #8b4513; padding-bottom: 20px;">
-            <h1 class="post-title page-header">Fasting + Carnivore: Protocols That Actually Work</h1>
-            <div class="post-meta">
-                <span>January 7, 2026</span>
-                <span>by Marcus (Performance Coach)</span>
-                <span>1900 words</span>
-            </div>
+            <!-- Post Header -->
+            <article>
+                <header class="post-header">
+                    <h1 class="post-title">Fasting + Carnivore: Protocols That Actually Work</h1>
+                    <div class="post-meta">
+                        <span>January 7, 2026</span>
+                        <span>by Marcus (Performance Coach)</span>
+                        <span>1900 words</span>
+                    </div>
 
-            <div class="post-author-bio">
-                <strong>Marcus</strong><br>
-                Performance coach focused on real-world results and optimization strategies that actually deliver measurable outcomes.
-            </div>
-        </div>
+                    <div class="post-author-bio">
+                        <strong>Marcus</strong><br>
+                        Performance coach focused on real-world results and optimization strategies that actually deliver measurable outcomes.
+                    </div>
+                </header>
 
-        <!-- Post Content -->
-        <div class="post-content">
+                <!-- Post Content -->
+                <div class="post-content">
 
 <p>Once you're adapted to carnivore (usually 3-4 months in), the next conversation becomes: "Can I optimize further by combining fasting?"</p>
 
@@ -188,7 +263,7 @@
 
 <p><strong>How it works:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>First 12 hours of the fast is basically "sleeping" (no difference in hunger)</li>
     <li>Hours 12-16 you might feel slightly hungry, but it's manageable on carnivore</li>
     <li>At hour 16, you break the fast with a normal carnivore meal</li>
@@ -197,7 +272,7 @@
 
 <p><strong>Benefits:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Improved insulin sensitivity (already good on carnivore, goes better)</li>
     <li>Slight increase in fat loss without calorie restriction</li>
     <li>Simpler meal planning (skip breakfast, eat lunch and dinner)</li>
@@ -207,7 +282,7 @@
 
 <p><strong>Downsides:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>If you're training hard, you might feel weaker during fasted training</li>
     <li>Can suppress appetite too much (forget to eat enough during eating window)</li>
     <li>Not ideal if your goal is to gain muscle (need frequent protein intake)</li>
@@ -223,7 +298,7 @@
 
 <p><strong>How it works:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Most of the day is zero stimulus (water only)</li>
     <li>One large meal at your eating window</li>
     <li>Requires eating a lot in a short window (usually 2-3 lbs of meat)</li>
@@ -232,7 +307,7 @@
 
 <p><strong>Benefits:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Stronger metabolic switch to fat-burning (longer fasted state)</li>
     <li>Greater fat loss than 16/8 (for some people)</li>
     <li>Enhanced autophagy (cellular cleanup) during longer fasts</li>
@@ -241,7 +316,7 @@
 
 <p><strong>Downsides:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Harder to do if you train (no fuel before training)</li>
     <li>Can be uncomfortable eating 2-3 lbs of meat in one sitting</li>
     <li>Risk of not eating enough total (appetite suppressed after long fast)</li>
@@ -258,7 +333,7 @@
 
 <p><strong>How it works:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Day 1 fasting: Appetite is suppressed, energy is normal</li>
     <li>Day 2 fasting: Deeper into ketosis, mental clarity often increases</li>
     <li>Day 3 fasting: Entering extended ketosis, autophagy increases</li>
@@ -267,7 +342,7 @@
 
 <p><strong>Benefits:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Significant autophagy (cellular cleanup, potentially anti-aging)</li>
     <li>Reset of appetite hormones</li>
     <li>Improved insulin sensitivity spike after fasting</li>
@@ -277,7 +352,7 @@
 
 <p><strong>Downsides:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Requires planning (can't spontaneously fast 48 hours if you have social commitments)</li>
     <li>Some people experience fatigue on day 2-3 (especially if not fat-adapted)</li>
     <li>Can suppress hunger too much (need to eat enough when breaking fast)</li>
@@ -293,7 +368,7 @@
 
 <p><strong>Real example:</strong></p>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li>Week 1: Normal eating (eat when hungry, no fasting)</li>
     <li>Week 2-3: 16/8 intermittent fasting</li>
     <li>Week 4: One 36-hour fast, then return to normal eating</li>
@@ -326,7 +401,7 @@
 
 <h3>4. Special Cases Need Medical Oversight</h3>
 
-<ul style="margin-left: 20px; margin-bottom: 15px;">
+<ul>
     <li><strong>Women:</strong> Longer fasts can sometimes affect cycle regularity. Start with 16/8 and monitor. If cycle becomes irregular, reduce fasting.</li>
     <li><strong>People on medications:</strong> Some medications need food intake. Consult your doctor before fasting.</li>
     <li><strong>Competitive athletes:</strong> Extended fasting might hurt performance. Experiment carefully during off-season.</li>
@@ -355,53 +430,55 @@
 
 <p>—Marcus</p>
 
-<p style="font-size: 0.9em; color: #d4a574; margin-top: 30px; padding-top: 20px; border-top: 1px solid #8b4513;">
+<p class="post-disclaimer">
     <em>Not medical advice. Extended fasting can affect medications and hormones. Consult with a healthcare provider if you have existing conditions or take medications. This information is educational based on community experience and research.</em>
 </p>
 
-        </div>
+                </div>
 
-        <!-- Wiki Links Section -->
+                <!-- Wiki Links Section -->
+                <div class="wiki-box">
+                    <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
+                    <span class="wiki-box-links"><a href="/wiki.html#fasting" class="wiki-link">fasting</a> • <a href="/wiki.html#optimization" class="wiki-link">optimization</a> • <a href="/wiki.html#protocols" class="wiki-link">protocols</a></span>
+                </div>
 
-    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
-      <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
-      <span style="color: #d4a574; font-size: 14px;"><a href="/wiki.html#fasting" class="wiki-link">fasting</a> • <a href="/wiki.html#optimization" class="wiki-link">optimization</a> • <a href="/wiki.html#protocols" class="wiki-link">protocols</a></span>
+                <!-- Post Footer -->
+                <footer class="post-footer">
+                    <!-- Tags -->
+                    <div class="tags">
+                        <span class="tag">fasting</span>
+                        <span class="tag">protocols</span>
+                        <span class="tag">optimization</span>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <h3>Comments</h3>
+                        <script src="https://utteranc.es/client.js"
+                            repo="MikeBrew123/carnivore-weekly"
+                            issue-term="pathname"
+                            theme="github-dark"
+                            crossorigin="anonymous"
+                            async>
+                        </script>
+                    </div>
+                </footer>
+            </article>
+        </main>
     </div>
 
-        <!-- Post Footer -->
-        <div class="post-footer">
-            <!-- Tags -->
-            <div class="tags">
-                <span class="tag">fasting</span>
-                <span class="tag">protocols</span>
-                <span class="tag">optimization</span>
-            </div>
+    <!-- Page Footer -->
+    <footer class="blog-footer">
+        <p>&copy; 2026 Carnivore Weekly |
+           <a href="/about.html">About</a> |
+           <a href="/the-lab.html">The Lab</a> |
+           <a href="mailto:feedback@carnivoreweekly.com">Contact</a>
+        </p>
+        <p style="margin-top: 10px; font-size: 11px;">
+            Curated with AI • Made with <a href="https://claude.com/claude-code">Claude Code</a>
+        </p>
+    </footer>
 
-            <!-- Comments Section -->
-            <div class="comments-section" style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #8b4513;">
-                <h3>Comments</h3>
-                <script src="https://utteranc.es/client.js"
-                    repo="MikeBrew123/carnivore-weekly"
-                    issue-term="pathname"
-                    theme="github-dark"
-                    crossorigin="anonymous"
-                    async>
-                </script>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #8b4513; text-align: center; color: #d4a574; font-size: 12px;">
-            <p>&copy; 2026 Carnivore Weekly |
-               <a href="../../about.html" style="color: #d4a574; text-decoration: underline;">About</a> |
-               <a href="../../the-lab.html" style="color: #d4a574; text-decoration: underline;">The Lab</a> |
-               <a href="mailto:feedback@carnivoreweekly.com" style="color: #d4a574; text-decoration: underline;">Contact</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 11px;">
-                Curated with AI • Made with <a href="https://claude.com/claude-code" style="color: #d4a574; text-decoration: underline;">Claude Code</a>
-            </p>
-        </footer>
-    </div>
     <script src="/js/mobile-nav.js"></script>
 </body>
 </html>

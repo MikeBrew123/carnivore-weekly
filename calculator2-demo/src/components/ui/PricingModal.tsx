@@ -109,19 +109,13 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+      <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-[150] p-4 pointer-events-none"
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-[150] p-4"
       >
-        <motion.div
-          initial={{ scale: 0.95, y: 20 }}
-          animate={{ scale: 1, y: 0 }}
-          exit={{ scale: 0.95, y: 20 }}
+        <div
           onClick={(e) => e.stopPropagation()}
-          className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto"
+          className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
         >
           {/* Header */}
           <div className="sticky top-0 z-20 bg-gradient-to-r from-primary to-primary/90 text-accent p-8 border-b-2 border-secondary pointer-events-none">
@@ -165,10 +159,7 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
             </div>
 
             {/* Value Stack */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+            <div
               className="bg-gradient-to-r from-secondary/10 to-primary/10 rounded-lg p-6 border border-secondary/30"
             >
               <h3 className="font-bold text-dark mb-4">What You Get</h3>
@@ -194,10 +185,10 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
                   <p className="text-sm text-gray-600">Not satisfied? Full refund within 7 days, no questions asked.</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Stripe Payment Modal */}
       <AnimatePresence>
