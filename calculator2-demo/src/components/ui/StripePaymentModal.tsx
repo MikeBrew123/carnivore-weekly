@@ -97,6 +97,15 @@ export default function StripePaymentModal({
       return
     }
 
+    // Track upgrade click
+    window.gtag?.('event', 'click', {
+      event_category: 'Upgrade',
+      event_label: 'Protocol Upgrade CTA',
+      tier_id: tierId,
+      tier_title: tierTitle,
+      amount: calculateDiscountedPrice()
+    })
+
     setIsProcessing(true)
 
     try {
