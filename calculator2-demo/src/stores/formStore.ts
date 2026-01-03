@@ -48,9 +48,15 @@ const defaultForm: FormData = {
 
   // Step 5: Preferences (Premium)
   previousDiets: 'Standard American diet for 20 years (caused prediabetes and chronic inflammation). Tried low-fat diet 2012-2015 (made energy worse). Did keto for 14 months (great results but fell off). Recently did "healthy whole grains" nonsense for 2 years (blood sugar went out of control, gained 40lbs, severe brain fog and joint pain).',
+  whatWorked: 'Keto worked great for 14 months - lost weight, had energy, mental clarity was excellent. Need to apply that same discipline with carnivore.',
   carnivoreExperience: 'months',
   selectedProtocol: 'carnivore',
   goals: ['weightloss', 'mental', 'guthealth'],
+  biggestChallenge: 'Sticking to the diet long-term. I fall off and go back to old eating habits. Need sustainable approach that doesn\'t feel restrictive.',
+  cookingSkill: 'intermediate',
+  budget: 'moderate',
+  familySituation: 'family-with-kids',
+  workTravel: 'office',
   additionalNotes: 'Serious about this time. Have young kids and want to be around to see them grow up. Already seeing family members go through health decline. Mostly want beef (ribeye, ground beef), some salmon and halibut. Open to organ meats (liver is fine). Cannot do pork or chicken. Want simple protocols, no complicated supplements. Have GI issues from years of sugar and processed foods - need gentle transition plan. Blood sugar readings have been 180-220 fasting. Doctor says pre-diabetic but I know I can reverse this with proper diet.',
 }
 

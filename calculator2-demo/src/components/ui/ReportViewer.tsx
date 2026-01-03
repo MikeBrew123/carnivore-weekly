@@ -123,45 +123,48 @@ export default function ReportViewer({ accessToken }: ReportViewerProps) {
           }
 
           .report-section {
-            page-break-after: always;
             page-break-inside: avoid;
-            margin: 0;
-            padding: 1.5cm;
+            margin: 0 0 2cm 0;
+            padding: 1.2cm;
             border: none;
             border-left: 4pt solid #8b4513;
             background: white;
             break-inside: avoid;
+            page-break-after: auto;
           }
 
           .report-section:last-child {
+            margin-bottom: 0;
             page-break-after: auto;
           }
 
           .report-section h2 {
             margin-top: 0;
-            margin-bottom: 0.7cm;
-            padding-top: 0;
+            margin-bottom: 0.8cm;
+            padding: 0.3cm 0 0.5cm 0;
             page-break-after: avoid;
             page-break-before: avoid;
-            font-size: 1.5em;
+            font-size: 1.4em;
             font-weight: bold;
-            line-height: 1.2;
+            line-height: 1.3;
+            border-bottom: 2pt solid #d4a574;
+            padding-bottom: 0.4cm;
           }
 
           .report-section h3 {
-            margin-top: 0.7cm;
-            margin-bottom: 0.3cm;
+            margin: 1cm 0 0.4cm 0;
             page-break-after: avoid;
-            font-size: 1.2em;
+            font-size: 1.1em;
             font-weight: bold;
+            color: #8b4513;
           }
 
           .report-section h4 {
-            margin-top: 0.5cm;
-            margin-bottom: 0.2cm;
+            margin: 0.7cm 0 0.3cm 0;
             page-break-after: avoid;
-            font-size: 1.05em;
-            font-weight: bold;
+            font-size: 1em;
+            font-weight: 600;
+            color: #2c1810;
           }
 
           .report-section p {
@@ -280,18 +283,18 @@ export default function ReportViewer({ accessToken }: ReportViewerProps) {
           onClick={() => window.print()}
           className="btn-primary"
         >
-          🖨️ Print Report
+          🖨️ Print to PDF
         </button>
         <button
           onClick={() => {
             const element = document.createElement('a')
             element.href = `data:text/html;charset=utf-8,${encodeURIComponent(reportHTML)}`
-            element.download = 'carnivore-protocol.html'
+            element.download = 'carnivore-protocol-report.html'
             element.click()
           }}
           className="btn-secondary"
         >
-          💾 Download Report
+          📄 Download as HTML
         </button>
       </motion.div>
     </motion.div>
