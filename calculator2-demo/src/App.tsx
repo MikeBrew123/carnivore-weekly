@@ -5,7 +5,7 @@ import { detectUnits } from './lib/calculations'
 import CalculatorWizard from './components/CalculatorWizard'
 
 export default function App() {
-  const { setSessionToken, setUnits, setIsPremium } = useFormStore()
+  const { setSessionToken, setUnits, setIsPremium, setCurrentStep } = useFormStore()
 
   useEffect(() => {
     async function initializeApp() {
@@ -22,9 +22,17 @@ export default function App() {
         // Check if returning from payment
         const params = new URLSearchParams(window.location.search)
         const paymentStatus = params.get('payment')
-        const stripeSessionId = params.get('session')
+        const stripeSessionId = params.get('session_id')
 
-        if (paymentStatus === 'success' && stripeSessionId) {
+        // Handle free tier with 100% discount
+        if (paymentStatus === 'free') {
+          setIsPremium(true)
+          setCurrentStep(4) // Jump to Health step (Step 4)
+          console.log('[App] Premium access granted (free tier)')
+          window.history.replaceState({}, '', window.location.pathname)
+        }
+        // Handle paid Stripe payment
+        else if (paymentStatus === 'success' && stripeSessionId) {
           // Verify payment with Stripe before granting premium access
           try {
             const verifyResponse = await fetch(
@@ -44,6 +52,7 @@ export default function App() {
 
             if (verifyResult.success && verifyResult.paid) {
               setIsPremium(true)
+              setCurrentStep(4) // Jump to Health step (Step 4)
               console.log('[App] Premium access granted after payment verification')
             } else {
               console.warn('[App] Payment verification failed or not paid')
@@ -61,7 +70,7 @@ export default function App() {
     }
 
     initializeApp()
-  }, [setSessionToken, setUnits, setIsPremium])
+  }, [setSessionToken, setUnits, setIsPremium, setCurrentStep])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">

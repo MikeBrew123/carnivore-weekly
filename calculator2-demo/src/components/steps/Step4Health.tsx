@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useFormStore } from '../../stores/formStore'
 import { motion } from 'framer-motion'
+import { useEffect } from 'react'
 
 const step4Schema = z.object({
   email: z.string().email('Valid email required'),
@@ -31,7 +32,7 @@ interface Step4HealthProps {
 
 export default function Step4Health({ onNext, onPrev }: Step4HealthProps) {
   const { form, setFormField } = useFormStore()
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<Step4FormData>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<Step4FormData>({
     resolver: zodResolver(step4Schema),
     defaultValues: {
       email: form.email,
@@ -45,6 +46,37 @@ export default function Step4Health({ onNext, onPrev }: Step4HealthProps) {
   })
 
   const conditions = watch('conditions') || []
+
+  // Update form when stored data changes (e.g., after payment)
+  useEffect(() => {
+    console.log('[Step4] Form data from store:', {
+      email: form.email,
+      firstName: form.firstName,
+      lastName: form.lastName,
+      medications: form.medications,
+    })
+    // Use setValue to update individual fields
+    if (form.email) {
+      setValue('email', form.email)
+      console.log('[Step4] Set email to:', form.email)
+    }
+    if (form.firstName) {
+      setValue('firstName', form.firstName)
+      console.log('[Step4] Set firstName to:', form.firstName)
+    }
+    if (form.medications) {
+      setValue('medications', form.medications)
+    }
+    if (form.conditions) {
+      setValue('conditions', form.conditions)
+    }
+    if (form.allergies) {
+      setValue('allergies', form.allergies)
+    }
+    if (form.avoidFoods) {
+      setValue('avoidFoods', form.avoidFoods)
+    }
+  }, [form.email, form.firstName, form.medications, form.conditions, form.allergies, form.avoidFoods, setValue])
 
   const onSubmit = (data: Step4FormData) => {
     setFormField('email', data.email)
