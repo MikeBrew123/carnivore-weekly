@@ -16,6 +16,7 @@ export interface FormData {
   proteinSetting?: string
   email?: string
   firstName?: string
+  lastName?: string
   medications?: string
   conditions?: string[]
   allergies?: string

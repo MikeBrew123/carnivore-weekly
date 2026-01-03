@@ -12,6 +12,7 @@ const step1Schema = z.object({
   heightInches: z.number().min(0).max(11).optional(),
   heightCm: z.number().min(120).max(230).optional(),
   weight: z.number().min(80).max(500),
+  email: z.string().email('Valid email required').optional(),
 })
 
 type Step1FormData = z.infer<typeof step1Schema>
@@ -39,6 +40,7 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
       heightInches: form.heightInches,
       heightCm: form.heightCm,
       weight: form.weight,
+      email: form.email,
     },
     mode: 'onBlur',
   })
@@ -53,6 +55,9 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
       setFormField('heightCm', data.heightCm)
     }
     setFormField('weight', data.weight)
+    if (data.email) {
+      setFormField('email', data.email)
+    }
     onNext()
   }
 
@@ -179,6 +184,28 @@ export default function Step1Basic({ onNext }: Step1BasicProps) {
             className="w-full px-4 py-3 rounded-lg border border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20"
           />
           {errors.weight && <p className="text-red-500 text-xs mt-1">{errors.weight.message}</p>}
+        </div>
+
+        {/* Email Address */}
+        <div>
+          <label htmlFor="email" className="block text-sm font-semibold text-dark mb-2">
+            Email Address <span className="text-gray-500 text-xs font-normal">(optional - for results & updates)</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            {...register('email')}
+            placeholder="your@email.com"
+            className={`w-full px-4 py-3 rounded-lg border transition focus:outline-none ${
+              errors.email
+                ? 'border-red-500 bg-red-50 focus:border-red-600 focus:ring-2 focus:ring-red-200'
+                : 'border-secondary/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20'
+            }`}
+          />
+          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+          <p className="text-xs text-gray-500 mt-2">
+            We'll send your macro calculations and personalized protocol here
+          </p>
         </div>
 
         <button
