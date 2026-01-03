@@ -100,7 +100,7 @@ export default function StripePaymentModal({
       if (finalPrice === 0) {
         // Redirect to success page after brief delay (use payment=free for free tier)
         setTimeout(() => {
-          window.location.href = `${window.location.origin}/calculator2-demo.html?payment=free`
+          window.location.href = `${window.location.origin}/calculator.html?payment=free`
         }, 500)
         return
       }
@@ -117,8 +117,8 @@ export default function StripePaymentModal({
           coupon_code: discountApplied?.code || null,
           discount_percent: discountApplied?.percent || 0,
           session_token: sessionToken,
-          success_url: `${window.location.origin}/calculator2-demo.html?payment=success`,
-          cancel_url: `${window.location.origin}/calculator2-demo.html?payment=cancelled`,
+          success_url: `${window.location.origin}/calculator.html?payment=success`,
+          cancel_url: `${window.location.origin}/calculator.html?payment=cancelled`,
         })
       })
 
