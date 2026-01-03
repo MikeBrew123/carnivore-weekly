@@ -1,0 +1,20 @@
+# Carnivore Weekly - Search Engine Crawling Directives
+User-agent: *
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+Disallow: /html/
+Disallow: /creators/
+Disallow: /archive/
+Disallow: /*test*.html
+Disallow: /*demo*.html
+Disallow: /*-2026.html
+Disallow: /*-full.html
+
+# Specific crawl delays (optional, but good practice)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://carnivoreweekly.com/sitemap.xml
