@@ -22,11 +22,37 @@ export default function App() {
         // Check if returning from payment
         const params = new URLSearchParams(window.location.search)
         const paymentStatus = params.get('payment')
-        const sessionId = params.get('session')
+        const stripeSessionId = params.get('session')
 
-        if (paymentStatus === 'success' && sessionId) {
-          setIsPremium(true)
-          // Clean up URL
+        if (paymentStatus === 'success' && stripeSessionId) {
+          // Verify payment with Stripe before granting premium access
+          try {
+            const verifyResponse = await fetch(
+              'https://carnivore-report-api-production.iambrew.workers.dev/verify-payment',
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  stripeSessionId: stripeSessionId,
+                  sessionToken: session.session_token
+                })
+              }
+            )
+
+            const verifyResult = await verifyResponse.json()
+            console.log('[App] Payment verification result:', verifyResult)
+
+            if (verifyResult.success && verifyResult.paid) {
+              setIsPremium(true)
+              console.log('[App] Premium access granted after payment verification')
+            } else {
+              console.warn('[App] Payment verification failed or not paid')
+            }
+          } catch (verifyError) {
+            console.error('[App] Payment verification error:', verifyError)
+          }
+
+          // Clean up URL regardless of verification result
           window.history.replaceState({}, '', window.location.pathname)
         }
       } catch (error) {

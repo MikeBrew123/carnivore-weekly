@@ -634,6 +634,78 @@ async function createStripeCheckout(data, env) {
   }
 }
 
+/**
+ * Verify Payment Status
+ * Checks if a Stripe checkout session was successful
+ * Called when user returns from Stripe checkout
+ */
+async function verifyCheckoutSession(sessionId, sessionToken, env) {
+  try {
+    const stripeToken = env.STRIPE_SECRET_KEY;
+    if (!stripeToken) {
+      throw new Error('Stripe not configured');
+    }
+
+    // Fetch checkout session from Stripe
+    const credentials = btoa(`${stripeToken}:`);
+    const response = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sessionId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+
+    if (!response.ok) {
+      console.error('[Stripe] Failed to fetch session:', response.status);
+      return { success: false, paid: false };
+    }
+
+    const session = await response.json();
+    console.log('[Stripe] Session status:', session.payment_status, 'Mode:', session.mode);
+
+    // Check if payment was successful
+    const isPaid = session.payment_status === 'paid';
+
+    if (isPaid && session.client_reference_id) {
+      // Mark session as paid in Supabase
+      try {
+        const tier = session.metadata?.tier_id || 'bundle';
+        await fetch('https://kwtdpvnjewtahuxjyltn.supabase.co/rest/v1/user_sessions', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`
+          },
+          body: JSON.stringify({
+            payment_status: 'paid',
+            pricing_tier: tier,
+            stripe_session_id: sessionId,
+            payment_completed_at: new Date().toISOString()
+          })
+        });
+
+        console.log('[Stripe] Session marked as paid in Supabase:', sessionToken);
+      } catch (supabaseError) {
+        console.error('[Stripe] Failed to update Supabase:', supabaseError);
+        // Don't throw - payment is successful on Stripe side
+      }
+    }
+
+    return {
+      success: true,
+      paid: isPaid,
+      stripeSessionId: session.id,
+      paymentStatus: session.payment_status,
+      tier: session.metadata?.tier_id || null
+    };
+  } catch (error) {
+    console.error('[Stripe] Verification error:', error);
+    return { success: false, paid: false, error: error.message };
+  }
+}
+
 export default {
   async fetch(request, env) {
     // Handle CORS preflight
@@ -656,6 +728,23 @@ export default {
       // Route: Create Stripe Checkout Session
       if (request.url.includes('/create-checkout')) {
         return await createStripeCheckout(data, env);
+      }
+
+      // Route: Verify Payment Status
+      if (request.url.includes('/verify-payment')) {
+        const { stripeSessionId, sessionToken } = data;
+        if (!stripeSessionId || !sessionToken) {
+          return new Response(JSON.stringify({ error: 'Missing sessionId or sessionToken' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
+
+        const result = await verifyCheckoutSession(stripeSessionId, sessionToken, env);
+        return new Response(JSON.stringify(result), {
+          status: result.success ? 200 : 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
       }
 
       // Route: Validate Coupon Code
@@ -684,6 +773,96 @@ export default {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
+      }
+
+      // Route: Test Report (Bypass Payment Flow)
+      // Used for testing report generation and email delivery
+      if (request.url.includes('/test-report')) {
+        console.log('[Test Report] Generating test report with email to iambrew@gmail.com');
+
+        // Test data matching calculator form output
+        const testData = {
+          email: 'iambrew@gmail.com',
+          firstName: 'Test',
+          sex: 'male',
+          age: 35,
+          weight: 180,
+          heightFeet: 5,
+          heightInches: 10,
+          lifestyle: 1.2,
+          exercise: 0.2,
+          goal: 'lose',
+          deficit: 20,
+          diet: 'carnivore',
+          ratio: '70-30',
+          allergies: '',
+          foodRestrictions: '',
+          medications: '',
+          healthConditions: [],
+          previousDiets: 'standard',
+          carnivoreExperience: 'new',
+          protocolPreference: 'simple',
+          primaryGoals: ['weight loss', 'energy'],
+          additionalNotes: 'Test report for email delivery verification'
+        };
+
+        try {
+          console.log('[Test Report] Generating all 13 reports...');
+          const startTime = Date.now();
+          const reports = await generateAllReports(testData, env.ANTHROPIC_API_KEY);
+          const reportTime = Date.now() - startTime;
+          console.log(`[Test Report] Reports completed in ${reportTime}ms`);
+
+          console.log('[Test Report] Combining reports...');
+          const combinedReport = combineReports(reports);
+
+          console.log('[Test Report] Saving to Supabase...');
+          const savedReport = await saveReportToSupabase(
+            testData.email,
+            combinedReport,
+            testData,
+            'test-session-' + Date.now(),
+            env.SUPABASE_SERVICE_ROLE_KEY
+          );
+
+          console.log('[Test Report] Sending test email...');
+          let emailSent = false;
+          try {
+            await sendReportEmail(
+              testData.email,
+              savedReport.accessToken,
+              env.RESEND_API_KEY
+            );
+            emailSent = true;
+            console.log('[Test Report] Email sent successfully to iambrew@gmail.com');
+          } catch (emailError) {
+            console.error('[Test Report] Email send failed:', emailError.message);
+          }
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: 'Test report generated and email sent to iambrew@gmail.com',
+            email: testData.email,
+            accessToken: savedReport.accessToken,
+            expiresAt: savedReport.expiresAt,
+            reportId: savedReport.id,
+            emailSent: emailSent,
+            timestamp: new Date().toISOString()
+          }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        } catch (testError) {
+          console.error('[Test Report] Error:', testError);
+          return new Response(JSON.stringify({
+            success: false,
+            error: 'Test report generation failed',
+            details: testError.message
+          }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
       }
 
       // Route: Generate Report (default)
