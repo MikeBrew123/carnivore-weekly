@@ -257,16 +257,17 @@
     /**
      * Lock sidebar to viewport bottom
      * Calculates position so sidebar bottom aligns with viewport bottom
+     * Never positions higher than the header offset
      */
     function lockToBottom() {
         const viewportHeight = window.innerHeight;
         const sidebarHeight = sidebar.offsetHeight;
-        const topPosition = viewportHeight - sidebarHeight;
+        const topPosition = Math.max(config.headerOffset, viewportHeight - sidebarHeight);
 
         sidebar.style.position = 'fixed';
         sidebar.style.top = `${topPosition}px`;
 
-        logDebug(`Locked to bottom: top=${topPosition}px`);
+        logDebug(`Locked to bottom: top=${topPosition}px (sidebar=${sidebarHeight}px, viewport=${viewportHeight}px)`);
     }
 
     /**
