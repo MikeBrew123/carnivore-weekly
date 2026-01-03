@@ -1140,12 +1140,14 @@ strong {
     justify-content: space-between;
     width: 44px;
     height: 44px;
-    background: none;
+    background: rgba(26, 18, 11, 0.8);
     border: none;
     cursor: pointer;
-    padding: 0;
+    padding: 8px;
     position: relative;
-    z-index: 101; /* Above nav */
+    z-index: 101;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
 .hamburger-menu-btn span {
@@ -1153,13 +1155,33 @@ strong {
     height: 3px;
     background-color: var(--text-light);
     display: block;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     border-radius: 2px;
+    transform-origin: center;
 }
 
 /* Hamburger button hover state */
 .hamburger-menu-btn:hover span {
     background-color: var(--accent-amber-dark);
+}
+
+/* Hamburger button active state - animate to X */
+.hamburger-menu-btn.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger-menu-btn.active span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(-10px);
+}
+
+.hamburger-menu-btn.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Active hamburger glow */
+.hamburger-menu-btn.active {
+    box-shadow: 0 0 20px rgba(210, 144, 98, 0.5);
 }
 
 /* Hamburger button focus state (accessibility) */
@@ -1204,6 +1226,10 @@ strong {
         opacity: 1;
         transform: translateY(0);
         padding: var(--spacing-sm) 0;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
+        background: rgba(26, 18, 11, 0.95);
+        border-bottom: 3px solid var(--accent-amber-dark);
     }
 
     .nav-menu.mobile-visible a {
@@ -1214,14 +1240,64 @@ strong {
         width: 100%;
         box-sizing: border-box;
         white-space: nowrap;
+        transition: all 0.3s ease;
+        position: relative;
+        opacity: 0;
+        transform: translateX(-20px);
+        animation: slideInMenu 0.3s ease forwards;
+        box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    /* Staggered animation for menu items */
+    .nav-menu.mobile-visible a:nth-child(1) { animation-delay: 0.05s; }
+    .nav-menu.mobile-visible a:nth-child(2) { animation-delay: 0.1s; }
+    .nav-menu.mobile-visible a:nth-child(3) { animation-delay: 0.15s; }
+    .nav-menu.mobile-visible a:nth-child(4) { animation-delay: 0.2s; }
+    .nav-menu.mobile-visible a:nth-child(5) { animation-delay: 0.25s; }
+    .nav-menu.mobile-visible a:nth-child(6) { animation-delay: 0.3s; }
+    .nav-menu.mobile-visible a:nth-child(7) { animation-delay: 0.35s; }
+
+    /* Hover effect - gradient + accent bar */
+    .nav-menu.mobile-visible a::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--accent-amber-dark);
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .nav-menu.mobile-visible a:hover {
+        background: linear-gradient(90deg, rgba(210, 144, 98, 0.15) 0%, transparent 100%);
+        padding-left: calc(var(--spacing-md) + 0.5rem);
+    }
+
+    .nav-menu.mobile-visible a:hover::before {
+        transform: scaleY(1);
+    }
+
+    /* Active page styling */
+    .nav-menu.mobile-visible a.active-page {
+        background: rgba(210, 144, 98, 0.2);
+        border-left: 4px solid var(--accent-amber-dark);
+        padding-left: calc(var(--spacing-md) - 0.75rem);
+        font-weight: 700;
     }
 
     .nav-menu.mobile-visible a:last-child {
         border-bottom: none;
     }
 
-    .nav-menu.mobile-visible a:hover {
-        background-color: rgba(242, 240, 230, 0.05);
+    /* Slide in animation keyframe */
+    @keyframes slideInMenu {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
 }
 
