@@ -24,12 +24,15 @@ export default function App() {
         const paymentStatus = params.get('payment')
         const stripeSessionId = params.get('session_id')
 
-        // Helper function to scroll to top after step change
+        // Helper function to scroll to form (not all the way to page top)
         const scrollToForm = () => {
-          window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          })
+          // Use a small delay to let DOM settle, then scroll to reasonable position
+          setTimeout(() => {
+            window.scrollTo({
+              top: 100,
+              behavior: 'smooth'
+            })
+          }, 50)
         }
 
         // Handle free tier with 100% discount
