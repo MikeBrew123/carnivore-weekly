@@ -41,14 +41,9 @@ export default function Step2Activity({ onNext, onPrev }: Step2ActivityProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6"
+      className="space-y-5 w-full"
     >
-      <div>
-        <h2 className="text-2xl font-display font-bold text-dark mb-2">Your Activity Level</h2>
-        <p className="text-gray-600">How active is your daily life?</p>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Daily Lifestyle */}
         <div>
           <label className="block text-sm font-semibold text-dark mb-2">Daily Lifestyle</label>

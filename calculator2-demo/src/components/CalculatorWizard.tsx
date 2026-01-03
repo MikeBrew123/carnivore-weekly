@@ -153,14 +153,14 @@ export default function CalculatorWizard() {
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Section */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <motion.div
               key={`step-${currentStep}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="bg-white rounded-xl shadow-lg p-8"
+              className="bg-white rounded-xl shadow-lg p-10"
             >
               <AnimatePresence mode="wait">
                 {currentStep === 1 && (
