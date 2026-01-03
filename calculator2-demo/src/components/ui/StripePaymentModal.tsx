@@ -29,12 +29,21 @@ export default function StripePaymentModal({
   const [nameError, setNameError] = useState('')
   const { sessionToken, form, setFormField } = useFormStore()
 
-  // Pre-populate email from form store if available
+  // Initialize form fields when modal opens
   React.useEffect(() => {
+    // Always start with empty name fields - user must enter their own
+    setFirstName('')
+    setLastName('')
+    setNameError('')
+
+    // Pre-populate email from form store if available (optional)
     if (form.email) {
       setUserEmail(form.email)
+    } else {
+      setUserEmail('')
     }
-  }, [])
+    setEmailError('')
+  }, []) // Only run on mount
 
   const priceMap: Record<string, number> = {
     bundle: 999, // $9.99 in cents
