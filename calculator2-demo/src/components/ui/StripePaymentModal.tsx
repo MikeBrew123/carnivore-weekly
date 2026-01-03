@@ -22,7 +22,9 @@ export default function StripePaymentModal({
   const [couponCode, setCouponCode] = useState('')
   const [discountApplied, setDiscountApplied] = useState<{ code: string; percent: number } | null>(null)
   const [couponError, setCouponError] = useState('')
-  const { sessionToken, form } = useFormStore()
+  const [userEmail, setUserEmail] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const { sessionToken, form, setFormField } = useFormStore()
 
   const priceMap: Record<string, number> = {
     bundle: 999, // $9.99 in cents
@@ -35,6 +37,22 @@ export default function StripePaymentModal({
     if (!discountApplied) return priceMap[tierId] || 999
     const originalPrice = priceMap[tierId] || 999
     return Math.round(originalPrice * (1 - discountApplied.percent / 100))
+  }
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value.trim()
+    setUserEmail(email)
+
+    if (email && !validateEmail(email)) {
+      setEmailError('Please enter a valid email address')
+    } else {
+      setEmailError('')
+    }
   }
 
   const applyCoupon = async () => {
@@ -71,11 +89,21 @@ export default function StripePaymentModal({
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsProcessing(true)
     setError('')
+
+    // Validate email before processing
+    if (!userEmail || !validateEmail(userEmail)) {
+      setEmailError('Please enter a valid email address')
+      return
+    }
+
+    setIsProcessing(true)
 
     try {
       const finalPrice = calculateDiscountedPrice()
+
+      // Update form store with user's email
+      setFormField('email', userEmail)
 
       // If 100% discount (free), skip Stripe and go directly to success
       if (finalPrice === 0) {
@@ -99,7 +127,7 @@ export default function StripePaymentModal({
           original_amount: priceMap[tierId] || 999,
           coupon_code: discountApplied?.code || null,
           discount_percent: discountApplied?.percent || 0,
-          customer_email: form.email || 'unknown@example.com',
+          customer_email: userEmail,
           session_token: sessionToken,
           success_url: `${window.location.origin}/calculator2-demo.html?payment=success&session=${sessionToken}`,
           cancel_url: `${window.location.origin}/calculator2-demo.html?payment=cancelled`,
@@ -282,10 +310,30 @@ export default function StripePaymentModal({
 
           {/* Form */}
           <form onSubmit={handlePayment} className="space-y-4">
-            {/* Email Confirmation */}
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <p className="text-sm text-gray-600 mb-1">Confirmation sent to:</p>
-              <p className="font-semibold text-dark">{form.email || 'your email'}</p>
+            {/* Email Input */}
+            <div>
+              <label className="block text-sm font-semibold text-dark mb-2">
+                Email Address <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="email"
+                value={userEmail}
+                onChange={handleEmailChange}
+                disabled={isProcessing}
+                placeholder="your@email.com"
+                className={`w-full px-4 py-3 rounded-lg border-2 transition focus:outline-none ${
+                  emailError
+                    ? 'border-red-500 bg-red-50 focus:border-red-600 focus:ring-2 focus:ring-red-200'
+                    : 'border-gray-200 bg-gray-50 focus:border-secondary focus:ring-2 focus:ring-secondary/20'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                required
+              />
+              {emailError && (
+                <p className="text-sm text-red-600 mt-1">⚠️ {emailError}</p>
+              )}
+              <p className="text-xs text-gray-500 mt-2">
+                Your receipt and account details will be sent here
+              </p>
             </div>
 
             {/* Buttons */}
@@ -300,7 +348,7 @@ export default function StripePaymentModal({
               </button>
               <button
                 type="submit"
-                disabled={isProcessing}
+                disabled={isProcessing || !userEmail || emailError !== ''}
                 className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-primary to-primary/90 text-accent font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {isProcessing ? 'Redirecting...' : 'Pay ' + tierPrice}
