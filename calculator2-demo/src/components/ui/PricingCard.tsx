@@ -23,6 +23,7 @@ export default function PricingCard({
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      style={{ pointerEvents: 'auto' }}
       className={`rounded-xl p-6 transition-all cursor-pointer relative z-30 ${
         popular
           ? 'bg-gradient-to-br from-primary to-primary/90 text-white border-2 border-secondary shadow-2xl'
