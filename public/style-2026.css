@@ -165,6 +165,8 @@ strong {
     /* top is dynamically calculated to align bottom */
     will-change: transform;
     z-index: 50;
+    max-width: 30vw;
+    right: auto;
 }
 
 /* Locked to top: Top visible, scroll with viewport */
@@ -173,6 +175,8 @@ strong {
     top: 180px;
     will-change: transform;
     z-index: 50;
+    max-width: 30vw;
+    right: auto;
 }
 
 /* Performance optimization: prevent layout thrashing */

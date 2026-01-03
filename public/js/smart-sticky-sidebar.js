@@ -266,17 +266,10 @@
         const sidebarHeight = sidebar.offsetHeight;
         const topPosition = Math.max(config.headerOffset, viewportHeight - sidebarHeight);
 
-        // Get the sidebar's position in the grid (left edge)
-        const rect = sidebar.getBoundingClientRect();
-        const leftPosition = rect.left;
-        const width = rect.width;
-
         sidebar.style.position = 'fixed';
         sidebar.style.top = `${topPosition}px`;
-        sidebar.style.left = `${leftPosition}px`;
-        sidebar.style.width = `${width}px`;
 
-        logDebug(`Locked to bottom: top=${topPosition}px, left=${leftPosition}px, width=${width}px`);
+        logDebug(`Locked to bottom: top=${topPosition}px`);
     }
 
     /**
@@ -284,17 +277,10 @@
      * Uses headerOffset to maintain spacing from page top
      */
     function lockToTop() {
-        // Get the sidebar's position in the grid (left edge and width)
-        const rect = sidebar.getBoundingClientRect();
-        const leftPosition = rect.left;
-        const width = rect.width;
-
         sidebar.style.position = 'fixed';
         sidebar.style.top = `${config.headerOffset}px`;
-        sidebar.style.left = `${leftPosition}px`;
-        sidebar.style.width = `${width}px`;
 
-        logDebug(`Locked to top: top=${config.headerOffset}px, left=${leftPosition}px, width=${width}px`);
+        logDebug(`Locked to top: top=${config.headerOffset}px`);
     }
 
     /**
