@@ -97,6 +97,21 @@ strong {
 }
 
 /* ============================================
+   GLOBAL BUTTON ACCESSIBILITY (44x44px minimum)
+   ============================================ */
+
+button,
+a[class*="btn"],
+[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 18px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ============================================
    LAYOUT CONTAINERS
    ============================================ */
 
@@ -278,7 +293,7 @@ header .tagline {
 
 header .update-date {
     color: rgba(212, 165, 116, 0.8);
-    font-size: 0.9em;
+    font-size: 1.1em;
 }
 
 .logo {
@@ -522,7 +537,7 @@ nav.nav-menu-2026 a:hover {
 }
 
 .video-card .creator {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: var(--accent-amber-dark);
     font-weight: 600;
 }
@@ -537,7 +552,7 @@ nav.nav-menu-2026 a:hover {
 .video-card .stats {
     display: flex;
     gap: var(--spacing-lg);
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 .video-card .stat {
@@ -552,7 +567,7 @@ nav.nav-menu-2026 a:hover {
 
 .video-card .stat-label {
     color: var(--text-muted);
-    font-size: 0.8rem;
+    font-size: 1rem;
 }
 
 .video-card .video-tags {
@@ -566,20 +581,25 @@ nav.nav-menu-2026 a:hover {
     color: var(--primary);
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 1rem;
     font-weight: 600;
 }
 
 .video-card .watch-btn {
     background: var(--accent-amber-dark);
     color: white;
-    padding: 10px 16px;
+    padding: 12px 20px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
     text-align: center;
     transition: all 0.3s ease;
     display: inline-block;
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .video-card .watch-btn:hover {
@@ -625,14 +645,14 @@ nav.nav-menu-2026 a:hover {
 }
 
 .video-info .creator {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     color: var(--accent-amber-dark);
     font-weight: 700;
     margin-bottom: var(--spacing-sm);
 }
 
 .video-summary-2026 {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     color: var(--text-muted);
     line-height: 1.6;
 }
@@ -691,7 +711,7 @@ nav.nav-menu-2026 a:hover {
     color: var(--text-light);
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -786,7 +806,7 @@ nav.nav-menu-2026 a:hover {
     display: block;
     font-style: italic;
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     margin-top: var(--spacing-sm);
 }
 
@@ -798,7 +818,7 @@ nav.nav-menu-2026 a:hover {
     display: inline-block;
     background: var(--accent-sage);
     color: var(--text-light);
-    font-size: 0.75rem;
+    font-size: 1rem;
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: 4px;
     text-transform: uppercase;
@@ -909,7 +929,7 @@ nav.nav-menu-2026 a:hover {
     color: var(--text-light);
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: 4px;
-    font-size: 0.8rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
 }
@@ -920,7 +940,7 @@ nav.nav-menu-2026 a:hover {
 
 .faq-answer p {
     margin-bottom: var(--spacing-sm);
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     line-height: 1.7;
 }
 
@@ -990,7 +1010,7 @@ nav.nav-menu-2026 a:hover {
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: 6px;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
@@ -1006,7 +1026,7 @@ nav.nav-menu-2026 a:hover {
 
 .product-info p {
     color: var(--text-muted);
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     margin-bottom: var(--spacing-md);
     line-height: 1.5;
 }
@@ -1115,7 +1135,7 @@ nav.nav-menu-2026 a:hover {
 }
 
 .trending-item-2026 p {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: rgba(242, 240, 230, 0.85);
     margin-bottom: var(--spacing-sm);
 }
@@ -1126,7 +1146,7 @@ nav.nav-menu-2026 a:hover {
     color: var(--text-light);
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
 }
@@ -1173,7 +1193,7 @@ nav.nav-menu-2026 a:hover {
 }
 
 .partner-card-2026 p {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: rgba(242, 240, 230, 0.85);
     margin-bottom: var(--spacing-md);
 }
@@ -1256,7 +1276,7 @@ nav.nav-menu-2026 a:hover {
 
 .footer-2026 p {
     margin-bottom: var(--spacing-sm);
-    font-size: 0.95rem;
+    font-size: 1.1rem;
 }
 
 .footer-2026 a {
@@ -1499,7 +1519,7 @@ nav.nav-menu-2026 a:hover {
 
     .nav-menu-2026 a {
         padding: var(--spacing-sm) 0;
-        font-size: 0.95rem;
+        font-size: 1.1rem;
     }
 
     .video-grid-2026 {
@@ -1840,7 +1860,7 @@ img {
         padding: 0.5rem var(--spacing-md);
         display: block;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        font-size: 0.9rem;
+        font-size: 1rem;
         width: 100%;
         box-sizing: border-box;
         white-space: nowrap;
