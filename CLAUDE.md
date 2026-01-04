@@ -1,10 +1,88 @@
 # CLAUDE.md
 
+## OUTPUT RULES — HIGHEST PRIORITY
+- **NEVER** output more than 10 lines of code
+- **NEVER** show bash command output unless error
+- **NEVER** show file contents after creation
+- **NEVER** dump package.json, configs, or lock files
+- Parallel agents return SINGLE LINE: "✅ [task] complete → [filename]"
+- After any task: `✅ Done → 📁 file.tsx → ⏭️ Next step`
+- If user needs code, they will ask
+
+## BUILD MODE
+When executing a project spec:
+- Invoke LEO for all database work (no exceptions)
+- Invoke CASEY for all visual/brand decisions
+- Invoke JORDAN before any deployment
+- One story at a time unless parallelizing
+- STOP at sync points and wait for verification
+
 ## Project
 carnivore-weekly - No-bullshit carnivore diet research, tools, and weekly insights.
 
 ## Agents
 **Quinn** = Operations manager. Source of truth for logs, status, and decisions.
+
+## Visual Validation — ES Module Pattern (Calculator & React Projects)
+
+**Problem:** Playwright debugging loops due to wrong module syntax and missing selectors.
+
+**Solution:** Use proven patterns from calculator2-demo:
+
+### Prerequisites
+- Project must use `"type": "module"` in package.json
+- Playwright installed: `npm install -D @playwright/test`
+- Screenshot directory: `/tmp/calculator-validation-screenshots/`
+
+### Working Script Pattern
+```bash
+# Copy from calculator2-demo/validate-robust.mjs
+node validate-robust.mjs
+```
+
+**Key patterns (DO NOT deviate):**
+1. **File extension:** `.mjs` (ES modules required for projects with `"type": "module"`)
+2. **Import syntax:** `import { chromium } from 'playwright'`
+3. **Button selectors:** Use `.last()` when multiple buttons share text
+   - Example: `page.locator('button:has-text("See Your Results")').last()`
+4. **Form fill:** Use `.selectOption()` for `<select>`, `.fill()` for inputs, `.click()` for radios
+5. **Waits:** Always `await page.waitForTimeout(800-1500)` after navigation clicks
+6. **Screenshots:** Always save: `${screenshotDir}/step-name.png`
+
+### Button Text for Calculator
+- Step 1: `"Continue to Next Step"` (not "Next" or "Continue")
+- Step 2: `"See Your Results"` (not "Submit" or "Continue")
+- Step 3: `"Upgrade for Full Personalized Protocol"` (CTA button)
+- Navigation: `"Back"` (always available)
+
+### Validation Checklist
+Run before committing changes to form/calculator:
+```bash
+cd calculator2-demo
+node validate-robust.mjs
+# Check output: All elements ✅ visible
+# Check screenshot: Results page renders correctly
+```
+
+**PASS criteria:**
+- ✅ All form steps navigate correctly
+- ✅ Results page loads on Step 3
+- ✅ All key elements visible (heading, profile, food section, CTA, back button)
+- ✅ Brand colors correct (heading #ffd700, background #F2F0E6)
+- ✅ No horizontal scroll
+
+**FAIL criteria:**
+- ❌ Any navigation step doesn't advance
+- ❌ Missing elements on results page
+- ❌ Colors rendered incorrectly
+- ❌ Layout breaks (horizontal scroll)
+
+## Pre-Deploy Validation (JORDAN)
+Before marking any story "complete" or deploying:
+1. Run calculator validation: `cd calculator2-demo && node validate-robust.mjs`
+2. Check form accessibility: `node test-form-accessibility.js`
+3. Mobile test: `node test-mobile.js`
+4. All tests PASS = deploy. Any FAIL = fix first.
 
 ## Triggers
 | You Say | I Do |
