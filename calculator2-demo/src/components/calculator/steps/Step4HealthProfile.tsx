@@ -1,0 +1,379 @@
+import { FormData } from '../../../types/form'
+import FormField from '../shared/FormField'
+import TextArea from '../shared/TextArea'
+import CheckboxGroup from '../shared/CheckboxGroup'
+import SelectField from '../shared/SelectField'
+
+interface Step4HealthProfileProps {
+  data: FormData
+  onDataChange: (data: FormData) => void
+  onSubmit: () => void
+  onBack: () => void
+  errors: Record<string, string>
+}
+
+export default function Step4HealthProfile({
+  data,
+  onDataChange,
+  onSubmit,
+  onBack,
+  errors,
+}: Step4HealthProfileProps) {
+  const handleInputChange = (field: string, value: any) => {
+    onDataChange({ ...data, [field]: value })
+  }
+
+  const handleSubmit = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!data.email) {
+      newErrors.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      newErrors.email = 'Please enter a valid email'
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      Object.entries(newErrors).forEach(([key, msg]) => {
+        errors[key] = msg
+      })
+      return
+    }
+
+    onSubmit()
+  }
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Health Profile</h2>
+        <p className="text-gray-600">
+          This information helps us personalize your nutrition plan and provide better recommendations.
+        </p>
+      </div>
+
+      {/* SECTION 1: Contact Information */}
+      <section className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">📋 Contact Information</h3>
+        <div className="space-y-4">
+          <FormField
+            id="email"
+            name="email"
+            type="email"
+            label="Email Address"
+            value={data.email || ''}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            error={errors.email}
+            placeholder="your@email.com"
+            required
+          />
+          <FormField
+            id="firstName"
+            name="firstName"
+            type="text"
+            label="First Name"
+            value={data.firstName || ''}
+            onChange={(e) => handleInputChange('firstName', e.target.value)}
+            placeholder="John"
+          />
+          <FormField
+            id="lastName"
+            name="lastName"
+            type="text"
+            label="Last Name"
+            value={data.lastName || ''}
+            onChange={(e) => handleInputChange('lastName', e.target.value)}
+            placeholder="Doe"
+          />
+        </div>
+      </section>
+
+      {/* SECTION 2: Health & Medical */}
+      <section className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">🏥 Health & Medical</h3>
+        <div className="space-y-6">
+          {/* Medications Textarea */}
+          <TextArea
+            id="medications"
+            name="medications"
+            label="Current Medications"
+            value={data.medications || ''}
+            onChange={(e) => handleInputChange('medications', e.target.value)}
+            placeholder="e.g., Metformin, Lisinopril, etc."
+            rows={4}
+            maxLength={5000}
+            helpText="Optional - Helps us provide safe dietary recommendations"
+          />
+
+          {/* Health Conditions Checkboxes */}
+          <CheckboxGroup
+            name="conditions"
+            label="Health Conditions (select all that apply)"
+            options={[
+              { value: 'diabetes', label: 'Diabetes' },
+              { value: 'heart-disease', label: 'Heart Disease' },
+              { value: 'thyroid', label: 'Thyroid Disorder' },
+              { value: 'pcos', label: 'PCOS' },
+              { value: 'arthritis', label: 'Joint Pain/Arthritis' },
+              { value: 'none', label: 'None of the above' },
+            ]}
+            values={data.conditions || []}
+            onChange={(values) => handleInputChange('conditions', values)}
+            helpText="Optional - Select all that apply"
+          />
+
+          {/* Other Conditions Text Input */}
+          <FormField
+            id="otherConditions"
+            name="otherConditions"
+            type="text"
+            label="Other Conditions"
+            value={data.otherConditions || ''}
+            onChange={(e) => handleInputChange('otherConditions', e.target.value)}
+            placeholder="Specify others not listed above"
+          />
+
+          {/* Symptoms Textarea */}
+          <TextArea
+            id="symptoms"
+            name="symptoms"
+            label="Current Symptoms"
+            value={data.symptoms || ''}
+            onChange={(e) => handleInputChange('symptoms', e.target.value)}
+            placeholder="e.g., fatigue, brain fog, joint pain, etc."
+            rows={4}
+            maxLength={5000}
+            helpText="Optional - Helps us tailor recommendations"
+          />
+
+          {/* Other Symptoms Text Input */}
+          <FormField
+            id="otherSymptoms"
+            name="otherSymptoms"
+            type="text"
+            label="Other Symptoms"
+            value={data.otherSymptoms || ''}
+            onChange={(e) => handleInputChange('otherSymptoms', e.target.value)}
+            placeholder="Specify others not listed above"
+          />
+        </div>
+      </section>
+
+      {/* SECTION 3: Dietary Restrictions */}
+      <section className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">🍖 Dietary Restrictions</h3>
+        <div className="space-y-4">
+          <TextArea
+            id="allergies"
+            name="allergies"
+            label="Allergies"
+            value={data.allergies || ''}
+            onChange={(e) => handleInputChange('allergies', e.target.value)}
+            placeholder="List any food allergies (e.g., shellfish, tree nuts)..."
+            rows={2}
+          />
+
+          <TextArea
+            id="avoidFoods"
+            name="avoidFoods"
+            label="Foods to Avoid"
+            value={data.avoidFoods || ''}
+            onChange={(e) => handleInputChange('avoidFoods', e.target.value)}
+            placeholder="Any foods you want to avoid (preferences, intolerances, etc.)..."
+            rows={2}
+          />
+
+          <SelectField
+            name="dairyTolerance"
+            label="Dairy Tolerance"
+            options={[
+              { value: '', label: 'Select dairy tolerance', disabled: true },
+              { value: 'none', label: 'No dairy at all' },
+              { value: 'butter-only', label: 'Butter only' },
+              { value: 'some', label: 'Some dairy (cheese, heavy cream)' },
+              { value: 'full', label: 'Full dairy tolerance' },
+            ]}
+            value={data.dairyTolerance || ''}
+            onChange={(e) => handleInputChange('dairyTolerance', e.target.value)}
+          />
+        </div>
+      </section>
+
+      {/* SECTION 4: Diet History */}
+      <section className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">📖 Your Diet Journey</h3>
+        <div className="space-y-4">
+          <TextArea
+            id="previousDiets"
+            name="previousDiets"
+            label="Previous Diets Tried"
+            value={data.previousDiets || ''}
+            onChange={(e) => handleInputChange('previousDiets', e.target.value)}
+            placeholder="What diets have you tried before? How long? Results?..."
+            rows={3}
+          />
+
+          <TextArea
+            id="whatWorked"
+            name="whatWorked"
+            label="What Worked for You"
+            value={data.whatWorked || ''}
+            onChange={(e) => handleInputChange('whatWorked', e.target.value)}
+            placeholder="Which approaches gave you the best results?..."
+            rows={3}
+          />
+
+          <SelectField
+            name="carnivoreExperience"
+            label="Carnivore Experience"
+            options={[
+              { value: '', label: 'Select your experience level', disabled: true },
+              { value: 'new', label: 'Completely new to carnivore' },
+              { value: 'weeks', label: 'A few weeks' },
+              { value: 'months', label: 'Several months' },
+              { value: 'years', label: 'Over a year' },
+            ]}
+            value={data.carnivoreExperience || ''}
+            onChange={(e) => handleInputChange('carnivoreExperience', e.target.value)}
+          />
+        </div>
+      </section>
+
+      {/* SECTION 5: Lifestyle & Preferences */}
+      <section className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">🏠 Lifestyle & Preferences</h3>
+        <div className="space-y-4">
+          <SelectField
+            name="cookingSkill"
+            label="Cooking Skill"
+            options={[
+              { value: '', label: 'Select your skill level', disabled: true },
+              { value: 'beginner', label: 'Beginner (basic cooking)' },
+              { value: 'intermediate', label: 'Intermediate (comfortable in kitchen)' },
+              { value: 'advanced', label: 'Advanced (experienced cook)' },
+            ]}
+            value={data.cookingSkill || ''}
+            onChange={(e) => handleInputChange('cookingSkill', e.target.value)}
+          />
+
+          <SelectField
+            name="mealPrepTime"
+            label="Meal Prep Time Available"
+            options={[
+              { value: '', label: 'Select time availability', disabled: true },
+              { value: 'minimal', label: 'Minimal (quick meals only)' },
+              { value: 'some', label: 'Some (30-60 min/day)' },
+              { value: 'lots', label: 'Plenty (enjoy meal prep)' },
+            ]}
+            value={data.mealPrepTime || ''}
+            onChange={(e) => handleInputChange('mealPrepTime', e.target.value)}
+          />
+
+          <SelectField
+            name="budget"
+            label="Budget"
+            options={[
+              { value: '', label: 'Select your budget level', disabled: true },
+              { value: 'tight', label: 'Tight budget' },
+              { value: 'moderate', label: 'Moderate budget' },
+              { value: 'flexible', label: 'Flexible budget' },
+            ]}
+            value={data.budget || ''}
+            onChange={(e) => handleInputChange('budget', e.target.value)}
+          />
+
+          <SelectField
+            name="familySituation"
+            label="Family Situation"
+            options={[
+              { value: '', label: 'Select your situation', disabled: true },
+              { value: 'solo', label: 'Cooking for myself' },
+              { value: 'partner', label: 'Partner/spouse' },
+              { value: 'family-with-kids', label: 'Family with kids' },
+              { value: 'large-household', label: 'Large household (4+)' },
+            ]}
+            value={data.familySituation || ''}
+            onChange={(e) => handleInputChange('familySituation', e.target.value)}
+          />
+
+          <SelectField
+            name="workTravel"
+            label="Work Schedule"
+            options={[
+              { value: '', label: 'Select your schedule', disabled: true },
+              { value: 'office', label: 'Regular office hours' },
+              { value: 'remote', label: 'Work from home' },
+              { value: 'shift-work', label: 'Shift work' },
+              { value: 'travel', label: 'Frequent travel' },
+            ]}
+            value={data.workTravel || ''}
+            onChange={(e) => handleInputChange('workTravel', e.target.value)}
+          />
+        </div>
+      </section>
+
+      {/* SECTION 6: Goals & Challenges */}
+      <section className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Your Goals</h3>
+        <div className="space-y-4">
+          <CheckboxGroup
+            name="goals"
+            label="What are you hoping to achieve?"
+            options={[
+              { value: 'weightloss', label: 'Weight loss / fat loss' },
+              { value: 'mental', label: 'Mental clarity / focus' },
+              { value: 'guthealth', label: 'Gut health / digestion' },
+              { value: 'inflammation', label: 'Reduce inflammation' },
+              { value: 'energy', label: 'More energy' },
+              { value: 'athletic', label: 'Athletic performance' },
+              { value: 'hormones', label: 'Hormone balance' },
+            ]}
+            values={data.goals || []}
+            onChange={(values) => handleInputChange('goals', values)}
+          />
+
+          <TextArea
+            id="biggestChallenge"
+            name="biggestChallenge"
+            label="Biggest Challenge"
+            value={data.biggestChallenge || ''}
+            onChange={(e) => handleInputChange('biggestChallenge', e.target.value)}
+            placeholder="What's your biggest obstacle to sticking with a diet?..."
+            rows={3}
+          />
+
+          <TextArea
+            id="additionalNotes"
+            name="additionalNotes"
+            label="Anything Else?"
+            value={data.additionalNotes || ''}
+            onChange={(e) => handleInputChange('additionalNotes', e.target.value)}
+            placeholder="Anything else we should know to personalize your protocol?..."
+            rows={3}
+          />
+        </div>
+      </section>
+
+      {/* Submit Section */}
+      <section className="border-t pt-8 space-y-4">
+        <p className="text-sm text-gray-600">
+          Your information is secure and will be used only to generate your personalized nutrition protocol.
+        </p>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onBack}
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-3 rounded-lg transition-colors"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors"
+          >
+            Generate My Protocol
+          </button>
+        </div>
+      </section>
+    </div>
+  )
+}
