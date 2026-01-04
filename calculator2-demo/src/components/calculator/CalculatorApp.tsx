@@ -17,21 +17,36 @@ interface CalculatorAppProps {
 
 const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Health Profile']
 
+// Dev-only test data (stripped in production)
+const DEV_TEST_DATA: Partial<FormData> = import.meta.env.DEV ? {
+  sex: 'male' as const,
+  age: 30,
+  heightFeet: 6,
+  heightInches: 0,
+  weight: 200,
+  lifestyle: 'moderate',
+  exercise: '3-4',
+  goal: 'maintain' as const,
+  diet: 'carnivore' as const,
+} : {}
+
 export default function CalculatorApp({
   sessionToken,
   onReportGenerated,
 }: CalculatorAppProps) {
-  // Form state
-  const [formData, setFormData] = useState<Partial<FormData>>({
-    sex: undefined,
-    age: 0,
-    weight: 0,
-    lifestyle: '',
-    exercise: '',
-    goal: undefined,
-    deficit: undefined,
-    diet: undefined,
-  })
+  // Form state - pre-filled with test data in dev mode
+  const [formData, setFormData] = useState<Partial<FormData>>(
+    import.meta.env.DEV ? DEV_TEST_DATA : {
+      sex: undefined,
+      age: 0,
+      weight: 0,
+      lifestyle: '',
+      exercise: '',
+      goal: undefined,
+      deficit: undefined,
+      diet: undefined,
+    }
+  )
 
   // UI state
   const [currentStep, setCurrentStep] = useState(1)
@@ -292,6 +307,23 @@ export default function CalculatorApp({
 
   return (
     <>
+      {/* Dev-only test data banner */}
+      {import.meta.env.DEV && (
+        <div style={{
+          width: '100%',
+          backgroundColor: '#ff6b6b',
+          color: 'white',
+          padding: '12px 16px',
+          textAlign: 'center',
+          fontSize: '14px',
+          fontWeight: '600',
+          zIndex: 50,
+          borderBottom: '2px solid #cc5555',
+        }}>
+          ⚠️ TEST DATA LOADED (Dev Mode Only) - Remove before production
+        </div>
+      )}
+
       <div style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '32px', paddingBottom: '32px', paddingLeft: '16px', paddingRight: '16px' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           {/* Progress indicator */}
