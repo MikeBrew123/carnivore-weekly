@@ -78,16 +78,19 @@ export default function Step3FreeResults({
       </div>
 
       {/* Upgrade CTA */}
-      <div className="pt-6 flex flex-col gap-3">
+      <div style={{ paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
         <button
-          onClick={onUpgrade}
+          onClick={(e) => {
+            console.log('[Step3FreeResults] Upgrade button clicked, event:', e)
+            onUpgrade()
+          }}
           style={{
             backgroundColor: '#ffd700',
             color: '#1a120b',
             fontFamily: "'Playfair Display', Georgia, serif",
             fontSize: '18px',
             fontWeight: '600',
-            padding: '16px 24px',
+            padding: '16px 48px',
             borderRadius: '8px',
             border: 'none',
             cursor: 'pointer',

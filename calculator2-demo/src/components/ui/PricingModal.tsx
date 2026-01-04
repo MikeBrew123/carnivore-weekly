@@ -68,6 +68,7 @@ const pricingOptions = [
 ]
 
 export default function PricingModal({ onClose, onProceed }: PricingModalProps) {
+  console.log('[PricingModal] Component rendering')
   const { sessionToken } = useFormStore()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
 
@@ -104,28 +105,71 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
     <>
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/50 flex items-center justify-center z-[150] p-4"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 150,
+          padding: '16px',
+        }}
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="bg-white rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            maxWidth: '1200px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}
         >
           {/* Header */}
-          <div className="sticky top-0 z-20 bg-gradient-to-r from-primary to-primary/90 text-accent p-8 border-b-2 border-secondary pointer-events-none">
+          <div style={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 20,
+            background: 'linear-gradient(to right, #ffd700, rgba(255, 215, 0, 0.9))',
+            color: '#1a120b',
+            padding: '32px',
+            borderBottom: '2px solid #333',
+            pointerEvents: 'none',
+          }}>
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-2xl hover:opacity-80 pointer-events-auto"
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                fontSize: '24px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                pointerEvents: 'auto',
+              }}
             >
               ✕
             </button>
-            <h2 className="text-3xl font-display font-bold mb-2">Choose Your Plan</h2>
-            <p className="text-accent/80">Select the features that matter most to you</p>
+            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif" }}>Choose Your Plan</h2>
+            <p style={{ color: 'rgba(26, 18, 11, 0.8)', fontFamily: "'Merriweather', Georgia, serif" }}>Select the features that matter most to you</p>
           </div>
 
           {/* New Years Sale Banner */}
-          <div className="bg-red-600 text-white p-4 text-center border-b-2 border-red-700">
-            <p className="text-lg font-bold">🎉 NEW YEARS SALE 🎉</p>
-            <p className="text-sm mt-1">Complete Bundle was <span className="line-through">$298</span> → NOW $9.99</p>
+          <div style={{
+            backgroundColor: '#dc2626',
+            color: 'white',
+            padding: '16px',
+            textAlign: 'center',
+            borderBottom: '2px solid #991b1b',
+          }}>
+            <p style={{ fontSize: '18px', fontWeight: 'bold' }}>🎉 NEW YEARS SALE 🎉</p>
+            <p style={{ fontSize: '14px', marginTop: '8px' }}>Complete Bundle was <span style={{ textDecoration: 'line-through' }}>$298</span> → NOW $9.99</p>
           </div>
 
           {/* Pricing Cards */}

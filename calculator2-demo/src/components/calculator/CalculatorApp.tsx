@@ -121,6 +121,8 @@ export default function CalculatorApp({
   }
 
   const handleUpgradeClick = () => {
+    console.log('[CalculatorApp] Upgrade button clicked')
+    console.log('[CalculatorApp] Setting showPricingModal to true')
     setShowPricingModal(true)
   }
 
