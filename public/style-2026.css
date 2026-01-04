@@ -1318,7 +1318,7 @@ nav.nav-menu-2026 a:hover {
     display: flex;
     gap: 20px;
     color: #d4a574;
-    font-size: 14px;
+    font-size: 16px;
     margin-bottom: 15px;
     flex-wrap: wrap;
 }
@@ -1332,7 +1332,7 @@ nav.nav-menu-2026 a:hover {
 }
 
 .post-author-bio strong {
-    color: #ffd700;
+    color: #ffffff;
 }
 
 .post-content {
@@ -1343,7 +1343,7 @@ nav.nav-menu-2026 a:hover {
 }
 
 .post-content h1 {
-    color: #ffd700;
+    color: #ffffff;
     margin-top: 30px;
     margin-bottom: 15px;
     font-size: 32px;
@@ -1353,7 +1353,7 @@ nav.nav-menu-2026 a:hover {
 }
 
 .post-content h2 {
-    color: #ffd700;
+    color: #ffffff;
     margin-top: 30px;
     margin-bottom: 15px;
     font-size: 24px;
@@ -1431,12 +1431,14 @@ nav.nav-menu-2026 a:hover {
 
 .blog-tag,
 .tag {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     background: #8b4513;
     color: #d4a574;
-    padding: 6px 12px;
+    padding: 8px 12px;
     border-radius: 4px;
-    font-size: 13px;
+    font-size: 14px;
+    min-height: 32px;
     transition: all 0.2s ease;
 }
 
@@ -1449,9 +1451,12 @@ nav.nav-menu-2026 a:hover {
 .back-to-blog {
     color: #d4a574;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 16px;
     margin-bottom: 20px;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 0;
     transition: color 0.2s ease;
 }
 
