@@ -40,6 +40,7 @@ const STEPS = {
 export default function CalculatorWizard() {
   const { currentStep, setCurrentStep, isPremium, setIsPremium, macros, sessionToken, form } = useFormStore()
   const [units, setUnits] = useState<'imperial' | 'metric'>('imperial')
+  const [heightUnit, setHeightUnit] = useState<'feet-inches' | 'cm'>('feet-inches')
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [resultsData, setResultsData] = useState<MacroResults | null>(null)
@@ -67,6 +68,15 @@ export default function CalculatorWizard() {
     },
     mode: 'onBlur',
   })
+
+  // Initialize heightUnit based on form data
+  useEffect(() => {
+    if (form.heightCm) {
+      setHeightUnit('cm')
+    } else {
+      setHeightUnit('feet-inches')
+    }
+  }, [form.heightCm])
 
   // Auto-save form state
   useEffect(() => {
@@ -197,9 +207,9 @@ export default function CalculatorWizard() {
         </button>
       </div>
 
-      {/* Sex (Single Column) */}
+      {/* Sex */}
       <fieldset className="space-y-3">
-        <legend className="block text-base font-semibold text-dark">What's your biological sex?</legend>
+        <legend className="block text-base font-semibold text-dark">Biological Sex</legend>
         <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
           <input type="radio" {...register('sex')} value="male" className="w-4 h-4" />
           <span className="text-base text-gray-700">Male</span>
@@ -225,50 +235,90 @@ export default function CalculatorWizard() {
         {errors.age && <p className="text-red-500 text-sm mt-1">{errors.age.message}</p>}
       </div>
 
-      {/* Height */}
-      <div>
-        <label className="block text-base font-semibold text-dark mb-2">
-          Height {units === 'imperial' ? '(feet & inches)' : '(centimeters)'}
-        </label>
-        {units === 'imperial' ? (
+      {/* Height Section */}
+      <fieldset className="space-y-4">
+        <legend className="block text-base font-semibold text-dark">Height</legend>
+
+        {/* Height Unit Toggle - Radio Buttons */}
+        <div className="flex gap-4 bg-slate-100 p-3 rounded-lg">
+          <label className="flex items-center gap-3 cursor-pointer flex-1">
+            <input
+              type="radio"
+              value="feet-inches"
+              checked={heightUnit === 'feet-inches'}
+              onChange={() => setHeightUnit('feet-inches')}
+              className="w-4 h-4"
+            />
+            <span className="text-base font-medium text-gray-700">Feet & Inches</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer flex-1">
+            <input
+              type="radio"
+              value="cm"
+              checked={heightUnit === 'cm'}
+              onChange={() => setHeightUnit('cm')}
+              className="w-4 h-4"
+            />
+            <span className="text-base font-medium text-gray-700">Centimeters</span>
+          </label>
+        </div>
+
+        {/* Feet & Inches Inputs */}
+        {heightUnit === 'feet-inches' && (
           <div className="flex gap-2">
             <div className="flex-1">
+              <label htmlFor="heightFeet" className="block text-sm font-medium text-gray-700 mb-1">
+                Feet
+              </label>
               <input
+                id="heightFeet"
                 type="number"
                 {...register('heightFeet', { valueAsNumber: true })}
                 min="3"
                 max="8"
                 className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
-                placeholder="5"
+                placeholder="6"
               />
-              <span className="text-xs text-gray-500 mt-1 block">Feet</span>
             </div>
             <div className="flex-1">
+              <label htmlFor="heightInches" className="block text-sm font-medium text-gray-700 mb-1">
+                Inches
+              </label>
               <input
+                id="heightInches"
                 type="number"
                 {...register('heightInches', { valueAsNumber: true })}
                 min="0"
                 max="11"
                 className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
-                placeholder="10"
+                placeholder="2"
               />
-              <span className="text-xs text-gray-500 mt-1 block">Inches</span>
             </div>
           </div>
-        ) : (
-          <input
-            type="number"
-            {...register('heightCm', { valueAsNumber: true })}
-            min="120"
-            max="230"
-            className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
-            placeholder="178"
-          />
         )}
+
+        {/* Centimeters Input */}
+        {heightUnit === 'cm' && (
+          <div>
+            <label htmlFor="heightCm" className="block text-sm font-medium text-gray-700 mb-1">
+              Centimeters
+            </label>
+            <input
+              id="heightCm"
+              type="number"
+              {...register('heightCm', { valueAsNumber: true })}
+              min="100"
+              max="250"
+              className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+              placeholder="180"
+            />
+          </div>
+        )}
+
         {(errors.heightFeet || errors.heightInches || errors.heightCm) && (
           <p className="text-red-500 text-sm mt-1">Please enter a valid height</p>
         )}
-      </div>
+      </fieldset>
 
       {/* Weight */}
       <div>
@@ -497,36 +547,30 @@ export default function CalculatorWizard() {
                   <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
                     <h3 className="font-semibold text-dark text-sm uppercase tracking-wide">Why Users Love This</h3>
                     <div className="space-y-2">
-                      {[
-                        'Free & instant results',
-                        'No email required',
-                        'Data encrypted & private',
-                        'Used by 50k+ carnivores'
-                      ].map(item => (
-                        <div key={item} className="flex items-center gap-2 text-sm">
-                          <span className="text-green-500 font-bold">✓</span>
-                          <span className="text-gray-700">{item}</span>
-                        </div>
-                      ))}
+                      <div className="flex gap-2">
+                        <span className="text-primary text-lg">✓</span>
+                        <span className="text-sm text-gray-600">Personalized to your needs</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="text-primary text-lg">✓</span>
+                        <span className="text-sm text-gray-600">Science-backed macros</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="text-primary text-lg">✓</span>
+                        <span className="text-sm text-gray-600">No restrictive rules</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Pro Upgrade */}
-                  {currentStep < 3 && (
-                    <div className="bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/30 rounded-lg p-6 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">⭐</span>
-                        <h3 className="font-semibold text-dark">Ready for More?</h3>
-                      </div>
-                      <p className="text-sm text-gray-700">Get your free macro report. Then unlock Pro for just $9.99.</p>
-                      <ul className="text-xs text-gray-700 space-y-1">
-                        <li>• 30-day meal plan</li>
-                        <li>• Shopping lists</li>
-                        <li>• Doctor's guide</li>
-                        <li>• Full protocol</li>
-                      </ul>
+                  {/* Pricing */}
+                  <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
+                    <h3 className="font-semibold text-dark text-sm uppercase tracking-wide">All Plans Include</h3>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div>→ Personalized macros</div>
+                      <div>→ Meal examples</div>
+                      <div>→ Electrolyte guidance</div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             )}
@@ -536,10 +580,7 @@ export default function CalculatorWizard() {
 
       {/* Pricing Modal */}
       {showPricingModal && (
-        <PricingModal
-          onClose={() => setShowPricingModal(false)}
-          onProceed={handleProceedAfterPayment}
-        />
+        <PricingModal onClose={() => setShowPricingModal(false)} onProceed={handleProceedAfterPayment} />
       )}
     </div>
   )
