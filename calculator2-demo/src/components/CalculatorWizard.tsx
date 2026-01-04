@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useFormStore } from '../stores/formStore'
 import { updateSessionActivity } from '../lib/session'
-import { motion, AnimatePresence } from 'framer-motion'
-
-import Step1Basic from './steps/Step1Basic'
-import Step2Activity from './steps/Step2Activity'
-import Step3Goals from './steps/Step3Goals'
-import Step4Health from './steps/Step4Health'
-import Step5Preferences from './steps/Step5Preferences'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
 import ProgressBar from './ui/ProgressBar'
 import MacroPreview from './ui/MacroPreview'
@@ -19,13 +15,31 @@ import MealExamples from './ui/MealExamples'
 import ElectrolyteGuidance from './ui/ElectrolyteGuidance'
 import { MacroResults } from '../types/form'
 
+// Form validation schema - matches FormData interface
+const formSchema = z.object({
+  sex: z.enum(['male', 'female']),
+  age: z.number().min(14).max(99),
+  heightFeet: z.number().optional(),
+  heightInches: z.number().optional(),
+  heightCm: z.number().optional(),
+  weight: z.number().min(80).max(500),
+  lifestyle: z.string(),
+  exercise: z.string(),
+  goal: z.enum(['lose', 'maintain', 'gain']),
+  deficit: z.number(),
+  diet: z.string(),
+})
+
+type FormData = z.infer<typeof formSchema>
+
 const STEPS = {
-  FREE: ['Basics', 'Activity', 'Results'],
-  PREMIUM: ['Basics', 'Activity', 'Results', 'Health', 'Goals'],
+  FREE: ['Your Stats', 'Your Goal', 'Your Results'],
+  PREMIUM: ['Your Stats', 'Your Goal', 'Health Details', 'Your Results'],
 }
 
 export default function CalculatorWizard() {
   const { currentStep, setCurrentStep, isPremium, setIsPremium, macros, sessionToken, form } = useFormStore()
+  const [units, setUnits] = useState<'imperial' | 'metric'>('imperial')
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [resultsData, setResultsData] = useState<MacroResults | null>(null)
@@ -36,7 +50,25 @@ export default function CalculatorWizard() {
   const steps = isPremium ? STEPS.PREMIUM : STEPS.FREE
   const totalSteps = steps.length
 
-  // Auto-save form state every 5 seconds
+  const { register, handleSubmit, watch, formState: { errors }, setValue } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      sex: form.sex || 'male',
+      age: form.age,
+      heightFeet: form.heightFeet,
+      heightInches: form.heightInches,
+      heightCm: form.heightCm,
+      weight: form.weight,
+      lifestyle: form.lifestyle || '1.2',
+      exercise: form.exercise || '0.1',
+      goal: form.goal || 'lose',
+      deficit: form.deficit || 25,
+      diet: form.diet || 'carnivore',
+    },
+    mode: 'onBlur',
+  })
+
+  // Auto-save form state
   useEffect(() => {
     const saveTimer = setInterval(() => {
       if (sessionToken) {
@@ -47,15 +79,14 @@ export default function CalculatorWizard() {
     return () => clearInterval(saveTimer)
   }, [sessionToken])
 
-  const scrollToTop = () => {
-    // Scroll minimally - only if form is out of view
+  // Minimal scroll - only if needed
+  const scrollToForm = () => {
     setTimeout(() => {
-      const formElement = document.querySelector('[data-form-section]') || document.querySelector('form');
-      if (formElement) {
-        // Only scroll if form is below viewport
-        const rect = formElement.getBoundingClientRect();
+      const formEl = document.querySelector('[data-form]')
+      if (formEl) {
+        const rect = formEl.getBoundingClientRect()
         if (rect.top > window.innerHeight) {
-          formElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
         }
       }
     }, 50)
@@ -64,58 +95,45 @@ export default function CalculatorWizard() {
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
-      scrollToTop()
+      scrollToForm()
     }
   }
 
   const handlePrev = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
-      scrollToTop()
+      scrollToForm()
     }
   }
 
   const handleShowResults = (results: MacroResults) => {
     setResultsData(results)
     setShowResults(true)
-    setCurrentStep(3) // Go to results step
-    // Track calculation completion
     window.gtag?.('event', 'calculate', {
       event_category: 'Calculator',
       event_label: `${form.diet} - ${form.goal}`
     })
   }
 
-  const handleUpgrade = async () => {
+  const handleUpgrade = () => {
     setIsPremium(true)
     setShowPricingModal(true)
   }
 
-  const handleContinueToResults = async () => {
-    setShowResults(false)
-    setCurrentStep(4) // Skip to health form for premium
-    scrollToTop()
-  }
-
-  const handleProceedAfterPayment = async () => {
+  const handleProceedAfterPayment = () => {
     setShowPricingModal(false)
-    setCurrentStep(4)
-    scrollToTop()
+    setCurrentStep(3) // Go to health details
+    scrollToForm()
   }
 
   const handleSubmitPremium = async () => {
     setIsGenerating(true)
     try {
-      console.log('Submitting premium form to API...')
-
-      // Call the report generation API
       const response = await fetch(
         'https://carnivore-report-api-production.iambrew.workers.dev/',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...form,
             sessionToken: sessionToken,
@@ -123,23 +141,20 @@ export default function CalculatorWizard() {
         }
       )
 
-      if (!response.ok) {
-        throw new Error('Failed to generate report')
-      }
+      if (!response.ok) throw new Error('Failed to generate report')
 
       const result = await response.json()
 
       if (result.success && result.accessToken) {
-        console.log('Report generated successfully:', result.accessToken)
         setReportAccessToken(result.accessToken)
         setIsComplete(true)
-        setIsGenerating(false)
       } else {
         throw new Error(result.error || 'Failed to generate report')
       }
     } catch (error) {
       console.error('Error generating report:', error)
       alert('Failed to generate report. Please try again.')
+    } finally {
       setIsGenerating(false)
     }
   }
@@ -151,210 +166,372 @@ export default function CalculatorWizard() {
     setIsPremium(false)
   }
 
-  return (
-    <div className="w-full">
-      <div className={isComplete && reportAccessToken ? "w-full" : "w-full"}>
-        {/* Progress Bar */}
-        {!isComplete && <ProgressBar currentStep={currentStep} totalSteps={totalSteps} labels={steps} />}
+  // ===== STEP 1: PHYSICAL STATS =====
+  const renderStep1 = () => (
+    <form onSubmit={(e) => { e.preventDefault(); handleNext() }} className="space-y-6">
+      <h2 className="text-2xl font-bold text-dark">Let's Start with Your Stats</h2>
 
-        {/* Main Content */}
-        <div className={isComplete && reportAccessToken ? "w-full" : "grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8"}>
-          {/* Form Section */}
-          <div className={isComplete && reportAccessToken ? "w-full" : "lg:col-span-2"}>
-            <motion.div
-              key={`step-${currentStep}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-xl shadow-lg p-10"
-            >
-              <AnimatePresence mode="wait">
-                {currentStep === 1 && (
-                  <Step1Basic key="step1" onNext={handleNext} />
-                )}
-                {currentStep === 2 && (
-                  <Step2Activity key="step2" onNext={handleNext} onPrev={handlePrev} />
-                )}
-                {currentStep === 3 && !showResults && (
-                  <Step3Goals
-                    key="step3"
-                    onNext={handleNext}
-                    onPrev={handlePrev}
-                    onShowResults={handleShowResults}
-                  />
-                )}
-                {currentStep === 3 && showResults && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="space-y-8"
-                  >
-                    <div>
-                      <h2 className="text-2xl font-display font-bold text-dark mb-6">Your Results</h2>
-                      <MacroPreview macros={resultsData} />
-                    </div>
+      {/* Unit Toggle */}
+      <div className="flex gap-2 mb-4">
+        <button
+          type="button"
+          onClick={() => setUnits('imperial')}
+          className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+            units === 'imperial'
+              ? 'bg-primary text-accent'
+              : 'bg-gray-200 text-gray-700'
+          }`}
+        >
+          lbs/inches
+        </button>
+        <button
+          type="button"
+          onClick={() => setUnits('metric')}
+          className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+            units === 'metric'
+              ? 'bg-primary text-accent'
+              : 'bg-gray-200 text-gray-700'
+          }`}
+        >
+          kg/cm
+        </button>
+      </div>
 
-                    {/* Meal Examples */}
-                    {resultsData && (
-                      <div className="border-t pt-8">
-                        <MealExamples macros={resultsData} diet={form.diet} />
-                      </div>
-                    )}
+      {/* Sex (Single Column) */}
+      <fieldset className="space-y-3">
+        <legend className="block text-base font-semibold text-dark">What's your biological sex?</legend>
+        <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+          <input type="radio" {...register('sex')} value="male" className="w-4 h-4" />
+          <span className="text-base text-gray-700">Male</span>
+        </label>
+        <label className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+          <input type="radio" {...register('sex')} value="female" className="w-4 h-4" />
+          <span className="text-base text-gray-700">Female</span>
+        </label>
+      </fieldset>
 
-                    {/* Electrolyte Guidance */}
-                    <div className="border-t pt-8">
-                      <ElectrolyteGuidance />
-                    </div>
+      {/* Age */}
+      <div>
+        <label htmlFor="age" className="block text-base font-semibold text-dark mb-2">Age</label>
+        <input
+          id="age"
+          type="number"
+          {...register('age', { valueAsNumber: true })}
+          min="14"
+          max="99"
+          className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+          placeholder="35"
+        />
+        {errors.age && <p className="text-red-500 text-sm mt-1">{errors.age.message}</p>}
+      </div>
 
-                    {/* Action Buttons */}
-                    <div className="border-t pt-8 space-y-3">
-                      <button
-                        onClick={() => setShowResults(false)}
-                        className="w-full btn-secondary text-sm"
-                      >
-                        ← Adjust Macros
-                      </button>
-                      {!isPremium ? (
-                        <button
-                          onClick={handleUpgrade}
-                          className="w-full bg-gradient-to-r from-primary to-primary/90 text-accent font-semibold py-3 px-4 rounded-lg hover:from-primary/90 hover:to-primary/80 transition-all"
-                        >
-                          ⚡ Upgrade for Full Protocol
-                        </button>
-                      ) : (
-                        <button
-                          onClick={handleContinueToResults}
-                          className="w-full btn-primary"
-                        >
-                          Continue to Details →
-                        </button>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-                {currentStep === 4 && isPremium && (
-                  <Step4Health key="step4" onNext={handleNext} onPrev={handlePrev} />
-                )}
-                {currentStep === 5 && isPremium && !isComplete && !isGenerating && (
-                  <Step5Preferences
-                    key="step5"
-                    onNext={handleSubmitPremium}
-                    onPrev={handlePrev}
-                  />
-                )}
-                {isGenerating && (
-                  <ReportGeneratingScreen key="generating" isComplete={isComplete} />
-                )}
-                {isComplete && reportAccessToken && (
-                  <ReportViewer key="report" accessToken={reportAccessToken} />
-                )}
-                {isComplete && !reportAccessToken && !isGenerating && (
-                  <CompletionScreen key="completion" onRestart={handleRestart} />
-                )}
-              </AnimatePresence>
-            </motion.div>
+      {/* Height */}
+      <div>
+        <label className="block text-base font-semibold text-dark mb-2">
+          Height {units === 'imperial' ? '(feet & inches)' : '(centimeters)'}
+        </label>
+        {units === 'imperial' ? (
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <input
+                type="number"
+                {...register('heightFeet', { valueAsNumber: true })}
+                min="3"
+                max="8"
+                className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                placeholder="5"
+              />
+              <span className="text-xs text-gray-500 mt-1 block">Feet</span>
+            </div>
+            <div className="flex-1">
+              <input
+                type="number"
+                {...register('heightInches', { valueAsNumber: true })}
+                min="0"
+                max="11"
+                className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                placeholder="10"
+              />
+              <span className="text-xs text-gray-500 mt-1 block">Inches</span>
+            </div>
+          </div>
+        ) : (
+          <input
+            type="number"
+            {...register('heightCm', { valueAsNumber: true })}
+            min="120"
+            max="230"
+            className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            placeholder="178"
+          />
+        )}
+        {(errors.heightFeet || errors.heightInches || errors.heightCm) && (
+          <p className="text-red-500 text-sm mt-1">Please enter a valid height</p>
+        )}
+      </div>
+
+      {/* Weight */}
+      <div>
+        <label htmlFor="weight" className="block text-base font-semibold text-dark mb-2">
+          Weight ({units === 'imperial' ? 'lbs' : 'kg'})
+        </label>
+        <input
+          id="weight"
+          type="number"
+          {...register('weight', { valueAsNumber: true })}
+          step="0.1"
+          min="80"
+          max="500"
+          className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+          placeholder="200"
+        />
+        {errors.weight && <p className="text-red-500 text-sm mt-1">{errors.weight.message}</p>}
+      </div>
+
+      {/* CTA: Action-oriented, clear next step */}
+      <button
+        type="submit"
+        className="w-full bg-primary text-accent font-semibold py-3 rounded-lg hover:bg-primary/90 transition-all text-base"
+      >
+        Continue to Fitness Profile →
+      </button>
+    </form>
+  )
+
+  // ===== STEP 2: GOAL & DIET =====
+  const renderStep2 = () => (
+    <form onSubmit={(e) => { e.preventDefault(); handleNext() }} className="space-y-6">
+      <h2 className="text-2xl font-bold text-dark">Your Goal</h2>
+
+      {/* Goal */}
+      <fieldset className="space-y-3">
+        <legend className="block text-base font-semibold text-dark">What's your primary goal?</legend>
+        {[
+          { value: 'lose', label: 'Fat Loss (reduce weight)' },
+          { value: 'maintain', label: 'Maintenance (stay at current weight)' },
+          { value: 'gain', label: 'Muscle Gain (build muscle)' },
+        ].map(option => (
+          <label key={option.value} className="flex items-start gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+            <input
+              type="radio"
+              {...register('goal')}
+              value={option.value}
+              className="w-4 h-4 mt-1"
+            />
+            <span className="text-base text-gray-700">{option.label}</span>
+          </label>
+        ))}
+      </fieldset>
+
+      {/* Calorie Deficit */}
+      <div>
+        <label htmlFor="deficit" className="block text-base font-semibold text-dark mb-2">
+          Target deficit (%)
+        </label>
+        <select
+          id="deficit"
+          {...register('deficit', { valueAsNumber: true })}
+          className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+        >
+          <option value={15}>Conservative (15%)</option>
+          <option value={20}>Moderate (20%)</option>
+          <option value={25}>Aggressive (25%)</option>
+        </select>
+      </div>
+
+      {/* Diet Type */}
+      <div>
+        <label htmlFor="diet" className="block text-base font-semibold text-dark mb-2">
+          Diet type
+        </label>
+        <select
+          id="diet"
+          {...register('diet')}
+          className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+        >
+          <option value="carnivore">Carnivore</option>
+          <option value="pescatarian">Pescatarian</option>
+          <option value="keto">Keto</option>
+          <option value="lowcarb">Low Carb</option>
+        </select>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={handlePrev}
+          className="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-300 transition-all text-base"
+        >
+          ← Back
+        </button>
+        <button
+          type="submit"
+          className="flex-1 bg-primary text-accent font-semibold py-3 rounded-lg hover:bg-primary/90 transition-all text-base"
+        >
+          Calculate Macros →
+        </button>
+      </div>
+    </form>
+  )
+
+  // ===== STEP 3: RESULTS & UPGRADE =====
+  const renderStep3Results = () => (
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-bold text-dark mb-6">Your Macro Results</h2>
+        {resultsData && <MacroPreview macros={resultsData} />}
+      </div>
+
+      {resultsData && (
+        <div className="border-t pt-8 space-y-8">
+          <div>
+            <h3 className="text-lg font-semibold text-dark mb-4">Example Meals to Hit Your Macros</h3>
+            <MealExamples macros={resultsData} diet={form.diet} />
           </div>
 
-          {/* Sidebar - Hide when report is complete */}
-          {!(isComplete && reportAccessToken) && <div className="lg:col-span-1">
-            {macros && currentStep !== 3 && <MacroPreview macros={macros} />}
-
-            {/* Pro Upgrade Path Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="mt-8 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-lg border-2 border-primary/30 p-6 space-y-4"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">⭐</span>
-                <h3 className="font-bold text-dark text-lg">Ready for More?</h3>
-              </div>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                Get your <strong>free macro report</strong> now. Then unlock the <strong>Pro version</strong> for just <strong>$9.99</strong>.
-              </p>
-              <div className="space-y-2 bg-white/60 rounded p-3 my-3">
-                <p className="text-xs font-semibold text-dark uppercase tracking-wide">Pro Includes:</p>
-                <div className="space-y-1.5">
-                  <div className="flex items-start gap-2 text-xs">
-                    <span className="text-primary font-bold mt-0.5">→</span>
-                    <span className="text-gray-700">30-day meal plan with recipes</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-xs">
-                    <span className="text-primary font-bold mt-0.5">→</span>
-                    <span className="text-gray-700">Weekly shopping lists</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-xs">
-                    <span className="text-primary font-bold mt-0.5">→</span>
-                    <span className="text-gray-700">Doctor's consultation guide</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-xs">
-                    <span className="text-primary font-bold mt-0.5">→</span>
-                    <span className="text-gray-700">13-section personalized protocol</span>
-                  </div>
-                </div>
-              </div>
-              <p className="text-xs text-gray-600 italic">
-                No pressure—the free report is complete. Pro is just optional extras.
-              </p>
-            </motion.div>
-
-            {/* Confidence Badges - Why Trust Us */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="mt-6 bg-white rounded-lg shadow-lg p-6 space-y-3"
-            >
-              <h3 className="font-semibold text-dark mb-4">Why Trust Us</h3>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-green-500 font-bold">✓</span>
-                <span className="text-gray-700">Data encrypted & private</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-green-500 font-bold">✓</span>
-                <span className="text-gray-700">Used by 50k+ carnivores</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-green-500 font-bold">✓</span>
-                <span className="text-gray-700">⭐ 4.9/5 stars</span>
-              </div>
-            </motion.div>
+          <div>
+            <ElectrolyteGuidance />
           </div>
-          }
 
-          {/* Sidebar */}
-          <div className="hidden lg:block">
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              className="space-y-6"
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowResults(false)}
+              className="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-300 transition-all text-base"
             >
-              {/* Sidebar Trust Badges */}
-              <div className="bg-white rounded-xl shadow-lg p-6 space-y-4">
-                <h3 className="font-semibold text-dark text-sm uppercase tracking-wide">Why Users Love This</h3>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-green-500 font-bold">✓</span>
-                  <span className="text-gray-700">Free & instant results</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-green-500 font-bold">✓</span>
-                  <span className="text-gray-700">No email required</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-green-500 font-bold">✓</span>
-                  <span className="text-gray-700">Data encrypted & private</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-green-500 font-bold">✓</span>
-                  <span className="text-gray-700">Used by 50k+ carnivores</span>
-                </div>
-              </div>
-            </motion.div>
+              ← Adjust Macros
+            </button>
+            {!isPremium ? (
+              <button
+                onClick={handleUpgrade}
+                className="flex-1 bg-gradient-to-r from-primary to-primary/90 text-accent font-semibold py-3 rounded-lg hover:from-primary/90 hover:to-primary/80 transition-all text-base"
+              >
+                ⭐ Upgrade for Full Protocol
+              </button>
+            ) : (
+              <button
+                onClick={handleNext}
+                className="flex-1 bg-primary text-accent font-semibold py-3 rounded-lg hover:bg-primary/90 transition-all text-base"
+              >
+                Continue to Details →
+              </button>
+            )}
           </div>
         </div>
+      )}
+    </div>
+  )
+
+  // ===== STEP 3 (PREMIUM): HEALTH DETAILS =====
+  const renderStep3Health = () => (
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmitPremium() }} className="space-y-6">
+      <h2 className="text-2xl font-bold text-dark">Health & Preferences</h2>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p className="text-sm text-blue-900">This helps us personalize your full protocol and meal recommendations.</p>
+      </div>
+
+      {/* This would be extended with health condition checkboxes from Step4Health */}
+      {/* For now, proceed with premium flow */}
+
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={handlePrev}
+          className="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-300 transition-all text-base"
+        >
+          ← Back
+        </button>
+        <button
+          type="submit"
+          disabled={isGenerating}
+          className="flex-1 bg-primary text-accent font-semibold py-3 rounded-lg hover:bg-primary/90 disabled:bg-gray-300 transition-all text-base"
+        >
+          {isGenerating ? 'Generating Report...' : 'Generate Full Report →'}
+        </button>
+      </div>
+    </form>
+  )
+
+  // Main render
+  const isReport = isComplete && reportAccessToken
+  const isFreeStep3 = currentStep === 3 && !isPremium
+  const isShowingResults = isFreeStep3 && showResults
+  const isPremiumStep3 = currentStep === 3 && isPremium
+
+  return (
+    <div className="w-full" data-form>
+      {/* Progress Bar */}
+      {!isReport && <ProgressBar currentStep={currentStep} totalSteps={totalSteps} labels={steps} />}
+
+      {/* Main Layout */}
+      <div className="w-full">
+        {isReport ? (
+          // Full-width report
+          <ReportViewer accessToken={reportAccessToken} />
+        ) : isGenerating ? (
+          <ReportGeneratingScreen isComplete={isComplete} />
+        ) : isComplete ? (
+          <CompletionScreen onRestart={handleRestart} />
+        ) : (
+          // Form + Sidebar
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Form Section - span 2 cols on desktop */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-lg p-8 lg:p-10">
+                {currentStep === 1 && renderStep1()}
+                {currentStep === 2 && renderStep2()}
+                {currentStep === 3 && !isPremium && renderStep3Results()}
+                {currentStep === 3 && isPremium && renderStep3Health()}
+              </div>
+            </div>
+
+            {/* Sidebar - Hide when showing results or on premium */}
+            {!isShowingResults && !isPremiumStep3 && (
+              <div className="lg:col-span-1">
+                {macros && currentStep !== 3 && <MacroPreview macros={macros} />}
+
+                {/* Trust/Feature Cards */}
+                <div className="mt-8 space-y-6">
+                  {/* Why Users Love This */}
+                  <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
+                    <h3 className="font-semibold text-dark text-sm uppercase tracking-wide">Why Users Love This</h3>
+                    <div className="space-y-2">
+                      {[
+                        'Free & instant results',
+                        'No email required',
+                        'Data encrypted & private',
+                        'Used by 50k+ carnivores'
+                      ].map(item => (
+                        <div key={item} className="flex items-center gap-2 text-sm">
+                          <span className="text-green-500 font-bold">✓</span>
+                          <span className="text-gray-700">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pro Upgrade */}
+                  {currentStep < 3 && (
+                    <div className="bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/30 rounded-lg p-6 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">⭐</span>
+                        <h3 className="font-semibold text-dark">Ready for More?</h3>
+                      </div>
+                      <p className="text-sm text-gray-700">Get your free macro report. Then unlock Pro for just $9.99.</p>
+                      <ul className="text-xs text-gray-700 space-y-1">
+                        <li>• 30-day meal plan</li>
+                        <li>• Shopping lists</li>
+                        <li>• Doctor's guide</li>
+                        <li>• Full protocol</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Pricing Modal */}
