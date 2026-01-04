@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { getOrCreateSession } from './lib/session'
 import CalculatorApp from './components/calculator/CalculatorApp'
+import AssessmentSuccess from './components/AssessmentSuccess'
 
 export default function App() {
   const [sessionToken, setSessionToken] = useState<string>('')
   const [isInitialized, setIsInitialized] = useState(false)
+  const [currentPath, setCurrentPath] = useState(window.location.pathname)
 
   useEffect(() => {
     async function initializeApp() {
@@ -76,12 +78,29 @@ export default function App() {
     }
 
     initializeApp()
+
+    // Listen for popstate events to update current path
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname)
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
   if (!isInitialized) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
+      </div>
+    )
+  }
+
+  // Route to success page if path is /assessment/success
+  if (currentPath === '/assessment/success') {
+    return (
+      <div className="min-h-screen">
+        <AssessmentSuccess />
       </div>
     )
   }

@@ -3,7 +3,6 @@ import { useState } from 'react'
 import PricingCard from './PricingCard'
 import StripePaymentModal from './StripePaymentModal'
 import { useFormStore } from '../../stores/formStore'
-import { supabase } from '../../lib/supabase'
 
 interface PricingModalProps {
   onClose: () => void
@@ -87,30 +86,12 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
     setSelectedTier(tierId)
   }
 
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = () => {
     if (!selectedTier) return
 
-    try {
-      // Update session with selected tier
-      const { error } = await supabase
-        .from('calculator2_sessions')
-        .update({ pricing_tier: selectedTier })
-        .eq('session_token', sessionToken)
-
-      if (error) {
-        console.error('[PricingModal] Failed to update session:', error)
-        // Still proceed even if DB update fails
-      }
-
-      // Proceed to next step
-      setSelectedTier(null)
-      onProceed(selectedTier)
-    } catch (err) {
-      console.error('[PricingModal] Payment success handler error:', err)
-      // Proceed anyway
-      setSelectedTier(null)
-      onProceed(selectedTier)
-    }
+    // Proceed to next step (no DB calls - data stays in React state)
+    setSelectedTier(null)
+    onProceed(selectedTier)
   }
 
   const handlePaymentCancel = () => {

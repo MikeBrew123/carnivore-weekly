@@ -1,5 +1,6 @@
 import { FormData, MacroResults } from '../../../types/form'
 import { calculateBMR, calculateMacros } from '../../../lib/calculations'
+import MacroPreview from '../../ui/MacroPreview'
 
 interface Step3FreeResultsProps {
   data: FormData
@@ -26,114 +27,110 @@ export default function Step3FreeResults({
     <div className="space-y-8">
       {/* Results Header */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Personalized Carnivore Macros</h2>
-        <p className="text-gray-600">Based on your profile and goals</p>
+        <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '32px', fontWeight: '700', color: '#ffd700', marginBottom: '8px' }}>Your Personalized Carnivore Macros</h2>
+        <p style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '16px', color: '#a0a0a0' }}>Based on your profile and goals</p>
       </div>
 
-      {/* Profile Summary */}
-      <div className="bg-gray-50 rounded-lg p-6 space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-gray-700">Sex:</span>
-          <span className="font-medium text-gray-900 capitalize">{data.sex}</span>
+      {/* Profile Summary - Dark Card Styling */}
+      <div style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+        <div style={{ fontSize: '14px' }}>
+          <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Sex:</span>
+          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>{data.sex}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-700">Age:</span>
-          <span className="font-medium text-gray-900">{data.age} years</span>
+        <div style={{ fontSize: '14px' }}>
+          <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Age:</span>
+          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>{data.age} years</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-700">Height:</span>
-          <span className="font-medium text-gray-900">
+        <div style={{ fontSize: '14px' }}>
+          <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Height:</span>
+          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>
             {data.heightFeet ? `${data.heightFeet}'${data.heightInches}"` : `${data.heightCm}cm`}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-700">Weight:</span>
-          <span className="font-medium text-gray-900">{data.weight} lbs</span>
+        <div style={{ fontSize: '14px' }}>
+          <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Weight:</span>
+          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>{data.weight} lbs</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-700">Activity Level:</span>
-          <span className="font-medium text-gray-900 capitalize">{data.lifestyle}</span>
+        <div style={{ fontSize: '14px' }}>
+          <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Activity Level:</span>
+          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>{data.lifestyle}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-700">Goal:</span>
-          <span className="font-medium text-gray-900 capitalize">{data.goal}</span>
-        </div>
-      </div>
-
-      {/* Macro Results */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Calories */}
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 text-center">
-          <p className="text-sm text-gray-600 mb-1">Daily Calories</p>
-          <p className="text-4xl font-bold text-blue-600 mb-1">{macros.calories}</p>
-          <p className="text-xs text-gray-500">kcal</p>
-        </div>
-
-        {/* TDEE */}
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 text-center">
-          <p className="text-sm text-gray-600 mb-1">Maintenance Calories</p>
-          <p className="text-4xl font-bold text-purple-600 mb-1">{macros.tdee}</p>
-          <p className="text-xs text-gray-500">TDEE</p>
-        </div>
-
-        {/* Protein */}
-        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-6 text-center">
-          <p className="text-sm text-gray-600 mb-1">Protein</p>
-          <p className="text-4xl font-bold text-red-600 mb-1">{macros.protein}</p>
-          <p className="text-xs text-gray-500">g per day</p>
-        </div>
-
-        {/* Fat */}
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-6 text-center">
-          <p className="text-sm text-gray-600 mb-1">Fat</p>
-          <p className="text-4xl font-bold text-orange-600 mb-1">{macros.fat}</p>
-          <p className="text-xs text-gray-500">g per day</p>
+        <div style={{ fontSize: '14px' }}>
+          <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Goal:</span>
+          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>{data.goal}</span>
         </div>
       </div>
 
-      {/* What This Looks Like */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
-        <h3 className="font-semibold text-gray-900 mb-3">What This Looks Like in Food</h3>
-        <p className="text-sm text-gray-700 mb-3">
-          To hit your macro targets, aim for approximately:
+      {/* Macro Preview - Show Value First */}
+      <MacroPreview macros={macros} />
+
+      {/* What This Looks Like - Dark Card */}
+      <div style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '24px' }}>
+        <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '600', color: '#ffd700', marginBottom: '12px' }}>What This Looks Like in Food</h3>
+        <p style={{ fontSize: '14px', color: '#f5f5f5', marginBottom: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>
+          To hit your {macros.calories} calorie target, aim for approximately:
         </p>
-        <ul className="space-y-2 text-sm text-gray-700">
-          <li>• <strong>{(macros.protein / 25).toFixed(1)} lbs of ground beef</strong> (80/20 blend)</li>
-          <li>• <strong>OR {(macros.protein / 30).toFixed(1)} lbs of ribeye steak</strong></li>
-          <li>• <strong>OR {(macros.protein / 20).toFixed(1)} lbs of organs</strong> (liver, kidney) + fatty cuts</li>
+        <ul style={{ fontSize: '14px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", marginLeft: '20px' }}>
+          <li style={{ marginBottom: '8px' }}><strong>{(macros.calories / 1500).toFixed(1)} lbs of ground beef</strong> (80/20 blend, ~1,500 cal/lb)</li>
+          <li style={{ marginBottom: '8px' }}><strong>OR {(macros.calories / 1200).toFixed(1)} lbs of ribeye steak</strong> (~1,200 cal/lb)</li>
+          <li><strong>OR {(macros.calories / 700).toFixed(1)} lbs of organs</strong> (liver, kidney) (~700 cal/lb)</li>
         </ul>
-      </div>
-
-      {/* Free Results Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="font-semibold text-blue-900 mb-2">📊 These Are Your Free Results</h3>
-        <p className="text-sm text-blue-800 mb-4">
-          Your macros are calculated using industry-standard formulas (Mifflin-St Jeor equation).
-          This gives you a solid starting point!
-        </p>
-        <p className="text-sm text-blue-800">
-          💎 <strong>Upgrade for personalized guidance:</strong> Get meal plans, electrolyte recommendations,
-          supplements specific to your health conditions, and more.
-        </p>
       </div>
 
       {/* Upgrade CTA */}
       <div className="pt-6 flex flex-col gap-3">
         <button
           onClick={onUpgrade}
-          className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold py-4 rounded-lg transition-all"
+          style={{
+            backgroundColor: '#ffd700',
+            color: '#1a120b',
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '18px',
+            fontWeight: '600',
+            padding: '16px 24px',
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#e6c200';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#ffd700';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
         >
-          ⭐ Upgrade for Full Personalized Protocol
+          Upgrade for Full Personalized Protocol
         </button>
-        <p className="text-xs text-gray-500 text-center">
-          Unlock AI-powered personalization, meal plans, and detailed guidance
+        <p style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
+          Unlock personalized guidance, meal plans, and detailed recommendations
         </p>
       </div>
 
       {/* Back Button */}
       <button
         onClick={onBack}
-        className="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-3 rounded-lg transition-colors"
+        style={{
+          width: '100%',
+          backgroundColor: 'transparent',
+          border: '2px solid #ffd700',
+          color: '#ffd700',
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: '16px',
+          fontWeight: '600',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          transition: 'all 0.2s'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(255, 215, 0, 0.1)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
       >
         Back
       </button>

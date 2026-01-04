@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useFormStore } from '../stores/formStore'
-import { updateSessionActivity } from '../lib/session'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -77,17 +76,6 @@ export default function CalculatorWizard() {
       setHeightUnit('feet-inches')
     }
   }, [form.heightCm])
-
-  // Auto-save form state
-  useEffect(() => {
-    const saveTimer = setInterval(() => {
-      if (sessionToken) {
-        updateSessionActivity(sessionToken, {})
-      }
-    }, 5000)
-
-    return () => clearInterval(saveTimer)
-  }, [sessionToken])
 
   // Minimal scroll - only if needed
   const scrollToForm = () => {
