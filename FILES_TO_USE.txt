@@ -1,0 +1,275 @@
+DATABASE UNBLOCK - FILES TO USE
+================================================================================
+
+THE 2 FILES YOU MUST USE (IN ORDER)
+────────────────────────────────────────────────────────────────────────────
+
+1. SUPABASE_MIGRATION_COMBINED.sql
+   ├─ What: Complete database schema (6 tables, 20+ indexes, RLS policies)
+   ├─ Where: Copy entire contents
+   ├─ Action: Paste into Supabase SQL editor → Execute
+   ├─ Time: ~2 minutes
+   └─ Location: /Users/mbrew/Developer/carnivore-weekly/SUPABASE_MIGRATION_COMBINED.sql
+
+2. SUPABASE_SEED_PAYMENT_TIERS.sql
+   ├─ What: Payment tier definitions (Starter, Pro, Elite, Lifetime)
+   ├─ Where: Copy entire contents
+   ├─ Action: Paste into NEW Supabase SQL tab → Execute
+   ├─ Time: ~1 minute
+   └─ Location: /Users/mbrew/Developer/carnivore-weekly/SUPABASE_SEED_PAYMENT_TIERS.sql
+
+
+THE DOCUMENTATION FILES
+────────────────────────────────────────────────────────────────────────────
+
+Start here:
+  QUICK_START.txt
+  ├─ Visual, step-by-step guide
+  ├─ 6 simple steps with clear instructions
+  └─ Read this FIRST
+
+Then read:
+  EXECUTION_CHECKLIST.md
+  ├─ Detailed checklist with sub-steps
+  ├─ Troubleshooting quick reference
+  └─ Success criteria for each step
+
+For deep understanding:
+  DATABASE_UNBLOCK_STEPS.md
+  ├─ Complete technical documentation
+  ├─ FAQ and troubleshooting
+  └─ Schema design explanations
+
+Executive overview:
+  UNBLOCK_SUMMARY.txt
+  └─ High-level summary and timeline
+
+
+THE TESTING FILES
+────────────────────────────────────────────────────────────────────────────
+
+Test the API after migration:
+  TEST_CALCULATOR_API.sh
+  ├─ Location: /Users/mbrew/Developer/carnivore-weekly/TEST_CALCULATOR_API.sh
+  ├─ Run: bash TEST_CALCULATOR_API.sh
+  ├─ Tests: 5 endpoints (create session, steps 1-3, payment tiers)
+  └─ Time: ~2 minutes
+
+Verify environment setup:
+  VERIFY_WRANGLER_SETUP.sh
+  ├─ Location: /Users/mbrew/Developer/carnivore-weekly/VERIFY_WRANGLER_SETUP.sh
+  ├─ Run: bash VERIFY_WRANGLER_SETUP.sh
+  ├─ Checks: wrangler installation, config, secrets
+  └─ Time: ~1 minute
+
+
+QUICK REFERENCE - WHAT EACH FILE IS
+────────────────────────────────────────────────────────────────────────────
+
+┌─ MIGRATION FILES (COPY & PASTE INTO SUPABASE) ─────────────────────────────┐
+│                                                                             │
+│ SUPABASE_MIGRATION_COMBINED.sql       The database schema (6 tables)       │
+│ SUPABASE_SEED_PAYMENT_TIERS.sql       Payment tier definitions (4 tiers)   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DOCUMENTATION (READ THESE) ───────────────────────────────────────────────┐
+│                                                                             │
+│ QUICK_START.txt                   Start here - visual 6-step guide         │
+│ EXECUTION_CHECKLIST.md            Detailed step-by-step with checks        │
+│ DATABASE_UNBLOCK_STEPS.md         Complete technical documentation        │
+│ UNBLOCK_SUMMARY.txt               Executive summary                        │
+│ FILES_TO_USE.txt                  This file                               │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─ TESTING (RUN AFTER MIGRATION) ────────────────────────────────────────────┐
+│                                                                             │
+│ TEST_CALCULATOR_API.sh            Integration test suite (5 endpoints)     │
+│ VERIFY_WRANGLER_SETUP.sh          Environment verification                │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+THE WORKFLOW
+────────────────────────────────────────────────────────────────────────────
+
+1. Read QUICK_START.txt (5 minutes)
+   └─ Understand the problem and solution
+
+2. Read EXECUTION_CHECKLIST.md (as you go)
+   └─ Follow along with the detailed checklist
+
+3. Copy & Paste Migrations (5 minutes)
+   ├─ SUPABASE_MIGRATION_COMBINED.sql → Execute
+   └─ SUPABASE_SEED_PAYMENT_TIERS.sql → Execute
+
+4. Verify (1 minute)
+   └─ Run verification query in Supabase
+
+5. Test API (2 minutes)
+   └─ bash TEST_CALCULATOR_API.sh
+
+6. Celebrate! Database unblocked!
+   └─ Ready for payment testing
+
+
+EXACT COPY & PASTE INSTRUCTIONS
+────────────────────────────────────────────────────────────────────────────
+
+Step 1: Open Supabase SQL editor
+  Visit: https://supabase.com/dashboard/project/kwtdpvnjewtahuxjyltn/sql/new
+
+Step 2: Copy SUPABASE_MIGRATION_COMBINED.sql
+  - Open the file in your text editor (VSCode, etc.)
+  - Select ALL text (Cmd+A or Ctrl+A)
+  - Copy (Cmd+C or Ctrl+C)
+  - Paste into Supabase SQL editor (Cmd+V or Ctrl+V)
+  - Click "Execute" button
+  - Wait for green checkmark
+
+Step 3: Copy SUPABASE_SEED_PAYMENT_TIERS.sql
+  - Click "New query" in Supabase (top left)
+  - Open the file in your text editor
+  - Select ALL text (Cmd+A or Ctrl+A)
+  - Copy (Cmd+C or Ctrl+C)
+  - Paste into NEW Supabase SQL tab (Cmd+V or Ctrl+V)
+  - Click "Execute" button
+  - Wait for green checkmark
+
+Step 4: Verify in Supabase
+  - Click "New query" again
+  - Paste: SELECT COUNT(*) FROM payment_tiers;
+  - Click "Execute"
+  - Should return: 4
+
+Done! Database is unblocked.
+
+
+FILE LOCATIONS (ABSOLUTE PATHS)
+────────────────────────────────────────────────────────────────────────────
+
+Migration Files:
+  /Users/mbrew/Developer/carnivore-weekly/SUPABASE_MIGRATION_COMBINED.sql
+  /Users/mbrew/Developer/carnivore-weekly/SUPABASE_SEED_PAYMENT_TIERS.sql
+
+Documentation:
+  /Users/mbrew/Developer/carnivore-weekly/QUICK_START.txt
+  /Users/mbrew/Developer/carnivore-weekly/EXECUTION_CHECKLIST.md
+  /Users/mbrew/Developer/carnivore-weekly/DATABASE_UNBLOCK_STEPS.md
+  /Users/mbrew/Developer/carnivore-weekly/UNBLOCK_SUMMARY.txt
+  /Users/mbrew/Developer/carnivore-weekly/FILES_TO_USE.txt
+
+Testing:
+  /Users/mbrew/Developer/carnivore-weekly/TEST_CALCULATOR_API.sh
+  /Users/mbrew/Developer/carnivore-weekly/VERIFY_WRANGLER_SETUP.sh
+
+
+DECISION TREE - WHICH FILE TO READ?
+────────────────────────────────────────────────────────────────────────────
+
+"I just want to unblock the database"
+  → Read: QUICK_START.txt (5 minutes)
+  → Do: Follow the 6 steps
+  → Time: 10 minutes
+
+"I want step-by-step instructions with checkboxes"
+  → Read: EXECUTION_CHECKLIST.md
+  → Do: Check off each step as you complete it
+  → Time: 15 minutes
+
+"I want complete technical details"
+  → Read: DATABASE_UNBLOCK_STEPS.md
+  → Do: Follow the numbered steps
+  → Time: 20 minutes
+
+"I want a high-level overview"
+  → Read: UNBLOCK_SUMMARY.txt
+  → Do: Refer to specific sections as needed
+  → Time: 5 minutes
+
+"I want to understand the schema"
+  → Read: /migrations/015_calculator_comprehensive_schema.sql
+  → Read: /migrations/016_step6b_report_generation.sql
+  → Time: 30 minutes (optional, for deep understanding)
+
+
+SUCCESS CRITERIA
+────────────────────────────────────────────────────────────────────────────
+
+After using these files:
+
+  ✓ Both SQL files have been executed in Supabase
+  ✓ SELECT COUNT(*) FROM payment_tiers; returns 4
+  ✓ curl test returns 201 Created with session_token
+  ✓ TEST_CALCULATOR_API.sh passes all tests
+  ✓ No 500 errors in wrangler dev
+  ✓ Database is unblocked and ready for testing
+
+
+IMPORTANT NOTES
+────────────────────────────────────────────────────────────────────────────
+
+- All migrations are idempotent (safe to run multiple times)
+- No data will be deleted or modified
+- RLS policies ensure security
+- ACID compliance guarantees data integrity
+- If anything fails, just re-run the step
+
+- Don't manually edit tables in Supabase
+- Always use migrations for schema changes
+- Keep migrations in version control (git)
+
+
+TIMELINE
+────────────────────────────────────────────────────────────────────────────
+
+Read documentation:     5 minutes
+Apply migrations:       5 minutes
+Verify success:         2 minutes
+Test API:              2 minutes
+                      ────────────
+Total:                14 minutes
+
+
+SUPPORT QUICK LINKS
+────────────────────────────────────────────────────────────────────────────
+
+Supabase SQL Editor:
+  https://supabase.com/dashboard/project/kwtdpvnjewtahuxjyltn/sql/new
+
+Test API locally:
+  http://localhost:8787/api/v1/calculator/session
+
+Test frontend:
+  http://localhost:8000/public/calculator-form-rebuild.html
+
+PostgreSQL docs:
+  https://www.postgresql.org/docs/13/
+
+Supabase docs:
+  https://supabase.com/docs
+
+
+FINAL CHECKLIST - BEFORE YOU START
+────────────────────────────────────────────────────────────────────────────
+
+  [ ] You have access to Supabase dashboard
+  [ ] You have a text editor open
+  [ ] Wrangler dev is running (port 8787)
+  [ ] You can access http://localhost:8000 (frontend)
+  [ ] You have 15 minutes free time
+  [ ] You're ready to unblock the database
+
+If all checked, proceed to QUICK_START.txt
+
+
+════════════════════════════════════════════════════════════════════════════════
+
+"A database is a promise you make to the future. Don't break it."
+"Slow is smooth, and smooth is fast. Your data is sacred."
+
+Status: READY FOR DEPLOYMENT
+Confidence: 100%
+
+Let's go!

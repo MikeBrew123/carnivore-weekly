@@ -1,0 +1,410 @@
+{
+  "url": "http://localhost:8000/blog.html",
+  "analyzed_at": "2026-01-03T17:31:40.324652",
+  "screenshots": {
+    "desktop_full": "ux-analysis/localhost:8000_desktop_full_20260103_173140.png",
+    "desktop_fold": "ux-analysis/localhost:8000_desktop_fold_20260103_173140.png",
+    "mobile_full": "ux-analysis/localhost:8000_mobile_full_20260103_173140.png",
+    "mobile_fold": "ux-analysis/localhost:8000_mobile_fold_20260103_173140.png"
+  },
+  "metrics": {
+    "desktop": {
+      "page_height": 2647,
+      "viewport_height": 900,
+      "viewport_width": 1440,
+      "scroll_depth_screens": 3
+    },
+    "mobile": {
+      "page_height": 7021,
+      "viewport_height": 844,
+      "viewport_width": 390,
+      "scroll_depth_screens": 9
+    }
+  },
+  "content_inventory": [
+    {
+      "type": "header",
+      "selector": "header",
+      "class": "header-2026",
+      "id": "",
+      "text": "CARNIVORE WEEKLY\n\nThe Meat-Eater's Digest\n\nPremium",
+      "position": {
+        "top": 0,
+        "left": 0,
+        "width": 1440,
+        "height": 313
+      },
+      "above_fold": true
+    },
+    {
+      "type": "nav",
+      "selector": "nav",
+      "class": "nav-menu-2026",
+      "id": "",
+      "text": "Home\nChannels\nWiki\nBlog\nCalculator",
+      "position": {
+        "top": 338,
+        "left": 0,
+        "width": 1440,
+        "height": 111
+      },
+      "above_fold": true
+    },
+    {
+      "type": "footer",
+      "selector": "footer",
+      "class": "footer-2026",
+      "id": "",
+      "text": "\u00a9 2026 Carnivore Weekly. Evidence-based content fo",
+      "position": {
+        "top": 2454,
+        "left": 40,
+        "width": 1360,
+        "height": 173
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 31, 2025\nWelcome to Carnivore Weekly\nby H",
+      "position": {
+        "top": 688,
+        "left": 40,
+        "width": 325,
+        "height": 397
+      },
+      "above_fold": true
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 31, 2025\nThe Acne Purge: What It Is and W",
+      "position": {
+        "top": 688,
+        "left": 385,
+        "width": 325,
+        "height": 397
+      },
+      "above_fold": true
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 30, 2025\nPCOS and Carnivore: How Meat Res",
+      "position": {
+        "top": 688,
+        "left": 730,
+        "width": 325,
+        "height": 397
+      },
+      "above_fold": true
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 29, 2025\nThe Lion Diet Challenge: 30 Days",
+      "position": {
+        "top": 688,
+        "left": 1075,
+        "width": 325,
+        "height": 397
+      },
+      "above_fold": true
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 28, 2025\nPhysiological Insulin Resistance",
+      "position": {
+        "top": 1105,
+        "left": 40,
+        "width": 325,
+        "height": 445
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 27, 2025\nThe Anti-Resolution Playbook: Wh",
+      "position": {
+        "top": 1105,
+        "left": 385,
+        "width": 325,
+        "height": 445
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 26, 2025\nThe Seven Dollar Survival Guide:",
+      "position": {
+        "top": 1105,
+        "left": 730,
+        "width": 325,
+        "height": 445
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 25, 2025\nNew Year, Same You: Why Resoluti",
+      "position": {
+        "top": 1105,
+        "left": 1075,
+        "width": 325,
+        "height": 445
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 24, 2025\nThe Deep Freezer Strategy: How t",
+      "position": {
+        "top": 1570,
+        "left": 40,
+        "width": 325,
+        "height": 419
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 23, 2025\nADHD and Carnivore: What the Res",
+      "position": {
+        "top": 1570,
+        "left": 385,
+        "width": 325,
+        "height": 419
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 22, 2025\nmTOR and Muscle Building on Carn",
+      "position": {
+        "top": 1570,
+        "left": 730,
+        "width": 325,
+        "height": 419
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 21, 2025\nNight Sweats on Carnivore: Why T",
+      "position": {
+        "top": 1570,
+        "left": 1075,
+        "width": 325,
+        "height": 419
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 20, 2025\nThe Lipid Energy Model: How Your",
+      "position": {
+        "top": 2009,
+        "left": 40,
+        "width": 325,
+        "height": 397
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 19, 2025\nPSMF and Carnivore: Does Extreme",
+      "position": {
+        "top": 2009,
+        "left": 385,
+        "width": 325,
+        "height": 397
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "blog-card",
+      "id": "",
+      "text": "December 18, 2025\nThe Carnivore Bar Guide: What's ",
+      "position": {
+        "top": 2009,
+        "left": 730,
+        "width": 325,
+        "height": 397
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"grid\"]",
+      "class": "blog-grid",
+      "id": "",
+      "text": "December 31, 2025\nWelcome to Carnivore Weekly\nby H",
+      "position": {
+        "top": 688,
+        "left": 40,
+        "width": 1360,
+        "height": 1718
+      },
+      "above_fold": true
+    },
+    {
+      "type": "h1",
+      "selector": "h1",
+      "class": "",
+      "id": "",
+      "text": "CARNIVORE WEEKLY",
+      "position": {
+        "top": 45,
+        "left": 0,
+        "width": 1440,
+        "height": 102
+      },
+      "above_fold": true
+    },
+    {
+      "type": "h2",
+      "selector": "h2",
+      "class": "page-header-secondary",
+      "id": "",
+      "text": "Carnivore Weekly Blog",
+      "position": {
+        "top": 469,
+        "left": 40,
+        "width": 1360,
+        "height": 64
+      },
+      "above_fold": true
+    },
+    {
+      "type": "button",
+      "selector": "button",
+      "class": "filter-btn active",
+      "id": "",
+      "text": "All Posts",
+      "position": {
+        "top": 614,
+        "left": 538,
+        "width": 94,
+        "height": 44
+      },
+      "above_fold": true
+    },
+    {
+      "type": "button",
+      "selector": "button",
+      "class": "filter-btn",
+      "id": "",
+      "text": "Sarah",
+      "position": {
+        "top": 614,
+        "left": 642,
+        "width": 77,
+        "height": 44
+      },
+      "above_fold": true
+    },
+    {
+      "type": "button",
+      "selector": "button",
+      "class": "filter-btn",
+      "id": "",
+      "text": "Marcus",
+      "position": {
+        "top": 614,
+        "left": 730,
+        "width": 86,
+        "height": 44
+      },
+      "above_fold": true
+    },
+    {
+      "type": "button",
+      "selector": "button",
+      "class": "filter-btn",
+      "id": "",
+      "text": "Chloe",
+      "position": {
+        "top": 614,
+        "left": 826,
+        "width": 77,
+        "height": 44
+      },
+      "above_fold": true
+    },
+    {
+      "type": "img",
+      "selector": "img",
+      "class": "logo",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": -55,
+        "left": 830,
+        "width": 750,
+        "height": 410
+      },
+      "above_fold": true
+    }
+  ],
+  "accessibility": {
+    "desktop": {
+      "issues": [
+        "46 elements have font-size < 16px",
+        "20 clickable elements smaller than 44x44px"
+      ],
+      "element_counts": {
+        "headings": 2,
+        "images": 1,
+        "links": 39,
+        "buttons": 4
+      }
+    },
+    "mobile": {
+      "issues": [
+        "20 touch targets smaller than 44x44px",
+        "49 elements have font-size < 14px (hard to read on mobile)"
+      ]
+    }
+  }
+}

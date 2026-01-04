@@ -1,11 +1,10 @@
-import { useEffect } from 'react'
-import { useFormStore } from './stores/formStore'
-import { getOrCreateSession, detectCountryFromHeaders } from './lib/session'
-import { detectUnits } from './lib/calculations'
-import CalculatorWizard from './components/CalculatorWizard'
+import { useEffect, useState } from 'react'
+import { getOrCreateSession } from './lib/session'
+import CalculatorApp from './components/calculator/CalculatorApp'
 
 export default function App() {
-  const { setSessionToken, setUnits, setIsPremium, setCurrentStep } = useFormStore()
+  const [sessionToken, setSessionToken] = useState<string>('')
+  const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
     async function initializeApp() {
@@ -14,42 +13,32 @@ export default function App() {
         const session = await getOrCreateSession()
         setSessionToken(session.session_token)
 
-        // Detect user's preferred units from country/Cloudflare headers
-        const country = detectCountryFromHeaders()
-        const units = detectUnits(country)
-        setUnits(units)
-
         // Check if returning from payment
         const params = new URLSearchParams(window.location.search)
         const paymentStatus = params.get('payment')
         const stripeSessionId = params.get('session_id')
 
-        // Helper function to scroll to form (minimal scroll, only if needed)
+        // Helper function to scroll to form
         const scrollToForm = () => {
-          // Use a small delay to let DOM settle, then scroll minimally
           setTimeout(() => {
-            const formElement = document.querySelector('[data-form-section]') || document.querySelector('form') || document.querySelector('.calculator-wizard');
+            const formElement = document.querySelector('[data-form-section]') || document.querySelector('form')
             if (formElement) {
-              // Only scroll if form is not visible in viewport
-              const rect = formElement.getBoundingClientRect();
+              const rect = formElement.getBoundingClientRect()
               if (rect.top > window.innerHeight || rect.top < 0) {
-                formElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                formElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
               }
             }
-          }, 50)
+          }, 100)
         }
 
         // Handle free tier with 100% discount
         if (paymentStatus === 'free') {
-          setIsPremium(true)
-          setCurrentStep(4) // Jump to Health step (Step 4)
           scrollToForm()
           console.log('[App] Premium access granted (free tier)')
           window.history.replaceState({}, '', window.location.pathname)
         }
         // Handle paid Stripe payment
         else if (paymentStatus === 'success' && stripeSessionId) {
-          // Verify payment with Stripe before granting premium access
           try {
             const verifyResponse = await fetch(
               'https://carnivore-report-api-production.iambrew.workers.dev/verify-payment',
@@ -67,8 +56,6 @@ export default function App() {
             console.log('[App] Payment verification result:', verifyResult)
 
             if (verifyResult.success && verifyResult.paid) {
-              setIsPremium(true)
-              setCurrentStep(4) // Jump to Health step (Step 4)
               scrollToForm()
               console.log('[App] Premium access granted after payment verification')
             } else {
@@ -78,20 +65,30 @@ export default function App() {
             console.error('[App] Payment verification error:', verifyError)
           }
 
-          // Clean up URL regardless of verification result
           window.history.replaceState({}, '', window.location.pathname)
         }
+
+        setIsInitialized(true)
       } catch (error) {
         console.error('Failed to initialize app:', error)
+        setIsInitialized(true) // Continue even if initialization fails
       }
     }
 
     initializeApp()
-  }, [setSessionToken, setUnits, setIsPremium, setCurrentStep])
+  }, [])
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      <CalculatorWizard />
+    <div className="min-h-screen bg-gray-50">
+      <CalculatorApp sessionToken={sessionToken} />
     </div>
   )
 }

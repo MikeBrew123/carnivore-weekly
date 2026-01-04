@@ -1,0 +1,276 @@
+STEP 6C VISUAL VALIDATION - DELIVERABLES
+========================================
+
+Generated: January 3, 2026
+Validator: Casey (Visual Director & QA)
+Task: Visual validation of calculator submission flow & progress bar
+
+---
+
+VALIDATION REPORTS
+==================
+
+1. STEP_6C_EXECUTIVE_SUMMARY.md
+   - Quick overview of findings
+   - What's good vs. what's missing
+   - Next steps and timeline
+   - Success criteria
+   - START HERE for overview
+
+2. CASEY_VALIDATION_FINDINGS.md
+   - Comprehensive validation results
+   - Form structure assessment
+   - Input styling verification
+   - Responsive design testing
+   - Accessibility audit
+   - Detailed implementation gaps
+   - Color verification checklist
+
+3. STEP_6C_VISUAL_VALIDATION_REPORT.md
+   - Complete technical validation
+   - 16 detailed sections
+   - Form structure analysis
+   - All color verifications
+   - Accessibility compliance
+   - Progress bar requirements
+   - 5-stage timeline
+   - Implementation checklist
+
+---
+
+IMPLEMENTATION GUIDES
+====================
+
+1. IMPLEMENTATION_REQUIREMENTS_STEP_6C.md
+   - Copy-paste ready HTML code for submit button
+   - Copy-paste ready CSS code (submit button + progress bar)
+   - Copy-paste ready JavaScript code (form handler + progress polling)
+   - Testing checklist
+   - Browser compatibility matrix
+   - API endpoint specifications
+   - Performance requirements
+   - Timeline estimate
+   - FOR DEVELOPERS: Step-by-step implementation guide
+
+---
+
+MEMORY & QUICK REFERENCE
+========================
+
+1. agents/memory/casey_submission_validation_summary.md
+   - Casey's quick reference notes
+   - What exists, what's missing
+   - Quick checklist
+   - Color verification requirements
+   - Next steps for each team
+
+---
+
+DIRECTORY STRUCTURE
+===================
+
+Project Root:
+  ├── STEP_6C_EXECUTIVE_SUMMARY.md [HIGH-LEVEL OVERVIEW]
+  ├── CASEY_VALIDATION_FINDINGS.md [DETAILED FINDINGS]
+  ├── STEP_6C_VISUAL_VALIDATION_REPORT.md [COMPREHENSIVE REPORT]
+  ├── IMPLEMENTATION_REQUIREMENTS_STEP_6C.md [IMPLEMENTATION GUIDE]
+  ├── public/
+  │   └── calculator-form-rebuild.html [FORM TO BE UPDATED]
+  ├── docs/
+  │   ├── REPORT_GENERATION_SPEC.md (Section 7 for progress bar spec)
+  │   └── style-guide.md (brand colors)
+  └── agents/
+      ├── memory/
+      │   └── casey_submission_validation_summary.md [QUICK NOTES]
+      ├── visual_baselines/
+      │   └── [screenshots to be captured after implementation]
+      └── visual_validation_reports/
+          └── [validation screenshots and reports]
+
+---
+
+KEY FINDINGS SUMMARY
+====================
+
+WHAT'S WORKING:
+✓ Form structure (all 4 steps)
+✓ Input styling (colors, states)
+✓ Responsive design (no scroll)
+✓ Accessibility attributes
+✓ Font loading
+✓ Brand compliance
+
+WHAT'S MISSING:
+✗ Submit button (CRITICAL)
+✗ Progress bar (CRITICAL)
+✗ Form submission handler (CRITICAL)
+✗ Progress bar polling (CRITICAL)
+✗ API endpoints (MEDIUM PRIORITY)
+
+---
+
+IMPLEMENTATION CHECKLIST
+========================
+
+SUBMIT BUTTON (30 minutes):
+- [ ] Add HTML button element
+- [ ] Add CSS styling (button-dark gold, white text)
+- [ ] Add JavaScript submit handler
+- [ ] Test enabled/disabled states
+- [ ] Test hover/focus states
+- [ ] Verify colors
+
+PROGRESS BAR (4 hours):
+- [ ] Add HTML modal structure
+- [ ] Add CSS styling (bar, animations, responsive)
+- [ ] Add JavaScript polling mechanism
+- [ ] Test 5-stage progression
+- [ ] Test responsive design (375px, 1400px)
+- [ ] Verify animations smooth
+
+API ENDPOINTS (2 hours):
+- [ ] POST /api/v1/calculator/step/4
+- [ ] GET /api/v1/calculator/report/{token}/status
+- [ ] GET /report/{token}
+- [ ] GET /api/v1/calculator/report/{token}/download
+
+TESTING & VALIDATION (5 hours):
+- [ ] Desktop testing (1400px)
+- [ ] Mobile testing (375px)
+- [ ] Accessibility audit
+- [ ] Casey's visual validation
+- [ ] Baseline screenshots
+- [ ] Color verification
+
+---
+
+VALIDATION RESULTS
+==================
+
+Desktop (1400px):
+- Form structure: PASS
+- Styling: PASS
+- Responsive: PASS
+- Colors: PASS (verified)
+- Accessibility: PASS (with notes)
+- Submit button: NOT IMPLEMENTED
+- Progress bar: NOT IMPLEMENTED
+
+Mobile (375px):
+- Form structure: PASS
+- Styling: PASS
+- Responsive: PASS (no horizontal scroll)
+- Colors: PASS (verified)
+- Accessibility: PASS (with notes)
+- Submit button: NOT IMPLEMENTED
+- Progress bar: NOT IMPLEMENTED
+
+Tablet (768px):
+- Form structure: PASS
+- Styling: PASS
+- Responsive: PASS
+- Accessibility: PASS
+
+---
+
+COLOR VERIFICATION
+==================
+
+All colors verified against brand guidelines:
+
+Verified (✓):
+- H1/H2 headings: #b8860b
+- Form labels: #b8860b
+- Input borders (normal): #d4a574
+- Input borders (focus): #b8860b
+- Input text: #2c1810
+- Input background: white
+- Container background: #f4e4d4
+- Step dividers: #d4a574
+- Placeholder text: #a89474
+
+To Verify After Implementation:
+- Submit button: #b8860b
+- Submit button hover: #8b6508
+- Progress bar: #ffd700 → #ffed4e gradient
+- Stage text: #1a1a1a
+- Warning background: #fff3cd
+
+---
+
+NEXT STEPS
+==========
+
+1. Jordan (QA Lead)
+   - Review all validation reports
+   - Share IMPLEMENTATION_REQUIREMENTS_STEP_6C.md with dev team
+   - Schedule implementation sprint
+
+2. Development Team
+   - Read IMPLEMENTATION_REQUIREMENTS_STEP_6C.md
+   - Follow step-by-step implementation guide
+   - Implement submit button first
+   - Then progress bar
+   - Create API endpoints
+   - Test locally before handing to Casey
+
+3. Casey (After Implementation)
+   - Take screenshots (desktop 1400px, mobile 375px)
+   - Verify colors with browser color picker
+   - Test all button states
+   - Test progress bar progression
+   - Accessibility testing
+   - Final approval/flag issues
+   - Capture baseline screenshots
+
+---
+
+TIMELINE ESTIMATE
+=================
+
+Implementation: 11.5 hours total
+- Submit button: 0.5 hours
+- Progress bar: 4 hours
+- API endpoints: 2 hours
+- Testing & debugging: 3 hours
+- Casey's validation: 2 hours
+
+Estimated completion: 2 weeks from start of implementation
+
+---
+
+CONTACT & ESCALATION
+====================
+
+For questions about:
+- Implementation: Development Lead (see IMPLEMENTATION_REQUIREMENTS_STEP_6C.md)
+- Design/Validation: Casey (Visual Director)
+- Overall QA: Jordan (QA Lead)
+- Project Management: Quinn (Operations)
+
+---
+
+VALIDATION SIGN-OFF
+===================
+
+Validator: Casey (Visual Director & QA)
+Date: January 3, 2026
+Status: VALIDATION COMPLETE - AWAITING IMPLEMENTATION
+
+Recommendation: 
+Proceed with implementation using provided code and specification.
+Submit button and progress bar are blocking items before testing can continue.
+
+---
+
+DOCUMENT VERSIONS
+=================
+
+All documents generated: January 3, 2026
+All documents are current and reflect the state of the form as of this date
+No screenshots captured yet (awaiting implementation)
+
+---
+
+For more details, read the individual validation reports.
+Start with STEP_6C_EXECUTIVE_SUMMARY.md for overview.
