@@ -1,0 +1,1390 @@
+{
+  "url": "http://localhost:8000/index.html",
+  "analyzed_at": "2026-01-03T17:04:14.617729",
+  "screenshots": {
+    "desktop_full": "ux-analysis/localhost:8000_desktop_full_20260103_170414.png",
+    "desktop_fold": "ux-analysis/localhost:8000_desktop_fold_20260103_170414.png",
+    "mobile_full": "ux-analysis/localhost:8000_mobile_full_20260103_170414.png",
+    "mobile_fold": "ux-analysis/localhost:8000_mobile_fold_20260103_170414.png"
+  },
+  "metrics": {
+    "desktop": {
+      "page_height": 12595,
+      "viewport_height": 900,
+      "viewport_width": 1440,
+      "scroll_depth_screens": 14
+    },
+    "mobile": {
+      "page_height": 18211,
+      "viewport_height": 844,
+      "viewport_width": 390,
+      "scroll_depth_screens": 22
+    }
+  },
+  "content_inventory": [
+    {
+      "type": "header",
+      "selector": "header",
+      "class": "header-2026",
+      "id": "",
+      "text": "CARNIVORE WEEKLY\n\nThe Meat-Eater's Digest\n\nPremium",
+      "position": {
+        "top": 0,
+        "left": 0,
+        "width": 1440,
+        "height": 313
+      },
+      "above_fold": true
+    },
+    {
+      "type": "nav",
+      "selector": "nav",
+      "class": "nav-menu-2026",
+      "id": "",
+      "text": "Home\nChannels\nWiki\nBlog\nCalculator",
+      "position": {
+        "top": 338,
+        "left": 0,
+        "width": 1440,
+        "height": 111
+      },
+      "above_fold": true
+    },
+    {
+      "type": "nav",
+      "selector": "nav",
+      "class": "nav-menu",
+      "id": "bottom-nav",
+      "text": "Home Channels Wiki Blog Calculator",
+      "position": {
+        "top": 12301,
+        "left": 52,
+        "width": 887,
+        "height": 26
+      },
+      "above_fold": false
+    },
+    {
+      "type": "main",
+      "selector": "main",
+      "class": "main-content-2026",
+      "id": "",
+      "text": "THE 2026 CARNIVORE BLUEPRINT\n\nEvidence-based insig",
+      "position": {
+        "top": 497,
+        "left": 52,
+        "width": 887,
+        "height": 11830
+      },
+      "above_fold": true
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "hero-2026",
+      "id": "",
+      "text": "THE 2026 CARNIVORE BLUEPRINT\n\nEvidence-based insig",
+      "position": {
+        "top": 497,
+        "left": 52,
+        "width": 887,
+        "height": 500
+      },
+      "above_fold": true
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "summary-section-2026",
+      "id": "",
+      "text": "This Week's Roundup\nA Community at an Inflection P",
+      "position": {
+        "top": 1093,
+        "left": 52,
+        "width": 887,
+        "height": 656
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "prime-cuts-2026",
+      "id": "",
+      "text": "Prime Cuts\n\nTop Videos This Week\n\nMetabolic Advant",
+      "position": {
+        "top": 1796,
+        "left": 52,
+        "width": 887,
+        "height": 1139
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "insight-strip-2026",
+      "id": "",
+      "text": "Butcher's Wisdom\n\n\"Proof beats argument every sing",
+      "position": {
+        "top": 3032,
+        "left": 52,
+        "width": 887,
+        "height": 838
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "community-voice-2026",
+      "id": "",
+      "text": "Community Voice\n\nReal People, Real Results\n\nREVERS",
+      "position": {
+        "top": 3965,
+        "left": 52,
+        "width": 887,
+        "height": 1402
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "lab-report-2026",
+      "id": "",
+      "text": "Science Lab\n\nEvidence-Based FAQ\n\n\ud83d\udcca\nWhat does the ",
+      "position": {
+        "top": 5463,
+        "left": 52,
+        "width": 887,
+        "height": 1469
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "cta-section-2026",
+      "id": "",
+      "text": "Start Your 2026 Protocol\n\nGet your personalized ca",
+      "position": {
+        "top": 7028,
+        "left": 52,
+        "width": 887,
+        "height": 355
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "section",
+      "id": "trending-section",
+      "text": "What's Sizzling\n\nDeep dives on trending topics \u2192 S",
+      "position": {
+        "top": 8605,
+        "left": 52,
+        "width": 887,
+        "height": 1892
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "sidebar-section",
+      "id": "",
+      "text": "What's Sizzling\nNew Year Surge\n\n30% more newcomers",
+      "position": {
+        "top": 529,
+        "left": 1019,
+        "width": 337,
+        "height": 693
+      },
+      "above_fold": true
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "sidebar-section sidebar-cta",
+      "id": "",
+      "text": "Personalized Macros\n\nGet your exact protein, fat, ",
+      "position": {
+        "top": 1253,
+        "left": 1019,
+        "width": 337,
+        "height": 261
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "sidebar-section sidebar-partner",
+      "id": "",
+      "text": "Partner Spotlight\nButcherBox\n\nPasture-raised, gras",
+      "position": {
+        "top": 1547,
+        "left": 1019,
+        "width": 337,
+        "height": 370
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "sidebar-section sidebar-feedback",
+      "id": "",
+      "text": "Your Voice\n\nTell us what you want to see in Carniv",
+      "position": {
+        "top": 1948,
+        "left": 1019,
+        "width": 337,
+        "height": 234
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "section",
+      "class": "sidebar-section sidebar-nav",
+      "id": "",
+      "text": "Explore\nHome\nChannels\nWiki\nBlog\nCalculator",
+      "position": {
+        "top": 2214,
+        "left": 1019,
+        "width": 337,
+        "height": 419
+      },
+      "above_fold": false
+    },
+    {
+      "type": "aside",
+      "selector": "aside",
+      "class": "sidebar-2026",
+      "id": "",
+      "text": "What's Sizzling\nNew Year Surge\n\n30% more newcomers",
+      "position": {
+        "top": 497,
+        "left": 987,
+        "width": 401,
+        "height": 2201
+      },
+      "above_fold": true
+    },
+    {
+      "type": "footer",
+      "selector": "footer",
+      "class": "footer-2026",
+      "id": "",
+      "text": "\u00a9 2026 Carnivore Weekly. Evidence-based content fo",
+      "position": {
+        "top": 12422,
+        "left": 0,
+        "width": 1440,
+        "height": 173
+      },
+      "above_fold": false
+    },
+    {
+      "type": "section",
+      "selector": "[class*=\"hero\"]",
+      "class": "hero-2026",
+      "id": "",
+      "text": "THE 2026 CARNIVORE BLUEPRINT\n\nEvidence-based insig",
+      "position": {
+        "top": 497,
+        "left": 52,
+        "width": 887,
+        "height": 500
+      },
+      "above_fold": true
+    },
+    {
+      "type": "img",
+      "selector": "[class*=\"hero\"]",
+      "class": "hero-image",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": 497,
+        "left": 52,
+        "width": 887,
+        "height": 500
+      },
+      "above_fold": true
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"hero\"]",
+      "class": "hero-content",
+      "id": "",
+      "text": "THE 2026 CARNIVORE BLUEPRINT\n\nEvidence-based insig",
+      "position": {
+        "top": 497,
+        "left": 52,
+        "width": 887,
+        "height": 500
+      },
+      "above_fold": true
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "video-card-2026",
+      "id": "",
+      "text": "Metabolic Advantage of Carnivore: New 2026 Researc",
+      "position": {
+        "top": 1946,
+        "left": 52,
+        "width": 428,
+        "height": 493
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "video-card-2026",
+      "id": "",
+      "text": "Real Transformation: 120 Days of Carnivore\n\nFitnes",
+      "position": {
+        "top": 1946,
+        "left": 512,
+        "width": 428,
+        "height": 493
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "video-card-2026",
+      "id": "",
+      "text": "Women's Hormones on Carnivore: Clinical Insights\n\n",
+      "position": {
+        "top": 2471,
+        "left": 52,
+        "width": 428,
+        "height": 465
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "insight-card-2026",
+      "id": "",
+      "text": "\"Proof beats argument every single time.\"\n\nTRENDIN",
+      "position": {
+        "top": 3176,
+        "left": 100,
+        "width": 380,
+        "height": 186
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "insight-card-2026",
+      "id": "",
+      "text": "\"The surge of January isn't about trends\u2014it's abou",
+      "position": {
+        "top": 3176,
+        "left": 512,
+        "width": 380,
+        "height": 186
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "insight-card-2026",
+      "id": "",
+      "text": "\"Women's health deserves nuance. Both are true.\"\n\n",
+      "position": {
+        "top": 3394,
+        "left": 100,
+        "width": 380,
+        "height": 186
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "insight-card-2026",
+      "id": "",
+      "text": "\"Success stories are the most powerful content.\"\n\n",
+      "position": {
+        "top": 3394,
+        "left": 512,
+        "width": 380,
+        "height": 186
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "insight-card-2026",
+      "id": "",
+      "text": "\"Organ meats are going mainstream in 2026.\"\n\nTREND",
+      "position": {
+        "top": 3611,
+        "left": 100,
+        "width": 380,
+        "height": 186
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "bento-card-2026 bento-featured",
+      "id": "",
+      "text": "REVERSED A1C\n\"Carnivore saved my life post-partum.",
+      "position": {
+        "top": 4115,
+        "left": 52,
+        "width": 887,
+        "height": 296
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "bento-card-2026 bento-tall",
+      "id": "",
+      "text": "76 YEARS YOUNG\n4 Years Thriving\n\nNo medications, n",
+      "position": {
+        "top": 4443,
+        "left": 52,
+        "width": 428,
+        "height": 298
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "bento-card-2026",
+      "id": "",
+      "text": "7 Days In\n\nFirst Christmas without sugar. The crav",
+      "position": {
+        "top": 4443,
+        "left": 512,
+        "width": 428,
+        "height": 232
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "bento-card-2026 bento-wide",
+      "id": "",
+      "text": "ATHLETIC PERFORMANCE\nLost 40lbs & Gained Clarity\n\n",
+      "position": {
+        "top": 4773,
+        "left": 52,
+        "width": 887,
+        "height": 298
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "bento-card-2026",
+      "id": "",
+      "text": "Lab Work Proof\n\nBefore and after bloodwork showing",
+      "position": {
+        "top": 5103,
+        "left": 52,
+        "width": 428,
+        "height": 232
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "bento-card-2026",
+      "id": "",
+      "text": "Women's Health Wins\n\nCycle regularity, energy retu",
+      "position": {
+        "top": 5103,
+        "left": 512,
+        "width": 428,
+        "height": 232
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "topic-card",
+      "id": "",
+      "text": "\ud83d\udd25\ud83d\udd25\ud83d\udd25 New Year Beginner Surge - 30% More Newcomer",
+      "position": {
+        "top": 8753,
+        "left": 52,
+        "width": 887,
+        "height": 307
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "topic-card",
+      "id": "",
+      "text": "\ud83d\udd25\ud83d\udd25\ud83d\udd25 Transformation Stories Going Viral\n\nBefore-",
+      "position": {
+        "top": 9075,
+        "left": 52,
+        "width": 887,
+        "height": 225
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "topic-card",
+      "id": "",
+      "text": "\ud83d\udd25\ud83d\udd25 Women's Health Debate Heating Up\n\nAmenorrhea ",
+      "position": {
+        "top": 9312,
+        "left": 52,
+        "width": 887,
+        "height": 274
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "topic-card",
+      "id": "",
+      "text": "\ud83d\udd25\ud83d\udd25 Organ Meats Going Mainstream\n\nCompanies launc",
+      "position": {
+        "top": 9602,
+        "left": 52,
+        "width": 887,
+        "height": 274
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "topic-card",
+      "id": "",
+      "text": "\ud83d\udd25 Lion Diet (Beef + Salt Only) Having a Moment\n\nF",
+      "position": {
+        "top": 9884,
+        "left": 52,
+        "width": 887,
+        "height": 274
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "topic-card",
+      "id": "",
+      "text": "\ud83d\udd25 Budget Carnivore - Cost Concerns Emerging\n\n'How",
+      "position": {
+        "top": 10174,
+        "left": 52,
+        "width": 887,
+        "height": 307
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"card\"]",
+      "class": "partner-card-2026",
+      "id": "",
+      "text": "ButcherBox\n\nPasture-raised, grass-fed meat deliver",
+      "position": {
+        "top": 1604,
+        "left": 1019,
+        "width": 337,
+        "height": 255
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"bento\"]",
+      "class": "bento-grid-2026",
+      "id": "",
+      "text": "REVERSED A1C\n\"Carnivore saved my life post-partum.",
+      "position": {
+        "top": 4115,
+        "left": 52,
+        "width": 887,
+        "height": 1220
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"bento\"]",
+      "class": "bento-card-2026 bento-featured",
+      "id": "",
+      "text": "REVERSED A1C\n\"Carnivore saved my life post-partum.",
+      "position": {
+        "top": 4115,
+        "left": 52,
+        "width": 887,
+        "height": 296
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"bento\"]",
+      "class": "bento-card-2026 bento-tall",
+      "id": "",
+      "text": "76 YEARS YOUNG\n4 Years Thriving\n\nNo medications, n",
+      "position": {
+        "top": 4443,
+        "left": 52,
+        "width": 428,
+        "height": 298
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"bento\"]",
+      "class": "bento-card-2026",
+      "id": "",
+      "text": "7 Days In\n\nFirst Christmas without sugar. The crav",
+      "position": {
+        "top": 4443,
+        "left": 512,
+        "width": 428,
+        "height": 232
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"bento\"]",
+      "class": "bento-card-2026 bento-wide",
+      "id": "",
+      "text": "ATHLETIC PERFORMANCE\nLost 40lbs & Gained Clarity\n\n",
+      "position": {
+        "top": 4773,
+        "left": 52,
+        "width": 887,
+        "height": 298
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"bento\"]",
+      "class": "bento-card-2026",
+      "id": "",
+      "text": "Lab Work Proof\n\nBefore and after bloodwork showing",
+      "position": {
+        "top": 5103,
+        "left": 52,
+        "width": 428,
+        "height": 232
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"bento\"]",
+      "class": "bento-card-2026",
+      "id": "",
+      "text": "Women's Health Wins\n\nCycle regularity, energy retu",
+      "position": {
+        "top": 5103,
+        "left": 512,
+        "width": 428,
+        "height": 232
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"grid\"]",
+      "class": "video-grid-2026",
+      "id": "",
+      "text": "Metabolic Advantage of Carnivore: New 2026 Researc",
+      "position": {
+        "top": 1946,
+        "left": 52,
+        "width": 887,
+        "height": 990
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"grid\"]",
+      "class": "bento-grid-2026",
+      "id": "",
+      "text": "REVERSED A1C\n\"Carnivore saved my life post-partum.",
+      "position": {
+        "top": 4115,
+        "left": 52,
+        "width": 887,
+        "height": 1220
+      },
+      "above_fold": false
+    },
+    {
+      "type": "div",
+      "selector": "[class*=\"grid\"]",
+      "class": "faq-grid-2026",
+      "id": "",
+      "text": "\ud83d\udcca\nWhat does the evidence say about carnivore and ",
+      "position": {
+        "top": 5613,
+        "left": 52,
+        "width": 887,
+        "height": 1319
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h1",
+      "selector": "h1",
+      "class": "",
+      "id": "",
+      "text": "CARNIVORE WEEKLY",
+      "position": {
+        "top": 45,
+        "left": 0,
+        "width": 1440,
+        "height": 102
+      },
+      "above_fold": true
+    },
+    {
+      "type": "h2",
+      "selector": "h2",
+      "class": "",
+      "id": "",
+      "text": "THE 2026 CARNIVORE BLUEPRINT",
+      "position": {
+        "top": 666,
+        "left": 111,
+        "width": 770,
+        "height": 72
+      },
+      "above_fold": true
+    },
+    {
+      "type": "h2",
+      "selector": "h2",
+      "class": "",
+      "id": "",
+      "text": "This Week's Roundup",
+      "position": {
+        "top": 1141,
+        "left": 106,
+        "width": 785,
+        "height": 64
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h2",
+      "selector": "h2",
+      "class": "",
+      "id": "",
+      "text": "Prime Cuts",
+      "position": {
+        "top": 1796,
+        "left": 52,
+        "width": 887,
+        "height": 64
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h2",
+      "selector": "h2",
+      "class": "",
+      "id": "",
+      "text": "Butcher's Wisdom",
+      "position": {
+        "top": 3080,
+        "left": 100,
+        "width": 791,
+        "height": 64
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h2",
+      "selector": "h2",
+      "class": "",
+      "id": "",
+      "text": "Community Voice",
+      "position": {
+        "top": 3965,
+        "left": 52,
+        "width": 887,
+        "height": 64
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h2",
+      "selector": "h2",
+      "class": "",
+      "id": "",
+      "text": "Science Lab",
+      "position": {
+        "top": 5463,
+        "left": 52,
+        "width": 887,
+        "height": 64
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h2",
+      "selector": "h2",
+      "class": "",
+      "id": "",
+      "text": "Start Your 2026 Protocol",
+      "position": {
+        "top": 7076,
+        "left": 100,
+        "width": 791,
+        "height": 64
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h2",
+      "selector": "h2",
+      "class": "",
+      "id": "",
+      "text": "What's Sizzling",
+      "position": {
+        "top": 8605,
+        "left": 52,
+        "width": 887,
+        "height": 64
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "A Community at an Inflection Point",
+      "position": {
+        "top": 1237,
+        "left": 106,
+        "width": 785,
+        "height": 46
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Metabolic Advantage of Carnivore: New 2026 Researc",
+      "position": {
+        "top": 2178,
+        "left": 84,
+        "width": 364,
+        "height": 67
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Real Transformation: 120 Days of Carnivore",
+      "position": {
+        "top": 2178,
+        "left": 544,
+        "width": 364,
+        "height": 67
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Women's Hormones on Carnivore: Clinical Insights",
+      "position": {
+        "top": 2703,
+        "left": 84,
+        "width": 364,
+        "height": 67
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "\"Carnivore saved my life post-partum.\"",
+      "position": {
+        "top": 4213,
+        "left": 84,
+        "width": 823,
+        "height": 36
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "4 Years Thriving",
+      "position": {
+        "top": 4542,
+        "left": 85,
+        "width": 362,
+        "height": 36
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "7 Days In",
+      "position": {
+        "top": 4476,
+        "left": 545,
+        "width": 362,
+        "height": 36
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Lost 40lbs & Gained Clarity",
+      "position": {
+        "top": 4872,
+        "left": 85,
+        "width": 821,
+        "height": 36
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Lab Work Proof",
+      "position": {
+        "top": 5136,
+        "left": 85,
+        "width": 362,
+        "height": 36
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Women's Health Wins",
+      "position": {
+        "top": 5136,
+        "left": 545,
+        "width": 362,
+        "height": 36
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "What does the evidence say about carnivore and cho",
+      "position": {
+        "top": 5652,
+        "left": 143,
+        "width": 577,
+        "height": 33
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "How long until the adaptation phase ends?",
+      "position": {
+        "top": 6092,
+        "left": 143,
+        "width": 405,
+        "height": 33
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Why do some people experience amenorrhea on carniv",
+      "position": {
+        "top": 6532,
+        "left": 143,
+        "width": 563,
+        "height": 33
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "\ud83d\udd25\ud83d\udd25\ud83d\udd25 New Year Beginner Surge - 30% More Newcomer",
+      "position": {
+        "top": 8753,
+        "left": 52,
+        "width": 887,
+        "height": 46
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "\ud83d\udd25\ud83d\udd25\ud83d\udd25 Transformation Stories Going Viral",
+      "position": {
+        "top": 9075,
+        "left": 52,
+        "width": 887,
+        "height": 46
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "\ud83d\udd25\ud83d\udd25 Women's Health Debate Heating Up",
+      "position": {
+        "top": 9312,
+        "left": 52,
+        "width": 887,
+        "height": 46
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "\ud83d\udd25\ud83d\udd25 Organ Meats Going Mainstream",
+      "position": {
+        "top": 9602,
+        "left": 52,
+        "width": 887,
+        "height": 46
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "\ud83d\udd25 Lion Diet (Beef + Salt Only) Having a Moment",
+      "position": {
+        "top": 9884,
+        "left": 52,
+        "width": 887,
+        "height": 46
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "\ud83d\udd25 Budget Carnivore - Cost Concerns Emerging",
+      "position": {
+        "top": 10174,
+        "left": 52,
+        "width": 887,
+        "height": 46
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "\u2695 Medical Disclaimer",
+      "position": {
+        "top": 11755,
+        "left": 72,
+        "width": 847,
+        "height": 46
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "What's Sizzling",
+      "position": {
+        "top": 529,
+        "left": 1019,
+        "width": 337,
+        "height": 33
+      },
+      "above_fold": true
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Personalized Macros",
+      "position": {
+        "top": 1253,
+        "left": 1019,
+        "width": 337,
+        "height": 33
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Partner Spotlight",
+      "position": {
+        "top": 1547,
+        "left": 1019,
+        "width": 337,
+        "height": 33
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Your Voice",
+      "position": {
+        "top": 1948,
+        "left": 1019,
+        "width": 337,
+        "height": 33
+      },
+      "above_fold": false
+    },
+    {
+      "type": "h3",
+      "selector": "h3",
+      "class": "",
+      "id": "",
+      "text": "Explore",
+      "position": {
+        "top": 2214,
+        "left": 1019,
+        "width": 337,
+        "height": 33
+      },
+      "above_fold": false
+    },
+    {
+      "type": "a",
+      "selector": "a[class*=\"cta\"]",
+      "class": "cta-button-2026",
+      "id": "",
+      "text": "Get Your Protocol",
+      "position": {
+        "top": 7256,
+        "left": 365,
+        "width": 260,
+        "height": 79
+      },
+      "above_fold": false
+    },
+    {
+      "type": "img",
+      "selector": "img",
+      "class": "logo",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": -55,
+        "left": 830,
+        "width": 750,
+        "height": 410
+      },
+      "above_fold": true
+    },
+    {
+      "type": "img",
+      "selector": "img",
+      "class": "hero-image",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": 497,
+        "left": 52,
+        "width": 887,
+        "height": 500
+      },
+      "above_fold": true
+    },
+    {
+      "type": "img",
+      "selector": "img",
+      "class": "video-thumbnail-2026",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": 1946,
+        "left": 52,
+        "width": 428,
+        "height": 200
+      },
+      "above_fold": false
+    },
+    {
+      "type": "img",
+      "selector": "img",
+      "class": "video-thumbnail-2026",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": 1946,
+        "left": 512,
+        "width": 428,
+        "height": 200
+      },
+      "above_fold": false
+    },
+    {
+      "type": "img",
+      "selector": "img",
+      "class": "video-thumbnail-2026",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": 2471,
+        "left": 52,
+        "width": 428,
+        "height": 200
+      },
+      "above_fold": false
+    },
+    {
+      "type": "img",
+      "selector": "img",
+      "class": "",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": 7511,
+        "left": 52,
+        "width": 887,
+        "height": 318
+      },
+      "above_fold": false
+    },
+    {
+      "type": "img",
+      "selector": "img",
+      "class": "",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": 7949,
+        "left": 52,
+        "width": 887,
+        "height": 495
+      },
+      "above_fold": false
+    },
+    {
+      "type": "img",
+      "selector": "img",
+      "class": "",
+      "id": "",
+      "text": "",
+      "position": {
+        "top": 10644,
+        "left": 246,
+        "width": 500,
+        "height": 500
+      },
+      "above_fold": false
+    }
+  ],
+  "accessibility": {
+    "desktop": {
+      "issues": [
+        "29 elements have font-size < 16px",
+        "18 clickable elements smaller than 44x44px"
+      ],
+      "element_counts": {
+        "headings": 39,
+        "images": 8,
+        "links": 35,
+        "buttons": 0
+      }
+    },
+    "mobile": {
+      "issues": [
+        "17 touch targets smaller than 44x44px",
+        "6 elements have font-size < 14px (hard to read on mobile)"
+      ]
+    }
+  }
+}

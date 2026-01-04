@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnivore Weekly Calculator</title>
+    <meta name="description" content="Calculate your personalized carnivore diet metrics and macros">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Calculator Container Styles */
+        .calculator-container {
+            max-width: 800px;
+            margin: 60px auto 80px;
+            padding: 40px;
+            background: #f4e4d4;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .calculator-container {
+                margin: 40px 20px 60px;
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-container {
+                margin: 30px 15px 40px;
+                padding: 25px 15px;
+            }
+        }
+
+        /* Title Styles - Large, Gold, Accessible */
+        .calculator-container h1 {
+            color: #b8860b;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 48px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-container h1 {
+                font-size: 36px;
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-container h1 {
+                font-size: 28px;
+                margin-bottom: 12px;
+            }
+        }
+
+        /* Instructions/Description - Clear, Readable */
+        .calculator-container p {
+            color: #2c1810;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            line-height: 1.8;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-container p {
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-container p {
+                font-size: 15px;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Accent line for visual interest */
+        .calculator-header {
+            border-bottom: 3px solid #d4a574;
+            padding-bottom: 30px;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-header {
+                border-bottom: 2px solid #d4a574;
+                padding-bottom: 20px;
+            }
+        }
+
+        /* Form Shell Styles */
+        #calculator-form {
+            display: block;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #d4a574;
+        }
+
+        @media (max-width: 768px) {
+            #calculator-form {
+                margin-top: 30px;
+                padding-top: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #calculator-form {
+                margin-top: 20px;
+                padding-top: 20px;
+            }
+        }
+
+        /* Fieldset Styles - Remove default borders */
+        fieldset {
+            border: none;
+            padding: 0;
+            margin: 0 0 40px 0;
+        }
+
+        @media (max-width: 768px) {
+            fieldset {
+                margin: 0 0 30px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            fieldset {
+                margin: 0 0 25px 0;
+            }
+        }
+
+        /* Legend/Field Label - Gold, Large, Readable */
+        fieldset legend {
+            color: #b8860b;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            font-weight: 600;
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 0;
+        }
+
+        @media (max-width: 768px) {
+            fieldset legend {
+                font-size: 17px;
+                margin-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            fieldset legend {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+        }
+
+        /* Radio button option wrapper */
+        .radio-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .radio-option {
+                margin-bottom: 15px;
+                gap: 10px;
+            }
+        }
+
+        /* Radio input styling */
+        .radio-option input[type="radio"] {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            min-height: 24px;
+            cursor: pointer;
+            accent-color: #d4a574;
+        }
+
+        /* Radio button accessible touch target */
+        .radio-option label {
+            cursor: pointer;
+            color: #2c1810;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            line-height: 1.5;
+            flex: 1;
+            padding: 10px;
+            margin: -10px;
+        }
+
+        @media (max-width: 768px) {
+            .radio-option label {
+                font-size: 17px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .radio-option label {
+                font-size: 16px;
+            }
+        }
+
+        /* Focus state - Visible outline for keyboard navigation */
+        .radio-option input[type="radio"]:focus-visible {
+            outline: 2px solid #b8860b;
+            outline-offset: 2px;
+        }
+
+        /* Hover state - Slight visual feedback */
+        .radio-option:hover {
+            background-color: rgba(212, 165, 116, 0.1);
+            border-radius: 4px;
+        }
+
+        /* Checked state - Visual confirmation */
+        .radio-option input[type="radio"]:checked {
+            accent-color: #d4a574;
+        }
+
+        /* Ensure good touch target on mobile */
+        @media (max-width: 480px) {
+            .radio-option {
+                padding: 8px 4px;
+                margin: 0 -4px 15px -4px;
+            }
+
+            .radio-option label {
+                padding: 8px;
+                margin: -8px;
+            }
+        }
+
+        /* Input field wrapper for text/number inputs */
+        .input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .input-wrapper {
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .input-wrapper {
+                margin-bottom: 25px;
+            }
+        }
+
+        /* Label for text/number inputs */
+        .input-wrapper label {
+            color: #b8860b;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            font-weight: 700;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .input-wrapper label {
+                font-size: 17px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .input-wrapper label {
+                font-size: 16px;
+            }
+        }
+
+        /* Number/Text Input Styling */
+        .input-wrapper input[type="number"],
+        .input-wrapper input[type="text"],
+        .input-wrapper input[type="email"] {
+            width: 100%;
+            padding: 14px 16px;
+            min-height: 44px;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            color: #2c1810;
+            background-color: white;
+            border: 2px solid #d4a574;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .input-wrapper input[type="number"],
+            .input-wrapper input[type="text"],
+            .input-wrapper input[type="email"] {
+                font-size: 17px;
+                padding: 13px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .input-wrapper input[type="number"],
+            .input-wrapper input[type="text"],
+            .input-wrapper input[type="email"] {
+                font-size: 16px;
+                padding: 12px 14px;
+            }
+        }
+
+        /* Input placeholder styling */
+        .input-wrapper input[type="number"]::placeholder,
+        .input-wrapper input[type="text"]::placeholder,
+        .input-wrapper input[type="email"]::placeholder {
+            color: #a89474;
+            font-style: italic;
+        }
+
+        /* Input focus state */
+        .input-wrapper input[type="number"]:focus,
+        .input-wrapper input[type="text"]:focus,
+        .input-wrapper input[type="email"]:focus {
+            outline: none;
+            border-color: #b8860b;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Input hover state */
+        .input-wrapper input[type="number"]:hover,
+        .input-wrapper input[type="text"]:hover,
+        .input-wrapper input[type="email"]:hover {
+            border-color: #b8860b;
+        }
+
+        /* Remove spinner buttons from number input (Chrome/Edge/Safari) */
+        .input-wrapper input[type="number"]::-webkit-outer-spin-button,
+        .input-wrapper input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Remove spinner for Firefox */
+        .input-wrapper input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Combined input/select wrapper for side-by-side layout (Height/Weight) */
+        .combined-input-wrapper {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .combined-input-wrapper {
+                gap: 16px;
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .combined-input-wrapper {
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 25px;
+            }
+        }
+
+        /* Container for each input in combined layout */
+        .combined-input-wrapper > div {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Labels inside combined wrapper */
+        .combined-input-wrapper label {
+            color: #b8860b;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            font-weight: 700;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .combined-input-wrapper label {
+                font-size: 17px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .combined-input-wrapper label {
+                font-size: 16px;
+            }
+        }
+
+        /* Inputs inside combined wrapper */
+        .combined-input-wrapper input[type="number"],
+        .combined-input-wrapper select {
+            width: 100%;
+            padding: 14px 16px;
+            min-height: 44px;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            color: #2c1810;
+            background-color: white;
+            border: 2px solid #d4a574;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .combined-input-wrapper input[type="number"],
+            .combined-input-wrapper select {
+                font-size: 17px;
+                padding: 13px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .combined-input-wrapper input[type="number"],
+            .combined-input-wrapper select {
+                font-size: 16px;
+                padding: 12px 14px;
+            }
+        }
+
+        /* Select dropdown styling */
+        .combined-input-wrapper select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%232c1810' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        /* Focus state for inputs/selects in combined wrapper */
+        .combined-input-wrapper input[type="number"]:focus,
+        .combined-input-wrapper select:focus {
+            outline: none;
+            border-color: #b8860b;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Hover state for inputs/selects in combined wrapper */
+        .combined-input-wrapper input[type="number"]:hover,
+        .combined-input-wrapper select:hover {
+            border-color: #b8860b;
+        }
+
+        /* Input placeholder styling for combined wrapper */
+        .combined-input-wrapper input[type="number"]::placeholder {
+            color: #a89474;
+            font-style: italic;
+        }
+
+        /* Remove spinner from number inputs in combined wrapper */
+        .combined-input-wrapper input[type="number"]::-webkit-outer-spin-button,
+        .combined-input-wrapper input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .combined-input-wrapper input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Option styling for select dropdowns */
+        .combined-input-wrapper select option {
+            color: #2c1810;
+            background-color: white;
+            padding: 10px;
+        }
+
+        /* Select dropdown wrapper for single selects */
+        .select-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .select-wrapper {
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .select-wrapper {
+                margin-bottom: 25px;
+            }
+        }
+
+        /* Labels for select dropdowns */
+        .select-wrapper label {
+            color: #b8860b;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            font-weight: 700;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .select-wrapper label {
+                font-size: 17px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .select-wrapper label {
+                font-size: 16px;
+            }
+        }
+
+        /* Select dropdown styling (standalone) */
+        .select-wrapper select {
+            width: 100%;
+            padding: 14px 16px;
+            min-height: 44px;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            color: #2c1810;
+            background-color: white;
+            border: 2px solid #d4a574;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%232c1810' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .select-wrapper select {
+                font-size: 17px;
+                padding: 13px 15px;
+                padding-right: 38px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .select-wrapper select {
+                font-size: 16px;
+                padding: 12px 14px;
+                padding-right: 36px;
+            }
+        }
+
+        /* Focus state for standalone select */
+        .select-wrapper select:focus {
+            outline: none;
+            border-color: #b8860b;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Hover state for standalone select */
+        .select-wrapper select:hover {
+            border-color: #b8860b;
+        }
+
+        /* Option styling for standalone select */
+        .select-wrapper select option {
+            color: #2c1810;
+            background-color: white;
+            padding: 10px;
+        }
+
+        /* Hidden field class for conditional visibility */
+        .hidden-field {
+            display: none;
+        }
+
+        /* Step divider - visual separation between sections */
+        .step-divider {
+            border-bottom: 2px solid #d4a574;
+            margin: 50px 0 40px 0;
+            padding-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .step-divider {
+                margin: 40px 0 30px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .step-divider {
+                margin: 30px 0 25px 0;
+            }
+        }
+
+        /* Step section header - visual grouping */
+        .step-section-header {
+            color: #b8860b;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            margin-top: 0;
+        }
+
+        @media (max-width: 768px) {
+            .step-section-header {
+                font-size: 18px;
+                margin-bottom: 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .step-section-header {
+                font-size: 17px;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Premium section badge/label - optional visual indicator */
+        .premium-label {
+            color: #b8860b;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .premium-label {
+                font-size: 13px;
+            }
+        }
+
+        /* Textarea wrapper for dietary and history fields */
+        .textarea-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .textarea-wrapper {
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .textarea-wrapper {
+                margin-bottom: 25px;
+            }
+        }
+
+        /* Label for textareas */
+        .textarea-wrapper label {
+            color: #b8860b;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            font-weight: 700;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .textarea-wrapper label {
+                font-size: 17px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .textarea-wrapper label {
+                font-size: 16px;
+            }
+        }
+
+        /* Textarea Styling */
+        .textarea-wrapper textarea {
+            width: 100%;
+            padding: 14px 16px;
+            min-height: 100px;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            color: #2c1810;
+            background-color: white;
+            border: 2px solid #d4a574;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .textarea-wrapper textarea {
+                font-size: 17px;
+                padding: 13px 15px;
+                min-height: 90px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .textarea-wrapper textarea {
+                font-size: 16px;
+                padding: 12px 14px;
+                min-height: 85px;
+            }
+        }
+
+        /* Textarea placeholder styling */
+        .textarea-wrapper textarea::placeholder {
+            color: #a89474;
+            font-style: italic;
+        }
+
+        /* Textarea focus state */
+        .textarea-wrapper textarea:focus {
+            outline: none;
+            border-color: #b8860b;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Textarea hover state */
+        .textarea-wrapper textarea:hover {
+            border-color: #b8860b;
+        }
+
+        /* ============================================
+           VALIDATION STYLES (Step 5)
+           ============================================ */
+
+        /* Email validation states */
+        input[type="email"].valid {
+            border-color: #4caf50;
+            background-color: #f1f8f4;
+        }
+
+        input[type="email"].invalid {
+            border-color: #f44336;
+            background-color: #ffe6e3;
+        }
+
+        /* Email status indicator (checkmark/x) */
+        .email-status {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            line-height: 1;
+            font-weight: bold;
+        }
+
+        .email-status.valid-status {
+            color: #4caf50;
+        }
+
+        .email-status.invalid-status {
+            color: #f44336;
+        }
+
+        /* Email input wrapper for positioning */
+        .input-wrapper input[type="email"] {
+            position: relative;
+            padding-right: 45px;
+        }
+
+        /* Character count display for textareas */
+        .char-count {
+            font-size: 0.875rem;
+            color: #666;
+            display: block;
+            margin-top: 0.5rem;
+            font-family: 'Merriweather', Georgia, serif;
+        }
+
+        .char-count.warning {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        /* Form error container */
+        .form-errors-container {
+            display: block;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #ffe6e3;
+            border: 2px solid #f44336;
+            border-radius: 4px;
+        }
+
+        .form-errors-list h3 {
+            color: #f44336;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .form-errors-list ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-errors-list li {
+            color: #f44336;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 16px;
+            margin-bottom: 8px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .form-errors-list li:before {
+            content: '\2717';
+            position: absolute;
+            left: 0;
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        /* Field with error state */
+        input[aria-invalid="true"],
+        textarea[aria-invalid="true"],
+        select[aria-invalid="true"] {
+            border-color: #f44336;
+            background-color: #ffe6e3;
+        }
+
+        /* Error message for individual fields */
+        .error {
+            display: block;
+            color: #f44336;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            font-family: 'Merriweather', Georgia, serif;
+        }
+
+        /* Hint text below fields */
+        .hint {
+            display: block;
+            color: #999;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-family: 'Merriweather', Georgia, serif;
+        }
+
+        /* Required field indicator */
+        .required-indicator {
+            color: #f44336;
+            margin-left: 0.25rem;
+            font-weight: bold;
+        }
+
+        /* ============================================
+           SUBMIT BUTTON STYLES (Step 6a)
+           ============================================ */
+
+        /* Submit button wrapper with spacing */
+        .submit-button-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 50px;
+            padding-top: 40px;
+            border-top: 2px solid #d4a574;
+        }
+
+        @media (max-width: 768px) {
+            .submit-button-wrapper {
+                margin-top: 40px;
+                padding-top: 30px;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .submit-button-wrapper {
+                margin-top: 30px;
+                padding-top: 25px;
+                gap: 12px;
+            }
+        }
+
+        /* Submit button - Gold background, white text, 44px+ height */
+        #submit-button {
+            width: 100%;
+            min-height: 48px;
+            padding: 14px 24px;
+            background-color: #b8860b;
+            color: white;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            #submit-button {
+                font-size: 17px;
+                min-height: 46px;
+                padding: 13px 22px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #submit-button {
+                font-size: 16px;
+                min-height: 44px;
+                padding: 12px 20px;
+            }
+        }
+
+        /* Submit button hover state */
+        #submit-button:hover:not(:disabled) {
+            background-color: #9a6f0a;
+            box-shadow: 0 6px 16px rgba(184, 134, 11, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Submit button active/pressed state */
+        #submit-button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(184, 134, 11, 0.3);
+        }
+
+        /* Submit button focus state */
+        #submit-button:focus-visible {
+            outline: 2px solid #b8860b;
+            outline-offset: 2px;
+        }
+
+        /* Submit button disabled state */
+        #submit-button:disabled {
+            background-color: #c4a484;
+            color: #999;
+            cursor: not-allowed;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Disabled button text styling */
+        #submit-button:disabled::after {
+            content: ' (Complete email to continue)';
+        }
+
+        /* Progress bar container */
+        .progress-bar-wrapper {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(184, 134, 11, 0.05);
+            border-radius: 4px;
+            border-left: 4px solid #b8860b;
+        }
+
+        .progress-bar-wrapper.active {
+            display: flex;
+        }
+
+        /* Progress bar label */
+        .progress-label {
+            color: #b8860b;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Actual progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e0d5c7;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #b8860b;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* Progress percentage text */
+        .progress-percentage {
+            color: #666;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        /* Payment modal backdrop (for future implementation) */
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payment-modal.active {
+            display: flex;
+        }
+
+        .payment-modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .payment-modal-content h2 {
+            color: #b8860b;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .payment-modal-content p {
+            color: #2c1810;
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator-header">
+            <h1>Carnivore Calculator</h1>
+            <p>Get personalized recommendations for your carnivore diet journey. Just a few simple questions.</p>
+        </div>
+
+        <form id="calculator-form" method="POST" aria-label="Carnivore diet calculator form" aria-describedby="calculator-description">
+            <!-- STEP 1: PHYSICAL STATS -->
+
+            <!-- Sex Field -->
+            <fieldset>
+                <legend>Biological Sex</legend>
+                <div class="radio-option">
+                    <input type="radio" id="sex-male" name="sex" value="male" required>
+                    <label for="sex-male">Male</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="sex-female" name="sex" value="female" required>
+                    <label for="sex-female">Female</label>
+                </div>
+            </fieldset>
+
+            <!-- Age Field -->
+            <div class="input-wrapper">
+                <label for="age">Age</label>
+                <input
+                    type="number"
+                    id="age"
+                    name="age"
+                    min="13"
+                    max="150"
+                    placeholder="Enter your age"
+                    required
+                    aria-label="Your age in years"
+                >
+            </div>
+
+            <!-- Height Field -->
+            <fieldset>
+                <legend>Height</legend>
+                <div class="combined-input-wrapper">
+                    <div>
+                        <label for="height">Height</label>
+                        <input
+                            type="number"
+                            id="height"
+                            name="height"
+                            min="36"
+                            max="96"
+                            placeholder="Enter height value"
+                            required
+                            aria-label="Your height"
+                        >
+                    </div>
+                    <div>
+                        <label for="height-unit">Unit</label>
+                        <select id="height-unit" name="height-unit" required aria-label="Height unit">
+                            <option value="">Select unit</option>
+                            <option value="inches">Inches (in)</option>
+                            <option value="cm">Centimeters (cm)</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Weight Field -->
+            <fieldset>
+                <legend>Weight</legend>
+                <div class="combined-input-wrapper">
+                    <div>
+                        <label for="weight">Weight</label>
+                        <input
+                            type="number"
+                            id="weight"
+                            name="weight"
+                            min="50"
+                            max="500"
+                            step="0.1"
+                            placeholder="Enter weight value"
+                            required
+                            aria-label="Your weight"
+                        >
+                    </div>
+                    <div>
+                        <label for="weight-unit">Unit</label>
+                        <select id="weight-unit" name="weight-unit" required aria-label="Weight unit">
+                            <option value="">Select unit</option>
+                            <option value="lbs">Pounds (lbs)</option>
+                            <option value="kg">Kilograms (kg)</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- STEP 2: FITNESS & DIET PROFILE -->
+            <div class="step-divider"></div>
+            <h2 class="step-section-header">Fitness & Diet Profile</h2>
+
+            <!-- Lifestyle Activity Field -->
+            <div class="select-wrapper">
+                <label for="lifestyle-activity">Lifestyle Activity</label>
+                <select id="lifestyle-activity" name="lifestyle_activity" required aria-label="Your typical daily activity level">
+                    <option value="">Select activity level</option>
+                    <option value="sedentary">Sedentary</option>
+                    <option value="light">Light Activity</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="very">Very Active</option>
+                    <option value="extreme">Extremely Active</option>
+                </select>
+            </div>
+
+            <!-- Exercise Frequency Field -->
+            <div class="select-wrapper">
+                <label for="exercise-frequency">Exercise Frequency</label>
+                <select id="exercise-frequency" name="exercise_frequency" required aria-label="How many days per week do you exercise">
+                    <option value="">Select frequency</option>
+                    <option value="none">None</option>
+                    <option value="1-2">1-2 days/week</option>
+                    <option value="3-4">3-4 days/week</option>
+                    <option value="5-6">5-6 days/week</option>
+                    <option value="7">7 days/week</option>
+                </select>
+            </div>
+
+            <!-- Primary Goal Field -->
+            <fieldset>
+                <legend>Primary Goal</legend>
+                <div class="radio-option">
+                    <input type="radio" id="goal-loss" name="goal" value="lose" required>
+                    <label for="goal-loss">Fat Loss</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="goal-maintain" name="goal" value="maintain" required>
+                    <label for="goal-maintain">Maintain</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="goal-gain" name="goal" value="gain" required>
+                    <label for="goal-gain">Muscle Gain</label>
+                </div>
+            </fieldset>
+
+            <!-- Caloric Deficit Field (conditional - only show if goal = "lose" or "gain") -->
+            <div class="select-wrapper hidden-field" id="deficit-wrapper">
+                <label for="deficit-percentage">Caloric Deficit/Surplus (%)</label>
+                <select id="deficit-percentage" name="deficit_percentage" aria-label="Caloric deficit or surplus percentage">
+                    <option value="">Select percentage</option>
+                    <option value="15">15%</option>
+                    <option value="20">20%</option>
+                    <option value="25">25%</option>
+                </select>
+            </div>
+
+            <!-- Diet Type Field -->
+            <fieldset>
+                <legend>Diet Type</legend>
+                <div class="radio-option">
+                    <input type="radio" id="diet-carnivore" name="diet_type" value="carnivore" required>
+                    <label for="diet-carnivore">Carnivore</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="diet-pescatarian" name="diet_type" value="pescatarian" required>
+                    <label for="diet-pescatarian">Pescatarian</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="diet-keto" name="diet_type" value="keto" required>
+                    <label for="diet-keto">Keto</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="diet-lowcarb" name="diet_type" value="lowcarb" required>
+                    <label for="diet-lowcarb">Low-Carb</label>
+                </div>
+            </fieldset>
+
+
+            <!-- STEP 3: DIETARY RESTRICTIONS & HISTORY -->
+            <div class="step-divider"></div>
+            <h2 class="step-section-header">Dietary Restrictions</h2>
+
+            <!-- Allergies Field -->
+            <div class="textarea-wrapper">
+                <label for="allergies">Food allergies</label>
+                <textarea
+                    id="allergies"
+                    name="allergies"
+                    placeholder="e.g., shellfish, peanuts, etc."
+                    aria-label="Food allergies you have"
+                ></textarea>
+            </div>
+
+            <!-- Avoid Foods Field -->
+            <div class="textarea-wrapper">
+                <label for="avoid_foods">Foods to avoid</label>
+                <textarea
+                    id="avoid_foods"
+                    name="avoid_foods"
+                    placeholder="e.g., grains, seed oils, etc."
+                    aria-label="Foods you want to avoid"
+                ></textarea>
+            </div>
+
+            <!-- Dairy Tolerance Field -->
+            <fieldset>
+                <legend>Dairy tolerance</legend>
+                <div class="radio-option">
+                    <input type="radio" id="dairy-none" name="dairy_tolerance" value="none">
+                    <label for="dairy-none">None (avoid all dairy)</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="dairy-butter" name="dairy_tolerance" value="butter-only">
+                    <label for="dairy-butter">Butter Only (other dairy causes issues)</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="dairy-some" name="dairy_tolerance" value="some">
+                    <label for="dairy-some">Some (cheese, yogurt okay, but not milk)</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="dairy-full" name="dairy_tolerance" value="full">
+                    <label for="dairy-full">Full (no restrictions)</label>
+                </div>
+            </fieldset>
+
+            <!-- Diet History Section -->
+            <h2 class="step-section-header">Diet History</h2>
+
+            <!-- Previous Diets Field -->
+            <div class="textarea-wrapper">
+                <label for="previous_diets">Previous diets tried</label>
+                <textarea
+                    id="previous_diets"
+                    name="previous_diets"
+                    placeholder="e.g., keto for 14 months, vegan for 2 years, etc."
+                    aria-label="Previous diets you have tried"
+                ></textarea>
+            </div>
+
+            <!-- What Worked Field -->
+            <div class="textarea-wrapper">
+                <label for="what_worked">What worked best for you</label>
+                <textarea
+                    id="what_worked"
+                    name="what_worked"
+                    placeholder="Describe which approach gave best results"
+                    aria-label="What dietary approach worked best for you"
+                ></textarea>
+            </div>
+
+            <!-- Carnivore Experience Field -->
+            <fieldset>
+                <legend>Experience with carnivore diet</legend>
+                <div class="radio-option">
+                    <input type="radio" id="carnivore-new" name="carnivore_experience" value="new">
+                    <label for="carnivore-new">New to Carnivore</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="carnivore-weeks" name="carnivore_experience" value="weeks">
+                    <label for="carnivore-weeks">Weeks (1-4 weeks)</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="carnivore-months" name="carnivore_experience" value="months">
+                    <label for="carnivore-months">Months (1-12 months)</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="carnivore-years" name="carnivore_experience" value="years">
+                    <label for="carnivore-years">Years (1+ years)</label>
+                </div>
+            </fieldset>
+
+            <!-- STEP 4: CONTACT (Premium Section) -->
+            <div class="step-divider"></div>
+
+            <span class="premium-label">Premium Information</span>
+
+            <!-- Email Field -->
+            <div class="input-wrapper">
+                <label for="email">Email Address <span class="required-indicator">*</span></label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="your@email.com"
+                    aria-label="Your email address"
+                    aria-required="true"
+                >
+            </div>
+
+            <!-- First Name Field -->
+            <div class="input-wrapper">
+                <label for="firstName">First Name</label>
+                <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    placeholder="First name"
+                    aria-label="Your first name"
+                >
+            </div>
+
+            <!-- Last Name Field -->
+            <div class="input-wrapper">
+                <label for="lastName">Last Name</label>
+                <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    placeholder="Last name"
+                    aria-label="Your last name"
+                >
+            </div>
+
+            <!-- STEP 6a: SUBMIT BUTTON + PAYMENT FLOW -->
+            <div class="submit-button-wrapper">
+                <button
+                    type="button"
+                    id="submit-button"
+                    disabled
+                    aria-label="Generate your personalized report"
+                >
+                    Generate My Personalized Report
+                </button>
+
+                <div class="progress-bar-wrapper" id="progress-bar-wrapper">
+                    <div class="progress-label" id="progress-label">Calculating macros...</div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-percentage" id="progress-percentage">0%</div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="payment-modal" id="payment-modal">
+        <div class="payment-modal-content">
+            <h2>Choose Your Package</h2>
+            <p>Select the tier that best suits your needs to unlock your personalized report.</p>
+            <div id="tier-options"></div>
+        </div>
+    </div>
+
+    <script src="validation.js"></script>
+    <script>
+        // Show/hide deficit percentage field based on goal selection
+        const goalInputs = document.querySelectorAll('input[name="goal"]');
+        const deficitWrapper = document.getElementById('deficit-wrapper');
+        const deficitInput = document.getElementById('deficit-percentage');
+
+        // Function to toggle deficit field visibility
+        const toggleDeficitField = () => {
+            const selectedGoal = document.querySelector('input[name="goal"]:checked');
+
+            if (selectedGoal && (selectedGoal.value === 'lose' || selectedGoal.value === 'gain')) {
+                deficitWrapper.classList.remove('hidden-field');
+                deficitInput.setAttribute('required', '');
+            } else {
+                deficitWrapper.classList.add('hidden-field');
+                deficitInput.removeAttribute('required');
+                deficitInput.value = '';
+            }
+        };
+
+        // Add event listeners to goal radio buttons
+        goalInputs.forEach(input => {
+            input.addEventListener('change', toggleDeficitField);
+        });
+
+        // Call on page load to set initial state
+        document.addEventListener('DOMContentLoaded', toggleDeficitField);
+    </script>
+    <script src="submit-handler.js"></script>
+</body>
+</html>

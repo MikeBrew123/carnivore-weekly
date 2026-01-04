@@ -21,6 +21,7 @@
     "lighthouse": "^13.0.1"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "@supabase/supabase-js": "^2.89.0",
     "dotenv": "^17.2.3",
     "pg": "^8.16.3",

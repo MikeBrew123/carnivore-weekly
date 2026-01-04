@@ -109,8 +109,8 @@
 
         .form-section h3 {
             font-family: 'Playfair Display', serif;
-            color: #8b4513;
-            font-size: 1.6em;
+            color: #ffd700;
+            font-size: 1.3em;
             margin-bottom: 10px;
             border-bottom: 2px solid #d4a574;
             padding-bottom: 10px;
@@ -293,18 +293,38 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            padding: 8px 0;
         }
 
-        .checkbox-item input[type="checkbox"] {
+        .checkbox-item input[type="checkbox"],
+        .radio-item input[type="radio"] {
             width: 20px;
             height: 20px;
             cursor: pointer;
+            flex-shrink: 0;
+            min-width: 44px;
+            min-height: 44px;
         }
 
-        .checkbox-item label {
+        .checkbox-item label,
+        .radio-item label {
             margin: 0;
             font-weight: normal;
             cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
         }
 
         /* Medical disclaimer */
@@ -726,7 +746,7 @@
         </div>
 
         <form id="aiReportForm">
-            <!-- STEP 4: Contact & Allergies (Extended/Paid Questions) -->
+            <!-- STEP 4: Contact & Allergies & Lifestyle & Goals (Extended/Paid Questions) -->
             <div class="form-step" data-step="4" style="display:none;">
                 <!-- Section 1: Contact Info (STEP 4 - Extended/Paid Questions) -->
                 <div class="form-section">
@@ -752,12 +772,12 @@
 
                 <div class="form-group">
                     <label for="allergies">Food Allergies <span class="optional">(optional)</span></label>
-                    <textarea name="allergies" id="allergies" placeholder="e.g., Shellfish allergy, lactose intolerant, egg allergy"></textarea>
+                    <textarea name="allergies" id="allergies" placeholder="e.g., Shellfish allergy, lactose intolerant, egg allergy" rows="4"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="foodRestrictions">Foods You Can't/Won't Eat <span class="optional">(optional)</span></label>
-                    <textarea name="foodRestrictions" id="foodRestrictions" placeholder="e.g., No pork for religious reasons, can't afford ribeye, hate fish"></textarea>
+                    <textarea name="foodRestrictions" id="foodRestrictions" placeholder="e.g., No pork for religious reasons, can't afford ribeye, hate fish" rows="4"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -774,7 +794,173 @@
                     <strong>Medical Disclaimer:</strong> This information is for educational purposes only. If you have severe food allergies or medical conditions, consult your doctor before changing your diet. Bring this report with you to appointments.
                 </div>
             </div>
-            </div><!-- End STEP 1 -->
+
+            <!-- Section 3: Lifestyle -->
+            <div class="form-section">
+                <h3>🏡 Lifestyle & Practical Constraints</h3>
+                <p class="subtitle">Help us make this realistic for YOUR life (all optional)</p>
+
+                <div class="form-group">
+                    <label for="cookingSkill">Cooking Skill <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="cooking_beginner" name="cookingSkill" value="beginner">
+                            <label for="cooking_beginner">Beginner (can barely boil water)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="cooking_intermediate" name="cookingSkill" value="intermediate">
+                            <label for="cooking_intermediate">Intermediate (comfortable in kitchen)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="cooking_advanced" name="cookingSkill" value="advanced">
+                            <label for="cooking_advanced">Advanced (love cooking)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mealPrepTime">Time Available for Meal Prep <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="mealprep_minimal" name="mealPrepTime" value="minimal">
+                            <label for="mealprep_minimal">Minimal (0-2 hours/week)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="mealprep_some" name="mealPrepTime" value="some">
+                            <label for="mealprep_some">Some (3-5 hours/week)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="mealprep_lots" name="mealPrepTime" value="lots">
+                            <label for="mealprep_lots">Lots (6+ hours/week)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget">Budget <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="budget_tight" name="budget" value="tight">
+                            <label for="budget_tight">Tight (ground beef, eggs, cheap cuts)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="budget_moderate" name="budget" value="moderate">
+                            <label for="budget_moderate">Moderate (some variety)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="budget_flexible" name="budget" value="flexible">
+                            <label for="budget_flexible">Flexible (can afford ribeye, salmon)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="familySituation">Family Situation <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="family_solo" name="familySituation" value="solo">
+                            <label for="family_solo">Solo (cooking for myself only)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="family_partner" name="familySituation" value="partner">
+                            <label for="family_partner">Partner (also carnivore)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="family_kids" name="familySituation" value="family-with-kids">
+                            <label for="family_kids">Family with Kids (need family-friendly options)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="family_large" name="familySituation" value="large-household">
+                            <label for="family_large">Large Household</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="workTravel">Work/Travel Situation <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="work_office" name="workTravel" value="office">
+                            <label for="work_office">Office-based</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="work_remote" name="workTravel" value="remote">
+                            <label for="work_remote">Remote</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="work_shift" name="workTravel" value="shift-work">
+                            <label for="work_shift">Shift Work</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="work_travel" name="workTravel" value="travel">
+                            <label for="work_travel">Frequent Travel</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Goals & Priorities -->
+            <div class="form-section">
+                <h3>🎯 Health Goals & Challenges</h3>
+                <p class="subtitle">What are your main priorities? (all optional)</p>
+
+                <div class="form-group">
+                    <label>What are your main goals? <span class="optional">(select all that apply)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_weightloss" name="goals" value="weightloss">
+                            <label for="goal_weightloss">Weight Loss</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_muscle" name="goals" value="muscle">
+                            <label for="goal_muscle">Muscle Gain</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_energy" name="goals" value="energy">
+                            <label for="goal_energy">Better Energy</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_skin" name="goals" value="skin">
+                            <label for="goal_skin">Clearer Skin</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_sleep" name="goals" value="sleep">
+                            <label for="goal_sleep">Better Sleep</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_digestion" name="goals" value="digestion">
+                            <label for="goal_digestion">Better Digestion</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_bloodsugar" name="goals" value="bloodsugar">
+                            <label for="goal_bloodsugar">Blood Sugar Control</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_inflammation" name="goals" value="inflammation">
+                            <label for="goal_inflammation">Reduce Inflammation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_mental" name="goals" value="mental">
+                            <label for="goal_mental">Mental Clarity</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_athletic" name="goals" value="athletic">
+                            <label for="goal_athletic">Athletic Performance</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="biggestChallenge">What's your biggest challenge with diet? <span class="optional">(optional)</span></label>
+                    <textarea name="biggestChallenge" id="biggestChallenge" placeholder="e.g., I fell off keto after 14 months, scared of eating only meat, worried about cholesterol" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="additionalNotes">Anything else we should know? <span class="optional">(optional)</span></label>
+                    <textarea name="additionalNotes" id="additionalNotes" placeholder="Additional context about your health journey" rows="4"></textarea>
+                </div>
+            </div>
+            </div><!-- End STEP 4 -->
 
             <!-- STEP 1: Health & Symptoms (Basic Questions) -->
             <div class="form-step" data-step="1">
@@ -785,7 +971,7 @@
 
                 <div class="form-group">
                     <label for="medications">Current Medications <span class="optional">(optional)</span></label>
-                    <textarea name="medications" id="medications" placeholder="e.g., Metformin for diabetes, levothyroxine for thyroid, blood pressure medication"></textarea>
+                    <textarea name="medications" id="medications" placeholder="e.g., Metformin for diabetes, levothyroxine for thyroid, blood pressure medication" rows="4"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -820,7 +1006,7 @@
 
                 <div class="form-group">
                     <label for="otherConditions">Other Health Issues <span class="optional">(optional)</span></label>
-                    <textarea name="otherConditions" id="otherConditions" placeholder="e.g., PCOS, gout, kidney issues, anything else we should know"></textarea>
+                    <textarea name="otherConditions" id="otherConditions" placeholder="e.g., PCOS, gout, kidney issues, anything else we should know" rows="4"></textarea>
                 </div>
 
                 <div class="medical-disclaimer">
@@ -869,10 +1055,10 @@
 
                 <div class="form-group">
                     <label for="otherSymptoms">Other Symptoms <span class="optional">(optional)</span></label>
-                    <textarea name="otherSymptoms" id="otherSymptoms" placeholder="Anything else you're dealing with that we should address?"></textarea>
+                    <textarea name="otherSymptoms" id="otherSymptoms" placeholder="Anything else you're dealing with that we should address?" rows="4"></textarea>
                 </div>
             </div>
-            </div><!-- End STEP 2 -->
+            </div><!-- End STEP 1 -->
 
             <!-- STEP 2: Diet & Lifestyle (Basic Questions) -->
             <div class="form-step" data-step="2" style="display:none;">
@@ -883,7 +1069,7 @@
 
                 <div class="form-group">
                     <label for="previousDiets">Previous Diets Tried <span class="optional">(optional)</span></label>
-                    <textarea name="previousDiets" id="previousDiets" placeholder="e.g., Keto for 6 months (lost weight but plateaued), vegan (felt terrible), Standard American Diet (gained weight)"></textarea>
+                    <textarea name="previousDiets" id="previousDiets" placeholder="e.g., Keto for 6 months (lost weight but plateaued), vegan (felt terrible), Standard American Diet (gained weight)" rows="4"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -910,7 +1096,7 @@
 
                 <div class="form-group">
                     <label for="whatWorked">What Worked / Didn't Work <span class="optional">(optional)</span></label>
-                    <textarea name="whatWorked" id="whatWorked" placeholder="e.g., Lost weight on keto but gained it back, felt great on low-carb but too restrictive, can't stick to meal plans"></textarea>
+                    <textarea name="whatWorked" id="whatWorked" placeholder="e.g., Lost weight on keto but gained it back, felt great on low-carb but too restrictive, can't stick to meal plans" rows="4"></textarea>
                 </div>
             </div>
 
@@ -920,8 +1106,8 @@
                 <p class="subtitle">Help us make this realistic for YOUR life (all optional)</p>
 
                 <div class="form-group">
-                    <label for="cookingSkill">Cooking Ability <span class="optional">(optional)</span></label>
-                    <select name="cookingSkill" id="cookingSkill">
+                    <label for="cookingSkill2">Cooking Ability <span class="optional">(optional)</span></label>
+                    <select name="cookingSkill2" id="cookingSkill2">
                         <option value="">Select one...</option>
                         <option value="beginner">Beginner (can barely boil water)</option>
                         <option value="basic">Basic (can follow recipes)</option>
@@ -931,8 +1117,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="mealPrepTime">Time Available for Meal Prep <span class="optional">(optional)</span></label>
-                    <select name="mealPrepTime" id="mealPrepTime">
+                    <label for="mealPrepTime2">Time Available for Meal Prep <span class="optional">(optional)</span></label>
+                    <select name="mealPrepTime2" id="mealPrepTime2">
                         <option value="">Select one...</option>
                         <option value="minimal">Minimal (&lt; 1 hour/week)</option>
                         <option value="some">Some time (1-3 hours/week)</option>
@@ -942,8 +1128,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="budget">Budget Constraints <span class="optional">(optional)</span></label>
-                    <select name="budget" id="budget">
+                    <label for="budget2">Budget Constraints <span class="optional">(optional)</span></label>
+                    <select name="budget2" id="budget2">
                         <option value="">Select one...</option>
                         <option value="tight">Tight budget (ground beef, eggs, cheap cuts)</option>
                         <option value="moderate">Moderate (some variety)</option>
@@ -953,8 +1139,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="familySituation">Family Situation <span class="optional">(optional)</span></label>
-                    <select name="familySituation" id="familySituation">
+                    <label for="familySituation2">Family Situation <span class="optional">(optional)</span></label>
+                    <select name="familySituation2" id="familySituation2">
                         <option value="">Select one...</option>
                         <option value="solo">Cooking for myself only</option>
                         <option value="partner">Cooking for partner too (also carnivore)</option>
@@ -964,11 +1150,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="workTravel">Work/Travel Situation <span class="optional">(optional)</span></label>
-                    <textarea name="workTravel" id="workTravel" placeholder="e.g., Travel 2 weeks/month for work, eat lunch at desk, frequent business dinners, work from home"></textarea>
+                    <label for="workTravel2">Work/Travel Situation <span class="optional">(optional)</span></label>
+                    <textarea name="workTravel2" id="workTravel2" placeholder="e.g., Travel 2 weeks/month for work, eat lunch at desk, frequent business dinners, work from home" rows="4"></textarea>
                 </div>
             </div>
-            </div><!-- End STEP 3 -->
+            </div><!-- End STEP 2 -->
 
             <!-- STEP 3: Goals & Priorities (Basic Questions) -->
             <div class="form-step" data-step="3" style="display:none;">
@@ -981,52 +1167,52 @@
                     <label>Primary Goals (check top 3) <span class="optional">(optional)</span></label>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
-                            <input type="checkbox" id="weightloss" name="goals" value="weightloss">
+                            <input type="checkbox" id="weightloss" name="goals_step3" value="weightloss">
                             <label for="weightloss">Weight Loss</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="muscle" name="goals" value="muscle">
+                            <input type="checkbox" id="muscle" name="goals_step3" value="muscle">
                             <label for="muscle">Build Muscle</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="energy" name="goals" value="energy">
+                            <input type="checkbox" id="energy" name="goals_step3" value="energy">
                             <label for="energy">More Energy</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="mentalgoal" name="goals" value="mental">
+                            <input type="checkbox" id="mentalgoal" name="goals_step3" value="mental">
                             <label for="mentalgoal">Mental Clarity / Focus</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="guthealth" name="goals" value="guthealth">
+                            <input type="checkbox" id="guthealth" name="goals_step3" value="guthealth">
                             <label for="guthealth">Fix Gut Health</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="inflammation" name="goals" value="inflammation">
+                            <input type="checkbox" id="inflammation" name="goals_step3" value="inflammation">
                             <label for="inflammation">Reduce Inflammation</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="autoimmuneegoal" name="goals" value="autoimmune">
+                            <input type="checkbox" id="autoimmuneegoal" name="goals_step3" value="autoimmune">
                             <label for="autoimmuneegoal">Manage Autoimmune Condition</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="simplify" name="goals" value="simplify">
+                            <input type="checkbox" id="simplify" name="goals_step3" value="simplify">
                             <label for="simplify">Simplify My Life / End Food Obsession</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="biggestChallenge">Biggest Challenge or Fear <span class="optional">(optional)</span></label>
-                    <textarea name="biggestChallenge" id="biggestChallenge" placeholder="e.g., Afraid of eating too much fat, worried about cholesterol, don't know if I can give up bread, scared of social situations"></textarea>
+                    <label for="biggestChallenge2">Biggest Challenge or Fear <span class="optional">(optional)</span></label>
+                    <textarea name="biggestChallenge2" id="biggestChallenge2" placeholder="e.g., Afraid of eating too much fat, worried about cholesterol, don't know if I can give up bread, scared of social situations" rows="4"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="anythingElse">Anything Else We Should Know? <span class="optional">(optional)</span></label>
-                    <textarea name="anythingElse" id="anythingElse" placeholder="Tell us anything that would help us create the perfect plan for YOU"></textarea>
+                    <textarea name="anythingElse" id="anythingElse" placeholder="Tell us anything that would help us create the perfect plan for YOU" rows="4"></textarea>
                 </div>
             </div>
 
-            </div><!-- End STEP 4 -->
+            </div><!-- End STEP 3 -->
 
             <!-- Step Navigation -->
             <div class="step-navigation" id="stepNavigation" style="display:none;">
@@ -1740,7 +1926,7 @@
 </head>
 <body>
 ${report}
-    <script src="/js/mobile-nav.js"></script>
+    <script src="/js/mobile-nav.js"><\/script>
 </body>
 </html>
             `], { type: 'text/html' });

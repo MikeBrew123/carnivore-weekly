@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnivore Weekly Homepage - UX Analysis Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .critical-alert {
+            background: #fff3cd;
+            border: 2px solid #e74c3c;
+            padding: 20px;
+            margin: -10px 0 0 0;
+            text-align: center;
+            color: #721c24;
+            font-weight: 700;
+            border-radius: 0;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tldr {
+            background: #fff3cd;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin-bottom: 40px;
+            border-radius: 4px;
+        }
+
+        .tldr h2 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .tldr-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .tldr-item {
+            color: #856404;
+            padding: 10px 0;
+        }
+
+        .tldr-item strong {
+            display: block;
+            color: #654321;
+            margin-bottom: 5px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e74c3c;
+        }
+
+        .section h3 {
+            font-size: 18px;
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .issue-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .issue-list li {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-left: 3px solid #e74c3c;
+            border-radius: 3px;
+        }
+
+        .issue-list li.warning {
+            border-left-color: #f39c12;
+            background: #fffaf0;
+        }
+
+        .issue-list li.critical {
+            border-left-color: #c0392b;
+            background: #fadbd8;
+            font-weight: 600;
+        }
+
+        .issue-list li.positive {
+            border-left-color: #27ae60;
+            background: #f0fdf4;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .metric-box {
+            background: #f0f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-box.critical {
+            background: #fadbd8;
+            border: 2px solid #e74c3c;
+        }
+
+        .metric-box .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #e74c3c;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .metric-box .label {
+            font-size: 14px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .screenshot-section {
+            margin: 30px 0;
+        }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .screenshot-item {
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .screenshot-item h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .screenshot-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            display: block;
+        }
+
+        .recommendations {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .recommendations h3 {
+            margin-top: 0;
+        }
+
+        .rec-list {
+            list-style: none;
+            counter-reset: rec-counter;
+        }
+
+        .rec-list li {
+            counter-increment: rec-counter;
+            padding: 12px 15px 12px 40px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .rec-list li:before {
+            content: counter(rec-counter);
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            background: #e74c3c;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .priority-high {
+            border-left: 3px solid #e74c3c;
+        }
+
+        .priority-medium {
+            border-left: 3px solid #f39c12;
+        }
+
+        .priority-low {
+            border-left: 3px solid #27ae60;
+        }
+
+        .insight-box {
+            background: #fadbd8;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .insight-box strong {
+            color: #2c3e50;
+        }
+
+        .warning-box {
+            background: #fadbd8;
+            border: 2px solid #e74c3c;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .warning-box h3 {
+            color: #c0392b;
+            margin-top: 0;
+        }
+
+        .structure-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .structure-table th,
+        .structure-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .structure-table th {
+            background: #34495e;
+            color: white;
+            font-weight: 700;
+        }
+
+        .structure-table tr:hover {
+            background: #f0f4f8;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 40px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .content-section-item {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .metrics, .screenshot-grid, .tldr-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🥩 Carnivore Weekly Homepage</h1>
+            <p>Comprehensive UX & Accessibility Analysis Report</p>
+        </div>
+
+        <div class="critical-alert">
+            ⚠️ CRITICAL ISSUES DETECTED — This page requires immediate remediation
+        </div>
+
+        <div class="content">
+            <!-- TL;DR SECTION -->
+            <div class="tldr">
+                <h2>🔴 TL;DR - Critical State Assessment</h2>
+                <div class="tldr-grid">
+                    <div class="tldr-item">
+                        <strong>Page Length</strong>
+                        43 screens desktop / 73 screens mobile — UNSUSTAINABLE
+                    </div>
+                    <div class="tldr-item">
+                        <strong>Accessibility</strong>
+                        234 small fonts + 118 tiny buttons — Major WCAG failures
+                    </div>
+                    <div class="tldr-item">
+                        <strong>Content Fragmentation</strong>
+                        100 elements with 11+ major sections — User overwhelm
+                    </div>
+                    <div class="tldr-item">
+                        <strong>Verdict</strong>
+                        Homepage structure needs comprehensive redesign, not tweaks
+                    </div>
+                </div>
+            </div>
+
+            <!-- CRITICAL WARNING -->
+            <div class="warning-box">
+                <h3>🚨 Homepage is Broken — Not Slightly Bad, Completely Broken</h3>
+                <p>This is not a "nice to fix" situation. The homepage is fundamentally broken:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>43 screens of scrolling</strong> means 95% of content is below the fold. Users won't see it.</li>
+                    <li><strong>234 unreadable fonts</strong> — Direct violation of WCAG accessibility standards</li>
+                    <li><strong>118 untappable buttons</strong> — Makes mobile interaction impossible for people with less precise motor control</li>
+                    <li><strong>Content fragmentation</strong> — 11+ major sections suggest no clear information hierarchy or editorial strategy</li>
+                    <li><strong>Trust killer</strong> — A 30-60 year old skeptical visitor will bounce immediately. This looks amateurish.</li>
+                </ul>
+            </div>
+
+            <!-- OVERVIEW METRICS -->
+            <div class="section">
+                <h2>📊 Page Metrics Overview</h2>
+                <div class="metrics">
+                    <div class="metric-box critical">
+                        <span class="number">43</span>
+                        <span class="label">Desktop Scroll Depth (screens)</span>
+                    </div>
+                    <div class="metric-box critical">
+                        <span class="number">73</span>
+                        <span class="label">Mobile Scroll Depth (screens)</span>
+                    </div>
+                    <div class="metric-box critical">
+                        <span class="number">234</span>
+                        <span class="label">Small Fonts (< 16px)</span>
+                    </div>
+                    <div class="metric-box critical">
+                        <span class="number">118</span>
+                        <span class="label">Tiny Buttons (< 44x44px)</span>
+                    </div>
+                </div>
+
+                <div class="metrics" style="margin-top: 20px;">
+                    <div class="metric-box">
+                        <span class="number">100</span>
+                        <span class="label">Content Elements</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="number">11+</span>
+                        <span class="label">Major Sections</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="number">38.5k</span>
+                        <span class="label">Desktop Page Height (px)</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="number">60.7k</span>
+                        <span class="label">Mobile Page Height (px)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WHAT'S WORKING -->
+            <div class="section">
+                <h2>✅ What's Actually Working</h2>
+                <ul class="issue-list">
+                    <li class="positive">Header/nav system is solid and branded correctly</li>
+                    <li class="positive">Content variety shows editorial depth (hero, videos, community, products)</li>
+                    <li class="positive">Featured "Community Voice" section has good social proof potential</li>
+                    <li class="positive">Bento card system (community stories) is visually interesting</li>
+                    <li class="positive">Multiple CTAs (calculator, products, channels) show monetization intent</li>
+                    <li class="positive">Sidebar structure provides secondary navigation opportunity</li>
+                </ul>
+            </div>
+
+            <!-- CRITICAL ISSUES -->
+            <div class="section">
+                <h2>🔴 Critical Issues (Must Fix Now)</h2>
+
+                <h3>Issue #1: Unsustainable Page Length (43 desktop / 73 mobile screens)</h3>
+                <ul class="issue-list">
+                    <li class="critical">43 screens on desktop = Users give up and leave before seeing 95% of content</li>
+                    <li class="critical">73 screens on mobile = Impossible scroll depth; mobile users see ~5% of homepage</li>
+                    <li class="critical">Repeat content sections (same cards appear 2-3 times) = Zero UX reasoning for duplication</li>
+                </ul>
+
+                <div class="insight-box">
+                    <strong>Root Cause:</strong> Homepage is trying to be ALL sections at once (hero + roundup + videos + community + products + trending + more videos + FAQ). This is "kitchen sink" design and kills UX.
+                </div>
+
+                <h3>Issue #2: Massive Accessibility Failures</h3>
+                <ul class="issue-list">
+                    <li class="critical">234 elements with font-size < 16px — Your target 30-60 demo cannot read this</li>
+                    <li class="critical">118 clickable elements < 44x44px — WCAG AA violation. Mobile users can't tap.</li>
+                    <li class="critical">41 elements on mobile with font < 14px — Unreadable on small screens</li>
+                </ul>
+
+                <div class="insight-box">
+                    <strong>Impact:</strong> These are not "nice to have" improvements. They are legal/compliance failures. Older users, users with motor impairments, and mobile-only users cannot use this page.
+                </div>
+
+                <h3>Issue #3: Content Duplication & Confusion</h3>
+                <ul class="issue-list">
+                    <li class="critical">"Prime Cuts" (top videos) appears twice on the page</li>
+                    <li class="critical">"Community Voice" (testimonials) appears twice with same content</li>
+                    <li class="critical">"Butcher's Wisdom" (quotes) appears with both short and full versions</li>
+                </ul>
+
+                <div class="insight-box">
+                    <strong>User Experience Impact:</strong> Visitor scrolls 20 screens, sees "Community Voice", scrolls 10 more screens, sees "Community Voice" again. Creates confusion: "Did I already see this? Am I in a loop?"
+                </div>
+
+                <h3>Issue #4: Information Hierarchy Collapse</h3>
+                <p>Major sections on homepage (in order of appearance):</p>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>Hero (2026 Blueprint)</li>
+                    <li>Weekly Roundup Summary</li>
+                    <li>Prime Cuts (Top Videos)</li>
+                    <li>Butcher's Wisdom (Quotes)</li>
+                    <li>Community Voice (Testimonials)</li>
+                    <li>Science Lab (FAQ)</li>
+                    <li>The Pantry (Products)</li>
+                    <li>CTA Section (Calculator)</li>
+                    <li>What's Sizzling (Trending Topics)</li>
+                    <li>Prime Cuts AGAIN (more videos)</li>
+                    <li>Butcher's Wisdom AGAIN (more quotes)</li>
+                    <li>Community Voice AGAIN (more testimonials)</li>
+                    <li>Must-Watch Content (recommended videos)</li>
+                </ol>
+
+                <div class="insight-box">
+                    <strong>Problem:</strong> No clear priority. Is it blogs? Videos? Products? Community stories? The visitor can't tell. Every section gets equal visual weight, so nothing feels important.
+                </div>
+            </div>
+
+            <!-- BENTO GRID ASSESSMENT -->
+            <div class="section">
+                <h2>🎨 Bento Layout Assessment</h2>
+
+                <h3>Current Implementation</h3>
+                <p>The homepage uses multiple bento grid patterns:</p>
+                <table class="structure-table">
+                    <tr>
+                        <th>Section</th>
+                        <th>Pattern</th>
+                        <th>Issues</th>
+                    </tr>
+                    <tr>
+                        <td>Community Voice</td>
+                        <td>Featured + tall + wide cards</td>
+                        <td>Appears twice; good design but repetition kills impact</td>
+                    </tr>
+                    <tr>
+                        <td>Prime Cuts (Videos)</td>
+                        <td>2-column video grid</td>
+                        <td>Appears 2-3 times; inconsistent sizing; some videos 1042px tall (!)</td>
+                    </tr>
+                    <tr>
+                        <td>Butcher's Wisdom</td>
+                        <td>2-column insight cards</td>
+                        <td>Works okay, but appears multiple times creating visual fatigue</td>
+                    </tr>
+                    <tr>
+                        <td>Products (Pantry)</td>
+                        <td>2-column product cards</td>
+                        <td>Good design; only appears once (correct)</td>
+                    </tr>
+                    <tr>
+                        <td>Trending Topics</td>
+                        <td>Single-column topic cards</td>
+                        <td>Too narrow; stretches full width inefficiently</td>
+                    </tr>
+                </table>
+
+                <h3>Bento Design Issues</h3>
+                <ul class="issue-list">
+                    <li class="warning">No master visual hierarchy — All cards treated as equal visual weight</li>
+                    <li class="warning">Inconsistent sizing — Video cards range from 229px to 1042px tall (?!)</li>
+                    <li class="warning">Repetition over curation — Same sections appear 2-3 times instead of featured content</li>
+                    <li class="warning">Mobile collapse broken — 73-screen scroll suggests grid doesn't adapt for mobile</li>
+                    <li class="critical">No featured/hero card principle — Everything gets same emphasis</li>
+                </ul>
+            </div>
+
+            <!-- CONTENT INVENTORY -->
+            <div class="section">
+                <h2>📦 Content Breakdown</h2>
+                <p>What's actually on the homepage (100 total elements):</p>
+
+                <div class="content-section-item">
+                    <strong>Header/Nav:</strong> Logo, navigation menu, premium CTA
+                </div>
+                <div class="content-section-item">
+                    <strong>Hero Section:</strong> 2026 Blueprint with CTA
+                </div>
+                <div class="content-section-item">
+                    <strong>Weekly Roundup:</strong> Summary of latest content
+                </div>
+                <div class="content-section-item">
+                    <strong>Prime Cuts (Videos):</strong> Top videos section — Appears at least 2x with different content
+                </div>
+                <div class="content-section-item">
+                    <strong>Butcher's Wisdom:</strong> Curated insights/quotes — Appears 2x
+                </div>
+                <div class="content-section-item">
+                    <strong>Community Voice:</strong> Transformation stories/testimonials — Appears 2x (has featured, tall, and wide cards)
+                </div>
+                <div class="content-section-item">
+                    <strong>Science Lab:</strong> FAQ section
+                </div>
+                <div class="content-section-item">
+                    <strong>The Pantry:</strong> 4 product cards (cast iron, electrolytes, meat sources, tools)
+                </div>
+                <div class="content-section-item">
+                    <strong>CTA Section:</strong> "Start Your 2026 Protocol" with calculator link
+                </div>
+                <div class="content-section-item">
+                    <strong>What's Sizzling:</strong> 6 trending topic cards
+                </div>
+                <div class="content-section-item">
+                    <strong>Must-Watch Content:</strong> Recommended videos section
+                </div>
+                <div class="content-section-item">
+                    <strong>Sidebar:</strong> "What's Trending", CTA, partner spotlight, feedback form, navigation links
+                </div>
+                <div class="content-section-item">
+                    <strong>Footer:</strong> Copyright, links
+                </div>
+            </div>
+
+            <!-- TRUST ASSESSMENT -->
+            <div class="section">
+                <h2>🤝 Trust & Psychology Analysis</h2>
+
+                <h3>Current Trust Signals ✅</h3>
+                <ul class="issue-list">
+                    <li class="positive">Community Voice section shows real people, real results (transformation stories)</li>
+                    <li class="positive">Named content creators/authors visible in video cards</li>
+                    <li class="positive">"Evidence-based content" messaging in footer</li>
+                    <li class="positive">Multiple sections (FAQ, testimonials, videos) suggest depth</li>
+                    <li class="positive">Partner spotlight (ButcherBox) shows brand alignment</li>
+                </ul>
+
+                <h3>Critical Trust Gaps ⚠️</h3>
+                <ul class="issue-list">
+                    <li class="critical">No clear mission statement above fold — "Who are you and why should I trust you?"</li>
+                    <li class="critical">No founder/team bios visible — Skeptics want to know WHO is behind this</li>
+                    <li class="critical">No subscriber/community size metrics — Social proof is missing ("100K+ readers", etc)</li>
+                    <li class="warning">Community Voice cards lack author credentials — Just names and stories, no expertise validation</li>
+                    <li class="warning">Products section lacks social proof — No ratings, no "bestselling", no social proof</li>
+                    <li class="warning">No "About Us" CTA above fold — Visitors can't easily find credibility info</li>
+                </ul>
+
+                <div class="insight-box">
+                    <strong>For Your Audience:</strong> Contrarian health audiences are deeply skeptical. They're thinking: "Is this a money grab? Am I being sold to? Who are these people?" The homepage doesn't answer these questions at all — it just dumps content on them.
+                </div>
+            </div>
+
+            <!-- SCREENSHOTS -->
+            <div class="section">
+                <h2>📸 Visual Comparison</h2>
+
+                <div class="screenshot-grid">
+                    <div class="screenshot-item">
+                        <h4>Desktop - Above Fold</h4>
+                        <img src="localhost:8000_desktop_fold_20260103_161728.png" alt="Desktop above fold">
+                    </div>
+                    <div class="screenshot-item">
+                        <h4>Mobile - Above Fold</h4>
+                        <img src="localhost:8000_mobile_fold_20260103_161728.png" alt="Mobile above fold">
+                    </div>
+                </div>
+
+                <div class="screenshot-grid" style="margin-top: 20px;">
+                    <div class="screenshot-item">
+                        <h4>Desktop - Full Page (38.5k px!)</h4>
+                        <img src="localhost:8000_desktop_full_20260103_161728.png" alt="Desktop full page">
+                    </div>
+                    <div class="screenshot-item">
+                        <h4>Mobile - Full Page (60.7k px!)</h4>
+                        <img src="localhost:8000_mobile_full_20260103_161728.png" alt="Mobile full page">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACCESSIBILITY COMPLIANCE -->
+            <div class="section">
+                <h2>♿ WCAG Accessibility Compliance</h2>
+
+                <table class="structure-table">
+                    <tr>
+                        <th>Standard</th>
+                        <th>Required</th>
+                        <th>Current</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Min body font (desktop)</td>
+                        <td>16px</td>
+                        <td>12-14px (234 elements)</td>
+                        <td style="color: #c0392b; font-weight: 700;">❌ FAIL</td>
+                    </tr>
+                    <tr>
+                        <td>Min body font (mobile)</td>
+                        <td>14px</td>
+                        <td>12px (41 elements)</td>
+                        <td style="color: #c0392b; font-weight: 700;">❌ FAIL</td>
+                    </tr>
+                    <tr>
+                        <td>Touch target size</td>
+                        <td>44×44px</td>
+                        <td>30-36px (118 elements)</td>
+                        <td style="color: #c0392b; font-weight: 700;">❌ FAIL</td>
+                    </tr>
+                    <tr>
+                        <td>Color contrast (text)</td>
+                        <td>4.5:1</td>
+                        <td>Unknown</td>
+                        <td>⚠️ CHECK</td>
+                    </tr>
+                    <tr>
+                        <td>Line height</td>
+                        <td>1.5+</td>
+                        <td>Unknown</td>
+                        <td>⚠️ CHECK</td>
+                    </tr>
+                    <tr>
+                        <td>Responsive layout</td>
+                        <td>Mobile optimized</td>
+                        <td>73-screen scroll</td>
+                        <td style="color: #c0392b; font-weight: 700;">❌ FAIL</td>
+                    </tr>
+                </table>
+
+                <div class="warning-box">
+                    <h3>Legal/Compliance Risk</h3>
+                    <p>These are not "best practice" violations. They are WCAG AA failures:</p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>Font size violations:</strong> 275 instances of text too small to read</li>
+                        <li><strong>Touch target violations:</strong> 118 buttons/links impossible to tap on mobile</li>
+                        <li><strong>Responsive design failure:</strong> 73-screen scroll on mobile is not acceptable</li>
+                    </ul>
+                    <p style="margin-top: 10px;"><strong>Recommendation:</strong> Document these findings and prioritize fixes as accessibility compliance issues, not UX improvements.</p>
+                </div>
+            </div>
+
+            <!-- PRIORITY ACTION PLAN -->
+            <div class="section">
+                <h2>🎯 Priority Action Plan</h2>
+
+                <div class="recommendations">
+                    <h3>PHASE 1: Emergency Fixes (1-2 weeks, required)</h3>
+                    <ul class="rec-list">
+                        <li class="priority-high"><strong>Increase all body text to 16px minimum (18px preferred)</strong> — Fixes 234 accessibility issues immediately. Use CSS global font-size increase.</li>
+                        <li class="priority-high"><strong>Make all buttons and links 44×44px or larger</strong> — Add padding to reach 44px. This affects 118 elements. Required for WCAG compliance.</li>
+                        <li class="priority-high"><strong>REMOVE duplicate sections</strong> — Delete the second instance of "Prime Cuts", "Community Voice", "Butcher's Wisdom". Keep only first occurrence of each.</li>
+                        <li class="priority-high"><strong>Reduce page length target to 5-6 screens desktop, 8-10 mobile</strong> — Current 43/73 is unsustainable. This requires content prioritization.</li>
+                    </ul>
+                </div>
+
+                <div class="recommendations">
+                    <h3>PHASE 2: Structure Redesign (2-3 weeks, high priority)</h3>
+                    <ul class="rec-list">
+                        <li class="priority-high"><strong>Create clear information hierarchy</strong> — Decide: Is this a blog? Video hub? Community? Product store? Choose ONE primary focus, make others secondary.</li>
+                        <li class="priority-high"><strong>Redesign homepage sections with purpose:</strong>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>Above Fold:</strong> Hero + ONE key CTA (calculator or blog)</li>
+                                <li><strong>Section 2:</strong> Weekly highlights/trending (3 cards max)</li>
+                                <li><strong>Section 3:</strong> Community Voice (3 featured testimonials with credentials)</li>
+                                <li><strong>Section 4:</strong> Video content (3 top videos only, not 20+)</li>
+                                <li><strong>Section 5:</strong> Products or secondary CTA</li>
+                                <li><strong>Footer:</strong> Links + newsletter signup</li>
+                            </ul>
+                        </li>
+                        <li class="priority-medium"><strong>Add trust signals above fold</strong> — "Trusted by 50K+ readers", founder bio, mission statement</li>
+                        <li class="priority-medium"><strong>Optimize mobile layout</strong> — Implement responsive grid that collapses to 1-column without creating 70+ screen scroll</li>
+                    </ul>
+                </div>
+
+                <div class="recommendations">
+                    <h3>PHASE 3: Enhancement (1-2 weeks, medium priority)</h3>
+                    <ul class="rec-list">
+                        <li class="priority-medium"><strong>Add author credentials to testimonials</strong> — Show credentials, results, expertise for community voice cards</li>
+                        <li class="priority-medium"><strong>Create featured post logic</strong> — Latest or most popular blog post gets hero treatment</li>
+                        <li class="priority-medium"><strong>Implement sidebar properly</strong> — Right sidebar shows secondary CTAs, newsletter, resources (currently it's lost in scroll)</li>
+                        <li class="priority-low"><strong>Add product ratings/reviews</strong> — Social proof for Pantry section</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- COMPARISON TO BLOG PAGE -->
+            <div class="section">
+                <h2>📊 Homepage vs. Blog Page Comparison</h2>
+
+                <table class="structure-table">
+                    <tr>
+                        <th>Metric</th>
+                        <th>Homepage</th>
+                        <th>Blog Page</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Desktop scroll depth</td>
+                        <td style="color: #c0392b; font-weight: 700;">43 screens</td>
+                        <td style="color: #f39c12; font-weight: 700;">3 screens</td>
+                        <td>Homepage is 14x longer 🚨</td>
+                    </tr>
+                    <tr>
+                        <td>Small fonts (&lt;16px)</td>
+                        <td style="color: #c0392b; font-weight: 700;">234</td>
+                        <td style="color: #f39c12; font-weight: 700;">53</td>
+                        <td>Homepage is 4x worse</td>
+                    </tr>
+                    <tr>
+                        <td>Tiny buttons (&lt;44x44px)</td>
+                        <td style="color: #c0392b; font-weight: 700;">118</td>
+                        <td style="color: #f39c12; font-weight: 700;">24</td>
+                        <td>Homepage is 5x worse</td>
+                    </tr>
+                    <tr>
+                        <td>Content elements</td>
+                        <td>100</td>
+                        <td>26</td>
+                        <td>Homepage is 4x more complex</td>
+                    </tr>
+                    <tr>
+                        <td>Major sections</td>
+                        <td>11+</td>
+                        <td>1 (blog grid)</td>
+                        <td>Homepage is much more fragmented</td>
+                    </tr>
+                    <tr>
+                        <td>Duplicate content</td>
+                        <td style="color: #c0392b; font-weight: 700;">Yes (3 sections repeat)</td>
+                        <td>No</td>
+                        <td>Homepage has significant redundancy</td>
+                    </tr>
+                </table>
+
+                <div class="insight-box">
+                    <strong>Insight:</strong> The homepage is roughly 4-14x worse than the blog page across all metrics. This suggests systemic issues with how the homepage was designed/structured, not just minor tweaks needed.
+                </div>
+            </div>
+
+            <!-- IMPLEMENTATION ROADMAP -->
+            <div class="section">
+                <h2>🗺️ Implementation Roadmap</h2>
+
+                <h3>Week 1: Emergency Fixes (Accessibility + Content Cleanup)</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Increase global font size: 12-14px → 16px (affects 234 elements)</li>
+                    <li>Add padding to buttons: Reach 44×44px minimum (affects 118 elements)</li>
+                    <li>Remove duplicate "Prime Cuts" section (second occurrence)</li>
+                    <li>Remove duplicate "Community Voice" section (second occurrence)</li>
+                    <li>Remove duplicate "Butcher's Wisdom" section (second occurrence)</li>
+                    <li>Measure impact on scroll depth (target: reduce to ~25 screens desktop)</li>
+                </ul>
+
+                <h3>Week 2-3: Structure Redesign</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Map out new information architecture (decide primary vs secondary content)</li>
+                    <li>Design new homepage layout with 5-6 sections max</li>
+                    <li>Implement responsive grid for mobile (target: 8-10 screens mobile)</li>
+                    <li>Add trust signals (subscriber count, founder bio, mission statement)</li>
+                    <li>Create new hero section with clear primary CTA</li>
+                </ul>
+
+                <h3>Week 4: Enhancement & Testing</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Add author credentials to testimonials</li>
+                    <li>Implement featured post logic</li>
+                    <li>Test accessibility with screen readers (NVDA, VoiceOver)</li>
+                    <li>Test with 50+ year old users (your target demographic)</li>
+                    <li>Measure engagement metrics (bounce rate, scroll depth, time on page)</li>
+                </ul>
+            </div>
+
+            <!-- SUMMARY -->
+            <div class="section">
+                <h2>📋 Executive Summary</h2>
+
+                <div class="warning-box">
+                    <h3>This is Not a Refinement — This is a Redesign</h3>
+                    <p>The homepage is structurally broken. It's not about making small improvements; it requires a comprehensive redesign.</p>
+
+                    <p style="margin-top: 10px;"><strong>Key Stats:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><strong>43 screens</strong> of scrolling (vs. 3 for blog, 5-6 industry standard)</li>
+                        <li><strong>275+ accessibility violations</strong> (font + button sizing)</li>
+                        <li><strong>3 major sections repeated</strong> (Prime Cuts, Community Voice, Butcher's Wisdom)</li>
+                        <li><strong>11+ sections</strong> with no clear hierarchy (everything looks equally important)</li>
+                        <li><strong>No trust signals above fold</strong> (mission, team, social proof all below the fold)</li>
+                    </ul>
+                </div>
+
+                <h3>Recommended Approach</h3>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Week 1:</strong> Fix accessibility + remove duplicates (essential, quick wins)</li>
+                    <li><strong>Week 2-3:</strong> Redesign information architecture (reduce sections, clarify hierarchy)</li>
+                    <li><strong>Week 4:</strong> Add trust signals and test with users</li>
+                    <li><strong>Ongoing:</strong> Monitor scroll depth, bounce rate, time on page</li>
+                </ol>
+
+                <h3>Success Metrics</h3>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Reduce desktop scroll depth from 43 → 5-6 screens</li>
+                    <li>Reduce mobile scroll depth from 73 → 8-10 screens</li>
+                    <li>Eliminate all accessibility violations (font size, button sizing)</li>
+                    <li>Improve mobile engagement (lower bounce rate, higher scroll depth %)</li>
+                    <li>Increase click-through to primary CTA (calculator, blog, or signup)</li>
+                </ul>
+
+                <div class="insight-box">
+                    <strong>Bottom Line:</strong> The homepage needs a structural overhaul. The good news: Once you reduce the content, increase font sizes, and fix buttons, the remaining 5-6 sections can be really strong. The bento grid system can work beautifully — it's just buried under too much content right now.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Analysis performed with Bento UX Analyzer • Generated: Jan 3, 2026 • Scope: Homepage UX assessment for 30-60 age demographic with carnivore audience psychology focus</p>
+        </div>
+    </div>
+</body>
+</html>

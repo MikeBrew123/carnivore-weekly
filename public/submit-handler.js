@@ -198,11 +198,11 @@ async function handleSubmitClick(event) {
     if (isPremium) {
       // User already paid - proceed directly to report generation
       updateProgressBar(80, 'Finalizing your report...');
-      await initializeReportGeneration(sessionToken, formData);
+      const reportData = await initializeReportGeneration(sessionToken, formData);
 
       // Redirect to report page
       setTimeout(() => {
-        const accessToken = saveResponse.access_token;
+        const accessToken = reportData.access_token;
         window.location.href = `/calculator/report?access_token=${accessToken}`;
       }, 1000);
     } else {
@@ -645,11 +645,11 @@ async function handlePaymentSuccess(stripeSessionId) {
     const formData = collectFormData();
 
     // Initialize report generation
-    await initializeReportGeneration(sessionToken, formData);
+    const reportData = await initializeReportGeneration(sessionToken, formData);
 
     // Redirect to report page
     setTimeout(() => {
-      const accessToken = verifyData.report_access_token;
+      const accessToken = reportData.access_token || verifyData.access_token;
       window.location.href = `/calculator/report?access_token=${accessToken}`;
     }, 1500);
   } catch (error) {
