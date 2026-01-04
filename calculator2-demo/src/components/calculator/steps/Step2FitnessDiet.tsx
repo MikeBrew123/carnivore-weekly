@@ -7,6 +7,8 @@ interface Step2FitnessDietProps {
   onDataChange: (data: FormData) => void
   onContinue: () => void
   onBack: () => void
+  onFieldChange?: (fieldName: string) => void
+  onSetErrors?: (errors: Record<string, string>) => void
   errors: Record<string, string>
 }
 
@@ -15,36 +17,45 @@ export default function Step2FitnessDiet({
   onDataChange,
   onContinue,
   onBack,
+  onFieldChange,
+  onSetErrors,
   errors,
 }: Step2FitnessDietProps) {
   const handleInputChange = (field: string, value: any) => {
     onDataChange({ ...data, [field]: value })
+    // Clear error for this field if it has a value
+    if (value !== '' && value !== undefined && value !== null && onFieldChange) {
+      onFieldChange(field)
+    }
   }
 
   const handleContinue = () => {
+    console.log('[Step2] Continue clicked. Current data:', data)
     const newErrors: Record<string, string> = {}
 
     if (!data.lifestyle) newErrors.lifestyle = 'Please select your activity level'
     if (!data.exercise) newErrors.exercise = 'Please select your exercise frequency'
     if (!data.goal) newErrors.goal = 'Please select your goal'
-    if (!data.deficit) newErrors.deficit = 'Please select your deficit percentage'
+    if ((data.goal === 'lose' || data.goal === 'gain') && !data.deficit) newErrors.deficit = 'Please select your deficit percentage'
     if (!data.diet) newErrors.diet = 'Please select your diet type'
 
+    console.log('[Step2] Validation errors:', newErrors)
+
     if (Object.keys(newErrors).length > 0) {
-      Object.entries(newErrors).forEach(([key, msg]) => {
-        errors[key] = msg
-      })
+      console.log('[Step2] Validation failed, setting errors')
+      onSetErrors?.(newErrors)
       return
     }
 
+    console.log('[Step2] Validation passed, calling onContinue()')
     onContinue()
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Activity & Goals</h2>
-        <p className="text-gray-600">These help us tailor your macros to your lifestyle.</p>
+        <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', color: '#ffd700', fontWeight: '600', marginBottom: '8px' }}>Your Activity & Goals</h2>
+        <p style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '18px', color: '#f5f5f5' }}>These help us tailor your macros to your lifestyle.</p>
       </div>
 
       {/* Lifestyle Activity Level */}
@@ -118,8 +129,8 @@ export default function Step2FitnessDiet({
       )}
 
       {data.goal === 'maintain' && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-900">
+        <div style={{ backgroundColor: '#0f0f0f', border: '1px solid #333', borderRadius: '8px', padding: '16px' }}>
+          <p style={{ fontSize: '14px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif" }}>
             ℹ️ At maintenance, you'll eat at your TDEE (Total Daily Energy Expenditure).
           </p>
         </div>
@@ -143,16 +154,54 @@ export default function Step2FitnessDiet({
       />
 
       {/* Navigation Buttons */}
-      <div className="pt-6 flex gap-3">
+      <div style={{ paddingTop: '24px', display: 'flex', gap: '12px' }}>
         <button
           onClick={onBack}
-          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-3 rounded-lg transition-colors"
+          style={{
+            flex: 1,
+            backgroundColor: 'transparent',
+            border: '2px solid #ffd700',
+            color: '#ffd700',
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '16px',
+            fontWeight: '600',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 215, 0, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
         >
           Back
         </button>
         <button
           onClick={handleContinue}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors"
+          style={{
+            flex: 1,
+            backgroundColor: '#ffd700',
+            color: '#1a120b',
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '16px',
+            fontWeight: '600',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#e6c200';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#ffd700';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
         >
           See Your Results
         </button>
