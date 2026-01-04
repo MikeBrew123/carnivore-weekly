@@ -25,27 +25,53 @@ export default function SelectField({
 }: SelectFieldProps) {
   return (
     <div className="w-full">
-      <label htmlFor={props.id || props.name} className="block text-sm font-medium text-gray-700 mb-2">
+      <label
+        htmlFor={props.id || props.name}
+        style={{
+          display: 'block',
+          color: '#a0a0a0',
+          fontFamily: "'Merriweather', Georgia, serif",
+          fontSize: '16px',
+          fontWeight: '500',
+          marginBottom: '8px'
+        }}
+      >
         {label}
-        {props.required && <span className="text-red-500 ml-1">*</span>}
+        {props.required && <span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>}
       </label>
 
       <select
         {...props}
-        className={`
-          w-full px-4 py-2.5 border rounded-lg text-base
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-          transition-colors appearance-none bg-white
-          ${error ? 'border-red-500 bg-red-50' : 'border-gray-300'}
-          ${className}
-        `}
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+          width: '100%',
+          backgroundColor: '#0f0f0f',
+          border: error ? '1px solid #ef4444' : '1px solid #333',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          fontSize: '18px',
+          fontFamily: "'Merriweather', Georgia, serif",
+          color: '#f5f5f5',
+          transition: 'border-color 0.2s, box-shadow 0.2s',
+          outline: 'none',
+          appearance: 'none',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ffd700' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
           backgroundPosition: 'right 0.5rem center',
           backgroundRepeat: 'no-repeat',
           backgroundSize: '1.5em 1.5em',
           paddingRight: '2.5rem',
+          cursor: 'pointer'
         }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = '#ffd700';
+          e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255, 215, 0, 0.2)';
+          props.onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = error ? '#ef4444' : '#333';
+          e.currentTarget.style.boxShadow = 'none';
+          props.onBlur?.(e);
+        }}
+        className={className}
       >
         {placeholder && (
           <option value="" disabled>
@@ -64,10 +90,14 @@ export default function SelectField({
       </select>
 
       {error && (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
+        <p style={{ color: '#ef4444', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px', marginTop: '6px' }}>
+          {error}
+        </p>
       )}
       {helpText && !error && (
-        <p className="mt-1 text-sm text-gray-500">{helpText}</p>
+        <p style={{ color: '#666', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px', marginTop: '6px' }}>
+          {helpText}
+        </p>
       )}
     </div>
   )

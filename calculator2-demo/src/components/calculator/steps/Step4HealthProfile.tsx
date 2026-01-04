@@ -9,6 +9,8 @@ interface Step4HealthProfileProps {
   onDataChange: (data: FormData) => void
   onSubmit: () => void
   onBack: () => void
+  onFieldChange?: (fieldName: string) => void
+  onSetErrors?: (errors: Record<string, string>) => void
   errors: Record<string, string>
 }
 
@@ -17,10 +19,29 @@ export default function Step4HealthProfile({
   onDataChange,
   onSubmit,
   onBack,
+  onFieldChange,
+  onSetErrors,
   errors,
 }: Step4HealthProfileProps) {
   const handleInputChange = (field: string, value: any) => {
     onDataChange({ ...data, [field]: value })
+    // Clear error for this field if it has a value
+    if (value !== '' && value !== undefined && value !== null && onFieldChange) {
+      onFieldChange(field)
+    }
+  }
+
+  // Validate email on blur
+  const validateEmail = () => {
+    if (data.email) {
+      const newErrors = { ...errors }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+        newErrors.email = 'Please enter a valid email'
+      } else {
+        delete newErrors.email
+      }
+      onSetErrors?.(newErrors)
+    }
   }
 
   const handleSubmit = () => {
@@ -33,9 +54,7 @@ export default function Step4HealthProfile({
     }
 
     if (Object.keys(newErrors).length > 0) {
-      Object.entries(newErrors).forEach(([key, msg]) => {
-        errors[key] = msg
-      })
+      onSetErrors?.(newErrors)
       return
     }
 
@@ -62,6 +81,7 @@ export default function Step4HealthProfile({
             label="Email Address"
             value={data.email || ''}
             onChange={(e) => handleInputChange('email', e.target.value)}
+            onBlur={validateEmail}
             error={errors.email}
             placeholder="your@email.com"
             required

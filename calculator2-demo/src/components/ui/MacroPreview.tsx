@@ -26,47 +26,56 @@ export default function MacroPreview({ macros, loading }: MacroPreviewProps) {
 
   return (
     <motion.div
-      className="bg-white rounded-lg shadow-lg p-6 space-y-4"
+      style={{
+        backgroundColor: '#1a1a1a',
+        borderRadius: '12px',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px',
+        border: '1px solid #333',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
+      }}
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      <h3 className="font-semibold text-dark text-center mb-4">Your Macros Preview</h3>
+      <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", color: '#ffd700', textAlign: 'center', marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>Your Macros Preview</h3>
 
-      <div className="grid grid-cols-2 gap-3">
-        <motion.div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 text-center" variants={itemVariants}>
-          <p className="text-xs text-gray-600 mb-1">Daily Calories</p>
-          <p className="text-2xl font-bold text-primary">{macros.calories}</p>
-          <p className="text-xs text-gray-500 mt-1">kcal</p>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>
+          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>Daily Calories</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.calories}</p>
+          <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', fontFamily: "'Merriweather', Georgia, serif" }}>kcal</p>
         </motion.div>
 
-        <motion.div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-4 text-center" variants={itemVariants}>
-          <p className="text-xs text-gray-600 mb-1">Maintenance</p>
-          <p className="text-2xl font-bold text-primary">{macros.tdee}</p>
-          <p className="text-xs text-gray-500 mt-1">TDEE</p>
+        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>
+          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>Maintenance</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.tdee}</p>
+          <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', fontFamily: "'Merriweather', Georgia, serif" }}>TDEE</p>
         </motion.div>
 
-        <motion.div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 text-center" variants={itemVariants}>
-          <p className="text-xs text-gray-600 mb-1">Protein</p>
-          <p className="text-2xl font-bold text-primary">{macros.protein}g</p>
+        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>
+          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>Protein</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.protein}g</p>
         </motion.div>
 
-        <motion.div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 text-center" variants={itemVariants}>
-          <p className="text-xs text-gray-600 mb-1">Fat</p>
-          <p className="text-2xl font-bold text-primary">{macros.fat}g</p>
+        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>
+          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>Fat</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.fat}g</p>
         </motion.div>
 
-        <motion.div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 text-center" variants={itemVariants}>
-          <p className="text-xs text-gray-600 mb-1">Carbs</p>
-          <p className="text-2xl font-bold text-primary">{macros.carbs}g</p>
+        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>
+          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>Carbs</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.carbs}g</p>
         </motion.div>
 
-        <motion.div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 text-center" variants={itemVariants}>
-          <p className="text-xs text-gray-600 mb-1">Macro Split</p>
-          <p className="text-sm font-bold text-primary">
+        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>
+          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>Macro Split</p>
+          <p style={{ fontSize: '16px', fontWeight: 'bold', color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif" }}>
             {macros.calories > 0 ? Math.round((macros.fat * 9 / macros.calories) * 100) : 0}%
           </p>
-          <p className="text-xs text-gray-500">fat</p>
+          <p style={{ fontSize: '12px', color: '#666', fontFamily: "'Merriweather', Georgia, serif" }}>fat</p>
         </motion.div>
       </div>
 

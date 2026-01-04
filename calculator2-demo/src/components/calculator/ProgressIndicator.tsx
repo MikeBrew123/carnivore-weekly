@@ -18,18 +18,29 @@ export default function ProgressIndicator({
           const isActive = stepNumber === currentStep
           const isComplete = stepNumber < currentStep
 
+          const circleBackgroundColor = isActive ? '#ffd700' : isComplete ? '#228B22' : '#333'
+          const circleTextColor = isActive ? '#1a120b' : '#f5f5f5'
+          const labelColor = isActive ? '#ffd700' : isComplete ? '#228B22' : '#a0a0a0'
+
           return (
             <div key={index} className="flex-1">
               {/* Step circle */}
               <div className="flex items-center">
                 <div
-                  className={`
-                    w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
-                    transition-colors
-                    ${isActive ? 'bg-blue-600 text-white' : ''}
-                    ${isComplete ? 'bg-green-500 text-white' : ''}
-                    ${!isActive && !isComplete ? 'bg-gray-200 text-gray-600' : ''}
-                  `}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                    backgroundColor: circleBackgroundColor,
+                    color: circleTextColor,
+                    transition: 'all 0.2s'
+                  }}
                 >
                   {isComplete ? '✓' : stepNumber}
                 </div>
@@ -37,21 +48,30 @@ export default function ProgressIndicator({
                 {/* Line connector */}
                 {index < stepLabels.length - 1 && (
                   <div
-                    className={`
-                      flex-1 h-1 mx-2 rounded
-                      ${stepNumber < currentStep ? 'bg-green-500' : 'bg-gray-200'}
-                    `}
+                    style={{
+                      flex: 1,
+                      height: '2px',
+                      margin: '0 8px',
+                      borderRadius: '4px',
+                      backgroundColor: stepNumber < currentStep ? '#ffd700' : '#333',
+                      transition: 'background-color 0.3s'
+                    }}
                   />
                 )}
               </div>
 
               {/* Label */}
-              <p className={`
-                mt-2 text-xs font-medium text-center
-                ${isActive ? 'text-blue-600' : ''}
-                ${isComplete ? 'text-green-600' : ''}
-                ${!isActive && !isComplete ? 'text-gray-500' : ''}
-              `}>
+              <p
+                style={{
+                  marginTop: '8px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                  color: labelColor,
+                  fontFamily: "'Merriweather', Georgia, serif",
+                  transition: 'color 0.2s'
+                }}
+              >
                 {label}
               </p>
             </div>
@@ -60,10 +80,15 @@ export default function ProgressIndicator({
       </div>
 
       {/* Progress bar */}
-      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div style={{ width: '100%', height: '4px', backgroundColor: '#333', borderRadius: '12px', overflow: 'hidden' }}>
         <div
-          className="h-full bg-blue-600 transition-all duration-300"
-          style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+          style={{
+            height: '100%',
+            backgroundColor: '#ffd700',
+            transition: 'width 0.3s ease-out',
+            width: `${(currentStep / totalSteps) * 100}%`,
+            borderRadius: '12px'
+          }}
         />
       </div>
     </div>

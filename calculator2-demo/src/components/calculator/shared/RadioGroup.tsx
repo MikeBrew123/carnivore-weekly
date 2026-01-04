@@ -29,29 +29,53 @@ export default function RadioGroup({
 }: RadioGroupProps) {
   return (
     <fieldset className="w-full">
-      <legend className="block text-sm font-medium text-gray-700 mb-3">
+      <legend
+        style={{
+          display: 'block',
+          color: '#a0a0a0',
+          fontFamily: "'Merriweather', Georgia, serif",
+          fontSize: '16px',
+          fontWeight: '500',
+          marginBottom: '12px'
+        }}
+      >
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>}
       </legend>
 
-      <div className="space-y-2">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {options.map((option) => (
-          <label key={option.value} className="flex items-start cursor-pointer group">
+          <label key={option.value} style={{ display: 'flex', alignItems: 'flex-start', cursor: 'pointer', gap: '12px' }}>
             <input
               type="radio"
               name={name}
               value={option.value}
               checked={value === option.value}
               onChange={(e) => onChange(e.target.value)}
-              className="mt-1 w-4 h-4 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500"
               required={required}
+              style={{
+                marginTop: '4px',
+                width: '18px',
+                height: '18px',
+                cursor: 'pointer',
+                accentColor: '#ffd700'
+              }}
             />
-            <div className="ml-3 flex-1">
-              <span className="text-sm font-medium text-gray-900 group-hover:text-gray-700">
+            <div style={{ flex: 1 }}>
+              <span
+                style={{
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  color: '#f5f5f5',
+                  fontFamily: "'Merriweather', Georgia, serif"
+                }}
+              >
                 {option.label}
               </span>
               {option.description && (
-                <p className="text-xs text-gray-500 mt-0.5">{option.description}</p>
+                <p style={{ fontSize: '14px', color: '#a0a0a0', marginTop: '4px', fontFamily: "'Merriweather', Georgia, serif" }}>
+                  {option.description}
+                </p>
               )}
             </div>
           </label>
@@ -59,10 +83,14 @@ export default function RadioGroup({
       </div>
 
       {error && (
-        <p className="mt-2 text-sm text-red-600">{error}</p>
+        <p style={{ color: '#ef4444', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px', marginTop: '8px' }}>
+          {error}
+        </p>
       )}
       {helpText && !error && (
-        <p className="mt-2 text-sm text-gray-500">{helpText}</p>
+        <p style={{ color: '#666', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px', marginTop: '8px' }}>
+          {helpText}
+        </p>
       )}
     </fieldset>
   )
