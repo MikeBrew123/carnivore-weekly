@@ -1351,7 +1351,32 @@ Format response as plain text (no HTML tags). This will be embedded in an HTML t
 function markdownToHTML(markdown) {
   if (!markdown) return '';
 
-  let html = markdown
+  // First, handle tables (must be done before other replacements)
+  let html = markdown.replace(/(\|.+\|\n\|[ :|-]+\|\n(?:\|.+\|\n?)*)/g, (tableMatch) => {
+    const lines = tableMatch.trim().split('\n');
+    if (lines.length < 2) return tableMatch;
+
+    // Skip separator line (index 1)
+    const headerLine = lines[0];
+    const dataLines = lines.slice(2);
+
+    // Parse header
+    const headers = headerLine.split('|').map(h => h.trim()).filter(h => h);
+    const headerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
+
+    // Parse data rows
+    const rowsHTML = dataLines
+      .map(line => {
+        const cells = line.split('|').map(c => c.trim()).filter(c => c);
+        return `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
+      })
+      .join('');
+
+    return `<table style="width: 100%; border-collapse: collapse; margin: 16px 0;">${headerHTML}<tbody>${rowsHTML}</tbody></table>`;
+  });
+
+  // Now handle other markdown formatting
+  html = html
     // Headers: # → <h1>, ## → <h2>, etc
     .replace(/^### (.*?)$/gm, '<h3>$1</h3>')
     .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
@@ -1362,6 +1387,9 @@ function markdownToHTML(markdown) {
 
     // Italic: *text* → <em>text</em> (but not in **text**)
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
+
+    // Code blocks (inline): `code` → <code>code</code>
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
 
     // Horizontal rules
     .replace(/^---+$/gm, '<hr>')
