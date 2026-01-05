@@ -121,14 +121,9 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
     }
     @media (min-width: 769px) {
       .pricing-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .pricing-card-container:nth-child(3),
-      .pricing-card-container:nth-child(4) {
-        align-self: start;
+        grid-template-columns: repeat(3, 1fr);
       }
       .pricing-card-container:last-child {
-        grid-column: 1 / -1;
         margin-top: 60px !important;
         margin-bottom: 40px !important;
       }
@@ -277,10 +272,10 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
               className="pricing-grid"
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
+                gridTemplateColumns: 'repeat(3, 1fr)',
                 gap: '32px',
                 rowGap: '60px',
-                maxWidth: '1000px',
+                maxWidth: '1100px',
                 width: '100%',
                 marginBottom: '0px',
               }}
