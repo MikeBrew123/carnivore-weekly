@@ -96,7 +96,6 @@ Error generating stack: `+o.message+`
       margin-bottom: 40px !important;
       padding-top: 20px;
       grid-column: span 1 !important;
-      width: 100%;
     }
 
     @media (max-width: 768px) {
