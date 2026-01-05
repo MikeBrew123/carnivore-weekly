@@ -399,7 +399,27 @@ export default function Step4HealthProfile({
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors"
+            style={{
+              flex: 1,
+              background: 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)',
+              color: '#1a120b',
+              fontWeight: 'bold',
+              padding: '12px 24px',
+              fontSize: '16px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontFamily: "'Playfair Display', Georgia, serif",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 215, 0, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.2)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             Generate My Protocol
           </button>
