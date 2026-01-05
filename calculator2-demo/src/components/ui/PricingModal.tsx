@@ -89,16 +89,26 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   const { sessionToken } = useFormStore()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
 
-  // Add responsive styles for bundle card
+  // Add responsive styles for bundle card with proper spacing
   const pricingStyles = `
     @media (max-width: 768px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
       .pricing-card-container {
-        grid-column: span 1 !important;
+        grid-column: span 1;
       }
     }
     @media (min-width: 769px) {
+      .pricing-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .pricing-card-container:nth-child(3),
+      .pricing-card-container:nth-child(4) {
+        margin-top: 0;
+      }
       .pricing-card-container:last-child {
-        grid-column: span 2;
+        grid-column: 1 / -1;
       }
     }
   `
@@ -163,6 +173,9 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             width: '100%',
             maxHeight: '90vh',
             overflowY: 'auto',
+            overflowX: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           {/* Header */}
@@ -238,21 +251,23 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             </p>
 
             {/* Grid Container - centered with max-width */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '32px',
-              maxWidth: '1000px',
-              width: '100%',
-              marginBottom: '32px',
-            }}>
+            <div
+              className="pricing-grid"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '32px',
+                rowGap: '32px',
+                maxWidth: '1000px',
+                width: '100%',
+                marginBottom: '32px',
+              }}
+            >
               {pricingOptions.map((option) => (
                 <div
                   key={option.id}
-                  style={{
-                    gridColumn: option.id === 'bundle' ? 'span 2' : 'span 1',
-                  }}
                   className="pricing-card-container"
+                  style={{}}
                 >
                   <PricingCard
                     title={option.title}
