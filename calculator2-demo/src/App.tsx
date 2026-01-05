@@ -20,7 +20,8 @@ export default function App() {
         // Check if returning from payment
         const params = new URLSearchParams(window.location.search)
         const payment = params.get('payment')
-        const assessmentId = params.get('assessment_id')
+        // Accept both 'session_id' (from Stripe redirect) and 'assessment_id' (legacy)
+        const assessmentId = params.get('session_id') || params.get('assessment_id')
 
         // Store payment params in state AND localStorage (to persist across re-renders)
         // DON'T strip query params - let CalculatorApp also read them
