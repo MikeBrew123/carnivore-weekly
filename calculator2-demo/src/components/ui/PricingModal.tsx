@@ -93,12 +93,17 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   const pricingStyles = `
     .pricing-grid {
       gap: 32px;
-      row-gap: 60px !important;
+      row-gap: 100px !important;
     }
 
     .pricing-card-container {
       margin: 0 !important;
       grid-column: span 1;
+    }
+
+    .pricing-card-container:nth-child(3) {
+      margin-top: 20px !important;
+      margin-bottom: 20px !important;
     }
 
     .pricing-card-container:last-child {
