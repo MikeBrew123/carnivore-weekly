@@ -1281,9 +1281,7 @@ Generate a comprehensive, personalized carnivore diet protocol with:
 3. Food choices (high quality meats, organs, etc.)
 4. How to handle their specific conditions/symptoms
 5. Practical tips for their lifestyle and challenges
-6. When to adjust macros based on progress
-
-Format response as plain text (no HTML tags). This will be embedded in an HTML template.`;
+6. When to adjust macros based on progress`;
 
     // DEBUG: Log before Claude API call
     console.log('[generateReportWithClaude] CALLING CLAUDE API WITH:', JSON.stringify({
@@ -1306,6 +1304,20 @@ Format response as plain text (no HTML tags). This will be embedded in an HTML t
       body: JSON.stringify({
         model: 'claude-opus-4-5-20251101',  // FIXED: Updated from sonnet-20241022 to current Opus 4.5
         max_tokens: 8000,  // FIXED: Increased from 2000 to allow full comprehensive report
+        system: `You are a personalized nutrition expert creating detailed carnivore diet protocols.
+
+Output your response as formatted HTML. Use proper HTML tags:
+- <h2> for section headers
+- <h3> for subsections
+- <table><tr><td> for tables (include proper thead/tbody structure)
+- <strong> for bold text
+- <ul><li> for bullet lists
+- <p> for paragraphs
+- <div class="section"> to group related content
+
+Do NOT use markdown syntax. Output clean HTML only.
+
+Do NOT include <html>, <head>, <body>, or <DOCTYPE> tags. Return only the HTML content that will be inserted into an existing template.`,
         messages: [
           {
             role: 'user',
@@ -1346,69 +1358,35 @@ Format response as plain text (no HTML tags). This will be embedded in an HTML t
 }
 
 /**
- * Convert markdown to HTML for report content
+ * Ensure content is HTML (pass-through since Claude now outputs HTML directly)
+ * Kept as fallback in case any markdown slips through
  */
-function markdownToHTML(markdown) {
-  if (!markdown) return '';
+function ensureHTML(content) {
+  if (!content) return '';
 
-  // First, handle tables (must be done before other replacements)
-  let html = markdown.replace(/(\|.+\|\n\|[ :|-]+\|\n(?:\|.+\|\n?)*)/g, (tableMatch) => {
-    const lines = tableMatch.trim().split('\n');
-    if (lines.length < 2) return tableMatch;
+  // If content already contains HTML tags, it's good to go
+  if (/<[^>]+>/.test(content)) {
+    return content;
+  }
 
-    // Skip separator line (index 1)
-    const headerLine = lines[0];
-    const dataLines = lines.slice(2);
-
-    // Parse header
-    const headers = headerLine.split('|').map(h => h.trim()).filter(h => h);
-    const headerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
-
-    // Parse data rows
-    const rowsHTML = dataLines
-      .map(line => {
-        const cells = line.split('|').map(c => c.trim()).filter(c => c);
-        return `<tr>${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
-      })
-      .join('');
-
-    return `<table style="width: 100%; border-collapse: collapse; margin: 16px 0;">${headerHTML}<tbody>${rowsHTML}</tbody></table>`;
-  });
-
-  // Now handle other markdown formatting
-  html = html
-    // Headers: # → <h1>, ## → <h2>, etc
+  // Fallback: Convert any remaining markdown to HTML
+  let html = content
+    // Headers
     .replace(/^### (.*?)$/gm, '<h3>$1</h3>')
     .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
     .replace(/^# (.*?)$/gm, '<h1>$1</h1>')
-
-    // Bold: **text** → <strong>text</strong>
+    // Bold and italic
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-
-    // Italic: *text* → <em>text</em> (but not in **text**)
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-
-    // Code blocks (inline): `code` → <code>code</code>
+    // Code
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-
-    // Horizontal rules
-    .replace(/^---+$/gm, '<hr>')
-
-    // Line breaks: double newline → paragraph breaks
+    // Lists
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    // Wrap loose list items in <ul>
+    .replace(/(<li>.*?<\/li>)/s, '<ul>$1</ul>')
+    // Paragraphs
     .split('\n\n')
     .map(para => {
-      // Handle lists
-      if (para.trim().startsWith('- ')) {
-        const items = para.trim().split('\n').map(line => {
-          if (line.trim().startsWith('- ')) {
-            return `<li>${line.trim().substring(2)}</li>`;
-          }
-          return line;
-        }).join('\n');
-        return `<ul>\n${items}\n</ul>`;
-      }
-
-      // Wrap regular paragraphs
       if (para.trim() && !para.trim().startsWith('<')) {
         return `<p>${para.trim()}</p>`;
       }
@@ -1528,7 +1506,7 @@ function wrapReportHTML(content, session, macros) {
     </div>
 
     <div class="recommendations">
-      ${markdownToHTML(content)}
+      ${ensureHTML(content)}
     </div>
   </div>
 </body>
