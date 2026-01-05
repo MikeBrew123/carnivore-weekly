@@ -91,6 +91,16 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
 
   // Add responsive styles for bundle card with proper spacing
   const pricingStyles = `
+    .pricing-grid {
+      gap: 32px;
+      row-gap: 48px;
+    }
+
+    .pricing-card-container:last-child {
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+
     @media (max-width: 768px) {
       .pricing-grid {
         grid-template-columns: 1fr;
@@ -103,12 +113,10 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
       .pricing-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-      .pricing-card-container:nth-child(3),
-      .pricing-card-container:nth-child(4) {
-        margin-top: 0;
-      }
       .pricing-card-container:last-child {
         grid-column: 1 / -1;
+        margin-top: 32px;
+        margin-bottom: 32px;
       }
     }
   `
@@ -222,7 +230,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
 
           {/* Pricing Cards */}
           <div style={{
-            padding: '48px 32px',
+            padding: '48px 32px 32px 32px',
             backgroundColor: '#f9f8f5',
             display: 'flex',
             flexDirection: 'column',
@@ -257,10 +265,10 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                 display: 'grid',
                 gridTemplateColumns: 'repeat(2, 1fr)',
                 gap: '32px',
-                rowGap: '32px',
+                rowGap: '48px',
                 maxWidth: '1000px',
                 width: '100%',
-                marginBottom: '32px',
+                marginBottom: '0px',
               }}
             >
               {pricingOptions.map((option) => (
@@ -289,6 +297,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
               border: '2px solid #ffd700',
               maxWidth: '1000px',
               width: '100%',
+              marginTop: '32px',
               boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
             }}>
               <h3 style={{
