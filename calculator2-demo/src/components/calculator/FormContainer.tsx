@@ -16,18 +16,19 @@ export default function FormContainer({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main form area */}
         <div className="lg:col-span-2">
-          <div
-            style={{
-              backgroundColor: '#1a1a1a',
-              border: '1px solid #333',
-              borderRadius: '12px',
-              padding: '2rem',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-              maxWidth: '600px',
-              margin: '0 auto'
-            }}
-          >
-            {children}
+          <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+            {/* Progress indicator and form card */}
+            <div
+              style={{
+                backgroundColor: '#1a1a1a',
+                border: '1px solid #333',
+                borderRadius: '12px',
+                padding: '2rem',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+              }}
+            >
+              {children}
+            </div>
           </div>
         </div>
 
