@@ -19,44 +19,6 @@ interface CalculatorAppProps {
 
 const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Health Profile']
 
-// Dev-only test data (stripped in production)
-const DEV_TEST_DATA: Partial<FormData> = (import.meta.env as any).DEV ? {
-  // Steps 1-2: Physical stats and fitness/diet
-  sex: 'male' as const,
-  age: 30,
-  heightFeet: 6,
-  heightInches: 0,
-  weight: 200,
-  lifestyle: 'moderate',
-  exercise: '3-4',
-  goal: 'maintain' as const,
-  diet: 'carnivore' as const,
-
-  // Step 4: Health Profile
-  email: 'dev@example.com',
-  firstName: 'Dev',
-  lastName: 'User',
-  medications: 'None',
-  conditions: ['none'],
-  otherConditions: '',
-  symptoms: ['fatigue', 'brain-fog'] as string[],
-  otherSymptoms: '',
-  allergies: 'None',
-  avoidFoods: 'None',
-  dairyTolerance: 'full_dairy',
-  previousDiets: 'Keto for 2 years',
-  whatWorked: 'Consistent weight loss and energy levels',
-  carnivoreExperience: 'Experienced (1+ years)',
-  cookingSkill: 'Advanced',
-  mealPrepTime: '1-2 hours per week',
-  budget: 'Moderate budget',
-  familySituation: 'Living with family',
-  workTravel: 'Minimal travel',
-  goals: ['weight_loss', 'energy'],
-  biggestChallenge: 'Staying consistent',
-  additionalNotes: 'Dev test user - auto-filled data',
-} : {}
-
 export default function CalculatorApp({
   sessionToken,
   onReportGenerated,
@@ -68,24 +30,17 @@ export default function CalculatorApp({
   console.log('Payment status (from props):', paymentStatus);
   console.log('Stripe session ID (from props):', stripeSessionId);
   console.log('URL search:', window.location.search);
-  console.log('[DEV MODE]:', import.meta.env.DEV ? 'YES - Dev prefill enabled' : 'NO - Production mode');
 
-  // Form state - pre-filled with test data in dev mode
-  const [formData, setFormData] = useState<Partial<FormData>>(() => {
-    if (import.meta.env.DEV) {
-      console.log('[DEV prefill loaded] Initializing with DEV_TEST_DATA');
-      return DEV_TEST_DATA;
-    }
-    return {
-      sex: undefined,
-      age: 0,
-      weight: 0,
-      lifestyle: '',
-      exercise: '',
-      goal: undefined,
-      deficit: undefined,
-      diet: undefined,
-    }
+  // Form state
+  const [formData, setFormData] = useState<Partial<FormData>>({
+    sex: undefined,
+    age: 0,
+    weight: 0,
+    lifestyle: '',
+    exercise: '',
+    goal: undefined,
+    deficit: undefined,
+    diet: undefined,
   })
 
   // UI state
@@ -551,23 +506,6 @@ export default function CalculatorApp({
 
   return (
     <>
-      {/* Dev-only test data banner */}
-      {import.meta.env.DEV && (
-        <div style={{
-          width: '100%',
-          backgroundColor: '#ff6b6b',
-          color: 'white',
-          padding: '12px 16px',
-          textAlign: 'center',
-          fontSize: '14px',
-          fontWeight: '600',
-          zIndex: 50,
-          borderBottom: '2px solid #cc5555',
-        }}>
-          ⚠️ TEST DATA LOADED (Dev Mode Only) - Remove before production
-        </div>
-      )}
-
       <div style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '32px', paddingBottom: '32px', paddingLeft: '16px', paddingRight: '16px' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           {/* Progress indicator */}
