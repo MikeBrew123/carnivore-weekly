@@ -93,30 +93,44 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   const pricingStyles = `
     .pricing-grid {
       gap: 32px;
-      row-gap: 48px;
+      row-gap: 60px !important;
+    }
+
+    .pricing-card-container {
+      margin: 0 !important;
     }
 
     .pricing-card-container:last-child {
-      margin-top: 24px;
-      margin-bottom: 24px;
+      margin-top: 40px !important;
+      margin-bottom: 40px !important;
+      padding-top: 20px;
     }
 
     @media (max-width: 768px) {
       .pricing-grid {
         grid-template-columns: 1fr;
+        row-gap: 40px !important;
       }
       .pricing-card-container {
         grid-column: span 1;
+      }
+      .pricing-card-container:last-child {
+        margin-top: 30px !important;
+        margin-bottom: 30px !important;
       }
     }
     @media (min-width: 769px) {
       .pricing-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+      .pricing-card-container:nth-child(3),
+      .pricing-card-container:nth-child(4) {
+        align-self: start;
+      }
       .pricing-card-container:last-child {
         grid-column: 1 / -1;
-        margin-top: 32px;
-        margin-bottom: 32px;
+        margin-top: 60px !important;
+        margin-bottom: 40px !important;
       }
     }
   `
@@ -265,7 +279,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                 display: 'grid',
                 gridTemplateColumns: 'repeat(2, 1fr)',
                 gap: '32px',
-                rowGap: '48px',
+                rowGap: '60px',
                 maxWidth: '1000px',
                 width: '100%',
                 marginBottom: '0px',

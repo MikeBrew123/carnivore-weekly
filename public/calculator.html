@@ -135,29 +135,35 @@
             margin: 0;
         }
 
-        /* CTA Button - centered and prominent */
+        /* CTA Button - PROMINENT Primary Action */
         .cta-button-calculator {
             display: block;
-            background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
+            background: #ffd700;
             color: #1a120b;
-            padding: 18px 45px;
+            padding: 20px 48px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 700;
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-family: 'Playfair Display', serif;
-            margin: 40px auto;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin: 50px auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
             border: none;
             cursor: pointer;
-            width: fit-content;
+            min-width: 320px;
+            text-align: center;
+            letter-spacing: 0.5px;
         }
 
         .cta-button-calculator:hover {
-            background: linear-gradient(135deg, #e6c200 0%, #d4af1a 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            background: #e6c200;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.5);
+        }
+
+        .cta-button-calculator:active {
+            transform: translateY(-1px);
         }
 
         /* Info section with proper spacing and structure */
@@ -210,11 +216,14 @@
 
         /* Calendar App section - soft-conversion framework */
         .calendar-section {
-            background: rgba(212, 165, 116, 0.12);
-            border: 2px solid rgba(212, 165, 116, 0.3);
-            padding: 40px;
+            border-left: 5px solid #d4a574;
+            padding-left: 30px;
+            margin-left: 0;
             margin-bottom: 40px;
-            border-radius: 8px;
+            padding-top: 0;
+            padding-bottom: 0;
+            padding-right: 0;
+            background: transparent;
         }
 
         .calendar-section h3 {
@@ -222,9 +231,9 @@
             color: #8b4513;
             font-size: 1.6em;
             margin-top: 0;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(212, 165, 116, 0.3);
+            margin-bottom: 20px;
+            padding-bottom: 0;
+            border-bottom: none;
         }
 
         .calendar-section p {
@@ -269,9 +278,13 @@
 
             .problem-section,
             .apology-section,
-            .info-section-calculator,
-            .calendar-section {
+            .info-section-calculator {
                 padding: 25px;
+                margin-bottom: 30px;
+            }
+
+            .calendar-section {
+                padding-left: 20px;
                 margin-bottom: 30px;
             }
 
@@ -281,9 +294,10 @@
             }
 
             .cta-button-calculator {
-                font-size: 1em;
-                padding: 14px 30px;
-                margin: 30px auto;
+                font-size: 1.1em;
+                padding: 18px 40px;
+                margin: 40px auto;
+                min-width: 280px;
             }
 
             .info-section-calculator ul {
@@ -315,10 +329,15 @@
 
             .problem-section,
             .apology-section,
-            .info-section-calculator,
-            .calendar-section {
+            .info-section-calculator {
                 padding: 20px;
                 margin-bottom: 25px;
+            }
+
+            .calendar-section {
+                padding-left: 15px;
+                margin-bottom: 25px;
+                border-left: 4px solid #d4a574;
             }
 
             .info-section-calculator h3,
@@ -328,9 +347,10 @@
             }
 
             .cta-button-calculator {
-                font-size: 0.95em;
-                padding: 12px 25px;
-                margin: 25px auto;
+                font-size: 1.1em;
+                padding: 16px 32px;
+                margin: 35px auto;
+                min-width: 90%;
             }
         }
     </style>
