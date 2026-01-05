@@ -1743,8 +1743,19 @@ async function handleCreateCheckout(request, env) {
       );
     }
 
-    const { email, first_name, form_data, formData, success_url, cancel_url } = body;
+    const { email, first_name, form_data, formData, success_url, cancel_url, tier_id } = body;
     const finalFormData = form_data || formData;
+
+    // Map tier_id to Stripe price_id
+    const tierPriceMap = {
+      'shopping': 'price_1QgE9EFjwYzqK4YJ9sZcYZxJ',  // $19
+      'meal_plan': 'price_1QgE8hFjwYzqK4YJ9sZcXyEn',  // $27
+      'doctor': 'price_1QgE9aFjwYzqK4YJ9sZcZAKm',    // $47
+      'bundle': 'price_1QgE8QFjwYzqK4YJ9sZcV2xt',    // $9.99
+    };
+
+    const stripePriceId = tierPriceMap[tier_id] || tierPriceMap['bundle'];  // Default to bundle
+    console.log(`[handleCreateCheckout] Tier: ${tier_id} -> Price ID: ${stripePriceId}`);
 
     // Validate required fields
     if (!email) {
@@ -1800,6 +1811,7 @@ async function handleCreateCheckout(request, env) {
           email,
           first_name: sanitizedFirstName,
           form_data: finalFormData,
+          tier_id: tier_id || 'bundle',
           payment_status: 'pending',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -1854,7 +1866,7 @@ async function handleCreateCheckout(request, env) {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: 'price_1SjRlBEVDfkpGz8wQK8QPE6m',
+          price: stripePriceId,
           quantity: 1,
         },
       ],
@@ -1873,7 +1885,7 @@ async function handleCreateCheckout(request, env) {
     // Build form-encoded body with proper Stripe format
     const formBody = new URLSearchParams();
     formBody.append('payment_method_types[]', 'card');
-    formBody.append('line_items[0][price]', 'price_1SjRlBEVDfkpGz8wQK8QPE6m');
+    formBody.append('line_items[0][price]', stripePriceId);
     formBody.append('line_items[0][quantity]', '1');
     formBody.append('mode', 'payment');
     // Send complete URLs with session_id to Stripe
