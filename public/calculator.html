@@ -45,10 +45,10 @@
     <link rel="stylesheet" href="/style-2026.css">
 
     <style>
-        /* Calculator page hero styles */
+        /* Calculator page hero styles - Premium sizing matching brand standards */
         .hero-2026 {
             position: relative;
-            height: 300px;
+            height: 500px;
             margin-bottom: 40px;
             overflow: hidden;
             border-radius: 12px;
@@ -84,40 +84,60 @@
             line-height: 1.6;
         }
 
-        /* Features grid */
-        .features-grid-2026 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin: 40px 0;
+        /* Main content container - 800px max-width for blog-like readability */
+        .calculator-main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 40px;
         }
 
-        .feature-card-2026 {
-            background: rgba(212, 165, 116, 0.2);
-            border: 2px solid #d4a574;
+        /* Problem section with generous white space */
+        .problem-section {
+            background: rgba(44, 24, 16, 0.15);
+            border-left: 5px solid #8b4513;
+            padding: 40px;
+            margin-bottom: 40px;
             border-radius: 8px;
-            padding: 25px;
-            text-align: center;
         }
 
-        .feature-card-2026 h3 {
-            font-family: 'Playfair Display', serif;
-            color: #ffd700;
-            margin-bottom: 10px;
-            font-size: 1.3em;
-        }
-
-        .feature-card-2026 p {
+        .problem-section p {
             font-family: 'Merriweather', serif;
+            font-size: 16px;
+            line-height: 1.8;
             color: #1a120b;
-            margin: 0;
-            font-size: 0.95em;
-            line-height: 1.5;
+            margin-bottom: 20px;
         }
 
-        /* CTA Button */
-        .cta-button-2026 {
-            display: inline-block;
+        .problem-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        .problem-section strong {
+            color: #8b4513;
+            font-weight: 700;
+        }
+
+        /* Apology section */
+        .apology-section {
+            background: rgba(44, 24, 16, 0.15);
+            border-left: 5px solid #8b4513;
+            padding: 30px 40px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+        }
+
+        .apology-section p {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1a120b;
+            font-style: italic;
+            margin: 0;
+        }
+
+        /* CTA Button - centered and prominent */
+        .cta-button-calculator {
+            display: block;
             background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
             color: #1a120b;
             padding: 18px 45px;
@@ -126,61 +146,119 @@
             font-weight: 700;
             font-size: 1.2em;
             font-family: 'Playfair Display', serif;
-            margin: 30px 0;
+            margin: 40px auto;
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             border: none;
             cursor: pointer;
-            display: block;
             width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
         }
 
-        .cta-button-2026:hover {
+        .cta-button-calculator:hover {
             background: linear-gradient(135deg, #e6c200 0%, #d4af1a 100%);
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
 
-        /* Info section */
-        .info-section-2026 {
+        /* Info section with proper spacing and structure */
+        .info-section-calculator {
             background: rgba(212, 165, 116, 0.15);
             border-left: 5px solid #d4a574;
-            padding: 30px;
-            margin-top: 40px;
+            padding: 40px;
+            margin-bottom: 40px;
             border-radius: 8px;
         }
 
-        .info-section-2026 h3 {
+        .info-section-calculator h3 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            font-size: 1.6em;
+            margin-top: 32px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #d4a574;
+        }
+
+        .info-section-calculator h3:first-child {
+            margin-top: 0;
+        }
+
+        .info-section-calculator p {
+            font-family: 'Merriweather', serif;
+            color: #1a120b;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .info-section-calculator ul {
+            font-family: 'Merriweather', serif;
+            color: #1a120b;
+            margin: 25px 0 25px 30px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .info-section-calculator li {
+            margin-bottom: 15px;
+        }
+
+        .info-section-calculator strong {
+            color: #8b4513;
+            font-weight: 700;
+        }
+
+        /* Calendar App section - soft-conversion framework */
+        .calendar-section {
+            background: rgba(212, 165, 116, 0.12);
+            border: 2px solid rgba(212, 165, 116, 0.3);
+            padding: 40px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+        }
+
+        .calendar-section h3 {
             font-family: 'Playfair Display', serif;
             color: #8b4513;
             font-size: 1.6em;
             margin-top: 0;
-            border-bottom: 2px solid #d4a574;
+            margin-bottom: 25px;
             padding-bottom: 15px;
+            border-bottom: 2px solid rgba(212, 165, 116, 0.3);
         }
 
-        .info-section-2026 p {
+        .calendar-section p {
             font-family: 'Merriweather', serif;
             color: #1a120b;
+            font-size: 16px;
             line-height: 1.8;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        .info-section-2026 ul {
-            font-family: 'Merriweather', serif;
-            color: #1a120b;
-            margin: 20px 0 20px 30px;
+        .calendar-section p:last-of-type {
+            margin-bottom: 0;
         }
 
-        .info-section-2026 li {
-            margin-bottom: 12px;
-            line-height: 1.6;
+        .calendar-section em {
+            color: #d4a574;
+            font-style: italic;
+        }
+
+        .calendar-section strong {
+            color: #8b4513;
+            font-weight: 700;
         }
 
         /* Mobile responsive */
         @media (max-width: 768px) {
+            .calculator-main {
+                padding: 0 20px;
+            }
+
+            .hero-2026 {
+                height: 350px;
+            }
+
             .hero-2026 h2 {
                 font-size: 1.8em;
             }
@@ -189,17 +267,70 @@
                 padding: 20px;
             }
 
-            .cta-button-2026 {
+            .problem-section,
+            .apology-section,
+            .info-section-calculator,
+            .calendar-section {
+                padding: 25px;
+                margin-bottom: 30px;
+            }
+
+            .info-section-calculator h3,
+            .calendar-section h3 {
+                font-size: 1.3em;
+            }
+
+            .cta-button-calculator {
                 font-size: 1em;
                 padding: 14px 30px;
+                margin: 30px auto;
             }
 
-            .info-section-2026 {
+            .info-section-calculator ul {
+                margin: 20px 0 20px 25px;
+                font-size: 15px;
+            }
+
+            .problem-section p,
+            .apology-section p,
+            .info-section-calculator p,
+            .calendar-section p {
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-main {
+                padding: 0 15px;
+            }
+
+            .hero-2026 {
+                height: 300px;
+                margin-bottom: 30px;
+            }
+
+            .hero-2026 h2 {
+                font-size: 1.5em;
+            }
+
+            .problem-section,
+            .apology-section,
+            .info-section-calculator,
+            .calendar-section {
                 padding: 20px;
+                margin-bottom: 25px;
             }
 
-            .info-section-2026 h3 {
-                font-size: 1.3em;
+            .info-section-calculator h3,
+            .calendar-section h3 {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+
+            .cta-button-calculator {
+                font-size: 0.95em;
+                padding: 12px 25px;
+                margin: 25px auto;
             }
         }
     </style>
@@ -235,59 +366,76 @@
                 </div>
             </section>
 
-            <!-- PROBLEM SECTION -->
-            <div class="info-section-2026" style="background: rgba(44, 24, 16, 0.15); border-left: 5px solid #8b4513; margin-bottom: 40px;">
-                <p style="font-size: 16px; line-height: 1.8; color: #1a120b; margin: 0;">
-                    Most people starting carnivore guess at their macros. Then they wonder why they're exhausted, losing muscle, or not seeing results.
-                </p>
-                <p style="font-size: 16px; line-height: 1.8; color: #1a120b; margin-top: 16px;">
-                    <strong>One thing that helps immediately:</strong> knowing your actual protein target. Most people eat way too little—or way too much.
-                </p>
-            </div>
+            <!-- MAIN CONTENT -->
+            <div class="calculator-main">
+                <!-- PROBLEM SECTION -->
+                <section class="problem-section">
+                    <p>
+                        Most people starting carnivore guess at their macros. Then they wonder why they're exhausted, losing muscle, or not seeing results.
+                    </p>
+                    <p>
+                        <strong>One thing that helps immediately:</strong> knowing your actual protein target. Most people eat way too little—or way too much.
+                    </p>
+                </section>
 
-            <!-- APOLOGY FOR DOWNTIME -->
-            <div style="background: rgba(44, 24, 16, 0.15); border-left: 5px solid #8b4513; padding: 25px; margin-bottom: 30px; border-radius: 8px;">
-                <p style="font-size: 16px; line-height: 1.8; color: #1a120b; margin: 0; font-style: italic;">
-                    The calculator was down for a couple days—we know that was frustrating when you needed it most. We've fixed the backend issues and it's back and working great. Thanks for sticking with us.
-                </p>
-            </div>
+                <!-- APOLOGY FOR DOWNTIME -->
+                <section class="apology-section">
+                    <p>
+                        The calculator was down for a couple days—we know that was frustrating when you needed it most. We've fixed the backend issues and it's back and working great. Thanks for sticking with us.
+                    </p>
+                </section>
 
-            <!-- CTA BUTTON (Primary) -->
-            <button class="cta-button-2026" onclick="window.location.href='/assets/calculator2/index.html'">
-                Get Your Macros →
-            </button>
+                <!-- CTA BUTTON (Primary) -->
+                <button class="cta-button-calculator" onclick="window.location.href='/assets/calculator2/index.html'">
+                    Get Your Macros →
+                </button>
 
-            <!-- INFO SECTION -->
-            <div class="info-section-2026">
-                <h3 style="font-size: 22px; margin-top: 0;">What You Get (Free)</h3>
+                <!-- INFO SECTION -->
+                <section class="info-section-calculator">
+                    <h3>What You Get (Free)</h3>
 
-                <p style="font-size: 16px; line-height: 1.8;">
-                    <strong>Personalized to your body:</strong> We use the Mifflin-St Jeor formula (the gold standard) to calculate your exact calorie needs based on your age, weight, height, and activity level.
-                </p>
+                    <p>
+                        <strong>Personalized to your body:</strong> We use the Mifflin-St Jeor formula (the gold standard) to calculate your exact calorie needs based on your age, weight, height, and activity level.
+                    </p>
 
-                <p style="font-size: 16px; line-height: 1.8;">
-                    <strong>Tailored to your goal:</strong> Whether you're losing fat, building muscle, or maintaining, your targets adjust automatically.
-                </p>
+                    <p>
+                        <strong>Tailored to your goal:</strong> Whether you're losing fat, building muscle, or maintaining, your targets adjust automatically.
+                    </p>
 
-                <p style="font-size: 16px; line-height: 1.8;">
-                    <strong>No email, no tracking:</strong> Enter your info, get your numbers, leave. Your data isn't stored or shared.
-                </p>
+                    <p>
+                        <strong>No email, no tracking:</strong> Enter your info, get your numbers, leave. Your data isn't stored or shared.
+                    </p>
 
-                <h3 style="margin-top: 32px; font-size: 22px;">The 3-Minute Process</h3>
-                <ul style="font-size: 16px; line-height: 1.8; color: #1a120b; margin: 20px 0 20px 30px;">
-                    <li><strong>Step 1:</strong> Tell us your stats (age, weight, height, activity level)</li>
-                    <li><strong>Step 2:</strong> Choose your goal (fat loss, muscle gain, maintenance)</li>
-                    <li><strong>Step 3:</strong> Get your personalized macro targets</li>
-                </ul>
+                    <h3>The 3-Minute Process</h3>
+                    <ul>
+                        <li><strong>Step 1:</strong> Tell us your stats (age, weight, height, activity level)</li>
+                        <li><strong>Step 2:</strong> Choose your goal (fat loss, muscle gain, maintenance)</li>
+                        <li><strong>Step 3:</strong> Get your personalized macro targets</li>
+                    </ul>
 
-                <h3 style="margin-top: 32px; font-size: 22px;">Want More?</h3>
-                <p style="font-size: 16px; line-height: 1.8;">
-                    If you want meal plans, shopping lists, and a personalized protocol (based on your health history and goals), we offer a $9.99 upgrade that includes AI-powered recommendations and a doctor consultation guide.
-                </p>
+                    <h3>Want More?</h3>
+                    <p>
+                        If you want meal plans, shopping lists, and a personalized protocol (based on your health history and goals), we offer a $9.99 upgrade that includes AI-powered recommendations and a doctor consultation guide.
+                    </p>
 
-                <p style="font-size: 16px; line-height: 1.8; margin-top: 16px; padding-top: 20px; border-top: 2px solid #d4a574;">
-                    <strong>You don't need the upgrade if:</strong> You're comfortable with just your macro numbers and figuring out meals yourself. The free version gives you everything you need to start.
-                </p>
+                    <p>
+                        <strong>You don't need the upgrade if:</strong> You're comfortable with just your macro numbers and figuring out meals yourself. The free version gives you everything you need to start.
+                    </p>
+                </section>
+
+                <!-- CALENDAR APP SECTION - Soft Conversion Framework -->
+                <section class="calendar-section">
+                    <h3>If You Want to Plan Your Week</h3>
+                    <p>
+                        Once you have your numbers, the next question is usually: <em>"What does this actually look like on a plate?"</em>
+                    </p>
+                    <p>
+                        A lot of people find it helpful to map out their meals a week at a time. When you do that, your macro adherence jumps. Not because you're more disciplined, but because the decision is already made before hunger hits.
+                    </p>
+                    <p>
+                        We built a <strong>simple calendar app</strong> that pairs really well with the calculator. You get your personalized macros, then use the calendar to plan your week and track how you're feeling. It's not required—plenty of people get amazing results just with their macro numbers. But if you want a companion tool to keep things organized and see your patterns over time, <a href="/assets/calendar/index.html" style="color: #d4a574; text-decoration: underline;">the calendar app is here</a>.
+                    </p>
+                </section>
             </div>
         </main>
     </div>

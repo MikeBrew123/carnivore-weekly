@@ -37,18 +37,22 @@ export default function PricingCard({
       style={{
         ...cardStyle,
         borderRadius: '12px',
-        padding: '24px',
+        padding: '28px',
         transition: 'all 0.2s',
         position: 'relative',
         zIndex: 30,
         cursor: 'pointer',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        minHeight: '480px',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'scale(1.05)'
-        e.currentTarget.style.boxShadow = '0 25px 30px -5px rgba(255, 215, 0, 0.2)'
+        e.currentTarget.style.transform = 'translateY(-4px)'
+        e.currentTarget.style.boxShadow = '0 25px 30px -5px rgba(255, 215, 0, 0.25)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'scale(1)'
+        e.currentTarget.style.transform = 'translateY(0)'
         e.currentTarget.style.boxShadow = popular
           ? '0 20px 25px -5px rgba(255, 215, 0, 0.3)'
           : 'none'
@@ -112,22 +116,29 @@ export default function PricingCard({
         )}
       </div>
 
-      <ul style={{ marginBottom: '24px', listStyle: 'none', padding: 0 }}>
+      <ul style={{
+        marginBottom: '24px',
+        listStyle: 'none',
+        padding: 0,
+        flex: 1,
+      }}>
         {features.map((feature, i) => (
           <li key={i} style={{
             display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
+            alignItems: 'flex-start',
+            gap: '12px',
             fontSize: '14px',
-            marginBottom: '12px',
+            marginBottom: '14px',
             color: '#f5f5f5',
             fontFamily: "'Merriweather', Georgia, serif",
+            lineHeight: '1.5',
           }}>
             <Check style={{
               width: '20px',
               height: '20px',
               flexShrink: 0,
               color: '#ffd700',
+              marginTop: '2px',
             }} />
             <span>{feature}</span>
           </li>
@@ -138,16 +149,17 @@ export default function PricingCard({
         onClick={handleClick}
         style={{
           width: '100%',
-          padding: '12px 16px',
+          padding: '14px 16px',
           borderRadius: '8px',
           fontWeight: '600',
-          fontSize: '14px',
+          fontSize: '15px',
           backgroundColor: '#ffd700',
           color: '#1a120b',
           border: 'none',
           cursor: 'pointer',
           transition: 'all 0.2s',
           fontFamily: "'Playfair Display', Georgia, serif",
+          marginTop: 'auto',
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = '#e6c200'

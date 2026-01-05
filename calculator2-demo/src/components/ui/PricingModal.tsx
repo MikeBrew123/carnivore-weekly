@@ -89,6 +89,20 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   const { sessionToken } = useFormStore()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
 
+  // Add responsive styles for bundle card
+  const pricingStyles = `
+    @media (max-width: 768px) {
+      .pricing-card-container {
+        grid-column: span 1 !important;
+      }
+    }
+    @media (min-width: 769px) {
+      .pricing-card-container:last-child {
+        grid-column: span 2;
+      }
+    }
+  `
+
   const stripePriceIds: Record<string, string> = {
     bundle: 'price_1QgE8QFjwYzqK4YJ9sZcV2xt',
     meal_plan: 'price_1QgE8hFjwYzqK4YJ9sZcXyEn',
@@ -122,6 +136,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
 
   return (
     <>
+      <style>{pricingStyles}</style>
       {!selectedTier && (
       <div
         onClick={onClose}
@@ -193,16 +208,52 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
           </div>
 
           {/* Pricing Cards */}
-          <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div style={{
+            padding: '48px 32px',
+            backgroundColor: '#f9f8f5',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}>
+            {/* Section Header */}
+            <h2 style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '28px',
+              fontWeight: 'bold',
+              color: '#1a120b',
+              marginBottom: '8px',
+              textAlign: 'center',
+            }}>
+              Choose Your Plan
+            </h2>
+            <p style={{
+              fontFamily: "'Merriweather', Georgia, serif",
+              fontSize: '16px',
+              color: '#666',
+              marginBottom: '40px',
+              textAlign: 'center',
+              maxWidth: '600px',
+            }}>
+              Select the tier that matches your needs. All plans include personalized macros.
+            </p>
+
+            {/* Grid Container - centered with max-width */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '32px',
+              maxWidth: '1000px',
+              width: '100%',
+              marginBottom: '32px',
+            }}>
               {pricingOptions.map((option) => (
                 <div
                   key={option.id}
-                  className={option.id === 'bundle' ? 'lg:col-span-1 relative' : ''}
+                  style={{
+                    gridColumn: option.id === 'bundle' ? 'span 2' : 'span 1',
+                  }}
+                  className="pricing-card-container"
                 >
-                  {option.id === 'bundle' && (
-                    <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-xl blur opacity-60 -z-10 pointer-events-none"></div>
-                  )}
                   <PricingCard
                     title={option.title}
                     price={option.price}
@@ -218,21 +269,25 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             {/* Value Stack */}
             <div style={{
               backgroundColor: '#2c1810',
-              borderRadius: '8px',
-              padding: '24px',
+              borderRadius: '12px',
+              padding: '32px',
               border: '2px solid #ffd700',
+              maxWidth: '1000px',
+              width: '100%',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
             }}>
               <h3 style={{
                 fontWeight: 'bold',
                 color: '#ffd700',
-                marginBottom: '16px',
-                fontSize: '18px',
+                marginBottom: '24px',
+                fontSize: '22px',
                 fontFamily: "'Playfair Display', Georgia, serif",
+                textAlign: 'center',
               }}>What You Get</h3>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '24px',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '32px',
               }}>
                 <div>
                   <p style={{
