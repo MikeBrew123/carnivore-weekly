@@ -13,12 +13,15 @@ import ReportGeneratingScreen from '../ui/ReportGeneratingScreen'
 interface CalculatorAppProps {
   sessionToken?: string
   onReportGenerated?: (report: string) => void
+  paymentStatus?: string | null
+  stripeSessionId?: string | null
 }
 
 const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Health Profile']
 
 // Dev-only test data (stripped in production)
-const DEV_TEST_DATA: Partial<FormData> = import.meta.env.DEV ? {
+const DEV_TEST_DATA: Partial<FormData> = (import.meta.env as any).DEV ? {
+  // Steps 1-2: Physical stats and fitness/diet
   sex: 'male' as const,
   age: 30,
   heightFeet: 6,
@@ -28,15 +31,52 @@ const DEV_TEST_DATA: Partial<FormData> = import.meta.env.DEV ? {
   exercise: '3-4',
   goal: 'maintain' as const,
   diet: 'carnivore' as const,
+
+  // Step 4: Health Profile
+  email: 'dev@example.com',
+  firstName: 'Dev',
+  lastName: 'User',
+  medications: 'None',
+  conditions: ['none'],
+  otherConditions: '',
+  symptoms: ['fatigue', 'brain-fog'] as string[],
+  otherSymptoms: '',
+  allergies: 'None',
+  avoidFoods: 'None',
+  dairyTolerance: 'full_dairy',
+  previousDiets: 'Keto for 2 years',
+  whatWorked: 'Consistent weight loss and energy levels',
+  carnivoreExperience: 'Experienced (1+ years)',
+  cookingSkill: 'Advanced',
+  mealPrepTime: '1-2 hours per week',
+  budget: 'Moderate budget',
+  familySituation: 'Living with family',
+  workTravel: 'Minimal travel',
+  goals: ['weight_loss', 'energy'],
+  biggestChallenge: 'Staying consistent',
+  additionalNotes: 'Dev test user - auto-filled data',
 } : {}
 
 export default function CalculatorApp({
   sessionToken,
   onReportGenerated,
+  paymentStatus,
+  stripeSessionId,
 }: CalculatorAppProps) {
+  // DEBUG: Log payment status from props
+  console.log('========== CalculatorApp RENDER ==========');
+  console.log('Payment status (from props):', paymentStatus);
+  console.log('Stripe session ID (from props):', stripeSessionId);
+  console.log('URL search:', window.location.search);
+  console.log('[DEV MODE]:', import.meta.env.DEV ? 'YES - Dev prefill enabled' : 'NO - Production mode');
+
   // Form state - pre-filled with test data in dev mode
-  const [formData, setFormData] = useState<Partial<FormData>>(
-    import.meta.env.DEV ? DEV_TEST_DATA : {
+  const [formData, setFormData] = useState<Partial<FormData>>(() => {
+    if (import.meta.env.DEV) {
+      console.log('[DEV prefill loaded] Initializing with DEV_TEST_DATA');
+      return DEV_TEST_DATA;
+    }
+    return {
       sex: undefined,
       age: 0,
       weight: 0,
@@ -46,7 +86,7 @@ export default function CalculatorApp({
       deficit: undefined,
       diet: undefined,
     }
-  )
+  })
 
   // UI state
   const [currentStep, setCurrentStep] = useState(1)
@@ -55,6 +95,29 @@ export default function CalculatorApp({
   const [isGenerating, setIsGenerating] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isPremium, setIsPremium] = useState(false)
+  const [email, setEmail] = useState('')
+
+  // Derived state for success page - use props from App.tsx
+  const isPaymentSuccess = paymentStatus === 'success' || paymentStatus === 'free'
+
+  // Also check URL as fallback (for direct navigation)
+  useEffect(() => {
+    if (!paymentStatus) {
+      const urlParams = new URLSearchParams(window.location.search)
+      const urlPayment = urlParams.get('payment')
+      if (urlPayment) {
+        console.log('[CalculatorApp] Found payment in URL (fallback):', urlPayment)
+      }
+    }
+  }, [])
+
+  // Mark as premium when returning from payment
+  useEffect(() => {
+    if (isPaymentSuccess && !isPremium) {
+      console.log('[CalculatorApp] Payment success detected - setting isPremium = true')
+      setIsPremium(true)
+    }
+  }, [isPaymentSuccess, isPremium])
 
   // Calculate macros whenever step 1-2 data changes
   useEffect(() => {
@@ -134,6 +197,8 @@ export default function CalculatorApp({
   }
 
   const handleStep4Submit = async () => {
+    console.log('[Step4] Submit clicked, stripeSessionId:', stripeSessionId)
+
     // Validate email
     if (!formData.email) {
       setErrors({ email: 'Email is required' })
@@ -145,79 +210,256 @@ export default function CalculatorApp({
       return
     }
 
+    if (!stripeSessionId) {
+      console.error('[Step4] No assessment session ID available')
+      setErrors({ submit: 'Session error. Please refresh and try again.' })
+      return
+    }
+
     setIsGenerating(true)
 
     try {
-      // Call checkout endpoint (Story 3.2) with all form data
-      const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/assessment/create-checkout', {
+      // Call step 4 submission endpoint (user already paid)
+      const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/calculator/step/4', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          // Email (required for checkout)
-          email: formData.email,
-          first_name: formData.firstName,
+          // Assessment session UUID
+          assessment_id: stripeSessionId,
 
-          // All form data for report generation
-          form_data: {
-            age: formData.age,
-            sex: formData.sex,
-            weight: formData.weight,
-            height: formData.heightFeet
-              ? `${formData.heightFeet}'${formData.heightInches}"`
-              : `${formData.heightCm}cm`,
-            goal: formData.goal,
-            diet: formData.diet,
-            calories: macros?.calories,
-            protein: macros?.protein,
-            fat: macros?.fat,
-            carbs: macros?.carbs,
-            activity_level: formData.lifestyle,
-            medications: formData.medications,
-            health_conditions: formData.conditions,
-            other_health_issues: formData.otherConditions,
-            current_symptoms: formData.symptoms,
-            other_symptoms: formData.otherSymptoms,
-            food_allergies: formData.allergies,
-            foods_wont_eat: formData.avoidFoods,
-            dairy_tolerance: formData.dairyTolerance,
-            previous_diets: formData.previousDiets,
-            what_worked: formData.whatWorked,
-            carnivore_experience: formData.carnivoreExperience,
-            cooking_ability: formData.cookingSkill,
-            meal_prep_time: formData.mealPrepTime,
-            budget: formData.budget,
-            family_situation: formData.familySituation,
-            work_travel: formData.workTravel,
-            primary_goals: formData.goals,
-            biggest_challenge: formData.biggestChallenge,
-            anything_else: formData.additionalNotes,
-          },
+          // Step 4 - send complete form data (includes Steps 1-2 fields + Step 4 health profile)
+          // The backend will merge this with existing form_data for complete report generation
+          data: formData,
         }),
       })
 
       if (!response.ok) {
-        throw new Error(`Checkout creation failed: ${response.status}`)
+        const errorData = await response.json()
+        throw new Error(`Step 4 submission failed: ${errorData.message || response.status}`)
       }
 
       const data = await response.json()
-      setIsGenerating(false)
+      console.log('[Step4] Submission successful:', data)
 
-      // Redirect to Stripe checkout
-      if (data.checkout_url) {
-        window.location.href = data.checkout_url
+      // Step 4 data saved, now trigger report generation
+      console.log('[Step4] Triggering report generation for assessment:', stripeSessionId)
+      const reportInitResponse = await fetch(
+        'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/calculator/report/init',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: stripeSessionId, // assessment UUID
+          }),
+        }
+      )
+
+      if (!reportInitResponse.ok) {
+        const reportError = await reportInitResponse.json()
+        console.warn('[Step4] Report init warning:', reportError)
+        // Don't fail - let user see generating screen anyway
       } else {
-        throw new Error('No checkout URL returned')
+        const reportData = await reportInitResponse.json()
+        console.log('[Step4] Report generation successful:', reportData)
+
+        // If report HTML is included, save and trigger download
+        if (reportData.report_html) {
+          console.log('[Step4] Report HTML received, preparing download...')
+          try {
+            // Create a blob from the HTML
+            const htmlBlob = new Blob([reportData.report_html], { type: 'text/html; charset=utf-8' })
+            const htmlUrl = URL.createObjectURL(htmlBlob)
+
+            // Create download link with today's date
+            const today = new Date().toISOString().split('T')[0]
+            const downloadLink = document.createElement('a')
+            downloadLink.href = htmlUrl
+            downloadLink.download = `carnivore-protocol-${today}.html`
+            document.body.appendChild(downloadLink)
+            downloadLink.click()
+            document.body.removeChild(downloadLink)
+            URL.revokeObjectURL(htmlUrl)
+
+            console.log('[Step4] Report download initiated')
+
+            // Also open in new window for user to print/save as PDF
+            setTimeout(() => {
+              const printWindow = window.open(htmlUrl, '_blank')
+              if (printWindow) {
+                printWindow.document.write(reportData.report_html)
+                printWindow.document.close()
+              }
+            }, 500)
+
+            console.log('[Step4] Report ready for download')
+            setIsGenerating(false)
+            return
+          } catch (e) {
+            console.error('[Step4] Report download error:', e)
+            // Fall through to generating screen
+          }
+        }
       }
+
+      // Show generating screen - report is generating or being processed
+      // User will see progress animation while Claude API generates the report
     } catch (error) {
-      console.error('Checkout error:', error)
+      console.error('[Step4] Submission error:', error)
       setIsGenerating(false)
-      setErrors({ submit: 'Failed to process payment. Please try again.' })
+      setErrors({ submit: `Failed to submit: ${error instanceof Error ? error.message : 'Unknown error'}` })
     }
   }
 
   // Show generating screen
   if (isGenerating) {
     return <ReportGeneratingScreen />
+  }
+
+  // Show payment success screen (but not if user has proceeded to Step 4)
+  if (isPaymentSuccess && currentStep !== 4) {
+    return (
+      <div style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '64px', paddingBottom: '64px', paddingLeft: '16px', paddingRight: '16px', minHeight: '100vh' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+          <div style={{
+            fontSize: '64px',
+            marginBottom: '24px',
+          }}>✅</div>
+
+          <h1 style={{
+            fontSize: '32px',
+            fontWeight: 'bold',
+            color: '#ffd700',
+            marginBottom: '8px',
+            fontFamily: "'Playfair Display', Georgia, serif",
+          }}>Payment Successful!</h1>
+
+          <p style={{
+            fontSize: '16px',
+            color: '#a0a0a0',
+            marginBottom: '32px',
+            fontFamily: "'Merriweather', Georgia, serif",
+          }}>
+            {paymentStatus === 'free'
+              ? 'Your 100% discount coupon has been applied.'
+              : 'Your payment has been processed.'}
+          </p>
+
+          <div style={{
+            backgroundColor: '#1a1a1a',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            padding: '32px',
+            marginBottom: '32px',
+            textAlign: 'left',
+          }}>
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: 'bold',
+              color: '#ffd700',
+              marginBottom: '16px',
+              fontFamily: "'Playfair Display', Georgia, serif",
+            }}>What's Next?</h2>
+
+            <ul style={{
+              listStyle: 'none',
+              padding: 0,
+              color: '#f5f5f5',
+              fontFamily: "'Merriweather', Georgia, serif",
+              fontSize: '14px',
+            }}>
+              <li style={{ marginBottom: '12px', display: 'flex', gap: '12px' }}>
+                <span style={{ color: '#ffd700', fontWeight: 'bold' }}>✓</span>
+                <span>Your personalized protocol is being generated</span>
+              </li>
+              <li style={{ marginBottom: '12px', display: 'flex', gap: '12px' }}>
+                <span style={{ color: '#ffd700', fontWeight: 'bold' }}>✓</span>
+                <span>Check your email for your download link (may take 1-2 minutes)</span>
+              </li>
+              <li style={{ marginBottom: '12px', display: 'flex', gap: '12px' }}>
+                <span style={{ color: '#ffd700', fontWeight: 'bold' }}>✓</span>
+                <span>Your protocol includes meal plans, shopping lists, and personalized guidance</span>
+              </li>
+              <li style={{ display: 'flex', gap: '12px' }}>
+                <span style={{ color: '#ffd700', fontWeight: 'bold' }}>✓</span>
+                <span>Questions? Reply to your email or contact support</span>
+              </li>
+            </ul>
+          </div>
+
+          <button
+            onClick={async () => {
+              console.log('[Success Page] Continue to Health Profile clicked')
+              console.log('[Success Page] stripeSessionId:', stripeSessionId)
+
+              if (!stripeSessionId) {
+                console.error('[Success Page] No stripe session ID')
+                return
+              }
+
+              try {
+                // Fetch the saved session from Supabase using the stripeSessionId
+                console.log('[Success Page] Fetching session from Supabase:', stripeSessionId)
+                const fetchResponse = await fetch(
+                  `https://carnivore-report-api-production.iambrew.workers.dev/get-session?id=${stripeSessionId}`,
+                  {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                  }
+                )
+
+                const sessionData = await fetchResponse.json()
+                console.log('[Success Page] Session data:', sessionData)
+
+                if (sessionData && sessionData.form_data) {
+                  // Load the saved form data into the form, including email from session
+                  const mergedFormData = {
+                    ...sessionData.form_data,
+                    email: sessionData.email || sessionData.form_data.email, // Use session email as default
+                    firstName: sessionData.first_name || sessionData.form_data.firstName,
+                  }
+                  setFormData(mergedFormData)
+                  console.log('[Success Page] Form data restored with email:', mergedFormData.email)
+                  // Jump to Step 4 (Health Profile)
+                  setCurrentStep(4)
+                  // Scroll to top
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                } else {
+                  console.error('[Success Page] No form data in session')
+                }
+              } catch (error) {
+                console.error('[Success Page] Error fetching session:', error)
+              }
+
+              // Clear payment status from localStorage
+              localStorage.removeItem('paymentStatus')
+              localStorage.removeItem('stripeSessionId')
+            }}
+            style={{
+              backgroundColor: '#ffd700',
+              color: '#1a120b',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '16px',
+              fontWeight: '600',
+              padding: '12px 32px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e6c200'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffd700'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            Continue to Health Profile
+          </button>
+        </div>
+      </div>
+    )
   }
 
   // Render appropriate step
@@ -348,6 +590,9 @@ export default function CalculatorApp({
       {/* Pricing Modal */}
       {showPricingModal && (
         <PricingModal
+          email={email}
+          onEmailChange={setEmail}
+          formData={formData as FormData}
           onClose={() => setShowPricingModal(false)}
           onProceed={() => handlePaymentSuccess()}
         />

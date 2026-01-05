@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnivore Calculator 2 - Personalized Macro Protocol</title>
 
     <!-- SEO Meta Tags -->
     <meta name="description" content="Free carnivore diet macro calculator. Get personalized calories, protein, and fat targets with meal examples and electrolyte guidance. No email required.">
@@ -26,123 +27,28 @@
     <meta name="twitter:description" content="Calculate your personalized carnivore macros. Free, private, no email required.">
     <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
 
-    <!-- Favicons -->
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
 
-    <title>Carnivore Calculator 2 - Personalized Macro Protocol | Carnivore Weekly</title>
-
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-NR4JVKW2JV');
-
-        function trackCalculation(dietType, goal) {
-            gtag('event', 'calculate', {
-                'event_category': 'Calculator',
-                'event_label': dietType + ' - ' + goal
-            });
+    <link rel="stylesheet" crossorigin href="/assets/calculator2/assets/index-C1zJbahP.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-
-        function trackUpgradeClick() {
-            gtag('event', 'click', {
-                'event_category': 'Upgrade',
-                'event_label': 'Protocol Upgrade CTA'
-            });
+        #root {
+            width: 100%;
+            height: 100%;
         }
-
-        function trackAffiliateClick(product, link) {
-            gtag('event', 'click', {
-                'event_category': 'Affiliate',
-                'event_label': product,
-                'value': link
-            });
-        }
-    </script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style-2026.css">
-    <link rel="stylesheet" href="/assets/calculator2/assets/index-pVfZ3-EA.css" />
+    </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <header>
-        <div class="container">
-            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
-            <h1>CARNIVORE CALCULATOR</h1>
-            <p class="subtitle">Personalized Macro Protocol</p>
-            <p class="tagline">Get Your Perfect Macros in Minutes</p>
-        </div>
-    </header>
-
-    <!-- NAVIGATION -->
-    <nav class="nav-menu-2026">
-        <a href="/index.html">Home</a>
-        <a href="/channels.html">Channels</a>
-        <a href="/wiki.html">Wiki</a>
-        <a href="/blog.html">Blog</a>
-        <a href="/calculator.html">Calculator</a>
-    </nav>
-
-    <!-- UNIFIED LAYOUT: INTRO + CALCULATOR + SIDEBAR -->
-    <div class="layout-wrapper-2026" style="margin-top: 30px; display: flex; gap: 30px; align-items: flex-start;">
-
-        <main class="main-content-2026" style="flex: 1; max-width: 850px;">
-
-            <section style="background: rgba(255, 255, 255, 0.95); border-radius: 12px; padding: 40px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); margin-bottom: 30px;">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: #2c1810; margin-top: 0; margin-bottom: 25px;">Macro Calculator</h2>
-                <p style="font-size: 16px; line-height: 1.7; color: #2d2d2d; margin-bottom: 18px;"><strong>Here's what I've seen work—</strong>people who understand their macros actually stick with the diet. Not because it's restrictive, but because it takes the guesswork out. When you know exactly how much protein your body needs, how much fat supports your hormones, and where your carbs should land, everything else becomes easier.</p>
-                <p style="font-size: 16px; line-height: 1.7; color: #2d2d2d; margin-bottom: 18px;">The calculator below takes about two minutes and gives you personalized macro targets based on your actual goal—whether that's fat loss, building muscle, or just feeling better. It works the same way I coach clients one-on-one, except it's instant and free. No email required, no strings attached.</p>
-                <p style="font-size: 16px; line-height: 1.7; color: #2d2d2d;">Pick what matches where you are right now. You can always go deeper later.</p>
-            </section>
-
-            <div id="root"></div>
-        </main>
-
-        <aside class="sidebar-2026" style="width: 350px; position: sticky; top: 20px;">
-
-            <article class="sidebar-card">
-                <h3>Understanding Your Macros</h3>
-                <p style="font-size: 14px; line-height: 1.6; color: #555;"><strong>Why macros matter:</strong> Your protein target determines muscle preservation and satiety. Fat fuels hormones and energy.</p>
-                <h4 style="margin-top: 15px; font-size: 16px; color: #2c1810; font-weight: 700;">Quick Tips:</h4>
-                <ul style="font-size: 14px; line-height: 1.7; color: #555; padding-left: 20px; margin: 10px 0;">
-                    <li><strong>Protein:</strong> 0.8–1g per lb of bodyweight</li>
-                    <li><strong>Fat:</strong> Fill the rest of your calories</li>
-                    <li><strong>Tracking:</strong> Not forever—just for clarity</li>
-                </ul>
-            </article>
-
-            <article class="sidebar-card">
-                <h3>📖 The Macro Deep Dive</h3>
-                <p style="font-size: 14px; line-height: 1.6; color: #555; margin: 0;">Sarah breaks down the science behind protein ratios and fat adaptation. No fluff—just what works.</p>
-                <a href="/blog.html" style="display: inline-block; margin-top: 15px; padding: 10px 18px; background: #d4a574; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;">Read the Article →</a>
-            </article>
-
-            <article class="sidebar-card" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%); border: 2px solid #FF5252; color: white; padding: 0; overflow: hidden;">
-                <img src="https://images.unsplash.com/photo-1584308666744-24d5f15714ae?w=400&q=80" alt="LMNT Electrolytes" style="width: 100%; height: 150px; object-fit: cover; display: block;">
-                <div style="padding: 20px;">
-                    <h3 style="color: white; margin-top: 0;">⚡ Stay Electrolyte-Ready</h3>
-                    <p style="font-size: 13px; line-height: 1.6; color: white;">One packet a day keeps the cramps away. No sugar, no fillers.</p>
-                    <a href="https://drinklmnt.com" target="_blank" style="display: inline-block; margin-top: 15px; padding: 10px 18px; background: white; color: #FF6B6B; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px;">Check Out LMNT →</a>
-                </div>
-            </article>
-        </aside>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="footer-2026">
-        <div class="container-2026">
-            <p>&copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.</p>
-            <p><a href="/privacy.html">Privacy</a> | <a href="/about.html">About</a> | <a href="/archive.html">Archive</a> | <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener">Feedback</a></p>
-        </div>
-    </footer>
-
-    <!-- Calculator2 React App -->
-    <script type="module" src="/assets/calculator2/assets/index-C7XFgOwu.js"></script>
-    <script src="/js/mobile-nav.js"></script>
+    <div id="root"></div>
+    <script type="module" crossorigin src="/assets/calculator2/assets/index-BoJhRDz5.js"></script>
 </body>
 </html>

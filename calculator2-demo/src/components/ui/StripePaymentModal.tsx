@@ -2,10 +2,27 @@ import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { useFormStore } from '../../stores/formStore'
 
+interface FormData {
+  age?: number
+  sex?: string
+  weight?: number
+  heightFeet?: number
+  heightInches?: number
+  heightCm?: number
+  lifestyle?: string
+  exercise?: string
+  goal?: string
+  diet?: string
+  [key: string]: any
+}
+
 interface StripePaymentModalProps {
   tierId: string
   tierTitle: string
   tierPrice: string
+  email: string
+  onEmailChange: (email: string) => void
+  formData: FormData
   onSuccess: () => void
   onCancel: () => void
 }
@@ -14,6 +31,9 @@ export default function StripePaymentModal({
   tierId,
   tierTitle,
   tierPrice,
+  email,
+  onEmailChange,
+  formData,
   onSuccess,
   onCancel,
 }: StripePaymentModalProps) {
@@ -24,27 +44,22 @@ export default function StripePaymentModal({
   const [couponError, setCouponError] = useState('')
   const { sessionToken } = useFormStore()
 
-  // Initialize coupon fields when modal opens
   useEffect(() => {
-    setError('')
-    setCouponCode('')
-    setDiscountApplied(null)
-    setCouponError('')
-  }, []) // Only run on mount
+    console.log('[StripePaymentModal] Mounted for tier:', tierId, tierTitle)
+  }, [])
 
   const priceMap: Record<string, number> = {
-    bundle: 999, // $9.99 in cents
-    meal_plan: 2700, // $27
-    shopping: 1900, // $19
-    doctor: 1500, // $15
+    bundle: 999,
+    meal_plan: 2700,
+    shopping: 1900,
+    doctor: 1500,
   }
 
-  const calculateDiscountedPrice = () => {
+  const getDiscountedPrice = () => {
     if (!discountApplied) return priceMap[tierId] || 999
     const originalPrice = priceMap[tierId] || 999
     return Math.round(originalPrice * (1 - discountApplied.percent / 100))
   }
-
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -53,9 +68,7 @@ export default function StripePaymentModal({
     }
 
     setCouponError('')
-
     try {
-      // Validate coupon against our backend
       const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/validate-coupon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -82,34 +95,30 @@ export default function StripePaymentModal({
     e.preventDefault()
     setError('')
 
-    // Track upgrade click
-    window.gtag?.('event', 'click', {
-      event_category: 'Upgrade',
-      event_label: 'Protocol Upgrade CTA',
-      tier_id: tierId,
-      tier_title: tierTitle,
-      amount: calculateDiscountedPrice()
-    })
+    // Validate email before payment
+    if (!email || !email.trim()) {
+      setError('Email is required')
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
 
     setIsProcessing(true)
 
     try {
-      const finalPrice = calculateDiscountedPrice()
+      const finalPrice = getDiscountedPrice()
+      console.log('[StripePaymentModal] Initiating payment for:', tierId, 'Price:', finalPrice, 'Coupon:', discountApplied?.code, 'Email:', email)
 
-      // If 100% discount (free), skip Stripe and go directly to success
-      if (finalPrice === 0) {
-        // Redirect to success page after brief delay (use payment=free for free tier)
-        setTimeout(() => {
-          window.location.href = `${window.location.origin}/calculator.html?payment=free`
-        }, 500)
-        return
-      }
-
-      // Create Stripe checkout session via our API
       const response = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          email,
+          first_name: '',
+          form_data: formData,
           tier_id: tierId,
           tier_title: tierTitle,
           amount: finalPrice,
@@ -117,25 +126,32 @@ export default function StripePaymentModal({
           coupon_code: discountApplied?.code || null,
           discount_percent: discountApplied?.percent || 0,
           session_token: sessionToken,
-          success_url: `${window.location.origin}/calculator.html?payment=success`,
-          cancel_url: `${window.location.origin}/calculator.html?payment=cancelled`,
         })
       })
 
       if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Failed to create checkout: ${errorText}`)
+        throw new Error(`Failed to create checkout: ${response.status}`)
       }
 
       const data = await response.json()
 
-      // Redirect to Stripe checkout
+      // If amount is 0 (100% discount), skip Stripe and go directly to success
+      if (finalPrice === 0 || data.amount === 0) {
+        console.log('[StripePaymentModal] 100% discount - bypassing Stripe, redirecting to success page')
+        const sessionUuid = data.session_uuid || data.session_id || 'free'
+        window.location.href = `/?payment=free&assessment_id=${sessionUuid}`
+        return
+      }
+
+      // Otherwise, redirect to Stripe checkout
       if (data.url) {
+        console.log('[StripePaymentModal] Redirecting to Stripe:', data.url)
         window.location.href = data.url
       } else {
         throw new Error('No checkout URL returned')
       }
     } catch (err) {
+      console.error('[StripePaymentModal] Payment error:', err)
       setError(err instanceof Error ? err.message : 'Payment failed')
       setIsProcessing(false)
     }
@@ -146,181 +162,422 @@ export default function StripePaymentModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-hidden"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 51,
+        padding: '16px',
+        overflow: 'hidden',
+      }}
     >
       <motion.div
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 20 }}
-        className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden relative mx-auto"
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          width: '100%',
+          maxWidth: '448px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          overflow: 'hidden',
+          position: 'relative',
+        }}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary to-primary/90 text-accent p-6 relative">
+        <div style={{
+          background: 'linear-gradient(to right, #ffd700, rgba(255, 215, 0, 0.9))',
+          color: '#1a120b',
+          padding: '24px',
+          position: 'relative',
+        }}>
           <button
             onClick={onCancel}
             disabled={isProcessing}
-            className="absolute top-4 right-4 text-2xl hover:opacity-80 disabled:opacity-50"
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              fontSize: '24px',
+              backgroundColor: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              opacity: isProcessing ? 0.5 : 1,
+            }}
           >
             ✕
           </button>
-          <h2 className="text-2xl font-display font-bold mb-1">Complete Payment</h2>
-          <p className="text-accent/80 text-sm">Secure payment via Stripe</p>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: 'bold',
+            marginBottom: '4px',
+            fontFamily: "'Playfair Display', Georgia, serif",
+          }}>Complete Payment</h2>
+          <p style={{
+            opacity: 0.8,
+            fontSize: '14px',
+            fontFamily: "'Merriweather', Georgia, serif",
+          }}>Secure payment via Stripe</p>
         </div>
 
-        {/* Payment Details */}
-        <div className="p-6 space-y-6">
+        {/* Content */}
+        <div style={{
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px',
+        }}>
           {/* Order Summary */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-          >
-            <div className="flex justify-between items-start mb-2">
+          <div style={{
+            backgroundColor: '#f3f4f6',
+            borderRadius: '8px',
+            padding: '16px',
+            border: '1px solid #e5e7eb',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '8px',
+            }}>
               <div>
-                <p className="font-semibold text-dark">{tierTitle}</p>
-                <p className="text-xs text-gray-500 mt-1">Plan ID: {tierId}</p>
+                <p style={{
+                  fontWeight: '600',
+                  color: '#1a120b',
+                  fontSize: '14px',
+                }}>{tierTitle}</p>
+                <p style={{
+                  fontSize: '12px',
+                  color: '#6b7280',
+                  marginTop: '4px',
+                }}>Plan ID: {tierId}</p>
               </div>
-              <p className="text-lg font-bold text-primary">${(calculateDiscountedPrice() / 100).toFixed(2)}</p>
+              <div style={{ textAlign: 'right' }}>
+                {discountApplied && (
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#6b7280',
+                    textDecoration: 'line-through',
+                    marginBottom: '2px',
+                  }}>${((priceMap[tierId] || 999) / 100).toFixed(2)}</p>
+                )}
+                <p style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: '#ffd700',
+                }}>${(getDiscountedPrice() / 100).toFixed(2)}</p>
+              </div>
             </div>
-            <div className="border-t border-gray-200 pt-2 mt-2 space-y-1">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">${(calculateDiscountedPrice() / 100).toFixed(2)}</span>
+            <div style={{
+              borderTop: '1px solid #d1d5db',
+              paddingTop: '8px',
+              marginTop: '8px',
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '14px',
+                color: '#374151',
+                marginBottom: '4px',
+              }}>
+                <span>Subtotal</span>
+                <span style={{ fontWeight: '600' }}>${((priceMap[tierId] || 999) / 100).toFixed(2)}</span>
               </div>
               {discountApplied && (
-                <div className="flex justify-between text-sm bg-green-50 -mx-2 px-2 py-1 rounded">
-                  <span className="text-green-700">Discount ({discountApplied.code})</span>
-                  <span className="font-semibold text-green-700">
-                    -${((priceMap[tierId] || 999) * discountApplied.percent / 100 / 100).toFixed(2)}
-                  </span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '14px',
+                  backgroundColor: '#dcfce7',
+                  color: '#166534',
+                  padding: '6px 8px',
+                  borderRadius: '4px',
+                  marginBottom: '4px',
+                }}>
+                  <span>Discount ({discountApplied.code})</span>
+                  <span style={{ fontWeight: '600' }}>-${(((priceMap[tierId] || 999) * discountApplied.percent / 100) / 100).toFixed(2)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Tax</span>
-                <span className="font-semibold">$0.00</span>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '14px',
+                color: '#374151',
+                marginBottom: '4px',
+              }}>
+                <span>Tax</span>
+                <span style={{ fontWeight: '600' }}>$0.00</span>
               </div>
-              <div className="flex justify-between font-bold text-dark pt-2 border-t border-gray-200">
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#1a120b',
+                paddingTop: '8px',
+                borderTop: '1px solid #d1d5db',
+                marginTop: '8px',
+              }}>
                 <span>Total</span>
-                <span>${(calculateDiscountedPrice() / 100).toFixed(2)}</span>
+                <span>${(getDiscountedPrice() / 100).toFixed(2)}</span>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Info Box */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="bg-blue-50 border border-blue-200 rounded-lg p-4"
-          >
-            <p className="text-sm text-blue-900">
+          <div style={{
+            backgroundColor: '#dbeafe',
+            border: '1px solid #93c5fd',
+            borderRadius: '8px',
+            padding: '16px',
+          }}>
+            <p style={{
+              fontSize: '14px',
+              color: '#1e40af',
+            }}>
               🔒 You'll be redirected to Stripe's secure checkout to complete your payment.
             </p>
-          </motion.div>
+          </div>
 
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="bg-red-50 border border-red-200 rounded-lg p-4 text-center"
-            >
-              <p className="text-sm font-semibold text-red-900">{error}</p>
-            </motion.div>
-          )}
-
-          {/* Processing State */}
-          {isProcessing && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center"
-            >
-              <div className="inline-block">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full"
-                />
-              </div>
-              <p className="text-sm font-semibold text-dark mt-2">
-                Redirecting to Stripe...
-              </p>
-            </motion.div>
-          )}
+          {/* Email Section */}
+          <div style={{
+            backgroundColor: '#f3f4f6',
+            borderRadius: '8px',
+            padding: '16px',
+            border: '1px solid #e5e7eb',
+          }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#1a120b',
+              marginBottom: '8px',
+            }}>Email Address *</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => onEmailChange(e.target.value)}
+              placeholder="your@email.com"
+              disabled={isProcessing}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                fontFamily: "'Merriweather', Georgia, serif",
+                boxSizing: 'border-box',
+                opacity: isProcessing ? 0.5 : 1,
+              }}
+            />
+            <p style={{
+              fontSize: '12px',
+              color: '#6b7280',
+              marginTop: '6px',
+            }}>
+              We'll send your personalized protocol to this email.
+            </p>
+          </div>
 
           {/* Coupon Code Section */}
           {!discountApplied && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-secondary/10 rounded-lg p-4 border border-secondary/20"
-            >
-              <label className="block text-sm font-semibold text-dark mb-3">Have a coupon code?</label>
-              <div className="flex gap-2">
+            <div style={{
+              backgroundColor: '#f3f4f6',
+              borderRadius: '8px',
+              padding: '16px',
+              border: '1px solid #e5e7eb',
+            }}>
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#1a120b',
+                marginBottom: '12px',
+              }}>Have a coupon code?</label>
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+              }}>
                 <input
                   type="text"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                   placeholder="Enter coupon code"
                   disabled={isProcessing}
-                  className="flex-1 px-4 py-2 rounded-lg border border-secondary/30 text-dark placeholder-gray-500 focus:border-secondary focus:ring-2 focus:ring-secondary/20 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #d1d5db',
+                    fontSize: '14px',
+                    fontFamily: "'Merriweather', Georgia, serif",
+                    opacity: isProcessing ? 0.5 : 1,
+                  }}
                 />
                 <button
                   type="button"
                   onClick={applyCoupon}
                   disabled={isProcessing || !couponCode.trim()}
-                  className="px-4 py-2 rounded-lg bg-secondary text-accent font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  style={{
+                    padding: '10px 16px',
+                    borderRadius: '6px',
+                    backgroundColor: '#ffd700',
+                    color: '#1a120b',
+                    border: 'none',
+                    fontWeight: '600',
+                    cursor: isProcessing || !couponCode.trim() ? 'not-allowed' : 'pointer',
+                    opacity: isProcessing || !couponCode.trim() ? 0.5 : 1,
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                  }}
                 >
                   Apply
                 </button>
               </div>
               {couponError && (
-                <p className="text-sm text-red-600 mt-2">⚠️ {couponError}</p>
+                <p style={{
+                  fontSize: '13px',
+                  color: '#dc2626',
+                  marginTop: '8px',
+                }}>⚠️ {couponError}</p>
               )}
-            </motion.div>
+            </div>
           )}
 
+          {/* Applied Coupon Display */}
           {discountApplied && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-green-50 rounded-lg p-4 border border-green-200"
-            >
-              <p className="text-sm font-semibold text-green-700">
+            <div style={{
+              backgroundColor: '#dcfce7',
+              borderRadius: '8px',
+              padding: '16px',
+              border: '1px solid #86efac',
+            }}>
+              <p style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#166534',
+              }}>
                 ✓ Coupon applied: {discountApplied.code} ({discountApplied.percent}% off)
               </p>
-            </motion.div>
+              <p style={{
+                fontSize: '12px',
+                color: '#15803d',
+                marginTop: '4px',
+              }}>
+                Discount: -${(((priceMap[tierId] || 999) * discountApplied.percent / 100) / 100).toFixed(2)}
+              </p>
+            </div>
           )}
 
-          {/* Payment Form - Just confirm and pay */}
-          <form onSubmit={handlePayment} className="flex gap-3 pt-2">
+          {/* Error Message */}
+          {error && (
+            <div style={{
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fca5a5',
+              borderRadius: '8px',
+              padding: '16px',
+              textAlign: 'center',
+            }}>
+              <p style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#991b1b',
+              }}>⚠️ {error}</p>
+            </div>
+          )}
+
+          {/* Processing State */}
+          {isProcessing && (
+            <div style={{
+              backgroundColor: '#dbeafe',
+              border: '1px solid #93c5fd',
+              borderRadius: '8px',
+              padding: '16px',
+              textAlign: 'center',
+            }}>
+              <div style={{
+                display: 'inline-block',
+                width: '20px',
+                height: '20px',
+                border: '2px solid #ffd700',
+                borderTopColor: 'transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }} />
+              <p style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#1a120b',
+                marginTop: '8px',
+              }}>
+                Redirecting to Stripe...
+              </p>
+            </div>
+          )}
+
+          {/* Payment Form */}
+          <form onSubmit={handlePayment} style={{
+            display: 'flex',
+            gap: '12px',
+          }}>
             <button
               type="button"
               onClick={onCancel}
               disabled={isProcessing}
-              className="flex-1 px-4 py-3 rounded-lg border-2 border-secondary text-dark font-semibold hover:bg-secondary/10 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                borderRadius: '8px',
+                border: '2px solid #ffd700',
+                color: '#1a120b',
+                fontWeight: '600',
+                backgroundColor: 'transparent',
+                cursor: 'pointer',
+                opacity: isProcessing ? 0.5 : 1,
+                fontFamily: "'Playfair Display', Georgia, serif",
+              }}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isProcessing}
-              className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-primary to-primary/90 text-accent font-semibold hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition"
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                borderRadius: '8px',
+                background: 'linear-gradient(to right, #ffd700, rgba(255, 215, 0, 0.9))',
+                color: '#1a120b',
+                fontWeight: '600',
+                border: 'none',
+                cursor: 'pointer',
+                opacity: isProcessing ? 0.5 : 1,
+                fontFamily: "'Playfair Display', Georgia, serif",
+              }}
             >
-              {isProcessing ? 'Redirecting to Stripe...' : `Pay $${(calculateDiscountedPrice() / 100).toFixed(2)}`}
+              {isProcessing ? 'Redirecting...' : `Pay $${(getDiscountedPrice() / 100).toFixed(2)}`}
             </button>
           </form>
 
           {/* Disclaimer */}
-          <p className="text-xs text-gray-500 text-center">
+          <p style={{
+            fontSize: '12px',
+            color: '#9ca3af',
+            textAlign: 'center',
+          }}>
             💳 Payments are processed securely by Stripe. Your data is encrypted and protected.
           </p>
         </div>
       </motion.div>
+
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </motion.div>
   )
 }
