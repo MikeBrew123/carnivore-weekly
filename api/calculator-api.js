@@ -764,6 +764,26 @@ async function handleStep4Submission(request, env) {
     };
 
     console.log('[handleStep4Submission] Updating session with Step 4 data');
+    console.log('[handleStep4Submission] Step 4 firstName:', formData.firstName, 'Step 4 lastName:', formData.lastName);
+
+    // Prepare update payload - include first_name and last_name if provided
+    const updatePayload = {
+      form_data: updatedFormData,
+      payment_status: 'completed',
+      updated_at: new Date().toISOString(),
+    };
+
+    // Update the first_name column if firstName was provided in Step 4
+    if (formData.firstName && typeof formData.firstName === 'string' && formData.firstName.trim().length > 0) {
+      updatePayload.first_name = formData.firstName.trim();
+      console.log('[handleStep4Submission] Updating first_name to:', formData.firstName.trim());
+    }
+
+    // Update the last_name column if lastName was provided in Step 4
+    if (formData.lastName && typeof formData.lastName === 'string' && formData.lastName.trim().length > 0) {
+      updatePayload.last_name = formData.lastName.trim();
+      console.log('[handleStep4Submission] Updating last_name to:', formData.lastName.trim());
+    }
 
     // Update session with Step 4 data
     const updateResponse = await fetch(
@@ -775,11 +795,7 @@ async function handleStep4Submission(request, env) {
           'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
           'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
         },
-        body: JSON.stringify({
-          form_data: updatedFormData,
-          payment_status: 'completed',
-          updated_at: new Date().toISOString(),
-        }),
+        body: JSON.stringify(updatePayload),
       }
     );
 

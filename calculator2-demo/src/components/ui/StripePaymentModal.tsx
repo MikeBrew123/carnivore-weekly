@@ -117,7 +117,7 @@ export default function StripePaymentModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          first_name: '',
+          first_name: formData.firstName || '',
           form_data: formData,
           tier_id: tierId,
           tier_title: tierTitle,
