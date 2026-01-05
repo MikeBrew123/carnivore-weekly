@@ -10,66 +10,79 @@ export default function ProgressIndicator({
   stepLabels,
 }: ProgressIndicatorProps) {
   return (
-    <div className="w-full mb-8">
-      {/* Step numbers */}
-      <div className="flex items-center justify-between mb-3">
+    <div style={{ width: '100%', marginBottom: '32px' }}>
+      {/* Horizontal breadcrumb progress */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        position: 'relative'
+      }}>
+        {/* Background line connecting dots */}
+        <div style={{
+          position: 'absolute',
+          top: '8px',
+          left: '0',
+          right: '0',
+          height: '2px',
+          backgroundColor: '#333',
+          zIndex: 0
+        }} />
+
         {stepLabels.map((label, index) => {
           const stepNumber = index + 1
           const isActive = stepNumber === currentStep
           const isComplete = stepNumber < currentStep
 
-          const circleBackgroundColor = isActive ? '#ffd700' : isComplete ? '#228B22' : '#333'
-          const circleTextColor = isActive ? '#1a120b' : '#f5f5f5'
-          const labelColor = isActive ? '#ffd700' : isComplete ? '#228B22' : '#a0a0a0'
+          let dotBg = '#444'  // Default (future steps)
+          let dotRing = 'none'
+
+          if (isComplete) {
+            dotBg = '#228B22'  // Green for completed
+          } else if (isActive) {
+            dotBg = '#ffd700'  // Gold fill for current
+            dotRing = '3px solid #ffd700'
+          }
+
+          const labelColor = isActive ? '#ffd700' : isComplete ? '#228B22' : '#999'
 
           return (
-            <div key={index} className="flex-1">
-              {/* Step circle */}
-              <div className="flex items-center">
-                <div
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    fontFamily: "'Playfair Display', Georgia, serif",
-                    backgroundColor: circleBackgroundColor,
-                    color: circleTextColor,
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {isComplete ? '✓' : stepNumber}
-                </div>
+            <div
+              key={index}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                flex: 1,
+                zIndex: 1,
+                position: 'relative'
+              }}
+            >
+              {/* Dot */}
+              <div
+                style={{
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  backgroundColor: dotBg,
+                  border: dotRing,
+                  transition: 'all 0.3s ease',
+                  marginBottom: '12px'
+                }}
+              />
 
-                {/* Line connector */}
-                {index < stepLabels.length - 1 && (
-                  <div
-                    style={{
-                      flex: 1,
-                      height: '2px',
-                      margin: '0 8px',
-                      borderRadius: '4px',
-                      backgroundColor: stepNumber < currentStep ? '#ffd700' : '#333',
-                      transition: 'background-color 0.3s'
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Label */}
+              {/* Label underneath dot */}
               <p
                 style={{
-                  marginTop: '8px',
-                  fontSize: '12px',
+                  fontSize: '13px',
                   fontWeight: '500',
                   textAlign: 'center',
                   color: labelColor,
                   fontFamily: "'Merriweather', Georgia, serif",
-                  transition: 'color 0.2s'
+                  margin: '0',
+                  transition: 'color 0.3s ease',
+                  whiteSpace: 'nowrap',
+                  paddingX: '4px'
                 }}
               >
                 {label}
@@ -77,19 +90,6 @@ export default function ProgressIndicator({
             </div>
           )
         })}
-      </div>
-
-      {/* Progress bar */}
-      <div style={{ width: '100%', height: '4px', backgroundColor: '#333', borderRadius: '12px', overflow: 'hidden' }}>
-        <div
-          style={{
-            height: '100%',
-            backgroundColor: '#ffd700',
-            transition: 'width 0.3s ease-out',
-            width: `${(currentStep / totalSteps) * 100}%`,
-            borderRadius: '12px'
-          }}
-        />
       </div>
     </div>
   )
