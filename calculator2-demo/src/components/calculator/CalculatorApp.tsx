@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { FormData, MacroResults } from '../../types/form'
 import { calculateBMR, calculateMacros } from '../../lib/calculations'
+import { useFormStore } from '../../stores/formStore'
 import ProgressIndicator from './ProgressIndicator'
 import FormContainer from './FormContainer'
 import Step1PhysicalStats from './steps/Step1PhysicalStats'
@@ -31,19 +32,16 @@ export default function CalculatorApp({
   console.log('Stripe session ID (from props):', stripeSessionId);
   console.log('URL search:', window.location.search);
 
-  // Form state
-  const [formData, setFormData] = useState<Partial<FormData>>({
-    sex: undefined,
-    age: 0,
-    weight: 0,
-    lifestyle: '',
-    exercise: '',
-    goal: undefined,
-    deficit: undefined,
-    diet: undefined,
-  })
+  // Form state from Zustand (consolidate state to single source of truth)
+  const {
+    form: formData,
+    setForm: setFormData,
+    isDirty,
+    markDirty,
+    markClean,
+  } = useFormStore()
 
-  // UI state
+  // UI state (non-form state stays in React)
   const [currentStep, setCurrentStep] = useState(1)
   const [macros, setMacros] = useState<MacroResults | null>(null)
   const [showPricingModal, setShowPricingModal] = useState(false)
@@ -352,6 +350,15 @@ export default function CalculatorApp({
               }
 
               try {
+                // GUARD: If form is dirty (user edited), don't overwrite with Supabase data
+                if (isDirty) {
+                  console.log('[Success Page] Form is dirty - skipping Supabase restore, proceeding with current data')
+                  markClean()
+                  setCurrentStep(4)
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                  return
+                }
+
                 // Fetch the saved session from Supabase using the stripeSessionId
                 console.log('[Success Page] Fetching session from Supabase:', stripeSessionId)
                 const fetchResponse = await fetch(
@@ -365,7 +372,7 @@ export default function CalculatorApp({
                 const sessionData = await fetchResponse.json()
                 console.log('[Success Page] Session data:', sessionData)
 
-                if (sessionData && sessionData.form_data) {
+                if (sessionData && sessionData.form_data && !isDirty) {
                   // Load the saved form data into the form, including email from session
                   const mergedFormData = {
                     ...sessionData.form_data,
@@ -374,6 +381,7 @@ export default function CalculatorApp({
                   }
                   setFormData(mergedFormData)
                   console.log('[Success Page] Form data restored with email:', mergedFormData.email)
+                  markClean()  // Mark clean after successful restore
                   // Jump to Step 4 (Health Profile)
                   setCurrentStep(4)
                   // Scroll to top

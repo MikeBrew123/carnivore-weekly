@@ -8,7 +8,8 @@ interface FormStore {
   units: 'imperial' | 'metric'
   isPremium: boolean
   sessionToken: string | null
-  
+  isDirty: boolean
+
   setFormField: (field: keyof FormData, value: unknown) => void
   setMacros: (macros: MacroResults) => void
   setCurrentStep: (step: number) => void
@@ -16,6 +17,8 @@ interface FormStore {
   setIsPremium: (premium: boolean) => void
   setSessionToken: (token: string) => void
   setForm: (form: Partial<FormData>) => void
+  markDirty: () => void
+  markClean: () => void
   resetForm: () => void
 }
 
@@ -67,10 +70,12 @@ export const useFormStore = create<FormStore>((set) => ({
   units: 'imperial',
   isPremium: false,
   sessionToken: null,
+  isDirty: false,
 
   setFormField: (field, value) =>
     set((state) => ({
       form: { ...state.form, [field]: value },
+      isDirty: true,
     })),
 
   setMacros: (macros) => set({ macros }),
@@ -78,11 +83,15 @@ export const useFormStore = create<FormStore>((set) => ({
   setUnits: (units) => set({ units }),
   setIsPremium: (premium) => set({ isPremium: premium }),
   setSessionToken: (token) => set({ sessionToken: token }),
-  
+
   setForm: (formUpdate) =>
     set((state) => ({
       form: { ...state.form, ...formUpdate },
+      isDirty: true,
     })),
 
-  resetForm: () => set({ form: defaultForm, currentStep: 1, macros: null }),
+  markDirty: () => set({ isDirty: true }),
+  markClean: () => set({ isDirty: false }),
+
+  resetForm: () => set({ form: defaultForm, currentStep: 1, macros: null, isDirty: false }),
 }))
