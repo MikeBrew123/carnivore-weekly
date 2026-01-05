@@ -135,9 +135,30 @@
             margin: 0;
         }
 
-        /* CTA Button - PROMINENT Primary Action */
+        /* Intro copy section with floating button */
+        .intro-copy {
+            background: rgba(212, 165, 116, 0.12);
+            border-left: 5px solid #d4a574;
+            padding: 40px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            overflow: auto;
+        }
+
+        .intro-copy p {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1a120b;
+            margin: 0 0 20px 0;
+        }
+
+        .intro-copy p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* CTA Button - Floats right on desktop, stacked on mobile */
         .cta-button-calculator {
-            display: block;
             background: #ffd700;
             color: #1a120b;
             padding: 20px 48px;
@@ -146,14 +167,15 @@
             font-weight: 700;
             font-size: 1.3em;
             font-family: 'Playfair Display', serif;
-            margin: 50px auto;
             transition: all 0.3s ease;
             box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
             border: none;
             cursor: pointer;
-            min-width: 320px;
             text-align: center;
             letter-spacing: 0.5px;
+            float: right;
+            margin: 0 0 30px 30px;
+            white-space: nowrap;
         }
 
         .cta-button-calculator:hover {
@@ -276,8 +298,7 @@
                 padding: 20px;
             }
 
-            .problem-section,
-            .apology-section,
+            .intro-copy,
             .info-section-calculator {
                 padding: 25px;
                 margin-bottom: 30px;
@@ -294,10 +315,13 @@
             }
 
             .cta-button-calculator {
+                float: none;
+                display: block;
                 font-size: 1.1em;
                 padding: 18px 40px;
-                margin: 40px auto;
-                min-width: 280px;
+                margin: 30px auto;
+                width: 90%;
+                max-width: 280px;
             }
 
             .info-section-calculator ul {
@@ -327,8 +351,7 @@
                 font-size: 1.5em;
             }
 
-            .problem-section,
-            .apology-section,
+            .intro-copy,
             .info-section-calculator {
                 padding: 20px;
                 margin-bottom: 25px;
@@ -347,10 +370,12 @@
             }
 
             .cta-button-calculator {
-                font-size: 1.1em;
+                float: none;
+                display: block;
+                font-size: 1em;
                 padding: 16px 32px;
-                margin: 35px auto;
-                min-width: 90%;
+                margin: 25px auto;
+                width: 90%;
             }
         }
     </style>
@@ -388,27 +413,18 @@
 
             <!-- MAIN CONTENT -->
             <div class="calculator-main">
-                <!-- PROBLEM SECTION -->
-                <section class="problem-section">
+                <!-- INTRO COPY WITH FLOATING CTA -->
+                <section class="intro-copy">
+                    <button class="cta-button-calculator" onclick="window.location.href='/assets/calculator2/index.html'">
+                        Get Your Macros →
+                    </button>
                     <p>
-                        Most people starting carnivore guess at their macros. Then they wonder why they're exhausted, losing muscle, or not seeing results.
+                        Most people starting carnivore guess at their macros. Then they wonder why they're exhausted, losing muscle, or not seeing results. One thing that helps immediately: knowing your actual protein target. Most people eat way too little—or way too much. If you want to skip the guessing and get your exact macros in about 2 minutes, we built a free calculator that personalizes your targets based on your body and your goal (fat loss, muscle gain, or maintenance).
                     </p>
                     <p>
-                        <strong>One thing that helps immediately:</strong> knowing your actual protein target. Most people eat way too little—or way too much.
-                    </p>
-                </section>
-
-                <!-- APOLOGY FOR DOWNTIME -->
-                <section class="apology-section">
-                    <p>
-                        The calculator was down for a couple days—we know that was frustrating when you needed it most. We've fixed the backend issues and it's back and working great. Thanks for sticking with us.
+                        It's free. No email required. Just enter your stats, pick your goal, and get your numbers. The Mifflin-St Jeor formula (the gold standard) works out your exact calorie needs based on your age, weight, height, and activity level. You can print your results or upgrade to the $9.99 report if you want meal plans and a doctor's consultation script—but the free version gives you everything you actually need to start. We also built a simple calendar app that pairs well with the calculator if you want to plan your week ahead, but plenty of people get amazing results just with the macro numbers.
                     </p>
                 </section>
-
-                <!-- CTA BUTTON (Primary) -->
-                <button class="cta-button-calculator" onclick="window.location.href='/assets/calculator2/index.html'">
-                    Get Your Macros →
-                </button>
 
                 <!-- INFO SECTION -->
                 <section class="info-section-calculator">
