@@ -1776,9 +1776,9 @@ async function handleCreateCheckout(request, env) {
       ? first_name.trim()
       : 'Friend';
 
-    // Use success/cancel URLs from request, fall back to env.FRONTEND_URL
-    const finalSuccessUrl = success_url || `${env.FRONTEND_URL}/?payment=success&session_id={CHECKOUT_SESSION_ID}`;
-    const finalCancelUrl = cancel_url || `${env.FRONTEND_URL}/?payment=cancelled`;
+    // Use success/cancel URLs from request, fall back to calculator app with payment status
+    const finalSuccessUrl = success_url || `${env.FRONTEND_URL}/assets/calculator2/index.html?payment=success&session_id={CHECKOUT_SESSION_ID}`;
+    const finalCancelUrl = cancel_url || `${env.FRONTEND_URL}/assets/calculator2/index.html?payment=cancelled`;
 
     // Generate UUIDs
     const sessionUUID = generateUUID();
