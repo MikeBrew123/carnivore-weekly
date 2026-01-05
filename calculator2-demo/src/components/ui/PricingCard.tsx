@@ -18,41 +18,117 @@ export default function PricingCard({
   onClick,
 }: PricingCardProps) {
   const handleClick = () => {
+    console.log('[PricingCard] Choose Plan clicked for:', title)
     onClick()
+  }
+
+  const cardStyle = popular ? {
+    backgroundColor: '#1a1a1a',
+    border: '2px solid #ffd700',
+    boxShadow: '0 20px 25px -5px rgba(255, 215, 0, 0.3)',
+  } : {
+    backgroundColor: '#1a1a1a',
+    border: '2px solid #333',
   }
 
   return (
     <div
       onClick={handleClick}
-      className={`rounded-xl p-6 transition-all relative z-30 cursor-pointer hover:scale-105 ${
-        popular
-          ? 'bg-gradient-to-br from-primary to-primary/90 text-white border-2 border-secondary shadow-2xl'
-          : 'bg-white border-2 border-gray-200 hover:border-secondary text-dark'
-      }`}
+      style={{
+        ...cardStyle,
+        borderRadius: '12px',
+        padding: '24px',
+        transition: 'all 0.2s',
+        position: 'relative',
+        zIndex: 30,
+        cursor: 'pointer',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.05)'
+        e.currentTarget.style.boxShadow = '0 25px 30px -5px rgba(255, 215, 0, 0.2)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)'
+        e.currentTarget.style.boxShadow = popular
+          ? '0 20px 25px -5px rgba(255, 215, 0, 0.3)'
+          : 'none'
+      }}
     >
       {popular && (
-        <div className="bg-secondary text-primary text-xs font-bold px-3 py-1 rounded-full w-fit mb-4">
+        <div style={{
+          backgroundColor: '#ffd700',
+          color: '#1a120b',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          padding: '6px 12px',
+          borderRadius: '20px',
+          display: 'inline-block',
+          marginBottom: '16px',
+          fontFamily: "'Playfair Display', Georgia, serif",
+        }}>
           Most Popular
         </div>
       )}
 
-      <h3 className="text-xl font-bold mb-2">{title}</h3>
+      <h3 style={{
+        fontSize: '20px',
+        fontWeight: 'bold',
+        marginBottom: '8px',
+        color: '#ffd700',
+        fontFamily: "'Playfair Display', Georgia, serif",
+      }}>
+        {title}
+      </h3>
 
       {description && (
-        <p className={`text-sm mb-4 ${popular ? 'text-white/80' : 'text-gray-600'}`}>
+        <p style={{
+          fontSize: '14px',
+          marginBottom: '16px',
+          color: popular ? '#a0a0a0' : '#a0a0a0',
+          fontFamily: "'Merriweather', Georgia, serif",
+        }}>
           {description}
         </p>
       )}
 
-      <div className="mb-6">
-        <span className="text-4xl font-bold">{price}</span>
-        {price !== 'Free' && <span className={`text-sm ml-2 ${popular ? 'text-white/80' : 'text-gray-600'}`}>one-time</span>}
+      <div style={{ marginBottom: '24px' }}>
+        <span style={{
+          fontSize: '32px',
+          fontWeight: 'bold',
+          color: '#f5f5f5',
+          fontFamily: "'Playfair Display', Georgia, serif",
+        }}>
+          {price}
+        </span>
+        {price !== 'Free' && (
+          <span style={{
+            fontSize: '14px',
+            marginLeft: '8px',
+            color: '#a0a0a0',
+            fontFamily: "'Merriweather', Georgia, serif",
+          }}>
+            one-time
+          </span>
+        )}
       </div>
 
-      <ul className="space-y-3 mb-6">
+      <ul style={{ marginBottom: '24px', listStyle: 'none', padding: 0 }}>
         {features.map((feature, i) => (
-          <li key={i} className="flex items-center gap-2 text-sm">
-            <Check className="w-5 h-5 flex-shrink-0" />
+          <li key={i} style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            marginBottom: '12px',
+            color: '#f5f5f5',
+            fontFamily: "'Merriweather', Georgia, serif",
+          }}>
+            <Check style={{
+              width: '20px',
+              height: '20px',
+              flexShrink: 0,
+              color: '#ffd700',
+            }} />
             <span>{feature}</span>
           </li>
         ))}
@@ -60,11 +136,27 @@ export default function PricingCard({
 
       <button
         onClick={handleClick}
-        className={`w-full py-3 px-4 rounded-lg font-semibold transition-all ${
-          popular
-            ? 'bg-secondary text-primary hover:bg-secondary/90'
-            : 'bg-primary text-accent hover:bg-primary/90'
-        }`}
+        style={{
+          width: '100%',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontWeight: '600',
+          fontSize: '14px',
+          backgroundColor: '#ffd700',
+          color: '#1a120b',
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'all 0.2s',
+          fontFamily: "'Playfair Display', Georgia, serif",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#e6c200'
+          e.currentTarget.style.transform = 'translateY(-2px)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = '#ffd700'
+          e.currentTarget.style.transform = 'translateY(0)'
+        }}
       >
         Choose Plan
       </button>

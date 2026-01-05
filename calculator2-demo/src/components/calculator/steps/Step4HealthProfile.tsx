@@ -152,28 +152,39 @@ export default function Step4HealthProfile({
             placeholder="Specify others not listed above"
           />
 
-          {/* Symptoms Textarea */}
-          <TextArea
-            id="symptoms"
+          {/* Symptoms Checkboxes */}
+          <CheckboxGroup
             name="symptoms"
-            label="Current Symptoms"
-            value={data.symptoms || ''}
-            onChange={(e) => handleInputChange('symptoms', e.target.value)}
-            placeholder="e.g., fatigue, brain fog, joint pain, etc."
-            rows={4}
-            maxLength={5000}
-            helpText="Optional - Helps us tailor recommendations"
+            label="Current Symptoms (select all that apply)"
+            options={[
+              { value: 'fatigue', label: 'Fatigue/Low Energy' },
+              { value: 'brain-fog', label: 'Brain Fog' },
+              { value: 'digestive-issues', label: 'Digestive Issues' },
+              { value: 'joint-pain', label: 'Joint Pain' },
+              { value: 'muscle-soreness', label: 'Muscle Soreness' },
+              { value: 'headaches', label: 'Headaches/Migraines' },
+              { value: 'skin-issues', label: 'Skin Problems (acne, rashes)' },
+              { value: 'sleep-problems', label: 'Sleep Issues' },
+              { value: 'mood-changes', label: 'Mood Changes (anxiety, depression)' },
+              { value: 'hormonal-issues', label: 'Hormonal Issues' },
+              { value: 'weight-issues', label: 'Weight Management' },
+              { value: 'none', label: 'None of the above' },
+            ]}
+            values={Array.isArray(data.symptoms) ? data.symptoms : []}
+            onChange={(values) => handleInputChange('symptoms', values)}
+            helpText="Optional - Select all that apply"
           />
 
           {/* Other Symptoms Text Input */}
-          <FormField
+          <TextArea
             id="otherSymptoms"
             name="otherSymptoms"
-            type="text"
-            label="Other Symptoms"
+            label="Any Other Symptoms Not Listed Above"
             value={data.otherSymptoms || ''}
             onChange={(e) => handleInputChange('otherSymptoms', e.target.value)}
-            placeholder="Specify others not listed above"
+            placeholder="Describe any other symptoms you experience..."
+            rows={3}
+            helpText="Optional - Tell us about any symptoms not listed above"
           />
         </div>
       </section>

@@ -7,6 +7,8 @@ export default function App() {
   const [sessionToken, setSessionToken] = useState<string>('')
   const [isInitialized, setIsInitialized] = useState(false)
   const [currentPath, setCurrentPath] = useState(window.location.pathname)
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null)
+  const [stripeSessionId, setStripeSessionId] = useState<string | null>(null)
 
   useEffect(() => {
     async function initializeApp() {
@@ -17,57 +19,27 @@ export default function App() {
 
         // Check if returning from payment
         const params = new URLSearchParams(window.location.search)
-        const paymentStatus = params.get('payment')
-        const stripeSessionId = params.get('session_id')
+        const payment = params.get('payment')
+        const assessmentId = params.get('assessment_id')
 
-        // Helper function to scroll to form
-        const scrollToForm = () => {
-          setTimeout(() => {
-            const formElement = document.querySelector('[data-form-section]') || document.querySelector('form')
-            if (formElement) {
-              const rect = formElement.getBoundingClientRect()
-              if (rect.top > window.innerHeight || rect.top < 0) {
-                formElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-              }
-            }
-          }, 100)
-        }
-
-        // Handle free tier with 100% discount
-        if (paymentStatus === 'free') {
-          scrollToForm()
-          console.log('[App] Premium access granted (free tier)')
-          window.history.replaceState({}, '', window.location.pathname)
-        }
-        // Handle paid Stripe payment
-        else if (paymentStatus === 'success' && stripeSessionId) {
-          try {
-            const verifyResponse = await fetch(
-              'https://carnivore-report-api-production.iambrew.workers.dev/verify-payment',
-              {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  stripeSessionId: stripeSessionId,
-                  sessionToken: session.session_token
-                })
-              }
-            )
-
-            const verifyResult = await verifyResponse.json()
-            console.log('[App] Payment verification result:', verifyResult)
-
-            if (verifyResult.success && verifyResult.paid) {
-              scrollToForm()
-              console.log('[App] Premium access granted after payment verification')
-            } else {
-              console.warn('[App] Payment verification failed or not paid')
-            }
-          } catch (verifyError) {
-            console.error('[App] Payment verification error:', verifyError)
+        // Store payment params in state AND localStorage (to persist across re-renders)
+        // DON'T strip query params - let CalculatorApp also read them
+        if (payment || assessmentId) {
+          setPaymentStatus(payment)
+          setStripeSessionId(assessmentId)
+          // Persist to localStorage in case of re-renders
+          localStorage.setItem('paymentStatus', payment || '')
+          localStorage.setItem('stripeSessionId', assessmentId || '')
+          console.log('[App] Payment params detected:', { payment, assessmentId })
+        } else {
+          // Check localStorage as fallback
+          const storedPaymentStatus = localStorage.getItem('paymentStatus')
+          const storedSessionId = localStorage.getItem('stripeSessionId')
+          if (storedPaymentStatus) {
+            setPaymentStatus(storedPaymentStatus)
+            setStripeSessionId(storedSessionId)
+            console.log('[App] Restored payment params from localStorage:', { storedPaymentStatus, storedSessionId })
           }
-
-          window.history.replaceState({}, '', window.location.pathname)
         }
 
         setIsInitialized(true)
@@ -107,7 +79,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <CalculatorApp sessionToken={sessionToken} />
+      <CalculatorApp
+        sessionToken={sessionToken}
+        paymentStatus={paymentStatus}
+        stripeSessionId={stripeSessionId}
+      />
     </div>
   )
 }

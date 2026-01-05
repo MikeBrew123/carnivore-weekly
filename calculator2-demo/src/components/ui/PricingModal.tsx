@@ -4,7 +4,24 @@ import PricingCard from './PricingCard'
 import StripePaymentModal from './StripePaymentModal'
 import { useFormStore } from '../../stores/formStore'
 
+interface FormData {
+  age?: number
+  sex?: string
+  weight?: number
+  heightFeet?: number
+  heightInches?: number
+  heightCm?: number
+  lifestyle?: string
+  exercise?: string
+  goal?: string
+  diet?: string
+  [key: string]: any
+}
+
 interface PricingModalProps {
+  email: string
+  onEmailChange: (email: string) => void
+  formData: FormData
   onClose: () => void
   onProceed: (tier: string) => void
 }
@@ -67,7 +84,7 @@ const pricingOptions = [
   },
 ]
 
-export default function PricingModal({ onClose, onProceed }: PricingModalProps) {
+export default function PricingModal({ email, onEmailChange, formData, onClose, onProceed }: PricingModalProps) {
   console.log('[PricingModal] Component rendering')
   const { sessionToken } = useFormStore()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
@@ -84,6 +101,7 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
   }
 
   const handleSelectTier = (tierId: string) => {
+    console.log('[PricingModal] handleSelectTier called with:', tierId)
     setSelectedTier(tierId)
   }
 
@@ -96,6 +114,7 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
   }
 
   const handlePaymentCancel = () => {
+    console.log('[PricingModal] Payment cancelled')
     setSelectedTier(null)
   }
 
@@ -103,6 +122,7 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
 
   return (
     <>
+      {!selectedTier && (
       <div
         onClick={onClose}
         style={{
@@ -135,10 +155,9 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
             position: 'sticky',
             top: 0,
             zIndex: 20,
-            background: 'linear-gradient(to right, #ffd700, rgba(255, 215, 0, 0.9))',
-            color: '#1a120b',
+            backgroundColor: '#1a1a1a',
             padding: '32px',
-            borderBottom: '2px solid #333',
+            borderBottom: '2px solid #ffd700',
             pointerEvents: 'none',
           }}>
             <button
@@ -148,6 +167,7 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
                 top: '16px',
                 right: '16px',
                 fontSize: '24px',
+                color: '#ffd700',
                 backgroundColor: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
@@ -156,20 +176,20 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
             >
               ✕
             </button>
-            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif" }}>Choose Your Plan</h2>
-            <p style={{ color: 'rgba(26, 18, 11, 0.8)', fontFamily: "'Merriweather', Georgia, serif" }}>Select the features that matter most to you</p>
+            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif", color: '#ffd700' }}>Choose Your Plan</h2>
+            <p style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Select the features that matter most to you</p>
           </div>
 
-          {/* New Years Sale Banner */}
+          {/* Limited Launch Pricing Banner */}
           <div style={{
-            backgroundColor: '#dc2626',
-            color: 'white',
+            backgroundColor: '#2c1810',
+            color: '#ffd700',
             padding: '16px',
             textAlign: 'center',
-            borderBottom: '2px solid #991b1b',
+            borderBottom: '2px solid #ffd700',
           }}>
-            <p style={{ fontSize: '18px', fontWeight: 'bold' }}>🎉 NEW YEARS SALE 🎉</p>
-            <p style={{ fontSize: '14px', marginTop: '8px' }}>Complete Bundle was <span style={{ textDecoration: 'line-through' }}>$298</span> → NOW $9.99</p>
+            <p style={{ fontSize: '16px', fontWeight: '600', fontFamily: "'Playfair Display', Georgia, serif" }}>Limited Launch Pricing</p>
+            <p style={{ fontSize: '13px', marginTop: '6px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Complete Protocol Bundle: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$9.99</span></p>
           </div>
 
           {/* Pricing Cards */}
@@ -196,36 +216,84 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
             </div>
 
             {/* Value Stack */}
-            <div
-              className="bg-gradient-to-r from-secondary/10 to-primary/10 rounded-lg p-6 border border-secondary/30"
-            >
-              <h3 className="font-bold text-dark mb-4">What You Get</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div style={{
+              backgroundColor: '#2c1810',
+              borderRadius: '8px',
+              padding: '24px',
+              border: '2px solid #ffd700',
+            }}>
+              <h3 style={{
+                fontWeight: 'bold',
+                color: '#ffd700',
+                marginBottom: '16px',
+                fontSize: '18px',
+                fontFamily: "'Playfair Display', Georgia, serif",
+              }}>What You Get</h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: '24px',
+              }}>
                 <div>
-                  <p className="font-semibold text-dark mb-2">📋 Every Plan Includes</p>
-                  <ul className="text-sm space-y-1 text-gray-600">
-                    <li>✓ Personalized macro calculations</li>
-                    <li>✓ Your calorie targets</li>
+                  <p style={{
+                    fontWeight: '600',
+                    color: '#ffd700',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                  }}>📋 Every Plan Includes</p>
+                  <ul style={{
+                    fontSize: '14px',
+                    listStyle: 'none',
+                    padding: 0,
+                    color: '#f5f5f5',
+                    fontFamily: "'Merriweather', Georgia, serif",
+                  }}>
+                    <li style={{ marginBottom: '4px' }}>✓ Personalized macro calculations</li>
+                    <li style={{ marginBottom: '4px' }}>✓ Your calorie targets</li>
                     <li>✓ Instant results</li>
                   </ul>
                 </div>
                 <div>
-                  <p className="font-semibold text-dark mb-2">💰 Value Breakdown</p>
-                  <ul className="text-sm space-y-1 text-gray-600">
-                    <li>Complete bundle: $298 value</li>
-                    <li>Your price: $9.99</li>
-                    <li>Save: 96.6%</li>
+                  <p style={{
+                    fontWeight: '600',
+                    color: '#ffd700',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                  }}>💰 Value Breakdown</p>
+                  <ul style={{
+                    fontSize: '14px',
+                    listStyle: 'none',
+                    padding: 0,
+                    color: '#f5f5f5',
+                    fontFamily: "'Merriweather', Georgia, serif",
+                  }}>
+                    <li style={{ marginBottom: '4px' }}>Complete bundle: $298 value</li>
+                    <li style={{ marginBottom: '4px' }}>Your price: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$9.99</span></li>
+                    <li>Save: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>96.6%</span></li>
                   </ul>
                 </div>
                 <div>
-                  <p className="font-semibold text-dark mb-2">🔒 100% Money Back</p>
-                  <p className="text-sm text-gray-600">Not satisfied? Full refund within 7 days, no questions asked.</p>
+                  <p style={{
+                    fontWeight: '600',
+                    color: '#ffd700',
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontFamily: "'Playfair Display', Georgia, serif",
+                  }}>🔒 100% Money Back</p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#f5f5f5',
+                    fontFamily: "'Merriweather', Georgia, serif",
+                  }}>Not satisfied? Full refund within 7 days, no questions asked.</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      )}
 
       {/* Stripe Payment Modal */}
       <AnimatePresence>
@@ -234,6 +302,9 @@ export default function PricingModal({ onClose, onProceed }: PricingModalProps) 
             tierId={selectedTier}
             tierTitle={selectedOption.title}
             tierPrice={selectedOption.price}
+            email={email}
+            onEmailChange={onEmailChange}
+            formData={formData}
             onSuccess={handlePaymentSuccess}
             onCancel={handlePaymentCancel}
           />

@@ -23,4 +23,4 @@ vars = { ENVIRONMENT = "staging", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.s
 
 # Production environment variables
 [env.production]
-vars = { ENVIRONMENT = "production" }
+vars = { ENVIRONMENT = "production", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", FRONTEND_URL = "https://carnivoreweekly.com" }

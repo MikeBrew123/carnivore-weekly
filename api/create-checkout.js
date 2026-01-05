@@ -235,8 +235,8 @@ async function handleCreateCheckout(request, env) {
         },
       ],
       mode: 'payment',
-      success_url: `${env.FRONTEND_URL}/assessment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${env.FRONTEND_URL}/assessment`,
+      success_url: `${env.FRONTEND_URL}/?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${env.FRONTEND_URL}/?payment=cancelled`,
       customer_email: email,
       client_reference_id: sessionUUID,
       metadata: {
