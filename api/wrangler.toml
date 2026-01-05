@@ -7,10 +7,19 @@ compatibility_flags = ["nodejs_compat"]
 vars = { ENVIRONMENT = "development", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co" }
 
 # Secrets (stored securely in Cloudflare, not in this file)
+# Supabase credentials - MOVED TO WRANGLER SECRETS (2026-01-05)
 # Add these via: wrangler secret put VARIABLE_NAME
-# Required secrets:
-# - SUPABASE_SERVICE_ROLE_KEY: Service role key for admin access
-# - SUPABASE_ANON_KEY: Anonymous key for public access
+# Supabase secrets:
+# - SUPABASE_PROJECT_ID: Project ID for Supabase (uploaded)
+# - SUPABASE_HOST: Database host (uploaded)
+# - SUPABASE_PORT: Database port 5432 (uploaded)
+# - SUPABASE_DATABASE: Database name postgres (uploaded)
+# - SUPABASE_USERNAME: Database username postgres (uploaded)
+# - SUPABASE_PASSWORD: Postgres password (uploaded)
+# - SUPABASE_ANON_KEY: Anonymous key for public access (uploaded)
+# - SUPABASE_SERVICE_ROLE_KEY: Service role key for admin access (uploaded)
+#
+# Other required secrets:
 # - STRIPE_SECRET_KEY: Stripe API secret key
 # - STRIPE_PUBLISHABLE_KEY: Stripe publishable key
 # - CLAUDE_API_KEY: Anthropic Claude API key

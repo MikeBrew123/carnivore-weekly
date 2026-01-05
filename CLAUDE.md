@@ -9,6 +9,40 @@
 - After any task: `✅ Done → 📁 file.tsx → ⏭️ Next step`
 - If user needs code, they will ask
 
+## ⚠️ INFRASTRUCTURE — CREDENTIALS & DATABASE ACCESS
+
+### Database Access (Supabase)
+- **MCP server**: `supabase-mcp` is ALREADY CONFIGURED and working
+- **Access method**: ALWAYS invoke Leo — he is the MCP liaison
+- **Leo has**: Full read/write access via MCP
+
+### ❌ NEVER DO THESE THINGS
+- Ask for Supabase credentials, tokens, or API keys
+- Suggest going to Supabase dashboard to run SQL manually  
+- Say "I don't have MCP access" — YOU DO, through Leo
+- Run `echo $SUPABASE_ACCESS_TOKEN` or similar
+- Send user to Supabase to use the code editor
+- Claim the secrets folder is "in the cloud" — it's LOCAL
+
+### ✅ ALWAYS DO THIS INSTEAD
+- Invoke Leo for ANY database operation (queries, migrations, table creation)
+- Example: "Leo, run: SELECT * FROM writers LIMIT 1"
+- Example: "Leo, deploy migration 007_create_writer_memory_tables.sql"
+- Trust that MCP is configured — don't second-guess it
+
+### Credential Locations (STOP ASKING FOR THESE)
+| Service | Location | Access Method |
+|---------|----------|---------------|
+| Supabase | MCP handles it | Invoke Leo |
+| Stripe | Cloudflare Wrangler | `wrangler secret list` |
+| Other APIs | `./secrets/` folder | Local files, NOT cloud |
+
+### If Confused About Access
+Run `/status` in Claude Code to see loaded MCP servers.
+If `supabase-mcp` appears → you have access → use Leo.
+
+---
+
 ## BUILD MODE
 When executing a project spec:
 - Invoke LEO for all database work (no exceptions)
