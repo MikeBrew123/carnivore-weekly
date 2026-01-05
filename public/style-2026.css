@@ -270,7 +270,8 @@ header.header-2026 > .container-2026 {
 }
 
 header h1 {
-    color: #d4a574;
+    color: #ffd700;
+    font-family: 'Playfair Display', serif;
     font-size: 4em;
     margin: 15px 0 10px 0;
     font-weight: 900;
