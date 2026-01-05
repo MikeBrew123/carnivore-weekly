@@ -98,12 +98,15 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
 
     .pricing-card-container {
       margin: 0 !important;
+      grid-column: span 1;
     }
 
     .pricing-card-container:last-child {
       margin-top: 40px !important;
       margin-bottom: 40px !important;
       padding-top: 20px;
+      grid-column: span 1 !important;
+      width: 100%;
     }
 
     @media (max-width: 768px) {
