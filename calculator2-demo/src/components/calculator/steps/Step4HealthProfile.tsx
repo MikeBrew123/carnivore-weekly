@@ -393,7 +393,27 @@ export default function Step4HealthProfile({
         <div className="flex gap-3">
           <button
             onClick={onBack}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-3 rounded-lg transition-colors"
+            style={{
+              flex: 1,
+              background: '#2c1810',
+              color: '#ffd700',
+              fontWeight: 'bold',
+              padding: '14px 24px',
+              fontSize: '16px',
+              borderRadius: '8px',
+              border: '2px solid #ffd700',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontFamily: "'Playfair Display', Georgia, serif",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.2)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             Back
           </button>
@@ -404,7 +424,7 @@ export default function Step4HealthProfile({
               background: 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)',
               color: '#1a120b',
               fontWeight: 'bold',
-              padding: '12px 24px',
+              padding: '14px 24px',
               fontSize: '16px',
               borderRadius: '8px',
               border: 'none',
