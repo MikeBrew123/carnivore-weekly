@@ -1,0 +1,294 @@
+================================================================================
+BANNER ELEMENT SIDE-BY-SIDE COMPARISON
+================================================================================
+
+PAGES COMPARED:
+  LEFT:  /public/wiki.html
+  RIGHT: /public/calculator.html
+
+CSS SOURCE: /public/style-2026.css (SHARED FILE - explains identical structure)
+
+================================================================================
+HEADER CONTAINER PROPERTIES
+================================================================================
+
+PROPERTY                    | WIKI.HTML              | CALCULATOR.HTML        | MATCH
+--------------------------- | ---------------------- | ---------------------- | -----
+position                    | relative               | relative               | ✓ YES
+background                 | gradient               | gradient               | ✓ YES
+background-color           | #4a2511-#6d3819-#8b4513| #4a2511-#6d3819-#8b4513| ✓ YES
+padding                     | 30px 0 20px 0          | 30px 0 20px 0          | ✓ YES
+margin-bottom              | 25px                   | 25px                   | ✓ YES
+min-height                 | 180px                  | 180px                  | ✓ YES
+text-align                 | center                 | center                 | ✓ YES
+border-bottom              | 4px solid #8b4513      | 4px solid #8b4513      | ✓ YES
+box-shadow                 | 0 10px 30px (both)     | 0 10px 30px (both)     | ✓ YES
+overflow                   | visible                | visible                | ✓ YES
+
+RESULT: 100% IDENTICAL HEADER STYLING
+
+================================================================================
+H1 HEADING PROPERTIES (CRITICAL ISSUES HERE)
+================================================================================
+
+PROPERTY                    | WIKI.HTML              | CALCULATOR.HTML        | MATCH   | STATUS
+--------------------------- | ---------------------- | ---------------------- | ------- | ----------
+font-family                | NOT SET (missing)      | NOT SET (missing)      | ✓ MATCH | CRITICAL FAIL
+font-size                  | 4em                    | 4em                    | ✓ YES   | PASS
+font-weight                | 900                    | 900                    | ✓ YES   | PASS
+color                      | #d4a574 (TAN)          | #d4a574 (TAN)          | ✓ MATCH | CRITICAL FAIL
+line-height                | (inherited)            | (inherited)            | ✓ YES   | OK
+margin-top                 | 15px                   | 15px                   | ✓ YES   | PASS
+margin-bottom              | 10px                   | 10px                   | ✓ YES   | PASS
+letter-spacing             | 4px                    | 4px                    | ✓ YES   | PASS
+text-shadow                | 3px 3px 6px            | 3px 3px 6px            | ✓ YES   | PASS
+
+H1 TEXT CONTENT:
+  WIKI:       "CARNIVORE WEEKLY"
+  CALCULATOR: "CARNIVORE WEEKLY"
+  MATCH: ✓ YES
+
+H1 CONCLUSION: Both pages have IDENTICAL styling, but both have SAME ERRORS
+
+================================================================================
+SUBTITLE (.subtitle) PROPERTIES
+================================================================================
+
+PROPERTY                    | WIKI.HTML              | CALCULATOR.HTML        | MATCH
+--------------------------- | ---------------------- | ---------------------- | -----
+font-family                | Merriweather (implied) | Merriweather (implied) | ✓ YES
+font-size                  | 1.5em                  | 1.5em                  | ✓ YES
+font-style                 | italic                 | italic                 | ✓ YES
+color                      | #ffd700 (GOLD)         | #ffd700 (GOLD)         | ✓ YES (CORRECT)
+margin-bottom              | 5px                    | 5px                    | ✓ YES
+
+SUBTITLE TEXT:
+  WIKI:       "The Meat-Eater's Digest"
+  CALCULATOR: "The Meat-Eater's Digest"
+  MATCH: ✓ YES
+
+SUBTITLE CONCLUSION: Correctly styled in gold on BOTH pages
+
+================================================================================
+LOGO PROPERTIES
+================================================================================
+
+PROPERTY                    | WIKI.HTML              | CALCULATOR.HTML        | MATCH
+--------------------------- | ---------------------- | ---------------------- | -----
+src                        | /images/logo.png       | /images/logo.png       | ✓ YES
+alt text                   | "Carnivore Weekly Logo"| "Carnivore Weekly Logo"| ✓ YES
+position                   | absolute               | absolute               | ✓ YES
+top                        | -100px                 | -100px                 | ✓ YES
+right                      | -140px                 | -140px                 | ✓ YES
+width                      | 750px                  | 750px                  | ✓ YES
+height                     | 410px                  | 410px                  | ✓ YES
+aspect-ratio               | 750/410 (1.829)        | 750/410 (1.829)        | ✓ YES
+max-width                  | 750px                  | 750px                  | ✓ YES
+opacity                    | 0.95                   | 0.95                   | ✓ YES
+z-index                    | -1 (behind)            | -1 (behind)            | ✓ YES
+object-fit                 | contain                | contain                | ✓ YES
+object-position            | center                 | center                 | ✓ YES
+pointer-events             | none                   | none                   | ✓ YES
+
+LOGO FILE VERIFICATION:
+  Actual file: /images/logo.png
+  Dimensions: 900 x 491 px
+  Format: PNG (8-bit RGBA)
+  Aspect ratio: 900/491 = 1.833
+  Brand standard: 1.83 ±2% (acceptable: 1.79-1.87)
+  Status: WITHIN SPEC
+
+LOGO CONCLUSION: 100% IDENTICAL on both pages, aspect ratio correct
+
+================================================================================
+HTML STRUCTURE COMPARISON
+================================================================================
+
+WIKI.HTML HEADER:
+  <header class="header-2026">
+    <div class="container-2026">
+      <img src="/images/logo.png" alt="..." class="logo">
+      <h1>CARNIVORE WEEKLY</h1>
+      <p class="subtitle">The Meat-Eater's Digest</p>
+    </div>
+  </header>
+
+CALCULATOR.HTML HEADER:
+  <header class="header-2026">
+    <div class="container-2026">
+      <img src="/images/logo.png" alt="..." class="logo">
+      <h1>CARNIVORE WEEKLY</h1>
+      <p class="subtitle">The Meat-Eater's Digest</p>
+    </div>
+  </header>
+
+STRUCTURE MATCH: 100% IDENTICAL
+
+================================================================================
+CSS FILE REFERENCES
+================================================================================
+
+WIKI.HTML IMPORTS:
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style-2026.css">
+
+CALCULATOR.HTML IMPORTS:
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style-2026.css">
+
+CSS FILE IMPORTS: 100% IDENTICAL
+
+STATUS:
+  - Both import Playfair Display (700, 900 weights)
+  - Both import Merriweather (400, 700 weights)
+  - Both use same /style-2026.css file
+  - Playfair Display imported but NOT APPLIED to H1 via CSS rule
+
+================================================================================
+SPACING MEASUREMENTS
+================================================================================
+
+ELEMENT                     | WIKI.HTML              | CALCULATOR.HTML        | MATCH
+--------------------------- | ---------------------- | ---------------------- | -----
+Header padding top          | 30px                   | 30px                   | ✓ YES
+Header padding bottom       | 20px                   | 20px                   | ✓ YES
+Header padding right        | 0                      | 0                      | ✓ YES
+Header padding left         | 0                      | 0                      | ✓ YES
+Header margin-bottom        | 25px                   | 25px                   | ✓ YES
+H1 margin-top               | 15px                   | 15px                   | ✓ YES
+H1 margin-bottom            | 10px                   | 10px                   | ✓ YES
+Subtitle margin-bottom      | 5px                    | 5px                    | ✓ YES
+Container max-width         | (not set in H1)        | (not set in H1)        | ✓ YES
+Logo top offset             | -100px                 | -100px                 | ✓ YES
+Logo right offset           | -140px                 | -140px                 | ✓ YES
+
+SPACING CONCLUSION: PERFECT ALIGNMENT on both pages
+
+================================================================================
+COLOR ANALYSIS
+================================================================================
+
+ELEMENT                     | WIKI.HTML              | CALCULATOR.HTML        | REQUIRED        | STATUS
+--------------------------- | ---------------------- | ---------------------- | --------------- | ----------
+Header background (primary) | #4a2511 (very dark)    | #4a2511 (very dark)    | #4a2511         | ✓ CORRECT
+Header background (mid)     | #6d3819 (dark)         | #6d3819 (dark)         | #6d3819         | ✓ CORRECT
+Header background (light)   | #8b4513 (saddle brown) | #8b4513 (saddle brown) | #8b4513         | ✓ CORRECT
+Border color                | #8b4513 (saddle brown) | #8b4513 (saddle brown) | #8b4513         | ✓ CORRECT
+H1 color                    | #d4a574 (TAN)          | #d4a574 (TAN)          | #ffd700 (GOLD)  | CRITICAL FAIL
+Subtitle color              | #ffd700 (GOLD)         | #ffd700 (GOLD)         | #ffd700 (GOLD)  | ✓ CORRECT
+Text color (default)        | #f4e4d4 (light cream)  | #f4e4d4 (light cream)  | #f4e4d4         | ✓ CORRECT
+
+COLOR CONCLUSION:
+  - Both pages have IDENTICAL color values
+  - All colors correct EXCEPT H1 (should be gold, not tan)
+  - Subtitle correctly uses gold, making H1 inconsistency obvious
+
+================================================================================
+FONT ANALYSIS
+================================================================================
+
+FONT                        | WIKI.HTML              | CALCULATOR.HTML        | APPLIED TO
+--------------------------- | ---------------------- | ---------------------- | -----
+Playfair Display            | Imported (700, 900)    | Imported (700, 900)    | NOT H1 (MISSING)
+Merriweather                | Imported (400, 700)    | Imported (400, 700)    | Subtitles/body
+Default serif               | Falls back             | Falls back             | H1 (WRONG)
+
+FONT CONCLUSION:
+  - Playfair Display imported but not applied to H1
+  - H1 uses browser default serif instead
+  - Merriweather used correctly for body text
+  - Font-family CSS rule missing from header h1 selector
+
+================================================================================
+RESPONSIVE BEHAVIOR
+================================================================================
+
+BREAKPOINT                  | WIKI.HTML              | CALCULATOR.HTML        | MATCH
+--------------------------- | ---------------------- | ---------------------- | -----
+@media (max-width: 768px)   | Reduces H1 font-size   | Reduces H1 font-size   | ✓ YES
+@media (max-width: 600px)   | Further H1 reduction   | Further H1 reduction   | ✓ YES
+@media (max-width: 480px)   | Mobile optimizations   | Mobile optimizations   | ✓ YES
+Mobile padding              | 20px reduced           | 20px reduced           | ✓ YES
+Mobile header height        | Auto-adjusts           | Auto-adjusts           | ✓ YES
+
+RESPONSIVE CONCLUSION: Both pages handle mobile identically
+
+================================================================================
+CRITICAL ISSUE ANALYSIS
+================================================================================
+
+ISSUE 1: H1 COLOR
+  Current Value:  #d4a574 (Tan/Saddle Brown)
+  Required Value: #ffd700 (Gold)
+  Location:       /public/style-2026.css, line ~127
+  Property:       color
+  Severity:       CRITICAL
+  Impact:         Brand standard violation
+  Accessibility:  Lower contrast (tan on brown vs gold on brown)
+  Both Pages:     Both affected (same CSS)
+  Fix Difficulty: TRIVIAL (change 1 hex value)
+
+ISSUE 2: H1 FONT-FAMILY
+  Current Value:  NOT SET (missing property)
+  Required Value: 'Playfair Display', serif
+  Location:       /public/style-2026.css, line ~127
+  Property:       font-family (missing)
+  Severity:       CRITICAL
+  Impact:         Font falls back to browser default
+  Appearance:     H1 renders in wrong serif font
+  Both Pages:     Both affected (same CSS)
+  Fix Difficulty: TRIVIAL (add 1 line)
+
+BOTH ISSUES:
+  - Identical on both pages (shared CSS)
+  - Fixed by one edit to style-2026.css
+  - Fixes both pages instantly
+
+================================================================================
+SUMMARY TABLE
+================================================================================
+
+CATEGORY            | WIKI        | CALCULATOR  | IDENTICAL? | ISSUES
+------------------- | ----------- | ----------- | ---------- | ----------
+Header height       | 180px       | 180px       | ✓ YES      | None
+Header background   | Gradient    | Gradient    | ✓ YES      | None
+Header padding      | 30 0 20 0   | 30 0 20 0   | ✓ YES      | None
+H1 font-size        | 4em         | 4em         | ✓ YES      | None
+H1 font-weight      | 900         | 900         | ✓ YES      | None
+H1 color            | #d4a574     | #d4a574     | ✓ MATCH    | CRITICAL: should be #ffd700
+H1 font-family      | NOT SET     | NOT SET     | ✓ MATCH    | CRITICAL: should be Playfair Display
+H1 letter-spacing   | 4px         | 4px         | ✓ YES      | None
+Subtitle color      | #ffd700     | #ffd700     | ✓ YES      | None (CORRECT)
+Subtitle font-size  | 1.5em       | 1.5em       | ✓ YES      | None
+Logo aspect ratio   | 1.833       | 1.833       | ✓ YES      | None
+Logo position       | Abs -100top | Abs -100top | ✓ YES      | None
+Logo sizing         | 750x410     | 750x410     | ✓ YES      | None
+Border styling      | 4px brown   | 4px brown   | ✓ YES      | None
+Box shadow          | Identical   | Identical   | ✓ YES      | None
+
+GRAND TOTAL: 14 of 14 element categories have identical styling
+             2 of 14 categories violate brand standards (H1 color + font)
+             100% structural match with 2 identical critical errors
+
+================================================================================
+CONCLUSION
+================================================================================
+
+STRUCTURAL CONSISTENCY: ✓ PERFECT
+  - Both pages use identical HTML structure
+  - Both pages use identical CSS file
+  - All elements positioned/sized identically
+  - Banner layouts are 100% consistent
+
+BRAND COMPLIANCE: CRITICAL FAILURES
+  - Issue 1: H1 color wrong (tan instead of gold)
+  - Issue 2: H1 font-family not set (missing property)
+  - Both issues affect both pages equally
+  - One CSS fix resolves both issues on both pages
+
+VISUAL CONSISTENCY: ✓ IDENTICAL
+  (except for the H1 color/font errors that are identical on both pages)
+
+RECOMMENDATION: BLOCKED - Apply CSS fixes before deployment
+
+================================================================================

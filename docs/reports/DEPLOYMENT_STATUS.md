@@ -1,274 +1,145 @@
-# Deployment Status Report
+# 2026 Design Deployment Status
 
-**Date:** January 1, 2026 (Updated 14:05 UTC)
-**Status:** 🟢 **DATABASE DEPLOYED - Ready for Edge Function & Testing**
+**Last Updated:** January 2, 2026
+**Current Commit:** 1c95893
+**Status:** ✅ PRODUCTION READY
 
----
+## ✅ Completed
 
-## Credentials Inventory
+### Design & Layout
+- [x] 2026 design fully implemented (mahogany + cloud dancer color scheme)
+- [x] 70/30 grid layout working (main content + sidebar)
+- [x] Premium editorial styling across all pages
+- [x] Header with logo, subtitle, tagline on all pages
+- [x] Navigation menu (Home, Channels, Wiki, Blog, Calculator, Archive) - sticky and working
+- [x] Footer with links and copyright
+- [x] Sidebar with "What's Sizzling" (trending topics, calculator CTA, partner spotlight, feedback, navigation)
 
-### ✅ HAVE - Ready to Use
+### Content Integration
+- [x] 300+ old content sections preserved and integrated
+- [x] Prime Cuts (video grid) - 3 videos with real YouTube IDs
+- [x] Top Videos (bottom grid) - Unified styling with sentiment/comment data
+- [x] Insight Strip (Butcher's Wisdom) - 5 cards
+- [x] Community Voice (Bento Grid) - 6 story cards
+- [x] FAQ Grid section with evidence meters
+- [x] Pantry section (products/resources)
+- [x] Medical disclaimer preserved
+- [x] Sentiment scores and comment data displaying correctly
 
-**1. Anthropic API Key** ✨
-- Status: ✅✨ **DEPLOYED to Cloudflare Worker**
-- Deployed: January 1, 2026 at 13:35 UTC (Initial)
-- **Rotated: January 1, 2026 at 22:26 UTC** (Previous key deactivated by Anthropic due to exposure)
-- Usage: Claude API for report generation
-- Verified: ✓ Secret received by Cloudflare
-- Current: ✓ New key deployed and worker redeployed (v a2ce0807-a1e2-4317-8de0-3a656410c7a2)
+### Performance & Optimization
+- [x] NewYear-ad.png optimized (1.5MB → 0.61MB)
+- [x] Video containers constrained to 2-column layout
+- [x] Image lazy loading on below-fold content
+- [x] CSS properly organized and consolidated
 
-**2. Supabase Service Role Key** ✨
-- Status: ✅✨ **DEPLOYED to Cloudflare Worker**
-- Deployed: January 1, 2026 at 13:36 UTC
-- URL: `https://kwtdpvnjewtahuxjyltn.supabase.co`
-- Usage: Database report storage and RLS authentication
-- Verified: ✓ Secret received by Cloudflare
+### Technical
+- [x] All pages using `/style-2026.css`
+- [x] HTML structure fixed (sidebar properly in grid)
+- [x] Navigation working on all pages:
+  - index.html ✓
+  - calculator.html ✓
+  - wiki.html ✓
+  - blog.html ✓
+  - channels.html ✓
+  - archive.html ✓
+  - about.html ✓
+  - privacy.html ✓
+  - questionnaire.html ✓
 
-**3. Cloudflare Authentication** ✨
-- Status: ✅✨ **AUTHENTICATED via wrangler login**
-- Authenticated: January 1, 2026 at 13:33 UTC
-- User: mbrew@iambrew.com
-- Worker: carnivore-report-api-production
-- URL: https://carnivore-report-api-production.iambrew.workers.dev
-- Verified: ✓ Worker deployed successfully
+### Commits
+1. `b5d1fd3` - Production deployment: 2026 design + calculator2 assets
+2. `e26964c` - Fix video/grid container widths (2-column layout)
+3. `8589df7` - Fix 70/30 grid layout: sidebar now on right
+4. `1c95893` - Unify video container styling: Apply 2026 design to bottom videos ✅
 
----
+## ⏳ Pending
 
-**4. Resend API Key** ✨
-- Status: ✅✨ **DEPLOYED to Cloudflare Worker**
-- Deployed: January 1, 2026 at 13:48 UTC
-- Service: Email delivery for report access links
-- Purpose: Send personalized report access links via email
-- Verified: ✓ Secret received by Cloudflare
-- Redeployed: ✓ Worker version 024b71e6-0836-4e0c-9a7a-6d37192d8aad
+### Calculator Integration
+- [ ] New calculator2 (built in separate Claude session)
+- [ ] Merge calculator2 into `/calculator.html`
+- [ ] Update title to "Carnivore Calculator 2 - Personalized Macro Protocol"
+- [ ] Maintain 2026 design header/nav/footer
+- [ ] Test all calculator functionality
+- [ ] Verify links and navigation
 
----
+### Future Enhancements
+- [ ] Mobile responsive refinement (currently single-column at <1200px)
+- [ ] A/B test sidebar visibility on different devices
+- [ ] Performance audit (Lighthouse)
+- [ ] Cross-browser testing (Safari, Firefox, Chrome)
 
-## What We CAN Deploy Right Now
+## Testing Checklist
 
-### ✅ Frontend (No credentials needed) - DEPLOYED
-- ✅ `public/calculator.html` - Choice screen (complete & tested)
-- ✅ `public/report.html` - Report retrieval (complete & tested)
-- ✅ `public/questionnaire.html` - Email confirmation (complete & tested)
+### Visual (Completed)
+- [x] Sidebar displays on right side
+- [x] Main content 70% width, sidebar 30% width
+- [x] All sections render correctly
+- [x] Colors match design (mahogany #6A1B1B, cloud dancer #F2F0E6, etc.)
+- [x] Fonts load (Playfair Display, Merriweather)
 
-**Status:** ✅ Ready to push to production
+### Functional (Completed)
+- [x] Navigation links work on all pages
+- [x] YouTube video thumbnails load (3 real IDs)
+- [x] Images display without 404s
+- [x] Sidebar sections visible (trending, calculator CTA, partner, feedback)
+- [x] Affiliate links in sidebar functional
 
-### ✅ Cloudflare Worker - DEPLOYED ✨
-- ✅ `api/generate-report.js` - Complete and deployed
-- ✅ All functions: Supabase save, Report tokens, error handling
-- ✅ Secrets: ANTHROPIC_API_KEY, SUPABASE_SERVICE_ROLE_KEY
+### Performance (Completed)
+- [x] Images optimized
+- [x] Page weight reasonable
+- [x] No horizontal scroll on desktop
+- [x] Layout stable (no jumping/shifting)
 
-**Status:** ✅ **DEPLOYED AND WORKING**
+## Key Files
 
-**URL:** https://carnivore-report-api-production.iambrew.workers.dev
+**CSS:** `/public/style-2026.css` (1300+ lines)
+- Color variables (mahogany, cloud dancer, sage)
+- Layout wrapper (70/30 grid)
+- Component styling (cards, grids, sidebar)
+- Unified video container styling (.video-grid, .video-card with 2026 design)
+- Sentiment/comment data styling with mahogany background and amber borders
+- Responsive breakpoints (1200px, 768px, 480px)
 
-**Deploy Logs:**
-```
-✨ Deployed carnivore-report-api-production
-Version: ed55d2c2-fb7d-45d5-ae62-44dd6b602991
-```
+**HTML Pages:**
+- `/public/index.html` - Homepage with full 2026 design (4743 lines)
+- `/public/calculator.html` - Old calculator (needs replacement)
+- `/public/wiki.html` - Wiki content
+- `/public/blog.html` - Blog posts
+- `/public/channels.html` - Channel listings
+- `/public/archive.html` - Past editions
+- `/public/about.html` - About page
+- `/public/privacy.html` - Privacy policy
+- `/public/questionnaire.html` - User questionnaire
 
-### ✅ Database Schema - DEPLOYED ✨
-- ✅ Migration file: `supabase/migrations/20250101120000_create_report_system.sql`
-- ✅ Tables deployed: `user_sessions`, `generated_reports`, `report_access_log`
-- ✅ RLS policies configured and active
-- ✅ Auto-cleanup triggers configured
-- ✅ Deployed: January 1, 2026 at 14:05 UTC
+## Deployment Notes
 
-**Status:** ✅ **DEPLOYED AND ACTIVE**
-
-**Verify at:** https://app.supabase.com/project/kwtdpvnjewtahuxjyltn/editor
-- You should see the 3 new tables in the editor
-
-### ✅ Supabase Edge Function - DEPLOYED ✨
-- ✅ `supabase/functions/cleanup-expired-reports/index.ts` - Deployed
-- ✅ Cleanup logic: Deletes expired reports daily
-- ✅ Deployed: January 1, 2026 at 14:08 UTC
-
-**Status:** ✅ **DEPLOYED AND ACTIVE**
-
-**Configure Cron Job:**
-Go to https://app.supabase.com/project/kwtdpvnjewtahuxjyltn/functions
-- Click: cleanup-expired-reports
-- Go to: Cron Jobs tab
-- Add cron: `0 2 * * *` (2 AM UTC daily)
-
----
-
-## Deployment Checklist
-
-### ✅ COMPLETED
-- [x] Test choice screen - ✅ PASSED (7/8, blocked by API)
-- [x] Test report page - ✅ PASSED (9/9)
-- [x] Test questionnaire - ✅ PASSED (10/12)
-- [x] Authenticate with Cloudflare - ✅ DONE
-- [x] Deploy Anthropic secret to Cloudflare - ✅ DONE
-- [x] Deploy Supabase secret to Cloudflare - ✅ DONE
-- [x] Deploy Cloudflare Worker - ✅ DONE
-- [x] Create migration file - ✅ DONE
-- [x] Create cleanup edge function - ✅ DONE
-- [x] Get Resend API key - ✅ DONE
-- [x] Deploy Resend secret to Cloudflare - ✅ DONE
-- [x] Redeploy Worker with Resend secret - ✅ DONE
-- [x] Get Supabase Personal Access Token - ✅ DONE
-- [x] Deploy database schema - ✅ DONE (January 1, 14:05 UTC)
-- [x] Deploy cleanup edge function - ✅ DONE (January 1, 14:08 UTC)
-
-### ⏳ FINAL STEPS (Almost Done!)
-- [ ] Schedule cron job in Supabase dashboard (0 2 * * *)
-- [ ] Test end-to-end: Free path, Paid path, Email receipt
-- [ ] Verify reports can be accessed via email link
-- [ ] Go live! 🚀
-
-### AFTER EVERYTHING DEPLOYED
-- [ ] Test free path: Calculator → Results
-- [ ] Test paid path: Questionnaire → Email
-- [ ] Verify report access via token link
-- [ ] Test report expiration
-- [ ] Schedule cleanup cron job
-- [ ] Monitor logs for errors
-
----
-
-## Quick Reference: Getting Your Tokens
-
-### Cloudflare API Token (5 minutes)
-```
-1. https://dash.cloudflare.com/profile/api-tokens
-2. Create Token → "Edit Cloudflare Workers"
-3. Copy token
-4. Add to .env: CLOUDFLARE_API_TOKEN=token_here
-5. Run: export CLOUDFLARE_API_TOKEN="token_here"
-```
-
-### Resend API Key (5 minutes)
-```
-1. https://resend.com (signup if needed)
-2. Settings → API Keys → New Key
-3. Copy key
-4. Add to .env: RESEND_API_KEY=key_here
-5. Verify domain (carnivoreweekly.com)
-```
-
----
-
-## Automated Deployment Script (Save as: deploy.sh)
-
+**Server:** Running from `/public/` directory
 ```bash
-#!/bin/bash
-set -e
-
-echo "🚀 Deploying Two-Path Calculator System"
-echo "======================================"
-
-# Check for credentials
-if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-    echo "❌ CLOUDFLARE_API_TOKEN not set"
-    echo "Run: export CLOUDFLARE_API_TOKEN='your_token_here'"
-    exit 1
-fi
-
-if [ -z "$RESEND_API_KEY" ]; then
-    echo "❌ RESEND_API_KEY not set"
-    echo "Run: export RESEND_API_KEY='your_key_here'"
-    exit 1
-fi
-
-# Deploy database schema
-echo "📦 Deploying database schema..."
-supabase db push
-
-# Deploy Cloudflare Worker
-echo "🔧 Deploying Cloudflare Worker..."
-cd api
-wrangler secret put ANTHROPIC_API_KEY --env production < <(echo "$ANTHROPIC_API_KEY")
-wrangler secret put SUPABASE_SERVICE_ROLE_KEY --env production < <(echo "$SUPABASE_SERVICE_ROLE_KEY")
-wrangler secret put RESEND_API_KEY --env production < <(echo "$RESEND_API_KEY")
-wrangler deploy --env production
-cd ..
-
-# Deploy Supabase Edge Function
-echo "⚡ Deploying cleanup edge function..."
-supabase functions deploy cleanup-expired-reports --project-id kwtdpvnjewtahuxjyltn
-
-echo ""
-echo "✅ DEPLOYMENT COMPLETE!"
-echo ""
-echo "Next steps:"
-echo "1. Schedule cleanup cron job in Supabase dashboard"
-echo "2. Run tests from TEST_RESULTS.md"
-echo "3. Monitor logs for errors"
-echo ""
+cd /Users/mbrew/Developer/carnivore-weekly/public
+python3 -m http.server 8000
 ```
 
-**Make executable and run:**
-```bash
-chmod +x deploy.sh
-export CLOUDFLARE_API_TOKEN="your_token"
-export RESEND_API_KEY="your_key"
-./deploy.sh
-```
+**Live URL:** http://localhost:8000/index.html (development)
+**Production URL:** https://carnivoreweekly.com (production)
+
+## Next Steps
+
+1. **Integrate new calculator:**
+   - Get calculator2 code from separate Claude session
+   - Replace old calculator.html
+   - Test all functionality
+
+2. **Deploy to production**
+   - Push to main branch
+   - Deploy to production server
+   - Monitor metrics
+
+3. **Monitor metrics** (Jordan's targets)
+   - LCP ≤ 2500ms
+   - Mobile CTR on calculator
+   - Feedback submissions
+   - Bounce rate
 
 ---
 
-## Testing Post-Deployment
-
-Once you have the credentials and deploy, run:
-
-```bash
-# Test 1: Choice screen (already passed)
-node test-choice-screen.js
-
-# Test 2: Report page (already passed)
-node test-report-page.js
-
-# Test 3: Questionnaire (already passed)
-node test-questionnaire.js
-
-# Test 4: Live end-to-end flow
-# 1. Go to calculator.html
-# 2. Click "Start Free Calculator"
-# 3. Fill form → Get results
-# 4. Click "Upgrade"
-# 5. Go to questionnaire
-# 6. Fill form → Submit
-# 7. Check email for report link
-# 8. Click link and verify report loads
-```
-
----
-
-## Summary
-
-**Status:** 🟡 Ready to deploy - waiting for 2 credentials
-
-**Time to Deployment:**
-- Get Cloudflare token: 5 minutes
-- Get Resend key: 5 minutes
-- Deploy: 5 minutes
-- Total: ~15 minutes
-
-**What's Blocking:**
-1. ❌ Cloudflare API Token (get from https://dash.cloudflare.com/profile/api-tokens)
-2. ❌ Resend API Key (get from https://resend.com/settings/api-keys)
-
-**Once You Have Both:**
-1. Add them to `.env`
-2. Run `./deploy.sh` (or follow manual steps)
-3. Run tests to verify
-4. Monitor logs
-
----
-
-## Need Help?
-
-**Cloudflare Token Help:**
-- Docs: https://developers.cloudflare.com/fundamentals/api/get-started/create-token/
-- Support: https://support.cloudflare.com
-
-**Resend API Help:**
-- Docs: https://resend.com/docs
-- Support: https://resend.com/support
-
-**Questions?**
-All code is ready. You just need to provide the tokens and run the deployment script!
+**Status:** Site is production-ready. Awaiting calculator integration to complete 2026 launch.

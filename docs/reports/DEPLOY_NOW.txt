@@ -1,0 +1,125 @@
+================================================================================
+                     WRITER MEMORY MIGRATIONS - DEPLOY NOW
+================================================================================
+
+STATUS: READY FOR PRODUCTION DEPLOYMENT
+Total migrations: 3 | Total entries: 29 | Risk: LOW | Time: 30 seconds
+
+DEPLOYMENT IN 3 STEPS
+=====================
+
+STEP 1: Open Supabase
+  https://app.supabase.com/project/kwtdpvnjewtahuxjyltn
+
+STEP 2: Copy SQL File
+  /Users/mbrew/Developer/carnivore-weekly/migrations/CONSOLIDATED_019_020_021.sql
+
+STEP 3: Paste & Run
+  - SQL Editor → New Query → Paste → Run (green button)
+  - Watch for verification output showing 29 total memories
+  - Done!
+
+WHAT'S BEING DEPLOYED
+====================
+
+Migration 019 - Sarah (14 memories)
+  Health science & evidence specialist
+  Key: Category 7 medical disclaimers mandatory for meds/diagnoses
+  Relevance: 0.86-0.99
+
+Migration 020 - Chloe (7 memories)
+  Community insider & trends specialist
+  Key: All community references must be REAL (not made up)
+  Relevance: 0.91-0.97
+
+Migration 021 - Marcus (8 memories)
+  Performance coach & protocol specialist
+  Key: Every claim needs exact numbers (no "many" or "some")
+  Relevance: 0.91-0.98
+
+VERIFY DEPLOYMENT
+=================
+
+Copy this query into Supabase SQL Editor:
+
+SELECT
+  w.name as writer,
+  COUNT(m.id) as memories,
+  MAX(m.relevance_score) as max_relevance,
+  MIN(m.relevance_score) as min_relevance
+FROM public.writers w
+LEFT JOIN public.writer_memory_log m ON m.writer_id = w.id
+WHERE w.slug IN ('sarah', 'chloe', 'marcus')
+GROUP BY w.id, w.name
+ORDER BY w.name;
+
+Expected result:
+  Chloe  | 7  | 0.97 | 0.91
+  Marcus | 8  | 0.98 | 0.91
+  Sarah  | 14 | 0.99 | 0.86
+
+IF SOMETHING GOES WRONG
+=======================
+
+All migrations use ON CONFLICT DO NOTHING (safe to rerun)
+Can safely rerun the consolidated script if needed
+No data loss - only INSERT operations
+
+Rollback (if absolutely necessary):
+
+DELETE FROM public.writer_memory_log
+WHERE writer_id IN (SELECT id FROM public.writers
+  WHERE slug IN ('sarah', 'chloe', 'marcus'))
+AND source = 'direct_learning';
+
+FILES INVOLVED
+==============
+
+Migration files in /migrations/:
+  - 019_seed_sarah_memories.sql (237 lines)
+  - 020_seed_chloe_memories.sql (145 lines)
+  - 021_seed_marcus_memories.sql (158 lines)
+  - CONSOLIDATED_019_020_021.sql (231 lines) ← USE THIS
+
+Documentation files in /root:
+  - MIGRATION_DEPLOYMENT.md (comprehensive guide)
+  - DEPLOYMENT_SUMMARY.txt (detailed overview)
+  - MIGRATIONS_INDEX.md (quick reference)
+  - QUICK_DEPLOY.sh (bash script)
+
+NEXT STEPS AFTER DEPLOY
+=======================
+
+1. Update Sarah agent to load 14 memories on startup
+2. Update Chloe agent to load 7 memories on startup
+3. Update Marcus agent to load 8 memories on startup
+4. Test each agent's memory loading
+5. Monitor query performance (<10ms expected)
+
+DATABASE PHILOSOPHY
+===================
+
+"A database is a promise you make to the future. Don't break it."
+
+These 29 memory entries are the nervous system of the organization.
+They crystallize institutional knowledge that agents use before
+writing ANY content.
+
+Key principle: Memories live in Supabase, not hardcoded in agent files.
+  - Updates propagate immediately (no agent redeployment)
+  - Full audit trail (who, what, when)
+  - ACID compliance guaranteed
+  - Fast retrieval (<10ms with indices)
+
+CONTACT
+=======
+
+Database Architecture: Leo
+Location: Whistler, BC
+Philosophy: "Slow is smooth, smooth is fast. Your data is sacred."
+
+For questions about deployment, schema, or optimization - reach out to Leo.
+
+================================================================================
+                    READY TO DEPLOY - START WITH STEP 1
+================================================================================
