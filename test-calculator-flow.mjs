@@ -30,36 +30,49 @@ async function testCalculatorFlow() {
     console.log('3. Filling Step 1 (Physical Stats)...');
 
     // Sex - click Male radio button
-    await page.locator('input[type="radio"][value="male"]').click();
+    const maleRadio = page.locator('input[type="radio"][value="male"]');
+    await maleRadio.scrollIntoViewIfNeeded();
+    await maleRadio.click();
     await page.waitForTimeout(500);
 
     // Age
-    await page.locator('input[name="age"]').fill('35');
+    const ageInput = page.locator('input[name="age"]');
+    await ageInput.scrollIntoViewIfNeeded();
+    await ageInput.fill('35');
     await page.waitForTimeout(500);
 
     // Make sure "Feet & Inches" is selected (default)
     const feetInchesButton = page.locator('button:has-text("Feet & Inches")');
     if (await feetInchesButton.isVisible()) {
+      await feetInchesButton.scrollIntoViewIfNeeded();
       await feetInchesButton.click();
       await page.waitForTimeout(500);
     }
 
     // Height - feet (number input)
-    await page.locator('input[name="heightFeet"]').fill('5');
+    const heightFeetInput = page.locator('input[name="heightFeet"]');
+    await heightFeetInput.scrollIntoViewIfNeeded();
+    await heightFeetInput.fill('5');
     await page.waitForTimeout(500);
 
     // Height - inches (number input)
-    await page.locator('input[name="heightInches"]').fill('10');
+    const heightInchesInput = page.locator('input[name="heightInches"]');
+    await heightInchesInput.scrollIntoViewIfNeeded();
+    await heightInchesInput.fill('10');
     await page.waitForTimeout(500);
 
     // Weight
-    await page.locator('input[name="weight"]').fill('200');
+    const weightInput = page.locator('input[name="weight"]');
+    await weightInput.scrollIntoViewIfNeeded();
+    await weightInput.fill('200');
     await page.waitForTimeout(500);
 
     await page.screenshot({ path: `${screenshotDir}/03-step1-filled.png`, fullPage: true });
 
     console.log('4. Clicking Continue to Step 2...');
-    await page.locator('button:has-text("Continue"), button:has-text("Next")').last().click();
+    const continueBtn1 = page.locator('button:has-text("Continue"), button:has-text("Next")').last();
+    await continueBtn1.scrollIntoViewIfNeeded();
+    await continueBtn1.click();
     await page.waitForTimeout(2000);
     await page.screenshot({ path: `${screenshotDir}/04-step2-loaded.png`, fullPage: true });
 
@@ -67,43 +80,53 @@ async function testCalculatorFlow() {
 
     // Lifestyle Activity - Moderately active (3-5 days/week)
     const lifestyleSelect = page.locator('select[name="lifestyle"]');
+    await lifestyleSelect.scrollIntoViewIfNeeded();
     await lifestyleSelect.selectOption('moderate');
     await page.waitForTimeout(500);
 
     // Exercise Frequency - 3-4 days/week
     const exerciseSelect = page.locator('select[name="exercise"]');
+    await exerciseSelect.scrollIntoViewIfNeeded();
     await exerciseSelect.selectOption('3-4');
     await page.waitForTimeout(500);
 
     // Goal - Fat Loss (radio button)
-    await page.locator('input[type="radio"][value="lose"]').click();
+    const loseRadio = page.locator('input[type="radio"][value="lose"]');
+    await loseRadio.scrollIntoViewIfNeeded();
+    await loseRadio.click();
     await page.waitForTimeout(500);
 
     // Deficit - 15% (Moderate) - appears after selecting "lose" goal
     const deficitSelect = page.locator('select[name="deficit"]');
+    await deficitSelect.scrollIntoViewIfNeeded();
     await deficitSelect.selectOption('15');
     await page.waitForTimeout(500);
 
     // Diet Type - Carnivore
     const dietSelect = page.locator('select[name="diet"]');
+    await dietSelect.scrollIntoViewIfNeeded();
     await dietSelect.selectOption('carnivore');
     await page.waitForTimeout(1000);
 
     await page.screenshot({ path: `${screenshotDir}/05-step2-filled.png`, fullPage: true });
 
     console.log('6. Clicking See Your Results...');
-    await page.locator('button:has-text("See Your Results"), button:has-text("Continue")').last().click();
+    const seeResultsBtn = page.locator('button:has-text("See Your Results"), button:has-text("Continue")').last();
+    await seeResultsBtn.scrollIntoViewIfNeeded();
+    await seeResultsBtn.click();
     await page.waitForTimeout(2000);
     await page.screenshot({ path: `${screenshotDir}/06-step3-results.png`, fullPage: true });
 
     console.log('7. Clicking Upgrade for Full Personalized Protocol...');
     const upgradeButton = page.locator('button:has-text("Upgrade for Full Personalized Protocol"), button:has-text("Upgrade")').last();
+    await upgradeButton.scrollIntoViewIfNeeded();
     await upgradeButton.click();
     await page.waitForTimeout(2000);
     await page.screenshot({ path: `${screenshotDir}/07-pricing-modal.png`, fullPage: true });
 
     console.log('8. Selecting pricing tier (Complete Protocol Bundle)...');
     const bundleCard = page.locator('text=Complete Protocol Bundle').locator('..').locator('..').locator('button').first();
+    await bundleCard.scrollIntoViewIfNeeded();
     await bundleCard.click();
     await page.waitForTimeout(2000);
     await page.screenshot({ path: `${screenshotDir}/08-payment-modal.png`, fullPage: true });
@@ -111,11 +134,13 @@ async function testCalculatorFlow() {
     console.log('9. Entering test coupon: TEST999...');
     const couponInput = page.locator('input[placeholder*="coupon" i], input[placeholder*="promo" i]');
     if (await couponInput.isVisible()) {
+      await couponInput.scrollIntoViewIfNeeded();
       await couponInput.fill('TEST999');
       await page.waitForTimeout(500);
 
       const applyButton = page.locator('button:has-text("Apply")');
       if (await applyButton.isVisible()) {
+        await applyButton.scrollIntoViewIfNeeded();
         await applyButton.click();
         await page.waitForTimeout(1000);
       }
@@ -127,6 +152,7 @@ async function testCalculatorFlow() {
     // Check if there's a "Complete Payment" or similar button
     const completePaymentBtn = page.locator('button:has-text("Complete Payment"), button:has-text("Pay"), button:has-text("Continue to Step 4")').first();
     if (await completePaymentBtn.isVisible({ timeout: 5000 })) {
+      await completePaymentBtn.scrollIntoViewIfNeeded();
       await completePaymentBtn.click();
       await page.waitForTimeout(3000);
       await page.screenshot({ path: `${screenshotDir}/10-payment-processing.png`, fullPage: true });
@@ -140,21 +166,29 @@ async function testCalculatorFlow() {
     console.log('12. Filling Step 4 (Health Profile)...');
 
     // Email
-    await page.locator('input[type="email"], input[name="email"]').fill('test@example.com');
+    const emailInput = page.locator('input[type="email"], input[name="email"]');
+    await emailInput.scrollIntoViewIfNeeded();
+    await emailInput.fill('test@example.com');
     await page.waitForTimeout(500);
 
     // First Name
-    await page.locator('input[name="firstName"], input[placeholder*="first name" i]').fill('TestUser');
+    const firstNameInput = page.locator('input[name="firstName"], input[placeholder*="first name" i]');
+    await firstNameInput.scrollIntoViewIfNeeded();
+    await firstNameInput.fill('TestUser');
     await page.waitForTimeout(500);
 
     // Last Name
-    await page.locator('input[name="lastName"], input[placeholder*="last name" i]').fill('Testing');
+    const lastNameInput = page.locator('input[name="lastName"], input[placeholder*="last name" i]');
+    await lastNameInput.scrollIntoViewIfNeeded();
+    await lastNameInput.fill('Testing');
     await page.waitForTimeout(500);
 
     await page.screenshot({ path: `${screenshotDir}/12-step4-filled.png`, fullPage: true });
 
     console.log('13. Clicking Generate My Protocol...');
-    await page.locator('button:has-text("Generate My Protocol"), button:has-text("Generate")').last().click();
+    const generateBtn = page.locator('button:has-text("Generate My Protocol"), button:has-text("Generate")').last();
+    await generateBtn.scrollIntoViewIfNeeded();
+    await generateBtn.click();
     await page.waitForTimeout(5000);
     await page.screenshot({ path: `${screenshotDir}/13-generating-report.png`, fullPage: true });
 
@@ -169,6 +203,7 @@ async function testCalculatorFlow() {
     // Store current page count
     const pagesBefore = context.pages().length;
 
+    await viewReportBtn.scrollIntoViewIfNeeded();
     await viewReportBtn.click();
     await page.waitForTimeout(3000);
 
@@ -197,6 +232,7 @@ async function testCalculatorFlow() {
     console.log('17. Testing Email Report button...');
     const emailReportBtn = page.locator('button:has-text("Email My Report"), button:has-text("Email Report")').first();
     if (await emailReportBtn.isVisible()) {
+      await emailReportBtn.scrollIntoViewIfNeeded();
       await emailReportBtn.click();
       await page.waitForTimeout(3000);
       await page.screenshot({ path: `${screenshotDir}/17-email-clicked.png`, fullPage: true });
@@ -216,6 +252,7 @@ async function testCalculatorFlow() {
     const startOverBtn = page.locator('button:has-text("Start Over")').first();
     if (await startOverBtn.isVisible()) {
       console.log('✓ Start Over button found');
+      await startOverBtn.scrollIntoViewIfNeeded();
       await startOverBtn.click();
       await page.waitForTimeout(3000);
       await page.screenshot({ path: `${screenshotDir}/18-start-over-clicked.png`, fullPage: true });

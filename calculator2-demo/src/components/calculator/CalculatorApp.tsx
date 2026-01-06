@@ -449,32 +449,65 @@ export default function CalculatorApp({
             onClick={() => {
               const printWindow = window.open('', '_blank')
               if (printWindow) {
-                printWindow.document.write(reportHtml)
+                // Inject PDF button into the report HTML
+                const buttonHtml = `
+                  <button class="save-pdf-button" onclick="window.print()" style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
+                    color: #1a120b;
+                    font-family: 'Georgia', serif;
+                    font-size: 14pt;
+                    font-weight: bold;
+                    padding: 12pt 24pt;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+                    transition: all 0.2s;
+                    z-index: 1000;
+                  " onmouseover="this.style.background='linear-gradient(135deg, #e6c200 0%, #d4af00 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 215, 0, 0.4)'" onmouseout="this.style.background='linear-gradient(135deg, #ffd700 0%, #e6c200 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 215, 0, 0.3)'">
+                    💾 Save as PDF
+                  </button>
+                  <style>
+                    @media print {
+                      .save-pdf-button { display: none !important; }
+                    }
+                  </style>
+                `
+
+                // Inject button after <body> tag
+                const htmlWithButton = reportHtml.replace(/<body([^>]*)>/, `<body$1>${buttonHtml}`)
+
+                printWindow.document.write(htmlWithButton)
                 printWindow.document.close()
               }
             }}
             style={{
-              backgroundColor: '#ffd700',
+              background: 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)',
               color: '#1a120b',
               fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '18px',
-              fontWeight: '600',
-              padding: '16px 48px',
-              borderRadius: '8px',
+              fontSize: '20px',
+              fontWeight: 'bold',
+              padding: '20px 60px',
+              borderRadius: '12px',
               border: 'none',
               cursor: 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: '0 4px 15px rgba(255, 215, 0, 0.2)',
+              transition: 'all 0.3s',
+              boxShadow: '0 6px 25px rgba(255, 215, 0, 0.4)',
+              width: '100%',
+              maxWidth: '400px',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#e6c200'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 215, 0, 0.3)'
+              e.currentTarget.style.background = 'linear-gradient(135deg, #e6c200 0%, #d4af00 100%)'
+              e.currentTarget.style.transform = 'translateY(-3px)'
+              e.currentTarget.style.boxShadow = '0 8px 30px rgba(255, 215, 0, 0.5)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#ffd700'
+              e.currentTarget.style.background = 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)'
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.2)'
+              e.currentTarget.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.4)'
             }}
           >
             📄 View Your Report
@@ -510,32 +543,34 @@ export default function CalculatorApp({
             }}
             disabled={isEmailingReport || isEmailingSent}
             style={{
-              backgroundColor: isEmailingSent ? '#4caf50' : '#ffd700',
-              color: '#1a120b',
+              backgroundColor: isEmailingSent ? '#4caf50' : 'white',
+              color: isEmailingSent ? 'white' : '#1a120b',
               fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '18px',
+              fontSize: '20px',
               fontWeight: '600',
-              padding: '16px 48px',
-              borderRadius: '8px',
-              border: 'none',
+              padding: '20px 60px',
+              borderRadius: '12px',
+              border: isEmailingSent ? 'none' : '2px solid #d4a574',
               cursor: isEmailingReport || isEmailingSent ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s',
-              boxShadow: '0 4px 15px rgba(255, 215, 0, 0.2)',
-              marginTop: '16px',
+              transition: 'all 0.3s',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+              marginTop: '20px',
               opacity: isEmailingReport || isEmailingSent ? 0.7 : 1,
+              width: '100%',
+              maxWidth: '400px',
             }}
             onMouseEnter={(e) => {
               if (!isEmailingReport && !isEmailingSent) {
-                e.currentTarget.style.backgroundColor = '#e6c200'
+                e.currentTarget.style.backgroundColor = '#f9f8f5'
                 e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 215, 0, 0.3)'
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.15)'
               }
             }}
             onMouseLeave={(e) => {
               if (!isEmailingReport && !isEmailingSent) {
-                e.currentTarget.style.backgroundColor = '#ffd700'
+                e.currentTarget.style.backgroundColor = 'white'
                 e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.2)'
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)'
               }
             }}
           >
@@ -544,45 +579,30 @@ export default function CalculatorApp({
 
           <button
             onClick={() => {
-              // Clear all form state
-              setFormData({})
-              setCurrentStep(1)
-              setReportHtml(null)
-              setStripeSessionId(null)
-              setSessionToken(null)
-
-              // Clear URL params and localStorage
-              const cleanUrl = window.location.pathname
-              window.history.replaceState({}, '', cleanUrl)
-              localStorage.removeItem('paymentStatus')
-              localStorage.removeItem('stripeSessionId')
-
-              // Redirect to calculator landing page
               window.location.href = '/calculator.html'
             }}
             style={{
               backgroundColor: 'transparent',
-              color: '#ffd700',
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '16px',
-              fontWeight: '600',
-              padding: '12px 32px',
-              borderRadius: '8px',
-              border: '2px solid #ffd700',
+              color: '#666',
+              fontFamily: "'Merriweather', Georgia, serif",
+              fontSize: '14px',
+              fontWeight: '400',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: 'none',
               cursor: 'pointer',
               transition: 'all 0.2s',
-              marginTop: '16px',
+              marginTop: '32px',
+              textDecoration: 'underline',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#ffd700'
               e.currentTarget.style.color = '#1a120b'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = '#ffd700'
+              e.currentTarget.style.color = '#666'
             }}
           >
-            🔄 Start Over
+            ✓ Done
           </button>
         </div>
       </div>
