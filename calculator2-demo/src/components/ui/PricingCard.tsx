@@ -45,7 +45,7 @@ export default function PricingCard({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        minHeight: '480px',
+        minHeight: '520px',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)'

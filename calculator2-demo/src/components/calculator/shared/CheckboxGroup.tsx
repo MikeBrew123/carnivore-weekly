@@ -33,7 +33,7 @@ export default function CheckboxGroup({
   }
 
   return (
-    <fieldset className="w-full">
+    <fieldset className="w-full" style={{ paddingLeft: '16px' }}>
       <legend
         style={{
           display: 'block',

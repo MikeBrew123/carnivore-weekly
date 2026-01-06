@@ -1292,6 +1292,43 @@ function wrapInPrintHTML(markdownContent) {
       display: none !important;
     }
 
+    /* Save/Print button - screen only */
+    @media screen {
+      .save-pdf-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
+        color: #1a120b;
+        font-family: 'Georgia', serif;
+        font-size: 14pt;
+        font-weight: bold;
+        padding: 12pt 24pt;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        transition: all 0.2s;
+        z-index: 1000;
+      }
+
+      .save-pdf-button:hover {
+        background: linear-gradient(135deg, #e6c200 0%, #d4af00 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+      }
+
+      .save-pdf-button:active {
+        transform: translateY(0);
+      }
+    }
+
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+
     /* Ensure text is black for print */
     body {
       -webkit-print-color-adjust: exact;
@@ -1384,6 +1421,11 @@ function wrapInPrintHTML(markdownContent) {
   </style>
 </head>
 <body>
+  <!-- Save/Print Button (hidden when printing) -->
+  <button class="save-pdf-button no-print" onclick="window.print()">
+    💾 Save as PDF
+  </button>
+
   <!-- Cover Page -->
   <div class="cover-page">
     <div class="cover-logo">

@@ -71,9 +71,9 @@ export default function Step3FreeResults({
           To hit your {macros.calories} calorie target, aim for approximately:
         </p>
         <ul style={{ fontSize: '14px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", marginLeft: '20px' }}>
-          <li style={{ marginBottom: '8px' }}><strong>{(macros.calories / 1500).toFixed(1)} lbs of ground beef</strong> (80/20 blend, ~1,500 cal/lb)</li>
-          <li style={{ marginBottom: '8px' }}><strong>OR {(macros.calories / 1200).toFixed(1)} lbs of ribeye steak</strong> (~1,200 cal/lb)</li>
-          <li><strong>OR {(macros.calories / 700).toFixed(1)} lbs of organs</strong> (liver, kidney) (~700 cal/lb)</li>
+          <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>{(macros.calories / 1500).toFixed(1)} lbs of ground beef</strong> (80/20 blend, ~1,500 cal/lb)</li>
+          <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 1200).toFixed(1)} lbs of ribeye steak</strong> (~1,200 cal/lb)</li>
+          <li><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 700).toFixed(1)} lbs of organs</strong> (liver, kidney) (~700 cal/lb)</li>
         </ul>
       </div>
 

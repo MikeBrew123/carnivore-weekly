@@ -1078,6 +1078,78 @@ async function handleReportInit(request, env) {
 }
 
 /**
+ * POST /api/v1/calculator/email-report
+ * Email completed report to user
+ */
+async function handleEmailReport(request, env) {
+  try {
+    if (!validateContentType(request)) {
+      return createErrorResponse('INVALID_CONTENT_TYPE', 'Expected application/json', 400);
+    }
+
+    const body = await parseJsonBody(request);
+    const { session_id, email } = body;
+
+    if (!session_id || !email) {
+      return createErrorResponse('MISSING_PARAMS', 'session_id and email are required', 400);
+    }
+
+    const supabase = createSupabaseClient(env);
+
+    // Fetch session from Supabase
+    const { data: session, error: fetchError } = await supabase
+      .from('cw_assessment_sessions')
+      .select('*')
+      .eq('id', session_id)
+      .single();
+
+    if (fetchError || !session) {
+      return createErrorResponse('SESSION_NOT_FOUND', 'Assessment session not found', 404);
+    }
+
+    // Check if report exists
+    if (!session.report_html || session.report_html.length < 100) {
+      return createErrorResponse('REPORT_NOT_READY', 'Report has not been generated yet', 400);
+    }
+
+    // Send email using Resend
+    const resendApiKey = env.RESEND_API_KEY;
+    if (!resendApiKey) {
+      console.error('[Email Report] RESEND_API_KEY not configured');
+      return createErrorResponse('EMAIL_NOT_CONFIGURED', 'Email service not available', 500);
+    }
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${resendApiKey}`,
+      },
+      body: JSON.stringify({
+        from: 'Carnivore Weekly <reports@carnivoreweekly.com>',
+        to: [email],
+        subject: 'Your Personalized Carnivore Protocol',
+        html: session.report_html,
+      }),
+    });
+
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      console.error('[Email Report] Resend error:', errorText);
+      return createErrorResponse('EMAIL_SEND_FAILED', 'Failed to send email', 500);
+    }
+
+    const emailResult = await emailResponse.json();
+    console.log('[Email Report] Email sent successfully, ID:', emailResult.id);
+
+    return createSuccessResponse({ message: 'Email sent successfully', email_id: emailResult.id });
+  } catch (error) {
+    console.error('[Email Report] Error:', error);
+    return createErrorResponse('EMAIL_ERROR', error.message, 500);
+  }
+}
+
+/**
  * Calculate macros from form data (mirrors frontend calculation)
  */
 function calculateMacros(formData) {
@@ -1218,7 +1290,7 @@ async function generateReportWithClaude(session, env) {
       fullFormData: JSON.stringify(formData).substring(0, 500),
     });
 
-    const firstName = session.first_name || formData.firstName || 'User';
+    const firstName = session.first_name || formData.firstName || '';
     const lastName = formData.lastName || '';
     const age = formData.age || 30;
     const sex = formData.sex || 'Male';
@@ -2147,6 +2219,10 @@ export default {
     // Report flow (NEW ENDPOINTS)
     if (path === '/api/v1/calculator/report/init' && method === 'POST') {
       return await handleReportInit(request, env);
+    }
+
+    if (path === '/api/v1/calculator/email-report' && method === 'POST') {
+      return await handleEmailReport(request, env);
     }
 
     const contentMatch = path.match(/^\/api\/v1\/calculator\/report\/([a-f0-9]{64})\/content$/i);
