@@ -139,7 +139,7 @@ async function handleCreateCheckout(request, env) {
       );
     }
 
-    const { email, first_name, form_data } = body;
+    const { email, first_name, form_data, amount, coupon_code, discount_percent, tier_id } = body;
 
     // Validate required fields
     if (!email) {
@@ -222,6 +222,41 @@ async function handleCreateCheckout(request, env) {
         'Database did not return session ID',
         500
       );
+    }
+
+    // ===== CHECK FOR 100% DISCOUNT - BYPASS STRIPE =====
+
+    if (discount_percent === 100 || amount === 0) {
+      // Update database to mark as completed (free checkout)
+      const updateResponse = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+          body: JSON.stringify({
+            payment_status: 'completed',
+            stripe_session_id: null,
+            updated_at: new Date().toISOString(),
+          }),
+        }
+      );
+
+      if (!updateResponse.ok) {
+        const updateError = await updateResponse.text();
+        console.error('Failed to update free checkout session:', updateError);
+      }
+
+      // Return success response with direct redirect (no Stripe)
+      return createSuccessResponse({
+        success: true,
+        checkout_url: `${env.FRONTEND_URL}/calculator.html?payment=success&session_id=${sessionUUID}`,
+        session_uuid: sessionUUID,
+        message: 'Free checkout completed (100% discount)',
+      }, 200);
     }
 
     // ===== STEP 2: CREATE STRIPE CHECKOUT SESSION =====
