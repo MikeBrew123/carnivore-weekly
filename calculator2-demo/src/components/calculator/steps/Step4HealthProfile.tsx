@@ -45,12 +45,17 @@ export default function Step4HealthProfile({
   }
 
   const handleSubmit = () => {
+    console.log('========== Step4HealthProfile handleSubmit CALLED ==========')
+    console.log('[Step4HealthProfile] Email:', data.email)
+
     const newErrors: Record<string, string> = {}
 
     if (!data.email) {
       newErrors.email = 'Email is required'
+      console.log('[Step4HealthProfile] Validation failed: Email is required')
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
       newErrors.email = 'Please enter a valid email'
+      console.log('[Step4HealthProfile] Validation failed: Invalid email format')
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -58,6 +63,7 @@ export default function Step4HealthProfile({
       return
     }
 
+    console.log('[Step4HealthProfile] Validation passed, calling onSubmit()')
     onSubmit()
   }
 

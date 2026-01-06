@@ -150,7 +150,14 @@ export default function CalculatorApp({
   }
 
   const handleStep4Submit = async () => {
-    console.log('[Step4] Submit clicked, stripeSessionId:', stripeSessionId)
+    console.log('========== GENERATE PROTOCOL BUTTON CLICKED ==========')
+    console.log('[Step4] stripeSessionId:', stripeSessionId)
+    console.log('[Step4] email:', formData.email)
+    console.log('[Step4] isGenerating:', isGenerating)
+    console.log('[Step4] isPremium:', isPremium)
+    console.log('[Step4] paymentStatus:', paymentStatus)
+    console.log('[Step4] currentStep:', currentStep)
+    console.log('[Step4] Full formData:', formData)
 
     // Validate email
     if (!formData.email) {
