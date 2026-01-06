@@ -752,7 +752,7 @@ async function handleStep4Submission(request, env) {
     console.log('[handleStep4Submission] Session found, payment_status:', session.payment_status);
 
     // Verify payment was completed
-    if (session.payment_status !== 'pending' && session.payment_status !== 'success') {
+    if (session.payment_status !== 'completed' && session.payment_status !== 'success') {
       console.error('[handleStep4Submission] Payment not completed, status:', session.payment_status);
       return createErrorResponse('PAYMENT_REQUIRED', 'Payment required to access step 4', 403);
     }

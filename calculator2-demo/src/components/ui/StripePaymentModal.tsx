@@ -137,9 +137,8 @@ export default function StripePaymentModal({
 
       // If amount is 0 (100% discount), skip Stripe and go directly to success
       if (finalPrice === 0 || data.amount === 0) {
-        console.log('[StripePaymentModal] 100% discount - bypassing Stripe, redirecting to calculator with success status')
-        const sessionUuid = data.session_uuid || data.session_id || 'free'
-        window.location.href = `/assets/calculator2/index.html?payment=free&assessment_id=${sessionUuid}`
+        console.log('[StripePaymentModal] 100% discount - using backend redirect URL:', data.checkout_url)
+        window.location.href = data.checkout_url
         return
       }
 
