@@ -780,11 +780,7 @@ async function handleStep4Submission(request, env) {
       console.log('[handleStep4Submission] Updating first_name to:', formData.firstName.trim());
     }
 
-    // Update the last_name column if lastName was provided in Step 4
-    if (formData.lastName && typeof formData.lastName === 'string' && formData.lastName.trim().length > 0) {
-      updatePayload.last_name = formData.lastName.trim();
-      console.log('[handleStep4Submission] Updating last_name to:', formData.lastName.trim());
-    }
+    // Note: lastName is stored in form_data JSONB, not as separate column
 
     // Update session with Step 4 data
     const updateResponse = await fetch(
