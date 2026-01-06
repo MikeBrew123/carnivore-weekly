@@ -71,7 +71,9 @@ export default function Step4HealthProfile({
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Health Profile</h2>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#d4a574', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif" }}>
+          Complete Your Health Profile
+        </h2>
         <p style={{ color: '#666666' }}>
           This information helps us personalize your nutrition plan and provide better recommendations.
         </p>

@@ -94,6 +94,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
     .pricing-grid {
       gap: 32px;
       row-gap: 100px !important;
+      align-items: stretch;
     }
 
     .pricing-card-container {
@@ -101,6 +102,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
       grid-column: span 1;
       display: flex;
       flex-direction: column;
+      height: 100%;
     }
 
     .pricing-card-container:last-child {
@@ -279,6 +281,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                 gridTemplateColumns: 'repeat(2, 1fr)',
                 gap: '32px',
                 rowGap: '60px',
+                alignItems: 'stretch',
                 maxWidth: '900px',
                 width: '100%',
                 marginBottom: '0px',

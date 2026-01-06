@@ -991,54 +991,29 @@ async function handleReportInit(request, env) {
       reportMeta.tier_id = session.tier_id;
     }
 
-    // Save report to database
-    let saveResponse;
-
-    if (session.form_data) {
-      // New assessment session - use RPC to bypass PostgREST cache issues
-      saveResponse = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/rpc/insert_assessment_report`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
-            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-          },
-          body: JSON.stringify({
-            p_assessment_id: session.id,
-            p_email: session.email || 'unknown@example.com',
-            p_access_token: accessToken,
-            p_report_html: reportHTML,
-            p_report_json: reportMeta,
-            p_expires_at: expiresAt.toISOString(),
-          }),
-        }
-      );
-    } else {
-      // Old session structure - use calculator_reports
-      saveResponse = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/calculator_reports`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
-            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-            'Prefer': 'return=representation',
-          },
-          body: JSON.stringify({
-            session_id: session.id,
-            email: session.email || 'unknown@example.com',
-            access_token: accessToken,
-            report_html: reportHTML,
-            report_json: reportMeta,
-            is_expired: false,
-            expires_at: expiresAt.toISOString(),
-          }),
-        }
-      );
-    }
+    // Save report to database - use direct INSERT for all sessions
+    const saveResponse = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_reports`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({
+          session_id: session.id,
+          email: session.email || 'unknown@example.com',
+          access_token: accessToken,
+          report_html: reportHTML,
+          report_json: reportMeta,
+          is_generated: true,
+          is_expired: false,
+          expires_at: expiresAt.toISOString(),
+        }),
+      }
+    );
 
     // Database save is optional - report is already generated and can be returned directly
     if (saveResponse.ok) {
@@ -1094,21 +1069,31 @@ async function handleEmailReport(request, env) {
       return createErrorResponse('MISSING_PARAMS', 'session_id and email are required', 400);
     }
 
-    const supabase = createSupabaseClient(env);
+    // Fetch report from calculator_reports table (reports are stored there, not on session)
+    const reportResponse = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_reports?session_id=eq.${session_id}`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    );
 
-    // Fetch session from Supabase
-    const { data: session, error: fetchError } = await supabase
-      .from('cw_assessment_sessions')
-      .select('*')
-      .eq('id', session_id)
-      .single();
-
-    if (fetchError || !session) {
-      return createErrorResponse('SESSION_NOT_FOUND', 'Assessment session not found', 404);
+    if (!reportResponse.ok) {
+      console.error('[Email Report] Failed to fetch report:', reportResponse.status);
+      return createErrorResponse('REPORT_NOT_FOUND', 'Report not found', 404);
     }
 
-    // Check if report exists
-    if (!session.report_html || session.report_html.length < 100) {
+    const reports = await reportResponse.json();
+    if (!reports || reports.length === 0) {
+      return createErrorResponse('REPORT_NOT_FOUND', 'Report not found. Please generate your report first.', 404);
+    }
+
+    const report = reports[0];
+
+    // Check if report HTML exists
+    if (!report.report_html || report.report_html.length < 100) {
       return createErrorResponse('REPORT_NOT_READY', 'Report has not been generated yet', 400);
     }
 
@@ -1129,7 +1114,7 @@ async function handleEmailReport(request, env) {
         from: 'Carnivore Weekly <reports@carnivoreweekly.com>',
         to: [email],
         subject: 'Your Personalized Carnivore Protocol',
-        html: session.report_html,
+        html: report.report_html,
       }),
     });
 

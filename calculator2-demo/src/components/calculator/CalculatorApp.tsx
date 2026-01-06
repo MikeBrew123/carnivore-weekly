@@ -451,15 +451,6 @@ export default function CalculatorApp({
               if (printWindow) {
                 printWindow.document.write(reportHtml)
                 printWindow.document.close()
-
-                // Clear URL params and localStorage
-                const cleanUrl = window.location.pathname
-                window.history.replaceState({}, '', cleanUrl)
-                localStorage.removeItem('paymentStatus')
-                localStorage.removeItem('stripeSessionId')
-
-                // Reset report state
-                setReportHtml(null)
               }
             }}
             style={{
@@ -549,6 +540,49 @@ export default function CalculatorApp({
             }}
           >
             {isEmailingSent ? '✓ Email Sent!' : isEmailingReport ? '📧 Sending...' : '📧 Email My Report'}
+          </button>
+
+          <button
+            onClick={() => {
+              // Clear all form state
+              setFormData({})
+              setCurrentStep(1)
+              setReportHtml(null)
+              setStripeSessionId(null)
+              setSessionToken(null)
+
+              // Clear URL params and localStorage
+              const cleanUrl = window.location.pathname
+              window.history.replaceState({}, '', cleanUrl)
+              localStorage.removeItem('paymentStatus')
+              localStorage.removeItem('stripeSessionId')
+
+              // Redirect to calculator landing page
+              window.location.href = '/calculator.html'
+            }}
+            style={{
+              backgroundColor: 'transparent',
+              color: '#ffd700',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '16px',
+              fontWeight: '600',
+              padding: '12px 32px',
+              borderRadius: '8px',
+              border: '2px solid #ffd700',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              marginTop: '16px',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffd700'
+              e.currentTarget.style.color = '#1a120b'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#ffd700'
+            }}
+          >
+            🔄 Start Over
           </button>
         </div>
       </div>
