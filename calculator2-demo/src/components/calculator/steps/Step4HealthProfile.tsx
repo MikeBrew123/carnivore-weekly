@@ -44,7 +44,8 @@ export default function Step4HealthProfile({
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    e?.preventDefault() // Prevent form submission/page reload
     console.log('========== Step4HealthProfile handleSubmit CALLED ==========')
     console.log('[Step4HealthProfile] Email:', data.email)
 
@@ -398,6 +399,7 @@ export default function Step4HealthProfile({
 
         <div className="flex gap-3">
           <button
+            type="button"
             onClick={onBack}
             style={{
               flex: 1,
@@ -424,6 +426,7 @@ export default function Step4HealthProfile({
             Back
           </button>
           <button
+            type="button"
             onClick={handleSubmit}
             style={{
               flex: 1,
