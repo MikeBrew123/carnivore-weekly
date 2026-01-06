@@ -79,7 +79,7 @@ export default function Step4HealthProfile({
 
       {/* SECTION 1: Contact Information */}
       <section className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">📋 Contact Information</h3>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#d4a574', marginBottom: '16px', fontFamily: "'Playfair Display', Georgia, serif" }}>📋 Contact Information</h3>
         <div className="space-y-4">
           <FormField
             id="email"
@@ -116,7 +116,7 @@ export default function Step4HealthProfile({
 
       {/* SECTION 2: Health & Medical */}
       <section className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">🏥 Health & Medical</h3>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#d4a574', marginBottom: '16px', fontFamily: "'Playfair Display', Georgia, serif" }}>🏥 Health & Medical</h3>
         <div className="space-y-6">
           {/* Medications Textarea */}
           <TextArea
@@ -198,7 +198,7 @@ export default function Step4HealthProfile({
 
       {/* SECTION 3: Dietary Restrictions */}
       <section className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">🍖 Dietary Restrictions</h3>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#d4a574', marginBottom: '16px', fontFamily: "'Playfair Display', Georgia, serif" }}>🍖 Dietary Restrictions</h3>
         <div className="space-y-4">
           <TextArea
             id="allergies"
@@ -238,7 +238,7 @@ export default function Step4HealthProfile({
 
       {/* SECTION 4: Diet History */}
       <section className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">📖 Your Diet Journey</h3>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#d4a574', marginBottom: '16px', fontFamily: "'Playfair Display', Georgia, serif" }}>📖 Your Diet Journey</h3>
         <div className="space-y-4">
           <TextArea
             id="previousDiets"
@@ -278,7 +278,7 @@ export default function Step4HealthProfile({
 
       {/* SECTION 5: Lifestyle & Preferences */}
       <section className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">🏠 Lifestyle & Preferences</h3>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#d4a574', marginBottom: '16px', fontFamily: "'Playfair Display', Georgia, serif" }}>🏠 Lifestyle & Preferences</h3>
         <div className="space-y-4">
           <SelectField
             name="cookingSkill"
@@ -351,7 +351,7 @@ export default function Step4HealthProfile({
 
       {/* SECTION 6: Goals & Challenges */}
       <section className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Your Goals</h3>
+        <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#d4a574', marginBottom: '16px', fontFamily: "'Playfair Display', Georgia, serif" }}>🎯 Your Goals</h3>
         <div className="space-y-4">
           <div style={{ paddingLeft: '8px' }}>
             <CheckboxGroup

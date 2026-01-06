@@ -50,6 +50,8 @@ export default function CalculatorApp({
   const [isPremium, setIsPremium] = useState(false)
   const [email, setEmail] = useState('')
   const [reportHtml, setReportHtml] = useState<string | null>(null)
+  const [isEmailingSent, setIsEmailingSent] = useState(false)
+  const [isEmailingReport, setIsEmailingReport] = useState(false)
 
   // Helper: Scroll to calculator on step changes
   const scrollToCalculator = () => {
@@ -188,6 +190,7 @@ export default function CalculatorApp({
     }
 
     setIsGenerating(true)
+    scrollToCalculator()
 
     try {
       // Call step 4 submission endpoint (user already paid)
@@ -484,6 +487,68 @@ export default function CalculatorApp({
             }}
           >
             📄 View Your Report
+          </button>
+
+          <button
+            onClick={async () => {
+              if (!stripeSessionId || !formData.email) return
+
+              setIsEmailingReport(true)
+              try {
+                const emailResponse = await fetch(
+                  'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/calculator/email-report',
+                  {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      session_id: stripeSessionId,
+                      email: formData.email,
+                    }),
+                  }
+                )
+
+                if (emailResponse.ok) {
+                  setIsEmailingSent(true)
+                  setTimeout(() => setIsEmailingSent(false), 3000)
+                }
+              } catch (error) {
+                console.error('[Email Report] Error:', error)
+              } finally {
+                setIsEmailingReport(false)
+              }
+            }}
+            disabled={isEmailingReport || isEmailingSent}
+            style={{
+              backgroundColor: isEmailingSent ? '#4caf50' : '#ffd700',
+              color: '#1a120b',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '18px',
+              fontWeight: '600',
+              padding: '16px 48px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: isEmailingReport || isEmailingSent ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              boxShadow: '0 4px 15px rgba(255, 215, 0, 0.2)',
+              marginTop: '16px',
+              opacity: isEmailingReport || isEmailingSent ? 0.7 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!isEmailingReport && !isEmailingSent) {
+                e.currentTarget.style.backgroundColor = '#e6c200'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 215, 0, 0.3)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isEmailingReport && !isEmailingSent) {
+                e.currentTarget.style.backgroundColor = '#ffd700'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.2)'
+              }
+            }}
+          >
+            {isEmailingSent ? '✓ Email Sent!' : isEmailingReport ? '📧 Sending...' : '📧 Email My Report'}
           </button>
         </div>
       </div>
