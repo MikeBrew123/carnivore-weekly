@@ -99,6 +99,8 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
     .pricing-card-container {
       margin: 0 !important;
       grid-column: span 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .pricing-card-container:last-child {

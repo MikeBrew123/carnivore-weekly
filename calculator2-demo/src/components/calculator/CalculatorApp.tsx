@@ -49,6 +49,14 @@ export default function CalculatorApp({
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isPremium, setIsPremium] = useState(false)
   const [email, setEmail] = useState('')
+  const [reportHtml, setReportHtml] = useState<string | null>(null)
+
+  // Helper: Scroll to calculator on step changes
+  const scrollToCalculator = () => {
+    setTimeout(() => {
+      document.getElementById('root')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
 
   // Derived state for success page - use props from App.tsx
   const isPaymentSuccess = paymentStatus === 'success' || paymentStatus === 'free'
@@ -69,6 +77,7 @@ export default function CalculatorApp({
     if (isPaymentSuccess && !isPremium) {
       console.log('[CalculatorApp] Payment success detected - setting isPremium = true')
       setIsPremium(true)
+      scrollToCalculator()
     }
   }, [isPaymentSuccess, isPremium])
 
@@ -120,6 +129,7 @@ export default function CalculatorApp({
     console.log('[CalculatorApp] Advancing to step:', step)
     setCurrentStep(step)
     setErrors({})
+    scrollToCalculator()
   }
 
   // Clear error for a specific field when it changes
@@ -147,6 +157,7 @@ export default function CalculatorApp({
     setIsPremium(true)
     setShowPricingModal(false)
     setCurrentStep(4) // Go to premium health profile
+    scrollToCalculator()
   }
 
   const handleStep4Submit = async () => {
@@ -222,20 +233,12 @@ export default function CalculatorApp({
         const reportData = await reportInitResponse.json()
         console.log('[Step4] Report generation successful:', reportData)
 
-        // If report HTML is included, open in new tab
+        // If report HTML is included, store it for "View Report" button
         if (reportData.report_html) {
-          console.log('[Step4] Report HTML received, opening in new tab...')
+          console.log('[Step4] Report HTML received, storing for view button...')
           try {
-            // Open report in new tab
-            const printWindow = window.open('', '_blank')
-            if (printWindow) {
-              printWindow.document.write(reportData.report_html)
-              printWindow.document.close()
-              console.log('[Step4] Report opened in new tab')
-            } else {
-              console.error('[Step4] Failed to open report window (popup blocker?)')
-            }
-
+            // Store report HTML in state for "View Report" button
+            setReportHtml(reportData.report_html)
             setIsGenerating(false)
             return
           } catch (e) {
@@ -375,8 +378,7 @@ export default function CalculatorApp({
                   markClean()  // Mark clean after successful restore
                   // Jump to Step 4 (Health Profile)
                   setCurrentStep(4)
-                  // Scroll to top
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                  scrollToCalculator()
                 } else {
                   console.error('[Success Page] No form data in session')
                 }
@@ -410,6 +412,78 @@ export default function CalculatorApp({
             }}
           >
             Continue to Health Profile
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Show "View Report" button if report is ready
+  if (reportHtml) {
+    return (
+      <div style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '64px', paddingBottom: '64px', paddingLeft: '16px', paddingRight: '16px', minHeight: '100vh' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ fontSize: '64px', marginBottom: '24px' }}>🎉</div>
+
+          <h1 style={{
+            fontSize: '32px',
+            fontWeight: 'bold',
+            color: '#ffd700',
+            marginBottom: '8px',
+            fontFamily: "'Playfair Display', Georgia, serif",
+          }}>Your Protocol is Ready!</h1>
+
+          <p style={{
+            fontSize: '16px',
+            color: '#666',
+            marginBottom: '32px',
+            fontFamily: "'Merriweather', Georgia, serif",
+          }}>
+            Click below to view your personalized carnivore protocol.
+          </p>
+
+          <button
+            onClick={() => {
+              const printWindow = window.open('', '_blank')
+              if (printWindow) {
+                printWindow.document.write(reportHtml)
+                printWindow.document.close()
+
+                // Clear URL params and localStorage
+                const cleanUrl = window.location.pathname
+                window.history.replaceState({}, '', cleanUrl)
+                localStorage.removeItem('paymentStatus')
+                localStorage.removeItem('stripeSessionId')
+
+                // Reset report state
+                setReportHtml(null)
+              }
+            }}
+            style={{
+              backgroundColor: '#ffd700',
+              color: '#1a120b',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '18px',
+              fontWeight: '600',
+              padding: '16px 48px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              boxShadow: '0 4px 15px rgba(255, 215, 0, 0.2)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e6c200'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 215, 0, 0.3)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffd700'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.2)'
+            }}
+          >
+            📄 View Your Report
           </button>
         </div>
       </div>

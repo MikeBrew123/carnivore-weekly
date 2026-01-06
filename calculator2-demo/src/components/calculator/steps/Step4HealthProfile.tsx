@@ -72,7 +72,7 @@ export default function Step4HealthProfile({
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Health Profile</h2>
-        <p className="text-gray-600">
+        <p style={{ color: '#666666' }}>
           This information helps us personalize your nutrition plan and provide better recommendations.
         </p>
       </div>
@@ -353,21 +353,23 @@ export default function Step4HealthProfile({
       <section className="border-t pt-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">🎯 Your Goals</h3>
         <div className="space-y-4">
-          <CheckboxGroup
-            name="goals"
-            label="What are you hoping to achieve?"
-            options={[
-              { value: 'weightloss', label: 'Weight loss / fat loss' },
-              { value: 'mental', label: 'Mental clarity / focus' },
-              { value: 'guthealth', label: 'Gut health / digestion' },
-              { value: 'inflammation', label: 'Reduce inflammation' },
-              { value: 'energy', label: 'More energy' },
-              { value: 'athletic', label: 'Athletic performance' },
-              { value: 'hormones', label: 'Hormone balance' },
-            ]}
-            values={data.goals || []}
-            onChange={(values) => handleInputChange('goals', values)}
-          />
+          <div style={{ paddingLeft: '8px' }}>
+            <CheckboxGroup
+              name="goals"
+              label="What are you hoping to achieve?"
+              options={[
+                { value: 'weightloss', label: 'Weight loss / fat loss' },
+                { value: 'mental', label: 'Mental clarity / focus' },
+                { value: 'guthealth', label: 'Gut health / digestion' },
+                { value: 'inflammation', label: 'Reduce inflammation' },
+                { value: 'energy', label: 'More energy' },
+                { value: 'athletic', label: 'Athletic performance' },
+                { value: 'hormones', label: 'Hormone balance' },
+              ]}
+              values={data.goals || []}
+              onChange={(values) => handleInputChange('goals', values)}
+            />
+          </div>
 
           <TextArea
             id="biggestChallenge"
