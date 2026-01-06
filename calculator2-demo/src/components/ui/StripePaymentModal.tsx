@@ -182,8 +182,9 @@ export default function StripePaymentModal({
           borderRadius: '16px',
           width: '100%',
           maxWidth: '448px',
+          maxHeight: '90vh',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden',
+          overflowY: 'auto',
           position: 'relative',
         }}
       >

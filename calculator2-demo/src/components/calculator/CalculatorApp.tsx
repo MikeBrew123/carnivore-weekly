@@ -222,40 +222,24 @@ export default function CalculatorApp({
         const reportData = await reportInitResponse.json()
         console.log('[Step4] Report generation successful:', reportData)
 
-        // If report HTML is included, save and trigger download
+        // If report HTML is included, open in new tab
         if (reportData.report_html) {
-          console.log('[Step4] Report HTML received, preparing download...')
+          console.log('[Step4] Report HTML received, opening in new tab...')
           try {
-            // Create a blob from the HTML
-            const htmlBlob = new Blob([reportData.report_html], { type: 'text/html; charset=utf-8' })
-            const htmlUrl = URL.createObjectURL(htmlBlob)
+            // Open report in new tab
+            const printWindow = window.open('', '_blank')
+            if (printWindow) {
+              printWindow.document.write(reportData.report_html)
+              printWindow.document.close()
+              console.log('[Step4] Report opened in new tab')
+            } else {
+              console.error('[Step4] Failed to open report window (popup blocker?)')
+            }
 
-            // Create download link with today's date
-            const today = new Date().toISOString().split('T')[0]
-            const downloadLink = document.createElement('a')
-            downloadLink.href = htmlUrl
-            downloadLink.download = `carnivore-protocol-${today}.html`
-            document.body.appendChild(downloadLink)
-            downloadLink.click()
-            document.body.removeChild(downloadLink)
-            URL.revokeObjectURL(htmlUrl)
-
-            console.log('[Step4] Report download initiated')
-
-            // Also open in new window for user to print/save as PDF
-            setTimeout(() => {
-              const printWindow = window.open(htmlUrl, '_blank')
-              if (printWindow) {
-                printWindow.document.write(reportData.report_html)
-                printWindow.document.close()
-              }
-            }, 500)
-
-            console.log('[Step4] Report ready for download')
             setIsGenerating(false)
             return
           } catch (e) {
-            console.error('[Step4] Report download error:', e)
+            console.error('[Step4] Report display error:', e)
             // Fall through to generating screen
           }
         }
