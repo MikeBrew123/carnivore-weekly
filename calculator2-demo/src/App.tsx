@@ -78,8 +78,11 @@ export default function App() {
     )
   }
 
+  // Detect if embedded in another page (calculator.html has other content)
+  const isEmbedded = document.querySelector('header') !== null || document.querySelector('.layout-wrapper-2026') !== null;
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={isEmbedded ? "" : "min-h-screen bg-gray-50"}>
       <CalculatorApp
         sessionToken={sessionToken}
         paymentStatus={paymentStatus}
