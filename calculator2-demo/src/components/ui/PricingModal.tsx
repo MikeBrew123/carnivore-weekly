@@ -101,11 +101,6 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
       grid-column: span 1;
     }
 
-    .pricing-card-container:nth-child(3) {
-      margin-top: 20px !important;
-      margin-bottom: 20px !important;
-    }
-
     .pricing-card-container:last-child {
       margin-top: 40px !important;
       margin-bottom: 40px !important;
