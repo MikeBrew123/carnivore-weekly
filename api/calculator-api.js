@@ -124,6 +124,7 @@ const validCoupons = {
   'FRIEND15': { percent: 15, description: 'Referral friend 15% off' },
   'TESTCOUPON5': { percent: 5, description: 'Test coupon 5% off' },
   'TEST321': { percent: 100, description: 'Test 100% off' },
+  'TEST999': { percent: 100, description: 'Test 100% off (Unlimited)' },
 };
 
 function validateCoupon(code) {
