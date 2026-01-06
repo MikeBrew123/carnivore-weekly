@@ -12,34 +12,47 @@
 ## ⚠️ INFRASTRUCTURE — CREDENTIALS & DATABASE ACCESS
 
 ### Database Access (Supabase)
-- **MCP server**: `supabase-mcp` is ALREADY CONFIGURED and working
-- **Access method**: ALWAYS invoke Leo — he is the MCP liaison
-- **Leo has**: Full read/write access via MCP
+- **MCP server**: `supabase` is configured and authenticated
+- **KNOWN BUG**: Custom subagents (Leo, etc.) cannot reliably access MCP tools
+- **Workaround**: Main session executes MCP calls, agents prepare SQL only
+
+### Workflow for Database Operations
+1. **Leo** prepares SQL (schema design, migrations, query optimization)
+2. **Main session** executes via: `mcp__supabase__execute_sql({ query: "SQL" })`
+3. Or use **general-purpose** agent (built-in agents have MCP access)
+
+### Exact MCP Tool Syntax
+```
+mcp__supabase__execute_sql({ query: "YOUR SQL HERE" })
+```
+
+**Examples:**
+- `mcp__supabase__execute_sql({ query: "SELECT COUNT(*) FROM writers" })`
+- `mcp__supabase__execute_sql({ query: "CREATE INDEX idx_name ON table(column)" })`
 
 ### ❌ NEVER DO THESE THINGS
 - Ask for Supabase credentials, tokens, or API keys
-- Suggest going to Supabase dashboard to run SQL manually  
-- Say "I don't have MCP access" — YOU DO, through Leo
-- Run `echo $SUPABASE_ACCESS_TOKEN` or similar
-- Send user to Supabase to use the code editor
-- Claim the secrets folder is "in the cloud" — it's LOCAL
+- Suggest going to Supabase dashboard to run SQL manually
+- Send user to paste SQL anywhere — execute via MCP
+- Check Wrangler for Supabase credentials — MCP handles auth
+- Expect Leo to execute MCP tools — he can't due to Claude Code bug
 
 ### ✅ ALWAYS DO THIS INSTEAD
-- Invoke Leo for ANY database operation (queries, migrations, table creation)
-- Example: "Leo, run: SELECT * FROM writers LIMIT 1"
-- Example: "Leo, deploy migration 007_create_writer_memory_tables.sql"
+- Main session runs `mcp__supabase__execute_sql` directly
+- Read migration files, then execute SQL via MCP tool
+- For complex schema work, have Leo prepare SQL, then main session executes
 - Trust that MCP is configured — don't second-guess it
 
-### Credential Locations (STOP ASKING FOR THESE)
+### Credential Locations
 | Service | Location | Access Method |
 |---------|----------|---------------|
-| Supabase | MCP handles it | Invoke Leo |
-| Stripe | Cloudflare Wrangler | `wrangler secret list` |
-| Other APIs | `./secrets/` folder | Local files, NOT cloud |
+| Supabase | MCP authenticated | `mcp__supabase__execute_sql` |
+| ALL other APIs | Cloudflare Wrangler | Already configured, don't ask |
 
-### If Confused About Access
-Run `/status` in Claude Code to see loaded MCP servers.
-If `supabase-mcp` appears → you have access → use Leo.
+### If MCP Isn't Working
+1. Run `/status` — check if `supabase` shows in MCP servers
+2. Run `/mcp` — re-authenticate if needed
+3. If still broken, restart Claude Code session
 
 ---
 

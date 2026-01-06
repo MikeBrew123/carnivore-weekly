@@ -70,7 +70,6 @@ CREATE TABLE writers (
     updated_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
 
     -- Constraints ensuring data integrity
-    CONSTRAINT writers_pkey PRIMARY KEY (id),
     CONSTRAINT slug_not_empty CHECK (length(trim(slug)) > 0),
     CONSTRAINT name_not_empty CHECK (length(trim(name)) > 0),
     CONSTRAINT role_title_not_empty CHECK (length(trim(role_title)) > 0),
@@ -177,11 +176,8 @@ CREATE TABLE writer_relationships (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
     -- Integrity constraints
-    CONSTRAINT different_writers CHECK (writer_a_id != writer_b_id),
-    CONSTRAINT unique_writer_pair UNIQUE (
-        LEAST(writer_a_id, writer_b_id),
-        GREATEST(writer_a_id, writer_b_id)
-    )
+    CONSTRAINT different_writers CHECK (writer_a_id != writer_b_id)
+    -- Note: Bidirectional uniqueness requires app-level logic or trigger
 );
 
 COMMENT ON TABLE writer_relationships IS 'Network map of writer collaborations, mentorship, and knowledge transfer';
