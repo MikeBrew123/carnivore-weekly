@@ -291,7 +291,10 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                 <div
                   key={option.id}
                   className="pricing-card-container"
-                  style={{}}
+                  style={{
+                    display: 'flex',
+                    height: '100%',
+                  }}
                 >
                   <PricingCard
                     title={option.title}
