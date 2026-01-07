@@ -1,6 +1,13 @@
+import { useEffect } from 'react'
 import { FormData, MacroResults } from '../../../types/form'
 import { calculateBMR, calculateMacros } from '../../../lib/calculations'
 import MacroPreview from '../../ui/MacroPreview'
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void
+  }
+}
 
 interface Step3FreeResultsProps {
   data: FormData
@@ -15,6 +22,16 @@ export default function Step3FreeResults({
   onUpgrade,
   onBack,
 }: Step3FreeResultsProps) {
+  // Track free results view
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag('event', 'calculator_free_results', {
+        'event_category': 'calculator',
+        'event_label': 'free_results_viewed'
+      })
+    }
+  }, [])
+
   if (!macros) {
     return (
       <div className="space-y-6">
@@ -82,6 +99,12 @@ export default function Step3FreeResults({
         <button
           onClick={(e) => {
             console.log('[Step3FreeResults] Upgrade button clicked, event:', e)
+            if (window.gtag) {
+              window.gtag('event', 'calculator_upgrade_click', {
+                'event_category': 'calculator',
+                'event_label': 'upgrade_clicked'
+              })
+            }
             onUpgrade()
           }}
           style={{
