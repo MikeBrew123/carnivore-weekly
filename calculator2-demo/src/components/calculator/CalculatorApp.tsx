@@ -586,6 +586,19 @@ export default function CalculatorApp({
             >
               {isEmailingSent ? '✓ Email Sent!' : isEmailingReport ? '📧 Sending...' : '📧 Email My Report'}
             </button>
+
+            {isEmailingSent && (
+              <p style={{
+                fontSize: '13px',
+                color: '#999',
+                fontFamily: "'Merriweather', Georgia, serif",
+                fontStyle: 'italic',
+                marginTop: '12px',
+                textAlign: 'center',
+              }}>
+                Check your spam folder if you don't see it within a few minutes
+              </p>
+            )}
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '40px' }}>
