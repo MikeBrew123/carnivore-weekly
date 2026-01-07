@@ -8,6 +8,12 @@ import Step1PhysicalStats from './steps/Step1PhysicalStats'
 import Step2FitnessDiet from './steps/Step2FitnessDiet'
 import Step3FreeResults from './steps/Step3FreeResults'
 import Step4HealthProfile from './steps/Step4HealthProfile'
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void
+  }
+}
 import PricingModal from '../ui/PricingModal'
 import ReportGeneratingScreen from '../ui/ReportGeneratingScreen'
 
@@ -156,6 +162,12 @@ export default function CalculatorApp({
 
   const handlePaymentSuccess = () => {
     // Payment successful, user has upgraded to premium
+    if (window.gtag) {
+      window.gtag('event', 'calculator_payment_complete', {
+        'event_category': 'calculator',
+        'event_label': 'payment_complete'
+      })
+    }
     setIsPremium(true)
     setShowPricingModal(false)
     setCurrentStep(4) // Go to premium health profile
@@ -242,6 +254,12 @@ export default function CalculatorApp({
           try {
             // Store report HTML in state for "View Report" button
             setReportHtml(reportData.report_html)
+            if (window.gtag) {
+              window.gtag('event', 'calculator_report_generated', {
+                'event_category': 'calculator',
+                'event_label': 'report_generated'
+              })
+            }
             setIsGenerating(false)
             return
           } catch (e) {
