@@ -1836,10 +1836,10 @@ async function handleCreateCheckout(request, env) {
       );
     }
 
-    // Provide default first_name if missing (tier selection modal doesn't require it, but schema does)
+    // Allow empty first_name - will be collected in Step 4 and defaulted to "Friend" in report generation
     const sanitizedFirstName = (first_name && typeof first_name === 'string' && first_name.trim().length > 0)
       ? first_name.trim()
-      : 'Friend';
+      : '';
 
     // Use success/cancel URLs from request, fall back to calculator app with payment status
     const finalSuccessUrl = success_url || `${env.FRONTEND_URL}/assets/calculator2/index.html?payment=success&session_id={CHECKOUT_SESSION_ID}`;
