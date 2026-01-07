@@ -132,10 +132,10 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   `
 
   const stripePriceIds: Record<string, string> = {
-    bundle: 'price_1QgE8QFjwYzqK4YJ9sZcV2xt',
-    meal_plan: 'price_1QgE8hFjwYzqK4YJ9sZcXyEn',
-    shopping: 'price_1QgE9EFjwYzqK4YJ9sZcYZxJ',
-    doctor: 'price_1QgE9aFjwYzqK4YJ9sZcZAKm',
+    bundle: 'price_1SmnylEVDfkpGz8w4WO79kXd',     // $9.99 USD
+    meal_plan: 'price_1SmnxZEVDfkpGz8wKsduACYH', // $27 USD
+    shopping: 'price_1SmnwoEVDfkpGz8wzdG365qu',  // $19 USD
+    doctor: 'price_1Smny5EVDfkpGz8wDpgDuKKW',    // $47 USD
   }
 
   const getSelectedOption = () => {

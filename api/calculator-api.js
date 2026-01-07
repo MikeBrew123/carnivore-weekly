@@ -1802,10 +1802,10 @@ async function handleCreateCheckout(request, env) {
 
     // Map tier_id to Stripe price_id
     const tierPriceMap = {
-      'shopping': 'price_1QgE9EFjwYzqK4YJ9sZcYZxJ',  // $19
-      'meal_plan': 'price_1QgE8hFjwYzqK4YJ9sZcXyEn',  // $27
-      'doctor': 'price_1QgE9aFjwYzqK4YJ9sZcZAKm',    // $47
-      'bundle': 'price_1QgE8QFjwYzqK4YJ9sZcV2xt',    // $9.99
+      'shopping': 'price_1SmnwoEVDfkpGz8wzdG365qu',  // $19 USD
+      'meal_plan': 'price_1SmnxZEVDfkpGz8wKsduACYH',  // $27 USD
+      'doctor': 'price_1Smny5EVDfkpGz8wDpgDuKKW',    // $47 USD
+      'bundle': 'price_1SmnylEVDfkpGz8w4WO79kXd',    // $9.99 USD
     };
 
     const stripePriceId = tierPriceMap[tier_id] || tierPriceMap['bundle'];  // Default to bundle
