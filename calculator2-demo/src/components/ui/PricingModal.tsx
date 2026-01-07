@@ -106,9 +106,6 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
     }
 
     .pricing-card-container:last-child {
-      margin-top: 40px !important;
-      margin-bottom: 40px !important;
-      padding-top: 20px;
       grid-column: span 1 !important;
     }
 
@@ -121,8 +118,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
         grid-column: span 1;
       }
       .pricing-card-container:last-child {
-        margin-top: 30px !important;
-        margin-bottom: 30px !important;
+        grid-column: span 1;
       }
     }
     @media (min-width: 769px) {
@@ -130,8 +126,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
         grid-template-columns: repeat(2, 1fr);
       }
       .pricing-card-container:last-child {
-        margin-top: 40px !important;
-        margin-bottom: 40px !important;
+        grid-column: span 1;
       }
     }
   `
