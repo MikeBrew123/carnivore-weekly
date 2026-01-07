@@ -1944,8 +1944,8 @@ async function handleCreateCheckout(request, env) {
       console.log('[Worker] Detected localhost - using request origin:', baseDomain);
     }
 
-    const successUrlWithId = `${baseDomain}?payment=success&assessment_id=${sessionUUID}`;
-    const cancelUrlWithId = `${baseDomain}?payment=cancelled&assessment_id=${sessionUUID}`;
+    const successUrlWithId = `${baseDomain}/calculator.html?payment=success&session_id=${sessionUUID}`;
+    const cancelUrlWithId = `${baseDomain}/calculator.html?payment=cancelled&session_id=${sessionUUID}`;
 
     console.log('Sending to Stripe:');
     console.log('  success_url:', successUrlWithId);
