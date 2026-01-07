@@ -425,185 +425,197 @@ export default function CalculatorApp({
   if (reportHtml) {
     return (
       <div style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '64px', paddingBottom: '64px', paddingLeft: '16px', paddingRight: '16px', minHeight: '100vh' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ fontSize: '64px', marginBottom: '24px' }}>🎉</div>
+        <div style={{
+          maxWidth: '500px',
+          margin: '0 auto',
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          padding: '48px 32px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          border: '1px solid rgba(212, 165, 116, 0.2)',
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '64px', marginBottom: '24px' }}>🎉</div>
 
-          <h1 style={{
-            fontSize: '32px',
-            fontWeight: 'bold',
-            color: '#ffd700',
-            marginBottom: '8px',
-            fontFamily: "'Playfair Display', Georgia, serif",
-          }}>Your Protocol is Ready!</h1>
-
-          <p style={{
-            fontSize: '16px',
-            color: '#666',
-            marginBottom: '32px',
-            fontFamily: "'Merriweather', Georgia, serif",
-          }}>
-            Click below to view your personalized carnivore protocol.
-          </p>
-
-          <button
-            onClick={() => {
-              const printWindow = window.open('', '_blank')
-              if (printWindow) {
-                // Inject PDF button into the report HTML
-                const buttonHtml = `
-                  <button class="save-pdf-button" onclick="window.print()" style="
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
-                    color: #1a120b;
-                    font-family: 'Georgia', serif;
-                    font-size: 14pt;
-                    font-weight: bold;
-                    padding: 12pt 24pt;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-                    transition: all 0.2s;
-                    z-index: 1000;
-                  " onmouseover="this.style.background='linear-gradient(135deg, #e6c200 0%, #d4af00 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 215, 0, 0.4)'" onmouseout="this.style.background='linear-gradient(135deg, #ffd700 0%, #e6c200 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 215, 0, 0.3)'">
-                    💾 Save as PDF
-                  </button>
-                  <style>
-                    @media print {
-                      .save-pdf-button { display: none !important; }
-                    }
-                  </style>
-                `
-
-                // Inject button after <body> tag
-                const htmlWithButton = reportHtml.replace(/<body([^>]*)>/, `<body$1>${buttonHtml}`)
-
-                printWindow.document.write(htmlWithButton)
-                printWindow.document.close()
-              }
-            }}
-            style={{
-              background: 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)',
-              color: '#1a120b',
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '20px',
+            <h1 style={{
+              fontSize: '32px',
               fontWeight: 'bold',
-              padding: '20px 60px',
-              borderRadius: '12px',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              boxShadow: '0 6px 25px rgba(255, 215, 0, 0.4)',
-              width: '100%',
-              maxWidth: '400px',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #e6c200 0%, #d4af00 100%)'
-              e.currentTarget.style.transform = 'translateY(-3px)'
-              e.currentTarget.style.boxShadow = '0 8px 30px rgba(255, 215, 0, 0.5)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)'
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.4)'
-            }}
-          >
-            📄 View Your Report
-          </button>
-
-          <button
-            onClick={async () => {
-              if (!stripeSessionId || !formData.email) return
-
-              setIsEmailingReport(true)
-              try {
-                const emailResponse = await fetch(
-                  'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/calculator/email-report',
-                  {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      session_id: stripeSessionId,
-                      email: formData.email,
-                    }),
-                  }
-                )
-
-                if (emailResponse.ok) {
-                  setIsEmailingSent(true)
-                  setTimeout(() => setIsEmailingSent(false), 3000)
-                }
-              } catch (error) {
-                console.error('[Email Report] Error:', error)
-              } finally {
-                setIsEmailingReport(false)
-              }
-            }}
-            disabled={isEmailingReport || isEmailingSent}
-            style={{
-              backgroundColor: isEmailingSent ? '#4caf50' : 'white',
-              color: isEmailingSent ? 'white' : '#1a120b',
+              color: '#ffd700',
+              marginBottom: '8px',
               fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '20px',
-              fontWeight: '600',
-              padding: '20px 60px',
-              borderRadius: '12px',
-              border: isEmailingSent ? 'none' : '2px solid #d4a574',
-              cursor: isEmailingReport || isEmailingSent ? 'not-allowed' : 'pointer',
-              transition: 'all 0.3s',
-              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-              marginTop: '20px',
-              opacity: isEmailingReport || isEmailingSent ? 0.7 : 1,
-              width: '100%',
-              maxWidth: '400px',
-            }}
-            onMouseEnter={(e) => {
-              if (!isEmailingReport && !isEmailingSent) {
-                e.currentTarget.style.backgroundColor = '#f9f8f5'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.15)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isEmailingReport && !isEmailingSent) {
-                e.currentTarget.style.backgroundColor = 'white'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)'
-              }
-            }}
-          >
-            {isEmailingSent ? '✓ Email Sent!' : isEmailingReport ? '📧 Sending...' : '📧 Email My Report'}
-          </button>
+            }}>Your Protocol is Ready!</h1>
 
-          <button
-            onClick={() => {
-              window.location.href = '/calculator.html'
-            }}
-            style={{
-              backgroundColor: 'transparent',
+            <p style={{
+              fontSize: '16px',
               color: '#666',
+              marginBottom: '40px',
               fontFamily: "'Merriweather', Georgia, serif",
-              fontSize: '14px',
-              fontWeight: '400',
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              marginTop: '32px',
-              textDecoration: 'underline',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#1a120b'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = '#666'
-            }}
-          >
-            ✓ Done
-          </button>
+            }}>
+              Click below to view your personalized carnivore protocol.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+            <button
+              onClick={() => {
+                const printWindow = window.open('', '_blank')
+                if (printWindow) {
+                  // Inject PDF button into the report HTML
+                  const buttonHtml = `
+                    <button class="save-pdf-button" onclick="setTimeout(function() { window.print(); }, 500);" style="
+                      position: fixed;
+                      top: 20px;
+                      right: 20px;
+                      background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
+                      color: #1a120b;
+                      font-family: 'Georgia', serif;
+                      font-size: 14pt;
+                      font-weight: bold;
+                      padding: 12pt 24pt;
+                      border: none;
+                      border-radius: 8px;
+                      cursor: pointer;
+                      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+                      transition: all 0.2s;
+                      z-index: 1000;
+                    " onmouseover="this.style.background='linear-gradient(135deg, #e6c200 0%, #d4af00 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 215, 0, 0.4)'" onmouseout="this.style.background='linear-gradient(135deg, #ffd700 0%, #e6c200 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 215, 0, 0.3)'">
+                      💾 Save as PDF
+                    </button>
+                    <style>
+                      @media print {
+                        .save-pdf-button { display: none !important; }
+                      }
+                    </style>
+                  `
+
+                  // Inject button after <body> tag
+                  const htmlWithButton = reportHtml.replace(/<body([^>]*)>/, `<body$1>${buttonHtml}`)
+
+                  printWindow.document.write(htmlWithButton)
+                  printWindow.document.close()
+                }
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)',
+                color: '#1a120b',
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '18px',
+                fontWeight: 'bold',
+                padding: '16px 40px',
+                borderRadius: '12px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                boxShadow: '0 6px 25px rgba(255, 215, 0, 0.4)',
+                width: '100%',
+                maxWidth: '350px',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #e6c200 0%, #d4af00 100%)'
+                e.currentTarget.style.transform = 'translateY(-3px)'
+                e.currentTarget.style.boxShadow = '0 8px 30px rgba(255, 215, 0, 0.5)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 6px 25px rgba(255, 215, 0, 0.4)'
+              }}
+            >
+              📄 View Your Report
+            </button>
+
+            <button
+              onClick={async () => {
+                if (!stripeSessionId || !formData.email) return
+
+                setIsEmailingReport(true)
+                try {
+                  const emailResponse = await fetch(
+                    'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/calculator/email-report',
+                    {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        session_id: stripeSessionId,
+                        email: formData.email,
+                      }),
+                    }
+                  )
+
+                  if (emailResponse.ok) {
+                    setIsEmailingSent(true)
+                    setTimeout(() => setIsEmailingSent(false), 3000)
+                  }
+                } catch (error) {
+                  console.error('[Email Report] Error:', error)
+                } finally {
+                  setIsEmailingReport(false)
+                }
+              }}
+              disabled={isEmailingReport || isEmailingSent}
+              style={{
+                backgroundColor: isEmailingSent ? '#4caf50' : '#f9f8f5',
+                color: isEmailingSent ? 'white' : '#1a120b',
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '18px',
+                fontWeight: '600',
+                padding: '16px 40px',
+                borderRadius: '12px',
+                border: isEmailingSent ? 'none' : '2px solid #d4a574',
+                cursor: isEmailingReport || isEmailingSent ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
+                opacity: isEmailingReport || isEmailingSent ? 0.7 : 1,
+                width: '100%',
+                maxWidth: '350px',
+              }}
+              onMouseEnter={(e) => {
+                if (!isEmailingReport && !isEmailingSent) {
+                  e.currentTarget.style.backgroundColor = 'white'
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.12)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isEmailingReport && !isEmailingSent) {
+                  e.currentTarget.style.backgroundColor = '#f9f8f5'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.08)'
+                }
+              }}
+            >
+              {isEmailingSent ? '✓ Email Sent!' : isEmailingReport ? '📧 Sending...' : '📧 Email My Report'}
+            </button>
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '40px' }}>
+            <button
+              onClick={() => {
+                window.location.href = '/calculator.html'
+              }}
+              style={{
+                backgroundColor: 'transparent',
+                color: '#999',
+                fontFamily: "'Merriweather', Georgia, serif",
+                fontSize: '13px',
+                fontWeight: '400',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                textDecoration: 'underline',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#666'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#999'
+              }}
+            >
+              ✓ Done
+            </button>
+          </div>
         </div>
       </div>
     )
