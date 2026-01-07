@@ -1977,6 +1977,7 @@ async function handleCreateCheckout(request, env) {
     formBody.append('line_items[0][price]', stripePriceId);
     formBody.append('line_items[0][quantity]', '1');
     formBody.append('mode', 'payment');
+    formBody.append('allow_promotion_codes', 'true');
     // Send complete URLs with session_id to Stripe
     formBody.append('success_url', successUrlWithId);
     formBody.append('cancel_url', cancelUrlWithId);
