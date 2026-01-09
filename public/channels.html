@@ -94,6 +94,165 @@
         }
 
         /* Video card enhancements */
+        /* Channel card styles */
+        .channel-card {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .channel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .rank-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .rank-badge.top-3 {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a120b;
+            width: 60px;
+            height: 60px;
+            font-size: 1.8em;
+        }
+
+        .channel-thumbnail {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            display: block;
+            border: 4px solid #8b4513;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .channel-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            color: #1a120b;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-right: 60px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.15);
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            color: #1a120b;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #2c1810;
+            opacity: 0.8;
+        }
+
+        .channel-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .channel-link:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+        }
+
+        .last-seen {
+            font-size: 0.9em;
+            color: #2c1810;
+            opacity: 0.7;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .top-videos {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #8b4513;
+        }
+
+        .top-videos-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2em;
+            color: #1a120b;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .video-link {
+            display: block;
+            padding: 10px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid rgba(139, 69, 19, 0.2);
+        }
+
+        .video-link:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .video-title {
+            font-size: 1em;
+            color: #1a120b;
+            margin-bottom: 5px;
+        }
+
+        .video-stats {
+            font-size: 0.85em;
+            color: #2c1810;
+            opacity: 0.7;
+        }
+
         .video-full-card {
             background: var(--color-white);
             border: 1px solid var(--color-border);
@@ -394,9 +553,247 @@
 
             <!-- FEATURED CREATORS PANEL -->
             <div id="creators-panel" role="tabpanel" aria-labelledby="creators-tab" class="video-panel" hidden>
-                <p style="text-align: center; color: var(--color-text-secondary); padding: var(--space-12);">
-                    Featured Creators view coming soon. This will show videos grouped by channel, sorted by appearance frequency.
-                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-top: 30px;">
+
+            <div class="channel-card">
+                <div class="rank-badge top-3">1</div>
+                <img src="https://yt3.ggpht.com/vEKYK-gAn7NFJXlHMHPLZVp0tj7NbYg0L6emkN_wDFMcJz0R9DOc8r5vHRI1DqC4AguDqeYOJA=s800-c-k-c0x00ffffff-no-rj" alt="Anthony Chaffee MD" class="channel-thumbnail" onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+                <div class="channel-name">Anthony Chaffee MD</div>
+                <div class="stat-row">
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Weeks</div></div>
+                    <div class="stat-item"><div class="stat-value">5</div><div class="stat-label">Videos</div></div>
+                </div>
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    <a href="https://www.youtube.com/watch?v=EpnMvQmxPhQ" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Anthony Chaffee MD - What Should You Eat On The Carnivore Diet? 👉 #shorts #short #food'});">
+                        <div class="video-title">1. What Should You Eat On The Carnivore Diet? 👉 #shorts #short #food</div>
+                        <div class="video-stats">40,517 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=7j6ZZAtDSm4" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Anthony Chaffee MD - Carnivore Diet: Your Questions Answered! | Dr Anthony Chaffee'});">
+                        <div class="video-title">2. Carnivore Diet: Your Questions Answered! | Dr Anthony Chaffee</div>
+                        <div class="video-stats">12,765 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=rYI77Eqts9M" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Anthony Chaffee MD - MEAL PREP On The Carnivore Diet! 👉'});">
+                        <div class="video-title">3. MEAL PREP On The Carnivore Diet! 👉</div>
+                        <div class="video-stats">34,846 views</div>
+                    </a>
+                </div>
+                <a href="https://www.youtube.com/channel/UCzoRyR_nlesKZuOlEjWRXQQ" class="channel-link" target="_blank" rel="noopener">Visit Channel →</a>
+                <div class="last-seen">Last seen: 2025-12-30T10:12:07Z</div>
+            </div>
+
+            <div class="channel-card">
+                <div class="rank-badge top-3">2</div>
+                <img src="https://yt3.ggpht.com/RKhxuvneM6WJNKZan7xhEI5FihlkUKJtgv-6nQxwfEhohyf6QYF6Akq8Z6QF_nIES7dHq6fbGw=s800-c-k-c0x00ffffff-no-rj" alt="KenDBerryMD" class="channel-thumbnail" onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+                <div class="channel-name">KenDBerryMD</div>
+                <div class="stat-row">
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Weeks</div></div>
+                    <div class="stat-item"><div class="stat-value">7</div><div class="stat-label">Videos</div></div>
+                </div>
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    <a href="https://www.youtube.com/watch?v=eslAezkokGE" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'KenDBerryMD - Metabolic Diseases Are Reversible!! People need to know this. #Carnivore'});">
+                        <div class="video-title">1. Metabolic Diseases Are Reversible!! People need to know this. #Carnivore</div>
+                        <div class="video-stats">81,358 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=IJ7eqVFZEKw" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'KenDBerryMD - The 2ND Best Source of VITAMIN B1 👉'});">
+                        <div class="video-title">2. The 2ND Best Source of VITAMIN B1 👉</div>
+                        <div class="video-stats">45,070 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=odRB4SQo1v0" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'KenDBerryMD - MONDAY NIGHT LIVE with Dr. Ken Berry & Nurse Neisha'});">
+                        <div class="video-title">3. MONDAY NIGHT LIVE with Dr. Ken Berry & Nurse Neisha</div>
+                        <div class="video-stats">32,337 views</div>
+                    </a>
+                </div>
+                <a href="https://www.youtube.com/channel/UCIma2WOQs1Mz2AuOt6wRSUw" class="channel-link" target="_blank" rel="noopener">Visit Channel →</a>
+                <div class="last-seen">Last seen: 2026-01-01T12:40:12Z</div>
+            </div>
+
+            <div class="channel-card">
+                <div class="rank-badge top-3">3</div>
+                <img src="https://yt3.ggpht.com/raRTlrC1olPAXuNPsJa1MpxyCryiw81ma--r56LRpWkDZRnWjSC09qeOqlRaExtZaNPmOKLxxQ=s800-c-k-c0x00ffffff-no-rj" alt="Modo Primal Podcast" class="channel-thumbnail" onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+                <div class="channel-name">Modo Primal Podcast</div>
+                <div class="stat-row">
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Weeks</div></div>
+                    <div class="stat-item"><div class="stat-value">2</div><div class="stat-label">Videos</div></div>
+                </div>
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    <a href="https://www.youtube.com/watch?v=4TE_xngvUmU" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Modo Primal Podcast - Como Fazer Bacon Caseiro #dietacarnivora'});">
+                        <div class="video-title">1. Como Fazer Bacon Caseiro #dietacarnivora</div>
+                        <div class="video-stats">123,715 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=Rto-W7eZUZc" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Modo Primal Podcast - Como Fazer Sorvete Carnívoro #dietacarnivora'});">
+                        <div class="video-title">2. Como Fazer Sorvete Carnívoro #dietacarnivora</div>
+                        <div class="video-stats">18,434 views</div>
+                    </a>
+                </div>
+                <a href="https://www.youtube.com/channel/UCHBKeyrOcwUFAgrDrU_dQkw" class="channel-link" target="_blank" rel="noopener">Visit Channel →</a>
+                <div class="last-seen">Last seen: 2025-12-29T13:21:45Z</div>
+            </div>
+
+            <div class="channel-card">
+                <div class="rank-badge">4</div>
+                <img src="https://yt3.ggpht.com/t8fV-3cY86svsr3nVxUlqH4SB9847lCCq6ievgTiIi6Vu_O8Ul_mMtpcTDALhSBcOgAG_AprpQ=s800-c-k-c0x00ffffff-no-rj" alt="Shawn Baker MD" class="channel-thumbnail" onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+                <div class="channel-name">Shawn Baker MD</div>
+                <div class="stat-row">
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Weeks</div></div>
+                    <div class="stat-item"><div class="stat-value">5</div><div class="stat-label">Videos</div></div>
+                </div>
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    <a href="https://www.youtube.com/watch?v=AjELvhefxhM" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Shawn Baker MD - Should We Eat Dairy?'});">
+                        <div class="video-title">1. Should We Eat Dairy?</div>
+                        <div class="video-stats">30,870 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=TPAxuQMm2W8" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Shawn Baker MD - What do you think about what she eats in day? 👀'});">
+                        <div class="video-title">2. What do you think about what she eats in day? 👀</div>
+                        <div class="video-stats">22,009 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=zAFLcFnbIkU" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Shawn Baker MD - Why are eating these foods so problematic?'});">
+                        <div class="video-title">3. Why are eating these foods so problematic?</div>
+                        <div class="video-stats">16,172 views</div>
+                    </a>
+                </div>
+                <a href="https://www.youtube.com/channel/UC5apkKkeZQXRSDbqSalG8CQ" class="channel-link" target="_blank" rel="noopener">Visit Channel →</a>
+                <div class="last-seen">Last seen: 2025-12-31T19:49:35Z</div>
+            </div>
+
+            <div class="channel-card">
+                <div class="rank-badge">5</div>
+                <img src="https://yt3.ggpht.com/ytc/AIdro_kjhUWIIkrwjiWFRTx4IDNCZphInECZaw-RhlSI1EYfdQ=s800-c-k-c0x00ffffff-no-rj" alt="myzerocarblife" class="channel-thumbnail" onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+                <div class="channel-name">myzerocarblife</div>
+                <div class="stat-row">
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Weeks</div></div>
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Videos</div></div>
+                </div>
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    <a href="https://www.youtube.com/watch?v=rO1ksUVjxz4" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'myzerocarblife - What Four Months of Carnivore Did for Janine (and why she was angry)...with Kelly Hogan and Janine'});">
+                        <div class="video-title">1. What Four Months of Carnivore Did for Janine (and why she was angry)...with Kelly Hogan and Janine</div>
+                        <div class="video-stats">31,393 views</div>
+                    </a>
+                </div>
+                <a href="https://www.youtube.com/channel/UCaKl8Lth6h6GWreFyeO1keA" class="channel-link" target="_blank" rel="noopener">Visit Channel →</a>
+                <div class="last-seen">Last seen: 2025-12-27T13:01:42Z</div>
+            </div>
+
+            <div class="channel-card">
+                <div class="rank-badge">6</div>
+                <img src="https://yt3.ggpht.com/WmS4ZXTghKbXOaOSNoapz2EEQ0mzxMXHmz69RjvH7kSt_CDyrzwGO9MurXzbVPNc1L2vgzbzVtU=s800-c-k-c0x00ffffff-no-rj" alt="No Carb Life" class="channel-thumbnail" onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+                <div class="channel-name">No Carb Life</div>
+                <div class="stat-row">
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Weeks</div></div>
+                    <div class="stat-item"><div class="stat-value">5</div><div class="stat-label">Videos</div></div>
+                </div>
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    <a href="https://www.youtube.com/watch?v=kfG7VLByTaA" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'No Carb Life - In Just Weeks, My Health Was Unrecognizable'});">
+                        <div class="video-title">1. In Just Weeks, My Health Was Unrecognizable</div>
+                        <div class="video-stats">2,065 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=3viaIYM2XjA" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'No Carb Life - Three Weeks That Made My Doctor Stop Talking'});">
+                        <div class="video-title">2. Three Weeks That Made My Doctor Stop Talking</div>
+                        <div class="video-stats">6,517 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=uxS1WwzMYoY" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'No Carb Life - I Wasn't Expecting This'});">
+                        <div class="video-title">3. I Wasn't Expecting This</div>
+                        <div class="video-stats">3,987 views</div>
+                    </a>
+                </div>
+                <a href="https://www.youtube.com/channel/UCzcoPGdDRiPiWZYV4_EkzPQ" class="channel-link" target="_blank" rel="noopener">Visit Channel →</a>
+                <div class="last-seen">Last seen: 2026-01-02T12:01:34Z</div>
+            </div>
+
+            <!-- ButcherBox Ad after top 6 channels -->
+            <div style="grid-column: 1 / -1; margin: 40px 0; text-align: center;">
+                <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=channels_top6" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Affiliate', 'event_label': 'ButcherBox', 'value': 'https://butcherbox.pxf.io/Z6oVMR'});">
+                    <img src="butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; max-width: 700px; height: auto; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+                </a>
+            </div>
+
+            <div class="channel-card">
+                <div class="rank-badge">7</div>
+                <img src="https://yt3.ggpht.com/IsXFvCTnafjgYDDBgoszJXAUCzUie5rjUJFdDfawdszQzdSMNvixH6--5kgh9WO4e0t7BNpYW70=s800-c-k-c0x00ffffff-no-rj" alt="Courtney Luna" class="channel-thumbnail" onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+                <div class="channel-name">Courtney Luna</div>
+                <div class="stat-row">
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Weeks</div></div>
+                    <div class="stat-item"><div class="stat-value">5</div><div class="stat-label">Videos</div></div>
+                </div>
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    <a href="https://www.youtube.com/watch?v=AWNEMOQDq0o" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Courtney Luna - Let them #melrobbins #letthem #carnivorediet'});">
+                        <div class="video-title">1. Let them #melrobbins #letthem #carnivorediet</div>
+                        <div class="video-stats">8,900 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=0ARXNjhLw6M" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Courtney Luna - New podcast venture coming soon 🥰 #carnivore #carnivorediet'});">
+                        <div class="video-title">2. New podcast venture coming soon 🥰 #carnivore #carnivorediet</div>
+                        <div class="video-stats">10,928 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=YQJzIcg-Pws" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Courtney Luna - Full video linked ^^ Q + A podcast! #carnivorediet #properhumandiet'});">
+                        <div class="video-title">3. Full video linked ^^ Q + A podcast! #carnivorediet #properhumandiet</div>
+                        <div class="video-stats">6,526 views</div>
+                    </a>
+                </div>
+                <a href="https://www.youtube.com/channel/UCzgj3pQycdp7SUUbz56wNCw" class="channel-link" target="_blank" rel="noopener">Visit Channel →</a>
+                <div class="last-seen">Last seen: 2025-12-31T23:16:23Z</div>
+            </div>
+
+            <div class="channel-card">
+                <div class="rank-badge">8</div>
+                <img src="https://yt3.ggpht.com/8AyuoLF8T_P9uCK2GkBpgfTvP81JJ-klRB9ZvFUJgxeYXWGk1w26WQd2lP1-bG5WZ_kCJanQ=s800-c-k-c0x00ffffff-no-rj" alt="Monique Yousfi🥩🍳" class="channel-thumbnail" onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+                <div class="channel-name">Monique Yousfi🥩🍳</div>
+                <div class="stat-row">
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Weeks</div></div>
+                    <div class="stat-item"><div class="stat-value">5</div><div class="stat-label">Videos</div></div>
+                </div>
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    <a href="https://www.youtube.com/watch?v=FLRONU-Mj3M" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Monique Yousfi🥩🍳 - Sushi rolls for one kid and Buldak for the other. #EasyRecipe #sushi #sushiroll #Foodie #viral'});">
+                        <div class="video-title">1. Sushi rolls for one kid and Buldak for the other. #EasyRecipe #sushi #sushiroll #Foodie #viral</div>
+                        <div class="video-stats">1,317 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=BzV7AyOGPAw" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Monique Yousfi🥩🍳 - This steak was so delicious 🤤 #carnivore #steak #ribeye #carnivorelife #dinner #viral'});">
+                        <div class="video-title">2. This steak was so delicious 🤤 #carnivore #steak #ribeye #carnivorelife #dinner #viral</div>
+                        <div class="video-stats">4,826 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=sdUTsqXu_mE" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Monique Yousfi🥩🍳 - Keeping it simple ✨ #ahituna #sushi #Mom #lunch #kidslunch #viral'});">
+                        <div class="video-title">3. Keeping it simple ✨ #ahituna #sushi #Mom #lunch #kidslunch #viral</div>
+                        <div class="video-stats">3,729 views</div>
+                    </a>
+                </div>
+                <a href="https://www.youtube.com/channel/UCzTvotnDdMfPB_v7WSX6eNA" class="channel-link" target="_blank" rel="noopener">Visit Channel →</a>
+                <div class="last-seen">Last seen: 2026-01-01T21:00:13Z</div>
+            </div>
+
+            <div class="channel-card">
+                <div class="rank-badge">9</div>
+                <img src="https://yt3.ggpht.com/R3uQ-Hi7QLA6Wb0teF9S-kJMxczquN6i7Xtyn-Pqrz7PAX75tNzNA7o2MxMLip02HAOlv9_x3OY=s800-c-k-c0x00ffffff-no-rj" alt="Coach Carnivore Cam " class="channel-thumbnail" onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+                <div class="channel-name">Coach Carnivore Cam </div>
+                <div class="stat-row">
+                    <div class="stat-item"><div class="stat-value">1</div><div class="stat-label">Weeks</div></div>
+                    <div class="stat-item"><div class="stat-value">5</div><div class="stat-label">Videos</div></div>
+                </div>
+                <div class="top-videos">
+                    <div class="top-videos-header">Top Videos:</div>
+                    <a href="https://www.youtube.com/watch?v=YK0IcMi16-Y" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Coach Carnivore Cam  - How to Start a Carnivore Diet ✅🥩#carnivore #carnivorediet #health #nutrition #meat #lowcarb'});">
+                        <div class="video-title">1. How to Start a Carnivore Diet ✅🥩#carnivore #carnivorediet #health #nutrition #meat #lowcarb</div>
+                        <div class="video-stats">4,371 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=tBrMP9inKf4" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Coach Carnivore Cam  - Happy New Year & Let's Smash 2026 🫡✅'});">
+                        <div class="video-title">2. Happy New Year & Let's Smash 2026 🫡✅</div>
+                        <div class="video-stats">8,966 views</div>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=fW5iDYi0PSs" class="video-link" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': 'Coach Carnivore Cam  - Proper Healthy Blueberry Doughnuts 🫐 #carnivore #recipe #blueberry #donuts #dessert #healthyfood'});">
+                        <div class="video-title">3. Proper Healthy Blueberry Doughnuts 🫐 #carnivore #recipe #blueberry #donuts #dessert #healthyfood</div>
+                        <div class="video-stats">7,802 views</div>
+                    </a>
+                </div>
+                <a href="https://www.youtube.com/channel/UC3vywUwv6B-JB4jmdhZnX7A" class="channel-link" target="_blank" rel="noopener">Visit Channel →</a>
+                <div class="last-seen">Last seen: 2026-01-01T19:37:41Z</div>
+            </div>
+
+                </div>
             </div>
 
             <!-- CONTEXTUAL CALCULATOR CTA -->
