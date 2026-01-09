@@ -5,17 +5,18 @@
 ### Phases Complete
 - ✅ **Phase 1-4**: Homepage redesign, content system, wiki, channels (2025 work)
 - ✅ **Phase 5**: Content Linking System (migration 008 deployed)
-- ✅ **Phase 6**: Engagement Components (UI built, migration 009 pending)
+- ✅ **Phase 6**: Engagement Components (UI built, migration 009 deployed)
+- ✅ **Phase 7**: Agent Prompt Updates (commit 8e1d125)
 
 ### Current Status
 - ✅ **Calculator**: Steps 1-3 + $0 coupon flow validated on production
 - ✅ **Redesign Deployed**: Homepage and channels now using new design (commit 571c6b1)
 - ✅ **Payment Flow**: Stripe redirect confirmed working (CAPTCHA from test pattern, not production issue)
 - ✅ **Migration 009**: Engagement system deployed to Supabase
-- ⏳ **PENDING**: Phase 7 agent prompt updates
+- ✅ **Phase 7 Complete**: All agent prompts updated with new site structure
 
 ### To Resume Work
-1. Proceed to Phase 7 (agent prompt updates)
+1. All planned phases complete! Ready for content production.
 
 ---
 
@@ -157,6 +158,68 @@ git push
 - ✅ Public INSERT policies for anonymous engagement
 - ✅ Service role policies for N8N automation
 - ✅ Email protection (no public read access to subscriber emails)
+
+## ✅ PHASE 7 COMPLETE
+
+### Phase 7: Agent Prompt Updates
+**Status**: ✅ COMPLETE (Jan 9, 2026) - Commit 8e1d125
+
+**What Changed**:
+All content agents (Sarah, Marcus, Chloe, Jordan) updated with comprehensive Phase 7 site structure knowledge:
+
+**Sarah (Health Coach) - 195 lines added**:
+- Site navigation structure (Weekly Watch, Protocols & Basics, Insights)
+- Design system (CSS variables from global.css)
+- Blog post structure requirements (TL;DR, pull quotes, key takeaways, related content, reactions)
+- Content linking system with SQL query examples
+- Engagement features (calculator CTAs, newsletter signup, feedback modal, post reactions)
+- Weekly roundup writing guidelines with HTML templates
+- SQL queries for content planning
+
+**Marcus (Performance) - 208 lines added**:
+- Same site structure + design system knowledge
+- Emphasized calculator CTAs (critical for performance content)
+- Performance-focused CTA copy variations
+- Protocol writing guidelines (Goal, Numbers, Why, Protocol, Metrics, CTA)
+- SQL queries for trending performance requests
+- Content linking focused on athletic-performance, meal-prep, supplements topics
+
+**Chloe (Community) - 258 lines added**:
+- Same site structure + design system knowledge
+- Content prioritization workflow (weekly trending requests check)
+- Trending topic analysis (feedback modal integration)
+- Weekly roundup contribution (community/trend focus)
+- SQL queries for engagement data (trending requests, most engaging posts, emerging topics)
+- Red flags vs green lights for trend coverage
+
+**Jordan (QA Validator) - 362 lines added**:
+- Site structure reference for validation
+- 7 NEW Phase 7 validators (bringing total from 11 to 18):
+  - Validator 12: Design Token Usage (CSS variables only, no hardcoded values)
+  - Validator 13: CSS Class Validation (ensure classes exist in global.css)
+  - Validator 14: Blog Post Structure (5 required components)
+  - Validator 15: Content Linking Validation (correct URL formats, .html extensions)
+  - Validator 16: Engagement Features (proper data attributes)
+  - Validator 17: Navigation Validation (correct nav names and URLs)
+  - Validator 18: Calculator CTA Validation (presence and formatting)
+- Updated validation report template
+- Updated validation workflow (18-step checklist)
+
+**Total Impact**: 1,023 lines added across 4 agent prompts
+
+**What Agents Now Know**:
+- New navigation names (not "Featured Channels", now "Weekly Watch")
+- CSS design system (must use variables like `var(--color-oxblood)`, not `#4a0404`)
+- Content linking via content_topics table (SQL queries to find related content)
+- Required blog post components (TL;DR boxes, pull quotes, key takeaways, related content widget, post reactions)
+- Engagement features integration (proper data attributes, script paths)
+- Calculator CTAs (required in blog posts, proper structure and classes)
+
+**Verification**:
+- ✅ All 4 agent files updated
+- ✅ Committed with detailed commit message
+- ✅ STATUS.md updated to reflect Phase 7 completion
+- ✅ Agents ready for content production with Phase 7 knowledge
 
 ## 🔧 AVAILABLE TEST SCRIPTS
 
