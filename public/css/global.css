@@ -1,0 +1,730 @@
+/*
+ * CARNIVORE WEEKLY - GLOBAL STYLESHEET
+ * Design System Version 1.0 | January 2026
+ *
+ * CALCULATOR PROTECTION
+ * Never add styles that could bleed into .calculator-container
+ * All component classes are scoped to .site-content or excluded from .calculator-page
+ */
+
+/* ============================================
+   DESIGN TOKENS
+   ============================================ */
+
+:root {
+  /* Primary Colors */
+  --color-oxblood: #4a0404;
+  --color-charcoal: #1a1a1a;
+
+  /* Secondary Colors */
+  --color-cream: #f5f5f0;
+  --color-white: #ffffff;
+
+  /* Accent Colors */
+  --color-amber: #ffbf00;
+  --color-amber-hover: #e6ac00;
+
+  /* Semantic Colors */
+  --color-success: #2d5016;
+  --color-warning: #8b4513;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #4a4a4a;
+  --color-text-muted: #6b6b6b;
+  --color-border: #e0e0e0;
+
+  /* TL;DR Boxes (existing wiki pattern) */
+  --color-tldr-green-bg: #d4edda;
+  --color-tldr-green-border: #28a745;
+  --color-tldr-red-bg: #f8d7da;
+  --color-tldr-red-border: #dc3545;
+
+  /* Typography */
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Fira Code', monospace;
+
+  /* Font Sizes (rem-based for accessibility) */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* Spacing Scale */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+}
+
+/* ============================================
+   BASE STYLES (Scoped to site-content)
+   ============================================ */
+
+.site-content * {
+  box-sizing: border-box;
+}
+
+.site-content {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-cream);
+}
+
+/* Typography */
+.site-content h1,
+.site-content h2,
+.site-content h3,
+.site-content h4,
+.site-content h5,
+.site-content h6 {
+  font-family: var(--font-heading);
+  line-height: var(--leading-tight);
+  margin-top: 0;
+}
+
+.site-content h1 { font-size: var(--text-4xl); }
+.site-content h2 { font-size: var(--text-3xl); }
+.site-content h3 { font-size: var(--text-2xl); }
+.site-content h4 { font-size: var(--text-xl); }
+.site-content h5 { font-size: var(--text-lg); }
+.site-content h6 { font-size: var(--text-base); }
+
+.site-content p {
+  margin-top: 0;
+  margin-bottom: var(--space-4);
+}
+
+.site-content a {
+  color: var(--color-oxblood);
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.site-content a:hover {
+  color: var(--color-amber);
+}
+
+/* ============================================
+   LAYOUT COMPONENTS
+   ============================================ */
+
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+
+/* ============================================
+   HEADER & NAVIGATION
+   ============================================ */
+
+.site-header {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  padding: var(--space-6) 0;
+}
+
+.header-banner {
+  text-align: center;
+  margin-bottom: var(--space-4);
+}
+
+.main-nav {
+  background: var(--color-white);
+  border-bottom: 2px solid var(--color-border);
+  padding: var(--space-4) 0;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.nav-list li {
+  margin: 0;
+}
+
+.nav-link {
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-charcoal);
+  padding: var(--space-2) var(--space-4);
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-oxblood);
+}
+
+/* ============================================
+   CARD COMPONENT
+   ============================================ */
+
+.site-content .card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: var(--space-6);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.site-content .card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.site-content .card--clickable {
+  cursor: pointer;
+}
+
+.site-content .card--featured {
+  grid-column: span 2;
+}
+
+/* ============================================
+   BUTTON COMPONENT
+   ============================================ */
+
+.site-content .btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  padding: var(--space-3) var(--space-6);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.site-content .btn--primary {
+  background: var(--color-amber);
+  color: var(--color-charcoal);
+}
+
+.site-content .btn--primary:hover {
+  background: var(--color-amber-hover);
+  color: var(--color-charcoal);
+}
+
+.site-content .btn--secondary {
+  background: transparent;
+  border: 2px solid var(--color-charcoal);
+  color: var(--color-charcoal);
+}
+
+.site-content .btn--secondary:hover {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+}
+
+.site-content .btn--calculator {
+  background: var(--color-amber);
+  color: var(--color-charcoal);
+  font-weight: 700;
+  padding: var(--space-2) var(--space-5);
+  border-radius: 50px; /* Pill shape */
+}
+
+.site-content .btn--calculator:hover {
+  background: var(--color-amber-hover);
+  color: var(--color-charcoal);
+}
+
+.site-content .btn--large {
+  font-size: var(--text-lg);
+  padding: var(--space-5) var(--space-8);
+}
+
+/* ============================================
+   HEAT RATING BADGE
+   ============================================ */
+
+.site-content .heat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: rgba(255, 191, 0, 0.15);
+  padding: var(--space-1) var(--space-2);
+  border-radius: 4px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+/* ============================================
+   VIDEO COMPONENTS
+   ============================================ */
+
+.site-content .video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.site-content .video-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.site-content .video-thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: var(--space-4);
+}
+
+.site-content .video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.site-content .play-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--text-4xl);
+  color: var(--color-white);
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.site-content .video-card:hover .play-overlay {
+  opacity: 1;
+}
+
+.site-content .video-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.site-content .video-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+  line-height: var(--leading-tight);
+}
+
+.site-content .video-commentary {
+  background: var(--color-cream);
+  padding: var(--space-4);
+  border-radius: 6px;
+  margin-top: var(--space-4);
+}
+
+.site-content .commentary-text {
+  font-style: italic;
+  margin-bottom: var(--space-2);
+  color: var(--color-text-secondary);
+}
+
+.site-content .commentary-author {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--color-oxblood);
+}
+
+/* ============================================
+   SENTIMENT DISPLAY
+   ============================================ */
+
+.site-content .sentiment-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--color-border);
+  margin-bottom: var(--space-2);
+}
+
+.site-content .sentiment-positive { background: #28a745; }
+.site-content .sentiment-neutral { background: #ffc107; }
+.site-content .sentiment-negative { background: #dc3545; }
+
+.site-content .sentiment-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+}
+
+.site-content .sentiment-icon {
+  margin-right: var(--space-1);
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+
+.site-content .hero {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  padding: var(--space-16) var(--space-6);
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.site-content .hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.site-content .hero-title {
+  font-size: var(--text-4xl);
+  margin-bottom: var(--space-4);
+  color: var(--color-white);
+}
+
+.site-content .hero-subtitle {
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-8);
+  color: var(--color-cream);
+  line-height: var(--leading-relaxed);
+}
+
+.site-content .hero-ctas {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   SECTION STYLES
+   ============================================ */
+
+.site-content .section-title {
+  font-size: var(--text-3xl);
+  margin-bottom: var(--space-3);
+  color: var(--color-charcoal);
+}
+
+.site-content .section-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-8);
+}
+
+.site-content .section-cta {
+  text-align: center;
+  margin-top: var(--space-8);
+}
+
+/* Content of the Week */
+.site-content .content-week {
+  padding: var(--space-12) var(--space-6);
+  background: var(--color-white);
+}
+
+/* Calculator CTA */
+.site-content .calculator-cta {
+  background: linear-gradient(135deg, var(--color-oxblood), var(--color-charcoal));
+  color: var(--color-white);
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+  margin: var(--space-12) 0;
+}
+
+.site-content .calculator-cta h2 {
+  color: var(--color-white);
+  margin-bottom: var(--space-4);
+}
+
+.site-content .calculator-cta p {
+  color: var(--color-cream);
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-6);
+}
+
+/* ============================================
+   RELATED CONTENT
+   ============================================ */
+
+.site-content .related-content {
+  background: var(--color-cream);
+  padding: var(--space-6);
+  border-radius: 8px;
+  margin-top: var(--space-8);
+}
+
+.site-content .related-title {
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-4);
+  color: var(--color-charcoal);
+}
+
+.site-content .related-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.site-content .related-list li {
+  margin-bottom: var(--space-2);
+}
+
+.site-content .related-list a {
+  color: var(--color-oxblood);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.site-content .related-list a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   AFFILIATE CARDS
+   ============================================ */
+
+.site-content .affiliate-card {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: var(--color-cream);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  align-items: center;
+}
+
+.site-content .affiliate-logo {
+  width: 80px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.site-content .affiliate-content {
+  flex: 1;
+}
+
+.site-content .affiliate-disclosure {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  display: block;
+  margin-top: var(--space-2);
+}
+
+/* ============================================
+   FORMS & INTERACTIONS
+   ============================================ */
+
+/* Newsletter Signup */
+.site-content .newsletter-signup {
+  background: var(--color-white);
+  padding: var(--space-8);
+  border-radius: 8px;
+  border: 2px solid var(--color-border);
+}
+
+.site-content .signup-title {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-2);
+}
+
+.site-content .signup-description {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+.site-content .signup-form {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.site-content .signup-input {
+  flex: 1;
+  min-width: 250px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+}
+
+.site-content .signup-privacy {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-3);
+}
+
+/* Post Reactions */
+.site-content .post-reactions {
+  display: flex;
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+}
+
+.site-content .reaction-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-white);
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: var(--text-base);
+}
+
+.site-content .reaction-btn:hover {
+  border-color: var(--color-amber);
+  transform: scale(1.05);
+}
+
+.site-content .reaction-count {
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+/* Feedback Button */
+.site-content .feedback-btn {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  padding: var(--space-3) var(--space-5);
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: transform 0.2s ease;
+  font-weight: 600;
+}
+
+.site-content .feedback-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.site-footer {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  padding: var(--space-12) var(--space-6) var(--space-6);
+  margin-top: var(--space-16);
+}
+
+.site-footer a {
+  color: var(--color-cream);
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: var(--color-amber);
+}
+
+.affiliate-footer-disclosure {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  padding-top: var(--space-6);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: var(--space-6);
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .site-content .video-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .site-content .hero-title {
+    font-size: var(--text-3xl);
+  }
+
+  .site-content .hero-subtitle {
+    font-size: var(--text-lg);
+  }
+
+  .site-content .hero-ctas {
+    flex-direction: column;
+  }
+
+  .site-content .affiliate-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .nav-list {
+    gap: var(--space-3);
+  }
+}
+
+/* ============================================
+   CALCULATOR ISOLATION (CRITICAL)
+   ============================================ */
+
+/*
+ * DANGER ZONE - Do not use these selectors without .site-content scope:
+ * ❌ button { }
+ * ❌ input { }
+ * ❌ form { }
+ * ❌ select { }
+ * ❌ .btn { } without parent scope
+ *
+ * All component styles above are scoped to .site-content
+ * The calculator lives OUTSIDE .site-content and uses its own bundled CSS
+ */
+
+.calculator-page .site-content {
+  /* Calculator page has no .site-content wrapper around calculator */
+  /* Only header and footer use .site-content classes */
+}
