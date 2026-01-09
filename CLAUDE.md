@@ -1,5 +1,17 @@
 # CLAUDE.md
 
+## 📍 PROJECT STATUS
+**Before starting work, read STATUS.md for current state, validated features, and pending tasks.**
+
+Location: `/Users/mbrew/Developer/carnivore-weekly/STATUS.md`
+
+Last major update: January 9, 2026
+- ✅ Calculator validated (form flow working on production)
+- ⏳ Pending: Full paid flow test ($9.99, actual Stripe redirect)
+- ⏳ Pending: Migration 009 deployment to Supabase
+
+---
+
 ## OUTPUT RULES — HIGHEST PRIORITY
 - **NEVER** output more than 10 lines of code
 - **NEVER** show bash command output unless error
