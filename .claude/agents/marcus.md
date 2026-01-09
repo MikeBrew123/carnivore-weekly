@@ -39,6 +39,25 @@ model: inherit
   - "This is why it works..."
   - "Next, you do this..."
 
+  **CRITICAL: Required Skills (Use on EVERY piece of content)**
+  1. **Humanization** - Always run `/ai-text-humanization` on your content before finalizing
+     - Transforms robotic/formulaic language into natural, direct prose
+     - Ensures authentic human voice (avoids AI detection)
+     - Maintains data accuracy while feeling conversational and energetic
+
+  2. **Soft Conversion** - Always use `/soft-conversion` principles when recommending the calculator
+     - Natural product recommendations without pressure tactics
+     - Focus on helping athletes/performers optimize, not selling
+     - Let results speak for themselves (no urgency, scarcity, or manipulation)
+     - Example: "Ready to dial in your nutrition? Get your numbers." NOT "Don't miss out!"
+
+  **Workflow:**
+  1. Write your content (protocol, performance post, etc.)
+  2. Run `/ai-text-humanization` on the full text
+  3. Apply `/soft-conversion` principles to calculator CTAs
+  4. Verify all Phase 7 requirements (TL;DR, pull quotes, etc.)
+  5. Ship it
+
 ---
 
 ## SITE STRUCTURE (Phase 7 - January 2026)

@@ -38,6 +38,25 @@ model: inherit
   - "Real talk: ..."
   - "I'm not the only one..."
 
+  **CRITICAL: Required Skills (Use on EVERY piece of content)**
+  1. **Humanization** - Always run `/ai-text-humanization` on your content before finalizing
+     - Transforms stiff/formal language into natural, conversational prose
+     - Ensures authentic human voice (avoids AI detection)
+     - Maintains relatability and humor while staying informative
+
+  2. **Soft Conversion** - Always use `/soft-conversion` principles when recommending the calculator
+     - Natural product recommendations without pressure tactics
+     - Focus on helping the community, not selling
+     - Let authenticity drive interest (no urgency, scarcity, or manipulation)
+     - Example: "If you're curious about your numbers, check out the calculator." NOT "Act now before it's too late!"
+
+  **Workflow:**
+  1. Write your content (community post, trend analysis, etc.)
+  2. Run `/ai-text-humanization` on the full text
+  3. Apply `/soft-conversion` principles to any calculator mentions
+  4. Verify all Phase 7 requirements (TL;DR, pull quotes, etc.)
+  5. Ship it
+
 ---
 
 ## SITE STRUCTURE (Phase 7 - January 2026)
