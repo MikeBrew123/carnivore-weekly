@@ -9,18 +9,20 @@
 
 ### Current Status
 - ✅ **Calculator**: Steps 1-3 + $0 coupon flow validated on production
+- ⏳ **PENDING**: Swap redesign files to production (index-redesign.html → index.html, channels-redesign.html → channels.html)
 - ⏳ **PENDING**: Full payment flow test (Stripe redirect, Step 4, report generation)
 - ⏳ **PENDING**: Migration 009 deployment to Supabase
 - ⏳ **PENDING**: Phase 7 agent prompt updates
 
 ### To Resume Work
-1. Run full paid test: `node test-scripts/validate-payment-simple.mjs` (modify for $9.99 bundle)
-2. Manually enter test CC when Stripe loads
-3. Verify Step 4 health profile loads
-4. Verify report generation
-5. Refund via Stripe Dashboard
-6. Deploy Migration 009 to Supabase
-7. Proceed to Phase 7
+1. **Deploy redesign files** (index-redesign.html → index.html, channels-redesign.html → channels.html)
+2. Run full paid test: `node test-scripts/validate-payment-simple.mjs` (modify for $9.99 bundle)
+3. Manually enter test CC when Stripe loads
+4. Verify Step 4 health profile loads
+5. Verify report generation
+6. Refund via Stripe Dashboard
+7. Deploy Migration 009 to Supabase
+8. Proceed to Phase 7
 
 ---
 
@@ -73,6 +75,48 @@
 - Commit `3890944`: First attempt (wrong path - `/public/assets/`)
 - Commit `4efddf8`: Corrected paths (removed `/public/` prefix for GitHub Pages)
 - Tag: `calculator-pre-rebuild` (backup before changes)
+
+## ⚠️ REDESIGN FILES NOT DEPLOYED
+
+### Pending: Swap Redesign Files to Production
+
+**Status**: Redesign files completed (Jan 9) but NOT yet swapped into production
+
+**Files**:
+- `index-redesign.html` (415 lines) → should replace `index.html` (670 lines)
+- `channels-redesign.html` (516 lines) → should replace `channels.html` (1048 lines)
+
+**Changes in Redesigns**:
+1. **Better meta descriptions**:
+   - Index: "Your weekly carnivore intelligence. Curated science, creator insights, and practical protocols."
+   - Channels: "Weekly Watch - Curated carnivore content from top creators."
+2. **Cleaner code**: ~40% fewer lines
+3. **Updated titles**: "Weekly Watch" instead of "Featured Channels"
+4. **Last modified**: Jan 9, 2026 (newer than current production files)
+
+**To Deploy**:
+```bash
+# Backup current files
+cp public/index.html public/index-old.html
+cp public/channels.html public/channels-old.html
+
+# Swap redesigns into production
+mv public/index-redesign.html public/index.html
+mv public/channels-redesign.html public/channels.html
+
+# Commit and push
+git add public/index.html public/channels.html
+git commit -m "deploy: swap redesign files to production"
+git push
+```
+
+**Verify After Deployment**:
+- [ ] Homepage loads correctly (https://carnivoreweekly.com)
+- [ ] Channels page loads correctly (https://carnivoreweekly.com/channels.html)
+- [ ] Meta descriptions updated in page source
+- [ ] No broken links or images
+
+---
 
 ## ⚠️ NEEDS TESTING
 

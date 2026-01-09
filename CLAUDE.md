@@ -7,7 +7,11 @@ Location: `/Users/mbrew/Developer/carnivore-weekly/STATUS.md`
 
 ### To Resume Next Session
 1. **Read STATUS.md** for complete project state
-2. **Run full payment test** with real Stripe checkout:
+2. **Deploy redesign files to production**:
+   - Swap index-redesign.html → index.html
+   - Swap channels-redesign.html → channels.html
+   - See detailed commands in STATUS.md
+3. **Run full payment test** with real Stripe checkout:
    - Use $9.99 Complete Protocol Bundle (NO coupon)
    - Manually enter test CC: 4242 4242 4242 4242
    - Verify Stripe redirect works
