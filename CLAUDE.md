@@ -47,6 +47,27 @@ Last major update: January 9, 2026
 - **KNOWN BUG**: Custom subagents (Leo, etc.) cannot reliably access MCP tools
 - **Workaround**: Main session executes MCP calls, agents prepare SQL only
 
+### Stripe MCP Access
+
+This project has Stripe MCP integration enabled. You can use it to:
+- List payments, charges, refunds
+- Check payment failure reasons
+- View products and prices
+- Issue refunds
+
+**To use Stripe MCP:**
+1. The connection should already be available
+2. Use stripe_* commands (stripe_list_payments, stripe_get_payment_intent, etc.)
+3. If connection fails, user may need to re-authorize in Claude Code settings
+
+**Common commands:**
+- List recent payments: `stripe.payments.list`
+- Get payment details: `stripe.payment_intents.retrieve(id)`
+- List products: `stripe.products.list`
+- Issue refund: `stripe.refunds.create`
+
+**DO NOT ASK USER TO MANUALLY CHECK STRIPE DASHBOARD** - use MCP directly.
+
 ### Workflow for Database Operations
 1. **Leo** prepares SQL (schema design, migrations, query optimization)
 2. **Main session** executes via: `mcp__supabase__execute_sql({ query: "SQL" })`
