@@ -5,10 +5,25 @@
 
 Location: `/Users/mbrew/Developer/carnivore-weekly/STATUS.md`
 
+### To Resume Next Session
+1. **Read STATUS.md** for complete project state
+2. **Run full payment test** with real Stripe checkout:
+   - Use $9.99 Complete Protocol Bundle (NO coupon)
+   - Manually enter test CC: 4242 4242 4242 4242
+   - Verify Stripe redirect works
+   - Verify Step 4 health profile loads after payment
+   - Verify report generation
+3. **Refund test payment** via Stripe Dashboard (MCP not configured)
+4. **Deploy Migration 009** to Supabase (engagement tables)
+5. **Proceed to Phase 7** (agent prompt updates)
+
 Last major update: January 9, 2026
-- ✅ Calculator validated (form flow working on production)
-- ⏳ Pending: Full paid flow test ($9.99, actual Stripe redirect)
-- ⏳ Pending: Migration 009 deployment to Supabase
+- ✅ Phases 1-6 complete
+- ✅ Calculator Steps 1-3 validated on production
+- ✅ TEST999 ($0) coupon flow validated
+- ⏳ Full paid flow ($9.99 Stripe redirect) NOT YET TESTED
+- ⏳ Step 4 health profile NOT YET SEEN
+- ⏳ Report generation NOT YET VALIDATED
 
 ---
 
