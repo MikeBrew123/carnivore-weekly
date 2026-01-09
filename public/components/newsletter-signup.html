@@ -1,0 +1,391 @@
+<!-- Newsletter Signup Component -->
+<!-- Drop this anywhere: homepage, blog footer, wiki sidebar -->
+<!-- Set data-source to track where signups come from -->
+
+<div class="newsletter-signup" data-source="homepage">
+    <div class="newsletter-content">
+        <h3 class="newsletter-title">Weekly Carnivore Insights</h3>
+        <p class="newsletter-description">Evidence-based research, community updates, and practical tips. No fluff.</p>
+
+        <form class="newsletter-form" id="newsletter-form">
+            <div class="newsletter-input-group">
+                <input
+                    type="email"
+                    name="email"
+                    class="newsletter-input"
+                    placeholder="your@email.com"
+                    required
+                    aria-label="Email address"
+                />
+                <button type="submit" class="newsletter-button">
+                    <span class="button-text">Subscribe</span>
+                    <span class="button-loading" style="display: none;">
+                        <span class="spinner-small"></span>
+                    </span>
+                </button>
+            </div>
+            <p class="newsletter-privacy">
+                No spam. Unsubscribe anytime. We respect your inbox.
+            </p>
+        </form>
+
+        <!-- Success message (hidden by default) -->
+        <div class="newsletter-success" style="display: none;">
+            <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <h4>Check your email!</h4>
+            <p>We sent a confirmation link to <strong class="user-email"></strong></p>
+            <p class="small-text">Click the link to complete your subscription.</p>
+        </div>
+
+        <!-- Error message (hidden by default) -->
+        <div class="newsletter-error" style="display: none;">
+            <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <p class="error-message">Something went wrong. Please try again.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.newsletter-signup {
+    background: linear-gradient(135deg, var(--color-oxblood, #4a0404), var(--color-charcoal, #1a1a1a));
+    color: var(--color-white, #ffffff);
+    padding: 2.5rem;
+    border-radius: 12px;
+    margin: 3rem 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.newsletter-content {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.newsletter-title {
+    font-family: var(--font-heading, 'Playfair Display', serif);
+    font-size: 1.875rem;
+    margin: 0 0 0.75rem 0;
+    color: var(--color-amber, #ffbf00);
+}
+
+.newsletter-description {
+    font-size: 1rem;
+    margin: 0 0 1.5rem 0;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+}
+
+.newsletter-form {
+    margin-bottom: 0;
+}
+
+.newsletter-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.newsletter-input {
+    flex: 1;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--color-charcoal, #1a1a1a);
+    transition: all 0.2s ease;
+}
+
+.newsletter-input:focus {
+    outline: none;
+    border-color: var(--color-amber, #ffbf00);
+    background: var(--color-white, #ffffff);
+    box-shadow: 0 0 0 3px rgba(255, 191, 0, 0.2);
+}
+
+.newsletter-input::placeholder {
+    color: #999;
+}
+
+.newsletter-button {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background: var(--color-amber, #ffbf00);
+    color: var(--color-charcoal, #1a1a1a);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.newsletter-button:hover:not(:disabled) {
+    background: var(--color-amber-hover, #e6ac00);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 191, 0, 0.3);
+}
+
+.newsletter-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.newsletter-privacy {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.spinner-small {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--color-charcoal, #1a1a1a);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success state */
+.newsletter-success {
+    text-align: center;
+}
+
+.success-icon {
+    width: 48px;
+    height: 48px;
+    color: #51cf66;
+    margin: 0 auto 1rem;
+}
+
+.newsletter-success h4 {
+    font-family: var(--font-heading, 'Playfair Display', serif);
+    font-size: 1.5rem;
+    color: var(--color-amber, #ffbf00);
+    margin: 0 0 0.75rem 0;
+}
+
+.newsletter-success p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+.newsletter-success .user-email {
+    color: var(--color-amber, #ffbf00);
+}
+
+.newsletter-success .small-text {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Error state */
+.newsletter-error {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: 6px;
+}
+
+.error-icon {
+    width: 32px;
+    height: 32px;
+    color: #ff6b6b;
+    margin: 0 auto 0.5rem;
+}
+
+.error-message {
+    margin: 0;
+    color: #ff6b6b;
+    font-weight: 500;
+}
+
+/* Compact variant (for sidebars) */
+.newsletter-signup--compact {
+    padding: 1.5rem;
+}
+
+.newsletter-signup--compact .newsletter-title {
+    font-size: 1.25rem;
+}
+
+.newsletter-signup--compact .newsletter-description {
+    font-size: 0.875rem;
+}
+
+.newsletter-signup--compact .newsletter-input-group {
+    flex-direction: column;
+}
+
+.newsletter-signup--compact .newsletter-button {
+    width: 100%;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+    .newsletter-signup {
+        padding: 1.5rem;
+    }
+
+    .newsletter-input-group {
+        flex-direction: column;
+    }
+
+    .newsletter-button {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+
+    // Supabase connection
+    const SUPABASE_URL = 'https://kwtdpvnjewtahuxjyltn.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2NTMwODMsImV4cCI6MjA1MTIyOTA4M30.xHKnN93F5cC4CSLZ4gQEIa0Gn_MvPYdaC-1HhL7Ayzc';
+
+    // Simple browser fingerprint (for spam prevention)
+    function generateFingerprint() {
+        const data = [
+            navigator.userAgent,
+            navigator.language,
+            screen.width + 'x' + screen.height,
+            new Date().getTimezoneOffset()
+        ].join('|');
+
+        // Simple hash
+        let hash = 0;
+        for (let i = 0; i < data.length; i++) {
+            const char = data.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return 'fp_' + Math.abs(hash).toString(36);
+    }
+
+    // Generate confirmation token
+    function generateToken() {
+        const array = new Uint8Array(32);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Initialize all newsletter forms
+    function initNewsletterForms() {
+        const forms = document.querySelectorAll('.newsletter-form');
+
+        forms.forEach(form => {
+            form.addEventListener('submit', handleSubmit);
+        });
+    }
+
+    // Handle form submission
+    async function handleSubmit(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const container = form.closest('.newsletter-signup');
+        const emailInput = form.querySelector('input[type="email"]');
+        const button = form.querySelector('.newsletter-button');
+        const buttonText = button.querySelector('.button-text');
+        const buttonLoading = button.querySelector('.button-loading');
+        const successDiv = container.querySelector('.newsletter-success');
+        const errorDiv = container.querySelector('.newsletter-error');
+
+        const email = emailInput.value.trim();
+        const source = container.dataset.source || 'homepage';
+
+        // Disable button
+        button.disabled = true;
+        buttonText.style.display = 'none';
+        buttonLoading.style.display = 'inline-block';
+
+        // Hide previous messages
+        errorDiv.style.display = 'none';
+
+        try {
+            const confirmationToken = generateToken();
+            const fingerprint = generateFingerprint();
+
+            // Submit to Supabase
+            const response = await fetch(
+                `${SUPABASE_URL}/rest/v1/newsletter_subscribers`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        source: source,
+                        confirmation_token: confirmationToken
+                    })
+                }
+            );
+
+            if (response.ok || response.status === 201) {
+                // Success - show confirmation message
+                form.style.display = 'none';
+                successDiv.style.display = 'block';
+                successDiv.querySelector('.user-email').textContent = email;
+
+                // TODO: Send confirmation email via webhook/N8N
+                // For now, just show success message
+
+            } else if (response.status === 409) {
+                // Duplicate email
+                showError(container, 'You\'re already subscribed! Check your email for the confirmation link.');
+            } else {
+                throw new Error('Subscription failed');
+            }
+
+        } catch (error) {
+            console.error('Newsletter signup error:', error);
+            showError(container, 'Something went wrong. Please try again later.');
+
+            // Re-enable button
+            button.disabled = false;
+            buttonText.style.display = 'inline';
+            buttonLoading.style.display = 'none';
+        }
+    }
+
+    // Show error message
+    function showError(container, message) {
+        const errorDiv = container.querySelector('.newsletter-error');
+        const errorMessage = errorDiv.querySelector('.error-message');
+
+        errorMessage.textContent = message;
+        errorDiv.style.display = 'block';
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNewsletterForms);
+    } else {
+        initNewsletterForms();
+    }
+})();
+</script>

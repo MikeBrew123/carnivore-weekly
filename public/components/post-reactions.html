@@ -1,0 +1,227 @@
+<!-- Post Reactions Component (Thumbs Up/Down) -->
+<!-- Drop this at the end of blog posts -->
+<!-- Set data-post-slug to match the blog post slug -->
+
+<div class="post-reactions" data-post-slug="pcos-hormones">
+    <div class="reactions-header">
+        <h3>Was this helpful?</h3>
+        <p class="reactions-subtitle">Let us know so we can write more like this.</p>
+    </div>
+
+    <div class="reactions-buttons">
+        <button class="reaction-btn reaction-btn--up" data-reaction="up" aria-label="Helpful">
+            <svg class="reaction-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+            </svg>
+            <span class="reaction-label">Helpful</span>
+            <span class="reaction-count" data-type="up">-</span>
+        </button>
+
+        <button class="reaction-btn reaction-btn--down" data-reaction="down" aria-label="Not helpful">
+            <svg class="reaction-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path>
+            </svg>
+            <span class="reaction-label">Not helpful</span>
+            <span class="reaction-count" data-type="down">-</span>
+        </button>
+    </div>
+
+    <!-- Thank you message (hidden by default) -->
+    <div class="reactions-thanks" style="display: none;">
+        <svg class="thanks-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <p><strong>Thank you for your feedback!</strong></p>
+        <p class="thanks-message">We'll use this to write better content.</p>
+    </div>
+</div>
+
+<style>
+.post-reactions {
+    margin: 3rem 0;
+    padding: 2rem;
+    background: var(--color-cream, #f5f5f0);
+    border-radius: 12px;
+    border: 2px solid var(--color-border, #e0e0e0);
+}
+
+.reactions-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.reactions-header h3 {
+    font-family: var(--font-heading, 'Playfair Display', serif);
+    font-size: 1.5rem;
+    color: var(--color-charcoal, #1a1a1a);
+    margin: 0 0 0.5rem 0;
+}
+
+.reactions-subtitle {
+    color: var(--color-text-secondary, #4a4a4a);
+    margin: 0;
+    font-size: 0.9375rem;
+}
+
+.reactions-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.reaction-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-white, #ffffff);
+    border: 2px solid var(--color-border, #e0e0e0);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-charcoal, #1a1a1a);
+    min-width: 160px;
+}
+
+.reaction-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.reaction-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.reaction-btn--up:hover:not(:disabled) {
+    border-color: #51cf66;
+    background: #f4fef7;
+}
+
+.reaction-btn--down:hover:not(:disabled) {
+    border-color: #ff6b6b;
+    background: #fff5f5;
+}
+
+.reaction-btn.active {
+    pointer-events: none;
+}
+
+.reaction-btn--up.active {
+    background: #51cf66;
+    border-color: #51cf66;
+    color: white;
+}
+
+.reaction-btn--down.active {
+    background: #ff6b6b;
+    border-color: #ff6b6b;
+    color: white;
+}
+
+.reaction-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.reaction-label {
+    flex: 1;
+}
+
+.reaction-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 28px;
+    padding: 0 0.5rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 14px;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.reaction-btn--up.active .reaction-count,
+.reaction-btn--down.active .reaction-count {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Thank you message */
+.reactions-thanks {
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.thanks-icon {
+    width: 48px;
+    height: 48px;
+    color: #51cf66;
+    margin: 0 auto 1rem;
+}
+
+.reactions-thanks p {
+    margin: 0.5rem 0;
+    color: var(--color-charcoal, #1a1a1a);
+}
+
+.reactions-thanks strong {
+    font-size: 1.125rem;
+}
+
+.thanks-message {
+    color: var(--color-text-secondary, #4a4a4a);
+    font-size: 0.9375rem;
+}
+
+/* Loading state */
+.reaction-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.reaction-btn.loading .reaction-icon {
+    animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+    .post-reactions {
+        padding: 1.5rem;
+    }
+
+    .reactions-buttons {
+        flex-direction: column;
+    }
+
+    .reaction-btn {
+        width: 100%;
+    }
+}
+</style>
+
+<script src="/js/post-reactions.js" defer></script>
