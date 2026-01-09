@@ -317,6 +317,81 @@ nav.nav-menu-2026 a:hover {
 }
 
 /* ============================================
+   HERO SECTION
+   ============================================ */
+
+.hero {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  padding: var(--space-16) var(--space-6);
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: var(--text-4xl);
+  margin-bottom: var(--space-4);
+  color: var(--color-white);
+}
+
+.hero-subtitle {
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-8);
+  color: var(--color-cream);
+  line-height: var(--leading-relaxed);
+}
+
+.hero-ctas {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   BUTTON STYLES (Hero Section)
+   ============================================ */
+
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  padding: var(--space-3) var(--space-6);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn--primary {
+  background: var(--color-amber);
+  color: var(--color-charcoal);
+}
+
+.btn--primary:hover {
+  background: var(--color-amber-hover);
+  color: var(--color-charcoal);
+}
+
+.btn--secondary {
+  background: transparent;
+  border: 2px solid var(--color-white);
+  color: var(--color-white);
+}
+
+.btn--secondary:hover {
+  background: var(--color-white);
+  color: var(--color-charcoal);
+}
+
+/* ============================================
    CARD COMPONENT
    ============================================ */
 
