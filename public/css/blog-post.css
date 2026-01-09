@@ -1,0 +1,382 @@
+/*
+ * CARNIVORE WEEKLY - BLOG POST READABILITY STYLES
+ * Enhances blog post structure and readability
+ * Version 1.0 | January 2026
+ */
+
+/* ============================================
+   ARTICLE STRUCTURE
+   ============================================ */
+
+.post-content {
+    max-width: 720px;
+    margin: 0 auto;
+    line-height: 1.75;
+    font-size: 1.125rem; /* 18px for better readability */
+}
+
+.post-content p {
+    margin-bottom: 1.5rem;
+    color: #1a120b;
+}
+
+.post-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: #6A1B1B;
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid #d4a574;
+}
+
+.post-content h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: #8b4513;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.post-content h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: #8b4513;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+/* ============================================
+   TL;DR BOX
+   ============================================ */
+
+.tldr-box {
+    background: linear-gradient(135deg, #fffbf0 0%, #fff8e6 100%);
+    border-left: 5px solid #ffd700;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.tldr-box h3 {
+    font-family: 'Playfair Display', serif;
+    color: #8b4513;
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tldr-box ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    list-style-type: disc;
+}
+
+.tldr-box li {
+    margin-bottom: 0.75rem;
+    color: #1a120b;
+    line-height: 1.6;
+}
+
+.tldr-box li:last-child {
+    margin-bottom: 0;
+}
+
+/* ============================================
+   KEY TAKEAWAY BOX
+   ============================================ */
+
+.key-takeaway {
+    background: #2c1810;
+    color: #f4e4d4;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border-radius: 8px;
+    border-left: 5px solid #ffd700;
+}
+
+.key-takeaway h4 {
+    color: #ffd700;
+    font-family: 'Playfair Display', serif;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.key-takeaway p {
+    color: #f4e4d4;
+    margin-bottom: 0.75rem;
+}
+
+.key-takeaway p:last-child {
+    margin-bottom: 0;
+}
+
+/* ============================================
+   PULL QUOTES
+   ============================================ */
+
+.pull-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-style: italic;
+    color: #6A1B1B;
+    border-left: 4px solid #ffd700;
+    padding-left: 1.5rem;
+    margin: 2.5rem 0;
+    line-height: 1.6;
+}
+
+.pull-quote::before {
+    content: '"';
+    font-size: 3rem;
+    color: #d4a574;
+    line-height: 0;
+    display: block;
+    margin-bottom: -0.5rem;
+}
+
+/* ============================================
+   CALLOUT BOXES
+   ============================================ */
+
+.callout {
+    background: #f9f6f1;
+    border: 2px solid #d4a574;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.callout h4 {
+    color: #8b4513;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.callout p {
+    color: #1a120b;
+    margin-bottom: 0.75rem;
+}
+
+.callout p:last-child {
+    margin-bottom: 0;
+}
+
+/* Callout variants */
+.callout--warning {
+    border-left: 5px solid #ff6b6b;
+    background: #fff5f5;
+}
+
+.callout--success {
+    border-left: 5px solid #51cf66;
+    background: #f4fef7;
+}
+
+.callout--info {
+    border-left: 5px solid #339af0;
+    background: #f0f7ff;
+}
+
+/* ============================================
+   LISTS
+   ============================================ */
+
+.post-content ul,
+.post-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+    color: #1a120b;
+}
+
+.post-content li {
+    margin-bottom: 0.75rem;
+    line-height: 1.7;
+    color: #1a120b;
+}
+
+.post-content li::marker {
+    color: #d4a574;
+}
+
+/* Checklist style */
+.checklist {
+    list-style: none;
+    padding-left: 0;
+}
+
+.checklist li {
+    padding-left: 2rem;
+    position: relative;
+}
+
+.checklist li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #51cf66;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+/* ============================================
+   SECTION BREAKS
+   ============================================ */
+
+.section-divider {
+    border: none;
+    border-top: 2px solid #d4a574;
+    margin: 3rem 0;
+    opacity: 0.5;
+}
+
+.section-divider--heavy {
+    border-top: 3px solid #8b4513;
+    opacity: 1;
+}
+
+/* ============================================
+   INLINE EMPHASIS
+   ============================================ */
+
+.post-content strong {
+    color: #6A1B1B;
+    font-weight: 700;
+}
+
+.post-content em {
+    color: #8b4513;
+    font-style: italic;
+}
+
+.post-content code {
+    background: #f4e4d4;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #2c1810;
+}
+
+/* ============================================
+   RESEARCH CITATIONS
+   ============================================ */
+
+.research-note {
+    background: #f9f6f1;
+    border-left: 3px solid #8b4513;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.research-note strong {
+    color: #8b4513;
+}
+
+/* ============================================
+   METRICS/STATS DISPLAY
+   ============================================ */
+
+.stat-highlight {
+    display: inline-block;
+    background: #ffd700;
+    color: #2c1810;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* ============================================
+   TABLE OF CONTENTS (OPTIONAL)
+   ============================================ */
+
+.post-toc {
+    background: #f9f6f1;
+    border: 2px solid #d4a574;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.post-toc h3 {
+    font-family: 'Playfair Display', serif;
+    color: #8b4513;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.post-toc ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.post-toc li {
+    margin-bottom: 0.5rem;
+}
+
+.post-toc a {
+    color: #6A1B1B;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.post-toc a:hover {
+    border-bottom-color: #ffd700;
+    color: #8b4513;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .post-content {
+        font-size: 1rem;
+    }
+
+    .post-content h2 {
+        font-size: 1.75rem;
+    }
+
+    .post-content h3 {
+        font-size: 1.35rem;
+    }
+
+    .pull-quote {
+        font-size: 1.25rem;
+        padding-left: 1rem;
+    }
+
+    .tldr-box,
+    .key-takeaway,
+    .callout {
+        padding: 1rem;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    .tldr-box,
+    .key-takeaway,
+    .callout {
+        border: 1px solid #000;
+        page-break-inside: avoid;
+    }
+
+    .pull-quote {
+        page-break-inside: avoid;
+    }
+}
