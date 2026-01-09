@@ -11,12 +11,11 @@
 - ✅ **Calculator**: Steps 1-3 + $0 coupon flow validated on production
 - ✅ **Redesign Deployed**: Homepage and channels now using new design (commit 571c6b1)
 - ✅ **Payment Flow**: Stripe redirect confirmed working (CAPTCHA from test pattern, not production issue)
-- ⏳ **PENDING**: Migration 009 deployment to Supabase
+- ✅ **Migration 009**: Engagement system deployed to Supabase
 - ⏳ **PENDING**: Phase 7 agent prompt updates
 
 ### To Resume Work
-1. Deploy Migration 009 to Supabase
-2. Proceed to Phase 7 (agent prompt updates)
+1. Proceed to Phase 7 (agent prompt updates)
 
 ---
 
@@ -64,7 +63,7 @@
   - Newsletter signup component built
   - Feedback modal built (replaces Google Form)
   - Post reactions built (thumbs up/down)
-  - Migration 009 created (NOT YET DEPLOYED)
+  - Migration 009 deployed to Supabase ✅
 
 ### Deployment History
 - Commit `3890944`: First attempt (wrong path - `/public/assets/`)
@@ -136,37 +135,28 @@ git push
 - Report generation
 - Full end-to-end flow with completed payment
 
-## 📋 PENDING DEPLOYMENT
+## ✅ MIGRATION 009 DEPLOYED
 
 ### Migration 009: Engagement System
-**Status**: SQL file created, NOT YET DEPLOYED to Supabase
+**Status**: ✅ DEPLOYED to Supabase (Jan 9, 2026)
 
-**Tables to Create**:
-1. `newsletter_subscribers`
-2. `content_feedback`
-3. `post_reactions`
-4. `topic_polls`
-5. `poll_options`
-6. `poll_votes`
+**Tables Created**:
+1. ✅ `newsletter_subscribers` (1 seed row)
+2. ✅ `content_feedback` (2 seed rows)
+3. ✅ `post_reactions` (0 rows)
+4. ✅ `topic_polls` (1 seed poll: "2026-02")
+5. ✅ `poll_options` (4 options)
+6. ✅ `poll_votes` (0 rows)
 
-**Deployment Options**:
-```bash
-# Option A: Supabase CLI
-cd /Users/mbrew/Developer/carnivore-weekly
-npx supabase db push
+**Views Created**:
+- ✅ `v_post_reaction_counts` (aggregated reaction stats)
+- ✅ `v_poll_results` (live poll results with percentages)
 
-# Option B: Supabase Dashboard
-# 1. Go to https://supabase.com/dashboard
-# 2. SQL Editor → New Query
-# 3. Paste supabase/migrations/009_create_engagement_system.sql
-# 4. Run
-# 5. Verify in Table Editor
-```
-
-**Verification After Deployment**:
-- [ ] 6 tables exist in Supabase
-- [ ] RLS policies active
-- [ ] Views created (`post_reaction_counts`, `poll_results`)
+**Security**:
+- ✅ RLS enabled on all 6 tables
+- ✅ Public INSERT policies for anonymous engagement
+- ✅ Service role policies for N8N automation
+- ✅ Email protection (no public read access to subscriber emails)
 
 ## 🔧 AVAILABLE TEST SCRIPTS
 
@@ -198,7 +188,7 @@ node test-scripts/validate-production-full.mjs
 ### Immediate (Before Phase 7)
 1. ✅ **Calculator validation complete**
 2. ✅ **Payment flow validated** (Stripe redirect confirmed working)
-3. ⏳ **Deploy Migration 009** (engagement tables to Supabase)
+3. ✅ **Migration 009 deployed** (engagement tables to Supabase)
 
 ### Phase 7 (Blocked Until Above Complete)
 - Update agent prompts for auto-formatting
@@ -287,5 +277,5 @@ https://carnivoreweekly.com/public/assets/calculator2/assets/index-Da2b8j_e.js
 
 ---
 
-**Last Updated**: January 9, 2026, 14:45 PST
-**Session**: Payment flow validated, ready for Migration 009
+**Last Updated**: January 9, 2026, 14:50 PST
+**Session**: Migration 009 deployed, ready for Phase 7
