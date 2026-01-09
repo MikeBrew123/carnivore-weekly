@@ -95,6 +95,33 @@ def get_date_filter() -> str:
     return past_date.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def is_less_than_24_hours_old(timestamp_str: str) -> bool:
+    """
+    Check if a timestamp is less than 24 hours old
+
+    Args:
+        timestamp_str: ISO format timestamp string
+
+    Returns:
+        True if timestamp is within last 24 hours, False otherwise
+    """
+    try:
+        # Parse the timestamp
+        timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+
+        # Get current time (timezone-aware)
+        now = datetime.now(timestamp.tzinfo)
+
+        # Calculate age
+        age = now - timestamp
+
+        # Return True if less than 24 hours old
+        return age < timedelta(hours=24)
+    except (ValueError, AttributeError):
+        # If we can't parse the timestamp, assume it's old
+        return False
+
+
 # ============================================================================
 # MAIN COLLECTOR CLASS
 # ============================================================================
@@ -144,6 +171,106 @@ class YouTubeCollector:
                 print("⚠ Supabase not configured - data will only be saved to JSON")
         except Exception as e:
             print(f"⚠ Warning: Could not initialize Supabase: {e}")
+
+    def load_from_cache(self) -> Dict:
+        """
+        Load recent data from Supabase cache if available
+
+        Checks if we have data less than 24 hours old in Supabase.
+        If so, returns it instead of making API calls.
+
+        Returns:
+            Cached data dictionary, or empty dict if no valid cache
+        """
+        if not self.supabase:
+            return {}
+
+        try:
+            print("\n🔍 Checking Supabase for recent cached data...")
+
+            # Query for most recent collection timestamp
+            response = self.supabase.table('youtube_videos')\
+                .select('*')\
+                .order('updated_at', desc=True)\
+                .limit(1)\
+                .execute()
+
+            if not response.data:
+                print("   ⚠ No cached data found")
+                return {}
+
+            # Check if data is less than 24 hours old
+            most_recent = response.data[0]
+            updated_at = most_recent.get('updated_at')
+
+            if not updated_at or not is_less_than_24_hours_old(updated_at):
+                print("   ⚠ Cached data is older than 24 hours")
+                return {}
+
+            # Data is fresh - load all videos from cache
+            print(f"   ✓ Found recent data (updated: {updated_at})")
+            print("   Loading full dataset from cache...")
+
+            all_videos_response = self.supabase.table('youtube_videos')\
+                .select('*')\
+                .execute()
+
+            if not all_videos_response.data:
+                return {}
+
+            # Convert Supabase data back to our JSON format
+            videos_by_channel = defaultdict(list)
+            for video in all_videos_response.data:
+                channel_id = video.get('channel_id')
+                if channel_id:
+                    videos_by_channel[channel_id].append({
+                        'video_id': video.get('youtube_id'),
+                        'title': video.get('title'),
+                        'description': video.get('description', ''),
+                        'thumbnail_url': video.get('thumbnail_url'),
+                        'published_at': video.get('published_at'),
+                        'statistics': {
+                            'view_count': video.get('view_count', 0),
+                            'like_count': video.get('like_count', 0),
+                            'comment_count': video.get('comment_count', 0)
+                        },
+                        'tags': video.get('topic_tags', []),
+                        'top_comments': []  # Comments not stored in current schema
+                    })
+
+            # Reconstruct top_creators structure
+            top_creators = []
+            for channel_id, videos in videos_by_channel.items():
+                if videos:
+                    channel_name = videos[0].get('title', 'Unknown')  # Simplified
+                    total_views = sum(v['statistics']['view_count'] for v in videos)
+                    top_creators.append({
+                        'channel_id': channel_id,
+                        'channel_name': channel_name,
+                        'total_views_week': total_views,
+                        'videos': videos
+                    })
+
+            # Sort by total views
+            top_creators.sort(key=lambda x: x['total_views_week'], reverse=True)
+
+            cached_data = {
+                'collection_date': datetime.now().strftime("%Y-%m-%d"),
+                'collection_timestamp': datetime.now().isoformat(),
+                'search_query': SEARCH_QUERY,
+                'days_back': DAYS_BACK,
+                'total_videos_found': len(all_videos_response.data),
+                'top_creators_count': len(top_creators),
+                'top_creators': top_creators,
+                'source': 'cache'
+            }
+
+            print(f"   ✓ Loaded {len(all_videos_response.data)} videos from cache")
+            return cached_data
+
+        except Exception as e:
+            print(f"   ⚠ Error loading from cache: {e}")
+            return {}
 
     def search_videos(self, query: str, max_results: int = 50) -> List[Dict]:
         """
@@ -483,10 +610,12 @@ class YouTubeCollector:
         Main collection method - orchestrates the entire data collection process
 
         This method ties everything together:
-        1. Search for carnivore diet videos
-        2. Rank channels by total views
-        3. Get detailed info for top channels
-        4. Collect comments for each video
+        1. Check Supabase cache for recent data (< 24 hours old)
+        2. If cache hit: return cached data and update JSON
+        3. If cache miss: Search for carnivore diet videos
+        4. Rank channels by total views
+        5. Get detailed info for top channels
+        6. Collect comments for each video
 
         Returns:
             Complete data dictionary ready to be saved as JSON
@@ -494,6 +623,16 @@ class YouTubeCollector:
         print("\n" + "=" * 70)
         print("🥩 CARNIVORE DIET YOUTUBE DATA COLLECTOR")
         print("=" * 70)
+
+        # Step 0: Check Supabase cache first
+        cached_data = self.load_from_cache()
+        if cached_data:
+            print("\n✓ Using cached data from Supabase (skipping API calls)")
+            print("   This saves your YouTube API quota!")
+            return cached_data
+
+        # No cache hit - proceed with API calls
+        print("\n⚠ No recent cache found - fetching fresh data from YouTube API")
 
         # Step 1: Search for videos
         videos = self.search_videos(SEARCH_QUERY, max_results=50)
@@ -544,6 +683,7 @@ class YouTubeCollector:
             "total_videos_found": len(videos),
             "top_creators_count": len(top_channels),
             "top_creators": top_channels,
+            "source": "api",  # Mark as fresh API data (vs 'cache')
         }
 
         return final_data

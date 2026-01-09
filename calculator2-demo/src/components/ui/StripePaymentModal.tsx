@@ -2,6 +2,12 @@ import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { useFormStore } from '../../stores/formStore'
 
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void
+  }
+}
+
 interface FormData {
   age?: number
   sex?: string
@@ -46,6 +52,14 @@ export default function StripePaymentModal({
 
   useEffect(() => {
     console.log('[StripePaymentModal] Mounted for tier:', tierId, tierTitle)
+
+    // Track payment modal opened
+    if (window.gtag) {
+      window.gtag('event', 'calculator_payment_modal_opened', {
+        'event_category': 'calculator',
+        'event_label': 'payment_modal_opened'
+      })
+    }
   }, [])
 
   const priceMap: Record<string, number> = {
