@@ -217,9 +217,16 @@ All content agents (Sarah, Marcus, Chloe, Jordan) updated with comprehensive Pha
 
 **Verification**:
 - ✅ All 4 agent files updated
-- ✅ Committed with detailed commit message
+- ✅ Committed with detailed commit message (8e1d125)
 - ✅ STATUS.md updated to reflect Phase 7 completion
+- ✅ Humanization and soft-conversion requirements added (aaf85c6)
 - ✅ Agents ready for content production with Phase 7 knowledge
+
+**Additional Update (Commit aaf85c6)**:
+All 3 writer agents now have CRITICAL requirements:
+- Must run `/ai-text-humanization` on all content before publishing
+- Must use `/soft-conversion` principles for calculator CTAs (no pressure tactics)
+- Clear 5-step workflow: Write → Humanize → Soft-convert → Verify → Ship
 
 ## 🔧 AVAILABLE TEST SCRIPTS
 
