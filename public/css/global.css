@@ -183,6 +183,140 @@
 }
 
 /* ============================================
+   LEATHER HEADER & NAVIGATION (2026 DESIGN)
+   ============================================ */
+
+/* Container for 2026 header */
+.container-2026 {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Leather texture header */
+header,
+.header-2026 {
+  background: linear-gradient(135deg, #4a2511 0%, #6d3819 50%, #8b4513 100%);
+  color: #f4e4d4;
+  padding: 30px 0 20px 0;
+  margin-bottom: 25px;
+  min-height: 180px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 2px 0 rgba(255,255,255,0.1);
+  border-bottom: 4px solid #8b4513;
+  position: relative;
+  overflow: visible;
+  text-align: center;
+}
+
+/* Leather texture overlay */
+header::after,
+.header-2026::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.15;
+  z-index: 0;
+}
+
+/* Header content positioning */
+header > .container,
+header.header-2026 > .container-2026 {
+  position: relative;
+  z-index: 2;
+}
+
+/* Header typography */
+header h1,
+.header-2026 h1 {
+  color: #ffd700;
+  font-family: 'Playfair Display', serif;
+  font-size: 4em;
+  margin: 15px 0 10px 0;
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+}
+
+header .subtitle,
+.header-2026 .subtitle {
+  color: #ffd700;
+  font-size: 1.5em;
+  font-style: italic;
+  margin-bottom: 5px;
+}
+
+header .tagline,
+.header-2026 .tagline {
+  color: #d4a574;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+
+header .update-date,
+.header-2026 .update-date {
+  color: rgba(212, 165, 116, 0.8);
+  font-size: 1.1em;
+}
+
+/* Logo positioning */
+.logo {
+  position: absolute;
+  top: -100px;
+  right: -140px;
+  width: 750px;
+  height: 410px;
+  aspect-ratio: 750 / 410;
+  max-width: 750px;
+  object-fit: contain;
+  object-position: center;
+  opacity: 0.95;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* 2026 Navigation */
+.nav-menu-2026,
+nav.nav-menu-2026 {
+  background: #1A1A1B;
+  border-bottom: 2px solid #4F5D54;
+  padding: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+
+.nav-menu-2026 a,
+nav.nav-menu-2026 a {
+  color: #F2F0E6;
+  font-weight: 700;
+  padding: 1rem 1.5rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.nav-menu-2026 a:hover,
+nav.nav-menu-2026 a:hover {
+  color: #B87A47;
+  border-bottom-color: #B87A47;
+}
+
+/* ============================================
    CARD COMPONENT
    ============================================ */
 
