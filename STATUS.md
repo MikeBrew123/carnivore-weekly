@@ -9,20 +9,19 @@
 
 ### Current Status
 - ✅ **Calculator**: Steps 1-3 + $0 coupon flow validated on production
-- ⏳ **PENDING**: Swap redesign files to production (index-redesign.html → index.html, channels-redesign.html → channels.html)
+- ✅ **Redesign Deployed**: Homepage and channels now using new design (commit 571c6b1)
 - ⏳ **PENDING**: Full payment flow test (Stripe redirect, Step 4, report generation)
 - ⏳ **PENDING**: Migration 009 deployment to Supabase
 - ⏳ **PENDING**: Phase 7 agent prompt updates
 
 ### To Resume Work
-1. **Deploy redesign files** (index-redesign.html → index.html, channels-redesign.html → channels.html)
-2. Run full paid test: `node test-scripts/validate-payment-simple.mjs` (modify for $9.99 bundle)
-3. Manually enter test CC when Stripe loads
-4. Verify Step 4 health profile loads
-5. Verify report generation
-6. Refund via Stripe Dashboard
-7. Deploy Migration 009 to Supabase
-8. Proceed to Phase 7
+1. Run full paid test: `node test-scripts/validate-payment-simple.mjs` (modify for $9.99 bundle)
+2. Manually enter test CC when Stripe loads
+3. Verify Step 4 health profile loads
+4. Verify report generation
+5. Refund via Stripe Dashboard
+6. Deploy Migration 009 to Supabase
+7. Proceed to Phase 7
 
 ---
 
