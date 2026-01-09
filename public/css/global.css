@@ -444,6 +444,98 @@
   margin-top: var(--space-8);
 }
 
+/* This Week's Roundup */
+.site-content .roundup-section {
+  background: var(--color-white);
+  border-left: 4px solid var(--color-amber);
+  padding: var(--space-8);
+  margin: var(--space-12) 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.site-content .roundup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.site-content .roundup-title {
+  font-size: var(--text-3xl);
+  margin: 0;
+  color: var(--color-charcoal);
+}
+
+.site-content .roundup-byline {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.site-content .roundup-content h3 {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-4);
+  color: var(--color-oxblood);
+}
+
+.site-content .roundup-content p {
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-5);
+  color: var(--color-text-primary);
+}
+
+.site-content .roundup-content strong {
+  color: var(--color-charcoal);
+  font-weight: 700;
+}
+
+.site-content .roundup-content a {
+  color: var(--color-oxblood);
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.site-content .roundup-content a:hover {
+  color: var(--color-amber);
+}
+
+.site-content .trending-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.site-content .trending-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-cream);
+  border-radius: 20px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-charcoal);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.site-content .trending-tag:hover {
+  background: var(--color-amber);
+  color: var(--color-charcoal);
+  transform: translateY(-1px);
+}
+
+.site-content .trending-tag-icon {
+  font-size: var(--text-base);
+}
+
 /* Content of the Week */
 .site-content .content-week {
   padding: var(--space-12) var(--space-6);
