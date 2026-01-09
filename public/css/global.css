@@ -382,11 +382,22 @@ nav.nav-menu-2026 a:hover {
 
 .btn--secondary {
   background: transparent;
+  border: 2px solid var(--color-charcoal);
+  color: var(--color-charcoal);
+}
+
+.btn--secondary:hover {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+}
+
+/* Hero-specific button styles (dark background needs light buttons) */
+.hero .btn--secondary {
   border: 2px solid var(--color-white);
   color: var(--color-white);
 }
 
-.btn--secondary:hover {
+.hero .btn--secondary:hover {
   background: var(--color-white);
   color: var(--color-charcoal);
 }
