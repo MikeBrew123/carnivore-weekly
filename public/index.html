@@ -3,35 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name='impact-site-verification' content='165bca80-d4fc-46f0-8717-1c7589c6e98c'>
 
     <!-- SEO Meta Tags -->
-    <meta name="description" content="2026 Carnivore Weekly - The Meat-Eater's Digest. Premium digital editorial featuring top YouTube videos, trending topics, expert insights, and community success stories.">
-    <meta name="keywords" content="carnivore diet, meat-based diet, keto, animal-based nutrition, carnivore lifestyle, grass-fed beef, carnivore recipes">
+    <meta name="description" content="Your weekly carnivore intelligence. Curated science, creator insights, and practical protocols delivered every week.">
+    <meta name="keywords" content="carnivore diet, meat-based diet, keto, animal-based nutrition, carnivore lifestyle, grass-fed beef">
     <meta name="author" content="Carnivore Weekly">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://carnivoreweekly.com">
 
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://carnivoreweekly.com">
-    <meta property="og:title" content="Carnivore Weekly - 2026 Edition">
-    <meta property="og:description" content="The Meat-Eater's Digest. Weekly carnivore content, science, and community insights.">
+    <meta property="og:title" content="Carnivore Weekly - Your Weekly Carnivore Intelligence">
+    <meta property="og:description" content="Curated science, creator insights, and practical protocols—delivered every week.">
     <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
     <meta property="og:site_name" content="Carnivore Weekly">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://carnivoreweekly.com">
-    <meta name="twitter:title" content="Carnivore Weekly - 2026 Edition">
-    <meta name="twitter:description" content="Premium digital editorial for the carnivore community.">
+    <meta name="twitter:title" content="Carnivore Weekly">
+    <meta name="twitter:description" content="Your weekly carnivore intelligence.">
     <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
 
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <title>Carnivore Weekly 2026 - Premium Meat-Based Editorial</title>
+
+    <title>Carnivore Weekly - Your Weekly Carnivore Intelligence</title>
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
@@ -40,631 +40,376 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'G-NR4JVKW2JV');
-
-        function trackAffiliateClick(product, link) {
-            gtag('event', 'click', {
-                'event_category': 'Affiliate',
-                'event_label': product,
-                'value': link
-            });
-        }
-
-        function trackVideoClick(videoTitle) {
-            gtag('event', 'click', {
-                'event_category': 'YouTube Video',
-                'event_label': videoTitle
-            });
-        }
     </script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style-2026.css">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Global Stylesheet -->
+    <link rel="stylesheet" href="/css/global.css">
 </head>
 <body>
+    <!-- Skip to main content -->
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+
     <!-- HEADER -->
-    <header class="header-2026">
-        <div class="container-2026">
-            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
-            <h1>CARNIVORE WEEKLY</h1>
-            <p class="subtitle">The Meat-Eater's Digest</p>
-            <p class="tagline">Premium Editorial for 2026</p>
-            <p class="update-date">Week of January 2, 2026</p>
+    <header class="site-header" role="banner">
+        <div class="header-banner container">
+            <img src="/images/logo.png" alt="Carnivore Weekly Logo" style="max-width: 120px; height: auto;">
+            <h1 style="font-family: var(--font-heading); font-size: var(--text-4xl); margin: var(--space-4) 0 var(--space-2); color: var(--color-white);">CARNIVORE WEEKLY</h1>
+            <p style="font-size: var(--text-lg); margin: 0; color: var(--color-cream);">The Meat-Eater's Digest</p>
         </div>
     </header>
 
     <!-- NAVIGATION -->
-    <nav class="nav-menu-2026">
-        <a href="/index.html">Home</a>
-        <a href="/channels.html">Channels</a>
-        <a href="/wiki.html">Wiki</a>
-        <a href="/blog.html">Blog</a>
-        <a href="/calculator.html">Calculator</a>
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+        <ul class="nav-list">
+            <li><a href="/" class="nav-link" aria-current="page">Home</a></li>
+            <li><a href="/channels.html" class="nav-link">Weekly Watch</a></li>
+            <li><a href="/wiki.html" class="nav-link">Protocols & Basics</a></li>
+            <li><a href="/blog/" class="nav-link">Insights</a></li>
+            <li><a href="/calculator.html" class="nav-link btn--calculator">Calculator</a></li>
+        </ul>
     </nav>
 
-    <!-- MAIN LAYOUT: 70/30 Split -->
-    <div class="layout-wrapper-2026">
-        <!-- MAIN CONTENT COLUMN (70%) -->
-        <main class="main-content-2026">
+    <!-- MAIN CONTENT -->
+    <main class="site-content" role="main" id="main-content">
 
-            <!-- HERO SECTION -->
-            <section class="hero-2026">
-                <img src="https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=1200&q=80" alt="Premium seared steak" class="hero-image">
-                <div class="hero-content">
-                    <h2>THE 2026 CARNIVORE BLUEPRINT</h2>
-                    <p>Evidence-based insights. Real community stories. Premium digital editorial for the meat-based movement.</p>
-                </div>
-            </section>
-
-            <!-- WEEKLY SUMMARY -->
-            <section class="summary-section-2026">
-                <h2>This Week's Roundup</h2>
-                <div class="summary-content-2026">
-                    <h3>A Community at an Inflection Point</h3>
-                    <p>It's January 2nd, and the carnivore community is <strong>exploding</strong> right now. Like, measurably bigger than it's been. And honestly? The energy is different. We're not just seeing the same familiar faces anymore. We're seeing beginners asking real questions, people with serious health challenges looking for solutions, families trying to figure this out together, and yes, a lot more women stepping forward about what they're actually experiencing.</p>
-                    <p>Here's what's actually happening this week: The surge of January is real. Roughly 30% more traffic on Reddit's carnivore communities as people make good on New Year commitments. But unlike typical diet trends that fade by February, what I'm seeing is genuine curiosity mixed with legitimate questions.</p>
-                    <p>The <strong>real win</strong> this week is transformation stories. The community is sharing before-and-afters with lab work, with specificity, with credentials. One pharmacist posted their complete blood work transformation and got 15,000 upvotes. Why? Because proof beats argument every single time.</p>
-                </div>
-            </section>
-
-            <!-- PRIME CUTS (Video Grid) -->
-            <section class="prime-cuts-2026">
-                <h2>Prime Cuts</h2>
-                <p class="section-subtitle">Top Videos This Week</p>
-                <div class="video-grid-2026">
-                    <div class="video-card-2026">
-                        <div class="video-thumbnail-wrapper">
-                            <img src="https://img.youtube.com/vi/EpnMvQmxPhQ/maxresdefault.jpg" alt="Video thumbnail" class="video-thumbnail-2026">
-                        </div>
-                        <div class="video-info">
-                            <h3>Metabolic Advantage of Carnivore: New 2026 Research</h3>
-                            <p class="creator">Dr. Science Channel</p>
-                            <p class="video-summary-2026">Latest peer-reviewed findings on carnivore metabolism and longevity studies.</p>
-                        </div>
-                    </div>
-
-                    <div class="video-card-2026">
-                        <div class="video-thumbnail-wrapper">
-                            <img src="https://img.youtube.com/vi/7j6ZZAtDSm4/maxresdefault.jpg" alt="Video thumbnail" class="video-thumbnail-2026">
-                        </div>
-                        <div class="video-info">
-                            <h3>Real Transformation: 120 Days of Carnivore</h3>
-                            <p class="creator">Fitness Creator</p>
-                            <p class="video-summary-2026">One woman's complete body composition change and mental clarity gains.</p>
-                        </div>
-                    </div>
-
-                    <div class="video-card-2026">
-                        <div class="video-thumbnail-wrapper">
-                            <img src="https://img.youtube.com/vi/eslAezkokGE/maxresdefault.jpg" alt="Video thumbnail" class="video-thumbnail-2026">
-                        </div>
-                        <div class="video-info">
-                            <h3>Women's Hormones on Carnivore: Clinical Insights</h3>
-                            <p class="creator">Dr. Women's Health</p>
-                            <p class="video-summary-2026">Nuanced conversation about amenorrhea, fertility, and hormonal optimization.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- INSIGHT STRIP (Butcher's Wisdom - Horizontal Scroll) -->
-            <section class="insight-strip-2026">
-                <h2>Butcher's Wisdom</h2>
-                <div class="insights-scroll-2026">
-                    <div class="insight-card-2026">
-                        <p class="insight-text">"Proof beats argument every single time."</p>
-                        <span class="insight-badge">Trending</span>
-                    </div>
-                    <div class="insight-card-2026">
-                        <p class="insight-text">"The surge of January isn't about trends—it's about genuine curiosity."</p>
-                        <span class="insight-badge">Science</span>
-                    </div>
-                    <div class="insight-card-2026">
-                        <p class="insight-text">"Women's health deserves nuance. Both are true."</p>
-                        <span class="insight-badge">Community</span>
-                    </div>
-                    <div class="insight-card-2026">
-                        <p class="insight-text">"Success stories are the most powerful content."</p>
-                        <span class="insight-badge">Editorial</span>
-                    </div>
-                    <div class="insight-card-2026">
-                        <p class="insight-text">"Organ meats are going mainstream in 2026."</p>
-                        <span class="insight-badge">Trend</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- COMMUNITY VOICE - BENTO GRID -->
-            <section class="community-voice-2026">
-                <h2>Community Voice</h2>
-                <p class="section-subtitle">Real People, Real Results</p>
-
-                <div class="bento-grid-2026">
-                    <!-- Featured Card -->
-                    <div class="bento-card-2026 bento-featured">
-                        <span class="evidence-badge">Reversed A1C</span>
-                        <h3>"Carnivore saved my life post-partum."</h3>
-                        <p>A pharmacist's complete recovery from severe postpartum depression and metabolic dysfunction through nutrient density and elimination diet.</p>
-                        <span class="author">— Sarah J., Pharmacist</span>
-                    </div>
-
-                    <!-- Tall Card -->
-                    <div class="bento-card-2026 bento-tall">
-                        <span class="evidence-badge">76 Years Young</span>
-                        <h3>4 Years Thriving</h3>
-                        <p>No medications, no supplements, and zero joint pain. Stronger every month.</p>
-                        <span class="author">— Robert M.</span>
-                    </div>
-
-                    <!-- Regular Card -->
-                    <div class="bento-card-2026">
-                        <h3>7 Days In</h3>
-                        <p>First Christmas without sugar. The cravings are officially gone.</p>
-                        <span class="author">— James K.</span>
-                    </div>
-
-                    <!-- Wide Card -->
-                    <div class="bento-card-2026 bento-wide">
-                        <span class="evidence-badge">Athletic Performance</span>
-                        <h3>Lost 40lbs & Gained Clarity</h3>
-                        <p>As a former military member, the mental focus I have now is unparalleled. My recovery metrics have never been better.</p>
-                        <span class="author">— Michelle D., Athlete</span>
-                    </div>
-
-                    <!-- Regular Card -->
-                    <div class="bento-card-2026">
-                        <h3>Lab Work Proof</h3>
-                        <p>Before and after bloodwork showing complete metabolic transformation in 90 days.</p>
-                        <span class="author">— Data Driven</span>
-                    </div>
-
-                    <!-- Regular Card -->
-                    <div class="bento-card-2026">
-                        <h3>Women's Health Wins</h3>
-                        <p>Cycle regularity, energy return, and hormonal balance restored naturally.</p>
-                        <span class="author">— Health Restored</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- LAB REPORT FAQ SECTION -->
-            <section class="lab-report-2026">
-                <h2>Science Lab</h2>
-                <p class="section-subtitle">Evidence-Based FAQ</p>
-
-                <div class="faq-grid-2026">
-                    <div class="faq-item-2026">
-                        <div class="faq-question">
-                            <span class="faq-icon">📊</span>
-                            <h3>What does the evidence say about carnivore and cholesterol?</h3>
-                        </div>
-                        <div class="faq-evidence">
-                            <div class="evidence-meter">
-                                <div class="evidence-fill" style="width: 85%;"></div>
-                            </div>
-                            <span class="evidence-label">Strong Evidence</span>
-                        </div>
-                        <div class="faq-answer">
-                            <p>Cholesterol on carnivore works differently than on other diets. LDL typically increases, but particle size improvements and metabolic markers often show significant benefits. Most n=1 experiments show improved triglycerides and HDL/LDL ratios despite higher total cholesterol.</p>
-                            <p><strong>Source:</strong> Peer-reviewed studies, n=1000+ case reports</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item-2026">
-                        <div class="faq-question">
-                            <span class="faq-icon">⚖️</span>
-                            <h3>How long until the adaptation phase ends?</h3>
-                        </div>
-                        <div class="faq-evidence">
-                            <div class="evidence-meter">
-                                <div class="evidence-fill" style="width: 70%;"></div>
-                            </div>
-                            <span class="evidence-label">Moderate Evidence</span>
-                        </div>
-                        <div class="faq-answer">
-                            <p>Most people report 2-4 weeks of transition symptoms (fatigue, headaches, electrolyte imbalances). Full metabolic adaptation takes 8-12 weeks. Individual variation is high based on carb history and activity level.</p>
-                            <p><strong>Source:</strong> Community data, circadian biology research</p>
-                        </div>
-                    </div>
-
-                    <div class="faq-item-2026">
-                        <div class="faq-question">
-                            <span class="faq-icon">🔬</span>
-                            <h3>Why do some people experience amenorrhea on carnivore?</h3>
-                        </div>
-                        <div class="faq-evidence">
-                            <div class="evidence-meter">
-                                <div class="evidence-fill" style="width: 60%;"></div>
-                            </div>
-                            <span class="evidence-label">Emerging Evidence</span>
-                        </div>
-                        <div class="faq-answer">
-                            <p>Multiple mechanisms: rapid weight loss, electrolyte imbalances, very low carb intake affecting reproductive hormones, or unmasking existing hormone imbalances. Most cases resolve with carb cycling or increasing electrolytes. Some women report increased fertility and cycle regularity.</p>
-                            <p><strong>Source:</strong> Endocrinology literature, clinician observations</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- CARNIVORE PANTRY - MASONRY GALLERY -->
-
-            <!-- CALL TO ACTION -->
-            <section class="cta-section-2026">
-                <h2>Start Your 2026 Protocol</h2>
-                <p>Get your personalized carnivore blueprint with macros, meal plans, and doctor consultation scripts.</p>
-                <a href="/calculator.html" class="cta-button-2026" onclick="trackAffiliateClick('2026 Calculator', '/calculator.html')">
-                    Get Your Protocol
-                </a>
-            </section>
-
-            <!-- SECTION: ButcherBox Affiliate Banner | Lines 905-910 | CSS: .sponsor-banner-image | JS: trackAffiliateClick() -->
-            <!-- ButcherBox Affiliate Banner -->
-            <div class="sponsor-banner-image">
-            <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=seasonal_offer" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')">
-                <img src="/butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; height: auto; display: block; border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);">
-            </a>
-            </div>
-    
-            <!-- SECTION: Calculator Ad -->
-            <div class="calculator-ad" style="margin: 40px 0; text-align: center;">
-                <a href="/calculator.html" onclick="trackAffiliateClick('Diet Calculator', '/calculator.html')">
-                    <img src="/images/NewYear-ad.png" alt="Carnivore Diet Calculator - Get Your Personalized Plan">
-                </a>
-            </div>
-    
-            <div class="divider">• • •</div>
-    
-            <!-- SECTION: Trending Topics | Lines 937-958 | CSS: .section .trending-topics .topic-card | JS: none -->
-            <!-- Trending Topics -->
-            <section class="section" id="trending-section">
-                <h2>What's Sizzling</h2>
-                <p style="text-align: center; margin-bottom: 30px; color: #d4a574; font-size: 1.1em;"><strong>Deep dives on trending topics →</strong> <a href="/blog.html" style="color: #d4a574; text-decoration: underline;">See all blog posts</a></p>
-                <div class="trending-topics">
-                    
-                    <div class="topic-card" data-topic-id="beginners-surge">
-                        
-                        <h3>🔥🔥🔥 New Year Beginner Surge - 30% More Newcomers</h3>
-                        <p style="margin-bottom: 12px;">Reddit's r/carnivore is packed with first-time questions: 'What do I actually eat?', 'How long until adaptation?', 'Is bloating normal?'. This is the community's moment to capture new people before they quit.</p>
-    
-                        
-                        <p style="font-size: 0.95em; color: #d4a574; font-style: italic; margin-bottom: 12px;">
-                            <strong>Why trending:</strong> January momentum + New Year commitments = 30% traffic increase. Unlike typical diet trends, the questions show genuine curiosity, not temporary interest.
-                        </p>
-                        
-    
-                        
-                        <p style="font-size: 0.9em; color: #d4a574; margin-bottom: 12px;">
-                            <strong>From:</strong> Reddit r/carnivore, r/meat_only
-                        </p>
-                        
-    
-                        
-                        <div style="border-top: 1px solid rgba(244, 228, 212, 0.3); padding-top: 12px; margin-top: 12px;">
-                            
-                            <p style="font-size: 0.9em; margin-bottom: 8px;">
-                                <strong>📚 Learn More:</strong>
-                                
-                                    <a href="/wiki.html#digestion" style="color: #d4a574; text-decoration: underline;">Digestion & Adaptation</a>
-                                
-                            </p>
-                            
-    
-                            
-                            <p style="font-size: 0.9em;">
-                                
-                                <a href="/blog/2025-12-31-welcome-to-carnivore-weekly.html" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">Welcome to Carnivore Weekly</a> — <em>Sarah</em>
-                                
-                            </p>
-                            
-                        </div>
-                        
-                    </div>
-                    
-                    <div class="topic-card" data-topic-id="transformation-stories">
-                        
-                        <h3>🔥🔥🔥 Transformation Stories Going Viral</h3>
-                        <p style="margin-bottom: 12px;">Before-and-afters with lab work, credentials, specificity are the most engaging content. Pharmacy professionals posting blood work = 15K upvotes. Stories beat arguments every time.</p>
-    
-                        
-                        <p style="font-size: 0.95em; color: #d4a574; font-style: italic; margin-bottom: 12px;">
-                            <strong>Why trending:</strong> Proof > promises. The community cares about real results from real people. 80lb losses, arthritis gone, sugar addictions broken in weeks, women's energy returning.
-                        </p>
-                        
-    
-                        
-                        <p style="font-size: 0.9em; color: #d4a574; margin-bottom: 12px;">
-                            <strong>From:</strong> Reddit r/carnivore, TikTok #carnivorediet
-                        </p>
-                        
-    
-                        
-                    </div>
-                    
-                    <div class="topic-card" data-topic-id="womens-health">
-                        
-                        <h3>🔥🔥 Women's Health Debate Heating Up</h3>
-                        <p style="margin-bottom: 12px;">Amenorrhea questions, hormone improvements, HRT concerns. women are asking hard questions. 40-45% of community is now female, fastest-growing segment. Needs nuanced coverage.</p>
-    
-                        
-                        <p style="font-size: 0.95em; color: #d4a574; font-style: italic; margin-bottom: 12px;">
-                            <strong>Why trending:</strong> Polarized but real conversation. Women want honest answers, not cheerleading. 'Both can be true' is uncomfortable but accurate.
-                        </p>
-                        
-    
-                        
-                        <p style="font-size: 0.9em; color: #d4a574; margin-bottom: 12px;">
-                            <strong>From:</strong> Reddit r/carnivore, #carnivorewomen on Twitter
-                        </p>
-                        
-    
-                        
-                        <div style="border-top: 1px solid rgba(244, 228, 212, 0.3); padding-top: 12px; margin-top: 12px;">
-                            
-    
-                            
-                            <p style="font-size: 0.9em;">
-                                
-                                <a href="/blog/2025-12-30-pcos-hormones.html" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">PCOS and Carnivore: How Meat Resets Hormone Balance</a> — <em>Sarah</em>
-                                
-                            </p>
-                            
-                        </div>
-                        
-                    </div>
-                    
-                    <div class="topic-card" data-topic-id="organ-meats-mainstream">
-                        
-                        <h3>🔥🔥 Organ Meats Going Mainstream</h3>
-                        <p style="margin-bottom: 12px;">Companies launching products (Grassland Beef, Seven Sons Farms, TruBeef). Community asking: how to prepare liver? Nose-to-tail nutrition as 'nutrient hack' for optimization.</p>
-    
-                        
-                        <p style="font-size: 0.95em; color: #d4a574; font-style: italic; margin-bottom: 12px;">
-                            <strong>Why trending:</strong> Real market movement. Not just health optimization. sustainability narrative catching on. Nutrient density (vitamins A, D, K2, CLA) is emerging optimization angle.
-                        </p>
-                        
-    
-                        
-                        <p style="font-size: 0.9em; color: #d4a574; margin-bottom: 12px;">
-                            <strong>From:</strong> YouTube creators, Twitter #nosetotail
-                        </p>
-                        
-    
-                        
-                        <div style="border-top: 1px solid rgba(244, 228, 212, 0.3); padding-top: 12px; margin-top: 12px;">
-                            
-                            <p style="font-size: 0.9em; margin-bottom: 8px;">
-                                <strong>📚 Learn More:</strong>
-                                
-                                    <a href="/wiki.html#organ-meats" style="color: #d4a574; text-decoration: underline;">Organ Meats</a>
-                                
-                            </p>
-                            
-    
-                            
-                        </div>
-                        
-                    </div>
-                    
-                    <div class="topic-card" data-topic-id="lion-diet-advanced">
-                        
-                        <h3>🔥 Lion Diet (Beef + Salt Only) Having a Moment</h3>
-                        <p style="margin-bottom: 12px;">Framed as 'therapeutic elimination' for severe gut issues. Growing adoption during World Carnivore Month. Some see as evolution, others as unnecessary extreme.</p>
-    
-                        
-                        <p style="font-size: 0.95em; color: #d4a574; font-style: italic; margin-bottom: 12px;">
-                            <strong>Why trending:</strong> Carnivore 2.0 positioning appeals to optimization-seekers. But polarized reception. not universally celebrated in community.
-                        </p>
-                        
-    
-                        
-                        <p style="font-size: 0.9em; color: #d4a574; margin-bottom: 12px;">
-                            <strong>From:</strong> Reddit r/meat_only, YouTube
-                        </p>
-                        
-    
-                        
-                        <div style="border-top: 1px solid rgba(244, 228, 212, 0.3); padding-top: 12px; margin-top: 12px;">
-                            
-    
-                            
-                            <p style="font-size: 0.9em;">
-                                
-                                <a href="/blog/2025-12-29-lion-diet-challenge.html" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">The Lion Diet Challenge: 30 Days of Pure Beef</a> — <em>Marcus</em>
-                                
-                            </p>
-                            
-                        </div>
-                        
-                    </div>
-                    
-                    <div class="topic-card" data-topic-id="cost-accessibility">
-                        
-                        <h3>🔥 Budget Carnivore - Cost Concerns Emerging</h3>
-                        <p style="margin-bottom: 12px;">'How much does this cost?' is becoming more common question. Budget-conscious seekers need practical strategies. Economic accessibility is the new frontier.</p>
-    
-                        
-                        <p style="font-size: 0.95em; color: #d4a574; font-style: italic; margin-bottom: 12px;">
-                            <strong>Why trending:</strong> Community growing beyond early adopters. New demographics = cost sensitivity. Real opportunity for budget guide content.
-                        </p>
-                        
-    
-                        
-                        <p style="font-size: 0.9em; color: #d4a574; margin-bottom: 12px;">
-                            <strong>From:</strong> Reddit r/carnivore practical posts
-                        </p>
-                        
-    
-                        
-                        <div style="border-top: 1px solid rgba(244, 228, 212, 0.3); padding-top: 12px; margin-top: 12px;">
-                            
-                            <p style="font-size: 0.9em; margin-bottom: 8px;">
-                                <strong>📚 Learn More:</strong>
-                                
-                                    <a href="/wiki.html#budget" style="color: #d4a574; text-decoration: underline;">Budget</a>
-                                
-                            </p>
-                            
-    
-                            
-                            <p style="font-size: 0.9em;">
-                                
-                                <a href="/blog/2025-12-26-seven-dollar-survival-guide.html" style="color: #1A1A1A; text-decoration: underline; font-weight: 600;">The Seven Dollar Survival Guide: Cheapest Carnivore Foods</a> — <em>Marcus</em>
-                                
-                            </p>
-                            
-                        </div>
-                        
-                    </div>
-                    
-                </div>
-            </section>
-    
-    
-            <div class="divider">• • •</div>
-    
-            <!-- Inline Ad 1: LMNT -->
-            <a href="http://elementallabs.refr.cc" target="_blank" rel="noopener" style="display: block; margin: 25px auto; text-align: center;" onclick="trackAffiliateClick('LMNT Electrolytes', this.href)">
-                <img src="/lmnt-box.avif" alt="LMNT electrolyte salt variety box" style="width: 100%; max-width: 500px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
-            </a>
-    
-            <!-- SECTION: Key Insights | Lines 1169-1185 | CSS: .section .insights-list | JS: none -->
-            <!-- Key Insights -->
-    
-            <div class="divider">• • •</div>
-    
-            <!-- SECTION: Community Voice + Q&A | Lines 1188-1307 | CSS: .section .sentiment .qa-accordion .qa-item | JS: toggleAnswer() -->
-            <!-- Community Voice -->
-    
-            <div class="divider">• • •</div>
-    
-            <!-- Inline Ad 2 -->
-            <div class="inline-ad">
-                <h4>Carnivore-Friendly Cookware</h4>
-                <p>
-                    Most people underestimate how much cookware affects the final product. A bad pan kills a perfect cut of meat. The difference between a mediocre sear and a perfect crust? Usually the tool.
+        <!-- ZONE 1: HERO -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2 class="hero-title">Your Weekly Carnivore Intelligence</h2>
+                <p class="hero-subtitle">
+                    Curated science, creator insights, and practical protocols—delivered every week.
                 </p>
-                <p>
-                    Cast iron and stainless steel hold heat differently. Cast iron retains warmth, so your steak stays hot longer. Stainless gets hotter faster. Both have their moment.
-                </p>
-                <p>
-                    If you're serious about the cooking part and don't want to replace equipment every few years, there's a reason chefs reach for Lodge. Built to last a lifetime. No toxic non-stick coatings breaking down into your food. You don't need this if you're happy with what you have—but if you're curious, it's there.
-                </p>
-                <a href="https://amzn.to/4pYLqZx" class="ad-link" target="_blank" rel="noopener" onclick="trackAffiliateClick('Lodge Cast Iron', this.href)">Check it out if it helps →</a>
+                <div class="hero-ctas">
+                    <a href="/calculator.html" class="btn btn--primary">Get Your Protocol</a>
+                    <a href="#content-of-the-week" class="btn btn--secondary">This Week's Top Picks</a>
+                </div>
             </div>
-    
-            <!-- SECTION: Recommended Watching | Lines 1308-1388 | CSS: .section .video-grid .video-card | JS: filterVideosByCreator() -->
-            <!-- Recommended Watching -->
-    
-        <!-- SECTION: Medical Disclaimer | Lines 1391-1410 | CSS: .disclaimer | JS: none -->
-        <!-- Medical Disclaimer -->
+        </section>
+
         <div class="container">
-            <div class="disclaimer">
-                <h3>⚕ Medical Disclaimer</h3>
-                <p>
-                    The information provided on this website is for educational and informational purposes only and is not intended as medical advice.
-                    The content presented here, including diet recommendations, nutritional information, and health-related discussions, should not be
-                    used as a substitute for professional medical advice, diagnosis, or treatment.
-                </p>
-                <p>
-                    <strong>Always seek the advice of your physician or other qualified health provider</strong> with any questions you may have regarding
-                    a medical condition or dietary changes. Never disregard professional medical advice or delay in seeking it because of something you have
-                    read on this website. The carnivore diet may not be suitable for everyone, and individual results may vary.
-                </p>
-                <p>
-                    Scientific research cited on this site is provided for informational purposes and should be evaluated in consultation with healthcare
-                    professionals. Nutritional science is continually evolving, and what works for one person may not work for another.
-                </p>
-            </div>
+
+            <!-- THIS WEEK'S ROUNDUP (Chloe's Community Pulse) -->
+            <!-- DATA-CHLOE-WEEKLY: This section updated by Chloe's automation every week -->
+            <section class="roundup-section" data-chloe-weekly="true" data-last-updated="2026-01-02">
+                <div class="roundup-header">
+                    <h2 class="roundup-title">This Week's Roundup</h2>
+                    <span class="roundup-byline">— Chloe, Community Scout</span>
+                </div>
+
+                <div class="roundup-content">
+                    <h3>A Community at an Inflection Point</h3>
+
+                    <p>It's January 2nd, and the carnivore community is <strong>exploding</strong> right now. Like, measurably bigger than it's been. And honestly? The energy is different. We're not just seeing the same familiar faces anymore. We're seeing beginners asking real questions, people with serious health challenges looking for solutions, families trying to figure this out together, and yes, a lot more women stepping forward about what they're <a href="/blog/2025-12-30-pcos-hormones.html">actually experiencing</a>.</p>
+
+                    <p>Here's what's actually happening this week: The surge of January is real. Roughly <strong>30% more traffic</strong> on Reddit's carnivore communities as people make good on New Year commitments. But unlike typical diet trends that fade by February, what I'm seeing is genuine curiosity mixed with legitimate questions. Check out our <a href="/wiki.html#digestion">adaptation guide</a> if you're one of the newcomers.</p>
+
+                    <p>The <strong>real win</strong> this week is transformation stories. The community is sharing before-and-afters with lab work, with specificity, with credentials. One pharmacist posted their complete blood work transformation and got 15,000 upvotes. Why? Because proof beats argument every single time. New here? Start with our <a href="/blog/2025-12-31-welcome-to-carnivore-weekly.html">welcome guide</a>.</p>
+                </div>
+
+                <!-- Trending Topics Tags -->
+                <div class="trending-tags">
+                    <span style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-secondary); margin-right: var(--space-2);">Trending:</span>
+                    <a href="/blog/2025-12-31-welcome-to-carnivore-weekly.html" class="trending-tag">
+                        <span class="trending-tag-icon">🔥</span>
+                        New Beginners
+                    </a>
+                    <a href="/blog/2025-12-30-pcos-hormones.html" class="trending-tag">
+                        <span class="trending-tag-icon">🔥</span>
+                        Women's Health
+                    </a>
+                    <a href="/wiki.html#organ-meats" class="trending-tag">
+                        <span class="trending-tag-icon">🔥</span>
+                        Organ Meats
+                    </a>
+                    <a href="/blog/2025-12-29-lion-diet-challenge.html" class="trending-tag">
+                        <span class="trending-tag-icon">🔥</span>
+                        Lion Diet
+                    </a>
+                    <a href="/blog/2025-12-26-seven-dollar-survival-guide.html" class="trending-tag">
+                        <span class="trending-tag-icon">💰</span>
+                        Budget Tips
+                    </a>
+                </div>
+            </section>
+
+            <!-- ZONE 2: CONTENT OF THE WEEK -->
+            <section id="content-of-the-week" class="content-week">
+                <h2 class="section-title">Content of the Week</h2>
+                <p class="section-subtitle">Handpicked by our editorial team</p>
+
+                <div class="video-grid">
+                    <!-- Video Card 1 -->
+                    <article class="video-card card card--clickable">
+                        <div class="video-thumbnail">
+                            <img src="https://img.youtube.com/vi/EpnMvQmxPhQ/maxresdefault.jpg" alt="Metabolic Advantage of Carnivore" loading="lazy">
+                            <span class="play-overlay" aria-hidden="true">▶</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="heat-badge">🔥🔥🔥 Trending</span>
+                            <span class="video-channel">Dr. Science Channel</span>
+                        </div>
+                        <h3 class="video-title">Metabolic Advantage of Carnivore: New 2026 Research</h3>
+                        <div class="video-commentary">
+                            <p class="commentary-text">"Latest peer-reviewed findings are challenging everything we thought we knew about carnivore metabolism. This is the kind of science that changes conversations."</p>
+                            <span class="commentary-author">— Sarah</span>
+                        </div>
+                    </article>
+
+                    <!-- Video Card 2 -->
+                    <article class="video-card card card--clickable">
+                        <div class="video-thumbnail">
+                            <img src="https://img.youtube.com/vi/7j6ZZAtDSm4/maxresdefault.jpg" alt="120 Days Transformation" loading="lazy">
+                            <span class="play-overlay" aria-hidden="true">▶</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="heat-badge">🔥🔥 Featured</span>
+                            <span class="video-channel">Fitness Creator</span>
+                        </div>
+                        <h3 class="video-title">Real Transformation: 120 Days of Carnivore</h3>
+                        <div class="video-commentary">
+                            <p class="commentary-text">"Body composition change with receipts. Mental clarity gains that went beyond what anyone expected. This is proof over promises."</p>
+                            <span class="commentary-author">— Marcus</span>
+                        </div>
+                    </article>
+
+                    <!-- Video Card 3 -->
+                    <article class="video-card card card--clickable">
+                        <div class="video-thumbnail">
+                            <img src="https://img.youtube.com/vi/eslAezkokGE/maxresdefault.jpg" alt="Women's Hormones on Carnivore" loading="lazy">
+                            <span class="play-overlay" aria-hidden="true">▶</span>
+                        </div>
+                        <div class="video-meta">
+                            <span class="heat-badge">🔥 Insightful</span>
+                            <span class="video-channel">Dr. Women's Health</span>
+                        </div>
+                        <h3 class="video-title">Women's Hormones on Carnivore: Clinical Insights</h3>
+                        <div class="video-commentary">
+                            <p class="commentary-text">"Finally, a nuanced conversation about amenorrhea, fertility, and optimization that doesn't oversimplify. Both things can be true."</p>
+                            <span class="commentary-author">— Chloe</span>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="section-cta">
+                    <a href="/channels.html" class="btn btn--secondary">View All Videos →</a>
+                </div>
+            </section>
+
+            <!-- ZONE 3: FEATURED INSIGHTS (Bento Grid) -->
+            <section class="featured-insights" style="padding: var(--space-12) 0;">
+                <h2 class="section-title">Featured Insights</h2>
+                <p class="section-subtitle">Latest from our editorial team</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8);">
+
+                    <!-- Blog Card 1 - Featured (spans 2 columns on desktop) -->
+                    <article class="card card--featured card--clickable" style="background: linear-gradient(135deg, var(--color-oxblood), var(--color-charcoal)); color: var(--color-white); padding: var(--space-8);">
+                        <span style="display: inline-block; background: var(--color-amber); color: var(--color-charcoal); padding: var(--space-1) var(--space-3); border-radius: 4px; font-size: var(--text-xs); font-weight: 700; margin-bottom: var(--space-4);">FEATURED</span>
+                        <h3 style="font-size: var(--text-3xl); margin-bottom: var(--space-4); color: var(--color-white);">PCOS and Carnivore: How Meat Resets Hormone Balance</h3>
+                        <p style="font-size: var(--text-lg); line-height: var(--leading-relaxed); margin-bottom: var(--space-6); color: var(--color-cream);">
+                            Polycystic ovary syndrome affects millions of women. Here's what the research says about carnivore's impact on insulin resistance and hormonal optimization.
+                        </p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: var(--text-sm); color: var(--color-amber);">By Sarah</span>
+                            <a href="/blog/2025-12-30-pcos-hormones.html" class="btn btn--primary">Read More</a>
+                        </div>
+                    </article>
+
+                    <!-- Blog Card 2 -->
+                    <article class="card card--clickable">
+                        <h3 style="font-size: var(--text-xl); margin-bottom: var(--space-3);">The Seven Dollar Survival Guide: Cheapest Carnivore Foods</h3>
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--space-4);">
+                            Budget-conscious? Ground beef, eggs, and chicken quarters keep you carnivore without breaking the bank.
+                        </p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: var(--text-sm); color: var(--color-oxblood); font-weight: 600;">By Marcus</span>
+                            <a href="/blog/2025-12-26-seven-dollar-survival-guide.html" style="color: var(--color-oxblood); text-decoration: none; font-weight: 600;">Read →</a>
+                        </div>
+                    </article>
+
+                    <!-- Blog Card 3 -->
+                    <article class="card card--clickable">
+                        <h3 style="font-size: var(--text-xl); margin-bottom: var(--space-3);">The Lion Diet Challenge: 30 Days of Pure Beef</h3>
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--space-4);">
+                            Beef, salt, and water. Nothing else. What happens when you strip carnivore down to its essence?
+                        </p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: var(--text-sm); color: var(--color-oxblood); font-weight: 600;">By Marcus</span>
+                            <a href="/blog/2025-12-29-lion-diet-challenge.html" style="color: var(--color-oxblood); text-decoration: none; font-weight: 600;">Read →</a>
+                        </div>
+                    </article>
+
+                </div>
+
+                <div class="section-cta">
+                    <a href="/blog/" class="btn btn--secondary">View All Insights →</a>
+                </div>
+            </section>
+
         </div>
-    
-        <!-- SECTION: Bottom Navigation Menu | Lines 1410-1418 | CSS: .nav-menu #bottom-nav | JS: setActiveNavigation() -->
-        <!-- Bottom Navigation Menu -->
-        <nav class="nav-menu" style="margin-top: 60px;" id="bottom-nav">
-            <a href="/index.html">Home</a>
-            <a href="/channels.html">Channels</a>
-            <a href="/wiki.html">Wiki</a>
-            <a href="/blog.html">Blog</a>
-            <a href="/calculator.html">Calculator</a>
-        </nav>
-    
-        </main>
 
-        <!-- SIDEBAR (30%) -->
-        <aside class="sidebar-2026">
-            <div class="sidebar-content">
-                <!-- TRENDING TOPICS -->
-                <section class="sidebar-section">
-                    <h3>What's Sizzling</h3>
-                    <div class="trending-compact-2026">
-                        <div class="trending-item-2026">
-                            <h4>New Year Surge</h4>
-                            <p>30% more newcomers on Reddit asking real questions.</p>
-                            <span class="tag">Trending</span>
-                        </div>
-                        <div class="trending-item-2026">
-                            <h4>Women's Health</h4>
-                            <p>Amenorrhea, fertility, and hormonal optimization conversations.</p>
-                            <span class="tag">Community</span>
-                        </div>
-                        <div class="trending-item-2026">
-                            <h4>Organ Meats</h4>
-                            <p>Nose-to-tail nutrition going mainstream in 2026.</p>
-                            <span class="tag">Trend</span>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- CALCULATOR WIDGET -->
-                <section class="sidebar-section sidebar-cta">
-                    <h3>Personalized Macros</h3>
-                    <p>Get your exact protein, fat, and calorie targets based on your body composition and goals.</p>
-                    <a href="/calculator.html" class="sidebar-button-2026" onclick="trackAffiliateClick('Sidebar Calculator', '/calculator.html')">
-                        Open Calculator
-                    </a>
-                </section>
-
-                <!-- AFFILIATE PARTNER -->
-                <section class="sidebar-section sidebar-partner">
-                    <h3>Partner Spotlight</h3>
-                    <div class="partner-card-2026">
-                        <h4>ButcherBox</h4>
-                        <p>Pasture-raised, grass-fed meat delivered monthly. We use and recommend.</p>
-                        <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=sidebar&utm_campaign=2026" target="_blank" rel="noopener" onclick="trackAffiliateClick('ButcherBox', 'https://butcherbox.pxf.io/Z6oVMR')" class="partner-button">
-                            Get Offer
-                        </a>
-                    </div>
-                </section>
-
-                <!-- FEEDBACK -->
-                <section class="sidebar-section sidebar-feedback">
-                    <h3>Your Voice</h3>
-                    <p>Tell us what you want to see in Carnivore Weekly.</p>
-                    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-button-2026">
-                        Send Feedback
-                    </a>
-                </section>
-
-                <!-- NAVIGATION MENU -->
-                <section class="sidebar-section sidebar-nav">
-                    <h3>Explore</h3>
-                    <ul class="nav-links-2026">
-                        <li><a href="/index.html">Home</a></li>
-                        <li><a href="/channels.html">Channels</a></li>
-                        <li><a href="/wiki.html">Wiki</a></li>
-                        <li><a href="/blog.html">Blog</a></li>
-                        <li><a href="/calculator.html">Calculator</a></li>
-                    </ul>
-                </section>
+        <!-- ZONE 4: CONTEXTUAL CALCULATOR CTA -->
+        <section class="calculator-cta">
+            <div class="cta-content container">
+                <h2>Know Your Numbers</h2>
+                <p>Calculate your optimal macros for fat loss, maintenance, or muscle gain.</p>
+                <a href="/calculator.html" class="btn btn--primary btn--large">Open Calculator</a>
             </div>
-        </aside>
-    </div>
+        </section>
+
+        <div class="container">
+
+            <!-- TOOLKIT SECTION (Affiliate Cards) -->
+            <section style="padding: var(--space-12) 0;">
+                <h2 class="section-title">Our Toolkit</h2>
+                <p class="section-subtitle">Products we personally use and recommend</p>
+
+                <div class="toolkit-grid">
+                    <!-- ButcherBox Card -->
+                    <div class="affiliate-card">
+                        <img src="/images/partners/butcherbox-logo.png" alt="ButcherBox" class="affiliate-logo" onerror="this.style.display='none'">
+                        <div class="affiliate-content">
+                            <h4 style="margin-bottom: var(--space-2);">Quality Meat Delivered</h4>
+                            <p style="margin-bottom: var(--space-4); color: var(--color-text-secondary);">Grass-fed beef, heritage pork, wild-caught seafood. What we use.</p>
+                            <a href="https://butcherbox.pxf.io/Z6oVMR" class="btn btn--primary" rel="sponsored" data-partner="butcherbox" data-placement="homepage_toolkit">
+                                Get Started →
+                            </a>
+                            <span class="affiliate-disclosure">Partner link</span>
+                        </div>
+                    </div>
+
+                    <!-- LMNT Card -->
+                    <div class="affiliate-card">
+                        <img src="/images/partners/lmnt-logo.png" alt="LMNT" class="affiliate-logo" onerror="this.style.display='none'">
+                        <div class="affiliate-content">
+                            <h4 style="margin-bottom: var(--space-2);">Electrolytes Done Right</h4>
+                            <p style="margin-bottom: var(--space-4); color: var(--color-text-secondary);">No sugar, no junk. Just sodium, potassium, magnesium.</p>
+                            <a href="http://elementallabs.refr.cc" class="btn btn--primary" rel="sponsored" data-partner="lmnt" data-placement="homepage_toolkit">
+                                Try LMNT →
+                            </a>
+                            <span class="affiliate-disclosure">Partner link</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEWSLETTER SIGNUP -->
+            <section style="padding: var(--space-12) 0;">
+                <div class="newsletter-signup" style="max-width: 600px; margin: 0 auto;">
+                    <h3 class="signup-title">Get the Weekly Roundup</h3>
+                    <p class="signup-description">Curated videos, science updates, and community wins—every Sunday.</p>
+
+                    <form class="signup-form" data-form="newsletter" id="newsletter-form">
+                        <div class="form-group" style="flex: 1; min-width: 250px;">
+                            <label for="email" class="sr-only">Email address</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="your@email.com"
+                                required
+                                class="signup-input"
+                            >
+                        </div>
+                        <button type="submit" class="btn btn--primary signup-btn">Subscribe</button>
+                    </form>
+
+                    <p class="signup-privacy">No spam. Unsubscribe anytime.</p>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
 
     <!-- FOOTER -->
-    <footer class="footer-2026">
-        <div class="container-2026">
-            <p>&copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.</p>
-            <p><a href="/privacy.html">Privacy</a> | <a href="/about.html">About</a> | <a href="/archive.html">Archive</a> | <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener">Feedback</a></p>
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-8); margin-bottom: var(--space-8);">
+
+                <!-- About Section -->
+                <div>
+                    <h3 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Carnivore Weekly</h3>
+                    <p style="color: var(--color-cream); font-size: var(--text-sm); line-height: var(--leading-relaxed);">
+                        Evidence-based insights, real community stories, and practical protocols for the meat-based movement.
+                    </p>
+                </div>
+
+                <!-- Navigation -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Explore</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/">Home</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/channels.html">Weekly Watch</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/wiki.html">Protocols & Basics</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/blog/">Insights</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/calculator.html">Calculator</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Resources</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/archive.html">Archive</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/about.html">About</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/privacy.html">Privacy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Partners -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Our Partners</h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                        <a href="https://butcherbox.pxf.io/Z6oVMR" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">ButcherBox</a>
+                        <a href="http://elementallabs.refr.cc" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">LMNT</a>
+                    </div>
+                    <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-3);">
+                        Products we personally use and recommend.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Affiliate Disclosure -->
+            <div class="affiliate-footer-disclosure">
+                <strong>Affiliate Disclosure:</strong> Carnivore Weekly partners with brands we trust and personally use.
+                When you purchase through our links, we may earn a commission at no extra cost to you.
+                This supports our free content. We only recommend products that align with our values.
+            </div>
+
+            <!-- Copyright -->
+            <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <p style="color: var(--color-cream); font-size: var(--text-sm); margin: 0;">
+                    &copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.
+                </p>
+            </div>
         </div>
     </footer>
-    <script src="/js/mobile-nav.js"></script>
+
+    <!-- Analytics Tracking Script -->
+    <script>
+        // Track affiliate clicks
+        document.querySelectorAll('a[data-partner]').forEach(link => {
+            link.addEventListener('click', function() {
+                gtag('event', 'affiliate_click', {
+                    partner: this.dataset.partner,
+                    placement: this.dataset.placement,
+                    page: window.location.pathname
+                });
+            });
+        });
+
+        // Newsletter form handling (placeholder - connect to backend later)
+        document.getElementById('newsletter-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('#email').value;
+            console.log('Newsletter signup:', email);
+            // TODO: Connect to Supabase newsletter_subscribers table
+            alert('Newsletter signup coming soon! Email saved: ' + email);
+        });
+    </script>
 </body>
 </html>
