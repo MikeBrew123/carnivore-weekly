@@ -85,6 +85,15 @@
     margin-bottom: 0;
 }
 
+/* Higher specificity to override .post-content */
+.post-content .tldr-box h3 {
+    color: #8b4513 !important;
+}
+
+.post-content .tldr-box li {
+    color: #1a120b !important;
+}
+
 /* ============================================
    KEY TAKEAWAY BOX
    ============================================ */
@@ -113,6 +122,16 @@
 
 .key-takeaway p:last-child {
     margin-bottom: 0;
+}
+
+/* Higher specificity to override .post-content p */
+.post-content .key-takeaway p,
+.post-content .key-takeaway h4 {
+    color: #f4e4d4 !important;
+}
+
+.post-content .key-takeaway h4 {
+    color: #ffd700 !important;
 }
 
 /* ============================================
@@ -182,6 +201,15 @@
     background: #f0f7ff;
 }
 
+/* Higher specificity to override .post-content */
+.post-content .callout h4 {
+    color: #8b4513 !important;
+}
+
+.post-content .callout p {
+    color: #1a120b !important;
+}
+
 /* ============================================
    LISTS
    ============================================ */
@@ -221,6 +249,11 @@
     color: #51cf66;
     font-weight: bold;
     font-size: 1.25rem;
+}
+
+/* Higher specificity to override .post-content */
+.post-content .checklist li {
+    color: #1a120b !important;
 }
 
 /* ============================================
@@ -276,6 +309,15 @@
 }
 
 .research-note strong {
+    color: #8b4513 !important;
+}
+
+/* Higher specificity to override .post-content */
+.post-content .research-note {
+    color: #555 !important;
+}
+
+.post-content .research-note strong {
     color: #8b4513 !important;
 }
 
