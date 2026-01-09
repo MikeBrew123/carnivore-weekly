@@ -141,6 +141,14 @@ async function handleCreateCheckout(request, env) {
 
     const { email, first_name, form_data, amount, coupon_code, discount_percent, tier_id } = body;
 
+    // Stripe price ID mapping (server-side security)
+    const stripePriceIds = {
+      bundle: 'price_1SmnylEVDfkpGz8w4WO79kXd',
+      meal_plan: 'price_1SmnxZEVDfkpGz8wKsduACYH',
+      shopping: 'price_1SmnwoEVDfkpGz8wzdG365qu',
+      doctor: 'price_1Smny5EVDfkpGz8wDpgDuKKW',
+    };
+
     // Validate required fields
     if (!email) {
       return createErrorResponse(
@@ -170,6 +178,24 @@ async function handleCreateCheckout(request, env) {
       return createErrorResponse(
         'MISSING_FORM_DATA',
         'form_data is required and must be an object',
+        400
+      );
+    }
+
+    // Validate tier_id and get Stripe price ID
+    if (!tier_id) {
+      return createErrorResponse(
+        'MISSING_TIER_ID',
+        'tier_id is required',
+        400
+      );
+    }
+
+    const stripePriceId = stripePriceIds[tier_id];
+    if (!stripePriceId) {
+      return createErrorResponse(
+        'INVALID_TIER',
+        `Invalid tier_id: ${tier_id}. Must be one of: bundle, meal_plan, shopping, doctor`,
         400
       );
     }
@@ -265,7 +291,7 @@ async function handleCreateCheckout(request, env) {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: env.STRIPE_PRICE_ID,
+          price: stripePriceId,
           quantity: 1,
         },
       ],
