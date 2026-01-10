@@ -43,6 +43,7 @@ env/
 data/*.json
 data/*.csv
 !data/config.json.example
+!data/content-of-the-week.json
 
 # Generated content
 public/weekly/*.html
