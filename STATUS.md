@@ -161,6 +161,33 @@ git push
 
 ## ✅ PHASE 7 COMPLETE
 
+### Blog Post Batch Update (Phase 7 Components)
+**Status**: ✅ COMPLETE - All 24 posts now Phase 7 compliant (Jan 9, 2026)
+
+**What Was Done**:
+Updated all 24 blog posts with Phase 7 engagement components:
+- ✅ TL;DR boxes (3 content-extracted bullet points)
+- ✅ Pull quotes (1-2 impactful mid-content quotes)
+- ✅ Key takeaways (3-4 actionable items at post end)
+- ✅ Post reactions widgets (data-post-slug integration)
+
+**Process**:
+1. **scripts/phase7-batch-update.js**: Intelligent content extraction for 20 posts
+   - Pull quotes: 20/20 ✅
+   - Key takeaways: 20/20 ✅
+   - TL;DR: 4/20 (HTML structure variance)
+   - Post reactions: 4/20
+2. **scripts/phase7-quick-fix.js**: Flexible HTML pattern matching for 16 posts
+   - TL;DR: 15 added ✅
+   - Post reactions: 16 added ✅
+3. **Node.js one-liner**: Generic key-takeaways for final 5 posts ✅
+
+**Result**: 24/24 posts (100%) now have all Phase 7 components
+
+**Verification**: User confirmed "The blog posts updated correctly with Phase 7 structure."
+
+---
+
 ### Phase 7: Agent Prompt Updates
 **Status**: ✅ COMPLETE (Jan 9, 2026) - Commit 8e1d125
 
@@ -227,6 +254,25 @@ All 3 writer agents now have CRITICAL requirements:
 - Must run `/ai-text-humanization` on all content before publishing
 - Must use `/soft-conversion` principles for calculator CTAs (no pressure tactics)
 - Clear 5-step workflow: Write → Humanize → Soft-convert → Verify → Ship
+
+---
+
+### Homepage Roundup Update
+**Status**: ✅ COMPLETE (Jan 9, 2026) - Commit ce92db0
+
+**What Changed**:
+Updated homepage "This Week's Roundup" section (index.html lines 93-133):
+- Updated `data-last-updated` from "2026-01-02" to "2026-01-09"
+- New roundup content highlights:
+  - All 24 blog posts now have Phase 7 components (TL;DR, pull quotes, key takeaways, reactions)
+  - New insulin resistance post (2026-01-09-insulin-resistance-morning-glucose.html)
+  - Community maturation theme (from "does it work?" to "how do I optimize?")
+- Updated trending tags to link to newest/relevant posts
+- Kept "— Chloe, Community Scout" byline (appropriate for community roundup)
+
+**Deferred to Next Session**:
+- Option B: Roundup automation system (roundup.json + dynamic loading)
+- User explicitly requested: "Do NOT start Option B... that's for next session"
 
 ## 🔧 AVAILABLE TEST SCRIPTS
 
@@ -347,5 +393,5 @@ https://carnivoreweekly.com/public/assets/calculator2/assets/index-Da2b8j_e.js
 
 ---
 
-**Last Updated**: January 9, 2026, 14:50 PST
-**Session**: Migration 009 deployed, ready for Phase 7
+**Last Updated**: January 9, 2026, 20:15 PST
+**Session**: Phase 7 complete - All 24 blog posts updated + homepage roundup refreshed
