@@ -379,6 +379,48 @@
                 width: 90%;
             }
         }
+
+        /* Calculator Mobile Fix - Full width on mobile */
+        @media (max-width: 768px) {
+            /* Remove padding layers for calculator page */
+            .layout-wrapper-2026 {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .calculator-main {
+                padding: 0 8px; /* Minimal breathing room */
+            }
+
+            .intro-copy {
+                padding: 16px 8px; /* Reduced from 20px */
+                margin-bottom: 20px;
+            }
+
+            /* Make calculator container fill available width */
+            #root {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            /* Ensure calculator box fills screen width */
+            #root > div {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-main {
+                padding: 0 4px; /* Even less on very small screens */
+            }
+
+            .intro-copy {
+                padding: 12px 4px;
+            }
+        }
     </style>
 </head>
 <body>
