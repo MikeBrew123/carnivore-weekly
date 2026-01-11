@@ -971,10 +971,27 @@ class UnifiedGenerator:
                         }
                     )
 
+                # Build top_videos list for "Top Videos This Week" panel
+                top_videos = []
+                for creator in youtube_data["top_creators"]:
+                    for video in creator.get("videos", [])[:2]:  # Take first 2 per creator
+                        video_obj = {
+                            "video_id": video.get("video_id", ""),
+                            "title": video.get("title", ""),
+                            "creator": creator.get("channel_name", "Unknown"),
+                            "views": video.get("statistics", {}).get("view_count", 0),
+                            "likes": video.get("statistics", {}).get("like_count", 0),
+                            "comments": video.get("statistics", {}).get("comment_count", 0),
+                            "thumbnail_url": video.get("thumbnail_url", ""),
+                            "summary": video.get("description", "")[:200] if video.get("description") else "",
+                        }
+                        top_videos.append(video_obj)
+
                 template_vars = {
                     "channels": channels_list,
                     "total_channels": len(channels_list),
                     "total_weeks": 1,
+                    "top_videos": top_videos[:10],  # Limit to 10 videos
                     "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 }
 
@@ -997,6 +1014,7 @@ class UnifiedGenerator:
                     "channels": [],
                     "total_channels": 0,
                     "total_weeks": 0,
+                    "top_videos": [],  # Empty top videos
                     "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 }
                 try:
