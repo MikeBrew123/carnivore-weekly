@@ -141,8 +141,10 @@ class OptimizedContentAnalyzer:
         # Create the topic/request
         topic = f"Analyze this YouTube data for a {analysis_type} from the perspective of a {writer.title()} writer"
 
+        # TEMPORARY: Force fallback prompts until Supabase writer profiles are configured
         # Try to get optimized prompt
-        optimized = self.get_optimized_prompt(writer, topic)
+        # optimized = self.get_optimized_prompt(writer, topic)
+        optimized = None  # Force fallback for now
 
         if optimized:
             prompt = optimized["prompt"]
@@ -153,7 +155,22 @@ class OptimizedContentAnalyzer:
             ] / (self.token_stats["total_requests"] + 1)
         else:
             # Fallback: minimal embedded context
-            prompt = f"""You are {writer.title()}, a carnivore diet expert.
+            if writer == "chloe" and "roundup" in analysis_type.lower():
+                prompt = """You are Chloe, a community insider and carnivore diet content creator.
+Write a conversational weekly roundup for the carnivore community.
+
+Style:
+- Start with "Okay, so..." or similar casual opener
+- Conversational, witty, community-focused
+- Use contractions (don't, can't, won't)
+- Real talk, not formal analysis
+- "Here's what the carnivore community is buzzing about this week..."
+- Specific examples, real voices
+- End with insight or reflection
+
+Analyze this YouTube data and write a 2-3 paragraph weekly community roundup."""
+            else:
+                prompt = f"""You are {writer.title()}, a carnivore diet expert.
 Analyze this YouTube data and provide a {analysis_type}.
 Focus on actionable insights and specific examples."""
 
@@ -179,13 +196,20 @@ Focus on actionable insights and specific examples."""
         """
         print("\n🧠 Analyzing content with token optimization...\n")
 
+        # Format analysis date as readable string
+        now = datetime.now()
+        analysis_date = now.strftime("%B %d, %Y")  # e.g., "January 11, 2026"
+
         analyses = {
-            "weekly_summary": self.analyze_with_optimization(youtube_data, "sarah", "summary"),
+            "weekly_summary": self.analyze_with_optimization(
+                youtube_data, "chloe", "weekly community roundup"
+            ),
             "trending_topics": self.analyze_with_optimization(
                 youtube_data, "chloe", "trending topics"
             ),
             "key_insights": self.analyze_with_optimization(youtube_data, "marcus", "key insights"),
-            "timestamp": datetime.now().isoformat(),
+            "analysis_date": analysis_date,
+            "timestamp": now.isoformat(),
         }
 
         print(f"\n✓ Analysis complete")
