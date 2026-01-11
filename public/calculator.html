@@ -380,45 +380,52 @@
             }
         }
 
-        /* Calculator Mobile Fix - Full width on mobile */
+        /* Calculator Mobile Fix - Full width edge-to-edge on mobile */
         @media (max-width: 768px) {
-            /* Remove padding layers for calculator page */
+            /* Remove body margin that causes right offset */
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Full width, no padding, no margin */
             .layout-wrapper-2026 {
-                padding-left: 0;
-                padding-right: 0;
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+                width: 100%;
             }
 
+            /* Full width, no side padding */
             .calculator-main {
-                padding: 0 8px; /* Minimal breathing room */
-            }
-
-            .intro-copy {
-                padding: 16px 8px; /* Reduced from 20px */
-                margin-bottom: 20px;
-            }
-
-            /* Make calculator container fill available width */
-            #root {
+                padding: 0;
+                margin: 0;
                 width: 100%;
                 max-width: 100%;
             }
 
-            /* Ensure calculator box fills screen width */
+            /* Full width intro section, no side padding */
+            .intro-copy {
+                padding: 16px 0; /* Top/bottom only */
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            /* Make calculator container truly full width */
+            #root {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Ensure calculator box fills screen width completely */
             #root > div {
                 width: 100% !important;
                 max-width: 100% !important;
-                margin-left: 0 !important;
-                margin-right: 0 !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .calculator-main {
-                padding: 0 4px; /* Even less on very small screens */
-            }
-
-            .intro-copy {
-                padding: 12px 4px;
+                margin: 0 !important;
+                padding: 0 !important;
             }
         }
     </style>
