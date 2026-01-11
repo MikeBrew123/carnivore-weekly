@@ -41,7 +41,7 @@ async function loadContentOfTheWeek() {
 
             // Fallback if video not found in YouTube data
             const channelName = metadata ? metadata.channel_name : 'Unknown Channel';
-            const thumbnailUrl = `https://img.youtube.com/vi/${pick.video_id}/maxresdefault.jpg`;
+            const thumbnailUrl = `https://img.youtube.com/vi/${pick.video_id}/hqdefault.jpg`;
 
             return `
                 <article class="video-card card card--clickable">
