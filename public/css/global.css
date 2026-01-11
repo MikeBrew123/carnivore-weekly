@@ -322,11 +322,12 @@ nav.nav-menu-2026 a:hover {
    ============================================ */
 
 .hero {
-  background: var(--color-charcoal);
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/images/hero-steak.png') center center / cover no-repeat;
   color: var(--color-white);
   padding: var(--space-16) var(--space-6);
   text-align: center;
   margin-bottom: var(--space-12);
+  position: relative;
 }
 
 .hero-content {
@@ -614,11 +615,12 @@ nav.nav-menu-2026 a:hover {
    ============================================ */
 
 .site-content .hero {
-  background: var(--color-charcoal);
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/images/hero-steak.png') center center / cover no-repeat;
   color: var(--color-white);
   padding: var(--space-16) var(--space-6);
   text-align: center;
   margin-bottom: var(--space-12);
+  position: relative;
 }
 
 .site-content .hero-content {
