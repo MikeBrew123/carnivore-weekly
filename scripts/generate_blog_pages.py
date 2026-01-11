@@ -8,6 +8,9 @@ import json
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+# Auto-linking for wiki keywords
+from auto_link_wiki_keywords import insert_wiki_links
+
 PROJECT_ROOT = Path(__file__).parent.parent
 TEMPLATES_DIR = PROJECT_ROOT / "templates"
 DATA_DIR = PROJECT_ROOT / "data"
@@ -57,6 +60,9 @@ def generate_blog_posts(env, posts):
         if not content:
             print(f"⚠️  No content found for: {post['title']}")
             continue
+
+        # Apply auto-linking to blog content (max 5 links per post)
+        content = insert_wiki_links(content, max_links=5)
 
         # Render the template with post data
         rendered = template.render(
