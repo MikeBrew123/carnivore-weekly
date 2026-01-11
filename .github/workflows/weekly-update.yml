@@ -1,5 +1,8 @@
-name: Update
-on: workflow_dispatch
+name: Weekly YouTube Data Collection
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Every Sunday at midnight UTC
+  workflow_dispatch:  # Allow manual trigger
 jobs:
     run:
       runs-on: ubuntu-latest
@@ -13,8 +16,10 @@ jobs:
       - run: echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
       - run: chmod +x run_weekly_update.sh && ./run_weekly_update.sh
       - run: |
-          git config user.email "bot@bot.com"
-          git config user.name "Bot"
-          git add .
-          git commit -m "Update" || true
-          git push
+          git config user.email "bot@carnivoreweekly.com"
+          git config user.name "Carnivore Weekly Bot"
+          git add data/youtube_data.json
+          git diff --quiet && git diff --staged --quiet || (
+            git commit -m "auto: update YouTube data (weekly collection - $(date -u +'%Y-%m-%d'))"
+            git push
+          )
