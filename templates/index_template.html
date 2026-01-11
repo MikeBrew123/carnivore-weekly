@@ -147,19 +147,30 @@
                         </div>
                         {% endif %}
                         <div class="video-meta">
+                            {% if video.heat_badge %}
+                            <span class="heat-badge">{{ video.heat_badge }}</span>
+                            {% else %}
                             <span class="heat-badge">🔥 {{ "{:,}".format(video.views) }} views</span>
+                            {% endif %}
                             <span class="video-channel">{{ video.creator }}</span>
                         </div>
                         <h3 class="video-title">
                             {% if video.video_id %}
                             <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank">
-                                {{ video.title }}
+                                {% if video.editorial_title %}{{ video.editorial_title }}{% else %}{{ video.title }}{% endif %}
                             </a>
                             {% else %}
-                            {{ video.title }}
+                            {% if video.editorial_title %}{{ video.editorial_title }}{% else %}{{ video.title }}{% endif %}
                             {% endif %}
                         </h3>
-                        {% if video.summary %}
+                        {% if video.editorial_commentary %}
+                        <div class="video-commentary">
+                            <p class="commentary-text">{{ video.editorial_commentary }}</p>
+                            {% if video.curator %}
+                            <p class="curator-byline">— {{ video.curator }}</p>
+                            {% endif %}
+                        </div>
+                        {% elif video.summary %}
                         <div class="video-commentary">
                             <p class="commentary-text">"{{ video.summary }}"</p>
                         </div>
@@ -466,8 +477,18 @@
         </div>
     </footer>
 
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Analytics Tracking Script -->
     <script>
+        // Initialize Supabase client
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://kwtdpvnjewtahuxjyltn.supabase.co',
+            'sb_publishable_bQlgBZ7Otay8D9AErt8daA_2lQI36jk'
+        );
+
         // Track affiliate clicks
         document.querySelectorAll('a[data-partner]').forEach(link => {
             link.addEventListener('click', function() {
@@ -479,13 +500,53 @@
             });
         });
 
-        // Newsletter form handling (placeholder - connect to backend later)
-        document.getElementById('newsletter-form')?.addEventListener('submit', function(e) {
+        // Newsletter form handling - Supabase integration
+        document.getElementById('newsletter-form')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = this.querySelector('#email').value;
-            console.log('Newsletter signup:', email);
-            // TODO: Connect to Supabase newsletter_subscribers table
-            alert('Newsletter signup coming soon! Email saved: ' + email);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Subscribing...';
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('newsletter_subscribers')
+                    .insert({
+                        email: email,
+                        source: 'homepage',
+                        confirmation_status: 'pending',
+                        active: true
+                    });
+
+                if (error) {
+                    // Check if email already exists
+                    if (error.code === '23505') {
+                        alert('You are already subscribed!');
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    // Success - clear form and show message
+                    this.reset();
+                    alert('Thanks for subscribing! Check your email to confirm.');
+
+                    // Track signup event
+                    gtag('event', 'newsletter_signup', {
+                        source: 'homepage',
+                        page: window.location.pathname
+                    });
+                }
+            } catch (err) {
+                console.error('Newsletter signup error:', err);
+                alert('Oops! Something went wrong. Please try again.');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
         });
     </script>
 
