@@ -69,9 +69,13 @@
             return;
         }
 
-        // Add event listeners
-        upButton.addEventListener('click', () => handleReaction(component, postSlug, 'up'));
-        downButton.addEventListener('click', () => handleReaction(component, postSlug, 'down'));
+        // Add event listeners (with null checks)
+        if (upButton) {
+            upButton.addEventListener('click', () => handleReaction(component, postSlug, 'up'));
+        }
+        if (downButton) {
+            downButton.addEventListener('click', () => handleReaction(component, postSlug, 'down'));
+        }
     }
 
     // Load reaction counts from Supabase
@@ -122,6 +126,12 @@
         const downButton = component.querySelector('.reaction-btn--down');
         const clickedButton = reactionType === 'up' ? upButton : downButton;
 
+        // Null check before proceeding
+        if (!upButton || !downButton || !clickedButton) {
+            console.warn('Reaction buttons not found');
+            return;
+        }
+
         // Disable buttons and show loading
         upButton.disabled = true;
         downButton.disabled = true;
@@ -156,7 +166,8 @@
                 saveReaction(postSlug, reactionType);
 
                 // Update count optimistically
-                const currentCount = parseInt(clickedButton.querySelector('.reaction-count').textContent, 10) || 0;
+                const countEl = clickedButton.querySelector('.reaction-count');
+                const currentCount = countEl ? parseInt(countEl.textContent, 10) || 0 : 0;
                 updateCount(component, reactionType, currentCount + 1);
 
                 // Show thank you message
@@ -188,13 +199,21 @@
         const thanksMessage = component.querySelector('.reactions-thanks');
         const header = component.querySelector('.reactions-header');
 
+        // Null checks before manipulating DOM
+        if (!buttonsContainer || !thanksMessage) {
+            console.warn('Thanks message components not found');
+            return;
+        }
+
         // Hide buttons and header
         buttonsContainer.style.display = 'none';
-        header.style.display = 'none';
+        if (header) {
+            header.style.display = 'none';
+        }
 
         // Update message based on reaction
         const messageEl = thanksMessage.querySelector('.thanks-message');
-        if (reactionType === 'down') {
+        if (messageEl && reactionType === 'down') {
             messageEl.textContent = 'We\'ll work on improving content like this.';
         }
 

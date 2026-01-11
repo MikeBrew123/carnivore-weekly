@@ -110,6 +110,12 @@
         const loading = section.querySelector('.related-content-loading');
         const grid = section.querySelector('.related-content-grid');
 
+        // Null checks before accessing properties
+        if (!loading || !grid) {
+            console.warn('Related content elements not found, skipping render');
+            return;
+        }
+
         loading.style.display = 'none';
         grid.style.display = 'grid';
 
@@ -167,6 +173,12 @@
     function showError(section) {
         const loading = section.querySelector('.related-content-loading');
         const grid = section.querySelector('.related-content-grid');
+
+        // Null checks before accessing properties
+        if (!loading || !grid) {
+            console.warn('Related content elements not found, skipping error display');
+            return;
+        }
 
         loading.style.display = 'none';
         grid.style.display = 'block';
