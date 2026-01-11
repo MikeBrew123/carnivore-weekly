@@ -28,6 +28,9 @@ import re
 from pathlib import Path
 from typing import Dict
 from datetime import datetime
+
+# Auto-linking for wiki keywords
+from auto_link_wiki_keywords import insert_wiki_links
 from dotenv import load_dotenv
 import os
 
@@ -619,9 +622,13 @@ class UnifiedGenerator:
                 # Use editorial title if available, otherwise keep original
                 if commentary_data.get("editorial_title"):
                     video["editorial_title"] = commentary_data["editorial_title"]
-                # Add editorial commentary
+                # Add editorial commentary with auto-linking (max 3 links per commentary)
                 if commentary_data.get("commentary"):
-                    video["editorial_commentary"] = commentary_data["commentary"]
+                    raw_commentary = commentary_data["commentary"]
+                    linked_commentary = insert_wiki_links(f"<p>{raw_commentary}</p>", max_links=3)
+                    # Remove wrapper paragraph tags
+                    linked_commentary = linked_commentary.replace("<p>", "").replace("</p>", "")
+                    video["editorial_commentary"] = linked_commentary
                 # Add heat badge
                 if commentary_data.get("heat_badge"):
                     video["heat_badge"] = commentary_data["heat_badge"]
