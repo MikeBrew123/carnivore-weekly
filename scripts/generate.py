@@ -205,6 +205,7 @@ class UnifiedGenerator:
                     "channel_id": video.get("channel_id"),
                     "video_id": video.get("youtube_id"),
                     "published_at": video.get("published_at"),
+                    "thumbnail_url": video.get("thumbnail_url", ""),
                     "views": video.get("view_count", 0),
                     "summary": video.get("analysis_summary"),
                     "why_notable": video.get("analysis_summary", ""),
