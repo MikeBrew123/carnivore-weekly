@@ -155,7 +155,17 @@ class UnifiedValidator:
         else:
             html_files = list(target_path.glob("**/*.html"))
 
+        # Exclusion patterns for files that don't need full page validation
+        exclude_patterns = [
+            "public/components/",  # HTML fragments (modals, widgets)
+            "public/assets/calculator2/",  # Standalone React app
+        ]
+
         for html_file in html_files:
+            # Skip excluded files
+            file_str = str(html_file)
+            if any(pattern in file_str for pattern in exclude_patterns):
+                continue
             self._validate_html_file(html_file)
 
     def _validate_html_file(self, file_path: Path):
@@ -177,14 +187,16 @@ class UnifiedValidator:
                 ))
 
             # Rule 2: Check navigation structure
+            # Check for both old (nav-menu) and new (nav-menu-2026) nav classes
             nav_menus = soup.find_all("nav", class_="nav-menu")
-            if len(nav_menus) == 0:
+            nav_menus_2026 = soup.find_all("nav", class_="nav-menu-2026")
+            if len(nav_menus) == 0 and len(nav_menus_2026) == 0:
                 self.errors.append(ValidationError(
                     rule_id=2,
                     rule_name="Navigation Structure",
                     severity="critical",
                     file_path=str(file_path),
-                    message="No nav.nav-menu element found"
+                    message="No nav.nav-menu or nav.nav-menu-2026 element found"
                 ))
 
             # Rule 8: Check title tag
