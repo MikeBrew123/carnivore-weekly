@@ -404,12 +404,14 @@
                 max-width: 100%;
             }
 
-            /* Full width intro section, no side padding */
+            /* Full width intro section with text padding */
             .intro-copy {
-                padding: 16px 0; /* Top/bottom only */
+                border-left: 0; /* Remove decorative border on mobile */
+                padding: 16px 12px; /* Add breathing room for text */
                 margin: 0;
                 width: 100%;
                 max-width: 100%;
+                box-sizing: border-box; /* Include padding in width calculation */
             }
 
             /* Make calculator container truly full width */
