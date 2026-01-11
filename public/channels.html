@@ -30,6 +30,52 @@
 
     <style>
         /* Page-specific styles for channels page */
+
+        /* Toggle component styles */
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            background: var(--color-cream);
+            border-radius: 50px;
+            padding: var(--space-1);
+            margin-bottom: var(--space-8);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: var(--space-3) var(--space-6);
+            border: none;
+            background: transparent;
+            color: var(--color-text-secondary);
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: var(--text-base);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn--active {
+            background: var(--color-amber);
+            color: var(--color-charcoal);
+        }
+
+        .toggle-btn:hover:not(.toggle-btn--active) {
+            color: var(--color-charcoal);
+        }
+
+        .video-panel {
+            display: none;
+        }
+
+        .video-panel--active {
+            display: block;
+        }
+
         .stats-bar {
             background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
             padding: 30px;
@@ -262,13 +308,46 @@
     <main class="site-content" role="main" id="main-content">
         <div class="container">
 
-            <!-- Stats Bar -->
-            <div class="stats-bar">
-                <h2>10 Channels Tracked</h2>
-                <p>Ranked by appearance frequency across 1 weeks of carnivore content</p>
+            <!-- View Toggle -->
+            <div class="view-toggle" role="tablist" aria-label="Video view options">
+                <button
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="trending-panel"
+                    class="toggle-btn toggle-btn--active"
+                    data-view="trending"
+                    id="trending-tab"
+                >
+                    Top Videos This Week
+                </button>
+                <button
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="creators-panel"
+                    class="toggle-btn"
+                    data-view="creators"
+                    id="creators-tab"
+                >
+                    Featured Creators
+                </button>
             </div>
 
-            <!-- Channels Grid -->
+            <!-- TRENDING PANEL (Top Videos) -->
+            <div id="trending-panel" role="tabpanel" aria-labelledby="trending-tab" class="video-panel video-panel--active">
+                
+                <p style="text-align: center; color: var(--color-text-secondary); padding: 40px;">No trending videos this week.</p>
+                
+            </div>
+
+            <!-- CREATORS PANEL -->
+            <div id="creators-panel" role="tabpanel" aria-labelledby="creators-tab" class="video-panel" hidden>
+                <!-- Stats Bar -->
+                <div class="stats-bar">
+                    <h2>10 Channels Tracked</h2>
+                    <p>Ranked by appearance frequency across 1 weeks of carnivore content</p>
+                </div>
+
+                <!-- Channels Grid -->
             <div class="channels-grid">
                 
                 <div class="channel-card">
@@ -981,6 +1060,8 @@
                 </a>
             </div>
 
+            </div><!-- End creators-panel -->
+
         </div>
     </main>
 
@@ -1045,7 +1126,7 @@
                     &copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.
                 </p>
                 <p style="color: var(--color-cream); font-size: var(--text-xs); margin-top: var(--space-2); opacity: 0.7;">
-                    Generated 2026-01-11 09:14:33
+                    Generated 2026-01-11 09:24:08
                 </p>
             </div>
         </div>
@@ -1053,5 +1134,35 @@
 
     <!-- Mobile Nav -->
     <script src="/js/mobile-nav.js"></script>
+
+    <!-- Toggle functionality for Top Videos / Creators view -->
+    <script>
+        // Toggle between Trending and Featured Creators views
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const panels = document.querySelectorAll('.video-panel');
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetView = btn.dataset.view;
+                const targetPanel = document.getElementById(`${targetView}-panel`);
+
+                // Update button states
+                toggleBtns.forEach(b => {
+                    b.classList.remove('toggle-btn--active');
+                    b.setAttribute('aria-selected', 'false');
+                });
+                btn.classList.add('toggle-btn--active');
+                btn.setAttribute('aria-selected', 'true');
+
+                // Update panel visibility
+                panels.forEach(p => {
+                    p.classList.remove('video-panel--active');
+                    p.setAttribute('hidden', '');
+                });
+                targetPanel.classList.add('video-panel--active');
+                targetPanel.removeAttribute('hidden');
+            });
+        });
+    </script>
 </body>
 </html>
