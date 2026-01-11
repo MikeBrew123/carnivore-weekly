@@ -331,6 +331,24 @@ git checkout public/index.html public/channels.html
 2. Use correct field name: `{{ video.thumbnail_url }}`
 3. OR update `scripts/content_analyzer_optimized.py` to add the new field
 
+### Validation false positives
+
+**Problem:** Validator reports missing navigation menu on pages that intentionally exclude it.
+
+**Root cause:** Validator expected all HTML files to have complete page structure (nav, header, footer).
+
+**Files that trigger false positives:**
+- **HTML fragments** - Partial templates meant for inclusion (`public/components/`, `public/includes/`, `public/assets/calculator2/`)
+- **Test files** - Development/testing pages (`test-index.html`, `blog-redesign.html`)
+- **Deprecated calculators** - Old variants no longer in use (`calculator-simple.html`, `calculator-form-rebuild.html`)
+
+**Fix (January 11, 2026):**
+- Updated `scripts/validate.py` to exclude these directories and files
+- Validator now checks only production-ready pages
+- Nav menu validator accepts both `.nav-menu` and `.nav-menu-2026` class selectors
+
+**Result:** No more false positives. Validation passes only for structurally complete pages.
+
 ---
 
 ## File Structure Reference
