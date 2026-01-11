@@ -1617,3 +1617,125 @@ blockquote.pull-quote {
   }
 }
 
+/* ============================================
+   MOBILE NAVIGATION
+   ============================================ */
+
+/* Hamburger Menu Button */
+.hamburger-menu-btn {
+  display: none; /* Hidden by default, shown on mobile via JS */
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  z-index: 1000;
+  background: #2c1810;
+  border: 2px solid #d4a574;
+  border-radius: 4px;
+  padding: 10px;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu-btn span {
+  display: block;
+  width: 30px;
+  height: 3px;
+  background: #d4a574;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu-btn:hover {
+  background: #3d2416;
+  border-color: #ffd700;
+}
+
+.hamburger-menu-btn:hover span {
+  background: #ffd700;
+}
+
+/* Hamburger animation when active */
+.hamburger-menu-btn.active span:nth-child(1) {
+  transform: rotate(45deg) translate(7px, 7px);
+}
+
+.hamburger-menu-btn.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu-btn.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Mobile Navigation Responsive Styles */
+@media (max-width: 768px) {
+  /* Show hamburger button on mobile */
+  .hamburger-menu-btn {
+    display: flex !important;
+  }
+
+  /* Hide navigation by default on mobile */
+  .nav-menu-2026,
+  nav.nav-menu-2026 {
+    position: fixed;
+    top: 0;
+    right: -100%; /* Hidden off-screen */
+    width: 80%;
+    max-width: 300px;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 0;
+    padding: 80px 0 20px 0;
+    background: #2c1810;
+    border-left: 3px solid #d4a574;
+    border-bottom: none;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+    transition: right 0.3s ease-in-out;
+    overflow-y: auto;
+  }
+
+  /* Show navigation when mobile-visible class is added */
+  .nav-menu-2026.mobile-visible,
+  nav.nav-menu-2026.mobile-visible {
+    right: 0;
+  }
+
+  /* Mobile nav links */
+  .nav-menu-2026 a,
+  nav.nav-menu-2026 a {
+    width: 100%;
+    padding: 1.2rem 2rem;
+    border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+    border-left: 3px solid transparent;
+    text-align: left;
+  }
+
+  .nav-menu-2026 a:hover,
+  nav.nav-menu-2026 a:hover,
+  .nav-menu-2026 a.active-page,
+  nav.nav-menu-2026 a.active-page {
+    border-bottom-color: rgba(212, 165, 116, 0.3);
+    border-left-color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+  }
+}
+
+/* Overlay when mobile menu is open (optional) */
+body.mobile-menu-open::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
