@@ -105,9 +105,10 @@ class UnifiedGenerator:
                 return text
             try:
                 # Convert markdown to HTML
-                html = markdown.markdown(text, extensions=['tables', 'nl2br'])
+                html = markdown.markdown(text, extensions=["tables", "nl2br"])
                 # Mark as safe for Jinja2 (won't escape HTML)
                 from markupsafe import Markup
+
                 return Markup(html)
             except Exception:
                 return text
@@ -136,16 +137,16 @@ class UnifiedGenerator:
 
         # Replace AI tell words with more direct alternatives
         replacements = {
-            r'\bCRUCIAL\b': 'Essential',
-            r'\bcrucial\b': 'essential',
-            r'\bROBUST\b': 'Strong',
-            r'\brobust\b': 'strong',
-            r'\bLEVERAGE\b': 'Use',
-            r'\bleverage\b': 'use',
-            r'\bDELVE\b': 'Look into',
-            r'\bdelve\b': 'look into',
-            r'\bNAVIGATE\b': 'Handle',
-            r'\bnavigate\b': 'handle',
+            r"\bCRUCIAL\b": "Essential",
+            r"\bcrucial\b": "essential",
+            r"\bROBUST\b": "Strong",
+            r"\brobust\b": "strong",
+            r"\bLEVERAGE\b": "Use",
+            r"\bleverage\b": "use",
+            r"\bDELVE\b": "Look into",
+            r"\bdelve\b": "look into",
+            r"\bNAVIGATE\b": "Handle",
+            r"\bnavigate\b": "handle",
         }
 
         result = text
@@ -177,15 +178,17 @@ class UnifiedGenerator:
         blog_posts = []
         for post in posts:
             if post.get("is_published"):
-                blog_posts.append({
-                    "slug": post.get("slug"),
-                    "title": post.get("title"),
-                    "author": writer_map.get(post.get("author_id"), {}).get("name", "Unknown"),
-                    "date": post.get("published_date"),
-                    "excerpt": post.get("excerpt"),
-                    "category": post.get("category"),
-                    "tags": post.get("tags", [])
-                })
+                blog_posts.append(
+                    {
+                        "slug": post.get("slug"),
+                        "title": post.get("title"),
+                        "author": writer_map.get(post.get("author_id"), {}).get("name", "Unknown"),
+                        "date": post.get("published_date"),
+                        "excerpt": post.get("excerpt"),
+                        "category": post.get("category"),
+                        "tags": post.get("tags", []),
+                    }
+                )
 
         return {"blog_posts": blog_posts}
 
@@ -195,17 +198,19 @@ class UnifiedGenerator:
 
         formatted_videos = []
         for video in videos:
-            formatted_videos.append({
-                "title": self._sanitize_text(video.get("title", "")),
-                "creator": video.get("channel_name"),
-                "channel_id": video.get("channel_id"),
-                "video_id": video.get("youtube_id"),
-                "published_at": video.get("published_at"),
-                "views": video.get("view_count", 0),
-                "summary": video.get("analysis_summary"),
-                "why_notable": video.get("analysis_summary", ""),
-                "tags": video.get("topic_tags", [])
-            })
+            formatted_videos.append(
+                {
+                    "title": self._sanitize_text(video.get("title", "")),
+                    "creator": video.get("channel_name"),
+                    "channel_id": video.get("channel_id"),
+                    "video_id": video.get("youtube_id"),
+                    "published_at": video.get("published_at"),
+                    "views": video.get("view_count", 0),
+                    "summary": video.get("analysis_summary"),
+                    "why_notable": video.get("analysis_summary", ""),
+                    "tags": video.get("topic_tags", []),
+                }
+            )
 
         return formatted_videos
 
@@ -250,7 +255,7 @@ class UnifiedGenerator:
             "community_sentiment": community_sentiment,
             "recommended_watching": analysis.get("recommended_watching", []),
             "qa_section": qa_section,
-            "top_videos": analysis.get("recommended_watching", [])
+            "top_videos": analysis.get("recommended_watching", []),
         }
 
     def load_data(self, data_type: str = "analyzed_content") -> Dict:
@@ -307,7 +312,9 @@ class UnifiedGenerator:
             types = [generation_type]
         else:
             print(f"Error: Unknown generation type: {generation_type}")
-            print(f"Supported types: {', '.join(self.config['generation']['supported_types'])}, all")
+            print(
+                f"Supported types: {', '.join(self.config['generation']['supported_types'])}, all"
+            )
             return False
 
         success = True
@@ -369,40 +376,42 @@ class UnifiedGenerator:
         if isinstance(trending_topics_raw, str):
             # Parse markdown-formatted topics string into structured list
             trending_topics = []
-            lines = trending_topics_raw.split('\n')
+            lines = trending_topics_raw.split("\n")
             current_topic = None
 
             for line in lines:
                 line_stripped = line.strip()
 
                 # Look for h3 headers (### Topic Name)
-                if line_stripped.startswith('### '):
+                if line_stripped.startswith("### "):
                     if current_topic and current_topic["description"]:
                         trending_topics.append(current_topic)
                     current_topic = {
-                        "topic": line_stripped.replace('### ', '').replace('**', '').replace('#', ''),
+                        "topic": line_stripped.replace("### ", "")
+                        .replace("**", "")
+                        .replace("#", ""),
                         "description": "",
-                        "mentioned_by": ["Analysis"]
+                        "mentioned_by": ["Analysis"],
                     }
                 # Look for description content
                 elif current_topic and line_stripped:
                     # Skip empty lines and markdown-only lines
-                    if line_stripped in ['---', '**', '##', '-', '*']:
+                    if line_stripped in ["---", "**", "##", "-", "*"]:
                         continue
                     # Skip header lines
-                    if line_stripped.startswith('#'):
+                    if line_stripped.startswith("#"):
                         continue
                     # Include bullet points and regular text
-                    if line_stripped.startswith('- '):
+                    if line_stripped.startswith("- "):
                         # Remove bullet and add as description
                         content = line_stripped[2:].strip()
                         if current_topic["description"]:
                             current_topic["description"] += " " + content
                         else:
                             current_topic["description"] = content
-                    elif line_stripped and not line_stripped.startswith('---'):
+                    elif line_stripped and not line_stripped.startswith("---"):
                         # Add regular text
-                        if not line_stripped.startswith('**') or not line_stripped.endswith('**'):
+                        if not line_stripped.startswith("**") or not line_stripped.endswith("**"):
                             if current_topic["description"]:
                                 current_topic["description"] += " " + line_stripped
                             else:
@@ -415,7 +424,11 @@ class UnifiedGenerator:
             # If parsing failed, use defaults
             if not trending_topics:
                 trending_topics = [
-                    {"topic": "Content Opportunities", "description": trending_topics_raw[:100], "mentioned_by": ["Analysis"]}
+                    {
+                        "topic": "Content Opportunities",
+                        "description": trending_topics_raw[:100],
+                        "mentioned_by": ["Analysis"],
+                    }
                 ]
         elif isinstance(trending_topics_raw, list):
             trending_topics = trending_topics_raw
@@ -427,39 +440,41 @@ class UnifiedGenerator:
         if isinstance(key_insights_raw, str):
             # Parse markdown-formatted insights string into structured list
             key_insights = []
-            lines = key_insights_raw.split('\n')
+            lines = key_insights_raw.split("\n")
             current_insight = None
 
             for line in lines:
                 line_stripped = line.strip()
 
                 # Look for h3 headers (### Insight Title)
-                if line_stripped.startswith('### '):
+                if line_stripped.startswith("### "):
                     if current_insight and current_insight["description"]:
                         key_insights.append(current_insight)
                     current_insight = {
-                        "title": line_stripped.replace('### ', '').replace('**', '').replace('#', ''),
-                        "description": ""
+                        "title": line_stripped.replace("### ", "")
+                        .replace("**", "")
+                        .replace("#", ""),
+                        "description": "",
                     }
                 # Look for description content
                 elif current_insight and line_stripped:
                     # Skip empty lines and markdown-only lines
-                    if line_stripped in ['---', '**', '##', '-', '*']:
+                    if line_stripped in ["---", "**", "##", "-", "*"]:
                         continue
                     # Skip header lines
-                    if line_stripped.startswith('#'):
+                    if line_stripped.startswith("#"):
                         continue
                     # Include bullet points and regular text
-                    if line_stripped.startswith('- '):
+                    if line_stripped.startswith("- "):
                         # Remove bullet and add as description
                         content = line_stripped[2:].strip()
                         if current_insight["description"]:
                             current_insight["description"] += " " + content
                         else:
                             current_insight["description"] = content
-                    elif line_stripped and not line_stripped.startswith('---'):
+                    elif line_stripped and not line_stripped.startswith("---"):
                         # Add regular text
-                        if not line_stripped.startswith('**') or not line_stripped.endswith('**'):
+                        if not line_stripped.startswith("**") or not line_stripped.endswith("**"):
                             if current_insight["description"]:
                                 current_insight["description"] += " " + line_stripped
                             else:
@@ -471,9 +486,7 @@ class UnifiedGenerator:
 
             # If parsing failed, use defaults
             if not key_insights:
-                key_insights = [
-                    {"title": "Key Insight", "description": key_insights_raw[:100]}
-                ]
+                key_insights = [{"title": "Key Insight", "description": key_insights_raw[:100]}]
         elif isinstance(key_insights_raw, list):
             key_insights = key_insights_raw
         else:
@@ -493,28 +506,33 @@ class UnifiedGenerator:
         # Priority 2: Fallback to JSON file (if Supabase is empty)
         if not top_videos:
             try:
-                youtube_path = self.project_root / 'data' / 'youtube_data.json'
+                youtube_path = self.project_root / "data" / "youtube_data.json"
                 if youtube_path.exists():
                     youtube_data = json.loads(youtube_path.read_text())
                     # Convert YouTube data to template format
-                    for creator in youtube_data.get('top_creators', []):
-                        for video in creator.get('videos', [])[:2]:  # Take first 2 per creator
+                    for creator in youtube_data.get("top_creators", []):
+                        for video in creator.get("videos", [])[:2]:  # Take first 2 per creator
                             video_obj = {
-                                'video_id': video['video_id'],
-                                'title': self._sanitize_text(video['title']),
-                                'description': video.get('description', '')[:200],  # First 200 chars
-                                'creator': creator['channel_name'],
-                                'channel_id': creator.get('channel_id', ''),
-                                'views': video['statistics']['view_count'],
-                                'likes': video['statistics']['like_count'],
-                                'comments': video['statistics']['comment_count'],
-                                'url': f"https://youtube.com/watch?v={video['video_id']}",
-                                'thumbnail_url': video.get('thumbnail_url', f"https://i.ytimg.com/vi/{video['video_id']}/mqdefault.jpg"),
-                                'tags': video.get('tags', [])[:3],
+                                "video_id": video["video_id"],
+                                "title": self._sanitize_text(video["title"]),
+                                "description": video.get("description", "")[
+                                    :200
+                                ],  # First 200 chars
+                                "creator": creator["channel_name"],
+                                "channel_id": creator.get("channel_id", ""),
+                                "views": video["statistics"]["view_count"],
+                                "likes": video["statistics"]["like_count"],
+                                "comments": video["statistics"]["comment_count"],
+                                "url": f"https://youtube.com/watch?v={video['video_id']}",
+                                "thumbnail_url": video.get(
+                                    "thumbnail_url",
+                                    f"https://i.ytimg.com/vi/{video['video_id']}/mqdefault.jpg",
+                                ),
+                                "tags": video.get("tags", [])[:3],
                             }
                             # Include sentiment scores if available
-                            if video.get('comment_sentiment'):
-                                video_obj['comment_sentiment'] = video['comment_sentiment']
+                            if video.get("comment_sentiment"):
+                                video_obj["comment_sentiment"] = video["comment_sentiment"]
                             top_videos.append(video_obj)
                     if top_videos:
                         print("  ✓ Loaded YouTube data from JSON file")
@@ -526,7 +544,9 @@ class UnifiedGenerator:
             top_videos = analysis.get("top_videos", data.get("top_videos", []))
 
         # Get community sentiment with proper structure
-        community_sentiment = analysis.get("community_sentiment", data.get("community_sentiment", {}))
+        community_sentiment = analysis.get(
+            "community_sentiment", data.get("community_sentiment", {})
+        )
         if isinstance(community_sentiment, str):
             community_sentiment = {"overall_tone": community_sentiment, "success_stories": []}
         elif not isinstance(community_sentiment, dict):
@@ -536,29 +556,40 @@ class UnifiedGenerator:
         qa_section = analysis.get("qa_section", data.get("qa_section", []))
 
         # Load recommended_watching (use additional videos from youtube_data.json if available)
-        recommended_watching = analysis.get("recommended_watching", data.get("recommended_watching", []))
+        recommended_watching = analysis.get(
+            "recommended_watching", data.get("recommended_watching", [])
+        )
 
         # If recommended_watching is empty, use remaining videos from youtube_data.json
         if not recommended_watching and top_videos:
             # Take videos beyond the first set (if we loaded from JSON)
             try:
-                youtube_path = self.project_root / 'data' / 'youtube_data.json'
+                youtube_path = self.project_root / "data" / "youtube_data.json"
                 if youtube_path.exists():
                     youtube_data = json.loads(youtube_path.read_text())
                     # Collect all remaining videos (skip the first 2 from each creator already used in top_videos)
-                    for creator in youtube_data.get('top_creators', []):
-                        videos_to_recommend = creator.get('videos', [])[2:]  # Skip first 2 (used in top_videos)
+                    for creator in youtube_data.get("top_creators", []):
+                        videos_to_recommend = creator.get("videos", [])[
+                            2:
+                        ]  # Skip first 2 (used in top_videos)
                         for video in videos_to_recommend:
-                            recommended_watching.append({
-                                'video_id': video['video_id'],
-                                'title': self._sanitize_text(video['title']),
-                                'reason': video.get('summary', 'Expert insight on carnivore nutrition'),
-                                'creator': creator['channel_name'],
-                                'channel_id': creator.get('channel_id', ''),
-                                'views': video['statistics']['view_count'],
-                                'thumbnail_url': video.get('thumbnail_url', f"https://i.ytimg.com/vi/{video['video_id']}/mqdefault.jpg"),
-                                'tags': video.get('tags', [])[:3],
-                            })
+                            recommended_watching.append(
+                                {
+                                    "video_id": video["video_id"],
+                                    "title": self._sanitize_text(video["title"]),
+                                    "reason": video.get(
+                                        "summary", "Expert insight on carnivore nutrition"
+                                    ),
+                                    "creator": creator["channel_name"],
+                                    "channel_id": creator.get("channel_id", ""),
+                                    "views": video["statistics"]["view_count"],
+                                    "thumbnail_url": video.get(
+                                        "thumbnail_url",
+                                        f"https://i.ytimg.com/vi/{video['video_id']}/mqdefault.jpg",
+                                    ),
+                                    "tags": video.get("tags", [])[:3],
+                                }
+                            )
             except Exception:
                 pass  # Silently fail if no additional videos available
 
@@ -566,11 +597,13 @@ class UnifiedGenerator:
         creator_channels = {}
         if youtube_path.exists():
             youtube_data = json.loads(youtube_path.read_text())
-            for creator in youtube_data.get('top_creators', []):
-                creator_channels[creator['channel_name']] = creator.get('channel_id', '')
+            for creator in youtube_data.get("top_creators", []):
+                creator_channels[creator["channel_name"]] = creator.get("channel_id", "")
 
         template_vars = {
-            "analysis_date": data.get("analysis_date", data.get("timestamp", datetime.now().isoformat())),
+            "analysis_date": data.get(
+                "analysis_date", data.get("timestamp", datetime.now().isoformat())
+            ),
             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "search_query": source_data.get("search_query", "carnivore diet"),
             "total_creators": source_data.get("total_creators", 10),
@@ -626,7 +659,7 @@ class UnifiedGenerator:
             archive_files = sorted(
                 [f for f in archive_dir.glob("*.json") if f.name[0].isdigit()],
                 key=lambda f: f.name,
-                reverse=True
+                reverse=True,
             )
 
             for archive_file in archive_files[:10]:  # Limit to 10 most recent weeks
@@ -646,7 +679,9 @@ class UnifiedGenerator:
                         if "creators_data" in analysis:
                             total_creators = len(analysis.get("creators_data", {}))
                         elif "trending_topics" in analysis:
-                            total_creators = len([t for t in analysis.get("trending_topics", []) if t])
+                            total_creators = len(
+                                [t for t in analysis.get("trending_topics", []) if t]
+                            )
 
                     if total_videos == 0:
                         if "trending_topics" in analysis:
@@ -665,7 +700,9 @@ class UnifiedGenerator:
                         "date": archive_file.stem,
                         "total_creators": max(total_creators, 1),  # At least 1 creator
                         "total_videos": max(total_videos, 1),  # At least 1 video
-                        "summary_preview": summary_preview if summary_preview else f"Week of {archive_file.stem}"
+                        "summary_preview": (
+                            summary_preview if summary_preview else f"Week of {archive_file.stem}"
+                        ),
                     }
                     weeks.append(week_info)
                 except (json.JSONDecodeError, KeyError, Exception) as e:
@@ -703,7 +740,7 @@ class UnifiedGenerator:
             archive_files = sorted(
                 [f for f in archive_dir.glob("*.json") if f.name[0].isdigit()],
                 key=lambda f: f.name,
-                reverse=True
+                reverse=True,
             )
 
             archive_week_dir = self.project_root / "public" / "archive"
@@ -728,18 +765,24 @@ class UnifiedGenerator:
 
                         # Extract creator channels mapping
                         creator_channels = {}
-                        youtube_path = self.project_root / 'data' / 'youtube_data.json'
+                        youtube_path = self.project_root / "data" / "youtube_data.json"
                         if youtube_path.exists():
                             youtube_data = json.loads(youtube_path.read_text())
-                            for creator in youtube_data.get('top_creators', []):
-                                creator_channels[creator['channel_name']] = creator.get('channel_id', '')
+                            for creator in youtube_data.get("top_creators", []):
+                                creator_channels[creator["channel_name"]] = creator.get(
+                                    "channel_id", ""
+                                )
 
                         # Build template variables (same as _generate_pages)
                         week_template_vars = {
                             "analysis_date": week_data.get("analysis_date", ""),
                             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                            "search_query": week_data.get("source_data", {}).get("search_query", "carnivore diet"),
-                            "total_creators": week_data.get("source_data", {}).get("total_creators", 0),
+                            "search_query": week_data.get("source_data", {}).get(
+                                "search_query", "carnivore diet"
+                            ),
+                            "total_creators": week_data.get("source_data", {}).get(
+                                "total_creators", 0
+                            ),
                             "total_videos": week_data.get("source_data", {}).get("total_videos", 0),
                             "weekly_summary": analysis.get("weekly_summary", ""),
                             "trending_topics": analysis.get("trending_topics", []),
@@ -794,7 +837,9 @@ class UnifiedGenerator:
         top_videos = analysis.get("top_videos", data.get("top_videos", []))
 
         template_vars = {
-            "analysis_date": data.get("analysis_date", data.get("timestamp", datetime.now().isoformat())),
+            "analysis_date": data.get(
+                "analysis_date", data.get("timestamp", datetime.now().isoformat())
+            ),
             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "weekly_summary": weekly_summary,
             "trending_topics": trending_topics,
@@ -840,11 +885,9 @@ class UnifiedGenerator:
 
             # Fetch channel info in batches (API limit is 50 per request)
             for i in range(0, len(channel_ids), 50):
-                batch = channel_ids[i:i+50]
+                batch = channel_ids[i : i + 50]
                 request = youtube.channels().list(
-                    part="snippet",
-                    id=",".join(batch),
-                    fields="items(id,snippet(thumbnails))"
+                    part="snippet", id=",".join(batch), fields="items(id,snippet(thumbnails))"
                 )
                 response = request.execute()
 
@@ -853,9 +896,9 @@ class UnifiedGenerator:
                     thumbnails = item.get("snippet", {}).get("thumbnails", {})
                     # Prefer high quality, fallback to medium/default
                     image_url = (
-                        thumbnails.get("high", {}).get("url") or
-                        thumbnails.get("medium", {}).get("url") or
-                        thumbnails.get("default", {}).get("url")
+                        thumbnails.get("high", {}).get("url")
+                        or thumbnails.get("medium", {}).get("url")
+                        or thumbnails.get("default", {}).get("url")
                     )
                     if image_url:
                         channel_images[channel_id] = image_url
@@ -895,27 +938,38 @@ class UnifiedGenerator:
                     videos_list = creator.get("videos", [])
 
                     # Fetch profile image if we have it
-                    channel_images = self._fetch_channel_profile_images([channel_id]) if channel_id else {}
+                    channel_images = (
+                        self._fetch_channel_profile_images([channel_id]) if channel_id else {}
+                    )
 
                     # Extract top 3 videos with proper structure
                     top_videos = []
                     for video in videos_list[:3]:
-                        top_videos.append({
-                            "video_id": video.get("video_id", ""),
-                            "title": video.get("title", ""),
-                            "view_count": video.get("statistics", {}).get("view_count", 0),
-                            "published_at": video.get("published_at", "")
-                        })
+                        top_videos.append(
+                            {
+                                "video_id": video.get("video_id", ""),
+                                "title": video.get("title", ""),
+                                "view_count": video.get("statistics", {}).get("view_count", 0),
+                                "published_at": video.get("published_at", ""),
+                            }
+                        )
 
-                    channels_list.append({
-                        "name": creator.get("channel_name", "Unknown"),
-                        "channel_id": channel_id,
-                        "thumbnail_url": channel_images.get(channel_id, "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel"),
-                        "appearances": 1,  # Only have data for 1 week currently
-                        "total_videos": len(videos_list),  # Count of videos this week
-                        "latest_date": videos_list[0].get("published_at", "") if videos_list else "",
-                        "top_videos": top_videos
-                    })
+                    channels_list.append(
+                        {
+                            "name": creator.get("channel_name", "Unknown"),
+                            "channel_id": channel_id,
+                            "thumbnail_url": channel_images.get(
+                                channel_id,
+                                "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel",
+                            ),
+                            "appearances": 1,  # Only have data for 1 week currently
+                            "total_videos": len(videos_list),  # Count of videos this week
+                            "latest_date": (
+                                videos_list[0].get("published_at", "") if videos_list else ""
+                            ),
+                            "top_videos": top_videos,
+                        }
+                    )
 
                 template_vars = {
                     "channels": channels_list,
@@ -973,7 +1027,7 @@ class UnifiedGenerator:
                     "appearances": 0,
                     "total_videos": 0,
                     "latest_date": video.get("published_at", ""),
-                    "top_videos": []
+                    "top_videos": [],
                 }
                 if channel_id:
                     unique_channel_ids.add(channel_id)
@@ -988,12 +1042,14 @@ class UnifiedGenerator:
 
             # Add to top videos (keep top 3)
             if len(channels_dict[channel_name]["top_videos"]) < 3:
-                channels_dict[channel_name]["top_videos"].append({
-                    "video_id": video.get("youtube_id", ""),
-                    "title": video.get("title", ""),
-                    "view_count": video.get("view_count", 0),
-                    "published_at": video.get("published_at", "")
-                })
+                channels_dict[channel_name]["top_videos"].append(
+                    {
+                        "video_id": video.get("youtube_id", ""),
+                        "title": video.get("title", ""),
+                        "view_count": video.get("view_count", 0),
+                        "published_at": video.get("published_at", ""),
+                    }
+                )
 
         # Fetch channel profile images
         channel_images = self._fetch_channel_profile_images(list(unique_channel_ids))
@@ -1005,7 +1061,9 @@ class UnifiedGenerator:
                 channel_data["thumbnail_url"] = channel_images[channel_id]
             else:
                 # Fallback to placeholder if image not found
-                channel_data["thumbnail_url"] = "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel"
+                channel_data["thumbnail_url"] = (
+                    "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel"
+                )
 
         # Convert to sorted list
         channels_list = list(channels_dict.values())
@@ -1072,19 +1130,15 @@ class UnifiedGenerator:
 
 def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(
-        description="Unified Generator for Carnivore Weekly"
-    )
+    parser = argparse.ArgumentParser(description="Unified Generator for Carnivore Weekly")
     parser.add_argument(
         "--type",
         choices=["pages", "archive", "newsletter", "channels", "wiki", "all"],
         default="pages",
-        help="Generation type to run"
+        help="Generation type to run",
     )
     parser.add_argument(
-        "--config",
-        default="config/project.json",
-        help="Path to project configuration file"
+        "--config", default="config/project.json", help="Path to project configuration file"
     )
 
     args = parser.parse_args()

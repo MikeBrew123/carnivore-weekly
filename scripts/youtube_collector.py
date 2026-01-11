@@ -107,7 +107,7 @@ def is_less_than_24_hours_old(timestamp_str: str) -> bool:
     """
     try:
         # Parse the timestamp
-        timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+        timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))
 
         # Get current time (timezone-aware)
         now = datetime.now(timestamp.tzinfo)
@@ -147,8 +147,7 @@ class YouTubeCollector:
         """
         if not api_key:
             raise ValueError(
-                "YouTube API key not found! "
-                "Please set YOUTUBE_API_KEY in your .env file"
+                "YouTube API key not found! " "Please set YOUTUBE_API_KEY in your .env file"
             )
 
         # Build the YouTube service object
@@ -189,11 +188,13 @@ class YouTubeCollector:
             print("\n🔍 Checking Supabase for recent cached data...")
 
             # Query for most recent collection timestamp
-            response = self.supabase.table('youtube_videos')\
-                .select('*')\
-                .order('updated_at', desc=True)\
-                .limit(1)\
+            response = (
+                self.supabase.table("youtube_videos")
+                .select("*")
+                .order("updated_at", desc=True)
+                .limit(1)
                 .execute()
+            )
 
             if not response.data:
                 print("   ⚠ No cached data found")
@@ -201,7 +202,7 @@ class YouTubeCollector:
 
             # Check if data is less than 24 hours old
             most_recent = response.data[0]
-            updated_at = most_recent.get('updated_at')
+            updated_at = most_recent.get("updated_at")
 
             if not updated_at or not is_less_than_24_hours_old(updated_at):
                 print("   ⚠ Cached data is older than 24 hours")
@@ -211,9 +212,7 @@ class YouTubeCollector:
             print(f"   ✓ Found recent data (updated: {updated_at})")
             print("   Loading full dataset from cache...")
 
-            all_videos_response = self.supabase.table('youtube_videos')\
-                .select('*')\
-                .execute()
+            all_videos_response = self.supabase.table("youtube_videos").select("*").execute()
 
             if not all_videos_response.data:
                 return {}
@@ -221,48 +220,52 @@ class YouTubeCollector:
             # Convert Supabase data back to our JSON format
             videos_by_channel = defaultdict(list)
             for video in all_videos_response.data:
-                channel_id = video.get('channel_id')
+                channel_id = video.get("channel_id")
                 if channel_id:
-                    videos_by_channel[channel_id].append({
-                        'video_id': video.get('youtube_id'),
-                        'title': video.get('title'),
-                        'description': video.get('description', ''),
-                        'thumbnail_url': video.get('thumbnail_url'),
-                        'published_at': video.get('published_at'),
-                        'statistics': {
-                            'view_count': video.get('view_count', 0),
-                            'like_count': video.get('like_count', 0),
-                            'comment_count': video.get('comment_count', 0)
-                        },
-                        'tags': video.get('topic_tags', []),
-                        'top_comments': []  # Comments not stored in current schema
-                    })
+                    videos_by_channel[channel_id].append(
+                        {
+                            "video_id": video.get("youtube_id"),
+                            "title": video.get("title"),
+                            "description": video.get("description", ""),
+                            "thumbnail_url": video.get("thumbnail_url"),
+                            "published_at": video.get("published_at"),
+                            "statistics": {
+                                "view_count": video.get("view_count", 0),
+                                "like_count": video.get("like_count", 0),
+                                "comment_count": video.get("comment_count", 0),
+                            },
+                            "tags": video.get("topic_tags", []),
+                            "top_comments": [],  # Comments not stored in current schema
+                        }
+                    )
 
             # Reconstruct top_creators structure
             top_creators = []
             for channel_id, videos in videos_by_channel.items():
                 if videos:
-                    channel_name = videos[0].get('title', 'Unknown')  # Simplified
-                    total_views = sum(v['statistics']['view_count'] for v in videos)
-                    top_creators.append({
-                        'channel_id': channel_id,
-                        'channel_name': channel_name,
-                        'total_views_week': total_views,
-                        'videos': videos
-                    })
+                    channel_name = videos[0].get("title", "Unknown")  # Simplified
+                    total_views = sum(v["statistics"]["view_count"] for v in videos)
+                    top_creators.append(
+                        {
+                            "channel_id": channel_id,
+                            "channel_name": channel_name,
+                            "total_views_week": total_views,
+                            "videos": videos,
+                        }
+                    )
 
             # Sort by total views
-            top_creators.sort(key=lambda x: x['total_views_week'], reverse=True)
+            top_creators.sort(key=lambda x: x["total_views_week"], reverse=True)
 
             cached_data = {
-                'collection_date': datetime.now().strftime("%Y-%m-%d"),
-                'collection_timestamp': datetime.now().isoformat(),
-                'search_query': SEARCH_QUERY,
-                'days_back': DAYS_BACK,
-                'total_videos_found': len(all_videos_response.data),
-                'top_creators_count': len(top_creators),
-                'top_creators': top_creators,
-                'source': 'cache'
+                "collection_date": datetime.now().strftime("%Y-%m-%d"),
+                "collection_timestamp": datetime.now().isoformat(),
+                "search_query": SEARCH_QUERY,
+                "days_back": DAYS_BACK,
+                "total_videos_found": len(all_videos_response.data),
+                "top_creators_count": len(top_creators),
+                "top_creators": top_creators,
+                "source": "cache",
             }
 
             print(f"   ✓ Loaded {len(all_videos_response.data)} videos from cache")
@@ -441,9 +444,7 @@ class YouTubeCollector:
         ranked_channels.sort(key=lambda x: x["total_views_week"], reverse=True)
 
         # Print top channels
-        print(
-            f"\n   Top {TOP_CREATORS_COUNT} Channels by Views (past {DAYS_BACK} days):"
-        )
+        print(f"\n   Top {TOP_CREATORS_COUNT} Channels by Views (past {DAYS_BACK} days):")
         for i, channel in enumerate(ranked_channels[:TOP_CREATORS_COUNT], 1):
             print(
                 f"   {i}. {channel['channel_name']}: "
@@ -509,9 +510,7 @@ class YouTubeCollector:
 
             # Request full video details
             # part='snippet,statistics' gets both metadata and stats in one request
-            request = self.youtube.videos().list(
-                part="snippet,statistics", id=video_ids_str
-            )
+            request = self.youtube.videos().list(part="snippet,statistics", id=video_ids_str)
 
             response = request.execute()
 
@@ -665,9 +664,7 @@ class YouTubeCollector:
             # For each video, get comments
             for video in videos:
                 print(f"      Getting comments for: {video['title'][:50]}...")
-                comments = self.get_video_comments(
-                    video["video_id"], COMMENTS_PER_VIDEO
-                )
+                comments = self.get_video_comments(video["video_id"], COMMENTS_PER_VIDEO)
                 video["top_comments"] = comments
                 print(f"      ✓ Collected {len(comments)} comments")
 
@@ -764,8 +761,7 @@ class YouTubeCollector:
 
                         # Insert or update in Supabase (upsert on video_id)
                         self.supabase.table("youtube_videos").upsert(
-                            video_record,
-                            on_conflict="video_id"
+                            video_record, on_conflict="video_id"
                         ).execute()
                         videos_inserted += 1
 
