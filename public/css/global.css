@@ -1627,7 +1627,7 @@ blockquote.pull-quote {
   position: fixed;
   top: 15px;
   right: 20px;
-  z-index: 1000;
+  z-index: 1002; /* ABOVE nav menu (1001) so it's always clickable */
   background: #2c1810;
   border: 2px solid #d4a574;
   border-radius: 4px;
@@ -1685,7 +1685,8 @@ blockquote.pull-quote {
     position: fixed;
     top: 0;
     right: -260px; /* Hidden off-screen (width + 10px) */
-    width: 250px; /* Compact sidebar width */
+    left: auto; /* Override desktop left: 0 */
+    width: 250px; /* Compact sidebar width - override desktop 100% */
     height: 100vh;
     flex-direction: column;
     justify-content: flex-start;
@@ -1698,6 +1699,7 @@ blockquote.pull-quote {
     box-shadow: -5px 0 15px rgba(0,0,0,0.3);
     transition: right 0.3s ease-in-out;
     overflow-y: auto;
+    z-index: 1001; /* Above hamburger button */
   }
 
   /* Show navigation when mobile-visible class is added */
