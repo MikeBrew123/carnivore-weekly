@@ -269,10 +269,10 @@ header .update-date,
   position: absolute;
   top: -100px;
   right: -140px;
-  width: 638px; /* Reduced from 750px (15% smaller) */
-  height: 349px; /* Reduced from 410px (15% smaller) */
+  width: 510px; /* Reduced by another 20% from 638px */
+  height: 279px; /* Reduced by another 20% from 349px */
   aspect-ratio: 750 / 410;
-  max-width: 638px; /* Reduced from 750px (15% smaller) */
+  max-width: 510px; /* Reduced by another 20% from 638px */
   object-fit: contain;
   object-position: center;
   opacity: 0.95;
