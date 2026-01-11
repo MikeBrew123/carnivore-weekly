@@ -38,6 +38,7 @@
             color: #ffd700;
             text-decoration: underline;
         }
+
         /* Navigation menu styling - override main stylesheet for light backgrounds */
         .nav-menu-2026,
         nav.nav-menu-2026 {
@@ -65,35 +66,35 @@
             border-bottom-color: #ffd700 !important;
         }
 
-        /* Wiki links */
-        .wiki-link {
-            color: #d4a574;
-            text-decoration: underline;
-        }
-
-        .wiki-link:hover {
-            color: #ffd700;
-        }
-
-        /* Strong tags and emphasis - dark for body, gold for dark backgrounds */
-        strong {
-            color: #1a120b;
-            font-weight: 600;
-        }
-
-        .post-author-bio strong {
-            color: #ffd700;
-        }
-
-        .wiki-box strong {
-            color: #ffd700;
-        }
-
-        /* Headings - ensure visual hierarchy with gold */
+        /* Headings - ensure visual hierarchy */
         h1, h2, h3, h4, h5, h6 { color: #6A1B1B !important;
         }
 
         header h1 { color: #d4a574 !important; }
+
+        /* Override stylesheet for light theme background */
+        .post-content {
+            color: #1a120b !important;
+        }
+
+        .post-content p {
+            color: #1a120b !important;
+        }
+
+        .post-content li {
+            color: #1a120b !important;
+        }
+
+        article {
+            color: #1a120b !important;
+        }
+
+        /* Post header styling */
+        .post-header {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 20px;
+        }
 
         /* Post author bio styling */
         .post-author-bio {
@@ -109,69 +110,10 @@
             color: #ffd700;
         }
 
-        /* Tag styling */
-        .tag {
-            background-color: #2c1810;
-            color: #d4a574;
-            border: 1px solid #d4a574;
-            padding: 6px 12px;
-            margin: 4px;
-            border-radius: 4px;
-            display: inline-block;
-            font-size: 14px;
-        }
-
-        .tag:hover {
-            background-color: #3d2817;
-            color: #ffd700;
-            border-color: #ffd700;
-        }
-
-        /* Back to blog link */
-        .back-to-blog {
-            color: #d4a574;
-            text-decoration: underline;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-
-        .back-to-blog:hover {
-            color: #ffd700;
-        }
-
         /* Post meta information */
-        .post-meta { color: #d4a574 !important;
+        .post-meta {
+            color: #d4a574 !important;
             font-size: 14px;
-        }
-
-        /* Disclaimer/footer text */
-        .post-footer {
-            color: #f4e4d4;
-        }
-
-        .post-footer h3 {
-            color: #6A1B1B;
-        }
-        /* Override stylesheet for light theme background */
-        .post-content {
-            color: #1a120b !important;
-        }
-
-        .post-content p {
-            color: #1a120b !important;
-        }
-
-        .post-content li {
-            color: #1a120b !important;
-        }
-
-        .post-content ul,
-        .post-content ol {
-            color: #1a120b !important;
-        }
-
-        article {
-            color: #1a120b !important;
         }
     </style>
 </head>
