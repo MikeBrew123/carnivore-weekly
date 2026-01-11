@@ -1741,3 +1741,52 @@ body.mobile-menu-open::after {
   z-index: 999;
 }
 
+/* Overflow protection - prevent horizontal scroll */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Mobile Header - Scale down for mobile devices */
+@media (max-width: 768px) {
+  /* Scale down header title */
+  header h1,
+  .header-2026 h1 {
+    font-size: 2rem; /* Reduced from 4em */
+    letter-spacing: 2px; /* Reduced from 4px */
+  }
+
+  /* Scale down subtitle */
+  header .subtitle,
+  .header-2026 .subtitle {
+    font-size: 1em; /* Reduced from 1.5em */
+  }
+
+  /* Scale down tagline */
+  header .tagline,
+  .header-2026 .tagline {
+    font-size: 0.9em; /* Reduced from 1.1em */
+  }
+
+  /* Scale down update date */
+  header .update-date,
+  .header-2026 .update-date {
+    font-size: 0.9em; /* Reduced from 1.1em */
+  }
+
+  /* Scale down and reposition logo */
+  .logo {
+    width: 350px; /* Reduced from 510px */
+    height: auto; /* Maintain aspect ratio */
+    right: -80px; /* Adjusted from -140px to fit mobile */
+    max-width: 350px; /* Reduced from 510px */
+  }
+
+  /* Reduce header padding on mobile */
+  header,
+  .header-2026 {
+    padding: 20px 10px 15px 10px; /* Reduced from 30px 0 20px 0 */
+    min-height: 120px; /* Reduced from 180px */
+  }
+}
+
