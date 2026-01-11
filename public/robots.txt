@@ -13,6 +13,9 @@ Disallow: /*demo*.html
 Disallow: /*-2026.html
 Disallow: /*-full.html
 
+# Preferred domain
+Host: https://carnivoreweekly.com
+
 # Specific crawl delays (optional, but good practice)
 Crawl-delay: 1
 
