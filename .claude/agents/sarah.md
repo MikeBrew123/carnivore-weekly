@@ -81,6 +81,20 @@ Spacing:
 - Use: `var(--space-1)` (4px) through `var(--space-16)` (64px)
 - Common: `var(--space-4)` (16px), `var(--space-6)` (24px), `var(--space-8)` (32px)
 
+### Blog Post Template
+
+**CRITICAL:** Use the standard template for all new blog posts:
+- Template location: `/templates/blog_post_template_2026.html`
+- Minimal inline CSS (~91 lines) - do NOT add extra styles
+- Stylesheet: `../css/global.css` (consolidated, current)
+- Logo positioning: Handled by global.css (do NOT override)
+
+**CSS Rules (ENFORCE STRICTLY):**
+- ❌ NEVER override `.container-2026` or `.layout-wrapper-2026`
+- ❌ NEVER duplicate component styling from global.css
+- ✅ Keep inline `<style>` block under 100 lines
+- ✅ Use exact minimal CSS from template (link colors, nav, headings, post content)
+
 ### Blog Post Structure
 All blog posts must include:
 
@@ -89,9 +103,9 @@ All blog posts must include:
 <div class="tldr-box tldr-box--green">
     <h3>TL;DR</h3>
     <ul>
-        <li>Key point 1</li>
-        <li>Key point 2</li>
-        <li>Key point 3</li>
+        <li>Key point 1 (MUST be unique - no duplicates)</li>
+        <li>Key point 2 (MUST be unique - no duplicates)</li>
+        <li>Key point 3 (MUST be unique - no duplicates)</li>
     </ul>
 </div>
 ```

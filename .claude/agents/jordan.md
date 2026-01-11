@@ -313,9 +313,63 @@ Spacing:
 
 ---
 
+## VALIDATOR 19: INLINE CSS BLOAT CHECK
+
+**Purpose:** Prevent excessive inline CSS that overrides global.css.
+
+**Check for CRITICAL violations:**
+- 🔴 Inline `<style>` block exceeds 100 lines
+- 🔴 `.container-2026` or `.layout-wrapper-2026` redefined in inline styles
+- 🔴 Component classes duplicated from global.css (`.wiki-box`, `.tag`, `.blog-footer`, etc.)
+
+**Acceptable inline CSS (~91 lines max):**
+- Link colors for light backgrounds
+- Navigation menu overrides
+- Heading color hierarchy
+- Post content text colors
+- Post header/author bio styling
+
+**Validation process:**
+1. Count lines in `<style>` block (from `<style>` to `</style>`)
+2. Check for `.container-2026` or `.layout-wrapper-2026` definitions
+3. Check for duplicate component styling
+4. Flag violations as 🔴 CRITICAL
+
+**Pass criteria:**
+- Inline CSS ≤ 100 lines
+- No container/layout overrides
+- No component duplication
+- Matches minimal CSS pattern from blog_post_template_2026.html
+
+---
+
+## VALIDATOR 20: DUPLICATE CONTENT CHECK
+
+**Purpose:** Detect duplicate content in TL;DR sections and other components.
+
+**Check for CRITICAL violations:**
+- 🔴 Duplicate bullet points in TL;DR box (same text appears multiple times)
+- 🔴 Duplicate list items in Key Takeaways
+- 🟠 Repetitive phrasing in consecutive paragraphs
+
+**Validation process:**
+1. Extract all `<li>` elements from `.tldr-box`
+2. Check for duplicate text (case-insensitive)
+3. Extract all `<li>` elements from `.key-takeaways`
+4. Check for duplicates
+5. Flag exact duplicates as 🔴 CRITICAL
+6. Flag similar phrasing as 🟠 HIGH
+
+**Pass criteria:**
+- No duplicate TL;DR bullets
+- No duplicate Key Takeaways
+- Varied phrasing throughout
+
+---
+
 ## UPDATED VALIDATION WORKFLOW
 
-**Pre-deployment checklist (run all 18 validators):**
+**Pre-deployment checklist (run all 20 validators):**
 
 1. Copy-Editor ✓
 2. Brand Voice ✓
@@ -328,13 +382,15 @@ Spacing:
 9. Brand Detail Inspection ✓
 10. Lighthouse Performance ✓
 11. Mobile Responsiveness ✓
-12. **Design Token Usage** ✓ (NEW - Phase 7)
-13. **CSS Class Validation** ✓ (NEW - Phase 7)
-14. **Blog Post Structure** ✓ (NEW - Phase 7)
-15. **Content Linking Validation** ✓ (NEW - Phase 7)
-16. **Engagement Features** ✓ (NEW - Phase 7)
-17. **Navigation Validation** ✓ (NEW - Phase 7)
-18. **Calculator CTA Validation** ✓ (NEW - Phase 7)
+12. **Design Token Usage** ✓ (Phase 7)
+13. **CSS Class Validation** ✓ (Phase 7)
+14. **Blog Post Structure** ✓ (Phase 7)
+15. **Content Linking Validation** ✓ (Phase 7)
+16. **Engagement Features** ✓ (Phase 7)
+17. **Navigation Validation** ✓ (Phase 7)
+18. **Calculator CTA Validation** ✓ (Phase 7)
+19. **Inline CSS Bloat Check** ✓ (January 2026 - prevents CSS overrides)
+20. **Duplicate Content Check** ✓ (January 2026 - prevents copy-paste errors)
 
 **Deployment decision:**
 - **PASS**: Zero 🔴 CRITICAL issues
