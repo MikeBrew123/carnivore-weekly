@@ -18,6 +18,39 @@
     <meta name="twitter:title" content="{{ title }} - Carnivore Weekly Blog">
     <meta name="twitter:description" content="{{ meta_description }}">
     <meta name="twitter:site" content="@carnivoreweekly">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
+
+    <!-- Article Schema Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "{{ title }}",
+      "description": "{{ meta_description }}",
+      "author": {
+        "@type": "Person",
+        "name": "{{ author_name }}",
+        "jobTitle": "{{ author_title }}"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Carnivore Weekly",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://carnivoreweekly.com/images/logo.png"
+        }
+      },
+      "datePublished": "{{ publish_date }}",
+      "dateModified": "{{ publish_date }}",
+      "image": "https://carnivoreweekly.com/images/hero-steak-1200w.webp",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://carnivoreweekly.com/blog/{{ slug }}.html"
+      }
+    }
+    </script>
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
