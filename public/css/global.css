@@ -1684,9 +1684,8 @@ blockquote.pull-quote {
   nav.nav-menu-2026 {
     position: fixed;
     top: 0;
-    right: -100%; /* Hidden off-screen */
-    width: 80%;
-    max-width: 300px;
+    right: -260px; /* Hidden off-screen (width + 10px) */
+    width: 250px; /* Compact sidebar width */
     height: 100vh;
     flex-direction: column;
     justify-content: flex-start;
@@ -1711,10 +1710,11 @@ blockquote.pull-quote {
   .nav-menu-2026 a,
   nav.nav-menu-2026 a {
     width: 100%;
-    padding: 1.2rem 2rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid rgba(212, 165, 116, 0.2);
     border-left: 3px solid transparent;
     text-align: left;
+    font-size: 0.95rem;
   }
 
   .nav-menu-2026 a:hover,
