@@ -311,6 +311,39 @@ All new blog posts MUST use blog_post_template_2026.html structure:
 ### Automated Blog Post Creation
 Run `scripts/generate_blog_pages.py` - uses blog_post_template_2026.html automatically.
 
+## Generated Files - Manual Edit Policy
+
+**Auto-Generated Files:**
+- `public/index.html` (from templates/index_template.html)
+- `public/channels.html` (from templates/channels_template.html)
+
+**Rule**: Manual edits are allowed when instructed (e.g., fixing writer copy), but:
+1. DOCUMENT the change in `docs/PROJECT-STATUS.md` under MANUAL EDITS LOG
+2. Note that it may be overwritten by next automation run (every Sunday via `run_weekly_update.sh`)
+3. If fix is permanent, ALSO update the source template file
+
+**Template Files (Source of Truth):**
+- `templates/index_template.html` - Edit this for permanent homepage changes
+- `templates/channels_template.html` - Edit this for permanent channels changes
+
+## Supabase Configuration
+
+**Status**: MCP connection available, SERVICE_ROLE_KEY needs configuration
+
+**Keys Location**: Cloudflare Wrangler (for API keys)
+
+**Current State**:
+- ✅ MCP authenticated and working for SQL operations
+- ✅ Supabase tables created (30+ tables via migrations)
+- ❌ `SUPABASE_SERVICE_ROLE_KEY` missing from .env (needed for YouTube video caching)
+
+**To Enable Caching**:
+1. Get SERVICE_ROLE_KEY from Supabase Dashboard → Settings → API
+2. Add to `.env` file: `SUPABASE_SERVICE_ROLE_KEY=your_key_here`
+3. Run `./run_weekly_update.sh` to populate cache
+
+**MCP Access**: Use `mcp__supabase__execute_sql` tool (already configured)
+
 ## Guardrails
 - Optimize for clarity over volume
 - No influencer fluff
