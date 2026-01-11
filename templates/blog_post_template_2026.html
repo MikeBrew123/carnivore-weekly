@@ -225,28 +225,84 @@
                 <a href="/calculator.html" class="btn btn--primary">Calculate Your Protocol →</a>
             </div>
 
-            <!-- Related Content (REQUIRED) -->
-            <section class="related-content" data-content-type="blog" data-content-id="{{ slug }}"></section>
-            <script src="/js/related-content.js" defer></script>
-
-            <!-- Post Reactions (REQUIRED) -->
-            <div class="post-reactions" data-post-slug="{{ slug }}"></div>
-            <script src="/js/post-reactions.js" defer></script>
                 </div>
-            </article>
-        </main>
+
+        <!-- Wiki Links Section -->
+
+    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
+      <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
+      <span style="color: #d4a574; font-size: 14px;"><a href="/wiki.html#cholesterol" class="wiki-link">cholesterol</a> • <a href="/wiki.html#insulin-resistance" class="wiki-link">insulin-resistance</a> • <a href="/wiki.html#digestion" class="wiki-link">digestion</a></span>
     </div>
 
-    <!-- Page Footer -->
-    <footer class="blog-footer">
-        <p>&copy; 2026 Carnivore Weekly |
-           <a href="/about.html">About</a> |
-           <a href="/the-lab.html">The Lab</a> |
-           <a href="mailto:feedback@carnivoreweekly.com">Contact</a>
-        </p>
-        <p style="margin-top: 10px; font-size: 11px;">
-            Curated with AI • Made with <a href="https://claude.com/claude-code">Claude Code</a>
-        </p>
-    </footer>
+        <!-- Featured Videos Section -->
+
+    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
+      <strong style="color: #ffd700;">📺 Featured This Week:</strong><br>
+
+    <div style="margin-bottom: 20px; padding: 15px; background: #2c1810; border-radius: 4px;">
+      <strong style="color: #ffd700;">If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]</strong><br>
+      <span style="color: #d4a574; font-size: 13px;">by Anthony Chaffee MD</span><br>
+      <a href="https://www.youtube.com/watch?v=6ExSc9OdIIA" target="_blank" style="color: #d4a574; text-decoration: underline; font-size: 13px;">Watch on YouTube →</a>
+    </div>
+
+    </div>
+
+        <!-- Product Recommendations Section (Soft Conversion) -->
+
+
+        <!-- Post Footer -->
+        <div class="post-footer">
+            <!-- Tags -->
+            <div class="tags">
+                <span class="tag">{{ tag1 }}</span>
+                <span class="tag">{{ tag2 }}</span>
+                <span class="tag">{{ tag3 }}</span>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h3>Comments</h3>
+                <div class="post-reactions" data-post-slug="{{ slug }}"></div>
+                <script src="/js/post-reactions.js" defer></script>
+
+
+                <script src="https://utteranc.es/client.js"
+                    repo="MikeBrew123/carnivore-weekly"
+                    issue-term="pathname"
+                    theme="github-dark"
+                    crossorigin="anonymous"
+                    async>
+                </script>
+            </div>
+        </div>
+
+        <!-- Footer -->
+
+<!-- Related Content Component -->
+<section class="related-content" data-content-type="blog" data-content-id="{{ slug }}">
+    <h3 class="related-content-title">Related Content</h3>
+    <div class="related-content-loading">
+        <span class="spinner"></span>
+        Loading related content...
+    </div>
+    <div class="related-content-grid" style="display: none;"></div>
+</section>
+
+<script src="/js/related-content.js" defer></script>
+<footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #8b4513; text-align: center; color: #d4a574; font-size: 12px;">
+            <p>&copy; 2026 Carnivore Weekly |
+               <a href="/about.html" style="color: #d4a574; text-decoration: underline;">About</a> |
+               <a href="/the-lab.html" style="color: #d4a574; text-decoration: underline;">The Lab</a> |
+               <a href="mailto:feedback@carnivoreweekly.com" style="color: #d4a574; text-decoration: underline;">Contact</a>
+            </p>
+            <p style="margin-top: 10px; font-size: 11px;">
+                🤖 Curated with AI • Made with <a href="https://claude.com/claude-code" style="color: #d4a574; text-decoration: underline;">Claude Code</a>
+            </p>
+        </footer>
+    </div>
+    </main>
+    </div>
+
+    <script src="/js/mobile-nav.js"></script>
 </body>
 </html>
