@@ -159,6 +159,12 @@ class UnifiedValidator:
         exclude_patterns = [
             "public/components/",  # HTML fragments (modals, widgets)
             "public/assets/calculator2/",  # Standalone React app
+            "public/includes/",  # HTML fragments (header, footer)
+            "public/calculator/report.html",  # PDF report template
+            "public/calculator-simple.html",  # Old calculator variant
+            "public/calculator-form-rebuild.html",  # Old calculator variant
+            "public/test-index.html",  # Test file
+            "public/blog-redesign.html",  # Test/redesign file
         ]
 
         for html_file in html_files:
