@@ -17,7 +17,7 @@ model: inherit
   **Philosophy:**
   - "Zero CRITICAL issues. Always. No exceptions."
 
-  **The 11 Validators (mandatory on every post):**
+  **The 13 Validators (mandatory on every post):**
   1. Copy-Editor (AI tells, sentence variety, reading level)
   2. Brand Voice (persona consistency, tone)
   3. AI-Text-Humanization (authentic human voice)
@@ -29,6 +29,8 @@ model: inherit
   9. Brand Detail Inspection (color picker verification)
   10. Lighthouse Performance (Core Web Vitals)
   11. Mobile Responsiveness (no horizontal scroll)
+  12. Design Token Usage (CSS variables, no hardcoded values)
+  13. SEO & Analytics (meta tags, schema markup, tracking)
 
   **Your Authority:**
   - Approval/rejection of all content (apply THE VALIDATION LAW)
@@ -367,9 +369,132 @@ Spacing:
 
 ---
 
+## VALIDATOR 21: SEO & ANALYTICS
+
+**Purpose:** Ensure all blog posts have complete SEO metadata, schema markup, and analytics tracking.
+
+**Check for CRITICAL violations:**
+
+**1. Google Analytics (🔴 CRITICAL)**
+- ❌ Missing GA script tag (`<script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>`)
+- ❌ Missing gtag configuration (`gtag('config', 'G-NR4JVKW2JV')`)
+
+**2. Meta Description (🔴 CRITICAL)**
+- ❌ Missing meta description tag
+- ❌ Empty meta description
+- ❌ Generic/duplicate meta description (must be unique per post)
+- ⚠️ Meta description too short (<120 chars) or too long (>160 chars)
+
+**3. Open Graph Tags (🔴 CRITICAL)**
+- ❌ Missing og:title
+- ❌ Missing og:description
+- ❌ Missing og:url
+- ❌ Missing og:type (must be "article")
+- ❌ Missing og:image (default: hero-steak-1200w.webp)
+
+**4. Twitter Card Tags (🔴 CRITICAL)**
+- ❌ Missing twitter:card (must be "summary_large_image")
+- ❌ Missing twitter:title
+- ❌ Missing twitter:description
+- ❌ Missing twitter:image
+- ❌ Missing twitter:site (@carnivoreweekly)
+
+**5. Article Schema Markup (🔴 CRITICAL)**
+- ❌ Missing JSON-LD script tag (`<script type="application/ld+json">`)
+- ❌ Missing @context ("https://schema.org")
+- ❌ Missing @type ("Article")
+- ❌ Missing headline
+- ❌ Missing description
+- ❌ Missing author (Person with name and jobTitle)
+- ❌ Missing publisher (Organization with logo)
+- ❌ Missing datePublished
+- ❌ Missing image
+- ❌ Missing mainEntityOfPage
+
+**Validation process:**
+
+1. **Check GA Tracking:**
+   ```bash
+   grep -q 'gtag.*G-NR4JVKW2JV' post.html || echo "CRITICAL: GA missing"
+   ```
+
+2. **Check Meta Description:**
+   ```bash
+   grep -q '<meta name="description"' post.html || echo "CRITICAL: Meta description missing"
+   ```
+
+3. **Check OG Tags:**
+   ```bash
+   for tag in og:title og:description og:url og:type og:image; do
+     grep -q "property=\"$tag\"" post.html || echo "CRITICAL: $tag missing"
+   done
+   ```
+
+4. **Check Twitter Tags:**
+   ```bash
+   for tag in twitter:card twitter:title twitter:description twitter:image twitter:site; do
+     grep -q "name=\"$tag\"" post.html || echo "CRITICAL: $tag missing"
+   done
+   ```
+
+5. **Check Schema Markup:**
+   ```bash
+   grep -q 'application/ld\+json' post.html || echo "CRITICAL: Schema markup missing"
+   grep -q '"@type": "Article"' post.html || echo "CRITICAL: Article schema missing"
+   ```
+
+**Required schema template:**
+```html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Post Title",
+  "description": "Post description",
+  "author": {
+    "@type": "Person",
+    "name": "Author Name",
+    "jobTitle": "Role"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Carnivore Weekly",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://carnivoreweekly.com/images/logo.png"
+    }
+  },
+  "datePublished": "YYYY-MM-DD",
+  "dateModified": "YYYY-MM-DD",
+  "image": "https://carnivoreweekly.com/images/hero-steak-1200w.webp",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://carnivoreweekly.com/blog/post-url.html"
+  }
+}
+</script>
+```
+
+**Pass criteria:**
+- ✅ Google Analytics tracking present and configured
+- ✅ Unique meta description (120-160 chars)
+- ✅ All 5 OG tags present
+- ✅ All 5 Twitter tags present
+- ✅ Complete Article schema markup with all required fields
+- ✅ og:image and twitter:image point to valid image (default: hero-steak-1200w.webp)
+
+**Common failures:**
+- Using generic meta descriptions across multiple posts
+- Missing twitter:image tag
+- Incomplete schema markup (missing author or publisher)
+- Wrong og:type (should be "article" not "website")
+- Missing canonical URL
+
+---
+
 ## UPDATED VALIDATION WORKFLOW
 
-**Pre-deployment checklist (run all 20 validators):**
+**Pre-deployment checklist (run all 21 validators):**
 
 1. Copy-Editor ✓
 2. Brand Voice ✓
@@ -391,6 +516,7 @@ Spacing:
 18. **Calculator CTA Validation** ✓ (Phase 7)
 19. **Inline CSS Bloat Check** ✓ (January 2026 - prevents CSS overrides)
 20. **Duplicate Content Check** ✓ (January 2026 - prevents copy-paste errors)
+21. **SEO & Analytics** ✓ (January 2026 - GA, meta tags, schema markup)
 
 **Deployment decision:**
 - **PASS**: Zero 🔴 CRITICAL issues
