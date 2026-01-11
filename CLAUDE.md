@@ -286,6 +286,31 @@ All decisions and promotions remain manual and Quinn-owned.
   - User explicitly asks to see it
 - Otherwise, log technical details silently
 
+## Blog Post Structure
+
+**Gold Standard:** `public/blog/2025-12-23-adhd-connection.html`
+**Active Template:** `templates/blog_post_template_2026.html`
+**Generation Script:** `scripts/generate_blog_pages.py`
+
+All new blog posts MUST use blog_post_template_2026.html structure:
+- layout-wrapper-2026 + main-content-2026 wrappers
+- Wiki links section
+- Featured videos section
+- Post-footer with reactions + comments
+- Related-content component
+- mobile-nav.js
+
+**DO NOT** use blog_post_template.html (deprecated - renamed to .OLD.bak).
+
+### Manual Blog Post Creation
+1. Copy `public/blog/2025-12-23-adhd-connection.html`
+2. Replace content
+3. Update metadata (title, author, date, slug, tags)
+4. Result: Guaranteed to match gold standard
+
+### Automated Blog Post Creation
+Run `scripts/generate_blog_pages.py` - uses blog_post_template_2026.html automatically.
+
 ## Guardrails
 - Optimize for clarity over volume
 - No influencer fluff

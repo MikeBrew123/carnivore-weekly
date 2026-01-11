@@ -45,7 +45,7 @@ def setup_jinja():
 
 def generate_blog_posts(env, posts):
     """Generate individual blog post HTML files."""
-    template = env.get_template("blog_post_template.html")
+    template = env.get_template("blog_post_template_2026.html")
     published_posts = [p for p in posts if p.get("published", False)]
 
     print(f"\n📄 Generating {len(published_posts)} blog post pages...")
