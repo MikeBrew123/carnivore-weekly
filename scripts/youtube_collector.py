@@ -30,6 +30,13 @@ except ImportError:
     print("Warning: Supabase client not installed. Install with: pip install supabase")
     create_client = None
 
+# Anthropic for relevance scoring
+try:
+    from anthropic import Anthropic
+except ImportError:
+    print("Warning: Anthropic client not installed. Install with: pip install anthropic")
+    Anthropic = None
+
 # Load environment variables from .env file
 # This keeps sensitive data like API keys out of your code
 load_dotenv()
@@ -50,11 +57,17 @@ DATA_DIR = PROJECT_ROOT / "data"
 OUTPUT_FILE = DATA_DIR / "youtube_data.json"
 
 # Search parameters
-SEARCH_QUERY = "carnivore diet"
+SEARCH_QUERIES = [
+    "carnivore diet",
+    "animal-based diet",
+    "meat only diet",
+    "zero carb diet"
+]
 DAYS_BACK = 7  # How many days back to search
-TOP_CREATORS_COUNT = 10  # How many top creators to analyze
-VIDEOS_PER_CREATOR = 5  # Videos to collect per creator
+TOP_CREATORS_COUNT = 12  # How many top creators to analyze (increased for diversity)
+MAX_VIDEOS_PER_CREATOR = 2  # Max videos per creator (enforces diversity)
 COMMENTS_PER_VIDEO = 20  # Top comments per video
+MIN_RELEVANCE_SCORE = 7  # Minimum Claude relevance score (1-10)
 
 
 # ============================================================================
@@ -171,6 +184,18 @@ class YouTubeCollector:
         except Exception as e:
             print(f"⚠ Warning: Could not initialize Supabase: {e}")
 
+        # Initialize Anthropic client for relevance scoring
+        self.anthropic = None
+        try:
+            anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+            if anthropic_key and Anthropic:
+                self.anthropic = Anthropic(api_key=anthropic_key)
+                print("✓ Claude API initialized (smart content filtering enabled)")
+            else:
+                print("⚠ Claude API not configured - using basic keyword filtering")
+        except Exception as e:
+            print(f"⚠ Warning: Could not initialize Claude API: {e}")
+
     def load_from_cache(self) -> Dict:
         """
         Load recent data from Supabase cache if available
@@ -260,7 +285,7 @@ class YouTubeCollector:
             cached_data = {
                 "collection_date": datetime.now().strftime("%Y-%m-%d"),
                 "collection_timestamp": datetime.now().isoformat(),
-                "search_query": SEARCH_QUERY,
+                "search_queries": SEARCH_QUERIES,
                 "days_back": DAYS_BACK,
                 "total_videos_found": len(all_videos_response.data),
                 "top_creators_count": len(top_creators),
@@ -274,6 +299,114 @@ class YouTubeCollector:
         except Exception as e:
             print(f"   ⚠ Error loading from cache: {e}")
             return {}
+
+    def score_video_relevance(self, title: str, description: str) -> tuple:
+        """
+        Score video relevance to carnivore diet content using Claude API
+
+        Args:
+            title: Video title
+            description: Video description
+
+        Returns:
+            Tuple of (score: int, reason: str)
+        """
+        if not self.anthropic:
+            # Fallback: basic keyword matching
+            text = (title + " " + description).lower()
+            carnivore_keywords = ["carnivore", "meat", "beef", "animal-based", "zero carb"]
+            if any(kw in text for kw in carnivore_keywords):
+                return (8, "Contains carnivore keywords")
+            return (5, "No specific carnivore keywords")
+
+        try:
+            prompt = f"""Score this video's relevance to CARNIVORE DIET content (1-10):
+
+Title: {title}
+Description: {description[:500]}
+
+Scoring guidelines:
+- 9-10: Directly about carnivore/meat-based diet, nutrition, results, protocols
+- 7-8: Related health content (keto, metabolic health, meat-focused nutrition)
+- 4-6: Tangentially related (general fitness, fasting, some diet content)
+- 1-3: Off-topic (ice baths alone, running, Dr Pepper, non-diet content)
+
+Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
+
+            response = self.anthropic.messages.create(
+                model="claude-3-5-haiku-20241022",
+                max_tokens=100,
+                messages=[{"role": "user", "content": prompt}]
+            )
+
+            result_text = response.content[0].text.strip()
+            # Parse JSON response
+            import json
+            result = json.loads(result_text)
+            return (result["score"], result["reason"])
+
+        except Exception as e:
+            print(f"   ⚠ Claude scoring failed: {e}")
+            # Fallback to basic keyword matching
+            text = (title + " " + description).lower()
+            if "carnivore" in text or "meat diet" in text:
+                return (7, "Fallback: contains carnivore keywords")
+            return (5, "Fallback: relevance unclear")
+
+    def enforce_creator_diversity(self, videos: List[Dict]) -> List[Dict]:
+        """
+        Limit videos per creator to ensure diversity
+
+        Args:
+            videos: List of videos with view counts
+
+        Returns:
+            Filtered list with max MAX_VIDEOS_PER_CREATOR per creator
+        """
+        videos_by_creator = defaultdict(list)
+
+        for video in videos:
+            creator_id = video.get("channel_id")
+            if creator_id:
+                videos_by_creator[creator_id].append(video)
+
+        # Take top MAX_VIDEOS_PER_CREATOR videos per creator, sorted by views
+        diverse_videos = []
+        for creator_id, creator_videos in videos_by_creator.items():
+            # Sort by view count (descending)
+            sorted_videos = sorted(
+                creator_videos,
+                key=lambda v: v.get("statistics", {}).get("view_count", 0),
+                reverse=True
+            )
+            diverse_videos.extend(sorted_videos[:MAX_VIDEOS_PER_CREATOR])
+
+        return diverse_videos
+
+    def log_rejected_video(self, video: Dict, score: int, reason: str):
+        """
+        Log rejected video to Supabase for analysis
+
+        Args:
+            video: Video metadata
+            score: Relevance score
+            reason: Rejection reason
+        """
+        if not self.supabase:
+            return
+
+        try:
+            self.supabase.table("rejected_videos").insert({
+                "video_id": video.get("video_id"),
+                "title": video.get("title"),
+                "channel_name": video.get("channel_title"),
+                "relevance_score": score,
+                "rejection_reason": reason,
+                "published_at": video.get("published_at"),
+            }).execute()
+        except Exception as e:
+            # Silent fail - logging is not critical
+            pass
 
     def search_videos(self, query: str, max_results: int = 50) -> List[Dict]:
         """
@@ -633,15 +766,55 @@ class YouTubeCollector:
         # No cache hit - proceed with API calls
         print("\n⚠ No recent cache found - fetching fresh data from YouTube API")
 
-        # Step 1: Search for videos
-        videos = self.search_videos(SEARCH_QUERY, max_results=50)
+        # Step 1: Search for videos using multiple queries
+        all_videos = []
+        seen_video_ids = set()
 
-        if not videos:
+        for query in SEARCH_QUERIES:
+            print(f"\n🔍 Query: '{query}'")
+            query_videos = self.search_videos(query, max_results=30)
+
+            # Deduplicate
+            for video in query_videos:
+                video_id = video.get("video_id")
+                if video_id not in seen_video_ids:
+                    all_videos.append(video)
+                    seen_video_ids.add(video_id)
+
+        print(f"\n✓ Total unique videos found: {len(all_videos)}")
+
+        if not all_videos:
             print("✗ No videos found. Exiting.")
             return {}
 
+        # Step 1.5: Filter by relevance using Claude
+        print(f"\n🤖 Filtering by relevance (min score: {MIN_RELEVANCE_SCORE})...")
+        relevant_videos = []
+        rejected_count = 0
+
+        for video in all_videos:
+            score, reason = self.score_video_relevance(
+                video.get("title", ""),
+                video.get("description", "")
+            )
+
+            if score >= MIN_RELEVANCE_SCORE:
+                video["relevance_score"] = score
+                video["relevance_reason"] = reason
+                relevant_videos.append(video)
+            else:
+                rejected_count += 1
+                self.log_rejected_video(video, score, reason)
+
+        print(f"   ✓ Kept: {len(relevant_videos)} videos (score >= {MIN_RELEVANCE_SCORE})")
+        print(f"   ✗ Rejected: {rejected_count} videos (score < {MIN_RELEVANCE_SCORE})")
+
+        if not relevant_videos:
+            print("✗ No relevant videos after filtering. Exiting.")
+            return {}
+
         # Step 2: Rank channels
-        top_channels = self.calculate_channel_rankings(videos)
+        top_channels = self.calculate_channel_rankings(relevant_videos)
 
         if not top_channels:
             print("✗ Could not rank channels. Exiting.")
@@ -657,8 +830,8 @@ class YouTubeCollector:
             print(f"\n   [{i}/{TOP_CREATORS_COUNT}] {channel_name}")
             print(f"   Channel ID: {channel_id}")
 
-            # Get recent videos from this channel
-            videos = self.get_channel_videos(channel_id, VIDEOS_PER_CREATOR)
+            # Get recent videos from this channel (limited per creator for diversity)
+            videos = self.get_channel_videos(channel_id, MAX_VIDEOS_PER_CREATOR)
             print(f"   ✓ Found {len(videos)} recent videos")
 
             # For each video, get comments
@@ -675,9 +848,11 @@ class YouTubeCollector:
         final_data = {
             "collection_date": datetime.now().strftime("%Y-%m-%d"),
             "collection_timestamp": datetime.now().isoformat(),
-            "search_query": SEARCH_QUERY,
+            "search_queries": SEARCH_QUERIES,
             "days_back": DAYS_BACK,
-            "total_videos_found": len(videos),
+            "total_videos_found": len(relevant_videos),
+            "videos_per_creator_max": MAX_VIDEOS_PER_CREATOR,
+            "min_relevance_score": MIN_RELEVANCE_SCORE,
             "top_creators_count": len(top_channels),
             "top_creators": top_channels,
             "source": "api",  # Mark as fresh API data (vs 'cache')
