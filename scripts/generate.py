@@ -492,6 +492,23 @@ class UnifiedGenerator:
         else:
             key_insights = []
 
+        # Load editorial commentary from content-of-the-week.json
+        editorial_commentary = {}
+        try:
+            content_week_path = self.project_root / "data" / "content-of-the-week.json"
+            if content_week_path.exists():
+                content_week_data = json.loads(content_week_path.read_text())
+                for video in content_week_data.get("featured_videos", []):
+                    editorial_commentary[video["video_id"]] = {
+                        "editorial_title": video.get("editorial_title"),
+                        "heat_badge": video.get("heat_badge"),
+                        "commentary": video.get("commentary"),
+                        "curator": video.get("curator"),
+                    }
+                print(f"  ✓ Loaded editorial commentary for {len(editorial_commentary)} videos")
+        except Exception as e:
+            print(f"  Warning: Could not load content-of-the-week.json: {e}")
+
         # Load real YouTube videos from youtube_data.json
         top_videos = []
 
@@ -592,6 +609,24 @@ class UnifiedGenerator:
                             )
             except Exception:
                 pass  # Silently fail if no additional videos available
+
+        # Merge editorial commentary into top_videos
+        for video in top_videos:
+            video_id = video.get("video_id")
+            if video_id and video_id in editorial_commentary:
+                commentary_data = editorial_commentary[video_id]
+                # Use editorial title if available, otherwise keep original
+                if commentary_data.get("editorial_title"):
+                    video["editorial_title"] = commentary_data["editorial_title"]
+                # Add editorial commentary
+                if commentary_data.get("commentary"):
+                    video["editorial_commentary"] = commentary_data["commentary"]
+                # Add heat badge
+                if commentary_data.get("heat_badge"):
+                    video["heat_badge"] = commentary_data["heat_badge"]
+                # Add curator name
+                if commentary_data.get("curator"):
+                    video["curator"] = commentary_data["curator"]
 
         # Build creator_channels mapping for JavaScript linking
         creator_channels = {}

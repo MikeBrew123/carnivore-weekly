@@ -747,21 +747,22 @@ class YouTubeCollector:
                     try:
                         # Prepare video record for Supabase
                         video_record = {
-                            "video_id": video.get("video_id"),
+                            "youtube_id": video.get("video_id"),
                             "channel_name": channel_name,
+                            "channel_id": creator.get("channel_id", ""),
                             "title": video.get("title"),
                             "description": video.get("description", ""),
                             "published_at": video.get("published_at"),
+                            "thumbnail_url": video.get("thumbnail_url", ""),
                             "view_count": video.get("statistics", {}).get("view_count", 0),
                             "like_count": video.get("statistics", {}).get("like_count", 0),
                             "comment_count": video.get("statistics", {}).get("comment_count", 0),
-                            "tags": video.get("tags", []),
-                            "top_comments": video.get("top_comments", []),
+                            "topic_tags": video.get("tags", [])[:10],  # Limit to 10 tags
                         }
 
-                        # Insert or update in Supabase (upsert on video_id)
+                        # Insert or update in Supabase (upsert on youtube_id)
                         self.supabase.table("youtube_videos").upsert(
-                            video_record, on_conflict="video_id"
+                            video_record, on_conflict="youtube_id"
                         ).execute()
                         videos_inserted += 1
 
