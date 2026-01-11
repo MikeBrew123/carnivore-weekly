@@ -155,8 +155,12 @@
         <!-- Blog Grid -->
         <div class="blog-grid">
             {% for post in blog_posts | sort(attribute='date', reverse=True) %}
-            <div class="blog-card" data-author="{{ post.author }}">
+            <div class="blog-card" data-author="{{ post.author }}" data-slug="{{ post.slug }}" style="position: relative;">
                 <div class="blog-date">{{ post.date | format_date }}</div>
+                <div class="blog-reaction-badge" data-slug="{{ post.slug }}" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
+                    <span>👍</span>
+                    <span class="reaction-percentage">--</span>
+                </div>
                 <a href="blog/{{ post.slug }}.html" style="text-decoration: none; color: inherit;">
                     <h2 class="blog-title">{{ post.title }}</h2>
                 </a>
@@ -206,6 +210,26 @@
                         card.style.display = 'none';
                     }
                 });
+            });
+        });
+
+        // Load reaction counts for all blog cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const badges = document.querySelectorAll('.blog-reaction-badge');
+            badges.forEach(badge => {
+                const slug = badge.dataset.slug;
+                const percentageEl = badge.querySelector('.reaction-percentage');
+
+                // Fetch reaction counts from localStorage (same pattern as post-reactions.js)
+                const reactions = JSON.parse(localStorage.getItem(`reactions_${slug}`) || '{"up": 0, "down": 0}');
+                const total = reactions.up + reactions.down;
+
+                if (total > 0) {
+                    const percentage = Math.round((reactions.up / total) * 100);
+                    percentageEl.textContent = `${percentage}%`;
+                } else {
+                    percentageEl.textContent = '--';
+                }
             });
         });
     </script>
