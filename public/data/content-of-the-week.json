@@ -1,15 +1,18 @@
 {
-  "featured_blog": {
-    "slug": "insulin-resistance-morning-glucose",
-    "title": "Why Your Morning Glucose Is High (And Why That's Normal)",
-    "excerpt": "Dawn phenomenon explained. Your cortisol spikes, glucose rises—it's physiology, not failure.",
-    "url": "/blog/2026-01-09-insulin-resistance-morning-glucose.html",
-    "author": "Sarah"
-  },
-  "featured_video": {
-    "youtube_id": "6ExSc9OdIIA",
-    "title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
-    "channel": "Anthony Chaffee MD",
-    "url": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
-  }
+  "featured_videos": [
+    {
+      "video_id": "6ExSc9OdIIA",
+      "editorial_title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+      "commentary": "Anthony breaks down exactly how to start carnivore in 2026. No fluff, just practical steps.",
+      "curator": "Chloe",
+      "heat_badge": "🔥 TRENDING"
+    },
+    {
+      "video_id": "cPIYOqSF1aQ",
+      "editorial_title": "If I Started Carnivore in 2026, I'd Do This",
+      "commentary": "Steak and Butter Gal's blueprint for starting fresh. Real talk from someone who's been there.",
+      "curator": "Chloe",
+      "heat_badge": "⭐ FEATURED"
+    }
+  ]
 }
