@@ -322,17 +322,35 @@ nav.nav-menu-2026 a:hover {
    ============================================ */
 
 .hero {
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/images/hero-steak.png') center center / cover no-repeat;
+  background: var(--color-charcoal);
   color: var(--color-white);
   padding: var(--space-16) var(--space-6);
   text-align: center;
   margin-bottom: var(--space-12);
   position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6));
+  z-index: 1;
+}
+
+.hero-bg {
+  display: block;
 }
 
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-title {
@@ -615,17 +633,35 @@ nav.nav-menu-2026 a:hover {
    ============================================ */
 
 .site-content .hero {
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/images/hero-steak.png') center center / cover no-repeat;
+  background: var(--color-charcoal);
   color: var(--color-white);
   padding: var(--space-16) var(--space-6);
   text-align: center;
   margin-bottom: var(--space-12);
   position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6));
+  z-index: 1;
+}
+
+.hero-bg {
+  display: block;
 }
 
 .site-content .hero-content {
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
+  z-index: 2;
 }
 
 .site-content .hero-title {
@@ -1505,3 +1541,79 @@ blockquote.pull-quote {
         grid-template-columns: 1fr;
     }
 }
+
+/* ============================================
+   Carnivore Essentials Grid
+   ============================================ */
+
+.essentials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.essential-card {
+  background: var(--color-white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.essential-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.essential-card picture {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+}
+
+.essential-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.essential-content {
+  padding: var(--space-6);
+}
+
+.essential-content h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: var(--color-charcoal);
+  margin-bottom: var(--space-2);
+}
+
+.essential-content p {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-4);
+}
+
+.essential-content a {
+  color: var(--color-oxblood);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition: color 0.2s ease;
+}
+
+.essential-content a:hover {
+  color: var(--color-amber);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .essentials-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
