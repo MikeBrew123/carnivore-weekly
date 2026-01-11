@@ -95,7 +95,7 @@
 }
 
 /* ============================================
-   KEY TAKEAWAY BOX
+   KEY TAKEAWAY BOX (Single Callout)
    ============================================ */
 
 .key-takeaway {
@@ -132,6 +132,52 @@
 
 .post-content .key-takeaway h4 {
     color: #ffd700 !important;
+}
+
+/* ============================================
+   KEY TAKEAWAYS (Numbered List Section)
+   ============================================ */
+
+.key-takeaways {
+    background: #2c1810 !important;
+    color: #f4e4d4 !important;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border-radius: 8px;
+    border-left: 5px solid #ffd700;
+}
+
+.key-takeaways h3 {
+    color: #ffd700 !important;
+    font-family: 'Playfair Display', serif;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.key-takeaways ol {
+    margin: 0;
+    padding-left: 1.5rem;
+    counter-reset: item;
+}
+
+.key-takeaways li {
+    color: #f4e4d4 !important;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+.key-takeaways li:last-child {
+    margin-bottom: 0;
+}
+
+/* Higher specificity to override .post-content */
+.post-content .key-takeaways h3 {
+    color: #ffd700 !important;
+}
+
+.post-content .key-takeaways li {
+    color: #f4e4d4 !important;
 }
 
 /* ============================================

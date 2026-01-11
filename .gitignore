@@ -44,6 +44,7 @@ data/*.json
 data/*.csv
 !data/config.json.example
 !data/content-of-the-week.json
+!data/featured-blog-post.json
 
 # Generated content
 public/weekly/*.html
