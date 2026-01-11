@@ -6,7 +6,7 @@
     <title>Carnivore Macro Calculator - Free Personalized Protocol</title>
 
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Free carnivore diet macro calculator. Get personalized calories, protein, and fat targets. No email required. Private and instant.">
+    <meta name="description" content="Calculate your carnivore diet macros in 90 seconds. Get personalized protein, fat, and calorie targets based on your goals. Free, private, no email required. Stop guessing—start optimizing.">
     <meta name="keywords" content="carnivore calculator, macro calculator, carnivore macros, protein calculator, carnivore diet, keto calculator">
     <meta name="author" content="Carnivore Weekly">
     <meta name="robots" content="index, follow">
@@ -41,7 +41,8 @@
         gtag('config', 'G-NR4JVKW2JV');
     </script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/assets/calculator2/assets/index-C1zJbahP.css">
 
@@ -429,15 +430,116 @@
                 margin: 0 !important;
                 padding: 0 !important;
             }
+
+            /* FAQ section mobile styles */
+            .calculator-faq {
+                padding: 20px 12px !important;
+                margin-top: 40px !important;
+            }
+
+            .calculator-faq h2 {
+                font-size: 24px !important;
+            }
+
+            .calculator-faq h3 {
+                font-size: 18px !important;
+            }
         }
     </style>
+
+    <!-- Schema Markup: WebApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Carnivore Macro Calculator",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Free carnivore diet macro calculator for personalized protein, fat, and calorie targets based on your goals. Get results in 90 seconds.",
+      "url": "https://carnivoreweekly.com/calculator.html",
+      "screenshot": "https://carnivoreweekly.com/images/calculator-screenshot.png",
+      "applicationSubCategory": "Nutrition Calculator",
+      "featureList": [
+        "Personalized protein targets",
+        "Fat intake calculations",
+        "Calorie recommendations",
+        "Goal-based optimization (fat loss, muscle gain, maintenance)",
+        "Activity level adjustments",
+        "No email required"
+      ],
+      "browserRequirements": "Requires JavaScript enabled"
+    }
+    </script>
+
+    <!-- Schema Markup: FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the carnivore diet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The carnivore diet is a meat-based eating approach that focuses exclusively on animal products: beef, pork, chicken, fish, eggs, and some dairy. It eliminates all plant foods including vegetables, fruits, grains, and legumes. Followers eat nose-to-tail, prioritizing nutrient-dense organ meats alongside muscle meat."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much protein do I need on carnivore?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Protein needs on carnivore vary by goal and activity level. For fat loss, aim for 1.0-1.2g per pound of lean body mass. For muscle gain, target 1.2-1.6g per pound. For maintenance, 0.8-1.0g per pound is sufficient. Most people undereat protein by 20-30g daily, which can cause fatigue and stalls. Use our calculator to find your personalized protein target."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I calculate carnivore macros?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "To calculate carnivore macros: (1) Determine your lean body mass by subtracting body fat from total weight. (2) Set protein based on your goal (fat loss, muscle gain, or maintenance). (3) Calculate remaining calories from fat. (4) Adjust for activity level. Our free calculator does this automatically in 90 seconds based on your stats, goal, and activity level."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to track calories on carnivore?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not everyone needs to track calories on carnivore. Many people eat to satiety and lose fat naturally. However, tracking helps if: (1) You've stalled after 3+ months, (2) You're trying to gain muscle, (3) You're exhausted or losing too much weight, or (4) You're not seeing expected results. Knowing your macro targets removes guesswork and helps optimize results."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What's the difference between carnivore and keto?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Carnivore is a subset of keto but more restrictive. Keto allows 20-50g carbs from any source (vegetables, nuts, low-carb foods). Carnivore eliminates all plant foods and focuses exclusively on animal products, resulting in near-zero carbs. Carnivore prioritizes protein (1.0-1.6g per lb), while keto is often moderate protein. Both achieve ketosis, but carnivore is simpler: just meat, eggs, and animal products."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the carnivore calculator free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, the calculator is completely free. You get personalized protein, fat, and calorie targets with no email required. Results are instant and private. We also offer an optional $9.99 upgrade that includes a detailed meal plan, sample food log, and a doctor conversation script if you need medical support. Most people find the free version sufficient."
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 <body>
     <!-- HEADER -->
-    <header class="header-2026">
+    <header class="header-2026" aria-label="Carnivore Weekly">
         <div class="container-2026">
             <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
-            <h1>CARNIVORE WEEKLY</h1>
+            <p class="site-title" style="color: #ffd700; font-family: 'Playfair Display', serif; font-size: 4em; margin: 15px 0 10px 0; font-weight: 900; letter-spacing: 4px; text-shadow: 3px 3px 6px rgba(0,0,0,0.7);">CARNIVORE WEEKLY</p>
             <p class="subtitle">The Meat-Eater's Digest</p>
             <p class="tagline">Stop Guessing. Start Calculating.</p>
             <p class="update-date">Personalized Macro Protocol</p>
@@ -460,7 +562,7 @@
             <div class="calculator-main">
                 <!-- INTRO COPY WITH FLOATING CTA -->
                 <section class="intro-copy">
-                    <h2 style="font-size: 32px; font-weight: bold; color: #d4a574; margin-bottom: 24px; font-family: 'Playfair Display', Georgia, serif; line-height: 1.3;">You're guessing at your macros. Here's why that's making this harder than it needs to be.</h2>
+                    <h1 style="font-size: 32px; font-weight: bold; color: #d4a574; margin-bottom: 24px; font-family: 'Playfair Display', Georgia, serif; line-height: 1.3;">Free Carnivore Macro Calculator – Calculate Your Personalized Protein & Fat Targets</h1>
 
                     <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 20px;">
                         You eat meat, you feel decent most of the time, but you're stuck. Maybe you're exhausted by 3pm. Maybe the scale won't budge. Maybe you just don't know if you're eating too much fat, too little protein, or if your calories are even close to what your body needs. You're winging it because carnivore "should be simple," but simple doesn't mean easy when you don't have numbers.
@@ -480,6 +582,53 @@
 
                     <!-- Calculator app mounts here -->
                     <div id="root"></div>
+                </section>
+
+                <!-- FAQ Section -->
+                <section class="calculator-faq" style="background: rgba(212, 165, 116, 0.08); border-radius: 8px; padding: 40px; margin-top: 60px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                    <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 28px; color: #8b4513; margin-bottom: 30px; text-align: center;">Frequently Asked Questions</h2>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">What is the carnivore diet?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            The carnivore diet is a meat-based eating approach that focuses exclusively on animal products: beef, pork, chicken, fish, eggs, and some dairy. It eliminates all plant foods including vegetables, fruits, grains, and legumes. Followers eat nose-to-tail, prioritizing nutrient-dense organ meats alongside muscle meat.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">How much protein do I need on carnivore?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            Protein needs on carnivore vary by goal and activity level. For fat loss, aim for 1.0-1.2g per pound of lean body mass. For muscle gain, target 1.2-1.6g per pound. For maintenance, 0.8-1.0g per pound is sufficient. Most people undereat protein by 20-30g daily, which can cause fatigue and stalls. Use our calculator to find your personalized protein target.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">How do I calculate carnivore macros?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            To calculate carnivore macros: (1) Determine your lean body mass by subtracting body fat from total weight. (2) Set protein based on your goal (fat loss, muscle gain, or maintenance). (3) Calculate remaining calories from fat. (4) Adjust for activity level. Our free calculator does this automatically in 90 seconds based on your stats, goal, and activity level.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">Do I need to track calories on carnivore?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            Not everyone needs to track calories on carnivore. Many people eat to satiety and lose fat naturally. However, tracking helps if: (1) You've stalled after 3+ months, (2) You're trying to gain muscle, (3) You're exhausted or losing too much weight, or (4) You're not seeing expected results. Knowing your macro targets removes guesswork and helps optimize results.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">What's the difference between carnivore and keto?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            Carnivore is a subset of keto but more restrictive. Keto allows 20-50g carbs from any source (vegetables, nuts, low-carb foods). Carnivore eliminates all plant foods and focuses exclusively on animal products, resulting in near-zero carbs. Carnivore prioritizes protein (1.0-1.6g per lb), while keto is often moderate protein. Both achieve ketosis, but carnivore is simpler: just meat, eggs, and animal products.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 0;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">Is the carnivore calculator free?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            Yes, the calculator is completely free. You get personalized protein, fat, and calorie targets with no email required. Results are instant and private. We also offer an optional $9.99 upgrade that includes a detailed meal plan, sample food log, and a doctor conversation script if you need medical support. Most people find the free version sufficient.
+                        </p>
+                    </div>
                 </section>
             </div>
         </main>
