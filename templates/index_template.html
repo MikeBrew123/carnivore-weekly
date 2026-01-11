@@ -168,6 +168,18 @@
                             <p class="commentary-text">{{ video.why_notable }}</p>
                         </div>
                         {% endif %}
+
+                        {% if video.comment_sentiment %}
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(139, 69, 19, 0.2); border-radius: 8px; border-left: 4px solid #d4a574;">
+                            <strong>Comment Sentiment:</strong> {{ video.comment_sentiment.overall|upper }}
+                            <div style="margin-top: 10px; display: flex; gap: 15px;">
+                                <span style="color: #90ee90;">👍 {{ video.comment_sentiment.positive_percent }}%</span>
+                                <span style="color: #ffa07a;">👎 {{ video.comment_sentiment.negative_percent }}%</span>
+                                <span style="color: #d4a574;">➖ {{ video.comment_sentiment.neutral_percent }}%</span>
+                            </div>
+                            <p style="margin-top: 10px; font-size: 0.9em; font-style: italic;">{{ video.comment_sentiment.summary }}</p>
+                        </div>
+                        {% endif %}
                     </article>
                     {% endfor %}
                 </div>
