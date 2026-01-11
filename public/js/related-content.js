@@ -3,7 +3,7 @@
 
     // Supabase connection
     const SUPABASE_URL = 'https://kwtdpvnjewtahuxjyltn.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2NTMwODMsImV4cCI6MjA1MTIyOTA4M30.xHKnN93F5cC4CSLZ4gQEIa0Gn_MvPYdaC-1HhL7Ayzc';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcxODQyODMsImV4cCI6MjA4Mjc2MDI4M30.wvbYYXyp9Fv_KCg0UC_ZBobFNdypV8ts4k68ZJ09Q2Y';
 
     // Content title mappings (for display)
     const CONTENT_TITLES = {
