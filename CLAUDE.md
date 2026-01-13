@@ -40,6 +40,46 @@ Last major update: January 9, 2026
 - After any task: `✅ Done → 📁 file.tsx → ⏭️ Next step`
 - If user needs code, they will ask
 
+## 🚨 CONTENT QUALITY RULES — NON-NEGOTIABLE
+
+### CRITICAL: All Written Content Must Use Writer Agents
+**NEVER publish written content without using writer agents (Sarah, Marcus, Chloe).**
+
+1. **ALWAYS use writer agents** for ANY written content that goes to users:
+   - Editorial commentary
+   - Blog posts
+   - Newsletter copy
+   - Video descriptions
+   - Social media posts
+   - Marketing copy
+
+2. **Writer agents ALWAYS apply humanization skill**:
+   - Remove ALL AI tells: "delve", "landscape", "robust", "utilize", "facilitate", "leverage"
+   - No em-dashes (use periods or commas)
+   - Sound conversational (like talking to a friend)
+   - Use contractions (it's, don't, can't)
+   - Be specific, not vague
+
+3. **Writer agents FREQUENTLY use soft-conversion skill**:
+   - When mentioning products/supplements: natural context, not sales pitches
+   - Share what works, don't pressure
+   - "Some people find X helpful" > "You must buy X"
+   - Trust readers to make decisions
+
+### Enforcement
+- `scripts/generate_commentary.py`: Built-in humanization + soft-conversion prompts
+- Weekly automation: Humanization is automated (Step 3.5)
+- Manual content: Run `/ai-text-humanization` and `/soft-conversion` skills before publishing
+
+### Validation
+Before any content goes live:
+- [ ] Written by Sarah, Marcus, or Chloe (not generic Claude)
+- [ ] Humanization skill applied (no AI tells)
+- [ ] Soft-conversion used for product mentions
+- [ ] Sounds like a real person (read aloud test)
+
+**Rule:** No written content should ever go out without the humanization skill passing over it first. Ever.
+
 ## ⚠️ INFRASTRUCTURE — CREDENTIALS & DATABASE ACCESS
 
 ### Database Access (Supabase)
