@@ -1040,7 +1040,7 @@ async function handleReportInit(request, env) {
     console.log('[handleReportInit] Combined markdown size:', reportMarkdown.length, 'chars');
 
     // Convert markdown to styled HTML with CSS
-    const reportHTML = wrapInPrintHTML(reportMarkdown);
+    const reportHTML = wrapInPrintHTML(reportMarkdown, correctedData);
     console.log('[handleReportInit] Final HTML size:', reportHTML.length, 'chars');
 
     // Build report metadata - handle both old and new session structures
@@ -1686,21 +1686,31 @@ function generateFullMealPlan(data) {
     };
   }
 
-  // Generate 30-day meal plan (4 weeks x 7 days)
+  // Get macro targets for portion calculations
+  const dailyCalories = data.macros?.calories || 2000;
+  const dailyProtein = data.macros?.protein || 150; // grams
+  const dailyFat = data.macros?.fat || 130; // grams
+
+  // Calculate per-meal macros (assuming 3 meals/day)
+  const proteinPerMeal = Math.round(dailyProtein / 3); // ~50g per meal
+  const fatPerMeal = Math.round(dailyFat / 3); // ~43g per meal
+
+  // Generate 30-day meal plan
   const mealPlan = {
     weeks: []
   };
 
-  // 4 weeks of meals
-  for (let week = 1; week <= 4; week++) {
-    const weekMeals = {
-      weekNumber: week,
-      days: []
-    };
+  // Generate all 30 days
+  for (let dayNum = 1; dayNum <= 30; dayNum++) {
+    const week = Math.ceil(dayNum / 7);
 
-    // 7 days per week
-    for (let day = 1; day <= 7; day++) {
-      const dayNum = (week - 1) * 7 + day;
+    // Create week object if doesn't exist
+    if (!mealPlan.weeks[week - 1]) {
+      mealPlan.weeks[week - 1] = {
+        weekNumber: week,
+        days: []
+      };
+    }
 
       // Rotate through proteins for variety
       const proteinIndex = dayNum % availableProteins.length;
@@ -1715,48 +1725,52 @@ function generateFullMealPlan(data) {
         foodRestrictions
       );
 
+      // Calculate portion sizes to hit macro targets
+      // Protein: ~25g per 100g meat, Eggs: ~6g protein each
+      // Fat: ~20g per 100g fatty meat, ~5g per tbsp butter
+      const meatGrams = Math.round((proteinPerMeal * 100) / 25); // ~200g for 50g protein
+      const eggCount = eggsAllowed ? 2 : 0; // 2 eggs = ~12g protein
+      const butterTbsp = 1; // 1 tbsp = ~11g fat
+
       let breakfast, lunch, dinner;
 
       if (diet.includes('Lion')) {
-        breakfast = `${mainProtein.name} + Salt`;
-        lunch = `${mainProtein.name} + Salt`;
-        dinner = `${mainProtein.name} + Salt`;
+        breakfast = `${meatGrams}g ${mainProtein.name}`;
+        lunch = `${meatGrams}g ${mainProtein.name}`;
+        dinner = `${meatGrams}g ${mainProtein.name}`;
       } else if (diet.includes('Strict Carnivore')) {
         breakfast = eggsAllowed
-          ? `${mainProtein.name} + Eggs + Butter`
-          : `${mainProtein.name} + Butter`;
-        lunch = `${mainProtein.name} + Salt`;
-        dinner = `${altProtein.name} + Butter`;
+          ? `${Math.round(meatGrams * 0.7)}g ${mainProtein.name}, ${eggCount} Eggs, ${butterTbsp} tbsp Butter`
+          : `${meatGrams}g ${mainProtein.name}, ${butterTbsp} tbsp Butter`;
+        lunch = `${meatGrams}g ${mainProtein.name}`;
+        dinner = `${meatGrams}g ${altProtein.name}, ${butterTbsp} tbsp Butter`;
       } else if (diet.includes('Pescatarian')) {
         breakfast = eggsAllowed
-          ? `Eggs + ${mainProtein.name} + Butter`
-          : `${mainProtein.name} + Butter`;
-        lunch = `${mainProtein.name} + Salt`;
-        dinner = `${altProtein.name} + Butter`;
+          ? `${eggCount} Eggs, ${Math.round(meatGrams * 0.6)}g ${mainProtein.name}, ${butterTbsp} tbsp Butter`
+          : `${meatGrams}g ${mainProtein.name}, ${butterTbsp} tbsp Butter`;
+        lunch = `${meatGrams}g ${mainProtein.name}`;
+        dinner = `${meatGrams}g ${altProtein.name}, ${butterTbsp} tbsp Butter`;
       } else if (diet.includes('Keto')) {
         breakfast = eggsAllowed
-          ? `Eggs + ${mainProtein.name} + Avocado`
-          : `${mainProtein.name} + Avocado`;
-        lunch = `${mainProtein.name} + Leafy Greens + Butter`;
-        dinner = `${altProtein.name} + Broccoli + Oil`;
+          ? `${eggCount} Eggs, ${Math.round(meatGrams * 0.6)}g ${mainProtein.name}, 1/2 Avocado`
+          : `${meatGrams}g ${mainProtein.name}, 1/2 Avocado`;
+        lunch = `${meatGrams}g ${mainProtein.name}, 1 cup Leafy Greens, ${butterTbsp} tbsp Butter`;
+        dinner = `${meatGrams}g ${altProtein.name}, 1 cup Broccoli, 1 tbsp Oil`;
       } else {
         // Default Carnivore
         breakfast = eggsAllowed
-          ? `${mainProtein.name} + Eggs + Butter`
-          : `${mainProtein.name} + Butter`;
-        lunch = `${mainProtein.name} + Salt`;
-        dinner = `${altProtein.name} + Butter`;
+          ? `${Math.round(meatGrams * 0.7)}g ${mainProtein.name}, ${eggCount} Eggs, ${butterTbsp} tbsp Butter`
+          : `${meatGrams}g ${mainProtein.name}, ${butterTbsp} tbsp Butter`;
+        lunch = `${meatGrams}g ${mainProtein.name}`;
+        dinner = `${meatGrams}g ${altProtein.name}, ${butterTbsp} tbsp Butter`;
       }
 
-      weekMeals.days.push({
-        dayNumber: dayNum,
-        breakfast,
-        lunch,
-        dinner
-      });
-    }
-
-    mealPlan.weeks.push(weekMeals);
+    mealPlan.weeks[week - 1].days.push({
+      dayNumber: dayNum,
+      breakfast,
+      lunch,
+      dinner
+    });
   }
 
   return mealPlan;
@@ -2041,7 +2055,10 @@ function markdownToHTML(markdown) {
 /**
  * Wrap markdown report in print-optimized HTML with CSS
  */
-function wrapInPrintHTML(markdownContent) {
+function wrapInPrintHTML(markdownContent, userData = {}) {
+  console.log('[wrapInPrintHTML] userData.firstName:', userData.firstName);
+  console.log('[wrapInPrintHTML] userData.lastName:', userData.lastName);
+
   const printCSS = `
     @page { size: A4; margin: 15mm; }
     * { margin: 0; padding: 0; }
@@ -2120,7 +2137,7 @@ function wrapInPrintHTML(markdownContent) {
     <div class="cover-logo">
       <img src="https://carnivoreweekly.com/images/logo.png" alt="Carnivore Weekly Logo" />
     </div>
-    <h1 class="cover-title">Your Complete Personalized<br>Carnivore Diet Report</h1>
+    <h1 class="cover-title">Your Complete Personalized<br>Carnivore Diet Report${userData.firstName ? `<br><span style="font-size: 24pt; font-weight: normal; color: #666;">Prepared for ${userData.firstName}${userData.lastName ? ' ' + userData.lastName : ''}</span>` : ''}</h1>
     <div class="cover-date">Generated on ${generatedDate}</div>
   </div>
   <div class="content-start report-content">
