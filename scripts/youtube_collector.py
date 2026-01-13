@@ -64,6 +64,11 @@ MAX_VIDEOS_PER_CREATOR = 2  # Max videos per creator (enforces diversity)
 COMMENTS_PER_VIDEO = 20  # Top comments per video
 MIN_RELEVANCE_SCORE = 7  # Minimum Claude relevance score (1-10)
 
+# PERMANENT BLOCKLIST - Channels that should NEVER appear
+BLOCKED_CHANNELS = [
+    "Ouachita Mountain Living",  # General lifestyle/cultural commentary, not carnivore
+]
+
 
 # ============================================================================
 # HELPER FUNCTIONS
@@ -773,6 +778,13 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             total_kept = 0
 
             for creator in cached_creators:
+                # Skip blocked channels
+                channel_name = creator.get("channel_name", "")
+                if any(blocked in channel_name for blocked in BLOCKED_CHANNELS):
+                    print(f"   ✗ BLOCKED: {channel_name} (permanent blocklist)")
+                    total_filtered += len(creator.get("videos", []))
+                    continue
+
                 filtered_videos = []
                 for video in creator.get("videos", []):
                     # Check if video already has a score
