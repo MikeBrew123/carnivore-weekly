@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+"""
+Generate Editorial Commentary for Content of the Week
+Assigns videos to writers (Sarah, Marcus, Chloe) and generates humanized commentary.
+"""
+
+import json
+import os
+from datetime import datetime
+from pathlib import Path
+from anthropic import Anthropic
+
+# Initialize Claude
+client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+# Project paths
+PROJECT_ROOT = Path(__file__).parent.parent
+YOUTUBE_DATA_PATH = PROJECT_ROOT / "data" / "youtube_data.json"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "content-of-the-week.json"
+
+# Writer personas
+WRITERS = {
+    "Sarah": "Evidence-based researcher. Focuses on science, mechanisms, metabolic health.",
+    "Marcus": "Performance coach. Direct, action-oriented, practical advice.",
+    "Chloe": "Community voice. Casual tone, reads trends, understands social dynamics.",
+}
+
+
+def load_youtube_data():
+    """Load current YouTube data"""
+    with open(YOUTUBE_DATA_PATH, "r") as f:
+        return json.load(f)
+
+
+def get_top_6_videos(data):
+    """Extract top 6 videos from YouTube data"""
+    videos = []
+    for creator in data.get("top_creators", []):
+        for video in creator.get("videos", []):
+            videos.append(
+                {
+                    "video_id": video["video_id"],
+                    "title": video["title"],
+                    "creator": creator["channel_name"],
+                    "views": video["statistics"]["view_count"],
+                    "description": video.get("description", "")[:300],
+                    "comments_sample": [c["text"] for c in video.get("top_comments", [])[:5]],
+                }
+            )
+            if len(videos) >= 6:
+                break
+        if len(videos) >= 6:
+            break
+    return videos
+
+
+def assign_writer(index):
+    """Rotate writers across videos"""
+    writer_list = ["Chloe", "Sarah", "Chloe", "Sarah", "Marcus", "Sarah"]
+    return writer_list[index % 6]
+
+
+def assign_heat_badge(views, index):
+    """Assign heat badge based on views and position"""
+    if views > 100000:
+        return "🔥🔥 Trending"
+    elif views > 40000:
+        return "🔥 Science"
+    elif index == 3:
+        return "🔥🔥 Mental Health"
+    elif index == 4:
+        return "🔥 Motivation"
+    elif index == 5:
+        return "🔥 Recipe"
+    else:
+        return "🔥 Success Story"
+
+
+def generate_commentary(video, writer):
+    """Generate editorial commentary using Claude"""
+    writer_persona = WRITERS[writer]
+
+    prompt = f"""You are {writer}, a writer for Carnivore Weekly. {writer_persona}
+
+Write a 3-4 sentence editorial commentary for this video. Your commentary should:
+- Be conversational and human (no AI tells like "delve", "landscape", "robust")
+- Explain WHY this video matters to the carnivore community
+- Reference specific details from the video or comments
+- Sound like something you'd say to a friend, not a formal analysis
+- Be direct and clear (remove words like "utilize", "facilitate", "leverage")
+
+Video Details:
+Title: {video['title']}
+Creator: {video['creator']}
+Views: {video['views']:,}
+Description: {video['description']}
+
+Top Comments:
+{chr(10).join(f"- {comment}" for comment in video['comments_sample'][:3])}
+
+Write ONLY the commentary text (no labels, no intro). Make it sound human."""
+
+    response = client.messages.create(
+        model="claude-3-5-haiku-20241022",
+        max_tokens=300,
+        messages=[{"role": "user", "content": prompt}],
+    )
+
+    return response.content[0].text.strip()
+
+
+def create_editorial_title(original_title):
+    """Simplify video title for editorial purposes"""
+    # Remove extra dots, clean up formatting
+    title = original_title.replace("..", "").strip()
+
+    # If title is already good, return it
+    if len(title) < 60 and not title.endswith("..."):
+        return title
+
+    # Otherwise keep original
+    return original_title
+
+
+def main():
+    print("🎨 Generating Editorial Commentary...")
+
+    # Load data
+    youtube_data = load_youtube_data()
+    videos = get_top_6_videos(youtube_data)
+
+    print(f"   Found {len(videos)} videos")
+
+    # Generate commentary for each video
+    featured_videos = []
+
+    for i, video in enumerate(videos):
+        writer = assign_writer(i)
+        print(f"   {i+1}. {video['title'][:50]}... (assigned to {writer})")
+
+        # Generate commentary
+        commentary = generate_commentary(video, writer)
+
+        # Create editorial title
+        editorial_title = create_editorial_title(video["title"])
+
+        # Assign heat badge
+        heat_badge = assign_heat_badge(video["views"], i)
+
+        featured_videos.append(
+            {
+                "video_id": video["video_id"],
+                "editorial_title": editorial_title,
+                "heat_badge": heat_badge,
+                "commentary": commentary,
+                "curator": writer,
+            }
+        )
+
+    # Create output
+    output = {
+        "week": datetime.now().strftime("%Y-%m-%d"),
+        "updated_by": "Agent System (Sarah, Marcus, Chloe)",
+        "featured_videos": featured_videos,
+    }
+
+    # Save
+    with open(OUTPUT_PATH, "w") as f:
+        json.dump(output, f, indent=2)
+
+    print(f"   ✓ Saved to {OUTPUT_PATH}")
+    print("")
+
+
+if __name__ == "__main__":
+    main()
