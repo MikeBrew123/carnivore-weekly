@@ -351,6 +351,31 @@
                             {% if video.summary %}
                             <p style="color: #d4a574; margin-bottom: 15px;">{{ video.summary }}</p>
                             {% endif %}
+
+                            <!-- Sentiment Badge -->
+                            {% if video.sentiment %}
+                            <div style="display: inline-block; margin-bottom: 15px; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 600;
+                                {% if video.sentiment == 'very_positive' or video.sentiment == 'positive' %}
+                                background: linear-gradient(135deg, #2d5016 0%, #3d6b1e 100%); color: #a7f070; border: 1px solid #4a8023;
+                                {% elif video.sentiment == 'negative' or video.sentiment == 'very_negative' %}
+                                background: linear-gradient(135deg, #5c1a1a 0%, #7d2424 100%); color: #ff9090; border: 1px solid #a03030;
+                                {% else %}
+                                background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%); color: #d4d4d4; border: 1px solid #5a5a5a;
+                                {% endif %}">
+                                {% if video.sentiment == 'very_positive' %}
+                                😊 Very Positive ({{ video.positive_count }} positive, {{ video.negative_count }} negative)
+                                {% elif video.sentiment == 'positive' %}
+                                🙂 Positive ({{ video.positive_count }} positive, {{ video.negative_count }} negative)
+                                {% elif video.sentiment == 'negative' %}
+                                😕 Negative ({{ video.positive_count }} positive, {{ video.negative_count }} negative)
+                                {% elif video.sentiment == 'very_negative' %}
+                                😞 Very Negative ({{ video.positive_count }} positive, {{ video.negative_count }} negative)
+                                {% else %}
+                                😐 Neutral
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
                             <div style="display: flex; gap: 15px; font-size: 0.9em; color: #f4e4d4; opacity: 0.8;">
                                 <span>👁️ {{ "{:,}".format(video.views) }} views</span>
                                 <span>👍 {{ "{:,}".format(video.likes) }}</span>
