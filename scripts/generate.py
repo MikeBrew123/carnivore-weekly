@@ -199,22 +199,58 @@ class UnifiedGenerator:
         """Fetch top videos from youtube_videos table ordered by relevance and recency"""
         videos = self._fetch_from_supabase("youtube_videos", limit=limit)
 
+        # Load sentiment data from youtube_data.json
+        sentiment_map = {}
+        try:
+            youtube_path = self.project_root / "data" / "youtube_data.json"
+            if youtube_path.exists():
+                youtube_data = json.loads(youtube_path.read_text())
+                for creator in youtube_data.get("top_creators", []):
+                    for video in creator.get("videos", []):
+                        video_id = video.get("video_id", "")
+                        if video_id and "comment_sentiment" in video:
+                            sentiment_map[video_id] = video["comment_sentiment"]
+        except Exception:
+            pass  # Sentiment is optional
+
         formatted_videos = []
         for video in videos:
-            formatted_videos.append(
-                {
-                    "title": self._sanitize_text(video.get("title", "")),
-                    "creator": video.get("channel_name"),
-                    "channel_id": video.get("channel_id"),
-                    "video_id": video.get("youtube_id"),
-                    "published_at": video.get("published_at"),
-                    "thumbnail_url": video.get("thumbnail_url", ""),
-                    "views": video.get("view_count", 0),
-                    "summary": video.get("analysis_summary"),
-                    "why_notable": video.get("analysis_summary", ""),
-                    "tags": video.get("topic_tags", []),
-                }
-            )
+            video_id = video.get("youtube_id")
+            video_obj = {
+                "title": self._sanitize_text(video.get("title", "")),
+                "creator": video.get("channel_name"),
+                "channel_id": video.get("channel_id"),
+                "video_id": video_id,
+                "published_at": video.get("published_at"),
+                "thumbnail_url": video.get("thumbnail_url", ""),
+                "views": video.get("view_count", 0),
+                "summary": video.get("analysis_summary"),
+                "why_notable": video.get("analysis_summary", ""),
+                "tags": video.get("topic_tags", []),
+            }
+
+            # Add sentiment if available
+            if video_id and video_id in sentiment_map:
+                sentiment = sentiment_map[video_id].copy()
+                # Calculate percentages for sentiment bar
+                total_comments = (
+                    sentiment.get("positive_count", 0)
+                    + sentiment.get("negative_count", 0)
+                    + sentiment.get("neutral_count", 0)
+                )
+                if total_comments > 0:
+                    sentiment["positive_percent"] = round(
+                        (sentiment.get("positive_count", 0) / total_comments) * 100
+                    )
+                    sentiment["neutral_percent"] = round(
+                        (sentiment.get("neutral_count", 0) / total_comments) * 100
+                    )
+                    sentiment["negative_percent"] = round(
+                        (sentiment.get("negative_count", 0) / total_comments) * 100
+                    )
+                video_obj["comment_sentiment"] = sentiment
+
+            formatted_videos.append(video_obj)
 
         return formatted_videos
 
@@ -566,7 +602,24 @@ class UnifiedGenerator:
                             }
                             # Include sentiment scores if available
                             if video.get("comment_sentiment"):
-                                video_obj["comment_sentiment"] = video["comment_sentiment"]
+                                sentiment = video["comment_sentiment"]
+                                # Calculate percentages for sentiment bar
+                                total_comments = (
+                                    sentiment.get("positive_count", 0)
+                                    + sentiment.get("negative_count", 0)
+                                    + sentiment.get("neutral_count", 0)
+                                )
+                                if total_comments > 0:
+                                    sentiment["positive_percent"] = round(
+                                        (sentiment.get("positive_count", 0) / total_comments) * 100
+                                    )
+                                    sentiment["neutral_percent"] = round(
+                                        (sentiment.get("neutral_count", 0) / total_comments) * 100
+                                    )
+                                    sentiment["negative_percent"] = round(
+                                        (sentiment.get("negative_count", 0) / total_comments) * 100
+                                    )
+                                video_obj["comment_sentiment"] = sentiment
                             top_videos.append(video_obj)
                     if top_videos:
                         print("  ✓ Loaded YouTube data from JSON file")
@@ -1089,6 +1142,16 @@ class UnifiedGenerator:
                     print(f"Error rendering channels template: {e}")
                     return False
 
+        # Load sentiment data from youtube_data.json
+        youtube_data = self.load_data("youtube_data")
+        sentiment_map = {}
+        if youtube_data and "top_creators" in youtube_data:
+            for creator in youtube_data["top_creators"]:
+                for video in creator.get("videos", []):
+                    video_id = video.get("video_id", "")
+                    if video_id and "comment_sentiment" in video:
+                        sentiment_map[video_id] = video["comment_sentiment"]
+
         # Group videos by channel from Supabase
         channels_dict = {}
         unique_channel_ids = set()
@@ -1147,11 +1210,38 @@ class UnifiedGenerator:
         channels_list = list(channels_dict.values())
         channels_list.sort(key=lambda x: x["appearances"], reverse=True)
 
+        # Build top_videos list for "Top Videos This Week" panel
+        top_videos = []
+        for video in videos[:20]:  # Take top 20 videos sorted by views
+            video_id = video.get("youtube_id", "")
+            sentiment = sentiment_map.get(video_id, {})
+
+            video_obj = {
+                "video_id": video_id,
+                "title": video.get("title", ""),
+                "creator": video.get("channel_name", "Unknown"),
+                "views": video.get("view_count", 0),
+                "likes": video.get("like_count", 0),
+                "comments": video.get("comment_count", 0),
+                "thumbnail_url": video.get("thumbnail_url", ""),
+                "summary": (
+                    video.get("description", "")[:200]
+                    if video.get("description")
+                    else ""
+                ),
+                "sentiment": sentiment.get("overall", "neutral"),
+                "sentiment_score": sentiment.get("score", 0),
+                "positive_count": sentiment.get("positive_count", 0),
+                "negative_count": sentiment.get("negative_count", 0),
+            }
+            top_videos.append(video_obj)
+
         # Prepare template variables
         template_vars = {
             "channels": channels_list,
             "total_channels": len(channels_list),
             "total_weeks": 1,  # Currently tracking one week
+            "top_videos": top_videos[:10],  # Limit to 10 videos
             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
 
