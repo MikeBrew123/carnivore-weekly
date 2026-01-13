@@ -76,18 +76,77 @@ def assign_heat_badge(views, index):
         return "🔥 Success Story"
 
 
+def humanize_text(text):
+    """Apply humanization rules to remove AI tells"""
+    replacements = {
+        # AI tell phrases
+        "utilize": "use",
+        "Utilize": "Use",
+        "leverage": "use",
+        "Leverage": "Use",
+        "facilitate": "help",
+        "Facilitate": "Help",
+        "robust": "solid",
+        "Robust": "Solid",
+        "comprehensive": "complete",
+        "Comprehensive": "Complete",
+        "delve into": "explore",
+        "Delve into": "Explore",
+        "navigate": "handle",
+        "Navigate": "Handle",
+        "landscape": "scene",
+        "Landscape": "Scene",
+        # Remove excessive formality
+        "in order to": "to",
+        "In order to": "To",
+        "prior to": "before",
+        "Prior to": "Before",
+        "subsequent to": "after",
+        "Subsequent to": "After",
+    }
+
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+
+    # Remove em-dashes (replace with period + space for new sentence)
+    text = text.replace("—", ". ")
+
+    # Fix double periods
+    while ".." in text:
+        text = text.replace("..", ".")
+
+    # Fix spacing issues
+    text = text.replace(".  ", ". ")
+
+    return text
+
+
 def generate_commentary(video, writer):
-    """Generate editorial commentary using Claude"""
+    """Generate editorial commentary using Claude with humanization"""
     writer_persona = WRITERS[writer]
 
     prompt = f"""You are {writer}, a writer for Carnivore Weekly. {writer_persona}
 
-Write a 3-4 sentence editorial commentary for this video. Your commentary should:
-- Be conversational and human (no AI tells like "delve", "landscape", "robust")
+Write a 3-4 sentence editorial commentary for this video.
+
+HUMANIZATION REQUIREMENTS (CRITICAL):
+- NO AI tells: "delve", "landscape", "robust", "utilize", "facilitate", "leverage"
+- NO formal jargon: "comprehensive", "holistic", "synergy", "paradigm"
+- NO em-dashes (use periods or commas instead)
+- Sound like talking to a friend, not writing an essay
+- Use contractions where natural (it's, don't, can't)
+- Be direct and specific (not vague generalizations)
+
+SOFT-CONVERSION APPROACH:
+- If mentioning products/supplements, use natural context (not sales pitches)
+- Share what works, don't pressure
+- "Some people find X helpful" > "You need to buy X"
+- Trust the reader to make their own decisions
+
+CONTENT REQUIREMENTS:
 - Explain WHY this video matters to the carnivore community
 - Reference specific details from the video or comments
-- Sound like something you'd say to a friend, not a formal analysis
-- Be direct and clear (remove words like "utilize", "facilitate", "leverage")
+- Use short sentences (vary length for rhythm)
 
 Video Details:
 Title: {video['title']}
@@ -106,7 +165,12 @@ Write ONLY the commentary text (no labels, no intro). Make it sound human."""
         messages=[{"role": "user", "content": prompt}],
     )
 
-    return response.content[0].text.strip()
+    commentary = response.content[0].text.strip()
+
+    # Post-processing humanization pass
+    commentary = humanize_text(commentary)
+
+    return commentary
 
 
 def create_editorial_title(original_title):
