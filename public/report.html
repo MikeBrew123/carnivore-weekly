@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Personalized Carnivore Report</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #f2f0e6;
+      color: #1a1a1a;
+    }
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-size: 18px;
+      color: #666;
+    }
+    .error {
+      max-width: 600px;
+      margin: 100px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .error h1 {
+      color: #d32f2f;
+      margin-top: 0;
+    }
+    #report-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @media print {
+      body {
+        background-color: white;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Loading your personalized report...</div>
+  <div id="report-content" style="display: none;"></div>
+
+  <script>
+    async function loadReport() {
+      try {
+        // Extract access token from URL
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
+        if (!token) {
+          throw new Error('No access token provided');
+        }
+
+        // Fetch report from API
+        const response = await fetch(`/api/v1/calculator/report/${token}/content`);
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Report not found or has expired');
+          } else if (response.status === 403) {
+            throw new Error('Invalid or expired access token');
+          } else {
+            throw new Error(`Failed to load report (${response.status})`);
+          }
+        }
+
+        const data = await response.json();
+
+        if (!data.success || !data.html) {
+          throw new Error('Invalid report data received');
+        }
+
+        // Display report
+        const loadingEl = document.getElementById('loading');
+        const contentEl = document.getElementById('report-content');
+
+        loadingEl.style.display = 'none';
+        contentEl.innerHTML = data.html;
+        contentEl.style.display = 'block';
+
+        // Update page title if report has one
+        const reportTitle = contentEl.querySelector('h1, h2');
+        if (reportTitle) {
+          document.title = reportTitle.textContent + ' - Carnivore Weekly';
+        }
+
+      } catch (error) {
+        console.error('Error loading report:', error);
+
+        const loadingEl = document.getElementById('loading');
+        loadingEl.style.display = 'none';
+
+        document.body.innerHTML = `
+          <div class="error">
+            <h1>Unable to Load Report</h1>
+            <p>${error.message}</p>
+            <p>If you believe this is an error, please contact support with your access token.</p>
+            <p><a href="/calculator.html">Return to Calculator</a></p>
+          </div>
+        `;
+      }
+    }
+
+    // Load report when page loads
+    loadReport();
+  </script>
+</body>
+</html>
