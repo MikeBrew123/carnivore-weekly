@@ -1,5 +1,38 @@
 # CLAUDE.md
 
+---
+## ⚠️ BEFORE YOU DO ANYTHING — READ THIS FIRST ⚠️
+
+### 🚨 CRITICAL: ALL Written Content MUST Use Writer Agents
+
+**NEVER publish ANY written content without using writer agents (Sarah, Marcus, Chloe).**
+
+✅ **REQUIRED for ALL user-facing content:**
+- Editorial commentary → Use Sarah/Marcus/Chloe
+- Blog posts → Use Sarah/Marcus/Chloe
+- Newsletter copy → Use Sarah/Marcus/Chloe
+- Video descriptions → Use Sarah/Marcus/Chloe
+- ANY text users will read → Use Sarah/Marcus/Chloe
+
+✅ **ALWAYS apply humanization:**
+- Remove AI tells: delve, landscape, robust, utilize, leverage, facilitate
+- No em-dashes (—) — use periods or commas
+- Sound conversational (like talking to a friend)
+- Use contractions (it's, don't, can't)
+
+✅ **FREQUENTLY use soft-conversion:**
+- Natural product mentions (not sales pitches)
+- "Some people find X helpful" > "You must buy X"
+- Trust readers to decide
+
+📚 **Full details:** See "CONTENT QUALITY RULES" section below + `docs/WRITER_AGENTS.md`
+
+🤖 **Automation:** `scripts/generate_commentary.py` enforces this automatically
+
+**THE RULE:** No written content goes out without humanization. Ever.
+
+---
+
 ## 📍 PROJECT STATUS
 **Before starting work, read STATUS.md for current state, validated features, and pending tasks.**
 
