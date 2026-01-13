@@ -31,7 +31,7 @@ echo ""
 # Python validation (BLOCKING for modified and new scripts)
 echo "   Running Python validation (flake8)..."
 # Check critical scripts strictly (must pass)
-CRITICAL_SCRIPTS="scripts/youtube_collector.py scripts/generate.py scripts/fix-blog-seo.py scripts/fix-h1-duplicates.py scripts/extract_wiki_keywords.py"
+CRITICAL_SCRIPTS="scripts/youtube_collector.py scripts/generate.py scripts/generate_commentary.py scripts/fix-blog-seo.py scripts/fix-h1-duplicates.py scripts/extract_wiki_keywords.py"
 LINTING_ISSUES=0
 for script in $CRITICAL_SCRIPTS; do
     if [ -f "$script" ]; then
@@ -113,6 +113,12 @@ echo ""
 echo "💭 Step 3/5: Adding sentiment analysis..."
 python3 scripts/add_sentiment.py
 echo "✓ Sentiment analysis complete"
+echo ""
+
+# Step 3.5: Generate Editorial Commentary
+echo "🎨 Step 3.5/5: Generating editorial commentary..."
+python3 scripts/generate_commentary.py
+echo "✓ Editorial commentary generated"
 echo ""
 
 # Step 4: Answer Common Questions
