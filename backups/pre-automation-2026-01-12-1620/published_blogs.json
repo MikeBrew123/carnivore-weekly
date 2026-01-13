@@ -1,0 +1,123 @@
+{
+  "last_updated": "2026-01-02T07:45:00Z",
+  "total_published": 14,
+  "blogs": [
+    {
+      "date": "2025-12-18",
+      "title": "Carnivore Bar Guide",
+      "slug": "2025-12-18-carnivore-bar-guide",
+      "topics": ["nutrition", "practical guide", "dining out"],
+      "author": "Sarah",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-19",
+      "title": "PSMF Fat Loss",
+      "slug": "2025-12-19-psmf-fat-loss",
+      "topics": ["fat loss", "protein sparing modified fast", "protocols"],
+      "author": "Marcus",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-20",
+      "title": "Lipid Energy Model",
+      "slug": "2025-12-20-lipid-energy-model",
+      "topics": ["metabolic health", "lipids", "energy", "science"],
+      "author": "Sarah",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-21",
+      "title": "Night Sweats",
+      "slug": "2025-12-21-night-sweats",
+      "topics": ["adaptation", "symptoms", "health concerns"],
+      "author": "Sarah",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-22",
+      "title": "mTOR & Muscle",
+      "slug": "2025-12-22-mtor-muscle",
+      "topics": ["muscle building", "performance", "biochemistry"],
+      "author": "Marcus",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-23",
+      "title": "ADHD Connection",
+      "slug": "2025-12-23-adhd-connection",
+      "topics": ["ADHD", "mental health", "neurology"],
+      "author": "Sarah",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-24",
+      "title": "Deep Freezer Strategy",
+      "slug": "2025-12-24-deep-freezer-strategy",
+      "topics": ["practical tips", "meal prep", "budgeting"],
+      "author": "Chloe",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-25",
+      "title": "New Year, Same You",
+      "slug": "2025-12-25-new-year-same-you",
+      "topics": ["lifestyle", "resolutions", "community"],
+      "author": "Chloe",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-26",
+      "title": "Seven Dollar Survival Guide",
+      "slug": "2025-12-26-seven-dollar-survival-guide",
+      "topics": ["budgeting", "cost effective", "accessibility"],
+      "author": "Marcus",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-27",
+      "title": "Anti-Resolution Playbook",
+      "slug": "2025-12-27-anti-resolution-playbook",
+      "topics": ["behavior change", "psychology", "lifestyle"],
+      "author": "Chloe",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-28",
+      "title": "Physiological Insulin Resistance",
+      "slug": "2025-12-28-physiological-insulin-resistance",
+      "topics": ["insulin resistance", "metabolism", "science"],
+      "author": "Sarah",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-29",
+      "title": "Lion Diet Challenge",
+      "slug": "2025-12-29-lion-diet-challenge",
+      "topics": ["lion diet", "elimination diet", "extreme protocols"],
+      "author": "Chloe",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-30",
+      "title": "PCOS & Hormones",
+      "slug": "2025-12-30-pcos-hormones",
+      "topics": ["PCOS", "women's health", "hormones"],
+      "author": "Sarah",
+      "status": "published"
+    },
+    {
+      "date": "2025-12-31",
+      "title": "Acne Purge",
+      "slug": "2025-12-31-acne-purge",
+      "topics": ["skin health", "detoxification", "adaptation"],
+      "author": "Sarah",
+      "status": "published"
+    }
+  ],
+  "metadata": {
+    "note": "Used by Chloe to deduplicate blog topics. Topics should not repeat within 80 days.",
+    "deduplication_rule": "Filter topics published in last 80 days from blog_topics_queue",
+    "usage": "Check this file every Sunday when generating blog_topics_queue.json"
+  }
+}

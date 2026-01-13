@@ -1,0 +1,138 @@
+{
+  "last_updated": "2025-12-30",
+  "expiration_days": 30,
+  "sections": {
+    "dairy": [
+      {
+        "video_id": "6ExSc9OdIIA",
+        "title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+        "channel": "Anthony Chaffee MD",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
+      },
+      {
+        "video_id": "GyOQiuIKf0I",
+        "title": "STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results",
+        "channel": "Max German",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=GyOQiuIKf0I"
+      },
+      {
+        "video_id": "cPIYOqSF1aQ",
+        "title": "If I Started Carnivore in 2026, I'd Do This",
+        "channel": "Steak and Butter Gal",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=cPIYOqSF1aQ"
+      }
+    ],
+    "salt": [
+      {
+        "video_id": "6ExSc9OdIIA",
+        "title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+        "channel": "Anthony Chaffee MD",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
+      }
+    ],
+    "electrolytes": [
+      {
+        "video_id": "6ExSc9OdIIA",
+        "title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+        "channel": "Anthony Chaffee MD",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
+      }
+    ],
+    "digestion": [
+      {
+        "video_id": "6ExSc9OdIIA",
+        "title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+        "channel": "Anthony Chaffee MD",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
+      }
+    ],
+    "coffee": [
+      {
+        "video_id": "UzN38EgKBJo",
+        "title": "The Best Source Of Vitamin B1 On The Planet",
+        "channel": "KenDBerryMD",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=UzN38EgKBJo"
+      }
+    ],
+    "budget": [
+      {
+        "video_id": "6ExSc9OdIIA",
+        "title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+        "channel": "Anthony Chaffee MD",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
+      },
+      {
+        "video_id": "cPIYOqSF1aQ",
+        "title": "If I Started Carnivore in 2026, I'd Do This",
+        "channel": "Steak and Butter Gal",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=cPIYOqSF1aQ"
+      },
+      {
+        "video_id": "GyOQiuIKf0I",
+        "title": "STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results",
+        "channel": "Max German",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=GyOQiuIKf0I"
+      }
+    ],
+    "critics": [
+      {
+        "video_id": "6ExSc9OdIIA",
+        "title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+        "channel": "Anthony Chaffee MD",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
+      },
+      {
+        "video_id": "cPIYOqSF1aQ",
+        "title": "If I Started Carnivore in 2026, I'd Do This",
+        "channel": "Steak and Butter Gal",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=cPIYOqSF1aQ"
+      },
+      {
+        "video_id": "GyOQiuIKf0I",
+        "title": "STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results",
+        "channel": "Max German",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=GyOQiuIKf0I"
+      }
+    ],
+    "organ-meats": [
+      {
+        "video_id": "6ExSc9OdIIA",
+        "title": "If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]",
+        "channel": "Anthony Chaffee MD",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=6ExSc9OdIIA"
+      }
+    ],
+    "scurvy": [
+      {
+        "video_id": "UzN38EgKBJo",
+        "title": "The Best Source Of Vitamin B1 On The Planet",
+        "channel": "KenDBerryMD",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=UzN38EgKBJo"
+      }
+    ],
+    "alcohol": [
+      {
+        "video_id": "GyOQiuIKf0I",
+        "title": "STOP Doing THIS! It's The FASTEST Way To Ruin Carnivore Results",
+        "channel": "Max German",
+        "injected_date": "2025-12-30",
+        "url": "https://www.youtube.com/watch?v=GyOQiuIKf0I"
+      }
+    ]
+  }
+}

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse past weekly carnivore diet content roundups. Archive of all Carnivore Weekly digests with top videos, trending topics, and community insights.">
+    <link rel="canonical" href="https://carnivoreweekly.com/archive.html">
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <title>Archive - Carnivore Weekly</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Page-specific styles */
+        .archive-stats {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #8b4513;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .archive-stats h2 {
+            font-family: 'Playfair Display', serif;
+            color: #1a120b;
+            margin-bottom: 15px;
+        }
+
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .week-card {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .week-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .week-date {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: #1a120b;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #8b4513;
+        }
+
+        .week-meta {
+            font-size: 0.95em;
+            color: #2c1810;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .week-preview {
+            font-size: 1em;
+            color: #1a120b;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .week-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .week-link:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            color: #1a120b;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid #8b4513;
+            margin: 40px 0;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: linear-gradient(135deg, #c49a6c 0%, #b8936a 100%);
+            transform: translateY(-2px);
+        }
+
+        /* Feedback Button */
+        .feedback-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid #d4a574;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+
+        .feedback-btn:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .feedback-btn-small {
+            font-size: 0.9em;
+            padding: 10px 20px;
+        }
+
+        .feedback-side {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: right center;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .feedback-side {
+                display: none;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #d4a574;
+            border-top: 3px solid #8b4513;
+            margin-top: 60px;
+        }
+
+        footer a {
+            color: #d4a574;
+            text-decoration: none;
+            border-bottom: 2px solid #8b4513;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-left: none;
+            border-right: none;
+            padding: 20px 0;
+            margin-bottom: 50px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .nav-menu a {
+            color: #1a120b;
+            text-decoration: none;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            padding: 10px 20px;
+            margin: 0 5px;
+            display: inline-block;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu a:hover {
+            border-bottom-color: #8b4513;
+            transform: translateY(-2px);
+        }
+
+        .nav-menu a.active {
+            border-bottom-color: #8b4513;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                max-width: 200px;
+                top: 15px;
+                right: 5px;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            .week-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Center header subtitle */
+        header p {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <h1>ARCHIVE</h1>
+            <p class="subtitle">Browse Past Weekly Roundups</p>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <a href="index.html">Home</a>
+        <a href="channels.html">Channels</a>
+        <a href="wiki.html">Wiki</a>
+        <a href="blog.html">Blog</a>
+        <a href="calculator.html">Calculator</a>
+        <a href="archive.html" class="active">Archive</a>
+        <a href="about.html">About</a>
+    </nav>
+
+    <!-- Fixed Side Feedback Button -->
+    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn feedback-side feedback-btn-small">
+        💬 Feedback
+    </a>
+
+    <div class="container">
+        <div class="archive-stats">
+            <h2>2 Weeks of Carnivore Content</h2>
+            <p>Every Monday, we curate the best carnivore diet content from YouTube. Browse past weeks below.</p>
+        </div>
+
+        <div class="week-grid">
+            
+            <div class="week-card">
+                <a href="archive/2025-12-30.html" style="text-decoration: none; color: inherit;">
+                    <div class="week-date">Week of 2025-12-30</div>
+                </a>
+                <div class="week-meta">
+                    5 Creators • 5 Videos
+                </div>
+                <div class="week-preview">
+                    Hey friend, how are you feeling as we head into 2026? This week in the carnivore space has been all about fresh starts and honest conversations. I'm s
+                </div>
+                <a href="archive/2025-12-30.html" class="week-link">View Full Roundup →</a>
+            </div>
+            
+            <div class="week-card">
+                <a href="archive/2025-12-26.html" style="text-decoration: none; color: inherit;">
+                    <div class="week-date">Week of 2025-12-26</div>
+                </a>
+                <div class="week-meta">
+                    6 Creators • 6 Videos
+                </div>
+                <div class="week-preview">
+                    The carnivore community's growing up. Weight loss and health transformations still matter—that hasn't changed. But this week, creators dug into the ha
+                </div>
+                <a href="archive/2025-12-26.html" class="week-link">View Full Roundup →</a>
+            </div>
+            
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation Menu -->
+    <nav class="nav-menu" style="margin-top: 60px;">
+        <a href="index.html">Home</a>
+        <a href="blog.html">Blog</a>
+        <a href="archive.html" class="active">Archive</a>
+        <a href="channels.html">Channels</a>
+        <a href="about.html">About</a>
+    </nav>
+
+    <footer>
+        <p>Carnivore Weekly - Your Weekly Digest</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Browse all past weekly roundups</p>
+        <p style="margin-top: 30px;">
+            <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn">
+                💬 Share Your Feedback
+            </a>
+        </p>
+        <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
+            <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
+        </p>
+    </footer>
+</body>
+</html>

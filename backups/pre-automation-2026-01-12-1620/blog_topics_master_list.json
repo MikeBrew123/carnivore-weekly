@@ -1,0 +1,211 @@
+{
+  "master_topics": {
+    "sarah": [
+      {
+        "topic": "Physiological Insulin Resistance",
+        "description": "Why 'high' fasting glucose on carnivore isn't diabetes",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-05"
+      },
+      {
+        "topic": "The BUN Confusion",
+        "description": "Interpreting blood urea nitrogen without kidney panic",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "Thyroid & T3",
+        "description": "Does meat-based eating slow metabolism?",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "PCOS & Hormones",
+        "description": "How removing seed oils/sugar restarts reproductive cycle",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-08"
+      },
+      {
+        "topic": "Carnivore Pregnancy",
+        "description": "Nutrient-density deep dive for fetal development",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "The ADHD Connection",
+        "description": "Stable blood sugar + ketones = better focus",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-12"
+      },
+      {
+        "topic": "Healing Psoriasis",
+        "description": "Sarah's specialty: Skin-Gut axis through elimination",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "The Uric Acid Myth",
+        "description": "It's fructose/alcohol, not ribeye, causing gout",
+        "priority": "low",
+        "status": "pending"
+      },
+      {
+        "topic": "The Lipid Energy Model",
+        "description": "Simplified guide to Lean Mass Hyper-Responder",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-15"
+      },
+      {
+        "topic": "CAC Scans",
+        "description": "Why long-term carnivores 40+ should consider this heart health benchmark",
+        "priority": "medium",
+        "status": "pending"
+      }
+    ],
+    "marcus": [
+      {
+        "topic": "The Anti-Resolution Playbook",
+        "description": "Why goals beat resolutions every time - New Year's angle",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-01"
+      },
+      {
+        "topic": "The $7/Day Survival Guide",
+        "description": "Thriving on ground beef + eggs when budget's tight",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-06"
+      },
+      {
+        "topic": "The Deep Freezer Strategy",
+        "description": "Math: buying half-cow vs. weekly grocery trips",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-09"
+      },
+      {
+        "topic": "Anabolic Signaling (mTOR)",
+        "description": "Animal protein as ultimate muscle builder",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-13"
+      },
+      {
+        "topic": "PSMF (Protein Sparing Modified Fasting)",
+        "description": "Strategic strike for 3-month fat loss stall",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-16"
+      },
+      {
+        "topic": "Torque Without Carbs",
+        "description": "Maintaining BJJ explosive power on meat + salt",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "Gluconeogenesis (GNG)",
+        "description": "Liver as demand-driven factory (only makes sugar when needed)",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "The Creatine ROI",
+        "description": "Do you need supplements on 2lbs beef/day?",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "The Pork Problem",
+        "description": "Why Marcus avoids commercial pork (Omega-6/Linoleic acid)",
+        "priority": "low",
+        "status": "pending"
+      },
+      {
+        "topic": "Salted Coffee",
+        "description": "Marcus's secret weapon for buffering morning cortisol spikes",
+        "priority": "low",
+        "status": "pending"
+      }
+    ],
+    "chloe": [
+      {
+        "topic": "New Year, Same You",
+        "description": "Why carnivore works when resolutions fail - community trends",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-01"
+      },
+      {
+        "topic": "The Lion Diet Challenge",
+        "description": "Why community obsesses over 3-ingredient rule (Beef, Salt, Water) - TIE TO THIS WEEK'S VIDEOS",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-07"
+      },
+      {
+        "topic": "Adult Acne Purge",
+        "description": "Why skin gets worse Week 2 before 'Carnivore Glow'",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-10"
+      },
+      {
+        "topic": "The Night Sweats",
+        "description": "Why body temp spikes at 3 AM during transition",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-14"
+      },
+      {
+        "topic": "The Carnivore Bar Guide",
+        "description": "What to order at pub (seltzer, neat spirits, etc.)",
+        "priority": "high",
+        "status": "scheduled",
+        "publish_date": "2025-01-17"
+      },
+      {
+        "topic": "Dating a Non-Carnivore",
+        "description": "Chloe's 'Steakhouse Stealth' for first dates",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "The Whistler Holiday Guide",
+        "description": "Surviving Christmas without family intervention",
+        "priority": "low",
+        "status": "pending",
+        "note": "Save for December 2025"
+      },
+      {
+        "topic": "Carnivore Travel Hacks",
+        "description": "What to pack for 10-hour flight (avoid Airport Food Trap)",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "The 'Animal-Based' Debate",
+        "description": "Is Paul Saladino right about honey + fruit?",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "Sunburn Resistance",
+        "description": "Does quitting seed oils make you 'sun-proof'?",
+        "priority": "medium",
+        "status": "pending"
+      },
+      {
+        "topic": "The Dental Shock",
+        "description": "Zero plaque after 6 months zero carbs",
+        "priority": "low",
+        "status": "pending"
+      }
+    ]
+  }
+}

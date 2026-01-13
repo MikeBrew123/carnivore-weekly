@@ -57,12 +57,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 OUTPUT_FILE = DATA_DIR / "youtube_data.json"
 
 # Search parameters
-SEARCH_QUERIES = [
-    "carnivore diet",
-    "animal-based diet",
-    "meat only diet",
-    "zero carb diet"
-]
+SEARCH_QUERIES = ["carnivore diet", "animal-based diet", "meat only diet", "zero carb diet"]
 DAYS_BACK = 7  # How many days back to search
 TOP_CREATORS_COUNT = 12  # How many top creators to analyze (increased for diversity)
 MAX_VIDEOS_PER_CREATOR = 2  # Max videos per creator (enforces diversity)
@@ -325,23 +320,29 @@ class YouTubeCollector:
 Title: {title}
 Description: {description[:500]}
 
+CARNIVORE DIET = eating only animal products (meat, fish, eggs, dairy). Content must discuss this eating style.
+
 Scoring guidelines:
-- 9-10: Directly about carnivore/meat-based diet, nutrition, results, protocols
-- 7-8: Related health content (keto, metabolic health, meat-focused nutrition)
-- 4-6: Tangentially related (general fitness, fasting, some diet content)
-- 1-3: Off-topic (ice baths alone, running, Dr Pepper, non-diet content)
+- 9-10: Directly about carnivore/animal-based diet (recipes, results, protocols, experiences, "what I eat")
+- 7-8: Carnivore-adjacent topics (keto for carnivore, exercise ON carnivore, health improvements FROM carnivore)
+- 4-6: General health/fitness that MENTIONS carnivore but isn't focused on it
+- 1-3: Off-topic (general cultural commentary, societal issues, collapse scenarios, generic fitness with no carnivore theme)
+
+REJECT if: Video is about general lifestyle, culture, society, or fitness WITHOUT carnivore diet context.
+ACCEPT if: Video discusses carnivore diet, eating carnivore, living carnivore, or health changes from carnivore.
 
 Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
 
             response = self.anthropic.messages.create(
                 model="claude-3-5-haiku-20241022",
                 max_tokens=100,
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             result_text = response.content[0].text.strip()
             # Parse JSON response
             import json
+
             result = json.loads(result_text)
             return (result["score"], result["reason"])
 
@@ -377,7 +378,7 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             sorted_videos = sorted(
                 creator_videos,
                 key=lambda v: v.get("statistics", {}).get("view_count", 0),
-                reverse=True
+                reverse=True,
             )
             diverse_videos.extend(sorted_videos[:MAX_VIDEOS_PER_CREATOR])
 
@@ -396,14 +397,16 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             return
 
         try:
-            self.supabase.table("rejected_videos").insert({
-                "video_id": video.get("video_id"),
-                "title": video.get("title"),
-                "channel_name": video.get("channel_title"),
-                "relevance_score": score,
-                "rejection_reason": reason,
-                "published_at": video.get("published_at"),
-            }).execute()
+            self.supabase.table("rejected_videos").insert(
+                {
+                    "video_id": video.get("video_id"),
+                    "title": video.get("title"),
+                    "channel_name": video.get("channel_title"),
+                    "relevance_score": score,
+                    "rejection_reason": reason,
+                    "published_at": video.get("published_at"),
+                }
+            ).execute()
         except Exception as e:
             # Silent fail - logging is not critical
             pass
@@ -761,6 +764,48 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
         if cached_data:
             print("\n✓ Using cached data from Supabase (skipping API calls)")
             print("   This saves your YouTube API quota!")
+
+            # IMPORTANT: Filter cached videos through Claude to ensure quality
+            print("\n🤖 Running content filter on cached videos...")
+            cached_creators = cached_data.get("top_creators", [])
+            filtered_creators = []
+            total_filtered = 0
+            total_kept = 0
+
+            for creator in cached_creators:
+                filtered_videos = []
+                for video in creator.get("videos", []):
+                    # Check if video already has a score
+                    if "relevance_score" not in video or video.get("relevance_score") == "N/A":
+                        # Score it with Claude
+                        score, reason = self.score_video_relevance(
+                            video.get("title", ""),
+                            video.get("description", "")
+                        )
+                        video["relevance_score"] = score
+                        video["relevance_reason"] = reason
+                    else:
+                        score = video["relevance_score"]
+
+                    # Keep only videos that meet minimum relevance threshold
+                    if score >= MIN_RELEVANCE_SCORE:
+                        filtered_videos.append(video)
+                        total_kept += 1
+                    else:
+                        total_filtered += 1
+                        print(f"   ✗ Filtered: {video.get('title', 'Unknown')[:50]}... (score: {score})")
+
+                # Only keep creator if they have videos that passed
+                if filtered_videos:
+                    creator["videos"] = filtered_videos
+                    filtered_creators.append(creator)
+
+            print(f"   ✓ Kept: {total_kept} videos (score >= {MIN_RELEVANCE_SCORE})")
+            print(f"   ✗ Filtered out: {total_filtered} off-topic videos")
+
+            # Update cached data with filtered results
+            cached_data["top_creators"] = filtered_creators
+            cached_data["top_creators_count"] = len(filtered_creators)
             return cached_data
 
         # No cache hit - proceed with API calls
@@ -794,8 +839,7 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
 
         for video in all_videos:
             score, reason = self.score_video_relevance(
-                video.get("title", ""),
-                video.get("description", "")
+                video.get("title", ""), video.get("description", "")
             )
 
             if score >= MIN_RELEVANCE_SCORE:
