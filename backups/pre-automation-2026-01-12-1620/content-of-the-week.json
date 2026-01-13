@@ -1,0 +1,54 @@
+{
+  "week": "2026-01-11",
+  "updated_by": "Agent System (Sarah, Marcus, Chloe)",
+  "featured_videos": [
+    {
+      "video_id": "yy1va5rywj0",
+      "editorial_title": "Dairy Tolerance: How Much Is Too Much?",
+      "heat_badge": "🔥 Evidence-Based",
+      "commentary": "The dairy question keeps coming up—and for good reason. Some people can drink a quart of milk daily without issue. Others break out after a single slice of cheese. It comes down to lactose tolerance, casein sensitivity, and your specific inflammatory triggers. This video addresses the \"how much\" question instead of treating it as all-or-nothing.",
+      "curator": "Sarah",
+      "memory_id": 5
+    },
+    {
+      "video_id": "GEoPW-gFZJE",
+      "editorial_title": "Extreme Challenge: What Your Body Can Handle",
+      "heat_badge": "🔥🔥 Trending",
+      "commentary": "Okay, so this one's been trending hard. The concept hits that sweet spot between entertainment and genuine curiosity—what can your body actually handle? The comments are full of people planning their own challenges. Classic community behavior: see something wild, immediately want to try it.",
+      "curator": "Chloe",
+      "memory_id": 6
+    },
+    {
+      "video_id": "hg8TMjChiEs",
+      "editorial_title": "Ice Bath Protocol: The Cold Truth",
+      "heat_badge": "🔥 Performance",
+      "commentary": "Cold works. Period. But most people wing it—jump in for \"a few minutes\" with no actual protocol. This breaks down the physiology: sympathetic activation, brown fat recruitment, recovery acceleration. Time matters. Temperature matters. Your training status matters.",
+      "curator": "Marcus",
+      "memory_id": 7
+    },
+    {
+      "video_id": "gdJgMDljCQc",
+      "editorial_title": "Metabolic Health Fundamentals",
+      "heat_badge": "🔥🔥 Science",
+      "commentary": "The metabolic health conversation starts here. You can't outwork insulin resistance. You can't supplement your way around metabolic dysfunction. The foundation is understanding how your body processes energy—insulin sensitivity, metabolic flexibility, substrate utilization. Get this right, everything else follows.",
+      "curator": "Sarah",
+      "memory_id": 8
+    },
+    {
+      "video_id": "i0T0FWV9nLY",
+      "editorial_title": "Simple Meal Strategies That Work",
+      "heat_badge": "🔥 Practical",
+      "commentary": "Budget and simplicity—these are the real barriers for most people starting carnivore. You don't need ribeyes and exotic cuts. Ground beef, eggs, chicken quarters. Rotate proteins, batch cook, keep it sustainable. The fancy stuff comes later, once you've proven the basics work for you.",
+      "curator": "Sarah",
+      "memory_id": 9
+    },
+    {
+      "video_id": "vMTTqXA10HQ",
+      "editorial_title": "Keto vs Carnivore: The Real Difference",
+      "heat_badge": "🔥 Comparison",
+      "commentary": "Two different tools. Keto maintains metabolic flexibility—you can still burn both fat and glucose efficiently. Carnivore removes plant-based inflammatory triggers entirely. The choice depends on your goals: metabolic optimization vs elimination protocol. Most people benefit from understanding both mechanisms.",
+      "curator": "Sarah",
+      "memory_id": 10
+    }
+  ]
+}

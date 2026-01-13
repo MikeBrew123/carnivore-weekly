@@ -1,0 +1,108 @@
+{
+  "week": "2026-01-02",
+  "generated_by": "Chloe (Community Manager)",
+  "note": "Prioritized blog topics for the week. Topics checked against published_blogs.json with 80-day deduplication rule.",
+  "deduplication_applied": true,
+  "topics_filtered_out": [
+    {
+      "topic": "PCOS",
+      "reason": "Published 2025-12-30 (3 days ago) - wait 77 days before similar topic",
+      "published_date": "2025-12-30"
+    },
+    {
+      "topic": "Budgeting/Cost",
+      "reason": "Published 2025-12-26 (7 days ago) - wait 73 days before similar topic",
+      "published_date": "2025-12-26"
+    }
+  ],
+  "high_priority": [
+    {
+      "rank": 1,
+      "topic": "Beginner's Complete Blueprint: How to Actually Start Carnivore",
+      "trend_strength": "🔥🔥🔥",
+      "why_trending": "30% of Reddit traffic is new year beginners asking 'what should I eat'",
+      "suggested_author": "Sarah",
+      "content_angle": "Step-by-step guide from day 1 to adaptation week",
+      "last_published_similar": "Never (content gap)",
+      "estimated_search_volume": "High"
+    },
+    {
+      "rank": 2,
+      "topic": "What Top YouTube Creators Are Teaching in 2026",
+      "trend_strength": "🔥🔥",
+      "why_trending": "Meatstock x The Primal 2026 announced - community interested in creator landscape",
+      "suggested_author": "Chloe",
+      "content_angle": "Roundup of top 5 creators, what they're emphasizing, emerging philosophies",
+      "last_published_similar": "Never (meta-content gap)",
+      "estimated_search_volume": "Medium"
+    },
+    {
+      "rank": 3,
+      "topic": "Organ Meats Complete Guide: Sourcing, Prep, Nutrition",
+      "trend_strength": "🔥🔥",
+      "why_trending": "Grassland Beef, Seven Sons Farms, TruBeef launching products. Community asking how to prepare.",
+      "suggested_author": "Sarah + Marcus (nutrition collaboration)",
+      "content_angle": "How-to guide with nutrient breakdown and where to source",
+      "last_published_similar": "Never (product gap)",
+      "estimated_search_volume": "High"
+    }
+  ],
+  "medium_priority": [
+    {
+      "rank": 4,
+      "topic": "Women's Carnivore Health: The Honest Truth About Hormones",
+      "trend_strength": "🔥🔥",
+      "why_trending": "Polarized debate in community - women fastest-growing segment (40-45%)",
+      "suggested_author": "Sarah",
+      "content_angle": "Evidence + nuance on amenorrhea, HRT, conception, hot flashes",
+      "last_published_similar": "2025-12-30 (PCOS) - can publish different angle in 80 days",
+      "estimated_search_volume": "Very High"
+    },
+    {
+      "rank": 5,
+      "topic": "Real Transformation Stories: 5 Diverse Examples",
+      "trend_strength": "🔥🔥",
+      "why_trending": "Highest engagement on Reddit - success stories going viral",
+      "suggested_author": "Chloe",
+      "content_angle": "Compilation: weight loss, chronic disease, mental health, female-specific, athletic",
+      "last_published_similar": "Never (content gap)",
+      "estimated_search_volume": "High"
+    },
+    {
+      "rank": 6,
+      "topic": "Fasting + Carnivore: Protocols That Actually Work",
+      "trend_strength": "🔥",
+      "why_trending": "Growing optimization interest from experienced carnivores",
+      "suggested_author": "Marcus",
+      "content_angle": "Practical protocols with timing, benefits, cautions",
+      "last_published_similar": "Never",
+      "estimated_search_volume": "Medium"
+    }
+  ],
+  "low_priority_evergreen": [
+    {
+      "rank": 7,
+      "topic": "Environmental Impact Counter-Narrative: Regenerative Agriculture",
+      "trend_strength": "🔥",
+      "why_trending": "Increasing criticism from climate activists - community needs response",
+      "suggested_author": "Sarah",
+      "content_angle": "Regenerative grazing, carbon sequestration, land use efficiency",
+      "estimated_search_volume": "Medium"
+    },
+    {
+      "rank": 8,
+      "topic": "Family Integration Hacks: How to Do Carnivore Socially",
+      "trend_strength": "🔥",
+      "why_trending": "'How do I explain this to people?' daily question on Reddit",
+      "suggested_author": "Chloe",
+      "content_angle": "Social strategies, restaurant tips, family dinner solutions",
+      "estimated_search_volume": "Medium"
+    }
+  ],
+  "notes": {
+    "clustering_prevented": "Skipped 'butter' trending topic because similar nutrition posts published 2025-12-20, 2025-12-22 - wait 80 days",
+    "trending_this_week": ["beginners", "organ meats", "women's health", "transformations", "creators", "fasting"],
+    "avoid_next_week": ["PCOS", "budgeting", "lion diet extreme protocols"],
+    "world_context": "New Years (beginner surge), World Carnivore Month (January), momentum building"
+  }
+}

@@ -165,7 +165,9 @@
                     <article class="video-card card card--clickable">
                         
                         <div class="video-meta">
+                            
                             <span class="heat-badge">🔥 4,562,841 views</span>
+                            
                             <span class="video-channel">OptimalHealth</span>
                         </div>
                         <h3 class="video-title">
@@ -180,12 +182,22 @@
                             <p class="commentary-text">"This video examines how traditional Indian diets have shifted over time and what carnivore dieters can learn from these changes about nutrient density and food quality. The key insight is understanding how increased grain consumption affects insulin response and inflammation markers compared to animal-based proteins. Watch if you're struggling to explain the carnivore approach to family members from cultures with traditionally plant-heavy diets, or if you need help navigating social situations while staying committed to animal-based eating."</p>
                         </div>
                         
+
+                        
+                        <div class="sentiment-bar">
+                            <div class="sentiment-positive" style="width: 20%"></div>
+                            <div class="sentiment-neutral" style="width: 20%"></div>
+                            <div class="sentiment-negative" style="width: 60%"></div>
+                        </div>
+                        
                     </article>
                     
                     <article class="video-card card card--clickable">
                         
                         <div class="video-meta">
+                            
                             <span class="heat-badge">🔥 819,258 views</span>
+                            
                             <span class="video-channel">OptimalHealth</span>
                         </div>
                         <h3 class="video-title">
@@ -200,12 +212,22 @@
                             <p class="commentary-text">"This video explains how adding butter to coffee provides sustained energy and helps with fat adaptation on a carnivore diet by combining caffeine with healthy fats that slow absorption and prevent energy crashes. Watch if you're new to carnivore and struggling with energy levels between meals, or if you're trying to increase your fat intake without eating more meat. The key takeaway is that butter coffee can replace breakfast while keeping you in a fat-burning state, making it easier to extend your fasting window."</p>
                         </div>
                         
+
+                        
+                        <div class="sentiment-bar">
+                            <div class="sentiment-positive" style="width: 80%"></div>
+                            <div class="sentiment-neutral" style="width: 20%"></div>
+                            <div class="sentiment-negative" style="width: 0%"></div>
+                        </div>
+                        
                     </article>
                     
                     <article class="video-card card card--clickable">
                         
                         <div class="video-meta">
+                            
                             <span class="heat-badge">🔥 172,624 views</span>
+                            
                             <span class="video-channel">Steak and Butter Gal</span>
                         </div>
                         <h3 class="video-title">
@@ -220,12 +242,22 @@
                             <p class="commentary-text">"Steak and Butter Gal shares a high-protein dip recipe that helps carnivore dieters add variety to their meals while staying within diet guidelines. The key insight is that this dip provides a practical way to increase protein intake without relying on plain meat, making the diet more sustainable long-term. Watch if you're getting bored with your current carnivore meal rotation or struggling to meet your daily protein goals."</p>
                         </div>
                         
+
+                        
+                        <div class="sentiment-bar">
+                            <div class="sentiment-positive" style="width: 50%"></div>
+                            <div class="sentiment-neutral" style="width: 50%"></div>
+                            <div class="sentiment-negative" style="width: 0%"></div>
+                        </div>
+                        
                     </article>
                     
                     <article class="video-card card card--clickable">
                         
                         <div class="video-meta">
+                            
                             <span class="heat-badge">🔥 157,145 views</span>
+                            
                             <span class="video-channel">HomeSteadHow</span>
                         </div>
                         <h3 class="video-title">
@@ -240,12 +272,22 @@
                             <p class="commentary-text">"HomeSteadHow shares how adding a specific drink helped him break through the last 10% of his health goals after carnivore diet alone plateaued. The video reveals which drink improved his digestion, energy levels, and final stubborn symptoms that wouldn't budge with meat-only eating. Watch if you've seen good results on carnivore but still struggle with lingering issues like bloating, energy crashes, or weight loss stalls."</p>
                         </div>
                         
+
+                        
+                        <div class="sentiment-bar">
+                            <div class="sentiment-positive" style="width: 40%"></div>
+                            <div class="sentiment-neutral" style="width: 30%"></div>
+                            <div class="sentiment-negative" style="width: 30%"></div>
+                        </div>
+                        
                     </article>
                     
                     <article class="video-card card card--clickable">
                         
                         <div class="video-meta">
+                            
                             <span class="heat-badge">🔥 70,516 views</span>
+                            
                             <span class="video-channel">Anthony Chaffee MD</span>
                         </div>
                         <h3 class="video-title">
@@ -258,6 +300,14 @@
                         
                         <div class="video-commentary">
                             <p class="commentary-text">"Dr. Anthony Chaffee explains the common reasons people abandon the carnivore diet, helping you avoid the mistakes that derail most beginners. The key insight is that many people quit during the adaptation phase because they don't understand the temporary symptoms or try to rush results instead of letting their body properly adjust. Watch if you're struggling with the carnivore diet, experiencing unexpected side effects, or want to prevent the pitfalls that cause most people to give up before seeing real benefits."</p>
+                        </div>
+                        
+
+                        
+                        <div class="sentiment-bar">
+                            <div class="sentiment-positive" style="width: 50%"></div>
+                            <div class="sentiment-neutral" style="width: 20%"></div>
+                            <div class="sentiment-negative" style="width: 30%"></div>
                         </div>
                         
                     </article>
@@ -546,8 +596,18 @@
         </div>
     </footer>
 
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Analytics Tracking Script -->
     <script>
+        // Initialize Supabase client
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://kwtdpvnjewtahuxjyltn.supabase.co',
+            'sb_publishable_bQlgBZ7Otay8D9AErt8daA_2lQI36jk'
+        );
+
         // Track affiliate clicks
         document.querySelectorAll('a[data-partner]').forEach(link => {
             link.addEventListener('click', function() {
@@ -559,17 +619,68 @@
             });
         });
 
-        // Newsletter form handling (placeholder - connect to backend later)
-        document.getElementById('newsletter-form')?.addEventListener('submit', function(e) {
+        // Newsletter form handling - Supabase integration
+        document.getElementById('newsletter-form')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = this.querySelector('#email').value;
-            console.log('Newsletter signup:', email);
-            // TODO: Connect to Supabase newsletter_subscribers table
-            alert('Newsletter signup coming soon! Email saved: ' + email);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Subscribing...';
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('newsletter_subscribers')
+                    .insert({
+                        email: email,
+                        source: 'homepage',
+                        confirmation_status: 'pending',
+                        active: true
+                    });
+
+                if (error) {
+                    // Check if email already exists
+                    if (error.code === '23505') {
+                        alert('You are already subscribed!');
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    // Success - clear form and show message
+                    this.reset();
+                    alert('Thanks for subscribing! Check your email to confirm.');
+
+                    // Track signup event
+                    gtag('event', 'newsletter_signup', {
+                        source: 'homepage',
+                        page: window.location.pathname
+                    });
+                }
+            } catch (err) {
+                console.error('Newsletter signup error:', err);
+                alert('Oops! Something went wrong. Please try again.');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
         });
     </script>
 
     <!-- Mobile Nav -->
     <script src="/js/mobile-nav.js"></script>
+
+    <!-- Feedback Modal Component -->
+    <script>
+        fetch('/components/feedback-modal.html')
+            .then(response => response.text())
+            .then(html => {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                document.body.appendChild(div);
+            });
+    </script>
 </body>
 </html>

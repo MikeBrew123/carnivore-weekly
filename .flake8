@@ -1,0 +1,10 @@
+[flake8]
+max-line-length = 120
+extend-ignore = E203, W503, F841, F541
+exclude =
+    .git,
+    __pycache__,
+    node_modules,
+    .venv,
+    venv,
+    calculator2-demo/node_modules

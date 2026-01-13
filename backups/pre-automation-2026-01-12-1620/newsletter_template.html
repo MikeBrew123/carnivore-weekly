@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnivore Weekly Insider</title>
+    <style>
+        /* Email-safe CSS */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #1a120b;
+            color: #f4e4d4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #2c1810;
+        }
+        .header {
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 4px solid #d4a574;
+        }
+        .header h1 {
+            margin: 0;
+            color: #f4e4d4;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+        .header .date {
+            color: #d4a574;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .subject-line {
+            background: #8b4513;
+            padding: 15px;
+            margin: 0 0 20px 0;
+            border-left: 4px solid #d4a574;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .section {
+            margin: 25px 0;
+        }
+        .section-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #8b4513;
+        }
+        .section-content {
+            line-height: 1.6;
+            color: #f4e4d4;
+        }
+        .section-content p {
+            margin: 12px 0;
+        }
+        .bullet {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        /* Video Card Styles */
+        .video-card {
+            background: #1a120b;
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .video-thumbnail {
+            width: 100%;
+            display: block;
+        }
+        .video-info {
+            padding: 15px;
+        }
+        .video-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 0 0 8px 0;
+        }
+        .video-creator {
+            font-size: 14px;
+            color: #d4a574;
+            margin: 0 0 8px 0;
+        }
+        .video-stats {
+            font-size: 12px;
+            color: #f4e4d4;
+            opacity: 0.8;
+        }
+
+        /* Ad Styles */
+        .ad-block {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .ad-block h3 {
+            color: #2c1810;
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+        .ad-block p {
+            color: #1a120b;
+            margin: 10px 0;
+            line-height: 1.4;
+        }
+        .ad-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .ad-label {
+            font-size: 10px;
+            color: #1a120b;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a120b;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #d4a574;
+            border-top: 2px solid #8b4513;
+        }
+        .footer a {
+            color: #d4a574;
+            text-decoration: underline;
+        }
+
+        /* Divider */
+        .divider {
+            text-align: center;
+            color: #8b4513;
+            font-size: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🥩 CARNIVORE WEEKLY INSIDER</h1>
+            <div class="date">Week of {{ date }}</div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Subject Line -->
+            <div class="subject-line">
+                {{ subject_line }}
+            </div>
+
+            <!-- Opening Hook -->
+            <div class="section">
+                <div class="section-content">
+                    {{ opening }}
+                </div>
+            </div>
+
+            <div class="divider">• • •</div>
+
+            <!-- By The Numbers -->
+            <div class="section">
+                <div class="section-header">BY THE NUMBERS</div>
+                <div class="section-content">
+                    {{ by_the_numbers }}
+                </div>
+            </div>
+
+            <!-- Featured Video #1 -->
+            {% if featured_video_1 %}
+            <div class="video-card">
+                <a href="{{ featured_video_1.url }}" target="_blank">
+                    <img src="{{ featured_video_1.thumbnail }}" alt="{{ featured_video_1.title }}" class="video-thumbnail">
+                </a>
+                <div class="video-info">
+                    <div class="video-title">{{ featured_video_1.title }}</div>
+                    <div class="video-creator">by {{ featured_video_1.creator }}</div>
+                    <div class="video-stats">{{ featured_video_1.views }} views • {{ featured_video_1.date }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Ad Block #1 -->
+            <div class="ad-block">
+                <h3>💎 Premium Grass-Fed Beef Delivered</h3>
+                <p>100% grass-fed, grass-finished beef from regenerative farms. No hormones, no antibiotics, just clean protein the way nature intended.</p>
+                <a href="{{ affiliate_link_butcherbox }}" class="ad-button">Get Your First Box →</a>
+                <div class="ad-label">PARTNER OFFER</div>
+            </div>
+
+            <div class="divider">• • •</div>
+
+            <!-- Movers & Shakers -->
+            <div class="section">
+                <div class="section-header">MOVERS & SHAKERS</div>
+                <div class="section-content">
+                    {{ movers_shakers }}
+                </div>
+            </div>
+
+            <!-- Featured Video #2 -->
+            {% if featured_video_2 %}
+            <div class="video-card">
+                <a href="{{ featured_video_2.url }}" target="_blank">
+                    <img src="{{ featured_video_2.thumbnail }}" alt="{{ featured_video_2.title }}" class="video-thumbnail">
+                </a>
+                <div class="video-info">
+                    <div class="video-title">{{ featured_video_2.title }}</div>
+                    <div class="video-creator">by {{ featured_video_2.creator }}</div>
+                    <div class="video-stats">{{ featured_video_2.views }} views • {{ featured_video_2.date }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- What's Trending -->
+            <div class="section">
+                <div class="section-header">WHAT'S TRENDING</div>
+                <div class="section-content">
+                    {{ whats_trending }}
+                </div>
+            </div>
+
+            <!-- Featured Video #3 -->
+            {% if featured_video_3 %}
+            <div class="video-card">
+                <a href="{{ featured_video_3.url }}" target="_blank">
+                    <img src="{{ featured_video_3.thumbnail }}" alt="{{ featured_video_3.title }}" class="video-thumbnail">
+                </a>
+                <div class="video-info">
+                    <div class="video-title">{{ featured_video_3.title }}</div>
+                    <div class="video-creator">by {{ featured_video_3.creator }}</div>
+                    <div class="video-stats">{{ featured_video_3.views }} views • {{ featured_video_3.date }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="divider">• • •</div>
+
+            <!-- Community Pulse -->
+            <div class="section">
+                <div class="section-header">COMMUNITY PULSE</div>
+                <div class="section-content">
+                    {{ community_pulse }}
+                </div>
+            </div>
+
+            <!-- Featured Video #4 -->
+            {% if featured_video_4 %}
+            <div class="video-card">
+                <a href="{{ featured_video_4.url }}" target="_blank">
+                    <img src="{{ featured_video_4.thumbnail }}" alt="{{ featured_video_4.title }}" class="video-thumbnail">
+                </a>
+                <div class="video-info">
+                    <div class="video-title">{{ featured_video_4.title }}</div>
+                    <div class="video-creator">by {{ featured_video_4.creator }}</div>
+                    <div class="video-stats">{{ featured_video_4.views }} views • {{ featured_video_4.date }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Ad Block #2 -->
+            <div class="ad-block">
+                <h3>⚡ LMNT Electrolytes</h3>
+                <p>No sugar, no fillers, just pure sodium, potassium, and magnesium. Perfect for maintaining electrolyte balance on a meat-based diet.</p>
+                <a href="{{ affiliate_link_lmnt }}" class="ad-button">Try LMNT Risk-Free →</a>
+                <div class="ad-label">PARTNER OFFER</div>
+            </div>
+
+            <div class="divider">• • •</div>
+
+            <!-- Looking Ahead -->
+            <div class="section">
+                <div class="section-header">LOOKING AHEAD</div>
+                <div class="section-content">
+                    {{ looking_ahead }}
+                </div>
+            </div>
+
+            <!-- Closing -->
+            <div class="section">
+                <div class="section-content">
+                    {{ closing }}
+                </div>
+            </div>
+
+            <!-- CTA to Website -->
+            <a href="https://carnivoreweekly.com" class="cta-button">
+                📖 Read Full Weekly Roundup →
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>See you next Monday,<br><strong>Carnivore Weekly</strong></p>
+            <p style="margin-top: 20px;">
+                🤖 Curated with AI • Made with <a href="https://claude.com/claude-code">Claude Code</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 11px;">
+                You're receiving this because you subscribed at carnivoreweekly.com<br>
+                <a href="{{ unsubscribe_link }}">Unsubscribe</a> | <a href="https://carnivoreweekly.com">View in Browser</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

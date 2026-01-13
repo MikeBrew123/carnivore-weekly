@@ -378,62 +378,75 @@ class UnifiedGenerator:
         # Handle trending_topics - parse markdown string to structured array
         trending_topics_raw = analysis.get("trending_topics", data.get("trending_topics", []))
         if isinstance(trending_topics_raw, str):
-            # Parse markdown-formatted topics string into structured list
-            trending_topics = []
-            lines = trending_topics_raw.split("\n")
-            current_topic = None
+            # First, try to parse as JSON array (new format)
+            try:
+                import json as json_lib
+                parsed_topics = json_lib.loads(trending_topics_raw)
+                if isinstance(parsed_topics, list):
+                    # Convert simple string list to structured format
+                    trending_topics = [
+                        {"topic": topic, "description": "", "mentioned_by": ["Analysis"]}
+                        for topic in parsed_topics
+                    ]
+                else:
+                    raise ValueError("Not a list")
+            except (json_lib.JSONDecodeError, ValueError):
+                # Fall back to markdown parsing
+                trending_topics = []
+                lines = trending_topics_raw.split("\n")
+                current_topic = None
 
-            for line in lines:
-                line_stripped = line.strip()
+                for line in lines:
+                    line_stripped = line.strip()
 
-                # Look for h3 headers (### Topic Name)
-                if line_stripped.startswith("### "):
-                    if current_topic and current_topic["description"]:
-                        trending_topics.append(current_topic)
-                    current_topic = {
-                        "topic": line_stripped.replace("### ", "")
-                        .replace("**", "")
-                        .replace("#", ""),
-                        "description": "",
-                        "mentioned_by": ["Analysis"],
-                    }
-                # Look for description content
-                elif current_topic and line_stripped:
-                    # Skip empty lines and markdown-only lines
-                    if line_stripped in ["---", "**", "##", "-", "*"]:
-                        continue
-                    # Skip header lines
-                    if line_stripped.startswith("#"):
-                        continue
-                    # Include bullet points and regular text
-                    if line_stripped.startswith("- "):
-                        # Remove bullet and add as description
-                        content = line_stripped[2:].strip()
-                        if current_topic["description"]:
-                            current_topic["description"] += " " + content
-                        else:
-                            current_topic["description"] = content
-                    elif line_stripped and not line_stripped.startswith("---"):
-                        # Add regular text
-                        if not line_stripped.startswith("**") or not line_stripped.endswith("**"):
+                    # Look for h3 headers (### Topic Name)
+                    if line_stripped.startswith("### "):
+                        if current_topic and current_topic["description"]:
+                            trending_topics.append(current_topic)
+                        current_topic = {
+                            "topic": line_stripped.replace("### ", "")
+                            .replace("**", "")
+                            .replace("#", ""),
+                            "description": "",
+                            "mentioned_by": ["Analysis"],
+                        }
+                    # Look for description content
+                    elif current_topic and line_stripped:
+                        # Skip empty lines and markdown-only lines
+                        if line_stripped in ["---", "**", "##", "-", "*"]:
+                            continue
+                        # Skip header lines
+                        if line_stripped.startswith("#"):
+                            continue
+                        # Include bullet points and regular text
+                        if line_stripped.startswith("- "):
+                            # Remove bullet and add as description
+                            content = line_stripped[2:].strip()
                             if current_topic["description"]:
-                                current_topic["description"] += " " + line_stripped
+                                current_topic["description"] += " " + content
                             else:
-                                current_topic["description"] = line_stripped
+                                current_topic["description"] = content
+                        elif line_stripped and not line_stripped.startswith("---"):
+                            # Add regular text
+                            if not line_stripped.startswith("**") or not line_stripped.endswith("**"):
+                                if current_topic["description"]:
+                                    current_topic["description"] += " " + line_stripped
+                                else:
+                                    current_topic["description"] = line_stripped
 
-            # Add last topic
-            if current_topic and current_topic["description"]:
-                trending_topics.append(current_topic)
+                # Add last topic
+                if current_topic and current_topic["description"]:
+                    trending_topics.append(current_topic)
 
-            # If parsing failed, use defaults
-            if not trending_topics:
-                trending_topics = [
-                    {
-                        "topic": "Content Opportunities",
-                        "description": trending_topics_raw[:100],
-                        "mentioned_by": ["Analysis"],
-                    }
-                ]
+                # If parsing failed, use defaults
+                if not trending_topics:
+                    trending_topics = [
+                        {
+                            "topic": "Content Opportunities",
+                            "description": trending_topics_raw[:100],
+                            "mentioned_by": ["Analysis"],
+                        }
+                    ]
         elif isinstance(trending_topics_raw, list):
             trending_topics = trending_topics_raw
         else:
@@ -1026,7 +1039,11 @@ class UnifiedGenerator:
                             "likes": video.get("statistics", {}).get("like_count", 0),
                             "comments": video.get("statistics", {}).get("comment_count", 0),
                             "thumbnail_url": video.get("thumbnail_url", ""),
-                            "summary": video.get("description", "")[:200] if video.get("description") else "",
+                            "summary": (
+                                video.get("description", "")[:200]
+                                if video.get("description")
+                                else ""
+                            ),
                         }
                         top_videos.append(video_obj)
 

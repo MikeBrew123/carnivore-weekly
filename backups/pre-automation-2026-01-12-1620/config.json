@@ -1,0 +1,57 @@
+{
+  "youtube_channels": [
+    {
+      "name": "Dr. Ken Berry",
+      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw",
+      "handle": "@KenDBerryMD"
+    },
+    {
+      "name": "Steak and Butter Gal",
+      "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw",
+      "handle": "@SteakandButterGal"
+    },
+    {
+      "name": "Paul Saladino",
+      "channel_id": "UCL3-1UQIz7zwQ7sIr9R7TBg",
+      "handle": "@paulsaladinomd"
+    },
+    {
+      "name": "Nick Norwitz",
+      "channel_id": "UCLj__AyO-wejuqEhXEYQJJQ",
+      "handle": "@nicknorwitzPhD"
+    },
+    {
+      "name": "Carnivore Couple",
+      "channel_id": "search_query",
+      "handle": "@CarnivorCouple"
+    }
+  ],
+  "search_keywords": [
+    "carnivore diet",
+    "carnivore diet 2025",
+    "meat only diet",
+    "zero carb",
+    "animal based diet"
+  ],
+  "pubmed_keywords": [
+    "carnivore diet",
+    "ketogenic diet",
+    "low carbohydrate diet",
+    "meat based diet"
+  ],
+  "content_filters": {
+    "min_video_length": 300,
+    "max_video_age_days": 7,
+    "min_views": 1000
+  },
+  "generation_settings": {
+    "max_videos_per_update": 10,
+    "max_studies_per_update": 5,
+    "max_news_per_update": 5
+  },
+  "scheduling": {
+    "update_day": "Monday",
+    "update_time": "10:00",
+    "timezone": "UTC"
+  }
+}

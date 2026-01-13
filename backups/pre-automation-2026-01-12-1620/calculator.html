@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnivore Macro Calculator - Free Personalized Protocol</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Calculate your carnivore diet macros in 90 seconds. Get personalized protein, fat, and calorie targets based on your goals. Free, private, no email required. Stop guessing—start optimizing.">
+    <meta name="keywords" content="carnivore calculator, macro calculator, carnivore macros, protein calculator, carnivore diet, keto calculator">
+    <meta name="author" content="Carnivore Weekly">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://carnivoreweekly.com/calculator.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://carnivoreweekly.com/calculator.html">
+    <meta property="og:title" content="Free Carnivore Macro Calculator">
+    <meta property="og:description" content="Personalized macro calculations for your carnivore diet. Free, private, instant results.">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
+    <meta property="og:site_name" content="Carnivore Weekly">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://carnivoreweekly.com/calculator.html">
+    <meta name="twitter:title" content="Free Carnivore Macro Calculator">
+    <meta name="twitter:description" content="Get personalized macro targets for your carnivore diet">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/assets/calculator2/assets/index-C1zJbahP.css">
+
+    <style>
+        /* Calculator page hero styles - Premium sizing matching brand standards */
+        .hero-2026 {
+            position: relative;
+            height: 500px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .hero-2026 .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-2026 .hero-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(26, 18, 11, 0.95), transparent);
+            padding: 40px;
+            color: #f4e4d4;
+        }
+
+        .hero-2026 h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5em;
+            margin: 0 0 15px 0;
+            color: #ffd700;
+        }
+
+        .hero-2026 p {
+            font-family: 'Merriweather', serif;
+            font-size: 1.1em;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Main content container - 800px max-width for blog-like readability */
+        .calculator-main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Problem section with generous white space */
+        .problem-section {
+            background: rgba(44, 24, 16, 0.15);
+            border-left: 5px solid #8b4513;
+            padding: 40px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+        }
+
+        .problem-section p {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1a120b;
+            margin-bottom: 20px;
+        }
+
+        .problem-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        .problem-section strong {
+            color: #8b4513;
+            font-weight: 700;
+        }
+
+        /* Apology section */
+        .apology-section {
+            background: rgba(44, 24, 16, 0.15);
+            border-left: 5px solid #8b4513;
+            padding: 30px 40px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+        }
+
+        .apology-section p {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1a120b;
+            font-style: italic;
+            margin: 0;
+        }
+
+        /* Intro copy section with floating button */
+        .intro-copy {
+            background: rgba(212, 165, 116, 0.12);
+            border-left: 5px solid #d4a574;
+            padding: 40px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            overflow: auto;
+        }
+
+        .intro-copy p {
+            font-family: 'Merriweather', serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1a120b;
+            margin: 0 0 20px 0;
+        }
+
+        .intro-copy p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* CTA Button - Floats right on desktop, stacked on mobile */
+        .cta-button-calculator {
+            background: #ffd700;
+            color: #1a120b;
+            padding: 20px 48px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.3em;
+            font-family: 'Playfair Display', serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: 0.5px;
+            float: right;
+            margin: 0 0 30px 30px;
+            white-space: nowrap;
+        }
+
+        .cta-button-calculator:hover {
+            background: #e6c200;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.5);
+        }
+
+        .cta-button-calculator:active {
+            transform: translateY(-1px);
+        }
+
+        /* Info section with proper spacing and structure */
+        .info-section-calculator {
+            background: rgba(212, 165, 116, 0.15);
+            border-left: 5px solid #d4a574;
+            padding: 40px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+        }
+
+        .info-section-calculator h3 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            font-size: 1.6em;
+            margin-top: 32px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #d4a574;
+        }
+
+        .info-section-calculator h3:first-child {
+            margin-top: 0;
+        }
+
+        .info-section-calculator p {
+            font-family: 'Merriweather', serif;
+            color: #1a120b;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .info-section-calculator ul {
+            font-family: 'Merriweather', serif;
+            color: #1a120b;
+            margin: 25px 0 25px 30px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .info-section-calculator li {
+            margin-bottom: 15px;
+        }
+
+        .info-section-calculator strong {
+            color: #8b4513;
+            font-weight: 700;
+        }
+
+        /* Calendar App section - soft-conversion framework */
+        .calendar-section {
+            border-left: 5px solid #d4a574;
+            padding-left: 30px;
+            margin-left: 0;
+            margin-bottom: 40px;
+            padding-top: 0;
+            padding-bottom: 0;
+            padding-right: 0;
+            background: transparent;
+        }
+
+        .calendar-section h3 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            font-size: 1.6em;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .calendar-section p {
+            font-family: 'Merriweather', serif;
+            color: #1a120b;
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .calendar-section p:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .calendar-section em {
+            color: #d4a574;
+            font-style: italic;
+        }
+
+        .calendar-section strong {
+            color: #8b4513;
+            font-weight: 700;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .calculator-main {
+                padding: 0 20px;
+            }
+
+            .hero-2026 {
+                height: 350px;
+            }
+
+            .hero-2026 h2 {
+                font-size: 1.8em;
+            }
+
+            .hero-2026 .hero-content {
+                padding: 20px;
+            }
+
+            .intro-copy,
+            .info-section-calculator {
+                padding: 25px;
+                margin-bottom: 30px;
+            }
+
+            .calendar-section {
+                padding-left: 20px;
+                margin-bottom: 30px;
+            }
+
+            .info-section-calculator h3,
+            .calendar-section h3 {
+                font-size: 1.3em;
+            }
+
+            .cta-button-calculator {
+                float: none;
+                display: block;
+                font-size: 1.1em;
+                padding: 18px 40px;
+                margin: 30px auto;
+                width: 90%;
+                max-width: 280px;
+            }
+
+            .info-section-calculator ul {
+                margin: 20px 0 20px 25px;
+                font-size: 15px;
+            }
+
+            .problem-section p,
+            .apology-section p,
+            .info-section-calculator p,
+            .calendar-section p {
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-main {
+                padding: 0 15px;
+            }
+
+            .hero-2026 {
+                height: 300px;
+                margin-bottom: 30px;
+            }
+
+            .hero-2026 h2 {
+                font-size: 1.5em;
+            }
+
+            .intro-copy,
+            .info-section-calculator {
+                padding: 20px;
+                margin-bottom: 25px;
+            }
+
+            .calendar-section {
+                padding-left: 15px;
+                margin-bottom: 25px;
+                border-left: 4px solid #d4a574;
+            }
+
+            .info-section-calculator h3,
+            .calendar-section h3 {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+
+            .cta-button-calculator {
+                float: none;
+                display: block;
+                font-size: 1em;
+                padding: 16px 32px;
+                margin: 25px auto;
+                width: 90%;
+            }
+        }
+
+        /* Calculator Mobile Fix - Full width edge-to-edge on mobile */
+        @media (max-width: 768px) {
+            /* Remove body margin that causes right offset */
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Full width, no padding, no margin */
+            .layout-wrapper-2026 {
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+                width: 100%;
+            }
+
+            /* Full width, no side padding */
+            .calculator-main {
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            /* Full width intro section with text padding */
+            .intro-copy {
+                border-left: 0; /* Remove decorative border on mobile */
+                padding: 16px 12px; /* Add breathing room for text */
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box; /* Include padding in width calculation */
+            }
+
+            /* Make calculator container truly full width */
+            #root {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Ensure calculator box fills screen width completely */
+            #root > div {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* How It Works section mobile styles */
+            .how-it-works {
+                padding: 20px 12px !important;
+                margin: 30px 0 !important;
+            }
+
+            .how-it-works h2 {
+                font-size: 22px !important;
+            }
+
+            .how-it-works h3 {
+                font-size: 18px !important;
+            }
+
+            /* FAQ section mobile styles */
+            .calculator-faq {
+                padding: 20px 12px !important;
+                margin-top: 40px !important;
+            }
+
+            .calculator-faq h2 {
+                font-size: 24px !important;
+            }
+
+            .calculator-faq h3 {
+                font-size: 18px !important;
+            }
+        }
+    </style>
+
+    <!-- Schema Markup: WebApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Carnivore Macro Calculator",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Free carnivore diet macro calculator for personalized protein, fat, and calorie targets based on your goals. Get results in 90 seconds.",
+      "url": "https://carnivoreweekly.com/calculator.html",
+      "screenshot": "https://carnivoreweekly.com/images/calculator-screenshot.png",
+      "applicationSubCategory": "Nutrition Calculator",
+      "featureList": [
+        "Personalized protein targets",
+        "Fat intake calculations",
+        "Calorie recommendations",
+        "Goal-based optimization (fat loss, muscle gain, maintenance)",
+        "Activity level adjustments",
+        "No email required"
+      ],
+      "browserRequirements": "Requires JavaScript enabled"
+    }
+    </script>
+
+    <!-- Schema Markup: FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the carnivore diet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The carnivore diet is a meat-based eating approach that focuses exclusively on animal products: beef, pork, chicken, fish, eggs, and some dairy. It eliminates all plant foods including vegetables, fruits, grains, and legumes. Followers eat nose-to-tail, prioritizing nutrient-dense organ meats alongside muscle meat."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much protein do I need on carnivore?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Protein needs on carnivore vary by goal and activity level. For fat loss, aim for 1.0-1.2g per pound of lean body mass. For muscle gain, target 1.2-1.6g per pound. For maintenance, 0.8-1.0g per pound is sufficient. Most people undereat protein by 20-30g daily, which can cause fatigue and stalls. Use our calculator to find your personalized protein target."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I calculate carnivore macros?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "To calculate carnivore macros: (1) Determine your lean body mass by subtracting body fat from total weight. (2) Set protein based on your goal (fat loss, muscle gain, or maintenance). (3) Calculate remaining calories from fat. (4) Adjust for activity level. Our free calculator does this automatically in 90 seconds based on your stats, goal, and activity level."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to track calories on carnivore?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not everyone needs to track calories on carnivore. Many people eat to satiety and lose fat naturally. However, tracking helps if: (1) You've stalled after 3+ months, (2) You're trying to gain muscle, (3) You're exhausted or losing too much weight, or (4) You're not seeing expected results. Knowing your macro targets removes guesswork and helps optimize results."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What's the difference between carnivore and keto?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Carnivore is a subset of keto but more restrictive. Keto allows 20-50g carbs from any source (vegetables, nuts, low-carb foods). Carnivore eliminates all plant foods and focuses exclusively on animal products, resulting in near-zero carbs. Carnivore prioritizes protein (1.0-1.6g per lb), while keto is often moderate protein. Both achieve ketosis, but carnivore is simpler: just meat, eggs, and animal products."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the carnivore calculator free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, the calculator is completely free. You get personalized protein, fat, and calorie targets with no email required. Results are instant and private. We also offer an optional $9.99 upgrade that includes a detailed meal plan, sample food log, and a doctor conversation script if you need medical support. Most people find the free version sufficient."
+          }
+        }
+      ]
+    }
+    </script>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header-2026" aria-label="Carnivore Weekly">
+        <div class="container-2026">
+            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <p class="site-title" style="color: #ffd700; font-family: 'Playfair Display', serif; font-size: 4em; margin: 15px 0 10px 0; font-weight: 900; letter-spacing: 4px; text-shadow: 3px 3px 6px rgba(0,0,0,0.7);">CARNIVORE WEEKLY</p>
+            <p class="subtitle">The Meat-Eater's Digest</p>
+            <p class="tagline">Stop Guessing. Start Calculating.</p>
+            <p class="update-date">Personalized Macro Protocol</p>
+        </div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="nav-menu-2026">
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Weekly Watch</a>
+        <a href="/wiki.html">Protocols &amp; Basics</a>
+        <a href="/blog.html">Insights</a>
+        <a href="/calculator.html">Calculator</a>
+    </nav>
+
+    <!-- MAIN LAYOUT -->
+    <div class="layout-wrapper-2026">
+        <main class="main-content-2026">
+            <!-- MAIN CONTENT -->
+            <div class="calculator-main">
+                <!-- INTRO COPY WITH FLOATING CTA -->
+                <section class="intro-copy">
+                    <h1 style="font-size: 32px; font-weight: bold; color: #d4a574; margin-bottom: 24px; font-family: 'Playfair Display', Georgia, serif; line-height: 1.3;">Free Carnivore Macro Calculator – Calculate Your Personalized Protein & Fat Targets</h1>
+
+                    <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 20px;">
+                        You eat meat, you feel decent most of the time, but you're stuck. Maybe you're exhausted by 3pm. Maybe the scale won't budge. Maybe you just don't know if you're eating too much fat, too little protein, or if your calories are even close to what your body needs. You're winging it because carnivore "should be simple," but simple doesn't mean easy when you don't have numbers.
+                    </p>
+
+                    <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 20px;">
+                        Here's what helps immediately: most people undereat protein by 20-30g per day and overshoot fat by 40-60g. If you're tired, bloated, or stalled, that imbalance is likely why.
+                    </p>
+
+                    <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 20px;">
+                        If you want to stop second-guessing every meal and just know your targets, the calculator does that in about 90 seconds. We rebuilt this over the past few days—it's faster, more accurate, and gives you protein, fat, and calorie targets based on your actual body composition and goals. No email required. Free version gives you the numbers. Optional $9.99 upgrade adds meal plans and a doctor conversation script if you need it.
+                    </p>
+
+                    <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 32px;">
+                        You don't need this if you already track macros or work with a coach. You don't need the upgrade if the free numbers are enough. This just removes the mental load of calculating it yourself. Use it or don't. It's here when you need it.
+                    </p>
+
+                    <!-- How It Works Section -->
+                    <div class="how-it-works" style="background: rgba(139, 69, 19, 0.05); border-left: 4px solid #8b4513; padding: 30px; margin: 40px 0; border-radius: 4px;">
+                        <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: #8b4513; margin-top: 0; margin-bottom: 24px;">How the Calculator Works</h2>
+
+                        <div style="margin-bottom: 24px;">
+                            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 1: Enter Your Stats</h3>
+                            <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                                We start with your age, weight, height, and biological sex. These determine your lean body mass—the metabolically active tissue that drives your calorie needs. The calculator uses research-backed formulas to estimate your baseline metabolic rate.
+                            </p>
+                        </div>
+
+                        <div style="margin-bottom: 24px;">
+                            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 2: Set Your Goal & Activity Level</h3>
+                            <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                                Fat loss, muscle gain, or maintenance—each goal needs different <a href="/wiki.html#protein" style="color: #8b4513; text-decoration: underline;">protein targets</a>. We adjust your macros based on whether you're sedentary, moderately active, or training hard. If you're trying to <a href="/blog/2025-12-22-mtor-muscle.html" style="color: #8b4513; text-decoration: underline;">build muscle on carnivore</a>, you'll need more protein. If you're focused on <a href="/blog/2025-12-19-psmf-fat-loss.html" style="color: #8b4513; text-decoration: underline;">fat loss</a>, we'll optimize for satiety while creating a deficit.
+                            </p>
+                        </div>
+
+                        <div style="margin-bottom: 0;">
+                            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 3: Get Your Personalized Targets</h3>
+                            <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                                You'll see your daily protein target (in grams), fat target (in grams), and total calories. These aren't generic recommendations—they're calculated for your body and your goal. Most people discover they've been undereating protein and overshooting fat, which explains why progress stalls. Want to understand more about <a href="/wiki.html#plateaus" style="color: #8b4513; text-decoration: underline;">breaking through weight loss plateaus</a>? Our wiki breaks down the science.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Calculator app mounts here -->
+                    <div id="root"></div>
+                </section>
+
+                <!-- FAQ Section -->
+                <section class="calculator-faq" style="background: rgba(212, 165, 116, 0.08); border-radius: 8px; padding: 40px; margin-top: 60px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                    <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 28px; color: #8b4513; margin-bottom: 30px; text-align: center;">Frequently Asked Questions</h2>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">What is the carnivore diet?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            The carnivore diet is a meat-based eating approach that focuses exclusively on animal products: beef, pork, chicken, fish, eggs, and some dairy. It eliminates all plant foods including vegetables, fruits, grains, and legumes. Followers eat nose-to-tail, prioritizing nutrient-dense organ meats alongside muscle meat.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">How much protein do I need on carnivore?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            Protein needs on carnivore vary by goal and activity level. For fat loss, aim for 1.0-1.2g per pound of lean body mass. For muscle gain, target 1.2-1.6g per pound. For maintenance, 0.8-1.0g per pound is sufficient. Most people undereat protein by 20-30g daily, which can cause fatigue and stalls. Use our calculator to find your personalized protein target.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">How do I calculate carnivore macros?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            To calculate carnivore macros: (1) Determine your lean body mass by subtracting body fat from total weight. (2) Set protein based on your goal (fat loss, muscle gain, or maintenance). (3) Calculate remaining calories from fat. (4) Adjust for activity level. Our free calculator does this automatically in 90 seconds based on your stats, goal, and activity level.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">Do I need to track calories on carnivore?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            Not everyone needs to track calories on carnivore. Many people eat to satiety and lose fat naturally. However, tracking helps if: (1) You've stalled after 3+ months, (2) You're trying to gain muscle, (3) You're exhausted or losing too much weight, or (4) You're not seeing expected results. Knowing your macro targets removes guesswork and helps optimize results.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">What's the difference between carnivore and keto?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            Carnivore is a subset of keto but more restrictive. Keto allows 20-50g carbs from any source (vegetables, nuts, low-carb foods). Carnivore eliminates all plant foods and focuses exclusively on animal products, resulting in near-zero carbs. Carnivore prioritizes protein (1.0-1.6g per lb), while keto is often moderate protein. Both achieve ketosis, but carnivore is simpler: just meat, eggs, and animal products.
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 0;">
+                        <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">Is the carnivore calculator free?</h3>
+                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                            Yes, the calculator is completely free. You get personalized protein, fat, and calorie targets with no email required. Results are instant and private. We also offer an optional $9.99 upgrade that includes a detailed meal plan, sample food log, and a doctor conversation script if you need medical support. Most people find the free version sufficient.
+                        </p>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-8); margin-bottom: var(--space-8);">
+
+                <!-- About Section -->
+                <div>
+                    <h3 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Carnivore Weekly</h3>
+                    <p style="color: var(--color-cream); font-size: var(--text-sm); line-height: var(--leading-relaxed);">
+                        Evidence-based insights, real community stories, and practical protocols for the meat-based movement.
+                    </p>
+                </div>
+
+                <!-- Navigation -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Explore</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/">Home</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/channels.html">Weekly Watch</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/wiki.html">Protocols & Basics</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/blog/">Insights</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/calculator.html">Calculator</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Resources</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/archive.html">Archive</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/about.html">About</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/privacy.html">Privacy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Partners -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Our Partners</h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                        <a href="https://butcherbox.pxf.io/Z6oVMR" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">ButcherBox</a>
+                        <a href="http://elementallabs.refr.cc" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">LMNT</a>
+                    </div>
+                    <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-3);">
+                        Products we personally use and recommend.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Affiliate Disclosure -->
+            <div class="affiliate-footer-disclosure">
+                <strong>Affiliate Disclosure:</strong> Carnivore Weekly partners with brands we trust and personally use.
+                When you purchase through our links, we may earn a commission at no extra cost to you.
+                This supports our free content. We only recommend products that align with our values.
+            </div>
+
+            <!-- Copyright -->
+            <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <p style="color: var(--color-cream); font-size: var(--text-sm); margin: 0;">
+                    &copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.
+                </p>
+            </div>
+        </div>
+    </footer>
+    <script type="module" src="/assets/calculator2/assets/index-Da2b8j_e.js"></script>
+    <script src="/js/mobile-nav.js"></script>
+</body>
+</html>

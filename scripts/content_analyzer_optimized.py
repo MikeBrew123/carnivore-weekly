@@ -169,6 +169,21 @@ Style:
 - End with insight or reflection
 
 Analyze this YouTube data and write a 2-3 paragraph weekly community roundup."""
+            elif "trending" in analysis_type.lower():
+                prompt = """Based on this YouTube data, identify 3-5 trending topics in the carnivore community this week.
+
+Return ONLY a JSON array of topic strings (no markdown, no analysis):
+["Topic 1", "Topic 2", "Topic 3"]
+
+Topics should be:
+- Short and descriptive (2-5 words each)
+- Based on actual video content
+- Relevant to carnivore/animal-based eating
+- What the community is discussing this week
+
+Examples: ["Carnivore for athletes", "Zero carb adaptation", "Organ meat benefits"]
+
+Return ONLY the JSON array, nothing else."""
             else:
                 prompt = f"""You are {writer.title()}, a carnivore diet expert.
 Analyze this YouTube data and provide a {analysis_type}.

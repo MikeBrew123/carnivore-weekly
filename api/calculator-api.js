@@ -14,6 +14,12 @@
  * 8. GET /api/v1/calculator/report/{token}/content - Get generated report HTML
  * 9. POST /api/v1/calculator/validate - Check if session is premium
  *
+ * ETSY INTEGRATION ENDPOINTS:
+ * 10. GET /etsy/callback - OAuth callback handler
+ * 11. POST /api/v1/etsy/refresh - Refresh access token
+ * 12. GET /api/v1/etsy/shop - Get shop info
+ * 13. POST /api/v1/etsy/listings - Create listing
+ *
  * Environment Variables Required:
  * - SUPABASE_URL: Your Supabase project URL
  * - SUPABASE_SERVICE_ROLE_KEY: Service role key for admin access
@@ -23,6 +29,9 @@
  * - CLAUDE_API_KEY: Anthropic Claude API key
  * - FRONTEND_URL: Frontend domain for CORS
  * - API_BASE_URL: API base URL
+ * - ETSY_CLIENT_ID: Etsy API key
+ * - ETSY_CLIENT_SECRET: Etsy shared secret
+ * - ETSY_REDIRECT_URI: OAuth callback URL
  *
  * Deploy with: wrangler deploy --name calculator-api calculator-api.js
  */
@@ -2109,6 +2118,375 @@ async function handleCreateCheckout(request, env) {
   }
 }
 
+// ===== ETSY INTEGRATION =====
+
+/**
+ * Handle Etsy OAuth callback
+ * Exchanges auth code for access + refresh tokens
+ */
+async function handleEtsyCallback(request, env) {
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code');
+  const state = url.searchParams.get('state');
+  const error = url.searchParams.get('error');
+
+  if (error) {
+    return new Response(`
+      <html><body style="font-family:system-ui;padding:40px;text-align:center">
+        <h1>❌ Etsy Authorization Failed</h1>
+        <p>Error: ${error}</p>
+        <p>${url.searchParams.get('error_description') || ''}</p>
+      </body></html>
+    `, { status: 400, headers: { 'Content-Type': 'text/html' } });
+  }
+
+  if (!code) {
+    return new Response(`
+      <html><body style="font-family:system-ui;padding:40px;text-align:center">
+        <h1>❌ Missing Authorization Code</h1>
+        <p>No code received from Etsy.</p>
+      </body></html>
+    `, { status: 400, headers: { 'Content-Type': 'text/html' } });
+  }
+
+  try {
+    // Get stored PKCE verifier from KV (stored when auth was initiated)
+    const storedData = await env.ETSY_AUTH_KV?.get(state, 'json');
+    if (!storedData?.code_verifier) {
+      return new Response(`
+        <html><body style="font-family:system-ui;padding:40px;text-align:center">
+          <h1>❌ Invalid State</h1>
+          <p>Session expired or invalid. Please try again.</p>
+        </body></html>
+      `, { status: 400, headers: { 'Content-Type': 'text/html' } });
+    }
+
+    // Exchange code for tokens
+    const tokenResponse = await fetch('https://api.etsy.com/v3/public/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: env.ETSY_CLIENT_ID,
+        redirect_uri: env.ETSY_REDIRECT_URI,
+        code,
+        code_verifier: storedData.code_verifier
+      })
+    });
+
+    const tokens = await tokenResponse.json();
+
+    if (tokens.error) {
+      return new Response(`
+        <html><body style="font-family:system-ui;padding:40px;text-align:center">
+          <h1>❌ Token Exchange Failed</h1>
+          <p>${tokens.error_description || tokens.error}</p>
+        </body></html>
+      `, { status: 400, headers: { 'Content-Type': 'text/html' } });
+    }
+
+    // Store tokens in Supabase
+    const expiresAt = new Date(Date.now() + (tokens.expires_in * 1000)).toISOString();
+
+    await fetch(`${env.SUPABASE_URL}/rest/v1/etsy_tokens`, {
+      method: 'POST',
+      headers: {
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({
+        id: 'primary',
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        expires_at: expiresAt,
+        user_id: tokens.access_token.split('.')[0], // Extract user ID from token
+        updated_at: new Date().toISOString()
+      })
+    });
+
+    // Clean up KV
+    await env.ETSY_AUTH_KV?.delete(state);
+
+    return new Response(`
+      <html><body style="font-family:system-ui;padding:40px;text-align:center">
+        <h1>✅ Etsy Connected!</h1>
+        <p>Access token received and stored.</p>
+        <p>Expires in: ${tokens.expires_in} seconds</p>
+        <p>You can close this window.</p>
+      </body></html>
+    `, { headers: { 'Content-Type': 'text/html' } });
+
+  } catch (err) {
+    console.error('Etsy callback error:', err);
+    return new Response(`
+      <html><body style="font-family:system-ui;padding:40px;text-align:center">
+        <h1>❌ Error</h1>
+        <p>${err.message}</p>
+      </body></html>
+    `, { status: 500, headers: { 'Content-Type': 'text/html' } });
+  }
+}
+
+/**
+ * Initiate Etsy OAuth flow
+ * Generates PKCE challenge and returns auth URL
+ */
+async function handleEtsyAuthInit(request, env) {
+  // Generate PKCE
+  const verifierBytes = new Uint8Array(32);
+  crypto.getRandomValues(verifierBytes);
+  const verifier = btoa(String.fromCharCode(...verifierBytes))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const challenge = btoa(String.fromCharCode(...new Uint8Array(hashBuffer)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+  // Generate state
+  const stateBytes = new Uint8Array(16);
+  crypto.getRandomValues(stateBytes);
+  const state = Array.from(stateBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+
+  // Store verifier in KV for callback
+  await env.ETSY_AUTH_KV?.put(state, JSON.stringify({
+    code_verifier: verifier,
+    created_at: Date.now()
+  }), { expirationTtl: 600 }); // 10 min TTL
+
+  // Build auth URL
+  const authUrl = new URL('https://www.etsy.com/oauth/connect');
+  authUrl.searchParams.set('response_type', 'code');
+  authUrl.searchParams.set('client_id', env.ETSY_CLIENT_ID);
+  authUrl.searchParams.set('redirect_uri', env.ETSY_REDIRECT_URI);
+  authUrl.searchParams.set('scope', 'listings_r listings_w shops_r');
+  authUrl.searchParams.set('state', state);
+  authUrl.searchParams.set('code_challenge', challenge);
+  authUrl.searchParams.set('code_challenge_method', 'S256');
+
+  return createSuccessResponse({ auth_url: authUrl.toString(), state });
+}
+
+/**
+ * Refresh Etsy access token
+ */
+async function handleEtsyRefresh(request, env) {
+  try {
+    // Get current refresh token from Supabase
+    const tokenRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/etsy_tokens?id=eq.primary&select=refresh_token`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        }
+      }
+    );
+    const tokens = await tokenRes.json();
+
+    if (!tokens?.[0]?.refresh_token) {
+      return createErrorResponse('NO_TOKEN', 'No refresh token found. Re-authorize with Etsy.', 401);
+    }
+
+    // Refresh the token
+    const refreshRes = await fetch('https://api.etsy.com/v3/public/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        client_id: env.ETSY_CLIENT_ID,
+        refresh_token: tokens[0].refresh_token
+      })
+    });
+
+    const newTokens = await refreshRes.json();
+
+    if (newTokens.error) {
+      return createErrorResponse('REFRESH_FAILED', newTokens.error_description || newTokens.error, 400);
+    }
+
+    // Update stored tokens
+    const expiresAt = new Date(Date.now() + (newTokens.expires_in * 1000)).toISOString();
+
+    await fetch(`${env.SUPABASE_URL}/rest/v1/etsy_tokens?id=eq.primary`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: newTokens.access_token,
+        refresh_token: newTokens.refresh_token,
+        expires_at: expiresAt,
+        updated_at: new Date().toISOString()
+      })
+    });
+
+    return createSuccessResponse({
+      message: 'Token refreshed',
+      expires_at: expiresAt
+    });
+
+  } catch (err) {
+    console.error('Etsy refresh error:', err);
+    return createErrorResponse('INTERNAL_ERROR', err.message, 500);
+  }
+}
+
+/**
+ * Get valid Etsy access token (refresh if needed)
+ */
+async function getEtsyAccessToken(env) {
+  const tokenRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/etsy_tokens?id=eq.primary&select=*`,
+    {
+      headers: {
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      }
+    }
+  );
+  const tokens = await tokenRes.json();
+
+  if (!tokens?.[0]) {
+    throw new Error('No Etsy tokens found. Please authorize first.');
+  }
+
+  const token = tokens[0];
+  const expiresAt = new Date(token.expires_at);
+  const now = new Date();
+
+  // Refresh if expires in less than 5 minutes
+  if (expiresAt - now < 5 * 60 * 1000) {
+    const refreshRes = await fetch('https://api.etsy.com/v3/public/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        client_id: env.ETSY_CLIENT_ID,
+        refresh_token: token.refresh_token
+      })
+    });
+
+    const newTokens = await refreshRes.json();
+    if (newTokens.error) throw new Error(newTokens.error_description || newTokens.error);
+
+    // Update stored tokens
+    const newExpiresAt = new Date(Date.now() + (newTokens.expires_in * 1000)).toISOString();
+    await fetch(`${env.SUPABASE_URL}/rest/v1/etsy_tokens?id=eq.primary`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: newTokens.access_token,
+        refresh_token: newTokens.refresh_token,
+        expires_at: newExpiresAt,
+        updated_at: new Date().toISOString()
+      })
+    });
+
+    return newTokens.access_token;
+  }
+
+  return token.access_token;
+}
+
+/**
+ * Get Etsy shop info
+ */
+async function handleEtsyGetShop(request, env) {
+  try {
+    const accessToken = await getEtsyAccessToken(env);
+    const userId = accessToken.split('.')[0];
+
+    const shopRes = await fetch(`https://api.etsy.com/v3/application/users/${userId}/shops`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'x-api-key': env.ETSY_CLIENT_ID
+      }
+    });
+
+    const shop = await shopRes.json();
+    return createSuccessResponse(shop);
+
+  } catch (err) {
+    console.error('Etsy get shop error:', err);
+    return createErrorResponse('ETSY_ERROR', err.message, 500);
+  }
+}
+
+/**
+ * Create Etsy listing
+ */
+async function handleEtsyCreateListing(request, env) {
+  try {
+    const body = await parseJsonBody(request);
+    const accessToken = await getEtsyAccessToken(env);
+    const userId = accessToken.split('.')[0];
+
+    // Get shop ID first
+    const shopRes = await fetch(`https://api.etsy.com/v3/application/users/${userId}/shops`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'x-api-key': env.ETSY_CLIENT_ID
+      }
+    });
+    const shopData = await shopRes.json();
+    const shopId = shopData.results?.[0]?.shop_id;
+
+    if (!shopId) {
+      return createErrorResponse('NO_SHOP', 'No shop found for this user', 404);
+    }
+
+    // Create draft listing
+    const listingRes = await fetch(
+      `https://api.etsy.com/v3/application/shops/${shopId}/listings`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'x-api-key': env.ETSY_CLIENT_ID,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          quantity: body.quantity || 999,
+          title: body.title,
+          description: body.description,
+          price: body.price,
+          who_made: body.who_made || 'i_did',
+          when_made: body.when_made || '2020_2025',
+          taxonomy_id: body.taxonomy_id,
+          type: 'download',
+          tags: body.tags || []
+        })
+      }
+    );
+
+    const listing = await listingRes.json();
+
+    if (listing.error) {
+      return createErrorResponse('LISTING_FAILED', listing.error, 400);
+    }
+
+    return createSuccessResponse({
+      listing_id: listing.listing_id,
+      url: `https://www.etsy.com/listing/${listing.listing_id}`,
+      message: 'Draft listing created. Upload files to activate.'
+    }, 201);
+
+  } catch (err) {
+    console.error('Etsy create listing error:', err);
+    return createErrorResponse('ETSY_ERROR', err.message, 500);
+  }
+}
+
 // ===== MAIN ROUTER =====
 
 function getCorsOrigin(request, env) {
@@ -2220,6 +2598,33 @@ export default {
     const statusMatch = path.match(/^\/api\/v1\/calculator\/report\/([a-f0-9]{64})\/status$/i);
     if (statusMatch && method === 'GET') {
       return await handleReportStatus(request, env, statusMatch[1]);
+    }
+
+    // ===== ETSY ROUTES =====
+
+    // OAuth callback (GET - browser redirect from Etsy)
+    if (path === '/etsy/callback' && method === 'GET') {
+      return await handleEtsyCallback(request, env);
+    }
+
+    // Initiate OAuth flow (returns auth URL)
+    if (path === '/api/v1/etsy/auth/init' && method === 'POST') {
+      return sendWithCors(await handleEtsyAuthInit(request, env));
+    }
+
+    // Refresh token
+    if (path === '/api/v1/etsy/refresh' && method === 'POST') {
+      return sendWithCors(await handleEtsyRefresh(request, env));
+    }
+
+    // Get shop info
+    if (path === '/api/v1/etsy/shop' && method === 'GET') {
+      return sendWithCors(await handleEtsyGetShop(request, env));
+    }
+
+    // Create listing
+    if (path === '/api/v1/etsy/listings' && method === 'POST') {
+      return sendWithCors(await handleEtsyCreateListing(request, env));
     }
 
     // DEBUG: Check session data

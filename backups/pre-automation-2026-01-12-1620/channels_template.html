@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Featured carnivore diet content creators ranked by appearance frequency. Discover the most active channels covering carnivore lifestyle, recipes, and health insights.">
+    <link rel="canonical" href="https://carnivoreweekly.com/channels.html">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
+    <title>Featured Channels - Carnivore Weekly</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+    </script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Consolidated stylesheet -->
+    <link rel="stylesheet" href="/css/global.css">
+
+    <style>
+        /* Page-specific styles for channels page */
+
+        /* Toggle component styles */
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            background: var(--color-cream);
+            border-radius: 50px;
+            padding: var(--space-1);
+            margin-bottom: var(--space-8);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: var(--space-3) var(--space-6);
+            border: none;
+            background: transparent;
+            color: var(--color-text-secondary);
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: var(--text-base);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn--active {
+            background: var(--color-amber);
+            color: var(--color-charcoal);
+        }
+
+        .toggle-btn:hover:not(.toggle-btn--active) {
+            color: var(--color-charcoal);
+        }
+
+        .video-panel {
+            display: none;
+        }
+
+        .video-panel--active {
+            display: block;
+        }
+
+        .stats-bar {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #8b4513;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .stats-bar h2 {
+            font-family: 'Playfair Display', serif;
+            color: #1a120b;
+            margin-bottom: 10px;
+        }
+
+        .stats-bar p {
+            color: #2c1810;
+            font-size: 1.1em;
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .channel-card {
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .channel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .rank-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .rank-badge.top-3 {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a120b;
+            width: 60px;
+            height: 60px;
+            font-size: 1.8em;
+        }
+
+        .channel-thumbnail {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            display: block;
+            border: 4px solid #8b4513;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .channel-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            color: #1a120b;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-right: 60px;
+        }
+
+        .channel-stats {
+            font-size: 1em;
+            color: #2c1810;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.15);
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            color: #1a120b;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #2c1810;
+            opacity: 0.8;
+        }
+
+        .channel-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .channel-link:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+        }
+
+        .last-seen {
+            font-size: 0.9em;
+            color: #2c1810;
+            opacity: 0.7;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .top-videos {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #8b4513;
+        }
+
+        .top-videos-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2em;
+            color: #1a120b;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .video-link {
+            display: block;
+            padding: 10px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid rgba(139, 69, 19, 0.2);
+        }
+
+        .video-link:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateX(5px);
+            border-color: #8b4513;
+        }
+
+        .video-title {
+            color: #1a120b;
+            font-size: 0.95em;
+            line-height: 1.4;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .video-stats {
+            color: #2c1810;
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .channels-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .channel-name {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER - 2026 DESIGN -->
+    <header class="header-2026">
+        <div class="container-2026">
+            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <h1>CARNIVORE WEEKLY</h1>
+            <p class="subtitle">The Meat-Eater's Digest</p>
+            <p class="tagline">Featured Channels</p>
+            <p class="update-date">Top Carnivore Content Creators</p>
+        </div>
+    </header>
+
+    <!-- NAVIGATION - 2026 DESIGN -->
+    <nav class="nav-menu-2026">
+        <a href="/index.html">Home</a>
+        <a href="/channels.html" class="active">Weekly Watch</a>
+        <a href="/wiki.html">Protocols & Basics</a>
+        <a href="/blog.html">Insights</a>
+        <a href="/calculator.html">Calculator</a>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="site-content" role="main" id="main-content">
+        <div class="container">
+
+            <!-- View Toggle -->
+            <div class="view-toggle" role="tablist" aria-label="Video view options">
+                <button
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="trending-panel"
+                    class="toggle-btn toggle-btn--active"
+                    data-view="trending"
+                    id="trending-tab"
+                >
+                    Top Videos This Week
+                </button>
+                <button
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="creators-panel"
+                    class="toggle-btn"
+                    data-view="creators"
+                    id="creators-tab"
+                >
+                    Featured Creators
+                </button>
+            </div>
+
+            <!-- TRENDING PANEL (Top Videos) -->
+            <div id="trending-panel" role="tabpanel" aria-labelledby="trending-tab" class="video-panel video-panel--active">
+                {% if top_videos %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+                    {% for video in top_videos %}
+                    <div class="video-card" style="background: linear-gradient(135deg, #1a120b 0%, #2c1810 100%); border: 3px solid #2c1810; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
+                        {% if video.thumbnail_url %}
+                        <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}" style="width: 100%; height: 200px; object-fit: cover; display: block;">
+                        {% endif %}
+                        <div style="padding: 20px;">
+                            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3em; margin-bottom: 10px;">
+                                <a href="https://youtube.com/watch?v={{ video.video_id }}" target="_blank" style="color: #ffd700; text-decoration: none;">
+                                    {{ video.title }}
+                                </a>
+                            </h3>
+                            <p style="color: #f4e4d4; font-size: 1em; opacity: 0.9; margin-bottom: 15px;">{{ video.creator }}</p>
+                            {% if video.summary %}
+                            <p style="color: #d4a574; margin-bottom: 15px;">{{ video.summary }}</p>
+                            {% endif %}
+                            <div style="display: flex; gap: 15px; font-size: 0.9em; color: #f4e4d4; opacity: 0.8;">
+                                <span>👁️ {{ "{:,}".format(video.views) }} views</span>
+                                <span>👍 {{ "{:,}".format(video.likes) }}</span>
+                                <span>💬 {{ "{:,}".format(video.comments) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="text-align: center; color: var(--color-text-secondary); padding: 40px;">No trending videos this week.</p>
+                {% endif %}
+            </div>
+
+            <!-- CREATORS PANEL -->
+            <div id="creators-panel" role="tabpanel" aria-labelledby="creators-tab" class="video-panel" hidden>
+                <!-- Stats Bar -->
+                <div class="stats-bar">
+                    <h2>{{ total_channels }} Channels Tracked</h2>
+                    <p>Ranked by appearance frequency across {{ total_weeks }} weeks of carnivore content</p>
+                </div>
+
+                <!-- Channels Grid -->
+            <div class="channels-grid">
+                {% for channel in channels %}
+                <div class="channel-card">
+                    <div class="rank-badge{% if loop.index <= 3 %} top-3{% endif %}">
+                        {{ loop.index }}
+                    </div>
+
+                    <img src="{{ channel.thumbnail_url }}"
+                         alt="{{ channel.name }}"
+                         class="channel-thumbnail"
+                         onerror="this.src='https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel'">
+
+                    <div class="channel-name">{{ channel.name }}</div>
+
+                    <div class="stat-row">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ channel.appearances }}</div>
+                            <div class="stat-label">Weeks</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ channel.total_videos }}</div>
+                            <div class="stat-label">Videos</div>
+                        </div>
+                    </div>
+
+                    {% if channel.top_videos %}
+                    <div class="top-videos">
+                        <div class="top-videos-header">Top Videos:</div>
+                        {% for video in channel.top_videos %}
+                        <a href="https://www.youtube.com/watch?v={{ video.video_id }}"
+                           class="video-link"
+                           target="_blank"
+                           rel="noopener"
+                           onclick="gtag('event', 'click', {'event_category': 'Channel Video', 'event_label': '{{ channel.name }} - {{ video.title }}'});">
+                            <div class="video-title">{{ loop.index }}. {{ video.title }}</div>
+                            <div class="video-stats">{{ "{:,}".format(video.view_count) }} views</div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <a href="https://www.youtube.com/channel/{{ channel.channel_id }}"
+                       class="channel-link"
+                       target="_blank"
+                       rel="noopener">
+                        Visit Channel →
+                    </a>
+
+                    <div class="last-seen">Last seen: {{ channel.latest_date }}</div>
+                </div>
+
+                <!-- ButcherBox Ad after top 6 channels -->
+                {% if loop.index == 6 %}
+                <div style="grid-column: 1 / -1; margin: 40px 0; text-align: center;">
+                    <a href="https://butcherbox.pxf.io/Z6oVMR?utm_source=carnivore_weekly&utm_medium=affiliate&utm_campaign=channels_top6" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Affiliate', 'event_label': 'ButcherBox', 'value': 'https://butcherbox.pxf.io/Z6oVMR'});">
+                        <img src="/butcherbox-ad.jpeg" alt="ButcherBox: Steaks Of Your Choice Free in Every Box For a Year" style="width: 100%; max-width: 700px; height: auto; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+                    </a>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+            <!-- LMNT Affiliate Promotion -->
+            <div style="margin-top: 80px; padding: 40px; background: linear-gradient(135deg, #ffd700 0%, #d4a574 100%); border-radius: 15px; text-align: center; box-shadow: 0 8px 25px rgba(0,0,0,0.5);">
+                <h2 style="color: #1a120b; font-family: 'Playfair Display', serif; margin-bottom: 15px;">⚡ Stay Energized While You Binge</h2>
+                <p style="color: #2c1810; font-size: 1.1em; margin-bottom: 20px; line-height: 1.6;">
+                    These carnivore creators don't take breaks. Neither should you. LMNT electrolytes keep you hydrated and energized as you catch up on the latest carnivore content. The perfect companion to your binge-watching marathon.
+                </p>
+                <a href="http://elementallabs.refr.cc" target="_blank" rel="noopener" onclick="gtag('event', 'click', {'event_category': 'Affiliate', 'event_label': 'LMNT - Channels Page'});" style="display: inline-block; background: #1a120b; color: #ffd700; padding: 15px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1em; border: 2px solid #8b4513;">
+                    Try LMNT - Stay Hydrated →
+                </a>
+            </div>
+
+            </div><!-- End creators-panel -->
+
+        </div>
+    </main>
+
+    <!-- FOOTER - 2026 DESIGN -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-8); margin-bottom: var(--space-8);">
+
+                <!-- About Section -->
+                <div>
+                    <h3 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Carnivore Weekly</h3>
+                    <p style="color: var(--color-cream); font-size: var(--text-sm); line-height: var(--leading-relaxed);">
+                        Evidence-based insights, real community stories, and practical protocols for the meat-based movement.
+                    </p>
+                </div>
+
+                <!-- Navigation -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Explore</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/">Home</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/channels.html">Weekly Watch</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/wiki.html">Protocols & Basics</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/blog/">Insights</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/calculator.html">Calculator</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Resources</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/archive.html">Archive</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/about.html">About</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/privacy.html">Privacy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Partners -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Our Partners</h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                        <a href="https://butcherbox.pxf.io/Z6oVMR" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">ButcherBox</a>
+                        <a href="http://elementallabs.refr.cc" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">LMNT</a>
+                    </div>
+                    <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-3);">
+                        Products we personally use and recommend.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Affiliate Disclosure -->
+            <div class="affiliate-footer-disclosure">
+                <strong>Affiliate Disclosure:</strong> Carnivore Weekly partners with brands we trust and personally use.
+                When you purchase through our links, we may earn a commission at no extra cost to you.
+                This supports our free content. We only recommend products that align with our values.
+            </div>
+
+            <!-- Copyright -->
+            <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <p style="color: var(--color-cream); font-size: var(--text-sm); margin: 0;">
+                    &copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.
+                </p>
+                <p style="color: var(--color-cream); font-size: var(--text-xs); margin-top: var(--space-2); opacity: 0.7;">
+                    Generated {{ generation_timestamp }}
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile Nav -->
+    <script src="/js/mobile-nav.js"></script>
+
+    <!-- Toggle functionality for Top Videos / Creators view -->
+    <script>
+        // Toggle between Trending and Featured Creators views
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const panels = document.querySelectorAll('.video-panel');
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetView = btn.dataset.view;
+                const targetPanel = document.getElementById(`${targetView}-panel`);
+
+                // Update button states
+                toggleBtns.forEach(b => {
+                    b.classList.remove('toggle-btn--active');
+                    b.setAttribute('aria-selected', 'false');
+                });
+                btn.classList.add('toggle-btn--active');
+                btn.setAttribute('aria-selected', 'true');
+
+                // Update panel visibility
+                panels.forEach(p => {
+                    p.classList.remove('video-panel--active');
+                    p.setAttribute('hidden', '');
+                });
+                targetPanel.classList.add('video-panel--active');
+                targetPanel.removeAttribute('hidden');
+            });
+        });
+    </script>
+
+    <!-- Feedback Modal Component -->
+    <script>
+        fetch('/components/feedback-modal.html')
+            .then(response => response.text())
+            .then(html => {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                document.body.appendChild(div);
+            });
+    </script>
+</body>
+</html>

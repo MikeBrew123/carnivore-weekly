@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Get your personalized AI-generated carnivore diet report. Answer questions about your goals, health, and preferences for customized recommendations.">
+    <link rel="canonical" href="https://carnivoreweekly.com/questionnaire.html">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://carnivoreweekly.com/questionnaire.html">
+    <meta property="og:title" content="AI Report Questionnaire - Carnivore Weekly">
+    <meta property="og:description" content="Get your personalized AI-generated carnivore diet report. Answer questions about your goals, health, and preferences for customized recommendations.">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
+    <meta property="og:site_name" content="Carnivore Weekly">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://carnivoreweekly.com/questionnaire.html">
+    <meta name="twitter:title" content="AI Report Questionnaire - Carnivore Weekly">
+    <meta name="twitter:description" content="Get your personalized AI-generated carnivore diet report. Answer questions about your goals, health, and preferences for customized recommendations.">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <title>AI Report Questionnaire | Carnivore Weekly</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style-2026.css">
+
+    <!-- Marked.js for Markdown to HTML conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        /* Page-specific styles */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header > .header-container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Warning banner */
+        .warning-banner {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a120b;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 3px solid #d4a574;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .warning-banner h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .warning-banner ul {
+            margin: 15px 0 0 25px;
+            line-height: 1.8;
+        }
+
+        .warning-banner strong {
+            color: #8b4513;
+        }
+
+        /* Form sections */
+        .form-section {
+            background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%);
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .form-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="paper"><feTurbulence baseFrequency="0.3" numOctaves="2" seed="0"/></filter></defs><rect width="100%" height="100%" filter="url(%23paper)" opacity="0.02"/></svg>');
+            pointer-events: none;
+            border-radius: 9px;
+        }
+
+        .form-section h3 {
+            font-family: 'Playfair Display', serif;
+            color: #ffd700;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #d4a574;
+            padding-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section .subtitle {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #2c1810;
+            margin-bottom: 8px;
+            font-family: 'Merriweather', serif;
+            font-size: 0.95em;
+        }
+
+        .optional {
+            font-weight: normal;
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #d4a574;
+            border-radius: 8px;
+            font-family: 'Merriweather', serif;
+            font-size: 0.95em;
+            background: white;
+            transition: border-color 0.3s;
+            line-height: 1.5;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #8b4513;
+        }
+
+        /* Validation States */
+        input.valid-field,
+        textarea.valid-field,
+        select.valid-field {
+            border-color: #4caf50 !important;
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+
+        input.invalid-field,
+        textarea.invalid-field,
+        select.invalid-field {
+            border-color: #d4574e !important;
+            background-color: rgba(212, 87, 78, 0.05);
+        }
+
+        /* Field Success Indicator */
+        .field-group {
+            position: relative;
+        }
+
+        .field-success {
+            position: absolute;
+            right: 12px;
+            top: 32px;
+            color: #4caf50;
+            font-size: 1.2em;
+            pointer-events: none;
+        }
+
+        .field-error-text {
+            color: #d4574e;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .field-error-text.show {
+            display: block;
+        }
+
+        /* Wizard Step Styling */
+        .form-step {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .step-navigation {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .step-navigation {
+                position: sticky;
+                bottom: 0;
+                background: linear-gradient(135deg, #faf8f3 0%, #f5f2ed 100%);
+                padding: 15px 20px;
+                margin: 0 -20px -40px -20px;
+                border-top: 3px solid #8b4513;
+                box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+                z-index: 100;
+            }
+        }
+
+        .step-button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Merriweather', serif;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .step-button.prev {
+            background: #e0e0e0;
+            color: #1a120b;
+        }
+
+        .step-button.prev:hover:not(:disabled) {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .step-button.next {
+            background: #d4a574;
+            color: white;
+        }
+
+        .step-button.next:hover:not(:disabled) {
+            background: #c99557;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(212, 165, 116, 0.4);
+        }
+
+        .step-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        .checkbox-item input[type="checkbox"],
+        .radio-item input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .checkbox-item label,
+        .radio-item label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        /* Medical disclaimer */
+        .medical-disclaimer {
+            background: rgba(255, 237, 78, 0.2);
+            border-left: 4px solid #ffd700;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .medical-disclaimer strong {
+            color: #8b4513;
+        }
+
+        /* Submit button */
+        .submit-section {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #8b4513;
+            border-radius: 12px;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a120b;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Playfair Display', serif;
+            border: 3px solid #d4a574;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-note {
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        /* Loading state */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            margin-top: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        /* Error Message Styling */
+        .error-message {
+            background: #fee;
+            border: 2px solid #d4574e;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            color: #8b2e1f;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .error-message::before {
+            content: "❌";
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .loading h2 {
+            font-family: 'Playfair Display', serif;
+            color: #2c1810;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .loading-message {
+            font-size: 1.2em;
+            color: #2c1810;
+            margin: 20px 0;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        .progress-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 30px auto;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 25px;
+            padding: 8px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: linear-gradient(90deg, #8b4513 0%, #d4a574 100%);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            box-shadow: 0 2px 10px rgba(139, 69, 19, 0.5);
+        }
+
+        .section-status {
+            margin: 25px 0;
+            text-align: left;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .section-item.completed {
+            background: rgba(144, 238, 144, 0.3);
+        }
+
+        .section-item.generating {
+            background: rgba(255, 215, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .section-icon {
+            font-size: 1.5em;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .section-name {
+            flex: 1;
+            font-weight: 600;
+            color: #2c1810;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #8b4513;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Report Content Styling */
+        #reportContent h1 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            font-size: 2.5em;
+            margin: 30px 0 20px 0;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #d4a574;
+        }
+
+        #reportContent h2 {
+            font-family: 'Playfair Display', serif;
+            color: #8b4513;
+            font-size: 2em;
+            margin: 25px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #d4a574;
+        }
+
+        #reportContent h3 {
+            font-family: 'Playfair Display', serif;
+            color: #2c1810;
+            font-size: 1.5em;
+            margin: 20px 0 10px 0;
+        }
+
+        #reportContent h4 {
+            font-family: 'Playfair Display', serif;
+            color: #2c1810;
+            font-size: 1.2em;
+            margin: 15px 0 8px 0;
+        }
+
+        #reportContent p {
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+
+        #reportContent ul,
+        #reportContent ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        #reportContent li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        #reportContent strong {
+            color: #8b4513;
+            font-weight: 700;
+        }
+
+        #reportContent em {
+            font-style: italic;
+            color: #6d3819;
+        }
+
+        #reportContent hr {
+            border: none;
+            border-top: 2px solid #d4a574;
+            margin: 30px 0;
+        }
+
+        #reportContent blockquote {
+            border-left: 4px solid #d4a574;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #6d3819;
+            background: rgba(212, 165, 116, 0.1);
+            padding: 15px 15px 15px 20px;
+            border-radius: 5px;
+        }
+
+        #reportContent code {
+            background: rgba(139, 69, 19, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        #reportContent pre {
+            background: rgba(139, 69, 19, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        #reportContent pre code {
+            background: none;
+            padding: 0;
+        }
+
+        #reportContent table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        #reportContent table th,
+        #reportContent table td {
+            border: 1px solid #d4a574;
+            padding: 12px;
+            text-align: left;
+        }
+
+        #reportContent table th {
+            background: #8b4513;
+            color: white;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        #reportContent table tr:nth-child(even) {
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        /* Print styles - hide UI elements when printing */
+        @media print {
+            .warning-banner {
+                display: none !important;
+            }
+
+            body > div > div:first-child {
+                display: none !important;
+            }
+        }
+
+        /* Center header subtitle */
+        header p {
+            text-align: center;
+        }
+
+        /* Feedback Button */
+        .feedback-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
+            color: #f4e4d4;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            border: 2px solid #d4a574;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+
+        .feedback-btn:hover {
+            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .feedback-btn-small {
+            font-size: 0.9em;
+            padding: 10px 20px;
+        }
+
+        .feedback-side {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: right center;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .feedback-side {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header-2026">
+        <div class="container-2026">
+            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <h1>CARNIVORE WEEKLY</h1>
+            <p class="subtitle">The Meat-Eater's Digest</p>
+            <p class="tagline">Premium Editorial for 2026</p>
+            <p class="update-date">Personalized Diet Questionnaire</p>
+        </div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="nav-menu-2026">
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Channels</a>
+        <a href="/wiki.html">Wiki</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/calculator.html">Calculator</a>
+    </nav>
+
+    <!-- Fixed Side Feedback Button -->
+    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn feedback-side feedback-btn-small">
+        💬 Feedback
+    </a>
+
+    <div class="container">
+
+        <!-- Step Progress Indicator -->
+        <div id="stepProgress" style="background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; display: none;">
+            <div style="color: #2c1810; font-weight: bold; margin-bottom: 10px;">Step <span id="currentStep">1</span> of <span id="totalSteps">4</span></div>
+            <div style="background: rgba(255,255,255,0.3); border-radius: 10px; height: 8px; overflow: hidden;">
+                <div id="formProgressBar" style="background: #4caf50; height: 100%; width: 25%; transition: width 0.3s ease;"></div>
+            </div>
+        </div>
+
+        <div class="warning-banner">
+            <h2>⏰ Your Reports: 48-Hour Access Window</h2>
+            <ul>
+                <li><strong>Fill out as much or as little as you want</strong> - More info = more personalized report</li>
+                <li><strong>Access your 13 reports for 48 hours</strong> - View, download, or print anytime during this period.</li>
+                <li><strong>Auto-deleted after 48 hours</strong> - We don't store your data permanently for privacy.</li>
+                <li><strong>Download and save your report</strong> if you want to keep it beyond 48 hours!</li>
+            </ul>
+        </div>
+
+        <form id="aiReportForm">
+            <!-- STEP 4: Contact & Allergies & Lifestyle & Goals (Extended/Paid Questions) -->
+            <div class="form-step" data-step="4" style="display:none;">
+                <!-- Section 1: Contact Info (STEP 4 - Extended/Paid Questions) -->
+                <div class="form-section">
+                <h3>📧 Contact Information</h3>
+                <p class="subtitle">Where should we send your report?</p>
+
+                <div class="form-group field-group">
+                    <label for="email">Email Address <span class="optional">(required - for delivery)</span></label>
+                    <input type="email" name="email" id="email" required placeholder="your@email.com" autocomplete="email">
+                    <div class="field-error-text" id="email-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="firstName">First Name <span class="optional">(optional)</span></label>
+                    <input type="text" name="firstName" id="firstName" placeholder="e.g., John" autocomplete="given-name">
+                </div>
+            </div>
+
+            <!-- Section 2: Health Restrictions -->
+            <div class="form-section">
+                <h3>🚫 Allergies & Food Restrictions</h3>
+                <p class="subtitle">Help us avoid recommending foods you can't or won't eat</p>
+
+                <div class="form-group">
+                    <label for="allergies">Food Allergies <span class="optional">(optional)</span></label>
+                    <textarea name="allergies" id="allergies" placeholder="e.g., Shellfish allergy, lactose intolerant, egg allergy" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="foodRestrictions">Foods You Can't/Won't Eat <span class="optional">(optional)</span></label>
+                    <textarea name="foodRestrictions" id="foodRestrictions" placeholder="e.g., No pork for religious reasons, can't afford ribeye, hate fish" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="dairyTolerance">Dairy Tolerance <span class="optional">(optional)</span></label>
+                    <select name="dairyTolerance" id="dairyTolerance">
+                        <option value="">Select one...</option>
+                        <option value="full">Full dairy (butter, cheese, milk, cream)</option>
+                        <option value="some">Some dairy (butter and hard cheese only)</option>
+                        <option value="none">No dairy at all</option>
+                    </select>
+                </div>
+
+                <div class="medical-disclaimer">
+                    <strong>Medical Disclaimer:</strong> This information is for educational purposes only. If you have severe food allergies or medical conditions, consult your doctor before changing your diet. Bring this report with you to appointments.
+                </div>
+            </div>
+
+            <!-- Section 3: Lifestyle -->
+            <div class="form-section">
+                <h3>🏡 Lifestyle & Practical Constraints</h3>
+                <p class="subtitle">Help us make this realistic for YOUR life (all optional)</p>
+
+                <div class="form-group">
+                    <label for="cookingSkill">Cooking Skill <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="cooking_beginner" name="cookingSkill" value="beginner">
+                            <label for="cooking_beginner">Beginner (can barely boil water)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="cooking_intermediate" name="cookingSkill" value="intermediate">
+                            <label for="cooking_intermediate">Intermediate (comfortable in kitchen)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="cooking_advanced" name="cookingSkill" value="advanced">
+                            <label for="cooking_advanced">Advanced (love cooking)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="mealPrepTime">Time Available for Meal Prep <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="mealprep_minimal" name="mealPrepTime" value="minimal">
+                            <label for="mealprep_minimal">Minimal (0-2 hours/week)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="mealprep_some" name="mealPrepTime" value="some">
+                            <label for="mealprep_some">Some (3-5 hours/week)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="mealprep_lots" name="mealPrepTime" value="lots">
+                            <label for="mealprep_lots">Lots (6+ hours/week)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget">Budget <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="budget_tight" name="budget" value="tight">
+                            <label for="budget_tight">Tight (ground beef, eggs, cheap cuts)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="budget_moderate" name="budget" value="moderate">
+                            <label for="budget_moderate">Moderate (some variety)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="budget_flexible" name="budget" value="flexible">
+                            <label for="budget_flexible">Flexible (can afford ribeye, salmon)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="familySituation">Family Situation <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="family_solo" name="familySituation" value="solo">
+                            <label for="family_solo">Solo (cooking for myself only)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="family_partner" name="familySituation" value="partner">
+                            <label for="family_partner">Partner (also carnivore)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="family_kids" name="familySituation" value="family-with-kids">
+                            <label for="family_kids">Family with Kids (need family-friendly options)</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="family_large" name="familySituation" value="large-household">
+                            <label for="family_large">Large Household</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="workTravel">Work/Travel Situation <span class="optional">(optional)</span></label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="work_office" name="workTravel" value="office">
+                            <label for="work_office">Office-based</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="work_remote" name="workTravel" value="remote">
+                            <label for="work_remote">Remote</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="work_shift" name="workTravel" value="shift-work">
+                            <label for="work_shift">Shift Work</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="work_travel" name="workTravel" value="travel">
+                            <label for="work_travel">Frequent Travel</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Goals & Priorities -->
+            <div class="form-section">
+                <h3>🎯 Health Goals & Challenges</h3>
+                <p class="subtitle">What are your main priorities? (all optional)</p>
+
+                <div class="form-group">
+                    <label>What are your main goals? <span class="optional">(select all that apply)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_weightloss" name="goals" value="weightloss">
+                            <label for="goal_weightloss">Weight Loss</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_muscle" name="goals" value="muscle">
+                            <label for="goal_muscle">Muscle Gain</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_energy" name="goals" value="energy">
+                            <label for="goal_energy">Better Energy</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_skin" name="goals" value="skin">
+                            <label for="goal_skin">Clearer Skin</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_sleep" name="goals" value="sleep">
+                            <label for="goal_sleep">Better Sleep</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_digestion" name="goals" value="digestion">
+                            <label for="goal_digestion">Better Digestion</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_bloodsugar" name="goals" value="bloodsugar">
+                            <label for="goal_bloodsugar">Blood Sugar Control</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_inflammation" name="goals" value="inflammation">
+                            <label for="goal_inflammation">Reduce Inflammation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_mental" name="goals" value="mental">
+                            <label for="goal_mental">Mental Clarity</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="goal_athletic" name="goals" value="athletic">
+                            <label for="goal_athletic">Athletic Performance</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="biggestChallenge">What's your biggest challenge with diet? <span class="optional">(optional)</span></label>
+                    <textarea name="biggestChallenge" id="biggestChallenge" placeholder="e.g., I fell off keto after 14 months, scared of eating only meat, worried about cholesterol" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="additionalNotes">Anything else we should know? <span class="optional">(optional)</span></label>
+                    <textarea name="additionalNotes" id="additionalNotes" placeholder="Additional context about your health journey" rows="4"></textarea>
+                </div>
+            </div>
+            </div><!-- End STEP 4 -->
+
+            <!-- STEP 1: Health & Symptoms (Basic Questions) -->
+            <div class="form-step" data-step="1">
+                <!-- Section 3: Current Health (STEP 1 - Basic Questions) -->
+                <div class="form-section">
+                <h3>🏥 Current Health Conditions</h3>
+                <p class="subtitle">Help us tailor the plan to your situation (all optional)</p>
+
+                <div class="form-group">
+                    <label for="medications">Current Medications <span class="optional">(optional)</span></label>
+                    <textarea name="medications" id="medications" placeholder="e.g., Metformin for diabetes, levothyroxine for thyroid, blood pressure medication" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Existing Health Conditions <span class="optional">(optional)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="diabetes" name="conditions" value="diabetes">
+                            <label for="diabetes">Type 2 Diabetes / Pre-diabetes</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="thyroid" name="conditions" value="thyroid">
+                            <label for="thyroid">Thyroid Issues (Hashimoto's, hypothyroid)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="autoimmune" name="conditions" value="autoimmune">
+                            <label for="autoimmune">Autoimmune Condition</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="gut" name="conditions" value="gut">
+                            <label for="gut">Digestive Issues (IBS, Crohn's, colitis)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="heart" name="conditions" value="heart">
+                            <label for="heart">Heart Disease / High Blood Pressure</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="mental" name="conditions" value="mental">
+                            <label for="mental">Mental Health (depression, anxiety)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="otherConditions">Other Health Issues <span class="optional">(optional)</span></label>
+                    <textarea name="otherConditions" id="otherConditions" placeholder="e.g., PCOS, gout, kidney issues, anything else we should know" rows="4"></textarea>
+                </div>
+
+                <div class="medical-disclaimer">
+                    <strong>Medical Disclaimer:</strong> This report is for informational purposes only and does not replace medical advice. Always consult your healthcare provider before starting a new diet, especially if you have existing health conditions or take medications. Bring this report to your doctor appointments.
+                </div>
+            </div>
+
+            <!-- Section 4: Current Symptoms -->
+            <div class="form-section">
+                <h3>💊 Current Symptoms & Issues</h3>
+                <p class="subtitle">What are you hoping to improve? (all optional)</p>
+
+                <div class="form-group">
+                    <label>Current Symptoms <span class="optional">(optional)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="bloating" name="symptoms" value="bloating">
+                            <label for="bloating">Bloating / Gas</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brainfog" name="symptoms" value="brainfog">
+                            <label for="brainfog">Brain Fog / Poor Focus</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="fatigue" name="symptoms" value="fatigue">
+                            <label for="fatigue">Chronic Fatigue / Low Energy</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="jointpain" name="symptoms" value="jointpain">
+                            <label for="jointpain">Joint Pain / Inflammation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="skin" name="symptoms" value="skin">
+                            <label for="skin">Skin Issues (acne, eczema, rosacea)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sleep" name="symptoms" value="sleep">
+                            <label for="sleep">Poor Sleep Quality</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cravings" name="symptoms" value="cravings">
+                            <label for="cravings">Sugar Cravings / Food Addiction</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="otherSymptoms">Other Symptoms <span class="optional">(optional)</span></label>
+                    <textarea name="otherSymptoms" id="otherSymptoms" placeholder="Anything else you're dealing with that we should address?" rows="4"></textarea>
+                </div>
+            </div>
+            </div><!-- End STEP 1 -->
+
+            <!-- STEP 2: Diet & Lifestyle (Basic Questions) -->
+            <div class="form-step" data-step="2" style="display:none;">
+                <!-- Section 5: Diet History (STEP 2 - Basic Questions) -->
+                <div class="form-section">
+                <h3>🍽️ Diet History</h3>
+                <p class="subtitle">What have you tried before? (all optional)</p>
+
+                <div class="form-group">
+                    <label for="previousDiets">Previous Diets Tried <span class="optional">(optional)</span></label>
+                    <textarea name="previousDiets" id="previousDiets" placeholder="e.g., Keto for 6 months (lost weight but plateaued), vegan (felt terrible), Standard American Diet (gained weight)" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="carnivoreExperience">Carnivore Experience <span class="optional">(optional)</span></label>
+                    <select name="carnivoreExperience" id="carnivoreExperience">
+                        <option value="">Select one...</option>
+                        <option value="never">Never tried carnivore</option>
+                        <option value="dabbled">Tried it briefly (days/weeks)</option>
+                        <option value="months">Did it for months</option>
+                        <option value="current">Currently carnivore</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="selectedProtocol">Which Diet Protocol? <span class="optional">(optional)</span></label>
+                    <select name="selectedProtocol" id="selectedProtocol">
+                        <option value="">Select one...</option>
+                        <option value="carnivore">Carnivore (beef, poultry, fish, eggs, dairy)</option>
+                        <option value="pescatarian">Pescatarian Carnivore (fish, eggs, dairy only)</option>
+                        <option value="lion">Lion Diet (beef, salt, water only)</option>
+                        <option value="keto">Keto (low-carb, includes some plants)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="whatWorked">What Worked / Didn't Work <span class="optional">(optional)</span></label>
+                    <textarea name="whatWorked" id="whatWorked" placeholder="e.g., Lost weight on keto but gained it back, felt great on low-carb but too restrictive, can't stick to meal plans" rows="4"></textarea>
+                </div>
+            </div>
+
+            <!-- Section 6: Lifestyle -->
+            <div class="form-section">
+                <h3>🏠 Lifestyle & Practical Constraints</h3>
+                <p class="subtitle">Help us make this realistic for YOUR life (all optional)</p>
+
+                <div class="form-group">
+                    <label for="cookingSkill2">Cooking Ability <span class="optional">(optional)</span></label>
+                    <select name="cookingSkill2" id="cookingSkill2">
+                        <option value="">Select one...</option>
+                        <option value="beginner">Beginner (can barely boil water)</option>
+                        <option value="basic">Basic (can follow recipes)</option>
+                        <option value="intermediate">Intermediate (comfortable in kitchen)</option>
+                        <option value="advanced">Advanced (love cooking)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mealPrepTime2">Time Available for Meal Prep <span class="optional">(optional)</span></label>
+                    <select name="mealPrepTime2" id="mealPrepTime2">
+                        <option value="">Select one...</option>
+                        <option value="minimal">Minimal (&lt; 1 hour/week)</option>
+                        <option value="some">Some time (1-3 hours/week)</option>
+                        <option value="moderate">Moderate (3-5 hours/week)</option>
+                        <option value="plenty">Plenty (5+ hours/week)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="budget2">Budget Constraints <span class="optional">(optional)</span></label>
+                    <select name="budget2" id="budget2">
+                        <option value="">Select one...</option>
+                        <option value="tight">Tight budget (ground beef, eggs, cheap cuts)</option>
+                        <option value="moderate">Moderate (some variety)</option>
+                        <option value="flexible">Flexible (can afford ribeye, salmon)</option>
+                        <option value="unlimited">No budget concerns</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="familySituation2">Family Situation <span class="optional">(optional)</span></label>
+                    <select name="familySituation2" id="familySituation2">
+                        <option value="">Select one...</option>
+                        <option value="solo">Cooking for myself only</option>
+                        <option value="partner">Cooking for partner too (also carnivore)</option>
+                        <option value="mixed">Cooking for family (mixed diets)</option>
+                        <option value="kids">Cooking for kids (need family-friendly options)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="workTravel2">Work/Travel Situation <span class="optional">(optional)</span></label>
+                    <textarea name="workTravel2" id="workTravel2" placeholder="e.g., Travel 2 weeks/month for work, eat lunch at desk, frequent business dinners, work from home" rows="4"></textarea>
+                </div>
+            </div>
+            </div><!-- End STEP 2 -->
+
+            <!-- STEP 3: Goals & Priorities (Basic Questions) -->
+            <div class="form-step" data-step="3" style="display:none;">
+                <!-- Section 7: Goals & Priorities (STEP 3 - Basic Questions) -->
+                <div class="form-section">
+                <h3>🎯 Goals & Priorities</h3>
+                <p class="subtitle">Beyond macros, what matters most to you? (all optional)</p>
+
+                <div class="form-group">
+                    <label>Primary Goals (check top 3) <span class="optional">(optional)</span></label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="weightloss" name="goals_step3" value="weightloss">
+                            <label for="weightloss">Weight Loss</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="muscle" name="goals_step3" value="muscle">
+                            <label for="muscle">Build Muscle</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="energy" name="goals_step3" value="energy">
+                            <label for="energy">More Energy</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="mentalgoal" name="goals_step3" value="mental">
+                            <label for="mentalgoal">Mental Clarity / Focus</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="guthealth" name="goals_step3" value="guthealth">
+                            <label for="guthealth">Fix Gut Health</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="inflammation" name="goals_step3" value="inflammation">
+                            <label for="inflammation">Reduce Inflammation</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="autoimmuneegoal" name="goals_step3" value="autoimmune">
+                            <label for="autoimmuneegoal">Manage Autoimmune Condition</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="simplify" name="goals_step3" value="simplify">
+                            <label for="simplify">Simplify My Life / End Food Obsession</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="biggestChallenge2">Biggest Challenge or Fear <span class="optional">(optional)</span></label>
+                    <textarea name="biggestChallenge2" id="biggestChallenge2" placeholder="e.g., Afraid of eating too much fat, worried about cholesterol, don't know if I can give up bread, scared of social situations" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="anythingElse">Anything Else We Should Know? <span class="optional">(optional)</span></label>
+                    <textarea name="anythingElse" id="anythingElse" placeholder="Tell us anything that would help us create the perfect plan for YOU" rows="4"></textarea>
+                </div>
+            </div>
+
+            </div><!-- End STEP 3 -->
+
+            <!-- Step Navigation -->
+            <div class="step-navigation" id="stepNavigation" style="display:none;">
+                <button type="button" class="step-button prev" id="prevBtn">← Previous Step</button>
+                <div id="stepCounter" style="display:flex; align-items:center; color:#2c1810; font-weight:bold;"></div>
+                <button type="button" class="step-button next" id="nextBtn">Next Step →</button>
+                <button type="submit" class="step-button next" id="submitBtn" style="display:none;">
+                    🚀 Generate My AI Report
+                </button>
+            </div>
+
+            <!-- Privacy Links -->
+            <div class="submit-section" id="submitSection">
+                <p class="submit-note" id="submitNote" style="display:none;">
+                    <strong>Remember:</strong> This generates once. Download and save your report when ready!
+                </p>
+                <p style="margin-top: 15px; font-size: 0.85em; text-align: center;">
+                    <a href="https://carnivoreweekly.com/privacy.html" style="color: #d4a574; text-decoration: none;">Privacy Policy</a> |
+                    <a href="https://carnivoreweekly.com/terms.html" style="color: #d4a574; text-decoration: none;">Terms of Service</a>
+                </p>
+            </div>
+        </form>
+
+        <!-- Loading State -->
+        <div class="loading" id="loadingState">
+            <div class="spinner"></div>
+            <h2>✨ Crafting Your Personalized Report</h2>
+            <p class="loading-message" id="loadingMessage">Good things come to those who wait...</p>
+
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+
+            <!-- Section Status -->
+            <div class="section-status" id="sectionStatus">
+                <div class="section-item" id="section-summary">
+                    <span class="section-icon">⏳</span>
+                    <span class="section-name">Executive Summary</span>
+                </div>
+                <div class="section-item" id="section-pyramid">
+                    <span class="section-icon">⏳</span>
+                    <span class="section-name">Food Pyramid & Guidelines</span>
+                </div>
+                <div class="section-item" id="section-week1">
+                    <span class="section-icon">⏳</span>
+                    <span class="section-name">Week 1 Meal Plan</span>
+                </div>
+                <div class="section-item" id="section-calendar">
+                    <span class="section-icon">⏳</span>
+                    <span class="section-name">30-Day Meal Calendar</span>
+                </div>
+                <div class="section-item" id="section-shopping">
+                    <span class="section-icon">⏳</span>
+                    <span class="section-name">Shopping Lists</span>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 0.95em; color: #2c1810;">
+                <strong>Estimated time: 2-4 minutes</strong><br>
+                Don't close this page - your report will appear when ready!
+            </p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer-2026">
+        <div class="container-2026">
+            <p>&copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.</p>
+            <p><a href="/privacy.html">Privacy</a> | <a href="/about.html">About</a> | <a href="/archive.html">Archive</a> | <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener">Feedback</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Load macro data from localStorage (saved from calculator)
+        let macroData = null;
+        try {
+            const savedMacros = localStorage.getItem('carnivore_macros');
+            if (savedMacros) {
+                macroData = JSON.parse(savedMacros);
+                console.log('Loaded macro data:', macroData);
+            }
+        } catch (e) {
+            console.error('Error loading macro data:', e);
+        }
+
+        // Pre-fill email if saved from calculator
+        try {
+            const savedEmail = localStorage.getItem('carnivore_email');
+            if (savedEmail) {
+                document.getElementById('email').value = savedEmail;
+                console.log('Pre-filled email from localStorage');
+            }
+        } catch (e) {
+            console.error('Error pre-filling email:', e);
+        }
+
+        // ========== REAL-TIME VALIDATION FUNCTIONS ==========
+
+        /**
+         * Validate email format
+         */
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        /**
+         * Mark field as valid (green border + checkmark)
+         */
+        function setFieldValid(fieldId) {
+            try {
+                const field = document.getElementById(fieldId);
+                if (!field) return;
+
+                field.classList.remove('invalid-field');
+                field.classList.add('valid-field');
+
+                // Hide error text if present
+                const errorEl = document.getElementById(fieldId + '-error');
+                if (errorEl) {
+                    errorEl.classList.remove('show');
+                }
+
+                // Add green checkmark
+                let checkmark = field.parentElement.querySelector('.field-success');
+                if (!checkmark) {
+                    checkmark = document.createElement('div');
+                    checkmark.className = 'field-success';
+                    checkmark.textContent = '✓';
+                    field.parentElement.appendChild(checkmark);
+                }
+            } catch (e) {
+                console.error('Error setting field valid:', e);
+            }
+        }
+
+        /**
+         * Mark field as invalid (red border + error message)
+         */
+        function setFieldInvalid(fieldId, errorMessage) {
+            try {
+                const field = document.getElementById(fieldId);
+                if (!field) return;
+
+                field.classList.remove('valid-field');
+                field.classList.add('invalid-field');
+
+                // Show error text
+                const errorEl = document.getElementById(fieldId + '-error');
+                if (errorEl) {
+                    errorEl.textContent = errorMessage;
+                    errorEl.classList.add('show');
+                }
+
+                // Remove checkmark if present
+                const checkmark = field.parentElement.querySelector('.field-success');
+                if (checkmark) {
+                    checkmark.remove();
+                }
+
+                // Track validation error
+                gtag('event', 'form_error', {
+                    'event_category': 'Questionnaire',
+                    'event_label': fieldId + ' validation failed',
+                    'value': 1
+                });
+            } catch (e) {
+                console.error('Error setting field invalid:', e);
+            }
+        }
+
+        /**
+         * Clear field validation state
+         */
+        function clearFieldValidation(fieldId) {
+            try {
+                const field = document.getElementById(fieldId);
+                if (!field) return;
+
+                field.classList.remove('valid-field', 'invalid-field');
+
+                const errorEl = document.getElementById(fieldId + '-error');
+                if (errorEl) {
+                    errorEl.classList.remove('show');
+                }
+
+                const checkmark = field.parentElement.querySelector('.field-success');
+                if (checkmark) {
+                    checkmark.remove();
+                }
+            } catch (e) {
+                console.error('Error clearing field validation:', e);
+            }
+        }
+
+        /**
+         * Setup real-time validation for email
+         */
+        try {
+            const emailField = document.getElementById('email');
+            if (emailField) {
+                // Validate on blur
+                emailField.addEventListener('blur', function() {
+                    if (this.value.trim() === '') {
+                        setFieldInvalid('email', 'Email is required');
+                    } else if (!validateEmail(this.value)) {
+                        setFieldInvalid('email', 'Please enter a valid email address');
+                    } else {
+                        setFieldValid('email');
+                    }
+                });
+
+                // Clear error on focus
+                emailField.addEventListener('focus', function() {
+                    if (this.classList.contains('invalid-field')) {
+                        clearFieldValidation('email');
+                    }
+                });
+
+                // Check initial value if pre-filled
+                if (emailField.value && validateEmail(emailField.value)) {
+                    setFieldValid('email');
+                }
+            }
+        } catch (e) {
+            console.error('Error setting up email validation:', e);
+        }
+
+        // ========== MULTI-STEP WIZARD FUNCTIONS ==========
+
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        /**
+         * Initialize wizard interface
+         */
+        function initializeWizard() {
+            try {
+                // Show progress bar and step navigation
+                document.getElementById('stepProgress').style.display = 'block';
+                document.getElementById('stepNavigation').style.display = 'flex';
+
+                // Show warning banner on first step only (optional refinement)
+                updateStepDisplay();
+            } catch (e) {
+                console.error('Error initializing wizard:', e);
+            }
+        }
+
+        /**
+         * Update step display and UI elements
+         */
+        function updateStepDisplay() {
+            try {
+                // Hide all steps
+                document.querySelectorAll('.form-step').forEach(step => {
+                    step.style.display = 'none';
+                });
+
+                // Show current step
+                const currentStepEl = document.querySelector(`[data-step="${currentStep}"]`);
+                if (currentStepEl) {
+                    currentStepEl.style.display = 'block';
+                }
+
+                // Update progress indicator
+                document.getElementById('currentStep').textContent = currentStep;
+                const progressPercent = (currentStep / totalSteps) * 100;
+                document.getElementById('formProgressBar').style.width = progressPercent + '%';
+
+                // Update step counter
+                document.getElementById('stepCounter').textContent = `Step ${currentStep} of ${totalSteps}`;
+
+                // Update button visibility and state
+                document.getElementById('prevBtn').style.display = currentStep === 1 ? 'none' : 'block';
+                document.getElementById('nextBtn').style.display = currentStep === totalSteps ? 'none' : 'block';
+                document.getElementById('submitBtn').style.display = currentStep === totalSteps ? 'block' : 'none';
+                document.getElementById('submitNote').style.display = currentStep === totalSteps ? 'block' : 'none';
+
+                // Scroll to top of form
+                document.getElementById('aiReportForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (e) {
+                console.error('Error updating step display:', e);
+            }
+        }
+
+        /**
+         * Go to next step
+         */
+        function goToNextStep() {
+            try {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateStepDisplay();
+
+                    // Track wizard step progression
+                    gtag('event', 'form_progress', {
+                        'event_category': 'Questionnaire',
+                        'event_label': 'Step ' + currentStep,
+                        'value': currentStep
+                    });
+                }
+            } catch (e) {
+                console.error('Error going to next step:', e);
+            }
+        }
+
+        /**
+         * Go to previous step
+         */
+        function goToPreviousStep() {
+            try {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateStepDisplay();
+                }
+            } catch (e) {
+                console.error('Error going to previous step:', e);
+            }
+        }
+
+        /**
+         * Setup wizard event listeners
+         */
+        try {
+            document.getElementById('nextBtn').addEventListener('click', goToNextStep);
+            document.getElementById('prevBtn').addEventListener('click', goToPreviousStep);
+
+            // Initialize wizard when page loads
+            window.addEventListener('load', function() {
+                initializeWizard();
+            });
+
+            // Also initialize immediately in case page is already loaded
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                setTimeout(initializeWizard, 100);
+            }
+        } catch (e) {
+            console.error('Error setting up wizard event listeners:', e);
+        }
+
+        // Form submission handler
+        document.getElementById('aiReportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Track form submission start
+            gtag('event', 'form_submit', {
+                'event_category': 'Questionnaire',
+                'event_label': 'Personalized Report Request',
+                'value': 1
+            });
+
+            // Get form data
+            const formData = new FormData(this);
+            const data = {};
+
+            // Convert FormData to object
+            for (let [key, value] of formData.entries()) {
+                if (data[key]) {
+                    // Handle multiple values (checkboxes)
+                    if (Array.isArray(data[key])) {
+                        data[key].push(value);
+                    } else {
+                        data[key] = [data[key], value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            // Include macro data if available
+            if (macroData) {
+                data.macros = macroData;
+            }
+
+            // Include session ID from calculator (free → paid upgrade flow)
+            const sessionId = localStorage.getItem('session_id');
+            if (sessionId) {
+                data.session_id = sessionId;
+                console.log('[Form Submit] Session ID included from calculator path');
+            }
+
+            // Show loading state
+            console.log('[Form Submit] Hiding form and showing loading state');
+            document.getElementById('aiReportForm').style.display = 'none';
+            document.getElementById('loadingState').classList.add('active');
+
+            // Start progress animation and messages
+            console.log('[Form Submit] Starting loading animation');
+            try {
+                startLoadingAnimation();
+                console.log('[Form Submit] Loading animation started successfully');
+            } catch (animError) {
+                console.error('[Form Submit] Error starting animation:', animError);
+            }
+
+            try {
+                // Cloudflare Worker URL for report generation
+                const apiUrl = 'https://carnivore-report-api.iambrew.workers.dev';
+                console.log('[Form Submit] Sending request to:', apiUrl);
+                const requestStartTime = Date.now();
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const responseTime = Date.now() - requestStartTime;
+                console.log(`[Form Submit] Response received in ${responseTime}ms, status:`, response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: Report generation failed`);
+                }
+
+                console.log('[Form Submit] Parsing JSON response...');
+                const result = await response.json();
+                console.log('[Form Submit] Response parsed successfully');
+                console.log('[Form Submit] Access token:', result.accessToken);
+                console.log('[Form Submit] Report ID:', result.reportId);
+
+                // Clear localStorage (privacy - no data retention)
+                localStorage.removeItem('carnivore_macros');
+                localStorage.removeItem('session_id');
+
+                // Stop the loading animation before displaying
+                console.log('[Form Submit] Stopping loading animation');
+                stopLoadingAnimation();
+
+                // Display email confirmation message instead of showing HTML
+                console.log('[Form Submit] Displaying email confirmation message');
+                displayEmailConfirmation(result.email, result.expiresAt);
+
+                // Track successful report generation
+                gtag('event', 'report_generated', {
+                    'event_category': 'Reports',
+                    'event_label': 'All 13 Personalized Reports Sent via Email',
+                    'value': 1
+                });
+
+                // Track email delivery event
+                gtag('event', 'report_email_sent', {
+                    'event_category': 'Reports',
+                    'event_label': 'Email Delivery',
+                    'email': result.email
+                });
+
+            } catch (error) {
+                console.error('[Form Submit] Error caught:', error.message);
+                console.error('[Form Submit] Full error:', error);
+
+                // Track report generation error
+                gtag('event', 'report_error', {
+                    'event_category': 'Reports',
+                    'event_label': error.message || 'Report generation failed',
+                    'value': 1
+                });
+
+                // Hide loading state and show form again
+                document.getElementById('loadingState').classList.remove('active');
+                document.getElementById('aiReportForm').style.display = 'block';
+
+                // Create and display friendly error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.innerHTML = `<div style="flex: 1;"><strong>Report Generation Failed</strong><br>
+                Our system encountered an error while creating your report. Please check that:
+                <ul style="margin: 10px 0 0 0; padding-left: 20px; color: #8b2e1f;">
+                    <li>You entered a valid email address</li>
+                    <li>Your internet connection is stable</li>
+                    <li>Try refreshing the page and submitting again</li>
+                </ul>
+                If problems continue, please contact support with your email: <strong>${data.email}</strong></div>`;
+
+                // Insert error at top of form
+                const form = document.getElementById('aiReportForm');
+                form.parentNode.insertBefore(errorDiv, form);
+
+                // Auto-scroll to error message
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        // Loading animation with progress bar and rotating messages
+        let loadingInterval;
+        let messageInterval;
+        let progress = 0;
+
+        const encouragingMessages = [
+            "Good things come to those who wait...",
+            "Analyzing your health goals and preferences...",
+            "Crafting your personalized meal plan...",
+            "Selecting the best foods for your situation...",
+            "Optimizing your macros and meal timing...",
+            "Building your 30-day roadmap to success...",
+            "Almost there - putting the finishing touches on your report...",
+            "Quality takes time - your report will be worth the wait!"
+        ];
+
+        function startLoadingAnimation() {
+            let messageIndex = 0;
+
+            // Rotate messages every 5 seconds
+            messageInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % encouragingMessages.length;
+                document.getElementById('loadingMessage').textContent = encouragingMessages[messageIndex];
+            }, 5000);
+
+            // Simulate progress (slower than actual to avoid 100% before done)
+            loadingInterval = setInterval(() => {
+                if (progress < 90) {
+                    // Slow down as we get closer to 90%
+                    const increment = progress < 30 ? 3 : progress < 60 ? 2 : 1;
+                    progress += increment;
+                    updateProgress(progress);
+
+                    // Mark sections as "generating" based on progress
+                    if (progress >= 10 && progress < 30) {
+                        markSectionGenerating('section-summary');
+                    } else if (progress >= 30 && progress < 50) {
+                        markSectionCompleted('section-summary');
+                        markSectionGenerating('section-pyramid');
+                    } else if (progress >= 50 && progress < 70) {
+                        markSectionCompleted('section-pyramid');
+                        markSectionGenerating('section-week1');
+                    } else if (progress >= 70 && progress < 85) {
+                        markSectionCompleted('section-week1');
+                        markSectionGenerating('section-calendar');
+                    } else if (progress >= 85) {
+                        markSectionCompleted('section-calendar');
+                        markSectionGenerating('section-shopping');
+                    }
+                }
+            }, 800);
+        }
+
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = Math.round(percent) + '%';
+        }
+
+        function markSectionGenerating(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.add('generating');
+            section.querySelector('.section-icon').textContent = '⚙️';
+        }
+
+        function markSectionCompleted(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.remove('generating');
+            section.classList.add('completed');
+            section.querySelector('.section-icon').textContent = '✅';
+        }
+
+        function stopLoadingAnimation() {
+            clearInterval(loadingInterval);
+            clearInterval(messageInterval);
+            // Complete all sections and progress bar
+            updateProgress(100);
+            const sections = ['section-summary', 'section-pyramid', 'section-week1', 'section-calendar', 'section-shopping'];
+            sections.forEach(id => markSectionCompleted(id));
+        }
+
+        // Display the generated report
+        function displayReport(reportMarkdown) {
+            // Stop animations
+            stopLoadingAnimation();
+
+            // Small delay to show 100% completion
+            setTimeout(() => {
+                // Convert Markdown to HTML
+                const reportHTML = marked.parse(reportMarkdown);
+
+                // Hide loading
+                document.getElementById('loadingState').classList.remove('active');
+
+                // Create report display container
+                const reportContainer = document.createElement('div');
+                reportContainer.innerHTML = `
+                    <div style="max-width: 900px; margin: 0 auto; padding: 20px;">
+                        <div class="warning-banner" style="margin-bottom: 30px;">
+                            <h2>✅ Your Reports Are Ready!</h2>
+                            <p><strong>Access your reports for 48 hours.</strong> You can view them again via your unique link, but we recommend downloading or printing now for safekeeping.</p>
+                            <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center;">
+                                <button onclick="window.print()" style="background: #8b4513; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1.1em; cursor: pointer; font-weight: bold;">
+                                    🖨️ Print / Save as PDF
+                                </button>
+                                <button onclick="downloadReport()" style="background: #ffd700; color: #1a120b; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1.1em; cursor: pointer; font-weight: bold;">
+                                    💾 Download HTML
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="reportContent" style="background: white; padding: 40px; border-radius: 12px; border: 2px solid #8b4513; font-family: 'Merriweather', serif; line-height: 1.8; color: #2c1810;">
+                            ${reportHTML}
+                        </div>
+
+                        <div class="warning-banner" style="margin-top: 30px;">
+                            <p><strong>⏰ 48-Hour Access:</strong> Your reports remain accessible via your unique link for 48 hours. After that, they're automatically deleted for your privacy. Download or save a copy if you want to keep them longer!</p>
+                        </div>
+                    </div>
+                `;
+
+                document.body.innerHTML = '';
+                document.body.appendChild(reportContainer);
+
+                // Store report for download
+                window.generatedReport = reportHTML;
+            }, 1000); // 1 second delay to show completion
+        }
+
+        // Display email confirmation message instead of report HTML
+        function displayEmailConfirmation(email, expiresAt) {
+            // Stop animations
+            stopLoadingAnimation();
+
+            // Small delay to show 100% completion
+            setTimeout(() => {
+                // Hide loading
+                document.getElementById('loadingState').classList.remove('active');
+
+                // Create confirmation display
+                const confirmationContainer = document.createElement('div');
+                confirmationContainer.innerHTML = `
+                    <div style="max-width: 900px; margin: 0 auto; padding: 20px;">
+                        <div class="warning-banner" style="margin-bottom: 30px; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); border-color: #2e7d32;">
+                            <h2 style="color: white; margin: 0 0 15px 0;">✅ Your Report Has Been Generated!</h2>
+                            <p style="color: rgba(255, 255, 255, 0.95); font-size: 1.1em; margin: 0;">We've sent a secure access link to <strong>${email}</strong></p>
+                        </div>
+
+                        <div style="background: white; padding: 40px; border-radius: 12px; border: 2px solid #8b4513; text-align: center; margin-bottom: 30px;">
+                            <h3 style="color: #8b4513; font-family: 'Playfair Display', serif; font-size: 1.8em; margin: 0 0 20px 0;">Check Your Email</h3>
+
+                            <div style="background: #faf8f3; padding: 30px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #d4a574;">
+                                <p style="margin: 0 0 15px 0; font-size: 1.1em;">📧 Look for an email from <strong>reports@carnivoreweekly.com</strong></p>
+                                <p style="margin: 0 0 15px 0; color: #666;">It may take a few minutes to arrive. Check your spam folder if you don't see it.</p>
+                                <p style="margin: 0; color: #999; font-size: 0.95em;">⏰ Your secure access link expires in 48 hours</p>
+                            </div>
+
+                            <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                                <p style="margin: 0; color: #8b4513;"><strong>💡 What's included in your report:</strong></p>
+                                <ul style="margin: 15px 0 0 0; padding-left: 25px; text-align: left; display: inline-block;">
+                                    <li>Your personalized macro targets</li>
+                                    <li>30-day meal calendar</li>
+                                    <li>Weekly shopping lists</li>
+                                    <li>Doctor consultation guide</li>
+                                    <li>Restaurant survival strategies</li>
+                                    <li>Science & research summary</li>
+                                    <li>Lab monitoring guidelines</li>
+                                    <li>Electrolyte protocol</li>
+                                    <li>Personalized obstacle protocol</li>
+                                    <li>And much more!</li>
+                                </ul>
+                            </div>
+
+                            <div style="margin-top: 30px; padding: 20px; background: #f5f2ed; border-radius: 8px;">
+                                <p style="margin: 0 0 15px 0; color: #666;">Didn't receive the email?</p>
+                                <button onclick="resendEmail('${email}')" style="background: #8b4513; color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1em; cursor: pointer; font-weight: bold;">
+                                    ↻ Resend Email
+                                </button>
+                            </div>
+
+                            <div style="margin-top: 30px; text-align: left; padding: 20px; background: #f9f6f3; border-radius: 8px; border: 1px solid #d4a574;">
+                                <p style="margin: 0 0 10px 0; font-weight: bold; color: #8b4513;">📝 What to do next:</p>
+                                <ol style="margin: 10px 0 0 0; color: #555;">
+                                    <li>Check your email (reports@carnivoreweekly.com)</li>
+                                    <li>Click the secure access link</li>
+                                    <li>Review your personalized protocol</li>
+                                    <li>Download or print for permanent access (expires in 48 hours)</li>
+                                    <li>Start implementing your plan!</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="warning-banner" style="text-align: center;">
+                            <p style="margin: 0; color: #1a120b;">Questions? <a href="mailto:support@carnivoreweekly.com" style="color: #8b4513; font-weight: bold; text-decoration: none;">Contact support@carnivoreweekly.com</a></p>
+                        </div>
+                    </div>
+                `;
+
+                document.body.innerHTML = '';
+                document.body.appendChild(confirmationContainer);
+            }, 1000); // 1 second delay to show completion
+        }
+
+        // Resend email helper function
+        async function resendEmail(email) {
+            alert('Feature coming soon! For now, please contact support@carnivoreweekly.com');
+        }
+
+        // Download report as HTML file
+        function downloadReport() {
+            const report = window.generatedReport;
+            if (!report) return;
+
+            const blob = new Blob([`
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>My Carnivore Diet Report</title>
+    <style>
+        body { font-family: serif; max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1 { color: #8b4513; }
+        h2 { color: #8b4513; border-bottom: 2px solid #d4a574; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+${report}
+    <script src="/js/mobile-nav.js"><\/script>
+</body>
+</html>
+            `], { type: 'text/html' });
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `carnivore-diet-report-${new Date().toISOString().split('T')[0]}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Warn before leaving page
+        window.addEventListener('beforeunload', function(e) {
+            const loading = document.getElementById('loadingState');
+            if (loading && loading.classList.contains('active')) {
+                e.preventDefault();
+                e.returnValue = 'Your report is being generated. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+
+            // Also warn if report is displayed (they should save it for permanence)
+            if (window.generatedReport) {
+                e.preventDefault();
+                e.returnValue = 'Your reports will be accessible for 48 hours via your unique link. Save a copy now if you want to keep them permanently!';
+                return e.returnValue;
+            }
+        });
+    </script>
+    <script src="/js/mobile-nav.js"></script>
+</body>
+</html>

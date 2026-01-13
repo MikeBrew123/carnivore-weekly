@@ -25,6 +25,16 @@ vars = { ENVIRONMENT = "development", SUPABASE_URL = "https://kwtdpvnjewtahuxjyl
 # - CLAUDE_API_KEY: Anthropic Claude API key
 # - FRONTEND_URL: Frontend domain for CORS
 # - API_BASE_URL: API base URL
+#
+# Etsy integration secrets:
+# - ETSY_CLIENT_ID: Etsy API key
+# - ETSY_CLIENT_SECRET: Etsy shared secret (not used in PKCE but good to have)
+# - ETSY_REDIRECT_URI: OAuth callback URL
+
+# KV Namespace for Etsy PKCE state storage
+[[kv_namespaces]]
+binding = "ETSY_AUTH_KV"
+id = "022b2eba60cb4e39bec97759109e7acf"
 
 # Staging environment variables
 [env.staging]
