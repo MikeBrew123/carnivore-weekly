@@ -42,7 +42,7 @@
 
             try {
                 const relatedItems = await fetchRelatedContent(contentType, contentId);
-                renderRelatedContent(section, relatedItems);
+                await renderRelatedContent(section, relatedItems);
             } catch (error) {
                 console.error('Failed to load related content:', error);
                 showError(section);
@@ -106,7 +106,7 @@
     }
 
     // Render related content cards
-    function renderRelatedContent(section, items) {
+    async function renderRelatedContent(section, items) {
         const loading = section.querySelector('.related-content-loading');
         const grid = section.querySelector('.related-content-grid');
 
@@ -124,11 +124,13 @@
             return;
         }
 
-        grid.innerHTML = items.map(item => createCard(item)).join('');
+        // Create cards asynchronously (for blog file lookups)
+        const cards = await Promise.all(items.map(item => createCard(item)));
+        grid.innerHTML = cards.join('');
     }
 
     // Create HTML card for related content
-    function createCard(item) {
+    async function createCard(item) {
         const type = item.related_type;
         const id = item.related_identifier;
         const topic = item.shared_topic_name || 'Related';
@@ -141,7 +143,8 @@
         if (type === 'wiki') {
             url = `/wiki.html#${id}`;
         } else if (type === 'blog') {
-            url = `/blog/${findBlogFile(id)}`;
+            const filename = await findBlogFile(id);
+            url = `/blog/${filename}`;
         } else if (type === 'video') {
             url = `/channels.html?v=${id}`;
         }
@@ -163,10 +166,33 @@
             .join(' ');
     }
 
+    // Blog manifest cache
+    let blogManifest = null;
+
+    // Load blog manifest
+    async function loadBlogManifest() {
+        if (blogManifest) return blogManifest;
+
+        try {
+            const response = await fetch('/data/blog-manifest.json');
+            if (response.ok) {
+                blogManifest = await response.json();
+            } else {
+                console.warn('Blog manifest not found, using fallback');
+                blogManifest = {};
+            }
+        } catch (error) {
+            console.error('Failed to load blog manifest:', error);
+            blogManifest = {};
+        }
+
+        return blogManifest;
+    }
+
     // Find blog file with date prefix
-    function findBlogFile(slug) {
-        // This is a simplified version - in production, fetch from manifest
-        return `2025-12-30-${slug}.html`;
+    async function findBlogFile(slug) {
+        const manifest = await loadBlogManifest();
+        return manifest[slug] || `${slug}.html`; // Fallback to slug.html if not in manifest
     }
 
     // Show error state
