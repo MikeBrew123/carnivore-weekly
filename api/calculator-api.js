@@ -37,7 +37,7 @@
  */
 
 // Version marker for deployment verification
-const DEPLOY_VERSION = "v2026-01-17-aden-safety";
+const DEPLOY_VERSION = "v2026-01-17-phase1-scrub";
 
 // ===== UTILITY FUNCTIONS =====
 
@@ -2896,6 +2896,11 @@ function buildObstacleProtocolPrompt(data) {
 function getTemplateContent(templateName, dietOrData) {
   const data = typeof dietOrData === 'string' ? { selectedProtocol: dietOrData } : (dietOrData || {});
 
+  // DEBUG TRACING: Verify diet-aware gates are working
+  const debugDiet = (data.selectedProtocol || 'Carnivore').toLowerCase();
+  const debugIsPescatarian = debugDiet === 'pescatarian';
+  console.log(`[DEBUG] Template Rendering - Diet: ${data.selectedProtocol}, isPescatarian: ${debugIsPescatarian}, templateName: ${templateName}`);
+
   const templates = {
     // Report #2: Food Guide - Conditional on diet type (now dynamically generated)
     foodGuide: generateDynamicFoodGuide(data.selectedProtocol, data),
@@ -3033,7 +3038,15 @@ function getTemplateContent(templateName, dietOrData) {
 
     timeline: `## Report #11: The Adaptation Timeline\n\n*What to expect week by week on {{diet}}*\n\n## Week 1: The Glycogen Depletion Phase\n\n**Days 1-3:** Water loss (3-7 lbs normal), stable energy\n**Days 4-7:** Transition trough, possible "keto flu", cravings peak\n**Action:** Eat normally, stay hydrated, increase salt\n\n## Week 2: The Difficult Week\n\n**Days 8-10:** Peak dip, worst energy, strong cravings\n**Days 11-14:** Turning point, energy returns, cravings subside\n**Action:** Push through. This is temporary. Don't cheat.\n\n## Week 3: The Breakthrough\n\n**Days 15-21:** Fat adaptation accelerating, consistent weight loss, excellent energy, mental clarity improves\n**Action:** Enjoy. Note health improvements.\n\n## Week 4: The New Normal\n\n**Days 22-30:** {{diet}} feels normal, stable energy, sleep improves, skin/hair improve\n**Action:** This is your new baseline. Track improvements.\n\n**The hardest part is Weeks 1-2. If you push through, the payoff is worth it.**`,
 
-    stallBreaker: `## Report #12: The Stall-Breaker Protocol\n\n*What to do if weight loss stalls after Week 2*\n\n## Check These 4 Things (In Order)\n\n### 1. Real Stall or Normal Fluctuation?\n- It's been 7+ days with no weight loss?\n- You've been strict on {{diet}}?\n- You're drinking water and getting electrolytes?\n\nWait 10-14 days before making changes.\n\n### 2. Dairy Creep\nSmall amounts of cheese/cream add 1000+ calories.\n- Are you adding butter to everything? Using cream in coffee?\n- Solution: Track dairy for 3 days, reduce by 50%\n\n### 3. Too Much Fat\n{{diet}} is high-fat, but not unlimited.\n- How many grams of fat daily? Are you adding excessive cooking fat?\n- Solution: Reduce added fat by 20%, let meat's natural fat be primary\n\n### 4. Hidden Carbs\n- Check labels on processed meats, supplements, condiments\n- Solution: Switch to plain meats and dairy\n\n## Keep Going\n\nDon't quit {{diet}} • Don't add carbs • Trust Carnivore—stalls are temporary`,
+    stallBreaker: (() => {
+      const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
+      const isPescatarian = diet === 'pescatarian';
+      const naturalFatSource = isPescatarian ? "fish's natural fat" : "meat's natural fat";
+      const plainProteinAdvice = isPescatarian ? 'Switch to plain fish and eggs' : 'Switch to plain meats and dairy';
+      const processedFoodCheck = isPescatarian ? 'processed fish, supplements, condiments' : 'processed meats, supplements, condiments';
+      const trustMessage = isPescatarian ? 'Trust Pescatarian' : 'Trust Carnivore';
+      return `## Report #12: The Stall-Breaker Protocol\n\n*What to do if weight loss stalls after Week 2*\n\n## Check These 4 Things (In Order)\n\n### 1. Real Stall or Normal Fluctuation?\n- It's been 7+ days with no weight loss?\n- You've been strict on {{diet}}?\n- You're drinking water and getting electrolytes?\n\nWait 10-14 days before making changes.\n\n### 2. Dairy Creep\nSmall amounts of cheese/cream add 1000+ calories.\n- Are you adding butter to everything? Using cream in coffee?\n- Solution: Track dairy for 3 days, reduce by 50%\n\n### 3. Too Much Fat\n{{diet}} is high-fat, but not unlimited.\n- How many grams of fat daily? Are you adding excessive cooking fat?\n- Solution: Reduce added fat by 20%, let ${naturalFatSource} be primary\n\n### 4. Hidden Carbs\n- Check labels on ${processedFoodCheck}\n- Solution: ${plainProteinAdvice}\n\n## Keep Going\n\nDon't quit {{diet}} • Don't add carbs • ${trustMessage}—stalls are temporary`;
+    })(),
 
     tracker: `## Report #13: 30-Day Symptom & Progress Tracker\n\n*Track what matters: How you FEEL, not just the scale*\n\n## How to Use This Tracker\n\n1. Weigh yourself (morning, after bathroom)\n2. Rate energy (1-10)\n3. Rate mood (1-10)\n4. Note digestion quality\n5. Track non-scale victories (NSVs)\n\n## Daily Tracker\n\n| Day | Weight | Energy | Mood | Digestion | NSVs |\n|-----|--------|--------|------|-----------|------|\n| 1 | ___ | ☐☐☐☐☐ | ☐☐☐☐☐ | Good/OK/Bad | |\n| 7 | ___ | ☐☐☐☐☐ | ☐☐☐☐☐ | Good/OK/Bad | |\n| 15 | ___ | ☐☐☐☐☐ | ☐☐☐☐☐ | Good/OK/Bad | |\n| 30 | ___ | ☐☐☐☐☐ | ☐☐☐☐☐ | Good/OK/Bad | |\n\n## Symptom Checklist\n\n| Symptom | Week 1 | Week 2 | Week 3 | Week 4 |\n|---------|--------|--------|--------|--------|\n| Brain fog | ☐ | ☐ | ☐ | ☐ |\n| Energy crashes | ☐ | ☐ | ☐ | ☐ |\n| Cravings | ☐ | ☐ | ☐ | ☐ |\n| Sleep quality | ☐ | ☐ | ☐ | ☐ |\n| Joint pain | ☐ | ☐ | ☐ | ☐ |\n| Bloating | ☐ | ☐ | ☐ | ☐ |\n| Mood | ☐ | ☐ | ☐ | ☐ |\n| Digestion | ☐ | ☐ | ☐ | ☐ |\n\n## End of 30 Days: Reflection\n\n**What improved the most?** _____________\n\n**What's still a challenge?** _____________\n\n**Continue {{diet}} past 30 days?** ☐ Yes ☐ Maybe ☐ No\n\n*Remember: This is YOUR data. Use it to make decisions about {{diet}}.*`
   };
@@ -3097,7 +3110,7 @@ function replacePlaceholders(template, data) {
 
   // Diet-aware section headers for shopping list
   const proteinSectionHeaders = {
-    'Pescatarian': '🐟 The Fish Counter',
+    'Pescatarian': '🐟 The Fishmonger & Protein',
     'Lion': '🐂 The Butcher (Beef Only)',
     'Keto': '🥩 Proteins',
     'Carnivore': '🥩 The Butcher',
@@ -3288,25 +3301,31 @@ function replacePlaceholders(template, data) {
     let proteinSection = '';
     if (weekData && weekData.proteins) {
       weekData.proteins.forEach(p => {
-        const quantity = p.quantity || '1 lb';
-        proteinSection += `* [ ] ${p.name} - ${quantity}\n`;
+        if (p && p.name && p.name.trim()) {
+          const quantity = p.quantity || '1 lb';
+          proteinSection += `* [ ] ${p.name} - ${quantity}\n`;
+        }
       });
     }
 
     // Build dairy/eggs section dynamically (all filtered items)
     let dairyEggsSection = '';
     if (weekData) {
-      // Add eggs first (if not allergic)
+      // Add eggs first (if not allergic and has valid name)
       if (weekData.eggs && weekData.eggs.length > 0) {
         weekData.eggs.forEach(e => {
-          dairyEggsSection += `* [ ] ${e.name} - 18-count\n`;
+          if (e && e.name && e.name.trim()) {
+            dairyEggsSection += `* [ ] ${e.name} - 18-count\n`;
+          }
         });
       }
-      // Add fats/dairy (if not allergic)
+      // Add fats/dairy (if not allergic and has valid name)
       if (weekData.fats && weekData.fats.length > 0) {
         weekData.fats.forEach(f => {
-          const quantity = f.quantity || '1 lb';
-          dairyEggsSection += `* [ ] ${f.name} - ${quantity}\n`;
+          if (f && f.name && f.name.trim()) {
+            const quantity = f.quantity || '1 lb';
+            dairyEggsSection += `* [ ] ${f.name} - ${quantity}\n`;
+          }
         });
       }
     }
@@ -3362,13 +3381,14 @@ function replacePlaceholders(template, data) {
 
   if (dietLower === 'pescatarian') {
     // Build pescatarian substitution guide, respecting avoidFoods
+    // NO beef, tallow, or meat references - fish and butter/ghee only
     const fishSubs = [];
     if (!avoidFoodsLower.includes('mackerel')) fishSubs.push('mackerel');
     if (!avoidFoodsLower.includes('sardine')) fishSubs.push('sardines');
     if (!avoidFoodsLower.includes('tuna')) fishSubs.push('tuna');
     if (!avoidFoodsLower.includes('cod')) fishSubs.push('cod');
     const fishSubText = fishSubs.length > 0 ? fishSubs.slice(0, 2).join(' or ') : 'other available fish';
-    substitutionGuide = `- If you lack salmon, substitute with ${fishSubText}\n- If you lack fresh fish, use canned fish (in oil)\n- Eggs can replace any fish meal if needed`;
+    substitutionGuide = `- If you lack salmon, substitute with ${fishSubText}\n- If you lack fresh fish, use canned fish (in oil)\n- Eggs can replace any fish meal if needed\n- To boost fat: add extra butter or ghee when cooking fish`;
   } else if (dietLower === 'lion') {
     substitutionGuide = '- If you lack ribeye, substitute with NY strip or sirloin\n- If you lack steaks, use ground beef (80/20)\n- All beef cuts are interchangeable based on availability';
   } else if (dietLower === 'keto') {
