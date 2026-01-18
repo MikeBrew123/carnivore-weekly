@@ -3331,8 +3331,9 @@ function replacePlaceholders(template, data) {
     }
 
     // Replace entire sections (not individual placeholders)
-    result = result.replace(new RegExp(`\\{\\{proteinsWeek${week}\\}\\}`, 'g'), proteinSection);
-    result = result.replace(new RegExp(`\\{\\{dairyEggsWeek${week}\\}\\}`, 'g'), dairyEggsSection);
+    // Trim trailing newlines to prevent empty checkboxes in PDF
+    result = result.replace(new RegExp(`\\{\\{proteinsWeek${week}\\}\\}`, 'g'), proteinSection.trim());
+    result = result.replace(new RegExp(`\\{\\{dairyEggsWeek${week}\\}\\}`, 'g'), dairyEggsSection.trim());
   }
 
   // Also fill the old-style single-week placeholders for backward compatibility
@@ -3618,7 +3619,7 @@ function generateDynamicFoodGuide(dietType, data) {
   // Shellfish allergy disclaimer for pyramid image
   const hasShellfish = allergies.includes('shellfish');
   const shellfishDisclaimer = hasShellfish
-    ? '\n\n> **NOTE:** Image is for illustration. Since you have a shellfish allergy, strictly follow the Tier lists below which exclude all shellfish.\n'
+    ? '\n\n> **IMAGE FOR ILLUSTRATION:** Since you have a shellfish allergy, strictly follow the Tier lists below which exclude all shellfish.\n'
     : '';
 
   return `## Report #2: Your ${title} Food Guide\n\n**Prepared for:** {{firstName}}\n**Diet Protocol:** ${title}\n**Date:** {{currentDate}}\n\n---\n\n## ${emoji} Your ${title} Food Pyramid\n\n![${title} Food Pyramid](${pyramidImageUrl})${shellfishDisclaimer}\n\n${tierContent}\n\n---\n\n${mealPatterns}\n\n---\n\n## Budget Optimization\n\n${budgetText}\n\n---\n\n## Week-by-Week Adaptation\n\n**Week 1:** Water loss (3-7 lbs), possible adjustment period\n**Week 2:** Energy may dip, stay consistent with electrolytes\n**Week 3:** Energy returns, mental clarity improves\n**Week 4:** New normal, healing benefits appear\n\n---\n\n**Your personalized guide respects your dietary preferences and restrictions.**`;
