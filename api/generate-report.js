@@ -1053,8 +1053,8 @@ function combineReports(reports) {
 function wrapInPrintHTML(markdownContent) {
   const printCSS = `
     @page {
-      size: A4;
-      margin: 15mm;
+      size: letter;
+      margin: 0.75in;
     }
 
     * {
@@ -1322,16 +1322,74 @@ function wrapInPrintHTML(markdownContent) {
     }
 
     @media print {
+      /* Hide UI elements */
       .no-print, .save-pdf-button {
         display: none !important;
+        visibility: hidden !important;
       }
-    }
 
-    /* Ensure text is black for print */
-    body {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      color-adjust: exact;
+      /* CRITICAL: Reset body constraints to prevent page clipping */
+      body {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        display: block !important;
+      }
+
+      /* Ensure html doesn't constrain either */
+      html {
+        overflow: visible !important;
+      }
+
+      /* Table page flow */
+      table {
+        page-break-inside: auto;
+        break-inside: auto;
+      }
+
+      tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      thead {
+        display: table-header-group;
+      }
+
+      /* Prevent orphaned headers */
+      h1, h2, h3 {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+
+      /* Cover page print handling */
+      .cover-page {
+        height: 95vh;
+        page-break-after: always;
+        break-after: page;
+      }
+
+      /* Images */
+      img {
+        max-width: 100%;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      /* Paragraphs and blockquotes */
+      p, blockquote {
+        orphans: 3;
+        widows: 3;
+      }
+
+      /* Color accuracy */
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+      }
     }
 
     /* Report sections */
