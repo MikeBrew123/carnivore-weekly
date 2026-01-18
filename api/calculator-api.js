@@ -1019,8 +1019,16 @@ async function handleReportInit(request, env) {
       lifestyle: session.form_data?.biggestChallenge || '',  // Lifestyle details
       challenges: session.form_data?.additionalNotes || '',  // Challenges
       healthConditions: session.form_data?.conditions || [],
-      selectedProtocol: session.form_data?.diet || 'Carnivore'
+      // CRITICAL FIX: diet_type is stored as a SEPARATE COLUMN from Step 2, NOT in form_data.diet
+      selectedProtocol: session.diet_type || session.form_data?.diet || 'Carnivore'
     };
+
+    // VALIDATION LOG: Verify diet selection source
+    console.log('=== DIET SELECTION DEBUG ===');
+    console.log('session.diet_type (COLUMN):', session.diet_type);
+    console.log('session.form_data?.diet (JSONB):', session.form_data?.diet);
+    console.log('FINAL selectedProtocol:', correctedData.selectedProtocol);
+    console.log('============================');
 
     // CRITICAL: Calculate macros from form data
     const macros = calculateMacros(session.form_data);
@@ -2430,6 +2438,13 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
  * - Reports #7-13: Restaurant, Science, Labs, Electrolytes, Timeline, Stall-Breaker, Tracker
  */
 async function generateAllReports(data, apiKey) {
+  // CRITICAL VALIDATION: Force diet to lowercase and log source
+  const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
+  console.log('========================================');
+  console.log('FINAL DIET SELECTION:', diet);
+  console.log('isPescatarian:', diet === 'pescatarian');
+  console.log('========================================');
+
   console.log('=== GENERATE ALL REPORTS START ===');
   console.log('Session:', data.sessionToken?.substring(0, 20) + '...');
   console.log('Protocol:', data.selectedProtocol);
@@ -3301,10 +3316,13 @@ function replacePlaceholders(template, data) {
     let proteinSection = '';
     if (weekData && weekData.proteins) {
       weekData.proteins.forEach(p => {
-        if (p && p.name && p.name.trim()) {
-          const quantity = p.quantity || '1 lb';
-          proteinSection += `* [ ] ${p.name} - ${quantity}\n`;
+        // CHECKBOX GHOST FIX v2: Strict guard clause - must have valid name with 2+ chars
+        const itemName = p?.name;
+        if (!itemName || itemName === 'undefined' || itemName.trim().length < 2) {
+          return null; // Skip invalid items completely
         }
+        const quantity = p.quantity || '1 lb';
+        proteinSection += `* [ ] ${itemName.trim()} - ${quantity}\n`;
       });
     }
 
@@ -3314,18 +3332,24 @@ function replacePlaceholders(template, data) {
       // Add eggs first (if not allergic and has valid name)
       if (weekData.eggs && weekData.eggs.length > 0) {
         weekData.eggs.forEach(e => {
-          if (e && e.name && e.name.trim()) {
-            dairyEggsSection += `* [ ] ${e.name} - 18-count\n`;
+          // CHECKBOX GHOST FIX v2: Strict guard clause - must have valid name with 2+ chars
+          const itemName = e?.name;
+          if (!itemName || itemName === 'undefined' || itemName.trim().length < 2) {
+            return null; // Skip invalid items completely
           }
+          dairyEggsSection += `* [ ] ${itemName.trim()} - 18-count\n`;
         });
       }
       // Add fats/dairy (if not allergic and has valid name)
       if (weekData.fats && weekData.fats.length > 0) {
         weekData.fats.forEach(f => {
-          if (f && f.name && f.name.trim()) {
-            const quantity = f.quantity || '1 lb';
-            dairyEggsSection += `* [ ] ${f.name} - ${quantity}\n`;
+          // CHECKBOX GHOST FIX v2: Strict guard clause - must have valid name with 2+ chars
+          const itemName = f?.name;
+          if (!itemName || itemName === 'undefined' || itemName.trim().length < 2) {
+            return null; // Skip invalid items completely
           }
+          const quantity = f.quantity || '1 lb';
+          dairyEggsSection += `* [ ] ${itemName.trim()} - ${quantity}\n`;
         });
       }
     }
@@ -3462,7 +3486,10 @@ function generateDynamicFoodGuide(dietType, data) {
     'lion': 'Lion',
     'pescatarian': 'Pescatarian',
     'keto': 'Keto',
-    'carnivore': 'Carnivore'
+    'carnivore': 'Carnivore',
+    'lowcarb': 'LowCarb',
+    'low-carb': 'LowCarb',
+    'low carb': 'LowCarb'
   };
 
   const standardizedDiet = dietMap[dietNormalized] || 'Carnivore'; // Default to Carnivore
@@ -3556,6 +3583,21 @@ function generateDynamicFoodGuide(dietType, data) {
 
     tierContent = `## TIER 1: FOUNDATION (70-75%)\n\n### Proteins & Healthy Fats\n${meats.map(p => `- ${p.name}`).join('\n')}${eggsSection}\n\n---\n\n## TIER 2: REGULAR VARIETY (15-20%)\n\n### Low-Carb Vegetables\n${availableVegetables.length > 0 ? availableVegetables.map(v => `- ${v.name}`).join('\n') : '- Leafy greens, broccoli, cauliflower, asparagus, zucchini'}\n\n### Healthy Fats\n${ketoFatsSection}`;
 
+  } else if (standardizedDiet === 'LowCarb') {
+    // Low-Carb: similar to Keto but with slightly more flexibility on carbs
+    const meats = availableProteins.filter(p => !p.category.toLowerCase().includes('egg'));
+    const eggs = availableProteins.filter(p => p.category.toLowerCase().includes('egg'));
+
+    // Build eggs section only if eggs are available after filtering
+    const eggsSection = eggs.length > 0 ? `\n\n### Eggs\n${eggs.map(p => `- ${p.name}`).join('\n')}` : '';
+
+    // Build fats section - respect dairy allergy
+    const hasDairyAllergy = allergies.includes('dairy');
+    const lowCarbFatsFallback = hasDairyAllergy ? '- Olive oil, avocado oil, coconut oil' : '- Butter, ghee, olive oil';
+    const lowCarbFatsSection = availableFats.length > 0 ? availableFats.map(f => `- ${f.name}`).join('\n') : lowCarbFatsFallback;
+
+    tierContent = `## TIER 1: FOUNDATION (60-70%)\n\n### Proteins\n${meats.map(p => `- ${p.name}`).join('\n')}${eggsSection}\n\n---\n\n## TIER 2: REGULAR VARIETY (20-25%)\n\n### Low-Carb Vegetables\n${availableVegetables.length > 0 ? availableVegetables.map(v => `- ${v.name}`).join('\n') : '- Leafy greens, broccoli, cauliflower, asparagus, zucchini, bell peppers'}\n\n### Healthy Fats\n${lowCarbFatsSection}\n\n---\n\n## TIER 3: OCCASIONAL (5-10%)\n\n### Limited Carbs\n- Berries (small portions)\n- Nuts and seeds\n- Dark chocolate (85%+ cacao)`;
+
   } else {
     // Default to Carnivore: all meats
     tierContent = `## TIER 1: FOUNDATION (70-80%)\n\n### Available Proteins\n${Object.entries(categories)
@@ -3594,14 +3636,16 @@ function generateDynamicFoodGuide(dietType, data) {
     'Lion': '🐂',
     'Pescatarian': '🐟',
     'Keto': '🔥',
-    'Carnivore': '🥩'
+    'Carnivore': '🥩',
+    'LowCarb': '🥗'
   };
 
   const titleMap = {
     'Lion': 'Lion Diet',
     'Pescatarian': 'Pescatarian Carnivore',
     'Keto': 'Ketogenic',
-    'Carnivore': 'Carnivore'
+    'Carnivore': 'Carnivore',
+    'LowCarb': 'Low-Carb'
   };
 
   const emoji = emojiMap[standardizedDiet] || '🥩';
@@ -3612,13 +3656,15 @@ function generateDynamicFoodGuide(dietType, data) {
     'Lion': 'https://carnivoreweekly.com/images/LionFP.png',
     'Pescatarian': 'https://carnivoreweekly.com/images/PescatarianFP.png',
     'Keto': 'https://carnivoreweekly.com/images/KetoFP.png',
-    'Carnivore': 'https://carnivoreweekly.com/images/CarnivorFP.png'
+    'Carnivore': 'https://carnivoreweekly.com/images/CarnivorFP.png',
+    'LowCarb': 'https://carnivoreweekly.com/images/LowCarbFP.png'
   };
   const pyramidImageUrl = imageMap[standardizedDiet] || imageMap['Carnivore'];
 
-  // Shellfish allergy disclaimer for pyramid image
+  // Shellfish allergy disclaimer for pyramid image - ONLY for Pescatarian diet with shellfish allergy
+  const isPescatarianDiet = standardizedDiet === 'Pescatarian';
   const hasShellfish = allergies.includes('shellfish');
-  const shellfishDisclaimer = hasShellfish
+  const shellfishDisclaimer = (isPescatarianDiet && hasShellfish)
     ? '\n\n> **IMAGE FOR ILLUSTRATION:** Since you have a shellfish allergy, strictly follow the Tier lists below which exclude all shellfish.\n'
     : '';
 
