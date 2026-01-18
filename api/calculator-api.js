@@ -36,6 +36,9 @@
  * Deploy with: wrangler deploy --name calculator-api calculator-api.js
  */
 
+// Version marker for deployment verification
+const DEPLOY_VERSION = "v2026-01-17-aden-safety";
+
 // ===== UTILITY FUNCTIONS =====
 
 function generateUUID() {
@@ -1003,25 +1006,31 @@ async function handleReportInit(request, env) {
     const correctedData = {
       ...session,
       ...session.form_data,
-      // Frontend sends wrong field names - correct the mapping:
+      // Map frontend field names correctly:
       firstName: session.form_data?.firstName || session.first_name,
       lastName: session.form_data?.lastName || session.last_name,
-      allergies: session.form_data?.avoidFoods || '',  // Frontend: "avoidFoods" = actual allergies
-      avoidFoods: session.form_data?.previousDiets || '',  // Frontend: "previousDiets" = foods to avoid
-      goals: session.form_data?.medications || '',  // Frontend: "medications" = goals
-      currentSymptoms: session.form_data?.otherSymptoms || '',
-      dietHistory: session.form_data?.allergies || '',  // Frontend: "allergies" = diet history
-      medications: session.form_data?.whatWorked || '',  // Frontend: "whatWorked" = medications
-      lifestyle: session.form_data?.biggestChallenge || '',
-      challenges: session.form_data?.additionalNotes || '',
+      goals: session.form_data?.goals || '',  // User's health goals
+      currentSymptoms: session.form_data?.otherSymptoms || '',  // Current symptoms
+      dietHistory: session.form_data?.previousDiets || '',  // Past diet experience
+      allergies: session.form_data?.allergies || '',  // Food allergies
+      avoidFoods: session.form_data?.avoidFoods || '',  // Foods to avoid
+      medications: session.form_data?.medications || '',  // Current medications
+      whatWorked: session.form_data?.whatWorked || '',  // What worked before
+      lifestyle: session.form_data?.biggestChallenge || '',  // Lifestyle details
+      challenges: session.form_data?.additionalNotes || '',  // Challenges
       healthConditions: session.form_data?.conditions || [],
       selectedProtocol: session.form_data?.diet || 'Carnivore'
     };
+
+    // CRITICAL: Calculate macros from form data
+    const macros = calculateMacros(session.form_data);
+    correctedData.macros = macros;
 
     console.log('=== CORRECTED DATA MAPPING ===');
     console.log('Corrected firstName:', correctedData.firstName);
     console.log('Corrected allergies:', correctedData.allergies);
     console.log('Corrected avoidFoods:', correctedData.avoidFoods);
+    console.log('Calculated macros:', macros);
     console.log('=================================');
 
     const reportsObject = await generateAllReports(correctedData, env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY);
@@ -1092,6 +1101,10 @@ async function handleReportInit(request, env) {
       console.warn('[handleReportInit] Database save skipped (PostgREST cache issue):', errorText.substring(0, 100));
       // Continue anyway - report is generated and we can return it
     }
+
+    // Log the report size for debugging
+    console.log('[handleReportInit] FINAL REPORT SIZE:', reportHTML.length, 'characters');
+    console.log('[handleReportInit] Report ends with:', reportHTML.slice(-200));
 
     return createSuccessResponse({
       access_token: accessToken,
@@ -1215,9 +1228,13 @@ function calculateMacros(formData) {
   const age = formData.age || 30;
   const sex = (formData.sex || 'male').toLowerCase();
   const goal = formData.goal || 'maintain';
-  const diet = formData.diet || 'carnivore';
+  // Normalize diet - check both 'diet' and 'selectedProtocol' fields, case-insensitive
+  const rawDiet = formData.diet || formData.selectedProtocol || 'carnivore';
+  const diet = rawDiet.toLowerCase().trim();
   // Try both 'exercise' and 'lifestyle' field names
   const exercise = formData.exercise || formData.lifestyle || 'moderate';
+
+  console.log('[calculateMacros] Input diet:', rawDiet, '-> normalized:', diet);
 
   // BMR using Mifflin-St Jeor
   let bmr;
@@ -1252,19 +1269,39 @@ function calculateMacros(formData) {
   calories -= deficit;
 
   let protein, fat, carbs;
-  if (diet === 'carnivore') {
-    protein = Math.round(weightKg * 2); // 2g/kg
+
+  // All low-carb/animal-based diets use similar macro calculation
+  // High protein (2g/kg), fat fills remaining calories, minimal carbs
+  const isLowCarbDiet = ['carnivore', 'lion', 'pescatarian', 'keto', 'strict carnivore', 'lowcarb', 'low-carb', 'low carb'].includes(diet);
+
+  if (isLowCarbDiet) {
+    protein = Math.round(weightKg * 2); // 2g/kg for adequate protein
     const proteinCals = protein * 4;
-    const fatCals = calories - proteinCals;
-    fat = Math.round(fatCals / 9);
-    carbs = 0;
+
+    // For keto, allow small amount of carbs (20g), rest from fat
+    if (diet === 'keto') {
+      carbs = 20;
+      const carbCals = carbs * 4;
+      const fatCals = calories - proteinCals - carbCals;
+      fat = Math.round(fatCals / 9);
+    } else {
+      // Carnivore, Lion, Pescatarian - zero/minimal carbs
+      carbs = 0;
+      const fatCals = calories - proteinCals;
+      fat = Math.round(fatCals / 9);
+    }
   } else {
+    // Standard macro split for other diets (not currently used but keeping for safety)
     protein = Math.round(weightKg * 1.6);
     const proteinCals = protein * 4;
     const fatCals = calories * 0.3;
     fat = Math.round(fatCals / 9);
     carbs = Math.round((calories - proteinCals - fatCals) / 4);
   }
+
+  // Validate: ensure protein + fat + carbs calories roughly equal total
+  const calculatedCals = (protein * 4) + (fat * 9) + (carbs * 4);
+  console.log('[calculateMacros] Calorie check: target=' + Math.round(calories) + ', calculated=' + calculatedCals + ', diff=' + (Math.round(calories) - calculatedCals));
 
   const result = {
     calories: Math.round(calories),
@@ -1593,12 +1630,33 @@ function shouldFilterOutFood(food, allergies, foodRestrictions) {
       return true;
     }
     if (allergies.includes('egg') && foodName.includes('egg')) {
+      console.log(`[shouldFilterOutFood] EGG CHECK - Food: "${food.name}", allergies: "${allergies}", foodName: "${foodName}", FILTERED OUT: true`);
       return true;
     }
-    if (allergies.includes('fish') && (category.includes('fish') || foodName.includes('fish') || foodName.includes('salmon') || foodName.includes('tuna') || foodName.includes('mackerel') || foodName.includes('sardine') || foodName.includes('herring') || foodName.includes('cod') || foodName.includes('trout'))) {
+    // IMPORTANT: Check shellfish BEFORE fish - "shellfish" contains "fish" as substring!
+    // Use regex word boundary to avoid false matches
+    // ENHANCED: Detect shellfish allergy from keyword OR any shellfish item in allergies string
+    const hasFishAllergy = /\bfish\b/i.test(allergies);
+    const allergiesLower = allergies.toLowerCase();
+    const hasShellfishAllergy = /\bshellfish\b/i.test(allergies) ||
+      allergiesLower.includes('shrimp') || allergiesLower.includes('crab') ||
+      allergiesLower.includes('lobster') || allergiesLower.includes('oyster') ||
+      allergiesLower.includes('clam') || allergiesLower.includes('mussel') ||
+      allergiesLower.includes('scallop');
+
+    // Check if this food IS a shellfish item (by name or category)
+    const isShellfish = category.includes('shellfish') ||
+      foodName.includes('shrimp') || foodName.includes('crab') ||
+      foodName.includes('lobster') || foodName.includes('oyster') ||
+      foodName.includes('clam') || foodName.includes('mussel') ||
+      foodName.includes('scallop');
+
+    // If user has ANY shellfish allergy, filter out ALL shellfish items
+    if (hasShellfishAllergy && isShellfish) {
+      console.log(`[shouldFilterOutFood] SHELLFISH ALLERGY - Filtering: "${food.name}" (category: ${category})`);
       return true;
     }
-    if (allergies.includes('shellfish') && (foodName.includes('shrimp') || foodName.includes('crab') || foodName.includes('lobster') || foodName.includes('oyster') || foodName.includes('clam') || foodName.includes('mussel') || foodName.includes('scallop'))) {
+    if (hasFishAllergy && (category.includes('fish') || foodName.includes('fish') || foodName.includes('salmon') || foodName.includes('tuna') || foodName.includes('mackerel') || foodName.includes('sardine') || foodName.includes('herring') || foodName.includes('cod') || foodName.includes('trout'))) {
       return true;
     }
     if (allergies.includes('pork') && (category.includes('pork') || foodName.includes('pork') || foodName.includes('bacon') || foodName.includes('ham'))) {
@@ -1649,32 +1707,66 @@ function shouldFilterOutFood(food, allergies, foodRestrictions) {
  * Generate full 30-day meal plan using database and week/day loops
  */
 function generateFullMealPlan(data) {
-  const diet = data.selectedProtocol || 'Carnivore';
+  console.log('=== MEAL PLAN DEBUG ===');
+  console.log('dailyProtein:', data.dailyProtein);
+  console.log('dailyFat:', data.dailyFat);
+  console.log('dailyCalories:', data.dailyCalories);
+  console.log('mealsPerDay:', data.mealsPerDay);
+  console.log('selectedProtocol:', data.selectedProtocol);
+  console.log('allergies:', data.allergies);
+  console.log('avoidFoods:', data.avoidFoods);
+  console.log('Full data keys:', Object.keys(data));
+
+  const diet = (data.selectedProtocol || 'Carnivore').trim();
   const budget = data.budget || 'moderate';
   const allergies = (data.allergies || '').toLowerCase();
   // Use avoidFoods (form field) or foodRestrictions (API field) - whichever is provided
   const foodRestrictions = (data.avoidFoods || data.foodRestrictions || '').toLowerCase();
 
+  console.log('[generateFullMealPlan] ===  MEAL PLAN GENERATION START ===');
+  console.log('[generateFullMealPlan] Diet/Protocol:', diet);
+  console.log('[generateFullMealPlan] Budget:', budget);
   console.log('[generateFullMealPlan] Allergies:', allergies);
   console.log('[generateFullMealPlan] Food Restrictions:', foodRestrictions);
-  console.log('[generateFullMealPlan] Diet:', diet, 'Budget:', budget);
+  console.log('[generateFullMealPlan] Has macros?:', !!data.macros);
+  console.log('[generateFullMealPlan] Macros:', data.macros);
 
-  // Filter proteins by diet, budget, allergies, and restrictions
-  const availableProteins = foodDatabase.proteins.filter(p =>
-    p.diet.includes(diet) &&
-    p.cost.includes(budget) &&
-    !shouldFilterOutFood(p, allergies, foodRestrictions)
-  );
+  // Normalize budget - "flexible" means any cost level is acceptable
+  const normalizedBudget = budget.toLowerCase();
+  const skipBudgetFilter = normalizedBudget === 'flexible' || normalizedBudget === '';
+  console.log('[generateFullMealPlan] Normalized budget:', normalizedBudget, 'Skip budget filter:', skipBudgetFilter);
+
+  // Filter proteins by diet, budget, allergies, and restrictions (case-insensitive diet matching)
+  // DEBUG: Log each protein's filter results
+  console.log('[generateFullMealPlan] === PROTEIN FILTER DEBUG ===');
+  console.log('[generateFullMealPlan] Total proteins in DB:', foodDatabase.proteins.length);
+
+  const availableProteins = foodDatabase.proteins.filter(p => {
+    const dietMatch = p.diet.some(d => d.toLowerCase() === diet.toLowerCase());
+    const budgetMatch = skipBudgetFilter || p.cost.includes(normalizedBudget);
+    const notFiltered = !shouldFilterOutFood(p, allergies, foodRestrictions);
+
+    // Log first 5 proteins that FAIL any filter
+    if (!dietMatch || !budgetMatch || !notFiltered) {
+      if (p.name.toLowerCase().includes('salmon') || p.name.toLowerCase().includes('cod') || p.name.toLowerCase().includes('tuna')) {
+        console.log(`[FILTER] ${p.name}: diet=${dietMatch}(${p.diet.join(',')}), budget=${budgetMatch}(${p.cost.join(',')}), notFiltered=${notFiltered}`);
+      }
+    }
+
+    return dietMatch && budgetMatch && notFiltered;
+  });
 
   console.log('[generateFullMealPlan] Available proteins after filtering:', availableProteins.length);
   console.log('[generateFullMealPlan] First 5 proteins:', availableProteins.slice(0, 5).map(p => p.name).join(', '));
 
-  // Fallback to Carnivore if no matches
+  // Fallback: if no matches, try same diet without budget filter
   if (availableProteins.length === 0) {
+    console.log('[generateFullMealPlan] No proteins found, trying without budget filter...');
     availableProteins.push(...foodDatabase.proteins.filter(p =>
-      p.diet.includes('Carnivore') &&
+      p.diet.some(d => d.toLowerCase() === diet.toLowerCase()) &&
       !shouldFilterOutFood(p, allergies, foodRestrictions)
     ));
+    console.log('[generateFullMealPlan] After diet-only fallback:', availableProteins.length);
   }
 
   // Last resort fallback: if user has conflicting restrictions, show error message in meal plan
@@ -1688,12 +1780,17 @@ function generateFullMealPlan(data) {
 
   // Get macro targets for portion calculations
   const dailyCalories = data.macros?.calories || 2000;
-  const dailyProtein = data.macros?.protein || 150; // grams
-  const dailyFat = data.macros?.fat || 130; // grams
+  const dailyProtein = data.macros?.protein_grams || 150; // grams
+  const dailyFat = data.macros?.fat_grams || 130; // grams
+  const mealsPerDay = data.mealsPerDay || 2; // Default to 2 meals (common for carnivore)
 
-  // Calculate per-meal macros (assuming 3 meals/day)
-  const proteinPerMeal = Math.round(dailyProtein / 3); // ~50g per meal
-  const fatPerMeal = Math.round(dailyFat / 3); // ~43g per meal
+  console.log(`[generateFullMealPlan] Daily macros: ${dailyProtein}g protein, ${dailyFat}g fat, ${mealsPerDay} meals/day`);
+
+  // Calculate per-meal macros based on actual meals per day
+  const proteinPerMeal = Math.round(dailyProtein / mealsPerDay);
+  const fatPerMeal = Math.round(dailyFat / mealsPerDay);
+
+  console.log(`[generateFullMealPlan] Per-meal targets: ${proteinPerMeal}g protein, ${fatPerMeal}g fat`);
 
   // Generate 30-day meal plan
   const mealPlan = {
@@ -1725,52 +1822,174 @@ function generateFullMealPlan(data) {
         foodRestrictions
       );
 
-      // Calculate portion sizes to hit macro targets
-      // Protein: ~25g per 100g meat, Eggs: ~6g protein each
-      // Fat: ~20g per 100g fatty meat, ~5g per tbsp butter
-      const meatGrams = Math.round((proteinPerMeal * 100) / 25); // ~200g for 50g protein
-      const eggCount = eggsAllowed ? 2 : 0; // 2 eggs = ~12g protein
-      const butterTbsp = 1; // 1 tbsp = ~11g fat
+      // Calculate portion sizes accounting for ALL ingredients
+      // Food database has .protein and .fat per 100g
 
-      let breakfast, lunch, dinner;
+      // Known nutritional values for common additions
+      const EGG_PROTEIN = 13; // grams protein per egg
+      const EGG_FAT = 11; // grams fat per egg
+      const BUTTER_FAT = 11; // grams fat per tbsp
+      const AVOCADO_FAT = 11; // grams fat per 1/2 avocado
 
-      if (diet.includes('Lion')) {
-        breakfast = `${meatGrams}g ${mainProtein.name}`;
-        lunch = `${meatGrams}g ${mainProtein.name}`;
-        dinner = `${meatGrams}g ${mainProtein.name}`;
-      } else if (diet.includes('Strict Carnivore')) {
-        breakfast = eggsAllowed
-          ? `${Math.round(meatGrams * 0.7)}g ${mainProtein.name}, ${eggCount} Eggs, ${butterTbsp} tbsp Butter`
-          : `${meatGrams}g ${mainProtein.name}, ${butterTbsp} tbsp Butter`;
-        lunch = `${meatGrams}g ${mainProtein.name}`;
-        dinner = `${meatGrams}g ${altProtein.name}, ${butterTbsp} tbsp Butter`;
-      } else if (diet.includes('Pescatarian')) {
-        breakfast = eggsAllowed
-          ? `${eggCount} Eggs, ${Math.round(meatGrams * 0.6)}g ${mainProtein.name}, ${butterTbsp} tbsp Butter`
-          : `${meatGrams}g ${mainProtein.name}, ${butterTbsp} tbsp Butter`;
-        lunch = `${meatGrams}g ${mainProtein.name}`;
-        dinner = `${meatGrams}g ${altProtein.name}, ${butterTbsp} tbsp Butter`;
-      } else if (diet.includes('Keto')) {
-        breakfast = eggsAllowed
-          ? `${eggCount} Eggs, ${Math.round(meatGrams * 0.6)}g ${mainProtein.name}, 1/2 Avocado`
-          : `${meatGrams}g ${mainProtein.name}, 1/2 Avocado`;
-        lunch = `${meatGrams}g ${mainProtein.name}, 1 cup Leafy Greens, ${butterTbsp} tbsp Butter`;
-        dinner = `${meatGrams}g ${altProtein.name}, 1 cup Broccoli, 1 tbsp Oil`;
+      const eggCount = eggsAllowed ? 2 : 0; // 2 eggs if allowed
+      const eggProtein = eggCount * EGG_PROTEIN; // 26g if eggs allowed, 0 otherwise
+      const eggFat = eggCount * EGG_FAT; // 22g if eggs allowed, 0 otherwise
+
+      // Calculate how much protein we need from meat (after accounting for eggs)
+      // For meals with eggs, meat provides less protein
+      // For meals without eggs, meat provides all protein
+
+      // Helper function: Calculate meat portion accounting for eggs
+      const calculateMeatPortion = (food, targetProteinGrams, includeEggs) => {
+        const proteinFromEggs = includeEggs ? eggProtein : 0;
+        const proteinNeededFromMeat = targetProteinGrams - proteinFromEggs;
+        const meatGrams = Math.round((proteinNeededFromMeat * 100) / food.protein);
+
+        // Return portion and actual macros delivered
+        const actualProtein = (meatGrams / 100) * food.protein + proteinFromEggs;
+        const actualFat = (meatGrams / 100) * food.fat + (includeEggs ? eggFat : 0);
+
+        return {
+          grams: meatGrams,
+          protein: actualProtein,
+          fat: actualFat
+        };
+      };
+
+      // Generate meals array based on mealsPerDay
+      const meals = [];
+
+      // MEAL VARIETY FIX: For high-calorie targets (3000+), split large portions between two proteins
+      // to improve palatability. Max single protein portion is 500g.
+      const MAX_SINGLE_PROTEIN_GRAMS = 500;
+
+      // Helper: Generate meal description, splitting if portion > 500g
+      // STRICT ENFORCEMENT: Never exceed 500g per protein source
+      const generateMealDescription = (protein1, protein2, targetProtein, includeEggs, extras = '') => {
+        const portion = calculateMeatPortion(protein1, targetProtein, includeEggs);
+
+        if (portion.grams > MAX_SINGLE_PROTEIN_GRAMS) {
+          // MUST split - portion exceeds cap
+          if (protein2 && protein1.name !== protein2.name) {
+            // Split between two different proteins
+            const halfProtein = Math.round(targetProtein / 2);
+            const portion1 = calculateMeatPortion(protein1, halfProtein, false);
+            const portion2 = calculateMeatPortion(protein2, halfProtein, false);
+            const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
+            return `${eggPart}${portion1.grams}g ${protein1.name}, ${portion2.grams}g ${protein2.name}${extras}`;
+          } else {
+            // Only one protein available - HARD CAP at 500g, add note about multiple servings
+            const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
+            const cappedGrams = MAX_SINGLE_PROTEIN_GRAMS;
+            const servings = Math.ceil(portion.grams / MAX_SINGLE_PROTEIN_GRAMS);
+            return `${eggPart}${cappedGrams}g ${protein1.name} (x${servings} servings throughout day)${extras}`;
+          }
+        } else {
+          const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
+          return `${eggPart}${portion.grams}g ${protein1.name}${extras}`;
+        }
+      };
+
+      if (mealsPerDay === 1) {
+        // One meal per day (OMAD) - typically Lion diet
+        const portion = calculateMeatPortion(mainProtein, proteinPerMeal, false);
+        // STRICT: For OMAD with high calories, always split if over 500g
+        if (portion.grams > MAX_SINGLE_PROTEIN_GRAMS) {
+          if (altProtein && mainProtein.name !== altProtein.name) {
+            const halfProtein = Math.round(proteinPerMeal / 2);
+            const p1 = calculateMeatPortion(mainProtein, halfProtein, false);
+            const p2 = calculateMeatPortion(altProtein, halfProtein, false);
+            meals.push({
+              name: 'Meal',
+              description: `${p1.grams}g ${mainProtein.name}, ${p2.grams}g ${altProtein.name}`
+            });
+          } else {
+            // Only one protein - cap at 500g with servings note
+            const servings = Math.ceil(portion.grams / MAX_SINGLE_PROTEIN_GRAMS);
+            meals.push({
+              name: 'Meal',
+              description: `${MAX_SINGLE_PROTEIN_GRAMS}g ${mainProtein.name} (x${servings} servings)`
+            });
+          }
+        } else {
+          meals.push({
+            name: 'Meal',
+            description: `${portion.grams}g ${mainProtein.name}`
+          });
+        }
+
+      } else if (mealsPerDay === 2) {
+        // Two meals per day (common for carnivore/keto)
+
+        // Meal 1 (Morning): Include eggs if allowed
+        const isKeto = diet.toLowerCase().includes('keto');
+        const extras1 = isKeto ? ', 1/2 Avocado' : ', 1 tbsp Butter';
+        const meal1Desc = generateMealDescription(mainProtein, altProtein, proteinPerMeal, eggsAllowed, extras1);
+        meals.push({
+          name: 'Meal 1',
+          description: meal1Desc
+        });
+
+        // Meal 2 (Evening): Alternate protein without eggs
+        const extras2 = isKeto ? ', 1 cup Broccoli, 1 tbsp Butter' : ', 1 tbsp Butter';
+        // Use a third protein if available for more variety
+        const thirdProtein = availableProteins[(proteinIndex + 2) % availableProteins.length];
+        const meal2Desc = generateMealDescription(altProtein, thirdProtein, proteinPerMeal, false, extras2);
+        meals.push({
+          name: 'Meal 2',
+          description: meal2Desc
+        });
+
       } else {
-        // Default Carnivore
-        breakfast = eggsAllowed
-          ? `${Math.round(meatGrams * 0.7)}g ${mainProtein.name}, ${eggCount} Eggs, ${butterTbsp} tbsp Butter`
-          : `${meatGrams}g ${mainProtein.name}, ${butterTbsp} tbsp Butter`;
-        lunch = `${meatGrams}g ${mainProtein.name}`;
-        dinner = `${meatGrams}g ${altProtein.name}, ${butterTbsp} tbsp Butter`;
+        // Three meals per day - use generateMealDescription for variety on high-calorie plans
+        const isKeto = diet.toLowerCase().includes('keto');
+        const thirdProtein = availableProteins[(proteinIndex + 2) % availableProteins.length];
+
+        // Breakfast: Include eggs if allowed
+        const breakfastExtras = isKeto ? ', 1/2 Avocado' : ', 1 tbsp Butter';
+        const breakfastDesc = generateMealDescription(mainProtein, altProtein, proteinPerMeal, eggsAllowed, breakfastExtras);
+        meals.push({
+          name: 'Breakfast',
+          description: breakfastDesc
+        });
+
+        // Lunch: Main protein, no eggs
+        const lunchExtras = isKeto ? ', 1 cup Leafy Greens, 1 tbsp Butter' : '';
+        const lunchDesc = generateMealDescription(mainProtein, thirdProtein, proteinPerMeal, false, lunchExtras);
+        meals.push({
+          name: 'Lunch',
+          description: lunchDesc
+        });
+
+        // Dinner: Alternate protein, no eggs
+        const dinnerExtras = isKeto ? ', 1 cup Broccoli, 1 tbsp Butter' : ', 1 tbsp Butter';
+        const dinnerDesc = generateMealDescription(altProtein, thirdProtein, proteinPerMeal, false, dinnerExtras);
+        meals.push({
+          name: 'Dinner',
+          description: dinnerDesc
+        });
       }
 
-    mealPlan.weeks[week - 1].days.push({
-      dayNumber: dayNum,
-      breakfast,
-      lunch,
-      dinner
+    // Build day object with only the meals that should be included
+    const dayObj = {
+      dayNumber: dayNum
+    };
+
+    // Add meals dynamically (supports 1, 2, or 3 meals)
+    meals.forEach((meal, index) => {
+      if (mealsPerDay === 1) {
+        dayObj.meal = meal.description;
+      } else if (mealsPerDay === 2) {
+        if (index === 0) dayObj.meal1 = meal.description;
+        if (index === 1) dayObj.meal2 = meal.description;
+      } else {
+        if (index === 0) dayObj.breakfast = meal.description;
+        if (index === 1) dayObj.lunch = meal.description;
+        if (index === 2) dayObj.dinner = meal.description;
+      }
     });
+
+    mealPlan.weeks[week - 1].days.push(dayObj);
   }
 
   return mealPlan;
@@ -1784,15 +2003,22 @@ function generateFullMealPlan(data) {
  * Generate data-driven grocery list using database filtering
  */
 function generateGroceryListByWeek(data) {
-  const diet = data.selectedProtocol || 'Carnivore';
+  const diet = (data.selectedProtocol || 'Carnivore').trim();
   const budget = data.budget || 'moderate';
   const allergies = (data.allergies || '').toLowerCase();
   // Use avoidFoods (form field) or foodRestrictions (API field) - whichever is provided
   const foodRestrictions = (data.avoidFoods || data.foodRestrictions || '').toLowerCase();
 
-  // Filter ingredients by diet, budget, allergies, and restrictions
+  // Get user's daily protein target (grams) - default to 150g if not calculated
+  const dailyProteinGrams = data.macros?.protein_grams || 150;
+  // Weekly protein needed in grams
+  const weeklyProteinGrams = dailyProteinGrams * 7;
+
+  console.log(`[generateGroceryListByWeek] Daily protein: ${dailyProteinGrams}g, Weekly: ${weeklyProteinGrams}g`);
+
+  // Filter ingredients by diet, budget, allergies, and restrictions (case-insensitive)
   let proteins = foodDatabase.proteins.filter(p =>
-    p.diet.includes(diet) &&
+    p.diet.some(d => d.toLowerCase() === diet.toLowerCase()) &&
     p.cost.includes(budget) &&
     !shouldFilterOutFood(p, allergies, foodRestrictions)
   );
@@ -1800,7 +2026,7 @@ function generateGroceryListByWeek(data) {
   // Fallback: if no proteins match, use Carnivore defaults
   if (proteins.length === 0) {
     proteins = foodDatabase.proteins.filter(p =>
-      p.diet.includes('Carnivore') &&
+      p.diet.some(d => d.toLowerCase() === 'carnivore') &&
       !shouldFilterOutFood(p, allergies, foodRestrictions)
     );
   }
@@ -1809,12 +2035,12 @@ function generateGroceryListByWeek(data) {
   if (proteins.length === 0) {
     console.warn('[generateGroceryListByWeek] WARNING: No proteins available after applying allergies/restrictions. Using ground beef fallback.');
     proteins = [
-      { name: 'Ground Beef', category: 'Beef', quantity: '5 lbs', diet: ['Carnivore'], cost: ['tight', 'moderate'] }
+      { name: 'Ground Beef', category: 'Beef', diet: ['Carnivore'], cost: ['tight', 'moderate'], protein: 20, calories: 290 }
     ];
   }
 
   let fats = foodDatabase.fats.filter(f =>
-    f.diet.includes(diet) &&
+    f.diet.some(d => d.toLowerCase() === diet.toLowerCase()) &&
     f.cost.includes(budget) &&
     !shouldFilterOutFood(f, allergies, foodRestrictions)
   );
@@ -1822,7 +2048,7 @@ function generateGroceryListByWeek(data) {
   // Fallback: if no fats match, use Carnivore defaults
   if (fats.length === 0) {
     fats = foodDatabase.fats.filter(f =>
-      f.diet.includes('Carnivore') &&
+      f.diet.some(d => d.toLowerCase() === 'carnivore') &&
       !shouldFilterOutFood(f, allergies, foodRestrictions)
     );
   }
@@ -1831,7 +2057,7 @@ function generateGroceryListByWeek(data) {
   if (fats.length === 0 && allergies && allergies.includes('dairy')) {
     console.warn('[generateGroceryListByWeek] WARNING: No fats available due to dairy allergy. Using coconut oil fallback.');
     fats = [
-      { name: 'Coconut Oil', category: 'Fats', quantity: '1 bottle', diet: ['Carnivore', 'Keto'], cost: ['moderate'] }
+      { name: 'Coconut Oil', category: 'Fats', diet: ['Carnivore', 'Keto'], cost: ['moderate'] }
     ];
   }
 
@@ -1840,33 +2066,75 @@ function generateGroceryListByWeek(data) {
     fats = foodDatabase.fats;
   }
 
-  // Generate grocery lists for each week
+  // Separate eggs from meat proteins (eggs go in "Dairy & Eggs" section)
+  const eggs = proteins.filter(p => p.category === 'Eggs');
+  const meatProteins = proteins.filter(p => p.category !== 'Eggs');
+
+  console.log(`[generateGroceryListByWeek] Filtered proteins: ${meatProteins.length}, fats: ${fats.length}, eggs: ${eggs.length}`);
+
+  /**
+   * Calculate quantity needed for a protein based on weekly protein target
+   * Protein values in database are per 100g
+   * 1 lb = 453.6g
+   */
+  function calculateProteinQuantity(proteinItem, weeklyGrams, numProteins) {
+    // Protein per protein item from this source (divide among numProteins sources)
+    const proteinFromThisSource = weeklyGrams / numProteins;
+    // Protein content per 100g (from database)
+    const proteinPer100g = proteinItem.protein || 20; // default 20g/100g
+    // Grams of this food needed
+    const gramsNeeded = (proteinFromThisSource / proteinPer100g) * 100;
+    // Convert to lbs (1 lb = 453.6g)
+    const lbsNeeded = gramsNeeded / 453.6;
+    // Round to nearest 0.5 lb, minimum 1 lb
+    const roundedLbs = Math.max(1, Math.round(lbsNeeded * 2) / 2);
+
+    console.log(`[calculateProteinQuantity] ${proteinItem.name}: ${proteinPer100g}g protein/100g, need ${proteinFromThisSource}g protein -> ${gramsNeeded}g food -> ${roundedLbs} lbs`);
+
+    return roundedLbs;
+  }
+
+  // Generate grocery lists for each week, rotating items for variety
   const groceryLists = {};
 
   for (let week = 1; week <= 4; week++) {
-    // Safely access proteins with fallback
-    const protein1 = proteins.length > 0 ? proteins[(week - 1) % proteins.length] : { name: 'Ground Beef', quantity: '5 lbs' };
-    const protein2 = proteins.length > 1 ? proteins[week % proteins.length] : { name: 'Beef Liver', quantity: '1-2 units' };
-    const fat1 = fats.length > 0 ? fats[0] : { name: 'Butter', quantity: '1 lb' };
+    // Rotate through available proteins (2-3 per week)
+    const weekProteinItems = [];
+    if (meatProteins.length >= 1) {
+      weekProteinItems.push(meatProteins[(week - 1) % meatProteins.length]);
+    }
+    if (meatProteins.length >= 2) {
+      weekProteinItems.push(meatProteins[week % meatProteins.length]);
+    }
+    if (meatProteins.length >= 3 && week % 2 === 0) {
+      // Add 3rd protein every other week for variety
+      weekProteinItems.push(meatProteins[(week + 1) % meatProteins.length]);
+    }
+
+    // Calculate quantities for each protein
+    const numProteins = weekProteinItems.length || 1;
+    const weekProteinsWithQuantity = weekProteinItems.map(p => ({
+      ...p,
+      quantity: `${calculateProteinQuantity(p, weeklyProteinGrams, numProteins)} lbs`
+    }));
+
+    // Rotate through fats (up to 2 per week) - fats get standard quantities
+    const weekFats = fats.slice(0, 2).map(f => ({
+      ...f,
+      quantity: f.category === 'Dairy' ? '1 lb' : '1 bottle'
+    }));
+
+    // Eggs: ~2 eggs/day = 14/week, round up to 18-count
+    const weekEggs = eggs.map(e => ({
+      ...e,
+      quantity: '18-count'
+    }));
 
     groceryLists[`week${week}`] = {
       weekNumber: week,
-      proteins: [
-        {
-          name: protein1.name || 'Ground Beef',
-          quantity: protein1.quantity || '5 lbs'
-        },
-        {
-          name: protein2.name || 'Beef Liver',
-          quantity: protein2.quantity || '1-2 units'
-        }
-      ],
-      fats: [
-        {
-          name: fat1.name || 'Butter',
-          quantity: fat1.quantity || '1 lb'
-        }
-      ],
+      proteins: weekProteinsWithQuantity,
+      fats: weekFats,
+      eggs: weekEggs,
       pantry: [
         {
           name: 'Salt (Redmond Real Salt)',
@@ -2060,58 +2328,58 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
   console.log('[wrapInPrintHTML] userData.lastName:', userData.lastName);
 
   const printCSS = `
-    @page { size: A4; margin: 15mm; }
-    * { margin: 0; padding: 0; }
-    html, body {
-      width: 100%;
-      font-family: 'Georgia', 'Times New Roman', serif;
-      font-size: 11pt;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       line-height: 1.6;
-      color: #000;
-      background: #fff;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
     }
-    body { padding: 12mm 15mm; max-width: 210mm; margin: 0 auto; }
-    h1, h2, h3, h4, h5, h6 { font-weight: bold; page-break-after: avoid; orphans: 3; widows: 3; }
-    h1 { font-size: 16pt; background-color: #f5f1ed; padding: 10pt 8pt; margin-top: 0pt; margin-bottom: 12pt; color: #1a1a1a; }
-    h2 { font-size: 13pt; margin-top: 16pt; margin-bottom: 8pt; color: #2c2c2c; }
-    h2:first-of-type { margin-top: 8pt; }
-    h3 { font-size: 11pt; margin-top: 10pt; margin-bottom: 6pt; color: #333; }
-    h4 { font-size: 10pt; margin-top: 8pt; margin-bottom: 4pt; color: #444; }
-    p { margin: 0 0 8pt 0; text-align: left; line-height: 1.5; orphans: 2; widows: 2; }
-    h1 + p, h2 + p, h3 + p, h4 + p { margin-top: 0pt; }
-    ul, ol { margin: 8pt 0 8pt 40pt; padding-left: 20pt; page-break-inside: avoid; }
-    li { margin-bottom: 6pt; margin-left: 20pt; text-align: left; }
-    hr { border: none; border-top: 1pt solid #ccc; margin: 20pt 0; page-break-after: avoid; }
-    table { width: 100%; border-collapse: collapse; margin: 14pt 0; page-break-inside: avoid; font-size: 10pt; line-height: 1.4; }
-    th { background-color: #e8e8e8; font-weight: bold; padding: 8pt 10pt; text-align: left; border: 1pt solid #999; }
-    td { padding: 7pt 10pt; border: 1pt solid #999; text-align: left; vertical-align: top; }
-    tr { page-break-inside: avoid; }
-    tr:nth-child(even) { background-color: #fafafa; }
-    code { font-family: 'Courier New', monospace; font-size: 9pt; background: #f5f5f5; padding: 2pt 4pt; }
-    a { color: #0066cc; text-decoration: none; }
-    img { max-width: 100%; height: auto; margin: 10pt 0; page-break-inside: avoid; }
-    strong, b { font-weight: bold; }
-    em, i { font-style: italic; }
-    .save-pdf-button {
-      position: fixed; top: 20px; right: 20px;
-      background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
-      color: #1a120b; font-size: 14pt; font-weight: bold;
-      padding: 12pt 24pt; border: none; border-radius: 8px;
-      cursor: pointer; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-      z-index: 1000;
+
+    h1, h2, h3 { margin-top: 1.5em; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
     }
-    .save-pdf-button:hover { background: linear-gradient(135deg, #e6c200 0%, #d4af00 100%); transform: translateY(-2px); }
-    @media print { .no-print, .save-pdf-button { display: none !important; } }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
     .cover-page {
-      display: flex; flex-direction: column; justify-content: center;
-      align-items: center; height: 100vh; page-break-after: always;
-      text-align: center; padding: 0; margin: 0;
+      text-align: center;
+      padding: 50px 0;
     }
-    .cover-logo { margin-bottom: 40pt; }
-    .cover-logo img { max-width: 400pt; max-height: 400pt; width: auto; height: auto; }
-    .cover-title { font-size: 36pt; font-weight: bold; color: #1a1a1a; margin-bottom: 60pt; max-width: 500pt; }
-    .cover-date { font-size: 14pt; color: #666; margin-top: auto; padding-bottom: 40pt; }
-    .content-start { page-break-before: always; }
+
+    .cover-logo img {
+      max-width: 300px;
+    }
+
+    .cover-title {
+      font-size: 28px;
+      margin: 30px 0;
+    }
+
+    .save-pdf-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ffd700;
+      color: #000;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    @media print {
+      .no-print, .save-pdf-button { display: none; }
+    }
   `;
 
   const generatedDate = new Date().toLocaleDateString('en-US', {
@@ -2139,6 +2407,7 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
     </div>
     <h1 class="cover-title">Your Complete Personalized<br>Carnivore Diet Report${userData.firstName ? `<br><span style="font-size: 24pt; font-weight: normal; color: #666;">Prepared for ${userData.firstName}${userData.lastName ? ' ' + userData.lastName : ''}</span>` : ''}</h1>
     <div class="cover-date">Generated on ${generatedDate}</div>
+    <div style="font-size: 9pt; color: #999; margin-top: 10pt;">Report Version: ${DEPLOY_VERSION}</div>
   </div>
   <div class="content-start report-content">
     ${contentHTML}
@@ -2387,7 +2656,92 @@ CONSISTENCY REQUIREMENTS:
 4. If uncertain about user history, use general language ("many people find...")
 5. Cross-check all claims against user profile data`;
 
+  // Build diet-specific food recommendations
+  const diet = data.selectedProtocol || 'Carnivore';
+  let dietSpecificGuidance = '';
+
+  if (diet.toLowerCase() === 'pescatarian') {
+    // Build safe fish list respecting allergies and avoidFoods
+    const hasShellfishAllergy = (data.allergies || '').toLowerCase().includes('shellfish');
+    const avoidFoods = (data.avoidFoods || '').toLowerCase();
+    const safeFishList = [];
+    if (!avoidFoods.includes('salmon')) safeFishList.push('salmon');
+    if (!avoidFoods.includes('cod')) safeFishList.push('cod');
+    if (!avoidFoods.includes('tuna')) safeFishList.push('tuna');
+    if (!avoidFoods.includes('mackerel')) safeFishList.push('mackerel');
+    if (!avoidFoods.includes('tilapia')) safeFishList.push('tilapia');
+    // Sardines only if not in avoidFoods
+    if (!avoidFoods.includes('sardine')) safeFishList.push('sardines');
+    const safeFishText = safeFishList.length > 0 ? safeFishList.join(', ') : 'salmon, cod, tuna';
+
+    const shellfishWarning = hasShellfishAllergy
+      ? '\n- ⚠️ USER HAS SHELLFISH ALLERGY - NO shrimp, crab, lobster, oysters, clams, mussels, scallops'
+      : '';
+
+    dietSpecificGuidance = `
+DIET PROTOCOL: PESCATARIAN
+The user has selected a PESCATARIAN protocol. This means:
+- PRIMARY proteins: Fish (${safeFishText})
+- SECONDARY proteins: Eggs (if not allergic)
+- ALLOWED fats: Butter, ghee, olive oil
+- ABSOLUTELY NO: Beef, pork, chicken, lamb, or any land animal meat${shellfishWarning}
+
+For "First Action Step", suggest:
+- ${safeFishList[0] || 'Salmon'} fillets (fresh or frozen)
+- Canned fish (${safeFishList.slice(0, 3).join(', ') || 'tuna, mackerel'})
+- Eggs (if not allergic)
+- Butter or ghee for cooking
+
+DO NOT suggest ribeye, ground beef, bacon, chicken, or any meat.`;
+  } else if (diet.toLowerCase() === 'lion') {
+    dietSpecificGuidance = `
+DIET PROTOCOL: LION DIET
+The user has selected a LION DIET protocol. This means:
+- ONLY beef, salt, and water
+- No other meats, no dairy, no eggs
+- Strictest elimination protocol
+
+For "First Action Step", suggest:
+- Ground beef (80/20)
+- Ribeye or NY strip steaks
+- Quality salt (Redmond Real Salt)
+- Water
+
+DO NOT suggest pork, chicken, fish, eggs, or dairy.`;
+  } else if (diet.toLowerCase() === 'keto') {
+    dietSpecificGuidance = `
+DIET PROTOCOL: KETO
+The user has selected a KETO protocol. This means:
+- All animal proteins allowed (beef, pork, chicken, fish)
+- Eggs and dairy allowed
+- Low-carb vegetables allowed
+- Focus on high fat, moderate protein, very low carb
+
+For "First Action Step", suggest a mix of:
+- Fatty meats (ribeye, ground beef, chicken thighs)
+- Eggs
+- Butter/ghee
+- Low-carb vegetables (spinach, broccoli)`;
+  } else {
+    // Default Carnivore
+    dietSpecificGuidance = `
+DIET PROTOCOL: CARNIVORE
+The user has selected a CARNIVORE protocol. This means:
+- All animal proteins allowed (beef, pork, chicken, lamb, fish)
+- Eggs allowed
+- Dairy optional (butter, ghee, cheese if tolerated)
+- No plant foods
+
+For "First Action Step", suggest:
+- Ribeye steaks or ground beef
+- Eggs
+- Butter for cooking
+- Quality salt`;
+  }
+
   return `You are an expert nutritional and behavioral coach creating personalized Executive Summaries for diet protocols.
+
+${dietSpecificGuidance}
 
 TONE & STYLE:
 - Direct, supportive, practical
@@ -2405,7 +2759,7 @@ CONTENT REQUIREMENTS:
 - Mission Brief (1-2 sentences): Why this protocol fits their situation
 - Daily Targets: Specific macros, calories, and approach
 - Why This Protocol: Evidence that this works for their goal
-- First Action Step: What to do TODAY (must respect food preferences below)
+- First Action Step: What to do TODAY (must respect diet protocol AND food preferences below)
 - 30-Day Timeline: What to expect week by week
 - Biggest Challenge Addressed: Direct response to their stated concern
 - Medical Disclaimer: Required at bottom
@@ -2417,7 +2771,8 @@ ${medicalSafetyWarnings}
 ${consistencyRules}
 
 When recommending specific foods in "First Action Step" or anywhere else:
-- ONLY suggest proteins they actually want to eat
+- MUST follow the diet protocol above (e.g., NO BEEF for Pescatarian)
+- ONLY suggest proteins appropriate for their selected diet
 - NEVER force-recommend foods from the avoid list
 - ASK what proteins they prefer instead (they told us: ${data.additionalNotes ? data.additionalNotes.substring(0, 200) : 'no preferences stated'}...)
 - Build shopping list around their actual preferences, not defaults`;
@@ -2429,10 +2784,21 @@ When recommending specific foods in "First Action Step" or anywhere else:
 function buildObstacleProtocolSystemPrompt(data) {
   // Build list of foods to absolutely avoid
   let foodsToAvoid = [];
+  const diet = (data?.selectedProtocol || 'Carnivore').toLowerCase();
+  const isPescatarian = diet === 'pescatarian';
+
+  // For Pescatarian: automatically add all land meats to avoid list
+  if (isPescatarian) {
+    foodsToAvoid.push('beef', 'ribeye', 'ground beef', 'steak', 'chicken', 'bacon', 'pork', 'lamb', 'jerky');
+  }
 
   if (data && data.allergies) {
     const allergiesList = data.allergies.toLowerCase().split(',').map(a => a.trim());
     foodsToAvoid.push(...allergiesList);
+    // If shellfish allergy, add all shellfish items explicitly
+    if (allergiesList.some(a => a.includes('shellfish') || a.includes('shrimp') || a.includes('crab'))) {
+      foodsToAvoid.push('shrimp', 'crab', 'lobster', 'oysters', 'clams', 'mussels', 'scallops', 'shellfish');
+    }
   }
 
   if (data && (data.avoidFoods || data.foodRestrictions)) {
@@ -2440,9 +2806,18 @@ function buildObstacleProtocolSystemPrompt(data) {
     foodsToAvoid.push(...restrictions);
   }
 
+  // Deduplicate
+  foodsToAvoid = [...new Set(foodsToAvoid)];
+
   const avoidListFormatted = foodsToAvoid.length > 0
     ? `\n\n⚠️ CRITICAL - FOODS THIS USER CANNOT/WILL NOT EAT:\n${foodsToAvoid.map(f => `- ${f}`).join('\n')}\n\nDO NOT RECOMMEND ANY OF THESE FOODS WHATSOEVER.`
     : '';
+
+  // Diet-specific guidance for AI
+  let dietGuidance = '';
+  if (isPescatarian) {
+    dietGuidance = `\n\nDIET PROTOCOL: PESCATARIAN\nThis user ONLY eats fish, seafood, eggs, and dairy. NO land animal meat.\nWhen suggesting food tactics, ONLY use: salmon, tuna, cod, mackerel, eggs, butter.\nNEVER mention: ribeye, ground beef, steak, chicken, bacon, pork, lamb, or jerky.`;
+  }
 
   const medicalSafetyWarnings = `
 
@@ -2484,6 +2859,7 @@ OUTPUT FORMAT:
 - Tone is motivational but grounded in reality
 
 ${avoidListFormatted}
+${dietGuidance}
 
 ${medicalSafetyWarnings}
 
@@ -2524,24 +2900,136 @@ function getTemplateContent(templateName, dietOrData) {
     // Report #2: Food Guide - Conditional on diet type (now dynamically generated)
     foodGuide: generateDynamicFoodGuide(data.selectedProtocol, data),
 
-    // Report #3: 30-Day Meal Calendar
-    mealCalendar: `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n## Week 1: Adaptation & Baseline\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 1 | {{breakfast1}} | {{lunch1}} | {{dinner1}} |\n| Day 2 | {{breakfast2}} | {{lunch2}} | {{dinner2}} |\n| Day 3 | {{breakfast3}} | {{lunch3}} | {{dinner3}} |\n| Day 4 | {{breakfast4}} | {{lunch4}} | {{dinner4}} |\n| Day 5 | {{breakfast5}} | {{lunch5}} | {{dinner5}} |\n| Day 6 | {{breakfast6}} | {{lunch6}} | {{dinner6}} |\n| Day 7 | {{breakfast7}} | {{lunch7}} | {{dinner7}} |\n\n## Week 2: Building Consistency\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 8 | {{breakfast8}} | {{lunch8}} | {{dinner8}} |\n| Day 9 | {{breakfast9}} | {{lunch9}} | {{dinner9}} |\n| Day 10 | {{breakfast10}} | {{lunch10}} | {{dinner10}} |\n| Day 11 | {{breakfast11}} | {{lunch11}} | {{dinner11}} |\n| Day 12 | {{breakfast12}} | {{lunch12}} | {{dinner12}} |\n| Day 13 | {{breakfast13}} | {{lunch13}} | {{dinner13}} |\n| Day 14 | {{breakfast14}} | {{lunch14}} | {{dinner14}} |\n\n## Week 3: Finding Your Rhythm\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 15 | {{breakfast15}} | {{lunch15}} | {{dinner15}} |\n| Day 16 | {{breakfast16}} | {{lunch16}} | {{dinner16}} |\n| Day 17 | {{breakfast17}} | {{lunch17}} | {{dinner17}} |\n| Day 18 | {{breakfast18}} | {{lunch18}} | {{dinner18}} |\n| Day 19 | {{breakfast19}} | {{lunch19}} | {{dinner19}} |\n| Day 20 | {{breakfast20}} | {{lunch20}} | {{dinner20}} |\n| Day 21 | {{breakfast21}} | {{lunch21}} | {{dinner21}} |\n\n## Week 4: The New Normal\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 22 | {{breakfast22}} | {{lunch22}} | {{dinner22}} |\n| Day 23 | {{breakfast23}} | {{lunch23}} | {{dinner23}} |\n| Day 24 | {{breakfast24}} | {{lunch24}} | {{dinner24}} |\n| Day 25 | {{breakfast25}} | {{lunch25}} | {{dinner25}} |\n| Day 26 | {{breakfast26}} | {{lunch26}} | {{dinner26}} |\n| Day 27 | {{breakfast27}} | {{lunch27}} | {{dinner27}} |\n| Day 28 | {{breakfast28}} | {{lunch28}} | {{dinner28}} |\n| Day 29 | {{breakfast29}} | {{lunch29}} | {{dinner29}} |\n| Day 30 | {{breakfast30}} | {{lunch30}} | {{dinner30}} |\n\n## Substitution Guide\n- If you lack {{protein1}}, substitute with {{protein2}}\n- If you lack {{vegetable1}}, substitute with {{vegetable2}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`,
+    // Report #3: 30-Day Meal Calendar - DIET-AWARE
+    mealCalendar: (() => {
+      const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
+      const isPescatarian = diet === 'pescatarian';
+      const fattyProteinExamples = isPescatarian
+        ? 'fattier fish like salmon and mackerel'
+        : 'fattier cuts like ribeye and ground beef';
+      const cookingFatExamples = isPescatarian
+        ? 'butter, olive oil'
+        : 'butter, tallow';
+      return `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n**Note on Macros:** Your protein targets are precisely calculated. Fat may vary ±20-30% based on protein choices—${fattyProteinExamples} naturally deliver more fat when portioned for protein. Adjust cooking fats (${cookingFatExamples}) up or down based on hunger and your body's response.\n\n## Week 1: Adaptation & Baseline\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 1 | {{breakfast1}} | {{lunch1}} | {{dinner1}} |\n| Day 2 | {{breakfast2}} | {{lunch2}} | {{dinner2}} |\n| Day 3 | {{breakfast3}} | {{lunch3}} | {{dinner3}} |\n| Day 4 | {{breakfast4}} | {{lunch4}} | {{dinner4}} |\n| Day 5 | {{breakfast5}} | {{lunch5}} | {{dinner5}} |\n| Day 6 | {{breakfast6}} | {{lunch6}} | {{dinner6}} |\n| Day 7 | {{breakfast7}} | {{lunch7}} | {{dinner7}} |\n\n## Week 2: Building Consistency\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 8 | {{breakfast8}} | {{lunch8}} | {{dinner8}} |\n| Day 9 | {{breakfast9}} | {{lunch9}} | {{dinner9}} |\n| Day 10 | {{breakfast10}} | {{lunch10}} | {{dinner10}} |\n| Day 11 | {{breakfast11}} | {{lunch11}} | {{dinner11}} |\n| Day 12 | {{breakfast12}} | {{lunch12}} | {{dinner12}} |\n| Day 13 | {{breakfast13}} | {{lunch13}} | {{dinner13}} |\n| Day 14 | {{breakfast14}} | {{lunch14}} | {{dinner14}} |\n\n## Week 3: Finding Your Rhythm\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 15 | {{breakfast15}} | {{lunch15}} | {{dinner15}} |\n| Day 16 | {{breakfast16}} | {{lunch16}} | {{dinner16}} |\n| Day 17 | {{breakfast17}} | {{lunch17}} | {{dinner17}} |\n| Day 18 | {{breakfast18}} | {{lunch18}} | {{dinner18}} |\n| Day 19 | {{breakfast19}} | {{lunch19}} | {{dinner19}} |\n| Day 20 | {{breakfast20}} | {{lunch20}} | {{dinner20}} |\n| Day 21 | {{breakfast21}} | {{lunch21}} | {{dinner21}} |\n\n## Week 4: The New Normal\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 22 | {{breakfast22}} | {{lunch22}} | {{dinner22}} |\n| Day 23 | {{breakfast23}} | {{lunch23}} | {{dinner23}} |\n| Day 24 | {{breakfast24}} | {{lunch24}} | {{dinner24}} |\n| Day 25 | {{breakfast25}} | {{lunch25}} | {{dinner25}} |\n| Day 26 | {{breakfast26}} | {{lunch26}} | {{dinner26}} |\n| Day 27 | {{breakfast27}} | {{lunch27}} | {{dinner27}} |\n| Day 28 | {{breakfast28}} | {{lunch28}} | {{dinner28}} |\n| Day 29 | {{breakfast29}} | {{lunch29}} | {{dinner29}} |\n| Day 30 | {{breakfast30}} | {{lunch30}} | {{dinner30}} |\n\n## Substitution Guide\n{{substitutionGuide}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`;
+    })(),
 
     // Report #4: Weekly Shopping Lists
-    shoppingList: `## Report #4: Your Weekly Grocery Lists\n\n*Based on your custom {{diet}} meal plan*\n\n> **⚠️ A Note on Grocery Pricing:** Food costs vary by region and season. Your \"{{budget}}\" setting controls the **types of cuts** recommended, not the final total.\n\n## 🛒 "Week 0" Pantry Stock-Up\n* [ ] Quality Salt (Redmond Real Salt or Maldon)\n* [ ] Primary Cooking Fat (Butter or Ghee)\n* [ ] Food Storage Containers\n* [ ] Basic Seasonings (if tolerated)\n\n## 🛒 Week 1 Shopping List\n### 🥩 The Butcher\n* [ ] {{protein1Week1}} - {{qty1Week1}}\n* [ ] {{protein2Week1}} - {{qty2Week1}}\n\n### 🥚 Dairy & Eggs\n* [ ] Eggs - 18-count\n* [ ] {{dairy1}} - {{dairyQty1}}\n\n### 🧂 Pantry\n* [ ] Salt - 1 container\n\n## 🛒 Week 2 Shopping List\n### 🥩 The Butcher\n* [ ] {{protein1Week2}} - {{qty1Week2}}\n* [ ] {{protein2Week2}} - {{qty2Week2}}\n\n### 🥚 Dairy & Eggs\n* [ ] Eggs - 18-count\n* [ ] {{dairy2}} - {{dairyQty2}}\n\n### 🧂 Pantry\n* [ ] Salt (replenish as needed)\n\n## 🛒 Week 3 Shopping List\n### 🥩 The Butcher\n* [ ] {{protein1Week3}} - {{qty1Week3}}\n* [ ] {{protein2Week3}} - {{qty2Week3}}\n\n### 🥚 Dairy & Eggs\n* [ ] Eggs - 18-count\n* [ ] {{dairy3}} - {{dairyQty3}}\n\n### 🧂 Pantry\n* [ ] Salt (replenish as needed)\n\n## 🛒 Week 4 Shopping List\n### 🥩 The Butcher\n* [ ] {{protein1Week4}} - {{qty1Week4}}\n* [ ] {{protein2Week4}} - {{qty2Week4}}\n\n### 🥚 Dairy & Eggs\n* [ ] Eggs - 18-count\n* [ ] {{dairy4}} - {{dairyQty4}}\n\n### 🧂 Pantry\n* [ ] Salt (replenish as needed)\n\n## 💡 Smart Shopping Tips\n{{#if budget === 'tight'}}Look for Manager's Special markdowns, buy whole sub-primals, organ meats are super cheap and nutrient-dense.{{else if budget === 'moderate'}}Check store flyers for sales, stock your freezer with discounted items.{{else}}Buy from local farms, prioritize quality sources and grass-fed options.{{/if}}\n\n**Pro tip:** Buy proteins in bulk when on sale and freeze them. This reduces weekly shopping stress and saves money.`,
+    shoppingList: `## Report #4: Your Weekly Grocery Lists
+
+*Based on your custom {{diet}} meal plan*
+
+> **⚠️ A Note on Grocery Pricing:** Food costs vary by region and season. Your "{{budget}}" setting controls the **types of cuts** recommended, not the final total.
+
+## 🛒 "Week 0" Pantry Stock-Up
+* [ ] Quality Salt (Redmond Real Salt or Maldon)
+* [ ] Primary Cooking Fat ({{cookingFatRecommendation}})
+* [ ] Food Storage Containers
+* [ ] Basic Seasonings (if tolerated)
+
+## 🛒 Week 1 Shopping List
+### {{proteinSectionHeader}}
+{{proteinsWeek1}}
+### 🥚 Dairy & Eggs
+{{dairyEggsWeek1}}
+### 🧂 Pantry
+* [ ] Salt - 1 container
+
+## 🛒 Week 2 Shopping List
+### {{proteinSectionHeader}}
+{{proteinsWeek2}}
+### 🥚 Dairy & Eggs
+{{dairyEggsWeek2}}
+### 🧂 Pantry
+* [ ] Salt (replenish as needed)
+
+## 🛒 Week 3 Shopping List
+### {{proteinSectionHeader}}
+{{proteinsWeek3}}
+### 🥚 Dairy & Eggs
+{{dairyEggsWeek3}}
+### 🧂 Pantry
+* [ ] Salt (replenish as needed)
+
+## 🛒 Week 4 Shopping List
+### {{proteinSectionHeader}}
+{{proteinsWeek4}}
+### 🥚 Dairy & Eggs
+{{dairyEggsWeek4}}
+### 🧂 Pantry
+* [ ] Salt (replenish as needed)
+
+## 💡 Smart Shopping Tips
+{{shoppingTips}}
+
+**Pro tip:** {{proTip}}`,
 
     // Report #5: Physician Consultation Guide
     physicianConsult: `## Report #5: Physician Consultation Guide\n\n*For {{firstName}} to discuss with your doctor about {{diet}}*\n\n> **⚠️ MEDICAL DISCLAIMER:** This guide is educational. Never change medications without medical supervision. Always work with your doctor.\n\n---\n\n## SECTION 1: The Opening Script\n\n### The 2-Minute Pitch\n\n"Dr. [Name], I'm starting a therapeutic {{diet}} protocol to address {{symptoms}}. This is evidence-based metabolic therapy, not a fad diet. I need your partnership in three areas:\n\n1. **Lab monitoring** - Baseline now, recheck at 8 weeks\n2. **Medication adjustment** - Discussing tapering if improvements occur\n3. **Advanced markers** - Looking beyond standard LDL to assess real cardiovascular risk\n\nI've prepared a one-page summary for you. Can we schedule an 8-week follow-up now?"\n\n### If They Push Back Immediately\n\nUse Section 3 (Conflict Resolution Scripts) - Choose the response that matches their concern.\n\n---\n\n## SECTION 2: Advanced Bloodwork Markers\n\n### Why Standard LDL is Misleading\n\nStandard lipid panels measure LDL-C (cholesterol content), NOT particle count or size. On {{diet}}, LDL-C may increase, but particle size typically improves (large, fluffy, less atherogenic).\n\n### Request These Advanced Markers\n\n**1. ApoB (Apolipoprotein B)**\n- **What it measures:** Actual number of atherogenic particles\n- **Why it matters:** Better predictor than LDL-C for cardiovascular risk\n- **{{diet}} expectation:** Often neutral or improves (even if LDL-C rises)\n- **What to say:** \"Can we order ApoB instead of relying on LDL alone? It's a more accurate cardiovascular marker.\"\n\n**2. Triglyceride/HDL Ratio**\n- **What it measures:** Insulin resistance and small dense LDL particles\n- **Why it matters:** Ratio <2 = metabolic health, <1 = excellent\n- **{{diet}} expectation:** Usually improves dramatically (triglycerides ↓, HDL ↑)\n- **What to say:** \"I've read that Trig/HDL ratio under 2 is protective. Can we track this?\"\n\n**3. CAC Score (Coronary Artery Calcium)**\n- **What it measures:** Actual arterial calcification (hard endpoint)\n- **Why it matters:** Direct measure of plaque burden\n- **{{diet}} expectation:** Stable or slow progression (requires years to improve)\n- **What to say:** \"If my LDL is elevated, can we get a CAC score to see if there's actual plaque? A score of 0 means no disease regardless of LDL.\"\n\n**4. Fasting Insulin & HOMA-IR**\n- **What it measures:** Insulin resistance (root cause of metabolic disease)\n- **Why it matters:** Standard glucose is a lagging indicator\n- **{{diet}} expectation:** Fasting insulin <5, HOMA-IR <1.0 (excellent metabolic health)\n- **What to say:** \"Can we measure fasting insulin? I want to track insulin resistance, not just glucose.\"\n\n### The Key Markers Table\n\n| Marker | Standard Range | {{diet}} Target | Why It Matters |\n|--------|---|---|---|\n| ApoB | <130 mg/dL | <100 mg/dL | Actual particle count |\n| Trig/HDL Ratio | <3 | <1 | Insulin resistance |\n| CAC Score | N/A | 0 (if <50) | Hard plaque endpoint |\n| Fasting Insulin | <10 μIU/mL | <5 μIU/mL | True metabolic health |\n| HOMA-IR | <2 | <1 | Insulin resistance |\n| hs-CRP | <3 mg/L | <1 mg/L | Inflammation |\n\n---\n\n## SECTION 3: Doctor Conflict Resolution Scripts\n\n### Concern #1: \"This will destroy your cholesterol\"\n\n**The Weak Response (Avoid):**\n\"I'll be fine, I read it online.\"\n\n**The Strong Response:**\n\"I understand your concern about LDL. Can we agree on three things?\n\n1. **Get baseline labs now** - Including ApoB and CAC score if possible\n2. **Recheck in 8 weeks** - If ApoB worsens or triglycerides rise, I'll reconsider\n3. **Focus on the markers that matter** - Triglyceride/HDL ratio, fasting insulin, hs-CRP, and how I feel\n\nIf my inflammation drops, insulin sensitivity improves, and triglycerides fall - but LDL rises - can we discuss the research on large fluffy LDL being protective?\"\n\n**If they insist on statins immediately:**\n\"I respect your clinical judgment. Can we compromise? Let me try this intervention for 8 weeks with close monitoring. If my cardiovascular markers worsen, I'll consider medication. But I'd like to try lifestyle first.\"\n\n### Concern #2: \"You'll be deficient in fiber and vitamins\"\n\n**The Weak Response (Avoid):**\n\"Carnivore has everything I need.\"\n\n**The Strong Response:**\n\"That's a common concern. {{diet}} includes {{proteins}} which provide:\n- **Vitamin C:** Adequate amounts in fresh meat (humans need less on low-carb)\n- **Fiber:** Not an essential nutrient - many thrive without it\n- **Micronutrients:** B12, iron, zinc, selenium all highly bioavailable in animal foods\n\nCan we test my micronutrient levels at baseline and 8 weeks? If I show deficiencies, I'll adjust. But the data shows most people improve these markers, not worsen them.\"\n\n### Concern #3: \"This is dangerous for your kidneys\"\n\n**The Weak Response (Avoid):**\n\"No it's not.\"\n\n**The Strong Response:**\n\"I appreciate your concern. High protein is not dangerous for healthy kidneys - that's a myth from outdated research on people with existing kidney disease.\n\nCan we monitor:\n- **Creatinine & eGFR** (kidney function)\n- **Albumin/Creatinine ratio** (kidney damage marker)\n\nIf these worsen, I'll stop immediately. But the research shows high protein is safe for healthy kidneys and may even be protective.\"\n\n### Concern #4: \"You need carbs for energy and brain function\"\n\n**The Weak Response (Avoid):**\n\"Carbs aren't essential.\"\n\n**The Strong Response:**\n\"The brain can run on ketones, which the liver produces from fat. In fact, ketones may be a superior fuel for the brain - that's why ketogenic diets are used for epilepsy and being studied for Alzheimer's.\n\nCan we track my cognitive function and energy levels? If I report brain fog, fatigue, or declining performance, I'll reconsider. But most people report improved mental clarity within 2-4 weeks.\"\n\n### The Nuclear Option: Find a New Doctor\n\n**If your doctor:**\n- ❌ Refuses to order baseline labs\n- ❌ Prescribes statins without trying lifestyle first\n- ❌ Dismisses your concerns or goals\n- ❌ Won't monitor you during dietary intervention\n\n**You have the right to find a doctor who will partner with you.**\n\nResources for finding supportive doctors:\n- **DietDoctor.com** - Doctor directory (keto/carnivore friendly)\n- **PaleophysiciansNetwork.com** - Ancestral health practitioners\n- **Functional medicine practitioners** - Often more open to dietary interventions\n\n---\n\n## SECTION 4: Medication Adjustment Protocols\n\n> **⚠️ CRITICAL:** NEVER adjust medications without medical supervision. These are discussion frameworks for your doctor, NOT medical advice.\n\n{{#if medications && (medications.toLowerCase().includes('metformin') || medications.toLowerCase().includes('diabetes'))}}\n\n### Type 2 Diabetes: Metformin\n\n**Week 0-2: Monitor Closely**\n- **Action:** Continue current dose, monitor blood glucose 2-3x daily\n- **Risk:** Hypoglycemia (low blood sugar) as diet lowers glucose\n- **Symptoms to watch:** Shaking, sweating, dizziness, confusion\n\n**Week 2: First Checkpoint**\n- **IF** fasting glucose consistently <100 mg/dL for 5+ days\n- **THEN** Discuss with doctor: Reduce Metformin by 50% (e.g., 1000mg → 500mg)\n- **Monitor:** Continue daily fasting glucose checks\n\n**Week 4: Second Checkpoint**\n- **IF** fasting glucose consistently <90 mg/dL AND HbA1c <5.7%\n- **THEN** Discuss with doctor: Consider discontinuing Metformin\n- **Monitor:** Weekly fasting glucose for 4 weeks after stopping\n\n{{/if}}\n\n{{#if medications && (medications.toLowerCase().includes('blood pressure') || medications.toLowerCase().includes('lisinopril') || medications.toLowerCase().includes('losartan'))}}\n\n### Blood Pressure: ACE Inhibitors, ARBs, Diuretics\n\n**Week 0-2: Establish Baseline**\n- **Action:** Monitor BP daily (morning and evening)\n- **Record:** Keep 7-day average\n- **Risk:** BP may drop quickly on {{diet}} (salt loss + improved insulin sensitivity)\n\n**Week 2: First Checkpoint**\n- **IF** average systolic BP <110 mmHg OR experiencing dizziness/lightheadedness\n- **THEN** Discuss with doctor: Reduce medication by 25-50%\n- **AND** Increase salt intake (2-3 tsp daily)\n- **Monitor:** BP 2x daily for next week\n\n**Week 4: Second Checkpoint**\n- **IF** average BP <120/80 for 7+ days AND no symptoms\n- **THEN** Discuss with doctor: Consider reducing or stopping medication\n- **Monitor:** Weekly BP checks for 4 weeks after stopping\n\n{{/if}}\n\n{{#if medications && (medications.toLowerCase().includes('thyroid') || medications.toLowerCase().includes('synthroid'))}}\n\n### Thyroid: Levothyroxine / Synthroid\n\n**Weeks 0-8: No Changes Expected**\n- **Action:** Continue current dose\n- **Monitor:** Thyroid function often improves on {{diet}}, but this takes 3-6 months\n- **Lab:** TSH, Free T3, Free T4 at Week 8\n\n**Week 8: Lab Review**\n- **IF** TSH <0.5 mIU/L (suppressed, indicating over-medication)\n- **THEN** Discuss with doctor: Reduce dose by 12.5-25 mcg\n- **Recheck:** TSH in 6 weeks\n\n{{/if}}\n\n### General Medication Safety Rules\n\n1. **NEVER adjust medications without your doctor's knowledge**\n2. **Monitor relevant biomarkers daily/weekly** (glucose, BP, etc.)\n3. **Keep a medication log** - Record every change with date and reason\n4. **Have rescue protocols** - Know when to take extra medication\n5. **Report symptoms immediately** - Dizziness, confusion, chest pain, severe fatigue\n6. **Recheck labs at Week 8** - Comprehensive metabolic panel + relevant markers\n\n---\n\n## SECTION 5: Finding a Supportive Doctor\n\n### Red Flags (Time to Find a New Doctor)\n\n❌ Refuses to order baseline labs before dismissing your diet\n❌ Prescribes statins immediately without discussing lifestyle intervention\n❌ Uses fear tactics (\"You'll have a heart attack in 6 months\")\n❌ Dismisses patient autonomy (\"I'm the doctor, you need to listen to me\")\n❌ Won't monitor you during dietary intervention\n\n### Green Flags (Signs of a Good Doctor)\n\n✅ Orders comprehensive labs (including advanced markers if requested)\n✅ Proposes a trial period (\"Let's try this for 8 weeks and recheck\")\n✅ Focuses on outcomes (\"Let's see how you feel and what the labs show\")\n✅ Respects patient autonomy (\"I have concerns, but I'll monitor you closely\")\n✅ Evidence-based discussion (cites research, not just guidelines)\n\n### Where to Find Carnivore/Keto-Friendly Doctors\n\n**Online Directories:**\n- **DietDoctor.com/find-doctors** - Keto/low-carb provider directory\n- **PaleophysiciansNetwork.com** - Ancestral health practitioners\n- **IFM.org** - Institute for Functional Medicine\n\n**Telemedicine Options:**\n- **SteadyMD** - Keto-friendly primary care via telehealth\n- **Levels.com** - Continuous glucose monitoring + MD consults\n- **Function Health** - Comprehensive lab testing + health optimization\n\n**What to Ask When Interviewing a New Doctor:**\n1. \"Have you worked with patients on ketogenic or carnivore diets?\"\n2. \"Are you willing to order advanced lipid markers like ApoB and CAC score?\"\n3. \"If my standard LDL rises but triglycerides drop and I feel great, will you support me?\"\n4. \"Can we agree on an 8-week trial with close monitoring?\"\n\n---\n\n## SECTION 6: Comprehensive Lab Monitoring Schedule\n\n### Baseline Labs (Week 0 - Before Starting {{diet}})\n\n**Metabolic Panel:**\n- [ ] Fasting Glucose\n- [ ] Fasting Insulin (critical for tracking insulin resistance)\n- [ ] HbA1c (3-month glucose average)\n- [ ] HOMA-IR (calculated from glucose + insulin)\n\n**Lipid Panel (Standard):**\n- [ ] Total Cholesterol\n- [ ] LDL-C\n- [ ] HDL-C\n- [ ] Triglycerides\n- [ ] **Calculate Trig/HDL ratio** (divide Trig by HDL)\n\n**Advanced Lipids (Request if possible):**\n- [ ] ApoB (gold standard for cardiovascular risk)\n- [ ] LDL Particle Number (LDL-P)\n- [ ] LDL Particle Size (small vs large)\n\n**Cardiovascular Risk:**\n- [ ] hs-CRP (high-sensitivity C-reactive protein - inflammation marker)\n- [ ] **CAC Score** (Coronary Artery Calcium scan - optional but valuable if >40 years old)\n\n**Kidney & Liver Function:**\n- [ ] Creatinine\n- [ ] eGFR (estimated glomerular filtration rate)\n- [ ] BUN (blood urea nitrogen)\n- [ ] ALT (alanine aminotransferase)\n- [ ] AST (aspartate aminotransferase)\n- [ ] Albumin\n\n**Micronutrients:**\n- [ ] Vitamin D (25-hydroxy)\n- [ ] Vitamin B12\n- [ ] Magnesium (RBC magnesium preferred over serum)\n- [ ] Iron panel (ferritin, TIBC, serum iron, transferrin saturation)\n\n### Week 8 Recheck (Comprehensive Follow-Up)\n\n**Repeat ALL baseline labs** to assess metabolic response\n\n**Expected Changes:**\n✅ **Likely improvements:**\n- Fasting glucose ↓\n- Fasting insulin ↓↓ (often dramatic)\n- HbA1c ↓\n- Triglycerides ↓↓\n- HDL ↑\n- Trig/HDL ratio ↓↓ (should be <2, ideally <1)\n- hs-CRP ↓\n- ALT/AST ↓ (if fatty liver present)\n\n⚠️ **May increase (not necessarily bad):**\n- LDL-C ↑ (often increases, especially if losing weight rapidly)\n- Total Cholesterol ↑ (follows LDL)\n\n**Key Insight:** If triglycerides drop, HDL rises, and Trig/HDL ratio improves - even if LDL rises - your cardiovascular risk is likely IMPROVING, not worsening.\n\n### Ongoing Labs (Beyond Week 8)\n\n- **Week 12-16:** Optional extended monitoring\n- **Yearly:** Full lipid panel, fasting glucose, insulin, HbA1c, kidney/liver function, micronutrients, TSH\n- **Every 2-5 years:** CAC score (if previous score >0)\n\n---\n\n## SECTION 7: The One-Page Doctor Handout\n\n**Print this and bring to your appointment**\n\n---\n\n### ONE-PAGE PHYSICIAN CONSULTATION GUIDE\n\n**Patient:** {{firstName}}\n**Protocol:** {{diet}} Metabolic Intervention\n**Duration:** 8-week monitored trial\n**Date:** {{currentDate}}\n\n---\n\n#### PATIENT REQUEST:\n\nI am starting a therapeutic {{diet}} protocol to address: **{{symptoms}}**\n\nI am requesting:\n1. **Baseline comprehensive labs** (see list below)\n2. **8-week recheck labs** with medication adjustment discussion if warranted\n3. **Partnership in monitoring** - I will report any adverse symptoms immediately\n\n---\n\n#### BASELINE LABS REQUESTED (Week 0):\n\n**Metabolic:** Fasting Glucose, Fasting Insulin, HbA1c, HOMA-IR\n**Lipids:** Total Chol, LDL, HDL, Triglycerides, **ApoB** (if available)\n**Inflammation:** hs-CRP\n**Kidney:** Creatinine, eGFR, BUN\n**Liver:** ALT, AST, Albumin\n**Micronutrients:** Vitamin D, B12, Magnesium, Iron Panel\n**Optional:** CAC Score (if age >40 and no recent scan)\n\n---\n\n#### WEEK 8 RECHECK LABS:\n\n**Repeat all baseline labs** to assess metabolic response\n\n---\n\n#### MEDICATION MONITORING (if applicable):\n\n**I will contact you immediately if:**\n- Blood glucose <70 mg/dL (hypoglycemia)\n- Blood pressure <90/60 mmHg (hypotension)\n- Severe fatigue, dizziness, confusion, chest pain\n- Any other concerning symptoms\n\n---\n\n#### EVIDENCE SUMMARY:\n\nLow-carbohydrate / ketogenic / carnivore interventions have peer-reviewed evidence for:\n- **Type 2 Diabetes Remission:** 60% remission at 1 year\n- **Metabolic Syndrome Reversal:** Multiple RCTs showing improvements\n- **Weight Loss:** Superior to low-fat diets in meta-analyses\n- **Inflammation Reduction:** Decreases hs-CRP and other inflammatory markers\n\n**Patient commitment:** I, {{firstName}} {{lastName}}, will adhere strictly to protocol, monitor daily, and report any adverse effects immediately.\n\n---\n\n**Patient Signature:** ___________________________                    **Date:** __________\n\n---\n\n## SECTION 8: After Your Appointment\n\n### If Your Doctor Agreed to Monitor You ✅\n\n**Immediate Actions:**\n1. [ ] Schedule Week 8 follow-up appointment NOW (before you leave office)\n2. [ ] Get lab orders and complete baseline labs within 48 hours\n3. [ ] Request copies of all lab results (you own your medical records)\n4. [ ] Create a tracking spreadsheet or use app\n5. [ ] Start {{diet}} protocol after baseline labs are complete\n\n**Daily Monitoring (Weeks 0-8):**\n- [ ] Weight (morning, after bathroom) - Log in tracker\n- [ ] Blood glucose (if diabetic/pre-diabetic) - 2-3x daily\n- [ ] Blood pressure (if on BP meds) - Morning + evening\n- [ ] Symptoms: Energy, mood, cravings, digestion - Rate 1-10 daily\n- [ ] Medication changes - Log every adjustment with date/time/reason\n\n**Emergency Contacts:**\n- **Hypoglycemia** (glucose <50 mg/dL): Drink 4 oz orange juice, call 911 if unconscious\n- **Severe hypotension** (BP <80/50 mmHg): Lie down, elevate legs, drink salted water, call 911\n- **Chest pain**: Call 911 immediately\n\n### If Your Doctor Refused to Partner ❌\n\n**Don't Panic - You Have Options:**\n\n**Option 1: Find a New Doctor (Recommended)**\n- Use directories: DietDoctor.com, PaleophysiciansNetwork.com\n- Ask in carnivore/keto communities for local recommendations\n- Interview new doctors using questions from Section 5\n\n**Option 2: Use Telemedicine**\n- SteadyMD, Levels.com, Function Health\n- Often more affordable than traditional office visits\n- Many are keto/carnivore-experienced\n\n**Option 3: Self-Direct Labs (Legal in Most States)**\n- **Ulta Lab Tests**, **Walk-In Lab**, **Life Extension**\n- Cost: $100-300 for comprehensive panel\n- You won't have a doctor to interpret, but you'll have data\n\n---\n\n**You've got this. Most doctors will partner with you if you approach professionally and commit to close monitoring. If not, there are other options. Your health is worth fighting for.**`,
 
-    // Report #7: Restaurant & Travel Guide
-    restaurant: `## Report #7: Dining Out & Travel Survival Guide\n\n*For {{firstName}} navigating the world on {{diet}}*\n\n## The Three Golden Rules\n\n### Rule #1: Be "That Person"\n- Your health comes first. Do not apologize for your dietary needs.\n\n### Rule #2: Beware the Seed Oils\n- Always ask: "What fat do you use for cooking?" Request butter, ghee, or olive oil.\n\n### Rule #3: When in Doubt, Order Steak\n- A plain steak with butter is available almost everywhere.\n\n## Restaurant Strategy by Cuisine\n\n### Steakhouse\n- Order: Ribeye + butter + vegetable\n- Customization: "Cooked in butter, no seed oils"\n\n### Diner\n- Order: Burger (no bun) + eggs + bacon\n- Customization: "No bun, extra patty, cooked in butter"\n\n### Mexican\n- Order: Carne asada + guacamole\n- Customization: "No tortillas, no rice, cooked in butter"\n\n### Asian\n- Order: Grilled fish or beef\n- Customization: "Cooked in butter, no sauce"\n\n## Fast Food Emergency Menu\n\n**McDonald's:** 3x Beef Patties + cheese (no bun) + eggs + bacon\n**Wendy's:** Dave's Single (no bun) + extra beef\n**Chipotle:** Steak bowl, no rice, no beans\n**Taco Bell:** Power Menu Bowl, no rice/beans\n\n## Travel Packing\n* [ ] Beef jerky (check sugar content)\n* [ ] Macadamia nuts or pecans\n* [ ] Hard cheese\n* [ ] Sardines canned in oil\n* [ ] Salt packets\n\n**Remember: Own your choices. Your health comes first.** 🍽️`,
+    // Report #7: Restaurant & Travel Guide - DIET-AWARE
+    restaurant: (() => {
+      const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
+      const hasEggAllergy = (data.allergies || '').toLowerCase().includes('egg');
+      const hasShellfishAllergy = (data.allergies || '').toLowerCase().includes('shellfish');
+      const avoidFoods = (data.avoidFoods || '').toLowerCase();
+      const isPescatarian = diet === 'pescatarian';
+
+      // Diet-specific dining options
+      let dinerOrder, mcdonaldsOrder, wendysOrder, chipotleOrder, tacoBellOrder;
+      let steakhouseOrder, mexicanOrder, asianOrder;
+      let travelPacking;
+      let goldenRule3;
+
+      if (isPescatarian) {
+        // Pescatarian: Fish, seafood, eggs - NO beef, chicken, bacon, jerky
+        dinerOrder = hasEggAllergy ? 'Grilled fish + side salad' : 'Grilled fish + eggs + side salad';
+        mcdonaldsOrder = hasEggAllergy ? 'Filet-O-Fish (no bun) x2' : 'Filet-O-Fish (no bun) + scrambled eggs';
+        wendysOrder = 'Side salad + eggs (if available) or skip';
+        chipotleOrder = 'Fish bowl (when available), otherwise sofritas bowl no rice/beans + guacamole';
+        tacoBellOrder = 'Black bean bowl no rice + guacamole (limited options)';
+        steakhouseOrder = 'Grilled salmon or fish of the day + butter + vegetable';
+        mexicanOrder = 'Grilled fish tacos (no tortilla) + guacamole';
+        asianOrder = 'Grilled salmon or tuna + steamed vegetables';
+        goldenRule3 = 'A grilled fish fillet with butter is available at most restaurants.';
+
+        // Build travel packing list respecting avoidFoods
+        const travelItems = [];
+        if (!avoidFoods.includes('tuna')) travelItems.push('Canned tuna in oil');
+        if (!avoidFoods.includes('salmon')) travelItems.push('Smoked salmon packets');
+        if (!avoidFoods.includes('sardine')) travelItems.push('Sardines canned in oil');
+        if (!avoidFoods.includes('mackerel')) travelItems.push('Canned mackerel');
+        travelItems.push('Macadamia nuts or pecans');
+        travelItems.push('Hard cheese');
+        travelItems.push('Salt packets');
+        travelPacking = travelItems.map(item => `* [ ] ${item}`).join('\n');
+      } else {
+        // Carnivore/Lion/Keto: Beef, meat-based options
+        dinerOrder = hasEggAllergy ? 'Burger (no bun) + bacon + extra patty' : 'Burger (no bun) + eggs + bacon';
+        mcdonaldsOrder = hasEggAllergy ? '3x Beef Patties + cheese (no bun) + bacon' : '3x Beef Patties + cheese (no bun) + eggs + bacon';
+        wendysOrder = "Dave's Single (no bun) + extra beef";
+        chipotleOrder = 'Steak bowl, no rice, no beans';
+        tacoBellOrder = 'Power Menu Bowl, no rice/beans';
+        steakhouseOrder = 'Ribeye + butter + vegetable';
+        mexicanOrder = 'Carne asada + guacamole';
+        asianOrder = 'Grilled beef or fish';
+        goldenRule3 = 'A plain steak with butter is available almost everywhere.';
+        travelPacking = `* [ ] Beef jerky (check sugar content)\n* [ ] Macadamia nuts or pecans\n* [ ] Hard cheese\n* [ ] Sardines canned in oil\n* [ ] Salt packets`;
+      }
+
+      return `## Report #7: Dining Out & Travel Survival Guide\n\n*For {{firstName}} navigating the world on {{diet}}*\n\n## The Three Golden Rules\n\n### Rule #1: Be "That Person"\n- Your health comes first. Do not apologize for your dietary needs.\n\n### Rule #2: Beware the Seed Oils\n- Always ask: "What fat do you use for cooking?" Request butter, ghee, or olive oil.\n\n### Rule #3: When in Doubt, Order Fish/Steak\n- ${goldenRule3}\n\n## Restaurant Strategy by Cuisine\n\n### Steakhouse / Seafood Restaurant\n- Order: ${steakhouseOrder}\n- Customization: "Cooked in butter, no seed oils"\n\n### Diner\n- Order: ${dinerOrder}\n- Customization: "Cooked in butter, no seed oils"\n\n### Mexican\n- Order: ${mexicanOrder}\n- Customization: "No tortillas, no rice, cooked in butter"\n\n### Asian\n- Order: ${asianOrder}\n- Customization: "Cooked in butter, no sauce"\n\n## Fast Food Emergency Menu\n\n**McDonald's:** ${mcdonaldsOrder}\n**Wendy's:** ${wendysOrder}\n**Chipotle:** ${chipotleOrder}\n**Taco Bell:** ${tacoBellOrder}\n\n## Travel Packing\n${travelPacking}\n\n**Remember: Own your choices. Your health comes first.** 🍽️`;
+    })(),
 
     // Report #8-13: Appendix Reports (Condensed)
     science: `## Report #8: The Science & Evidence\n\n*Why {{diet}} works: Evidence-based research*\n\n## Key Research\n\nResearch on {{diet}} shows promising results for {{goal}} and {{symptoms}}:\n\n**Metabolic Effects:** {{diet}} shifts metabolism to fat-burning, reducing insulin resistance and stabilizing blood sugar.\n\n**Anti-Inflammatory:** Elimination of plant foods may reduce {{symptoms}}.\n\n**Microbiome Changes:** {{diet}} shifts gut bacteria toward beneficial species.\n\n## Why {{diet}} for {{firstName}}:\n\n1. **Rapid metabolic effect** - Addresses your insulin sensitivity quickly\n2. **Anti-inflammatory** - Removes your common triggers\n3. **Sustainable** - No calorie counting, naturally satiating\n4. **Evidence-backed** - Research supports efficacy\n\n**Work with your doctor for personalized guidance.**`,
 
     labs: `## Report #9: Laboratory Reference Guide\n\n*Understanding your lab results on {{diet}}*\n\n## Standard vs. {{diet}} Ranges\n\n### Glucose & Insulin\n| Marker | Standard | {{diet}} Target | Note |\n|--------|----------|---|---|\n| Fasting Glucose | 70-100 | 60-85 | Lower is better on low-carb |\n| Fasting Insulin | <10 | <5 | Measures insulin sensitivity |\n| HbA1c | <5.7% | <5.5% | 3-month glucose average |\n\n### Lipids\n| Marker | Standard | {{diet}} Typical | Note |\n|--------|----------|---|---|\n| HDL | >40 | Often ↑ | Protective factor |\n| Triglycerides | <150 | Often ↓ | Improves a lot |\n| hs-CRP | <1.0 | Often ↓↓ | Expect improvement |\n\n## What to Expect After 8 Weeks\n\n✅ **Likely:** HbA1c, glucose, triglycerides, hs-CRP, HDL improve\n⚠️ **May increase:** LDL (particle size usually improves)\n\n**Ask your doctor:** Can we focus on LDL particle size rather than LDL number?`,
 
-    electrolytes: `## Report #10: The Electrolyte Protocol\n\n*Managing sodium, potassium, and magnesium on {{diet}}*\n\n## Why Electrolytes Matter\n\nOn {{diet}}, your body releases water and electrolytes more rapidly. This causes "keto flu" (headache, fatigue) in Week 1-2.\n\n## The Ketoade Recipe\n\n### Ingredients\n- 1 liter water\n- 1 teaspoon salt (Redmond or Himalayan)\n- ½ teaspoon "Lite Salt" (potassium)\n- Pinch of magnesium powder (optional, 200-300mg)\n- Lemon/lime juice (optional)\n\n### Instructions\n1. Mix all ingredients\n2. Drink 1-2 liters daily, especially weeks 1-4\n\n## Daily Electrolyte Goals\n\n- **Salt:** 3-7 grams (3-7 teaspoons, based on activity)\n- **Potassium:** 2-4 grams (from beef + ketoade)\n- **Magnesium:** 300-600mg (supplement or food)\n\n## Signs You Need More\n\n⚠️ **Headaches** → Add salt\n⚠️ **Muscle cramps** → Add potassium + magnesium\n⚠️ **Fatigue** → Add salt + magnesium\n⚠️ **Dizziness** → Add salt immediately`,
+    electrolytes: (() => {
+      const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
+      const isPescatarian = diet === 'pescatarian';
+      const potassiumSource = isPescatarian ? 'fish + ketoade' : 'protein + ketoade';
+      return `## Report #10: The Electrolyte Protocol\n\n*Managing sodium, potassium, and magnesium on {{diet}}*\n\n## Why Electrolytes Matter\n\nOn {{diet}}, your body releases water and electrolytes more rapidly. This causes "keto flu" (headache, fatigue) in Week 1-2.\n\n## The Ketoade Recipe\n\n### Ingredients\n- 1 liter water\n- 1 teaspoon salt (Redmond or Himalayan)\n- ½ teaspoon "Lite Salt" (potassium)\n- Pinch of magnesium powder (optional, 200-300mg)\n- Lemon/lime juice (optional)\n\n### Instructions\n1. Mix all ingredients\n2. Drink 1-2 liters daily, especially weeks 1-4\n\n## Daily Electrolyte Goals\n\n- **Salt:** 3-7 grams (3-7 teaspoons, based on activity)\n- **Potassium:** 2-4 grams (from ${potassiumSource})\n- **Magnesium:** 300-600mg (supplement or food)\n\n## Signs You Need More\n\n⚠️ **Headaches** → Add salt\n⚠️ **Muscle cramps** → Add potassium + magnesium\n⚠️ **Fatigue** → Add salt + magnesium\n⚠️ **Dizziness** → Add salt immediately`;
+    })(),
 
     timeline: `## Report #11: The Adaptation Timeline\n\n*What to expect week by week on {{diet}}*\n\n## Week 1: The Glycogen Depletion Phase\n\n**Days 1-3:** Water loss (3-7 lbs normal), stable energy\n**Days 4-7:** Transition trough, possible "keto flu", cravings peak\n**Action:** Eat normally, stay hydrated, increase salt\n\n## Week 2: The Difficult Week\n\n**Days 8-10:** Peak dip, worst energy, strong cravings\n**Days 11-14:** Turning point, energy returns, cravings subside\n**Action:** Push through. This is temporary. Don't cheat.\n\n## Week 3: The Breakthrough\n\n**Days 15-21:** Fat adaptation accelerating, consistent weight loss, excellent energy, mental clarity improves\n**Action:** Enjoy. Note health improvements.\n\n## Week 4: The New Normal\n\n**Days 22-30:** {{diet}} feels normal, stable energy, sleep improves, skin/hair improve\n**Action:** This is your new baseline. Track improvements.\n\n**The hardest part is Weeks 1-2. If you push through, the payoff is worth it.**`,
 
@@ -2607,6 +3095,82 @@ function replacePlaceholders(template, data) {
   result = result.replace(/\{\{mealPrepTime\}\}/g, data.mealPrepTime || 'Some');
   result = result.replace(/\{\{weight\}\}/g, data.weight || '');
 
+  // Diet-aware section headers for shopping list
+  const proteinSectionHeaders = {
+    'Pescatarian': '🐟 The Fish Counter',
+    'Lion': '🐂 The Butcher (Beef Only)',
+    'Keto': '🥩 Proteins',
+    'Carnivore': '🥩 The Butcher',
+    'Strict Carnivore': '🥩 The Butcher'
+  };
+  const proteinSectionHeader = proteinSectionHeaders[data.selectedProtocol] || '🥩 The Butcher';
+  result = result.replace(/\{\{proteinSectionHeader\}\}/g, proteinSectionHeader);
+
+  // Diet-aware shopping tips
+  const diet = data.selectedProtocol || 'Carnivore';
+  const budget = data.budget || 'moderate';
+  let shoppingTips = '';
+  let proTip = '';
+
+  if (diet === 'Pescatarian') {
+    if (budget === 'tight') {
+      shoppingTips = 'Buy canned fish (salmon, sardines, mackerel) in bulk. Frozen fish fillets are often cheaper than fresh. Check ethnic grocery stores for better seafood prices.';
+      proTip = 'Canned salmon and sardines are budget-friendly, shelf-stable, and packed with omega-3s. Stock up when on sale.';
+    } else if (budget === 'moderate') {
+      shoppingTips = 'Check seafood counter for daily specials. Buy whole fish for better value. Frozen wild-caught is often fresher than "fresh" farmed fish.';
+      proTip = 'Buy fish in bulk when on sale and freeze in portion sizes. This reduces weekly shopping stress and ensures variety.';
+    } else {
+      shoppingTips = 'Source wild-caught fish from reputable fishmongers. Consider a seafood subscription box for variety. Look for sustainably sourced options.';
+      proTip = 'Build relationships with local fishmongers for the freshest catches and insider tips on seasonal availability.';
+    }
+  } else if (diet === 'Lion') {
+    if (budget === 'tight') {
+      shoppingTips = "Buy whole sub-primals (brisket, chuck roll) and cut yourself. Ground beef in bulk is your best friend. Check for Manager's Special markdowns.";
+      proTip = 'A chest freezer pays for itself quickly. Buy a quarter or half cow directly from a farm for the best per-pound price.';
+    } else if (budget === 'moderate') {
+      shoppingTips = 'Check store flyers for sales on steaks and roasts. Stock your freezer with discounted items. Buy ground beef in 5-10 lb packages.';
+      proTip = 'Buy beef in bulk when on sale and freeze it. This reduces weekly shopping stress and saves money.';
+    } else {
+      shoppingTips = 'Source grass-fed beef directly from local farms. Consider a beef share or subscription. Prioritize quality over quantity.';
+      proTip = 'Invest in a relationship with a local rancher for consistent quality and better pricing on premium cuts.';
+    }
+  } else if (diet === 'Keto') {
+    if (budget === 'tight') {
+      shoppingTips = 'Buy fatty cuts of meat (chicken thighs, ground beef, pork shoulder). Eggs are the cheapest high-quality protein. Frozen vegetables are nutritious and affordable.';
+      proTip = 'Batch cook proteins and low-carb vegetables on the weekend. This saves time and money throughout the week.';
+    } else if (budget === 'moderate') {
+      shoppingTips = 'Check store flyers for sales. Mix premium and budget cuts for variety. Buy seasonal vegetables for better prices.';
+      proTip = 'Buy proteins in bulk when on sale and freeze them. This reduces weekly shopping stress and saves money.';
+    } else {
+      shoppingTips = 'Buy from local farms, prioritize quality sources and grass-fed options. Choose organic vegetables when possible.';
+      proTip = 'Quality fats (grass-fed butter, avocado oil, olive oil) are worth the investment for both taste and nutrition.';
+    }
+  } else {
+    // Carnivore / Strict Carnivore
+    if (budget === 'tight') {
+      shoppingTips = "Look for Manager's Special markdowns, buy whole sub-primals, organ meats are super cheap and nutrient-dense.";
+      proTip = 'Buy proteins in bulk when on sale and freeze them. This reduces weekly shopping stress and saves money.';
+    } else if (budget === 'moderate') {
+      shoppingTips = 'Check store flyers for sales, stock your freezer with discounted items.';
+      proTip = 'Buy proteins in bulk when on sale and freeze them. This reduces weekly shopping stress and saves money.';
+    } else {
+      shoppingTips = 'Buy from local farms, prioritize quality sources and grass-fed options.';
+      proTip = 'Build relationships with local farmers for the best quality meat and insider access to premium cuts.';
+    }
+  }
+  result = result.replace(/\{\{shoppingTips\}\}/g, shoppingTips);
+  result = result.replace(/\{\{proTip\}\}/g, proTip);
+
+  // Cooking fat recommendation - respect dairy allergy
+  const hasDairyAllergy = (data.allergies || '').toLowerCase().includes('dairy');
+  let cookingFatRecommendation = '';
+  if (hasDairyAllergy) {
+    cookingFatRecommendation = diet === 'Pescatarian' ? 'Olive Oil, Coconut Oil, or Avocado Oil' : 'Tallow, Lard, or Coconut Oil';
+  } else {
+    cookingFatRecommendation = diet === 'Pescatarian' ? 'Butter, Ghee, or Olive Oil' : 'Butter or Ghee';
+  }
+  result = result.replace(/\{\{cookingFatRecommendation\}\}/g, cookingFatRecommendation);
+
   // Health information with smart fallbacks
   const allergyText = data.allergies ? data.allergies : 'No known allergies';
   const conditionText = Array.isArray(data.conditions) ? data.conditions.join(', ') :
@@ -2624,9 +3188,9 @@ function replacePlaceholders(template, data) {
   // Macro information (both macros.calories and calories formats)
   if (data.macros) {
     const calories = data.macros.calories || 2000;
-    const protein = data.macros.protein || 130;
-    const fat = data.macros.fat || 150;
-    const carbs = data.macros.carbs || 20;
+    const protein = data.macros.protein_grams || 130;
+    const fat = data.macros.fat_grams || 150;
+    const carbs = data.macros.carbs_grams || 20;
 
     result = result.replace(/\{\{macros\.calories\}\}/g, calories);
     result = result.replace(/\{\{macros\.protein\}\}/g, protein);
@@ -2678,40 +3242,78 @@ function replacePlaceholders(template, data) {
   const fullMealPlan = generateFullMealPlan(data);
 
   // Flatten the meal plan for template replacement
+  // Handle dynamic meal structure (1, 2, or 3 meals per day)
+  const mealsPerDay = data.mealsPerDay || 2;
+
   for (let day = 1; day <= 30; day++) {
     const week = Math.ceil(day / 7);
     const dayInWeek = ((day - 1) % 7);
     const dayData = fullMealPlan.weeks[week - 1]?.days[dayInWeek];
 
     if (dayData) {
-      result = result.replace(new RegExp(`\\{\\{breakfast${day}\\}\\}`, 'g'), dayData.breakfast);
-      result = result.replace(new RegExp(`\\{\\{lunch${day}\\}\\}`, 'g'), dayData.lunch);
-      result = result.replace(new RegExp(`\\{\\{dinner${day}\\}\\}`, 'g'), dayData.dinner);
+      // Map dynamic meal fields to template placeholders
+      let breakfast, lunch, dinner;
+
+      if (mealsPerDay === 1) {
+        // 1 meal: put it in breakfast, leave lunch/dinner empty
+        breakfast = dayData.meal || '';
+        lunch = '-';
+        dinner = '-';
+      } else if (mealsPerDay === 2) {
+        // 2 meals: meal1 → breakfast, lunch empty, meal2 → dinner
+        breakfast = dayData.meal1 || '';
+        lunch = '-';
+        dinner = dayData.meal2 || '';
+      } else {
+        // 3 meals: standard breakfast/lunch/dinner
+        breakfast = dayData.breakfast || '';
+        lunch = dayData.lunch || '';
+        dinner = dayData.dinner || '';
+      }
+
+      result = result.replace(new RegExp(`\\{\\{breakfast${day}\\}\\}`, 'g'), breakfast);
+      result = result.replace(new RegExp(`\\{\\{lunch${day}\\}\\}`, 'g'), lunch);
+      result = result.replace(new RegExp(`\\{\\{dinner${day}\\}\\}`, 'g'), dinner);
     }
   }
 
   // Generate grocery lists by week using database-driven algorithm
   const groceryLists = generateGroceryListByWeek(data);
 
-  // Fill grocery list placeholders for all 4 weeks
+  // Build dynamic grocery list sections for all 4 weeks
   for (let week = 1; week <= 4; week++) {
     const weekData = groceryLists[`week${week}`];
-    if (weekData && weekData.proteins.length >= 2) {
-      result = result.replace(new RegExp(`\\{\\{protein1Week${week}\\}\\}`, 'g'), weekData.proteins[0].name);
-      result = result.replace(new RegExp(`\\{\\{qty1Week${week}\\}\\}`, 'g'), weekData.proteins[0].quantity);
-      result = result.replace(new RegExp(`\\{\\{protein2Week${week}\\}\\}`, 'g'), weekData.proteins[1].name);
-      result = result.replace(new RegExp(`\\{\\{qty2Week${week}\\}\\}`, 'g'), weekData.proteins[1].quantity);
+
+    // Build protein section dynamically (all filtered proteins)
+    let proteinSection = '';
+    if (weekData && weekData.proteins) {
+      weekData.proteins.forEach(p => {
+        const quantity = p.quantity || '1 lb';
+        proteinSection += `* [ ] ${p.name} - ${quantity}\n`;
+      });
     }
 
-    if (weekData && weekData.fats.length >= 1) {
-      result = result.replace(new RegExp(`\\{\\{dairy${week}\\}\\}`, 'g'), weekData.fats[0].name);
-      result = result.replace(new RegExp(`\\{\\{dairyQty${week}\\}\\}`, 'g'), weekData.fats[0].quantity);
+    // Build dairy/eggs section dynamically (all filtered items)
+    let dairyEggsSection = '';
+    if (weekData) {
+      // Add eggs first (if not allergic)
+      if (weekData.eggs && weekData.eggs.length > 0) {
+        weekData.eggs.forEach(e => {
+          dairyEggsSection += `* [ ] ${e.name} - 18-count\n`;
+        });
+      }
+      // Add fats/dairy (if not allergic)
+      if (weekData.fats && weekData.fats.length > 0) {
+        weekData.fats.forEach(f => {
+          const quantity = f.quantity || '1 lb';
+          dairyEggsSection += `* [ ] ${f.name} - ${quantity}\n`;
+        });
+      }
     }
 
-    if (weekData && weekData.pantry.length >= 1) {
-      result = result.replace(new RegExp(`\\{\\{pantry${week}\\}\\}`, 'g'), weekData.pantry[0].name);
-      result = result.replace(new RegExp(`\\{\\{pantryQty${week}\\}\\}`, 'g'), weekData.pantry[0].quantity);
-    }
+    // Replace entire sections (not individual placeholders)
+    result = result.replace(new RegExp(`\\{\\{proteinsWeek${week}\\}\\}`, 'g'), proteinSection);
+    result = result.replace(new RegExp(`\\{\\{dairyEggsWeek${week}\\}\\}`, 'g'), dairyEggsSection);
   }
 
   // Also fill the old-style single-week placeholders for backward compatibility
@@ -2728,9 +3330,20 @@ function replacePlaceholders(template, data) {
   // Fill substitution guide with actual database values
   if (fullMealPlan.weeks.length > 0 && fullMealPlan.weeks[0].days.length > 0) {
     const firstDay = fullMealPlan.weeks[0].days[0];
+
+    // Extract protein from first meal (handle dynamic structure)
+    let firstMeal;
+    if (mealsPerDay === 1) {
+      firstMeal = firstDay.meal;
+    } else if (mealsPerDay === 2) {
+      firstMeal = firstDay.meal1;
+    } else {
+      firstMeal = firstDay.breakfast;
+    }
+
     // Extract the protein name from the first meal (e.g., "Grass-fed Ground Beef + Eggs + Butter" → "Grass-fed Ground Beef")
-    const mainProteinMatch = firstDay.breakfast.match(/^([^+]+)/);
-    const mainProtein = mainProteinMatch ? mainProteinMatch[1].trim() : 'Beef';
+    const mainProteinMatch = firstMeal?.match(/^(\d+g\s+)?([^,]+)/);
+    const mainProtein = mainProteinMatch ? mainProteinMatch[2].trim() : 'Beef';
 
     result = result.replace(/\{\{protein1\}\}/g, mainProtein);
     result = result.replace(/\{\{protein2\}\}/g, 'Fish');
@@ -2741,9 +3354,31 @@ function replacePlaceholders(template, data) {
     result = result.replace(/\{\{protein2\}\}/g, 'Fish');
   }
 
-  // Properly categorize vegetables/fats (not as vegetables)
-  result = result.replace(/\{\{vegetable1\}\}/g, 'Salt (Pantry Item)');
-  result = result.replace(/\{\{vegetable2\}\}/g, 'Butter (Healthy Fat)');
+  // Generate diet-appropriate substitution guide (no salt substitution - salt is essential)
+  // CRITICAL: Respect user's avoidFoods preferences when generating substitutions
+  const dietLower = (data.selectedProtocol || 'Carnivore').toLowerCase();
+  const avoidFoodsLower = (data.avoidFoods || '').toLowerCase();
+  let substitutionGuide = '';
+
+  if (dietLower === 'pescatarian') {
+    // Build pescatarian substitution guide, respecting avoidFoods
+    const fishSubs = [];
+    if (!avoidFoodsLower.includes('mackerel')) fishSubs.push('mackerel');
+    if (!avoidFoodsLower.includes('sardine')) fishSubs.push('sardines');
+    if (!avoidFoodsLower.includes('tuna')) fishSubs.push('tuna');
+    if (!avoidFoodsLower.includes('cod')) fishSubs.push('cod');
+    const fishSubText = fishSubs.length > 0 ? fishSubs.slice(0, 2).join(' or ') : 'other available fish';
+    substitutionGuide = `- If you lack salmon, substitute with ${fishSubText}\n- If you lack fresh fish, use canned fish (in oil)\n- Eggs can replace any fish meal if needed`;
+  } else if (dietLower === 'lion') {
+    substitutionGuide = '- If you lack ribeye, substitute with NY strip or sirloin\n- If you lack steaks, use ground beef (80/20)\n- All beef cuts are interchangeable based on availability';
+  } else if (dietLower === 'keto') {
+    substitutionGuide = '- If you lack beef, substitute with pork or chicken thighs\n- If you lack fresh vegetables, use frozen (equally nutritious)\n- Eggs can replace any protein meal if needed';
+  } else {
+    // Carnivore / Strict Carnivore
+    substitutionGuide = '- If you lack ribeye, substitute with NY strip, chuck, or ground beef\n- If you lack beef, use lamb, pork, or fish\n- Eggs can replace any protein meal if needed';
+  }
+
+  result = result.replace(/\{\{substitutionGuide\}\}/g, substitutionGuide);
 
   // Remove any remaining unmatched placeholders (set to empty string)
   result = result.replace(/\{\{\w+\}\}/g, '');
@@ -2761,7 +3396,7 @@ async function loadAndCustomizeTemplate(templateName, data) {
     mealCalendar: getTemplateContent('mealCalendar'),
     shoppingList: getTemplateContent('shoppingList'),
     physicianConsult: getTemplateContent('physicianConsult', data),
-    restaurant: getTemplateContent('restaurant'),
+    restaurant: getTemplateContent('restaurant', data),
     science: getTemplateContent('science', data.selectedProtocol),
     labs: getTemplateContent('labs'),
     electrolytes: getTemplateContent('electrolytes'),
@@ -2787,6 +3422,9 @@ async function loadAndCustomizeTemplate(templateName, data) {
  * Respects user allergies and food restrictions
  */
 function generateDynamicFoodGuide(dietType, data) {
+  // DEBUG: Log entire data object to see what we're receiving
+  console.log(`[generateDynamicFoodGuide] FULL DATA OBJECT:`, JSON.stringify(data, null, 2));
+
   // Normalize diet type - extract first word and make lowercase
   const dietNormalized = (dietType || '').trim().toLowerCase().split(/[,\s]+/)[0];
   const allergies = (data.allergies || '').toLowerCase();
@@ -2814,6 +3452,9 @@ function generateDynamicFoodGuide(dietType, data) {
     p.diet.some(d => d.toLowerCase() === standardizedDiet.toLowerCase()) &&
     !shouldFilterOutFood(p, allergies, foodRestrictions)
   );
+
+  // DEBUG: Log filtered proteins to verify egg filtering
+  console.log(`[generateDynamicFoodGuide] Available proteins after filtering (${availableProteins.length}):`, availableProteins.map(p => p.name).join(', '));
 
   // Filter fats
   const availableFats = foodDatabase.fats.filter(f =>
@@ -2850,14 +3491,49 @@ function generateDynamicFoodGuide(dietType, data) {
     const eggs = availableProteins.filter(p => p.category.toLowerCase().includes('egg'));
     const shellfish = availableProteins.filter(p => p.category.toLowerCase().includes('shellfish'));
 
-    tierContent = `## TIER 1: FOUNDATION (60-70% of intake)\n\n### Fatty Fish (Primary Protein)\n${fish.map(p => `- ${p.name}`).join('\n')}\n\n**Choose fatty fish, not lean**\n\n### Eggs (Daily Staple)\n${eggs.map(p => `- ${p.name}`).join('\n')}\n\n---\n\n## TIER 2: VARIETY (20-30%)\n\n### Shellfish & Seafood\n${shellfish.length > 0 ? shellfish.map(p => `- ${p.name}`).join('\n') : '- Shrimp, crab, lobster, oysters (if tolerated)'}\n\n### Healthy Fats & Dairy\n${availableFats.map(f => `- ${f.name}`).join('\n') || '- Butter, ghee, coconut oil'}`;
+    // Build eggs section only if eggs are available after filtering
+    const eggsSection = eggs.length > 0 ? `\n\n**Choose fatty fish, not lean**\n\n### Eggs (Daily Staple)\n${eggs.map(p => `- ${p.name}`).join('\n')}` : '\n\n**Choose fatty fish, not lean**';
+
+    // Build shellfish section dynamically - STRICT: only show shellfish that passed shouldFilterOutFood
+    // If shellfish array is empty (either due to allergy OR food restrictions), show NO shellfish fallback
+    let shellfishSection = '';
+    let shellfishHeader = '';
+    if (shellfish.length > 0) {
+      shellfishSection = shellfish.map(p => `- ${p.name}`).join('\n');
+      shellfishHeader = '### Shellfish & Seafood\n';
+    }
+    // REMOVED: No more hardcoded shellfish fallback - if filtered out, they stay out
+
+    // Build fats section - respect dairy allergy
+    const hasDairyAllergy = allergies.includes('dairy');
+    const fatsFallback = hasDairyAllergy ? '- Olive oil, coconut oil, avocado oil' : '- Butter, ghee, coconut oil';
+    const fatsSection = availableFats.length > 0 ? availableFats.map(f => `- ${f.name}`).join('\n') : fatsFallback;
+
+    // Build TIER 2 content - only include shellfish section if not allergic
+    const tier2Content = shellfishSection
+      ? `## TIER 2: VARIETY (20-30%)\n\n${shellfishHeader}${shellfishSection}\n\n### Healthy Fats & Dairy\n${fatsSection}`
+      : `## TIER 2: VARIETY (20-30%)\n\n### Healthy Fats & Dairy\n${fatsSection}`;
+
+    tierContent = `## TIER 1: FOUNDATION (60-70% of intake)\n\n### Fatty Fish (Primary Protein)\n${fish.map(p => `- ${p.name}`).join('\n')}${eggsSection}\n\n---\n\n${tier2Content}`;
 
   } else if (standardizedDiet === 'Keto') {
     // Keto: meats, some plants, dairy
     const meats = availableProteins.filter(p => !p.category.toLowerCase().includes('egg'));
     const eggs = availableProteins.filter(p => p.category.toLowerCase().includes('egg'));
 
-    tierContent = `## TIER 1: FOUNDATION (70-75%)\n\n### Proteins & Healthy Fats\n${meats.map(p => `- ${p.name}`).join('\n')}\n\n### Eggs\n${eggs.map(p => `- ${p.name}`).join('\n')}\n\n---\n\n## TIER 2: REGULAR VARIETY (15-20%)\n\n### Low-Carb Vegetables\n${availableVegetables.length > 0 ? availableVegetables.map(v => `- ${v.name}`).join('\n') : '- Leafy greens, broccoli, cauliflower, asparagus, zucchini'}\n\n### Healthy Fats\n${availableFats.map(f => `- ${f.name}`).join('\n') || '- Butter, ghee, avocado oil'}`;
+    // DEBUG: Log separation
+    console.log(`[generateDynamicFoodGuide] Keto diet - Meats (${meats.length}):`, meats.map(p => p.name).join(', '));
+    console.log(`[generateDynamicFoodGuide] Keto diet - Eggs (${eggs.length}):`, eggs.map(p => p.name).join(', '));
+
+    // Build eggs section only if eggs are available after filtering
+    const eggsSection = eggs.length > 0 ? `\n\n### Eggs\n${eggs.map(p => `- ${p.name}`).join('\n')}` : '';
+
+    // Build fats section - respect dairy allergy
+    const hasDairyAllergy = allergies.includes('dairy');
+    const ketoFatsFallback = hasDairyAllergy ? '- Olive oil, avocado oil, coconut oil' : '- Butter, ghee, avocado oil';
+    const ketoFatsSection = availableFats.length > 0 ? availableFats.map(f => `- ${f.name}`).join('\n') : ketoFatsFallback;
+
+    tierContent = `## TIER 1: FOUNDATION (70-75%)\n\n### Proteins & Healthy Fats\n${meats.map(p => `- ${p.name}`).join('\n')}${eggsSection}\n\n---\n\n## TIER 2: REGULAR VARIETY (15-20%)\n\n### Low-Carb Vegetables\n${availableVegetables.length > 0 ? availableVegetables.map(v => `- ${v.name}`).join('\n') : '- Leafy greens, broccoli, cauliflower, asparagus, zucchini'}\n\n### Healthy Fats\n${ketoFatsSection}`;
 
   } else {
     // Default to Carnivore: all meats
@@ -2874,7 +3550,7 @@ function generateDynamicFoodGuide(dietType, data) {
   if (standardizedDiet === 'Lion') {
     mealPatterns = `## Daily Eating Pattern\n\nLion Diet is typically **one meal per day (OMAD)**.\n\n- **One large meal:** 500-1500g ${proteinSamples[0]?.name || 'beef'} + salt\n- **Meal timing:** Whenever hungry\n- **Seasoning:** Salt only`;
   } else {
-    mealPatterns = `## Daily Eating Patterns\n\n- **Option 1:** ${proteinSamples[0]?.name || 'Protein'} + ${proteinSamples[1]?.name || 'eggs'} + ${fatSample}\n- **Option 2:** ${proteinSamples[1]?.name || 'Protein'} + ${fatSample}\n- **Option 3:** ${proteinSamples[2]?.name || 'Protein'} + ${proteinSamples[0]?.name || 'eggs'} + ${fatSample}`;
+    mealPatterns = `## Daily Eating Patterns\n\n- **Option 1:** ${proteinSamples[0]?.name || 'Protein'} + ${proteinSamples[1]?.name || 'Protein'} + ${fatSample}\n- **Option 2:** ${proteinSamples[1]?.name || 'Protein'} + ${fatSample}\n- **Option 3:** ${proteinSamples[2]?.name || 'Protein'} + ${proteinSamples[0]?.name || 'Protein'} + ${fatSample}`;
   }
 
   // Generate budget optimization
@@ -2950,8 +3626,8 @@ function buildProfile(data) {
   if (data.macros) {
     profile.push(`\nMACRO TARGETS:`);
     profile.push(`- Calories: ${data.macros.calories}`);
-    profile.push(`- Protein: ${data.macros.protein}g`);
-    profile.push(`- Fat: ${data.macros.fat}g`);
+    profile.push(`- Protein: ${data.macros.protein_grams}g`);
+    profile.push(`- Fat: ${data.macros.fat_grams}g`);
     profile.push(`- Activity Level: ${data.macros.activityLevel}`);
     profile.push(`- Goal: ${data.macros.goal}`);
   }
@@ -3552,7 +4228,7 @@ async function handleCreateCheckout(request, env) {
       // Return success response with direct redirect (no Stripe)
       return createSuccessResponse({
         success: true,
-        checkout_url: `${env.FRONTEND_URL}/calculator.html?payment=success&session_id=${sessionUUID}`,
+        checkout_url: `${env.FRONTEND_URL}/assets/calculator2/index.html?payment=success&session_id=${sessionUUID}`,
         session_uuid: sessionUUID,
         message: 'Free checkout completed (100% discount)',
       }, 200);
@@ -4146,6 +4822,17 @@ export default {
     };
 
     // ===== ROUTES =====
+
+    // Version endpoint for deployment verification
+    if (path === '/version' && method === 'GET') {
+      return sendWithCors(new Response(JSON.stringify({
+        version: DEPLOY_VERSION,
+        deployed: new Date().toISOString(),
+        file: 'calculator-api.js'
+      }), {
+        headers: { 'Content-Type': 'application/json' }
+      }));
+    }
 
     // Session management
     if (path === '/api/v1/calculator/session' && method === 'POST') {
