@@ -81,17 +81,25 @@ export default function Step3FreeResults({
       {/* Macro Preview - Show Value First */}
       <MacroPreview macros={macros} />
 
-      {/* What This Looks Like - Dark Card */}
+      {/* What This Looks Like - Dark Card (Diet-Aware) */}
       <div style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '24px' }}>
         <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '600', color: '#ffd700', marginBottom: '12px' }}>What This Looks Like in Food</h3>
         <p style={{ fontSize: '14px', color: '#f5f5f5', marginBottom: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>
           To hit your {macros.calories} calorie target, aim for approximately:
         </p>
-        <ul style={{ fontSize: '14px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", marginLeft: '20px' }}>
-          <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>{(macros.calories / 1500).toFixed(1)} lbs of ground beef</strong> (80/20 blend, ~1,500 cal/lb)</li>
-          <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 1200).toFixed(1)} lbs of ribeye steak</strong> (~1,200 cal/lb)</li>
-          <li><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 700).toFixed(1)} lbs of organs</strong> (liver, kidney) (~700 cal/lb)</li>
-        </ul>
+        {data.diet === 'pescatarian' ? (
+          <ul style={{ fontSize: '14px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", marginLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>{(macros.calories / 1000).toFixed(1)} lbs of salmon</strong> (fatty cut, ~1,000 cal/lb)</li>
+            <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 800).toFixed(1)} lbs of mackerel</strong> (~800 cal/lb)</li>
+            <li><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 500).toFixed(1)} lbs of cod + butter</strong> (leaner fish with added fat, ~500 cal/lb)</li>
+          </ul>
+        ) : (
+          <ul style={{ fontSize: '14px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", marginLeft: '20px' }}>
+            <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>{(macros.calories / 1500).toFixed(1)} lbs of ground beef</strong> (80/20 blend, ~1,500 cal/lb)</li>
+            <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 1200).toFixed(1)} lbs of ribeye steak</strong> (~1,200 cal/lb)</li>
+            <li><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 700).toFixed(1)} lbs of organs</strong> (liver, kidney) (~700 cal/lb)</li>
+          </ul>
+        )}
       </div>
 
       {/* Upgrade CTA */}
