@@ -32,6 +32,58 @@ const goalLabels: Record<string, string> = {
   'gain': 'Build Muscle'
 }
 
+// Diet-specific configurations
+const dietConfig: Record<string, {
+  label: string
+  foodExamples: { name: string; calPerLb: number; note?: string }[]
+  troubleshooting: string
+  socialProof: string
+}> = {
+  'carnivore': {
+    label: 'Carnivore',
+    foodExamples: [
+      { name: 'ground beef', calPerLb: 1500, note: '80/20 blend' },
+      { name: 'ribeye steak', calPerLb: 1200 },
+      { name: 'beef liver + butter', calPerLb: 700, note: 'nutrient-dense organs' }
+    ],
+    troubleshooting: 'Fixes for night sweats and digestive stalls',
+    socialProof: 'carnivores'
+  },
+  'keto': {
+    label: 'Keto',
+    foodExamples: [
+      { name: 'ribeye steak', calPerLb: 1200 },
+      { name: 'bacon + eggs', calPerLb: 1400, note: '4 strips + 3 eggs' },
+      { name: 'avocado + salmon', calPerLb: 900, note: 'healthy fats combo' }
+    ],
+    troubleshooting: 'Strategies for keto flu and electrolyte balance',
+    socialProof: 'keto dieters'
+  },
+  'lowcarb': {
+    label: 'Low Carb',
+    foodExamples: [
+      { name: 'chicken thighs', calPerLb: 1100, note: 'skin-on' },
+      { name: 'pork shoulder', calPerLb: 1300 },
+      { name: 'beef + vegetables', calPerLb: 800, note: 'steak with greens' }
+    ],
+    troubleshooting: 'Managing carb cravings and energy dips',
+    socialProof: 'low-carb followers'
+  },
+  'pescatarian': {
+    label: 'Pescatarian',
+    foodExamples: [
+      { name: 'salmon', calPerLb: 1000, note: 'fatty wild-caught' },
+      { name: 'mackerel', calPerLb: 800 },
+      { name: 'cod + butter', calPerLb: 500, note: 'leaner fish with added fat' }
+    ],
+    troubleshooting: 'Optimizing Omega-3 ratios and mercury safety',
+    socialProof: 'pescatarians'
+  }
+}
+
+// Default to carnivore if diet not found
+const getDietConfig = (diet: string) => dietConfig[diet] || dietConfig['carnivore']
+
 export default function Step3FreeResults({
   data,
   macros,
@@ -56,11 +108,14 @@ export default function Step3FreeResults({
     )
   }
 
+  // Get diet-specific config
+  const config = getDietConfig(data.diet)
+
   return (
     <div className="space-y-8">
       {/* Results Header */}
       <div>
-        <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '32px', fontWeight: '700', color: '#ffd700', marginBottom: '8px' }}>Your Personalized Carnivore Macros</h2>
+        <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '32px', fontWeight: '700', color: '#ffd700', marginBottom: '8px' }}>Your Personalized {config.label} Macros</h2>
         <p style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '16px', color: '#a0a0a0' }}>Based on your profile and goals</p>
       </div>
 
@@ -103,19 +158,17 @@ export default function Step3FreeResults({
         <p style={{ fontSize: '14px', color: '#f5f5f5', marginBottom: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>
           To hit your {macros.calories} calorie target, aim for approximately:
         </p>
-        {data.diet === 'pescatarian' ? (
-          <ul style={{ fontSize: '14px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", marginLeft: '20px' }}>
-            <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>{(macros.calories / 1000).toFixed(1)} lbs of salmon</strong> (fatty cut, ~1,000 cal/lb)</li>
-            <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 800).toFixed(1)} lbs of mackerel</strong> (~800 cal/lb)</li>
-            <li><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 500).toFixed(1)} lbs of cod + butter</strong> (leaner fish with added fat, ~500 cal/lb)</li>
-          </ul>
-        ) : (
-          <ul style={{ fontSize: '14px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", marginLeft: '20px' }}>
-            <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>{(macros.calories / 1500).toFixed(1)} lbs of ground beef</strong> (80/20 blend, ~1,500 cal/lb)</li>
-            <li style={{ marginBottom: '8px' }}><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 1200).toFixed(1)} lbs of ribeye steak</strong> (~1,200 cal/lb)</li>
-            <li><strong style={{ color: '#d4a574' }}>OR {(macros.calories / 700).toFixed(1)} lbs of organs</strong> (liver, kidney) (~700 cal/lb)</li>
-          </ul>
-        )}
+        <ul style={{ fontSize: '14px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", marginLeft: '20px' }}>
+          {config.foodExamples.map((food, idx) => (
+            <li key={food.name} style={{ marginBottom: idx < config.foodExamples.length - 1 ? '8px' : 0 }}>
+              <strong style={{ color: '#d4a574' }}>
+                {idx > 0 ? 'OR ' : ''}{(macros.calories / food.calPerLb).toFixed(1)} lbs of {food.name}
+              </strong>
+              {food.note && ` (${food.note}, ~${food.calPerLb.toLocaleString()} cal/lb)`}
+              {!food.note && ` (~${food.calPerLb.toLocaleString()} cal/lb)`}
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* Free vs Premium Comparison */}
@@ -139,15 +192,15 @@ export default function Step3FreeResults({
           <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Upgrade for $9.99:</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <span style={{ color: '#ffd700', fontSize: '14px' }}>★</span>
-            <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>30-day personalized meal plan</span>
+            <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>30-day personalized {config.label.toLowerCase()} meal plan</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ color: '#ffd700', fontSize: '14px' }}>★</span>
+            <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>{config.troubleshooting}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <span style={{ color: '#ffd700', fontSize: '14px' }}>★</span>
             <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>Doctor conversation script</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <span style={{ color: '#ffd700', fontSize: '14px' }}>★</span>
-            <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>Detailed personalized health report</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ color: '#ffd700', fontSize: '14px' }}>★</span>
@@ -160,7 +213,7 @@ export default function Step3FreeResults({
       <div style={{ paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
         {/* Social proof */}
         <p style={{ fontSize: '13px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", textAlign: 'center', marginBottom: '8px' }}>
-          Trusted by 500+ carnivores to dial in their nutrition
+          Trusted by 500+ {config.socialProof} to dial in their nutrition
         </p>
         <button
           onClick={(e) => {
@@ -168,7 +221,8 @@ export default function Step3FreeResults({
             if (window.gtag) {
               window.gtag('event', 'calculator_upgrade_click', {
                 'event_category': 'calculator',
-                'event_label': 'upgrade_clicked'
+                'event_label': 'upgrade_clicked',
+                'diet_type': data.diet
               })
             }
             onUpgrade()
@@ -194,10 +248,10 @@ export default function Step3FreeResults({
             e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
-          Upgrade for Full Personalized Protocol
+          Get Your 30+ Page {config.label} Protocol
         </button>
         <p style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
-          Unlock personalized guidance, meal plans, and detailed recommendations
+          Unlock your personalized {config.label.toLowerCase()} meal plan, troubleshooting guide, and detailed report
         </p>
       </div>
 
