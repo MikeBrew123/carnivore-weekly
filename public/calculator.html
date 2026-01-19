@@ -91,6 +91,46 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 0 40px;
+            /* BOMBPROOF GRID: Intro, Calculator, FAQ as independent rows */
+            display: grid;
+            grid-template-rows: auto auto auto;
+            gap: 0;
+        }
+
+        /* ============================================
+           BOMBPROOF CALCULATOR SLOT
+           Structurally independent from intro text.
+           Changes to intro-copy cannot collapse this.
+           ============================================ */
+        .calculator-slot {
+            /* Grid item - takes its own row */
+            grid-row: 2;
+            /* Full width of parent container */
+            width: 100%;
+            /* Create stacking context for proper z-index */
+            position: relative;
+            z-index: 1;
+            /* NO contain property - it clips position:fixed children (modals) */
+            /* Minimum height prevents collapse */
+            min-height: 400px;
+            /* Visual breathing room */
+            padding: 40px 0;
+            margin: 0;
+        }
+
+        /* React mount point inside calculator slot */
+        .calculator-slot #root {
+            /* No inherited styles from intro-copy */
+            all: unset;
+            display: block;
+            width: 100%;
+        }
+
+        /* Ensure React container doesn't nest padding */
+        .calculator-slot #root > div {
+            /* Override FormContainer's extra padding when embedded */
+            padding: 0 !important;
+            min-height: auto !important;
         }
 
         /* Problem section with generous white space */
@@ -415,7 +455,14 @@
                 box-sizing: border-box; /* Include padding in width calculation */
             }
 
+            /* BOMBPROOF: Calculator slot mobile styles */
+            .calculator-slot {
+                padding: 20px 0;
+                min-height: 350px;
+            }
+
             /* Make calculator container truly full width */
+            .calculator-slot #root,
             #root {
                 width: 100% !important;
                 max-width: 100% !important;
@@ -424,6 +471,7 @@
             }
 
             /* Ensure calculator box fills screen width completely */
+            .calculator-slot #root > div,
             #root > div {
                 width: 100% !important;
                 max-width: 100% !important;
@@ -607,8 +655,12 @@
                         You don't need this if you already track macros or work with a coach. You don't need the upgrade if the free numbers are enough. This just removes the mental load of calculating it yourself. Use it or don't. It's here when you need it.
                     </p>
 
-                    <!-- How It Works Section -->
-                    <div class="how-it-works" style="background: rgba(139, 69, 19, 0.05); border-left: 4px solid #8b4513; padding: 30px; margin: 40px 0; border-radius: 4px;">
+                </section>
+
+                <!-- BOMBPROOF CALCULATOR SLOT - Structurally independent from intro text -->
+                <div id="calculator-slot" class="calculator-slot">
+                    <!-- How It Works Section - Inside calculator slot for visual continuity -->
+                    <div class="how-it-works" style="background: rgba(139, 69, 19, 0.05); border-left: 4px solid #8b4513; padding: 30px; margin: 0 0 40px 0; border-radius: 4px;">
                         <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: #8b4513; margin-top: 0; margin-bottom: 24px;">How the Calculator Works</h2>
 
                         <div style="margin-bottom: 24px;">
@@ -633,9 +685,9 @@
                         </div>
                     </div>
 
-                    <!-- Calculator app mounts here -->
+                    <!-- Calculator React app mounts here - ISOLATED from intro-copy -->
                     <div id="root"></div>
-                </section>
+                </div>
 
                 <!-- FAQ Section -->
                 <section class="calculator-faq" style="background: rgba(212, 165, 116, 0.08); border-radius: 8px; padding: 40px; margin-top: 60px; max-width: 800px; margin-left: auto; margin-right: auto;">
@@ -757,7 +809,7 @@
             </div>
         </div>
     </footer>
-    <script type="module" src="/assets/calculator2/assets/index-C2VpEjM2.js"></script>
+    <script type="module" src="/assets/calculator2/assets/index-DjjBIFHD.js"></script>
     <script src="/js/mobile-nav.js"></script>
 </body>
 </html>

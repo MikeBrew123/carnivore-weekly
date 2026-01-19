@@ -52,8 +52,8 @@ export default function Step2FitnessDiet({
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="space-y-8">
+      <div className="mb-8">
         <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', color: '#ffd700', fontWeight: '600', marginBottom: '8px' }}>Your Activity & Goals</h2>
         <p style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '18px', color: '#f5f5f5' }}>These help us tailor your macros to your lifestyle.</p>
       </div>
@@ -95,19 +95,21 @@ export default function Step2FitnessDiet({
       />
 
       {/* Goal */}
-      <RadioGroup
-        name="goal"
-        label="What's Your Goal?"
+      <div style={{ marginTop: '12px' }}>
+        <RadioGroup
+          name="goal"
+          label="What's Your Goal?"
         options={[
           { value: 'lose', label: 'Fat Loss', description: 'Lose weight while preserving muscle' },
           { value: 'maintain', label: 'Maintenance', description: 'Maintain current weight' },
           { value: 'gain', label: 'Muscle Gain', description: 'Build muscle mass' },
         ]}
         value={data.goal || ''}
-        onChange={(value) => handleInputChange('goal', value)}
-        error={errors.goal}
-        required
-      />
+          onChange={(value) => handleInputChange('goal', value)}
+          error={errors.goal}
+          required
+        />
+      </div>
 
       {/* Deficit/Surplus Percentage */}
       {(data.goal === 'lose' || data.goal === 'gain') && (
@@ -137,9 +139,10 @@ export default function Step2FitnessDiet({
       )}
 
       {/* Diet Type */}
-      <SelectField
-        name="diet"
-        label="Diet Preference"
+      <div style={{ marginTop: '12px' }}>
+        <SelectField
+          name="diet"
+          label="Diet Preference"
         options={[
           { value: '', label: 'Select diet type', disabled: true },
           { value: 'carnivore', label: '🥩 Carnivore (beef, lamb, organs only)' },
@@ -148,10 +151,11 @@ export default function Step2FitnessDiet({
           { value: 'lowcarb', label: '🥕 Low-Carb (moderate carbs)' },
         ]}
         value={data.diet || ''}
-        onChange={(e) => handleInputChange('diet', e.target.value)}
-        error={errors.diet}
-        required
-      />
+          onChange={(e) => handleInputChange('diet', e.target.value)}
+          error={errors.diet}
+          required
+        />
+      </div>
 
       {/* Navigation Buttons */}
       <div style={{ paddingTop: '24px', display: 'flex', gap: '12px' }}>

@@ -1,10 +1,11 @@
-import { InputHTMLAttributes, ReactNode } from 'react'
+import { InputHTMLAttributes, ReactNode, useState } from 'react'
 
 interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   error?: string
   helpText?: string
   icon?: ReactNode
+  isValid?: boolean // New: explicit valid state for green glow
 }
 
 export default function FormField({
@@ -12,69 +13,81 @@ export default function FormField({
   error,
   helpText,
   icon,
+  isValid,
   className = '',
   ...props
 }: FormFieldProps) {
+  const [isFocused, setIsFocused] = useState(false)
+
+  // Determine border color: error (red) > valid (green) > default (gray)
+  const getBorderColor = () => {
+    if (error) return '#ef4444'
+    if (isValid) return '#22c55e' // green-500
+    return '#333'
+  }
+
+  // Determine glow: focus (gold) > valid (green) > error (red) > none
+  const getBoxShadow = () => {
+    if (isFocused) return '0 0 0 3px rgba(255, 215, 0, 0.2)'
+    if (isValid) return '0 0 0 2px rgba(34, 197, 94, 0.15)' // subtle green glow
+    if (error) return '0 0 0 2px rgba(239, 68, 68, 0.15)' // subtle red glow
+    return 'none'
+  }
+
   return (
     <div className="w-full">
       <label
         htmlFor={props.id || props.name}
-        style={{
-          display: 'block',
-          color: '#a0a0a0',
-          fontFamily: "'Merriweather', Georgia, serif",
-          fontSize: '16px',
-          fontWeight: '500',
-          marginBottom: '8px'
-        }}
+        className="block font-medium mb-2"
+        style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '16px', color: '#FFFFFF', marginTop: '4px' }}
       >
         {label}
-        {props.required && <span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>}
+        {props.required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
       <div className="relative">
         <input
           {...props}
+          className={`w-full rounded-lg transition-all duration-200 outline-none ${className}`}
           style={{
             width: '100%',
             backgroundColor: '#0f0f0f',
-            border: error ? '1px solid #ef4444' : '1px solid #333',
+            border: `1px solid ${getBorderColor()}`,
             borderRadius: '8px',
-            padding: '12px 16px',
+            padding: '14px 16px',
             fontSize: '18px',
             fontFamily: "'Merriweather', Georgia, serif",
             color: '#f5f5f5',
-            transition: 'border-color 0.2s, box-shadow 0.2s',
-            outline: 'none',
+            boxShadow: getBoxShadow(),
+            minHeight: '48px',
+            flexShrink: 0,
+            boxSizing: 'border-box',
             ...(props.style || {})
           }}
           onFocus={(e) => {
-            e.currentTarget.style.borderColor = '#ffd700';
-            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255, 215, 0, 0.2)';
-            props.onFocus?.(e);
+            setIsFocused(true)
+            props.onFocus?.(e)
           }}
           onBlur={(e) => {
-            e.currentTarget.style.borderColor = error ? '#ef4444' : '#333';
-            e.currentTarget.style.boxShadow = 'none';
-            props.onBlur?.(e);
+            setIsFocused(false)
+            props.onBlur?.(e)
           }}
           placeholder={props.placeholder}
-          className={className}
         />
         {icon && (
-          <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#666' }}>
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
             {icon}
           </div>
         )}
       </div>
 
       {error && (
-        <p style={{ color: '#ef4444', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px', marginTop: '6px' }}>
+        <p className="text-red-500 text-sm mt-1.5" style={{ fontFamily: "'Merriweather', Georgia, serif" }}>
           {error}
         </p>
       )}
       {helpText && !error && (
-        <p style={{ color: '#666', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px', marginTop: '6px' }}>
+        <p className="text-gray-500 text-sm mt-1.5" style={{ fontFamily: "'Merriweather', Georgia, serif" }}>
           {helpText}
         </p>
       )}

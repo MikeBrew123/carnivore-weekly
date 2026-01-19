@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 interface FormContainerProps {
   children: ReactNode
@@ -6,25 +6,73 @@ interface FormContainerProps {
   hideSidebar?: boolean
 }
 
+/**
+ * FormContainer - Layout wrapper for calculator form
+ *
+ * BOMBPROOF MODE: When mounted inside .calculator-slot (calculator.html),
+ * this component strips its outer padding/background to avoid double-wrapping.
+ * The parent page handles the layout; we just render the form card.
+ */
 export default function FormContainer({
   children,
   sidebar,
   hideSidebar = false,
 }: FormContainerProps) {
+  // Detect if we're embedded in the bombproof calculator slot
+  const [isEmbedded, setIsEmbedded] = useState(false)
+
+  useEffect(() => {
+    // Check if parent is .calculator-slot (bombproof mode)
+    const root = document.getElementById('root')
+    const inCalculatorSlot = root?.closest('.calculator-slot') !== null
+    const hasPageHeader = document.querySelector('.header-2026') !== null
+
+    setIsEmbedded(inCalculatorSlot || hasPageHeader)
+  }, [])
+
+  // BOMBPROOF MODE: Minimal wrapper when embedded
+  if (isEmbedded) {
+    return (
+      <div className="w-full" style={{ padding: '0' }}>
+        <div style={{ maxWidth: '650px', margin: '0 auto' }}>
+          {/* Form card only - no outer background/padding */}
+          <div
+            style={{
+              backgroundColor: '#1a1a1a',
+              borderTop: '3px solid #ffd700',
+              borderLeft: '1px solid #333',
+              borderRight: '1px solid #333',
+              borderBottom: '1px solid #333',
+              borderRadius: '12px',
+              padding: '2.5rem',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)',
+            }}
+          >
+            {children}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // STANDALONE MODE: Full layout with background (for /assets/calculator2/index.html)
   return (
     <div className="w-full" style={{ backgroundColor: '#F2F0E6', minHeight: '100vh', padding: '40px 20px' }}>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main form area */}
         <div className="lg:col-span-2">
-          <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '650px', margin: '0 auto' }}>
             {/* Progress indicator and form card */}
             <div
               style={{
                 backgroundColor: '#1a1a1a',
-                border: '1px solid #333',
+                borderTop: '3px solid #ffd700',
+                borderLeft: '1px solid #333',
+                borderRight: '1px solid #333',
+                borderBottom: '1px solid #333',
                 borderRadius: '12px',
-                padding: '2rem',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                padding: '2.5rem',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)',
               }}
             >
               {children}

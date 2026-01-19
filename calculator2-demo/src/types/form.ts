@@ -6,6 +6,7 @@ export interface FormData {
   heightInches?: number
   heightCm?: number
   weight: number
+  weightKg?: number
 
   // Step 2: Fitness & Diet
   lifestyle: string

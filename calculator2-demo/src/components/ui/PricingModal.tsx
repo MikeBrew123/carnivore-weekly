@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import PricingCard from './PricingCard'
 import StripePaymentModal from './StripePaymentModal'
+import Portal from './Portal'
 import { useFormStore } from '../../stores/formStore'
 
 interface FormData {
@@ -92,41 +93,42 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   // Add responsive styles for bundle card with proper spacing
   const pricingStyles = `
     .pricing-grid {
-      gap: 32px;
-      row-gap: 100px !important;
+      gap: 24px;
+      row-gap: 24px;
       align-items: stretch;
     }
 
     .pricing-card-container {
       margin: 0 !important;
-      grid-column: span 1;
       display: flex;
       flex-direction: column;
       height: 100%;
-    }
-
-    .pricing-card-container:last-child {
-      grid-column: span 1 !important;
+      min-width: 0;
     }
 
     @media (max-width: 768px) {
       .pricing-grid {
-        grid-template-columns: 1fr;
-        row-gap: 40px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
       }
       .pricing-card-container {
-        grid-column: span 1;
-      }
-      .pricing-card-container:last-child {
-        grid-column: span 1;
+        width: 100% !important;
       }
     }
+
     @media (min-width: 769px) {
       .pricing-grid {
-        grid-template-columns: repeat(2, 1fr);
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 24px !important;
       }
-      .pricing-card-container:last-child {
-        grid-column: span 1;
+    }
+
+    @media (min-width: 1024px) {
+      .pricing-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 32px !important;
       }
     }
   `
@@ -163,7 +165,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   const selectedOption = getSelectedOption()
 
   return (
-    <>
+    <Portal>
       <style>{pricingStyles}</style>
       {!selectedTier && (
       <div
@@ -178,7 +180,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 150,
+          zIndex: 9999, // Above site header (1000-1002)
           padding: '16px',
         }}
       >
@@ -403,6 +405,6 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
           />
         )}
       </AnimatePresence>
-    </>
+    </Portal>
   )
 }

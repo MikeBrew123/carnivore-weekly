@@ -182,7 +182,7 @@ export default function StripePaymentModal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 51,
+        zIndex: 10000, // Above PricingModal (9999) and site header
         padding: '16px',
         overflow: 'hidden',
       }}
