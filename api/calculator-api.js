@@ -126,34 +126,81 @@ function checkRateLimit(sessionToken, limit = 10) {
   return true;
 }
 
-// ===== COUPON VALIDATION =====
+// ===== COUPON VALIDATION (STRIPE INTEGRATION) =====
 
-const validCoupons = {
-  'WELCOME10': { percent: 10, description: 'Welcome 10% off' },
-  'CARNIVORE20': { percent: 20, description: 'Carnivore community 20% off' },
-  'EARLY25': { percent: 25, description: 'Early adopter 25% off' },
-  'LAUNCH50': { percent: 50, description: 'Limited launch 50% off' },
-  'FRIEND15': { percent: 15, description: 'Referral friend 15% off' },
-  'TESTCOUPON5': { percent: 5, description: 'Test coupon 5% off' },
-  'TEST321': { percent: 100, description: 'Test 100% off' },
-  'TEST999': { percent: 100, description: 'Test 100% off (Unlimited)' },
+// Map user-facing promotion codes to Stripe coupon IDs
+// To add new codes: Create coupon in Stripe Dashboard, then add mapping here
+const stripeCouponMap = {
+  'TEST999': 'DjCf14wH',      // 100% off forever (testing - FREE)
+  'TEST95': 'ZnZXGHka',       // 95% off forever (testing - $0.50 minimum)
+  'WELCOME10': 'kFK8x4SZ',    // 10% off once ($8.99)
+  'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($7.99)
+  // TEST99 removed - $0.10 below Stripe's 50 cent minimum
+  'EARLY25': null,            // TODO: Create in Stripe
+  'LAUNCH50': null,           // TODO: Create in Stripe
+  'FRIEND15': null,           // TODO: Create in Stripe
 };
 
-function validateCoupon(code) {
-  const coupon = validCoupons[code?.toUpperCase()];
-  if (!coupon) {
+/**
+ * Validate coupon code via Stripe API
+ * @param {string} code - User-entered promo code
+ * @param {object} env - Environment variables (contains STRIPE_SECRET_KEY)
+ * @returns {Promise<object>} - Validation result
+ */
+async function validateCoupon(code, env) {
+  const upperCode = code?.toUpperCase();
+  const stripeCouponId = stripeCouponMap[upperCode];
+
+  if (!stripeCouponId) {
     return {
       valid: false,
       error: 'Coupon code not found or expired'
     };
   }
 
-  return {
-    valid: true,
-    code: code.toUpperCase(),
-    percent: coupon.percent,
-    description: coupon.description
-  };
+  try {
+    // Fetch coupon from Stripe to verify it's active
+    const stripeResponse = await fetch(`https://api.stripe.com/v1/coupons/${stripeCouponId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+      },
+    });
+
+    if (!stripeResponse.ok) {
+      console.error('Stripe coupon fetch failed:', await stripeResponse.text());
+      return {
+        valid: false,
+        error: 'Coupon code not found or expired'
+      };
+    }
+
+    const coupon = await stripeResponse.json();
+
+    // Check if coupon is still valid
+    if (!coupon.valid) {
+      return {
+        valid: false,
+        error: 'Coupon has expired'
+      };
+    }
+
+    return {
+      valid: true,
+      code: upperCode,
+      stripe_coupon_id: stripeCouponId,
+      percent: coupon.percent_off || 0,
+      amount_off: coupon.amount_off || 0,
+      currency: coupon.currency,
+      description: coupon.name || upperCode
+    };
+  } catch (error) {
+    console.error('Error validating coupon:', error);
+    return {
+      valid: false,
+      error: 'Unable to validate coupon'
+    };
+  }
 }
 
 // ===== ROUTE HANDLERS =====
@@ -494,14 +541,17 @@ async function handleValidateCoupon(request, env) {
       return createErrorResponse('MISSING_CODE', 'Coupon code is required', 400);
     }
 
-    const result = validateCoupon(code);
+    // Validate via Stripe API (async)
+    const result = await validateCoupon(code, env);
     if (!result.valid) {
       return createErrorResponse('INVALID_COUPON', result.error, 400);
     }
 
     return createSuccessResponse({
       code: result.code,
+      stripe_coupon_id: result.stripe_coupon_id,
       percent: result.percent,
+      amount_off: result.amount_off,
       description: result.description
     });
   } catch (err) {
@@ -4352,7 +4402,30 @@ async function handleCreateCheckout(request, env) {
     formBody.append('line_items[0][price]', stripePriceId);
     formBody.append('line_items[0][quantity]', '1');
     formBody.append('mode', 'payment');
-    formBody.append('allow_promotion_codes', 'true');
+
+    // ===== APPLY COUPON TO STRIPE CHECKOUT (IF PROVIDED) =====
+    let couponApplied = false;
+    if (coupon_code) {
+      console.log(`[Coupon] Validating coupon: ${coupon_code}`);
+      const couponResult = await validateCoupon(coupon_code, env);
+
+      if (couponResult.valid) {
+        console.log(`[Coupon] Valid! Applying ${couponResult.stripe_coupon_id} to checkout`);
+        // Apply discount to Stripe checkout session
+        formBody.append('discounts[0][coupon]', couponResult.stripe_coupon_id);
+        couponApplied = true;
+      } else {
+        console.log(`[Coupon] Invalid: ${couponResult.error}`);
+        // Don't fail checkout - just proceed without discount
+        // User was already warned by /validate-coupon endpoint
+      }
+    }
+
+    // IMPORTANT: Can't use both 'discounts' and 'allow_promotion_codes' in same request
+    // Only allow manual promo code entry if we didn't programmatically apply a coupon
+    if (!couponApplied) {
+      formBody.append('allow_promotion_codes', 'true');  // Allow manual entry in Stripe UI
+    }
     // Send complete URLs with session_id to Stripe
     formBody.append('success_url', successUrlWithId);
     formBody.append('cancel_url', cancelUrlWithId);

@@ -37,7 +37,7 @@ export default function FormContainer({
         <div style={{ maxWidth: '650px', margin: '0 auto', boxSizing: 'border-box' }}>
           {/* Form card only - no outer background/padding */}
           <div
-            className="px-4 md:px-10 py-8 md:py-10"
+            className="px-6 md:px-12 py-8 md:py-10"
             style={{
               backgroundColor: '#1a1a1a',
               borderTop: '3px solid #ffd700',
@@ -65,7 +65,7 @@ export default function FormContainer({
           <div style={{ maxWidth: '650px', margin: '0 auto', boxSizing: 'border-box' }}>
             {/* Progress indicator and form card */}
             <div
-              className="px-4 md:px-10 py-8 md:py-10"
+              className="px-6 md:px-12 py-8 md:py-10"
               style={{
                 backgroundColor: '#1a1a1a',
                 borderTop: '3px solid #ffd700',
