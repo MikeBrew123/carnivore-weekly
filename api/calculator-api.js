@@ -37,7 +37,7 @@
  */
 
 // Version marker for deployment verification
-const DEPLOY_VERSION = "v2026-01-17-phase1-scrub";
+const DEPLOY_VERSION = "v2026-01-18-clean";
 
 // ===== UTILITY FUNCTIONS =====
 
@@ -2415,7 +2415,6 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
     </div>
     <h1 class="cover-title">Your Complete Personalized<br>Carnivore Diet Report${userData.firstName ? `<br><span style="font-size: 24pt; font-weight: normal; color: #666;">Prepared for ${userData.firstName}${userData.lastName ? ' ' + userData.lastName : ''}</span>` : ''}</h1>
     <div class="cover-date">Generated on ${generatedDate}</div>
-    <div style="font-size: 9pt; color: #999; margin-top: 10pt;">Report Version: ${DEPLOY_VERSION}</div>
   </div>
   <div class="content-start report-content">
     ${contentHTML}
