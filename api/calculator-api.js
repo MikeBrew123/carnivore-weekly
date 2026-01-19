@@ -4218,8 +4218,8 @@ async function handleCreateCheckout(request, env) {
       : '';
 
     // Use success/cancel URLs from request, fall back to calculator app with payment status
-    const finalSuccessUrl = success_url || `${env.FRONTEND_URL}/assets/calculator2/index.html?payment=success&session_id={CHECKOUT_SESSION_ID}`;
-    const finalCancelUrl = cancel_url || `${env.FRONTEND_URL}/assets/calculator2/index.html?payment=cancelled`;
+    const finalSuccessUrl = success_url || `https://carnivoreweekly.com/calculator.html?payment=success&session_id={CHECKOUT_SESSION_ID}`;
+    const finalCancelUrl = cancel_url || `https://carnivoreweekly.com/calculator.html?payment=cancelled`;
 
     // Generate UUIDs
     const sessionUUID = generateUUID();
@@ -4301,7 +4301,7 @@ async function handleCreateCheckout(request, env) {
       // Return success response with direct redirect (no Stripe)
       return createSuccessResponse({
         success: true,
-        checkout_url: `${env.FRONTEND_URL}/assets/calculator2/index.html?payment=success&session_id=${sessionUUID}`,
+        checkout_url: `https://carnivoreweekly.com/calculator.html?payment=success&session_id=${sessionUUID}`,
         session_uuid: sessionUUID,
         message: 'Free checkout completed (100% discount)',
       }, 200);
@@ -4310,11 +4310,11 @@ async function handleCreateCheckout(request, env) {
     // ===== STEP 2: CREATE STRIPE CHECKOUT SESSION =====
 
     // Construct success/cancel URLs with sessionUUID as the session_id
-    // Use the request origin for localhost testing, env.FRONTEND_URL for production
+    // HARDCODED to production URL to prevent undefined/localhost issues
     const requestOrigin = request.headers.get('origin') || '';
-    let baseDomain = env.FRONTEND_URL || 'http://localhost:5173';
+    let baseDomain = 'https://carnivoreweekly.com';
 
-    // For localhost testing, use the request origin instead of the production domain
+    // For localhost testing only, use the request origin
     if (requestOrigin && requestOrigin.includes('localhost')) {
       baseDomain = requestOrigin;
       console.log('[Worker] Detected localhost - using request origin:', baseDomain);
