@@ -93,9 +93,10 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   // Add responsive styles for bundle card with proper spacing
   const pricingStyles = `
     .pricing-grid {
-      gap: 24px;
-      row-gap: 24px;
+      gap: 48px;
+      row-gap: 48px;
       align-items: stretch;
+      justify-content: center;
     }
 
     .pricing-card-container {
@@ -104,31 +105,35 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
       flex-direction: column;
       height: 100%;
       min-width: 0;
+      justify-content: center;
     }
 
     @media (max-width: 768px) {
       .pricing-grid {
         display: flex !important;
         flex-direction: column !important;
-        gap: 20px !important;
+        gap: 24px !important;
+        align-items: center !important;
       }
       .pricing-card-container {
         width: 100% !important;
+        max-width: 320px !important;
       }
     }
 
     @media (min-width: 769px) {
       .pricing-grid {
         display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 24px !important;
+        grid-template-columns: repeat(2, 320px) !important;
+        gap: 48px !important;
+        justify-content: center !important;
       }
     }
 
     @media (min-width: 1024px) {
       .pricing-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 32px !important;
+        grid-template-columns: repeat(2, 320px) !important;
+        gap: 64px !important;
       }
     }
   `
@@ -270,16 +275,17 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
               Select the tier that matches your needs. All plans include personalized macros.
             </p>
 
-            {/* Grid Container - centered with max-width */}
+            {/* Grid Container - centered with slim cards and wide gutters */}
             <div
               className="pricing-grid"
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap: '32px',
-                rowGap: '60px',
+                gridTemplateColumns: 'repeat(2, 320px)',
+                gap: '64px',
+                rowGap: '48px',
                 alignItems: 'stretch',
-                maxWidth: '900px',
+                justifyContent: 'center',
+                maxWidth: '800px',
                 width: '100%',
                 marginBottom: '0px',
               }}
