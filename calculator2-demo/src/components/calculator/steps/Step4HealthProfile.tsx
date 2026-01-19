@@ -8,7 +8,6 @@ interface Step4HealthProfileProps {
   data: FormData
   onDataChange: (data: FormData) => void
   onSubmit: () => void
-  onBack: () => void
   onFieldChange?: (fieldName: string) => void
   onSetErrors?: (errors: Record<string, string>) => void
   errors: Record<string, string>
@@ -18,7 +17,6 @@ export default function Step4HealthProfile({
   data,
   onDataChange,
   onSubmit,
-  onBack,
   onFieldChange,
   onSetErrors,
   errors,
@@ -401,39 +399,11 @@ export default function Step4HealthProfile({
           Your information is secure and will be used only to generate your personalized nutrition protocol.
         </p>
 
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={onBack}
-            style={{
-              flex: 1,
-              background: '#2c1810',
-              color: '#ffd700',
-              fontWeight: 'bold',
-              padding: '14px 24px',
-              fontSize: '16px',
-              borderRadius: '8px',
-              border: '2px solid #ffd700',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              fontFamily: "'Playfair Display', Georgia, serif",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.2)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = 'none';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            Back
-          </button>
-          <button
+        <button
             type="button"
             onClick={handleSubmit}
             style={{
-              flex: 1,
+              width: '100%',
               background: 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)',
               color: '#1a120b',
               fontWeight: 'bold',
@@ -456,7 +426,6 @@ export default function Step4HealthProfile({
           >
             Generate My Protocol
           </button>
-        </div>
       </section>
     </div>
   )

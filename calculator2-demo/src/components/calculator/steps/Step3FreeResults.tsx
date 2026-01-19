@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { FormData, MacroResults } from '../../../types/form'
 import { calculateBMR, calculateMacros } from '../../../lib/calculations'
 import MacroPreview from '../../ui/MacroPreview'
+import { useFormStore } from '../../../stores/formStore'
 
 declare global {
   interface Window {
@@ -85,6 +86,8 @@ export default function Step3FreeResults({
   onUpgrade,
   onBack,
 }: Step3FreeResultsProps) {
+  const { resetForm } = useFormStore()
+
   // Track free results view
   useEffect(() => {
     if (window.gtag) {
@@ -270,9 +273,16 @@ export default function Step3FreeResults({
         </p>
       </div>
 
-      {/* Back Button */}
+      {/* Start Over Button */}
       <button
-        onClick={onBack}
+        onClick={() => {
+          const confirmed = window.confirm(
+            "Are you sure? This will clear your calculations and reset the form to Step 1."
+          )
+          if (confirmed) {
+            resetForm()
+          }
+        }}
         style={{
           width: '100%',
           backgroundColor: 'transparent',
@@ -293,7 +303,7 @@ export default function Step3FreeResults({
           e.currentTarget.style.backgroundColor = 'transparent';
         }}
       >
-        Back
+        Start Over
       </button>
     </div>
   )
