@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { FormData, MacroResults } from '../../types/form'
 import { calculateBMR, calculateMacros } from '../../lib/calculations'
 import { useFormStore } from '../../stores/formStore'
@@ -34,7 +34,6 @@ export default function CalculatorApp({
   stripeSessionId: propStripeSessionId,
 }: CalculatorAppProps) {
   // ATOMIC REHYDRATION: Wait for Zustand to hydrate from localStorage before rendering
-  const hasHydrated = useRef(false)
   const [isHydrated, setIsHydrated] = useState(false)
 
   // Payment state from isolated hook (handles URL, localStorage, and Supabase restore)
@@ -62,15 +61,12 @@ export default function CalculatorApp({
 
   // Rehydration effect - runs once on mount
   useEffect(() => {
-    if (!hasHydrated.current) {
-      hasHydrated.current = true
-      // Small delay to ensure Zustand persist has loaded from localStorage
-      const timer = setTimeout(() => {
-        setIsHydrated(true)
-        console.log('[CalculatorApp] Hydration complete')
-      }, 50)
-      return () => clearTimeout(timer)
-    }
+    // Small delay to ensure Zustand persist has loaded from localStorage
+    const timer = setTimeout(() => {
+      setIsHydrated(true)
+      console.log('[CalculatorApp] Hydration complete')
+    }, 50)
+    return () => clearTimeout(timer)
   }, [])
 
   // Derived: stripeSessionId - prefer payment hook, fall back to stored

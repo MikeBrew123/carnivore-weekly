@@ -253,28 +253,6 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             flexDirection: 'column',
             alignItems: 'center',
           }}>
-            {/* Section Header */}
-            <h2 style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: '28px',
-              fontWeight: 'bold',
-              color: '#1a120b',
-              marginBottom: '8px',
-              textAlign: 'center',
-            }}>
-              Choose Your Plan
-            </h2>
-            <p style={{
-              fontFamily: "'Merriweather', Georgia, serif",
-              fontSize: '16px',
-              color: '#666',
-              marginBottom: '40px',
-              textAlign: 'center',
-              maxWidth: '600px',
-            }}>
-              Select the tier that matches your needs. All plans include personalized macros.
-            </p>
-
             {/* Grid Container - centered with slim cards and wide gutters */}
             <div
               className="pricing-grid"
