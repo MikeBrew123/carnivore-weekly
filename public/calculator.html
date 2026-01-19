@@ -6,7 +6,7 @@
     <title>Free Macro Calculator - Carnivore, Keto, Low-Carb & Pescatarian Diet Support</title>
 
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Calculate your personalized macros in 90 seconds for carnivore, keto, low-carb, or pescatarian diets. Get protein, fat, and calorie targets based on your goals. Free, private, no email required.">
+    <meta name="description" content="Free macro calculator for carnivore, keto, low-carb & pescatarian diets. Get personalized protein, fat & calorie targets in 90 seconds. No email required.">
     <meta name="keywords" content="carnivore calculator, macro calculator, carnivore macros, protein calculator, carnivore diet, keto calculator">
     <meta name="author" content="Carnivore Weekly">
     <meta name="robots" content="index, follow">
@@ -80,21 +80,221 @@
         }
 
         .hero-2026 p {
-            font-family: 'Merriweather', serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             font-size: 1.1em;
             margin: 0;
             line-height: 1.6;
         }
 
-        /* Main content container - 800px max-width for blog-like readability */
+        /* Override global 740px constraint - calculator page needs full width */
+        .main-content-2026 {
+            max-width: 1200px;
+        }
+
+        /* Main content container - MATCHES HOMEPAGE 1200px */
         .calculator-main {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 40px;
-            /* BOMBPROOF GRID: Intro, Calculator, FAQ as independent rows */
+            padding: 0 24px;
+            /* BOMBPROOF GRID: Calculator, FAQ as independent rows */
             display: grid;
-            grid-template-rows: auto auto auto;
+            grid-template-rows: auto auto;
             gap: 0;
+        }
+
+        /* ============================================
+           CALCULATOR HERO - Match homepage hero size
+           ============================================ */
+        .calculator-hero {
+            background: #1a120b;
+            color: #f4e4d4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;  /* Remove top/bottom padding */
+            width: 100%;
+            max-width: none;
+            margin: 0 0 48px 0;
+        }
+
+        .calculator-hero .hero-inner {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            max-width: 1200px;
+            padding: 24px 0;
+        }
+
+        .calculator-hero .hero-content {
+            flex: 1;
+            text-align: left;
+        }
+
+        .calculator-hero .hero-title-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .calculator-hero .hero-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .calculator-hero .hero-cart-icon {
+            height: 60px;
+            width: auto;
+        }
+
+        .calculator-hero .hero-subtitle {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 1.25rem;
+            color: #f4e4d4;
+            margin-bottom: 32px;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .calculator-hero .hero-features {
+            display: flex;
+            justify-content: flex-start;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .calculator-hero .hero-feature {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.95rem;
+            color: #d4a574;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calculator-hero .hero-feature .icon {
+            font-size: 1.2rem;
+        }
+
+        .calculator-hero .hero-cta {
+            display: inline-block;
+            background: #ffd700;
+            color: #1a120b;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            padding: 16px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .calculator-hero .hero-cta:hover {
+            background: #e6c200;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+        }
+
+        .calculator-hero .social-proof {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-top: 24px;
+            font-style: italic;
+        }
+
+        .calculator-hero .social-proof .star {
+            color: #ffd700;
+        }
+
+        /* Pyramid carousel in hero - sized to match text height */
+        .calculator-hero .pyramid-carousel {
+            flex: 0 0 auto;
+            position: relative;
+            height: 350px;  /* Match text content height */
+            width: 655px;   /* Width based on 1.87:1 aspect ratio */
+            opacity: 1;
+            align-self: center;  /* Vertically center in hero */
+        }
+
+        .calculator-hero .pyramid-carousel .pyramid-img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;  /* Fill container completely */
+            transition: opacity 1s ease-in-out;
+        }
+
+        /* Tablet - stack hero vertically */
+        @media (max-width: 1024px) {
+            .calculator-hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 50px 40px;
+                gap: 40px;
+            }
+
+            .calculator-hero .hero-content {
+                flex: none;
+                text-align: center;
+            }
+
+            .calculator-hero .hero-subtitle {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .calculator-hero .hero-features {
+                justify-content: center;
+            }
+
+            .calculator-hero .pyramid-carousel {
+                flex: none;
+                width: 280px;
+                height: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calculator-hero {
+                padding: 40px 20px;
+            }
+
+            .calculator-hero .hero-title {
+                font-size: 2rem;
+            }
+
+            .calculator-hero .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .calculator-hero .hero-features {
+                flex-direction: column;
+                gap: 12px;
+                align-items: center;
+            }
+
+            .calculator-hero .hero-cta {
+                font-size: 1rem;
+                padding: 14px 32px;
+            }
+
+            .calculator-hero .pyramid-carousel {
+                width: 220px;
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator-hero .pyramid-carousel {
+                display: none;
+            }
         }
 
         /* ============================================
@@ -124,6 +324,9 @@
             all: unset;
             display: block;
             width: 100%;
+            /* Calculator widget constrained to 650px, centered in wider container */
+            max-width: 650px;
+            margin: 0 auto;
         }
 
         /* Ensure React container doesn't nest padding */
@@ -143,9 +346,9 @@
         }
 
         .problem-section p {
-            font-family: 'Merriweather', serif;
-            font-size: 16px;
-            line-height: 1.8;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 18px;
+            line-height: 1.75;
             color: #1a120b;
             margin-bottom: 20px;
         }
@@ -169,9 +372,9 @@
         }
 
         .apology-section p {
-            font-family: 'Merriweather', serif;
-            font-size: 16px;
-            line-height: 1.8;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 18px;
+            line-height: 1.75;
             color: #1a120b;
             font-style: italic;
             margin: 0;
@@ -181,16 +384,16 @@
         .intro-copy {
             background: rgba(212, 165, 116, 0.12);
             border-left: 5px solid #d4a574;
-            padding: 40px;
+            padding: 32px;  /* Match homepage roundup section */
             margin-bottom: 16px;
             border-radius: 8px;
             overflow: auto;
         }
 
         .intro-copy p {
-            font-family: 'Merriweather', serif;
-            font-size: 16px;
-            line-height: 1.8;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 18px;
+            line-height: 1.75;
             color: #1a120b;
             margin: 0 0 20px 0;
         }
@@ -254,19 +457,19 @@
         }
 
         .info-section-calculator p {
-            font-family: 'Merriweather', serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             color: #1a120b;
-            line-height: 1.8;
+            line-height: 1.75;
             margin-bottom: 20px;
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .info-section-calculator ul {
-            font-family: 'Merriweather', serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             color: #1a120b;
             margin: 25px 0 25px 30px;
-            font-size: 16px;
-            line-height: 1.8;
+            font-size: 18px;
+            line-height: 1.75;
         }
 
         .info-section-calculator li {
@@ -301,10 +504,10 @@
         }
 
         .calendar-section p {
-            font-family: 'Merriweather', serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             color: #1a120b;
-            font-size: 16px;
-            line-height: 1.8;
+            font-size: 18px;
+            line-height: 1.75;
             margin-bottom: 20px;
         }
 
@@ -506,6 +709,7 @@
             .calculator-faq h3 {
                 font-size: 18px !important;
             }
+
         }
     </style>
 
@@ -625,63 +829,96 @@
         <a href="/calculator.html">Calculator</a>
     </nav>
 
+    <!-- CALCULATOR HERO - Split layout: Text left, Pyramids right -->
+    <section class="calculator-hero">
+        <div class="hero-inner">
+            <!-- Text content on the left -->
+            <div class="hero-content">
+                <h1 class="hero-title">Free Macro Calculator</h1>
+                <p class="hero-subtitle">
+                    Get personalized protein, fat, and calorie targets in 90 seconds. Works for Carnivore, Keto, Low-Carb, Pescatarian, and Paleo.
+                </p>
+
+                <div class="hero-features">
+                    <span class="hero-feature"><span class="icon">⚡</span> Results in 90 seconds</span>
+                    <span class="hero-feature"><span class="icon">🔒</span> No email required</span>
+                    <span class="hero-feature"><span class="icon">🎯</span> Personalized to your body</span>
+                </div>
+            </div>
+
+            <!-- Rotating food pyramids on the right -->
+            <div class="pyramid-carousel">
+                <img src="/images/CarnivorFP.png" alt="Carnivore Food Pyramid" class="pyramid-img pyramid-1">
+                <img src="/images/KetoFP.png" alt="Keto Food Pyramid" class="pyramid-img pyramid-2">
+                <img src="/images/PescatarianFP.png" alt="Pescatarian Food Pyramid" class="pyramid-img pyramid-3">
+                <img src="/images/LionFP.png" alt="Lion Diet Food Pyramid" class="pyramid-img pyramid-4">
+            </div>
+        </div>
+    </section>
+
     <!-- MAIN LAYOUT -->
     <div class="layout-wrapper-2026">
         <main class="main-content-2026">
             <!-- MAIN CONTENT -->
             <div class="calculator-main">
-                <!-- INTRO COPY WITH FLOATING CTA -->
+
+                <!-- SEO INTRO SECTION - Critical for search rankings -->
                 <section class="intro-copy">
-                    <h1 style="font-size: 32px; font-weight: bold; color: #d4a574; margin-bottom: 8px; font-family: 'Playfair Display', Georgia, serif; line-height: 1.3;">Free Macro Calculator</h1>
+                    <h1 style="font-size: 30px; font-weight: bold; color: #8b4513; margin-bottom: 8px; font-family: 'Playfair Display', Georgia, serif; line-height: 1.3;">Free Macro Calculator</h1>
                     <p style="font-size: 20px; color: #8b4513; margin-bottom: 24px; font-family: 'Playfair Display', Georgia, serif; line-height: 1.3;">Personalized Protein & Fat Targets for Carnivore, Keto, Low-Carb & Pescatarian Diets</p>
 
-                    <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 20px;">
-                        You eat meat, you feel decent most of the time, but you're stuck. Maybe you're exhausted by 3pm. Maybe the scale won't budge. Maybe you just don't know if you're eating too much fat, too little protein, or if your calories are even close to what your body needs. You're winging it because carnivore "should be simple," but simple doesn't mean easy when you don't have numbers.
-                    </p>
+                    <div style="display: flex; gap: 24px; align-items: flex-start;">
+                        <img src="/images/GroceryCartMeat.png" alt="Shopping cart full of meat" style="width: 360px; height: auto; flex-shrink: 0; border-radius: 8px;">
+                        <p style="margin: 0;">
+                            You eat meat, you feel decent most of the time, but you're stuck. Maybe you're exhausted by 3pm. Maybe the scale won't budge. Maybe you just don't know if you're eating too much fat, too little protein, or if your calories are even close to what your body needs. You're winging it because carnivore "should be simple," but simple doesn't mean easy when you don't have numbers.
+                        </p>
+                    </div>
 
-                    <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 20px;">
+                    <p>
                         This calculator works for any low-carb or meat-focused diet—carnivore, keto, low-carb, pescatarian, paleo, whatever you're doing. The macro math is the same: your body needs a certain amount of protein based on your lean mass and goals, and the rest comes from fat. The label doesn't matter. The numbers do.
                     </p>
 
-                    <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 20px;">
+                    <p>
                         Here's what helps immediately: most people undereat protein by 20-30g per day and overshoot fat by 40-60g. If you're tired, bloated, or stalled, that imbalance is likely why.
                     </p>
 
-                    <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 20px;">
-                        If you want to stop second-guessing every meal and just know your targets, the calculator does that in about 90 seconds. We rebuilt this over the past few days—it's faster, more accurate, and gives you protein, fat, and calorie targets based on your actual body composition and goals. No email required. Free version gives you the numbers. Optional $9.99 upgrade adds meal plans and a doctor conversation script if you need it.
+                    <p style="margin-bottom: 0;">
+                        <a href="#calculator-slot" style="color: #8b4513; font-weight: 600;">Skip to Calculator</a> | <a href="#faq-section" style="color: #8b4513; font-weight: 600;">Jump to FAQ</a>
                     </p>
-
-                    <p style="font-family: 'Merriweather', Georgia, serif; font-size: 17px; line-height: 1.7; color: #333; margin-bottom: 32px;">
-                        You don't need this if you already track macros or work with a coach. You don't need the upgrade if the free numbers are enough. This just removes the mental load of calculating it yourself. Use it or don't. It's here when you need it.
-                    </p>
-
                 </section>
 
                 <!-- BOMBPROOF CALCULATOR SLOT - Structurally independent from intro text -->
                 <div id="calculator-slot" class="calculator-slot">
                     <!-- How It Works Section - Inside calculator slot for visual continuity -->
                     <div class="how-it-works" style="background: rgba(139, 69, 19, 0.05); border-left: 4px solid #8b4513; padding: 30px; margin: 0 0 40px 0; border-radius: 4px;">
-                        <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: #8b4513; margin-top: 0; margin-bottom: 24px;">How the Calculator Works</h2>
+                        <div style="display: flex; gap: 30px; align-items: flex-start;">
+                            <!-- Text content on left -->
+                            <div style="flex: 1;">
+                                <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: #8b4513; margin-top: 0; margin-bottom: 24px;">How the Calculator Works</h2>
 
-                        <div style="margin-bottom: 24px;">
-                            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 1: Enter Your Stats</h3>
-                            <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
-                                We start with your age, weight, height, and biological sex. These determine your lean body mass—the metabolically active tissue that drives your calorie needs. The calculator uses research-backed formulas to estimate your baseline metabolic rate.
-                            </p>
-                        </div>
+                                <div style="margin-bottom: 24px;">
+                                    <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 1: Enter Your Stats</h3>
+                                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
+                                        We start with your age, weight, height, and biological sex. These determine your lean body mass—the metabolically active tissue that drives your calorie needs. The calculator uses research-backed formulas to estimate your baseline metabolic rate.
+                                    </p>
+                                </div>
 
-                        <div style="margin-bottom: 24px;">
-                            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 2: Set Your Goal & Activity Level</h3>
-                            <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
-                                Fat loss, muscle gain, or maintenance—each goal needs different <a href="//blog/2025-12-22-mtor-muscle.html" style="color: #8b4513; text-decoration: underline;">protein targets</a>. We adjust your macros based on whether you're sedentary, moderately active, or training hard. If you're trying to <a href="/blog/2025-12-22-mtor-muscle.html" style="color: #8b4513; text-decoration: underline;">build muscle on carnivore</a>, you'll need more protein. If you're focused on <a href="/blog/2025-12-19-psmf-fat-loss.html" style="color: #8b4513; text-decoration: underline;">fat loss</a>, we'll optimize for satiety while creating a deficit.
-                            </p>
-                        </div>
+                                <div style="margin-bottom: 24px;">
+                                    <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 2: Set Your Goal & Activity Level</h3>
+                                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
+                                        Fat loss, muscle gain, or maintenance—each goal needs different <a href="//blog/2025-12-22-mtor-muscle.html" style="color: #8b4513; text-decoration: underline;">protein targets</a>. We adjust your macros based on whether you're sedentary, moderately active, or training hard. If you're trying to <a href="/blog/2025-12-22-mtor-muscle.html" style="color: #8b4513; text-decoration: underline;">build muscle on carnivore</a>, you'll need more protein. If you're focused on <a href="/blog/2025-12-19-psmf-fat-loss.html" style="color: #8b4513; text-decoration: underline;">fat loss</a>, we'll optimize for satiety while creating a deficit.
+                                    </p>
+                                </div>
 
-                        <div style="margin-bottom: 0;">
-                            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 3: Get Your Personalized Targets</h3>
-                            <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
-                                You'll see your daily protein target (in grams), fat target (in grams), and total calories. These aren't generic recommendations—they're calculated for your body and your goal. Most people discover they've been undereating protein and overshooting fat, which explains why progress stalls. Want to understand more about <a href="/wiki.html#weight-stall" style="color: #8b4513; text-decoration: underline;">breaking through weight loss plateaus</a>? Our wiki breaks down the science.
-                            </p>
+                                <div style="margin-bottom: 0;">
+                                    <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 3: Get Your Personalized Targets</h3>
+                                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
+                                        You'll see your daily protein target (in grams), fat target (in grams), and total calories. These aren't generic recommendations—they're calculated for your body and your goal. Most people discover they've been undereating protein and overshooting fat, which explains why progress stalls. Want to understand more about <a href="/wiki.html#weight-stall" style="color: #8b4513; text-decoration: underline;">breaking through weight loss plateaus</a>? Our wiki breaks down the science.
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Image on right -->
+                            <img src="/images/GirlReadingReport.png" alt="Woman reading Full Carnivore Playbook" style="width: 320px; height: auto; flex-shrink: 0; border-radius: 8px;">
                         </div>
                     </div>
 
@@ -690,54 +927,54 @@
                 </div>
 
                 <!-- FAQ Section -->
-                <section class="calculator-faq" style="background: rgba(212, 165, 116, 0.08); border-radius: 8px; padding: 40px; margin-top: 60px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <section id="faq-section" class="calculator-faq" style="background: rgba(212, 165, 116, 0.08); border-radius: 8px; padding: 40px; margin-top: 60px;">
                     <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 28px; color: #8b4513; margin-bottom: 30px; text-align: center;">Frequently Asked Questions</h2>
 
                     <div style="margin-bottom: 30px;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">What is the carnivore diet?</h3>
-                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
                             The carnivore diet is a meat-based eating approach that focuses exclusively on animal products: beef, pork, chicken, fish, eggs, and some dairy. It eliminates all plant foods including vegetables, fruits, grains, and legumes. Followers eat nose-to-tail, prioritizing nutrient-dense organ meats alongside muscle meat.
                         </p>
                     </div>
 
                     <div style="margin-bottom: 30px;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">How much protein do I need on carnivore?</h3>
-                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
                             Protein needs on carnivore vary by goal and activity level. For fat loss, aim for 1.0-1.2g per pound of lean body mass. For muscle gain, target 1.2-1.6g per pound. For maintenance, 0.8-1.0g per pound is sufficient. Most people undereat protein by 20-30g daily, which can cause fatigue and stalls. Use our calculator to find your personalized protein target.
                         </p>
                     </div>
 
                     <div style="margin-bottom: 30px;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">How do I calculate carnivore macros?</h3>
-                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
                             To calculate carnivore macros: (1) Determine your lean body mass by subtracting body fat from total weight. (2) Set protein based on your goal (fat loss, muscle gain, or maintenance). (3) Calculate remaining calories from fat. (4) Adjust for activity level. Our free calculator does this automatically in 90 seconds based on your stats, goal, and activity level.
                         </p>
                     </div>
 
                     <div style="margin-bottom: 30px;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">Do I need to track calories on carnivore?</h3>
-                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
                             Not everyone needs to track calories on carnivore. Many people eat to satiety and lose fat naturally. However, tracking helps if: (1) You've stalled after 3+ months, (2) You're trying to gain muscle, (3) You're exhausted or losing too much weight, or (4) You're not seeing expected results. Knowing your macro targets removes guesswork and helps optimize results.
                         </p>
                     </div>
 
                     <div style="margin-bottom: 30px;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">What's the difference between carnivore and keto?</h3>
-                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
                             Carnivore is a subset of keto but more restrictive. Keto allows 20-50g carbs from any source (vegetables, nuts, low-carb foods). Carnivore eliminates all plant foods and focuses exclusively on animal products, resulting in near-zero carbs. Carnivore prioritizes protein (1.0-1.6g per lb), while keto is often moderate protein. Both achieve ketosis, but carnivore is simpler: just meat, eggs, and animal products.
                         </p>
                     </div>
 
                     <div style="margin-bottom: 30px;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">Is the carnivore calculator free?</h3>
-                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
                             Yes, the calculator is completely free. You get personalized protein, fat, and calorie targets with no email required. Results are instant and private. We also offer an optional $9.99 upgrade that includes a detailed meal plan, sample food log, and a doctor conversation script if you need medical support. Most people find the free version sufficient.
                         </p>
                     </div>
 
                     <div style="margin-bottom: 0;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">Can I use this calculator for keto or low-carb diets?</h3>
-                        <p style="font-family: 'Merriweather', Georgia, serif; font-size: 16px; line-height: 1.7; color: #333; margin: 0;">
+                        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
                             Yes. This works for any low-carb approach—keto, carnivore, pescatarian, paleo, or just "I mostly eat meat and fish." The macro calculations are universal. Protein targets are based on your lean body mass and goals (fat loss, muscle gain, maintenance), and fat fills in the rest of your calories. Whether you're strict carnivore or keto with vegetables, the underlying math is identical. The calculator doesn't care about labels. It just gives you the numbers your body actually needs.
                         </p>
                     </div>
@@ -811,5 +1048,32 @@
     </footer>
     <script type="module" src="https://carnivoreweekly.com/assets/calculator2/assets/index-COwvgdxL.js"></script>
     <script src="/js/mobile-nav.js"></script>
+
+    <!-- Food Pyramid Carousel Animation -->
+    <script>
+    (function() {
+        const pyramids = document.querySelectorAll('.pyramid-img');
+        if (pyramids.length === 0) return;
+
+        let current = 0;
+        const total = pyramids.length;
+        const displayTime = 3000; // 3 seconds per image
+        const fadeTime = 1000; // 1 second fade transition
+
+        function showNext() {
+            // Fade out current
+            pyramids[current].style.opacity = '0';
+
+            // Move to next
+            current = (current + 1) % total;
+
+            // Fade in next
+            pyramids[current].style.opacity = '1';
+        }
+
+        // Start the rotation
+        setInterval(showNext, displayTime + fadeTime);
+    })();
+    </script>
 </body>
 </html>
