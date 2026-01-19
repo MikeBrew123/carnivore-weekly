@@ -33,10 +33,11 @@ export default function FormContainer({
   // BOMBPROOF MODE: Minimal wrapper when embedded
   if (isEmbedded) {
     return (
-      <div className="w-full" style={{ padding: '0' }}>
-        <div style={{ maxWidth: '650px', margin: '0 auto' }}>
+      <div className="w-full" style={{ padding: '0', boxSizing: 'border-box' }}>
+        <div style={{ maxWidth: '650px', margin: '0 auto', boxSizing: 'border-box' }}>
           {/* Form card only - no outer background/padding */}
           <div
+            className="px-4 md:px-10 py-8 md:py-10"
             style={{
               backgroundColor: '#1a1a1a',
               borderTop: '3px solid #ffd700',
@@ -44,8 +45,8 @@ export default function FormContainer({
               borderRight: '1px solid #333',
               borderBottom: '1px solid #333',
               borderRadius: '12px',
-              padding: '2.5rem',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)',
+              boxSizing: 'border-box',
             }}
           >
             {children}
@@ -57,13 +58,14 @@ export default function FormContainer({
 
   // STANDALONE MODE: Full layout with background (for /assets/calculator2/index.html)
   return (
-    <div className="w-full" style={{ backgroundColor: '#F2F0E6', minHeight: '100vh', padding: '40px 20px' }}>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="w-full" style={{ backgroundColor: '#F2F0E6', minHeight: '100vh', padding: '40px 20px', boxSizing: 'border-box' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" style={{ boxSizing: 'border-box' }}>
         {/* Main form area */}
-        <div className="lg:col-span-2">
-          <div style={{ maxWidth: '650px', margin: '0 auto' }}>
+        <div className="lg:col-span-2" style={{ boxSizing: 'border-box' }}>
+          <div style={{ maxWidth: '650px', margin: '0 auto', boxSizing: 'border-box' }}>
             {/* Progress indicator and form card */}
             <div
+              className="px-4 md:px-10 py-8 md:py-10"
               style={{
                 backgroundColor: '#1a1a1a',
                 borderTop: '3px solid #ffd700',
@@ -71,8 +73,8 @@ export default function FormContainer({
                 borderRight: '1px solid #333',
                 borderBottom: '1px solid #333',
                 borderRadius: '12px',
-                padding: '2.5rem',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)',
+                boxSizing: 'border-box',
               }}
             >
               {children}

@@ -42,7 +42,7 @@ export default function MacroPreview({ macros, loading }: MacroPreviewProps) {
     >
       <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", color: '#ffd700', textAlign: 'center', marginBottom: '16px', fontSize: '20px', fontWeight: '600' }}>Your Macros Preview</h3>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>
           <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>Daily Calories</p>
           <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.calories}</p>

@@ -74,15 +74,15 @@ export default function ProgressIndicator({
               {/* Label underneath dot */}
               <p
                 style={{
-                  fontSize: '13px',
+                  fontSize: '11px',
                   fontWeight: '500',
                   textAlign: 'center',
                   color: labelColor,
                   fontFamily: "'Merriweather', Georgia, serif",
                   margin: '0',
                   transition: 'color 0.3s ease',
-                  whiteSpace: 'nowrap',
-                  paddingX: '4px'
+                  lineHeight: '1.2',
+                  maxWidth: '85px'
                 }}
               >
                 {label}
