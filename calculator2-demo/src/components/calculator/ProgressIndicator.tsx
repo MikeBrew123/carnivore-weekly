@@ -21,7 +21,7 @@ export default function ProgressIndicator({
         {/* Background line connecting dots */}
         <div style={{
           position: 'absolute',
-          top: '8px',
+          top: '10px',
           left: '0',
           right: '0',
           height: '2px',
@@ -61,8 +61,8 @@ export default function ProgressIndicator({
               {/* Dot */}
               <div
                 style={{
-                  width: '16px',
-                  height: '16px',
+                  width: '20px',
+                  height: '20px',
                   borderRadius: '50%',
                   backgroundColor: dotBg,
                   border: dotRing,

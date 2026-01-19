@@ -55,14 +55,14 @@ export default function MacroPreview({ macros, loading }: MacroPreviewProps) {
           <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', fontFamily: "'Merriweather', Georgia, serif" }}>TDEE</p>
         </motion.div>
 
-        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>
-          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>Protein</p>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.protein}g</p>
+        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333', borderLeft: '4px solid #22c55e' }} variants={itemVariants}>
+          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>🥩 Protein</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#22c55e', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.protein}g</p>
         </motion.div>
 
-        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>
-          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>Fat</p>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.fat}g</p>
+        <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333', borderLeft: '4px solid #f59e0b' }} variants={itemVariants}>
+          <p style={{ fontSize: '12px', color: '#a0a0a0', marginBottom: '8px', fontFamily: "'Merriweather', Georgia, serif" }}>🧈 Fat</p>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#f59e0b', fontFamily: "'Playfair Display', Georgia, serif" }}>{macros.fat}g</p>
         </motion.div>
 
         <motion.div style={{ backgroundColor: '#0f0f0f', borderRadius: '8px', padding: '16px', textAlign: 'center', border: '1px solid #333' }} variants={itemVariants}>

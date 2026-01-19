@@ -16,6 +16,22 @@ interface Step3FreeResultsProps {
   onBack: () => void
 }
 
+// Map raw activity values to readable labels
+const activityLabels: Record<string, string> = {
+  'sedentary': 'Sedentary',
+  'light': 'Lightly Active',
+  'moderate': 'Moderately Active',
+  'very': 'Very Active',
+  'extra': 'Extremely Active'
+}
+
+// Map raw goal values to readable labels
+const goalLabels: Record<string, string> = {
+  'lose': 'Lose Fat',
+  'maintain': 'Maintain',
+  'gain': 'Build Muscle'
+}
+
 export default function Step3FreeResults({
   data,
   macros,
@@ -70,11 +86,11 @@ export default function Step3FreeResults({
         </div>
         <div style={{ fontSize: '14px' }}>
           <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Activity Level:</span>
-          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>{data.lifestyle}</span>
+          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>{activityLabels[data.lifestyle] || data.lifestyle}</span>
         </div>
         <div style={{ fontSize: '14px' }}>
           <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Goal:</span>
-          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>{data.goal}</span>
+          <span style={{ fontWeight: '600', color: '#f5f5f5', marginLeft: '12px', fontFamily: "'Merriweather', Georgia, serif" }}>{goalLabels[data.goal] || data.goal}</span>
         </div>
       </div>
 
@@ -102,8 +118,50 @@ export default function Step3FreeResults({
         )}
       </div>
 
+      {/* Free vs Premium Comparison */}
+      <div style={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', padding: '24px' }}>
+        <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: '600', color: '#ffd700', marginBottom: '16px' }}>What You Get</h3>
+
+        {/* Free tier */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ color: '#22c55e', fontSize: '16px' }}>✓</span>
+            <span style={{ color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>Your personalized macros (protein, fat, calories)</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ color: '#22c55e', fontSize: '16px' }}>✓</span>
+            <span style={{ color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>Food examples to hit your targets</span>
+          </div>
+        </div>
+
+        {/* Premium tier */}
+        <div style={{ borderTop: '1px solid #333', paddingTop: '16px' }}>
+          <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Upgrade for $9.99:</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ color: '#ffd700', fontSize: '14px' }}>★</span>
+            <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>30-day personalized meal plan</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ color: '#ffd700', fontSize: '14px' }}>★</span>
+            <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>Doctor conversation script</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span style={{ color: '#ffd700', fontSize: '14px' }}>★</span>
+            <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>Detailed personalized health report</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ color: '#ffd700', fontSize: '14px' }}>★</span>
+            <span style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>Shopping lists & simple recipes</span>
+          </div>
+        </div>
+      </div>
+
       {/* Upgrade CTA */}
       <div style={{ paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+        {/* Social proof */}
+        <p style={{ fontSize: '13px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", textAlign: 'center', marginBottom: '8px' }}>
+          Trusted by 500+ carnivores to dial in their nutrition
+        </p>
         <button
           onClick={(e) => {
             console.log('[Step3FreeResults] Upgrade button clicked, event:', e)
