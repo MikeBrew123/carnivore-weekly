@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { FormData, MacroResults } from '../../types/form'
 import { calculateBMR, calculateMacros } from '../../lib/calculations'
 import { useFormStore } from '../../stores/formStore'
+import { usePaymentState } from '../../hooks/usePaymentState'
 import ProgressIndicator from './ProgressIndicator'
 import FormContainer from './FormContainer'
 import Step1PhysicalStats from './steps/Step1PhysicalStats'
@@ -29,31 +30,72 @@ const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Health
 export default function CalculatorApp({
   sessionToken,
   onReportGenerated,
-  paymentStatus,
-  stripeSessionId,
+  paymentStatus: propPaymentStatus,
+  stripeSessionId: propStripeSessionId,
 }: CalculatorAppProps) {
-  // DEBUG: Log payment status from props
-  console.log('========== CalculatorApp RENDER ==========');
-  console.log('Payment status (from props):', paymentStatus);
-  console.log('Stripe session ID (from props):', stripeSessionId);
-  console.log('URL search:', window.location.search);
+  // ATOMIC REHYDRATION: Wait for Zustand to hydrate from localStorage before rendering
+  const hasHydrated = useRef(false)
+  const [isHydrated, setIsHydrated] = useState(false)
 
-  // Form state from Zustand (consolidate state to single source of truth)
+  // Payment state from isolated hook (handles URL, localStorage, and Supabase restore)
+  const [paymentState, paymentActions] = usePaymentState({
+    initialPaymentStatus: propPaymentStatus,
+    initialStripeSessionId: propStripeSessionId,
+  })
+
+  // Form state from Zustand (consolidated, persisted)
   const {
     form: formData,
     setForm: setFormData,
+    currentStep,
+    setCurrentStep,
+    isPremium,
+    setIsPremium,
+    macros,
+    setMacros,
+    assessmentId: storedAssessmentId,
+    setAssessmentId,
     isDirty,
     markDirty,
     markClean,
   } = useFormStore()
 
-  // UI state (non-form state stays in React)
-  const [currentStep, setCurrentStep] = useState(1)
-  const [macros, setMacros] = useState<MacroResults | null>(null)
+  // Rehydration effect - runs once on mount
+  useEffect(() => {
+    if (!hasHydrated.current) {
+      hasHydrated.current = true
+      // Small delay to ensure Zustand persist has loaded from localStorage
+      const timer = setTimeout(() => {
+        setIsHydrated(true)
+        console.log('[CalculatorApp] Hydration complete')
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+  }, [])
+
+  // Derived: stripeSessionId - prefer payment hook, fall back to stored
+  const stripeSessionId = paymentState.stripeSessionId || storedAssessmentId
+
+  // Sync stripeSessionId to Zustand store for persistence across refreshes
+  useEffect(() => {
+    if (paymentState.stripeSessionId && paymentState.stripeSessionId !== storedAssessmentId) {
+      console.log('[CalculatorApp] Persisting assessmentId to store:', paymentState.stripeSessionId)
+      setAssessmentId(paymentState.stripeSessionId)
+    }
+  }, [paymentState.stripeSessionId, storedAssessmentId, setAssessmentId])
+
+  // DEBUG: Log payment status
+  console.log('========== CalculatorApp RENDER ==========');
+  console.log('Payment status (from hook):', paymentState.paymentStatus);
+  console.log('Stripe session ID:', stripeSessionId);
+  console.log('isPremium (from hook):', paymentState.isPremium);
+  console.log('isPremium (from store):', isPremium);
+  console.log('isHydrated:', isHydrated);
+
+  // UI state (non-persisted, transient)
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [isPremium, setIsPremium] = useState(false)
   const [email, setEmail] = useState('')
   const [reportHtml, setReportHtml] = useState<string | null>(null)
   const [isEmailingSent, setIsEmailingSent] = useState(false)
@@ -66,28 +108,17 @@ export default function CalculatorApp({
     }, 100);
   }
 
-  // Derived state for success page - use props from App.tsx
-  const isPaymentSuccess = paymentStatus === 'success' || paymentStatus === 'free'
+  // Derived state for success page - use payment hook
+  const isPaymentSuccess = paymentState.isPaymentSuccess
 
-  // Also check URL as fallback (for direct navigation)
+  // Sync payment hook's isPremium to Zustand store (single source of truth)
   useEffect(() => {
-    if (!paymentStatus) {
-      const urlParams = new URLSearchParams(window.location.search)
-      const urlPayment = urlParams.get('payment')
-      if (urlPayment) {
-        console.log('[CalculatorApp] Found payment in URL (fallback):', urlPayment)
-      }
-    }
-  }, [])
-
-  // Mark as premium when returning from payment
-  useEffect(() => {
-    if (isPaymentSuccess && !isPremium) {
-      console.log('[CalculatorApp] Payment success detected - setting isPremium = true')
+    if (paymentState.isPremium && !isPremium) {
+      console.log('[CalculatorApp] Payment hook detected premium - syncing to store')
       setIsPremium(true)
       scrollToCalculator()
     }
-  }, [isPaymentSuccess, isPremium])
+  }, [paymentState.isPremium, isPremium, setIsPremium])
 
   // Calculate macros whenever step 1-2 data changes
   useEffect(() => {
@@ -278,6 +309,17 @@ export default function CalculatorApp({
     }
   }
 
+  // ATOMIC REHYDRATION GUARD: Show loading until Zustand has hydrated
+  if (!isHydrated || paymentState.isLoading) {
+    return (
+      <div style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '64px', paddingBottom: '64px', minHeight: '100vh' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+          <p style={{ color: '#666', fontFamily: "'Merriweather', Georgia, serif" }}>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   // Show generating screen
   if (isGenerating) {
     return <ReportGeneratingScreen />
@@ -407,9 +449,8 @@ export default function CalculatorApp({
                 console.error('[Success Page] Error fetching session:', error)
               }
 
-              // Clear payment status from localStorage
-              localStorage.removeItem('paymentStatus')
-              localStorage.removeItem('stripeSessionId')
+              // Clear payment status from localStorage using the hook
+              paymentActions.clearPaymentState()
             }}
             style={{
               backgroundColor: '#ffd700',

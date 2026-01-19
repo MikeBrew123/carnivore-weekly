@@ -32,7 +32,7 @@ export default function RadioGroup({
       <legend
         style={{
           display: 'block',
-          color: '#a0a0a0',
+          color: '#FFFFFF',
           fontFamily: "'Merriweather', Georgia, serif",
           fontSize: '16px',
           fontWeight: '500',

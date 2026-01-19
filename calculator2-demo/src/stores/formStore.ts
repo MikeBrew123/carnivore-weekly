@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { FormData, MacroResults } from '../types/form'
 
 interface FormStore {
@@ -8,6 +9,7 @@ interface FormStore {
   units: 'imperial' | 'metric'
   isPremium: boolean
   sessionToken: string | null
+  assessmentId: string | null  // Stripe session UUID for recovery
   isDirty: boolean
 
   setFormField: (field: keyof FormData, value: unknown) => void
@@ -16,6 +18,7 @@ interface FormStore {
   setUnits: (units: 'imperial' | 'metric') => void
   setIsPremium: (premium: boolean) => void
   setSessionToken: (token: string) => void
+  setAssessmentId: (id: string | null) => void
   setForm: (form: Partial<FormData>) => void
   markDirty: () => void
   markClean: () => void
@@ -28,7 +31,9 @@ const defaultForm: FormData = {
   age: undefined,
   heightFeet: undefined,
   heightInches: undefined,
+  heightCm: undefined,
   weight: undefined,
+  weightKg: undefined,
 
   // Step 2: Activity
   lifestyle: undefined,
@@ -63,35 +68,53 @@ const defaultForm: FormData = {
   additionalNotes: '',
 }
 
-export const useFormStore = create<FormStore>((set) => ({
-  form: defaultForm,
-  macros: null,
-  currentStep: 1,
-  units: 'imperial',
-  isPremium: false,
-  sessionToken: null,
-  isDirty: false,
+export const useFormStore = create<FormStore>()(
+  persist(
+    (set) => ({
+      form: defaultForm,
+      macros: null,
+      currentStep: 1,
+      units: 'imperial',
+      isPremium: false,
+      sessionToken: null,
+      assessmentId: null,
+      isDirty: false,
 
-  setFormField: (field, value) =>
-    set((state) => ({
-      form: { ...state.form, [field]: value },
-      isDirty: true,
-    })),
+      setFormField: (field, value) =>
+        set((state) => ({
+          form: { ...state.form, [field]: value },
+          isDirty: true,
+        })),
 
-  setMacros: (macros) => set({ macros }),
-  setCurrentStep: (step) => set({ currentStep: step }),
-  setUnits: (units) => set({ units }),
-  setIsPremium: (premium) => set({ isPremium: premium }),
-  setSessionToken: (token) => set({ sessionToken: token }),
+      setMacros: (macros) => set({ macros }),
+      setCurrentStep: (step) => set({ currentStep: step }),
+      setUnits: (units) => set({ units }),
+      setIsPremium: (premium) => set({ isPremium: premium }),
+      setSessionToken: (token) => set({ sessionToken: token }),
+      setAssessmentId: (id) => set({ assessmentId: id }),
 
-  setForm: (formUpdate) =>
-    set((state) => ({
-      form: { ...state.form, ...formUpdate },
-      isDirty: true,
-    })),
+      setForm: (formUpdate) =>
+        set((state) => ({
+          form: { ...state.form, ...formUpdate },
+          isDirty: true,
+        })),
 
-  markDirty: () => set({ isDirty: true }),
-  markClean: () => set({ isDirty: false }),
+      markDirty: () => set({ isDirty: true }),
+      markClean: () => set({ isDirty: false }),
 
-  resetForm: () => set({ form: defaultForm, currentStep: 1, macros: null, isDirty: false }),
-}))
+      resetForm: () => set({ form: defaultForm, currentStep: 1, macros: null, assessmentId: null, isDirty: false }),
+    }),
+    {
+      name: 'carnivore-calculator-form',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        form: state.form,
+        currentStep: state.currentStep,
+        units: state.units,
+        isPremium: state.isPremium,
+        macros: state.macros,
+        assessmentId: state.assessmentId,
+      }),
+    }
+  )
+)
