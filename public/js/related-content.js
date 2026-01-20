@@ -16,7 +16,8 @@
             'electrolytes': 'Electrolyte Balance',
             'organ-meats': 'Organ Meat Guide',
             'digestion': 'Digestive Adaptation',
-            'salt': 'Salt Recommendations'
+            'salt': 'Salt Recommendations',
+            'nose-to-tail': 'Nose-to-Tail Eating'
         },
         blog: {
             'pcos-hormones': 'PCOS & Carnivore Diet',
@@ -24,6 +25,11 @@
             'organ-meats-guide': 'Organ Meats Deep Dive',
             'night-sweats': 'Night Sweats During Adaptation',
             'mtor-muscle': 'mTOR & Muscle Growth'
+        },
+        video: {
+            'dQw4w9WgXcQ': 'Organ Meats 101',
+            'DQw4w9WgXcQ': 'Organ Meats 101',
+            'organ-meats': 'Cooking Organ Meats'
         }
     };
 
@@ -74,7 +80,16 @@
             return fetchViaView(contentType, contentId);
         }
 
-        return response.json();
+        const data = await response.json();
+
+        // Deduplicate by type + identifier
+        const seen = new Set();
+        return data.filter(item => {
+            const key = `${item.related_type}-${item.related_identifier}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        }).slice(0, 4);
     }
 
     // Fallback: query view directly
@@ -95,14 +110,14 @@
 
         const data = await response.json();
 
-        // Deduplicate by content identifier
+        // Deduplicate by type + identifier (ignore shared_topic_name differences)
         const seen = new Set();
         return data.filter(item => {
             const key = `${item.related_type}-${item.related_identifier}`;
             if (seen.has(key)) return false;
             seen.add(key);
             return true;
-        });
+        }).slice(0, 4); // Limit to 4 items for cleaner layout
     }
 
     // Render related content cards
