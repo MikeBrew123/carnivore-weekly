@@ -571,15 +571,20 @@ class UnifiedGenerator:
         # Load real YouTube videos from youtube_data.json
         top_videos = []
 
-        # Priority 1: Fetch from Supabase (cached data - no API calls needed)
-        try:
-            top_videos = self._fetch_top_videos_from_db(limit=10)
-            if top_videos:
-                print("  ✓ Loaded YouTube data from Supabase cache (no API calls)")
-        except Exception as e:
-            print(f"  Warning: Could not load from Supabase: {e}")
+        # Priority 1: Use JSON when we have editorial commentary (ensures fresh curated content)
+        # This prevents stale Supabase cache from overriding this week's curated videos
+        use_json_first = len(editorial_commentary) > 0
 
-        # Priority 2: Fallback to JSON file (if Supabase is empty)
+        if not use_json_first:
+            # Priority 2: Fetch from Supabase (cached data - no API calls needed)
+            try:
+                top_videos = self._fetch_top_videos_from_db(limit=10)
+                if top_videos:
+                    print("  ✓ Loaded YouTube data from Supabase cache (no API calls)")
+            except Exception as e:
+                print(f"  Warning: Could not load from Supabase: {e}")
+
+        # Priority 3: Load from JSON file (fresh data or fallback)
         if not top_videos:
             try:
                 youtube_path = self.project_root / "data" / "youtube_data.json"
