@@ -85,6 +85,67 @@
             color: #ffd700 !important;
             border-bottom-color: #ffd700 !important;
         }
+
+        /* TL;DR Box */
+        .tldr-box {
+            background: linear-gradient(135deg, #2c1810 0%, #3d2317 100%);
+            border: 2px solid #d4a574;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            color: #e8dcc8;
+        }
+        .tldr-box h3 {
+            color: #ffd700;
+            margin: 0 0 15px 0;
+            font-size: 1.3em;
+        }
+        .tldr-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #e8dcc8;
+        }
+        .tldr-box li {
+            color: #e8dcc8;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .tldr-box strong {
+            color: #ffd700;
+        }
+
+        /* Key Takeaways */
+        .key-takeaways {
+            background: linear-gradient(135deg, #1a0f0a 0%, #2c1810 100%);
+            border: 2px solid #4ade80;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 35px 0;
+            color: #e8dcc8;
+        }
+        .key-takeaways h3 {
+            color: #4ade80;
+            margin: 0 0 20px 0;
+            font-size: 1.3em;
+        }
+        .key-takeaways ol {
+            margin: 0;
+            padding-left: 25px;
+            color: #e8dcc8;
+        }
+        .key-takeaways li {
+            color: #e8dcc8;
+            margin-bottom: 12px;
+            line-height: 1.6;
+            padding-left: 10px;
+        }
+        .key-takeaways li::marker {
+            color: #ffd700;
+            font-weight: 700;
+        }
+        .key-takeaways strong {
+            color: #ffd700;
+        }
     </style>
 </head>
 <body>
@@ -132,6 +193,16 @@
                 <!-- Post Content -->
                 <div class="post-content">
 
+<!-- Hero Image -->
+<figure class="post-hero-image">
+    <img src="/images/organ-meats-800w.webp"
+         srcset="/images/organ-meats-400w.webp 400w, /images/organ-meats-800w.webp 800w, /images/organ-meats-1200w.webp 1200w"
+         sizes="(max-width: 600px) 400px, (max-width: 900px) 800px, 1200px"
+         alt="Fresh organ meats including liver, heart, and kidney on a cutting board"
+         loading="eager">
+    <figcaption>Grass-fed beef organs: the most nutrient-dense foods available</figcaption>
+</figure>
+
 <!-- TL;DR Box -->
 <div class="tldr-box">
     <h3>TL;DR</h3>
@@ -177,45 +248,59 @@ One 100-gram serving of liver per week covers most micronutrient bases. You don'
 
 <h2>The Organ Profile: What Each One Does (Sarah)</h2>
 
-<h3>Liver</h3>
+<div class="organ-cards-grid">
+    <div class="organ-card organ-card--liver">
+        <div class="organ-card-header">
+            <span class="organ-icon">🫀</span>
+            <h3>Liver</h3>
+        </div>
+        <div class="organ-card-body">
+            <p><strong>Micronutrients:</strong> Vitamin A, B12, folate, iron, copper, selenium (highest density).</p>
+            <p><strong>Taste/Texture:</strong> Metallic, strong flavor. Dense texture. Texture improves with grinding or pâté format.</p>
+            <p><strong>How much:</strong> 100-200g per week maximum. Not daily.</p>
+            <p class="organ-best-for"><strong>Best for:</strong> Micronutrient density, especially if you're deficient in iron or B12.</p>
+        </div>
+    </div>
 
-<p><strong>Micronutrients:</strong> Vitamin A, B12, folate, iron, copper, selenium (highest density).</p>
+    <div class="organ-card organ-card--heart">
+        <div class="organ-card-header">
+            <span class="organ-icon">❤️</span>
+            <h3>Heart</h3>
+        </div>
+        <div class="organ-card-body">
+            <p><strong>Micronutrients:</strong> CoQ10, selenium, B vitamins, iron. Less extreme micronutrient profile than liver, more balanced.</p>
+            <p><strong>Taste/Texture:</strong> Mild, slightly gamey. Texture is dense but less "organ-y" than liver. Many people prefer it.</p>
+            <p><strong>How much:</strong> Can eat more frequently. Heart is essentially a muscle (cardiac muscle), so it's safer to rotate in more.</p>
+            <p class="organ-best-for"><strong>Best for:</strong> Cardiovascular support (CoQ10), familiar texture, less extreme nutrient profile.</p>
+        </div>
+    </div>
 
-<p><strong>Taste/Texture:</strong> Metallic, strong flavor. Dense texture. Texture improves with grinding or pâté format.</p>
+    <div class="organ-card organ-card--kidney">
+        <div class="organ-card-header">
+            <span class="organ-icon">🫘</span>
+            <h3>Kidney</h3>
+        </div>
+        <div class="organ-card-body">
+            <p><strong>Micronutrients:</strong> Selenium, B vitamins, iron, but less B12 than liver.</p>
+            <p><strong>Taste/Texture:</strong> Strong ammonia-like smell if not cleaned properly. Dense, slightly rubbery texture. Not for everyone.</p>
+            <p><strong>How much:</strong> 50-100g once or twice per week, if you tolerate it.</p>
+            <p class="organ-best-for"><strong>Best for:</strong> Selenium, if you're tolerating it.</p>
+        </div>
+    </div>
 
-<p><strong>How much:</strong> 100-200g per week maximum. Not daily.</p>
-
-<p><strong>Best for:</strong> Micronutrient density, especially if you're deficient in iron or B12.</p>
-
-<h3>Heart</h3>
-
-<p><strong>Micronutrients:</strong> CoQ10, selenium, B vitamins, iron. Less extreme micronutrient profile than liver, more balanced.</p>
-
-<p><strong>Taste/Texture:</strong> Mild, slightly gamey. Texture is dense but less "organ-y" than liver. Many people prefer it.</p>
-
-<p><strong>How much:</strong> Can eat more frequently. Heart is essentially a muscle (cardiac muscle), so it's safer to rotate in more.</p>
-
-<p><strong>Best for:</strong> Cardiovascular support (CoQ10), familiar texture, less extreme nutrient profile.</p>
-
-<h3>Kidney</h3>
-
-<p><strong>Micronutrients:</strong> Selenium, B vitamins, iron, but less B12 than liver.</p>
-
-<p><strong>Taste/Texture:</strong> Strong ammonia-like smell if not cleaned properly. Dense, slightly rubbery texture. Not for everyone.</p>
-
-<p><strong>How much:</strong> 50-100g once or twice per week, if you tolerate it.</p>
-
-<p><strong>Best for:</strong> Selenium, if you're tolerating it.</p>
-
-<h3>Brain</h3>
-
-<p><strong>Micronutrients:</strong> Very high in phospholipids, choline, DHA. Not high in classic vitamins/minerals, but crucial for neurological health.</p>
-
-<p><strong>Taste/Texture:</strong> Mild, butter-like when cooked. Creamy texture. Many people find it most palatable.</p>
-
-<p><strong>How much:</strong> 50-100g per week. Enough to get the benefit without excess.</p>
-
-<p><strong>Best for:</strong> Cognitive function, mood support, neurological health.</p>
+    <div class="organ-card organ-card--brain">
+        <div class="organ-card-header">
+            <span class="organ-icon">🧠</span>
+            <h3>Brain</h3>
+        </div>
+        <div class="organ-card-body">
+            <p><strong>Micronutrients:</strong> Very high in phospholipids, choline, DHA. Not high in classic vitamins/minerals, but crucial for neurological health.</p>
+            <p><strong>Taste/Texture:</strong> Mild, butter-like when cooked. Creamy texture. Many people find it most palatable.</p>
+            <p><strong>How much:</strong> 50-100g per week. Enough to get the benefit without excess.</p>
+            <p class="organ-best-for"><strong>Best for:</strong> Cognitive function, mood support, neurological health.</p>
+        </div>
+    </div>
+</div>
 
 <h3>Other Organs (Spleen, Thymus, Tongue)</h3>
 
@@ -253,6 +338,15 @@ One 100-gram serving of liver per week covers most micronutrient bases. You don'
 <p>When you get organs, check: color (bright, not gray or dark), smell (should smell like fresh meat, not ammonia), texture (firm, not mushy). If it smells off, it is.</p>
 
 <h2>Preparation Methods (Marcus)</h2>
+
+<figure class="post-inline-image">
+    <img src="/images/lifestyle-cooking-800w.webp"
+         srcset="/images/lifestyle-cooking-400w.webp 400w, /images/lifestyle-cooking-800w.webp 800w, /images/lifestyle-cooking-1200w.webp 1200w"
+         sizes="(max-width: 600px) 400px, (max-width: 900px) 800px, 1200px"
+         alt="Cooking meat in a cast iron skillet"
+         loading="lazy">
+    <figcaption>Simple preparation: hot pan, good fat, don't overcook</figcaption>
+</figure>
 
 <h3>Liver (Most Intimidating)</h3>
 
@@ -365,7 +459,7 @@ One 100-gram serving of liver per week covers most micronutrient bases. You don'
                 <!-- Wiki Links Section -->
                 <div class="wiki-box">
                     <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
-                    <span class="wiki-box-links"><a href="/wiki.html#nutrition" class="wiki-link">nutrition</a> • <a href="/wiki.html#organs" class="wiki-link">organs</a> • <a href="/wiki.html#sourcing" class="wiki-link">sourcing</a></span>
+                    <span class="wiki-box-links"><a href="/blog/2026-01-04-organ-meats-guide.html" class="wiki-link">nutrition</a> • <a href="/wiki.html#organ-meats" class="wiki-link">organs</a> • <a href="/wiki.html#organ-meats" class="wiki-link">sourcing</a></span>
                 </div>
 
                 <!-- Post Footer -->
@@ -383,7 +477,7 @@ One 100-gram serving of liver per week covers most micronutrient bases. You don'
                         <script src="https://utteranc.es/client.js"
                             repo="MikeBrew123/carnivore-weekly"
                             issue-term="pathname"
-                            theme="github-dark"
+                            theme="github-light"
                             crossorigin="anonymous"
                             async>
                         </script>
@@ -400,7 +494,7 @@ One 100-gram serving of liver per week covers most micronutrient bases. You don'
     <div class="related-content-grid" style="display: none;"></div>
 </section>
 
-<script src="/js/related-content.js" defer></script>
+<script src="/js/related-content.js?v=3" defer></script>
 
 <!-- Post Reactions -->
 <div class="post-reactions" data-post-slug="2026-01-04-organ-meats-guide">

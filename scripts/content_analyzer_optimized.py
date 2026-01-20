@@ -19,21 +19,77 @@ import json
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from dotenv import load_dotenv
 from anthropic import Anthropic
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 INPUT_FILE = DATA_DIR / "youtube_data.json"
 OUTPUT_FILE = DATA_DIR / "analyzed_content.json"
 CLAUDE_MODEL = "claude-opus-4-5-20251101"
+
+# AI tell words to remove/replace during humanization
+AI_TELLS = {
+    "utilize": "use",
+    "leverage": "use",
+    "facilitate": "help",
+    "robust": "strong",
+    "comprehensive": "complete",
+    "holistic": "whole",
+    "synergy": "combination",
+    "paradigm": "approach",
+    "delve": "explore",
+    "landscape": "space",
+    "navigate": "work through",
+    "pivotal": "key",
+    "realm": "area",
+    "unpack": "explain",
+    "underscore": "highlight",
+}
+
+
+def humanize_text(text: str) -> str:
+    """
+    Apply humanization rules to remove AI tells and formatting issues.
+    This ensures all writer content sounds natural and human.
+    """
+    import re
+
+    # Replace AI tell words
+    for old, new in AI_TELLS.items():
+        text = text.replace(old, new)
+        text = text.replace(old.capitalize(), new.capitalize())
+
+    # Remove em-dashes (replace with comma for better flow)
+    text = text.replace("—", ", ")
+    text = text.replace(" , ", ", ")  # Clean up spacing
+
+    # Fix double commas
+    while ",," in text:
+        text = text.replace(",,", ",")
+
+    # Fix double periods
+    while ".." in text:
+        text = text.replace("..", ".")
+
+    # Fix period-comma combinations
+    text = text.replace(".,", ".")
+    text = text.replace(",.", ".")
+
+    # Capitalize first letter after period + space
+    def cap_after_period(match):
+        return match.group(1) + match.group(2).upper()
+
+    text = re.sub(r"(\. )([a-z])", cap_after_period, text)
+
+    return text
 
 
 class OptimizedContentAnalyzer:
@@ -70,10 +126,7 @@ class OptimizedContentAnalyzer:
         """
         try:
             # Prepare input data to pass via stdin (secure approach)
-            input_data = json.dumps({
-                "writer": writer,
-                "topic": topic
-            })
+            input_data = json.dumps({"writer": writer, "topic": topic})
 
             # Build minimal, safe environment with only essential variables
             safe_env = {
@@ -170,7 +223,8 @@ Style:
 
 Analyze this YouTube data and write a 2-3 paragraph weekly community roundup."""
             elif "trending" in analysis_type.lower():
-                prompt = """Based on this YouTube data, identify 3-5 trending topics in the carnivore community this week.
+                prompt = """Based on this YouTube data, identify 3-5 trending topics.
+Topics should be from the carnivore community this week.
 
 Return ONLY a JSON array of topic strings (no markdown, no analysis):
 ["Topic 1", "Topic 2", "Topic 3"]
@@ -201,7 +255,10 @@ Focus on actionable insights and specific examples."""
         )
 
         self.token_stats["total_requests"] += 1
-        return response.content[0].text
+
+        # Apply humanization to remove AI tells and em-dashes
+        result = humanize_text(response.content[0].text)
+        return result
 
     def analyze_content(self, youtube_data: Dict) -> Dict:
         """

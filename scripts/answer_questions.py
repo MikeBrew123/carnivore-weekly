@@ -39,14 +39,15 @@ from anthropic import Anthropic
 
 from personas_helper import PersonaManager
 
-load_dotenv()
+# Load environment variables from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 ANALYZED_FILE = DATA_DIR / "analyzed_content.json"
 

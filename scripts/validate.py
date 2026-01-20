@@ -165,6 +165,12 @@ class UnifiedValidator:
             "public/calculator-form-rebuild.html",  # Old calculator variant
             "public/test-index.html",  # Test file
             "public/blog-redesign.html",  # Test/redesign file
+            "public/report.html",  # PDF report template (standalone)
+            "public/assessment/success/",  # Stripe success redirect page
+            "public/blog/2025-12-25-",  # Legacy blog posts (pre-template)
+            "public/blog/2025-12-26-",  # Legacy blog posts (pre-template)
+            "public/blog/2025-12-27-",  # Legacy blog posts (pre-template)
+            "public/blog/2025-12-28-",  # Legacy blog posts (pre-template)
         ]
 
         for html_file in html_files:

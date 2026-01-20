@@ -331,7 +331,7 @@ Scoring guidelines:
 - 9-10: Directly about carnivore/animal-based diet (recipes, results, protocols, experiences, "what I eat")
 - 7-8: Carnivore-adjacent topics (keto for carnivore, exercise ON carnivore, health improvements FROM carnivore)
 - 4-6: General health/fitness that MENTIONS carnivore but isn't focused on it
-- 1-3: Off-topic (general cultural commentary, societal issues, collapse scenarios, generic fitness with no carnivore theme)
+- 1-3: Off-topic (general commentary, societal issues, generic fitness without carnivore)
 
 REJECT if: Video is about general lifestyle, culture, society, or fitness WITHOUT carnivore diet context.
 ACCEPT if: Video discusses carnivore diet, eating carnivore, living carnivore, or health changes from carnivore.
@@ -791,8 +791,7 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
                     if "relevance_score" not in video or video.get("relevance_score") == "N/A":
                         # Score it with Claude
                         score, reason = self.score_video_relevance(
-                            video.get("title", ""),
-                            video.get("description", "")
+                            video.get("title", ""), video.get("description", "")
                         )
                         video["relevance_score"] = score
                         video["relevance_reason"] = reason
@@ -805,7 +804,9 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
                         total_kept += 1
                     else:
                         total_filtered += 1
-                        print(f"   ✗ Filtered: {video.get('title', 'Unknown')[:50]}... (score: {score})")
+                        print(
+                            f"   ✗ Filtered: {video.get('title', 'Unknown')[:50]}... (score: {score})"
+                        )
 
                 # Only keep creator if they have videos that passed
                 if filtered_videos:
@@ -890,15 +891,29 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             videos = self.get_channel_videos(channel_id, MAX_VIDEOS_PER_CREATOR)
             print(f"   ✓ Found {len(videos)} recent videos")
 
-            # For each video, get comments
+            # For each video, score relevance and get comments
+            scored_videos = []
             for video in videos:
+                # Score this video's relevance
+                score, reason = self.score_video_relevance(
+                    video.get("title", ""), video.get("description", "")
+                )
+                video["relevance_score"] = score
+                video["relevance_reason"] = reason
+
+                # Only include videos that pass the relevance threshold
+                if score < MIN_RELEVANCE_SCORE:
+                    print(f"      ✗ Skipped (score {score}): {video['title'][:45]}...")
+                    continue
+
                 print(f"      Getting comments for: {video['title'][:50]}...")
                 comments = self.get_video_comments(video["video_id"], COMMENTS_PER_VIDEO)
                 video["top_comments"] = comments
-                print(f"      ✓ Collected {len(comments)} comments")
+                print(f"      ✓ Collected {len(comments)} comments (score: {score})")
+                scored_videos.append(video)
 
-            # Add videos to channel data
-            channel["videos"] = videos
+            # Add scored videos to channel data
+            channel["videos"] = scored_videos
 
         # Step 4: Build final data structure
         final_data = {
