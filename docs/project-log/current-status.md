@@ -1,15 +1,46 @@
 # Current Status
 
-**Last Updated:** 2026-01-19 (Evening - WCAG Accessibility Fixes)
+**Last Updated:** 2026-01-20 (GEO Implementation)
 
 **HIGH-PRIORITY TODO:** CEO review of comprehensive growth strategy document (GROWTH-STRATEGY-2026.md)
 
 **Current Focus:**
-Calculator and payment flow fully operational. Blog accessibility fixed. Strategic planning for Q1 2026 continues.
+Calculator and payment flow fully operational. Blog accessibility fixed. GEO foundation established with JSON-LD schema. Strategic planning for Q1 2026 continues.
 
 ---
 
-## Session Accomplishments (Jan 19 - WCAG Color Contrast Fixes)
+## Session Accomplishments (Jan 20 - GEO Implementation)
+
+### 1. SEO-GEO Skill Installation
+- Installed seo-geo-2026 skill to ~/.claude/skills/seo-geo-2026/
+- Provides GEO auditing for AI search visibility
+
+### 2. Full GEO Audit on carnivoreweekly.com
+| Metric | Score | Status |
+|--------|-------|--------|
+| Entity Density | 2.83% | Good |
+| AI Bot Access | 5/5 bots | Excellent |
+| GEO Score | 3/10 | Needs improvement |
+| Schema | FIXED | JSON-LD added |
+
+### 3. JSON-LD Schema Added
+- WebSite schema (name, url, description)
+- Organization schema (name, url, logo, description)
+- Added to both public/index.html AND templates/index_template.html
+- sameAs links deferred (no active social accounts)
+
+### 4. Deployed
+- Commit: "Add JSON-LD schema for GEO/Knowledge Graph visibility"
+
+### GEO Improvements Remaining (for 7-8/10 score)
+- Question-based headers ("What is X?" format)
+- Comparison tables for AI extractability
+- FAQ Schema on blog posts
+- HowTo schema for calculator
+
+---
+
+## Previous Session (Jan 19 - WCAG Color Contrast Fixes)
 
 ### 1. WCAG 2.1 Color Contrast Audit and Fix
 - Fixed dark text on dark backgrounds across all 30 blog posts
@@ -26,12 +57,6 @@ Calculator and payment flow fully operational. Blog accessibility fixed. Strateg
 - New tool: `~/.claude/skills/visual-validator/test-color-contrast.js`
 - Validates WCAG 2.1 AA compliance automatically
 - Available for future accessibility audits
-
-### 4. Browser Verification Complete
-- Visual verification of all fixes
-- TL;DR boxes readable
-- Brand colors preserved
-- No regressions
 
 ### Commits
 - `311742b` - Fix WCAG 2.1 color contrast issues across all 30 blog posts (30 files changed, 656 insertions)
@@ -80,6 +105,7 @@ Calculator and payment flow fully operational. Blog accessibility fixed. Strateg
 - Weekly Automation: 9-step pipeline operational
 - Deployment Pipeline: Verified working with /version endpoint
 - Accessibility: WCAG 2.1 AA color contrast validated
+- GEO: JSON-LD schema implemented, all AI bots granted access
 
 ---
 
@@ -110,6 +136,10 @@ Calculator and payment flow fully operational. Blog accessibility fixed. Strateg
 - All 30 blog posts now WCAG 2.1 AA compliant
 - Light cream text on dark backgrounds readable
 
+**Schema/JSON-LD** - FIXED (Jan 20)
+- WebSite and Organization schema added
+- Site now visible to Knowledge Graph
+
 ### MAJOR (Deferred - Lower Priority)
 - Sentiment Analysis (nice-to-have)
 - API Failure Risk (mitigated by caching)
@@ -124,22 +154,28 @@ Calculator and payment flow fully operational. Blog accessibility fixed. Strateg
 3. Resource allocation decisions
 4. Timeline planning
 
+### GEO IMPROVEMENTS (Future)
+5. Question-based headers for AI extractability
+6. Comparison tables on key pages
+7. FAQ Schema on top blog posts
+8. HowTo schema for calculator
+
 ### ACCESSIBILITY (Completed / Ongoing)
-5. ~~Blog color contrast~~ DONE (Jan 19)
-6. Run WCAG validator on homepage, channels, calculator
-7. Keyboard navigation audit
+9. ~~Blog color contrast~~ DONE (Jan 19)
+10. Run WCAG validator on homepage, channels, calculator
+11. Keyboard navigation audit
 
 ### MONITORING & POLISH
-8. Consider full-price payment test (no coupon)
-9. Monitor site performance with 70 videos
-10. Fix trending topics display (showing placeholder text)
-11. Test related content functionality
-12. Implement topic polls frontend
+12. Consider full-price payment test (no coupon)
+13. Monitor site performance with 70 videos
+14. Fix trending topics display (showing placeholder text)
+15. Test related content functionality
+16. Implement topic polls frontend
 
 ### NEXT WEEK (Content Production)
-13. Schedule weekly automation for Sundays
-14. Email delivery testing
-15. Content quality review (editorial commentary)
+17. Schedule weekly automation for Sundays
+18. Email delivery testing
+19. Content quality review (editorial commentary)
 
 ---
 
@@ -190,6 +226,8 @@ Calculator API Deployment:
 - Weekly automation: VALIDATED
 - Deployment verification: ESTABLISHED
 - WCAG 2.1 AA compliance: VALIDATED (blog posts)
+- JSON-LD Schema: LIVE (WebSite + Organization)
+- AI Bot Access: ALL 5 BOTS GRANTED
 
 ---
 
@@ -205,6 +243,7 @@ Calculator API Deployment:
 - Jan 17: Strategic growth document ready for CEO review (90+ pages)
 - Jan 18: Payment flow tested end-to-end, PDF cleanup, pricing card UI refinement, CORS fix deployed
 - Jan 19: WCAG 2.1 color contrast fixed across all 30 blog posts, accessibility validator created
+- Jan 20: GEO audit completed, JSON-LD schema implemented, AI bot access verified
 
 **System Status:** PRODUCTION - FULLY OPERATIONAL
 - Calculator: Fully working with personalized reports and payment
@@ -214,7 +253,8 @@ Calculator API Deployment:
 - Newsletter: Connected to database
 - Automation: 9-step pipeline operational
 - Blog: WCAG 2.1 AA compliant (color contrast validated)
+- GEO: JSON-LD schema live, 5/5 AI bots granted access
 
 **Current Focus:** Strategic planning - CEO review of GROWTH-STRATEGY-2026.md for Q1 2026 prioritization
 
-**Latest Log:** `/Users/mbrew/Developer/carnivore-weekly/docs/project-log/daily/2026-01-19.md`
+**Latest Log:** `/Users/mbrew/Developer/carnivore-weekly/docs/project-log/daily/2026-01-20.md`
