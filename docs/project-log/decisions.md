@@ -10,3 +10,6 @@
 | 2025-01-02 | Validation pipeline (Copy-Editor → Brand → Humanization) is non-negotiable | Quality is brand moat; all content must pass 3 validators | Trade quality for speed (rejected) |
 | 2025-01-02 | Bento Grid launch locked to Jan 27, 2025 | Fixed deadline, contingency Feb 3; CEO-approved | Continuous feature release (rejected) |
 | 2025-01-02 | Phase gate process prevents scope creep | 129 hours locked; 137-hour contingency buffer | Open-ended timeline (rejected) |
+| 2026-01-19 | WCAG 2.1 AA as accessibility validation standard | Industry standard, legally defensible, ensures readability for all users | WCAG AAA (too strict), no standard (risky) |
+| 2026-01-19 | Color contrast minimum: 4.5:1 for normal text, 3:1 for large text (18pt+) | WCAG 2.1 AA compliance requirement | Lower ratios (fails accessibility), higher (unnecessary) |
+| 2026-01-19 | Light cream (#e8dcc8) for body text on dark backgrounds | High contrast while maintaining brand warmth; passes WCAG validation | White (too harsh), gray (insufficient contrast) |
