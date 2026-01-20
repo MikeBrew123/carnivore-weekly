@@ -1278,8 +1278,8 @@ nav.nav-menu-2026 a:hover {
 
 /* Post content - Medium/Substack typography */
 .post-content {
-    font-size: 1.125rem; /* 18px */
-    line-height: 1.7;
+    font-size: 1.25rem; /* 20px - matches homepage body text */
+    line-height: 1.75;
     color: #1a120b;
 }
 
@@ -1340,10 +1340,103 @@ nav.nav-menu-2026 a:hover {
     color: #d4a574;
 }
 
+/* Blog post images */
+.post-hero-image,
+.post-inline-image {
+    margin: var(--space-8) 0;
+    padding: 0;
+}
+
+.post-hero-image img,
+.post-inline-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.post-hero-image figcaption,
+.post-inline-image figcaption {
+    margin-top: var(--space-3);
+    font-size: 0.875rem;
+    color: #666;
+    text-align: center;
+    font-style: italic;
+}
+
 /* Strong/bold text */
 .post-content strong {
     font-weight: 600;
     color: #1a120b;
+}
+
+/* Organ Profile Cards */
+.organ-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+    margin: var(--space-8) 0;
+}
+
+@media (max-width: 768px) {
+    .organ-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.organ-card {
+    background: #faf8f5;
+    border-radius: 12px;
+    padding: var(--space-5);
+    border: 1px solid #e8e4dc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.organ-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.organ-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid;
+}
+
+.organ-card--liver .organ-card-header { border-bottom-color: #8b4513; }
+.organ-card--heart .organ-card-header { border-bottom-color: #c94c4c; }
+.organ-card--kidney .organ-card-header { border-bottom-color: #7a5c3e; }
+.organ-card--brain .organ-card-header { border-bottom-color: #9b8bb0; }
+
+.organ-icon {
+    font-size: 1.75rem;
+}
+
+.organ-card h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1a120b;
+}
+
+.organ-card-body p {
+    margin-bottom: var(--space-3);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.organ-card-body p:last-child {
+    margin-bottom: 0;
+}
+
+.organ-best-for {
+    background: linear-gradient(135deg, #f0f9f4 0%, #e8f5ee 100%);
+    padding: var(--space-3);
+    border-radius: 6px;
+    margin-top: var(--space-3);
 }
 
 /* TL;DR Box - Styled callout */
