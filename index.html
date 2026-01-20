@@ -796,6 +796,10 @@
                 const div = document.createElement('div');
                 div.innerHTML = html;
                 document.body.appendChild(div);
+                // Load the JS after HTML is in DOM
+                const script = document.createElement('script');
+                script.src = '/js/feedback-modal.js';
+                document.body.appendChild(script);
             });
     </script>
 </body>
