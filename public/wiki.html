@@ -3662,12 +3662,29 @@ Adding alcohol (especially beer) creates a <strong>triple traffic jam</strong>, 
 
     <!-- Wiki Search & Filter Script -->
     <script>
+        // Debounce timer for search tracking
+        let searchTrackingTimer = null;
+
         function filterWikiTopics() {
             const searchBox = document.getElementById('wiki-search');
             const query = searchBox.value.toLowerCase().trim();
             const topics = document.querySelectorAll('.topic');
             const tocItems = document.querySelectorAll('.toc-item');
             let visibleCount = 0;
+
+            // Track search query in Google Analytics (debounced)
+            clearTimeout(searchTrackingTimer);
+            if (query && query.length >= 3) {
+                searchTrackingTimer = setTimeout(() => {
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'wiki_search', {
+                            search_term: query,
+                            event_category: 'engagement',
+                            event_label: query
+                        });
+                    }
+                }, 1500); // Wait 1.5 seconds after user stops typing
+            }
 
             // If empty, show all topics
             if (query === '') {
@@ -3713,6 +3730,16 @@ Adding alcohol (especially beer) creates a <strong>triple traffic jam</strong>, 
             // Show/hide "no results" message
             let noResults = document.getElementById('wiki-no-results');
             if (visibleCount === 0) {
+                // Track unsuccessful search
+                if (query && query.length >= 3 && typeof gtag !== 'undefined') {
+                    clearTimeout(searchTrackingTimer);
+                    gtag('event', 'wiki_search_no_results', {
+                        search_term: query,
+                        event_category: 'engagement',
+                        event_label: query
+                    });
+                }
+
                 if (!noResults) {
                     noResults = document.createElement('div');
                     noResults.id = 'wiki-no-results';
