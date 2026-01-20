@@ -263,6 +263,7 @@ Before marking any story "complete" or deploying:
 | "wrap up" or "done" or "end session" | Quinn updates daily note + current-status.md |
 | "decision:" or "we decided" | Quinn logs to decisions.md |
 | "validate site" or "visual check" | Run /visual-validator on all pages + report findings |
+| "show reports" or "analytics" or "show analytics" | Run dashboard/generate-all-reports.sh + open HTML reports |
 
 ## Session Flow
 **Start:** Read docs/project-log/current-status.md
