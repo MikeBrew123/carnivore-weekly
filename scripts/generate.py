@@ -784,6 +784,22 @@ class UnifiedGenerator:
             for creator in youtube_data.get("top_creators", []):
                 creator_channels[creator["channel_name"]] = creator.get("channel_id", "")
 
+        # Load latest blog posts for Featured Insights section
+        featured_blog_posts = []
+        try:
+            blog_posts_path = self.project_root / "data" / "blog_posts.json"
+            if blog_posts_path.exists():
+                blog_data = json.loads(blog_posts_path.read_text())
+                all_posts = blog_data.get("blog_posts", [])
+                # Filter published posts and sort by date (newest first)
+                published_posts = [p for p in all_posts if p.get("published", False)]
+                published_posts.sort(key=lambda p: p.get("date", ""), reverse=True)
+                # Take top 3 for featured insights
+                featured_blog_posts = published_posts[:3]
+                print(f"  ✓ Loaded {len(featured_blog_posts)} featured blog posts")
+        except Exception as e:
+            print(f"  Warning: Could not load blog posts: {e}")
+
         template_vars = {
             "analysis_date": data.get(
                 "analysis_date", data.get("timestamp", datetime.now().isoformat())
@@ -801,6 +817,7 @@ class UnifiedGenerator:
             "qa_section": qa_section,
             "layout_metadata": data.get("layout_metadata"),
             "creator_channels": creator_channels,  # Map of creator names to YouTube channel IDs
+            "featured_blog_posts": featured_blog_posts,  # Latest 3 blog posts for Featured Insights
         }
 
         # Render template
