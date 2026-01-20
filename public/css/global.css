@@ -1277,22 +1277,20 @@ nav.nav-menu-2026 a:hover {
 }
 
 /* Post content - Medium/Substack typography */
+/* Colors removed - set by individual page inline styles for theme flexibility */
 .post-content {
     font-size: 1.25rem; /* 20px - matches homepage body text */
     line-height: 1.75;
-    color: #1a120b;
 }
 
 .post-content p {
     margin-bottom: var(--space-6);
-    color: #1a120b;
 }
 
 .post-content h2 {
     font-size: 1.875rem; /* 30px */
     margin-top: var(--space-12);
     margin-bottom: var(--space-4);
-    color: #1a120b;
     font-weight: 700;
 }
 
@@ -1300,7 +1298,6 @@ nav.nav-menu-2026 a:hover {
     font-size: 1.5rem; /* 24px */
     margin-top: var(--space-8);
     margin-bottom: var(--space-3);
-    color: #1a120b;
     font-weight: 700;
 }
 
@@ -1308,7 +1305,6 @@ nav.nav-menu-2026 a:hover {
     font-size: 1.25rem; /* 20px */
     margin-top: var(--space-6);
     margin-bottom: var(--space-3);
-    color: #1a120b;
     font-weight: 600;
 }
 
@@ -1358,8 +1354,8 @@ nav.nav-menu-2026 a:hover {
 .post-hero-image figcaption,
 .post-inline-image figcaption {
     margin-top: var(--space-3);
-    font-size: 0.875rem;
-    color: #666;
+    font-size: 1rem;
+    color: #e8dcc8;
     text-align: center;
     font-style: italic;
 }
@@ -1367,7 +1363,7 @@ nav.nav-menu-2026 a:hover {
 /* Strong/bold text */
 .post-content strong {
     font-weight: 600;
-    color: #1a120b;
+    /* Color set by individual page styles */
 }
 
 /* Organ Profile Cards */
