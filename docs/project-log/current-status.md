@@ -1,15 +1,42 @@
 # Current Status
 
-**Last Updated:** 2026-01-20 (GEO Implementation)
+**Last Updated:** 2026-01-20 (Automation Pipeline Fixes)
 
 **HIGH-PRIORITY TODO:** CEO review of comprehensive growth strategy document (GROWTH-STRATEGY-2026.md)
 
 **Current Focus:**
-Calculator and payment flow fully operational. Blog accessibility fixed. GEO foundation established with JSON-LD schema. Strategic planning for Q1 2026 continues.
+Weekly automation pipeline hardened with 5 critical fixes. All features operational. GEO foundation established. Strategic planning for Q1 2026 continues.
 
 ---
 
-## Session Accomplishments (Jan 20 - GEO Implementation)
+## Session Accomplishments (Jan 20 - Automation Pipeline Fixes)
+
+### 5 Critical Pipeline Fixes Applied
+
+| Issue | File | Status |
+|-------|------|--------|
+| Sentiment scores lost in automation | `scripts/add_sentiment.py` | ✅ FIXED |
+| Video commentary not loading (1 of 6) | `scripts/generate.py` | ✅ FIXED |
+| Trending links pointing to "#" | `content_analyzer_optimized.py` + `generate.py` | ✅ FIXED |
+| Featured Insights hardcoded | `generate.py` + template | ✅ FIXED |
+| Feedback button unresponsive | `templates/index_template.html` | ✅ FIXED |
+
+### Key Fixes Detail
+
+1. **Sentiment Storage** - Now writes to `youtube_data.json` (where generate.py reads)
+2. **JSON Priority** - Fresh JSON data takes priority over stale Supabase cache when editorial content exists
+3. **Trending Wiki Links** - Chloe's prompt now includes wiki keywords; topics link to wiki pages
+4. **Featured Insights** - Loads latest 3 blog posts from `data/blog_posts.json`
+5. **Feedback Modal** - JS explicitly loaded after HTML injection (script tags don't auto-execute)
+
+### Decisions Made
+- Templates remain source of truth for homepage
+- JSON data priority over Supabase cache when editorial content exists
+- Trending topics generated dynamically by Chloe, linked to wiki when possible
+
+---
+
+## Earlier Session (Jan 20 - GEO Implementation)
 
 ### 1. SEO-GEO Skill Installation
 - Installed seo-geo-2026 skill to ~/.claude/skills/seo-geo-2026/
