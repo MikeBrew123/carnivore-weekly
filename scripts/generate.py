@@ -494,6 +494,31 @@ class UnifiedGenerator:
         else:
             trending_topics = []
 
+        # Add wiki_links to trending topics by matching keywords
+        wiki_keywords_path = self.project_root / "data" / "wiki-keywords.json"
+        if wiki_keywords_path.exists():
+            try:
+                wiki_data = json.loads(wiki_keywords_path.read_text())
+                keyword_map = wiki_data.get("keyword_map", {})
+
+                for topic in trending_topics:
+                    topic_name = topic.get("topic", "") if isinstance(topic, dict) else str(topic)
+                    topic_lower = topic_name.lower()
+
+                    # Try to find a matching wiki keyword
+                    wiki_links = []
+                    for keyword, wiki_url in keyword_map.items():
+                        # Check if keyword appears in topic name
+                        if keyword in topic_lower or topic_lower in keyword:
+                            anchor = wiki_url.replace("wiki.html#", "")
+                            wiki_links.append({"anchor": anchor, "title": keyword.title()})
+                            break  # Just need one match
+
+                    if isinstance(topic, dict):
+                        topic["wiki_links"] = wiki_links
+            except Exception as e:
+                print(f"  Warning: Could not load wiki keywords: {e}")
+
         # Handle key_insights - parse markdown string to structured array
         key_insights_raw = analysis.get("key_insights", data.get("key_insights", []))
         if isinstance(key_insights_raw, str):

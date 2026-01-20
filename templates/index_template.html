@@ -144,10 +144,10 @@
                 <div class="trending-tags">
                     <span style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-secondary); margin-right: var(--space-2);">Trending:</span>
                     {% for topic in trending_topics[:5] %}
-                    <a href="{% if topic.blog_links and topic.blog_links|length > 0 %}/blog/{{ topic.blog_links[0].slug }}{% elif topic.wiki_links and topic.wiki_links|length > 0 %}/wiki.html#{{ topic.wiki_links[0].anchor }}{% else %}#{% endif %}" class="trending-tag">
-                        <span class="trending-tag-icon">{{ topic.trend_strength|default('🔥', true)|first }}</span>
+                    <span class="trending-tag">
+                        <span class="trending-tag-icon">🔥</span>
                         {{ topic.topic }}
-                    </a>
+                    </span>
                     {% endfor %}
                 </div>
                 {% endif %}
