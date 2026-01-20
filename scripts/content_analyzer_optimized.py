@@ -223,19 +223,37 @@ Style:
 
 Analyze this YouTube data and write a 2-3 paragraph weekly community roundup."""
             elif "trending" in analysis_type.lower():
-                prompt = """Based on this YouTube data, identify 3-5 trending topics.
+                # Load wiki keywords to help Chloe pick linkable topics
+                wiki_keywords = []
+                try:
+                    wiki_path = Path(__file__).parent.parent / "data" / "wiki-keywords.json"
+                    if wiki_path.exists():
+                        wiki_data = json.loads(wiki_path.read_text())
+                        wiki_keywords = list(wiki_data.get("keyword_map", {}).keys())
+                except Exception:
+                    pass
+
+                wiki_list = ", ".join(wiki_keywords[:30]) if wiki_keywords else ""
+                prompt = f"""Based on this YouTube data, identify 3-5 trending topics.
 Topics should be from the carnivore community this week.
 
-Return ONLY a JSON array of topic strings (no markdown, no analysis):
-["Topic 1", "Topic 2", "Topic 3"]
+IMPORTANT: When possible, use topics that match these wiki keywords so we can link them:
+{wiki_list}
+
+Return ONLY a JSON array of topic objects (no markdown):
+[
+  {{"topic": "Topic Name", "wiki_keyword": "matching keyword or null"}},
+  {{"topic": "Another Topic", "wiki_keyword": "cholesterol"}}
+]
 
 Topics should be:
 - Short and descriptive (2-5 words each)
-- Based on actual video content
+- Based on actual video content this week
 - Relevant to carnivore/animal-based eating
-- What the community is discussing this week
+- PREFER topics that match wiki keywords above when the content supports it
 
-Examples: ["Carnivore for athletes", "Zero carb adaptation", "Organ meat benefits"]
+If a topic matches a wiki keyword, set wiki_keyword to that keyword.
+If no match, set wiki_keyword to null.
 
 Return ONLY the JSON array, nothing else."""
             else:
