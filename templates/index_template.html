@@ -144,10 +144,17 @@
                 <div class="trending-tags">
                     <span style="font-size: var(--text-sm); font-weight: 600; color: var(--color-text-secondary); margin-right: var(--space-2);">Trending:</span>
                     {% for topic in trending_topics[:5] %}
+                    {% if topic.wiki_links and topic.wiki_links|length > 0 %}
+                    <a href="/wiki.html#{{ topic.wiki_links[0].anchor }}" class="trending-tag">
+                        <span class="trending-tag-icon">🔥</span>
+                        {{ topic.topic }}
+                    </a>
+                    {% else %}
                     <span class="trending-tag">
                         <span class="trending-tag-icon">🔥</span>
                         {{ topic.topic }}
                     </span>
+                    {% endif %}
                     {% endfor %}
                 </div>
                 {% endif %}

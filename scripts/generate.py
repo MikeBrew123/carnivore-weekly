@@ -416,18 +416,52 @@ class UnifiedGenerator:
 
         # Handle trending_topics - parse markdown string to structured array
         trending_topics_raw = analysis.get("trending_topics", data.get("trending_topics", []))
+
+        # Load wiki keywords for matching
+        wiki_keyword_map = {}
+        wiki_keywords_path = self.project_root / "data" / "wiki-keywords.json"
+        if wiki_keywords_path.exists():
+            try:
+                wiki_data = json.loads(wiki_keywords_path.read_text())
+                wiki_keyword_map = wiki_data.get("keyword_map", {})
+            except Exception:
+                pass
+
         if isinstance(trending_topics_raw, str):
+            # Clean up markdown code fences if present
+            clean_raw = trending_topics_raw.strip()
+            if clean_raw.startswith("```"):
+                clean_raw = clean_raw.replace("```json", "").replace("```", "").strip()
+
             # First, try to parse as JSON array (new format)
             try:
                 import json as json_lib
 
-                parsed_topics = json_lib.loads(trending_topics_raw)
+                parsed_topics = json_lib.loads(clean_raw)
                 if isinstance(parsed_topics, list):
-                    # Convert simple string list to structured format
-                    trending_topics = [
-                        {"topic": topic, "description": "", "mentioned_by": ["Analysis"]}
-                        for topic in parsed_topics
-                    ]
+                    # Handle both new format (objects with wiki_keyword) and old format (strings)
+                    trending_topics = []
+                    for topic in parsed_topics:
+                        if isinstance(topic, dict):
+                            # New format: {"topic": "...", "wiki_keyword": "..."}
+                            topic_obj = {
+                                "topic": topic.get("topic", ""),
+                                "description": "",
+                                "mentioned_by": ["Analysis"],
+                            }
+                            # Add wiki link if keyword provided and exists in map
+                            wiki_kw = topic.get("wiki_keyword")
+                            if wiki_kw and wiki_kw in wiki_keyword_map:
+                                anchor = wiki_keyword_map[wiki_kw].replace("wiki.html#", "")
+                                topic_obj["wiki_links"] = [{"anchor": anchor, "title": wiki_kw.title()}]
+                            trending_topics.append(topic_obj)
+                        else:
+                            # Old format: simple string
+                            trending_topics.append({
+                                "topic": str(topic),
+                                "description": "",
+                                "mentioned_by": ["Analysis"],
+                            })
                 else:
                     raise ValueError("Not a list")
             except (json_lib.JSONDecodeError, ValueError):
@@ -494,7 +528,8 @@ class UnifiedGenerator:
         else:
             trending_topics = []
 
-        # Add wiki_links to trending topics by matching keywords
+        # Add wiki_links to trending topics by matching keywords (fallback only)
+        # Only apply if wiki_links wasn't already set during parsing
         wiki_keywords_path = self.project_root / "data" / "wiki-keywords.json"
         if wiki_keywords_path.exists():
             try:
@@ -502,10 +537,14 @@ class UnifiedGenerator:
                 keyword_map = wiki_data.get("keyword_map", {})
 
                 for topic in trending_topics:
+                    # Skip if wiki_links already set from explicit wiki_keyword
+                    if isinstance(topic, dict) and topic.get("wiki_links"):
+                        continue
+
                     topic_name = topic.get("topic", "") if isinstance(topic, dict) else str(topic)
                     topic_lower = topic_name.lower()
 
-                    # Try to find a matching wiki keyword
+                    # Try to find a matching wiki keyword based on topic name
                     wiki_links = []
                     for keyword, wiki_url in keyword_map.items():
                         # Check if keyword appears in topic name
@@ -514,7 +553,7 @@ class UnifiedGenerator:
                             wiki_links.append({"anchor": anchor, "title": keyword.title()})
                             break  # Just need one match
 
-                    if isinstance(topic, dict):
+                    if isinstance(topic, dict) and wiki_links:
                         topic["wiki_links"] = wiki_links
             except Exception as e:
                 print(f"  Warning: Could not load wiki keywords: {e}")
