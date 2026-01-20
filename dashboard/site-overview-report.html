@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carnivore Weekly - Site Performance Overview</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container { max-width: 1600px; margin: 0 auto; }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      color: #888;
+      margin-bottom: 40px;
+      font-size: 1.1rem;
+    }
+    .executive-summary {
+      background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+      border: 2px solid #ffd700;
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 40px;
+    }
+    .executive-summary h2 {
+      color: #ffd700;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    .summary-stat {
+      text-align: center;
+    }
+    .summary-label {
+      color: #888;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .summary-value {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: #ffd700;
+      margin-bottom: 5px;
+    }
+    .summary-context {
+      color: #aaa;
+      font-size: 0.95rem;
+    }
+    .growth-indicator {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .growth-positive {
+      background: rgba(74, 222, 128, 0.2);
+      color: #4ade80;
+    }
+    .growth-negative {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    .metric-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+    .metric-card:hover {
+      border-color: #ffd700;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+    }
+    .metric-label {
+      color: #888;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ffd700;
+      margin-bottom: 4px;
+    }
+    .metric-subtitle {
+      color: #666;
+      font-size: 0.85rem;
+    }
+    .section {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    .section h2 {
+      color: #ffd700;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    .chart-container {
+      position: relative;
+      height: 350px;
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      color: #ffd700;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td { color: #e0e0e0; }
+    tr:hover { background: #222; }
+    .highlight { color: #ffd700; font-weight: 600; }
+    .positive { color: #4ade80; }
+    .warning { color: #fbbf24; }
+    .alert { color: #ef4444; }
+    .insights {
+      background: #1a1a1a;
+      border-left: 4px solid #ffd700;
+      padding: 30px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+    }
+    .insights h3 {
+      color: #ffd700;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+    }
+    .insights ul {
+      list-style: none;
+      padding: 0;
+    }
+    .insights li {
+      padding: 12px 0;
+      border-bottom: 1px solid #333;
+      line-height: 1.8;
+    }
+    .insights li:last-child {
+      border-bottom: none;
+    }
+    .insights strong {
+      color: #ffd700;
+    }
+    .recommendation {
+      background: #252525;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 3px solid #4ade80;
+    }
+    .recommendation h4 {
+      color: #4ade80;
+      margin-bottom: 10px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-excellent { background: #4ade80; color: #000; }
+    .badge-good { background: #fbbf24; color: #000; }
+    .badge-needs-work { background: #ef4444; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Carnivore Weekly - Site Performance Overview</h1>
+    <p class="subtitle">First 3 Weeks • January 20, 2026</p>
+
+    <div class="executive-summary">
+      <h2>Executive Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-stat">
+          <div class="summary-label">Total Users</div>
+          <div class="summary-value">567</div>
+          <div class="summary-context">
+            562 new, 5 returning
+            <span class="growth-indicator growth-positive">
+              60.9% WoW
+            </span>
+          </div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-label">Total Sessions</div>
+          <div class="summary-value">775</div>
+          <div class="summary-context">4.3 pages/session</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-label">Page Views</div>
+          <div class="summary-value">3,340</div>
+          <div class="summary-context">Across all pages</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-label">Engagement Rate</div>
+          <div class="summary-value">38.6%</div>
+          <div class="summary-context">
+            <span class="status-badge badge-needs-work">
+              Needs Work
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insights">
+      <h3>🎯 Key Insights & Recommendations</h3>
+      <ul>
+        <li>
+          <strong>✅ Calculator is Converting:</strong> 3 paid reports in 3 days = 12.5% visitor-to-customer conversion.
+          This is excellent for a brand new product. Revenue: $29.97 (likely higher with tier variations).
+        </li>
+        <li>
+          <strong>⚠️ Engagement Rate (38.6%):</strong>
+          Needs improvement. Users may not be finding what they need quickly enough.
+        </li>
+        <li>
+          <strong>⚠️ Bounce Rate (61.4%):</strong>
+          Consider improving landing page messaging and internal linking.
+        </li>
+        <li>
+          <strong>📈 Week-over-Week Growth:</strong> 60.9% change in users.
+          Positive momentum! Keep promoting.
+        </li>
+        <li>
+          <strong>⏱️ Session Duration:</strong> 7.8 minutes average.
+          Excellent! Users are consuming content deeply.
+        </li>
+      </ul>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">Avg Session Duration</div>
+        <div class="metric-value">7.8m</div>
+        <div class="metric-subtitle">468s total</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Bounce Rate</div>
+        <div class="metric-value">61.4%</div>
+        <div class="metric-subtitle">Room to improve</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Pages per Session</div>
+        <div class="metric-value">4.3</div>
+        <div class="metric-subtitle">Content depth</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Returning Users</div>
+        <div class="metric-value">0.9%</div>
+        <div class="metric-subtitle">5 returning</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📈 Traffic Trend (3 Weeks)</h2>
+      <div class="chart-container">
+        <canvas id="trafficChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📄 Top Performing Pages</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Page</th>
+            <th>Views</th>
+            <th>Users</th>
+            <th>Avg Duration</th>
+            <th>Bounce Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>/calculator.html</td>
+              <td class="highlight">842</td>
+              <td>150</td>
+              <td>9.5m</td>
+              <td class="positive">31.9%</td>
+            </tr>
+          
+            <tr>
+              <td>/index.html</td>
+              <td class="highlight">474</td>
+              <td>14</td>
+              <td>15.0m</td>
+              <td class="positive">13.8%</td>
+            </tr>
+          
+            <tr>
+              <td>/public/calculator.html</td>
+              <td class="highlight">398</td>
+              <td>368</td>
+              <td>0.2m</td>
+              <td class="alert">82.7%</td>
+            </tr>
+          
+            <tr>
+              <td>/wiki.html</td>
+              <td class="highlight">273</td>
+              <td>17</td>
+              <td>3.8m</td>
+              <td class="positive">10.8%</td>
+            </tr>
+          
+            <tr>
+              <td>/blog.html</td>
+              <td class="highlight">269</td>
+              <td>14</td>
+              <td>3.6m</td>
+              <td class="positive">18.8%</td>
+            </tr>
+          
+            <tr>
+              <td>/channels.html</td>
+              <td class="highlight">267</td>
+              <td>14</td>
+              <td>4.9m</td>
+              <td class="positive">16.9%</td>
+            </tr>
+          
+            <tr>
+              <td>/</td>
+              <td class="highlight">217</td>
+              <td>58</td>
+              <td>4.3m</td>
+              <td class="positive">41.2%</td>
+            </tr>
+          
+            <tr>
+              <td>/archive.html</td>
+              <td class="highlight">86</td>
+              <td>4</td>
+              <td>6.4m</td>
+              <td class="positive">0.0%</td>
+            </tr>
+          
+            <tr>
+              <td>/about.html</td>
+              <td class="highlight">68</td>
+              <td>6</td>
+              <td>0.6m</td>
+              <td class="positive">5.6%</td>
+            </tr>
+          
+            <tr>
+              <td>/blog/2025-12-31-acne-purge.html</td>
+              <td class="highlight">40</td>
+              <td>6</td>
+              <td>1.6m</td>
+              <td class="positive">0.0%</td>
+            </tr>
+          
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>🌐 Traffic Sources</h2>
+      <div class="chart-container">
+        <canvas id="sourcesChart"></canvas>
+      </div>
+      <table style="margin-top: 30px;">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Medium</th>
+            <th>Sessions</th>
+            <th>Users</th>
+            <th>Engagement</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>(direct)</td>
+              <td>(none)</td>
+              <td class="highlight">661</td>
+              <td>561</td>
+              <td class="">34.3%</td>
+            </tr>
+          
+            <tr>
+              <td>buy.stripe.com</td>
+              <td>referral</td>
+              <td class="highlight">50</td>
+              <td>2</td>
+              <td class="positive">82.0%</td>
+            </tr>
+          
+            <tr>
+              <td>google</td>
+              <td>organic</td>
+              <td class="highlight">22</td>
+              <td>5</td>
+              <td class="positive">77.3%</td>
+            </tr>
+          
+            <tr>
+              <td>homepage</td>
+              <td>(not set)</td>
+              <td class="highlight">22</td>
+              <td>1</td>
+              <td class="">31.8%</td>
+            </tr>
+          
+            <tr>
+              <td>(not set)</td>
+              <td>(not set)</td>
+              <td class="highlight">20</td>
+              <td>6</td>
+              <td class="">0.0%</td>
+            </tr>
+          
+            <tr>
+              <td>claude.ai</td>
+              <td>referral</td>
+              <td class="highlight">11</td>
+              <td>2</td>
+              <td class="">54.5%</td>
+            </tr>
+          
+            <tr>
+              <td>checkout.stripe.com</td>
+              <td>referral</td>
+              <td class="highlight">3</td>
+              <td>2</td>
+              <td class="">0.0%</td>
+            </tr>
+          
+            <tr>
+              <td>homepage</td>
+              <td>(none)</td>
+              <td class="highlight">3</td>
+              <td>1</td>
+              <td class="">0.0%</td>
+            </tr>
+          
+            <tr>
+              <td>bing</td>
+              <td>organic</td>
+              <td class="highlight">1</td>
+              <td>1</td>
+              <td class="positive">100.0%</td>
+            </tr>
+          
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>📱 Device Breakdown</h2>
+      <div class="chart-container">
+        <canvas id="devicesChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🚪 Top Landing Pages</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Landing Page</th>
+            <th>Sessions</th>
+            <th>Bounce Rate</th>
+            <th>Engagement</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>/public/calculator.html</td>
+              <td class="highlight">372</td>
+              <td class="alert">82.5%</td>
+              <td class="">17.5%</td>
+            </tr>
+          
+            <tr>
+              <td>/calculator.html</td>
+              <td class="highlight">172</td>
+              <td class="positive">37.2%</td>
+              <td class="positive">62.8%</td>
+            </tr>
+          
+            <tr>
+              <td>/</td>
+              <td class="highlight">109</td>
+              <td class="positive">38.5%</td>
+              <td class="positive">61.5%</td>
+            </tr>
+          
+            <tr>
+              <td>(not set)</td>
+              <td class="highlight">31</td>
+              <td class="alert">93.5%</td>
+              <td class="">6.5%</td>
+            </tr>
+          
+            <tr>
+              <td>/index.html</td>
+              <td class="highlight">19</td>
+              <td class="positive">5.3%</td>
+              <td class="positive">94.7%</td>
+            </tr>
+          
+            <tr>
+              <td>/wiki.html</td>
+              <td class="highlight">14</td>
+              <td class="positive">28.6%</td>
+              <td class="positive">71.4%</td>
+            </tr>
+          
+            <tr>
+              <td></td>
+              <td class="highlight">13</td>
+              <td class="alert">100.0%</td>
+              <td class="">0.0%</td>
+            </tr>
+          
+            <tr>
+              <td>/channels.html</td>
+              <td class="highlight">12</td>
+              <td class="">50.0%</td>
+              <td class="">50.0%</td>
+            </tr>
+          
+            <tr>
+              <td>/blog.html</td>
+              <td class="highlight">9</td>
+              <td class="">66.7%</td>
+              <td class="">33.3%</td>
+            </tr>
+          
+            <tr>
+              <td>/public/index-2026.html</td>
+              <td class="highlight">8</td>
+              <td class="alert">75.0%</td>
+              <td class="">25.0%</td>
+            </tr>
+          
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>📊 Top Events</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Event Name</th>
+            <th>Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>page_view</td>
+              <td class="highlight">3,340</td>
+            </tr>
+          
+            <tr>
+              <td>user_engagement</td>
+              <td class="highlight">2,448</td>
+            </tr>
+          
+            <tr>
+              <td>session_start</td>
+              <td class="highlight">770</td>
+            </tr>
+          
+            <tr>
+              <td>scroll</td>
+              <td class="highlight">578</td>
+            </tr>
+          
+            <tr>
+              <td>first_visit</td>
+              <td class="highlight">562</td>
+            </tr>
+          
+            <tr>
+              <td>calculator_free_results</td>
+              <td class="highlight">173</td>
+            </tr>
+          
+            <tr>
+              <td>calculate</td>
+              <td class="highlight">135</td>
+            </tr>
+          
+            <tr>
+              <td>path_selected</td>
+              <td class="highlight">125</td>
+            </tr>
+          
+            <tr>
+              <td>calculator_upgrade_click</td>
+              <td class="highlight">97</td>
+            </tr>
+          
+            <tr>
+              <td>calculator_payment_modal_opened</td>
+              <td class="highlight">83</td>
+            </tr>
+          
+            <tr>
+              <td>click</td>
+              <td class="highlight">80</td>
+            </tr>
+          
+            <tr>
+              <td>form_start</td>
+              <td class="highlight">51</td>
+            </tr>
+          
+            <tr>
+              <td>paid_continue_clicked</td>
+              <td class="highlight">49</td>
+            </tr>
+          
+            <tr>
+              <td>calculator_report_generated</td>
+              <td class="highlight">26</td>
+            </tr>
+          
+            <tr>
+              <td>submit_goals</td>
+              <td class="highlight">25</td>
+            </tr>
+          
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insights">
+      <h3>🎯 Recommended Actions (Next 30 Days)</h3>
+
+      <div class="recommendation">
+        <h4>1. Content Distribution Strategy</h4>
+        <p><strong>Priority: HIGH</strong></p>
+        <p>With 567 users in 3 weeks, you're building organic momentum. Focus on:</p>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>Cross-post blog content to Medium, Dev.to, and Reddit (r/carnivore, r/ketoscience)</li>
+          <li>Share calculator on relevant subreddits and carnivore Facebook groups</li>
+          <li>Email your existing audience about the new tool</li>
+        </ul>
+      </div>
+
+      <div class="recommendation">
+        <h4>2. Optimize High-Traffic Pages</h4>
+        <p><strong>Priority: MEDIUM</strong></p>
+        <p>Your top pages are getting traffic. Add:</p>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>Related content links at bottom of each blog post</li>
+          <li>Calculator CTA on high-traffic blog posts</li>
+          <li>Email capture on exit intent (offering weekly newsletter)</li>
+        </ul>
+      </div>
+
+      <div class="recommendation">
+        <h4>3. Calculator Optimization</h4>
+        <p><strong>Priority: HIGH</strong></p>
+        <p>12.5% conversion is excellent, but you can improve the 10% payment modal → paid report conversion:</p>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>Add trust badges (secure payment, money-back guarantee)</li>
+          <li>Show "X people got their report today" social proof</li>
+          <li>Consider A/B testing pricing display ($9.99 vs $10/month value)</li>
+          <li>Add testimonials near payment CTA</li>
+        </ul>
+      </div>
+
+      <div class="recommendation">
+        <h4>4. SEO Foundation</h4>
+        <p><strong>Priority: MEDIUM</strong></p>
+        <p>With 61.4% bounce rate, users are engaged. Now optimize for search:</p>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>Target long-tail keywords (e.g., "carnivore diet macro calculator", "personalized carnivore meal plan")</li>
+          <li>Add FAQ schema to blog posts</li>
+          <li>Build internal linking structure (top pages → calculator)</li>
+          <li>Submit sitemap to Google Search Console</li>
+        </ul>
+      </div>
+
+      <div class="recommendation">
+        <h4>5. Email List Building</h4>
+        <p><strong>Priority: HIGH</strong></p>
+        <p>You have 567 users but likely <100 email subscribers. Capture them:</p>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>Lead magnet: "7-Day Carnivore Meal Plan" (email required)</li>
+          <li>Exit intent popup on blog posts</li>
+          <li>Post-calculator email collection (even for free results)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Traffic Trend Chart
+    const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+    new Chart(trafficCtx, {
+      type: 'line',
+      data: {
+        labels: ["Dec 29","Dec 30","Dec 31","Jan 1","Jan 2","Jan 3","Jan 4","Jan 5","Jan 6","Jan 7","Jan 8","Jan 9","Jan 10","Jan 11","Jan 12","Jan 14","Jan 15","Jan 16","Jan 17","Jan 18","Jan 19"],
+        datasets: [
+          {
+            label: 'Users',
+            data: [11,5,274,21,151,7,5,12,8,5,15,6,13,5,64,5,3,9,12,7,3],
+            borderColor: '#ffd700',
+            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Sessions',
+            data: [19,14,286,29,169,12,9,17,10,6,23,9,27,7,69,6,5,12,19,22,5],
+            borderColor: '#4ade80',
+            backgroundColor: 'rgba(74, 222, 128, 0.1)',
+            tension: 0.4,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#e0e0e0' } }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#888' },
+            grid: { color: '#333' }
+          },
+          x: {
+            ticks: { color: '#888' },
+            grid: { color: '#333' }
+          }
+        }
+      }
+    });
+
+    // Sources Chart
+    const sourcesCtx = document.getElementById('sourcesChart').getContext('2d');
+    new Chart(sourcesCtx, {
+      type: 'bar',
+      data: {
+        labels: ["(direct)/(none)","buy.stripe.com/referral","google/organic","homepage/(not set)","(not set)/(not set)","claude.ai/referral","checkout.stripe.com/referral","homepage/(none)"],
+        datasets: [{
+          label: 'Sessions',
+          data: [661,50,22,22,20,11,3,3],
+          backgroundColor: 'rgba(255, 215, 0, 0.8)',
+          borderColor: '#ffd700',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+          legend: { labels: { color: '#e0e0e0' } }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: { color: '#888' },
+            grid: { color: '#333' }
+          },
+          y: {
+            ticks: { color: '#888' },
+            grid: { color: '#333' }
+          }
+        }
+      }
+    });
+
+    // Devices Chart
+    const devicesCtx = document.getElementById('devicesChart').getContext('2d');
+    const deviceData = {"desktop":{"sessions":583,"users":402,"bounceRate":55.06003430531733},"mobile":{"sessions":189,"users":163,"bounceRate":80.95238095238095},"tablet":{"sessions":4,"users":4,"bounceRate":75}};
+    new Chart(devicesCtx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(deviceData),
+        datasets: [{
+          data: Object.values(deviceData).map(d => d.sessions),
+          backgroundColor: ['#ffd700', '#4ade80', '#60a5fa'],
+          borderColor: '#1a1a1a',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: '#e0e0e0', padding: 20 }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

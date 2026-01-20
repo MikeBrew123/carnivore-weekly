@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator Funnel Report - Last 3 Days</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      color: #888;
+      margin-bottom: 30px;
+      font-size: 0.9rem;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .metric-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+    .metric-card:hover {
+      border-color: #ffd700;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+    }
+    .metric-label {
+      color: #888;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #ffd700;
+      margin-bottom: 8px;
+    }
+    .metric-subtitle {
+      color: #666;
+      font-size: 0.85rem;
+    }
+    .section {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    .section h2 {
+      color: #ffd700;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    .funnel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .funnel-step {
+      background: linear-gradient(90deg, #ffd700 0%, transparent 100%);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .funnel-step::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: #ffd700;
+      opacity: 0.1;
+    }
+    .funnel-step.step-1::before { width: 100%; }
+    .funnel-step.step-2::before { width: var(--width-2); }
+    .funnel-step.step-3::before { width: var(--width-3); }
+    .funnel-step.upgrade::before { width: var(--width-upgrade); }
+    .funnel-step.payment::before { width: var(--width-payment); }
+    .funnel-info {
+      position: relative;
+      z-index: 1;
+    }
+    .funnel-label {
+      font-weight: 600;
+      color: #ffd700;
+      font-size: 1.1rem;
+    }
+    .funnel-count {
+      color: #e0e0e0;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-top: 5px;
+    }
+    .funnel-conversion {
+      position: relative;
+      z-index: 1;
+      text-align: right;
+    }
+    .conversion-rate {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #4ade80;
+    }
+    .conversion-label {
+      color: #888;
+      font-size: 0.85rem;
+    }
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      color: #ffd700;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td { color: #e0e0e0; }
+    tr:hover { background: #222; }
+    .highlight { color: #ffd700; font-weight: 600; }
+    .positive { color: #4ade80; }
+    .warning { color: #fbbf24; }
+    .alert { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧮 Calculator Funnel Analysis</h1>
+    <p class="subtitle">Last 3 Days • Generated 2026-01-20, 10:22:29 a.m.</p>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">Total Page Views</div>
+        <div class="metric-value">221</div>
+        <div class="metric-subtitle">Calculator pages</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Unique Users</div>
+        <div class="metric-value">24</div>
+        <div class="metric-subtitle">Started calculator</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Free Results</div>
+        <div class="metric-value">107</div>
+        <div class="metric-subtitle">Completed basic calculator</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Paid Reports</div>
+        <div class="metric-value" style="color: #4ade80;">3</div>
+        <div class="metric-subtitle">💰 Conversions</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📊 Conversion Funnel</h2>
+      <div class="funnel" style="
+        --width-2: 445.8333333333333%;
+        --width-3: 141.66666666666669%;
+        --width-upgrade: 125%;
+        --width-payment: 12.5%;
+      ">
+        <div class="funnel-step step-1">
+          <div class="funnel-info">
+            <div class="funnel-label">👥 Unique Visitors</div>
+            <div class="funnel-count">24</div>
+          </div>
+          <div class="funnel-conversion">
+            <div class="conversion-rate">100%</div>
+            <div class="conversion-label">baseline</div>
+          </div>
+        </div>
+
+        <div class="funnel-step step-2">
+          <div class="funnel-info">
+            <div class="funnel-label">✅ Free Results Viewed</div>
+            <div class="funnel-count">107</div>
+          </div>
+          <div class="funnel-conversion">
+            <div class="conversion-rate">445.8%</div>
+            <div class="conversion-label">completion rate</div>
+          </div>
+        </div>
+
+        <div class="funnel-step step-3">
+          <div class="funnel-info">
+            <div class="funnel-label">🔼 Upgrade Clicks</div>
+            <div class="funnel-count">34</div>
+          </div>
+          <div class="funnel-conversion">
+            <div class="conversion-rate">31.8%</div>
+            <div class="conversion-label">from free results</div>
+          </div>
+        </div>
+
+        <div class="funnel-step upgrade">
+          <div class="funnel-info">
+            <div class="funnel-label">💳 Payment Modal Opened</div>
+            <div class="funnel-count">30</div>
+          </div>
+          <div class="funnel-conversion">
+            <div class="conversion-rate">88.2%</div>
+            <div class="conversion-label">from upgrade clicks</div>
+          </div>
+        </div>
+
+        <div class="funnel-step payment">
+          <div class="funnel-info">
+            <div class="funnel-label">💰 Paid Report Generated</div>
+            <div class="funnel-count">3</div>
+          </div>
+          <div class="funnel-conversion">
+            <div class="conversion-rate">10.0%</div>
+            <div class="conversion-label">conversion rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📈 Daily Activity Trend</h2>
+      <div class="chart-container">
+        <canvas id="dailyChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🎯 Event Breakdown</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Event Name</th>
+            <th>Total Count</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+              <tr>
+                <td>page_view</td>
+                <td class="highlight">357</td>
+                <td class="positive">✅ Active</td>
+              </tr>
+            
+              <tr>
+                <td>calculator_free_results</td>
+                <td class="highlight">107</td>
+                <td class="positive">✅ Active</td>
+              </tr>
+            
+              <tr>
+                <td>session_start</td>
+                <td class="highlight">56</td>
+                <td class="positive">✅ Active</td>
+              </tr>
+            
+              <tr>
+                <td>calculator_upgrade_click</td>
+                <td class="highlight">34</td>
+                <td class="positive">✅ Active</td>
+              </tr>
+            
+              <tr>
+                <td>calculator_payment_modal_opened</td>
+                <td class="highlight">30</td>
+                <td class="positive">✅ Active</td>
+              </tr>
+            
+              <tr>
+                <td>calculator_report_generated</td>
+                <td class="highlight">3</td>
+                <td class="positive">✅ Active</td>
+              </tr>
+            
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>🌐 Traffic Sources</h2>
+      <div class="chart-container">
+        <canvas id="sourcesChart"></canvas>
+      </div>
+      <table style="margin-top: 30px;">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Medium</th>
+            <th>Sessions</th>
+            <th>Users</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr>
+              <td>(direct)</td>
+              <td>(none)</td>
+              <td class="highlight">22</td>
+              <td>14</td>
+            </tr>
+          
+            <tr>
+              <td>(not set)</td>
+              <td>(not set)</td>
+              <td class="highlight">9</td>
+              <td>3</td>
+            </tr>
+          
+            <tr>
+              <td>claude.ai</td>
+              <td>referral</td>
+              <td class="highlight">7</td>
+              <td>1</td>
+            </tr>
+          
+            <tr>
+              <td>homepage</td>
+              <td>(not set)</td>
+              <td class="highlight">7</td>
+              <td>1</td>
+            </tr>
+          
+            <tr>
+              <td>homepage</td>
+              <td>(none)</td>
+              <td class="highlight">2</td>
+              <td>1</td>
+            </tr>
+          
+            <tr>
+              <td>checkout.stripe.com</td>
+              <td>referral</td>
+              <td class="highlight">1</td>
+              <td>1</td>
+            </tr>
+          
+            <tr>
+              <td>google</td>
+              <td>organic</td>
+              <td class="highlight">1</td>
+              <td>1</td>
+            </tr>
+          
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>📱 Device Breakdown</h2>
+      <div class="chart-container">
+        <canvas id="devicesChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>💡 Key Insights</h2>
+      <ul style="color: #e0e0e0; line-height: 2;">
+        <li><strong class="highlight">Completion Rate:</strong> 445.8% of visitors view their free results</li>
+        <li><strong class="highlight">Upgrade Interest:</strong> 31.8% of free result viewers click the upgrade button</li>
+        <li><strong class="highlight">Modal Engagement:</strong> 88.2% of upgrade clicks open the payment modal</li>
+        <li><strong class="highlight">Payment Conversion:</strong> 10.0% of payment modals convert to paid reports</li>
+        <li><strong class="highlight">End-to-End Conversion:</strong> 12.50% of visitors become paying customers</li>
+        <li><strong class="highlight">Total Revenue Impact:</strong> 3 paid reports generated ($29.97 if all used base tier)</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Daily Activity Chart
+    const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+    new Chart(dailyCtx, {
+      type: 'line',
+      data: {
+        labels: ["Jan 17","Jan 18","Jan 19","Jan 20"],
+        datasets: [{
+          label: 'Page Views',
+          data: [21,105,94,1],
+          borderColor: '#ffd700',
+          backgroundColor: 'rgba(255, 215, 0, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#e0e0e0' } }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#888' },
+            grid: { color: '#333' }
+          },
+          x: {
+            ticks: { color: '#888' },
+            grid: { color: '#333' }
+          }
+        }
+      }
+    });
+
+    // Sources Chart
+    const sourcesCtx = document.getElementById('sourcesChart').getContext('2d');
+    new Chart(sourcesCtx, {
+      type: 'bar',
+      data: {
+        labels: ["(direct) / (none)","(not set) / (not set)","claude.ai / referral","homepage / (not set)","homepage / (none)","checkout.stripe.com / referral","google / organic"],
+        datasets: [{
+          label: 'Sessions',
+          data: [22,9,7,7,2,1,1],
+          backgroundColor: 'rgba(255, 215, 0, 0.8)',
+          borderColor: '#ffd700',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#e0e0e0' } }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#888' },
+            grid: { color: '#333' }
+          },
+          x: {
+            ticks: { color: '#888' },
+            grid: { color: '#333' }
+          }
+        }
+      }
+    });
+
+    // Devices Chart
+    const devicesCtx = document.getElementById('devicesChart').getContext('2d');
+    new Chart(devicesCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ["desktop","mobile"],
+        datasets: [{
+          data: [26,13],
+          backgroundColor: ['#ffd700', '#4ade80', '#60a5fa', '#f472b6'],
+          borderColor: '#1a1a1a',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: '#e0e0e0', padding: 20 }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
