@@ -8,13 +8,17 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
+from dotenv import load_dotenv
 from anthropic import Anthropic
+
+# Load environment variables from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 # Initialize Claude
 client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
 # Project paths
-PROJECT_ROOT = Path(__file__).parent.parent
 YOUTUBE_DATA_PATH = PROJECT_ROOT / "data" / "youtube_data.json"
 OUTPUT_PATH = PROJECT_ROOT / "data" / "content-of-the-week.json"
 

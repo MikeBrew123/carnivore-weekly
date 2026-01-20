@@ -17,14 +17,15 @@ from pathlib import Path
 from dotenv import load_dotenv
 from anthropic import Anthropic
 
-load_dotenv()
+# Load .env from project root (parent of scripts/)
+PROJECT_ROOT = Path(__file__).parent.parent
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 
 YOUTUBE_DATA_FILE = DATA_DIR / "youtube_data.json"
@@ -58,11 +59,15 @@ class SentimentAnalyzer:
         # Only use top 5 comments to save costs
         top_comments = comments[:5]
 
+        num_comments = len(top_comments)
         if not top_comments:
             return {
                 "positive_percent": 0,
                 "negative_percent": 0,
                 "neutral_percent": 0,
+                "positive_count": 0,
+                "negative_count": 0,
+                "neutral_count": 0,
                 "overall": "neutral",
                 "summary": "No comments available",
             }
@@ -70,13 +75,16 @@ class SentimentAnalyzer:
         # Build prompt with just the top comments
         comments_text = "\n".join([f"- {c['text']}" for c in top_comments])
 
-        prompt = f"""Analyze the sentiment of these YouTube comments for the video "{video_title}".
+        prompt = f"""Analyze the sentiment of these {num_comments} YouTube comments for the video "{video_title}".
 
 Comments:
 {comments_text}
 
-Provide a JSON response with sentiment breakdown:
+Provide a JSON response with sentiment breakdown (counts must add to {num_comments}):
 {{
+  "positive_count": <number of positive comments>,
+  "negative_count": <number of negative comments>,
+  "neutral_count": <number of neutral comments>,
   "positive_percent": <0-100>,
   "negative_percent": <0-100>,
   "neutral_percent": <0-100>,
@@ -88,7 +96,7 @@ Positive = praise, enthusiasm, success stories, gratitude
 Negative = criticism, complaints, doubts
 Neutral = questions, neutral observations
 
-Percentages must add up to 100."""
+Counts must add up to {num_comments}. Percentages must add up to 100."""
 
         try:
             message = self.client.messages.create(
@@ -111,94 +119,76 @@ Percentages must add up to 100."""
 
         except Exception as e:
             print(f"   ⚠ Error analyzing sentiment: {e}")
+            # Fallback with counts based on num_comments analyzed
+            pos = max(1, num_comments // 2)
+            neg = num_comments // 4
+            neu = num_comments - pos - neg
             return {
                 "positive_percent": 50,
                 "negative_percent": 25,
                 "neutral_percent": 25,
+                "positive_count": pos,
+                "negative_count": neg,
+                "neutral_count": neu,
                 "overall": "mixed",
                 "summary": "Unable to analyze sentiment",
             }
 
     def add_sentiment_to_analysis(self):
         """
-        Load existing analyzed content and add sentiment data
+        Load YouTube data and add sentiment analysis directly to videos.
+        generate.py reads sentiment from youtube_data.json, so we write there.
         """
         print("\n" + "=" * 70)
         print("💰 COST-EFFECTIVE SENTIMENT ANALYZER")
         print("=" * 70)
 
-        # Load YouTube data (has all the comments)
+        # Load YouTube data (has all the comments AND where we store sentiment)
         print(f"\n📂 Loading YouTube data...")
         with open(YOUTUBE_DATA_FILE, "r") as f:
             youtube_data = json.load(f)
 
-        # Load existing analysis
-        print(f"📂 Loading existing analysis...")
-        with open(ANALYZED_FILE, "r") as f:
-            analyzed_data = json.load(f)
-
-        # Check if analyzed_data has the expected structure
-        if "analysis" not in analyzed_data or "top_videos" not in analyzed_data.get("analysis", {}):
-            print(f"\n⚠️  Analysis structure changed - skipping sentiment analysis")
-            print(f"✓ Sentiment analysis skipped (data structure incompatible)")
+        if "top_creators" not in youtube_data:
+            print(f"\n⚠️  No top_creators in youtube_data.json")
             return
 
-        # Create a mapping of video_id -> comments
-        video_comments = {}
+        # Count total videos
+        total_videos = sum(
+            len(creator.get("videos", [])) for creator in youtube_data["top_creators"]
+        )
+        print(f"📊 Found {total_videos} videos across {len(youtube_data['top_creators'])} creators")
+
+        # Add sentiment to each video in youtube_data.json
+        print(f"\n🤖 Analyzing sentiment for all videos...")
+        video_count = 0
         for creator in youtube_data["top_creators"]:
-            for video in creator["videos"]:
-                video_comments[video["video_id"]] = video["top_comments"]
+            for video in creator.get("videos", []):
+                video_count += 1
+                title = video.get("title", "Unknown")[:50]
+                comments = video.get("top_comments", [])
 
-        # Add sentiment to top_videos
-        print(f"\n🤖 Analyzing sentiment for top videos...")
-        for i, video in enumerate(analyzed_data["analysis"]["top_videos"], 1):
-            video_id = video.get("video_id")
-            if video_id and video_id in video_comments:
-                print(
-                    f"   [{i}/{len(analyzed_data['analysis']['top_videos'])}] {video['title'][:50]}..."
-                )
+                print(f"   [{video_count}/{total_videos}] {title}...")
 
-                sentiment = self.analyze_video_sentiment(
-                    video["title"], video_comments[video_id]
-                )
+                sentiment = self.analyze_video_sentiment(video.get("title", ""), comments)
 
+                # Store sentiment in the video object
                 video["comment_sentiment"] = sentiment
                 print(
-                    f"      → {sentiment['overall'].upper()} ({sentiment['positive_percent']}% positive)"
+                    f"      → {sentiment['overall'].upper()} ({sentiment['positive_percent']}% pos)"
                 )
 
-        # Add sentiment to recommended_watching
-        print(f"\n🤖 Analyzing sentiment for recommended videos...")
-        for i, video in enumerate(analyzed_data["analysis"]["recommended_watching"], 1):
-            video_id = video.get("video_id")
-            if video_id and video_id in video_comments:
-                print(
-                    f"   [{i}/{len(analyzed_data['analysis']['recommended_watching'])}] {video['title'][:50]}..."
-                )
-
-                sentiment = self.analyze_video_sentiment(
-                    video["title"], video_comments[video_id]
-                )
-
-                video["comment_sentiment"] = sentiment
-                print(
-                    f"      → {sentiment['overall'].upper()} ({sentiment['positive_percent']}% positive)"
-                )
-
-        # Save updated analysis
-        print(f"\n💾 Saving updated analysis...")
-        with open(ANALYZED_FILE, "w", encoding="utf-8") as f:
-            json.dump(analyzed_data, f, indent=2, ensure_ascii=False)
+        # Save updated youtube_data.json with sentiment
+        print(f"\n💾 Saving sentiment to youtube_data.json...")
+        with open(YOUTUBE_DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(youtube_data, f, indent=2, ensure_ascii=False)
 
         print("\n" + "=" * 70)
         print("✓ SENTIMENT ANALYSIS COMPLETE!")
         print("=" * 70)
         print(f"\n💰 Cost savings: ~90% less than using Sonnet!")
-        print(
-            f"📊 Analyzed {len(analyzed_data['analysis']['top_videos']) + len(analyzed_data['analysis']['recommended_watching'])} videos"
-        )
-        print(f"📁 Updated file: {ANALYZED_FILE}")
-        print("\nNext: Run generate_pages.py to update the website!\n")
+        print(f"📊 Analyzed {video_count} videos")
+        print(f"📁 Updated file: {YOUTUBE_DATA_FILE}")
+        print("\nNext: Run generate.py to update the website!\n")
 
 
 def main():
@@ -211,9 +201,7 @@ def main():
 
     except FileNotFoundError as e:
         print(f"\n✗ File Error: {e}")
-        print(
-            "Make sure you've run youtube_collector.py and content_analyzer.py first!"
-        )
+        print("Make sure you've run youtube_collector.py and content_analyzer.py first!")
 
     except KeyboardInterrupt:
         print("\n\n⚠ Interrupted by user")

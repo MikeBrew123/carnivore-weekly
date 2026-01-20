@@ -34,6 +34,10 @@ from auto_link_wiki_keywords import insert_wiki_links
 from dotenv import load_dotenv
 import os
 
+# Load environment variables from project root
+PROJECT_ROOT = Path(__file__).parent.parent
+load_dotenv(PROJECT_ROOT / ".env", override=True)
+
 try:
     from jinja2 import Environment, FileSystemLoader
 except ImportError:
@@ -58,8 +62,7 @@ try:
 except ImportError:
     build = None
 
-# Load environment variables
-load_dotenv()
+# Note: load_dotenv already called at top of file with project root path
 
 
 class UnifiedGenerator:
@@ -417,6 +420,7 @@ class UnifiedGenerator:
             # First, try to parse as JSON array (new format)
             try:
                 import json as json_lib
+
                 parsed_topics = json_lib.loads(trending_topics_raw)
                 if isinstance(parsed_topics, list):
                     # Convert simple string list to structured format
@@ -464,7 +468,9 @@ class UnifiedGenerator:
                                 current_topic["description"] = content
                         elif line_stripped and not line_stripped.startswith("---"):
                             # Add regular text
-                            if not line_stripped.startswith("**") or not line_stripped.endswith("**"):
+                            if not line_stripped.startswith("**") or not line_stripped.endswith(
+                                "**"
+                            ):
                                 if current_topic["description"]:
                                     current_topic["description"] += " " + line_stripped
                                 else:
@@ -1224,11 +1230,7 @@ class UnifiedGenerator:
                 "likes": video.get("like_count", 0),
                 "comments": video.get("comment_count", 0),
                 "thumbnail_url": video.get("thumbnail_url", ""),
-                "summary": (
-                    video.get("description", "")[:200]
-                    if video.get("description")
-                    else ""
-                ),
+                "summary": (video.get("description", "")[:200] if video.get("description") else ""),
                 "sentiment": sentiment.get("overall", "neutral"),
                 "sentiment_score": sentiment.get("score", 0),
                 "positive_count": sentiment.get("positive_count", 0),
