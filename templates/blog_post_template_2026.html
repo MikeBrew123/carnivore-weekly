@@ -182,8 +182,7 @@
                     <h1 class="post-title page-header">{{ title }}</h1>
                     <div class="post-meta">
                         <span>{{ publish_date }}</span>
-                        <span>by {{ author }} ({{ author_role }})</span>
-                        <span>{{ word_count }} words</span>
+                        <span>by {{ author }}</span>
                     </div>
 
                     <div class="post-author-bio">
@@ -213,39 +212,7 @@
                 </div>
 
                 <!-- Post Content -->
-                <div class="post-content">
-
-            <!-- TL;DR Box (REQUIRED) -->
-            <div class="tldr-box tldr-box--green">
-                <h3>TL;DR</h3>
-                <ul>
-                    {{ tldr_bullets }}
-                </ul>
-            </div>
-
-            {{ content }}
-
-            <!-- Pull Quotes (REQUIRED - at least 1) -->
-            <blockquote class="pull-quote">
-                {{ pull_quote }}
-            </blockquote>
-
-            <!-- Key Takeaways (REQUIRED) -->
-            <div class="key-takeaways">
-                <h3>Key Takeaways</h3>
-                <ol>
-                    {{ key_takeaways }}
-                </ol>
-            </div>
-
-            <!-- Calculator CTA (REQUIRED) -->
-            <div class="cta-box cta-box--calculator">
-                <h4>Want your personalized protocol?</h4>
-                <p>Get macro targets, meal plans, and supplement recommendations based on YOUR metabolic health goals.</p>
-                <a href="/calculator.html" class="btn btn--primary">Calculate Your Protocol →</a>
-            </div>
-
-                </div>
+                {{ content }}
 
         <!-- Wiki Links Section -->
 
@@ -316,26 +283,78 @@
 </section>
 
 <script src="/js/related-content.js" defer></script>
-<footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #8b4513; text-align: center; color: #d4a574; font-size: 12px;">
-            <p>&copy; 2026 Carnivore Weekly |
-               <a href="/about.html" style="color: #d4a574; text-decoration: underline;">About</a> |
-               <a href="/the-lab.html" style="color: #d4a574; text-decoration: underline;">The Lab</a> |
-               <a href="mailto:feedback@carnivoreweekly.com" style="color: #d4a574; text-decoration: underline;">Contact</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 11px;">
-                🤖 Curated with AI • Made with <a href="https://claude.com/claude-code" style="color: #d4a574; text-decoration: underline;">Claude Code</a>
-            </p>
-        </footer>
+
+            </article>
+        </main>
     </div>
-    </main>
-    </div>
+    <!-- END Layout Wrapper -->
+
+    <!-- Site Footer - Direct child of body for full-width -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-8); margin-bottom: var(--space-8);">
+
+                <!-- About Section -->
+                <div>
+                    <h3 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Carnivore Weekly</h3>
+                    <p style="color: var(--color-cream); font-size: var(--text-sm); line-height: var(--leading-relaxed);">
+                        Evidence-based insights, real community stories, and practical protocols for the meat-based movement.
+                    </p>
+                </div>
+
+                <!-- Navigation -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Explore</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/">Home</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/channels.html">Weekly Watch</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/wiki.html">Protocols & Basics</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/blog/">Insights</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/calculator.html">Calculator</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Resources</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/archive.html">Archive</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/about.html">About</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/privacy.html">Privacy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Partners -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Our Partners</h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                        <a href="https://butcherbox.pxf.io/Z6oVMR" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">ButcherBox</a>
+                        <a href="http://elementallabs.refr.cc" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">LMNT</a>
+                    </div>
+                    <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-3);">
+                        Products we personally use and recommend.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Affiliate Disclosure -->
+            <div class="affiliate-footer-disclosure">
+                <strong>Affiliate Disclosure:</strong> Carnivore Weekly partners with brands we trust and personally use.
+                When you purchase through our links, we may earn a commission at no extra cost to you.
+                This supports our free content. We only recommend products that align with our values.
+            </div>
+
+            <!-- Copyright -->
+            <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <p style="color: var(--color-cream); font-size: var(--text-sm); margin: 0;">
+                    &copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.
+                </p>
+            </div>
+        </div>
+    </footer>
 
     <script src="/js/mobile-nav.js"></script>
-
-    <!-- Engagement Tracking (Internal Links, Scroll Depth, Outbound Clicks) -->
     <script src="/js/engagement-tracking.js"></script>
-
-    <!-- Feedback Modal Component -->
     <script>
         fetch('/components/feedback-modal.html')
             .then(response => response.text())
