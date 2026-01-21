@@ -8,18 +8,18 @@
     <meta name="keywords" content="lipid energy model, fat metabolism, carnivore science, ketones, fat adaptation, metabolic health">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="canonical" href="https://carnivoreweekly.com/blog/2025-12-20-lipid-energy-model.html">
-    <meta property="og:title" content="The Lipid Energy Model: How Your Body Actually Burns Fat">
-    <meta property="og:description" content="Understanding the lipid energy model: what the science says about fat metabolism and why carnivore works for energy.">
+    <meta property="og:title" content="The Lipid Energy Model: How Your Body Actually Burns Fat - Carnivore Weekly Blog">
+    <meta property="og:description" content="Understanding the lipid energy model: what the science actually says about fat metabolism, why carnivore works for energy, and where the model gets speculative.">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="Carnivore Weekly">
     <meta property="og:url" content="https://carnivoreweekly.com/blog/2025-12-20-lipid-energy-model.html">
-    <meta property="article:published_time" content="2025-12-20">
+    <meta property="article:published_time" content="December 20, 2025">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="The Lipid Energy Model: How Your Body Actually Burns Fat">
-    <meta name="twitter:description" content="Understanding the lipid energy model: what the science says about fat metabolism and why carnivore works for energy.">
+    <meta name="twitter:title" content="The Lipid Energy Model: How Your Body Actually Burns Fat - Carnivore Weekly Blog">
+    <meta name="twitter:description" content="Understanding the lipid energy model: what the science actually says about fat metabolism, why carnivore works for energy, and where the model gets speculative.">
     <meta name="twitter:site" content="@carnivoreweekly">
-    <meta property="og:image" content="https://carnivoreweekly.com/images/butter-block-1200w.webp">
-    <meta name="twitter:image" content="https://carnivoreweekly.com/images/butter-block-1200w.webp">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
 
     <!-- Article Schema Markup -->
     <script type="application/ld+json">
@@ -30,8 +30,8 @@
       "description": "Understanding the lipid energy model: what the science actually says about fat metabolism, why carnivore works for energy, and where the model gets speculative.",
       "author": {
         "@type": "Person",
-        "name": "Sarah",
-        "jobTitle": "Health Coach"
+        "name": "Carnivore Weekly",
+        "jobTitle": "{{ author_title }}"
       },
       "publisher": {
         "@type": "Organization",
@@ -41,9 +41,9 @@
           "url": "https://carnivoreweekly.com/images/logo.png"
         }
       },
-      "datePublished": "2025-12-20",
-      "dateModified": "2025-12-20",
-      "image": "https://carnivoreweekly.com/images/butter-block-1200w.webp",
+      "datePublished": "December 20, 2025",
+      "dateModified": "December 20, 2025",
+      "image": "https://carnivoreweekly.com/images/hero-steak-1200w.webp",
       "mainEntityOfPage": {
         "@type": "WebPage",
         "@id": "https://carnivoreweekly.com/blog/2025-12-20-lipid-energy-model.html"
@@ -59,7 +59,20 @@
         gtag('config', 'G-NR4JVKW2JV');
     </script>
     <style>
-        /* Navigation menu styling */
+        /* 2026 Brand Colors - Comprehensive Styling */
+
+        /* Global link styling */
+        a { color: #d4a574 !important;
+            text-decoration: underline;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: #ffd700;
+            text-decoration: underline;
+        }
+
+        /* Navigation menu styling - override main stylesheet for light backgrounds */
         .nav-menu-2026,
         nav.nav-menu-2026 {
             background: #2c1810 !important;
@@ -86,149 +99,54 @@
             border-bottom-color: #ffd700 !important;
         }
 
-        /* Science evidence cards */
-        .evidence-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
+        /* Headings - ensure visual hierarchy */
+        h1, h2, h3, h4, h5, h6 { color: #6A1B1B !important;
         }
 
-        .evidence-card {
-            background: #2c1810;
-            border-radius: 8px;
-            padding: 20px;
+        header h1 { color: #d4a574 !important; }
+
+        /* Override stylesheet for light theme background */
+        .post-content {
+            color: #1a120b !important;
         }
 
-        .evidence-card--proven {
-            border-left: 4px solid #4ade80;
+        .post-content p {
+            color: #1a120b !important;
         }
 
-        .evidence-card--uncertain {
-            border-left: 4px solid #fbbf24;
+        .post-content li {
+            color: #1a120b !important;
         }
 
-        .evidence-card--speculative {
-            border-left: 4px solid #ef4444;
+        article {
+            color: #1a120b !important;
         }
 
-        .evidence-card h4 {
-            margin: 0 0 12px 0;
-            font-size: 1rem;
+        /* Post header styling */
+        .post-header {
+            margin-bottom: 40px;
+            border-bottom: 2px solid #8b4513;
+            padding-bottom: 20px;
         }
 
-        .evidence-card--proven h4 { color: #4ade80; }
-        .evidence-card--uncertain h4 { color: #fbbf24; }
-        .evidence-card--speculative h4 { color: #fca5a5; }
-
-        .evidence-card ul {
-            margin: 0;
-            padding-left: 18px;
-            color: #d4a574;
+        /* Post author bio styling */
+        .post-author-bio {
+            background-color: transparent;
+            color: #1a120b;
+            padding: 15px;
+            border-left: 4px solid #8b4513;
+            border-radius: 4px;
+            margin: 15px 0;
         }
 
-        .evidence-card li {
-            margin: 8px 0;
-            font-size: 1rem;
+        .post-author-bio strong {
+            color: #6A1B1B;
         }
 
-        /* Concept box */
-        .concept-box {
-            background: #1a1a1a;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
-            border: 1px solid #333;
-        }
-
-        .concept-box h4 {
-            color: #ffd700;
-            margin: 0 0 12px 0;
-        }
-
-        .concept-box p {
-            color: #d4a574;
-            margin: 0;
-            line-height: 1.6;
-        }
-
-        /* Comparison table */
-        .model-comparison {
-            background: #2c1810;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 25px 0;
-            overflow-x: auto;
-        }
-
-        .model-comparison h4 {
-            color: #ffd700;
-            margin: 0 0 15px 0;
-        }
-
-        .model-comparison table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .model-comparison th,
-        .model-comparison td {
-            padding: 10px 12px;
-            text-align: left;
-            border-bottom: 1px solid #444;
-            color: #d4a574;
-        }
-
-        .model-comparison th {
-            color: #ffd700;
-            font-weight: 600;
-        }
-
-        .model-comparison tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* TL;DR Box text colors */
-        .tldr-box {
-            color: #e8dcc8;
-        }
-
-        .tldr-box ul {
-            color: #e8dcc8;
-        }
-
-        .tldr-box li {
-            color: #e8dcc8;
-        }
-
-        .tldr-box strong {
-            color: #ffd700;
-        }
-
-        /* Key Takeaways text colors */
-        .key-takeaways {
-            color: #e8dcc8;
-        }
-
-        .key-takeaways ol {
-            color: #e8dcc8;
-        }
-
-        .key-takeaways li {
-            color: #e8dcc8;
-        }
-
-        .key-takeaways strong {
-            color: #ffd700;
-        }
-
-        /* Concept box text colors */
-        .concept-box {
-            color: #e8dcc8;
-        }
-
-        .concept-box p {
-            color: #e8dcc8;
+        /* Post meta information */
+        .post-meta {
+            color: #d4a574 !important;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -250,6 +168,7 @@
         <a href="/wiki.html">Protocols &amp; Basics</a>
         <a href="/blog.html">Insights</a>
         <a href="/calculator.html">Calculator</a>
+
     </nav>
 
     <!-- Layout Wrapper -->
@@ -260,16 +179,35 @@
             <!-- Post Header -->
             <article>
                 <div class="post-header">
-                    <h1 class="post-title">The Lipid Energy Model: How Your Body Actually Burns Fat</h1>
+                    <h1 class="post-title page-header">The Lipid Energy Model: How Your Body Actually Burns Fat</h1>
                     <div class="post-meta">
                         <span>December 20, 2025</span>
-                        <span>by Sarah (Health Coach)</span>
-                        <span>1680 words</span>
+                        <span>by Carnivore Weekly</span>
                     </div>
 
                     <div class="post-author-bio">
-                        <strong>Sarah</strong><br>
+                        <strong>Carnivore Weekly</strong><br>
                         Health science focus on micronutrients and physiological adaptation. Breaking down the research so you can make informed decisions.
+                    </div>
+                </div>
+
+                <!-- Post Reactions - Top (Summary) -->
+                <div class="post-reactions post-reactions--top" data-post-slug="2025-12-20-lipid-energy-model" style="background: #f5f5f0; padding: 15px 20px; border-radius: 8px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #e0e0e0;">
+                    <div class="reactions-header" style="display: flex; align-items: center; gap: 15px;">
+                        <h4 style="font-size: 14px; color: #4a4a4a; font-weight: 600; margin: 0;">Was this helpful?</h4>
+                        <div class="reactions-buttons" style="display: flex; gap: 10px;">
+                            <button class="reaction-btn reaction-btn--up" style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: white; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; font-size: 16px; transition: all 0.2s ease;">
+                                <span>👍</span>
+                                <span class="reaction-count" data-type="up" style="font-weight: 600; color: #1a1a1a;">0</span>
+                            </button>
+                            <button class="reaction-btn reaction-btn--down" style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: white; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; font-size: 16px; transition: all 0.2s ease;">
+                                <span>👎</span>
+                                <span class="reaction-count" data-type="down" style="font-weight: 600; color: #1a1a1a;">0</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="reactions-thanks" style="display: none; color: #2d5016; font-weight: 600; font-size: 14px;">
+                        <p class="thanks-message" style="margin: 0;">✓ Thanks for your feedback!</p>
                     </div>
                 </div>
 
@@ -278,186 +216,180 @@
 
 <!-- Hero Image -->
 <figure class="post-hero-image">
-    <img src="/images/butter-block-800w.webp"
-         srcset="/images/butter-block-400w.webp 400w, /images/butter-block-800w.webp 800w, /images/butter-block-1200w.webp 1200w"
-         sizes="(max-width: 600px) 400px, (max-width: 900px) 800px, 1200px"
-         alt="Block of butter representing dietary fat as energy source"
-         loading="eager">
-    <figcaption>Fat as fuel: understanding the metabolic science behind carnivore</figcaption>
+<img alt="Block of butter representing dietary fat as energy source" loading="eager" sizes="(max-width: 600px) 400px, (max-width: 900px) 800px, 1200px" src="/images/butter-block-800w.webp" srcset="/images/butter-block-400w.webp 400w, /images/butter-block-800w.webp 800w, /images/butter-block-1200w.webp 1200w"/>
+<figcaption>Fat as fuel: understanding the metabolic science behind carnivore</figcaption>
 </figure>
-
 <!-- TL;DR Box -->
 <div class="tldr-box">
-    <h3>TL;DR</h3>
-    <ul>
-        <li>The lipid energy model proposes that your body runs efficiently on fat and that removing carbs returns you to a "natural" metabolic state.</li>
-        <li>Some parts are evidence-based (humans can run on fat, ketones are efficient fuel). Other parts are still speculative (fat is universally "preferred").</li>
-        <li>Understanding what's proven vs. speculative helps you use carnivore effectively without turning it into dogma.</li>
-    </ul>
+<h3>TL;DR</h3>
+<ul>
+<li>The lipid energy model proposes that your body runs efficiently on fat and that removing carbs returns you to a "natural" metabolic state.</li>
+<li>Some parts are evidence-based (humans can run on fat, ketones are efficient fuel). Other parts are still speculative (fat is universally "preferred").</li>
+<li>Understanding what's proven vs. speculative helps you use carnivore effectively without turning it into dogma.</li>
+</ul>
 </div>
-
 <p>The lipid energy model is one of those concepts that changes how you think about carnivore. It's also one of the most misunderstood. Let me break down what it actually is, why it matters, and what the research actually shows.</p>
-
 <h2>What Is the Lipid Energy Model?</h2>
-
 <div class="concept-box">
-    <h4>The Core Idea</h4>
-    <p>The lipid energy model proposes that the body prefers to run on fat, and that fat metabolism is the "natural" state for humans. When you remove carbs and run on fat, your body isn't fighting against its preferred energy system—it's returning to one.</p>
+<h4>The Core Idea</h4>
+<p>The lipid energy model proposes that the body prefers to run on fat, and that fat metabolism is the "natural" state for humans. When you remove carbs and run on fat, your body isn't fighting against its preferred energy system—it's returning to one.</p>
 </div>
-
 <p>The model suggests that fatigue, weight gain, and metabolic issues come from forcing your body to run on carbs when it's built to run on fat. Remove carbs, and your body's natural efficiency returns.</p>
-
 <blockquote class="pull-quote">
 Your body does run very well on fat. That's the core truth. The reasons why are more subtle than the marketing makes it sound.
 </blockquote>
-
 <div class="model-comparison">
-    <h4>How It Differs From Other Models</h4>
-    <table>
-        <tr>
-            <th>Model</th>
-            <th>Core Claim</th>
-        </tr>
-        <tr>
-            <td>Standard Nutrition</td>
-            <td>Calorie balance matters more than fuel source</td>
-        </tr>
-        <tr>
-            <td>Ketogenic Theory</td>
-            <td>Ketones are the key—presence of ketones drives benefits</td>
-        </tr>
-        <tr>
-            <td>Carb-Insulin Model</td>
-            <td>Insulin from carbs causes fat storage</td>
-        </tr>
-        <tr>
-            <td>Lipid Energy Model</td>
-            <td>Body has a preference for fat as primary fuel</td>
-        </tr>
-    </table>
+<h4>How It Differs From Other Models</h4>
+<table>
+<tr>
+<th>Model</th>
+<th>Core Claim</th>
+</tr>
+<tr>
+<td>Standard Nutrition</td>
+<td>Calorie balance matters more than fuel source</td>
+</tr>
+<tr>
+<td>Ketogenic Theory</td>
+<td>Ketones are the key—presence of ketones drives benefits</td>
+</tr>
+<tr>
+<td>Carb-Insulin Model</td>
+<td>Insulin from carbs causes fat storage</td>
+</tr>
+<tr>
+<td>Lipid Energy Model</td>
+<td>Body has a preference for fat as primary fuel</td>
+</tr>
+</table>
 </div>
-
 <h2>What the Research Actually Shows</h2>
-
 <p>Here's where it gets interesting. Some things about the lipid energy model are supported by research. Some are speculation built on a logical foundation.</p>
-
 <div class="evidence-grid">
-    <div class="evidence-card evidence-card--proven">
-        <h4>What We Know (Evidence-Based)</h4>
-        <ul>
-            <li>Humans can absolutely run on fat as primary fuel</li>
-            <li>Ketone bodies are a real, efficient energy source</li>
-            <li>People lose weight removing carbs, even without strict calorie counting</li>
-            <li>Metabolic rate doesn't crash on low-carb the way it does on typical diets</li>
-            <li>Blood sugar stability improves for most people</li>
-        </ul>
-    </div>
-
-    <div class="evidence-card evidence-card--uncertain">
-        <h4>What We're Still Figuring Out</h4>
-        <ul>
-            <li>Whether the body has an actual "preference" for fat vs. just using what's available</li>
-            <li>Whether removing carbs specifically fixes metabolic issues, or weight loss does</li>
-            <li>Whether everyone's metabolism responds the same way</li>
-            <li>Long-term outcomes beyond 2-5 years</li>
-        </ul>
-    </div>
-
-    <div class="evidence-card evidence-card--speculative">
-        <h4>Where It Gets Speculative</h4>
-        <ul>
-            <li>The idea that carbs are fundamentally toxic</li>
-            <li>The claim that insulin is always the problem</li>
-            <li>The assumption that one diet works for everyone</li>
-            <li>"Ancestral" arguments about what humans "should" eat</li>
-        </ul>
-    </div>
+<div class="evidence-card evidence-card--proven">
+<h4>What We Know (Evidence-Based)</h4>
+<ul>
+<li>Humans can absolutely run on fat as primary fuel</li>
+<li>Ketone bodies are a real, efficient energy source</li>
+<li>People lose weight removing carbs, even without strict calorie counting</li>
+<li>Metabolic rate doesn't crash on low-carb the way it does on typical diets</li>
+<li>Blood sugar stability improves for most people</li>
+</ul>
 </div>
-
+<div class="evidence-card evidence-card--uncertain">
+<h4>What We're Still Figuring Out</h4>
+<ul>
+<li>Whether the body has an actual "preference" for fat vs. just using what's available</li>
+<li>Whether removing carbs specifically fixes metabolic issues, or weight loss does</li>
+<li>Whether everyone's metabolism responds the same way</li>
+<li>Long-term outcomes beyond 2-5 years</li>
+</ul>
+</div>
+<div class="evidence-card evidence-card--speculative">
+<h4>Where It Gets Speculative</h4>
+<ul>
+<li>The idea that carbs are fundamentally toxic</li>
+<li>The claim that insulin is always the problem</li>
+<li>The assumption that one diet works for everyone</li>
+<li>"Ancestral" arguments about what humans "should" eat</li>
+</ul>
+</div>
+</div>
 <h2>Why This Matters for You on Carnivore</h2>
-
 <p>Understanding the lipid energy model explains why carnivore works for fat loss and energy for many people. Your body can very efficiently use fat as fuel. When you eat meat and fat exclusively, you're giving your body a fuel source it's genuinely good at using.</p>
-
 <figure class="post-inline-image">
-    <img src="/images/bacon-and-eggs-800w.webp"
-         srcset="/images/bacon-and-eggs-400w.webp 400w, /images/bacon-and-eggs-800w.webp 800w, /images/bacon-and-eggs-1200w.webp 1200w"
-         sizes="(max-width: 600px) 400px, (max-width: 900px) 800px, 1200px"
-         alt="Bacon and eggs - classic carnivore high-fat meal"
-         loading="lazy">
-    <figcaption>Fat and protein together: the practical application of lipid-based metabolism</figcaption>
-</figure>
-
+<img alt="Bacon and eggs - classic carnivore high-fat meal" loading="lazy" sizes="(max-width: 600px) 400px, (max-width: 900px) 800px, 1200px" src="/images/bacon-and-eggs-800w.webp" srcset="/images/bacon-and-eggs-400w.webp 400w, /images/bacon-and-eggs-800w.webp 800w, /images/bacon-and-eggs-1200w.webp 1200w">
+<figcaption>Fat and protein together: the practical application of lipid-based metabolism</figcaption>
+</img></figure>
 <p>That's real. What matters less is whether your body "prefers" fat in some absolute sense, or whether it's just that you're in a calorie deficit and not triggering metabolic adaptation the way restrictive dieting often does.</p>
-
 <p>The practical outcome is the same: You feel better, lose weight, have stable energy. The mechanism is more nuanced than "carbs bad, fat good" but the results are genuine.</p>
-
 <h2>The Individual Part</h2>
-
 <p>Some people thrive on carnivore because their metabolism genuinely responds well to fat-based fuel and removing carbs reduces inflammation. Others thrive because the simplicity removes decision fatigue and they naturally eat at a moderate deficit. Others thrive because removing carbs stops blood sugar swings that were driving hunger.</p>
-
 <p>The lipid energy model explains part of why carnivore works, but not all of it, and probably not equally for everyone.</p>
-
 <h2>One Caution</h2>
-
 <div class="concept-box">
-    <h4>Don't Let the Model Become Dogma</h4>
-    <p>If the lipid energy model becomes your entire belief system, you might miss actual problems. If you're not sleeping well on carnivore, don't assume "your body is adapting." It might be. Or it might be electrolytes, or sleep hygiene, or something else entirely. The model is useful context—not an excuse to ignore data about how you actually feel.</p>
+<h4>Don't Let the Model Become Dogma</h4>
+<p>If the lipid energy model becomes your entire belief system, you might miss actual problems. If you're not sleeping well on carnivore, don't assume "your body is adapting." It might be. Or it might be electrolytes, or sleep hygiene, or something else entirely. The model is useful context—not an excuse to ignore data about how you actually feel.</p>
 </div>
-
 <h2>The Science-Focused Take</h2>
-
 <p>The lipid energy model is a useful mental model that explains why carnivore works for many people. It's supported by evidence in some ways. It's speculative in others. Understanding the parts that are proven and the parts that aren't lets you use carnivore effectively without turning it into dogma.</p>
-
 <p>Your body does run very well on fat. That's the core truth. The reasons why, and whether that's a "preference" or just basic biochemistry, is more subtle than the marketing makes it sound.</p>
-
 <div class="key-takeaways">
-    <h3>Key Takeaways</h3>
-    <ol>
-        <li>The lipid energy model proposes that fat is the body's preferred fuel—some evidence supports this, some remains speculative.</li>
-        <li>What's proven: humans can run efficiently on fat, ketones work as fuel, and metabolic rate doesn't crash on low-carb like it does on typical diets.</li>
-        <li>What's speculative: carbs being "toxic," insulin always being the problem, and one diet working for everyone.</li>
-        <li>Use the model as context, not dogma. If something isn't working, investigate—don't assume "adaptation."</li>
-    </ol>
+<h3>Key Takeaways</h3>
+<ol>
+<li>The lipid energy model proposes that fat is the body's preferred fuel—some evidence supports this, some remains speculative.</li>
+<li>What's proven: humans can run efficiently on fat, ketones work as fuel, and metabolic rate doesn't crash on low-carb like it does on typical diets.</li>
+<li>What's speculative: carbs being "toxic," insulin always being the problem, and one diet working for everyone.</li>
+<li>Use the model as context, not dogma. If something isn't working, investigate—don't assume "adaptation."</li>
+</ol>
 </div>
-
 <p>—Sarah</p>
-
 <p class="post-disclaimer">
-    <em>Not medical advice. This is educational content about metabolic science. Individual responses vary significantly. Work with healthcare providers for personalized guidance.</em>
+<em>Not medical advice. This is educational content about metabolic science. Individual responses vary significantly. Work with healthcare providers for personalized guidance.</em>
 </p>
 
-                </div>
+</div>
 
-                <!-- Wiki Links Section -->
-                <div class="wiki-box">
-                    <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
-                    <span class="wiki-box-links"><a href="/wiki.html#cholesterol" class="wiki-link">cholesterol</a> • <a href="/blog/insulin-resistance-morning-glucose.html" class="wiki-link">insulin resistance</a> • <a href="/wiki.html#fat-adaptation" class="wiki-link">fat adaptation</a></span>
-                </div>
+        <!-- Wiki Links Section -->
 
-                <!-- Post Footer -->
-                <footer class="post-footer">
-                    <!-- Tags -->
-                    <div class="tags">
-                        <span class="tag">science</span>
-                        <span class="tag">metabolism</span>
-                        <span class="tag">education</span>
-                    </div>
+    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
+      <strong style="color: #ffd700;">Related Wiki Topics:</strong><br>
+      <span style="color: #d4a574; font-size: 14px;"><a href="/wiki.html#cholesterol" class="wiki-link">cholesterol</a> • <a href="/wiki.html#insulin-resistance" class="wiki-link">insulin-resistance</a> • <a href="/wiki.html#digestion" class="wiki-link">digestion</a></span>
+    </div>
 
-                    <!-- Comments Section -->
-                    <div class="comments-section">
-                        <h3>Comments</h3>
-                        <script src="https://utteranc.es/client.js"
-                            repo="MikeBrew123/carnivore-weekly"
-                            issue-term="pathname"
-                            theme="github-light"
-                            crossorigin="anonymous"
-                            async>
-                        </script>
-                    </div>
-                </footer>
+        <!-- Featured Videos Section -->
+
+    <div style="background: #2c1810; padding: 20px; border-left: 4px solid #d4a574; margin: 30px 0; border-radius: 4px;">
+      <strong style="color: #ffd700;">📺 Featured This Week:</strong><br>
+
+    <div style="margin-bottom: 20px; padding: 15px; background: #2c1810; border-radius: 4px;">
+      <strong style="color: #ffd700;">If I Started Carnivore in 2026, This is What I'd Do [FULL BLUEPRINT]</strong><br>
+      <span style="color: #d4a574; font-size: 13px;">by Anthony Chaffee MD</span><br>
+      <a href="https://www.youtube.com/watch?v=6ExSc9OdIIA" target="_blank" style="color: #d4a574; text-decoration: underline; font-size: 13px;">Watch on YouTube →</a>
+    </div>
+
+    </div>
+
+        <!-- Product Recommendations Section (Soft Conversion) -->
+
+
+        <!-- Post Footer -->
+        <div class="post-footer">
+            <!-- Tags -->
+            <div class="tags">
+                <span class="tag">{{ tag1 }}</span>
+                <span class="tag">{{ tag2 }}</span>
+                <span class="tag">{{ tag3 }}</span>
+            </div>
+        </div>
+
+        <!-- Post Reactions - Bottom (larger, prominent) -->
+        <div class="post-reactions post-reactions--bottom" data-post-slug="2025-12-20-lipid-energy-model" style="background: #f5f5f0; padding: 30px; border-radius: 12px; margin: 40px 0; text-align: center; border: 2px solid #e0e0e0;">
+            <div class="reactions-header">
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 24px; color: #1a1a1a; margin: 0 0 20px 0;">Was this helpful?</h3>
+            </div>
+
+            <div class="reactions-buttons" style="display: flex; gap: 20px; justify-content: center; align-items: center;">
+                <button class="reaction-btn reaction-btn--up" style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 40px; background: white; border: 3px solid #51cf66; border-radius: 12px; cursor: pointer; font-size: 20px; transition: all 0.2s ease; min-width: 140px;">
+                    <span style="font-size: 48px;">👍</span>
+                    <span class="reaction-count" data-type="up" style="font-weight: 700; color: #1a1a1a; font-size: 20px;">0</span>
+                </button>
+                <button class="reaction-btn reaction-btn--down" style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 40px; background: white; border: 3px solid #ff6b6b; border-radius: 12px; cursor: pointer; font-size: 20px; transition: all 0.2s ease; min-width: 140px;">
+                    <span style="font-size: 48px;">👎</span>
+                    <span class="reaction-count" data-type="down" style="font-weight: 700; color: #1a1a1a; font-size: 20px;">0</span>
+                </button>
+            </div>
+
+            <div class="reactions-thanks" style="display: none; margin-top: 20px;">
+                <p class="thanks-message" style="font-size: 18px; color: #2d5016; font-weight: 600; margin: 0;">✓ Thanks for your feedback!</p>
+            </div>
+        </div>
+        <script src="/js/post-reactions.js" defer></script>
+
+        <!-- Footer -->
 
 <!-- Related Content Component -->
-<section class="related-content" data-content-type="blog" data-content-id="lipid-energy-model">
+<section class="related-content" data-content-type="blog" data-content-id="2025-12-20-lipid-energy-model">
     <h3 class="related-content-title">Related Content</h3>
     <div class="related-content-loading">
         <span class="spinner"></span>
@@ -466,45 +398,87 @@ Your body does run very well on fat. That's the core truth. The reasons why are 
     <div class="related-content-grid" style="display: none;"></div>
 </section>
 
-<script src="/js/related-content.js?v=3" defer></script>
+<script src="/js/related-content.js" defer></script>
 
-<!-- Post Reactions -->
-<div class="post-reactions" data-post-slug="2025-12-20-lipid-energy-model">
-                    <div class="reactions-header">
-                        <h4>Was this helpful?</h4>
-                    </div>
-
-                    <div class="reactions-buttons">
-                        <button class="reaction-btn reaction-btn--up">
-                            <span>👍</span>
-                            <span class="reaction-count" data-type="up">0</span>
-                        </button>
-                        <button class="reaction-btn reaction-btn--down">
-                            <span>👎</span>
-                            <span class="reaction-count" data-type="down">0</span>
-                        </button>
-                    </div>
-
-                    <div class="reactions-thanks" style="display: none;">
-                        <p class="thanks-message">Thanks for your feedback!</p>
-                    </div>
-                </div>
-<script src="/js/post-reactions.js" defer></script>
-</article>
+            </article>
         </main>
     </div>
+    <!-- END Layout Wrapper -->
 
-    <!-- Page Footer -->
-    <footer class="blog-footer">
-        <p>&copy; 2026 Carnivore Weekly |
-           <a href="/the-lab.html">The Lab</a> |
-           <a href="mailto:feedback@carnivoreweekly.com">Contact</a>
-        </p>
-        <p style="margin-top: 10px; font-size: 11px;">
-            Curated with AI • Made with <a href="https://claude.com/claude-code">Claude Code</a>
-        </p>
+    <!-- Site Footer - Direct child of body for full-width -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-8); margin-bottom: var(--space-8);">
+
+                <!-- About Section -->
+                <div>
+                    <h3 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Carnivore Weekly</h3>
+                    <p style="color: var(--color-cream); font-size: var(--text-sm); line-height: var(--leading-relaxed);">
+                        Evidence-based insights, real community stories, and practical protocols for the meat-based movement.
+                    </p>
+                </div>
+
+                <!-- Navigation -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Explore</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/">Home</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/channels.html">Weekly Watch</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/wiki.html">Protocols & Basics</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/blog/">Insights</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/calculator.html">Calculator</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Resources</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/archive.html">Archive</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/about.html">About</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/privacy.html">Privacy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Partners -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Our Partners</h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                        <a href="https://butcherbox.pxf.io/Z6oVMR" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">ButcherBox</a>
+                        <a href="http://elementallabs.refr.cc" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">LMNT</a>
+                    </div>
+                    <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-3);">
+                        Products we personally use and recommend.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Affiliate Disclosure -->
+            <div class="affiliate-footer-disclosure">
+                <strong>Affiliate Disclosure:</strong> Carnivore Weekly partners with brands we trust and personally use.
+                When you purchase through our links, we may earn a commission at no extra cost to you.
+                This supports our free content. We only recommend products that align with our values.
+            </div>
+
+            <!-- Copyright -->
+            <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <p style="color: var(--color-cream); font-size: var(--text-sm); margin: 0;">
+                    &copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.
+                </p>
+            </div>
+        </div>
     </footer>
 
     <script src="/js/mobile-nav.js"></script>
+    <script src="/js/engagement-tracking.js"></script>
+    <script>
+        fetch('/components/feedback-modal.html')
+            .then(response => response.text())
+            .then(html => {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                document.body.appendChild(div);
+            });
+    </script>
 </body>
 </html>
