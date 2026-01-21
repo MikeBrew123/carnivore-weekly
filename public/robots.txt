@@ -1,4 +1,71 @@
-# Carnivore Weekly - Search Engine Crawling Directives
+# Carnivore Weekly - Search Engine & AI Bot Crawling Directives
+
+# AI Search Bots - ALLOW ALL (Critical for GEO)
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+
+# Traditional Search Engines
+User-agent: Googlebot
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /assets/
+Disallow: /css/
+Disallow: /js/
+Disallow: /data/
+
+# Default for all other bots
 User-agent: *
 Allow: /
 Disallow: /assets/
@@ -7,17 +74,12 @@ Disallow: /js/
 Disallow: /data/
 Disallow: /html/
 Disallow: /creators/
-Disallow: /archive/
 Disallow: /*test*.html
 Disallow: /*demo*.html
-Disallow: /*-2026.html
 Disallow: /*-full.html
 
 # Preferred domain
 Host: https://carnivoreweekly.com
-
-# Specific crawl delays (optional, but good practice)
-Crawl-delay: 1
 
 # Sitemap location
 Sitemap: https://carnivoreweekly.com/sitemap.xml
