@@ -328,6 +328,120 @@
             }
         }
     </style>
+
+    <!-- Schema.org Organization with Mentions for GEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Carnivore Weekly",
+      "url": "https://carnivoreweekly.com",
+      "logo": "https://carnivoreweekly.com/images/logo.png",
+      "description": "Evidence-based carnivore diet resources, weekly content curation, and original insights for the meat-based community.",
+      "sameAs": [
+        "https://carnivoreweekly.com"
+      ],
+      "mentions": [
+        {
+          "@type": "Person",
+          "name": "Dr. Shawn Baker",
+          "description": "Orthopedic surgeon and author of The Carnivore Diet",
+          "sameAs": "https://meatrx.com"
+        },
+        {
+          "@type": "Person",
+          "name": "Dr. Paul Saladino",
+          "description": "MD and author of The Carnivore Code",
+          "sameAs": "https://heartandsoil.co"
+        },
+        {
+          "@type": "Person",
+          "name": "Dr. Ken Berry",
+          "description": "Family physician and keto/carnivore advocate",
+          "sameAs": "https://www.youtube.com/@KenDBerryMD"
+        }
+      ]
+    }
+    </script>
+
+    <!-- Schema.org Blog for GEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "Carnivore Weekly Insights",
+      "description": "Evidence-based deep dives on carnivore diet health, performance, and community topics.",
+      "url": "https://carnivoreweekly.com/blog.html",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Carnivore Weekly",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://carnivoreweekly.com/images/logo.png"
+        }
+      },
+      "blogPost": [
+        {
+          "@type": "BlogPosting",
+          "headline": "Carnivore Sleep Hacks: Why Meat-Eaters Sleep Better",
+          "url": "https://carnivoreweekly.com/blog/2026-01-20-carnivore-sleep-hacks.html",
+          "datePublished": "2026-01-20"
+        },
+        {
+          "@type": "BlogPosting",
+          "headline": "Organ Meats: A Skeptic's Guide to Getting Started",
+          "url": "https://carnivoreweekly.com/blog/2026-01-16-organ-meats-skeptics-guide.html",
+          "datePublished": "2026-01-16"
+        },
+        {
+          "@type": "BlogPosting",
+          "headline": "Two Weeks on Carnivore: Real Results from Reddit",
+          "url": "https://carnivoreweekly.com/blog/2026-01-15-two-week-results-reddit.html",
+          "datePublished": "2026-01-15"
+        }
+      ]
+    }
+    </script>
+
+    <!-- Schema.org ItemList for Recent Posts -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Recent Carnivore Diet Articles",
+      "description": "Latest evidence-based insights on the carnivore diet",
+      "numberOfItems": 3,
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "item": {
+            "@type": "Article",
+            "name": "Carnivore Sleep Hacks: Why Meat-Eaters Sleep Better",
+            "url": "https://carnivoreweekly.com/blog/2026-01-20-carnivore-sleep-hacks.html"
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "item": {
+            "@type": "Article",
+            "name": "Organ Meats: A Skeptic's Guide to Getting Started",
+            "url": "https://carnivoreweekly.com/blog/2026-01-16-organ-meats-skeptics-guide.html"
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "item": {
+            "@type": "Article",
+            "name": "Two Weeks on Carnivore: Real Results from Reddit",
+            "url": "https://carnivoreweekly.com/blog/2026-01-15-two-week-results-reddit.html"
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 <body>
     <!-- Skip to main content -->
