@@ -4,11 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Browse past weekly carnivore diet content roundups. Archive of all Carnivore Weekly digests with top videos, trending topics, and community insights.">
+    <meta name="keywords" content="carnivore diet archive, weekly roundup, carnivore videos, meat-based diet history">
+    <meta name="author" content="Carnivore Weekly">
     <link rel="canonical" href="https://carnivoreweekly.com/archive.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://carnivoreweekly.com/archive.html">
+    <meta property="og:title" content="Archive - Carnivore Weekly">
+    <meta property="og:description" content="Browse past weekly carnivore diet content roundups.">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
+
     <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+
     <title>Archive - Carnivore Weekly</title>
 
     <!-- Google Analytics -->
@@ -20,298 +31,263 @@
         gtag('config', 'G-NR4JVKW2JV');
     </script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Consolidated stylesheet -->
+    <link rel="stylesheet" href="/css/global.css">
+
     <style>
-        /* Page-specific styles */
+        /* Archive-specific styles */
+        .archive-header {
+            text-align: center;
+            padding: var(--space-12) 0 var(--space-8);
+        }
+
+        .archive-header h1 {
+            font-family: var(--font-heading);
+            font-size: var(--text-4xl);
+            color: var(--color-oxblood);
+            margin-bottom: var(--space-4);
+        }
+
+        .archive-header p {
+            font-size: var(--text-lg);
+            color: var(--color-text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
         .archive-stats {
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
-            padding: 30px;
-            border-radius: 15px;
-            border: 3px solid #8b4513;
-            margin-bottom: 40px;
+            background: var(--color-cream);
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--color-amber);
+            margin-bottom: var(--space-10);
             text-align: center;
         }
 
         .archive-stats h2 {
-            font-family: 'Playfair Display', serif;
-            color: #1a120b;
-            margin-bottom: 15px;
+            font-family: var(--font-heading);
+            color: var(--color-oxblood);
+            margin-bottom: var(--space-2);
+        }
+
+        .archive-stats p {
+            color: var(--color-text-secondary);
         }
 
         .week-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
-            margin-bottom: 60px;
+            gap: var(--space-6);
+            margin-bottom: var(--space-12);
         }
 
         .week-card {
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
-            border: 3px solid #8b4513;
-            border-radius: 15px;
-            padding: 30px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background: var(--color-white);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
         }
 
         .week-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-amber);
         }
 
         .week-date {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8em;
-            color: #1a120b;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid #8b4513;
+            font-family: var(--font-heading);
+            font-size: var(--text-xl);
+            color: var(--color-oxblood);
+            margin-bottom: var(--space-3);
+            padding-bottom: var(--space-3);
+            border-bottom: 2px solid var(--color-amber);
         }
 
         .week-meta {
-            font-size: 0.95em;
-            color: #2c1810;
-            margin-bottom: 15px;
-            opacity: 0.8;
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-3);
         }
 
         .week-preview {
-            font-size: 1em;
-            color: #1a120b;
-            line-height: 1.7;
-            margin-bottom: 20px;
+            font-size: var(--text-base);
+            color: var(--color-text-secondary);
+            line-height: var(--leading-relaxed);
+            margin-bottom: var(--space-4);
         }
 
         .week-link {
             display: inline-block;
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
-            color: #f4e4d4;
-            padding: 12px 25px;
-            border-radius: 8px;
+            background: var(--color-oxblood);
+            color: var(--color-white);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
             text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
+            font-weight: 600;
+            font-size: var(--text-sm);
+            transition: all 0.2s ease;
         }
 
         .week-link:hover {
-            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
+            background: var(--color-charcoal);
             transform: translateY(-2px);
-        }
-
-        .back-link {
-            display: inline-block;
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
-            color: #1a120b;
-            padding: 15px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 700;
-            border: 2px solid #8b4513;
-            margin: 40px 0;
-            transition: all 0.3s;
-        }
-
-        .back-link:hover {
-            background: linear-gradient(135deg, #c49a6c 0%, #b8936a 100%);
-            transform: translateY(-2px);
-        }
-
-        /* Feedback Button */
-        .feedback-btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #8b4513 0%, #6d3819 100%);
-            color: #f4e4d4;
-            padding: 12px 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 700;
-            border: 2px solid #d4a574;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            margin: 20px 0;
-        }
-
-        .feedback-btn:hover {
-            background: linear-gradient(135deg, #6d3819 0%, #5a2d14 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-        }
-
-        .feedback-btn-small {
-            font-size: 0.9em;
-            padding: 10px 20px;
-        }
-
-        .feedback-side {
-            position: fixed;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%) rotate(-90deg);
-            transform-origin: right center;
-            z-index: 1000;
         }
 
         @media (max-width: 768px) {
-            .feedback-side {
-                display: none;
-            }
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px;
-            color: #d4a574;
-            border-top: 3px solid #8b4513;
-            margin-top: 60px;
-        }
-
-        footer a {
-            color: #d4a574;
-            text-decoration: none;
-            border-bottom: 2px solid #8b4513;
-        }
-
-        /* Navigation Menu */
-        .nav-menu {
-            background: linear-gradient(135deg, #d4a574 0%, #c49a6c 100%);
-            border: 3px solid #8b4513;
-            border-left: none;
-            border-right: none;
-            padding: 20px 0;
-            margin-bottom: 50px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3), 0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        .nav-menu a {
-            color: #1a120b;
-            text-decoration: none;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1em;
-            font-weight: 700;
-            padding: 10px 20px;
-            margin: 0 5px;
-            display: inline-block;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-            letter-spacing: 1px;
-        }
-
-        .nav-menu a:hover {
-            border-bottom-color: #8b4513;
-            transform: translateY(-2px);
-        }
-
-        .nav-menu a.active {
-            border-bottom-color: #8b4513;
-        }
-
-        @media (max-width: 768px) {
-            .logo {
-                max-width: 200px;
-                top: 15px;
-                right: 5px;
-            }
-
-            header h1 {
-                font-size: 2em;
-            }
-
             .week-grid {
                 grid-template-columns: 1fr;
             }
-        }
 
-        /* Center header subtitle */
-        header p {
-            text-align: center;
+            .archive-header h1 {
+                font-size: var(--text-3xl);
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <img src="images/logo.png" alt="Carnivore Weekly Logo" class="logo">
-            <h1>ARCHIVE</h1>
-            <p class="subtitle">Browse Past Weekly Roundups</p>
+    <!-- HEADER -->
+    <header class="header-2026">
+        <div class="container-2026">
+            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <h1>CARNIVORE WEEKLY</h1>
+            <p class="subtitle">The Meat-Eater's Digest</p>
+            <p class="tagline">Premium Cuts of Carnivore Content</p>
         </div>
     </header>
 
-    <!-- Navigation Menu -->
-    <nav class="nav-menu">
-        <a href="index.html">Home</a>
-        <a href="channels.html">Channels</a>
-        <a href="wiki.html">Wiki</a>
-        <a href="blog.html">Blog</a>
-        <a href="calculator.html">Calculator</a>
-        <a href="archive.html" class="active">Archive</a>
-        <a href="about.html">About</a>
+    <!-- NAVIGATION -->
+    <nav class="nav-menu-2026">
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Weekly Watch</a>
+        <a href="/wiki.html">Protocols & Basics</a>
+        <a href="/blog.html">Insights</a>
+        <a href="/calculator.html">Calculator</a>
     </nav>
 
-    <!-- Fixed Side Feedback Button -->
-    <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn feedback-side feedback-btn-small">
-        💬 Feedback
-    </a>
+    <!-- MAIN CONTENT -->
+    <main class="site-content" role="main">
+        <div class="container">
 
-    <div class="container">
-        <div class="archive-stats">
-            <h2>2 Weeks of Carnivore Content</h2>
-            <p>Every Monday, we curate the best carnivore diet content from YouTube. Browse past weeks below.</p>
-        </div>
-
-        <div class="week-grid">
-            
-            <div class="week-card">
-                <a href="archive/2025-12-30.html" style="text-decoration: none; color: inherit;">
-                    <div class="week-date">Week of 2025-12-30</div>
-                </a>
-                <div class="week-meta">
-                    5 Creators • 5 Videos
-                </div>
-                <div class="week-preview">
-                    Hey friend, how are you feeling as we head into 2026? This week in the carnivore space has been all about fresh starts and honest conversations. I'm s
-                </div>
-                <a href="archive/2025-12-30.html" class="week-link">View Full Roundup →</a>
+            <div class="archive-header">
+                <h1>Archive</h1>
+                <p>Browse past weekly roundups. Every Monday, we curate the best carnivore diet content from YouTube.</p>
             </div>
-            
-            <div class="week-card">
-                <a href="archive/2025-12-26.html" style="text-decoration: none; color: inherit;">
-                    <div class="week-date">Week of 2025-12-26</div>
-                </a>
-                <div class="week-meta">
-                    6 Creators • 6 Videos
-                </div>
-                <div class="week-preview">
-                    The carnivore community's growing up. Weight loss and health transformations still matter—that hasn't changed. But this week, creators dug into the ha
-                </div>
-                <a href="archive/2025-12-26.html" class="week-link">View Full Roundup →</a>
+
+            <div class="archive-stats">
+                <h2>3 Weeks of Carnivore Content</h2>
+                <p>Top videos, trending topics, and community insights from the meat-based world.</p>
             </div>
-            
+
+            <div class="week-grid">
+
+                <div class="week-card">
+                    <a href="/archive/2026-01-20.html" style="text-decoration: none; color: inherit;">
+                        <div class="week-date">Week of January 20, 2026</div>
+                    </a>
+                    <div class="week-meta">6 Creators &bull; 6 Videos</div>
+                    <div class="week-preview">
+                        Okay, so this week the carnivore community is getting real about where we're actually buying our meat. Steak and Butter Gal dropped a video calling out Whole Foods...
+                    </div>
+                    <a href="/archive/2026-01-20.html" class="week-link">View Full Roundup</a>
+                </div>
+
+                <div class="week-card">
+                    <a href="/archive/2025-12-30.html" style="text-decoration: none; color: inherit;">
+                        <div class="week-date">Week of December 30, 2025</div>
+                    </a>
+                    <div class="week-meta">5 Creators &bull; 5 Videos</div>
+                    <div class="week-preview">
+                        Hey friend, how are you feeling as we head into 2026? This week in the carnivore space has been all about fresh starts and honest conversations...
+                    </div>
+                    <a href="/archive/2025-12-30.html" class="week-link">View Full Roundup</a>
+                </div>
+
+                <div class="week-card">
+                    <a href="/archive/2025-12-26.html" style="text-decoration: none; color: inherit;">
+                        <div class="week-date">Week of December 26, 2025</div>
+                    </a>
+                    <div class="week-meta">6 Creators &bull; 6 Videos</div>
+                    <div class="week-preview">
+                        The carnivore community's growing up. Weight loss and health transformations still matter—that hasn't changed. But this week, creators dug into the harder questions...
+                    </div>
+                    <a href="/archive/2025-12-26.html" class="week-link">View Full Roundup</a>
+                </div>
+
+            </div>
+
         </div>
+    </main>
 
-    </div>
+    <!-- FOOTER -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-8); margin-bottom: var(--space-8);">
 
-    <!-- Bottom Navigation Menu -->
-    <nav class="nav-menu" style="margin-top: 60px;">
-        <a href="index.html">Home</a>
-        <a href="blog.html">Blog</a>
-        <a href="archive.html" class="active">Archive</a>
-        <a href="channels.html">Channels</a>
-        <a href="about.html">About</a>
-    </nav>
+                <!-- About Section -->
+                <div>
+                    <h3 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Carnivore Weekly</h3>
+                    <p style="color: var(--color-cream); font-size: var(--text-sm); line-height: var(--leading-relaxed);">
+                        Evidence-based insights, real community stories, and practical protocols for the meat-based movement.
+                    </p>
+                </div>
 
-    <footer>
-        <p>Carnivore Weekly - Your Weekly Digest</p>
-        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">Browse all past weekly roundups</p>
-        <p style="margin-top: 30px;">
-            <a href="https://forms.gle/RTzpnv4PvaP1TEZt7" target="_blank" rel="noopener noreferrer" class="feedback-btn">
-                💬 Share Your Feedback
-            </a>
-        </p>
-        <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.7;">
-            <a href="privacy.html" style="color: #8b4513; text-decoration: none;">Privacy Policy</a>
-        </p>
+                <!-- Navigation -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Explore</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/">Home</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/channels.html">Weekly Watch</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/wiki.html">Protocols & Basics</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/blog/">Insights</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/calculator.html">Calculator</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Resources</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/archive.html">Archive</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/the-lab.html">The Lab</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/privacy.html">Privacy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Partners -->
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Our Partners</h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                        <a href="https://butcherbox.pxf.io/Z6oVMR" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">ButcherBox</a>
+                        <a href="http://elementallabs.refr.cc" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">LMNT</a>
+                    </div>
+                    <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-3);">
+                        Products we personally use and recommend.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Affiliate Disclosure -->
+            <div class="affiliate-footer-disclosure">
+                <strong>Affiliate Disclosure:</strong> Carnivore Weekly partners with brands we trust and personally use.
+                When you purchase through our links, we may earn a commission at no extra cost to you.
+                This supports our free content. We only recommend products that align with our values.
+            </div>
+
+            <!-- Copyright -->
+            <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <p style="color: var(--color-cream); font-size: var(--text-sm); margin: 0;">
+                    &copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.
+                </p>
+            </div>
+        </div>
     </footer>
+
+    <script src="/js/mobile-nav.js"></script>
+    <script src="/js/engagement-tracking.js"></script>
 </body>
 </html>

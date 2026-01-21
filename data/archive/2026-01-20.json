@@ -1,0 +1,161 @@
+{
+  "analysis_date": "2026-01-20",
+  "analysis_timestamp": "2026-01-20T12:00:00.000000",
+  "source_data": {
+    "collection_date": "2026-01-20",
+    "total_creators": 6,
+    "total_videos": 6,
+    "search_query": "carnivore diet"
+  },
+  "analysis": {
+    "weekly_summary": "Okay, so this week the carnivore community is getting real about where we're actually buying our meat. Steak and Butter Gal dropped a video calling out Whole Foods with \"7 Meats I'll NEVER Buy Here Again!\" and honestly, it's the kind of content we need right now. She's basically saying just because something's at a \"health food\" store doesn't mean it's actually good for you, and she's not wrong.\n\nHere's what's buzzing: It's this ongoing conversation about sourcing. We're past the \"just eat meat\" phase and deep into \"but WHERE is your meat coming from?\" territory. The bigger picture? Our community's maturing. We're not just defending the diet anymore, we're refining it. We're asking harder questions about supply chains, processing, and what \"quality\" actually means.\n\n-Chloe",
+    "trending_topics": [
+      {
+        "topic": "Whole Foods Meat Quality Exposed",
+        "description": "Steak and Butter Gal called out specific products at Whole Foods that carnivores should avoid. The community is shifting toward questioning \"organic\" labels and digging deeper into actual sourcing.",
+        "mentioned_by": [
+          "Steak and Butter Gal"
+        ]
+      },
+      {
+        "topic": "Carnivore Fatigue Solutions",
+        "description": "Multiple creators addressed why people feel tired on carnivore, pointing to electrolyte imbalances and mineral shifts during adaptation. Practical fixes getting attention.",
+        "mentioned_by": [
+          "Steak and Butter Gal",
+          "Sarah (Carnivore Weekly)"
+        ]
+      },
+      {
+        "topic": "Beef Tallow Beyond Cooking",
+        "description": "Coach Cam showed beef tallow soap as a skincare hack, sparking interest in using animal fats for more than just food. Traditional practices making a comeback.",
+        "mentioned_by": [
+          "Coach Cam"
+        ]
+      },
+      {
+        "topic": "Seed Oil Skepticism Grows",
+        "description": "Max German challenged a butter study, reinforcing community distrust of mainstream nutrition research. Seed oils remain the community's top enemy.",
+        "mentioned_by": [
+          "Max German"
+        ]
+      },
+      {
+        "topic": "Simple Carnivore Meal Prep",
+        "description": "Laura Spath shared a full week of carnivore meals, proving that this lifestyle can fit into busy schedules without complicated cooking.",
+        "mentioned_by": [
+          "Laura Spath"
+        ]
+      }
+    ],
+    "top_videos": [
+      {
+        "video_id": "NeDzFv6ZORU",
+        "channel_id": "UCsteakbuttergal",
+        "title": "Whole Foods EXPOSED: 7 Meats I'll NEVER Buy Here Again!",
+        "creator": "Steak and Butter Gal",
+        "views": 45000,
+        "published_at": "2026-01-18T14:00:00Z",
+        "why_notable": "Eye-opening breakdown of Whole Foods meat products that carnivores should avoid. Steak and Butter Gal exposes how 'organic' labels can be misleading and offers practical alternatives.",
+        "summary": "This video reveals which meat products at Whole Foods are actually processed junk masquerading as health food, with specific swaps and alternatives including raw dairy from Miller's Bio Farm and pasture-raised options through EatWild.",
+        "tags": ["sourcing", "quality", "shopping"],
+        "comment_sentiment": {
+          "positive_percent": 85,
+          "negative_percent": 5,
+          "neutral_percent": 10,
+          "overall": "positive",
+          "summary": "Viewers appreciate the practical advice and label-reading tips."
+        }
+      },
+      {
+        "video_id": "Id_2bTdzXxY",
+        "channel_id": "UCsteakbuttergal",
+        "title": "Here's Why You're Always Tired on Carnivore",
+        "creator": "Steak and Butter Gal",
+        "views": 38000,
+        "published_at": "2026-01-17T12:00:00Z",
+        "why_notable": "Addresses the biggest mystery for carnivore beginners - fatigue during adaptation. Practical electrolyte and mineral guidance.",
+        "summary": "Breaks down why so many people feel exhausted when switching to meat-based eating, explaining crucial electrolyte and mineral shifts that most folks miss, with targeted nutrition strategies.",
+        "tags": ["adaptation", "electrolytes", "beginners"],
+        "comment_sentiment": {
+          "positive_percent": 80,
+          "negative_percent": 5,
+          "neutral_percent": 15,
+          "overall": "positive",
+          "summary": "Many viewers report this solved their energy issues."
+        }
+      },
+      {
+        "video_id": "tIRNLIoyB08",
+        "channel_id": "UCcoachcam",
+        "title": "Proper Healthy Burger, Fries & Milkshake",
+        "creator": "Coach Cam",
+        "views": 52000,
+        "published_at": "2026-01-16T10:00:00Z",
+        "why_notable": "Proves carnivore eating doesn't have to feel like punishment. Shows how to enjoy serious flavor while keeping things clean.",
+        "summary": "Coach Cam demonstrates a carnivore-friendly burger setup that rewrites the rulebook on what healthy food looks like, making the diet look seriously appetizing.",
+        "tags": ["recipes", "lifestyle", "practical"],
+        "comment_sentiment": {
+          "positive_percent": 90,
+          "negative_percent": 2,
+          "neutral_percent": 8,
+          "overall": "positive",
+          "summary": "Viewers love the approachable take on carnivore cooking."
+        }
+      },
+      {
+        "video_id": "BLvVSvGfWUo",
+        "channel_id": "UCcoachcam",
+        "title": "3 Reasons I Use Beef Tallow Soap",
+        "creator": "Coach Cam",
+        "views": 28000,
+        "published_at": "2026-01-15T14:00:00Z",
+        "why_notable": "Explores beef tallow as a skincare solution, showing how animal products extend beyond food into wellness.",
+        "summary": "Demonstrates how beef tallow soap can nourish skin with nutrient density, appealing to those looking to cut chemical additives from their routine.",
+        "tags": ["lifestyle", "skincare", "tallow"],
+        "comment_sentiment": {
+          "positive_percent": 75,
+          "negative_percent": 10,
+          "neutral_percent": 15,
+          "overall": "positive",
+          "summary": "Curious viewers interested in trying it for sensitive skin."
+        }
+      },
+      {
+        "video_id": "h8SxrBj4Pks",
+        "channel_id": "UCmaxgerman",
+        "title": "This Carnivore Food Is Deadlier Than Seed Oils",
+        "creator": "Max German",
+        "views": 62000,
+        "published_at": "2026-01-14T16:00:00Z",
+        "why_notable": "Challenges a misleading nutrition study trying to demonize butter. Reinforces community stance against seed oils.",
+        "summary": "Max German dissects how researchers manipulate statistics to push anti-butter narratives, defending grass-fed butter as a nutrient-dense food humans have eaten for centuries.",
+        "tags": ["science", "debunking", "seed-oils"],
+        "comment_sentiment": {
+          "positive_percent": 85,
+          "negative_percent": 5,
+          "neutral_percent": 10,
+          "overall": "positive",
+          "summary": "Community rallies behind the seed-oil skepticism."
+        }
+      },
+      {
+        "video_id": "Qayv4DcOHvU",
+        "channel_id": "UClauraspath",
+        "title": "What I Eat: A Full Week of Carnivore Diet Meals - 2026",
+        "creator": "Laura Spath",
+        "views": 41000,
+        "published_at": "2026-01-13T11:00:00Z",
+        "why_notable": "Real-world meal blueprint showing carnivore can fit into a busy schedule without complicated cooking.",
+        "summary": "Laura shares a practical week of carnivore eating with simple meal prep and straightforward protein choices that don't require a culinary degree or massive budget.",
+        "tags": ["meal-prep", "practical", "budget"],
+        "comment_sentiment": {
+          "positive_percent": 88,
+          "negative_percent": 2,
+          "neutral_percent": 10,
+          "overall": "positive",
+          "summary": "Viewers appreciate the sustainable, non-perfectionist approach."
+        }
+      }
+    ]
+  }
+}
