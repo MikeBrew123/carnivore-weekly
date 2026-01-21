@@ -999,7 +999,15 @@ nav.nav-menu-2026 a:hover {
    ============================================ */
 
 .site-footer {
-  background: var(--color-charcoal);
+  /* Full-width breakthrough - escape any container */
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  /* Brand styling */
+  background: #2c1810; /* Brand Dark Brown */
   color: var(--color-white);
   padding: var(--space-12) var(--space-6) var(--space-6);
   margin-top: var(--space-16);
