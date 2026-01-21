@@ -989,6 +989,24 @@
                     </div>
 
                     <!-- PROTEIN TARGETS BY GOAL - GEO/SEO Comparison Table -->
+                    <style>
+                        .protein-table { width: 100%; border-collapse: collapse; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 16px; }
+                        .protein-table th, .protein-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #d4a574; }
+                        .protein-table th { background: #8b4513; color: #f4e4d4; font-weight: 600; border-bottom: 2px solid #6b3410; }
+                        .protein-table tr:nth-child(odd) { background: #f4e4d4; }
+                        .protein-table tr:nth-child(even) { background: #faf6f0; }
+                        .protein-table td:first-child { font-weight: 600; color: #8b4513; }
+                        @media (max-width: 768px) {
+                            .protein-table, .protein-table thead, .protein-table tbody, .protein-table th, .protein-table td, .protein-table tr { display: block; }
+                            .protein-table thead { display: none; }
+                            .protein-table tr { margin-bottom: 16px; border: 1px solid #d4a574; border-radius: 8px; overflow: hidden; }
+                            .protein-table td { padding: 12px 16px; border-bottom: 1px solid #d4a574; position: relative; padding-left: 50%; }
+                            .protein-table td:last-child { border-bottom: none; }
+                            .protein-table td::before { content: attr(data-label); position: absolute; left: 16px; font-weight: 600; color: #8b4513; }
+                            .protein-table td:first-child { background: #8b4513; color: #f4e4d4; font-weight: 700; padding-left: 16px; font-size: 18px; }
+                            .protein-table td:first-child::before { display: none; }
+                        }
+                    </style>
                     <section class="protein-targets-table" style="background: rgba(139, 69, 19, 0.05); border-left: 4px solid #8b4513; padding: 30px; margin: 40px 0; border-radius: 4px;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: #8b4513; margin-top: 0; margin-bottom: 16px;">Protein Targets by Goal</h3>
 
@@ -997,39 +1015,39 @@
                         </p>
 
                         <div style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 16px;">
+                            <table class="protein-table">
                                 <thead>
-                                    <tr style="background: #8b4513; color: #f4e4d4;">
-                                        <th style="padding: 14px 16px; text-align: left; font-weight: 600; border-bottom: 2px solid #6b3410;">Goal</th>
-                                        <th style="padding: 14px 16px; text-align: left; font-weight: 600; border-bottom: 2px solid #6b3410;">Protein Target</th>
-                                        <th style="padding: 14px 16px; text-align: left; font-weight: 600; border-bottom: 2px solid #6b3410;">Fat Target</th>
-                                        <th style="padding: 14px 16px; text-align: left; font-weight: 600; border-bottom: 2px solid #6b3410;">Example (180 lb person)</th>
+                                    <tr>
+                                        <th>Goal</th>
+                                        <th>Protein Target</th>
+                                        <th>Fat Target</th>
+                                        <th>Example (180 lb)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr style="background: #f4e4d4;">
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; font-weight: 600; color: #8b4513;">Fat Loss</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">1.0-1.2g/lb lean mass</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">Fill remaining calories</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">140-168g protein, ~100g fat</td>
+                                    <tr>
+                                        <td>Fat Loss</td>
+                                        <td data-label="Protein:">1.0-1.2g/lb lean mass</td>
+                                        <td data-label="Fat:">Fill remaining calories</td>
+                                        <td data-label="Example:">140-168g protein, ~100g fat</td>
                                     </tr>
-                                    <tr style="background: #faf6f0;">
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; font-weight: 600; color: #8b4513;">Muscle Gain</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">1.2-1.6g/lb lean mass</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">Surplus of 300-500 cal</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">168-224g protein, ~130g fat</td>
+                                    <tr>
+                                        <td>Muscle Gain</td>
+                                        <td data-label="Protein:">1.2-1.6g/lb lean mass</td>
+                                        <td data-label="Fat:">Surplus of 300-500 cal</td>
+                                        <td data-label="Example:">168-224g protein, ~130g fat</td>
                                     </tr>
-                                    <tr style="background: #f4e4d4;">
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; font-weight: 600; color: #8b4513;">Maintenance</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">0.8-1.0g/lb lean mass</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">To satiety</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">112-140g protein, ~120g fat</td>
+                                    <tr>
+                                        <td>Maintenance</td>
+                                        <td data-label="Protein:">0.8-1.0g/lb lean mass</td>
+                                        <td data-label="Fat:">To satiety</td>
+                                        <td data-label="Example:">112-140g protein, ~120g fat</td>
                                     </tr>
-                                    <tr style="background: #faf6f0;">
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; font-weight: 600; color: #8b4513;">Athletic Performance</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">1.4-1.8g/lb lean mass</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">Higher; carb-cycling optional</td>
-                                        <td style="padding: 14px 16px; border-bottom: 1px solid #d4a574; color: #333;">196-252g protein, variable fat</td>
+                                    <tr>
+                                        <td>Athletic Performance</td>
+                                        <td data-label="Protein:">1.4-1.8g/lb lean mass</td>
+                                        <td data-label="Fat:">Higher; carb-cycling optional</td>
+                                        <td data-label="Example:">196-252g protein, variable fat</td>
                                     </tr>
                                 </tbody>
                             </table>
