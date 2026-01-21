@@ -24,9 +24,12 @@ Carnivore Weekly automatically:
 🔗 **https://carnivoreweekly.com**
 
 - **Home** - Current week's roundup
-- **About** - Story and mission
+- **Weekly Watch** - Top creators ranked by activity
+- **Protocols & Basics (Wiki)** - Carnivore diet fundamentals
+- **Insights (Blog)** - Original articles and guides
+- **Calculator** - Personalized macro calculator
 - **Archive** - Browse past weeks
-- **Channels** - Top creators ranked by activity
+- **The Lab** - Story and mission
 
 ---
 
@@ -96,18 +99,23 @@ carnivore-weekly/
 ├── templates/
 │   ├── index_template.html       # Main page template
 │   ├── archive_template.html     # Archive page
-│   ├── channels_template.html    # Channels page
-│   └── about.html                # About page
+│   ├── channels_template.html    # Weekly Watch page
+│   ├── blog_index_template.html  # Blog index
+│   └── blog_post_template_2026.html # Blog post template
 ├── data/
 │   ├── youtube_data.json         # Collected videos
 │   ├── analyzed_content.json     # AI analysis
 │   └── archive/                  # Past weeks
 ├── public/
 │   ├── index.html                # Generated homepage
+│   ├── channels.html             # Weekly Watch page
+│   ├── wiki.html                 # Protocols & Basics
+│   ├── blog.html                 # Blog index
+│   ├── calculator.html           # Macro calculator
+│   ├── the-lab.html              # Story and mission
 │   ├── archive.html              # Archive index
-│   ├── channels.html             # Channels page
-│   ├── about.html                # About page
-│   └── archive/                  # Individual weeks
+│   ├── archive/                  # Individual weeks
+│   └── blog/                     # Blog posts
 ├── .github/workflows/
 │   └── update.yml                # GitHub Actions automation
 └── run_weekly_update.sh          # Main automation script
@@ -200,15 +208,19 @@ Or set it to run automatically every Monday at 9 AM EST (see `update.yml`).
 - [x] Q&A section with scientific citations
 - [x] HTML generation with Jinja2 templates
 - [x] Archive system (saves past weeks)
-- [x] Channel ranking page
+- [x] Weekly Watch (channel rankings)
+- [x] Wiki (protocols & basics)
+- [x] Blog with original content
+- [x] Macro calculator (free, no email required)
 - [x] Responsive leather-themed design
 - [x] GitHub Actions automation
 - [x] GitHub Pages deployment
 - [x] Google Analytics tracking
-- [x] Affiliate link integration (Amazon, ButcherBox pending)
+- [x] Affiliate links (Amazon, ButcherBox, LMNT)
 - [x] Phone trigger via GitHub mobile app
 - [x] Medical disclaimer
-- [x] About page with authentic story
+- [x] GEO optimization (Schema.org markup for AI search visibility)
+- [x] robots.txt configured for AI bots (SearchGPT, Perplexity, etc.)
 
 ### 🎯 Future Ideas
 
@@ -226,8 +238,9 @@ Or set it to run automatically every Monday at 9 AM EST (see `update.yml`).
 
 ### Current Setup
 
-- **Amazon Associates** - Affiliate links for carnivore products (LMNT, cookware)
-- **ButcherBox** - Pending approval via Impact.com
+- **Amazon Associates** - Affiliate links for books and products
+- **ButcherBox** - Meat delivery partner
+- **LMNT** - Electrolyte partner
 - **Google Analytics** - Tracking visitors and affiliate clicks
 
 ### Potential Revenue
@@ -407,5 +420,5 @@ MIT License - Do whatever you want with this code!
 
 ---
 
-**Last Updated:** December 26, 2025
+**Last Updated:** January 20, 2026
 **Status:** ✅ Live and automated
