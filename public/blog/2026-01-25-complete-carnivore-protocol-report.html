@@ -111,24 +111,48 @@
         gtag('js', new Date());
         gtag('config', 'G-NR4JVKW2JV');
     </script>
+    <!-- Google Fonts for premium editorial feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600;700;900&display=swap" rel="stylesheet">
+
     <style>
-        /* 2026 Brand Colors - Comprehensive Styling */
+        /* ============================================
+           PREMIUM EDITORIAL SALES PAGE STYLES
+           Carnivore Weekly - Complete Protocol
+           ============================================ */
+
+        :root {
+            --cw-gold: #ffd700;
+            --cw-gold-light: #ffed4a;
+            --cw-brown: #8b4513;
+            --cw-brown-dark: #6b3410;
+            --cw-brown-darker: #2c1810;
+            --cw-cream: #f4e4d4;
+            --cw-cream-light: #faf6f0;
+            --cw-burgundy: #6A1B1B;
+            --cw-text: #1a120b;
+            --cw-success: #2d5016;
+            --font-display: 'Libre Baskerville', Georgia, serif;
+            --font-body: 'Source Sans 3', -apple-system, sans-serif;
+        }
 
         /* Global link styling */
-        a { color: #d4a574 !important;
+        a {
+            color: #d4a574 !important;
             text-decoration: underline;
             transition: color 0.2s ease;
         }
 
         a:hover {
-            color: #ffd700;
+            color: var(--cw-gold);
             text-decoration: underline;
         }
 
-        /* Navigation menu styling - override main stylesheet for light backgrounds */
+        /* Navigation menu styling */
         .nav-menu-2026,
         nav.nav-menu-2026 {
-            background: #2c1810 !important;
+            background: var(--cw-brown-darker) !important;
             padding: 15px 0 !important;
             display: flex !important;
             justify-content: center !important;
@@ -138,7 +162,6 @@
         body .nav-menu-2026 a,
         nav.nav-menu-2026 a {
             color: #d4a574 !important;
-            border-bottom-color: #d4a574 !important;
             font-weight: 700 !important;
             text-decoration: none !important;
             padding: 5px 10px !important;
@@ -148,135 +171,602 @@
 
         body .nav-menu-2026 a:hover,
         nav.nav-menu-2026 a:hover {
-            color: #ffd700 !important;
-            border-bottom-color: #ffd700 !important;
+            color: var(--cw-gold) !important;
+            border-bottom-color: var(--cw-gold) !important;
         }
 
-        /* Headings - ensure visual hierarchy */
-        h1, h2, h3, h4, h5, h6 { color: #6A1B1B !important;
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--cw-burgundy) !important;
+            font-family: var(--font-display);
         }
 
         header h1 { color: #d4a574 !important; }
 
-        /* Override stylesheet for light theme background */
-        .post-content {
-            color: #1a120b !important;
-        }
-
-        .post-content p {
-            color: #1a120b !important;
-        }
-
-        .post-content li {
-            color: #1a120b !important;
-        }
-
-        article {
-            color: #1a120b !important;
+        .post-content, .post-content p, .post-content li, article {
+            color: var(--cw-text) !important;
+            font-family: var(--font-body);
+            font-size: 18px;
+            line-height: 1.7;
         }
 
         /* Post header styling */
         .post-header {
             margin-bottom: 40px;
-            border-bottom: 2px solid #8b4513;
+            border-bottom: 2px solid var(--cw-brown);
             padding-bottom: 20px;
         }
 
-        /* Post author bio styling */
         .post-author-bio {
             background-color: transparent;
-            color: #1a120b;
+            color: var(--cw-text);
             padding: 15px;
-            border-left: 4px solid #8b4513;
+            border-left: 4px solid var(--cw-brown);
             border-radius: 4px;
             margin: 15px 0;
         }
 
         .post-author-bio strong {
-            color: #6A1B1B;
+            color: var(--cw-burgundy);
         }
 
-        /* Post meta information */
         .post-meta {
             color: #d4a574 !important;
             font-size: 14px;
+            font-family: var(--font-body);
         }
 
-        /* CTA Boxes */
-        .cta-box-urgent {
-            background: linear-gradient(135deg, #8b4513 0%, #6b3410 100%);
-            color: #f4e4d4;
-            padding: 40px;
-            border-radius: 12px;
-            text-align: center;
+        /* ============================================
+           TL;DR BOX - Quick-scan urgency
+           ============================================ */
+        .tldr-box {
+            background: linear-gradient(135deg, var(--cw-cream-light) 0%, #fff 100%);
+            border: 3px solid var(--cw-gold);
+            border-radius: 16px;
+            padding: 32px;
             margin: 40px 0;
-            box-shadow: 0 8px 32px rgba(139, 69, 19, 0.3);
+            position: relative;
+            box-shadow: 0 4px 24px rgba(139, 69, 19, 0.1);
+        }
+
+        .tldr-box::before {
+            content: '⚡';
+            position: absolute;
+            top: -16px;
+            left: 24px;
+            background: var(--cw-gold);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .tldr-box h3 {
+            font-family: var(--font-body) !important;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--cw-brown) !important;
+            margin: 0 0 20px 0;
+        }
+
+        .tldr-box ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .tldr-box li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+            font-size: 17px;
+        }
+
+        .tldr-box li:last-child {
+            border-bottom: none;
+        }
+
+        .tldr-box li strong {
+            color: var(--cw-burgundy);
+        }
+
+        /* ============================================
+           CTA BOXES - Premium urgency design
+           ============================================ */
+        .cta-box-urgent {
+            background: linear-gradient(145deg, var(--cw-brown) 0%, var(--cw-brown-dark) 50%, var(--cw-brown-darker) 100%);
+            color: var(--cw-cream);
+            padding: 48px 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 50px 0;
+            box-shadow:
+                0 20px 60px rgba(44, 24, 16, 0.4),
+                0 0 0 1px rgba(255, 215, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box-urgent::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.05), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(50%); }
         }
 
         .cta-box-urgent h3 {
-            color: #ffd700 !important;
+            color: var(--cw-gold) !important;
+            font-family: var(--font-display);
             font-size: 28px;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
+            position: relative;
         }
 
         .cta-box-urgent p {
-            color: #f4e4d4 !important;
+            color: var(--cw-cream) !important;
+            font-family: var(--font-body);
             font-size: 18px;
             margin-bottom: 24px;
+            opacity: 0.9;
         }
 
-        .cta-box-urgent .price-highlight {
-            font-size: 48px;
-            font-weight: 900;
-            color: #ffd700;
-            display: block;
-            margin: 20px 0;
+        .cta-box-urgent .price-container {
+            margin: 24px 0;
         }
 
         .cta-box-urgent .price-future {
             text-decoration: line-through;
-            opacity: 0.7;
-            font-size: 24px;
+            opacity: 0.5;
+            font-size: 28px;
+            font-family: var(--font-body);
+            font-weight: 400;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .cta-box-urgent .price-highlight {
+            font-size: 64px;
+            font-weight: 900;
+            font-family: var(--font-body);
+            color: var(--cw-gold);
+            display: block;
+            line-height: 1;
+            text-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
         }
 
         .cta-button {
             display: inline-block;
-            background: #ffd700;
-            color: #1a120b !important;
+            background: linear-gradient(180deg, var(--cw-gold-light) 0%, var(--cw-gold) 100%);
+            color: var(--cw-brown-darker) !important;
             text-decoration: none !important;
-            padding: 18px 48px;
+            padding: 20px 56px;
             font-size: 20px;
             font-weight: 700;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(255, 215, 0, 0.4);
+            font-family: var(--font-body);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 8px 24px rgba(255, 215, 0, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .cta-button:hover {
-            background: #ffed4a;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(255, 215, 0, 0.5);
+            background: linear-gradient(180deg, #fff 0%, var(--cw-gold-light) 100%);
+            transform: translateY(-3px);
+            box-shadow:
+                0 12px 32px rgba(255, 215, 0, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
-        /* Writer Section Styling */
+        .cta-button:active {
+            transform: translateY(-1px);
+        }
+
+        /* ============================================
+           WRITER SECTIONS - Editorial authority
+           ============================================ */
         .writer-section {
-            background: #faf6f0;
-            padding: 30px;
-            border-radius: 8px;
-            margin: 30px 0;
-            border-left: 4px solid #8b4513;
+            background: linear-gradient(135deg, var(--cw-cream-light) 0%, #fff 100%);
+            padding: 36px;
+            border-radius: 16px;
+            margin: 36px 0;
+            border-left: 5px solid var(--cw-brown);
+            box-shadow: 0 4px 20px rgba(139, 69, 19, 0.08);
+            position: relative;
+        }
+
+        .writer-section::before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 80px;
+            font-family: var(--font-display);
+            color: var(--cw-brown);
+            opacity: 0.1;
+            line-height: 1;
         }
 
         .writer-section h3 {
-            font-family: 'Playfair Display', serif;
+            font-family: var(--font-display);
+            font-size: 24px;
             margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .writer-section p {
+            font-size: 17px;
+            line-height: 1.8;
         }
 
         .writer-name {
+            font-family: var(--font-display);
             font-style: italic;
-            color: #8b4513;
-            margin-top: 20px;
+            color: var(--cw-brown);
+            margin-top: 24px;
             text-align: right;
+            font-size: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(139, 69, 19, 0.15);
+        }
+
+        /* ============================================
+           MECHANISM GRID - Feature cards
+           ============================================ */
+        .mechanism-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        @media (max-width: 768px) {
+            .mechanism-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mechanism-card {
+            background: linear-gradient(180deg, #fff 0%, var(--cw-cream-light) 100%);
+            border: 2px solid rgba(139, 69, 19, 0.15);
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .mechanism-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(139, 69, 19, 0.15);
+            border-color: var(--cw-gold);
+        }
+
+        .mechanism-card h4 {
+            font-family: var(--font-body) !important;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 0 12px 0;
+            color: var(--cw-burgundy) !important;
+        }
+
+        .mechanism-card p {
+            font-size: 15px;
+            line-height: 1.6;
+            margin: 0;
+            color: var(--cw-text);
+        }
+
+        /* ============================================
+           COMPARISON TABLE - Visual value showcase
+           ============================================ */
+        .protein-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 32px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(139, 69, 19, 0.1);
+            font-family: var(--font-body);
+        }
+
+        .protein-table thead {
+            background: linear-gradient(135deg, var(--cw-brown) 0%, var(--cw-brown-dark) 100%);
+        }
+
+        .protein-table th {
+            color: var(--cw-cream) !important;
+            font-weight: 700;
+            padding: 20px 16px;
+            text-align: left;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .protein-table th:last-child {
+            background: linear-gradient(135deg, var(--cw-brown-dark) 0%, var(--cw-brown-darker) 100%);
+            color: var(--cw-gold) !important;
+        }
+
+        .protein-table tbody tr {
+            background: #fff;
+            transition: background 0.2s ease;
+        }
+
+        .protein-table tbody tr:nth-child(even) {
+            background: var(--cw-cream-light);
+        }
+
+        .protein-table tbody tr:hover {
+            background: rgba(255, 215, 0, 0.08);
+        }
+
+        .protein-table td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+            font-size: 15px;
+        }
+
+        .protein-table td:first-child {
+            font-weight: 600;
+            color: var(--cw-burgundy);
+        }
+
+        .protein-table td:nth-child(2) {
+            color: #888;
+        }
+
+        .protein-table td:last-child {
+            color: var(--cw-success);
+            font-weight: 600;
+            background: rgba(45, 80, 22, 0.03);
+        }
+
+        /* ============================================
+           KEY TAKEAWAYS BOX
+           ============================================ */
+        .key-takeaways {
+            background: var(--cw-brown-darker);
+            color: var(--cw-cream);
+            padding: 36px;
+            border-radius: 16px;
+            margin: 40px 0;
+        }
+
+        .key-takeaways h3 {
+            color: var(--cw-gold) !important;
+            font-family: var(--font-body) !important;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 24px 0;
+        }
+
+        .key-takeaways ol {
+            margin: 0;
+            padding: 0 0 0 24px;
+        }
+
+        .key-takeaways li {
+            color: var(--cw-cream) !important;
+            padding: 8px 0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .key-takeaways li::marker {
+            color: var(--cw-gold);
+            font-weight: 700;
+        }
+
+        /* ============================================
+           SAVINGS BADGE (add to CTA boxes)
+           ============================================ */
+        .savings-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
+            color: white;
+            font-family: var(--font-body);
+            font-weight: 900;
+            font-size: 13px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* ============================================
+           RESPONSIVE ADJUSTMENTS
+           ============================================ */
+        @media (max-width: 768px) {
+            .cta-box-urgent {
+                padding: 32px 20px;
+                margin: 36px 0;
+                border-radius: 16px;
+            }
+
+            .cta-box-urgent h3 {
+                font-size: 22px;
+            }
+
+            .cta-box-urgent .price-future {
+                font-size: 22px;
+            }
+
+            .cta-box-urgent .price-highlight {
+                font-size: 44px;
+            }
+
+            .cta-box-urgent p {
+                font-size: 16px;
+            }
+
+            .cta-button {
+                padding: 16px 28px;
+                font-size: 16px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .writer-section {
+                padding: 24px 20px;
+                margin: 24px 0;
+            }
+
+            .writer-section::before {
+                font-size: 50px;
+                right: 15px;
+                top: 10px;
+            }
+
+            .writer-section h3 {
+                font-size: 20px;
+            }
+
+            .tldr-box {
+                padding: 24px 20px;
+                margin: 30px 0;
+            }
+
+            .tldr-box li {
+                font-size: 15px;
+                padding: 10px 0;
+            }
+
+            .key-takeaways {
+                padding: 28px 20px;
+            }
+
+            .key-takeaways li {
+                font-size: 15px;
+            }
+
+            /* Mobile table - card layout */
+            .protein-table {
+                display: block;
+                border-radius: 12px;
+            }
+
+            .protein-table thead {
+                display: none;
+            }
+
+            .protein-table tbody {
+                display: block;
+            }
+
+            .protein-table tr {
+                display: block;
+                background: #fff;
+                margin-bottom: 12px;
+                border-radius: 12px;
+                padding: 16px;
+                box-shadow: 0 2px 8px rgba(139, 69, 19, 0.08);
+                border: 1px solid rgba(139, 69, 19, 0.1);
+            }
+
+            .protein-table tr:nth-child(even) {
+                background: #fff;
+            }
+
+            .protein-table td {
+                display: block;
+                padding: 8px 0;
+                border: none;
+                text-align: left;
+            }
+
+            .protein-table td:first-child {
+                font-size: 16px;
+                font-weight: 700;
+                color: var(--cw-burgundy);
+                padding-bottom: 12px;
+                border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+                margin-bottom: 8px;
+            }
+
+            .protein-table td:nth-child(2) {
+                background: transparent;
+            }
+
+            .protein-table td:nth-child(2)::before {
+                content: 'Free: ';
+                font-weight: 600;
+                color: var(--cw-text);
+            }
+
+            .protein-table td:last-child {
+                background: rgba(45, 80, 22, 0.08);
+                padding: 10px 12px;
+                border-radius: 8px;
+                margin-top: 8px;
+            }
+
+            .protein-table td:last-child::before {
+                content: 'Complete Protocol: ';
+                font-weight: 600;
+            }
+
+            .mechanism-card {
+                padding: 20px;
+            }
+
+            .mechanism-card h4 {
+                font-size: 16px;
+            }
+
+            .savings-badge {
+                font-size: 12px;
+                padding: 5px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cta-box-urgent .price-highlight {
+                font-size: 38px;
+            }
+
+            .cta-button {
+                padding: 14px 20px;
+                font-size: 15px;
+                letter-spacing: 0.5px;
+            }
+
+            .post-content, .post-content p, .post-content li {
+                font-size: 16px;
+            }
+
+            h2 {
+                font-size: 22px !important;
+            }
         }
     </style>
 </head>
@@ -367,6 +857,7 @@
 
 <!-- URGENT CTA -->
 <div class="cta-box-urgent">
+<span class="savings-badge">Save 87%</span>
 <h3>Limited Time Launch Price</h3>
 <span class="price-future">$79</span>
 <span class="price-highlight">$9.99</span>
@@ -468,7 +959,8 @@
 <p>You're getting all of it for less than the cost of a pound of ribeye.</p>
 
 <!-- MID-ARTICLE CTA -->
-<div class="cta-box-urgent">
+<div class="cta-box-urgent" style="padding: 36px 28px;">
+<span class="savings-badge">Early Adopter Price</span>
 <h3>This Price Won't Last</h3>
 <p>We're raising the price once we hit our early adopter goal. Get in now.</p>
 <a href="/calculator.html" class="cta-button">Get Your Protocol for $9.99 →</a>
@@ -589,12 +1081,13 @@
 
 <!-- FINAL CTA -->
 <div class="cta-box-urgent">
+<span class="savings-badge">Save 87%</span>
 <h3>Get Your Complete Carnivore Protocol</h3>
 <span class="price-future">$79</span>
 <span class="price-highlight">$9.99</span>
-<p>Personalized macros, meal plan, food log, and doctor script. All for the price of a latte.</p>
+<p>13 personalized sections including meal plans, grocery lists, and doctor scripts.</p>
 <a href="/calculator.html" class="cta-button">Start the Calculator Now →</a>
-<p style="font-size: 14px; margin-top: 16px; opacity: 0.8;">Takes 90 seconds. Upgrade option appears with your results.</p>
+<p style="font-size: 14px; margin-top: 16px; opacity: 0.7;">Takes 90 seconds. Upgrade option appears with your results.</p>
 </div>
 
 <div class="key-takeaways">
