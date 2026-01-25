@@ -1,6 +1,60 @@
 {
   "blog_posts": [
     {
+      "id": "2026-01-25-complete-carnivore-protocol-report",
+      "slug": "2026-01-25-complete-carnivore-protocol-report",
+      "title": "Why We Built the Complete Carnivore Protocol (And Why It's Only $9.99 for Now)",
+      "author": "team",
+      "author_title": "Sarah, Marcus & Chloe",
+      "date": "2026-01-25",
+      "scheduled_date": "2026-01-25",
+      "published": true,
+      "category": "product",
+      "tags": ["calculator", "protocol", "meal-plan", "personalized"],
+      "excerpt": "Our team spent months building the most comprehensive carnivore protocol report available. Meal plans, food logs, doctor scripts, and personalized macros. Here's why we're launching at $9.99.",
+      "wiki_links": ["#macros", "#weight-stall", "#protein"],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "Our team spent months building the most comprehensive carnivore protocol report available. Meal plans, food logs, doctor scripts, and personalized macros.",
+        "keywords": ["carnivore protocol", "carnivore meal plan", "carnivore calculator", "personalized macros"]
+      },
+      "validation": {
+        "copy_editor": "passed",
+        "brand_validator": "passed",
+        "humanization": "passed"
+      },
+      "comments_enabled": true,
+      "content": ""
+    },
+    {
+      "id": "2026-01-25-bone-broth-benefits",
+      "slug": "2026-01-25-bone-broth-benefits",
+      "title": "Bone Broth: Why It's a Carnivore Staple",
+      "author": "sarah",
+      "author_title": "Health Coach",
+      "date": "2026-01-25",
+      "scheduled_date": "2026-01-25",
+      "published": true,
+      "category": "health",
+      "tags": ["bone-broth", "gut-health", "collagen", "glycine"],
+      "excerpt": "Bone broth delivers collagen, glycine, and minerals that support gut health, joints, and sleep. Here's what the research shows and how to make it work for you.",
+      "wiki_links": ["#electrolytes", "#digestion", "#nose-to-tail"],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "Bone broth delivers collagen, glycine, and minerals that support gut health, joints, and sleep. Here's what the research shows.",
+        "keywords": ["bone broth benefits", "carnivore bone broth", "collagen", "glycine", "gut health"]
+      },
+      "validation": {
+        "copy_editor": "passed",
+        "brand_validator": "passed",
+        "humanization": "passed"
+      },
+      "comments_enabled": true,
+      "content": ""
+    },
+    {
       "id": "2025-12-31-welcome-to-carnivore-weekly",
       "slug": "2025-12-31-welcome-to-carnivore-weekly",
       "title": "Welcome to Carnivore Weekly",
