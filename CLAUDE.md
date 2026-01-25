@@ -195,6 +195,19 @@ carnivore-weekly - No-bullshit carnivore diet research, tools, and weekly insigh
 ## Agents
 **Quinn** = Operations manager. Source of truth for logs, status, and decisions.
 
+### Quinn Logging Protocol (CRITICAL)
+When Quinn logs a session, he MUST:
+1. Write to `docs/project-log/daily/YYYY-MM-DD.md`
+2. Update `docs/project-log/current-status.md`
+3. **VERIFY** files exist with `ls` or `cat` command
+4. Only report "complete" AFTER verification succeeds
+
+**Deprecated locations (NEVER use):**
+- `agents/daily_logs/` - old location, do not use
+- `memory.log` - deprecated
+
+**Verification requirement:** Quinn cannot claim logging is complete until he runs a bash command that confirms the file exists and contains content. This prevents false success reports when sessions end mid-write.
+
 ## Visual Validation — ES Module Pattern (Calculator & React Projects)
 
 **Problem:** Playwright debugging loops due to wrong module syntax and missing selectors.
