@@ -278,11 +278,10 @@
             border-radius: 50%;
             background: var(--color-charcoal);
             margin: 0 auto var(--space-4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: var(--text-4xl);
-            color: var(--color-white);
+            display: block;
+            object-fit: cover;
+            object-position: center top;
+            border: 3px solid var(--color-amber);
         }
 
         .author-name {
@@ -874,7 +873,7 @@
                 <div class="authors-grid">
                     <!-- Sarah -->
                     <article class="author-card">
-                        <div class="author-avatar">S</div>
+                        <img src="/images/writers/sarah.jpg" alt="Sarah - Health Coach" class="author-avatar">
                         <h3 class="author-name">Sarah</h3>
                         <div class="author-role">Health Coach</div>
                         <p class="author-bio">Evidence-based insights on carnivore health, hormones, and metabolic optimization. Sarah translates research into action.</p>
@@ -884,7 +883,7 @@
 
                     <!-- Marcus -->
                     <article class="author-card">
-                        <div class="author-avatar">M</div>
+                        <img src="/images/writers/marcus.jpg" alt="Marcus - Performance Coach" class="author-avatar">
                         <h3 class="author-name">Marcus</h3>
                         <div class="author-role">Performance Analyst</div>
                         <p class="author-bio">Performance, body composition, and pushing limits. Marcus digs into the science of optimization and athletic carnivore.</p>
@@ -894,7 +893,7 @@
 
                     <!-- Chloe -->
                     <article class="author-card">
-                        <div class="author-avatar">C</div>
+                        <img src="/images/writers/chloe.jpg" alt="Chloe - Community Manager" class="author-avatar">
                         <h3 class="author-name">Chloe</h3>
                         <div class="author-role">Community Scout</div>
                         <p class="author-bio">Real stories, practical tips, and what's actually happening in the carnivore community right now.</p>
