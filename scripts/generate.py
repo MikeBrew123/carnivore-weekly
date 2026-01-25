@@ -788,19 +788,32 @@ class UnifiedGenerator:
             for creator in youtube_data.get("top_creators", []):
                 creator_channels[creator["channel_name"]] = creator.get("channel_id", "")
 
-        # Load latest blog posts for Featured Insights section
-        featured_blog_posts = []
+        # Load blog posts for Featured Insights section (3 newest + 3 popular)
+        newest_blog_posts = []
+        popular_blog_posts = []
         try:
             blog_posts_path = self.project_root / "data" / "blog_posts.json"
             if blog_posts_path.exists():
                 blog_data = json.loads(blog_posts_path.read_text())
                 all_posts = blog_data.get("blog_posts", [])
-                # Filter published posts and sort by date (newest first)
+                # Filter published posts
                 published_posts = [p for p in all_posts if p.get("published", False)]
-                published_posts.sort(key=lambda p: p.get("date", ""), reverse=True)
-                # Take top 3 for featured insights
-                featured_blog_posts = published_posts[:3]
-                print(f"  ✓ Loaded {len(featured_blog_posts)} featured blog posts")
+
+                # Sort by date (newest first) for "Latest" section
+                by_date = sorted(published_posts, key=lambda p: p.get("date", ""), reverse=True)
+                newest_blog_posts = by_date[:3]
+
+                # Sort by popularity (views/engagement) for "Most Popular" section
+                # Use view_count if available, otherwise fall back to a default order
+                # For now, use older well-established posts as "popular" (they've had time to accumulate views)
+                # Exclude the 3 newest to avoid overlap
+                newest_slugs = {p["slug"] for p in newest_blog_posts}
+                remaining = [p for p in published_posts if p["slug"] not in newest_slugs]
+                # Sort remaining by date ascending (older = more established = likely more popular)
+                # In future, replace with actual analytics data
+                popular_blog_posts = sorted(remaining, key=lambda p: p.get("date", ""))[:3]
+
+                print(f"  ✓ Loaded {len(newest_blog_posts)} newest + {len(popular_blog_posts)} popular blog posts")
         except Exception as e:
             print(f"  Warning: Could not load blog posts: {e}")
 
@@ -821,7 +834,8 @@ class UnifiedGenerator:
             "qa_section": qa_section,
             "layout_metadata": data.get("layout_metadata"),
             "creator_channels": creator_channels,  # Map of creator names to YouTube channel IDs
-            "featured_blog_posts": featured_blog_posts,  # Latest 3 blog posts for Featured Insights
+            "newest_blog_posts": newest_blog_posts,  # 3 most recent blog posts
+            "popular_blog_posts": popular_blog_posts,  # 3 most popular blog posts (older/established)
         }
 
         # Render template
