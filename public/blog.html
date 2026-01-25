@@ -3,11 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog - Carnivore Weekly</title>
-    <meta name="description" content="Deep dives on carnivore health, performance, and community from Sarah, Marcus, and Chloe.">
+
+    <!-- SEO Meta Tags -->
+    <title>Insights - Carnivore Weekly</title>
+    <meta name="description" content="Evidence-based carnivore insights from Sarah, Marcus, and Chloe. Health, performance, and community deep-dives.">
     <meta name="keywords" content="carnivore diet blog, health, nutrition, performance, community">
     <link rel="canonical" href="https://carnivoreweekly.com/blog.html">
-    <link rel="stylesheet" href="../style.css">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://carnivoreweekly.com/blog.html">
+    <meta property="og:title" content="Insights - Carnivore Weekly">
+    <meta property="og:description" content="Evidence-based carnivore insights from Sarah, Marcus, and Chloe.">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
+    <meta property="og:site_name" content="Carnivore Weekly">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://carnivoreweekly.com/blog.html">
+    <meta name="twitter:title" content="Insights - Carnivore Weekly">
+    <meta name="twitter:description" content="Evidence-based carnivore insights.">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+    </script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Global Stylesheet -->
+    <link rel="stylesheet" href="/css/global.css">
+
+    <style>
+        /* Page-specific styles */
+        .blog-hero {
+            background: linear-gradient(135deg, var(--color-oxblood), var(--color-charcoal));
+            color: var(--color-white);
+            padding: var(--space-16) var(--space-6);
+            margin-bottom: var(--space-12);
+        }
+
+        .blog-hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-8);
+            align-items: center;
+        }
+
+        .blog-hero-text h1 {
+            font-size: var(--text-4xl);
+            margin-bottom: var(--space-4);
+            color: var(--color-white);
+        }
+
+        .blog-hero-text .subtitle {
+            font-size: var(--text-xl);
+            margin-bottom: var(--space-6);
+            color: var(--color-cream);
+        }
+
+        .featured-post-card {
+            background: var(--color-white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .featured-post-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .featured-post-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: var(--color-charcoal);
+        }
+
+        .featured-post-content {
+            padding: var(--space-6);
+        }
+
+        .featured-badge {
+            display: inline-block;
+            background: var(--color-amber);
+            color: var(--color-charcoal);
+            padding: var(--space-1) var(--space-3);
+            border-radius: 4px;
+            font-size: var(--text-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: var(--space-3);
+        }
+
+        .featured-post-title {
+            font-family: var(--font-heading);
+            font-size: var(--text-2xl);
+            margin-bottom: var(--space-3);
+            color: var(--color-charcoal);
+        }
+
+        .featured-post-excerpt {
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-4);
+            line-height: var(--leading-relaxed);
+        }
+
+        .featured-post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+        }
+
+        .blog-filters {
+            display: flex;
+            gap: var(--space-3);
+            margin: var(--space-8) 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: var(--space-3) var(--space-6);
+            border: 2px solid var(--color-amber);
+            background: transparent;
+            color: var(--color-amber);
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: var(--text-base);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--color-amber);
+            color: var(--color-charcoal);
+        }
+
+        .category-section {
+            margin-bottom: var(--space-16);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .category-title {
+            font-size: var(--text-3xl);
+            color: var(--color-charcoal);
+        }
+
+        .view-all-link {
+            color: var(--color-oxblood);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .view-all-link:hover {
+            color: var(--color-amber);
+        }
+
+        .post-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .post-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: var(--space-6);
+            transition: all 0.3s ease;
+        }
+
+        .post-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .post-date {
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-2);
+        }
+
+        .post-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem; /* 24px - increased from 20px for readability */
+            margin-bottom: var(--space-3);
+            color: var(--color-charcoal);
+        }
+
+        .post-title a {
+            color: var(--color-charcoal);
+            text-decoration: none;
+        }
+
+        .post-title a:hover {
+            color: var(--color-oxblood);
+        }
+
+        .post-author {
+            font-size: var(--text-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-3);
+            font-style: italic;
+        }
+
+        .post-excerpt {
+            font-size: 1.125rem; /* 18px - increased from 16px for readability */
+            color: var(--color-text-secondary);
+            line-height: var(--leading-relaxed);
+            margin-bottom: var(--space-4);
+        }
+
+        .post-tags {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        .post-tag {
+            font-size: var(--text-sm); /* 14px - increased from 12px for readability */
+            padding: var(--space-1) var(--space-2);
+            background: var(--color-cream);
+            color: var(--color-text-secondary);
+            border-radius: 4px;
+        }
+
+        .authors-section {
+            background: var(--color-cream);
+            padding: var(--space-12) var(--space-6);
+            margin-bottom: var(--space-16);
+        }
+
+        .authors-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .author-card {
+            background: var(--color-white);
+            border-radius: 8px;
+            padding: var(--space-6);
+            text-align: center;
+        }
+
+        .author-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--color-charcoal);
+            margin: 0 auto var(--space-4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-4xl);
+            color: var(--color-white);
+        }
+
+        .author-name {
+            font-family: var(--font-heading);
+            font-size: var(--text-2xl);
+            margin-bottom: var(--space-2);
+            color: var(--color-charcoal);
+        }
+
+        .author-role {
+            font-size: var(--text-sm);
+            color: var(--color-oxblood);
+            font-weight: 600;
+            margin-bottom: var(--space-3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .author-bio {
+            color: var(--color-text-secondary);
+            line-height: var(--leading-relaxed);
+            margin-bottom: var(--space-4);
+        }
+
+        .author-latest {
+            font-size: var(--text-sm);
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-3);
+        }
+
+        .newsletter-section {
+            max-width: 600px;
+            margin: 0 auto var(--space-16);
+        }
+
+        @media (max-width: 768px) {
+            .blog-hero-content {
+                grid-template-columns: 1fr;
+            }
+
+            .post-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 
     <!-- Schema.org Organization with Mentions for GEO -->
     <script type="application/ld+json">
@@ -59,675 +379,680 @@
           "@type": "ImageObject",
           "url": "https://carnivoreweekly.com/images/logo.png"
         }
-      }
+      },
+      "blogPost": [
+        {
+          "@type": "BlogPosting",
+          "headline": "Carnivore Sleep Hacks: Why Meat-Eaters Sleep Better",
+          "url": "https://carnivoreweekly.com/blog/2026-01-20-carnivore-sleep-hacks.html",
+          "datePublished": "2026-01-20"
+        },
+        {
+          "@type": "BlogPosting",
+          "headline": "Organ Meats: A Skeptic's Guide to Getting Started",
+          "url": "https://carnivoreweekly.com/blog/2026-01-16-organ-meats-skeptics-guide.html",
+          "datePublished": "2026-01-16"
+        },
+        {
+          "@type": "BlogPosting",
+          "headline": "Two Weeks on Carnivore: Real Results from Reddit",
+          "url": "https://carnivoreweekly.com/blog/2026-01-15-two-week-results-reddit.html",
+          "datePublished": "2026-01-15"
+        }
+      ]
     }
     </script>
 
-    <style>
-        .blog-filters {
-            display: flex;
-            gap: 10px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-            justify-content: center;
+    <!-- Schema.org ItemList for Recent Posts -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Recent Carnivore Diet Articles",
+      "description": "Latest evidence-based insights on the carnivore diet",
+      "numberOfItems": 3,
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "item": {
+            "@type": "Article",
+            "name": "Carnivore Sleep Hacks: Why Meat-Eaters Sleep Better",
+            "url": "https://carnivoreweekly.com/blog/2026-01-20-carnivore-sleep-hacks.html"
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "item": {
+            "@type": "Article",
+            "name": "Organ Meats: A Skeptic's Guide to Getting Started",
+            "url": "https://carnivoreweekly.com/blog/2026-01-16-organ-meats-skeptics-guide.html"
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "item": {
+            "@type": "Article",
+            "name": "Two Weeks on Carnivore: Real Results from Reddit",
+            "url": "https://carnivoreweekly.com/blog/2026-01-15-two-week-results-reddit.html"
+          }
         }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border: 2px solid #d4a574;
-            background: transparent;
-            color: #d4a574;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn:hover,
-        .filter-btn.active {
-            background: #d4a574;
-            color: #1a120b;
-        }
-
-        .blog-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .blog-card {
-            background: #2c1810;
-            border: 1px solid #8b4513;
-            border-radius: 8px;
-            padding: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .blog-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(139, 69, 19, 0.3);
-        }
-
-        .blog-date {
-            font-size: 12px;
-            color: #d4a574;
-            margin-bottom: 8px;
-        }
-
-        .blog-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #ffd700;
-            margin-bottom: 12px;
-            line-height: 1.4;
-            font-family: 'Playfair Display', serif;
-        }
-
-        .blog-author {
-            font-size: 14px;
-            color: #f4e4d4;
-            margin-bottom: 12px;
-            font-style: italic;
-        }
-
-        .blog-excerpt {
-            font-size: 14px;
-            color: #f4e4d4;
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
-
-        .blog-tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .blog-tag {
-            font-size: 12px;
-            padding: 4px 8px;
-            background: #8b4513;
-            color: #d4a574;
-            border-radius: 3px;
-        }
-
-        .read-more {
-            display: inline-block;
-            color: #d4a574;
-            text-decoration: none;
-            margin-top: 12px;
-            font-weight: bold;
-        }
-
-        .read-more:hover {
-            color: #ffd700;
-        }
-
-        .no-posts {
-            text-align: center;
-            padding: 40px 20px;
-            color: #d4a574;
-            font-size: 16px;
-        }
-    </style>
+      ]
+    }
+    </script>
 </head>
-<body style="background-color: #1a120b; color: #f4e4d4; font-family: 'Merriweather', serif;">
-    <!-- Site Header (exact match to main site) -->
-    <header>
-        <div class="container">
-            <img src="../images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+<body>
+    <!-- Skip to main content -->
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+
+    <!-- HEADER -->
+    <header class="header-2026">
+        <div class="container-2026">
+            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
             <h1>CARNIVORE WEEKLY</h1>
             <p class="subtitle">The Meat-Eater's Digest</p>
-            <p class="tagline">Premium Cuts of Carnivore Content</p>
+            <p class="tagline">Premium Editorial for 2026</p>
+            <p class="update-date">Evidence-Based Insights</p>
         </div>
     </header>
 
-    <!-- Navigation Menu -->
-    <nav class="nav-menu">
-        <a href="index.html">Home</a>
-        <a href="channels.html">Channels</a>
-        <a href="wiki.html">Wiki</a>
-        <a href="blog.html">Blog</a>
-        <a href="calculator.html">Calculator</a>
-        <a href="archive.html">Archive</a>
-        <a href="the-lab.html">The Lab</a>
+    <!-- NAVIGATION -->
+    <nav class="nav-menu-2026">
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Weekly Watch</a>
+        <a href="/wiki.html">Protocols & Basics</a>
+        <a href="/blog.html">Insights</a>
+        <a href="/calculator.html">Calculator</a>
     </nav>
 
-    <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 20px;">
-        <!-- Page Header -->
-        <h1 style="text-align: center;" class="page-header-secondary">Carnivore Weekly Blog</h1>
-        <p style="text-align: center; color: #d4a574; font-size: 16px; margin-bottom: 30px;">Deep dives that won't bore you to death (we promise).</p>
+    <!-- MAIN CONTENT -->
+    <main class="site-content" role="main" id="main-content">
 
-        <!-- Filters -->
-        <div class="blog-filters">
-            <button class="filter-btn active" data-filter="all">All Posts</button>
-            <button class="filter-btn" data-filter="sarah">Sarah</button>
-            <button class="filter-btn" data-filter="marcus">Marcus</button>
-            <button class="filter-btn" data-filter="chloe">Chloe</button>
+        <!-- HERO SECTION WITH FEATURED POST -->
+        <section class="blog-hero">
+            <div class="blog-hero-content">
+                <div class="blog-hero-text">
+                    <h1>Insights</h1>
+                    <p class="subtitle">Evidence-based deep dives from Sarah, Marcus, and Chloe</p>
+                    <p style="color: var(--color-cream); line-height: var(--leading-relaxed);">
+                        No fluff. No influencer BS. Just research-backed insights on carnivore health, performance, and community.
+                    </p>
+                </div>
+
+                <!-- Featured Post (dynamically loaded) -->
+                <article class="featured-post-card" id="featured-blog-post">
+                    <div class="featured-post-image" style="background: url('/images/hero-steak-800w.jpg') center/cover;"></div>
+                    <div class="featured-post-content">
+                        <span class="featured-badge">Latest</span>
+                        <h2 class="featured-post-title">Understanding Insulin Resistance: What Your Morning Glucose Really Tells You</h2>
+                        <p class="featured-post-excerpt">Your fasting glucose isn't just a number. It reveals insulin resistance years before diagnosis.</p>
+                        <div class="featured-post-meta">
+                            <span>by Sarah</span>
+                            <a href="/blog/insulin-resistance-morning-glucose.html" class="btn btn--primary">Read Article</a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <div class="container">
+
+            <!-- FILTER TOGGLES -->
+            <div class="blog-filters">
+                <button class="filter-btn active" data-filter="all">All Posts</button>
+                <button class="filter-btn" data-filter="sarah">Sarah</button>
+                <button class="filter-btn" data-filter="marcus">Marcus</button>
+                <button class="filter-btn" data-filter="chloe">Chloe</button>
+            </div>
+
+            <!-- HEALTH & HEALING CATEGORY -->
+            <section class="category-section">
+                <div class="category-header">
+                    <h2 class="category-title">🏥 Health & Healing</h2>
+                </div>
+
+                <div class="post-grid">
+                    <!-- 2026-01-09: Insulin Resistance -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">January 9, 2026</div>
+                        <h3 class="post-title"><a href="/blog/insulin-resistance-morning-glucose.html">Understanding Insulin Resistance: What Your Morning Glucose Really Tells You</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">You wake up, prick your finger, and see 105 mg/dL on your glucometer. Is that good? Bad? Should you worry? Here's the thing: your fasting glucose isn't just a number—it's a window into your metabolic health.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">health</span>
+                            <span class="post-tag">insulin-resistance</span>
+                            <span class="post-tag">metabolic-health</span>
+                        </div>
+                    </article>
+
+                    <!-- 2026-01-08: Environmental Impact -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">January 8, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-08-environmental-impact.html">Environmental Impact Counter-Narrative: Regenerative Agriculture</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">Criticism of carnivore on environmental grounds is fair to ask about. "Isn't raising cattle destroying the planet?" is a legitimate question. The answer depends on how the cattle are raised.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">environment</span>
+                            <span class="post-tag">sustainability</span>
+                        </div>
+                    </article>
+
+                    <!-- 2026-01-05: Women's Health -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">January 5, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-05-womens-health.html">Women's Carnivore Health: The Honest Truth About Hormones</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">40-45% of people starting carnivore are women. The conversation about whether this diet is "safe" for women is polarized: either "you'll feel amazing" or "you'll lose your period." The truth is more nuanced.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">women</span>
+                            <span class="post-tag">health</span>
+                            <span class="post-tag">hormones</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-30: PCOS -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">December 30, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-30-pcos-hormones.html">PCOS and Carnivore: How Meat Resets Hormone Balance</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">PCOS (Polycystic Ovary Syndrome) affects 10% of women. It's characterized by: high insulin, hormonal imbalance, irregular cycles, difficulty losing weight, and cyst formation on the ovaries. A lot of women with PCOS report major improvements on carnivore.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">health</span>
+                            <span class="post-tag">hormones</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-28: Physiological Insulin Resistance -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">December 28, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-28-physiological-insulin-resistance.html">Physiological Insulin Resistance: The Hidden Adaptation Your Body Needs</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">If you've ever had a glucose test or checked your insulin levels on carnivore, you might have seen something weird: your fasting glucose is fine, but your insulin is elevated. Your doctor might worry. But this is actually normal. It's called physiological insulin resistance.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">science</span>
+                            <span class="post-tag">insulin</span>
+                            <span class="post-tag">adaptation</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-23: ADHD -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">December 23, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-23-adhd-connection.html">ADHD and Carnivore: What the Research Actually Shows</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">A lot of people with ADHD report major improvements on carnivore. Better focus, less anxiety, fewer stimulant crashes. Is this real? Does the research support it? Let's look at what we actually know.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">health</span>
+                            <span class="post-tag">mental-health</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-21: Night Sweats -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">December 21, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-21-night-sweats.html">Night Sweats on Carnivore: Why They Happen and How to Fix Them</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">Night sweats show up for a lot of people when they start carnivore. You're doing great during the day, sleeping fine, then you wake up drenched. It's uncomfortable. It's also fixable.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">health</span>
+                            <span class="post-tag">troubleshooting</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-20: Lipid Energy Model -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">December 20, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-20-lipid-energy-model.html">The Lipid Energy Model: How Your Body Actually Burns Fat</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">The lipid energy model is one of those concepts that changes how you think about carnivore. It's also one of the most misunderstood. Let me break down what it actually is, why it matters, and what the research actually shows.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">science</span>
+                            <span class="post-tag">metabolism</span>
+                        </div>
+                    </article>
+
+                    <!-- 2026-01-04: Organ Meats (Sarah & Marcus) -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">January 4, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-04-organ-meats-guide.html">Organ Meats Complete Guide: Sourcing, Prep, and Nutrition</a></h3>
+                        <div class="post-author">by Sarah & Marcus</div>
+                        <p class="post-excerpt">Grassland Beef is releasing liver pâté. Seven Sons Farms just launched a full line of organs. TruBeef is preparing organ meat products. The community's asking: should I be eating organs?</p>
+                        <div class="post-tags">
+                            <span class="post-tag">nutrition</span>
+                            <span class="post-tag">organs</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- PERFORMANCE & PROTOCOLS CATEGORY -->
+            <section class="category-section">
+                <div class="category-header">
+                    <h2 class="category-title">💪 Performance & Protocols</h2>
+                </div>
+
+                <div class="post-grid">
+                    <!-- 2026-01-07: Fasting Protocols -->
+                    <article class="post-card" data-author="marcus">
+                        <div class="post-date">January 7, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-07-fasting-protocols.html">Fasting + Carnivore: Protocols That Actually Work</a></h3>
+                        <div class="post-author">by Marcus</div>
+                        <p class="post-excerpt">Once you're adapted to carnivore (usually 3-4 months in), the next conversation becomes: "Can I optimize further by combining fasting?" The answer: Yes, but with rules.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">fasting</span>
+                            <span class="post-tag">protocols</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-29: Lion Diet -->
+                    <article class="post-card" data-author="marcus">
+                        <div class="post-date">December 29, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-29-lion-diet-challenge.html">The Lion Diet Challenge: 30 Days of Pure Beef</a></h3>
+                        <div class="post-author">by Marcus</div>
+                        <p class="post-excerpt">The Lion Diet is trending again, and people keep asking: should I do it? What's the point? Is it actually better than regular carnivore? Here's the reality. The Lion Diet is carnivore stripped to absolute minimum: beef and salt. That's it.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">challenge</span>
+                            <span class="post-tag">nutrition</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-26: Budget Guide -->
+                    <article class="post-card" data-author="marcus">
+                        <div class="post-date">December 26, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-26-seven-dollar-survival-guide.html">The Seven Dollar Survival Guide: Cheapest Carnivore Foods</a></h3>
+                        <div class="post-author">by Marcus</div>
+                        <p class="post-excerpt">One of the biggest objections to carnivore is cost. "It's too expensive. I can't afford meat every day." Here's what that usually means: you're buying expensive meat. Carnivore doesn't have to be expensive.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">budget</span>
+                            <span class="post-tag">practical</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-25: New Year Resolutions -->
+                    <article class="post-card" data-author="marcus">
+                        <div class="post-date">December 25, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-25-new-year-same-you.html">New Year, Same You: Why Resolutions Fail and What Works Instead</a></h3>
+                        <div class="post-author">by Marcus</div>
+                        <p class="post-excerpt">New Year's resolutions have a 92% failure rate. You know this. You've failed at resolutions. Everyone has. The pattern is: make big promise, be excited for two weeks, slip back into old habits, feel bad, forget about it by February.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">mindset</span>
+                            <span class="post-tag">goals</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-22: mTOR -->
+                    <article class="post-card" data-author="marcus">
+                        <div class="post-date">December 22, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-22-mtor-muscle.html">mTOR and Muscle Building on Carnivore: What Actually Matters</a></h3>
+                        <div class="post-author">by Marcus</div>
+                        <p class="post-excerpt">mTOR gets a lot of hype. People talk about "activating mTOR" and "suppressing mTOR" like it's the master control switch for everything. It's not. But it is important for muscle building.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">performance</span>
+                            <span class="post-tag">muscle</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-18: Carnivore Bars -->
+                    <article class="post-card" data-author="marcus">
+                        <div class="post-date">December 18, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-18-carnivore-bar-guide.html">The Carnivore Bar Guide: What's Actually Worth Buying</a></h3>
+                        <div class="post-author">by Marcus</div>
+                        <p class="post-excerpt">Carnivore bars are everywhere now. Google "carnivore bar" and you'll find two dozen brands all claiming to be the perfect on-the-go carnivore solution. Here's what actually matters when you're deciding whether to buy them.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">nutrition</span>
+                            <span class="post-tag">products</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- COMMUNITY & LIFESTYLE CATEGORY -->
+            <section class="category-section">
+                <div class="category-header">
+                    <h2 class="category-title">👥 Community & Lifestyle</h2>
+                </div>
+
+                <div class="post-grid">
+                    <!-- 2026-01-12: Animal-Based Debate -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">January 12, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-12-animal-based-debate.html">The Animal-Based Debate: Is Paul Saladino Right About Honey and Fruit?</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">Paul Saladino is all over your feed talking about honey, fruit, and raw milk. He used to be hardcore carnivore. Now he's calling it "animal-based" and adding carbs back in. Did he betray the movement? Or did he figure something out?</p>
+                        <div class="post-tags">
+                            <span class="post-tag">community</span>
+                            <span class="post-tag">debate</span>
+                            <span class="post-tag">trends</span>
+                        </div>
+                    </article>
+
+                    <!-- 2026-01-11: Travel Hacks -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">January 11, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-11-travel-hacks.html">Carnivore Travel Hacks: Avoiding the Airport Food Trap</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">You're doing great on carnivore at home. Your fridge is stocked. Your routine is dialed in. Then you book a flight. And suddenly you're staring at airport food courts wondering if you're about to break your protocol.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">travel</span>
+                            <span class="post-tag">lifestyle</span>
+                            <span class="post-tag">practical</span>
+                        </div>
+                    </article>
+
+                    <!-- 2026-01-10: Dating Carnivore -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">January 10, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-10-dating-carnivore.html">Dating a Non-Carnivore: The Steakhouse Stealth Strategy</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">You're eating carnivore. You're feeling great. Your skin's cleared up, you've got energy, and you're finally ready to get back out there and date. And then you remember: most people think eating only meat is completely unhinged.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">dating</span>
+                            <span class="post-tag">lifestyle</span>
+                            <span class="post-tag">social</span>
+                        </div>
+                    </article>
+
+                    <!-- 2026-01-09: Family Integration -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">January 9, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-09-family-integration.html">Family Integration Hacks: How to Do Carnivore Socially</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">The #1 question on Reddit is not "Will carnivore work?" It's "How do I explain this to people?" Your family thinks you're crazy. Your friends want to know why you're not eating vegetables.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">lifestyle</span>
+                            <span class="post-tag">social</span>
+                        </div>
+                    </article>
+
+                    <!-- 2026-01-06: Transformation Stories -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">January 6, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-06-transformation-stories.html">Real Transformation Stories: 5 Diverse Examples</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">The most engaging content on Reddit isn't debates about macros. It's the before-and-afters. The "I thought I was broken and here's what changed" stories. Here are 5 real examples.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">stories</span>
+                            <span class="post-tag">transformation</span>
+                        </div>
+                    </article>
+
+                    <!-- 2026-01-03: Top Creators -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">January 3, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-03-top-creators-2026.html">What Top YouTube Creators Are Teaching in 2026</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">Meatstock is happening this summer. The Primal is expanding. YouTube creators who were fringe three years ago are now getting sponsors from athletic brands. Here's what they're teaching.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">creators</span>
+                            <span class="post-tag">community</span>
+                        </div>
+                    </article>
+
+                    <!-- 2026-01-02: Beginner's Blueprint -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">January 2, 2026</div>
+                        <h3 class="post-title"><a href="/blog/2026-01-02-beginners-blueprint.html">Beginner's Complete Blueprint: How to Actually Start Carnivore</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">If you're reading this on January 2nd and thinking "I want to try carnivore," you're not alone. Thirty percent of Reddit's carnivore traffic right now is beginners asking: where do I start?</p>
+                        <div class="post-tags">
+                            <span class="post-tag">beginner</span>
+                            <span class="post-tag">guide</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-31: Acne Purge -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">December 31, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-31-acne-purge.html">The Acne Purge: What It Is and Why It's a Good Sign</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">You start carnivore. For the first 3-7 days, everything is amazing. Clear energy, no hunger, mental focus is sharp. Then, around day 5-7, you break out. Don't quit. This is usually detoxification, and it's a sign your body is cleaning house.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">health</span>
+                            <span class="post-tag">skin</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-31: Welcome -->
+                    <article class="post-card" data-author="sarah">
+                        <div class="post-date">December 31, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-31-welcome-to-carnivore-weekly.html">Welcome to Carnivore Weekly</a></h3>
+                        <div class="post-author">by Sarah</div>
+                        <p class="post-excerpt">Hi there. I'm Sarah, and I want to tell you what we're building here and why we're excited to have you reading this on day one. Carnivore Weekly exists because the carnivore community deserves better curation.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">welcome</span>
+                            <span class="post-tag">new-year</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-27: Anti-Resolution -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">December 27, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-27-anti-resolution-playbook.html">The Anti-Resolution Playbook: Why Carnivore Beats New Year Goals</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">Everyone's making resolutions. "This year I'll get healthy. This year I'll finally lose weight. This year I'll change." You know how that ends. February comes, and you're back where you started. Carnivore is different.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">new-year</span>
+                            <span class="post-tag">mindset</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-24: Deep Freezer -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">December 24, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-24-deep-freezer-strategy.html">The Deep Freezer Strategy: How to Never Run Out of Meat</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">The single biggest friction point for carnivore consistency is the supply chain. You're out of meat, so you grab something quick. Then you're eating less carnivore and more excuses. The solution is stupidly simple: have a full freezer.</p>
+                        <div class="post-tags">
+                            <span class="post-tag">practical</span>
+                            <span class="post-tag">planning</span>
+                        </div>
+                    </article>
+
+                    <!-- 2025-12-19: PSMF -->
+                    <article class="post-card" data-author="chloe">
+                        <div class="post-date">December 19, 2025</div>
+                        <h3 class="post-title"><a href="/blog/2025-12-19-psmf-fat-loss.html">PSMF and Carnivore: Does Extreme Fat Loss Work?</a></h3>
+                        <div class="post-author">by Chloe</div>
+                        <p class="post-excerpt">PSMF stands for Protein Sparing Modified Fast. It's basically eating protein only, minimal fat, to hit aggressive fat loss goals. A lot of carnivores are asking: can I do PSMF on carnivore? Is it safe?</p>
+                        <div class="post-tags">
+                            <span class="post-tag">fat-loss</span>
+                            <span class="post-tag">nutrition</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
         </div>
 
-        <!-- Blog Grid -->
-        <div class="blog-grid">
-            
-            <div class="blog-card" data-author="chloe" data-slug="2026-01-05-ground-beef-budget" style="position: relative;">
-                <div class="blog-date">2026 01 05</div>
-                <div class="blog-reaction-badge" data-slug="2026-01-05-ground-beef-budget" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
+        <!-- AUTHOR SPOTLIGHTS -->
+        <section class="authors-section">
+            <div class="container">
+                <h2 class="section-title" style="text-align: center; margin-bottom: var(--space-8);">Meet Your Writers</h2>
+
+                <div class="authors-grid">
+                    <!-- Sarah -->
+                    <article class="author-card">
+                        <div class="author-avatar">S</div>
+                        <h3 class="author-name">Sarah</h3>
+                        <div class="author-role">Health Coach</div>
+                        <p class="author-bio">Evidence-based insights on carnivore health, hormones, and metabolic optimization. Sarah translates research into action.</p>
+                        <div class="author-latest">Latest: Insulin Resistance</div>
+                        <button class="btn btn--secondary filter-author-btn" data-filter="sarah">View Sarah's Posts</button>
+                    </article>
+
+                    <!-- Marcus -->
+                    <article class="author-card">
+                        <div class="author-avatar">M</div>
+                        <h3 class="author-name">Marcus</h3>
+                        <div class="author-role">Performance Analyst</div>
+                        <p class="author-bio">Performance, body composition, and pushing limits. Marcus digs into the science of optimization and athletic carnivore.</p>
+                        <div class="author-latest">Latest: Fasting Protocols</div>
+                        <button class="btn btn--secondary filter-author-btn" data-filter="marcus">View Marcus's Posts</button>
+                    </article>
+
+                    <!-- Chloe -->
+                    <article class="author-card">
+                        <div class="author-avatar">C</div>
+                        <h3 class="author-name">Chloe</h3>
+                        <div class="author-role">Community Scout</div>
+                        <p class="author-bio">Real stories, practical tips, and what's actually happening in the carnivore community right now.</p>
+                        <div class="author-latest">Latest: Family Integration</div>
+                        <button class="btn btn--secondary filter-author-btn" data-filter="chloe">View Chloe's Posts</button>
+                    </article>
                 </div>
-                <a href="blog/2026-01-05-ground-beef-budget.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">Ground Beef Only: Why the Cheapest Meat Is Becoming a Carnivore Strategy</h2>
-                </a>
-                <div class="blog-author">by Community Manager (Chloe)</div>
-                <p class="blog-excerpt">Ground beef is becoming the default carnivore food. Here&#39;s why 5 creators are promoting it, what Reddit says about it, and the actual budget math.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">budget</span>
-                    
-                    <span class="blog-tag">ground-beef</span>
-                    
-                    <span class="blog-tag">protocol</span>
-                    
-                    <span class="blog-tag">trending</span>
-                    
-                    <span class="blog-tag">cost-effective</span>
-                    
-                </div>
-                <a href="blog/2026-01-05-ground-beef-budget.html" class="read-more">Read More →</a>
             </div>
-            
-            <div class="blog-card" data-author="chloe" data-slug="2026-01-04-electrolyte-deficiency-part-1" style="position: relative;">
-                <div class="blog-date">2026 01 04</div>
-                <div class="blog-reaction-badge" data-slug="2026-01-04-electrolyte-deficiency-part-1" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
+        </section>
+
+        <div class="container">
+
+            <!-- NEWSLETTER SIGNUP -->
+            <section class="newsletter-section">
+                <div class="newsletter-signup">
+                    <h3 class="signup-title">Get the Weekly Roundup</h3>
+                    <p class="signup-description">New insights, community updates, and science you can use—every Sunday.</p>
+
+                    <form class="signup-form" data-form="newsletter" id="newsletter-form">
+                        <div class="form-group" style="flex: 1; min-width: 250px;">
+                            <label for="email" class="sr-only">Email address</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="your@email.com"
+                                required
+                                class="signup-input"
+                            >
+                        </div>
+                        <button type="submit" class="btn btn--primary signup-btn">Subscribe</button>
+                    </form>
+
+                    <p class="signup-privacy">No spam. Unsubscribe anytime.</p>
                 </div>
-                <a href="blog/2026-01-04-electrolyte-deficiency-part-1.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">Why Everyone&#39;s Talking About Electrolytes Right Now (And Why You&#39;re Probably Low)</h2>
-                </a>
-                <div class="blog-author">by Community Manager (Chloe)</div>
-                <p class="blog-excerpt">Electrolyte deficiency is trending hard. Here&#39;s what 12 YouTube creators are saying, why Reddit threads exploded with symptoms, and why this matters for carnivore.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">electrolytes</span>
-                    
-                    <span class="blog-tag">sodium</span>
-                    
-                    <span class="blog-tag">trending</span>
-                    
-                    <span class="blog-tag">series-part-1</span>
-                    
-                    <span class="blog-tag">symptoms</span>
-                    
-                </div>
-                <a href="blog/2026-01-04-electrolyte-deficiency-part-1.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="chloe" data-slug="2026-01-03-adhd-carnivore" style="position: relative;">
-                <div class="blog-date">2026 01 03</div>
-                <div class="blog-reaction-badge" data-slug="2026-01-03-adhd-carnivore" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2026-01-03-adhd-carnivore.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">ADHD + Carnivore: What 20 Reddit Testimonials Reveal (And What Science Actually Shows)</h2>
-                </a>
-                <div class="blog-author">by Community Manager (Chloe)</div>
-                <p class="blog-excerpt">People are saying carnivore fixed their ADHD. Here&#39;s what 20+ testimonials show, what 6 YouTube creators are discussing, and where the science actually stands.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">adhd</span>
-                    
-                    <span class="blog-tag">mental-health</span>
-                    
-                    <span class="blog-tag">trending</span>
-                    
-                    <span class="blog-tag">community-research</span>
-                    
-                </div>
-                <a href="blog/2026-01-03-adhd-carnivore.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="chloe" data-slug="2026-01-02-lion-diet-research" style="position: relative;">
-                <div class="blog-date">2026 01 02</div>
-                <div class="blog-reaction-badge" data-slug="2026-01-02-lion-diet-research" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2026-01-02-lion-diet-research.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">What YouTube Creators Won&#39;t Tell You About the Lion Diet</h2>
-                </a>
-                <div class="blog-author">by Community Manager (Chloe)</div>
-                <p class="blog-excerpt">The Lion Diet is trending hard on YouTube right now. Here&#39;s what 8 creators are saying, what 15+ Reddit threads reveal, and whether it actually works.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">lion-diet</span>
-                    
-                    <span class="blog-tag">trending</span>
-                    
-                    <span class="blog-tag">creator-insights</span>
-                    
-                    <span class="blog-tag">community-response</span>
-                    
-                </div>
-                <a href="blog/2026-01-02-lion-diet-research.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="sarah" data-slug="2025-12-31-welcome-to-carnivore-weekly" style="position: relative;">
-                <div class="blog-date">2025 12 31</div>
-                <div class="blog-reaction-badge" data-slug="2025-12-31-welcome-to-carnivore-weekly" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-12-31-welcome-to-carnivore-weekly.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">Welcome to Carnivore Weekly</h2>
-                </a>
-                <div class="blog-author">by Health Coach (Sarah)</div>
-                <p class="blog-excerpt">Welcome to Carnivore Weekly. Learn how we curate content and get your New Year&#39;s survival guide for staying on track with carnivore.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">welcome</span>
-                    
-                    <span class="blog-tag">new-year</span>
-                    
-                    <span class="blog-tag">getting-started</span>
-                    
-                    <span class="blog-tag">carnivore-basics</span>
-                    
-                </div>
-                <a href="blog/2025-12-31-welcome-to-carnivore-weekly.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="chloe" data-slug="2025-01-17-carnivore-bar-guide" style="position: relative;">
-                <div class="blog-date">2025 01 17</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-17-carnivore-bar-guide" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-17-carnivore-bar-guide.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">The Carnivore Bar Guide: What to Order When the Squad is Drinking</h2>
-                </a>
-                <div class="blog-author">by Community Manager (Chloe)</div>
-                <p class="blog-excerpt">Your friends are hitting the bar. You&#39;re on carnivore. Here&#39;s exactly what to order (and what to avoid).</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">social</span>
-                    
-                    <span class="blog-tag">drinking</span>
-                    
-                    <span class="blog-tag">bar</span>
-                    
-                    <span class="blog-tag">lifestyle</span>
-                    
-                    <span class="blog-tag">tips</span>
-                    
-                </div>
-                <a href="blog/2025-01-17-carnivore-bar-guide.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="casey" data-slug="2025-01-16-psmf-fat-loss" style="position: relative;">
-                <div class="blog-date">2025 01 16</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-16-psmf-fat-loss" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-16-psmf-fat-loss.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">PSMF and Carnivore: Does Extreme Fat Loss Work?</h2>
-                </a>
-                <div class="blog-author">by Wellness Guide (Casey)</div>
-                <p class="blog-excerpt">Stuck for 4+ weeks? PSMF is the nuclear option. High protein, zero added fat, 2-4 weeks max. Break the stall and restart fat loss.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">fat-loss</span>
-                    
-                    <span class="blog-tag">nutrition</span>
-                    
-                    <span class="blog-tag">strategy</span>
-                    
-                </div>
-                <a href="blog/2025-01-16-psmf-fat-loss.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="sarah" data-slug="2025-01-15-lipid-energy-model" style="position: relative;">
-                <div class="blog-date">2025 01 15</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-15-lipid-energy-model" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-15-lipid-energy-model.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">The Lipid Energy Model: How Your Body Actually Burns Fat</h2>
-                </a>
-                <div class="blog-author">by Health Coach (Sarah)</div>
-                <p class="blog-excerpt">Some people adapt to fat burning immediately (hyper-responders). Others take longer. Here&#39;s how to know which you are and how to optimize.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">science</span>
-                    
-                    <span class="blog-tag">metabolism</span>
-                    
-                    <span class="blog-tag">education</span>
-                    
-                </div>
-                <a href="blog/2025-01-15-lipid-energy-model.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="sarah" data-slug="2025-01-14-night-sweats" style="position: relative;">
-                <div class="blog-date">2025 01 14</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-14-night-sweats" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-14-night-sweats.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">Night Sweats on Carnivore: Why They Happen and How to Fix Them</h2>
-                </a>
-                <div class="blog-author">by Health Coach (Sarah)</div>
-                <p class="blog-excerpt">Waking at 3 AM drenched in sweat? Your mitochondria are adapting. This is temporary (1-3 weeks) and actually a good sign.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">health</span>
-                    
-                    <span class="blog-tag">troubleshooting</span>
-                    
-                    <span class="blog-tag">common-issues</span>
-                    
-                </div>
-                <a href="blog/2025-01-14-night-sweats.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="marcus" data-slug="2025-01-13-mtor-muscle" style="position: relative;">
-                <div class="blog-date">2025 01 13</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-13-mtor-muscle" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-13-mtor-muscle.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">mTOR and Muscle Building on Carnivore: What Actually Matters</h2>
-                </a>
-                <div class="blog-author">by Performance Coach (Marcus)</div>
-                <p class="blog-excerpt">mTOR is your muscle-building switch. Animal protein activates it like nothing else. Build more muscle, faster, on carnivore.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">performance</span>
-                    
-                    <span class="blog-tag">muscle</span>
-                    
-                    <span class="blog-tag">science</span>
-                    
-                </div>
-                <a href="blog/2025-01-13-mtor-muscle.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="sarah" data-slug="2025-01-12-adhd-connection" style="position: relative;">
-                <div class="blog-date">2025 01 12</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-12-adhd-connection" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-12-adhd-connection.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">ADHD and Carnivore: What the Research Actually Shows</h2>
-                </a>
-                <div class="blog-author">by Health Coach (Sarah)</div>
-                <p class="blog-excerpt">ADHD isn&#39;t always neurological. Sometimes it&#39;s just blood sugar swings. Carnivore stabilizes glucose and ketones are superior brain fuel.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">health</span>
-                    
-                    <span class="blog-tag">science</span>
-                    
-                    <span class="blog-tag">mental-health</span>
-                    
-                </div>
-                <a href="blog/2025-01-12-adhd-connection.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="chloe" data-slug="2025-01-10-acne-purge" style="position: relative;">
-                <div class="blog-date">2025 01 10</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-10-acne-purge" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-10-acne-purge.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">Adult Acne Purge: Why Your Skin Gets Worse Before It Gets Better</h2>
-                </a>
-                <div class="blog-author">by Community Manager (Chloe)</div>
-                <p class="blog-excerpt">Week 2 carnivore and your skin explodes. Don&#39;t panic. This is detox. You&#39;ll have the clearest skin of your life by week 6.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">skin</span>
-                    
-                    <span class="blog-tag">detox</span>
-                    
-                    <span class="blog-tag">adaptation</span>
-                    
-                    <span class="blog-tag">week-2</span>
-                    
-                    <span class="blog-tag">side-effects</span>
-                    
-                </div>
-                <a href="blog/2025-01-10-acne-purge.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="casey" data-slug="2025-01-09-deep-freezer-strategy" style="position: relative;">
-                <div class="blog-date">2025 01 09</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-09-deep-freezer-strategy" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-09-deep-freezer-strategy.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">The Deep Freezer Strategy: How to Never Run Out of Meat</h2>
-                </a>
-                <div class="blog-author">by Wellness Guide (Casey)</div>
-                <p class="blog-excerpt">Buy a half-cow from a farm. Cost math, storage logistics, consistency benefits. The only way to truly control your nutrition.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">practical</span>
-                    
-                    <span class="blog-tag">money-saving</span>
-                    
-                    <span class="blog-tag">planning</span>
-                    
-                </div>
-                <a href="blog/2025-01-09-deep-freezer-strategy.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="sarah" data-slug="2025-01-08-pcos-hormones" style="position: relative;">
-                <div class="blog-date">2025 01 08</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-08-pcos-hormones" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-08-pcos-hormones.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">PCOS and Carnivore: How Meat Resets Hormone Balance</h2>
-                </a>
-                <div class="blog-author">by Health Coach (Sarah)</div>
-                <p class="blog-excerpt">PCOS isn&#39;t permanent. Remove linoleic acid (seed oils) and rebuild hormone production from cholesterol. Timeline and biomarkers.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">health</span>
-                    
-                    <span class="blog-tag">hormones</span>
-                    
-                    <span class="blog-tag">research</span>
-                    
-                </div>
-                <a href="blog/2025-01-08-pcos-hormones.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="marcus" data-slug="2025-01-07-lion-diet-challenge" style="position: relative;">
-                <div class="blog-date">2025 01 07</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-07-lion-diet-challenge" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-07-lion-diet-challenge.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">The Lion Diet Challenge: 30 Days of Pure Beef</h2>
-                </a>
-                <div class="blog-author">by Performance Coach (Marcus)</div>
-                <p class="blog-excerpt">Everyone&#39;s doing the Lion Diet. Beef, salt, water only. Here&#39;s why and what people are actually seeing.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">challenge</span>
-                    
-                    <span class="blog-tag">community</span>
-                    
-                    <span class="blog-tag">nutrition</span>
-                    
-                </div>
-                <a href="blog/2025-01-07-lion-diet-challenge.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="marcus" data-slug="2025-01-06-seven-dollar-survival-guide" style="position: relative;">
-                <div class="blog-date">2025 01 06</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-06-seven-dollar-survival-guide" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-06-seven-dollar-survival-guide.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">The $7/Day Survival Guide: Ground Beef + Eggs Protocol</h2>
-                </a>
-                <div class="blog-author">by Performance Coach (Marcus)</div>
-                <p class="blog-excerpt">Thriving on carnivore for $7 per day. Here&#39;s the exact math and protocol.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">budget</span>
-                    
-                    <span class="blog-tag">protocol</span>
-                    
-                    <span class="blog-tag">carnivore-month</span>
-                    
-                    <span class="blog-tag">macros</span>
-                    
-                </div>
-                <a href="blog/2025-01-06-seven-dollar-survival-guide.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="sarah" data-slug="2025-01-05-physiological-insulin-resistance" style="position: relative;">
-                <div class="blog-date">2025 01 05</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-05-physiological-insulin-resistance" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-05-physiological-insulin-resistance.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">Physiological Insulin Resistance: The Hidden Adaptation Your Body Needs</h2>
-                </a>
-                <div class="blog-author">by Health Coach (Sarah)</div>
-                <p class="blog-excerpt">Your digestion feels weird on carnivore. This is normal. Here&#39;s the science behind microbiome adaptation and when to worry.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">science</span>
-                    
-                    <span class="blog-tag">insulin</span>
-                    
-                    <span class="blog-tag">adaptation</span>
-                    
-                </div>
-                <a href="blog/2025-01-05-physiological-insulin-resistance.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="casey" data-slug="2025-01-01-anti-resolution-playbook" style="position: relative;">
-                <div class="blog-date">2025 01 01</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-01-anti-resolution-playbook" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-01-anti-resolution-playbook.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">The Anti-Resolution Playbook: Why Carnivore Beats New Year Goals</h2>
-                </a>
-                <div class="blog-author">by Wellness Guide (Casey)</div>
-                <p class="blog-excerpt">Carnivore or keto? Both work. Neither is universally &#39;better.&#39; Here&#39;s how to choose based on YOUR goals and YOUR lifestyle.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">new-year</span>
-                    
-                    <span class="blog-tag">mindset</span>
-                    
-                    <span class="blog-tag">getting-started</span>
-                    
-                </div>
-                <a href="blog/2025-01-01-anti-resolution-playbook.html" class="read-more">Read More →</a>
-            </div>
-            
-            <div class="blog-card" data-author="chloe" data-slug="2025-01-01-new-year-same-you" style="position: relative;">
-                <div class="blog-date">2025 01 01</div>
-                <div class="blog-reaction-badge" data-slug="2025-01-01-new-year-same-you" style="position: absolute; top: 15px; right: 15px; background: rgba(255, 191, 0, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid #ffbf00; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #8b4513;">
-                    <span>👍</span>
-                    <span class="reaction-percentage">--</span>
-                </div>
-                <a href="blog/2025-01-01-new-year-same-you.html" style="text-decoration: none; color: inherit;">
-                    <h2 class="blog-title">The Mental Health Angle: Why People Are Saying Carnivore &#39;Fixed&#39; Their Brain (And Why They Might Be Right)</h2>
-                </a>
-                <div class="blog-author">by Community Manager (Chloe)</div>
-                <p class="blog-excerpt">The mental health benefits of carnivore are real and happening constantly in the community. Here&#39;s the science and what people are actually experiencing.</p>
-                <div class="blog-tags">
-                    
-                    <span class="blog-tag">mental-health</span>
-                    
-                    <span class="blog-tag">community</span>
-                    
-                    <span class="blog-tag">brain</span>
-                    
-                    <span class="blog-tag">clarity</span>
-                    
-                    <span class="blog-tag">anxiety</span>
-                    
-                </div>
-                <a href="blog/2025-01-01-new-year-same-you.html" class="read-more">Read More →</a>
-            </div>
-            
+            </section>
+
         </div>
 
-        
+    </main>
 
-        <!-- Footer -->
-        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #8b4513; text-align: center; color: #d4a574; font-size: 12px;">
-            <p>&copy; 2026 Carnivore Weekly |
-               <a href="the-lab.html" style="color: #d4a574; text-decoration: underline;">The Lab</a> |
-               <a href="mailto:feedback@carnivoreweekly.com" style="color: #d4a574; text-decoration: underline;">Contact</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 11px;">
-                🤖 Curated with AI • Made with <a href="https://claude.com/claude-code" style="color: #d4a574; text-decoration: underline;">Claude Code</a>
-            </p>
-        </footer>
-    </div>
+    <!-- FOOTER -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-8); margin-bottom: var(--space-8);">
+                <div>
+                    <h3 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Carnivore Weekly</h3>
+                    <p style="color: var(--color-cream); font-size: var(--text-sm); line-height: var(--leading-relaxed);">
+                        Evidence-based insights, real community stories, and practical protocols for the meat-based movement.
+                    </p>
+                </div>
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Explore</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/">Home</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/channels.html">Weekly Watch</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/wiki.html">Protocols & Basics</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/blog/">Insights</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/calculator.html">Calculator</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Resources</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/archive.html">Archive</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/the-lab.html">The Lab</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/privacy.html">Privacy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Our Partners</h4>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                        <a href="https://butcherbox.pxf.io/Z6oVMR" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">ButcherBox</a>
+                        <a href="http://elementallabs.refr.cc" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">LMNT</a>
+                    </div>
+                    <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-3);">
+                        Products we personally use and recommend.
+                    </p>
+                </div>
+            </div>
+            <div class="affiliate-footer-disclosure">
+                <strong>Affiliate Disclosure:</strong> Carnivore Weekly partners with brands we trust and personally use.
+                When you purchase through our links, we may earn a commission at no extra cost to you.
+                This supports our free content. We only recommend products that align with our values.
+            </div>
+            <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <p style="color: var(--color-cream); font-size: var(--text-sm); margin: 0;">
+                    &copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.
+                </p>
+            </div>
+        </div>
+    </footer>
 
+    <!-- JavaScript -->
+    <script src="/js/featured-blog-post.js"></script>
     <script>
         // Filter functionality
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const filter = this.dataset.filter;
+
+                // Update active state
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
 
-                document.querySelectorAll('.blog-card').forEach(card => {
+                // Filter posts
+                document.querySelectorAll('.post-card').forEach(card => {
                     if (filter === 'all' || card.dataset.author === filter) {
                         card.style.display = 'block';
                     } else {
                         card.style.display = 'none';
                     }
                 });
+
+                // Scroll to top of content
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         });
 
-        // Load reaction counts for all blog cards
-        document.addEventListener('DOMContentLoaded', function() {
-            const badges = document.querySelectorAll('.blog-reaction-badge');
-            badges.forEach(badge => {
-                const slug = badge.dataset.slug;
-                const percentageEl = badge.querySelector('.reaction-percentage');
+        // Author card filter buttons
+        document.querySelectorAll('.filter-author-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.dataset.filter;
 
-                // Fetch reaction counts from localStorage (same pattern as post-reactions.js)
-                const reactions = JSON.parse(localStorage.getItem(`reactions_${slug}`) || '{"up": 0, "down": 0}');
-                const total = reactions.up + reactions.down;
+                // Update filter button state
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                const targetBtn = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
+                if (targetBtn) targetBtn.classList.add('active');
 
-                if (total > 0) {
-                    const percentage = Math.round((reactions.up / total) * 100);
-                    percentageEl.textContent = `${percentage}%`;
-                } else {
-                    percentageEl.textContent = '--';
+                // Filter posts
+                document.querySelectorAll('.post-card').forEach(card => {
+                    if (card.dataset.author === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Scroll to filter section
+                const filterSection = document.querySelector('.blog-filters');
+                if (filterSection) {
+                    filterSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         });
+
+        // Newsletter form handling
+        document.getElementById('newsletter-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('#email').value;
+            console.log('Newsletter signup:', email);
+            // TODO: Connect to Supabase newsletter_subscribers table
+            alert('Newsletter signup coming soon! Email saved: ' + email);
+        });
     </script>
+    <script src="/js/mobile-nav.js"></script>
+
+    <!-- Engagement Tracking (Internal Links, Scroll Depth, Outbound Clicks) -->
+    <script src="/js/engagement-tracking.js"></script>
 </body>
 </html>
