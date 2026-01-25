@@ -1358,6 +1358,10 @@ class UnifiedGenerator:
                     "thumbnail_url": None,  # Will be fetched from API
                     "appearances": 0,  # Will be calculated from unique weeks
                     "total_videos": 0,
+                    "total_views": 0,  # For engagement score
+                    "total_likes": 0,  # For engagement score
+                    "total_comments": 0,  # For engagement score
+                    "engagement_score": 0,  # Calculated: views + likes*10 + comments*20
                     "latest_date": video.get("published_at", ""),
                     "top_videos": [],
                     "_weeks_set": set(),  # Track unique weeks (year, week_num)
@@ -1376,8 +1380,11 @@ class UnifiedGenerator:
                 except (ValueError, TypeError):
                     pass
 
-            # Update video count (not appearances - that's weeks)
+            # Update video count and engagement metrics
             channels_dict[channel_name]["total_videos"] += 1
+            channels_dict[channel_name]["total_views"] += video.get("view_count", 0) or 0
+            channels_dict[channel_name]["total_likes"] += video.get("like_count", 0) or 0
+            channels_dict[channel_name]["total_comments"] += video.get("comment_count", 0) or 0
 
             # Keep latest date
             if video.get("published_at", "") > channels_dict[channel_name]["latest_date"]:
@@ -1397,7 +1404,7 @@ class UnifiedGenerator:
         # Fetch channel profile images
         channel_images = self._fetch_channel_profile_images(list(unique_channel_ids))
 
-        # Assign profile images to channels and calculate appearances from weeks
+        # Assign profile images to channels and calculate appearances/engagement from weeks
         for channel_name, channel_data in channels_dict.items():
             channel_id = channel_data.get("channel_id", "")
             if channel_id in channel_images:
@@ -1409,6 +1416,12 @@ class UnifiedGenerator:
                 )
             # Calculate appearances from unique weeks count
             channel_data["appearances"] = len(channel_data.get("_weeks_set", set())) or 1
+            # Calculate engagement score: views + likes*10 + comments*20
+            channel_data["engagement_score"] = (
+                channel_data["total_views"]
+                + (channel_data["total_likes"] * 10)
+                + (channel_data["total_comments"] * 20)
+            )
             # Remove internal tracking field before output
             if "_weeks_set" in channel_data:
                 del channel_data["_weeks_set"]
@@ -1416,6 +1429,45 @@ class UnifiedGenerator:
         # Convert to sorted list (sort by weeks, then by videos as tiebreaker)
         channels_list = list(channels_dict.values())
         channels_list.sort(key=lambda x: (x["appearances"], x["total_videos"]), reverse=True)
+
+        # Build Top 10 Leaderboard sorted by engagement score
+        # Load previous rankings if available for movement indicators
+        data_dir = self.project_root / self.config["paths"]["data_dir"]
+        leaderboard_file = os.path.join(data_dir, "channel_rankings.json")
+        previous_rankings = {}
+        try:
+            if os.path.exists(leaderboard_file):
+                with open(leaderboard_file, "r") as f:
+                    previous_data = json.load(f)
+                    previous_rankings = {ch["name"]: ch["rank"] for ch in previous_data.get("leaderboard", [])}
+        except (json.JSONDecodeError, IOError):
+            pass
+
+        # Sort by engagement score for leaderboard
+        leaderboard = sorted(channels_list, key=lambda x: x["engagement_score"], reverse=True)[:10]
+
+        # Add rank and movement to each leaderboard entry
+        for i, channel in enumerate(leaderboard, 1):
+            channel["rank"] = i
+            prev_rank = previous_rankings.get(channel["name"])
+            if prev_rank is None:
+                channel["movement"] = "new"  # New to leaderboard
+            elif prev_rank > i:
+                channel["movement"] = "up"
+                channel["movement_delta"] = prev_rank - i
+            elif prev_rank < i:
+                channel["movement"] = "down"
+                channel["movement_delta"] = i - prev_rank
+            else:
+                channel["movement"] = "same"
+                channel["movement_delta"] = 0
+
+        # Save current rankings for next week's comparison
+        try:
+            with open(leaderboard_file, "w") as f:
+                json.dump({"leaderboard": [{"name": ch["name"], "rank": ch["rank"]} for ch in leaderboard]}, f)
+        except IOError:
+            pass
 
         # Build top_videos list for "Top Videos This Week" panel
         top_videos = []
@@ -1445,6 +1497,7 @@ class UnifiedGenerator:
             "total_channels": len(channels_list),
             "total_weeks": 1,  # Currently tracking one week
             "top_videos": top_videos[:10],  # Limit to 10 videos
+            "leaderboard": leaderboard,  # Top 10 by engagement score
             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
 
