@@ -70,7 +70,7 @@
                 body: JSON.stringify({
                     p_content_type: contentType,
                     p_content_identifier: contentId,
-                    p_limit: 6
+                    p_limit: 30 // Fetch more to allow filtering by type
                 })
             }
         );
@@ -82,20 +82,14 @@
 
         const data = await response.json();
 
-        // Deduplicate by type + identifier
-        const seen = new Set();
-        return data.filter(item => {
-            const key = `${item.related_type}-${item.related_identifier}`;
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-        }).slice(0, 4);
+        // Filter to max 3 per type (blog, wiki, video)
+        return filterByType(data);
     }
 
-    // Fallback: query view directly
+    // Fallback: query view directly (fetch more to allow filtering by type)
     async function fetchViaView(contentType, contentId) {
         const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/v_related_content?source_type=eq.${contentType}&source_identifier=eq.${contentId}&limit=6`,
+            `${SUPABASE_URL}/rest/v1/v_related_content?source_type=eq.${contentType}&source_identifier=eq.${contentId}&limit=30`,
             {
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
@@ -110,14 +104,33 @@
 
         const data = await response.json();
 
-        // Deduplicate by type + identifier (ignore shared_topic_name differences)
+        // Filter to max 3 per type (blog, wiki, video) and deduplicate
+        return filterByType(data);
+    }
+
+    // Filter related content: max 3 blogs, 3 wikis, 3 videos
+    function filterByType(items) {
         const seen = new Set();
-        return data.filter(item => {
-            const key = `${item.related_type}-${item.related_identifier}`;
-            if (seen.has(key)) return false;
+        const counts = { blog: 0, wiki: 0, video: 0 };
+        const maxPerType = 3;
+        const filtered = [];
+
+        for (const item of items) {
+            const type = item.related_type;
+            const key = `${type}-${item.related_identifier}`;
+
+            // Skip duplicates
+            if (seen.has(key)) continue;
             seen.add(key);
-            return true;
-        }).slice(0, 4); // Limit to 4 items for cleaner layout
+
+            // Skip if we've hit max for this type
+            if (counts[type] >= maxPerType) continue;
+
+            counts[type]++;
+            filtered.push(item);
+        }
+
+        return filtered;
     }
 
     // Render related content cards
@@ -135,7 +148,8 @@
         grid.style.display = 'grid';
 
         if (items.length === 0) {
-            grid.innerHTML = '<p class="related-content-empty">No related content found yet. Check back soon!</p>';
+            // Hide the entire section if no related content
+            section.style.display = 'none';
             return;
         }
 
@@ -175,7 +189,11 @@
 
     // Format identifier as title (fallback)
     function formatTitle(slug) {
-        return slug
+        // Remove date prefix if present (e.g., "2025-12-23-adhd-connection" -> "adhd-connection")
+        const datePattern = /^\d{4}-\d{2}-\d{2}-/;
+        const cleanSlug = slug.replace(datePattern, '');
+
+        return cleanSlug
             .split('-')
             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
