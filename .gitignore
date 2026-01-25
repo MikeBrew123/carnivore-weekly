@@ -45,6 +45,10 @@ data/*.csv
 !data/config.json.example
 !data/content-of-the-week.json
 !data/featured-blog-post.json
+!data/blog_posts.json
+!data/scheduled_posts_batch.json
+!data/blog_topics_queue.json
+!data/published_blogs.json
 
 # Generated content
 public/weekly/*.html
