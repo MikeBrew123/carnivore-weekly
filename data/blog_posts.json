@@ -1120,6 +1120,60 @@
       },
       "comments_enabled": true,
       "content": "<h1>The Carnivore Community Pulse: What's Working in January 2026</h1>\n\n<p>January brought a flood of new carnivore converts. Here's what I'm seeing across Reddit, YouTube, and Discord. The trends, the debates, and what's actually working for people.</p>\n\n<p><em>Full content will be generated when this post is published.</em></p>"
+    },
+    {
+      "id": "2026-02-03-traveling-carnivore",
+      "slug": "2026-02-03-traveling-carnivore",
+      "title": "The Traveling Carnivore: How to Eat Clean on the Road",
+      "author": "sarah",
+      "author_title": "Health Coach",
+      "date": "2026-02-03",
+      "scheduled_date": "2026-02-03",
+      "published": false,
+      "category": "lifestyle",
+      "tags": ["travel", "practical", "restaurants", "road-trips"],
+      "excerpt": "Airport food courts, hotel breakfasts, road trip stops. Traveling carnivore doesn't have to mean suffering through sad salads or breaking your protocol. Here's your survival guide.",
+      "wiki_links": [],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "Airport food courts, hotel breakfasts, road trip stops. Traveling carnivore doesn't have to mean suffering through sad salads or breaking your protocol.",
+        "keywords": ["travel", "practical", "restaurants", "road-trips"]
+      },
+      "validation": {
+        "copy_editor": "pending",
+        "brand_validator": "pending",
+        "humanization": "passed"
+      },
+      "comments_enabled": true,
+      "content": "<h1>The Traveling Carnivore: How to Eat Clean on the Road</h1>\n\n<p>Airport food courts, hotel breakfasts, road trip stops. Traveling carnivore doesn't have to mean suffering through sad salads or breaking your protocol. Here's your survival guide.</p>\n\n<p><em>Full content will be generated when this post is published.</em></p>"
+    },
+    {
+      "id": "2026-02-03-carnivore-workout-fuel",
+      "slug": "2026-02-03-carnivore-workout-fuel",
+      "title": "Fueling Your Workouts on Carnivore: Pre and Post Training",
+      "author": "marcus",
+      "author_title": "Performance Coach",
+      "date": "2026-02-03",
+      "scheduled_date": "2026-02-03",
+      "published": false,
+      "category": "fitness",
+      "tags": ["fitness", "workouts", "performance", "nutrition-timing"],
+      "excerpt": "Do you need carbs to lift heavy? What about post-workout protein timing? The fitness community is split. Here's what actually matters for performance on carnivore.",
+      "wiki_links": [],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "Do you need carbs to lift heavy? What about post-workout protein timing? The fitness community is split. Here's what actually matters for performance.",
+        "keywords": ["fitness", "workouts", "performance", "nutrition-timing"]
+      },
+      "validation": {
+        "copy_editor": "pending",
+        "brand_validator": "pending",
+        "humanization": "passed"
+      },
+      "comments_enabled": true,
+      "content": "<h1>Fueling Your Workouts on Carnivore: Pre and Post Training</h1>\n\n<p>Do you need carbs to lift heavy? What about post-workout protein timing? The fitness community is split. Here's what actually matters for performance on carnivore.</p>\n\n<p><em>Full content will be generated when this post is published.</em></p>"
     }
   ]
 }
