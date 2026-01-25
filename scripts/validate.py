@@ -167,6 +167,7 @@ class UnifiedValidator:
             "public/blog-redesign.html",  # Test/redesign file
             "public/report.html",  # PDF report template (standalone)
             "public/assessment/success/",  # Stripe success redirect page
+            "public/about.html",  # Redirect page to the-lab.html
             "public/blog/2025-12-25-",  # Legacy blog posts (pre-template)
             "public/blog/2025-12-26-",  # Legacy blog posts (pre-template)
             "public/blog/2025-12-27-",  # Legacy blog posts (pre-template)
