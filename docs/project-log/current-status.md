@@ -1,15 +1,39 @@
 # Current Status
 
-**Last Updated:** 2026-01-20 (GEO Optimization Complete)
+**Last Updated:** 2026-01-25
 
 **HIGH-PRIORITY TODO:** CEO review of comprehensive growth strategy document (GROWTH-STRATEGY-2026.md)
 
 **Current Focus:**
-GEO optimization complete across all major site pages. Organization schema added to all 32 blog posts, blog index fully optimized with Blog + ItemList schemas, calculator mobile responsiveness fixed. Site now has comprehensive structured data for AI search visibility.
+Content production continues. Electrolyte Protocol series published (Part 1 + Part 2). Blog automation improved with Supabase integration. Writer headshots added. Affiliate cards enhanced with product images.
 
 ---
 
-## Latest Session (Jan 20 - Site-Wide GEO Optimization)
+## Latest Session (Jan 25 - Catch-Up Log + Quinn Fix)
+
+### Quinn Logging Protocol Fixed
+**Problem:** Quinn confirmed logging complete but files were never written (Jan 21-25 work lost).
+**Root Cause:** Conflicting instructions between `.claude/agents/quinn.md` and `CLAUDE.md` + no verification step.
+**Fix:**
+- Unified log location: `docs/project-log/` only
+- Added mandatory verification: Quinn must run `ls`/`cat` after write
+- Deprecated old locations: `agents/daily_logs/`, `memory.log`
+
+### Catch-Up Work Logged (Jan 21-25)
+- Electrolyte Protocol Part 1 & Part 2 blog posts
+- 7 research briefs added to wiki
+- Writer headshots added to blog index
+- Blog signatures fixed (Casey → Chloe)
+- Affiliate cards: product images + LMNT callout
+- Daily blog publishing automation enabled
+- Blog posts now fetch from Supabase
+- 21 commits captured in catch-up log
+
+**See:** `docs/project-log/daily/2026-01-25.md` for full details
+
+---
+
+## Previous Session (Jan 20 - Site-Wide GEO Optimization)
 
 ### GEO Implementation Complete
 
