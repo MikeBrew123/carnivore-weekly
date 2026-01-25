@@ -1341,6 +1341,9 @@ class UnifiedGenerator:
                         sentiment_map[video_id] = video["comment_sentiment"]
 
         # Group videos by channel from Supabase
+        # Track unique weeks (by added_at) separately from video count
+        from datetime import datetime
+
         channels_dict = {}
         unique_channel_ids = set()
 
@@ -1353,16 +1356,27 @@ class UnifiedGenerator:
                     "name": channel_name,
                     "channel_id": channel_id,
                     "thumbnail_url": None,  # Will be fetched from API
-                    "appearances": 0,
+                    "appearances": 0,  # Will be calculated from unique weeks
                     "total_videos": 0,
                     "latest_date": video.get("published_at", ""),
                     "top_videos": [],
+                    "_weeks_set": set(),  # Track unique weeks (year, week_num)
                 }
                 if channel_id:
                     unique_channel_ids.add(channel_id)
 
-            # Update channel stats
-            channels_dict[channel_name]["appearances"] += 1
+            # Track unique weeks by added_at date
+            added_at = video.get("added_at", "")
+            if added_at:
+                try:
+                    # Parse ISO timestamp and get week number
+                    dt = datetime.fromisoformat(added_at.replace("Z", "+00:00"))
+                    week_key = dt.isocalendar()[:2]  # (year, week_number)
+                    channels_dict[channel_name]["_weeks_set"].add(week_key)
+                except (ValueError, TypeError):
+                    pass
+
+            # Update video count (not appearances - that's weeks)
             channels_dict[channel_name]["total_videos"] += 1
 
             # Keep latest date
@@ -1383,7 +1397,7 @@ class UnifiedGenerator:
         # Fetch channel profile images
         channel_images = self._fetch_channel_profile_images(list(unique_channel_ids))
 
-        # Assign profile images to channels
+        # Assign profile images to channels and calculate appearances from weeks
         for channel_name, channel_data in channels_dict.items():
             channel_id = channel_data.get("channel_id", "")
             if channel_id in channel_images:
@@ -1393,10 +1407,15 @@ class UnifiedGenerator:
                 channel_data["thumbnail_url"] = (
                     "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel"
                 )
+            # Calculate appearances from unique weeks count
+            channel_data["appearances"] = len(channel_data.get("_weeks_set", set())) or 1
+            # Remove internal tracking field before output
+            if "_weeks_set" in channel_data:
+                del channel_data["_weeks_set"]
 
-        # Convert to sorted list
+        # Convert to sorted list (sort by weeks, then by videos as tiebreaker)
         channels_list = list(channels_dict.values())
-        channels_list.sort(key=lambda x: x["appearances"], reverse=True)
+        channels_list.sort(key=lambda x: (x["appearances"], x["total_videos"]), reverse=True)
 
         # Build top_videos list for "Top Videos This Week" panel
         top_videos = []
