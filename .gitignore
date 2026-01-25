@@ -89,3 +89,6 @@ Thumbs.db
 
 # Third-party repos
 gemini-code-assist-mcp/
+
+# Archived deprecated files
+archive/
