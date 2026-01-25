@@ -9,6 +9,7 @@
       "date": "2026-01-25",
       "scheduled_date": "2026-01-25",
       "published": true,
+      "featured": true,
       "category": "product",
       "tags": ["calculator", "protocol", "meal-plan", "personalized"],
       "excerpt": "Our team spent months building the most comprehensive carnivore protocol report available. Meal plans, food logs, doctor scripts, and personalized macros. Here's why we're launching at $9.99.",
