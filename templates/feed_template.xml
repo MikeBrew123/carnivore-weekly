@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+{# NOTE: Generator requires custom 'rss_date' filter to convert ISO dates to RFC 822 format #}
+{# Example: def rss_date(iso_date): return parsedate(iso_date).strftime('%a, %d %b %Y %H:%M:%S +0000') #}
+<rss version="2.0"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Carnivore Weekly</title>
+    <link>https://carnivoreweekly.com</link>
+    <description>Evidence-based carnivore insights</description>
+    <language>en-us</language>
+    <lastBuildDate>{{ build_date|rss_date }}</lastBuildDate>
+    <atom:link href="https://carnivoreweekly.com/feed.xml" rel="self" type="application/rss+xml"/>
+    {% for post in blog_posts %}
+    <item>
+      <title>{{ post.title|e }}</title>
+      <link>https://carnivoreweekly.com/blog/{{ post.slug }}.html</link>
+      <guid isPermaLink="true">https://carnivoreweekly.com/blog/{{ post.slug }}.html</guid>
+      <pubDate>{{ post.date|rss_date }}</pubDate>
+      <dc:creator>{{ post.author|e }}</dc:creator>
+      <description><![CDATA[{{ post.excerpt }}]]></description>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>
