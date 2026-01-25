@@ -5,11 +5,54 @@
 **HIGH-PRIORITY TODO:** CEO review of comprehensive growth strategy document (GROWTH-STRATEGY-2026.md)
 
 **Current Focus:**
-Content production continues. Electrolyte Protocol series published (Part 1 + Part 2). Blog automation improved with Supabase integration. Writer headshots added. Affiliate cards enhanced with product images.
+Blog index architecture redesigned. Template-driven with Jinja2, RSS feed added, magazine-style layout live. Content production continues with Electrolyte Protocol series.
 
 ---
 
-## Latest Session (Jan 25 - Catch-Up Log + Quinn Fix)
+## Latest Session (Jan 25 - Blog Index Architecture)
+
+### Blog Index Redesign (Major)
+
+**Converted from hardcoded HTML to data-driven template:**
+- Old: 1,090 lines of manually edited HTML
+- New: Jinja2 template loops through `blog_posts.json`
+- Adding posts: JSON entry + regenerate = done
+
+**New magazine-style design:**
+- Featured post hero (tilted card effect)
+- Calculator promo banner (shimmer animation, $9.99 CTA)
+- Author + category filters (client-side JS)
+- Post card grid with hover effects
+- Meet the Writers + Newsletter preserved
+
+**RSS feed generation:**
+- Template: `templates/feed_template.xml`
+- Output: `public/feed.xml`
+- Full content, RFC 822 dates, dc:creator
+- Fixed empty lastBuildDate bug
+
+**GEO improvements:**
+- Added sameAs links (YouTube, Twitter, Instagram) to schema
+- RSS validated (W3C)
+- All 5 AI bots granted access
+
+**New workflow for adding posts:**
+1. Add to `data/blog_posts.json`
+2. Create HTML in `public/blog/`
+3. Run `python3 scripts/generate_blog_pages.py`
+4. Post appears in index + RSS
+
+**Files changed:**
+- `templates/blog_index_template.html` - Complete rewrite
+- `templates/feed_template.xml` - New
+- `scripts/generate_blog_pages.py` - RSS + rss_date filter
+- `data/blog_posts.json` - featured flag
+- `public/blog.html` - Regenerated
+- `public/feed.xml` - New
+
+---
+
+## Earlier Session (Jan 25 - Catch-Up Log + Quinn Fix)
 
 ### Quinn Logging Protocol Fixed
 **Problem:** Quinn confirmed logging complete but files were never written (Jan 21-25 work lost).
@@ -23,7 +66,7 @@ Content production continues. Electrolyte Protocol series published (Part 1 + Pa
 - Electrolyte Protocol Part 1 & Part 2 blog posts
 - 7 research briefs added to wiki
 - Writer headshots added to blog index
-- Blog signatures fixed (Casey → Chloe)
+- Blog signatures fixed (Casey to Chloe)
 - Affiliate cards: product images + LMNT callout
 - Daily blog publishing automation enabled
 - Blog posts now fetch from Supabase
@@ -58,7 +101,7 @@ Content production continues. Electrolyte Protocol series published (Part 1 + Pa
 | Homepage | WebSite + Organization | Complete |
 | Calculator | Organization | Complete |
 | Wiki | Organization | Complete |
-| Blog Index | Organization + Blog + ItemList | Complete |
+| Blog Index | Organization + Blog + ItemList + sameAs | Complete |
 | Blog Posts (32) | Organization | Complete |
 
 **Key Files Modified:**
@@ -109,6 +152,8 @@ Content production continues. Electrolyte Protocol series published (Part 1 + Pa
 - Homepage: Chloe's roundup, top videos, hero section, editorial commentary
 - Channels: Toggle functionality, featured creators, 70 videos loaded
 - Blog: Post reactions JS, related content JS, feedback modal, WCAG compliant colors
+- Blog Index: Data-driven (Jinja2), magazine layout, author/category filters
+- RSS Feed: W3C valid, full content, auto-generated
 - Mobile: Navigation and layouts fixed (including calculator protein table)
 - Template System: Source of truth established
 - Supabase Caching: Videos cached, resilient to API failures
@@ -116,7 +161,7 @@ Content production continues. Electrolyte Protocol series published (Part 1 + Pa
 - Weekly Automation: 9-step pipeline operational
 - Deployment Pipeline: Verified working with /version endpoint
 - Accessibility: WCAG 2.1 AA color contrast validated
-- GEO: COMPLETE - All major pages have structured data
+- GEO: COMPLETE - All major pages have structured data + sameAs links
 - Analytics Tracking: Internal links, scroll depth, outbound clicks, wiki searches
 - Analytics Reports: 4 reports with "show reports" trigger
 
@@ -185,6 +230,11 @@ Content production continues. Electrolyte Protocol series published (Part 1 + Pa
 - Protein table now uses card-based layout on mobile
 - No more horizontal scroll on small screens
 
+**Blog Index Architecture** - COMPLETE (Jan 25)
+- Converted to Jinja2 data-driven template
+- RSS feed generation added
+- Magazine-style layout with filters
+
 ### MAJOR (Deferred - Lower Priority)
 - Sentiment Analysis (nice-to-have)
 - API Failure Risk (mitigated by caching)
@@ -238,6 +288,15 @@ Sunday Automation (run_weekly_update.sh):
 6. Validation -> passed
 ```
 
+### Blog Generation Pipeline (NEW)
+```
+Blog Index + RSS Generation:
+1. Edit data/blog_posts.json (add new post entry)
+2. Create HTML file in public/blog/
+3. Run: python3 scripts/generate_blog_pages.py
+4. Output: public/blog.html (index) + public/feed.xml (RSS)
+```
+
 ### Deployment Pipeline
 ```
 Calculator API Deployment:
@@ -272,7 +331,7 @@ Calculator API Deployment:
 - Weekly automation: VALIDATED
 - Deployment verification: ESTABLISHED
 - WCAG 2.1 AA compliance: VALIDATED (blog posts)
-- JSON-LD Schema: COMPLETE (all major pages)
+- JSON-LD Schema: COMPLETE (all major pages + sameAs)
 - AI Bot Access: ALL 5 BOTS GRANTED
 - Internal link tracking: LIVE (navigation flow analysis)
 - Scroll depth tracking: LIVE (25%, 50%, 75%, 100% milestones)
@@ -280,6 +339,8 @@ Calculator API Deployment:
 - Wiki search tracking: LIVE (content gap identification)
 - Analytics reporting: LIVE ("show reports" trigger)
 - Mobile responsiveness: IMPROVED (calculator protein table)
+- Blog index: DATA-DRIVEN (Jinja2 template)
+- RSS feed: LIVE (W3C valid, auto-generated)
 
 ---
 
@@ -296,6 +357,7 @@ Calculator API Deployment:
 - Jan 18: Payment flow tested end-to-end, PDF cleanup, pricing card UI refinement, CORS fix deployed
 - Jan 19: WCAG 2.1 color contrast fixed across all 30 blog posts, accessibility validator created
 - Jan 20: GEO optimization complete (homepage, calculator, wiki, blog index, 32 blog posts), analytics tracking deployed, automation pipeline fixes, calculator mobile fix
+- Jan 25: Blog index converted to Jinja2 template, RSS feed added, magazine-style layout, Quinn logging protocol fixed
 
 **System Status:** PRODUCTION - FULLY OPERATIONAL
 - Calculator: Fully working with personalized reports and payment
@@ -305,9 +367,11 @@ Calculator API Deployment:
 - Newsletter: Connected to database
 - Automation: 9-step pipeline operational
 - Blog: WCAG 2.1 AA compliant (color contrast validated)
-- GEO: COMPLETE - All major pages have Organization schema, AI bots granted access
+- Blog Index: Data-driven with Jinja2, magazine layout, filters
+- RSS: W3C valid, auto-generated from blog_posts.json
+- GEO: COMPLETE - All major pages have Organization schema + sameAs, AI bots granted access
 - Mobile: Calculator protein table responsive
 
 **Current Focus:** Strategic planning - CEO review of GROWTH-STRATEGY-2026.md for Q1 2026 prioritization
 
-**Latest Log:** `/Users/mbrew/Developer/carnivore-weekly/docs/project-log/daily/2026-01-20.md`
+**Latest Log:** `/Users/mbrew/Developer/carnivore-weekly/docs/project-log/daily/2026-01-25.md`
