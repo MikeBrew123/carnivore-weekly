@@ -791,31 +791,109 @@ class UnifiedGenerator:
         # Load blog posts for Featured Insights section (3 newest + 3 popular)
         newest_blog_posts = []
         popular_blog_posts = []
-        try:
-            blog_posts_path = self.project_root / "data" / "blog_posts.json"
-            if blog_posts_path.exists():
-                blog_data = json.loads(blog_posts_path.read_text())
-                all_posts = blog_data.get("blog_posts", [])
-                # Filter published posts
-                published_posts = [p for p in all_posts if p.get("published", False)]
 
-                # Sort by date (newest first) for "Latest" section
-                by_date = sorted(published_posts, key=lambda p: p.get("date", ""), reverse=True)
-                newest_blog_posts = by_date[:3]
+        # Try to fetch from Supabase first (includes real popularity data)
+        if self.supabase:
+            try:
+                # Fetch 3 newest published posts
+                newest_response = (
+                    self.supabase.table("blog_posts")
+                    .select("slug, title, excerpt, published_date, category, tags")
+                    .eq("is_published", True)
+                    .order("published_date", desc=True)
+                    .limit(3)
+                    .execute()
+                )
 
-                # Sort by popularity (views/engagement) for "Most Popular" section
-                # Use view_count if available, otherwise fall back to a default order
-                # For now, use older well-established posts as "popular" (they've had time to accumulate views)
-                # Exclude the 3 newest to avoid overlap
-                newest_slugs = {p["slug"] for p in newest_blog_posts}
-                remaining = [p for p in published_posts if p["slug"] not in newest_slugs]
-                # Sort remaining by date ascending (older = more established = likely more popular)
-                # In future, replace with actual analytics data
-                popular_blog_posts = sorted(remaining, key=lambda p: p.get("date", ""))[:3]
+                if newest_response.data:
+                    for post in newest_response.data:
+                        newest_blog_posts.append(
+                            {
+                                "slug": post.get("slug"),
+                                "title": post.get("title"),
+                                "excerpt": post.get("excerpt"),
+                                "date": post.get("published_date"),
+                                "category": post.get("category"),
+                                "tags": post.get("tags", []),
+                            }
+                        )
 
-                print(f"  ✓ Loaded {len(newest_blog_posts)} newest + {len(popular_blog_posts)} popular blog posts")
-        except Exception as e:
-            print(f"  Warning: Could not load blog posts: {e}")
+                # Fetch reaction counts for popularity ranking
+                reactions_response = (
+                    self.supabase.table("v_post_reaction_counts")
+                    .select("post_slug, thumbs_up")
+                    .execute()
+                )
+
+                # Build reaction map for quick lookup
+                reaction_map = {}
+                if reactions_response.data:
+                    for r in reactions_response.data:
+                        reaction_map[r.get("post_slug")] = r.get("thumbs_up", 0)
+
+                # Fetch all published posts (excluding newest 3)
+                exclude_slugs = [p["slug"] for p in newest_blog_posts]
+                all_posts_response = (
+                    self.supabase.table("blog_posts")
+                    .select("slug, title, excerpt, published_date, category, tags")
+                    .eq("is_published", True)
+                    .execute()
+                )
+
+                if all_posts_response.data:
+                    # Filter out newest, add reaction counts, sort by popularity
+                    candidates = [
+                        {**p, "thumbs_up": reaction_map.get(p.get("slug"), 0)}
+                        for p in all_posts_response.data
+                        if p.get("slug") not in exclude_slugs
+                    ]
+                    # Sort by thumbs_up (desc), then by date (desc)
+                    candidates.sort(
+                        key=lambda x: (-x["thumbs_up"], x.get("published_date", "") or ""),
+                        reverse=False,
+                    )
+
+                    for post in candidates[:3]:
+                        popular_blog_posts.append(
+                            {
+                                "slug": post.get("slug"),
+                                "title": post.get("title"),
+                                "excerpt": post.get("excerpt"),
+                                "date": post.get("published_date"),
+                                "category": post.get("category"),
+                                "tags": post.get("tags", []),
+                                "thumbs_up": post.get("thumbs_up", 0),
+                            }
+                        )
+
+                if newest_blog_posts or popular_blog_posts:
+                    print(
+                        f"  ✓ Loaded {len(newest_blog_posts)} newest + {len(popular_blog_posts)} popular blog posts from Supabase"
+                    )
+            except Exception as e:
+                print(f"  Warning: Could not load blog posts from Supabase: {e}")
+
+        # Fallback to JSON if Supabase didn't return data
+        if not newest_blog_posts:
+            try:
+                blog_posts_path = self.project_root / "data" / "blog_posts.json"
+                if blog_posts_path.exists():
+                    blog_data = json.loads(blog_posts_path.read_text())
+                    all_posts = blog_data.get("blog_posts", [])
+                    published_posts = [p for p in all_posts if p.get("published", False)]
+
+                    by_date = sorted(published_posts, key=lambda p: p.get("date", ""), reverse=True)
+                    newest_blog_posts = by_date[:3]
+
+                    newest_slugs = {p["slug"] for p in newest_blog_posts}
+                    remaining = [p for p in published_posts if p["slug"] not in newest_slugs]
+                    popular_blog_posts = sorted(remaining, key=lambda p: p.get("date", ""))[:3]
+
+                    print(
+                        f"  ✓ Loaded {len(newest_blog_posts)} newest + {len(popular_blog_posts)} popular blog posts from JSON (fallback)"
+                    )
+            except Exception as e:
+                print(f"  Warning: Could not load blog posts: {e}")
 
         template_vars = {
             "analysis_date": data.get(
