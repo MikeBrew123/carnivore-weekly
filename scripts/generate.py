@@ -453,15 +453,19 @@ class UnifiedGenerator:
                             wiki_kw = topic.get("wiki_keyword")
                             if wiki_kw and wiki_kw in wiki_keyword_map:
                                 anchor = wiki_keyword_map[wiki_kw].replace("wiki.html#", "")
-                                topic_obj["wiki_links"] = [{"anchor": anchor, "title": wiki_kw.title()}]
+                                topic_obj["wiki_links"] = [
+                                    {"anchor": anchor, "title": wiki_kw.title()}
+                                ]
                             trending_topics.append(topic_obj)
                         else:
                             # Old format: simple string
-                            trending_topics.append({
-                                "topic": str(topic),
-                                "description": "",
-                                "mentioned_by": ["Analysis"],
-                            })
+                            trending_topics.append(
+                                {
+                                    "topic": str(topic),
+                                    "description": "",
+                                    "mentioned_by": ["Analysis"],
+                                }
+                            )
                 else:
                     raise ValueError("Not a list")
             except (json_lib.JSONDecodeError, ValueError):
