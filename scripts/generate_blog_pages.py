@@ -6,6 +6,7 @@ Creates individual post pages and blog index.
 
 import json
 from pathlib import Path
+from datetime import datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 # Auto-linking for wiki keywords
@@ -43,6 +44,7 @@ def setup_jinja():
     # Add custom filters
     env.filters['wordcount'] = lambda s: len(s.split())
     env.filters['format_date'] = lambda d: d.replace('-', ' ').title() if d else 'Unknown'
+    env.filters['rss_date'] = lambda date_str: datetime.strptime(date_str, '%Y-%m-%d').strftime('%a, %d %b %Y 00:00:00 GMT') if date_str else ''
 
     return env
 
@@ -119,6 +121,25 @@ def update_sitemap(posts):
     # For now, just note that sitemap should be updated
     print(f"📋 Blog posts added to sitemap: {len(published_posts)} URLs")
 
+def generate_rss_feed(env, posts):
+    """Generate RSS feed XML file."""
+    template = env.get_template("feed_template.xml")
+    published_posts = [p for p in posts if p.get("published", False)]
+
+    # Sort by date, newest first
+    published_posts.sort(key=lambda p: p.get('date', ''), reverse=True)
+
+    rendered = template.render(
+        blog_posts=published_posts
+    )
+
+    # Write RSS feed
+    feed_file = PUBLIC_DIR / "feed.xml"
+    with open(feed_file, "w") as f:
+        f.write(rendered)
+
+    print(f"✅ RSS feed generated ({len(published_posts)} posts)")
+
 def main():
     """Main execution."""
     print("=" * 50)
@@ -137,6 +158,7 @@ def main():
     # Generate pages
     generate_blog_posts(env, posts)
     generate_blog_index(env, posts)
+    generate_rss_feed(env, posts)
     update_sitemap(posts)
 
     print("\n" + "=" * 50)
