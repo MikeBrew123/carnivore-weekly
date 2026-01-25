@@ -129,8 +129,12 @@ def generate_rss_feed(env, posts):
     # Sort by date, newest first
     published_posts.sort(key=lambda p: p.get('date', ''), reverse=True)
 
+    # Use the most recent post date as build date
+    build_date = published_posts[0].get('date', '') if published_posts else datetime.now().strftime('%Y-%m-%d')
+
     rendered = template.render(
-        blog_posts=published_posts
+        blog_posts=published_posts,
+        build_date=build_date
     )
 
     # Write RSS feed
