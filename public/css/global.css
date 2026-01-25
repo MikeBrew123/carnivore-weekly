@@ -906,9 +906,12 @@ nav.nav-menu-2026 a:hover {
   gap: var(--space-8);
 }
 
-.site-content .affiliate-card--premium {
+.site-content .affiliate-card.affiliate-card--premium {
   display: flex;
   flex-direction: column;
+  padding: 0;
+  gap: 0;
+  align-items: stretch;
   background: var(--color-white);
   border-radius: 12px;
   overflow: hidden;
