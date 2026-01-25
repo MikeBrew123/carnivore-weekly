@@ -1,0 +1,128 @@
+{
+  "week": "2026-01-14",
+  "generated_by": "Chloe (Community Manager)",
+  "note": "Updated priority list based on mid-January 2026 trending topics. Checked against published_blogs.json with 80-day deduplication rule.",
+  "deduplication_applied": true,
+  "last_published_check": "2026-01-14",
+  "topics_filtered_out": [
+    {
+      "topic": "PCOS/Women's Hormones",
+      "reason": "Published 2025-12-30 (15 days ago) - wait 65 more days",
+      "published_date": "2025-12-30"
+    },
+    {
+      "topic": "Budgeting/Cost",
+      "reason": "Published 2025-12-26 (19 days ago) - wait 61 more days",
+      "published_date": "2025-12-26"
+    },
+    {
+      "topic": "Lion Diet/Extreme Protocols",
+      "reason": "Published 2025-12-29 (16 days ago) - wait 64 more days",
+      "published_date": "2025-12-29"
+    },
+    {
+      "topic": "Adaptation Symptoms (night sweats, acne)",
+      "reason": "Published 2025-12-21 & 2025-12-31 (recently covered)",
+      "published_date": "2025-12-31"
+    }
+  ],
+  "high_priority": [
+    {
+      "rank": 1,
+      "topic": "Beginner's Complete Blueprint: Your First 30 Days on Carnivore",
+      "trend_strength": "🔥🔥🔥🔥",
+      "why_trending": "Mid-January = peak New Year's beginner surge. Reddit/YouTube flooded with 'how do I start?' and 'what should I eat?' posts. Beginner content dominates all platforms.",
+      "suggested_author": "Sarah",
+      "content_angle": "Day-by-day guide from prep to week 4. Answer top beginner questions: coffee, dairy, meal planning, what to buy first",
+      "last_published_similar": "Never (critical content gap)",
+      "estimated_search_volume": "Very High",
+      "sources": "Reddit r/carnivore beginner posts, YouTube comment sections, Chomps beginner guide"
+    },
+    {
+      "rank": 2,
+      "topic": "Carnivore Didn't Fix Everything: The Honest Truth About Plateaus",
+      "trend_strength": "🔥🔥🔥",
+      "why_trending": "YouTube creators opening up about realistic expectations. 'Carnivore didn't fix everything' conversation trending heavily. Community wants honesty about what carnivore can/can't do.",
+      "suggested_author": "Chloe",
+      "content_angle": "Real talk on plateaus, what carnivore ACTUALLY fixes, additional interventions (fermented foods, supplements), managing expectations",
+      "last_published_similar": "Never (emerging trend)",
+      "estimated_search_volume": "High",
+      "sources": "YouTube creator discussions, community feedback patterns"
+    },
+    {
+      "rank": 3,
+      "topic": "Medical Establishment Backlash: Why Experts Keep Attacking Carnivore (And What They're Missing)",
+      "trend_strength": "🔥🔥🔥",
+      "why_trending": "Plant-based media ramping up anti-carnivore articles. Community frustrated with mainstream health advice. 'My doctor said I'll die' posts everywhere.",
+      "suggested_author": "Sarah",
+      "content_angle": "Why mainstream nutrition still rejects carnivore, what the research actually shows, how to talk to your doctor, legitimate concerns vs. propaganda",
+      "last_published_similar": "Never (controversy angle)",
+      "estimated_search_volume": "Very High",
+      "sources": "Plant Based News critiques, Harvard Health, community medical frustration posts"
+    }
+  ],
+  "medium_priority": [
+    {
+      "rank": 4,
+      "topic": "Real 2-Week Carnivore Results: What Actually Happens (Reddit Data)",
+      "trend_strength": "🔥🔥",
+      "why_trending": "Reddit threads filled with 2-week progress reports. Beginners want to know what's normal vs. exceptional. Transformation posts going viral.",
+      "suggested_author": "Chloe",
+      "content_angle": "Compilation of Reddit 2-week experiences. What's typical: weight loss range (5-17 lbs reported), energy changes, adaptation symptoms, what to expect realistically",
+      "last_published_similar": "Never (data-driven content gap)",
+      "estimated_search_volume": "High",
+      "sources": "Reddit r/carnivorediet 2-week results threads, Texas Real Food compilation"
+    },
+    {
+      "rank": 5,
+      "topic": "Coffee on Carnivore: The Great Debate Settled",
+      "trend_strength": "🔥🔥",
+      "why_trending": "Top beginner question across all platforms. Confusion about strict vs. relaxed carnivore. Coffee/beverage questions constant.",
+      "suggested_author": "Chloe",
+      "content_angle": "Strict carnivore (no coffee) vs. relaxed approach. What the community actually does. Pros/cons. How to decide what's right for you.",
+      "last_published_similar": "Never (practical gap)",
+      "estimated_search_volume": "Medium-High",
+      "sources": "WebMD carnivore guide, CookUnity beginner guide, community polls"
+    },
+    {
+      "rank": 6,
+      "topic": "Organ Meats for Skeptics: How to Actually Start Eating Them",
+      "trend_strength": "🔥🔥",
+      "why_trending": "Nutrition discussion evolving beyond muscle meat. Grassland Beef/Seven Sons Farms launching organ products. Beginners asking 'do I HAVE to eat organs?'",
+      "suggested_author": "Sarah + Marcus (collaboration)",
+      "content_angle": "Why organs matter, how to start (liver is easiest), sourcing guide, prep that doesn't taste scary, supplements vs. whole organs",
+      "last_published_similar": "Never (product/practical gap)",
+      "estimated_search_volume": "High",
+      "sources": "Community sourcing questions, creator product launches, nutrition discussions"
+    }
+  ],
+  "notes": {
+    "major_trend_shifts_since_jan_2": [
+      "Beginner surge intensified (mid-January peak)",
+      "Honesty/realistic expectations conversation opened up",
+      "Anti-carnivore media backlash increased (Plant Based News, Harvard Health articles)",
+      "Coffee question now TOP beginner concern (wasn't flagged Jan 2)"
+    ],
+    "topics_deprioritized_from_jan_2_queue": [
+      "YouTube Creator Landscape (rank 2 → not in top 6) - less urgent now",
+      "Transformation Stories (rank 5 → rank 4 pivot to 2-week data)",
+      "Family Integration (rank 8 → deferred) - social content less urgent than beginner content"
+    ],
+    "trending_this_week": [
+      "beginners",
+      "realistic expectations",
+      "expert backlash",
+      "2-week results",
+      "coffee debate",
+      "organ meats"
+    ],
+    "avoid_next_2_months": [
+      "PCOS",
+      "budgeting/cost",
+      "lion diet",
+      "adaptation symptoms (night sweats, acne)",
+      "meal prep/freezer strategy"
+    ],
+    "world_context": "Mid-January 2026 = peak beginner momentum from New Year's resolutions. World Carnivore Month active. Anti-carnivore media ramping up attacks. Community wants honesty and practical help."
+  }
+}
