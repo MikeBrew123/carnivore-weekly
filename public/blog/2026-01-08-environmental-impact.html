@@ -7,6 +7,7 @@
     <meta name="description" content="The environmental case for carnivore: regenerative grazing vs CAFO, carbon sequestration, land use efficiency, and water footprint. Why the standard critique misses the point.">
     <meta name="keywords" content="carnivore environment, regenerative agriculture, grass fed beef carbon, regenerative grazing, CAFO vs pasture, meat carbon footprint, sustainable beef, carbon sequestration cattle">
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/blog-premium.css">
     <link rel="canonical" href="https://carnivoreweekly.com/blog/2026-01-08-environmental-impact.html">
     <meta property="og:title" content="Environmental Impact: The Regenerative Agriculture Counter-Narrative - Carnivore Weekly Blog">
     <meta property="og:description" content="The environmental case for carnivore: regenerative grazing vs CAFO, carbon sequestration, land use efficiency, and water footprint. Why the standard critique misses the point.">
@@ -18,8 +19,8 @@
     <meta name="twitter:title" content="Environmental Impact: The Regenerative Agriculture Counter-Narrative - Carnivore Weekly Blog">
     <meta name="twitter:description" content="The environmental case for carnivore: regenerative grazing vs CAFO, carbon sequestration, land use efficiency, and water footprint. Why the standard critique misses the point.">
     <meta name="twitter:site" content="@carnivoreweekly">
-    <meta property="og:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
-    <meta name="twitter:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/blog/environmental-impact-1200w.webp">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/blog/environmental-impact-1200w.webp">
 
     <!-- Article Schema Markup -->
     <script type="application/ld+json">
@@ -185,7 +186,8 @@
         }
     </style>
 </head>
-<body>
+<body class="blog-premium">
+    <div class="reading-progress" id="reading-progress"></div>
     <!-- Site Header -->
     <header class="header-2026">
         <div class="container-2026">
@@ -214,6 +216,7 @@
             <!-- Post Header -->
             <article>
                 <div class="post-header">
+                    <span class="post-category">Sustainability</span>
                     <h1 class="post-title page-header">Environmental Impact: The Regenerative Agriculture Counter-Narrative</h1>
                     <div class="post-meta">
                         <span>January 8, 2026</span>
@@ -221,8 +224,13 @@
                     </div>
 
                     <div class="post-author-bio">
-                        <strong>Carnivore Weekly</strong><br>
-                        Health coach and evidence-based writer focused on metabolic health, physiological adaptation, and the science behind carnivore living.
+                        <div class="author-avatar">
+                            <img src="../images/avatar-default.webp" alt="Carnivore Weekly" loading="lazy">
+                        </div>
+                        <div class="author-info">
+                            <strong>Carnivore Weekly</strong>
+                            <p>Health coach and evidence-based writer focused on metabolic health, physiological adaptation, and the science behind carnivore living.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -571,6 +579,19 @@
                 div.innerHTML = html;
                 document.body.appendChild(div);
             });
+    </script>
+    <script>
+    window.addEventListener('scroll', () => {
+      const article = document.querySelector('article');
+      const progress = document.getElementById('reading-progress');
+      if (article && progress) {
+        const rect = article.getBoundingClientRect();
+        const total = article.offsetHeight - window.innerHeight;
+        const current = -rect.top;
+        const percent = Math.min(Math.max((current / total) * 100, 0), 100);
+        progress.style.width = percent + '%';
+      }
+    });
     </script>
 </body>
 </html>
