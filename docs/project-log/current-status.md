@@ -1,11 +1,24 @@
 # Current Status
 
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-01-26
 
 **HIGH-PRIORITY TODO:** CEO review of comprehensive growth strategy document (GROWTH-STRATEGY-2026.md)
 
 **Current Focus:**
 Blog index architecture redesigned. Template-driven with Jinja2, RSS feed added, magazine-style layout live. Content production continues with Electrolyte Protocol series.
+
+---
+
+## Known Technical Debt
+
+### Calculator SEO (Do Not Touch)
+**Decision (2026-01-26):** Do not modify calculator SEO until stability is confirmed. Calculator is receiving traffic and working correctly.
+
+**Minor issues documented for later:**
+1. Canonical URL points to `/calculator.html` instead of `/calculator/` - minor inconsistency
+2. Assessment/success page is a redirect with no SEO tags - acceptable for redirect behavior
+
+**Status:** Deferred. Calculator is stable and generating traffic.
 
 ---
 
@@ -358,6 +371,7 @@ Calculator API Deployment:
 - Jan 19: WCAG 2.1 color contrast fixed across all 30 blog posts, accessibility validator created
 - Jan 20: GEO optimization complete (homepage, calculator, wiki, blog index, 32 blog posts), analytics tracking deployed, automation pipeline fixes, calculator mobile fix
 - Jan 25: Blog index converted to Jinja2 template, RSS feed added, magazine-style layout, Quinn logging protocol fixed
+- Jan 26: Calculator SEO decision logged - do not touch until stability confirmed
 
 **System Status:** PRODUCTION - FULLY OPERATIONAL
 - Calculator: Fully working with personalized reports and payment
@@ -374,4 +388,4 @@ Calculator API Deployment:
 
 **Current Focus:** Strategic planning - CEO review of GROWTH-STRATEGY-2026.md for Q1 2026 prioritization
 
-**Latest Log:** `/Users/mbrew/Developer/carnivore-weekly/docs/project-log/daily/2026-01-25.md`
+**Latest Log:** `/Users/mbrew/Developer/carnivore-weekly/docs/project-log/daily/2026-01-26.md`
