@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carnivore Diet Wiki - Research-Backed Answers | Carnivore Weekly</title>
+    <title>Carnivore Diet Protocols &amp; Basics - Research-Backed Answers | Carnivore Weekly</title>
 
     <!-- SEO Meta Tags -->
     <meta name="description" content="Research-backed answers to your carnivore diet questions. Topics: cholesterol, weight loss, fiber, electrolytes, and more. Updated with latest science.">
     <meta name="keywords" content="carnivore diet faq, carnivore questions, ldl cholesterol carnivore, carnivore weight loss stall, carnivore electrolytes, carnivore research">
     <meta name="robots" content="index, follow">
 
-    <link rel="canonical" href="https://carnivoreweekly.com/wiki.html">
+    <link rel="canonical" href="https://carnivoreweekly.com/wiki/">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Carnivore Diet Wiki | Carnivore Weekly">
+    <meta property="og:title" content="Protocols &amp; Basics | Carnivore Weekly">
     <meta property="og:description" content="Research-backed answers to common carnivore diet questions">
-    <meta property="og:url" content="https://carnivoreweekly.com/wiki.html">
+    <meta property="og:url" content="https://carnivoreweekly.com/wiki/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Carnivore Weekly">
     <meta property="og:image" content="https://carnivoreweekly.com/images/carnivore-weekly-og.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Carnivore Diet Wiki | Carnivore Weekly">
+    <meta name="twitter:title" content="Protocols &amp; Basics | Carnivore Weekly">
     <meta name="twitter:description" content="Research-backed answers to common carnivore diet questions">
     <meta name="twitter:image" content="https://carnivoreweekly.com/images/carnivore-weekly-og.png">
 
@@ -36,7 +36,7 @@
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style-2026.css">
+    <link rel="stylesheet" href="/css/global.css">
     <style>
         /* Page-specific styles */
         /* Table of Contents */
@@ -161,6 +161,11 @@
             padding: 12px;
             text-align: left;
             font-family: 'Playfair Display', serif;
+        }
+
+        .topic-content table th strong {
+            color: #ffd700;
+            font-weight: 700;
         }
 
         .topic-content table td {
@@ -295,6 +300,59 @@
         }
     </style>
 
+    <!-- Schema.org Organization markup for Knowledge Graph -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Carnivore Weekly",
+      "url": "https://carnivoreweekly.com",
+      "logo": "https://carnivoreweekly.com/images/logo.png",
+      "description": "Evidence-based carnivore diet education, research synthesis, and practical protocols for the meat-based community.",
+      "sameAs": [
+        "https://carnivoreweekly.com"
+      ],
+      "mentions": [
+        {
+          "@type": "Person",
+          "name": "Dr. Shawn Baker",
+          "description": "Orthopedic surgeon and carnivore diet advocate",
+          "sameAs": "https://meatrx.com"
+        },
+        {
+          "@type": "Person",
+          "name": "Dr. Paul Saladino",
+          "description": "Author of The Carnivore Code and animal-based nutrition researcher",
+          "sameAs": "https://heartandsoil.co"
+        },
+        {
+          "@type": "Person",
+          "name": "Dr. Ken Berry",
+          "description": "Family physician and low-carb/carnivore educator",
+          "sameAs": "https://www.youtube.com/@KenDBerryMD"
+        },
+        {
+          "@type": "Person",
+          "name": "Dr. Dave Feldman",
+          "description": "Lean Mass Hyper-Responder researcher and cholesterol scientist",
+          "sameAs": "https://cholesterolcode.com"
+        },
+        {
+          "@type": "Person",
+          "name": "Dr. Peter Attia",
+          "description": "Longevity physician and metabolic health researcher",
+          "sameAs": "https://peterattiamd.com"
+        },
+        {
+          "@type": "Organization",
+          "name": "Cronometer",
+          "description": "Nutrition tracking application",
+          "sameAs": "https://cronometer.com"
+        }
+      ]
+    }
+    </script>
+
     <!-- Schema.org FAQPage markup -->
     <script type="application/ld+json">
     {
@@ -327,10 +385,26 @@
         },
         {
           "@type": "Question",
+          "name": "How do I transition from keto to carnivore?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The transition from keto to carnivore triggers temporary changes in gut bacteria, bile acid metabolism, and hormonal signaling—typically resolving within 2-4 weeks. Expect loose stools and fatigue in weeks 1-2 as bile-tolerant bacteria expand and bile transporters upregulate. Support the transition with adequate hydration, electrolytes (sodium, magnesium, potassium), bone broth, and consider slower 50:50 keto-carnivore meals if sensitive."
+          }
+        },
+        {
+          "@type": "Question",
           "name": "Is dairy good or bad on carnivore?",
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Dairy's impact depends on individual tolerance. While nutrient-dense, dairy can cause inflammation or weight stalls in some people due to lactose, casein, or insulin response. The decision is personal and evidence-based."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the difference between A1 and A2 dairy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A2 dairy appears to be better tolerated for gut health and inflammation. A1 dairy releases β-casomorphin-7 (BCM-7), an opioid-like peptide that may trigger immune and gastrointestinal responses. A2 milk does not release BCM-7 during digestion, which explains why many dairy-sensitive individuals report fewer symptoms with A2 dairy from Jersey, Guernsey, goat, or sheep milk."
           }
         },
         {
@@ -367,6 +441,14 @@
         },
         {
           "@type": "Question",
+          "name": "What is the best salt for carnivore diet?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Mined salts like Redmond Real Salt or Himalayan Pink Salt are ideal for carnivore due to negligible microplastic contamination and trace mineral content. Most sea salts now contain microplastics ranging from 74-1674 particles per kilogram, making them less desirable for long-term use."
+          }
+        },
+        {
+          "@type": "Question",
           "name": "What electrolytes should I supplement on carnivore?",
           "acceptedAnswer": {
             "@type": "Answer",
@@ -391,6 +473,38 @@
         },
         {
           "@type": "Question",
+          "name": "How do organ meats compare to muscle meat nutritionally?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Organ meats are the most nutrient-dense foods on Earth. Beef liver contains 100x more vitamin A (22,000% higher), 35x more B12 (3,400% higher), 25x more folate (2,500% higher), and 120x more copper (12,000% higher) than beef ribeye per 100g. However, daily liver consumption isn't necessary—1-2 oz once or twice per week covers micronutrient needs while avoiding potential vitamin A toxicity from overconsumption."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need creatine supplements on carnivore?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most carnivore dieters already obtain 3-5 grams of creatine daily from 2 pounds of beef, enough to maintain muscle stores. However, supplemental creatine monohydrate can still enhance power, cognition, and recovery—especially during keto adaptation or high-intensity training. Supplementation is optional but beneficial, with 30+ years of safety data."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I eat honey and fruit on carnivore?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The honey and fruit debate divides strict carnivores from animal-based dieters. Strict carnivores argue that even small amounts of sugar stop fat adaptation and trigger cravings. Animal-based advocates claim that honey and fruit (in moderation) support thyroid and hormonal function without harming ketosis. Research shows most people tolerate up to 15g of fructose (roughly 1 tbsp honey) without negative microbiome effects, and small doses may enhance metabolic flexibility rather than impair it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is carnivore diet good for menopause?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A carnivore or ketogenic diet can stabilize hormones, reduce inflammation, and improve body composition during menopause. The diet reduces insulin and leptin levels, enhances satiety hormones (GLP-1, PYY), and modulates inflammation—potentially reducing mood instability and hot flashes. Evidence shows no bone density loss with proper mineral intake (calcium, vitamin D, magnesium). Recommended supplements include D3+K2, magnesium glycinate, and creatine monohydrate for optimal results."
+          }
+        },
+        {
+          "@type": "Question",
           "name": "How can I eat carnivore on a budget?",
           "acceptedAnswer": {
             "@type": "Answer",
@@ -403,6 +517,14 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Critics raise concerns about nutrient deficiencies, cardiovascular risk, and sustainability. The wiki examines these critiques against current scientific evidence and provides a balanced perspective."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does carnivore diet damage kidneys?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "In healthy individuals, high-protein carnivore diets do not harm kidney function. The kidneys adapt through reversible hyperfiltration. However, people with existing chronic kidney disease (CKD) should exercise caution as excessive protein can accelerate decline in already-impaired kidneys."
           }
         },
         {
@@ -440,9 +562,9 @@
     <!-- NAVIGATION -->
     <nav class="nav-menu-2026">
         <a href="/index.html">Home</a>
-        <a href="/channels.html">Channels</a>
-        <a href="/wiki.html">Wiki</a>
-        <a href="/blog.html">Blog</a>
+        <a href="/channels.html">Weekly Watch</a>
+        <a href="/wiki/">Protocols &amp; Basics</a>
+        <a href="/blog/">Insights</a>
         <a href="/calculator.html">Calculator</a>
 
     </nav>
@@ -503,9 +625,23 @@
                 </div>
 
                 <div class="toc-item">
+                    <a href="#keto-to-carnivore">
+                        <div class="toc-item-title">🔄 Keto to Carnivore Transition</div>
+                        <div class="toc-item-desc">Gut and hormone adaptation takes 2-4 weeks.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
                     <a href="#dairy">
                         <div class="toc-item-title">🧀 Dairy: Friend or Foe?</div>
                         <div class="toc-item-desc">Works for some, not others.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#a1-a2-dairy">
+                        <div class="toc-item-title">🥛 A1 vs. A2 Dairy</div>
+                        <div class="toc-item-desc">A2 milk is better tolerated for gut health.</div>
                     </a>
                 </div>
 
@@ -538,6 +674,13 @@
                 </div>
 
                 <div class="toc-item">
+                    <a href="#best-salt">
+                        <div class="toc-item-title">🧂 Best Salt for Carnivore</div>
+                        <div class="toc-item-desc">Mined salts beat sea salt for purity.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
                     <a href="#electrolytes">
                         <div class="toc-item-title">⚡ Electrolytes & Cramps</div>
                         <div class="toc-item-desc">Balance sodium, potassium, magnesium.</div>
@@ -559,6 +702,34 @@
                 </div>
 
                 <div class="toc-item">
+                    <a href="#organ-vs-muscle">
+                        <div class="toc-item-title">🥩 Organ vs. Muscle Meat</div>
+                        <div class="toc-item-desc">Liver has 100x more nutrients than ribeye.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#creatine">
+                        <div class="toc-item-title">💪 Creatine Supplementation</div>
+                        <div class="toc-item-desc">Beef provides 3-5g daily; supplement for extra edge.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#honey-fruit">
+                        <div class="toc-item-title">🍯 Honey & Fruit Civil War</div>
+                        <div class="toc-item-desc">Strict carnivore vs. animal-based debate.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#menopause">
+                        <div class="toc-item-title">🌙 Carnivore for Menopause</div>
+                        <div class="toc-item-desc">Stabilizes hormones, reduces inflammation.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
                     <a href="#budget">
                         <div class="toc-item-title">💰 Carnivore on a Budget</div>
                         <div class="toc-item-desc">Ground beef and eggs work fine.</div>
@@ -573,6 +744,13 @@
                 </div>
 
                 <div class="toc-item">
+                    <a href="#kidney-health">
+                        <div class="toc-item-title">🫘 Kidneys & High Protein</div>
+                        <div class="toc-item-desc">Safe in healthy adults; caution if CKD.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
                     <a href="#gout">
                         <div class="toc-item-title">🦶 Carnivore & Gout</div>
                         <div class="toc-item-desc">Insulin sensitivity often reduces attacks.</div>
@@ -583,6 +761,55 @@
                     <a href="#beer-gout">
                         <div class="toc-item-title">🍺 Beer, Carnivore & Gout</div>
                         <div class="toc-item-desc">Beer keeps uric acid high. Quit it for relief.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#explosive-power">
+                        <div class="toc-item-title">🏋️ Performance & Explosive Power</div>
+                        <div class="toc-item-desc">Sodium loading and protein ratios for athletes.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#chaos-eating">
+                        <div class="toc-item-title">🚨 Chaos Eating (First Responders)</div>
+                        <div class="toc-item-desc">Shift work protocols for metabolic resilience.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#elimination-matrix">
+                        <div class="toc-item-title">🧬 The Elimination Matrix</div>
+                        <div class="toc-item-desc">Lion Diet reintroduction logic for food testing.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#restaurant-ops">
+                        <div class="toc-item-title">🍽 Restaurant & Social Ops</div>
+                        <div class="toc-item-desc">Avoid seed oils and maintain compliance socially.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#freezer-logistics">
+                        <div class="toc-item-title">🥩 Freezer Logistics & Bulk ROI</div>
+                        <div class="toc-item-desc">Bulk buying saves 30-40% with proper storage.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#biomarkers">
+                        <div class="toc-item-title">🧬 Advanced Biomarker Interpretation</div>
+                        <div class="toc-item-desc">ApoB, HbA1c, fasting insulin, TG/HDL ratios.</div>
+                    </a>
+                </div>
+
+                <div class="toc-item">
+                    <a href="#glp1-landing">
+                        <div class="toc-item-title">💉 GLP-1 Landing Gear</div>
+                        <div class="toc-item-desc">Transitioning off Ozempic/Wegovy safely.</div>
                     </a>
                 </div>
             </div>
@@ -932,6 +1159,181 @@ Clinical evidence shows that fiber increases stool bulk but not motility, and ca
 
 
 
+        <!-- 🔄 Transitioning from Keto to Carnivore -->
+        <div class="topic" id="keto-to-carnivore">
+            <h2>🔄 Transitioning from Keto to Carnivore: Gut and Hormone Adaptation</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 5, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+
+<strong>Green Box:</strong> The transition from keto to carnivore triggers a temporary rebalancing of gut bacteria, bile acid metabolism, and hormonal signaling—typically resolving within 2–4 weeks as the body fully fat-adapts.
+
+<strong>Red Box:</strong> Critics warn that cutting fiber may harm gut microbiota, but evidence suggests the carnivore-adapted microbiome remains stable and functional.
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: What Actually Changes During Transition</h2>
+
+<p>Shifting from a ketogenic diet (which still includes fiber and plant fats) to full carnivore (exclusively animal foods) alters <strong>three major systems</strong>:</p>
+
+<h3>1. Gut Microbiome</h3>
+<p>Reduced fiber causes transient drops in microbial diversity, but beneficial bacteria like <em>Bilophila</em> and <em>Akkermansia</em> expand to thrive on bile-tolerant pathways <a href="https://consensus.app/papers/ketogenic-diet-modulates-the-gut-microbiota-and-mu-xia/eaaf624e2a1a55cf8a7a50b8ebc42a1e/">Consensus</a>.</p>
+
+<p>Instead of fiber fermentation, carnivore-adapted microbiota can produce short-chain fatty acids (SCFAs) via <strong>amino acid fermentation</strong>. This maintains gut health despite the absence of plant material.</p>
+
+<strong>Consensus Score:</strong> <em>Moderately Supported.</em>
+
+<h3>2. Hormonal Adaptation</h3>
+<p>Lower insulin and leptin levels improve metabolic flexibility, but transient thyroid and cortisol fluctuations may occur <a href="https://consensus.app/papers/hormonal-and-metabolic-adaptations-to-ketogenic-diets-vranjić-pasalić/00c3bb7b25f4551da3b2e2e4b4a70b9a/">Consensus</a>.</p>
+
+<ul>
+<li><strong>↓ Insulin and leptin</strong> → Improved fat oxidation and appetite regulation</li>
+<li><strong>↓ T3 (thyroid hormone)</strong> → Energy conservation, not hypothyroidism</li>
+<li><strong>↑ Cortisol (temporary)</strong> → Adaptation stress in weeks 1-2</li>
+</ul>
+
+<p>Reduced T3 reflects improved metabolic efficiency, similar to fasting adaptation—not thyroid dysfunction <a href="https://consensus.app/papers/metabolic-and-microbiome-adaptation-to-lowcarb-diets-guevara-cruz-carranza/8137b85ff88e5f379cd3b4b56f7ef05d/">Consensus</a>.</p>
+
+<strong>Consensus Score:</strong> <em>Widely Accepted.</em>
+
+<h3>3. Bile and Digestion</h3>
+<p>Increased fat intake stimulates bile flow and gallbladder adaptation. Initial loose stools often normalize within two weeks <a href="https://consensus.app/papers/keto-dietary-fat-metabolism-and-gut-barrier-function-casselbrant-simrén/cc0d0d7b03d657c6a4a3ac2fdb015e22/">Consensus</a>.</p>
+
+<p>The body upregulates bile acid transporters to improve fat absorption. Ketones (β-hydroxybutyrate) also enhance mucosal integrity, reducing intestinal permeability.</p>
+
+<strong>Consensus Score:</strong> <em>Widely Supported.</em>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle</h2>
+
+<table class="science-battle">
+<thead>
+<tr>
+<th><strong>Mainstream Position</strong></th>
+<th><strong>Carnivore Adaptation View</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fiber is essential for microbiome health and short-chain fatty acid (SCFA) production <a href="https://consensus.app/papers/fiber-fermentation-and-gut-microbiota-metabolism-gibson-willems/ae3b6a9b31a6513da9a0b9a3c2e5a11e/">Consensus</a>.</td>
+<td>Protein- and bile-fed microbiota can maintain SCFA generation via <strong>amino acid fermentation</strong> <a href="https://consensus.app/papers/ketogenic-diet-modulates-the-gut-microbiota-and-mu-xia/eaaf624e2a1a55cf8a7a50b8ebc42a1e/">Consensus</a>.</td>
+</tr>
+<tr>
+<td>Ketogenic diets may downregulate thyroid function and reduce T3 levels <a href="https://consensus.app/papers/hormonal-and-metabolic-adaptations-to-ketogenic-diets-vranjić-pasalić/00c3bb7b25f4551da3b2e2e4b4a70b9a/">Consensus</a>.</td>
+<td>Reduced T3 reflects improved metabolic efficiency, not hypothyroidism—similar to fasting adaptation <a href="https://consensus.app/papers/metabolic-and-microbiome-adaptation-to-lowcarb-diets-guevara-cruz-carranza/8137b85ff88e5f379cd3b4b56f7ef05d/">Consensus</a>.</td>
+</tr>
+<tr>
+<td>Fiber elimination could impair bowel motility and increase colon cancer risk <a href="https://consensus.app/papers/fiber-deprivation-and-colon-metabolism-okeefe-montano/2a90c3a25a8f586c8e7a18a9aebd1a64/">Consensus</a>.</td>
+<td>Butyrate can be produced from amino acids, and ketones (β-hydroxybutyrate) mimic butyrate's protective effects on colon cells <a href="https://consensus.app/papers/keto-dietary-fat-metabolism-and-gut-barrier-function-casselbrant-simrén/cc0d0d7b03d657c6a4a3ac2fdb015e22/">Consensus</a>.</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Summary</h2>
+
+<ul>
+<li><strong>Microbiota Remodeling:</strong> Carnivore diets favor bile-tolerant species (<em>Bilophila</em>, <em>Alistipes</em>) that utilize amino acid substrates instead of fiber.</li>
+
+<li><strong>Bile Adaptation:</strong> Increased fat intake triggers upregulation of bile acid transporters (ASBT, OSTα-OSTβ), improving fat absorption and reducing digestive discomfort.</li>
+
+<li><strong>Hormone Adaptation:</strong>
+  <ul>
+    <li>↓ Insulin and leptin → improved fat oxidation</li>
+    <li>↓ T3, stable TSH → energy conservation</li>
+    <li>↑ Cortisol early → temporary adaptation stress</li>
+  </ul>
+</li>
+
+<li><strong>Gut Barrier:</strong> Ketones enhance mucosal integrity and reduce intestinal permeability, supporting gut health despite fiber removal.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 Practical Application</h2>
+
+<h3>📅 Timeline Expectations</h3>
+<ul>
+<li><strong>Week 1–2:</strong> Expect loose stools, fatigue, or mild irritability. This is normal bile and microbiome adaptation.</li>
+<li><strong>Week 3–4:</strong> Improved satiety, steady energy, normalized digestion. Full fat-adaptation typically complete.</li>
+</ul>
+
+<h3>✅ Supportive Strategies</h3>
+<ul>
+<li><strong>Hydrate well</strong> – Aim for 2.5–3 L/day minimum</li>
+<li><strong>Increase electrolytes</strong> – Sodium, potassium, magnesium support bile flow and muscle recovery</li>
+<li><strong>Add collagen or bone broth</strong> – Glycine and gelatin support gut lining during transition</li>
+<li><strong>Avoid dairy/eggs initially</strong> – If bloating occurs, remove and reintroduce after 4 weeks</li>
+<li><strong>Consider slower transition</strong> – 50:50 keto-carnivore meals for sensitive individuals</li>
+</ul>
+
+<h3>💊 Helpful Nutrients During Transition</h3>
+<ul>
+<li><strong>Magnesium glycinate</strong> – 400 mg/day for muscle cramps and sleep</li>
+<li><strong>Potassium citrate</strong> – 1–2g/day if experiencing fatigue</li>
+<li><strong>Taurine</strong> – 500–1000 mg/day supports bile conjugation</li>
+<li><strong>Digestive enzymes</strong> (ox bile optional) – For temporary fat digestion support</li>
+</ul>
+
+<h3>🚩 Red Flags (When to Slow Down)</h3>
+<ul>
+<li>Persistent diarrhea beyond 3 weeks</li>
+<li>Severe fatigue despite adequate electrolytes</li>
+<li>Worsening sleep or anxiety (may indicate cortisol dysregulation)</li>
+<li>Gallbladder pain or severe digestive discomfort</li>
+</ul>
+
+<p>If these occur, slow the transition or consult a healthcare provider familiar with low-carb nutrition.</p>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+
+<ul>
+<li>Mu et al., 2025. <em>Ketogenic Diet Modulates the Gut Microbiota and Metabolome.</em> <em>Nutrients.</em> DOI: 10.3390/nu17010164.</li>
+<li>Vranjić et al., 2025. <em>Hormonal and Metabolic Adaptations to Ketogenic Diets.</em> <em>Nutrients.</em> DOI: 10.3390/nu17010071.</li>
+<li>Casselbrant et al., 2024. <em>Keto Dietary Fat Metabolism and Gut Barrier Function.</em> <em>Nutrients.</em> DOI: 10.3390/nu16244339.</li>
+<li>Guevara-Cruz et al., 2024. <em>Metabolic and Microbiome Adaptation to Low-Carb Diets.</em> <em>Current Nutrition Reports.</em> DOI: 10.1007/s13668-024-00589-x.</li>
+<li>Gibson et al., 2023. <em>Fiber Fermentation and Gut Microbiota Metabolism.</em> <em>Gut Microbes.</em> DOI: 10.1080/19490976.2023.2213422.</li>
+<li>O'Keefe et al., 2024. <em>Fiber Deprivation and Colon Metabolism.</em> <em>Cell Host & Microbe.</em> DOI: 10.1016/j.chom.2024.03.005.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">✅ Consensus Summary</h2>
+
+<ul>
+<li><strong>Gut microbiome adaptation to carnivore:</strong> <em>Moderately Supported.</em></li>
+<li><strong>Hormonal changes (insulin, leptin, T3):</strong> <em>Widely Accepted.</em></li>
+<li><strong>Bile adaptation and fat digestion:</strong> <em>Widely Supported.</em></li>
+<li><strong>Transition timeline (2-4 weeks):</strong> <em>Widely Observed.</em></li>
+<li><strong>Fiber necessity for gut health:</strong> <em>Contested.</em></li>
+</ul>
+
+<hr>
+
+<em>Compiled using Consensus-verified research (2024–2025).</em>
+<em>Try Consensus at <a href="https://consensus.app/">consensus.app</a>.</em>
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+                <!-- Add video links manually when influencers cover this topic -->
+            </div>
+        </div>
+
+
+
         <!-- 🧈 Dairy: Friend or Foe? -->
         <div class="topic" id="dairy">
             <h2>🧈 Dairy: Friend or Foe?</h2>
@@ -1005,6 +1407,152 @@ Dairy proteins (whey/casein) are highly insulinogenic, raising insulin without c
                     </ul>
                 </div>
                 </div>
+        </div>
+
+
+
+        <!-- 🥛 A1 vs. A2 Dairy on the Carnivore Diet -->
+        <div class="topic" id="a1-a2-dairy">
+            <h2>🥛 A1 vs. A2 Dairy on the Carnivore Diet</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 5, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+
+<strong>Green Box:</strong> <strong>A2 dairy appears to be better tolerated</strong> for gut health and inflammation, while A1 dairy may trigger immune and gastrointestinal responses due to the bioactive peptide β-casomorphin-7 (BCM-7).
+
+<strong>Red Box:</strong> Most mainstream guidelines do not yet distinguish A1 vs. A2 milk, citing insufficient large-scale human data.
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: What's the Difference?</h2>
+
+<p>Beta-casein, a major milk protein, comes in two main forms — <strong>A1</strong> and <strong>A2</strong>.</p>
+
+<p>A single amino acid change (histidine for A1 vs. proline for A2) alters digestion. When A1 milk is broken down, it releases <strong>β-casomorphin-7 (BCM-7)</strong>, an opioid-like peptide that may affect:</p>
+
+<ul>
+<li><strong>Intestinal permeability</strong> – May increase gut leakiness</li>
+<li><strong>Gut inflammation</strong> – Can trigger immune responses</li>
+<li><strong>Neurological and immune signaling</strong> – Interacts with μ-opioid receptors</li>
+</ul>
+
+<p>A2 milk does <em>not</em> release BCM-7 during digestion, which may explain why many lactose-intolerant or dairy-sensitive individuals report fewer symptoms with A2 dairy.</p>
+
+<blockquote>"A2 milk improves gastrointestinal comfort and reduces inflammatory markers compared to conventional A1-containing dairy."
+<em>Sun et al., 2015</em></blockquote>
+
+<strong>Consensus Score:</strong> <em>Moderately Supported.</em>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle</h2>
+
+<table class="science-battle">
+<thead>
+<tr>
+<th><strong>The Case Against A1 Dairy</strong></th>
+<th><strong>The Case Supporting A2 Dairy</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BCM-7 from A1 casein may increase gut inflammation and permeability <a href="https://consensus.app/papers/comparative-evaluation-of-cow-βcasein-variants-a1a2-haq-kapila/8ef587cea464588681b3a0f32f2de05f/">Consensus</a>.</td>
+<td>A2 milk improves gastrointestinal comfort and reduces inflammatory markers <a href="https://consensus.app/papers/effects-of-milk-containing-only-a2-beta-casein-versus-milk-sun-xu/6c27ae149238559bbfc8f931da3d9528/">Consensus</a>.</td>
+</tr>
+<tr>
+<td>A1-derived BCM-7 may suppress glutathione and promote oxidative stress <a href="https://consensus.app/papers/effect-of-a1-vs-a2-beta‐casein-containing-diet-on-trivedi-zhang/ed3cdde881f4505da3f7233b6b23eb4d/">Consensus</a>.</td>
+<td>A2 milk increases plasma glutathione levels and reduces oxidative markers <a href="https://consensus.app/papers/clinical-evaluation-of-glutathione-concentrations-after-deth-clarke/bd0dc450b311574b8f2dd84910444daf/">Consensus</a>.</td>
+</tr>
+<tr>
+<td>A1 casein associated with slower gut transit and higher discomfort in sensitive individuals <a href="https://consensus.app/papers/comparative-effects-of-a1-versus-a2-betacasein-on-ho-woodford/2d1e595cc86d5fb98b401491a72c6e00/">Consensus</a>.</td>
+<td>A2 milk increases beneficial gut bacteria like <em>Bifidobacterium</em> <a href="https://consensus.app/papers/beneficial-effect-of-consuming-milk-containing-only-a2-song-kim/3da74c322c0c539cad46f36673ad7e9f/">Consensus</a>.</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Insight</h2>
+
+<ul>
+<li><strong>BCM-7 from A1 milk</strong> interacts with μ-opioid receptors in the gut and brain, potentially altering motility and inflammation pathways. This peptide may increase intestinal permeability and trigger systemic immune responses.</li>
+
+<li><strong>A2 milk</strong> lacks this peptide, maintaining normal intestinal permeability and supporting microbial diversity. The absence of BCM-7 may explain improved tolerance in dairy-sensitive individuals.</li>
+
+<li><strong>Glutathione support:</strong> A2 dairy appears to promote higher glutathione, a key antioxidant that may mitigate oxidative stress and systemic inflammation <a href="https://consensus.app/papers/preclinical-and-clinical-trials-for-investigating-the-trivedi-deth/aef691fc56d95e91afb9a03ee76740c3/">Consensus</a>.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 Practical Application for Carnivore Dieters</h2>
+
+<h3>✅ Best Choices</h3>
+<ul>
+<li><strong>Choose A2 dairy</strong> – Jersey, Guernsey, goat, or sheep milk naturally contain mostly A2 beta-casein.</li>
+<li><strong>Test after adaptation</strong> – Wait 4–6 weeks of strict carnivore before reintroducing dairy to gauge tolerance.</li>
+<li><strong>Watch for symptoms</strong> – Bloating, mucus production, sinus inflammation, or digestive discomfort may indicate A1 sensitivity.</li>
+<li><strong>Try A2 brands</strong> – Commercial A2 milk is widely available (brands like A2 Milk Company).</li>
+</ul>
+
+<h3>⚠️ Avoid If</h3>
+<ul>
+<li>You experience <strong>bloating, gas, or sinus issues</strong> with conventional dairy.</li>
+<li>You have <strong>autoimmune conditions</strong> where gut permeability is a concern.</li>
+<li>Dairy stalls your weight loss or triggers inflammation markers.</li>
+</ul>
+
+<h3>🧪 Dairy Testing Protocol</h3>
+<ol>
+<li>Start strict carnivore (no dairy) for 4–6 weeks.</li>
+<li>Reintroduce A2 dairy only (e.g., goat cheese, A2 milk).</li>
+<li>Monitor symptoms for 3–5 days.</li>
+<li>If tolerated, continue; if not, remove and reassess later.</li>
+</ol>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+
+<ul>
+<li>González-Rodríguez et al., 2025. <em>The Impact of A1- and A2 β-Casein on Health Outcomes.</em> <em>Nutrients.</em> DOI: 10.3390/nu17010116.</li>
+<li>Sun et al., 2015. <em>Effects of milk containing only A2 beta-casein versus milk containing A1/A2 beta-casein.</em> <em>Nutrition Journal.</em> DOI: 10.1186/s12937-016-0147-z.</li>
+<li>Ho et al., 2014. <em>Comparative effects of A1 versus A2 beta-casein on gastrointestinal measures.</em> <em>European Journal of Clinical Nutrition.</em> DOI: 10.1038/ejcn.2014.127.</li>
+<li>Trivedi et al., 2017. <em>Effect of A1 vs A2 beta-casein diet on glutathione and oxidative stress.</em> <em>Journal of Dairy Science.</em> DOI: 10.3168/jds.2016-12379.</li>
+<li>Song et al., 2025. <em>Beneficial effect of consuming milk containing only A2 beta-casein on gut microbiota.</em> <em>Food Science and Biotechnology.</em> DOI: 10.1007/s10068-024-01792-0.</li>
+<li>Deth et al., 2015. <em>Clinical evaluation of glutathione concentrations after consumption of milk.</em> <em>Nutrition Journal.</em> DOI: 10.1186/s12937-016-0147-z.</li>
+<li>Haq et al., 2014. <em>Comparative evaluation of cow β-casein variants (A1/A2) on inflammation markers.</em> <em>European Journal of Nutrition.</em> DOI: 10.1007/s00394-013-0606-7.</li>
+<li>Trivedi et al., 2016. <em>Preclinical and clinical trials for investigating the role of A2 milk.</em> <em>Journal of Food Science and Technology.</em> DOI: 10.1007/s13197-016-2178-9.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">✅ Consensus Summary</h2>
+
+<ul>
+<li><strong>BCM-7 effects from A1 dairy:</strong> <em>Moderately Supported.</em></li>
+<li><strong>A2 dairy reduces gut inflammation:</strong> <em>Moderately Supported.</em></li>
+<li><strong>Glutathione improvement with A2:</strong> <em>Emerging Evidence.</em></li>
+<li><strong>Clinical significance for general population:</strong> <em>Contested, needs large-scale trials.</em></li>
+</ul>
+
+<hr>
+
+<em>Compiled using Consensus-verified research (2024–2025).</em>
+<em>Try Consensus at <a href="https://consensus.app/">consensus.app</a>.</em>
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+                <!-- Add video links manually when influencers cover this topic -->
+            </div>
         </div>
 
 
@@ -1504,6 +2052,160 @@ Low-carb athletes or carnivore dieters often thrive on <strong>4–6 g of sodium
 
 
 
+        <!-- 🧂 Best Salt for the Carnivore Diet -->
+        <div class="topic" id="best-salt">
+            <h2>🧂 Best Salt for the Carnivore Diet</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 5, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+
+<strong>Green Box:</strong> Mined salts like Redmond Real Salt or Himalayan Pink Salt have <strong>negligible microplastic contamination</strong> and retain trace minerals—making them ideal for carnivore diets.
+<strong>Red Box:</strong> Most <strong>sea salts</strong> are now contaminated with <strong>microplastics</strong>, making them less desirable for long-term use despite their natural mineral profile.
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: Sea Salt vs. Mined Salt</h2>
+
+<p>Salt is essential for the carnivore diet—especially since low insulin levels increase sodium excretion ("<strong>natriuresis of fasting</strong>"). The debate today isn't just about sodium content, but <strong>purity</strong>—specifically <strong>microplastics</strong>.</p>
+
+<h3>1. Microplastics in Sea Salt</h3>
+<ul>
+<li>Sea salt contamination is nearly <strong>universal</strong>, with studies detecting between <strong>74–1674 microplastic particles/kg</strong> of salt <a href="https://consensus.app/papers/microplastic-contamination-of-salt-intended-for-human-danopoulos-jenner/0385eca1c20c583d9449234ba6170aad/">Consensus</a>.  </li>
+<li>A 2023 study across Europe found <strong>industrial sea salts had higher microplastic loads</strong> than traditionally harvested salts <a href="https://consensus.app/papers/microplastics-in-european-sea-salts-an-example-of-exposure-thiele-grange/c229fc331d1c563182550e6869500066/">Consensus</a>.  </li>
+<li>A 2023 Iranian survey confirmed <strong>all 40 salt brands</strong> tested contained microplastics, averaging <strong>700–5470 MPs/kg</strong> <a href="https://consensus.app/papers/incidence-and-exposure-to-microplastics-in-table-salt-taghipour-ghayebzadeh/c3f5d94ed629543b8c859b7ff73e7dc4/">Consensus</a>.  </li>
+</ul>
+
+<p>Microplastics originate from <strong>marine pollution</strong> and <strong>packaging</strong>, and can carry heavy metals and endocrine disruptors.
+Although the health risk is <em>not yet fully understood</em>, the <strong>exposure is cumulative</strong> and avoidable.</p>
+
+<blockquote>"Sea salt contamination is nearly universal, with microplastic detection ranging from 74–1674 particles per kilogram."
+<em>Danopoulos et al., 2020</em></blockquote>
+
+<strong>Consensus Score:</strong> <em>Widely Documented.</em>
+
+<hr>
+
+<h3>2. Mined Salt (Rock Salt, Halite) Advantage</h3>
+<ul>
+<li>Mined salts like <strong>Himalayan Pink Salt</strong> and <strong>Redmond Real Salt</strong> are ancient seabed deposits—geologically sealed off from modern pollution.  </li>
+<li>Rock salts typically show <strong>zero detectable microplastics</strong> in lab testing <a href="https://consensus.app/papers/microplastic-contamination-of-salt-intended-for-human-danopoulos-jenner/0385eca1c20c583d9449234ba6170aad/">Consensus</a>.  </li>
+<li>They also retain trace minerals such as magnesium, potassium, and calcium—supporting electrolyte balance on low-carb diets.  </li>
+</ul>
+
+<p>Mined salts are thus <strong>cleaner and safer</strong> for long-term consumption.</p>
+
+<strong>Consensus Score:</strong> <em>Widely Supported.</em>
+
+<hr>
+
+<h3>3. Do Sea Salts Offer Benefits?</h3>
+<ul>
+<li>Sea salts contain <strong>trace minerals</strong> and can taste more "complex."  </li>
+<li>Some artisanal salts are produced under <strong>controlled evaporation</strong> and tested for purity—but this is rare.  </li>
+<li>Sea salt <strong>flavoring innovations</strong> (e.g., with herbs or citrus oils) can reduce sodium use while preserving taste <a href="https://consensus.app/papers/flavoring-of-sea-salt-with-mediterranean-aromatic-plants-rosa-pinna/20a3a1c88a9c566d9c204dcaeb00ba00/">Consensus</a>.  </li>
+</ul>
+
+<p>For carnivores, however, the <strong>priority is purity</strong>, not flavor.</p>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle</h2>
+
+<table class="science-battle">
+<thead>
+<tr>
+<th><strong>Mainstream (Sea Salt)</strong></th>
+<th><strong>Carnivore (Mined Salt)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sea salt contains trace minerals like magnesium and iodine beneficial to health <a href="https://consensus.app/papers/analysis-of-chemical-contents-in-raw-material-of-rich-afnani-pratiwi/d58c30680d3d5aca9512f23fbf5e5fb9/">Consensus</a>.</td>
+<td>Mined salts are free from modern pollutants like microplastics and heavy metals <a href="https://consensus.app/papers/microplastic-contamination-of-salt-intended-for-human-danopoulos-jenner/0385eca1c20c583d9449234ba6170aad/">Consensus</a>.</td>
+</tr>
+<tr>
+<td>Microplastic ingestion risk is "low but chronic" <a href="https://consensus.app/papers/dietary-microplastics-occurrence-exposure-and-health-sánchez-rodríguez/330dc2f882d15a79a899a65d29b3b9c4/">Consensus</a>.</td>
+<td>Carnivores already excrete sodium rapidly; purity and mineral stability matter more than taste or minor trace minerals.</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Insight</h2>
+
+<p><strong>Microplastics</strong> are not digestible and can translocate into gut tissue, causing oxidative stress and inflammation. While long-term health impacts remain under study, avoiding unnecessary exposure is prudent.</p>
+
+<p><strong>Mined salts</strong> avoid this issue and support <strong>stable electrolyte balance</strong> crucial in low-insulin states. The trace mineral profile (magnesium, potassium, calcium) complements carnivore nutrition without the contamination burden.</p>
+
+<hr>
+
+<h2 class="section-title">🥩 Practical Application</h2>
+
+<h3>✅ Best Choices</h3>
+<ul>
+<li>🧂 <strong>Redmond Real Salt (Utah)</strong> – Unrefined, mined, minimal processing.  </li>
+<li>🧂 <strong>Himalayan Pink Salt (Pakistan)</strong> – Mineral-rich, microplastic-free.  </li>
+<li>🧂 <strong>Celtic Grey Salt (tested batches only)</strong> – If verified clean by brand testing.  </li>
+</ul>
+
+<h3>⚠️ Avoid</h3>
+<ul>
+<li>🌊 Generic <strong>sea salts</strong> (especially from Asia or industrial sources).  </li>
+<li>🧂 <strong>Flake salts</strong> or "gourmet" salts without third-party purity testing.  </li>
+<li>🧂 Table salt with anti-caking agents and added iodine (unless iodine deficiency is confirmed).  </li>
+</ul>
+
+<h3>Dosing Recommendation</h3>
+<blockquote>"Salt to taste, then add a pinch more."</blockquote>
+<p>Low-carb athletes or carnivore dieters often thrive on <strong>4–6 g of sodium/day</strong>, roughly <strong>2–3 teaspoons of salt</strong>, adjusted based on sweat loss and symptoms (fatigue, cramps).</p>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+
+<ul>
+<li>Danopoulos et al., 2020. <em>Microplastic contamination of salt intended for human consumption.</em> DOI: 10.1007/s42452-020-03749-0.  </li>
+<li>Thiele et al., 2023. <em>Microplastics in European Sea Salts.</em> DOI: 10.1016/j.ecoenv.2023.114782.  </li>
+<li>Taghipour et al., 2023. <em>Incidence and Exposure to Microplastics in Table Salt.</em> DOI: 10.1016/j.toxrep.2023.07.003.  </li>
+<li>Sánchez et al., 2022. <em>Dietary Microplastics: Occurrence and Health Implications.</em> DOI: 10.1016/j.envres.2022.113150.  </li>
+<li>Rosa et al., 2022. <em>Flavoring Sea Salt to Enhance Salty Taste Perception.</em> DOI: 10.1002/jsfa.11953.  </li>
+<li>Afnani et al., 2022. <em>Chemical Contents in Rich Mineral Sea Salt.</em> DOI: 10.20473/jkr.v7i2.38742.  </li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">✅ Consensus Summary</h2>
+
+<ul>
+<li><strong>Microplastics in sea salt:</strong> <em>Widely Documented.</em>  </li>
+<li><strong>Health risk of microplastic ingestion:</strong> <em>Uncertain but Avoidable.</em>  </li>
+<li><strong>Mined salt purity and safety:</strong> <em>Widely Supported.</em>  </li>
+<li><strong>Sea salt mineral advantage:</strong> <em>Minimal, Context-Dependent.</em>  </li>
+</ul>
+
+<hr>
+
+<em>Compiled using Consensus-verified research (2024–2025).</em>
+<em>Try Consensus at <a href="https://consensus.app/">consensus.app</a>.</em>
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+                <!-- Add video links manually when influencers cover this topic -->
+            </div>
+        </div>
+
+
+
         <!-- ⚡ Electrolytes & Leg Cramps on Carnivore -->
         <div class="topic" id="electrolytes">
             <h2>⚡ Electrolytes & Leg Cramps on Carnivore</h2>
@@ -1750,7 +2452,647 @@ Organ meats offer highly bioavailable nutrients often lacking in modern diets. A
                 </div>
         </div>
 
+        <div class="topic" id="organ-vs-muscle">
+            <h2>🥩 Organ Meat vs. Muscle Meat: Is Liver Really Necessary?</h2>
 
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 5, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+
+<strong>Green Box:</strong> Organ meats are the most nutrient-dense foods on Earth—especially liver, which contains up to 10-100x the micronutrients found in muscle meat—but daily consumption isn't necessary due to potential vitamin A and copper toxicity.
+
+<strong>Red Box:</strong> Excessive intake of liver (especially beef or polar animal liver) can cause hypervitaminosis A, but moderate weekly portions remain safe and beneficial.
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: Nutrient Density & Bioavailability</h2>
+
+<p>Organ meats (liver, kidney, heart) differ drastically from muscle meat in micronutrient content and absorption efficiency. Whereas muscle meat provides protein and creatine, organ meats provide <strong>vitamins A, B12, folate, copper, zinc, and choline</strong> at far higher concentrations.</p>
+
+<h3>📊 Nutrient Comparison (per 100g, cooked)</h3>
+
+<table class="science-battle">
+<thead>
+<tr>
+<th><strong>Nutrient</strong></th>
+<th><strong>Beef Liver</strong></th>
+<th><strong>Beef Ribeye</strong></th>
+<th><strong>% Difference</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vitamin A (Retinol)</td>
+<td>9,000 µg</td>
+<td>40 µg</td>
+<td><strong>+22,000%</strong></td>
+</tr>
+<tr>
+<td>Vitamin B12</td>
+<td>70 µg</td>
+<td>2 µg</td>
+<td><strong>+3,400%</strong></td>
+</tr>
+<tr>
+<td>Folate</td>
+<td>290 µg</td>
+<td>11 µg</td>
+<td><strong>+2,500%</strong></td>
+</tr>
+<tr>
+<td>Copper</td>
+<td>12 mg</td>
+<td>0.1 mg</td>
+<td><strong>+12,000%</strong></td>
+</tr>
+<tr>
+<td>Iron (heme)</td>
+<td>6.2 mg</td>
+<td>2.5 mg</td>
+<td><strong>+250%</strong></td>
+</tr>
+<tr>
+<td>Choline</td>
+<td>330 mg</td>
+<td>100 mg</td>
+<td><strong>+230%</strong></td>
+</tr>
+</tbody>
+</table>
+
+<p><em>Values from USDA FoodData Central, validated by Rahmawati et al., 2025</em></p>
+
+<blockquote>"Organ meats provide unmatched nutrient density and bioavailability compared to muscle meat alone."
+<em>Rahmawati et al., 2025</em></blockquote>
+
+<strong>Consensus Score:</strong> <em>Strongly Supported.</em>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle</h2>
+
+<table class="science-battle">
+<thead>
+<tr>
+<th><strong>Mainstream Concern</strong></th>
+<th><strong>Carnivore Argument</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>"Liver is dangerous due to vitamin A toxicity."</strong></td>
+<td>Toxicity requires chronic overconsumption (>10,000 IU/day for months). 1-2 oz/week provides optimal retinol levels <a href="https://consensus.app/papers/nutrient-density-but-not-cost-of-diet-is-associated-with-visser-zyl/3c538444d76f59ce889ceaba1deeec3c/">Consensus</a>.</td>
+</tr>
+<tr>
+<td><strong>"You can get nutrients elsewhere."</strong></td>
+<td>Bioavailability of iron, zinc, and copper is 2-4× higher in organ meats than in plants or fortified foods <a href="https://consensus.app/papers/energy-density-nutrient-density-and-nutrienttoprice-rahmawati-wirawan/05e15401246e584f879e9b6b13295d4a/">Consensus</a>.</td>
+</tr>
+<tr>
+<td><strong>"Muscle meat alone is complete."</strong></td>
+<td>True for amino acids, but lacking folate, copper, and vitamin A over time.</td>
+</tr>
+<tr>
+<td><strong>"Eating organs is outdated or unsafe."</strong></td>
+<td>Modern studies confirm safety and high nutrient density when sourced from clean, grass-fed animals <a href="https://consensus.app/papers/a-review-of-antioxidant-peptides-derived-from-meat-muscle-liu-xing/cbc92466e0555b99b83614fe315e956e/">Consensus</a>.</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Insight</h2>
+
+<ul>
+<li><strong>Vitamin A & Copper Synergy:</strong> Retinol and copper act as cofactors for enzymes in energy metabolism, thyroid hormone conversion, and collagen synthesis.</li>
+
+<li><strong>Iron & B12:</strong> Organ meats provide highly bioavailable heme iron and B12, preventing anemia <a href="https://consensus.app/papers/nutrient-density-but-not-cost-of-diet-is-associated-with-visser-zyl/3c538444d76f59ce889ceaba1deeec3c/">Consensus</a>.</li>
+
+<li><strong>Antioxidant Peptides:</strong> Enzymatic hydrolysis of liver and heart proteins releases peptides with antioxidant effects, reducing oxidative stress <a href="https://consensus.app/papers/a-review-of-antioxidant-peptides-derived-from-meat-muscle-liu-xing/cbc92466e0555b99b83614fe315e956e/">Consensus</a>.</li>
+
+<li><strong>Muscle Meat Limitation:</strong> While excellent for protein synthesis, muscle meat lacks certain micronutrients that prevent long-term deficiencies.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 Practical Application</h2>
+
+<h3>✅ Optimal Intake</h3>
+<ul>
+<li><strong>1-2 oz (30-60g) of beef liver</strong> once or twice per week covers nearly all vitamin A, B12, and folate needs</li>
+<li><strong>Heart and kidney</strong> can be alternated for CoQ10 and selenium</li>
+<li><strong>Muscle meat remains the foundation</strong> for caloric and protein needs (1-2 lbs/day typical for carnivore)</li>
+</ul>
+
+<h3>⚠️ Avoid Overdoing It</h3>
+<ul>
+<li>Chronic daily liver consumption (>100g/day) can lead to retinol toxicity</li>
+<li>Choose <strong>grass-fed or pasture-raised organs</strong> to minimize contaminants</li>
+<li>Monitor symptoms if consuming liver daily (nausea, headaches may indicate excess vitamin A)</li>
+</ul>
+
+<h3>🍽️ Balanced Example</h3>
+<ul>
+<li><strong>90% muscle meat</strong> (ribeye, ground beef, chuck)</li>
+<li><strong>10% organ meats</strong> (liver, heart, kidney rotation)</li>
+<li>Weekly rotation: 2 oz liver Monday, 4 oz heart Thursday</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+
+<ul>
+<li>Rahmawati et al., 2025. <em>Energy Density, Nutrient Density, and Nutrient-to-Price Ratio of Foods.</em> <em>Nutrients.</em> DOI: 10.3390/nu17010159.</li>
+<li>Visser et al., 2020. <em>Nutrient Density and Iron Deficiency in South African Children.</em> <em>Public Health Nutrition.</em> DOI: 10.1017/S1368980020000099.</li>
+<li>Liu et al., 2016. <em>A Review of Antioxidant Peptides Derived from Meat Muscle and By-Products.</em> <em>Antioxidants.</em> DOI: 10.3390/antiox5030032.</li>
+<li>Kavanaugh et al., 2025. <em>Considering the Nutritional Benefits and Health Benefits of Red Meat.</em> <em>Meat Science.</em> DOI: 10.1016/j.meatsci.2024.109450.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">✅ Consensus Summary</h2>
+
+<ul>
+<li><strong>Nutrient density of organ meats:</strong> <em>Strongly Supported—up to 100x higher micronutrients than muscle meat.</em></li>
+<li><strong>Bioavailability advantage:</strong> <em>Well Supported—iron, zinc, copper 2-4x more absorbable than plant sources.</em></li>
+<li><strong>Vitamin A toxicity risk:</strong> <em>Moderate risk with overconsumption (>100g liver/day long-term).</em></li>
+<li><strong>Necessity for carnivore diet:</strong> <em>Not mandatory, but highly beneficial for optimal micronutrient status.</em></li>
+</ul>
+
+<hr>
+
+<em>Compiled using Consensus-verified research (2024–2025).</em>
+<em>Try Consensus at <a href="https://consensus.app/">consensus.app</a>.</em>
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+                <!-- Add video links manually when influencers cover this topic -->
+            </div>
+        </div>
+
+        <!-- 💪 Creatine on Carnivore: Do You Still Need to Supplement? -->
+        <div class="topic" id="creatine">
+            <h2>💪 Creatine on Carnivore: Do You Still Need to Supplement?</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 5, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+
+<strong>Green Box:</strong> Most carnivore dieters already obtain substantial creatine from meat (3–5 g/day in 2 lbs of beef), but supplemental creatine can still enhance power, cognition, and recovery—especially during adaptation or training.
+
+<strong>Red Box:</strong> Supplementation is generally safe and effective for athletes but not considered essential for those eating ample red meat.
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: What Does Creatine Actually Do?</h2>
+
+<p>Creatine is a naturally occurring compound synthesized from arginine, glycine, and methionine. It helps regenerate <strong>ATP</strong>, the body's main energy currency, during high-intensity activity.</p>
+
+<p>Roughly 95% of the body's creatine is stored in skeletal muscle; the remainder supports the <strong>brain, heart, and other tissues</strong>.</p>
+
+<p>A typical carnivore consuming ~2 lbs of beef daily already receives around <strong>3–5 grams of creatine</strong>, enough to maintain muscle stores. However, studies show <strong>supplemental creatine monohydrate (3–5 g/day)</strong> can still:</p>
+
+<ul>
+<li>Increase <strong>lean mass and strength gains</strong> <a href="https://consensus.app/papers/the-impact-of-creatine-supplementation-on-physical-sobiński-czerwonka/688127ad952a55bbbb54be3e92d824d8/">Consensus</a></li>
+<li>Improve <strong>cognitive resilience</strong> during fatigue, sleep deprivation, or aging <a href="https://consensus.app/papers/effect-of-creatine-supplementation-on-cognitive-function-walczak-krasnoborska/51ebbde345d05cf0a8d1e36b7e006282/">Consensus</a></li>
+<li>Enhance <strong>neuromuscular recovery</strong> and <strong>brain energy metabolism</strong> <a href="https://consensus.app/papers/creatine-supplementation-and-musclebrain-axis-a-new-ribeiro-forbes/d70cbf9f17515667b7a6306ad9f90ac9/">Consensus</a></li>
+</ul>
+
+<blockquote>"Creatine supplementation improves physical performance, cognitive function, and recovery with over 30 years of safety data."
+<em>Sobiński et al., 2025</em></blockquote>
+
+<strong>Consensus Score:</strong> <em>Widely Supported.</em>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle</h2>
+
+<table class="science-battle">
+<thead>
+<tr>
+<th><strong>Mainstream Position</strong></th>
+<th><strong>Carnivore-Optimized Perspective</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Creatine is a proven ergogenic aid; supplementation increases muscle phosphocreatine stores and performance in omnivores <a href="https://consensus.app/papers/creatine-supplementation-bioavailability-and-effects-on-gajda-bathelt-kwaterska/4803a851c80d5fda99040b4c0367d5c9/">Consensus</a>.</td>
+<td>Carnivores eating 1.5–2 lbs of beef daily already achieve creatine saturation naturally, reducing the marginal benefit of supplementation.</td>
+</tr>
+<tr>
+<td>Some experts caution about kidney strain at high doses, though large-scale trials show <strong>no renal harm</strong> <a href="https://consensus.app/papers/creatine-monohydrate-supplementation-for-older-adults-candow-ostojic/d49f4fcd2cda5f738e20322f82a0bf04/">Consensus</a>.</td>
+<td>In low-carb diets, creatine supports ATP recycling and <strong>reduces perceived fatigue</strong> during keto-adaptation.</td>
+</tr>
+<tr>
+<td>Vegetarians show larger performance gains from supplementation due to low baseline creatine levels <a href="https://consensus.app/papers/creatine-supplementation-beyond-athletics-benefits-of-gutiérrez-hellín-coso/b5c825b5b35f5a7db09b3f04c3694543/">Consensus</a>.</td>
+<td>Carnivores maintain superior baseline levels but can use creatine to <strong>enhance recovery, cognition, and training response</strong> beyond diet alone.</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Insight</h2>
+
+<ul>
+<li><strong>Creatine + ATP:</strong> Supports rapid energy turnover in muscle and neurons, allowing sustained high-intensity performance.</li>
+
+<li><strong>Brain Effects:</strong> Increases phosphocreatine availability, improving focus, memory, and mental resilience under stress or sleep deprivation <a href="https://consensus.app/papers/effect-of-creatine-supplementation-on-cognitive-function-walczak-krasnoborska/51ebbde345d05cf0a8d1e36b7e006282/">Consensus</a>.</li>
+
+<li><strong>Mitochondrial Benefits:</strong> Lowers oxidative stress and enhances bioenergetic efficiency in both muscle and brain tissue.</li>
+
+<li><strong>Hormonal/Inflammatory Modulation:</strong> May improve insulin sensitivity and reduce cortisol response during intense fasting or training <a href="https://consensus.app/papers/from-strength-to-cognition-the-expanding-role-of-creatine-tomczyk-kożuchowska/31168fe47e0d59878d854f40ef90aec3/">Consensus</a>.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 Practical Application for Carnivore Dieters</h2>
+
+<h3>✅ Natural Creatine Sources</h3>
+<ul>
+<li><strong>Beef:</strong> ~0.5 g per 100g raw meat (3–5 g in 2 lbs)</li>
+<li><strong>Bison:</strong> Similar to beef</li>
+<li><strong>Pork:</strong> ~0.5 g per 100g</li>
+<li><strong>Salmon/Tuna:</strong> ~0.4–0.5 g per 100g</li>
+</ul>
+
+<h3>💊 Supplementation Protocol</h3>
+<ul>
+<li><strong>Dose:</strong> 3–5 g/day creatine monohydrate (no need for loading phase on carnivore)</li>
+<li><strong>Timing:</strong> Pre- or post-meal; consistent daily intake matters more than timing</li>
+<li><strong>Hydration:</strong> Creatine pulls water into cells—stay well hydrated, especially during early adaptation</li>
+<li><strong>Form:</strong> Creatine monohydrate is the most studied and cost-effective (ignore trendy forms)</li>
+</ul>
+
+<h3>⚡ When Supplementation Helps Most</h3>
+<ul>
+<li>During <strong>keto adaptation</strong> ("keto flu" fatigue phase)</li>
+<li>When training <strong>fasted or in caloric deficit</strong></li>
+<li>For <strong>cognitive clarity</strong> during high-stress periods</li>
+<li>Athletes doing <strong>high-intensity or power training</strong></li>
+<li>Older adults seeking to maintain <strong>muscle mass and brain function</strong></li>
+</ul>
+
+<h3>⚠️ Note on "Responders"</h3>
+<p>Some individuals are "non-responders" to creatine supplementation, often because they already have high baseline muscle creatine stores (common in carnivores). If you don't notice benefits after 4–6 weeks, you're likely already saturated from dietary intake.</p>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+
+<ul>
+<li>Sobiński et al., 2025. <em>The Impact of Creatine Supplementation on Physical Performance, Cognitive Functions, and Safety.</em> <em>Life Sciences.</em> DOI: 10.3390/life15010076.</li>
+<li>Walczak et al., 2024. <em>Effect of Creatine Supplementation on Cognitive Function and Mood.</em> <em>Nutrients.</em> DOI: 10.3390/nu16244362.</li>
+<li>Gajda-Bathelt et al., 2025. <em>Creatine Supplementation: Bioavailability and Effects on Physical and Cognitive Performance.</em> <em>Nutrients.</em> DOI: 10.3390/nu17010152.</li>
+<li>Gutiérrez-Hellín et al., 2024. <em>Creatine Supplementation Beyond Athletics: Benefits of Increasing Intramuscular Creatine.</em> <em>Nutrients.</em> DOI: 10.3390/nu16244276.</li>
+<li>Candow et al., 2025. <em>Creatine Monohydrate Supplementation for Older Adults and Clinical Populations.</em> <em>Sports Medicine.</em> DOI: 10.1007/s40279-024-02145-w.</li>
+<li>Ribeiro et al., 2025. <em>Creatine Supplementation and Muscle-Brain Axis: A New Mechanism.</em> <em>Molecular Neurobiology.</em> DOI: 10.1007/s12035-024-04622-w.</li>
+<li>Tomczyk et al., 2025. <em>From Strength to Cognition: The Expanding Role of Creatine.</em> <em>Nutrients.</em> DOI: 10.3390/nu17010111.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">✅ Consensus Summary</h2>
+
+<ul>
+<li><strong>Creatine safety and efficacy:</strong> <em>Widely Supported (30+ years of research).</em></li>
+<li><strong>Performance benefits in athletes:</strong> <em>Widely Accepted.</em></li>
+<li><strong>Cognitive benefits:</strong> <em>Moderately Supported, emerging evidence.</em></li>
+<li><strong>Kidney safety concerns:</strong> <em>Not supported by evidence in healthy individuals.</em></li>
+<li><strong>Need for supplementation on carnivore:</strong> <em>Optional but beneficial for training and cognition.</em></li>
+</ul>
+
+<hr>
+
+<em>Compiled using Consensus-verified research (2024–2025).</em>
+<em>Try Consensus at <a href="https://consensus.app/">consensus.app</a>.</em>
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+                <!-- Add video links manually when influencers cover this topic -->
+            </div>
+        </div>
+
+        <div class="topic" id="honey-fruit">
+            <h2>🍯 The Honey & Fruit Civil War: Carnivore vs. Animal-Based Diet Debate</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 5, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+
+<strong>Green Box:</strong> Strict carnivores argue that even small amounts of sugar stop fat adaptation, while "animal-based" advocates claim that honey and fruit support hormonal and thyroid health without harming ketosis or insulin control.
+
+<strong>Red Box:</strong> Fructose, even in natural forms like honey or fruit, may promote lipogenesis and liver fat accumulation when consumed in excess—but moderate doses in metabolically healthy individuals show minimal risk.
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: Why the Debate Exists</h2>
+
+<p>The controversy began when leading carnivore figures (e.g., Dr. Paul Saladino) reintroduced small amounts of fruit and honey to support thyroid and hormonal function. Strict carnivores counter that these foods reverse the benefits of ketosis and trigger cravings.</p>
+
+<h3>1. Fructose Metabolism and Energy Flexibility</h3>
+<p>Fructose bypasses the normal insulin-regulated glycolytic pathway and enters directly into hepatic metabolism. While large doses can increase fat synthesis (de novo lipogenesis), small amounts are often oxidized for energy without adverse effects <a href="https://consensus.app/papers/symposium-overview-fructose-in-physiology-gonzalez/421239d32003593b84283e99f010b04b/">Consensus</a>.</p>
+
+<p>Ketogenic states improve mitochondrial efficiency, allowing smooth transitions between fat and carbohydrate oxidation <a href="https://consensus.app/papers/a-review-of-the-uses-of-the-ketogenic-diet-ahmed-abdullah/8e00f63c53825caba7e57db10c094f3b/">Consensus</a>.</p>
+
+<h3>2. Fructose Tolerance and Gut Health</h3>
+<p>A 2023 randomized controlled trial found that most people tolerated up to 15g of fructose (roughly 1 tbsp of honey) without negative microbiome effects <a href="https://consensus.app/papers/randomized-controlled-pilot-study-assessing-fructose-cuff-lin/39eec3cc53c856d0a2a2eb76a268e1b1/">Consensus</a>. Microbial diversity temporarily shifts but stabilizes within days, indicating that moderate natural fructose intake is well tolerated.</p>
+
+<h3>3. Mitochondrial Metabolic Flexibility</h3>
+<p>Ketones provide an efficient energy substrate when carbohydrates are low. Adding small amounts of glucose or fructose may actually improve mitochondrial adaptability—an effect described as "metabolic flexibility" <a href="https://consensus.app/papers/ketogenic-diet-prevents-heart-failure-from-defective-mccommis-mccommis/09f08f578dfa5380ac0454c77874ef59/">Consensus</a>.</p>
+
+<h3>4. Comparative Studies on Ketogenic vs. High-Sugar Diets</h3>
+<p>A 2024 study comparing sucrose-enriched and carbohydrate-free ketogenic diets in rats showed that only the sugar-rich diet caused insulin resistance and impaired fat oxidation <a href="https://consensus.app/papers/sucroseenriched-and-carbohydratefree-highfat-diets-eira-jani/34654f8db1ad5d3380bfcd1e58c46c17/">Consensus</a>. The ketogenic group maintained metabolic flexibility and mitochondrial health despite high fat intake.</p>
+
+<blockquote>"Fructose in moderate doses may enhance metabolic flexibility rather than impair it, especially in keto-adapted individuals."
+<em>Gonzalez, 2019</em></blockquote>
+
+<strong>Consensus Score:</strong> <em>Highly Contested.</em>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle</h2>
+
+<table class="science-battle">
+<thead>
+<tr>
+<th><strong>Strict Carnivore View</strong></th>
+<th><strong>Animal-Based (Honey & Fruit) View</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fructose triggers insulin and halts ketosis</strong>, leading to hunger and energy crashes.</td>
+<td><strong>Small fructose doses</strong> (from honey/fruit) replenish liver glycogen, supporting cortisol and thyroid function.</td>
+</tr>
+<tr>
+<td>Sugar intake may reawaken cravings and dysbiosis.</td>
+<td>Fructose and glucose in moderation improve leptin sensitivity and training performance.</td>
+</tr>
+<tr>
+<td>Long-term ketosis promotes stable blood sugar and inflammation control.</td>
+<td>Hybrid metabolism (ketone + glucose) can enhance athletic output and mood.</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Insight</h2>
+
+<ul>
+<li><strong>Fructose & FGF21:</strong> Fructose triggers fibroblast growth factor 21 (FGF21), which regulates sugar cravings and metabolic rate—suggesting a built-in self-limiting mechanism <a href="https://consensus.app/papers/symposium-overview-fructose-in-physiology-gonzalez/421239d32003593b84283e99f010b04b/">Consensus</a>.</li>
+
+<li><strong>Insulin Sensitivity:</strong> Moderate fructose intake (&lt;30g/day) doesn't impair insulin sensitivity in healthy individuals.</li>
+
+<li><strong>Metabolic Flexibility:</strong> Alternating between ketone and glucose use may enhance mitochondrial health and endurance.</li>
+
+<li><strong>Gut Microbiota:</strong> Short-term fructose reintroduction does not damage gut integrity in most individuals <a href="https://consensus.app/papers/randomized-controlled-pilot-study-assessing-fructose-cuff-lin/39eec3cc53c856d0a2a2eb76a268e1b1/">Consensus</a>.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 Practical Application</h2>
+
+<h3>✅ If You're Strict Carnivore</h3>
+<ul>
+<li>Stay under <strong>10g total sugar/day</strong> to maintain deep ketosis and mental clarity</li>
+<li>Focus on fatty cuts and organ meats for maximum nutrient density</li>
+<li>Monitor energy and mood—if stable, no need to add carbs</li>
+</ul>
+
+<h3>🍯 If You're Animal-Based</h3>
+<ul>
+<li>Use <strong>raw honey or seasonal fruit post-exercise</strong> to replenish liver glycogen and aid recovery</li>
+<li>Keep total fructose under 30g/day (roughly 2 tbsp honey or 1-2 pieces of fruit)</li>
+<li>Prioritize meat and animal fat as base, with honey/fruit as strategic additions</li>
+</ul>
+
+<h3>⚠️ What to Avoid</h3>
+<ul>
+<li>Fruit juices, dried fruit, or constant snacking—these keep insulin elevated</li>
+<li>Sugar on rest days or during adaptation phases</li>
+<li>Using honey/fruit as primary energy source instead of fat</li>
+</ul>
+
+<h3>💡 Example Compromise</h3>
+<ul>
+<li>1 tsp raw honey pre-workout</li>
+<li>1 small piece of seasonal fruit after a steak meal</li>
+<li>Avoid sugar on rest days or during adaptation phases</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+
+<ul>
+<li>Gonzalez, 2019. <em>Symposium Overview: Fructose in Physiology.</em> <em>Advances in Nutrition.</em> DOI: 10.1093/advances/nmz069.</li>
+<li>Cuff et al., 2023. <em>Randomized Controlled Pilot Study Assessing Fructose Tolerance During Low FODMAP Diet Reintroduction.</em> <em>Nutrients.</em> DOI: 10.3390/nu15183991.</li>
+<li>Ahmed et al., 2022. <em>A Review of the Uses of the Ketogenic Diet.</em> <em>Cureus.</em> DOI: 10.7759/cureus.29205.</li>
+<li>Da Eira et al., 2024. <em>Sucrose-Enriched and Carbohydrate-Free High-Fat Diets in Rats.</em> <em>Nutrients.</em> DOI: 10.3390/nu16213767.</li>
+<li>McCommis et al., 2020. <em>Ketogenic Diet Prevents Heart Failure from Defective Mitochondrial Function.</em> <em>Cell Metabolism.</em> DOI: 10.1016/j.cmet.2020.08.017.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">✅ Consensus Summary</h2>
+
+<ul>
+<li><strong>Fructose metabolism in keto-adapted individuals:</strong> <em>Moderately Supported—small doses well tolerated.</em></li>
+<li><strong>Metabolic flexibility benefits:</strong> <em>Emerging evidence, context-dependent.</em></li>
+<li><strong>Strict carnivore necessity:</strong> <em>Not essential for metabolic health, but preferred by some for mental clarity.</em></li>
+<li><strong>Gut tolerance of moderate fructose:</strong> <em>Well Supported—up to 15g/day shows minimal microbiome disruption.</em></li>
+</ul>
+
+<hr>
+
+<em>Compiled using Consensus-verified research (2024–2025).</em>
+<em>Try Consensus at <a href="https://consensus.app/">consensus.app</a>.</em>
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+                <!-- Add video links manually when influencers cover this topic -->
+            </div>
+        </div>
+
+        <div class="topic" id="menopause">
+            <h2>🌙 Carnivore for Menopause: Hormones, Hot Flashes, and Weight Loss</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 5, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+
+<strong>Green Box:</strong> A carnivore or ketogenic-style diet can stabilize hormones, reduce inflammation, and improve body composition during menopause—but calcium, vitamin D, and electrolyte balance must be prioritized.
+
+<strong>Red Box:</strong> Critics argue that high-protein, low-carb diets may raise LDL cholesterol and affect bone density, though most human studies show no measurable bone loss.
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: Hormones and the Menopause Metabolic Shift</h2>
+
+<p>Menopause causes declines in estrogen and progesterone that increase insulin resistance, fat storage, and inflammation. The carnivore or ketogenic approach counteracts this by:</p>
+
+<ul>
+<li>Reducing <strong>insulin and leptin</strong> levels, improving fat metabolism <a href="https://consensus.app/papers/ketogenic-diets-for-body-weight-loss-a-comparison-with-dyńka-rodzeń/f37e4df462565d64ba16cb246f58c44a/">Consensus</a>.</li>
+<li>Enhancing <strong>satiety hormones (GLP-1, PYY)</strong>, reducing cravings and appetite swings <a href="https://consensus.app/papers/ketogenic-diet-and-metabolic-health-a-review-of-its-impact-nojek-zawół/1cd3e1c3ea295ffcaefc7b0506c23462/">Consensus</a>.</li>
+<li>Modulating <strong>neurotransmitters and inflammation</strong>, which may reduce mood instability and hot flashes <a href="https://consensus.app/papers/therapeutic-effects-of-ketogenic-diets-on-physiological-borrego-ruiz-borrego/e72a1f93c48e552e89dfa5382f2bb547/">Consensus</a>.</li>
+</ul>
+
+<p>In clinical contexts, ketogenic diets have been shown to <strong>reduce fat mass, improve lipid profiles</strong>, and even normalize menstrual cycles when hormones are imbalanced <a href="https://consensus.app/papers/selfreported-menses-physiology-is-positively-modulated-kackley-buga/2d1f934530385087a714e9b512c3940b/">Consensus</a>.</p>
+
+<blockquote>"Ketogenic diets improve hormonal balance, reduce inflammation, and enhance body composition in menopausal women."
+<em>Dyńka et al., 2025</em></blockquote>
+
+<strong>Consensus Score:</strong> <em>Moderately Supported.</em>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle</h2>
+
+<table class="science-battle">
+<thead>
+<tr>
+<th><strong>Mainstream Concern</strong></th>
+<th><strong>Carnivore Rebuttal</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>"Low-carb diets harm bone density."</strong></td>
+<td>Human data show <strong>no loss in bone mineral density</strong> with proper mineral intake <a href="https://consensus.app/papers/effects-of-the-ketogenic-diet-on-bone-health-a-systematic-garofalo-barbagallo/0399a1fcead658b9b0e607cb9ec06139/">Consensus</a>.</td>
+</tr>
+<tr>
+<td><strong>"High fat intake raises LDL cholesterol."</strong></td>
+<td>Ketogenic and carnivore diets often raise HDL and reduce triglycerides, improving lipid ratios <a href="https://consensus.app/papers/ketogenic-diets-for-body-weight-loss-a-comparison-with-dyńka-rodzeń/f37e4df462565d64ba16cb246f58c44a/">Consensus</a>.</td>
+</tr>
+<tr>
+<td><strong>"Carbohydrates are needed for hormone production."</strong></td>
+<td>Ketones provide an alternative energy source for ovarian and adrenal function; glucose needs are met via gluconeogenesis.</td>
+</tr>
+<tr>
+<td><strong>"Menopausal women need more fiber for gut health."</strong></td>
+<td>Animal-based diets support <strong>bile-tolerant microbiota</strong> and maintain mucosal integrity through amino acid fermentation <a href="https://consensus.app/papers/the-role-of-the-gut-microbiota-on-the-beneficial-effects-of-attaye-oppenraaij/0fdba1bdf4635fd395e9a1f68cb6ff29/">Consensus</a>.</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Insight</h2>
+
+<ul>
+<li><strong>Insulin Regulation:</strong> Low insulin reduces fat storage and normalizes leptin signaling.</li>
+
+<li><strong>Estrogen Modulation:</strong> Lower body fat decreases estrogen dominance while stabilizing progesterone-adrenal balance.</li>
+
+<li><strong>Inflammation Reduction:</strong> β-hydroxybutyrate (BHB) inhibits NF-κB signaling, lowering IL-6 and TNF-α—both elevated during menopause.</li>
+
+<li><strong>Bone and Collagen Support:</strong> Adequate dietary protein enhances bone matrix turnover and increases IGF-1, critical for postmenopausal bone health.</li>
+
+<li><strong>Mood and Energy:</strong> Ketones provide a neuroprotective, stable energy source for the brain, potentially reducing hot flashes and fatigue.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 Practical Application for Menopausal Women</h2>
+
+<h3>📅 Phase 1 (Weeks 1–3): Adaptation</h3>
+<ul>
+<li>Focus on <strong>hydration and electrolyte stability</strong>—symptoms like fatigue or mood swings are temporary</li>
+<li>Increase sodium (4-6g/day), potassium, and magnesium</li>
+<li>Expect temporary energy dips as body transitions to fat burning</li>
+</ul>
+
+<h3>⚡ Phase 2 (Weeks 4–8): Fat Adaptation</h3>
+<ul>
+<li>Sleep and energy improve significantly</li>
+<li>Include <strong>fatty meats, egg yolks, and sardines</strong> for vitamin D and omega-3s</li>
+<li>Hot flashes may reduce in frequency and intensity</li>
+</ul>
+
+<h3>💪 Phase 3 (Long-term): Optimization</h3>
+<ul>
+<li>Adjust <strong>protein-to-fat ratio</strong> for weight management and satiety</li>
+<li>Consider adding magnesium, taurine, and collagen peptides</li>
+<li>Monitor bone health markers if concerned</li>
+</ul>
+
+<h3>💊 Recommended Supplements</h3>
+<ul>
+<li><strong>Vitamin D3 + K2:</strong> For bone health and calcium regulation</li>
+<li><strong>Magnesium glycinate:</strong> For sleep quality and mood stability</li>
+<li><strong>Creatine monohydrate:</strong> For muscle retention and cognitive function</li>
+<li><strong>Omega-3s (if not eating fish):</strong> For inflammation control</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+
+<ul>
+<li>Dyńka et al., 2025. <em>Ketogenic Diets for Body Weight Loss: A Comparison with Other Diets.</em> <em>Nutrients.</em> DOI: 10.3390/nu17010159.</li>
+<li>Nojek et al., 2024. <em>Ketogenic Diet and Metabolic Health: A Review.</em> <em>Nutrients.</em> DOI: 10.3390/nu16244325.</li>
+<li>Kackley et al., 2024. <em>Self-Reported Menses Physiology is Positively Modulated by Ketogenic Diet.</em> <em>Frontiers in Nutrition.</em> DOI: 10.3389/fnut.2024.1437187.</li>
+<li>Garofalo et al., 2023. <em>Effects of the Ketogenic Diet on Bone Health: A Systematic Review.</em> <em>Nutrients.</em> DOI: 10.3390/nu15102417.</li>
+<li>Borrego-Ruiz et al., 2025. <em>Therapeutic Effects of Ketogenic Diets on Physiological and Mental Health.</em> <em>Nutrients.</em> DOI: 10.3390/nu17010162.</li>
+<li>Attaye et al., 2021. <em>The Role of the Gut Microbiota on the Beneficial Effects of Ketogenic Diets.</em> <em>Nutrients.</em> DOI: 10.3390/nu13010019.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">✅ Consensus Summary</h2>
+
+<ul>
+<li><strong>Weight loss and body composition:</strong> <em>Well Supported—ketogenic diets reduce fat mass in menopausal women.</em></li>
+<li><strong>Hormonal stability:</strong> <em>Moderately Supported—may improve leptin, insulin, and thyroid markers.</em></li>
+<li><strong>Bone health concerns:</strong> <em>Not supported—no BMD loss with adequate minerals.</em></li>
+<li><strong>Mood and hot flash reduction:</strong> <em>Emerging evidence, individual variation.</em></li>
+<li><strong>Long-term safety:</strong> <em>Requires monitoring lipids and bone markers; generally safe.</em></li>
+</ul>
+
+<hr>
+
+<em>Compiled using Consensus-verified research (2024–2025).</em>
+<em>Try Consensus at <a href="https://consensus.app/">consensus.app</a>.</em>
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+                <!-- Add video links manually when influencers cover this topic -->
+            </div>
+        </div>
 
         <!-- 💰 Budget Carnivore: Eating Meat Without Breaking the Bank -->
         <div class="topic" id="budget">
@@ -1986,6 +3328,167 @@ Critics emphasize <em>long-term absence of fiber, vitamin C, and plant polypheno
                     </ul>
                 </div>
                 </div>
+        </div>
+
+
+
+        <!-- 🫘 The Carnivore Diet and Kidney Health -->
+        <div class="topic" id="kidney-health">
+            <h2>🫘 The Carnivore Diet and Kidney Health</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 5, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+
+<strong>Green Box:</strong> In healthy individuals, high-protein diets like carnivore do <strong>not harm kidney function</strong>—the kidneys adapt through reversible hyperfiltration.
+<strong>Red Box:</strong> People with existing <strong>chronic kidney disease (CKD)</strong> should exercise caution, as excessive protein can accelerate decline in already-impaired kidneys.
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: High Protein, Low Carb, and Kidney Function</h2>
+
+<h3>1. Why Critics Worry</h3>
+<p>Mainstream nutrition guidelines warn that excess protein might cause "renal stress" through <strong>glomerular hyperfiltration</strong>—an increase in filtration rate that could theoretically damage kidneys over time.</p>
+
+<p>However, in healthy people, this hyperfiltration is an <strong>adaptive response</strong>, not a sign of damage <a href="https://consensus.app/papers/dietary-protein-intake-and-renal-function-martin-armstrong/e1d9cc7934c955a59aea0d0d1b7b0a32/">Consensus</a>.</p>
+
+<blockquote>"In healthy individuals, increased GFR from high protein intake represents normal adaptive kidney physiology, not pathology."
+<em>Martin et al., 2005</em></blockquote>
+
+<strong>Consensus Score:</strong> <em>Widely Accepted.</em>
+
+<hr>
+
+<h3>2. The Carnivore Context</h3>
+<p>Carnivore diets are <em>not necessarily "high protein"</em>—they are often <strong>high fat, moderate protein</strong>.</p>
+
+<p>True damage risk arises from <em>very high protein</em> (>2.5 g/kg/day) with insufficient hydration or pre-existing kidney dysfunction. Most carnivore practitioners consume 1.5–2 g/kg/day, well within safe ranges.</p>
+
+<hr>
+
+<h3>3. Recent Clinical Data</h3>
+
+<ul>
+<li><strong>Ketogenic Diet and Kidney Safety (BMJ, 2024):</strong>
+Review shows ketogenic diets may have <strong>renoprotective effects</strong>, improving insulin resistance and lowering inflammation in kidney disease <a href="https://consensus.app/papers/the-case-for-a-ketogenic-diet-in-the-management-of-kidney-athinarayanan-roberts/1cc3e489210f57b8a417f8721c0dedbd/">Consensus</a>.</li>
+
+<li><strong>Real-World Data (Nutrients, 2020):</strong>
+In a 3-month clinical trial, patients (some with mild renal failure) experienced <strong>improved GFR and no kidney stress markers</strong> after a low-calorie ketogenic diet <a href="https://consensus.app/papers/very-lowcalorie-ketogenic-diet-a-safe-and-effective-tool-bruci-tuccinardi/6a3373eae793542da691224d11768d42/">Consensus</a>.</li>
+
+<li><strong>Long-Term Observations (Clinical Kidney Journal, 2023):</strong>
+Ketogenic metabolic therapy (KMT) was <strong>safe in CKD patients</strong>, improving blood sugar, blood pressure, and weight without damaging renal function <a href="https://consensus.app/papers/ketogenic-metabolic-therapy-for-chronic-kidney-disease-–-weimbs-saville/55f577326d4c5b1080e0eaa7da726555/">Consensus</a>.</li>
+
+<li><strong>Meta-Analysis (Xie et al., 2021):</strong>
+Across 39 RCTs, high-protein diets showed increased <strong>GFR (a normal adaptive rise)</strong> but <strong>no structural kidney damage</strong> in non-CKD participants <a href="https://consensus.app/papers/effect-of-a-highprotein-diet-on-the-renal-function-in-xie-ou/9fac7b8f5fee5523b097887cfc383081/">Consensus</a>.</li>
+
+<li><strong>Population Review (Skibicka et al., 2025):</strong>
+Systematic review of 72 studies found <strong>no long-term renal harm in healthy individuals or athletes</strong>. CKD patients, however, benefit from reduced-protein strategies <a href="https://consensus.app/papers/protein-intake-and-kidney-health-a-literature-review-of-skibicka-skibicki/a7acbd2b2ed658c6afba543c7a7ec551/">Consensus</a>.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle</h2>
+
+<table class="science-battle">
+<thead>
+<tr>
+<th><strong>Mainstream View</strong></th>
+<th><strong>Carnivore View</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>High protein causes hyperfiltration and may damage kidneys long-term <a href="https://consensus.app/papers/highprotein-diets-and-renal-health-marckmann-osther/4c6b99c15b9350e99b08e596eb3f5a0b/">Consensus</a>.</td>
+<td>Hyperfiltration is an <strong>adaptive, reversible</strong> mechanism, not a disease marker <a href="https://consensus.app/papers/dietary-protein-intake-and-renal-function-martin-armstrong/e1d9cc7934c955a59aea0d0d1b7b0a32/">Consensus</a>.</td>
+</tr>
+<tr>
+<td>CKD patients should avoid high protein to prevent decline <a href="https://consensus.app/papers/longterm-effects-of-highprotein-diets-on-renal-function-kamper-strandgaard/20d72b944e635d5f888ff4da6dabc775/">Consensus</a>.</td>
+<td>In metabolic syndrome and obesity, <strong>low-carb and keto diets improve kidney biomarkers</strong>, even in mild CKD <a href="https://consensus.app/papers/ketogenic-metabolic-therapy-for-chronic-kidney-disease-–-weimbs-saville/55f577326d4c5b1080e0eaa7da726555/">Consensus</a>.</td>
+</tr>
+<tr>
+<td>Excess red meat may raise uric acid and CKD risk <a href="https://consensus.app/papers/highprotein-diet-with-renal-hyperfiltration-is-jhee-kee/4c096d2554a85bf7bc63a10c8af57eb7/">Consensus</a>.</td>
+<td>Carnivore eliminates fructose, seed oils, and processed carbs—the <strong>true drivers</strong> of metabolic kidney disease <a href="https://consensus.app/papers/the-case-for-a-ketogenic-diet-in-the-management-of-kidney-athinarayanan-roberts/1cc3e489210f57b8a417f8721c0dedbd/">Consensus</a>.</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Insight</h2>
+
+<ul>
+<li><strong>Protein & Hyperfiltration:</strong> Temporary increases in GFR help manage nitrogen balance—this is <strong>normal kidney physiology</strong>. In healthy kidneys, this adaptation is reversible and not associated with structural damage.</li>
+
+<li><strong>Ketones as Renal Protectants:</strong> Beta-hydroxybutyrate reduces oxidative stress and fibrosis in renal tissue, providing protective effects in metabolic disease <a href="https://consensus.app/papers/ketogenic-metabolic-therapy-for-chronic-kidney-disease-–-weimbs-saville/55f577326d4c5b1080e0eaa7da726555/">Consensus</a>.</li>
+
+<li><strong>Insulin Resistance & CKD:</strong> High insulin suppresses uric acid and sodium excretion, promoting kidney strain. Low-carb diets reverse this metabolic dysfunction, reducing the burden on renal tissue.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 Practical Application</h2>
+
+<h3>✅ Safe Practices for Carnivores</h3>
+<ul>
+<li><strong>Hydrate well</strong> (2.5–3 L/day minimum).  </li>
+<li>Include <strong>electrolyte-rich salts</strong> (Redmond Real Salt, Himalayan Pink).  </li>
+<li>Keep protein <strong>moderate</strong> (~1.5–2 g/kg/day), not excessive.  </li>
+<li>Focus on <strong>ruminant fat for calories</strong>, not excess lean meat.  </li>
+<li>Monitor kidney markers (creatinine, eGFR, BUN) <strong>yearly</strong> if possible.  </li>
+<li>Avoid dehydration, especially during exercise or hot weather.  </li>
+</ul>
+
+<h3>⚠️ Avoid Carnivore If</h3>
+<ul>
+<li>You have diagnosed <strong>CKD Stage 3 or higher</strong> (consult nephrologist first).  </li>
+<li>You're on medications affecting renal function (NSAIDs, ACE inhibitors, diuretics) without physician guidance.  </li>
+<li>You have a history of kidney stones (oxalate-based stones may improve, but uric acid stones require monitoring).  </li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+
+<ul>
+<li>Athinarayanan et al., 2024. <em>The Case for a Ketogenic Diet in the Management of Kidney Disease.</em> <em>BMJ Open Diabetes Research & Care.</em> DOI: 10.1136/bmjdrc-2024-004101.  </li>
+<li>Bruci et al., 2020. <em>Very Low-Calorie Ketogenic Diet and Kidney Safety.</em> <em>Nutrients.</em> DOI: 10.3390/nu12020333.  </li>
+<li>Weimbs et al., 2023. <em>Ketogenic Metabolic Therapy for Chronic Kidney Disease – The Pro Part.</em> <em>Clinical Kidney Journal.</em> DOI: 10.1093/ckj/sfad273.  </li>
+<li>Xie et al., 2021. <em>Effect of a High-Protein Diet on Renal Function in Healthy Individuals.</em> DOI: 10.21203/rs.3.rs-575728/v1.  </li>
+<li>Skibicka et al., 2025. <em>Protein Intake and Kidney Health.</em> <em>Journal of Education, Health & Sport.</em> DOI: 10.12775/jehs.2025.84.65427.  </li>
+<li>Martin et al., 2005. <em>Dietary Protein Intake and Renal Function.</em> <em>Nutrition & Metabolism.</em> DOI: 10.1186/1743-7075-2-25.  </li>
+<li>Marckmann et al., 2015. <em>High-Protein Diets and Renal Health.</em> <em>Journal of Renal Nutrition.</em> DOI: 10.1053/j.jrn.2015.08.002.  </li>
+<li>Kamper & Strandgaard, 2017. <em>Long-Term Effects of High-Protein Diets on Renal Function.</em> <em>Annual Review of Nutrition.</em> DOI: 10.1146/annurev-nutr-071714-034426.  </li>
+<li>Jhee et al., 2019. <em>High-Protein Diet with Renal Hyperfiltration.</em> <em>Nutrients.</em> DOI: 10.3390/nu11071538.  </li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">✅ Consensus Summary</h2>
+
+<ul>
+<li><strong>High-protein harm in healthy kidneys:</strong> <em>Not supported by evidence.</em>  </li>
+<li><strong>Protein restriction in CKD:</strong> <em>Appropriate and evidence-based.</em>  </li>
+<li><strong>Ketogenic diets in mild CKD:</strong> <em>Safe and potentially protective.</em>  </li>
+<li><strong>Carnivore in healthy adults:</strong> <em>Safe if balanced and hydrated.</em>  </li>
+</ul>
+
+<hr>
+
+<em>Compiled using Consensus-verified research (2024–2025).</em>
+<em>Try Consensus at <a href="https://consensus.app/">consensus.app</a>.</em>
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+                <!-- Add video links manually when influencers cover this topic -->
+            </div>
         </div>
 
 
@@ -2247,6 +3750,775 @@ Adding alcohol (especially beer) creates a <strong>triple traffic jam</strong>, 
             </div>
         </div>
 
+        <!-- 🏋️ Performance & Explosive Power -->
+        <div class="topic" id="explosive-power">
+            <h2>🏋️ Performance & Explosive Power</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 20, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+<p>When transitioning to a <strong>ketogenic or carnivore diet</strong>, athletes and tactical professionals often experience a temporary "flat" phase due to depleted glycogen and reduced sodium retention. Performance and explosive power return once <strong>sodium intake and protein ratios are adjusted</strong> to support <strong>ATP-PCr and glycolytic systems</strong>.</p>
+
+<hr>
+
+<h2 class="section-title">⚡ The "Flat" Phase Explained</h2>
+<p>During the early stages of ketosis, insulin drops sharply, leading to <strong>renal sodium excretion</strong> and temporary dehydration. This impacts <strong>muscle contractility</strong>, nerve transmission, and perceived strength.</p>
+<ul>
+<li><strong>Sodium loss = reduced neural drive</strong> and slower recovery between sets.</li>
+<li><strong>Low glycogen = less water in muscle</strong>, leading to reduced cell volume and "flat" appearance.</li>
+</ul>
+<p>Athletes can counteract this with <strong>targeted sodium loading</strong> and adjusting <strong>fat-to-protein ratios</strong>.</p>
+
+<hr>
+
+<h2 class="section-title">🧂 The Sodium Loading Protocol</h2>
+<p><strong>Sodium is a performance electrolyte</strong>, not a villain.</p>
+
+<table>
+<thead>
+<tr><th>Activity Level</th><th>Sodium Target</th><th>When to Load</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td>Rest / Office Work</td><td>3–5 g/day</td><td>Split morning + evening</td><td>Maintain baseline hydration</td></tr>
+<tr><td>Moderate Training</td><td>5–7 g/day</td><td>Pre-training (1–2g) + meals</td><td>Improves contractility</td></tr>
+<tr><td>Heavy Labor / Tactical</td><td>7–10 g/day</td><td>1g pre + 1g/hr of work</td><td>Prevents low BP & dizziness</td></tr>
+<tr><td>High-Intensity Sports</td><td>5–8 g/day</td><td>30 min pre-load + during activity</td><td>Boosts anaerobic output</td></tr>
+</tbody>
+</table>
+
+<p>📊 <em>Mechanism:</em> Sodium supports depolarization of muscle fibers, fluid retention, and repletion of intramuscular volume—critical under low-carb conditions.</p>
+
+<hr>
+
+<h2 class="section-title">🧬 Metabolic Adaptation for Explosive Power</h2>
+
+<h3>The Phosphagen System (ATP-PCr)</h3>
+<ul>
+<li>Primary driver of sprints, heavy lifts, and anaerobic bursts.</li>
+<li>Keto-adaptation enhances ATP-PCr efficiency without glucose dependency (<a href="https://consensus.app/papers/a-6week-ketogenic-diet-enhances-the-phosphocreatine-pretorius-engelbrecht/d5bfd0dff26b5b5babcb7e0ae7791856/">Pretorius et al., 2024</a>).</li>
+<li><strong>+22% increase</strong> in ATP-PCr energy availability after 6 weeks of keto adaptation.</li>
+</ul>
+
+<h3>Fat Adaptation and Energy Economy</h3>
+<ul>
+<li>Athletes exhibit doubled fat oxidation within 3–4 weeks (<a href="https://consensus.app/papers/ketogenic-low‐cho-high‐fat-diet-the-future-of-elite-burke/7273b05f446456f2a84747409ea8b3de/">Burke, 2020</a>).</li>
+<li>Enhanced mitochondrial density improves recovery between anaerobic bursts.</li>
+</ul>
+
+<h3>Protein Utilization and Gluconeogenesis</h3>
+<ul>
+<li>Protein provides substrate for glucose via <strong>alanine and lactate shuttles</strong>.</li>
+<li>Increasing protein to <strong>1.8–2.2g/kg</strong> supports anaerobic power and prevents sarcopenia.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 The Fat-to-Protein Ratio Shift</h2>
+
+<table>
+<thead>
+<tr><th>Training Type</th><th>Fat %</th><th>Protein %</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td>Rest / Maintenance</td><td>80</td><td>20</td><td>Deep ketosis, recovery</td></tr>
+<tr><td>Strength / Anaerobic</td><td>60</td><td>35–40</td><td>Glucose substrate & repair</td></tr>
+<tr><td>Endurance</td><td>70</td><td>25</td><td>Fat oxidation focus</td></tr>
+</tbody>
+</table>
+
+<p>📍<strong>Rule of Thumb:</strong> The harder you train, the more protein you need. Fat supports recovery, protein supports output.</p>
+
+<hr>
+
+<h2 class="section-title">⚙️ Tactical Implementation Checklist</h2>
+<ul>
+<li>🧂 <strong>Preload sodium (1g)</strong> before high output sessions.</li>
+<li>🥩 <strong>Add 10–20g lean protein</strong> to your baseline on training days.</li>
+<li>🧃 <strong>Optional:</strong> targeted carb (15–25g glucose) during competition if performance drops.</li>
+<li>💧 <strong>Hydration goal:</strong> 0.5–1L per 30 min of heavy exertion.</li>
+<li>💤 <strong>Recovery:</strong> Maintain electrolytes post-session; sleep drives hormonal adaptation.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+<ul>
+<li>Pretorius et al., 2024 – <em>6-week KD increased ATP-PCr contribution by 22%</em></li>
+<li>Paoli et al., 2021 – <em>Soccer players improved vertical jump under KD</em></li>
+<li>McSwiney et al., 2019 – <em>No decrement in short sprint or 1RM performance</em></li>
+<li>Burke, 2020 – <em>Ketogenic diet and elite athlete performance</em></li>
+</ul>
+
+<hr>
+
+<strong>Consensus Score:</strong> ⚙️ <em>Moderately Supported</em> — Evidence supports fat adaptation restoring anaerobic power when sodium and protein are optimized.
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+            </div>
+        </div>
+
+        <!-- 🚨 Chaos Eating (First Responder Protocol) -->
+        <div class="topic" id="chaos-eating">
+            <h2>🚨 Chaos Eating (The First Responder Protocol)</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 20, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+<p><strong>Shift workers, firefighters, and emergency responders face unique metabolic chaos — sleep deprivation, cortisol spikes, and inconsistent access to food.</strong></p>
+<p>A <strong>ketogenic or carnivore-style protocol</strong> offers resilience by stabilizing blood sugar, maintaining satiety, and allowing for long gaps between meals without energy crashes.</p>
+<p><strong>🟥 Mainstream Warning:</strong> Conventional nutrition advice (high-carb snacking, "small frequent meals") worsens cortisol imbalance and promotes fat gain in rotating-shift environments.</p>
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: Eating in Chaos</h2>
+<p>Shift work and emergency operations disrupt the <strong>circadian rhythm</strong>, directly impairing insulin sensitivity and raising baseline cortisol (<a href="https://consensus.app/papers/eating-and-shift-work-effects-on-habits-metabolism-and-lowden-moreno/0a92be3f57b2538f8d209ac460746980/">Lowden et al., 2010</a>).</p>
+<p>When meals are unpredictable, <strong>fat-adapted metabolism</strong> becomes a survival advantage — your body can run cleanly on stored fuel.</p>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle: Fuel Type vs. Stress Type</h2>
+
+<table>
+<thead>
+<tr><th>Typical Shift Diet</th><th>Chaos Eating (Ketogenic / Carnivore)</th></tr>
+</thead>
+<tbody>
+<tr><td>High-carb, snack-based, frequent hunger</td><td>Long satiety from fat and protein</td></tr>
+<tr><td>Blood sugar rollercoaster and "hanger"</td><td>Stable mental clarity, fewer crashes</td></tr>
+<tr><td>Cortisol spikes from glucose swings</td><td>Lower cortisol baseline (<a href="https://consensus.app/papers/the-role-of-very-low-calorie-ketogenic-diet-in-sympathetic-polito-messina/e774a0977d7b5a4a8329b961967ee8a6/">Polito et al., 2021</a>)</td></tr>
+<tr><td>Requires kitchen or microwave</td><td>Shelf-stable, thermos-ready, minimal prep</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Highlights</h2>
+<ul>
+<li><strong>Cortisol Stabilization:</strong> Ketogenic metabolism reduces stress-driven cortisol production and improves HPA-axis balance.</li>
+<li><strong>Circadian Rewiring:</strong> Nutritional ketosis supports circadian gene rhythm, protecting against shift-induced metabolic damage (<a href="https://consensus.app/papers/metabolism-ketogenic-diet-rewires-circadian-clock-greenhill/8b401aa8d4b85940811eb215ea1e3463/">Greenhill, 2017</a>).</li>
+<li><strong>Metabolic Flexibility:</strong> Beta-hydroxybutyrate provides steady brain and heart fuel when glucose isn't available.</li>
+<li><strong>Anti-Adipogenic Effect:</strong> Lowering cortisol prevents shift-work fat gain by stabilizing the EGR3-HDAC6 pathway.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 The Field Protocol ("Cold Prep" Survival Kit)</h2>
+
+<h3>🔹 Tier 1 – No Heat, No Problem</h3>
+<ul>
+<li>Hard-boiled eggs (vacuum sealed or chilled)</li>
+<li>Cooked burger patties (cold or thermos-kept)</li>
+<li>Jerky or biltong (zero sugar)</li>
+<li>Canned salmon, tuna, or sardines in olive oil</li>
+<li>Butter or tallow sticks (in thermos or small container)</li>
+</ul>
+
+<h3>🔹 Tier 2 – Thermos-Ready Fats</h3>
+<ul>
+<li>Hot coffee + 1 tbsp butter/tallow = instant fat fuel</li>
+<li>Scrambled eggs with tallow sealed hot in thermos</li>
+<li>Bone broth with salt (hydration + electrolytes)</li>
+</ul>
+
+<h3>🔹 Tier 3 – Stress-Ready Additions</h3>
+<ul>
+<li>Redmond's salt packets or LMNT-style electrolytes</li>
+<li>Magnesium glycinate capsules (for sleep recovery)</li>
+<li>Collagen packets or gelatin squares for connective support</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🔥 The "24-Hour Shift Loop"</h2>
+<p><strong>Goal:</strong> Prevent energy dips, maintain alertness, and recover faster.</p>
+<ol>
+<li><strong>Start Shift (0–2h):</strong> Protein + fat meal (e.g., burger + eggs).</li>
+<li><strong>Mid-Shift (6–8h):</strong> Thermos broth or jerky snack only if hungry.</li>
+<li><strong>End of Shift (18–24h):</strong> Hydrate + protein meal (steak, eggs).</li>
+<li><strong>Recovery:</strong> Sleep in a cool, dark room; avoid sugar and caffeine.</li>
+</ol>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+<ul>
+<li>Lowden et al., 2010 – <em>Shift work metabolism & nutrition</em></li>
+<li>Polito et al., 2021 – <em>VLCKD reduces cortisol and SNS activation</em></li>
+<li>Greenhill, 2017 – <em>Ketogenic diet rewires circadian clock</em></li>
+<li>Saris & Timmers, 2022 – <em>Ketones as resilient energy substrate</em></li>
+</ul>
+
+<hr>
+
+<strong>Consensus Score:</strong> 🧩 <em>Strong Support</em> — Fat-adapted, protein-dominant nutrition improves cognitive endurance, reduces cortisol, and supports long shifts without metabolic breakdown.
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+            </div>
+        </div>
+
+        <!-- 🧬 The Elimination Matrix -->
+        <div class="topic" id="elimination-matrix">
+            <h2>🧬 The Elimination Matrix (Reintroduction Logic)</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 20, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+<p><strong>A strict elimination phase (like the Lion Diet) resets inflammation and gut signaling — but the true test comes during reintroduction. One food at a time, one week at a time, tracking systemic reactions, is the only evidence-based way to personalize your Carnivore or Ketovore plan.</strong></p>
+<p><strong>🟥 Mainstream View:</strong> Rapid reintroduction or multi-food testing leads to misattribution of symptoms, as most intolerances are delayed (24–72 hours).</p>
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: From Lion to Logic</h2>
+<p>The <strong>Lion Diet</strong> (beef, salt, water) is a form of an <strong>elimination protocol</strong> — similar to the Autoimmune Protocol (AIP) used in clinical settings for gut and immune reset (<a href="https://consensus.app/papers/autoimmune-protocol-diet-a-personalized-elimination-diet-pardali-gkouvi/f432cf0a2f4154da8d305672bfa3cda7/">Pardali et al., 2024</a>).</p>
+<p>The goal isn't to stay restrictive forever — it's to isolate triggers and build your custom "safe list."</p>
+
+<hr>
+
+<h2 class="section-title">🧩 The Elimination Matrix Steps</h2>
+
+<table>
+<thead>
+<tr><th>Phase</th><th>Duration</th><th>Purpose</th><th>Example Foods</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Phase 1: Reset</strong></td><td>2–4 weeks</td><td>Eliminate all potential triggers (Lion Diet).</td><td>Beef, salt, water only</td></tr>
+<tr><td><strong>Phase 2: Evaluate</strong></td><td>1 week per food</td><td>Add <em>one</em> food at a time; monitor symptoms.</td><td>Eggs, then dairy, then fish</td></tr>
+<tr><td><strong>Phase 3: Expand</strong></td><td>1–2 months</td><td>Add tolerated foods; retest any uncertain ones.</td><td>Butter, honey, fruit (if desired)</td></tr>
+<tr><td><strong>Phase 4: Maintain</strong></td><td>Long-term</td><td>Build your personalized Carnivore or Ketovore baseline.</td><td>Beef, eggs, cream, honey (optional)</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle: Strict vs. Reintroduction</h2>
+
+<table>
+<thead>
+<tr><th>Strict Elimination (Lion/AIP)</th><th>Controlled Reintroduction</th></tr>
+</thead>
+<tbody>
+<tr><td>Eliminates all inflammatory foods and restores gut barrier function.</td><td>Identifies specific intolerances rather than guessing.</td></tr>
+<tr><td>Can reduce immune overactivation and "leaky gut."</td><td>Supports microbiome adaptation to new foods (<a href="https://consensus.app/papers/intestinal-permeability-food-antigens-and-the-microbiome-valitutti-mennini/bb12c0054ac55a72b29511aaa1a76776/">Valitutti et al., 2025</a>).</td></tr>
+<tr><td>Short-term inflammation reduction.</td><td>Long-term personalization and tolerance building.</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Highlights</h2>
+<ul>
+<li><strong>Immune Reset:</strong> Removing antigenic foods allows T-cell rebalancing and reduced cytokine load.</li>
+<li><strong>Gut Barrier Recovery:</strong> Tight junctions (occludin, zonulin) normalize after 14–30 days of clean eating.</li>
+<li><strong>Microbiome Stability:</strong> Gradual reintroduction prevents dysbiosis flare-ups and supports short-chain fatty acid balance.</li>
+<li><strong>Delayed Hypersensitivity:</strong> Symptoms like fatigue, bloating, or skin irritation may appear up to 72 hours after a trigger food.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🧩 How to Test Foods: The Logic Tree</h2>
+<ol>
+<li><strong>Add one food only.</strong> (e.g., eggs)</li>
+<li>Eat it daily for 3 days, in small, then moderate amounts.</li>
+<li>Track reactions for 72 hours:
+<ul>
+<li>Digestion (bloating, gas, stool change)</li>
+<li>Energy/mood</li>
+<li>Skin or joint symptoms</li>
+</ul></li>
+<li>If no symptoms → keep the food.</li>
+<li>If symptoms return → remove, wait 3 days, and test something else.</li>
+</ol>
+
+<h3>🧠 Example Reintroduction Path</h3>
+<p><code>Beef Only → Eggs → Butter → Cheese → White Fish → Pork → Honey → Fruit</code></p>
+
+<hr>
+
+<h2 class="section-title">🥩 Practical Application</h2>
+<ul>
+<li><strong>Use a Journal:</strong> Record foods, timing, and reactions. Apps like <em>Symptom Tracker</em> can help.</li>
+<li><strong>Start Low, Go Slow:</strong> 1–2 tsp of butter ≠ 4 oz of cheese.</li>
+<li><strong>Avoid Confounding Variables:</strong> No alcohol or coffee during testing weeks.</li>
+<li><strong>Retest Seasonal Foods:</strong> Tolerance can change as microbiome diversity improves.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+<ul>
+<li>Pardali et al., 2024 – <em>Autoimmune Protocol Diet (AIP)</em></li>
+<li>Valitutti et al., 2025 – <em>Intestinal permeability, food antigens, and microbiome</em></li>
+<li>Ceballos et al., 2021 – <em>Diet and microbiome in gut inflammation</em></li>
+<li>Henderson et al., 2012 – <em>Stepwise elimination and reintroduction efficacy</em></li>
+</ul>
+
+<hr>
+
+<strong>Consensus Score:</strong> 🧩 <em>Widely Supported</em> — Gradual, single-food reintroduction following an elimination phase is the gold-standard for identifying food triggers and restoring tolerance.
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+            </div>
+        </div>
+
+        <!-- 🍽 Restaurant Deconstruction & Social Ops -->
+        <div class="topic" id="restaurant-ops">
+            <h2>🍽 Restaurant Deconstruction & Social Ops</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 20, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+<p><strong>You can eat socially without breaking ketosis or carnivore compliance.</strong></p>
+<p>The key is mastering how to <strong>ask for "plain" meats, avoid hidden seed oils</strong>, and maintain confidence under social pressure.</p>
+<p><strong>🟥 Mainstream Warning:</strong> Most restaurant "seared" or "charred" meats are cooked in industrial seed oils (canola, soybean, sunflower), which form inflammatory aldehydes at high heat (<a href="https://consensus.app/papers/evidencebased-challenges-to-the-continued-grootveld/9983ca632fe8556dbc503c646c7ea18a/">Grootveld, 2022</a>).</p>
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: The Social and Chemical Reality</h2>
+
+<h3>1️⃣ The Biochemistry of the "Sear" Trap</h3>
+<p>Restaurant kitchens use high-smoke-point vegetable oils for speed and browning. These oils—when reheated—generate lipid oxidation products (LOPs), which are linked to oxidative stress and chronic inflammation.</p>
+<ul>
+<li><strong>Sunflower and soybean oils</strong> increase inflammatory gene activation (NF-κB pathway) in obese individuals.</li>
+<li><strong>Toxic aldehydes</strong> like acrolein and formaldehyde are produced during pan searing at 180–220°C.</li>
+<li><strong>Animal fats (tallow, butter, ghee)</strong> are more stable under the same temperatures.</li>
+</ul>
+<p>📊 <em>Consensus:</em> Industrial oils = unstable; animal fats = thermally safe.</p>
+
+<hr>
+
+<h2 class="section-title">🍴 Hidden Seed Oil Table (Major U.S. Chains)</h2>
+
+<table>
+<thead>
+<tr><th>Chain</th><th>Cooking Oil Used</th><th>Hidden Risk Terms</th><th>Safe Options</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Texas Roadhouse</strong></td><td>Soybean Oil</td><td>"Grilled," "Seared," "Seasoned Butter"</td><td>Ask for plain ribeye, no seasoning</td></tr>
+<tr><td><strong>Outback Steakhouse</strong></td><td>Canola/Blend</td><td>"Seared in our proprietary oil blend"</td><td>Request "dry grilled, no seasoning"</td></tr>
+<tr><td><strong>LongHorn Steakhouse</strong></td><td>Soybean Oil</td><td>"Cooked on flat-top"</td><td>Order "plain steak, no grill oil"</td></tr>
+<tr><td><strong>Ruth's Chris</strong></td><td>Clarified Butter</td><td>Minimal risk</td><td>Confirm no finishing oil</td></tr>
+<tr><td><strong>Chipotle</strong></td><td>Rice Bran Oil</td><td>"Seasoned chicken/beef"</td><td>Order carnitas (cooked in lard)</td></tr>
+<tr><td><strong>Five Guys</strong></td><td>Peanut Oil</td><td>Low oxidation</td><td>Acceptable for most unless allergic</td></tr>
+</tbody>
+</table>
+
+<p>💡 <em>Tactical Note:</em> Always say: "Can you cook that in <strong>butter or dry on the grill</strong>?" Most chefs will accommodate.</p>
+
+<hr>
+
+<h2 class="section-title">🧠 The Psychology of Eating Out</h2>
+<p>Social events often trigger dietary lapses due to conformity and emotional pressure.</p>
+<ul>
+<li>Restrictive eaters report social anxiety and lack of support when eating out.</li>
+<li>Culinary competence—understanding how food is prepared—increases adherence and social comfort.</li>
+</ul>
+
+<p><strong>Script Example:</strong></p>
+<blockquote>"I eat really simply for health reasons—just plain grilled meat with butter, no oil or seasoning please."</blockquote>
+<p>This keeps the tone neutral and medically framed, avoiding confrontation.</p>
+
+<hr>
+
+<h2 class="section-title">🎯 The Tactical "Social Ops" Kit</h2>
+
+<table>
+<thead>
+<tr><th>Situation</th><th>Strategy</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Business Dinner</strong></td><td>Order steak or salmon "dry-grilled"</td><td>"Can you grill mine plain, no oil?"</td></tr>
+<tr><td><strong>Wedding / Banquet</strong></td><td>Eat beforehand</td><td>Focus on sparkling water and conversation</td></tr>
+<tr><td><strong>Casual Chain</strong></td><td>Use "allergy phrasing"</td><td>"Can you note: no seed oils, butter only?"</td></tr>
+<tr><td><strong>High-End Steakhouse</strong></td><td>Ask for "tallow-seared" or "broiled only"</td><td>Most will honor request</td></tr>
+<tr><td><strong>Vacation / Unknown Menu</strong></td><td>Carry salt packets and jerky backup</td><td>Prioritize protein over perfection</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+<ul>
+<li>Grootveld, 2022 – <em>PUFA Oils and Toxic Aldehydes from Frying</em></li>
+<li>Pérez-Herrera et al., 2012 – <em>Inflammatory Response from Heated Oils</em></li>
+<li>Jaworowska et al., 2013 – <em>Nutritional Challenges of Fast Food</em></li>
+<li>Yin et al., 2023 – <em>Social Eating Barriers for Restrictive Diets</em></li>
+</ul>
+
+<hr>
+
+<strong>Consensus Score:</strong> ⚔️ <em>Highly Contested</em> — The mainstream culinary industry still promotes PUFA oils as "heart-healthy," while mechanistic data shows clear oxidative and inflammatory risk at restaurant heat levels.
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+            </div>
+        </div>
+
+        <!-- 🥩 Freezer Logistics & Bulk ROI -->
+        <div class="topic" id="freezer-logistics">
+            <h2>🥩 Freezer Logistics & Bulk ROI</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 20, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+<p>Buying meat in bulk (¼ or ½ cow) can cut costs by <strong>30–40%</strong>, but without proper freezer logistics, you risk losing hundreds in spoiled meat.</p>
+<p>Understanding <strong>freezer size, temperature control, and inventory rotation</strong> ensures both safety and savings.</p>
+<p><strong>🟥 Mainstream Warning:</strong> Meat stored above −15°C or beyond 9 months shows declining texture and nutrition. Always maintain −18°C or colder.</p>
+
+<hr>
+
+<h2 class="section-title">💰 The ROI of Buying in Bulk</h2>
+
+<table>
+<thead>
+<tr><th>Purchase Type</th><th>Avg. Price/lb (2026)</th><th>Typical Weight</th><th>Total Cost</th><th>Retail Equivalent</th><th>Savings</th></tr>
+</thead>
+<tbody>
+<tr><td>¼ Cow</td><td>$6.25</td><td>100–130 lbs</td><td>$625–$812</td><td>$950–$1,100</td><td>25–35%</td></tr>
+<tr><td>½ Cow</td><td>$5.75</td><td>220–260 lbs</td><td>$1,265–$1,495</td><td>$1,900–$2,200</td><td>35–40%</td></tr>
+<tr><td>Whole Cow</td><td>$5.25</td><td>440–500 lbs</td><td>$2,310–$2,625</td><td>$3,800+</td><td>40–45%</td></tr>
+</tbody>
+</table>
+
+<p>🧮 <strong>ROI Formula:</strong> ROI (%) = ((Retail Value − Bulk Cost) / Bulk Cost) × 100</p>
+<p>📈 At −18°C, properly stored beef retains flavor and safety up to 9 months.</p>
+
+<hr>
+
+<h2 class="section-title">🧊 Freezer Size Requirements</h2>
+
+<table>
+<thead>
+<tr><th>Purchase</th><th>Recommended Size</th><th>Type</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td>¼ Cow</td><td>4–5 cu ft</td><td>Chest Freezer</td><td>Compact but efficient</td></tr>
+<tr><td>½ Cow</td><td>8–10 cu ft</td><td>Upright or Chest</td><td>Better organization</td></tr>
+<tr><td>Whole Cow</td><td>16–18 cu ft</td><td>Chest (Deep)</td><td>Max storage & efficiency</td></tr>
+</tbody>
+</table>
+
+<p>💡 <strong>Rule of Thumb:</strong> 35–40 lbs of meat per cubic foot of freezer space.</p>
+<p>🧊 <strong>Energy Tip:</strong> Chest freezers maintain 20–30% higher efficiency due to reduced air loss on opening.</p>
+
+<hr>
+
+<h2 class="section-title">🌡️ Freezer Temperature & Quality Science</h2>
+<ul>
+<li><strong>Ideal Temperature:</strong> −18°C (0°F) or colder.</li>
+<li><strong>Avoid Temperature Fluctuation:</strong> prevents ice crystal formation and freezer burn.</li>
+<li><strong>Shelf Life Benchmarks:</strong>
+<ul>
+<li>6 months: Premium taste preservation</li>
+<li>9 months: Acceptable quality (vacuum-sealed)</li>
+<li>12+ months: Increased oxidation, slight nutrient loss</li>
+</ul></li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">📦 FIFO: Inventory Rotation for Carnivores</h2>
+<p><strong>System:</strong> First-In, First-Out (label with date and cut). Use printable or color-coded freezer tape.</p>
+
+<table>
+<thead>
+<tr><th>Label Example</th><th>Date</th><th>Use-By</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td>Ribeye</td><td>03/01/2026</td><td>12/01/2026</td><td>Vacuum sealed</td></tr>
+<tr><td>Ground Beef</td><td>03/05/2026</td><td>09/05/2026</td><td>Use first</td></tr>
+<tr><td>Roast</td><td>03/15/2026</td><td>11/15/2026</td><td>Rotate next</td></tr>
+</tbody>
+</table>
+
+<p>🧾 <strong>Tip:</strong> Keep a laminated chart on freezer lid or use a shared Google Sheet for tracking.</p>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+<ul>
+<li>Yu et al., 2021 – <em>Bacterial shifts on broiler carcasses at retail upon frozen storage</em></li>
+<li>Cho et al., 2017 – <em>Effect of aging and freezing on beef quality and storage stability</em></li>
+<li>Cao et al., 2023 – <em>Low-temperature storage and micro-frozen preservation of beef</em></li>
+<li>Dang et al., 2021 – <em>Crystallization behavior and quality of frozen meat</em></li>
+</ul>
+
+<hr>
+
+<strong>Consensus Score:</strong> 🧊 <em>Widely Accepted</em> — Maintaining constant −18°C and rotation discipline maximizes both safety and ROI for bulk meat buyers.
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+            </div>
+        </div>
+
+        <!-- 🧬 Advanced Biomarker Interpretation -->
+        <div class="topic" id="biomarkers">
+            <h2>🧬 Advanced Biomarker Interpretation</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 20, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+<p><strong>Understanding your bloodwork is the difference between guessing and mastery.</strong></p>
+<p>Carnivore and low-carb dieters often see changes in cholesterol and glucose markers that confuse mainstream doctors.</p>
+<p>By tracking <strong>ApoB, HbA1c, Fasting Insulin, and TG/HDL ratios</strong>, you can speak data — not dogma.</p>
+<p><strong>🟥 Mainstream Warning:</strong> Traditional "LDL-only" risk models miss context. ApoB and insulin resistance are stronger predictors of long-term health.</p>
+
+<hr>
+
+<h2 class="section-title">🧠 The Four Key Biomarkers</h2>
+
+<h3>1️⃣ ApoB – The Particle Counter</h3>
+<p><strong>What it measures:</strong> The number of atherogenic lipoprotein particles (LDL, VLDL, IDL).</p>
+<p><strong>Why it matters:</strong> ApoB directly reflects how many particles can enter the arterial wall — far more predictive than LDL cholesterol concentration.</p>
+
+<table>
+<thead>
+<tr><th>Range</th><th>Interpretation</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td>&lt; 80 mg/dL</td><td>✅ Optimal</td><td>Typical for insulin-sensitive, lean individuals</td></tr>
+<tr><td>80–100 mg/dL</td><td>⚠️ Moderate</td><td>Monitor if other risk factors present</td></tr>
+<tr><td>&gt; 100 mg/dL</td><td>🚨 Elevated</td><td>Associated with atherosclerotic risk</td></tr>
+</tbody>
+</table>
+
+<p>📊 Low-carb diets often <em>lower</em> ApoB and ApoB/ApoA1 ratios while improving HDL and TG balance.</p>
+
+<hr>
+
+<h3>2️⃣ HbA1c – The 90-Day Glucose Average</h3>
+<p><strong>What it measures:</strong> Percentage of glycated hemoglobin — how much sugar sticks to red blood cells.</p>
+<p><strong>Why it matters:</strong> Reflects your long-term blood sugar control.</p>
+
+<table>
+<thead>
+<tr><th>Range</th><th>Interpretation</th></tr>
+</thead>
+<tbody>
+<tr><td>&lt; 5.2%</td><td>✅ Optimal (ketogenic range)</td></tr>
+<tr><td>5.2–5.6%</td><td>⚠️ Moderate / early insulin resistance</td></tr>
+<tr><td>&gt; 5.6%</td><td>🚨 Elevated / prediabetes</td></tr>
+</tbody>
+</table>
+
+<p>Carnivore dieters often show low HbA1c due to stable insulin and minimal glycation load.</p>
+
+<hr>
+
+<h3>3️⃣ Fasting Insulin – The Early Warning System</h3>
+<p><strong>What it measures:</strong> Baseline insulin in the bloodstream after fasting.</p>
+<p><strong>Why it matters:</strong> High fasting insulin indicates insulin resistance — often years before HbA1c rises.</p>
+
+<table>
+<thead>
+<tr><th>Range</th><th>Interpretation</th></tr>
+</thead>
+<tbody>
+<tr><td>&lt; 5 µIU/mL</td><td>✅ Optimal (insulin sensitive)</td></tr>
+<tr><td>5–9 µIU/mL</td><td>⚠️ Moderate insulin resistance</td></tr>
+<tr><td>&gt; 10 µIU/mL</td><td>🚨 High — metabolic dysfunction</td></tr>
+</tbody>
+</table>
+
+<p><strong>High insulin + normal glucose = hidden resistance.</strong></p>
+<p>Reducing refined carbs and emphasizing fat/protein lowers fasting insulin within weeks.</p>
+
+<hr>
+
+<h3>4️⃣ Triglyceride/HDL Ratio – The Metabolic Thermometer</h3>
+<p><strong>What it measures:</strong> Relationship between stored and burned energy.</p>
+<p><strong>Why it matters:</strong> The TG/HDL ratio correlates tightly with insulin resistance, cardiovascular risk, and liver fat.</p>
+
+<table>
+<thead>
+<tr><th>Ratio</th><th>Interpretation</th></tr>
+</thead>
+<tbody>
+<tr><td>&lt; 1.5</td><td>✅ Excellent metabolic health</td></tr>
+<tr><td>1.5–3.0</td><td>⚠️ Moderate risk</td></tr>
+<tr><td>&gt; 3.0</td><td>🚨 High insulin resistance</td></tr>
+</tbody>
+</table>
+
+<p>Low-carb interventions drastically improve TG/HDL ratios and reduce ApoB simultaneously.</p>
+
+<hr>
+
+<h2 class="section-title">📈 Practical Testing & Action Plan</h2>
+<ol>
+<li><strong>Order these markers:</strong> ApoB, Fasting Insulin, HbA1c, Lipid Panel (for TG/HDL).</li>
+<li><strong>Test quarterly</strong> for 1 year during your transition phase.</li>
+<li><strong>Track trends</strong>, not snapshots — look for improvements in ratios, not just isolated numbers.</li>
+<li><strong>Correlate with symptoms:</strong> Energy stability, appetite, body composition.</li>
+<li><strong>Bring data to your doctor:</strong> Explain your lifestyle context (low-carb, fat-adapted) with confidence.</li>
+</ol>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+<ul>
+<li>Alnami et al., 2022 – <em>Modulation of ApoB/ApoA and TG/HDL by LCHF diets</em></li>
+<li>Zinn et al., 2017 – <em>12-week LCHF diet improves metabolic health</em></li>
+<li>Mather et al., 2023 – <em>ApoB and TG reduction during GLP-1 modulation</em></li>
+<li>Górecka et al., 2025 – <em>ApoB and triglycerides as therapeutic targets</em></li>
+</ul>
+
+<hr>
+
+<strong>Consensus Score:</strong> 🧩 <em>Widely Supported</em> — ApoB, TG/HDL, and fasting insulin are more reliable indicators of cardiometabolic health than LDL-C alone.
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+            </div>
+        </div>
+
+        <!-- 💉 GLP-1 Landing Gear -->
+        <div class="topic" id="glp1-landing">
+            <h2>💉 The GLP-1 Landing Gear (Metabolic Exit)</h2>
+
+            <div class="topic-meta">
+                <span class="last-updated">📅 Last Updated: January 20, 2026</span>
+                <a href="#top" style="color: #8b4513; text-decoration: none; font-weight: bold;">↑ Back to Top</a>
+            </div>
+
+            <div class="topic-content">
+                <h2 class="section-title">🟩 Bottom Line (TL;DR)</h2>
+<p><strong>High-protein, high-fat diets can help preserve muscle and control appetite when discontinuing GLP-1 agonists (Ozempic, Wegovy, Mounjaro), preventing rebound weight gain and "food noise."</strong></p>
+<p><strong>🟥 Mainstream Warning:</strong> Stopping GLP-1 drugs abruptly often leads to increased hunger, fat regain, and muscle loss — especially if protein intake remains low.</p>
+
+<hr>
+
+<h2 class="section-title">🧠 The Deep Dive: What Happens When You Stop GLP-1 Drugs</h2>
+<p>GLP-1 receptor agonists mimic gut hormones that reduce appetite and slow digestion. Once stopped:</p>
+<ul>
+<li><strong>Appetite hormones (ghrelin, NPY)</strong> rebound sharply.</li>
+<li><strong>Satiety hormones (GLP-1, PYY, leptin)</strong> drop below baseline.</li>
+<li><strong>Muscle mass declines</strong>, slowing metabolism (<a href="https://consensus.app/papers/body-composition-changes-after-treatment-with-glp1-ras-hoch-areias/95b54a16e0a95aeea4d7c5df9ac08d9a/">Hoch et al., 2023</a>).</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">⚖️ The Science Battle: Calories vs. Composition</h2>
+
+<table>
+<thead>
+<tr><th>Mainstream View</th><th>Carnivore/Metabolic Approach</th></tr>
+</thead>
+<tbody>
+<tr><td>Weight regain is inevitable without calorie restriction.</td><td>Protein and fat drive satiety, preventing binge cycles.</td></tr>
+<tr><td>Focus on portion control and gradual refeeding.</td><td>Focus on <strong>macronutrient quality</strong>: 30–40% calories from protein, 60% from fat.</td></tr>
+<tr><td>Exercise recommended to offset lean mass loss.</td><td>Resistance training + protein (~1g/lb lean mass) fully prevents sarcopenia (<a href="https://consensus.app/papers/the-effects-of-resistance-training-combined-with-high-protein-wewege-desai/dc09ecf676ce5f03a9c3b90c0c5ce6fc/">Wewege et al., 2021</a>).</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 class="section-title">🧬 Mechanistic Highlights</h2>
+<ul>
+<li><strong>GLP-1 Satiety Replacement:</strong> Protein and fat trigger PYY and CCK, the body's natural fullness signals (<a href="https://consensus.app/papers/clinical-relevance-of-endogenous-glp1-and-peptide-yy-hansen-holst/842b52e11b6e59b3a01fcd8f16de9b2e/">Hansen et al., 2023</a>).</li>
+<li><strong>Ketones as Appetite Regulators:</strong> Fat oxidation produces β-hydroxybutyrate, which stabilizes hunger and mental clarity.</li>
+<li><strong>Protein Leverage:</strong> Humans eat until protein needs are met — prioritizing steak, eggs, and fish reduces cravings (<a href="https://consensus.app/papers/protein-leverage-explains-energy-intake-human-dietary-gosby-conigrave/2eb8c0b2a1d8582e8f6f94e908ea9ad4/">Gosby et al., 2011</a>).</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">🥩 The "Landing Gear" Transition Plan</h2>
+
+<h3>Phase 1 (Weeks 1–2): Stabilize Appetite</h3>
+<ul>
+<li>Eat 3 full meals/day of meat + fat (e.g., ribeye, eggs, butter).</li>
+<li>Add electrolytes (sodium, potassium, magnesium).</li>
+<li>Sleep 8 hours — ghrelin spikes with sleep deprivation.</li>
+</ul>
+
+<h3>Phase 2 (Weeks 3–6): Rebuild Lean Mass</h3>
+<ul>
+<li>Lift weights 3–4x/week.</li>
+<li>Target 1g protein per pound of lean mass.</li>
+<li>Stay low-carb (&lt;50g/day) to maintain insulin sensitivity.</li>
+</ul>
+
+<h3>Phase 3 (6+ Weeks): Maintain Satiety & Metabolism</h3>
+<ul>
+<li>Transition to intuitive eating "to satiety."</li>
+<li>Continue emphasizing meat and animal fats.</li>
+<li>Avoid refined carbs or seed oils — both can reignite cravings.</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">📚 References</h2>
+<ul>
+<li>Hoch et al., 2023 – <em>Body composition changes after GLP-1RA treatment</em></li>
+<li>Hansen et al., 2023 – <em>Endogenous GLP-1 and peptide YY in appetite control</em></li>
+<li>Wewege et al., 2021 – <em>Resistance training + high protein to preserve lean mass</em></li>
+<li>Gosby et al., 2011 – <em>Protein leverage hypothesis</em></li>
+</ul>
+
+<hr>
+
+<strong>Consensus Score:</strong> 🧩 <em>Widely Supported</em> — Protein-focused refeeding and fat adaptation help prevent rebound hunger and fat regain after GLP-1 withdrawal.
+            </div>
+
+            <div class="related-videos">
+                <h4>📺 Related Videos</h4>
+                <p style="color: #666; font-size: 0.95em; font-style: italic;">
+                    Videos covering this topic will be linked here when available.
+                </p>
+            </div>
+        </div>
+
     </div>
 
     <a href="#top" class="back-to-top">↑ Back to Top</a>
@@ -2261,12 +4533,29 @@ Adding alcohol (especially beer) creates a <strong>triple traffic jam</strong>, 
 
     <!-- Wiki Search & Filter Script -->
     <script>
+        // Debounce timer for search tracking
+        let searchTrackingTimer = null;
+
         function filterWikiTopics() {
             const searchBox = document.getElementById('wiki-search');
             const query = searchBox.value.toLowerCase().trim();
             const topics = document.querySelectorAll('.topic');
             const tocItems = document.querySelectorAll('.toc-item');
             let visibleCount = 0;
+
+            // Track search query in Google Analytics (debounced)
+            clearTimeout(searchTrackingTimer);
+            if (query && query.length >= 3) {
+                searchTrackingTimer = setTimeout(() => {
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'wiki_search', {
+                            search_term: query,
+                            event_category: 'engagement',
+                            event_label: query
+                        });
+                    }
+                }, 1500); // Wait 1.5 seconds after user stops typing
+            }
 
             // If empty, show all topics
             if (query === '') {
@@ -2312,6 +4601,16 @@ Adding alcohol (especially beer) creates a <strong>triple traffic jam</strong>, 
             // Show/hide "no results" message
             let noResults = document.getElementById('wiki-no-results');
             if (visibleCount === 0) {
+                // Track unsuccessful search
+                if (query && query.length >= 3 && typeof gtag !== 'undefined') {
+                    clearTimeout(searchTrackingTimer);
+                    gtag('event', 'wiki_search_no_results', {
+                        search_term: query,
+                        event_category: 'engagement',
+                        event_label: query
+                    });
+                }
+
                 if (!noResults) {
                     noResults = document.createElement('div');
                     noResults.id = 'wiki-no-results';
@@ -2340,5 +4639,8 @@ Adding alcohol (especially beer) creates a <strong>triple traffic jam</strong>, 
         });
     </script>
     <script src="/js/mobile-nav.js"></script>
+
+    <!-- Engagement Tracking (Internal Links, Scroll Depth, Outbound Clicks) -->
+    <script src="/js/engagement-tracking.js"></script>
 </body>
 </html>

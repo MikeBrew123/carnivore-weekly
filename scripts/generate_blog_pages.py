@@ -100,8 +100,10 @@ def generate_blog_index(env, posts):
         total_posts=len(published_posts)
     )
 
-    # Write blog index
-    blog_index = PUBLIC_DIR / "blog.html"
+    # Write blog index to directory structure (clean URLs)
+    blog_dir = PUBLIC_DIR / "blog"
+    blog_dir.mkdir(exist_ok=True)
+    blog_index = blog_dir / "index.html"
     with open(blog_index, "w") as f:
         f.write(rendered)
 
