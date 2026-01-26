@@ -7,6 +7,7 @@
     <meta name="description" content="Complete guide to fasting on carnivore: 16/8 intermittent fasting, 20/4 OMAD, extended fasts. When to start, how to implement, and critical cautions for fat-adapted carnivores.">
     <meta name="keywords" content="carnivore fasting, intermittent fasting carnivore, OMAD carnivore, carnivore 16 8, extended fasting carnivore, autophagy carnivore, fat adapted fasting">
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/blog-premium.css">
     <link rel="canonical" href="https://carnivoreweekly.com/blog/2026-01-07-fasting-protocols.html">
     <meta property="og:title" content="Fasting + Carnivore: Protocols That Actually Work - Carnivore Weekly Blog">
     <meta property="og:description" content="Complete guide to fasting on carnivore: 16/8 intermittent fasting, 20/4 OMAD, extended fasts. When to start, how to implement, and critical cautions for fat-adapted carnivores.">
@@ -18,8 +19,8 @@
     <meta name="twitter:title" content="Fasting + Carnivore: Protocols That Actually Work - Carnivore Weekly Blog">
     <meta name="twitter:description" content="Complete guide to fasting on carnivore: 16/8 intermittent fasting, 20/4 OMAD, extended fasts. When to start, how to implement, and critical cautions for fat-adapted carnivores.">
     <meta name="twitter:site" content="@carnivoreweekly">
-    <meta property="og:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
-    <meta name="twitter:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/blog/fasting-protocols-1200w.webp">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/blog/fasting-protocols-1200w.webp">
 
     <!-- Article Schema Markup -->
     <script type="application/ld+json">
@@ -185,7 +186,8 @@
         }
     </style>
 </head>
-<body>
+<body class="blog-premium">
+    <div class="reading-progress" id="reading-progress"></div>
     <!-- Site Header -->
     <header class="header-2026">
         <div class="container-2026">
@@ -214,6 +216,7 @@
             <!-- Post Header -->
             <article>
                 <div class="post-header">
+                    <span class="post-category">Protocols</span>
                     <h1 class="post-title page-header">Fasting + Carnivore: Protocols That Actually Work</h1>
                     <div class="post-meta">
                         <span>January 7, 2026</span>
@@ -221,8 +224,11 @@
                     </div>
 
                     <div class="post-author-bio">
-                        <strong>Carnivore Weekly</strong><br>
-                        Performance coach focused on real-world results and optimization strategies that actually deliver measurable outcomes.
+                        <div class="author-avatar"></div>
+                        <div class="author-info">
+                            <strong>Carnivore Weekly</strong><br>
+                            Performance coach focused on real-world results and optimization strategies that actually deliver measurable outcomes.
+                        </div>
                     </div>
                 </div>
 
@@ -636,6 +642,19 @@
         </div>
     </footer>
 
+    <script>
+window.addEventListener('scroll', () => {
+  const article = document.querySelector('article');
+  const progress = document.getElementById('reading-progress');
+  if (article && progress) {
+    const rect = article.getBoundingClientRect();
+    const total = article.offsetHeight - window.innerHeight;
+    const current = -rect.top;
+    const percent = Math.min(Math.max((current / total) * 100, 0), 100);
+    progress.style.width = percent + '%';
+  }
+});
+</script>
     <script src="/js/mobile-nav.js"></script>
     <script src="/js/engagement-tracking.js"></script>
     <script>

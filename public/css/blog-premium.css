@@ -1,0 +1,1016 @@
+/*
+ * CARNIVORE WEEKLY - PREMIUM BLOG STYLESHEET
+ * "Butcher's Editorial" Design System
+ * High-contrast magazine aesthetic for top-performing posts
+ */
+
+/* ============================================
+   FONTS - Distinctive Typography
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap');
+
+/* ============================================
+   CSS VARIABLES - Premium Palette
+   ============================================ */
+:root {
+  /* Core Colors - High contrast */
+  --blog-bg: #FDFBF7;
+  --blog-text: #1C1917;
+  --blog-text-secondary: #57534E;
+  --blog-accent: #991B1B;
+  --blog-accent-light: #DC2626;
+  --blog-gold: #CA8A04;
+  --blog-gold-light: #FEF3C7;
+
+  /* Surface Colors */
+  --blog-surface: #FFFFFF;
+  --blog-surface-elevated: #F5F5F4;
+  --blog-border: #E7E5E4;
+  --blog-border-strong: #D6D3D1;
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing */
+  --blog-content-width: 680px;
+  --blog-wide-width: 900px;
+}
+
+/* ============================================
+   PREMIUM BLOG LAYOUT
+   ============================================ */
+.blog-premium {
+  background: var(--blog-bg);
+  min-height: 100vh;
+}
+
+.blog-premium .layout-wrapper-2026 {
+  max-width: var(--blog-wide-width);
+  padding: 3rem 1.5rem;
+}
+
+.blog-premium .main-content-2026 {
+  max-width: var(--blog-content-width);
+}
+
+/* ============================================
+   HERO IMAGE - Full Bleed with Overlay
+   ============================================ */
+.blog-premium .post-hero {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-bottom: 3rem;
+  overflow: hidden;
+}
+
+.blog-premium .post-hero img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  filter: brightness(0.9);
+}
+
+.blog-premium .post-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 150px;
+  background: linear-gradient(to top, var(--blog-bg), transparent);
+}
+
+/* ============================================
+   POST HEADER - Editorial Style
+   ============================================ */
+.blog-premium .post-header {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: none;
+  position: relative;
+}
+
+.blog-premium .post-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 4px;
+  background: var(--blog-accent);
+}
+
+.blog-premium .post-category {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--blog-accent);
+  margin-bottom: 1rem;
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
+  border-radius: 2px;
+}
+
+.blog-premium .post-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--blog-text);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.blog-premium .post-subtitle {
+  font-family: var(--font-body);
+  font-size: 1.35rem;
+  line-height: 1.5;
+  color: var(--blog-text-secondary);
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.blog-premium .post-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--blog-text-secondary);
+}
+
+.blog-premium .post-meta-divider {
+  width: 4px;
+  height: 4px;
+  background: var(--blog-border-strong);
+  border-radius: 50%;
+}
+
+.blog-premium .post-reading-time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.blog-premium .post-reading-time::before {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2357534E'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* ============================================
+   AUTHOR BIO - Refined Card
+   ============================================ */
+.blog-premium .post-author-bio {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--blog-surface);
+  border: 1px solid var(--blog-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.blog-premium .author-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blog-accent), #7F1D1D);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.blog-premium .author-info {
+  flex: 1;
+}
+
+.blog-premium .author-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--blog-text);
+  margin-bottom: 0.25rem;
+}
+
+.blog-premium .author-role {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--blog-text-secondary);
+  line-height: 1.5;
+}
+
+/* ============================================
+   POST CONTENT - Premium Typography
+   ============================================ */
+.blog-premium .post-content {
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: var(--blog-text);
+}
+
+.blog-premium .post-content p {
+  margin-bottom: 1.75rem;
+  color: var(--blog-text);
+}
+
+.blog-premium .post-content h2 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--blog-text);
+  margin-top: 3.5rem;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.01em;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.blog-premium .post-content h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.25em;
+  bottom: 0.25em;
+  width: 3px;
+  background: var(--blog-accent);
+  border-radius: 2px;
+}
+
+.blog-premium .post-content h3 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--blog-text);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.blog-premium .post-content h4 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--blog-accent);
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Links */
+.blog-premium .post-content a {
+  color: var(--blog-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: all 0.2s ease;
+}
+
+.blog-premium .post-content a:hover {
+  color: var(--blog-accent-light);
+  text-decoration-thickness: 2px;
+}
+
+/* Lists */
+.blog-premium .post-content ul,
+.blog-premium .post-content ol {
+  margin: 1.5rem 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.blog-premium .post-content li {
+  position: relative;
+  padding-left: 1.75rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+}
+
+.blog-premium .post-content ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 8px;
+  height: 8px;
+  background: var(--blog-accent);
+  border-radius: 50%;
+}
+
+.blog-premium .post-content ol {
+  counter-reset: list-counter;
+}
+
+.blog-premium .post-content ol li {
+  counter-increment: list-counter;
+}
+
+.blog-premium .post-content ol li::before {
+  content: counter(list-counter);
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--blog-accent);
+}
+
+/* Strong text */
+.blog-premium .post-content strong {
+  font-weight: 600;
+  color: var(--blog-text);
+}
+
+/* ============================================
+   TL;DR BOX - Premium Callout
+   ============================================ */
+.blog-premium .tldr-box {
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-premium .tldr-box::before {
+  content: 'TL;DR';
+  position: absolute;
+  top: -10px;
+  right: 20px;
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 900;
+  color: rgba(16, 185, 129, 0.08);
+  letter-spacing: -0.02em;
+}
+
+.blog-premium .tldr-box h3 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #065F46;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.blog-premium .tldr-box h3::before {
+  content: '✓';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #10B981;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+}
+
+.blog-premium .tldr-box ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.blog-premium .tldr-box li {
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  margin: 0;
+  position: relative;
+  color: #064E3B;
+  font-size: 1rem;
+  line-height: 1.6;
+  border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.blog-premium .tldr-box li:last-child {
+  border-bottom: none;
+}
+
+.blog-premium .tldr-box li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #10B981;
+  font-weight: 600;
+}
+
+/* ============================================
+   PULL QUOTES - Editorial Style
+   ============================================ */
+.blog-premium .pull-quote,
+.blog-premium blockquote.pull-quote {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--blog-text);
+  margin: 3rem 0;
+  padding: 2rem 2.5rem;
+  background: var(--blog-surface);
+  border: none;
+  border-radius: 0;
+  position: relative;
+  text-align: center;
+}
+
+.blog-premium .pull-quote::before {
+  content: '"';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 6rem;
+  font-weight: 900;
+  color: var(--blog-accent);
+  opacity: 0.15;
+  line-height: 1;
+}
+
+.blog-premium .pull-quote::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: var(--blog-accent);
+}
+
+/* ============================================
+   KEY TAKEAWAYS - Premium Card
+   ============================================ */
+.blog-premium .key-takeaways {
+  background: var(--blog-surface);
+  border: 2px solid var(--blog-text);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 3rem 0;
+  position: relative;
+}
+
+.blog-premium .key-takeaways::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: -8px;
+  bottom: -8px;
+  background: var(--blog-gold-light);
+  border-radius: 12px;
+  z-index: -1;
+}
+
+.blog-premium .key-takeaways h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--blog-text);
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.blog-premium .key-takeaways h3::before {
+  content: '📌';
+  font-size: 1.5rem;
+}
+
+.blog-premium .key-takeaways ol {
+  margin: 0;
+  padding: 0;
+  counter-reset: takeaway;
+}
+
+.blog-premium .key-takeaways li {
+  counter-increment: takeaway;
+  padding: 1rem 0 1rem 3rem;
+  margin: 0;
+  border-bottom: 1px dashed var(--blog-border);
+  position: relative;
+}
+
+.blog-premium .key-takeaways li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.blog-premium .key-takeaways li::before {
+  content: counter(takeaway);
+  position: absolute;
+  left: 0;
+  top: 1rem;
+  width: 28px;
+  height: 28px;
+  background: var(--blog-text);
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   MECHANISM BOX - Info Card
+   ============================================ */
+.blog-premium .mechanism-box {
+  background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+  border-radius: 12px;
+  padding: 1.75rem;
+  margin: 2rem 0;
+  border-left: 4px solid #7C3AED;
+}
+
+.blog-premium .mechanism-box h4 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5B21B6;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.blog-premium .mechanism-box p {
+  margin: 0.75rem 0 0 0;
+  color: #4C1D95;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* ============================================
+   TIMELINE BOX - Visual Timeline
+   ============================================ */
+.blog-premium .timeline-box {
+  background: var(--blog-surface);
+  border: 1px solid var(--blog-border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2.5rem 0;
+}
+
+.blog-premium .timeline-box h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--blog-text);
+  margin: 0 0 1.5rem 0;
+}
+
+.blog-premium .timeline-phases {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.blog-premium .phase {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  position: relative;
+}
+
+.blog-premium .phase-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.blog-premium .phase-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid;
+  background: var(--blog-surface);
+  z-index: 1;
+}
+
+.blog-premium .phase.purge .phase-dot { border-color: #DC2626; }
+.blog-premium .phase.improving .phase-dot { border-color: #F59E0B; }
+.blog-premium .phase.clear .phase-dot { border-color: #10B981; }
+
+.blog-premium .phase-line {
+  width: 2px;
+  height: 60px;
+  background: var(--blog-border);
+}
+
+.blog-premium .phase:last-child .phase-line {
+  display: none;
+}
+
+.blog-premium .phase-content {
+  padding-bottom: 1.5rem;
+}
+
+.blog-premium .phase-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.blog-premium .phase.purge .phase-title { color: #DC2626; }
+.blog-premium .phase.improving .phase-title { color: #D97706; }
+.blog-premium .phase.clear .phase-title { color: #059669; }
+
+.blog-premium .phase-desc {
+  font-size: 0.95rem;
+  color: var(--blog-text-secondary);
+  line-height: 1.6;
+}
+
+/* ============================================
+   INTENSITY BOX - Visual Scale
+   ============================================ */
+.blog-premium .intensity-box {
+  background: var(--blog-surface-elevated);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2.5rem 0;
+}
+
+.blog-premium .intensity-box h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--blog-text);
+  margin: 0 0 1.5rem 0;
+}
+
+.blog-premium .intensity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--blog-border);
+}
+
+.blog-premium .intensity-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.blog-premium .intensity-level {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.blog-premium .intensity-text {
+  flex: 1;
+}
+
+.blog-premium .intensity-text strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--blog-text);
+  margin-bottom: 0.25rem;
+}
+
+.blog-premium .intensity-text span {
+  font-size: 0.95rem;
+  color: var(--blog-text-secondary);
+  line-height: 1.5;
+}
+
+/* ============================================
+   GOOD SIGN BOX - Positive Callout
+   ============================================ */
+.blog-premium .good-sign-box {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: 12px;
+  padding: 1.75rem;
+  margin: 2rem 0;
+  border-left: 4px solid var(--blog-gold);
+}
+
+.blog-premium .good-sign-box h4 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #92400E;
+  margin: 0 0 0.75rem 0;
+}
+
+.blog-premium .good-sign-box p {
+  margin: 0;
+  color: #78350F;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* ============================================
+   DO/DON'T GRID - Comparison Cards
+   ============================================ */
+.blog-premium .do-dont-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 2.5rem 0;
+}
+
+@media (max-width: 640px) {
+  .blog-premium .do-dont-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.blog-premium .do-card,
+.blog-premium .dont-card {
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.blog-premium .do-card {
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  border: 2px solid #10B981;
+}
+
+.blog-premium .dont-card {
+  background: linear-gradient(135deg, #FEF2F2 0%, #FECACA 100%);
+  border: 2px solid #EF4444;
+}
+
+.blog-premium .do-card h4 {
+  color: #065F46;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+}
+
+.blog-premium .dont-card h4 {
+  color: #991B1B;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+}
+
+.blog-premium .do-card ul,
+.blog-premium .dont-card ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.blog-premium .do-card li,
+.blog-premium .dont-card li {
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  position: relative;
+}
+
+.blog-premium .do-card li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #10B981;
+  font-weight: 700;
+}
+
+.blog-premium .dont-card li::before {
+  content: '✗';
+  position: absolute;
+  left: 0;
+  color: #EF4444;
+  font-weight: 700;
+}
+
+.blog-premium .do-card li { color: #064E3B; }
+.blog-premium .dont-card li { color: #7F1D1D; }
+
+/* ============================================
+   INLINE IMAGES - Editorial Style
+   ============================================ */
+.blog-premium .inline-image {
+  margin: 2.5rem 0;
+}
+
+.blog-premium .inline-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.blog-premium .inline-image figcaption {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--blog-text-secondary);
+  text-align: center;
+  margin-top: 0.75rem;
+  font-style: italic;
+}
+
+/* ============================================
+   REACTIONS - Refined Style
+   ============================================ */
+.blog-premium .post-reactions {
+  background: var(--blog-surface) !important;
+  border: 1px solid var(--blog-border) !important;
+  border-radius: 12px !important;
+}
+
+.blog-premium .post-reactions--top {
+  padding: 1rem 1.5rem !important;
+}
+
+.blog-premium .post-reactions--bottom {
+  padding: 2rem !important;
+  text-align: center;
+}
+
+.blog-premium .reaction-btn {
+  background: var(--blog-surface-elevated) !important;
+  border: 2px solid var(--blog-border) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.blog-premium .reaction-btn:hover {
+  border-color: var(--blog-accent) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ============================================
+   RELATED SECTIONS - Refined Cards
+   ============================================ */
+.blog-premium [style*="background: #2c1810"] {
+  background: var(--blog-surface) !important;
+  border: 1px solid var(--blog-border) !important;
+  border-left: 4px solid var(--blog-accent) !important;
+  border-radius: 8px !important;
+}
+
+.blog-premium [style*="color: #ffd700"] {
+  color: var(--blog-accent) !important;
+}
+
+.blog-premium [style*="color: #d4a574"] {
+  color: var(--blog-text-secondary) !important;
+}
+
+/* ============================================
+   PROGRESS INDICATOR - Reading Progress
+   ============================================ */
+.blog-premium .reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--blog-accent), var(--blog-accent-light));
+  z-index: 9999;
+  transition: width 0.1s ease-out;
+}
+
+/* ============================================
+   BACK TO BLOG LINK - Refined
+   ============================================ */
+.blog-premium .back-to-blog {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--blog-text-secondary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--blog-surface-elevated);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.blog-premium .back-to-blog:hover {
+  background: var(--blog-surface);
+  color: var(--blog-accent);
+  transform: translateX(-4px);
+}
+
+/* ============================================
+   FOOTER OVERRIDE - Clean Style
+   ============================================ */
+.blog-premium .post-footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--blog-border);
+}
+
+.blog-premium .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.blog-premium .tag {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--blog-text-secondary);
+  background: var(--blog-surface-elevated);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 768px) {
+  .blog-premium .layout-wrapper-2026 {
+    padding: 2rem 1rem;
+  }
+
+  .blog-premium .post-title {
+    font-size: 2rem;
+  }
+
+  .blog-premium .post-content {
+    font-size: 1.1rem;
+  }
+
+  .blog-premium .post-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .blog-premium .pull-quote {
+    font-size: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  .blog-premium .tldr-box,
+  .blog-premium .key-takeaways,
+  .blog-premium .mechanism-box,
+  .blog-premium .timeline-box,
+  .blog-premium .intensity-box,
+  .blog-premium .good-sign-box {
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+}
+
+/* ============================================
+   ANIMATIONS - Subtle Enhancements
+   ============================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.blog-premium .post-header {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.blog-premium .post-content > * {
+  animation: fadeInUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.blog-premium .post-content > *:nth-child(1) { animation-delay: 0.1s; }
+.blog-premium .post-content > *:nth-child(2) { animation-delay: 0.15s; }
+.blog-premium .post-content > *:nth-child(3) { animation-delay: 0.2s; }
+.blog-premium .post-content > *:nth-child(4) { animation-delay: 0.25s; }
+.blog-premium .post-content > *:nth-child(5) { animation-delay: 0.3s; }

@@ -7,6 +7,7 @@
     <meta name="description" content="Why you might break out when starting carnivore, how long the detox purge lasts, what's actually happening in your body, and what to do (and not do) while waiting it out.">
     <meta name="keywords" content="carnivore acne purge, carnivore breakout, carnivore diet detox, skin detox carnivore, carnivore skin clearing, acne worse carnivore">
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/blog-premium.css">
     <link rel="canonical" href="https://carnivoreweekly.com/blog/2025-12-31-acne-purge.html">
     <meta property="og:title" content="The Acne Purge: What It Is and Why It's a Good Sign - Carnivore Weekly Blog">
     <meta property="og:description" content="Why you might break out when starting carnivore, how long the detox purge lasts, what's actually happening in your body, and what to do (and not do) while waiting it out.">
@@ -18,8 +19,8 @@
     <meta name="twitter:title" content="The Acne Purge: What It Is and Why It's a Good Sign - Carnivore Weekly Blog">
     <meta name="twitter:description" content="Why you might break out when starting carnivore, how long the detox purge lasts, what's actually happening in your body, and what to do (and not do) while waiting it out.">
     <meta name="twitter:site" content="@carnivoreweekly">
-    <meta property="og:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
-    <meta name="twitter:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/blog/acne-purge-1200w.webp">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/blog/acne-purge-1200w.webp">
 
     <!-- Article Schema Markup -->
     <script type="application/ld+json">
@@ -185,7 +186,8 @@
         }
     </style>
 </head>
-<body>
+<body class="blog-premium">
+    <div class="reading-progress" id="reading-progress"></div>
     <!-- Site Header -->
     <header class="header-2026">
         <div class="container-2026">
@@ -214,6 +216,7 @@
             <!-- Post Header -->
             <article>
                 <div class="post-header">
+                    <span class="post-category">Health & Skin</span>
                     <h1 class="post-title page-header">The Acne Purge: What It Is and Why It's a Good Sign</h1>
                     <div class="post-meta">
                         <span>December 31, 2025</span>
@@ -221,8 +224,11 @@
                     </div>
 
                     <div class="post-author-bio">
-                        <strong>Carnivore Weekly</strong><br>
-                        Casey helps people get started and stay consistent with carnivore.
+                        <div class="author-avatar">CW</div>
+                        <div class="author-info">
+                            <div class="author-name">Carnivore Weekly</div>
+                            <div class="author-role">Casey helps people get started and stay consistent with carnivore.</div>
+                        </div>
                     </div>
                 </div>
 
@@ -532,6 +538,19 @@
         </div>
     </footer>
 
+    <script>
+window.addEventListener('scroll', () => {
+  const article = document.querySelector('article');
+  const progress = document.getElementById('reading-progress');
+  if (article && progress) {
+    const rect = article.getBoundingClientRect();
+    const total = article.offsetHeight - window.innerHeight;
+    const current = -rect.top;
+    const percent = Math.min(Math.max((current / total) * 100, 0), 100);
+    progress.style.width = percent + '%';
+  }
+});
+</script>
     <script src="/js/mobile-nav.js"></script>
     <script src="/js/engagement-tracking.js"></script>
     <script>

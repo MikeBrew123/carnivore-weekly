@@ -7,6 +7,7 @@
     <meta name="description" content="Decode your fasting glucose numbers and calculate your HOMA-IR score to understand insulin resistance. Learn why 'normal' ranges miss early metabolic dysfunction and what your morning reading actually reveals.">
     <meta name="keywords" content="carnivore diet, insulin resistance, fasting glucose, HOMA-IR, metabolic health, dawn phenomenon, fasting insulin, blood sugar, prediabetes, type 2 diabetes prevention">
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/blog-premium.css">
     <link rel="canonical" href="https://carnivoreweekly.com/blog/insulin-resistance-morning-glucose.html">
     <meta property="og:title" content="Understanding Insulin Resistance: What Your Morning Glucose Really Tells You | Carnivore Weekly - Carnivore Weekly Blog">
     <meta property="og:description" content="Decode your fasting glucose numbers and calculate your HOMA-IR score to understand insulin resistance. Learn why 'normal' ranges miss early metabolic dysfunction and what your morning reading actually reveals.">
@@ -18,8 +19,8 @@
     <meta name="twitter:title" content="Understanding Insulin Resistance: What Your Morning Glucose Really Tells You | Carnivore Weekly - Carnivore Weekly Blog">
     <meta name="twitter:description" content="Decode your fasting glucose numbers and calculate your HOMA-IR score to understand insulin resistance. Learn why 'normal' ranges miss early metabolic dysfunction and what your morning reading actually reveals.">
     <meta name="twitter:site" content="@carnivoreweekly">
-    <meta property="og:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
-    <meta name="twitter:image" content="https://carnivoreweekly.com/images/hero-steak-1200w.webp">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/blog/insulin-resistance-1200w.webp">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/blog/insulin-resistance-1200w.webp">
 
     <!-- Article Schema Markup -->
     <script type="application/ld+json">
@@ -185,7 +186,8 @@
         }
     </style>
 </head>
-<body>
+<body class="blog-premium">
+    <div class="reading-progress" id="reading-progress"></div>
     <!-- Site Header -->
     <header class="header-2026">
         <div class="container-2026">
@@ -214,6 +216,7 @@
             <!-- Post Header -->
             <article>
                 <div class="post-header">
+                    <span class="post-category">Metabolic Health</span>
                     <h1 class="post-title page-header">Understanding Insulin Resistance: What Your Morning Glucose Really Tells You | Carnivore Weekly</h1>
                     <div class="post-meta">
                         <span>January 20, 2026</span>
@@ -221,8 +224,13 @@
                     </div>
 
                     <div class="post-author-bio">
-                        <strong>Carnivore Weekly</strong><br>
-                        Writer at Carnivore Weekly
+                        <div class="author-avatar">
+                            <img src="../images/avatar-cw.png" alt="Carnivore Weekly" onerror="this.style.display='none'">
+                        </div>
+                        <div class="author-info">
+                            <strong>Carnivore Weekly</strong>
+                            <span>Writer at Carnivore Weekly</span>
+                        </div>
                     </div>
                 </div>
 
@@ -586,5 +594,18 @@
                 document.body.appendChild(div);
             });
     </script>
+    <script>
+window.addEventListener('scroll', () => {
+  const article = document.querySelector('article');
+  const progress = document.getElementById('reading-progress');
+  if (article && progress) {
+    const rect = article.getBoundingClientRect();
+    const total = article.offsetHeight - window.innerHeight;
+    const current = -rect.top;
+    const percent = Math.min(Math.max((current / total) * 100, 0), 100);
+    progress.style.width = percent + '%';
+  }
+});
+</script>
 </body>
 </html>
