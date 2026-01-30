@@ -1,11 +1,11 @@
 # Current Status
 
-**Last Updated:** 2026-01-26
+**Last Updated:** 2026-01-25
 
 **HIGH-PRIORITY TODO:** CEO review of comprehensive growth strategy document (GROWTH-STRATEGY-2026.md)
 
 **Current Focus:**
-Blog index architecture redesigned. Template-driven with Jinja2, RSS feed added, magazine-style layout live. Content production continues with Electrolyte Protocol series.
+Blog quality audit in progress. Ghost avatar images fixed on two posts. SEO audit completed on top 5 posts. Decision made: batch updates fail, switching to page-by-page audit tomorrow.
 
 ---
 
@@ -22,7 +22,27 @@ Blog index architecture redesigned. Template-driven with Jinja2, RSS feed added,
 
 ---
 
-## Latest Session (Jan 25 - Blog Index Architecture)
+## Latest Session (Jan 25 Evening - Blog Audit)
+
+### Blog Image Fixes
+- Fixed ghost avatar images on `environmental-impact.html`
+- Fixed ghost avatar images on `insulin-resistance.html`
+- Images were referencing non-existent file paths
+
+### SEO Audit (Top 5 Posts)
+- Completed SEO review of top 5 blog posts
+- Identified meta description gaps
+- Identified internal linking opportunities
+- Hero images created with proper branding
+
+### Key Decision: Batch Updates Do Not Work
+**Problem:** Attempted batch script approach to fix blog post issues failed repeatedly.
+**Root Cause:** Each post has unique edge cases (different image paths, varied formatting, inconsistent structures).
+**Decision:** Abandon batch approach. Tomorrow begins methodical 1-by-1 audit of all 40 blog posts.
+
+---
+
+## Earlier Session (Jan 25 - Blog Index Architecture)
 
 ### Blog Index Redesign (Major)
 
@@ -65,7 +85,7 @@ Blog index architecture redesigned. Template-driven with Jinja2, RSS feed added,
 
 ---
 
-## Earlier Session (Jan 25 - Catch-Up Log + Quinn Fix)
+## Catch-Up Session (Jan 25 - Quinn Fix)
 
 ### Quinn Logging Protocol Fixed
 **Problem:** Quinn confirmed logging complete but files were never written (Jan 21-25 work lost).
@@ -86,73 +106,6 @@ Blog index architecture redesigned. Template-driven with Jinja2, RSS feed added,
 - 21 commits captured in catch-up log
 
 **See:** `docs/project-log/daily/2026-01-25.md` for full details
-
----
-
-## Previous Session (Jan 20 - Site-Wide GEO Optimization)
-
-### GEO Implementation Complete
-
-**Work Completed:**
-- Added Organization schema to all 32 blog posts via batch script
-- Full GEO treatment on blog index (Organization + Blog + ItemList schemas)
-- Updated blog template for future posts
-- Fixed calculator protein table mobile responsiveness
-- Updated README.md with current site structure
-
-**Commits Pushed:**
-| Commit | Description |
-|--------|-------------|
-| b972553 | README.md updates |
-| 5286270 | Organization schema added to 32 blog posts + template |
-| 3ec7500 | Blog index GEO optimization |
-| 29bf2bb | Calculator table mobile fix |
-
-**GEO Coverage Summary:**
-| Page | Schema Types | Status |
-|------|--------------|--------|
-| Homepage | WebSite + Organization | Complete |
-| Calculator | Organization | Complete |
-| Wiki | Organization | Complete |
-| Blog Index | Organization + Blog + ItemList + sameAs | Complete |
-| Blog Posts (32) | Organization | Complete |
-
-**Key Files Modified:**
-- `scripts/add_org_schema_to_blogs.py` (new batch script)
-- `public/blog/*.html` (32 files)
-- `public/blog.html`
-- `templates/blog_post_template_2026.html`
-- `public/calculator/index.html` (mobile fix)
-- `README.md`
-
----
-
-## Earlier Sessions (Jan 20)
-
-### Migration 009 Cleanup
-- Removed duplicate migration entry from Supabase
-- Deleted obsolete migration file from wrong directory
-- 4 migrations properly tracked (no duplicates)
-
-### Comprehensive Analytics Tracking
-- Internal link tracking (navigation flow analysis)
-- Scroll depth tracking (25%, 50%, 75%, 100%)
-- Outbound click tracking (YouTube, research, affiliates)
-- Wiki search tracking (content gap identification)
-- 4 report scripts with "show reports" trigger
-
-### Weekly Automation Pipeline Fixes
-- Sentiment storage location fix
-- Video commentary loading fix (JSON priority)
-- Trending topics wiki linking
-- Featured Insights dynamic loading
-- Feedback modal button fix
-
-### Initial GEO Implementation
-- SEO-GEO skill installed
-- Full GEO audit completed (score: 3/10 initially)
-- JSON-LD schema added to homepage
-- AI bot access verified (5/5 bots)
 
 ---
 
@@ -206,85 +159,41 @@ Blog index architecture redesigned. Template-driven with Jinja2, RSS feed added,
 
 ---
 
-## Completed Blockers
-
-### CRITICAL (All Resolved)
-**Video Commentary** - FIXED (Jan 11)
-- generate.py now loads content-of-the-week.json
-- Template displays editorial titles + Chloe commentary
-
-**Supabase Caching** - FIXED (Jan 11)
-- 70 videos cached in Supabase
-- generate.py reads from cache (no API calls)
-
-**Newsletter Connection** - FIXED (Jan 11)
-- Supabase JS client added to template
-- Insert to newsletter_subscribers working
-
-**Calculator Personalization** - FIXED (Jan 18)
-- Portions, diet types, allergies all working
-- Logo printing issue resolved
-
-**Payment CORS** - FIXED (Jan 18)
-- Production deployment resolved CORS preflight
-- Payment flow verified end-to-end
-
-**Blog Color Contrast** - FIXED (Jan 19)
-- All 30 blog posts now WCAG 2.1 AA compliant
-- Light cream text on dark backgrounds readable
-
-**Schema/JSON-LD** - COMPLETE (Jan 20)
-- WebSite and Organization schema on homepage
-- Organization schema on all 32 blog posts
-- Blog + ItemList schema on blog index
-- Site fully optimized for AI search visibility
-
-**Calculator Mobile** - FIXED (Jan 20)
-- Protein table now uses card-based layout on mobile
-- No more horizontal scroll on small screens
-
-**Blog Index Architecture** - COMPLETE (Jan 25)
-- Converted to Jinja2 data-driven template
-- RSS feed generation added
-- Magazine-style layout with filters
-
-### MAJOR (Deferred - Lower Priority)
-- Sentiment Analysis (nice-to-have)
-- API Failure Risk (mitigated by caching)
-
----
-
 ## Next Phase
 
-### IMMEDIATE (Strategic Planning - PRIORITY)
-1. CEO review of GROWTH-STRATEGY-2026.md
-2. Prioritize Q1 2026 initiatives
-3. Resource allocation decisions
-4. Timeline planning
+### IMMEDIATE (Blog Audit - PRIORITY)
+1. Page-by-page audit of all 40 blog posts
+2. Fix images, links, schema per post
+3. One post at a time - no batch scripts
+
+### STRATEGIC (CEO Review Pending)
+4. CEO review of GROWTH-STRATEGY-2026.md
+5. Prioritize Q1 2026 initiatives
+6. Resource allocation decisions
 
 ### GEO IMPROVEMENTS (Future Enhancements)
-5. Question-based headers for AI extractability
-6. Comparison tables on key pages
-7. FAQ Schema on top blog posts
-8. HowTo schema for calculator
+7. Question-based headers for AI extractability
+8. Comparison tables on key pages
+9. FAQ Schema on top blog posts
+10. HowTo schema for calculator
 
 ### ACCESSIBILITY (Completed / Ongoing)
-9. Blog color contrast - DONE (Jan 19)
-10. Calculator mobile - DONE (Jan 20)
-11. Run WCAG validator on homepage, channels
-12. Keyboard navigation audit
+11. Blog color contrast - DONE (Jan 19)
+12. Calculator mobile - DONE (Jan 20)
+13. Run WCAG validator on homepage, channels
+14. Keyboard navigation audit
 
 ### MONITORING & POLISH
-13. Consider full-price payment test (no coupon)
-14. Monitor site performance with 70 videos
-15. Fix trending topics display (showing placeholder text)
-16. Test related content functionality
-17. Implement topic polls frontend
+15. Consider full-price payment test (no coupon)
+16. Monitor site performance with 70 videos
+17. Fix trending topics display (showing placeholder text)
+18. Test related content functionality
+19. Implement topic polls frontend
 
 ### NEXT WEEK (Content Production)
-18. Schedule weekly automation for Sundays
-19. Email delivery testing
-20. Content quality review (editorial commentary)
+20. Schedule weekly automation for Sundays
+21. Email delivery testing
+22. Content quality review (editorial commentary)
 
 ---
 
@@ -301,7 +210,7 @@ Sunday Automation (run_weekly_update.sh):
 6. Validation -> passed
 ```
 
-### Blog Generation Pipeline (NEW)
+### Blog Generation Pipeline
 ```
 Blog Index + RSS Generation:
 1. Edit data/blog_posts.json (add new post entry)
@@ -330,33 +239,6 @@ Calculator API Deployment:
 
 ---
 
-## Technical Improvements
-
-- Homepage markdown rendering: LIVE
-- Supabase YouTube caching: ENABLED
-- Video thumbnails & descriptions: LIVE (70 videos)
-- Blog topic tracking: LIVE
-- Calculator form: LIVE
-- Stripe payment processing: LIVE (CORS fixed)
-- Report generation: LIVE (clean PDF output)
-- Session tracking: LIVE
-- Template system: ESTABLISHED
-- Weekly automation: VALIDATED
-- Deployment verification: ESTABLISHED
-- WCAG 2.1 AA compliance: VALIDATED (blog posts)
-- JSON-LD Schema: COMPLETE (all major pages + sameAs)
-- AI Bot Access: ALL 5 BOTS GRANTED
-- Internal link tracking: LIVE (navigation flow analysis)
-- Scroll depth tracking: LIVE (25%, 50%, 75%, 100% milestones)
-- Outbound click tracking: LIVE (YouTube, research, affiliates)
-- Wiki search tracking: LIVE (content gap identification)
-- Analytics reporting: LIVE ("show reports" trigger)
-- Mobile responsiveness: IMPROVED (calculator protein table)
-- Blog index: DATA-DRIVEN (Jinja2 template)
-- RSS feed: LIVE (W3C valid, auto-generated)
-
----
-
 ## Summary
 
 **Multi-day accomplishment narrative:**
@@ -370,8 +252,7 @@ Calculator API Deployment:
 - Jan 18: Payment flow tested end-to-end, PDF cleanup, pricing card UI refinement, CORS fix deployed
 - Jan 19: WCAG 2.1 color contrast fixed across all 30 blog posts, accessibility validator created
 - Jan 20: GEO optimization complete (homepage, calculator, wiki, blog index, 32 blog posts), analytics tracking deployed, automation pipeline fixes, calculator mobile fix
-- Jan 25: Blog index converted to Jinja2 template, RSS feed added, magazine-style layout, Quinn logging protocol fixed
-- Jan 26: Calculator SEO decision logged - do not touch until stability confirmed
+- Jan 25: Blog index converted to Jinja2 template, RSS feed added, magazine-style layout, Quinn logging protocol fixed, ghost avatar images fixed, SEO audit completed, decision made to do page-by-page blog audit
 
 **System Status:** PRODUCTION - FULLY OPERATIONAL
 - Calculator: Fully working with personalized reports and payment
@@ -386,6 +267,6 @@ Calculator API Deployment:
 - GEO: COMPLETE - All major pages have Organization schema + sameAs, AI bots granted access
 - Mobile: Calculator protein table responsive
 
-**Current Focus:** Strategic planning - CEO review of GROWTH-STRATEGY-2026.md for Q1 2026 prioritization
+**Current Focus:** Blog quality audit - page-by-page review of 40 posts starting tomorrow
 
-**Latest Log:** `/Users/mbrew/Developer/carnivore-weekly/docs/project-log/daily/2026-01-26.md`
+**Latest Log:** `/Users/mbrew/Developer/carnivore-weekly/docs/project-log/daily/2026-01-25.md`

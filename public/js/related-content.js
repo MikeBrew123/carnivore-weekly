@@ -170,7 +170,7 @@
         // Get URL
         let url;
         if (type === 'wiki') {
-            url = `/wiki.html#${id}`;
+            url = `/wiki/#${id}`;
         } else if (type === 'blog') {
             const filename = await findBlogFile(id);
             url = `/blog/${filename}`;
