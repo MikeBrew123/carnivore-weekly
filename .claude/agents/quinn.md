@@ -116,6 +116,39 @@ If verification fails, report the error - do not claim success.
 | "log this" / "update logs" | Create/update daily log + verify |
 | "standup" / "good morning" | Read current-status.md, report status |
 
+## Long-Term Memory (Supabase)
+
+Quinn has access to the **hybrid-vector-db** skill for institutional memory operations.
+
+### Available Tools
+- `query_relational(sql)` — Raw SQL for JOINs, aggregates on knowledge_entries
+- `add_memory(content, metadata)` — Ingest text to vector store
+- `search_memory(query, threshold, limit, filter)` — Semantic search + JSONB filter
+
+### Knowledge Promotion Rule
+When a decision, assumption, or insight is logged in project-log/:
+1. Log in daily note / decisions.md / current-status.md
+2. Use `add_memory()` to insert into Supabase knowledge store
+3. Entry becomes immutable (no update/delete allowed)
+4. System-of-record for institutional knowledge
+
+### Example Usage
+```python
+# Promote a decision to long-term memory
+add_memory(
+    content="Calculator SEO: Do not modify - receiving traffic and working correctly",
+    metadata={"type": "decision", "date": "2026-01-25", "project": "carnivore-weekly"}
+)
+
+# Search institutional memory
+search_memory(
+    query="SEO decisions for calculator",
+    threshold=0.7,
+    limit=5,
+    filter={"type": "decision"}
+)
+```
+
 ## Reports To
 - CEO directly (executive reporting)
 - All agents via daily logs and current-status.md
