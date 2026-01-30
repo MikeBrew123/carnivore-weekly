@@ -11,7 +11,7 @@
  *
  * Usage:
  *   <script src="wiki-preview.js"><\/script>
- *   <a href="wiki.html#ketosis" class="wiki-link">Ketosis</a>
+ *   <a href="/wiki/#ketosis" class="wiki-link">Ketosis</a>
  */
 
 class WikiPreviewManager {
