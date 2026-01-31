@@ -1,0 +1,348 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-01-31T06:09:33.960056",
+  "total_keywords": 120,
+  "total_pages": 30,
+  "keyword_map": {
+    "the cholesterol panic (ldl & statins)": "/wiki/#cholesterol",
+    "cholesterol": "/wiki/#cholesterol",
+    "breaking a weight loss stall on carnivore": "/wiki/#weight-stall",
+    "weight stall": "/wiki/#weight-stall",
+    "the fiber fallacy": "/wiki/#fiber",
+    "fiber": "/wiki/#fiber",
+    "transitioning from keto to carnivore gut and hormone adaptation": "/wiki/#keto-to-carnivore",
+    "keto to carnivore": "/wiki/#keto-to-carnivore",
+    "dairy friend or foe": "/wiki/#dairy",
+    "dairy": "/wiki/#dairy",
+    "a1 vs a2 dairy on the carnivore diet": "/wiki/#a1-a2-dairy",
+    "a1 a2 dairy": "/wiki/#a1-a2-dairy",
+    "the coffee compromise friend foe or fad": "/wiki/#coffee",
+    "coffee": "/wiki/#coffee",
+    "the scurvy myth (vitamin c on carnivore)": "/wiki/#scurvy",
+    "scurvy": "/wiki/#scurvy",
+    "the number two problem (digestion)": "/wiki/#digestion",
+    "digestion": "/wiki/#digestion",
+    "salt & sodium on the carnivore diet": "/wiki/#salt",
+    "salt": "/wiki/#salt",
+    "best salt for the carnivore diet": "/wiki/#best-salt",
+    "best salt": "/wiki/#best-salt",
+    "electrolytes & leg cramps on carnivore": "/wiki/#electrolytes",
+    "electrolytes": "/wiki/#electrolytes",
+    "the alcohol guide": "/wiki/#alcohol",
+    "alcohol": "/wiki/#alcohol",
+    "organ meats the liver question": "/wiki/#organ-meats",
+    "organ meats": "/wiki/#organ-meats",
+    "organ meat vs muscle meat is liver really necessary": "/wiki/#organ-vs-muscle",
+    "organ vs muscle": "/wiki/#organ-vs-muscle",
+    "creatine on carnivore do you still need to supplement": "/wiki/#creatine",
+    "creatine": "/wiki/#creatine",
+    "the honey & fruit civil war carnivore vs animal-based diet debate": "/wiki/#honey-fruit",
+    "honey fruit": "/wiki/#honey-fruit",
+    "carnivore for menopause hormones hot flashes and weight loss": "/wiki/#menopause",
+    "menopause": "/wiki/#menopause",
+    "budget carnivore eating meat without breaking the bank": "/wiki/#budget",
+    "budget": "/wiki/#budget",
+    "why critics say the carnivore diet is dangerous": "/wiki/#critics",
+    "critics": "/wiki/#critics",
+    "the carnivore diet and kidney health": "/wiki/#kidney-health",
+    "kidney health": "/wiki/#kidney-health",
+    "the carnivore diet and gout": "/wiki/#gout",
+    "gout": "/wiki/#gout",
+    "beer carnivore and gout why its a dangerous combo": "/wiki/#beer-gout",
+    "beer gout": "/wiki/#beer-gout",
+    "performance & explosive power": "/wiki/#explosive-power",
+    "explosive power": "/wiki/#explosive-power",
+    "chaos eating (the first responder protocol)": "/wiki/#chaos-eating",
+    "chaos eating": "/wiki/#chaos-eating",
+    "the elimination matrix (reintroduction logic)": "/wiki/#elimination-matrix",
+    "elimination matrix": "/wiki/#elimination-matrix",
+    "restaurant deconstruction & social ops": "/wiki/#restaurant-ops",
+    "restaurant ops": "/wiki/#restaurant-ops",
+    "freezer logistics & bulk roi": "/wiki/#freezer-logistics",
+    "freezer logistics": "/wiki/#freezer-logistics",
+    "advanced biomarker interpretation": "/wiki/#biomarkers",
+    "biomarkers": "/wiki/#biomarkers",
+    "the glp-1 landing gear (metabolic exit)": "/wiki/#glp1-landing",
+    "glp1 landing": "/wiki/#glp1-landing",
+    "ldl": "/wiki/#cholesterol",
+    "hdl": "/wiki/#cholesterol",
+    "triglycerides": "/wiki/#cholesterol",
+    "statins": "/wiki/#cholesterol",
+    "lean mass hyper responder": "/wiki/#cholesterol",
+    "ketosis": "/wiki/#cholesterol",
+    "ketogenic": "/wiki/#cholesterol",
+    "weight loss stall": "/wiki/#weight-stall",
+    "stall": "/wiki/#weight-stall",
+    "plateau": "/wiki/#weight-stall",
+    "metabolic adaptation": "/wiki/#weight-stall",
+    "dietary fiber": "/wiki/#fiber",
+    "fibre": "/wiki/#fiber",
+    "constipation": "/wiki/#fiber",
+    "milk": "/wiki/#dairy",
+    "cheese": "/wiki/#dairy",
+    "yogurt": "/wiki/#dairy",
+    "lactose": "/wiki/#dairy",
+    "casein": "/wiki/#dairy",
+    "butter": "/wiki/#dairy",
+    "caffeine": "/wiki/#coffee",
+    "tea": "/wiki/#coffee",
+    "caffeinated": "/wiki/#coffee",
+    "vitamin c": "/wiki/#scurvy",
+    "vitamin-c": "/wiki/#scurvy",
+    "ascorbic acid": "/wiki/#scurvy",
+    "digestive": "/wiki/#digestion",
+    "gut": "/wiki/#digestion",
+    "microbiome": "/wiki/#digestion",
+    "diarrhea": "/wiki/#digestion",
+    "sodium": "/wiki/#salt",
+    "sodium chloride": "/wiki/#salt",
+    "sea salt": "/wiki/#salt",
+    "potassium": "/wiki/#electrolytes",
+    "magnesium": "/wiki/#electrolytes",
+    "leg cramps": "/wiki/#electrolytes",
+    "ethanol": "/wiki/#alcohol",
+    "beer": "/wiki/#alcohol",
+    "wine": "/wiki/#alcohol",
+    "liquor": "/wiki/#alcohol",
+    "vodka": "/wiki/#alcohol",
+    "whiskey": "/wiki/#alcohol",
+    "organs": "/wiki/#organ-meats",
+    "liver": "/wiki/#organ-meats",
+    "kidney": "/wiki/#organ-meats",
+    "heart": "/wiki/#organ-meats",
+    "nose to tail": "/wiki/#organ-meats",
+    "cost": "/wiki/#budget",
+    "affordable": "/wiki/#budget",
+    "cheap": "/wiki/#budget",
+    "inexpensive": "/wiki/#budget",
+    "criticism": "/wiki/#critics",
+    "critique": "/wiki/#critics",
+    "vegan": "/wiki/#critics",
+    "plant-based": "/wiki/#critics",
+    "uric acid": "/wiki/#gout",
+    "purine": "/wiki/#gout",
+    "joint pain": "/wiki/#gout",
+    "fermented": "/wiki/#beer-gout",
+    "hops": "/wiki/#beer-gout"
+  },
+  "keyword_groups": {
+    "/wiki/#cholesterol": [
+      "the cholesterol panic (ldl & statins)",
+      "lean mass hyper responder",
+      "triglycerides",
+      "cholesterol",
+      "ketogenic",
+      "statins",
+      "ketosis",
+      "ldl",
+      "hdl"
+    ],
+    "/wiki/#weight-stall": [
+      "breaking a weight loss stall on carnivore",
+      "metabolic adaptation",
+      "weight loss stall",
+      "weight stall",
+      "plateau",
+      "stall"
+    ],
+    "/wiki/#fiber": [
+      "the fiber fallacy",
+      "dietary fiber",
+      "constipation",
+      "fiber",
+      "fibre"
+    ],
+    "/wiki/#keto-to-carnivore": [
+      "transitioning from keto to carnivore gut and hormone adaptation",
+      "keto to carnivore"
+    ],
+    "/wiki/#dairy": [
+      "dairy friend or foe",
+      "lactose",
+      "cheese",
+      "yogurt",
+      "casein",
+      "butter",
+      "dairy",
+      "milk"
+    ],
+    "/wiki/#a1-a2-dairy": [
+      "a1 vs a2 dairy on the carnivore diet",
+      "a1 a2 dairy"
+    ],
+    "/wiki/#coffee": [
+      "the coffee compromise friend foe or fad",
+      "caffeinated",
+      "caffeine",
+      "coffee",
+      "tea"
+    ],
+    "/wiki/#scurvy": [
+      "the scurvy myth (vitamin c on carnivore)",
+      "ascorbic acid",
+      "vitamin c",
+      "vitamin-c",
+      "scurvy"
+    ],
+    "/wiki/#digestion": [
+      "the number two problem (digestion)",
+      "microbiome",
+      "digestion",
+      "digestive",
+      "diarrhea",
+      "gut"
+    ],
+    "/wiki/#salt": [
+      "salt & sodium on the carnivore diet",
+      "sodium chloride",
+      "sea salt",
+      "sodium",
+      "salt"
+    ],
+    "/wiki/#best-salt": [
+      "best salt for the carnivore diet",
+      "best salt"
+    ],
+    "/wiki/#electrolytes": [
+      "electrolytes & leg cramps on carnivore",
+      "electrolytes",
+      "leg cramps",
+      "potassium",
+      "magnesium"
+    ],
+    "/wiki/#alcohol": [
+      "the alcohol guide",
+      "alcohol",
+      "ethanol",
+      "whiskey",
+      "liquor",
+      "vodka",
+      "beer",
+      "wine"
+    ],
+    "/wiki/#organ-meats": [
+      "organ meats the liver question",
+      "nose to tail",
+      "organ meats",
+      "organs",
+      "kidney",
+      "liver",
+      "heart"
+    ],
+    "/wiki/#organ-vs-muscle": [
+      "organ meat vs muscle meat is liver really necessary",
+      "organ vs muscle"
+    ],
+    "/wiki/#creatine": [
+      "creatine on carnivore do you still need to supplement",
+      "creatine"
+    ],
+    "/wiki/#honey-fruit": [
+      "the honey & fruit civil war carnivore vs animal-based diet debate",
+      "honey fruit"
+    ],
+    "/wiki/#menopause": [
+      "carnivore for menopause hormones hot flashes and weight loss",
+      "menopause"
+    ],
+    "/wiki/#budget": [
+      "budget carnivore eating meat without breaking the bank",
+      "inexpensive",
+      "affordable",
+      "budget",
+      "cheap",
+      "cost"
+    ],
+    "/wiki/#critics": [
+      "why critics say the carnivore diet is dangerous",
+      "plant-based",
+      "criticism",
+      "critique",
+      "critics",
+      "vegan"
+    ],
+    "/wiki/#kidney-health": [
+      "the carnivore diet and kidney health",
+      "kidney health"
+    ],
+    "/wiki/#gout": [
+      "the carnivore diet and gout",
+      "joint pain",
+      "uric acid",
+      "purine",
+      "gout"
+    ],
+    "/wiki/#beer-gout": [
+      "beer carnivore and gout why its a dangerous combo",
+      "beer gout",
+      "fermented",
+      "hops"
+    ],
+    "/wiki/#explosive-power": [
+      "performance & explosive power",
+      "explosive power"
+    ],
+    "/wiki/#chaos-eating": [
+      "chaos eating (the first responder protocol)",
+      "chaos eating"
+    ],
+    "/wiki/#elimination-matrix": [
+      "the elimination matrix (reintroduction logic)",
+      "elimination matrix"
+    ],
+    "/wiki/#restaurant-ops": [
+      "restaurant deconstruction & social ops",
+      "restaurant ops"
+    ],
+    "/wiki/#freezer-logistics": [
+      "freezer logistics & bulk roi",
+      "freezer logistics"
+    ],
+    "/wiki/#biomarkers": [
+      "advanced biomarker interpretation",
+      "biomarkers"
+    ],
+    "/wiki/#glp1-landing": [
+      "the glp-1 landing gear (metabolic exit)",
+      "glp1 landing"
+    ]
+  },
+  "regex_patterns": {
+    "/wiki/#cholesterol": "(?:^|\\s)(the\\ cholesterol\\ panic\\ \\(ldl\\ \\&\\ statins\\))(?:\\s|$|[.,;:!?])|(?:^|\\s)(lean\\ mass\\ hyper\\ responder)(?:\\s|$|[.,;:!?])|\\b(triglycerides)\\b|\\b(cholesterol)\\b|\\b(ketogenic)\\b|\\b(statins)\\b|\\b(ketosis)\\b|\\b(ldl)\\b|\\b(hdl)\\b",
+    "/wiki/#weight-stall": "(?:^|\\s)(breaking\\ a\\ weight\\ loss\\ stall\\ on\\ carnivore)(?:\\s|$|[.,;:!?])|(?:^|\\s)(metabolic\\ adaptation)(?:\\s|$|[.,;:!?])|(?:^|\\s)(weight\\ loss\\ stall)(?:\\s|$|[.,;:!?])|(?:^|\\s)(weight\\ stall)(?:\\s|$|[.,;:!?])|\\b(plateau)\\b|\\b(stall)\\b",
+    "/wiki/#fiber": "(?:^|\\s)(the\\ fiber\\ fallacy)(?:\\s|$|[.,;:!?])|(?:^|\\s)(dietary\\ fiber)(?:\\s|$|[.,;:!?])|\\b(constipation)\\b|\\b(fiber)\\b|\\b(fibre)\\b",
+    "/wiki/#keto-to-carnivore": "(?:^|\\s)(transitioning\\ from\\ keto\\ to\\ carnivore\\ gut\\ and\\ hormone\\ adaptation)(?:\\s|$|[.,;:!?])|(?:^|\\s)(keto\\ to\\ carnivore)(?:\\s|$|[.,;:!?])",
+    "/wiki/#dairy": "(?:^|\\s)(dairy\\ friend\\ or\\ foe)(?:\\s|$|[.,;:!?])|\\b(lactose)\\b|\\b(cheese)\\b|\\b(yogurt)\\b|\\b(casein)\\b|\\b(butter)\\b|\\b(dairy)\\b|\\b(milk)\\b",
+    "/wiki/#a1-a2-dairy": "(?:^|\\s)(a1\\ vs\\ a2\\ dairy\\ on\\ the\\ carnivore\\ diet)(?:\\s|$|[.,;:!?])|(?:^|\\s)(a1\\ a2\\ dairy)(?:\\s|$|[.,;:!?])",
+    "/wiki/#coffee": "(?:^|\\s)(the\\ coffee\\ compromise\\ friend\\ foe\\ or\\ fad)(?:\\s|$|[.,;:!?])|\\b(caffeinated)\\b|\\b(caffeine)\\b|\\b(coffee)\\b|\\b(tea)\\b",
+    "/wiki/#scurvy": "(?:^|\\s)(the\\ scurvy\\ myth\\ \\(vitamin\\ c\\ on\\ carnivore\\))(?:\\s|$|[.,;:!?])|(?:^|\\s)(ascorbic\\ acid)(?:\\s|$|[.,;:!?])|(?:^|\\s)(vitamin\\ c)(?:\\s|$|[.,;:!?])|\\b(vitamin\\-c)\\b|\\b(scurvy)\\b",
+    "/wiki/#digestion": "(?:^|\\s)(the\\ number\\ two\\ problem\\ \\(digestion\\))(?:\\s|$|[.,;:!?])|\\b(microbiome)\\b|\\b(digestion)\\b|\\b(digestive)\\b|\\b(diarrhea)\\b|\\b(gut)\\b",
+    "/wiki/#salt": "(?:^|\\s)(salt\\ \\&\\ sodium\\ on\\ the\\ carnivore\\ diet)(?:\\s|$|[.,;:!?])|(?:^|\\s)(sodium\\ chloride)(?:\\s|$|[.,;:!?])|(?:^|\\s)(sea\\ salt)(?:\\s|$|[.,;:!?])|\\b(sodium)\\b|\\b(salt)\\b",
+    "/wiki/#best-salt": "(?:^|\\s)(best\\ salt\\ for\\ the\\ carnivore\\ diet)(?:\\s|$|[.,;:!?])|(?:^|\\s)(best\\ salt)(?:\\s|$|[.,;:!?])",
+    "/wiki/#electrolytes": "(?:^|\\s)(electrolytes\\ \\&\\ leg\\ cramps\\ on\\ carnivore)(?:\\s|$|[.,;:!?])|\\b(electrolytes)\\b|(?:^|\\s)(leg\\ cramps)(?:\\s|$|[.,;:!?])|\\b(potassium)\\b|\\b(magnesium)\\b",
+    "/wiki/#alcohol": "(?:^|\\s)(the\\ alcohol\\ guide)(?:\\s|$|[.,;:!?])|\\b(alcohol)\\b|\\b(ethanol)\\b|\\b(whiskey)\\b|\\b(liquor)\\b|\\b(vodka)\\b|\\b(beer)\\b|\\b(wine)\\b",
+    "/wiki/#organ-meats": "(?:^|\\s)(organ\\ meats\\ the\\ liver\\ question)(?:\\s|$|[.,;:!?])|(?:^|\\s)(nose\\ to\\ tail)(?:\\s|$|[.,;:!?])|(?:^|\\s)(organ\\ meats)(?:\\s|$|[.,;:!?])|\\b(organs)\\b|\\b(kidney)\\b|\\b(liver)\\b|\\b(heart)\\b",
+    "/wiki/#organ-vs-muscle": "(?:^|\\s)(organ\\ meat\\ vs\\ muscle\\ meat\\ is\\ liver\\ really\\ necessary)(?:\\s|$|[.,;:!?])|(?:^|\\s)(organ\\ vs\\ muscle)(?:\\s|$|[.,;:!?])",
+    "/wiki/#creatine": "(?:^|\\s)(creatine\\ on\\ carnivore\\ do\\ you\\ still\\ need\\ to\\ supplement)(?:\\s|$|[.,;:!?])|\\b(creatine)\\b",
+    "/wiki/#honey-fruit": "(?:^|\\s)(the\\ honey\\ \\&\\ fruit\\ civil\\ war\\ carnivore\\ vs\\ animal\\-based\\ diet\\ debate)(?:\\s|$|[.,;:!?])|(?:^|\\s)(honey\\ fruit)(?:\\s|$|[.,;:!?])",
+    "/wiki/#menopause": "(?:^|\\s)(carnivore\\ for\\ menopause\\ hormones\\ hot\\ flashes\\ and\\ weight\\ loss)(?:\\s|$|[.,;:!?])|\\b(menopause)\\b",
+    "/wiki/#budget": "(?:^|\\s)(budget\\ carnivore\\ eating\\ meat\\ without\\ breaking\\ the\\ bank)(?:\\s|$|[.,;:!?])|\\b(inexpensive)\\b|\\b(affordable)\\b|\\b(budget)\\b|\\b(cheap)\\b|\\b(cost)\\b",
+    "/wiki/#critics": "(?:^|\\s)(why\\ critics\\ say\\ the\\ carnivore\\ diet\\ is\\ dangerous)(?:\\s|$|[.,;:!?])|\\b(plant\\-based)\\b|\\b(criticism)\\b|\\b(critique)\\b|\\b(critics)\\b|\\b(vegan)\\b",
+    "/wiki/#kidney-health": "(?:^|\\s)(the\\ carnivore\\ diet\\ and\\ kidney\\ health)(?:\\s|$|[.,;:!?])|(?:^|\\s)(kidney\\ health)(?:\\s|$|[.,;:!?])",
+    "/wiki/#gout": "(?:^|\\s)(the\\ carnivore\\ diet\\ and\\ gout)(?:\\s|$|[.,;:!?])|(?:^|\\s)(joint\\ pain)(?:\\s|$|[.,;:!?])|(?:^|\\s)(uric\\ acid)(?:\\s|$|[.,;:!?])|\\b(purine)\\b|\\b(gout)\\b",
+    "/wiki/#beer-gout": "(?:^|\\s)(beer\\ carnivore\\ and\\ gout\\ why\\ its\\ a\\ dangerous\\ combo)(?:\\s|$|[.,;:!?])|(?:^|\\s)(beer\\ gout)(?:\\s|$|[.,;:!?])|\\b(fermented)\\b|\\b(hops)\\b",
+    "/wiki/#explosive-power": "(?:^|\\s)(performance\\ \\&\\ explosive\\ power)(?:\\s|$|[.,;:!?])|(?:^|\\s)(explosive\\ power)(?:\\s|$|[.,;:!?])",
+    "/wiki/#chaos-eating": "(?:^|\\s)(chaos\\ eating\\ \\(the\\ first\\ responder\\ protocol\\))(?:\\s|$|[.,;:!?])|(?:^|\\s)(chaos\\ eating)(?:\\s|$|[.,;:!?])",
+    "/wiki/#elimination-matrix": "(?:^|\\s)(the\\ elimination\\ matrix\\ \\(reintroduction\\ logic\\))(?:\\s|$|[.,;:!?])|(?:^|\\s)(elimination\\ matrix)(?:\\s|$|[.,;:!?])",
+    "/wiki/#restaurant-ops": "(?:^|\\s)(restaurant\\ deconstruction\\ \\&\\ social\\ ops)(?:\\s|$|[.,;:!?])|(?:^|\\s)(restaurant\\ ops)(?:\\s|$|[.,;:!?])",
+    "/wiki/#freezer-logistics": "(?:^|\\s)(freezer\\ logistics\\ \\&\\ bulk\\ roi)(?:\\s|$|[.,;:!?])|(?:^|\\s)(freezer\\ logistics)(?:\\s|$|[.,;:!?])",
+    "/wiki/#biomarkers": "(?:^|\\s)(advanced\\ biomarker\\ interpretation)(?:\\s|$|[.,;:!?])|\\b(biomarkers)\\b",
+    "/wiki/#glp1-landing": "(?:^|\\s)(the\\ glp\\-1\\ landing\\ gear\\ \\(metabolic\\ exit\\))(?:\\s|$|[.,;:!?])|(?:^|\\s)(glp1\\ landing)(?:\\s|$|[.,;:!?])"
+  },
+  "metadata": {
+    "max_links_per_1000_words": 5,
+    "min_keyword_length": 3,
+    "case_sensitive": false,
+    "skip_existing_links": true
+  }
+}

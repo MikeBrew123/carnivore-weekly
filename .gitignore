@@ -49,6 +49,7 @@ data/*.csv
 !data/scheduled_posts_batch.json
 !data/blog_topics_queue.json
 !data/published_blogs.json
+!data/wiki-keywords.json
 
 # Generated content
 public/weekly/*.html
