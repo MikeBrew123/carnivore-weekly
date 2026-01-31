@@ -71,12 +71,12 @@ header h1 {
     color: #d4a574 !important;
 }
 
-/* Post content - NO COLOR SET HERE to prevent cascade issues */
-.post-content, .post-content p, .post-content li {
+/* Post content */
+.post-content, .post-content p, .post-content li, article {
+    color: var(--cw-text) !important;
     font-family: var(--font-body);
     font-size: 18px;
     line-height: 1.7;
-    /* Color controlled by inline styles on post-content wrapper */
 }
 
 /* Post header styling */
