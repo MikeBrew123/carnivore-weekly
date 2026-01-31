@@ -868,7 +868,8 @@ class UnifiedGenerator:
 
                 if newest_blog_posts or popular_blog_posts:
                     print(
-                        f"  ✓ Loaded {len(newest_blog_posts)} newest + {len(popular_blog_posts)} popular blog posts from Supabase"
+                        f"  ✓ Loaded {len(newest_blog_posts)} newest + "
+                        f"{len(popular_blog_posts)} popular blog posts from Supabase"
                     )
             except Exception as e:
                 print(f"  Warning: Could not load blog posts from Supabase: {e}")
@@ -890,7 +891,8 @@ class UnifiedGenerator:
                     popular_blog_posts = sorted(remaining, key=lambda p: p.get("date", ""))[:3]
 
                     print(
-                        f"  ✓ Loaded {len(newest_blog_posts)} newest + {len(popular_blog_posts)} popular blog posts from JSON (fallback)"
+                        f"  ✓ Loaded {len(newest_blog_posts)} newest + "
+                        f"{len(popular_blog_posts)} popular blog posts from JSON (fallback)"
                     )
             except Exception as e:
                 print(f"  Warning: Could not load blog posts: {e}")
@@ -1439,7 +1441,9 @@ class UnifiedGenerator:
             if os.path.exists(leaderboard_file):
                 with open(leaderboard_file, "r") as f:
                     previous_data = json.load(f)
-                    previous_rankings = {ch["name"]: ch["rank"] for ch in previous_data.get("leaderboard", [])}
+                    previous_rankings = {
+                        ch["name"]: ch["rank"] for ch in previous_data.get("leaderboard", [])
+                    }
         except (json.JSONDecodeError, IOError):
             pass
 
@@ -1465,7 +1469,14 @@ class UnifiedGenerator:
         # Save current rankings for next week's comparison
         try:
             with open(leaderboard_file, "w") as f:
-                json.dump({"leaderboard": [{"name": ch["name"], "rank": ch["rank"]} for ch in leaderboard]}, f)
+                json.dump(
+                    {
+                        "leaderboard": [
+                            {"name": ch["name"], "rank": ch["rank"]} for ch in leaderboard
+                        ]
+                    },
+                    f,
+                )
         except IOError:
             pass
 

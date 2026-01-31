@@ -52,9 +52,9 @@ def extract_wiki_topics(wiki_html_path: str) -> Dict[str, str]:
             title_clean = re.sub(r"\s+", " ", title_clean)
 
             if title_clean and len(title_clean) > 3:
-                wiki_topics[title_clean.lower()] = f"wiki.html#{topic_id}"
+                wiki_topics[title_clean.lower()] = f"/wiki/#{topic_id}"
                 # Also add the anchor ID as a keyword for direct matching
-                wiki_topics[topic_id.replace("-", " ")] = f"wiki.html#{topic_id}"
+                wiki_topics[topic_id.replace("-", " ")] = f"/wiki/#{topic_id}"
 
     return wiki_topics
 
@@ -217,7 +217,7 @@ def main():
     """Main execution function."""
     # Setup paths
     project_root = Path(__file__).parent.parent
-    wiki_html_path = project_root / "public" / "wiki.html"
+    wiki_html_path = project_root / "public" / "wiki" / "index.html"
     output_json_path = project_root / "data" / "wiki-keywords.json"
 
     # Verify input file exists
