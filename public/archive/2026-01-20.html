@@ -384,9 +384,14 @@
                 <h2 class="section-title">Featured Insights</h2>
                 <p class="section-subtitle">Latest from our editorial team</p>
 
+                <!-- Latest Posts Row -->
+                <h3 style="font-size: var(--text-lg); color: var(--color-text-secondary); margin-bottom: var(--space-4); text-transform: uppercase; letter-spacing: 0.05em;">Latest</h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8);">
                     
                 </div>
+
+                <!-- Popular Posts Row -->
+                
 
                 <div class="section-cta">
                     <a href="/blog/" class="btn btn--secondary">View All Insights →</a>
@@ -421,7 +426,7 @@
                         <div class="essential-content">
                             <h3>Bone Broth</h3>
                             <p>Collagen, minerals, and gut-healing gelatin in one cup.</p>
-                            <a href="/wiki/#bone-broth">Learn More →</a>
+                            <a href="/blog/2026-01-25-bone-broth-benefits.html">Learn More →</a>
                         </div>
                     </div>
 
@@ -493,36 +498,38 @@
         <div class="container">
 
             <!-- TOOLKIT SECTION (Affiliate Cards) - STATIC -->
-            <section style="padding: var(--space-12) 0;">
+            <section class="toolkit-section" style="padding: var(--space-12) 0;">
                 <h2 class="section-title">Our Toolkit</h2>
                 <p class="section-subtitle">Products we personally use and recommend</p>
 
-                <div class="toolkit-grid">
+                <div class="toolkit-grid toolkit-grid--premium">
                     <!-- ButcherBox Card -->
-                    <div class="affiliate-card">
-                        <!--  -->
-                        <div class="affiliate-content">
-                            <h3 style="margin-bottom: var(--space-2); font-size: var(--text-lg);">Quality Meat Delivered</h3>
-                            <p style="margin-bottom: var(--space-4); color: var(--color-text-secondary);">Grass-fed beef, heritage pork, wild-caught seafood. What we use.</p>
-                            <a href="https://butcherbox.pxf.io/Z6oVMR" class="btn btn--primary" rel="sponsored" data-partner="butcherbox" data-placement="homepage_toolkit">
-                                Get Started →
-                            </a>
-                            <span class="affiliate-disclosure">Partner link</span>
+                    <a href="https://butcherbox.pxf.io/Z6oVMR" class="affiliate-card affiliate-card--premium" rel="sponsored" data-partner="butcherbox" data-placement="homepage_toolkit">
+                        <div class="affiliate-card__image">
+                            <img src="/butcherbox-ad.jpeg" alt="ButcherBox premium steaks" loading="lazy">
+                            <div class="affiliate-card__badge">Partner</div>
                         </div>
-                    </div>
+                        <div class="affiliate-card__content">
+                            <span class="affiliate-card__brand">ButcherBox</span>
+                            <h3 class="affiliate-card__title">Quality Meat Delivered</h3>
+                            <p class="affiliate-card__desc">Grass-fed beef, heritage pork, wild-caught seafood. What we use.</p>
+                            <span class="affiliate-card__cta">Get Started <span class="cta-arrow">→</span></span>
+                        </div>
+                    </a>
 
                     <!-- LMNT Card -->
-                    <div class="affiliate-card">
-                        <!--  -->
-                        <div class="affiliate-content">
-                            <h3 style="margin-bottom: var(--space-2); font-size: var(--text-lg);">Electrolytes Done Right</h3>
-                            <p style="margin-bottom: var(--space-4); color: var(--color-text-secondary);">No sugar, no junk. Just sodium, potassium, magnesium.</p>
-                            <a href="http://elementallabs.refr.cc" class="btn btn--primary" rel="sponsored" data-partner="lmnt" data-placement="homepage_toolkit">
-                                Try LMNT →
-                            </a>
-                            <span class="affiliate-disclosure">Partner link</span>
+                    <a href="http://elementallabs.refr.cc" class="affiliate-card affiliate-card--premium" rel="sponsored" data-partner="lmnt" data-placement="homepage_toolkit">
+                        <div class="affiliate-card__image affiliate-card__image--lmnt">
+                            <img src="/lmnt-sticks-fruit.avif" alt="LMNT electrolyte packets" loading="lazy">
+                            <div class="affiliate-card__badge">Partner</div>
                         </div>
-                    </div>
+                        <div class="affiliate-card__content">
+                            <span class="affiliate-card__brand">LMNT</span>
+                            <h3 class="affiliate-card__title">Electrolytes Done Right</h3>
+                            <p class="affiliate-card__desc">No sugar, no junk. Just sodium, potassium, magnesium.</p>
+                            <span class="affiliate-card__cta">Try LMNT <span class="cta-arrow">→</span></span>
+                        </div>
+                    </a>
                 </div>
             </section>
 
