@@ -1,470 +1,184 @@
-/*
- * CARNIVORE WEEKLY - BLOG POST READABILITY STYLES
- * Enhances blog post structure and readability
- * Version 1.0 | January 2026
- */
-
 /* ============================================
-   ARTICLE STRUCTURE
+   CARNIVORE WEEKLY - BLOG POST STYLES
+   Premium Editorial Design
    ============================================ */
 
-.post-content {
-    max-width: 720px;
-    margin: 0 auto;
-    line-height: 1.75;
-    font-size: 1.125rem; /* 18px for better readability */
+:root {
+    --cw-gold: #ffd700;
+    --cw-gold-light: #ffed4a;
+    --cw-brown: #8b4513;
+    --cw-brown-dark: #6b3410;
+    --cw-brown-darker: #2c1810;
+    --cw-cream: #f4e4d4;
+    --cw-cream-light: #faf6f0;
+    --cw-burgundy: #6A1B1B;
+    --cw-text: #1a120b;
+    --cw-success: #2d5016;
+    --font-display: 'Libre Baskerville', Georgia, serif;
+    --font-body: 'Source Sans 3', -apple-system, sans-serif;
 }
 
-.post-content p {
-    margin-bottom: 1.5rem;
-    /* Color set by individual page styles - removed hard override */
+/* Global link styling */
+a {
+    color: #d4a574 !important;
+    text-decoration: underline;
+    transition: color 0.2s ease;
 }
 
-.post-content h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    color: #6A1B1B;
-    margin-top: 3rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 3px solid #d4a574;
+a:hover {
+    color: var(--cw-gold);
+    text-decoration: underline;
 }
 
-.post-content h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    color: #8b4513;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+/* Navigation menu styling */
+.nav-menu-2026,
+nav.nav-menu-2026 {
+    background: var(--cw-brown-darker) !important;
+    padding: 15px 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 50px !important;
 }
 
-.post-content h4 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.25rem;
-    color: #8b4513;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
+body .nav-menu-2026 a,
+nav.nav-menu-2026 a {
+    color: #d4a574 !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+    padding: 5px 10px !important;
+    border-bottom: 3px solid transparent !important;
+    transition: all 0.3s ease !important;
+}
+
+body .nav-menu-2026 a:hover,
+nav.nav-menu-2026 a:hover {
+    color: var(--cw-gold) !important;
+    border-bottom-color: var(--cw-gold) !important;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--cw-burgundy) !important;
+    font-family: var(--font-display);
+}
+
+header h1 {
+    color: #d4a574 !important;
+}
+
+/* Post content - NO COLOR SET HERE to prevent cascade issues */
+.post-content, .post-content p, .post-content li {
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.7;
+    /* Color controlled by inline styles on post-content wrapper */
+}
+
+/* Post header styling */
+.post-header {
+    margin-bottom: 40px;
+    border-bottom: 2px solid var(--cw-brown);
+    padding-bottom: 20px;
+}
+
+.post-author-bio {
+    background-color: transparent;
+    color: var(--cw-text);
+    padding: 15px;
+    border-left: 4px solid var(--cw-brown);
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+.post-author-bio strong {
+    color: var(--cw-burgundy);
+}
+
+.post-meta {
+    color: #d4a574 !important;
+    font-size: 14px;
+    font-family: var(--font-body);
 }
 
 /* ============================================
-   TL;DR BOX
+   TL;DR BOX - Quick-scan urgency
    ============================================ */
-
 .tldr-box {
-    background: linear-gradient(135deg, #fffbf0 0%, #fff8e6 100%) !important;
-    border-left: 5px solid #ffd700;
-    padding: 1.5rem;
-    margin: 2rem 0;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, var(--cw-cream-light) 0%, #fff 100%);
+    border: 3px solid var(--cw-gold);
+    border-radius: 16px;
+    padding: 32px;
+    margin: 40px 0;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(139, 69, 19, 0.1);
+}
+
+.tldr-box::before {
+    content: '⚡';
+    position: absolute;
+    top: -16px;
+    left: 24px;
+    background: var(--cw-gold);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
 }
 
 .tldr-box h3 {
-    font-family: 'Playfair Display', serif;
-    color: #8b4513 !important;
-    font-size: 1.25rem;
-    margin-top: 0;
-    margin-bottom: 1rem;
+    font-family: var(--font-body) !important;
+    font-weight: 900;
+    font-size: 14px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
+    color: var(--cw-brown) !important;
+    margin: 0 0 20px 0;
 }
 
 .tldr-box ul {
     margin: 0;
-    padding-left: 1.5rem;
-    list-style-type: disc;
+    padding: 0;
+    list-style: none;
 }
 
 .tldr-box li {
-    margin-bottom: 0.75rem;
-    /* Color set by individual page styles - removed hard override */
-    line-height: 1.6;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+    font-size: 17px;
 }
 
 .tldr-box li:last-child {
-    margin-bottom: 0;
+    border-bottom: none;
 }
 
-/* Higher specificity to override .post-content */
-.post-content .tldr-box h3 {
-    color: #8b4513 !important;
-}
-
-.post-content .tldr-box li {
-    /* Color set by individual page styles - removed hard override */
-}
-
-/* ============================================
-   KEY TAKEAWAY BOX (Single Callout)
-   ============================================ */
-
-.key-takeaway {
-    background: #2c1810 !important;
-    color: #f4e4d4 !important;
-    padding: 1.5rem;
-    margin: 2rem 0;
-    border-radius: 8px;
-    border-left: 5px solid #ffd700;
-}
-
-.key-takeaway h4 {
-    color: #ffd700 !important;
-    font-family: 'Playfair Display', serif;
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-}
-
-.key-takeaway p {
-    color: #f4e4d4 !important;
-    margin-bottom: 0.75rem;
-}
-
-.key-takeaway p:last-child {
-    margin-bottom: 0;
-}
-
-/* Higher specificity to override .post-content p */
-.post-content .key-takeaway p,
-.post-content .key-takeaway h4 {
-    color: #f4e4d4 !important;
-}
-
-.post-content .key-takeaway h4 {
-    color: #ffd700 !important;
-}
-
-/* ============================================
-   KEY TAKEAWAYS (Numbered List Section)
-   ============================================ */
-
-.key-takeaways {
-    background: #2c1810 !important;
-    color: #f4e4d4 !important;
-    padding: 1.5rem;
-    margin: 2rem 0;
-    border-radius: 8px;
-    border-left: 5px solid #ffd700;
-}
-
-.key-takeaways h3 {
-    color: #ffd700 !important;
-    font-family: 'Playfair Display', serif;
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-}
-
-.key-takeaways ol {
-    margin: 0;
-    padding-left: 1.5rem;
-    counter-reset: item;
-}
-
-.key-takeaways li {
-    color: #f4e4d4 !important;
-    margin-bottom: 0.75rem;
-    line-height: 1.6;
-}
-
-.key-takeaways li:last-child {
-    margin-bottom: 0;
-}
-
-/* Higher specificity to override .post-content */
-.post-content .key-takeaways h3 {
-    color: #ffd700 !important;
-}
-
-.post-content .key-takeaways li {
-    color: #f4e4d4 !important;
-}
-
-/* ============================================
-   PULL QUOTES
-   ============================================ */
-
-.pull-quote {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    font-style: italic;
-    color: #6A1B1B !important;
-    border-left: 4px solid #ffd700;
-    padding-left: 1.5rem;
-    margin: 2.5rem 0;
-    line-height: 1.6;
-}
-
-.pull-quote::before {
-    content: '"';
-    font-size: 3rem;
-    color: #d4a574 !important;
-    line-height: 0;
-    display: block;
-    margin-bottom: -0.5rem;
-}
-
-/* ============================================
-   CALLOUT BOXES
-   ============================================ */
-
-.callout {
-    background: #f9f6f1 !important;
-    border: 2px solid #d4a574;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin: 2rem 0;
-}
-
-.callout h4 {
-    color: #8b4513 !important;
-    margin-top: 0;
-    margin-bottom: 1rem;
-}
-
-.callout p {
-    color: #1a120b !important;
-    margin-bottom: 0.75rem;
-}
-
-.callout p:last-child {
-    margin-bottom: 0;
-}
-
-/* Callout variants */
-.callout--warning {
-    border-left: 5px solid #ff6b6b;
-    background: #fff5f5;
-}
-
-.callout--success {
-    border-left: 5px solid #51cf66;
-    background: #f4fef7;
-}
-
-.callout--info {
-    border-left: 5px solid #339af0;
-    background: #f0f7ff;
-}
-
-/* Higher specificity to override .post-content */
-.post-content .callout h4 {
-    color: #8b4513 !important;
-}
-
-.post-content .callout p {
-    color: #1a120b !important;
-}
-
-/* ============================================
-   LISTS
-   ============================================ */
-
-.post-content ul,
-.post-content ol {
-    margin-bottom: 1.5rem;
-    padding-left: 2rem;
-    /* Color set by individual page styles - removed hard override */
-}
-
-.post-content li {
-    margin-bottom: 0.75rem;
-    line-height: 1.7;
-    /* Color set by individual page styles - removed hard override */
-}
-
-.post-content li::marker {
-    color: #d4a574;
-}
-
-/* Checklist style */
-.checklist {
-    list-style: none;
-    padding-left: 0;
-}
-
-.checklist li {
-    padding-left: 2rem;
-    position: relative;
-}
-
-.checklist li::before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    color: #51cf66;
-    font-weight: bold;
-    font-size: 1.25rem;
-}
-
-/* Higher specificity to override .post-content */
-.post-content .checklist li {
-    /* Color set by individual page styles - removed hard override */
-}
-
-/* ============================================
-   SECTION BREAKS
-   ============================================ */
-
-.section-divider {
-    border: none;
-    border-top: 2px solid #d4a574;
-    margin: 3rem 0;
-    opacity: 0.5;
-}
-
-.section-divider--heavy {
-    border-top: 3px solid #8b4513;
-    opacity: 1;
-}
-
-/* ============================================
-   INLINE EMPHASIS
-   ============================================ */
-
-.post-content strong {
-    color: #6A1B1B;
-    font-weight: 700;
-}
-
-.post-content em {
-    color: #8b4513;
-    font-style: italic;
-}
-
-.post-content code {
-    background: #f4e4d4;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    color: #2c1810;
-}
-
-/* ============================================
-   RESEARCH CITATIONS
-   ============================================ */
-
-.research-note {
-    background: #f9f6f1 !important;
-    border-left: 3px solid #8b4513;
-    padding: 1rem 1.5rem;
-    margin: 1.5rem 0;
-    font-size: 0.95rem;
-    color: #555 !important;
-}
-
-.research-note strong {
-    color: #8b4513 !important;
-}
-
-/* Higher specificity to override .post-content */
-.post-content .research-note {
-    color: #555 !important;
-}
-
-.post-content .research-note strong {
-    color: #8b4513 !important;
-}
-
-/* ============================================
-   METRICS/STATS DISPLAY
-   ============================================ */
-
-.stat-highlight {
-    display: inline-block;
-    background: #ffd700;
-    color: #2c1810;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-/* ============================================
-   TABLE OF CONTENTS (OPTIONAL)
-   ============================================ */
-
-.post-toc {
-    background: #f9f6f1;
-    border: 2px solid #d4a574;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin: 2rem 0;
-}
-
-.post-toc h3 {
-    font-family: 'Playfair Display', serif;
-    color: #8b4513;
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-}
-
-.post-toc ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-}
-
-.post-toc li {
-    margin-bottom: 0.5rem;
-}
-
-.post-toc a {
-    color: #6A1B1B;
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.2s ease;
-}
-
-.post-toc a:hover {
-    border-bottom-color: #ffd700;
-    color: #8b4513;
+.tldr-box li strong {
+    color: var(--cw-burgundy);
 }
 
 /* ============================================
    RESPONSIVE ADJUSTMENTS
    ============================================ */
-
 @media (max-width: 768px) {
-    .post-content {
-        font-size: 1rem;
+    .tldr-box {
+        padding: 24px 20px;
+        margin: 30px 0;
     }
 
-    .post-content h2 {
-        font-size: 1.75rem;
-    }
-
-    .post-content h3 {
-        font-size: 1.35rem;
-    }
-
-    .pull-quote {
-        font-size: 1.25rem;
-        padding-left: 1rem;
-    }
-
-    .tldr-box,
-    .key-takeaway,
-    .callout {
-        padding: 1rem;
+    .tldr-box li {
+        font-size: 15px;
+        padding: 10px 0;
     }
 }
 
-/* ============================================
-   PRINT STYLES
-   ============================================ */
-
-@media print {
-    .tldr-box,
-    .key-takeaway,
-    .callout {
-        border: 1px solid #000;
-        page-break-inside: avoid;
+@media (max-width: 480px) {
+    .post-content, .post-content p, .post-content li {
+        font-size: 16px;
     }
 
-    .pull-quote {
-        page-break-inside: avoid;
+    h2 {
+        font-size: 22px !important;
     }
 }
