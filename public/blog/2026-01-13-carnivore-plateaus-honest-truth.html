@@ -93,8 +93,31 @@
         gtag('js', new Date());
         gtag('config', 'G-NR4JVKW2JV');
     </script>
+    <!-- Google Fonts for premium editorial feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600;700;900&display=swap" rel="stylesheet">
+
     <style>
-        /* 2026 Brand Colors - Comprehensive Styling */
+        /* ============================================
+           PREMIUM EDITORIAL BLOG STYLES
+           Carnivore Weekly Blog
+           ============================================ */
+
+        :root {
+            --cw-gold: #ffd700;
+            --cw-gold-light: #ffed4a;
+            --cw-brown: #8b4513;
+            --cw-brown-dark: #6b3410;
+            --cw-brown-darker: #2c1810;
+            --cw-cream: #f4e4d4;
+            --cw-cream-light: #faf6f0;
+            --cw-burgundy: #6A1B1B;
+            --cw-text: #1a120b;
+            --cw-success: #2d5016;
+            --font-display: 'Libre Baskerville', Georgia, serif;
+            --font-body: 'Source Sans 3', -apple-system, sans-serif;
+        }
 
         /* Global link styling */
         a { color: #d4a574 !important;
@@ -134,19 +157,19 @@
             border-bottom-color: #ffd700 !important;
         }
 
-        /* Headings - ensure visual hierarchy */
-        h1, h2, h3, h4, h5, h6 { color: #6A1B1B !important;
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--cw-burgundy) !important;
+            font-family: var(--font-display);
         }
 
         header h1 { color: #d4a574 !important; }
 
-        /* Layout styles - do NOT override text colors (allows dark-bg sections to have light text) */
-        .post-content p {
-            margin-bottom: 1.5rem;
-        }
-
-        .post-content li {
-            margin-bottom: 0.5rem;
+        .post-content, .post-content p, .post-content li, article {
+            color: var(--cw-text) !important;
+            font-family: var(--font-body);
+            font-size: 18px;
+            line-height: 1.7;
         }
 
         /* Post header styling */
@@ -174,6 +197,65 @@
         .post-meta {
             color: #d4a574 !important;
             font-size: 14px;
+            font-family: var(--font-body);
+        }
+
+        /* ============================================
+           TL;DR BOX - Quick-scan urgency
+           ============================================ */
+        .tldr-box {
+            background: linear-gradient(135deg, var(--cw-cream-light) 0%, #fff 100%);
+            border: 3px solid var(--cw-gold);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 40px 0;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(139, 69, 19, 0.1);
+        }
+
+        .tldr-box::before {
+            content: '⚡';
+            position: absolute;
+            top: -16px;
+            left: 24px;
+            background: var(--cw-gold);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .tldr-box h3 {
+            font-family: var(--font-body) !important;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--cw-brown) !important;
+            margin: 0 0 20px 0;
+        }
+
+        .tldr-box ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .tldr-box li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+            font-size: 17px;
+        }
+
+        .tldr-box li:last-child {
+            border-bottom: none;
+        }
+
+        .tldr-box li strong {
+            color: var(--cw-burgundy);
         }
     </style>
 </head>
@@ -213,8 +295,8 @@
                     </div>
 
                     <div class="post-author-bio">
-                        <strong>Carnivore Weekly</strong><br>
-                        Community manager who's been in the carnivore trenches. I watch the forums, follow the creators, and share what's actually happening out there. No sugarcoating.
+                        <strong>Chloe</strong><br>
+                        Community Manager at Carnivore Weekly, cutting through the marketing noise to find what actually works.
                     </div>
                 </div>
 
@@ -470,9 +552,9 @@
         <div class="post-footer">
             <!-- Tags -->
             <div class="tags">
-                <span class="tag">{{ tag1 }}</span>
-                <span class="tag">{{ tag2 }}</span>
-                <span class="tag">{{ tag3 }}</span>
+                <span class="tag">plateau</span>
+                <span class="tag">expectations</span>
+                <span class="tag">troubleshooting</span>
             </div>
         </div>
 
