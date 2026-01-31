@@ -62,6 +62,11 @@ h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
 }
 
+/* Post title - override global.css */
+.post-title {
+    font-family: var(--font-display) !important;
+}
+
 header h1 {
     color: #d4a574 !important;
 }
