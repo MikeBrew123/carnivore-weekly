@@ -156,7 +156,7 @@
       "author_title": "Health Coach",
       "date": "2026-01-31",
       "scheduled_date": "2026-01-31",
-      "published": false,
+      "published": true,
       "category": "science",
       "tags": [
         "meal-timing",
@@ -193,7 +193,7 @@
       "author_title": "Community Manager",
       "date": "2026-01-30",
       "scheduled_date": "2026-01-30",
-      "published": false,
+      "published": true,
       "category": "community",
       "tags": [
         "results",
@@ -230,7 +230,7 @@
       "author_title": "Performance Coach",
       "date": "2026-01-30",
       "scheduled_date": "2026-01-30",
-      "published": false,
+      "published": true,
       "category": "nutrition",
       "tags": [
         "organs",
@@ -267,7 +267,7 @@
       "author_title": "Health Coach",
       "date": "2026-01-29",
       "scheduled_date": "2026-01-29",
-      "published": false,
+      "published": true,
       "category": "science",
       "tags": [
         "research",
@@ -304,7 +304,7 @@
       "author_title": "Community Manager",
       "date": "2026-01-28",
       "scheduled_date": "2026-01-28",
-      "published": false,
+      "published": true,
       "category": "community",
       "tags": [
         "plateaus",
@@ -341,7 +341,7 @@
       "author_title": "Health Coach",
       "date": "2026-01-27",
       "scheduled_date": "2026-01-27",
-      "published": false,
+      "published": true,
       "category": "getting-started",
       "tags": [
         "beginners",
@@ -378,7 +378,7 @@
       "author_title": "Performance Coach",
       "date": "2026-01-27",
       "scheduled_date": "2026-01-27",
-      "published": false,
+      "published": true,
       "category": "protocol",
       "tags": [
         "coffee",
