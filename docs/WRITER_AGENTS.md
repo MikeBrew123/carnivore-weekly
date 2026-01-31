@@ -282,3 +282,19 @@ A: Manual override is fine, but still use writer voices and apply humanization s
 - Write sales pitches (use soft-conversion instead)
 
 **The Rule:** No written content should ever go out without the humanization skill passing over it first. Ever.
+
+---
+
+## Editorial Feedback & Word Tracking
+
+### Chloe - Overused Words
+
+**"buzzing" / "is buzzing"**
+- Used in roundups: Jan 17, Jan 24, Jan 31, 2026 (3 weeks in a row)
+- **Action:** Vary language. Try: "talking about", "excited about", "focused on", "discussing"
+- **Date logged:** Jan 31, 2026
+
+**Future tracking:**
+Monitor for repeated phrases across multiple weeks and flag for variety.
+
+---
