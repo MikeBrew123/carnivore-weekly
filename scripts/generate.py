@@ -788,20 +788,24 @@ class UnifiedGenerator:
             for creator in youtube_data.get("top_creators", []):
                 creator_channels[creator["channel_name"]] = creator.get("channel_id", "")
 
-        # Load blog posts for Featured Insights section (3 newest + 3 popular)
+        # Load blog posts for Featured Insights section (5 from last week + 3 popular)
         newest_blog_posts = []
         popular_blog_posts = []
 
         # Try to fetch from Supabase first (includes real popularity data)
         if self.supabase:
             try:
-                # Fetch 3 newest published posts
+                # Fetch 5 newest published posts from last 7 days
+                from datetime import datetime, timedelta
+
+                one_week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
                 newest_response = (
                     self.supabase.table("blog_posts")
                     .select("slug, title, excerpt, published_date, category, tags")
                     .eq("is_published", True)
+                    .gte("published_date", one_week_ago)
                     .order("published_date", desc=True)
-                    .limit(3)
+                    .limit(5)
                     .execute()
                 )
 
@@ -877,14 +881,20 @@ class UnifiedGenerator:
         # Fallback to JSON if Supabase didn't return data
         if not newest_blog_posts:
             try:
+                from datetime import datetime, timedelta
+
                 blog_posts_path = self.project_root / "data" / "blog_posts.json"
                 if blog_posts_path.exists():
                     blog_data = json.loads(blog_posts_path.read_text())
                     all_posts = blog_data.get("blog_posts", [])
                     published_posts = [p for p in all_posts if p.get("published", False)]
 
-                    by_date = sorted(published_posts, key=lambda p: p.get("date", ""), reverse=True)
-                    newest_blog_posts = by_date[:3]
+                    # Filter to last 7 days
+                    one_week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+                    recent_posts = [p for p in published_posts if p.get("date", "") >= one_week_ago]
+
+                    by_date = sorted(recent_posts, key=lambda p: p.get("date", ""), reverse=True)
+                    newest_blog_posts = by_date[:5]
 
                     newest_slugs = {p["slug"] for p in newest_blog_posts}
                     remaining = [p for p in published_posts if p["slug"] not in newest_slugs]
@@ -914,7 +924,7 @@ class UnifiedGenerator:
             "qa_section": qa_section,
             "layout_metadata": data.get("layout_metadata"),
             "creator_channels": creator_channels,  # Map of creator names to YouTube channel IDs
-            "newest_blog_posts": newest_blog_posts,  # 3 most recent blog posts
+            "newest_blog_posts": newest_blog_posts,  # 5 posts from last 7 days
             "popular_blog_posts": popular_blog_posts,  # 3 most popular blog posts (older/established)
         }
 
