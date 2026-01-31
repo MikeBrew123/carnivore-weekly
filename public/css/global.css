@@ -614,9 +614,9 @@ nav.nav-menu-2026 a:hover {
   margin-bottom: var(--space-2);
 }
 
-.site-content .sentiment-positive { background: #28a745; }
-.site-content .sentiment-neutral { background: #ffc107; }
-.site-content .sentiment-negative { background: #dc3545; }
+.site-content .sentiment-positive { background: #228B22; }
+.site-content .sentiment-neutral { background: #d4a574; }
+.site-content .sentiment-negative { background: #ffa07a; }
 
 .site-content .sentiment-label {
   font-size: var(--text-sm);
