@@ -133,8 +133,14 @@ python3 scripts/extract_wiki_keywords.py
 echo "✓ Wiki keywords extracted"
 echo ""
 
+# Step 4.6: Sync Blog Posts to Supabase
+echo "📚 Step 4.6/9: Syncing blog posts to Supabase..."
+python3 scripts/sync_blog_posts_to_supabase.py
+echo "✓ Blog posts synced"
+echo ""
+
 # Step 5: Generate Website Pages (unified generator)
-echo "🎨 Step 5/6: Generating website..."
+echo "🎨 Step 5/9: Generating website..."
 python3 scripts/generate.py --type pages
 echo ""
 
