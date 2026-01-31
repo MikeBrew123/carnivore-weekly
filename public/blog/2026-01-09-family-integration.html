@@ -31,7 +31,7 @@
       "author": {
         "@type": "Person",
         "name": "Carnivore Weekly",
-        "jobTitle": "{{ author_title }}"
+        "jobTitle": "Chloe - Community Manager at Carnivore Weekly"
       },
       "publisher": {
         "@type": "Organization",
@@ -86,6 +86,11 @@
     </script>
 
 
+    <!-- Google Fonts for premium editorial feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600;700;900&display=swap" rel="stylesheet">
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -94,6 +99,21 @@
         gtag('config', 'G-NR4JVKW2JV');
     </script>
     <style>
+        :root {
+            --cw-gold: #ffd700;
+            --cw-gold-light: #ffed4a;
+            --cw-brown: #8b4513;
+            --cw-brown-dark: #6b3410;
+            --cw-brown-darker: #2c1810;
+            --cw-cream: #f4e4d4;
+            --cw-cream-light: #faf6f0;
+            --cw-burgundy: #6A1B1B;
+            --cw-text: #1a120b;
+            --cw-success: #2d5016;
+            --font-display: 'Libre Baskerville', Georgia, serif;
+            --font-body: 'Source Sans 3', -apple-system, sans-serif;
+        }
+
         /* 2026 Brand Colors - Comprehensive Styling */
 
         /* Global link styling */
@@ -175,6 +195,65 @@
             color: #d4a574 !important;
             font-size: 14px;
         }
+    
+        /* ============================================
+           TL;DR BOX - Quick-scan urgency
+           ============================================ */
+        .tldr-box {
+            background: linear-gradient(135deg, var(--cw-cream-light) 0%, #fff 100%);
+            border: 3px solid var(--cw-gold);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 40px 0;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(139, 69, 19, 0.1);
+        }
+
+        .tldr-box::before {
+            content: '⚡';
+            position: absolute;
+            top: -16px;
+            left: 24px;
+            background: var(--cw-gold);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .tldr-box h3 {
+            font-family: var(--font-body) !important;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--cw-brown) !important;
+            margin: 0 0 20px 0;
+        }
+
+        .tldr-box ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .tldr-box li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+            font-size: 17px;
+        }
+
+        .tldr-box li:last-child {
+            border-bottom: none;
+        }
+
+        .tldr-box li strong {
+            color: var(--cw-burgundy);
+        }
+
     </style>
 </head>
 <body>
@@ -209,12 +288,12 @@
                     <h1 class="post-title page-header">Family Integration Hacks: How to Do Carnivore Socially</h1>
                     <div class="post-meta">
                         <span>January 9, 2026</span>
-                        <span>by Carnivore Weekly</span>
+                        <span>by Chloe</span>
                     </div>
 
                     <div class="post-author-bio">
-                        <strong>Carnivore Weekly</strong><br>
-                        Community manager focused on lifestyle integration, social dynamics, and navigating real-world situations as a carnivore.
+                        <strong>Chloe</strong><br>
+                        Community Manager at Carnivore Weekly, cutting through the marketing noise to find what actually works.
                     </div>
                 </div>
 
@@ -532,9 +611,9 @@
         <div class="post-footer">
             <!-- Tags -->
             <div class="tags">
-                <span class="tag">{{ tag1 }}</span>
-                <span class="tag">{{ tag2 }}</span>
-                <span class="tag">{{ tag3 }}</span>
+                <span class="tag">family</span>
+                <span class="tag">practical</span>
+                <span class="tag">lifestyle</span>
             </div>
         </div>
 
