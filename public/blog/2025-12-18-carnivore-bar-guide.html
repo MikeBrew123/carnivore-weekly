@@ -30,7 +30,7 @@
       "description": "Which carnivore bars are worth buying? Honest review of protein bars and meat snacks for on-the-go carnivore eating.",
       "author": {
         "@type": "Person",
-        "name": "",
+        "name": "Chloe",
         "jobTitle": "Community Manager"
       },
       "publisher": {
@@ -41,12 +41,12 @@
           "url": "https://carnivoreweekly.com/images/logo.png"
         }
       },
-      "datePublished": "",
-      "dateModified": "",
+      "datePublished": "2025-12-18",
+      "dateModified": "2025-12-18",
       "image": "https://carnivoreweekly.com/images/hero-steak-1200w.webp",
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "https://carnivoreweekly.com/blog/.html"
+        "@id": "https://carnivoreweekly.com/blog/2025-12-18-carnivore-bar-guide.html"
       }
     }
     </script>
@@ -93,8 +93,31 @@
         gtag('js', new Date());
         gtag('config', 'G-NR4JVKW2JV');
     </script>
+    <!-- Google Fonts for premium editorial feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600;700;900&display=swap" rel="stylesheet">
+
     <style>
-        /* 2026 Brand Colors - Comprehensive Styling */
+        /* ============================================
+           PREMIUM EDITORIAL BLOG STYLES
+           Carnivore Weekly Blog
+           ============================================ */
+
+        :root {
+            --cw-gold: #ffd700;
+            --cw-gold-light: #ffed4a;
+            --cw-brown: #8b4513;
+            --cw-brown-dark: #6b3410;
+            --cw-brown-darker: #2c1810;
+            --cw-cream: #f4e4d4;
+            --cw-cream-light: #faf6f0;
+            --cw-burgundy: #6A1B1B;
+            --cw-text: #1a120b;
+            --cw-success: #2d5016;
+            --font-display: 'Libre Baskerville', Georgia, serif;
+            --font-body: 'Source Sans 3', -apple-system, sans-serif;
+        }
 
         /* Global link styling */
         a { color: #d4a574 !important;
@@ -103,14 +126,14 @@
         }
 
         a:hover {
-            color: #ffd700;
+            color: var(--cw-gold);
             text-decoration: underline;
         }
 
-        /* Navigation menu styling - override main stylesheet for light backgrounds */
+        /* Navigation menu styling */
         .nav-menu-2026,
         nav.nav-menu-2026 {
-            background: #2c1810 !important;
+            background: var(--cw-brown-darker) !important;
             padding: 15px 0 !important;
             display: flex !important;
             justify-content: center !important;
@@ -130,56 +153,107 @@
 
         body .nav-menu-2026 a:hover,
         nav.nav-menu-2026 a:hover {
-            color: #ffd700 !important;
-            border-bottom-color: #ffd700 !important;
+            color: var(--cw-gold) !important;
+            border-bottom-color: var(--cw-gold) !important;
         }
 
-        /* Headings - ensure visual hierarchy */
-        h1, h2, h3, h4, h5, h6 { color: #6A1B1B !important;
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--cw-burgundy) !important;
+            font-family: var(--font-display);
         }
 
-        header .site-title {
-            color: #d4a574 !important;
-            font-size: 2rem;
-            font-weight: 700;
-            font-family: 'Playfair Display', serif;
-            margin: 0;
-        }
+        header h1 { color: #d4a574 !important; }
 
-        /* Layout styles - do NOT override text colors (allows dark-bg sections to have light text) */
-        .post-content p {
-            margin-bottom: 1.5rem;
-        }
-
-        .post-content li {
-            margin-bottom: 0.5rem;
+        .post-content, .post-content p, .post-content li, article {
+            color: var(--cw-text) !important;
+            font-family: var(--font-body);
+            font-size: 18px;
+            line-height: 1.7;
         }
 
         /* Post header styling */
         .post-header {
             margin-bottom: 40px;
-            border-bottom: 2px solid #8b4513;
+            border-bottom: 2px solid var(--cw-brown);
             padding-bottom: 20px;
         }
 
-        /* Post author bio styling */
         .post-author-bio {
             background-color: transparent;
-            color: #1a120b;
+            color: var(--cw-text);
             padding: 15px;
-            border-left: 4px solid #8b4513;
+            border-left: 4px solid var(--cw-brown);
             border-radius: 4px;
             margin: 15px 0;
         }
 
         .post-author-bio strong {
-            color: #6A1B1B;
+            color: var(--cw-burgundy);
         }
 
-        /* Post meta information */
         .post-meta {
             color: #d4a574 !important;
             font-size: 14px;
+            font-family: var(--font-body);
+        }
+
+        /* ============================================
+           TL;DR BOX - Quick-scan urgency
+           ============================================ */
+        .tldr-box {
+            background: linear-gradient(135deg, var(--cw-cream-light) 0%, #fff 100%);
+            border: 3px solid var(--cw-gold);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 40px 0;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(139, 69, 19, 0.1);
+        }
+
+        .tldr-box::before {
+            content: '⚡';
+            position: absolute;
+            top: -16px;
+            left: 24px;
+            background: var(--cw-gold);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .tldr-box h3 {
+            font-family: var(--font-body) !important;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--cw-brown) !important;
+            margin: 0 0 20px 0;
+        }
+
+        .tldr-box ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .tldr-box li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+            font-size: 17px;
+        }
+
+        .tldr-box li:last-child {
+            border-bottom: none;
+        }
+
+        .tldr-box li strong {
+            color: var(--cw-burgundy);
         }
     </style>
 </head>
@@ -214,18 +288,18 @@
                 <div class="post-header">
                     <h1 class="post-title page-header">The Carnivore Bar Guide: What to Order When the Squad is Drinking</h1>
                     <div class="post-meta">
-                        <span></span>
-                        <span>by chloe</span>
+                        <span>December 18, 2025</span>
+                        <span>by Chloe</span>
                     </div>
 
                     <div class="post-author-bio">
-                        <strong>chloe</strong><br>
-                        
+                        <strong>Chloe</strong><br>
+                        Community Manager at Carnivore Weekly, cutting through the marketing noise to find what actually works.
                     </div>
                 </div>
 
                 <!-- Post Reactions - Top (Summary) -->
-                <div class="post-reactions post-reactions--top" data-post-slug="" style="background: #f5f5f0; padding: 15px 20px; border-radius: 8px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #e0e0e0;">
+                <div class="post-reactions post-reactions--top" data-post-slug="2025-12-18-carnivore-bar-guide" style="background: #f5f5f0; padding: 15px 20px; border-radius: 8px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #e0e0e0;">
                     <div class="reactions-header" style="display: flex; align-items: center; gap: 15px;">
                         <div style="font-size: 14px; color: #4a4a4a; font-weight: 600; margin: 0;">Was this helpful?</div>
                         <div class="reactions-buttons" style="display: flex; gap: 10px;">
@@ -245,6 +319,19 @@
                 </div>
 
                 <!-- Post Content -->
+                <div class="post-content">
+
+<!-- TL;DR Box -->
+<div class="tldr-box">
+<h3>TL;DR</h3>
+<ul>
+<li><strong>You don't need carnivore bars.</strong> Real meat is better and cheaper. Bars are emergency backup only.</li>
+<li><strong>Read ingredients.</strong> If it has more than 5 ingredients or includes seed oils, sugar, or fillers, it's not carnivore.</li>
+<li><strong>Best options:</strong> Chomps beef sticks, Carnivore Crisps, and Epic Provisions. Simple ingredients, widely available.</li>
+<li><strong>Skip the marketing.</strong> "Keto bars" with protein powder and erythritol aren't carnivore, no matter what the label says.</li>
+</ul>
+</div>
+
 <p>Carnivore bars are everywhere now. Google "carnivore bar" and you'll find two dozen brands all claiming to be the perfect on-the-go carnivore solution. Here's what actually matters when you're deciding whether to buy them and which ones are worth your money.</p>
 
 <h2>Why Carnivore Bars Exist (And Why They're Not Necessary)</h2>
@@ -295,7 +382,9 @@
 
 <p>Carnivore bars can work. Carnivore bars won't replace real food. If you buy them, buy the ones with 3-5 ingredients, all from an actual animal. Everything else is marketing.</p>
 
-<p>—Marcus</p>
+<p>—Chloe</p>
+
+</div>
 
         <!-- Wiki Links Section -->
 
@@ -324,14 +413,14 @@
         <div class="post-footer">
             <!-- Tags -->
             <div class="tags">
-                <span class="tag"></span>
-                <span class="tag"></span>
-                <span class="tag"></span>
+                <span class="tag">snacks</span>
+                <span class="tag">practical</span>
+                <span class="tag">product-review</span>
             </div>
         </div>
 
         <!-- Post Reactions - Bottom (larger, prominent) -->
-        <div class="post-reactions post-reactions--bottom" data-post-slug="" style="background: #f5f5f0; padding: 30px; border-radius: 12px; margin: 40px 0; text-align: center; border: 2px solid #e0e0e0;">
+        <div class="post-reactions post-reactions--bottom" data-post-slug="2025-12-18-carnivore-bar-guide" style="background: #f5f5f0; padding: 30px; border-radius: 12px; margin: 40px 0; text-align: center; border: 2px solid #e0e0e0;">
             <div class="reactions-header">
                 <h3 style="font-family: 'Playfair Display', serif; font-size: 24px; color: #1a1a1a; margin: 0 0 20px 0;">Was this helpful?</h3>
             </div>
@@ -356,7 +445,7 @@
         <!-- Footer -->
 
 <!-- Related Content Component -->
-<section class="related-content" data-content-type="blog" data-content-id="">
+<section class="related-content" data-content-type="blog" data-content-id="2025-12-18-carnivore-bar-guide">
     <h3 class="related-content-title">Related Content</h3>
     <div class="related-content-loading">
         <span class="spinner"></span>
