@@ -1,0 +1,51 @@
+# 301 Redirects for incorrect blog post URLs
+# Google crawled URLs with wrong dates (using "id" instead of "slug")
+
+# Anti-Resolution Playbook
+Redirect 301 /blog/2025-01-01-anti-resolution-playbook.html /blog/2025-12-27-anti-resolution-playbook.html
+
+# Seven Dollar Survival Guide
+Redirect 301 /blog/2025-01-06-seven-dollar-survival-guide.html /blog/2025-12-26-seven-dollar-survival-guide.html
+
+# Lion Diet Challenge
+Redirect 301 /blog/2025-01-07-lion-diet-challenge.html /blog/2025-12-29-lion-diet-challenge.html
+
+# PCOS Hormones
+Redirect 301 /blog/2025-01-08-pcos-hormones.html /blog/2025-12-30-pcos-hormones.html
+
+# Physiological Insulin Resistance
+Redirect 301 /blog/2025-01-05-physiological-insulin-resistance.html /blog/2025-12-28-physiological-insulin-resistance.html
+
+# Deep Freezer Strategy
+Redirect 301 /blog/2025-01-09-deep-freezer-strategy.html /blog/2025-12-31-deep-freezer-strategy.html
+
+# Acne Purge
+Redirect 301 /blog/2025-01-10-acne-purge.html /blog/2026-01-01-acne-purge.html
+
+# ADHD Connection
+Redirect 301 /blog/2025-01-12-adhd-connection.html /blog/2026-01-03-adhd-carnivore.html
+
+# mTOR Muscle
+Redirect 301 /blog/2025-01-13-mtor-muscle.html /blog/2025-12-22-mtor-muscle.html
+
+# Night Sweats
+Redirect 301 /blog/2025-01-14-night-sweats.html /blog/2025-12-21-night-sweats.html
+
+# Lipid Energy Model
+Redirect 301 /blog/2025-01-15-lipid-energy-model.html /blog/2026-01-04-lipid-energy-model.html
+
+# PSMF Fat Loss
+Redirect 301 /blog/2025-01-16-psmf-fat-loss.html /blog/2026-01-05-psmf-fat-loss.html
+
+# Carnivore Bar Guide
+Redirect 301 /blog/2025-01-17-carnivore-bar-guide.html /blog/2026-01-06-carnivore-bar-guide.html
+
+# Other broken URLs
+Redirect 301 /blog/wiki.html /wiki.html
+Redirect 301 /wiki/calculator.html /calculator.html
+Redirect 301 /blog/.html /blog/
+
+# Force HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
