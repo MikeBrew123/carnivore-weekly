@@ -102,6 +102,51 @@ Return ONLY HTML content (h1, h2, p tags) - no frontmatter."""
         print(f"   ❌ Content generation failed: {e}")
         return None
 
+def validate_post(html_file):
+    """Validate generated post for critical issues. Returns list of errors."""
+
+    issues = []
+
+    try:
+        with open(html_file, 'r') as f:
+            content = f.read()
+
+            # 1. Check for empty meta description
+            if 'content=""' in content and 'name="description"' in content:
+                issues.append("Empty meta description")
+
+            # 2. Check canonical URL (broken .html pattern)
+            if 'rel="canonical" href="https://carnivoreweekly.com/blog/.html"' in content:
+                issues.append("Broken canonical URL")
+
+            # 3. Check for AI tells
+            ai_tells = ['delve', 'robust', 'leverage', 'navigate', 'crucial', 'realm', 'landscape', 'utilize']
+            for tell in ai_tells:
+                if tell.lower() in content.lower():
+                    issues.append(f"AI tell found: {tell}")
+                    break  # Only report first one found
+
+            # 4. Check Google Fonts
+            if 'fonts.googleapis.com' not in content:
+                issues.append("Missing Google Fonts")
+
+            # 5. Check blog-post.css
+            if 'blog-post.css' not in content:
+                issues.append("Missing blog-post.css")
+
+            # 6. Check post-content wrapper
+            if '<div class="post-content">' not in content:
+                issues.append("Missing post-content wrapper")
+
+            # 7. Check for em-dashes
+            if '—' in content:
+                issues.append("Em-dashes found (should use commas/periods)")
+
+    except Exception as e:
+        issues.append(f"Validation error: {e}")
+
+    return issues
+
 def check_and_publish_scheduled_posts():
     """Check for posts with scheduled_date <= today and publish them."""
 
@@ -159,7 +204,25 @@ def check_and_publish_scheduled_posts():
                         })
                         continue
 
-                # Now HTML exists, publish the post
+                # Validate the post before publishing
+                print(f"   🔍 Validating {slug}.html...")
+                validation_issues = validate_post(html_file)
+
+                if validation_issues:
+                    print(f"   ❌ VALIDATION FAILED:")
+                    for issue in validation_issues:
+                        print(f"      • {issue}")
+                    failed_posts.append({
+                        "title": post.get("title", "Unknown"),
+                        "error": f"Validation failed: {', '.join(validation_issues)}"
+                    })
+                    # Delete the invalid HTML file
+                    if html_file.exists():
+                        html_file.unlink()
+                        print(f"   🗑️  Deleted invalid file")
+                    continue
+
+                # Validation passed, publish the post
                 post["published"] = True
                 published_count += 1
                 published_titles.append(post.get("title", "Unknown"))
