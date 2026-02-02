@@ -41,7 +41,8 @@ Redirect 301 /blog/2025-01-16-psmf-fat-loss.html /blog/2026-01-05-psmf-fat-loss.
 Redirect 301 /blog/2025-01-17-carnivore-bar-guide.html /blog/2026-01-06-carnivore-bar-guide.html
 
 # Other broken URLs
-Redirect 301 /blog/wiki.html /wiki.html
+Redirect 301 /blog/wiki.html /wiki/
+Redirect 301 /wiki.html /wiki/
 Redirect 301 /wiki/calculator.html /calculator.html
 Redirect 301 /blog/.html /blog/
 
