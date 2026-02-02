@@ -33,6 +33,109 @@
 
 ---
 
+## 🚨 MANDATORY: BLOG POST VALIDATION CHECKLIST
+
+**BEFORE DEPLOYING ANY BLOG POST - RUN ALL VALIDATORS**
+
+Every blog post MUST pass ALL validation steps. **NO EXCEPTIONS.**
+
+### Required Validation Steps (In Order):
+
+1. **Copy Editor** (`/copy-editor` skill)
+   - [ ] Zero em-dashes
+   - [ ] No AI tells (delve, robust, leverage, navigate, crucial, realm, landscape, utilize)
+   - [ ] Contractions present (don't, can't, won't)
+   - [ ] Conversational tone
+   - [ ] Grade 8-10 reading level
+
+2. **SEO Validator** (`/seo-validator` skill)
+   - [ ] Meta description 150-160 chars (NOT empty)
+   - [ ] Canonical URL correct (NOT broken `.html`)
+   - [ ] Title tag 50-60 chars
+   - [ ] Schema markup valid
+   - [ ] Single H1, proper heading hierarchy
+   - [ ] All images have alt text
+
+3. **Brand Compliance** (`/carnivore-brand` skill)
+   - [ ] Google Fonts link present
+   - [ ] blog-post.css linked
+   - [ ] Fonts: Libre Baskerville + Source Sans 3
+   - [ ] Colors match brand
+   - [ ] Voice direct and clear
+
+4. **Frontend Design** (`/frontend-design` skill OR visual check)
+   - [ ] `<div class="post-content">` wrapper present
+   - [ ] Mobile responsive
+   - [ ] No layout breaks
+   - [ ] Proper spacing
+
+5. **Visual Validator** (`/visual-validator` skill)
+   - [ ] Color contrast WCAG 2.1 AA
+   - [ ] No dark-on-dark text
+   - [ ] Accessibility compliance
+
+6. **Internal Backlinks**
+   - [ ] 2-3 links to related blog posts
+   - [ ] Links use descriptive anchor text
+   - [ ] No broken links
+
+### Quick Validation Command:
+
+```bash
+# Check for critical issues
+POST="public/blog/YOUR-POST.html"
+
+# AI tells
+grep -n "—\|delve\|robust\|leverage\|navigate" "$POST" && echo "❌ FAIL: AI tells found" || echo "✅ PASS: No AI tells"
+
+# Empty meta description
+grep 'content=""' "$POST" && echo "❌ FAIL: Empty meta" || echo "✅ PASS: Meta present"
+
+# Broken canonical
+grep '/.html"' "$POST" | grep canonical && echo "❌ FAIL: Broken canonical" || echo "✅ PASS: Canonical valid"
+
+# Google Fonts
+grep "fonts.googleapis.com" "$POST" > /dev/null && echo "✅ PASS: Fonts loaded" || echo "❌ FAIL: No fonts"
+
+# blog-post.css
+grep "blog-post.css" "$POST" > /dev/null && echo "✅ PASS: CSS linked" || echo "❌ FAIL: No CSS"
+
+# post-content wrapper
+grep '<div class="post-content">' "$POST" > /dev/null && echo "✅ PASS: Wrapper present" || echo "❌ FAIL: No wrapper"
+```
+
+### Automation Integration:
+
+`scripts/check_scheduled_posts.py` MUST validate posts before publishing. Add validation function:
+
+```python
+def validate_post(html_file):
+    """Return list of validation errors"""
+    issues = []
+    with open(html_file) as f:
+        content = f.read()
+        if 'content=""' in content:
+            issues.append("Empty meta description")
+        if '/.html"' in content and 'canonical' in content:
+            issues.append("Broken canonical URL")
+        if 'fonts.googleapis.com' not in content:
+            issues.append("Missing Google Fonts")
+        if 'blog-post.css' not in content:
+            issues.append("Missing blog-post.css")
+        if '<div class="post-content">' not in content:
+            issues.append("Missing post-content wrapper")
+    return issues
+```
+
+### DEPLOY DECISION:
+
+**✅ GO:** All validators pass, zero critical issues
+**❌ NO-GO:** ANY validator fails or critical issue found
+
+See `VALIDATION-CHECKLIST.md` for complete details.
+
+---
+
 ## 📍 PROJECT STATUS
 **Before starting work, read STATUS.md for current state, validated features, and pending tasks.**
 
