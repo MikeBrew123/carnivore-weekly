@@ -2,38 +2,314 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://carnivoreweekly.com/</loc>
-        <lastmod>2025-12-28</lastmod>
+        <lastmod>2026-02-01</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/channels.html</loc>
-        <lastmod>2025-12-28</lastmod>
+        <lastmod>2026-02-01</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/wiki.html</loc>
-        <lastmod>2025-12-28</lastmod>
+        <lastmod>2026-02-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/calculator.html</loc>
-        <lastmod>2025-12-28</lastmod>
+        <lastmod>2026-02-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/about.html</loc>
-        <lastmod>2025-12-28</lastmod>
+        <lastmod>2026-02-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/archive.html</loc>
-        <lastmod>2025-12-28</lastmod>
+        <lastmod>2026-02-01</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-31-meal-timing-carnivore.html</loc>
+        <lastmod>2026-01-31</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-30-real-two-week-results.html</loc>
+        <lastmod>2026-01-30</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-30-organ-meats-for-skeptics.html</loc>
+        <lastmod>2026-01-30</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-29-medical-establishment-backlash.html</loc>
+        <lastmod>2026-01-29</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-28-carnivore-didnt-fix-everything.html</loc>
+        <lastmod>2026-01-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-27-beginners-blueprint-30-days.html</loc>
+        <lastmod>2026-01-27</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-27-coffee-carnivore-practical-answer.html</loc>
+        <lastmod>2026-01-27</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-25-complete-carnivore-protocol-report.html</loc>
+        <lastmod>2026-01-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-25-bone-broth-benefits.html</loc>
+        <lastmod>2026-01-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-25-electrolyte-deficiency-part-2.html</loc>
+        <lastmod>2026-01-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-20-carnivore-sleep-hacks.html</loc>
+        <lastmod>2026-01-20</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-16-organ-meats-skeptics-guide.html</loc>
+        <lastmod>2026-01-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-15-two-week-results-reddit.html</loc>
+        <lastmod>2026-01-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-14-medical-establishment-backlash.html</loc>
+        <lastmod>2026-01-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-13-carnivore-plateaus-honest-truth.html</loc>
+        <lastmod>2026-01-13</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-12-animal-based-debate.html</loc>
+        <lastmod>2026-01-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-11-travel-hacks.html</loc>
+        <lastmod>2026-01-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-10-dating-carnivore.html</loc>
+        <lastmod>2026-01-10</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-09-family-integration.html</loc>
+        <lastmod>2026-01-09</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-08-environmental-impact.html</loc>
+        <lastmod>2026-01-08</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-07-fasting-protocols.html</loc>
+        <lastmod>2026-01-07</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-06-transformation-stories.html</loc>
+        <lastmod>2026-01-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-05-ground-beef-budget.html</loc>
+        <lastmod>2026-01-05</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-05-womens-health.html</loc>
+        <lastmod>2026-01-05</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-04-electrolyte-deficiency-part-1.html</loc>
+        <lastmod>2026-01-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-04-organ-meats-guide.html</loc>
+        <lastmod>2026-01-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-03-adhd-carnivore.html</loc>
+        <lastmod>2026-01-03</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-03-top-creators-2026.html</loc>
+        <lastmod>2026-01-03</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-02-lion-diet-research.html</loc>
+        <lastmod>2026-01-02</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-01-02-beginners-blueprint.html</loc>
+        <lastmod>2026-01-02</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-31-welcome-to-carnivore-weekly.html</loc>
+        <lastmod>2025-12-31</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/insulin-resistance-morning-glucose.html</loc>
+        <lastmod>2025-12-20</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-18-carnivore-bar-guide.html</loc>
+        <lastmod>2025-01-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-19-psmf-fat-loss.html</loc>
+        <lastmod>2025-01-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-20-lipid-energy-model.html</loc>
+        <lastmod>2025-01-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-21-night-sweats.html</loc>
+        <lastmod>2025-01-14</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-22-mtor-muscle.html</loc>
+        <lastmod>2025-01-13</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-23-adhd-connection.html</loc>
+        <lastmod>2025-01-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-31-acne-purge.html</loc>
+        <lastmod>2025-01-10</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-24-deep-freezer-strategy.html</loc>
+        <lastmod>2025-01-09</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-30-pcos-hormones.html</loc>
+        <lastmod>2025-01-08</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-29-lion-diet-challenge.html</loc>
+        <lastmod>2025-01-07</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-26-seven-dollar-survival-guide.html</loc>
+        <lastmod>2025-01-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-28-physiological-insulin-resistance.html</loc>
+        <lastmod>2025-01-05</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-27-anti-resolution-playbook.html</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2025-12-25-new-year-same-you.html</loc>
+        <lastmod>2025-01-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
     </url>
 </urlset>
