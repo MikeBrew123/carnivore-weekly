@@ -27,6 +27,8 @@ jobs:
 
       - name: Check for posts ready to publish
         id: check_posts
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python3 scripts/check_scheduled_posts.py
           echo "posts_published=$(cat /tmp/posts_published.txt || echo 0)" >> $GITHUB_OUTPUT
