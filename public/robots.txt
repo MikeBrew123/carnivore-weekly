@@ -78,8 +78,5 @@ Disallow: /*test*.html
 Disallow: /*demo*.html
 Disallow: /*-full.html
 
-# Preferred domain
-Host: https://carnivoreweekly.com
-
 # Sitemap location
 Sitemap: https://carnivoreweekly.com/sitemap.xml
