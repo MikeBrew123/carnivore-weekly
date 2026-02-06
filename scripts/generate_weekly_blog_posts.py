@@ -25,16 +25,16 @@ def generate_html_from_template(post, content):
     with open(TEMPLATE_FILE, 'r') as f:
         template = f.read()
 
-    # Replace template placeholders
-    html = template.replace('{{title}}', post.get('title', ''))
-    html = html.replace('{{author}}', post.get('author', 'marcus').title())
-    html = html.replace('{{author_title}}', post.get('author_title', 'Performance Coach'))
-    html = html.replace('{{date}}', post.get('date', ''))
-    html = html.replace('{{slug}}', post.get('slug', ''))
-    html = html.replace('{{excerpt}}', post.get('excerpt', ''))
-    html = html.replace('{{meta_description}}', post.get('seo', {}).get('meta_description', '')[:160])
-    html = html.replace('{{keywords}}', ', '.join(post.get('tags', [])))
-    html = html.replace('{{content}}', content)
+    # Replace template placeholders (template uses spaces: {{ var }})
+    html = template.replace('{{ title }}', post.get('title', ''))
+    html = html.replace('{{ author }}', post.get('author', 'marcus').title())
+    html = html.replace('{{ author_title }}', post.get('author_title', 'Performance Coach'))
+    html = html.replace('{{ date }}', post.get('date', ''))
+    html = html.replace('{{ slug }}', post.get('slug', ''))
+    html = html.replace('{{ excerpt }}', post.get('excerpt', ''))
+    html = html.replace('{{ meta_description }}', post.get('seo', {}).get('meta_description', '')[:160])
+    html = html.replace('{{ keywords }}', ', '.join(post.get('tags', [])))
+    html = html.replace('{{ content }}', content)
 
     return html
 
