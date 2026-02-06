@@ -121,8 +121,14 @@ python3 scripts/generate_commentary.py
 echo "✓ Editorial commentary generated"
 echo ""
 
+# Step 3.6: Generate Blog Posts for Upcoming Week
+echo "📝 Step 3.6/9: Generating blog posts for next 7 days..."
+python3 scripts/generate_weekly_blog_posts.py
+echo "✓ Blog posts generated"
+echo ""
+
 # Step 4: Answer Common Questions
-echo "❓ Step 4/5: Generating Q&A with scientific citations..."
+echo "❓ Step 4/9: Generating Q&A with scientific citations..."
 python3 scripts/answer_questions.py
 echo "✓ Q&A generated"
 echo ""
