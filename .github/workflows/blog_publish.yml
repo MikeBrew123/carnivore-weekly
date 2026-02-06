@@ -51,6 +51,13 @@ jobs:
             git push
           )
 
+      - name: Trigger GitHub Pages deployment
+        if: steps.check_posts.outputs.posts_published > 0
+        run: |
+          gh workflow run static.yml
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Log status
         run: |
           echo "Blog publishing workflow completed"
