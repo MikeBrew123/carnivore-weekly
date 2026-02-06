@@ -66,18 +66,31 @@ def generate_blog_posts(env, posts):
         # Apply auto-linking to blog content (max 5 links per post)
         content = insert_wiki_links(content, max_links=5)
 
+        # Prepare SEO data
+        seo = post.get('seo', {})
+        meta_description = seo.get('meta_description', '')
+        keywords = ', '.join(post.get('tags', []))
+
+        # Prepare author name
+        author_name = post.get('author', 'marcus').title()
+
         # Render the template with post data
         rendered = template.render(
             title=post.get('title'),
             author=post.get('author'),
+            author_name=author_name,
             author_title=post.get('author_title'),
             date=post.get('date'),
+            publish_date=post.get('date'),
+            slug=post.get('slug'),
             content=content,
             tags=post.get('tags', []),
+            keywords=keywords,
+            meta_description=meta_description,
             related_posts=post.get('related_posts', []),
             sponsor_callout=post.get('sponsor_callout'),
             comments_enabled=post.get('comments_enabled', True),
-            seo=post.get('seo', {})
+            seo=seo
         )
 
         # Write to file
