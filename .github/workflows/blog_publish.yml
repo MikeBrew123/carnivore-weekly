@@ -43,7 +43,7 @@ jobs:
         run: |
           git config user.name "Carnivore Weekly Bot"
           git config user.email "bot@carnivoreweekly.com"
-          git add data/blog_posts.json public/blog/ public/blog.html sitemap.xml
+          git add data/blog_posts.json public/blog/ public/feed.xml sitemap.xml
           git diff --quiet && git diff --staged --quiet || (
             git commit -m "Auto-publish scheduled blog posts - $(date -u +'%Y-%m-%d at %H:%M UTC')"
             git push
