@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install anthropic jinja2 python-dotenv PyYAML
+          pip install anthropic jinja2 python-dotenv PyYAML supabase
 
       - name: Check for posts ready to publish
         id: check_posts
@@ -40,6 +40,9 @@ jobs:
 
       - name: Regenerate homepage with updated blog posts
         if: steps.check_posts.outputs.posts_published > 0
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           python3 scripts/generate.py --type pages
 
