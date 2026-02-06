@@ -38,20 +38,12 @@ jobs:
         run: |
           python3 scripts/generate_blog_pages.py
 
-      - name: Regenerate homepage with updated blog posts
-        if: steps.check_posts.outputs.posts_published > 0
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          python3 scripts/generate.py --type pages
-
       - name: Commit and push changes
         if: steps.check_posts.outputs.posts_published > 0
         run: |
           git config user.name "Carnivore Weekly Bot"
           git config user.email "bot@carnivoreweekly.com"
-          git add data/blog_posts.json public/blog/ public/blog.html public/index.html sitemap.xml
+          git add data/blog_posts.json public/blog/ public/blog.html sitemap.xml
           git diff --quiet && git diff --staged --quiet || (
             git commit -m "Auto-publish scheduled blog posts - $(date -u +'%Y-%m-%d at %H:%M UTC')"
             git push
