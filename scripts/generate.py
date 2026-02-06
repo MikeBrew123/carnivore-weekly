@@ -781,6 +781,10 @@ class UnifiedGenerator:
                 if commentary_data.get("curator"):
                     video["curator"] = commentary_data["curator"]
 
+        # Filter: If we have curated content (editorial_commentary), only show videos WITH commentary
+        if editorial_commentary:
+            top_videos = [v for v in top_videos if v.get("editorial_commentary")]
+
         # Build creator_channels mapping for JavaScript linking
         creator_channels = {}
         if youtube_path.exists():
