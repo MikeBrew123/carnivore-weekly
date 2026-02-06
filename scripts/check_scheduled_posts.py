@@ -1,154 +1,23 @@
 #!/usr/bin/env python3
 """
 Check for blog posts ready to publish based on scheduled date.
-Generates content using writer agents if HTML doesn't exist.
-Updates published status in blog_posts.json.
+NEW: Just publishes pre-generated files (no content generation).
+Content generation happens during weekly automation on Sunday.
 """
 
 import json
-import os
-import subprocess
 from datetime import datetime
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
 BLOG_POSTS_FILE = PROJECT_ROOT / "data" / "blog_posts.json"
 BLOG_DIR = PROJECT_ROOT / "public" / "blog"
-TEMPLATE_FILE = PROJECT_ROOT / "templates" / "blog_post_template_2026.html"
-
-def generate_html_from_template(post, content):
-    """Generate complete HTML file from template and content."""
-
-    if not TEMPLATE_FILE.exists():
-        raise FileNotFoundError(f"Template not found: {TEMPLATE_FILE}")
-
-    with open(TEMPLATE_FILE, 'r') as f:
-        template = f.read()
-
-    # Replace template placeholders
-    html = template.replace('{{title}}', post.get('title', ''))
-    html = html.replace('{{author}}', post.get('author', 'marcus').title())
-    html = html.replace('{{author_title}}', post.get('author_title', 'Performance Coach'))
-    html = html.replace('{{date}}', post.get('date', ''))
-    html = html.replace('{{slug}}', post.get('slug', ''))
-    html = html.replace('{{excerpt}}', post.get('excerpt', ''))
-    html = html.replace('{{meta_description}}', post.get('seo', {}).get('meta_description', '')[:160])
-    html = html.replace('{{keywords}}', ', '.join(post.get('tags', [])))
-    html = html.replace('{{content}}', content)
-
-    return html
-
-def generate_blog_content_for_post(post):
-    """Generate blog content using writer agent via Python subprocess."""
-
-    # Import here to avoid issues if anthropic not installed
-    try:
-        from anthropic import Anthropic
-    except ImportError:
-        print("⚠️  anthropic package not installed. Run: pip install anthropic")
-        return None
-
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
-        print("⚠️  ANTHROPIC_API_KEY not set")
-        return None
-
-    client = Anthropic(api_key=api_key)
-
-    author = post.get("author", "marcus").lower()
-
-    # Writer agent prompts
-    writer_styles = {
-        "sarah": "evidence-based, research-focused, conversational but rigorous. Specialty: health science, metabolism, hormones.",
-        "marcus": "results-oriented, practical, no-nonsense. Specialty: performance, habits, implementation.",
-        "chloe": "warm, relatable, down-to-earth. Specialty: community, social dynamics, making carnivore approachable."
-    }
-
-    if author not in writer_styles:
-        author = "marcus"
-
-    prompt = f"""You are {author.title()}, {post.get('author_title', 'Performance Coach')} at Carnivore Weekly.
-Your style: {writer_styles[author]}
-
-Write a comprehensive blog post:
-- Title: {post.get('title', '')}
-- Excerpt: {post.get('excerpt', '')}
-- Target: 30-60 year olds interested in carnivore diet
-- Length: 800-1200 words
-- Reading level: Grade 8-10
-
-Requirements:
-- Direct and clear - get to the point
-- No excessive praise or hype
-- Professional but accessible
-- Use contractions (don't, can't, won't)
-- No em-dashes (use periods or commas)
-- Avoid AI tells: delve, robust, leverage, navigate, crucial, realm, landscape, utilize
-
-Return ONLY HTML content (h1, h2, p tags) - no frontmatter."""
-
-    print(f"   🤖 Generating content with {author.title()}...")
-
-    try:
-        response = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=4096,
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        content = response.content[0].text
-        return content
-    except Exception as e:
-        print(f"   ❌ Content generation failed: {e}")
-        return None
-
-def validate_post(html_file):
-    """Validate generated post for critical issues. Returns list of errors."""
-
-    issues = []
-
-    try:
-        with open(html_file, 'r') as f:
-            content = f.read()
-
-            # 1. Check for empty meta description
-            if 'content=""' in content and 'name="description"' in content:
-                issues.append("Empty meta description")
-
-            # 2. Check canonical URL (broken .html pattern)
-            if 'rel="canonical" href="https://carnivoreweekly.com/blog/.html"' in content:
-                issues.append("Broken canonical URL")
-
-            # 3. Check for AI tells
-            ai_tells = ['delve', 'robust', 'leverage', 'navigate', 'crucial', 'realm', 'landscape', 'utilize']
-            for tell in ai_tells:
-                if tell.lower() in content.lower():
-                    issues.append(f"AI tell found: {tell}")
-                    break  # Only report first one found
-
-            # 4. Check Google Fonts
-            if 'fonts.googleapis.com' not in content:
-                issues.append("Missing Google Fonts")
-
-            # 5. Check blog-post.css
-            if 'blog-post.css' not in content:
-                issues.append("Missing blog-post.css")
-
-            # 6. Check post-content wrapper
-            if '<div class="post-content">' not in content:
-                issues.append("Missing post-content wrapper")
-
-            # 7. Check for em-dashes
-            if '—' in content:
-                issues.append("Em-dashes found (should use commas/periods)")
-
-    except Exception as e:
-        issues.append(f"Validation error: {e}")
-
-    return issues
 
 def check_and_publish_scheduled_posts():
     """Check for posts with scheduled_date <= today and publish them."""
+
+    print("📝 DAILY BLOG PUBLISHING")
+    print("=" * 60)
 
     if not BLOG_POSTS_FILE.exists():
         print("❌ No blog posts file found")
@@ -162,8 +31,10 @@ def check_and_publish_scheduled_posts():
     today = datetime.now().strftime("%Y-%m-%d")
     published_count = 0
     published_titles = []
-    generated_count = 0
-    failed_posts = []
+    missing_files = []
+
+    print(f"📅 Checking posts scheduled for {today}")
+    print()
 
     for post in data.get("blog_posts", []):
         # Check if post is scheduled but not yet published
@@ -174,84 +45,50 @@ def check_and_publish_scheduled_posts():
                 slug = post.get("slug", "")
                 html_file = BLOG_DIR / f"{slug}.html"
 
-                # If HTML doesn't exist, generate it
+                # Check if HTML file exists (should be pre-generated on Sunday)
                 if not html_file.exists():
-                    print(f"📝 Generating: {post['title']}")
-
-                    # Generate content using writer agent
-                    content = generate_blog_content_for_post(post)
-
-                    if content:
-                        # Create HTML file from template
-                        try:
-                            html = generate_html_from_template(post, content)
-                            html_file.parent.mkdir(parents=True, exist_ok=True)
-                            html_file.write_text(html)
-                            generated_count += 1
-                            print(f"   ✅ Created {slug}.html")
-                        except Exception as e:
-                            print(f"   ❌ Failed to create HTML: {e}")
-                            failed_posts.append({
-                                "title": post.get("title", "Unknown"),
-                                "error": str(e)
-                            })
-                            continue
-                    else:
-                        print(f"   ⚠️  Content generation failed, skipping")
-                        failed_posts.append({
-                            "title": post.get("title", "Unknown"),
-                            "error": "Content generation failed"
-                        })
-                        continue
-
-                # Validate the post before publishing
-                print(f"   🔍 Validating {slug}.html...")
-                validation_issues = validate_post(html_file)
-
-                if validation_issues:
-                    print(f"   ❌ VALIDATION FAILED:")
-                    for issue in validation_issues:
-                        print(f"      • {issue}")
-                    failed_posts.append({
-                        "title": post.get("title", "Unknown"),
-                        "error": f"Validation failed: {', '.join(validation_issues)}"
-                    })
-                    # Delete the invalid HTML file
-                    if html_file.exists():
-                        html_file.unlink()
-                        print(f"   🗑️  Deleted invalid file")
+                    print(f"⚠️  WARNING: {post['title']}")
+                    print(f"   File not found: {slug}.html")
+                    print(f"   This post should have been generated during weekly automation")
+                    missing_files.append(post.get("title", "Unknown"))
                     continue
 
-                # Validation passed, publish the post
+                # File exists - publish it
                 post["published"] = True
                 published_count += 1
                 published_titles.append(post.get("title", "Unknown"))
-                print(f"✅ Publishing: {post['title']} (scheduled for {scheduled_date})")
+                print(f"✅ Publishing: {post['title']}")
+                print(f"   Scheduled: {scheduled_date}")
+                print(f"   File: {slug}.html")
+                print()
 
     if published_count > 0:
         # Save updated post data
         with open(BLOG_POSTS_FILE, "w") as f:
             json.dump(data, f, indent=2)
 
-        print(f"\n📝 Published {published_count} post(s) today:")
+        print("=" * 60)
+        print(f"✅ Published {published_count} post(s) today:")
         for title in published_titles:
             print(f"   • {title}")
-
-        if generated_count > 0:
-            print(f"\n🤖 Generated {generated_count} new blog post(s) with AI")
 
         with open("/tmp/posts_published.txt", "w") as f:
             f.write(str(published_count))
     else:
+        print("=" * 60)
         print("⏳ No posts ready to publish today")
         with open("/tmp/posts_published.txt", "w") as f:
             f.write("0")
 
-    # Report failed posts
-    if failed_posts:
-        print(f"\n❌ FAILED {len(failed_posts)} post(s):")
-        for post in failed_posts:
-            print(f"   • {post['title']}: {post['error']}")
+    # Report missing files
+    if missing_files:
+        print(f"\n⚠️  {len(missing_files)} post(s) missing HTML files:")
+        for title in missing_files:
+            print(f"   • {title}")
+        print()
+        print("💡 Run generate_weekly_blog_posts.py to create missing files")
+
+    print("=" * 60)
 
 if __name__ == "__main__":
     check_and_publish_scheduled_posts()
