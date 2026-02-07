@@ -194,31 +194,31 @@ export default function Step3FreeResults({
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
             <span style={{ color: '#ffd700', fontSize: '16px', marginTop: '2px' }}>★</span>
             <span style={{ color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>
-              <strong>30+ Page Custom Metabolic Blueprint</strong> — Specific to your physiology
+              Your complete metabolic roadmap — know exactly what to eat, when, and why
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
             <span style={{ color: '#ffd700', fontSize: '16px', marginTop: '2px' }}>★</span>
             <span style={{ color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>
-              <strong>30-Day Meal Calendar</strong> & Organized Weekly Grocery Lists
+              30 days of meals planned for you — zero guesswork, zero decision fatigue
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
             <span style={{ color: '#ffd700', fontSize: '16px', marginTop: '2px' }}>★</span>
             <span style={{ color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>
-              <strong>Physician Consultation Guide</strong> — Advanced markers (ApoB, CAC, Inflammation)
+              Walk into your doctor's office prepared — a script so they take you seriously
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '12px' }}>
             <span style={{ color: '#ffd700', fontSize: '16px', marginTop: '2px' }}>★</span>
             <span style={{ color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>
-              <strong>Adaptation Lab</strong> — {config.troubleshooting}
+              Stop waking up drenched at 3am — the exact fix for every adaptation symptom ({config.troubleshooting})
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
             <span style={{ color: '#ffd700', fontSize: '16px', marginTop: '2px' }}>★</span>
             <span style={{ color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px' }}>
-              <strong>The "Stall-Breaker" Protocol</strong> — Your roadmap for hitting weight-loss plateaus
+              Hit a plateau? The step-by-step protocol to break through and keep losing
             </span>
           </div>
         </div>
@@ -269,7 +269,7 @@ export default function Step3FreeResults({
 
         {/* Pricing anchor */}
         <p style={{ fontSize: '12px', color: '#666', textAlign: 'center', fontFamily: "'Merriweather', Georgia, serif" }}>
-          A professional 30+ page manual for $50 less than standard coaching. Lifetime access to updates.
+          Nutritionists charge $150+/hr for this level of personalization. You're getting it for $9.99.
         </p>
       </div>
 
