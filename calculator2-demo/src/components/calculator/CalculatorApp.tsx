@@ -25,7 +25,7 @@ interface CalculatorAppProps {
   stripeSessionId?: string | null
 }
 
-const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Health Profile']
+const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Unlock Your Protocol']
 
 export default function CalculatorApp({
   sessionToken,
