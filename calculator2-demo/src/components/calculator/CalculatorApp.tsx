@@ -100,8 +100,15 @@ export default function CalculatorApp({
   // Helper: Scroll to calculator on step changes
   const scrollToCalculator = () => {
     setTimeout(() => {
-      document.getElementById('calculator-app')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 300);
+      const element = document.getElementById('calculator-app');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Ensure scroll sticks after smooth scroll completes
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }, 100);
+      }
+    }, 800);
   }
 
   // Derived state for success page - use payment hook
@@ -408,7 +415,7 @@ export default function CalculatorApp({
                   console.log('[Success Page] Form is dirty - skipping Supabase restore, proceeding with current data')
                   markClean()
                   setCurrentStep(4)
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                  scrollToCalculator()
                   return
                 }
 
