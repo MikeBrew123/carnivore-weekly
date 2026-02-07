@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { FormData, MacroResults } from '../../../types/form'
 import { calculateBMR, calculateMacros } from '../../../lib/calculations'
 import MacroPreview from '../../ui/MacroPreview'
@@ -87,6 +87,8 @@ export default function Step3FreeResults({
   onBack,
 }: Step3FreeResultsProps) {
   const { resetForm } = useFormStore()
+  const mealLockRef = useRef<HTMLDivElement>(null)
+  const hasTrackedMealLock = useRef(false)
 
   // Track free results view
   useEffect(() => {
@@ -95,6 +97,35 @@ export default function Step3FreeResults({
         'event_category': 'calculator',
         'event_label': 'free_results_viewed'
       })
+    }
+  }, [])
+
+  // Track meal lock visibility (fire once when scrolled into view)
+  useEffect(() => {
+    if (!mealLockRef.current || hasTrackedMealLock.current) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasTrackedMealLock.current) {
+            if (window.gtag) {
+              window.gtag('event', 'calculator_meal_lock_seen', {
+                'event_category': 'calculator',
+                'event_label': 'meal_lock_viewed'
+              })
+            }
+            hasTrackedMealLock.current = true
+            observer.disconnect()
+          }
+        })
+      },
+      { threshold: 0.5 }
+    )
+
+    observer.observe(mealLockRef.current)
+
+    return () => {
+      observer.disconnect()
     }
   }, [])
 
@@ -169,7 +200,7 @@ export default function Step3FreeResults({
         </div>
 
         {/* Blurred Meal Teaser Wrapper */}
-        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '8px', marginTop: '12px' }}>
+        <div ref={mealLockRef} style={{ position: 'relative', overflow: 'hidden', borderRadius: '8px', marginTop: '12px' }}>
           {/* Blurred Content */}
           <div style={{ filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none' }}>
             {/* Meal 2 */}
@@ -218,20 +249,30 @@ export default function Step3FreeResults({
           </div>
 
           {/* Lock Overlay */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            borderRadius: '8px',
-            zIndex: 10
-          }}>
+          <div
+            onClick={() => {
+              if (window.gtag) {
+                window.gtag('event', 'calculator_lock_overlay_click', {
+                  'event_category': 'calculator',
+                  'event_label': 'lock_overlay_clicked'
+                })
+              }
+            }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.4)',
+              borderRadius: '8px',
+              zIndex: 10,
+              cursor: 'pointer'
+            }}>
             <span style={{ fontSize: '28px', marginBottom: '8px' }}>🔒</span>
             <p style={{ color: '#ffd700', fontWeight: 600, fontSize: '16px', margin: 0 }}>Your full daily protocol is ready</p>
             <p style={{ color: '#a3a3a3', fontSize: '13px', marginTop: '6px' }}>4 more meals + snack timing — included in your Custom Protocol</p>
@@ -350,6 +391,12 @@ export default function Step3FreeResults({
             "Are you sure? This will clear your calculations and reset the form to Step 1."
           )
           if (confirmed) {
+            if (window.gtag) {
+              window.gtag('event', 'calculator_start_over_click', {
+                'event_category': 'calculator',
+                'event_label': 'start_over_clicked'
+              })
+            }
             resetForm()
           }
         }}
