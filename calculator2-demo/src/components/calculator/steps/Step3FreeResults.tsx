@@ -168,15 +168,75 @@ export default function Step3FreeResults({
           </p>
         </div>
 
-        {/* Meal 2 */}
-        <div style={{ paddingLeft: '16px', borderLeft: '3px solid #d4a574' }}>
-          <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>MEAL 2</p>
-          <p style={{ fontSize: '15px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif" }}>
-            <strong style={{ color: '#ffd700' }}>{getMeal2Amount(macros.calories, config.meal1.calories, config.meal2.calPerLb)} lbs</strong> of {config.meal2.protein}
-          </p>
-          <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', fontFamily: "'Merriweather', Georgia, serif" }}>
-            ~{macros.calories - config.meal1.calories} calories to reach your target
-          </p>
+        {/* Blurred Meal Teaser Wrapper */}
+        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: '8px', marginTop: '12px' }}>
+          {/* Blurred Content */}
+          <div style={{ filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none' }}>
+            {/* Meal 2 */}
+            <div style={{ paddingLeft: '16px', borderLeft: '3px solid #d4a574', marginBottom: '16px' }}>
+              <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>MEAL 2</p>
+              <p style={{ fontSize: '15px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif" }}>
+                <strong style={{ color: '#ffd700' }}>{getMeal2Amount(macros.calories, config.meal1.calories, config.meal2.calPerLb)} lbs</strong> of {config.meal2.protein}
+              </p>
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', fontFamily: "'Merriweather', Georgia, serif" }}>
+                ~{macros.calories - config.meal1.calories} calories to reach your target
+              </p>
+            </div>
+
+            {/* Meal 3 - Placeholder */}
+            <div style={{ paddingLeft: '16px', borderLeft: '3px solid #d4a574', marginBottom: '16px' }}>
+              <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>MEAL 3 — AFTERNOON</p>
+              <p style={{ fontSize: '15px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif" }}>
+                6 oz Ribeye Steak + 2 tbsp Butter + Bone Broth
+              </p>
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', fontFamily: "'Merriweather', Georgia, serif" }}>
+                ~550 calories | 42g protein | 40g fat
+              </p>
+            </div>
+
+            {/* Meal 4 - Placeholder */}
+            <div style={{ paddingLeft: '16px', borderLeft: '3px solid #d4a574', marginBottom: '16px' }}>
+              <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>MEAL 4 — EVENING</p>
+              <p style={{ fontSize: '15px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif" }}>
+                0.5 lb Ground Beef Patties + 3 Eggs + Tallow
+              </p>
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', fontFamily: "'Merriweather', Georgia, serif" }}>
+                ~680 calories | 52g protein | 48g fat
+              </p>
+            </div>
+
+            {/* Daily Snack - Placeholder */}
+            <div style={{ paddingLeft: '16px', borderLeft: '3px solid #d4a574' }}>
+              <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>DAILY SNACK</p>
+              <p style={{ fontSize: '15px', color: '#f5f5f5', fontFamily: "'Merriweather', Georgia, serif" }}>
+                Beef Jerky + Hard Cheese + Pork Rinds
+              </p>
+              <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', fontFamily: "'Merriweather', Georgia, serif" }}>
+                ~320 calories | 28g protein | 22g fat
+              </p>
+            </div>
+          </div>
+
+          {/* Lock Overlay */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            borderRadius: '8px',
+            zIndex: 10
+          }}>
+            <span style={{ fontSize: '28px', marginBottom: '8px' }}>🔒</span>
+            <p style={{ color: '#ffd700', fontWeight: 600, fontSize: '16px', margin: 0 }}>Your full daily protocol is ready</p>
+            <p style={{ color: '#a3a3a3', fontSize: '13px', marginTop: '6px' }}>4 more meals + snack timing — included in your Custom Protocol</p>
+            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}>$9.99 — Unlock Now</p>
+          </div>
         </div>
       </div>
 
