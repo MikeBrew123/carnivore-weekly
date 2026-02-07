@@ -1,44 +1,44 @@
 import { chromium } from 'playwright';
 
 (async () => {
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
-
+  
+  console.log('🔍 Debugging Step 1 form fields...\n');
+  
   try {
-    console.log('Testing live site: https://carnivoreweekly.com/calculator.html\n');
-    
-    await page.goto('https://carnivoreweekly.com/calculator.html', { waitUntil: 'load', timeout: 30000 });
+    await page.goto('https://carnivoreweekly.com/calculator.html', { 
+      waitUntil: 'networkidle' 
+    });
     await page.waitForTimeout(2000);
-
-    // Check for React root element
-    const rootDiv = await page.$('#root');
-    if (!rootDiv) {
-      console.log('❌ React #root div not found!');
-      return;
-    }
-
-    console.log('✓ React root found');
     
-    // Check what's in the root
-    const rootHTML = await rootDiv.innerHTML();
-    console.log('Root contains:', rootHTML.substring(0, 300));
+    // Fill sex and age first
+    await page.locator('input[type="radio"][value="male"]').check();
+    await page.locator('input[type="number"]').first().fill('35');
+    await page.locator('input[type="number"]').nth(1).fill('180');
+    await page.waitForTimeout(1000);
     
-    // Look for form inputs
-    const inputs = await page.locator('input[type="number"]').count();
-    console.log(`✓ Found ${inputs} number inputs`);
+    // Check what form elements exist
+    const selects = await page.locator('select').count();
+    console.log(`Select elements found: ${selects}`);
     
-    if (inputs > 0) {
-      console.log('✅ Form is visible and loaded');
-    } else {
-      console.log('❌ Form inputs not found');
-    }
-
-    console.log('\nOpen for 30 seconds...');
-    await page.waitForTimeout(30000);
-
+    const inputs = await page.locator('input').count();
+    console.log(`Input elements found: ${inputs}`);
+    
+    const buttons = await page.locator('button').count();
+    console.log(`Button elements found: ${buttons}`);
+    
+    // Check if there's a height unit toggle
+    const heightToggle = await page.locator('button:has-text("ft"), button:has-text("cm")').count();
+    console.log(`Height unit toggle buttons: ${heightToggle}`);
+    
+    // Take screenshot
+    await page.screenshot({ path: '/tmp/step1-debug.png', fullPage: false });
+    console.log('\n📸 Screenshot saved: /tmp/step1-debug.png');
+    
   } catch (error) {
     console.error('Error:', error.message);
-  } finally {
-    await browser.close();
   }
+  
+  await browser.close();
 })();
