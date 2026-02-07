@@ -257,6 +257,7 @@ export default function Step3FreeResults({
                   'event_label': 'lock_overlay_clicked'
                 })
               }
+              onUpgrade()
             }}
             style={{
               position: 'absolute',
