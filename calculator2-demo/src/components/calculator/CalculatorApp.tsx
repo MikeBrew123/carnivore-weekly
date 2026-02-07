@@ -100,6 +100,7 @@ export default function CalculatorApp({
   // Helper: Scroll to calculator on step changes
   const scrollToCalculator = () => {
     setTimeout(() => {
+      console.log('[SCROLL DEBUG] scrollToCalculator firing, target:', document.getElementById('calculator-app'));
       const element = document.getElementById('calculator-app');
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
