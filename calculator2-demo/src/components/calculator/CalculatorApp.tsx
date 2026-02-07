@@ -100,8 +100,8 @@ export default function CalculatorApp({
   // Helper: Scroll to calculator on step changes
   const scrollToCalculator = () => {
     setTimeout(() => {
-      document.getElementById('root')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+      document.getElementById('calculator-app')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
   }
 
   // Derived state for success page - use payment hook
@@ -778,7 +778,7 @@ export default function CalculatorApp({
 
   return (
     <>
-      <div style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '32px', paddingBottom: '32px', paddingLeft: '16px', paddingRight: '16px', boxSizing: 'border-box' }}>
+      <div id="calculator-app" style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '32px', paddingBottom: '32px', paddingLeft: '16px', paddingRight: '16px', boxSizing: 'border-box' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', boxSizing: 'border-box' }}>
           {/* Form container with sidebar */}
           <FormContainer
