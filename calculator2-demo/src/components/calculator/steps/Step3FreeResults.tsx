@@ -181,7 +181,7 @@ export default function Step3FreeResults({
       </div>
 
       {/* Consolidated Premium Upgrade Card */}
-      <div style={{ backgroundColor: '#1a1a1a', border: '2px solid #ffd700', borderRadius: '12px', padding: '28px' }}>
+      <div style={{ background: 'linear-gradient(to bottom, rgba(120, 53, 15, 0.3), #1a1a1a)', border: '2px solid #ffd700', boxShadow: '0 10px 15px -3px rgba(245, 158, 11, 0.2)', borderRadius: '12px', padding: '28px' }}>
         <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '20px', fontWeight: '700', color: '#ffd700', marginBottom: '8px', textAlign: 'center' }}>
           Get Your Full 30+ Page {config.label} Protocol
         </h3>
@@ -284,23 +284,15 @@ export default function Step3FreeResults({
           }
         }}
         style={{
-          width: '100%',
-          backgroundColor: 'transparent',
-          border: '2px solid #ffd700',
-          color: '#ffd700',
-          fontFamily: "'Playfair Display', Georgia, serif",
-          fontSize: '16px',
-          fontWeight: '600',
-          padding: '12px 24px',
-          borderRadius: '8px',
+          background: 'none',
+          border: 'none',
+          color: '#737373',
+          fontSize: '14px',
+          textDecoration: 'underline',
           cursor: 'pointer',
-          transition: 'all 0.2s'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(255, 215, 0, 0.1)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'transparent';
+          padding: '8px',
+          marginTop: '16px',
+          fontFamily: "'Playfair Display', Georgia, serif"
         }}
       >
         Start Over
