@@ -271,6 +271,16 @@ export default function Step3FreeResults({
         <p style={{ fontSize: '12px', color: '#666', textAlign: 'center', fontFamily: "'Merriweather', Georgia, serif" }}>
           Nutritionists charge $150+/hr for this level of personalization. You're getting it for $9.99.
         </p>
+
+        {/* Satisfaction guarantee */}
+        <p style={{ color: '#a3a3a3', fontSize: '12px', textAlign: 'center', marginTop: '12px' }}>
+          100% satisfaction guarantee — if it's not worth 10x the price, email us for a full refund
+        </p>
+
+        {/* Urgency/scarcity copy */}
+        <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', textAlign: 'center', marginTop: '8px' }}>
+          Your personalized protocol is ready — generated from the data you just entered
+        </p>
       </div>
 
       {/* Start Over Button */}

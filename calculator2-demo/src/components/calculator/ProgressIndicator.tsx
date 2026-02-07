@@ -33,6 +33,7 @@ export default function ProgressIndicator({
           const stepNumber = index + 1
           const isActive = stepNumber === currentStep
           const isComplete = stepNumber < currentStep
+          const isStep4 = stepNumber === 4
 
           let dotBg = '#444'  // Default (future steps)
           let dotRing = 'none'
@@ -44,7 +45,8 @@ export default function ProgressIndicator({
             dotRing = '3px solid #ffd700'
           }
 
-          const labelColor = isActive ? '#ffd700' : isComplete ? '#228B22' : '#999'
+          // Step 4 gets amber tint when locked (not active, not complete)
+          const labelColor = isActive ? '#ffd700' : isComplete ? '#228B22' : (isStep4 ? 'rgba(245, 158, 11, 0.8)' : '#999')
 
           return (
             <div
@@ -85,7 +87,7 @@ export default function ProgressIndicator({
                   maxWidth: '85px'
                 }}
               >
-                {label}
+                {isStep4 ? '🔒 ' : ''}{label}
               </p>
             </div>
           )
