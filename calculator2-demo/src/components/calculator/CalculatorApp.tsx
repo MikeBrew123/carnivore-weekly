@@ -124,6 +124,15 @@ export default function CalculatorApp({
     }
   }, [paymentState.isPremium, isPremium, setIsPremium])
 
+  // Scroll to success message when success page shows after payment redirect
+  useEffect(() => {
+    if (isPaymentSuccess && currentStep !== 4) {
+      setTimeout(() => {
+        document.getElementById('payment-success')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+    }
+  }, [isPaymentSuccess, currentStep]);
+
   // Calculate macros whenever step 1-2 data changes
   useEffect(() => {
     if (formData.sex && formData.age && formData.weight && (formData.heightFeet || formData.heightCm) && formData.lifestyle && formData.goal && formData.diet) {
@@ -332,7 +341,7 @@ export default function CalculatorApp({
   // Show payment success screen (but not if user has proceeded to Step 4)
   if (isPaymentSuccess && currentStep !== 4) {
     return (
-      <div style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '64px', paddingBottom: '64px', paddingLeft: '16px', paddingRight: '16px', minHeight: '100vh' }}>
+      <div id="payment-success" style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '64px', paddingBottom: '64px', paddingLeft: '16px', paddingRight: '16px', minHeight: '100vh' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
           <div style={{
             fontSize: '64px',
