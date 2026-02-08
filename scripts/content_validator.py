@@ -335,6 +335,38 @@ class ContentValidator:
 
         return content
 
+    def validate_minimum_content(self, content: str, filename: str) -> bool:
+        """
+        Validate that blog post has minimum word count.
+        Block publication if article body has less than 200 words.
+        """
+        # Only validate blog posts
+        if 'blog/' not in filename:
+            return True
+
+        # Extract content from post-content div (exclude nav, footer, template)
+        match = re.search(r'<div class="post-content">(.*?)</div>', content, re.DOTALL)
+
+        if not match:
+            # No post-content wrapper found - this is a structural issue
+            # but not a word count issue, let other validators handle it
+            return True
+
+        article_content = match.group(1)
+
+        # Strip HTML tags to count actual words
+        text_only = re.sub(r'<[^>]+>', ' ', article_content)
+        text_only = re.sub(r'\s+', ' ', text_only).strip()
+
+        word_count = len(text_only.split())
+
+        if word_count < 200:
+            self.log("BLOCKED", filename,
+                    f"Insufficient content ({word_count} words). Minimum 200 words required for blog posts.")
+            return False
+
+        return True
+
     def validate_json_ld(self, content: str, filename: str) -> bool:
         """Verify JSON-LD schema is valid."""
         json_ld_pattern = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.DOTALL)
@@ -408,11 +440,14 @@ class ContentValidator:
         if corrected_filename != filename:
             filename = corrected_filename
 
-        # Stage 1: Check blocking issues (template variables, JSON-LD)
+        # Stage 1: Check blocking issues (template variables, JSON-LD, minimum content)
         if not self.check_template_variables(content, filename):
             return None, self.log_messages, corrected_filename
 
         if not self.validate_json_ld(content, filename):
+            return None, self.log_messages, corrected_filename
+
+        if not self.validate_minimum_content(content, filename):
             return None, self.log_messages, corrected_filename
 
         # Stage 2: Auto-fix issues
