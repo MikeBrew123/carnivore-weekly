@@ -14,6 +14,9 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 # Auto-linking for wiki keywords
 from auto_link_wiki_keywords import insert_wiki_links
 
+# Content validator with auto-fix
+from content_validator import ContentValidator
+
 PROJECT_ROOT = Path(__file__).parent.parent
 TEMPLATES_DIR = PROJECT_ROOT / "templates"
 DATA_DIR = PROJECT_ROOT / "data"
@@ -50,12 +53,19 @@ def setup_jinja():
 
     return env
 
-def generate_blog_posts(env, posts):
+def generate_blog_posts(env, posts, validator=None):
     """Generate individual blog post HTML files."""
     template = env.get_template("blog_post_template_2026.html")
     published_posts = [p for p in posts if p.get("published", False)]
 
     print(f"\n📄 Generating {len(published_posts)} blog post pages...")
+
+    # Use passed validator or create new one
+    if validator is None:
+        validator = ContentValidator()
+
+    blocked_count = 0
+    fixed_count = 0
 
     for post in published_posts:
         # Get content directly from post data
@@ -99,10 +109,25 @@ def generate_blog_posts(env, posts):
             seo=seo
         )
 
-        # Write to file
-        post_file = BLOG_DIR / f"{post['slug']}.html"
+        # Validate and fix content BEFORE writing to disk
+        filename = f"{post['slug']}.html"
+        fixed_content, log_messages = validator.validate_and_fix(rendered, filename)
+
+        if fixed_content is None:
+            # Content blocked - do not write
+            print(f"❌ BLOCKED: {post['title']} (validation failed)")
+            blocked_count += 1
+            continue
+
+        if log_messages:
+            fixes = len([m for m in log_messages if "[AUTO-FIX]" in m])
+            if fixes > 0:
+                fixed_count += 1
+
+        # Write to file (only if validation passed)
+        post_file = BLOG_DIR / filename
         with open(post_file, "w") as f:
-            f.write(rendered)
+            f.write(fixed_content)
 
         print(f"✅ {post['title']}")
 
@@ -272,8 +297,11 @@ def main():
     # Set up Jinja2
     env = setup_jinja()
 
-    # Generate pages
-    generate_blog_posts(env, posts)
+    # Initialize validator once for all operations
+    validator = ContentValidator()
+
+    # Generate pages (with validation)
+    generate_blog_posts(env, posts, validator)
     generate_blog_index(env, posts)
     generate_rss_feed(env, posts)
     update_sitemap(posts)
@@ -281,6 +309,11 @@ def main():
     print("\n" + "=" * 50)
     print("✅ Blog generation complete!")
     print("=" * 50)
+
+    # Print validation summary and write logs
+    if validator.log_messages:
+        validator.print_summary()
+        validator.write_log()
 
 if __name__ == "__main__":
     main()

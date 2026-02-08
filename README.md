@@ -33,6 +33,81 @@ Carnivore Weekly automatically:
 
 ---
 
+## Validation Pipeline — Self-Healing Quality Control
+
+Carnivore Weekly has a three-wall validation system that prevents broken HTML, SEO issues, and template errors from reaching production:
+
+### Wall 1: Self-Healing Content Validator (Pre-Write)
+**Location:** `scripts/content_validator.py`
+**Triggers:** Automatically during content generation
+**Behavior:** Auto-fixes issues BEFORE files are written to disk
+
+**Auto-Fixes:**
+- Multiple H1 tags → Converts extras to H2
+- Duplicate IDs → Adds incremental suffixes
+- Missing meta tags → Auto-generates from content
+- Skipped heading levels → Repairs hierarchy
+- Missing image alt text → Generates from context
+- External links → Adds rel="noopener noreferrer"
+- Invalid JSON-LD → Blocks publication
+
+**Logging:** All fixes logged to `logs/validation_YYYY-MM-DD.log`
+
+### Wall 2: Pre-Commit Validation Gate
+**Location:** `scripts/validate_before_commit.py` + `.git/hooks/pre-commit`
+**Triggers:** Automatically on `git commit`
+**Behavior:** Blocks commits with critical HTML/validation issues
+
+**Installation:**
+```bash
+cp scripts/pre-commit-hook.sh .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+**Manual Run:**
+```bash
+python3 scripts/validate_before_commit.py
+```
+
+**Checks:**
+- Zero pages with multiple H1 tags
+- Zero duplicate IDs within pages
+- Zero unrendered template variables
+- All required meta tags present
+- Valid sitemap.xml structure
+- All internal links exist
+
+### Wall 3: GitHub Actions Safety Net
+**Location:** `.github/workflows/validate-before-deploy.yml`
+**Triggers:** On push to main branch
+**Behavior:** Emergency backup validation before deployment
+
+**On Failure:**
+- ❌ Blocks deployment
+- 🔴 Auto-creates GitHub Issue with details
+- 📋 Labels: `validation-failure`, `automated`
+
+**Weekly Health Check:** `.github/workflows/weekly-health-check.yml`
+- Runs every Sunday at midnight UTC
+- Monitors for SEO regressions
+- Checks sitemap integrity
+- Compares page counts week-over-week
+- Creates GitHub Issue if issues found
+
+**View Logs:**
+```bash
+# Validation logs (local)
+tail -50 logs/validation_YYYY-MM-DD.log
+
+# Commit validation logs
+tail -50 logs/commit_validation.log
+
+# GitHub Actions logs
+# Go to: https://github.com/MikeBrew123/carnivore-weekly/actions
+```
+
+---
+
 ## How It Works
 
 ### Automated Weekly Workflow
