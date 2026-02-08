@@ -5,6 +5,8 @@ Creates individual post pages and blog index.
 """
 
 import json
+import os
+import re
 from pathlib import Path
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -123,9 +125,7 @@ def generate_blog_index(env, posts):
     print(f"✅ Blog index page generated ({len(published_posts)} posts)")
 
 def update_sitemap(posts):
-    """Update sitemap.xml with blog post URLs."""
-    import re
-
+    """Update sitemap.xml with blog post URLs and main page dates."""
     published_posts = [p for p in posts if p.get("published", False)]
     sitemap_file = PUBLIC_DIR / "sitemap.xml"
 
@@ -136,6 +136,27 @@ def update_sitemap(posts):
     # Read existing sitemap
     with open(sitemap_file, 'r') as f:
         sitemap_content = f.read()
+
+    # Update main page lastmod dates based on actual file modification times
+    main_pages = [
+        ('https://carnivoreweekly.com/', 'public/index.html'),
+        ('https://carnivoreweekly.com/channels.html', 'public/channels.html'),
+        ('https://carnivoreweekly.com/wiki/', 'public/wiki/index.html'),
+        ('https://carnivoreweekly.com/calculator.html', 'public/calculator.html'),
+        ('https://carnivoreweekly.com/archive.html', 'public/archive.html'),
+    ]
+
+    for url, file_path in main_pages:
+        full_path = PROJECT_ROOT / file_path
+        if full_path.exists():
+            # Get file modification time
+            mtime = os.path.getmtime(full_path)
+            lastmod = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+
+            # Update lastmod in sitemap
+            pattern = f'(<loc>{re.escape(url)}</loc>\\s*)<lastmod>\\d{{4}}-\\d{{2}}-\\d{{2}}</lastmod>'
+            replacement = f'\\1<lastmod>{lastmod}</lastmod>'
+            sitemap_content = re.sub(pattern, replacement, sitemap_content)
 
     # Remove all existing blog post entries
     sitemap_content = re.sub(
@@ -169,7 +190,7 @@ def update_sitemap(posts):
     with open(sitemap_file, 'w') as f:
         f.write(sitemap_content)
 
-    print(f"✅ Sitemap updated with {len(published_posts)} blog posts")
+    print(f"✅ Sitemap updated: 5 main pages + {len(published_posts)} blog posts")
 
 def generate_rss_feed(env, posts):
     """Generate RSS feed XML file."""
