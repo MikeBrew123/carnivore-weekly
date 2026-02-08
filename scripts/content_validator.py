@@ -213,6 +213,37 @@ class ContentValidator:
                     )
                 fixes.append("description")
 
+        # Check meta description length (should be 150-160 chars)
+        if 'description' in parser.meta_tags and parser.meta_tags['description']:
+            current_desc = parser.meta_tags['description']
+            desc_len = len(current_desc)
+
+            if desc_len < 150 or desc_len > 160:
+                # Try to adjust length
+                if desc_len < 150:
+                    # Too short - try to extract more from first paragraph
+                    p_match = re.search(r'<p[^>]*>(.*?)</p>', content, re.DOTALL)
+                    if p_match:
+                        full_text = re.sub(r'<[^>]+>', '', p_match.group(1)).strip()
+                        # Take first 155 chars for optimal length
+                        new_desc = full_text[:155].strip()
+                        if len(new_desc) >= 150:
+                            content = re.sub(
+                                r'<meta name="description" content="[^"]*"',
+                                f'<meta name="description" content="{new_desc}"',
+                                content
+                            )
+                            fixes.append(f"meta description length ({desc_len} → {len(new_desc)} chars)")
+                elif desc_len > 160:
+                    # Too long - truncate to 160
+                    new_desc = current_desc[:160].strip()
+                    content = re.sub(
+                        r'<meta name="description" content="[^"]*"',
+                        f'<meta name="description" content="{new_desc}"',
+                        content
+                    )
+                    fixes.append(f"meta description length ({desc_len} → {len(new_desc)} chars)")
+
         # Check for missing canonical
         if 'canonical' not in content:
             # Extract slug from filename
