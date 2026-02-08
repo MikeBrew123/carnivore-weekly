@@ -141,6 +141,15 @@ def sync_blog_posts():
                 json_category = json_post.get("category", "community")
                 mapped_category = category_map.get(json_category, "community")
 
+                # Get content from JSON (if exists)
+                content = json_post.get("content", "")
+
+                # GUARD: Never publish posts with empty content
+                is_published = json_post.get("published", True)
+                if (not content or content.strip() == "") and is_published:
+                    print(f"  ⚠️  WARNING: {title[:50]}... has empty content - forcing is_published=False")
+                    is_published = False
+
                 # Prepare minimal insert data
                 insert_data = {
                     "slug": correct_slug,
@@ -149,8 +158,8 @@ def sync_blog_posts():
                     "excerpt": json_post.get("excerpt", ""),
                     "category": mapped_category,
                     "tags": json_post.get("tags", []),
-                    "is_published": json_post.get("published", True),
-                    "content": "",  # Placeholder for NOT NULL constraint
+                    "is_published": is_published,
+                    "content": content if content else "",  # Empty string for NOT NULL constraint
                 }
 
                 client.table("blog_posts").insert(insert_data).execute()

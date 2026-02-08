@@ -71,8 +71,11 @@ def generate_blog_posts(env, posts, validator=None):
         # Get content directly from post data
         content = post.get('content', '')
 
-        if not content:
-            print(f"⚠️  No content found for: {post['title']}")
+        # GUARD: Skip posts with empty or whitespace-only content
+        if not content or content.strip() == "":
+            slug = post.get('slug', 'UNKNOWN')
+            print(f"⚠️  SKIPPED: {post['title'][:60]} - empty content (slug: {slug})")
+            print(f"   This post is marked published but has no content. Set published: false in blog_posts.json")
             continue
 
         # Convert H1 tags to H2 in content (prevent multiple H1s per page)

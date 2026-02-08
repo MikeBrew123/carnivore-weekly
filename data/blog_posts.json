@@ -8,7 +8,7 @@
       "author_title": "Health Coach",
       "date": "2026-02-07",
       "scheduled_date": "2026-02-07",
-      "published": true,
+      "published": false,
       "category": "health",
       "tags": [
         "thyroid",
@@ -44,7 +44,7 @@
       "author_title": "Community Manager",
       "date": "2026-02-08",
       "scheduled_date": "2026-02-08",
-      "published": true,
+      "published": false,
       "category": "lifestyle",
       "tags": [
         "dating",
@@ -667,7 +667,7 @@
       "author_title": "Sarah, Marcus & Chloe",
       "date": "2026-01-25",
       "scheduled_date": "2026-01-25",
-      "published": true,
+      "published": false,
       "featured": true,
       "category": "product",
       "tags": [
@@ -709,7 +709,7 @@
       "author_title": "Health Coach",
       "date": "2026-01-25",
       "scheduled_date": "2026-01-25",
-      "published": true,
+      "published": false,
       "category": "health",
       "tags": [
         "bone-broth",
@@ -751,7 +751,7 @@
       "author_title": "Community Manager",
       "date": "2026-01-25",
       "scheduled_date": "2026-01-25",
-      "published": true,
+      "published": false,
       "category": "health",
       "tags": [
         "electrolytes",
@@ -796,7 +796,7 @@
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2026-01-20",
-      "published": true,
+      "published": false,
       "category": "health",
       "tags": [
         "sleep",
@@ -825,7 +825,7 @@
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2026-01-16",
-      "published": true,
+      "published": false,
       "category": "nutrition",
       "tags": [
         "organ-meats",
@@ -854,7 +854,7 @@
       "author": "chloe",
       "author_title": "Community Curator",
       "date": "2026-01-15",
-      "published": true,
+      "published": false,
       "category": "community",
       "tags": [
         "reddit",
@@ -883,7 +883,7 @@
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2026-01-14",
-      "published": true,
+      "published": false,
       "category": "research",
       "tags": [
         "medical",
@@ -912,7 +912,7 @@
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2026-01-13",
-      "published": true,
+      "published": false,
       "category": "health",
       "tags": [
         "plateaus",
@@ -941,7 +941,7 @@
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2026-01-12",
-      "published": true,
+      "published": false,
       "category": "research",
       "tags": [
         "animal-based",
@@ -972,7 +972,7 @@
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2026-01-11",
-      "published": true,
+      "published": false,
       "category": "lifestyle",
       "tags": [
         "travel",
@@ -998,7 +998,7 @@
       "author": "chloe",
       "author_title": "Community Curator",
       "date": "2026-01-10",
-      "published": true,
+      "published": false,
       "category": "lifestyle",
       "tags": [
         "dating",
@@ -1023,7 +1023,7 @@
       "author": "chloe",
       "author_title": "Community Curator",
       "date": "2026-01-09",
-      "published": true,
+      "published": false,
       "category": "lifestyle",
       "tags": [
         "family",
@@ -1049,7 +1049,7 @@
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2026-01-08",
-      "published": true,
+      "published": false,
       "category": "research",
       "tags": [
         "environment",
@@ -1074,7 +1074,7 @@
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2026-01-07",
-      "published": true,
+      "published": false,
       "category": "protocols",
       "tags": [
         "fasting",
@@ -1103,7 +1103,7 @@
       "author": "chloe",
       "author_title": "Community Curator",
       "date": "2026-01-06",
-      "published": true,
+      "published": false,
       "category": "community",
       "tags": [
         "transformations",
@@ -1171,7 +1171,7 @@
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2026-01-05",
-      "published": true,
+      "published": false,
       "category": "health",
       "tags": [
         "womens-health",
@@ -1246,7 +1246,7 @@
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2026-01-04",
-      "published": true,
+      "published": false,
       "category": "nutrition",
       "tags": [
         "organ-meats",
@@ -1318,7 +1318,7 @@
       "author": "chloe",
       "author_title": "Community Curator",
       "date": "2026-01-03",
-      "published": true,
+      "published": false,
       "category": "community",
       "tags": [
         "creators",
@@ -1387,7 +1387,7 @@
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2026-01-02",
-      "published": true,
+      "published": false,
       "category": "guides",
       "tags": [
         "beginners",
@@ -1458,7 +1458,7 @@
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2025-12-20",
-      "published": true,
+      "published": false,
       "category": "health",
       "tags": [
         "insulin-resistance",
