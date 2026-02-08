@@ -140,11 +140,18 @@
             border-bottom-color: #ffd700 !important;
         }
 
+        /* Site Title - styled like H1 but semantically correct */
+        header .site-title {
+            color: #d4a574 !important;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            font-family: 'Libre Baskerville', serif;
+        }
+
         /* Headings - ensure visual hierarchy */
         h1, h2, h3, h4, h5, h6 { color: #6A1B1B !important;
         }
-
-        header h1 { color: #d4a574 !important; }
 
         /* Override stylesheet for light theme background */
         .post-content {
@@ -199,7 +206,7 @@
     <header class="header-2026">
         <div class="container-2026">
             <img src="../images/logo.png" alt="Carnivore Weekly Logo" class="logo">
-            <h1>CARNIVORE WEEKLY</h1>
+            <p class="site-title">CARNIVORE WEEKLY</p>
             <p class="subtitle">The Meat-Eater's Digest</p>
             <p class="tagline">Premium Cuts of Carnivore Content</p>
         </div>
@@ -257,7 +264,7 @@
 
                 <!-- Post Content -->
                 <div class="post-content">
-                <h1>Fueling Your Workouts on Carnivore: Pre and Post Training</h1>
+                <h2>Fueling Your Workouts on Carnivore: Pre and Post Training</h2>
 
 <p>Do you need carbs to lift heavy? What about post-workout protein timing? The fitness community is split. Here's what actually matters for performance on carnivore.</p>
 

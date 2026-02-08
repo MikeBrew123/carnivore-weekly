@@ -140,11 +140,18 @@
             border-bottom-color: #ffd700 !important;
         }
 
+        /* Site Title - styled like H1 but semantically correct */
+        header .site-title {
+            color: #d4a574 !important;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            font-family: 'Libre Baskerville', serif;
+        }
+
         /* Headings - ensure visual hierarchy */
         h1, h2, h3, h4, h5, h6 { color: #6A1B1B !important;
         }
-
-        header h1 { color: #d4a574 !important; }
 
         /* Override stylesheet for light theme background */
         .post-content {
@@ -199,7 +206,7 @@
     <header class="header-2026">
         <div class="container-2026">
             <img src="../images/logo.png" alt="Carnivore Weekly Logo" class="logo">
-            <h1>CARNIVORE WEEKLY</h1>
+            <p class="site-title">CARNIVORE WEEKLY</p>
             <p class="subtitle">The Meat-Eater's Digest</p>
             <p class="tagline">Premium Cuts of Carnivore Content</p>
         </div>
@@ -257,7 +264,7 @@
 
                 <!-- Post Content -->
                 <div class="post-content">
-                <h1>Real 2-Week Results: What Actually Happens When You Start Carnivore</h1>
+                <h2>Real 2-Week Results: What Actually Happens When You Start Carnivore</h2>
 
 <p>I combed through hundreds of 2-week progress posts on Reddit and YouTube. Here's what typical results actually look like, not the outliers that go viral.</p>
 
