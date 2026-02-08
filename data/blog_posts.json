@@ -8,7 +8,7 @@
       "author_title": "Health Coach",
       "date": "2026-02-07",
       "scheduled_date": "2026-02-07",
-      "published": false,
+      "published": true,
       "category": "health",
       "tags": [
         "thyroid",
@@ -44,7 +44,7 @@
       "author_title": "Community Manager",
       "date": "2026-02-08",
       "scheduled_date": "2026-02-08",
-      "published": false,
+      "published": true,
       "category": "lifestyle",
       "tags": [
         "dating",
