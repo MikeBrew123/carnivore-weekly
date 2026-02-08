@@ -125,7 +125,14 @@ def generate_blog_index(env, posts):
     print(f"✅ Blog index page generated ({len(published_posts)} posts)")
 
 def update_sitemap(posts):
-    """Update sitemap.xml with blog post URLs and main page dates."""
+    """Update sitemap.xml with blog post URLs and main page dates.
+
+    Uses XML parsing with deduplication to prevent duplicate URLs.
+    Keeps most recent lastmod date for duplicates.
+    """
+    import xml.etree.ElementTree as ET
+    from collections import OrderedDict
+
     published_posts = [p for p in posts if p.get("published", False)]
     sitemap_file = PUBLIC_DIR / "sitemap.xml"
 
@@ -133,9 +140,37 @@ def update_sitemap(posts):
         print("⚠️  sitemap.xml not found, skipping update")
         return
 
-    # Read existing sitemap
-    with open(sitemap_file, 'r') as f:
-        sitemap_content = f.read()
+    # Parse existing sitemap
+    tree = ET.parse(sitemap_file)
+    root = tree.getroot()
+    ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+
+    # Extract all URLs with deduplication (keep most recent lastmod)
+    url_data = OrderedDict()
+
+    for url_elem in root.findall('sm:url', ns):
+        loc = url_elem.find('sm:loc', ns).text
+        lastmod = url_elem.find('sm:lastmod', ns).text if url_elem.find('sm:lastmod', ns) is not None else '2026-01-01'
+        changefreq = url_elem.find('sm:changefreq', ns)
+        changefreq_text = changefreq.text if changefreq is not None else 'monthly'
+        priority = url_elem.find('sm:priority', ns)
+        priority_text = priority.text if priority is not None else '0.8'
+
+        # Keep URL with most recent lastmod (deduplication)
+        if loc in url_data:
+            existing_date = url_data[loc]['lastmod']
+            if lastmod > existing_date:
+                url_data[loc] = {
+                    'lastmod': lastmod,
+                    'changefreq': changefreq_text,
+                    'priority': priority_text
+                }
+        else:
+            url_data[loc] = {
+                'lastmod': lastmod,
+                'changefreq': changefreq_text,
+                'priority': priority_text
+            }
 
     # Update main page lastmod dates based on actual file modification times
     main_pages = [
@@ -148,49 +183,52 @@ def update_sitemap(posts):
 
     for url, file_path in main_pages:
         full_path = PROJECT_ROOT / file_path
-        if full_path.exists():
+        if full_path.exists() and url in url_data:
             # Get file modification time
             mtime = os.path.getmtime(full_path)
             lastmod = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+            url_data[url]['lastmod'] = lastmod
 
-            # Update lastmod in sitemap
-            pattern = f'(<loc>{re.escape(url)}</loc>\\s*)<lastmod>\\d{{4}}-\\d{{2}}-\\d{{2}}</lastmod>'
-            replacement = f'\\1<lastmod>{lastmod}</lastmod>'
-            sitemap_content = re.sub(pattern, replacement, sitemap_content)
-
-    # Remove all existing blog post entries
-    sitemap_content = re.sub(
-        r'    <url>\s*<loc>https://carnivoreweekly\.com/blog/[^<]+</loc>.*?</url>\s*',
-        '',
-        sitemap_content,
-        flags=re.DOTALL
-    )
-
-    # Generate new blog post entries
-    blog_entries = []
+    # Update blog post URLs from published posts
     for post in published_posts:
         slug = post.get('slug', '')
+        url = f'https://carnivoreweekly.com/blog/{slug}.html'
+
         # Extract date from slug (YYYY-MM-DD)
         date_match = re.match(r'(\d{4}-\d{2}-\d{2})', slug)
-        lastmod = date_match.group(1) if date_match else post.get('date', '')
+        lastmod = date_match.group(1) if date_match else post.get('date', '2026-01-01')
 
-        entry = f'''    <url>
-        <loc>https://carnivoreweekly.com/blog/{slug}.html</loc>
-        <lastmod>{lastmod}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>'''
-        blog_entries.append(entry)
+        # Add or update blog post URL
+        url_data[url] = {
+            'lastmod': lastmod,
+            'changefreq': 'monthly',
+            'priority': '0.8'
+        }
 
-    # Insert blog entries before closing </urlset> tag
-    blog_section = '\n'.join(blog_entries)
-    sitemap_content = sitemap_content.replace('</urlset>', f'{blog_section}\n</urlset>')
+    # Create new sitemap XML with deduplicated URLs
+    new_root = ET.Element('urlset', xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
 
-    # Write updated sitemap
-    with open(sitemap_file, 'w') as f:
-        f.write(sitemap_content)
+    for loc, data in url_data.items():
+        url_elem = ET.SubElement(new_root, 'url')
+        ET.SubElement(url_elem, 'loc').text = loc
+        ET.SubElement(url_elem, 'lastmod').text = data['lastmod']
+        ET.SubElement(url_elem, 'changefreq').text = data['changefreq']
+        ET.SubElement(url_elem, 'priority').text = data['priority']
 
-    print(f"✅ Sitemap updated: 5 main pages + {len(published_posts)} blog posts")
+    # Format XML with indentation
+    ET.indent(new_root, space='    ')
+    new_tree = ET.ElementTree(new_root)
+
+    # Write to file
+    with open(sitemap_file, 'wb') as f:
+        f.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
+        new_tree.write(f, encoding='utf-8', xml_declaration=False)
+
+    # Count blog posts
+    blog_count = len([url for url in url_data.keys() if '/blog/' in url])
+
+    print(f"✅ Sitemap updated with {len(url_data)} unique URLs ({blog_count} blog posts)")
+    print(f"   Deduplication: Prevented duplicate entries")
 
 def generate_rss_feed(env, posts):
     """Generate RSS feed XML file."""
