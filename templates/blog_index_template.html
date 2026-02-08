@@ -1028,7 +1028,7 @@
     </nav>
 
     <!-- MAIN CONTENT -->
-    <main class="site-content" role="main" id="main-content">
+    <main class="site-content" role="main" id="blog-index-main-content">
 
         <!-- HERO SECTION -->
         {% set featured_post = blog_posts | selectattr('featured', 'true') | first | default(blog_posts[0]) %}
@@ -1212,8 +1212,8 @@
             <div class="newsletter-container">
                 <h2 class="newsletter-title">Get the Weekly Roundup</h2>
                 <p class="newsletter-subtitle">New insights, community updates, and science you can use—delivered every Sunday.</p>
-                <form class="newsletter-form" id="newsletter-form">
-                    <input type="email" class="newsletter-input" placeholder="your@email.com" required>
+                <form class="newsletter-form" id="blog-index-newsletter-form">
+                    <input type="email" id="blog-index-email" class="newsletter-input" placeholder="your@email.com" required>
                     <button type="submit" class="newsletter-btn">Subscribe</button>
                 </form>
                 <p class="newsletter-privacy">No spam. Unsubscribe anytime.</p>
