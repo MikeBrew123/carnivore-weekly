@@ -337,11 +337,33 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
         files_to_check.extend(list(project_root.glob('**/*.html')))
         files_to_check.extend(list(project_root.glob('**/*.py')))
 
-    # Filter out unwanted directories
-    exclude_dirs = {'.git', 'node_modules', '__pycache__', 'venv', '.venv'}
+    # Filter out unwanted directories and files
+    exclude_dirs = {'.git', 'node_modules', '__pycache__', 'venv', '.venv', 'backups'}
+    exclude_patterns = [
+        'templates/',  # Template files with template variables
+        'public/includes/',  # HTML fragments without full HTML structure
+        'public/components/',  # Reusable components without full HTML structure
+        'docs/archive/',  # Archived files
+    ]
+
+    def is_blog_fragment(path):
+        """Check if file is a blog content fragment (not dated, not index)."""
+        if 'public/blog/' not in str(path):
+            return False
+        filename = path.name
+        if filename == 'index.html':
+            return False
+        # Dated files follow pattern: YYYY-MM-DD-slug.html
+        if re.match(r'^\d{4}-\d{2}-\d{2}-', filename):
+            return False
+        # Everything else in blog/ is a fragment
+        return True
+
     files_to_check = [
         f for f in files_to_check
         if not any(ex in f.parts for ex in exclude_dirs)
+        and not any(str(f).replace(str(project_root) + '/', '').startswith(pattern) for pattern in exclude_patterns)
+        and not is_blog_fragment(f)
     ]
 
     if verbose:
