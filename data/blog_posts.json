@@ -260,7 +260,7 @@
       "author_title": "Health Coach",
       "date": "2026-02-03",
       "scheduled_date": "2026-02-03",
-      "published": true,
+      "published": false,
       "category": "lifestyle",
       "tags": [
         "travel",
@@ -297,7 +297,7 @@
       "author_title": "Performance Coach",
       "date": "2026-02-03",
       "scheduled_date": "2026-02-03",
-      "published": true,
+      "published": false,
       "category": "fitness",
       "tags": [
         "fitness",
@@ -334,7 +334,7 @@
       "author_title": "Community Manager",
       "date": "2026-02-02",
       "scheduled_date": "2026-02-02",
-      "published": true,
+      "published": false,
       "category": "community",
       "tags": [
         "trends",
@@ -371,7 +371,7 @@
       "author_title": "Performance Coach",
       "date": "2026-02-01",
       "scheduled_date": "2026-02-01",
-      "published": true,
+      "published": false,
       "category": "lifestyle",
       "tags": [
         "social",
@@ -408,7 +408,7 @@
       "author_title": "Health Coach",
       "date": "2026-01-31",
       "scheduled_date": "2026-01-31",
-      "published": true,
+      "published": false,
       "category": "science",
       "tags": [
         "meal-timing",
@@ -445,7 +445,7 @@
       "author_title": "Community Manager",
       "date": "2026-01-30",
       "scheduled_date": "2026-01-30",
-      "published": true,
+      "published": false,
       "category": "community",
       "tags": [
         "results",
@@ -482,7 +482,7 @@
       "author_title": "Performance Coach",
       "date": "2026-01-30",
       "scheduled_date": "2026-01-30",
-      "published": true,
+      "published": false,
       "category": "nutrition",
       "tags": [
         "organs",
@@ -519,7 +519,7 @@
       "author_title": "Health Coach",
       "date": "2026-01-29",
       "scheduled_date": "2026-01-29",
-      "published": true,
+      "published": false,
       "category": "science",
       "tags": [
         "research",
@@ -556,7 +556,7 @@
       "author_title": "Community Manager",
       "date": "2026-01-28",
       "scheduled_date": "2026-01-28",
-      "published": true,
+      "published": false,
       "category": "community",
       "tags": [
         "plateaus",
@@ -593,7 +593,7 @@
       "author_title": "Health Coach",
       "date": "2026-01-27",
       "scheduled_date": "2026-01-27",
-      "published": true,
+      "published": false,
       "category": "getting-started",
       "tags": [
         "beginners",
@@ -630,7 +630,7 @@
       "author_title": "Performance Coach",
       "date": "2026-01-27",
       "scheduled_date": "2026-01-27",
-      "published": true,
+      "published": false,
       "category": "protocol",
       "tags": [
         "coffee",
