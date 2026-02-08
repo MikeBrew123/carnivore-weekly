@@ -1,6 +1,258 @@
 {
   "blog_posts": [
     {
+      "id": "2026-02-07-thyroid-reversal",
+      "slug": "2026-02-07-thyroid-reversal",
+      "title": "Thyroid Function on Carnivore: What the Research Actually Shows",
+      "author": "sarah",
+      "author_title": "Health Coach",
+      "date": "2026-02-07",
+      "scheduled_date": "2026-02-07",
+      "published": false,
+      "category": "health",
+      "tags": [
+        "thyroid",
+        "hormones",
+        "research",
+        "metabolism"
+      ],
+      "excerpt": "T3 dropping on carnivore freaks people out. But is it thyroid dysfunction or metabolic adaptation? The research tells a different story than the panic posts.",
+      "wiki_links": [],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "T3 dropping on carnivore freaks people out. But is it thyroid dysfunction or metabolic adaptation? The research tells a different story.",
+        "keywords": [
+          "thyroid",
+          "hormones",
+          "research",
+          "metabolism"
+        ]
+      },
+      "validation": {
+        "copy_editor": "pending",
+        "brand_validator": "pending",
+        "humanization": "pending"
+      },
+      "comments_enabled": true
+    },
+    {
+      "id": "2026-02-08-dating-carnivore",
+      "slug": "2026-02-08-dating-carnivore",
+      "title": "Dating While Carnivore: When Your Date Orders a Salad",
+      "author": "chloe",
+      "author_title": "Community Manager",
+      "date": "2026-02-08",
+      "scheduled_date": "2026-02-08",
+      "published": false,
+      "category": "lifestyle",
+      "tags": [
+        "dating",
+        "relationships",
+        "social",
+        "restaurants"
+      ],
+      "excerpt": "First date. Nice restaurant. You order a ribeye and water. They order quinoa salad with extra kale. The look on their face says everything. Here's how to handle it.",
+      "wiki_links": [],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "First date. Nice restaurant. You order a ribeye and water. They order quinoa salad. The look on their face says everything. Here's how to handle it.",
+        "keywords": [
+          "dating",
+          "relationships",
+          "social",
+          "restaurants"
+        ]
+      },
+      "validation": {
+        "copy_editor": "pending",
+        "brand_validator": "pending",
+        "humanization": "pending"
+      },
+      "comments_enabled": true
+    },
+    {
+      "id": "2026-02-09-mental-toughness",
+      "slug": "2026-02-09-mental-toughness",
+      "title": "Mental Toughness Isn't Optional: Building Discipline on Carnivore",
+      "author": "marcus",
+      "author_title": "Performance Coach",
+      "date": "2026-02-09",
+      "scheduled_date": "2026-02-09",
+      "published": false,
+      "category": "mindset",
+      "tags": [
+        "discipline",
+        "mental-health",
+        "habits",
+        "motivation"
+      ],
+      "excerpt": "Carnivore won't fix weak discipline. It exposes it. You can't hide behind complicated meal plans or cheat days. It's you, the meat, and your excuses. Time to choose.",
+      "wiki_links": [],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "Carnivore won't fix weak discipline. It exposes it. You can't hide behind meal plans or cheat days. It's you, the meat, and your excuses.",
+        "keywords": [
+          "discipline",
+          "mental-health",
+          "habits",
+          "motivation"
+        ]
+      },
+      "validation": {
+        "copy_editor": "pending",
+        "brand_validator": "pending",
+        "humanization": "pending"
+      },
+      "comments_enabled": true
+    },
+    {
+      "id": "2026-02-10-cholesterol-truth",
+      "slug": "2026-02-10-cholesterol-truth",
+      "title": "High Cholesterol on Carnivore: Why Your Doctor Is Wrong",
+      "author": "sarah",
+      "author_title": "Health Coach",
+      "date": "2026-02-10",
+      "scheduled_date": "2026-02-10",
+      "published": false,
+      "category": "health",
+      "tags": [
+        "cholesterol",
+        "lipids",
+        "bloodwork",
+        "research"
+      ],
+      "excerpt": "Total cholesterol hit 280. Your doctor wants you on statins immediately. But they're looking at the wrong numbers. Here's what the lipid research actually says.",
+      "wiki_links": [],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "Total cholesterol hit 280. Your doctor wants statins. But they're looking at the wrong numbers. Here's what lipid research actually says.",
+        "keywords": [
+          "cholesterol",
+          "lipids",
+          "bloodwork",
+          "research"
+        ]
+      },
+      "validation": {
+        "copy_editor": "pending",
+        "brand_validator": "pending",
+        "humanization": "pending"
+      },
+      "comments_enabled": true
+    },
+    {
+      "id": "2026-02-11-grocery-shopping",
+      "slug": "2026-02-11-grocery-shopping",
+      "title": "The 15-Minute Carnivore Shopping Trip: No More Wandering Aisles",
+      "author": "chloe",
+      "author_title": "Community Manager",
+      "date": "2026-02-11",
+      "scheduled_date": "2026-02-11",
+      "published": false,
+      "category": "practical",
+      "tags": [
+        "shopping",
+        "budget",
+        "meal-prep",
+        "practical"
+      ],
+      "excerpt": "You used to spend an hour reading labels in 12 aisles. Now you hit 3 sections and you're done in 15 minutes. Here's the carnivore shopping strategy that works.",
+      "wiki_links": [],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "You used to spend an hour reading labels in 12 aisles. Now you hit 3 sections and you're done. The carnivore shopping strategy that works.",
+        "keywords": [
+          "shopping",
+          "budget",
+          "meal-prep",
+          "practical"
+        ]
+      },
+      "validation": {
+        "copy_editor": "pending",
+        "brand_validator": "pending",
+        "humanization": "pending"
+      },
+      "comments_enabled": true
+    },
+    {
+      "id": "2026-02-12-strength-gains",
+      "slug": "2026-02-12-strength-gains",
+      "title": "Strength Gains Without Carbs: The Protein Leverage Reality",
+      "author": "marcus",
+      "author_title": "Performance Coach",
+      "date": "2026-02-12",
+      "scheduled_date": "2026-02-12",
+      "published": false,
+      "category": "fitness",
+      "tags": [
+        "strength",
+        "muscle",
+        "protein",
+        "performance"
+      ],
+      "excerpt": "Everyone says you need carbs to build muscle. Six months on carnivore and you're hitting PRs. The protein leverage hypothesis explains why. Here's the mechanism.",
+      "wiki_links": [],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "Everyone says you need carbs to build muscle. Six months on carnivore and you're hitting PRs. The protein leverage hypothesis explains why.",
+        "keywords": [
+          "strength",
+          "muscle",
+          "protein",
+          "performance"
+        ]
+      },
+      "validation": {
+        "copy_editor": "pending",
+        "brand_validator": "pending",
+        "humanization": "pending"
+      },
+      "comments_enabled": true
+    },
+    {
+      "id": "2026-02-13-autoimmune-remission",
+      "slug": "2026-02-13-autoimmune-remission",
+      "title": "Autoimmune Remission on Carnivore: The Elimination Effect",
+      "author": "sarah",
+      "author_title": "Health Coach",
+      "date": "2026-02-13",
+      "scheduled_date": "2026-02-13",
+      "published": false,
+      "category": "health",
+      "tags": [
+        "autoimmune",
+        "elimination-diet",
+        "inflammation",
+        "research"
+      ],
+      "excerpt": "Rheumatoid arthritis, psoriasis, Hashimoto's. The stories of remission on carnivore keep piling up. Is it the meat or the absence of everything else? The research points one direction.",
+      "wiki_links": [],
+      "related_posts": [],
+      "sponsor_callout": null,
+      "seo": {
+        "meta_description": "Rheumatoid arthritis, psoriasis, Hashimoto's remission stories on carnivore keep piling up. Is it the meat or the absence of everything else?",
+        "keywords": [
+          "autoimmune",
+          "elimination-diet",
+          "inflammation",
+          "research"
+        ]
+      },
+      "validation": {
+        "copy_editor": "pending",
+        "brand_validator": "pending",
+        "humanization": "pending"
+      },
+      "comments_enabled": true
+    },
+    {
       "id": "2026-02-03-traveling-carnivore",
       "slug": "2026-02-03-traveling-carnivore",
       "title": "The Traveling Carnivore: How to Eat Clean on the Road",
