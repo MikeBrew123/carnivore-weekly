@@ -65,6 +65,10 @@ def generate_blog_posts(env, posts):
             print(f"⚠️  No content found for: {post['title']}")
             continue
 
+        # Convert H1 tags to H2 in content (prevent multiple H1s per page)
+        content = re.sub(r'<h1([^>]*)>', r'<h2\1>', content)
+        content = re.sub(r'</h1>', r'</h2>', content)
+
         # Apply auto-linking to blog content (max 5 links per post)
         content = insert_wiki_links(content, max_links=5)
 
