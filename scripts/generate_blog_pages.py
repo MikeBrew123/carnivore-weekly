@@ -111,7 +111,7 @@ def generate_blog_posts(env, posts, validator=None):
 
         # Validate and fix content BEFORE writing to disk
         filename = f"{post['slug']}.html"
-        fixed_content, log_messages = validator.validate_and_fix(rendered, filename)
+        fixed_content, log_messages, corrected_filename = validator.validate_and_fix(rendered, filename)
 
         if fixed_content is None:
             # Content blocked - do not write
@@ -124,8 +124,10 @@ def generate_blog_posts(env, posts, validator=None):
             if fixes > 0:
                 fixed_count += 1
 
-        # Write to file (only if validation passed)
-        post_file = BLOG_DIR / filename
+        # Write to file (using corrected filename if path was fixed)
+        # Extract just the basename from corrected filename (in case it has path)
+        final_filename = Path(corrected_filename).name
+        post_file = BLOG_DIR / final_filename
         with open(post_file, "w") as f:
             f.write(fixed_content)
 
