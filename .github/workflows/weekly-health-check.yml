@@ -6,6 +6,10 @@ on:
     - cron: '0 0 * * 0'
   workflow_dispatch:  # Allow manual triggers
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   health-check:
     runs-on: ubuntu-latest
@@ -258,6 +262,7 @@ jobs:
 
       - name: Create GitHub Issue if issues found
         if: steps.validation.outputs.critical != '0' || steps.seo_check.outputs.seo_count != '0' || steps.manual_check.outputs.manual_count != '0'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
@@ -321,13 +326,19 @@ jobs:
             **This issue was automatically created by the weekly health check workflow.**
             `;
 
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: title,
-              body: body,
-              labels: ['health-check', 'automated']
-            });
+            try {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['health-check', 'automated']
+              });
+              console.log('✅ GitHub Issue created successfully');
+            } catch (error) {
+              console.log('⚠️  Could not create GitHub Issue — check repo permissions');
+              console.log(`Error: ${error.message}`);
+            }
 
       - name: Log successful health check
         if: steps.validation.outputs.critical == '0' && steps.seo_check.outputs.seo_count == '0' && steps.manual_check.outputs.manual_count == '0'

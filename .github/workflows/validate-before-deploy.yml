@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  issues: write
+  statuses: write
+
 jobs:
   validate-before-deploy:
     runs-on: ubuntu-latest
@@ -200,6 +205,7 @@ jobs:
 
       - name: Create GitHub Issue on failure
         if: failure()
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
@@ -253,13 +259,19 @@ jobs:
             **This issue was automatically created by the deployment validation workflow.**
             `;
 
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: title,
-              body: body,
-              labels: ['validation-failure', 'automated']
-            });
+            try {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['validation-failure', 'automated']
+              });
+              console.log('✅ GitHub Issue created successfully');
+            } catch (error) {
+              console.log('⚠️  Could not create GitHub Issue — check repo permissions');
+              console.log(`Error: ${error.message}`);
+            }
 
       - name: Mark deployment as approved
         if: success()
