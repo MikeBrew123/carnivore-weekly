@@ -1,0 +1,268 @@
+name: Deployment Validation Gate
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate-before-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install beautifulsoup4 lxml html5lib requests
+
+      - name: Run comprehensive validation
+        id: validation
+        run: |
+          python scripts/full-validation-sweep.py > validation_output.txt 2>&1
+          EXIT_CODE=$?
+          cat validation_output.txt
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          exit $EXIT_CODE
+        continue-on-error: true
+
+      - name: Check JSON-LD structured data
+        if: always()
+        run: |
+          echo "Validating JSON-LD structured data..."
+          python3 << 'EOF'
+          import json
+          import re
+          from pathlib import Path
+
+          errors = []
+          for html_file in Path('public').rglob('*.html'):
+              with open(html_file) as f:
+                  content = f.read()
+
+              # Extract JSON-LD blocks
+              json_ld_blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', content, re.DOTALL)
+
+              for i, block in enumerate(json_ld_blocks):
+                  try:
+                      json.loads(block)
+                  except json.JSONDecodeError as e:
+                      errors.append(f"{html_file}: JSON-LD block {i+1} - {e}")
+
+          if errors:
+              print("❌ JSON-LD validation FAILED:")
+              for error in errors:
+                  print(f"  {error}")
+              exit(1)
+          else:
+              print("✅ All JSON-LD structured data is valid")
+          EOF
+
+      - name: Validate sitemap.xml
+        if: always()
+        run: |
+          echo "Validating sitemap.xml..."
+          python3 << 'EOF'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          sitemap_path = Path('public/sitemap.xml')
+          if not sitemap_path.exists():
+              print("⚠️  No sitemap.xml found")
+              exit(0)
+
+          try:
+              tree = ET.parse(sitemap_path)
+              root = tree.getroot()
+              url_count = len(root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url'))
+              print(f"✅ sitemap.xml is valid XML with {url_count} URLs")
+          except ET.ParseError as e:
+              print(f"❌ sitemap.xml is invalid: {e}")
+              exit(1)
+          EOF
+
+      - name: Check for oversized HTML files
+        if: always()
+        run: |
+          echo "Checking for HTML files exceeding 500KB..."
+          python3 << 'EOF'
+          from pathlib import Path
+
+          oversized = []
+          for html_file in Path('public').rglob('*.html'):
+              size_kb = html_file.stat().st_size / 1024
+              if size_kb > 500:
+                  oversized.append(f"{html_file} ({size_kb:.1f} KB)")
+
+          if oversized:
+              print("❌ Oversized HTML files found:")
+              for file in oversized:
+                  print(f"  {file}")
+              exit(1)
+          else:
+              print("✅ No HTML files exceed 500KB")
+          EOF
+
+      - name: Verify asset references
+        if: always()
+        run: |
+          echo "Checking that all referenced CSS/JS files exist..."
+          python3 << 'EOF'
+          import re
+          from pathlib import Path
+
+          missing = []
+          for html_file in Path('public').rglob('*.html'):
+              with open(html_file) as f:
+                  content = f.read()
+
+              # Find CSS references
+              css_refs = re.findall(r'<link[^>]*href="([^"]+\.css)"', content)
+              for ref in css_refs:
+                  if ref.startswith('http'):
+                      continue
+                  ref_path = Path('public') / ref.lstrip('/')
+                  if not ref_path.exists():
+                      missing.append(f"{html_file}: Missing CSS {ref}")
+
+              # Find JS references
+              js_refs = re.findall(r'<script[^>]*src="([^"]+\.js)"', content)
+              for ref in js_refs:
+                  if ref.startswith('http'):
+                      continue
+                  ref_path = Path('public') / ref.lstrip('/')
+                  if not ref_path.exists():
+                      missing.append(f"{html_file}: Missing JS {ref}")
+
+          if missing:
+              print("❌ Missing asset files:")
+              for item in missing:
+                  print(f"  {item}")
+              exit(1)
+          else:
+              print("✅ All referenced CSS/JS files exist")
+          EOF
+
+      - name: Check for new 404s (sitemap vs files)
+        if: always()
+        run: |
+          echo "Checking for mismatches between sitemap and actual files..."
+          python3 << 'EOF'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          sitemap_path = Path('public/sitemap.xml')
+          if not sitemap_path.exists():
+              print("⚠️  No sitemap.xml found, skipping 404 check")
+              exit(0)
+
+          tree = ET.parse(sitemap_path)
+          root = tree.getroot()
+
+          sitemap_urls = []
+          for url_elem in root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url'):
+              loc = url_elem.find('{http://www.sitemaps.org/schemas/sitemap/0.9}loc')
+              if loc is not None:
+                  sitemap_urls.append(loc.text)
+
+          # Check if sitemap URLs point to existing files
+          missing = []
+          for url in sitemap_urls:
+              # Extract path from URL
+              path = url.replace('https://carnivoreweekly.com', '').lstrip('/')
+              if not path:
+                  path = 'index.html'
+              elif not path.endswith('.html'):
+                  path = path + '/index.html'
+
+              file_path = Path('public') / path
+              if not file_path.exists():
+                  missing.append(f"{url} -> {file_path}")
+
+          if missing:
+              print("⚠️  Sitemap URLs pointing to missing files:")
+              for item in missing[:10]:
+                  print(f"  {item}")
+              if len(missing) > 10:
+                  print(f"  ... and {len(missing) - 10} more")
+              # Don't fail on this - it's a warning only
+          else:
+              print("✅ All sitemap URLs point to existing files")
+          EOF
+
+      - name: Create GitHub Issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const date = new Date().toISOString().split('T')[0];
+
+            let validationOutput = '';
+            try {
+              validationOutput = fs.readFileSync('validation_output.txt', 'utf8');
+            } catch (e) {
+              validationOutput = 'Validation output not available';
+            }
+
+            // Extract summary from validation output
+            const criticalMatch = validationOutput.match(/🔴 Critical: (\d+)/);
+            const warningsMatch = validationOutput.match(/🟡 Warnings: (\d+)/);
+            const criticalCount = criticalMatch ? criticalMatch[1] : 'unknown';
+            const warningsCount = warningsMatch ? warningsMatch[1] : 'unknown';
+
+            const title = `🔴 Deployment Blocked: ${date} — ${criticalCount} critical issues`;
+
+            const body = `## Deployment Validation Failed
+
+            **Date:** ${date}
+            **Commit:** ${context.sha.substring(0, 7)}
+            **Branch:** ${context.ref.replace('refs/heads/', '')}
+
+            ### Summary
+            - 🔴 Critical Issues: ${criticalCount}
+            - 🟡 Warnings: ${warningsCount}
+
+            ### Full Validation Output
+
+            \`\`\`
+            ${validationOutput.substring(0, 50000)}
+            \`\`\`
+
+            ### How to Fix
+
+            1. Review the validation output above
+            2. Fix all critical issues in your local environment
+            3. Run \`python scripts/full-validation-sweep.py\` locally to verify
+            4. Push fixes to trigger re-validation
+
+            ### Manual Override
+
+            If this is a false positive, you can bypass validation by:
+            1. Reviewing the specific failures carefully
+            2. If safe to proceed, manually approve the deployment workflow
+
+            **This issue was automatically created by the deployment validation workflow.**
+            `;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['validation-failure', 'automated']
+            });
+
+      - name: Mark deployment as approved
+        if: success()
+        run: |
+          echo "✅ Validation passed — deployment approved"
+          echo "All checks completed successfully. Deployment workflows can proceed."
