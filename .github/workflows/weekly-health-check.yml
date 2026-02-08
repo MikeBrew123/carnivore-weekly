@@ -1,0 +1,336 @@
+name: Weekly Health Check
+
+on:
+  schedule:
+    # Run every Sunday at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:  # Allow manual triggers
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install beautifulsoup4 lxml html5lib requests
+
+      - name: Count pages and sitemap entries
+        id: count
+        run: |
+          python3 << 'EOF' | tee counts.txt
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          # Count HTML files
+          html_count = len(list(Path('public').rglob('*.html')))
+          print(f"HTML files: {html_count}")
+
+          # Count sitemap entries
+          sitemap_path = Path('public/sitemap.xml')
+          sitemap_count = 0
+          if sitemap_path.exists():
+              tree = ET.parse(sitemap_path)
+              root = tree.getroot()
+              sitemap_count = len(root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url'))
+              print(f"Sitemap entries: {sitemap_count}")
+          else:
+              print("Sitemap entries: 0 (no sitemap.xml)")
+
+          # Export for GitHub Actions
+          with open('count_data.txt', 'w') as f:
+              f.write(f"html_count={html_count}\n")
+              f.write(f"sitemap_count={sitemap_count}\n")
+          EOF
+
+          # Load counts into GitHub outputs
+          source count_data.txt
+          echo "html_count=$html_count" >> $GITHUB_OUTPUT
+          echo "sitemap_count=$sitemap_count" >> $GITHUB_OUTPUT
+
+      - name: Run full validation suite
+        id: validation
+        run: |
+          python scripts/full-validation-sweep.py > validation_output.txt 2>&1
+          EXIT_CODE=$?
+          cat validation_output.txt
+
+          # Extract counts
+          CRITICAL=$(grep -oP '🔴 Critical: \K\d+' validation_output.txt || echo "0")
+          WARNINGS=$(grep -oP '🟡 Warnings: \K\d+' validation_output.txt || echo "0")
+          INFO=$(grep -oP '🟢 Info: \K\d+' validation_output.txt || echo "0")
+
+          echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "info=$INFO" >> $GITHUB_OUTPUT
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          exit 0  # Don't fail workflow on validation errors - we'll report them
+
+      - name: Check for manually modified pages
+        id: manual_check
+        run: |
+          echo "Checking for pages that bypass generation pipeline..."
+          python3 << 'EOF' | tee manual_check.txt
+          from pathlib import Path
+          import re
+
+          # Files that should be generated but might be manually edited
+          generated_files = [
+              'public/index.html',
+              'public/channels.html',
+              'public/blog.html',
+              'public/wiki.html',
+              'public/archive.html'
+          ]
+
+          # Check for warning comments
+          manual_edits = []
+          for file_path in generated_files:
+              path = Path(file_path)
+              if not path.exists():
+                  continue
+
+              with open(path) as f:
+                  content = f.read()
+
+              # Look for manual edit warning or lack of generation timestamp
+              if 'MANUALLY EDITED' in content or 'DO NOT EDIT' not in content:
+                  manual_edits.append(str(path))
+
+          if manual_edits:
+              print("⚠️  Potentially manually edited files:")
+              for file in manual_edits:
+                  print(f"  {file}")
+              with open('manual_count.txt', 'w') as f:
+                  f.write(str(len(manual_edits)))
+          else:
+              print("✅ No manually edited files detected")
+              with open('manual_count.txt', 'w') as f:
+                  f.write("0")
+          EOF
+
+          MANUAL_COUNT=$(cat manual_count.txt)
+          echo "manual_count=$MANUAL_COUNT" >> $GITHUB_OUTPUT
+
+      - name: SEO regression check
+        id: seo_check
+        run: |
+          echo "Checking for SEO regressions..."
+          python3 << 'EOF' | tee seo_check.txt
+          from pathlib import Path
+          import re
+
+          issues = []
+
+          for html_file in Path('public').rglob('*.html'):
+              with open(html_file) as f:
+                  content = f.read()
+
+              # Check for missing meta descriptions
+              if '<meta name="description" content=""' in content:
+                  issues.append(f"{html_file}: Empty meta description")
+
+              # Check for invalid structured data
+              json_ld_blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', content, re.DOTALL)
+              for block in json_ld_blocks:
+                  if '"@type"' not in block:
+                      issues.append(f"{html_file}: Invalid JSON-LD structure")
+
+              # Check for duplicate H1s
+              h1_matches = re.findall(r'<h1[^>]*>(.*?)</h1>', content, re.IGNORECASE)
+              if len(h1_matches) > 1:
+                  issues.append(f"{html_file}: Multiple H1 tags ({len(h1_matches)})")
+
+          if issues:
+              print(f"⚠️  Found {len(issues)} SEO issues:")
+              for issue in issues[:20]:
+                  print(f"  {issue}")
+              if len(issues) > 20:
+                  print(f"  ... and {len(issues) - 20} more")
+
+              with open('seo_count.txt', 'w') as f:
+                  f.write(str(len(issues)))
+          else:
+              print("✅ No SEO regressions detected")
+              with open('seo_count.txt', 'w') as f:
+                  f.write("0")
+          EOF
+
+          SEO_COUNT=$(cat seo_count.txt)
+          echo "seo_count=$SEO_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Calculate SEO completeness
+        id: seo_completeness
+        run: |
+          python3 << 'EOF'
+          from pathlib import Path
+          import re
+
+          total_pages = 0
+          complete_pages = 0
+
+          for html_file in Path('public').rglob('*.html'):
+              total_pages += 1
+              with open(html_file) as f:
+                  content = f.read()
+
+              # Check if page has all SEO essentials
+              has_meta_desc = bool(re.search(r'<meta name="description" content="[^"]+"', content))
+              has_title = bool(re.search(r'<title>[^<]+</title>', content))
+              has_h1 = bool(re.search(r'<h1[^>]*>[^<]+</h1>', content, re.IGNORECASE))
+              has_canonical = bool(re.search(r'<link rel="canonical"', content))
+
+              if has_meta_desc and has_title and has_h1 and has_canonical:
+                  complete_pages += 1
+
+          if total_pages > 0:
+              completeness = int((complete_pages / total_pages) * 100)
+          else:
+              completeness = 0
+
+          print(f"SEO Completeness: {completeness}% ({complete_pages}/{total_pages})")
+          with open('completeness.txt', 'w') as f:
+              f.write(str(completeness))
+          EOF
+
+          COMPLETENESS=$(cat completeness.txt)
+          echo "completeness=$COMPLETENESS" >> $GITHUB_OUTPUT
+
+      - name: Generate health report
+        id: report
+        run: |
+          DATE=$(date -u +"%Y-%m-%d")
+          CRITICAL=${{ steps.validation.outputs.critical }}
+          WARNINGS=${{ steps.validation.outputs.warnings }}
+          HTML_COUNT=${{ steps.count.outputs.html_count }}
+          SITEMAP_COUNT=${{ steps.count.outputs.sitemap_count }}
+          MANUAL_COUNT=${{ steps.manual_check.outputs.manual_count }}
+          SEO_COUNT=${{ steps.seo_check.outputs.seo_count }}
+          COMPLETENESS=${{ steps.seo_completeness.outputs.completeness }}
+
+          # Determine status
+          if [ "$CRITICAL" -eq "0" ] && [ "$SEO_COUNT" -eq "0" ] && [ "$MANUAL_COUNT" -eq "0" ]; then
+              STATUS="✅ HEALTHY"
+              EMOJI="✅"
+          elif [ "$CRITICAL" -gt "0" ]; then
+              STATUS="🔴 NEEDS IMMEDIATE ATTENTION"
+              EMOJI="🔴"
+          else
+              STATUS="🟡 NEEDS ATTENTION"
+              EMOJI="🟡"
+          fi
+
+          # Calculate sitemap match
+          MISMATCH=$((HTML_COUNT - SITEMAP_COUNT))
+          if [ "$MISMATCH" -lt 0 ]; then
+              MISMATCH=$((-MISMATCH))
+          fi
+
+          cat > health_report.txt << EOF_REPORT
+          📊 Weekly Health Report — $DATE
+
+          Pages: $HTML_COUNT
+          Sitemap entries: $SITEMAP_COUNT (mismatch: $MISMATCH)
+          Validation errors: $CRITICAL critical, $WARNINGS warnings
+          SEO completeness: $COMPLETENESS%
+          Manual edits detected: $MANUAL_COUNT
+          SEO issues: $SEO_COUNT
+
+          Status: $STATUS
+          EOF_REPORT
+
+          cat health_report.txt
+
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "emoji=$EMOJI" >> $GITHUB_OUTPUT
+          echo "date=$DATE" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Issue if issues found
+        if: steps.validation.outputs.critical != '0' || steps.seo_check.outputs.seo_count != '0' || steps.manual_check.outputs.manual_count != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const date = '${{ steps.report.outputs.date }}';
+            const critical = '${{ steps.validation.outputs.critical }}';
+            const warnings = '${{ steps.validation.outputs.warnings }}';
+            const seo_count = '${{ steps.seo_check.outputs.seo_count }}';
+            const manual_count = '${{ steps.manual_check.outputs.manual_count }}';
+            const emoji = '${{ steps.report.outputs.emoji }}';
+
+            const total_issues = parseInt(critical) + parseInt(seo_count) + parseInt(manual_count);
+
+            const title = `${emoji} Weekly Health Check: ${total_issues} issues found — ${date}`;
+
+            const healthReport = fs.readFileSync('health_report.txt', 'utf8');
+            const validationOutput = fs.readFileSync('validation_output.txt', 'utf8');
+            const seoCheck = fs.readFileSync('seo_check.txt', 'utf8');
+            const manualCheck = fs.readFileSync('manual_check.txt', 'utf8');
+
+            const body = `## Weekly Health Check Report
+
+            ${healthReport}
+
+            ---
+
+            ### Validation Details
+
+            <details>
+            <summary>Full Validation Output</summary>
+
+            \`\`\`
+            ${validationOutput.substring(0, 40000)}
+            \`\`\`
+            </details>
+
+            <details>
+            <summary>SEO Regression Check</summary>
+
+            \`\`\`
+            ${seoCheck}
+            \`\`\`
+            </details>
+
+            <details>
+            <summary>Manual Edit Detection</summary>
+
+            \`\`\`
+            ${manualCheck}
+            \`\`\`
+            </details>
+
+            ---
+
+            ### Recommended Actions
+
+            ${critical !== '0' ? '🔴 **Critical issues require immediate attention**\n' : ''}
+            ${seo_count !== '0' ? '🟡 Fix SEO regressions (empty meta descriptions, invalid structured data)\n' : ''}
+            ${manual_count !== '0' ? '🟡 Review manually edited files - should they be in the generation pipeline?\n' : ''}
+
+            **This issue was automatically created by the weekly health check workflow.**
+            `;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['health-check', 'automated']
+            });
+
+      - name: Log successful health check
+        if: steps.validation.outputs.critical == '0' && steps.seo_check.outputs.seo_count == '0' && steps.manual_check.outputs.manual_count == '0'
+        run: |
+          echo "✅ Weekly health check passed - no issues found"
+          cat health_report.txt
