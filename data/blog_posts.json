@@ -8,7 +8,7 @@
       "author_title": "Health Coach",
       "date": "2026-02-07",
       "scheduled_date": "2026-02-07",
-      "published": false,
+      "published": true,
       "category": "health",
       "tags": [
         "thyroid",
@@ -21,7 +21,7 @@
       "related_posts": [],
       "sponsor_callout": null,
       "seo": {
-        "meta_description": "T3 dropping on carnivore freaks people out. But is it thyroid dysfunction or metabolic adaptation? The research tells a different story.",
+        "meta_description": "T3 dropping on carnivore freaks people out. But is it thyroid dysfunction or metabolic adaptation? The research tells a different story than the panic posts.",
         "keywords": [
           "thyroid",
           "hormones",
@@ -58,7 +58,7 @@
       "related_posts": [],
       "sponsor_callout": null,
       "seo": {
-        "meta_description": "First date. Nice restaurant. You order a ribeye and water. They order quinoa salad. The look on their face says everything. Here's how to handle it.",
+        "meta_description": "You are on a second date at a nice restaurant. You order steak, medium-rare, no sides. They order salad. Here is how to navigate dating while carnivore.",
         "keywords": [
           "dating",
           "relationships",
@@ -131,7 +131,7 @@
       "related_posts": [],
       "sponsor_callout": null,
       "seo": {
-        "meta_description": "Total cholesterol hit 280. Your doctor wants statins. But they're looking at the wrong numbers. Here's what lipid research actually says.",
+        "meta_description": "Total cholesterol hit 280 and your doctor wants you on statins immediately. But the numbers they focus on are wrong. Here is what lipid research says.",
         "keywords": [
           "cholesterol",
           "lipids",
@@ -204,7 +204,7 @@
       "related_posts": [],
       "sponsor_callout": null,
       "seo": {
-        "meta_description": "Everyone says you need carbs to build muscle. Six months on carnivore and you're hitting PRs. The protein leverage hypothesis explains why.",
+        "meta_description": "You have been told carbs equal strength your whole life. That is complete nonsense. Here is how protein leverage works and why carbs are optional for muscle.",
         "keywords": [
           "strength",
           "muscle",
@@ -241,7 +241,7 @@
       "related_posts": [],
       "sponsor_callout": null,
       "seo": {
-        "meta_description": "Rheumatoid arthritis, psoriasis, Hashimoto's remission stories on carnivore keep piling up. Is it the meat or the absence of everything else?",
+        "meta_description": "Three months in, your joint pain is gone. Your doctor says it is just coincidence. Here is why carnivore works for autoimmunity when nothing else did.",
         "keywords": [
           "autoimmune",
           "elimination-diet",
@@ -873,7 +873,7 @@
         "#first-week"
       ],
       "seo": {
-        "meta_description": "What really happens in your first 2 weeks on carnivore? We compiled Reddit data on weight loss (5-17 lbs), energy changes, and adaptation symptoms.",
+        "meta_description": "You've been carnivore for 2 weeks. Is this working? Should you feel amazing? I analyzed 200+ Reddit posts to see what actually happens in the first 14 days.",
         "keywords": [
           "carnivore 2 weeks",
           "carnivore results",
@@ -1095,7 +1095,7 @@
         "#omad"
       ],
       "seo": {
-        "meta_description": "Complete guide to fasting on carnivore: 16/8 intermittent fasting, 20/4 OMAD, extended fasts. When to start, how to implement, and critical cautions.",
+        "meta_description": "Fasting on carnivore is different. You're already in ketosis. Your insulin is already low. Here are the fasting protocols that actually work on carnivore.",
         "keywords": [
           "carnivore fasting",
           "omad carnivore",
@@ -1193,7 +1193,7 @@
         "#womens-health"
       ],
       "seo": {
-        "meta_description": "Evidence-based guide to carnivore diet effects on women's hormones: amenorrhea, fertility, HRT, menopause, hot flashes.",
+        "meta_description": "Your period stopped or became erratic or heavier than ever. You went carnivore to fix your health, and now your cycle is a mess. Here is what is happening.",
         "keywords": [
           "carnivore women",
           "carnivore hormones",
@@ -1338,7 +1338,7 @@
       "excerpt": "The carnivore creator landscape in 2026: Anthony Chaffee, Paul Saladino, Shawn Baker and emerging voices.",
       "wiki_links": [],
       "seo": {
-        "meta_description": "The carnivore creator landscape in 2026: Anthony Chaffee, Paul Saladino, Shawn Baker and emerging voices.",
+        "meta_description": "The carnivore YouTube space has evolved. Some channels grew massive. Some pivoted. Here's what the biggest names are teaching in 2026 and what matters.",
         "keywords": [
           "carnivore youtube",
           "anthony chaffee",
@@ -1412,7 +1412,7 @@
         "#basics"
       ],
       "seo": {
-        "meta_description": "Complete step-by-step guide for starting carnivore: what to eat in week one, how to handle the danger zone (days 3-5), electrolyte protocol, and tracking progress that matters.",
+        "meta_description": "You want to start carnivore but you are overwhelmed by conflicting advice online. Here is the beginner blueprint that works. No fluff. Just the system.",
         "keywords": [
           "carnivore diet beginners",
           "how to start carnivore",
@@ -1483,7 +1483,7 @@
         "#glucose"
       ],
       "seo": {
-        "meta_description": "Why your morning glucose might be high on carnivore and what it actually means about your metabolic health.",
+        "meta_description": "Your fasting glucose is 105 and your doctor says you are prediabetic. But you eat zero carbs. Here is what morning glucose actually means on carnivore.",
         "keywords": [
           "carnivore morning glucose",
           "insulin resistance carnivore",
