@@ -124,17 +124,52 @@ def generate_blog_index(env, posts):
 
 def update_sitemap(posts):
     """Update sitemap.xml with blog post URLs."""
-    published_posts = [p for p in posts if p.get("published", False)]
+    import re
 
-    # Read existing sitemap or create base
+    published_posts = [p for p in posts if p.get("published", False)]
     sitemap_file = PUBLIC_DIR / "sitemap.xml"
 
     if not sitemap_file.exists():
-        # Create basic sitemap if it doesn't exist
+        print("⚠️  sitemap.xml not found, skipping update")
         return
 
-    # For now, just note that sitemap should be updated
-    print(f"📋 Blog posts added to sitemap: {len(published_posts)} URLs")
+    # Read existing sitemap
+    with open(sitemap_file, 'r') as f:
+        sitemap_content = f.read()
+
+    # Remove all existing blog post entries
+    sitemap_content = re.sub(
+        r'    <url>\s*<loc>https://carnivoreweekly\.com/blog/[^<]+</loc>.*?</url>\s*',
+        '',
+        sitemap_content,
+        flags=re.DOTALL
+    )
+
+    # Generate new blog post entries
+    blog_entries = []
+    for post in published_posts:
+        slug = post.get('slug', '')
+        # Extract date from slug (YYYY-MM-DD)
+        date_match = re.match(r'(\d{4}-\d{2}-\d{2})', slug)
+        lastmod = date_match.group(1) if date_match else post.get('date', '')
+
+        entry = f'''    <url>
+        <loc>https://carnivoreweekly.com/blog/{slug}.html</loc>
+        <lastmod>{lastmod}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>'''
+        blog_entries.append(entry)
+
+    # Insert blog entries before closing </urlset> tag
+    blog_section = '\n'.join(blog_entries)
+    sitemap_content = sitemap_content.replace('</urlset>', f'{blog_section}\n</urlset>')
+
+    # Write updated sitemap
+    with open(sitemap_file, 'w') as f:
+        f.write(sitemap_content)
+
+    print(f"✅ Sitemap updated with {len(published_posts)} blog posts")
 
 def generate_rss_feed(env, posts):
     """Generate RSS feed XML file."""
