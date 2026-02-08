@@ -359,22 +359,61 @@ class ContentValidator:
 
         return True
 
-    def validate_and_fix(self, content: str, filename: str) -> Tuple[Optional[str], List[str]]:
+    def validate_blog_path(self, filename: str) -> str:
+        """
+        Validate and correct blog post output path.
+
+        Prevents writing to wrong directories like blog/blog/ or blog/
+        All blog posts should go to public/blog/
+
+        Returns: Corrected filename with proper path
+        """
+        # Normalize path
+        filepath = Path(filename)
+
+        # Extract just the filename (no directory)
+        just_filename = filepath.name
+
+        # Check if path contains blog directory patterns
+        path_str = str(filepath)
+
+        # Detect wrong patterns
+        if "blog/blog/" in path_str:
+            self.log("WARNING", filename, f"Wrong output directory detected: {path_str}")
+            self.log("WARNING", filename, f"Corrected to: public/blog/{just_filename}")
+            return f"public/blog/{just_filename}"
+
+        if path_str.startswith("blog/") and not path_str.startswith("public/blog/"):
+            self.log("WARNING", filename, f"Wrong output directory detected: {path_str}")
+            self.log("WARNING", filename, f"Corrected to: public/blog/{just_filename}")
+            return f"public/blog/{just_filename}"
+
+        # Path is correct - return as is
+        return filename
+
+    def validate_and_fix(self, content: str, filename: str) -> Tuple[Optional[str], List[str], str]:
         """
         Validates and auto-fixes HTML content.
 
         Returns:
-            (fixed_content, log_messages) if content is fixable
-            (None, log_messages) if content must be blocked
+            (fixed_content, log_messages, corrected_filename) if content is fixable
+            (None, log_messages, corrected_filename) if content must be blocked
+
+        Note: Always use the returned corrected_filename when writing the file
         """
         self.log_messages = []
 
+        # Stage 0: Validate output path (prevent blog/blog/ bug)
+        corrected_filename = self.validate_blog_path(filename)
+        if corrected_filename != filename:
+            filename = corrected_filename
+
         # Stage 1: Check blocking issues (template variables, JSON-LD)
         if not self.check_template_variables(content, filename):
-            return None, self.log_messages
+            return None, self.log_messages, corrected_filename
 
         if not self.validate_json_ld(content, filename):
-            return None, self.log_messages
+            return None, self.log_messages, corrected_filename
 
         # Stage 2: Auto-fix issues
         content = self.fix_h1_tags(content, filename)
@@ -392,7 +431,7 @@ class ContentValidator:
             blocks = len([m for m in self.log_messages if "[BLOCKED]" in m])
             self.log("SUMMARY", filename, f"{fixes} auto-fixes applied, {blocks} blocking issues")
 
-        return content, self.log_messages
+        return content, self.log_messages, corrected_filename
 
     def write_log(self):
         """Write log messages to file."""
@@ -436,9 +475,12 @@ class ContentValidator:
 
 
 # Convenience function for external use
-def validate_and_fix(content: str, filename: str) -> Tuple[Optional[str], List[str]]:
+def validate_and_fix(content: str, filename: str) -> Tuple[Optional[str], List[str], str]:
     """
     Validates and auto-fixes HTML content.
+
+    Returns:
+        (fixed_content, log_messages, corrected_filename)
 
     Returns:
         (fixed_content, log_messages) if content is fixable
