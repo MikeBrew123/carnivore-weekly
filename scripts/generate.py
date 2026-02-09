@@ -462,7 +462,8 @@ class UnifiedGenerator:
                             # Add wiki link if keyword provided and exists in map
                             wiki_kw = topic.get("wiki_keyword")
                             if wiki_kw and wiki_kw in wiki_keyword_map:
-                                anchor = wiki_keyword_map[wiki_kw].replace("wiki.html#", "")
+                                # Strip both /wiki/# and wiki.html# prefixes to get clean anchor
+                                anchor = wiki_keyword_map[wiki_kw].replace("/wiki/#", "").replace("wiki.html#", "")
                                 topic_obj["wiki_links"] = [
                                     {"anchor": anchor, "title": wiki_kw.title()}
                                 ]
@@ -563,7 +564,8 @@ class UnifiedGenerator:
                     for keyword, wiki_url in keyword_map.items():
                         # Check if keyword appears in topic name
                         if keyword in topic_lower or topic_lower in keyword:
-                            anchor = wiki_url.replace("wiki.html#", "")
+                            # Strip both /wiki/# and wiki.html# prefixes to get clean anchor
+                            anchor = wiki_url.replace("/wiki/#", "").replace("wiki.html#", "")
                             wiki_links.append({"anchor": anchor, "title": keyword.title()})
                             break  # Just need one match
 
