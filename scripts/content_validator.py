@@ -450,6 +450,43 @@ class ContentValidator:
 
         return content
 
+    def fix_doubled_paths(self, content: str, filename: str) -> str:
+        """
+        Auto-fix doubled paths in href attributes.
+
+        Common patterns:
+        - /wiki/#/wiki/# → /wiki/#
+        - /blog//blog/ → /blog/
+        - /css//css/ → /css/
+        """
+        import re
+
+        # Pattern 1: /wiki/#/wiki/# → /wiki/#
+        wiki_pattern = r'href="(/wiki/#)/wiki/#([^"]*)"'
+        wiki_matches = re.findall(wiki_pattern, content)
+        if wiki_matches:
+            content = re.sub(wiki_pattern, r'href="/wiki/#\2"', content)
+            for match in wiki_matches:
+                self.log("AUTO-FIX", filename, f"Fixed doubled wiki path: /wiki/#/wiki/#{match[1]} → /wiki/#{match[1]}")
+
+        # Pattern 2: /blog//blog/ → /blog/
+        blog_pattern = r'href="(/blog/)/blog/([^"]*)"'
+        blog_matches = re.findall(blog_pattern, content)
+        if blog_matches:
+            content = re.sub(blog_pattern, r'href="/blog/\2"', content)
+            for match in blog_matches:
+                self.log("AUTO-FIX", filename, f"Fixed doubled blog path: /blog//blog/{match[1]} → /blog/{match[1]}")
+
+        # Pattern 3: Double slashes in any path
+        double_slash_pattern = r'href="([^"]*?)//+([^"]*)"'
+        double_slash_matches = re.findall(double_slash_pattern, content)
+        if double_slash_matches:
+            content = re.sub(double_slash_pattern, r'href="\1/\2"', content)
+            for match in double_slash_matches:
+                self.log("AUTO-FIX", filename, f"Fixed double slash: {match[0]}//{match[1]} → {match[0]}/{match[1]}")
+
+        return content
+
     def check_internal_links(self, content: str, filename: str) -> None:
         """
         WARNING: Check if blog post has internal links.
@@ -539,6 +576,7 @@ class ContentValidator:
         content = self.fix_images(content, filename)
         content = self.fix_external_links(content, filename)
         content = self.fix_links_in_headings(content, filename)
+        content = self.fix_doubled_paths(content, filename)
         self.check_internal_links(content, filename)
 
         # Stage 3: Summary
