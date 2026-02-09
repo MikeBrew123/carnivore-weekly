@@ -112,11 +112,11 @@
     },
     {
       "id": "2026-02-10-cholesterol-truth",
-      "slug": "2026-02-10-cholesterol-truth",
+      "slug": "2026-02-08-cholesterol-truth",
       "title": "High Cholesterol on Carnivore: Why Your Doctor Is Wrong",
       "author": "sarah",
       "author_title": "Health Coach",
-      "date": "2026-02-10",
+      "date": "2026-02-08",
       "scheduled_date": "2026-02-10",
       "published": true,
       "category": "health",
@@ -185,11 +185,11 @@
     },
     {
       "id": "2026-02-12-strength-gains",
-      "slug": "2026-02-12-strength-gains",
+      "slug": "2026-02-08-strength-gains",
       "title": "Strength Gains Without Carbs: The Protein Leverage Reality",
       "author": "marcus",
       "author_title": "Performance Coach",
-      "date": "2026-02-12",
+      "date": "2026-02-08",
       "scheduled_date": "2026-02-12",
       "published": true,
       "category": "fitness",
@@ -222,11 +222,11 @@
     },
     {
       "id": "2026-02-13-autoimmune-remission",
-      "slug": "2026-02-13-autoimmune-remission",
+      "slug": "2026-02-08-autoimmune-remission",
       "title": "Autoimmune Remission on Carnivore: The Elimination Effect",
       "author": "sarah",
       "author_title": "Health Coach",
-      "date": "2026-02-13",
+      "date": "2026-02-08",
       "scheduled_date": "2026-02-13",
       "published": true,
       "category": "health",
@@ -2070,8 +2070,8 @@
     {
       "title": "Carnivore for Women Over 40: Hormone Reset or Hype?",
       "excerpt": "Perimenopause and menopause create unique challenges. Here's what actually happens when women 40+ go carnivore.",
-      "slug": "2026-02-15-women-over-40",
-      "date": "2026-02-15",
+      "slug": "2026-02-08-women-over-40",
+      "date": "2026-02-08",
       "category": "health",
       "tags": [
         "womens-health",
@@ -2092,8 +2092,8 @@
     {
       "title": "Carnivore Adaptation: Week-by-Week What to Expect",
       "excerpt": "The first 8 weeks are rocky. Here's exactly what happens each week so you don't panic and quit.",
-      "slug": "2026-02-15-adaptation-timeline",
-      "date": "2026-02-15",
+      "slug": "2026-02-08-adaptation-timeline",
+      "date": "2026-02-08",
       "category": "health",
       "tags": [
         "adaptation",
@@ -2114,8 +2114,8 @@
     {
       "title": "Carnivore Constipation: Why It Happens and How to Fix It",
       "excerpt": "Low-fiber carnivore shouldn't cause constipation, but it does for some people. Here's the real cause and solution.",
-      "slug": "2026-02-15-carnivore-constipation",
-      "date": "2026-02-15",
+      "slug": "2026-02-08-carnivore-constipation",
+      "date": "2026-02-08",
       "category": "health",
       "tags": [
         "digestion",
@@ -2136,8 +2136,8 @@
     {
       "title": "Carnivore Blood Work: What Your Doctor Gets Wrong",
       "excerpt": "Your cholesterol went up and your doctor freaked out. Here's how to interpret carnivore blood work correctly.",
-      "slug": "2026-02-15-bloodwork-guide",
-      "date": "2026-02-15",
+      "slug": "2026-02-08-bloodwork-guide",
+      "date": "2026-02-08",
       "category": "health",
       "tags": [
         "bloodwork",
@@ -2158,8 +2158,8 @@
     {
       "title": "Carnivore and Thyroid: Why TSH Goes Up (And Why It's Not a Problem)",
       "excerpt": "Your thyroid numbers changed on carnivore and your doctor is worried. Here's what's actually happening with your metabolism.",
-      "slug": "2026-02-15-thyroid-tsh",
-      "date": "2026-02-15",
+      "slug": "2026-02-08-thyroid-tsh",
+      "date": "2026-02-08",
       "category": "health",
       "tags": [
         "thyroid",
@@ -2180,8 +2180,8 @@
     {
       "title": "Why Carnivore YouTube Is Lying About Results (And What's Real)",
       "excerpt": "The before/after videos are misleading. Here's what actually happens in the first 90 days, backed by data.",
-      "slug": "2026-02-15-youtube-results-truth",
-      "date": "2026-02-15",
+      "slug": "2026-02-08-youtube-results-truth",
+      "date": "2026-02-08",
       "category": "lifestyle",
       "tags": [
         "youtube",
@@ -2202,8 +2202,8 @@
     {
       "title": "Carnivore Restaurant Survival Guide: How to Order Anywhere",
       "excerpt": "Eating out on carnivore doesn't mean you're stuck at steakhouses. Here's how to order at any restaurant.",
-      "slug": "2026-02-16-restaurant-survival-guide",
-      "date": "2026-02-16",
+      "slug": "2026-02-08-restaurant-survival-guide",
+      "date": "2026-02-08",
       "category": "lifestyle",
       "tags": [
         "restaurants",
@@ -2224,8 +2224,8 @@
     {
       "title": "The Carnivore Community Is Splitting: Purists vs Pragmatists",
       "excerpt": "Should you eat only beef and water, or is cheese okay? The community debate reveals deeper identity questions.",
-      "slug": "2026-02-17-purists-vs-pragmatists",
-      "date": "2026-02-17",
+      "slug": "2026-02-08-purists-vs-pragmatists",
+      "date": "2026-02-08",
       "category": "lifestyle",
       "tags": [
         "community",
@@ -2246,8 +2246,8 @@
     {
       "title": "Carnivore Family Dinner: How to Feed Kids Without Going Insane",
       "excerpt": "Your kids aren't giving up pizza. Here's how to do carnivore while the rest of the family eats normally.",
-      "slug": "2026-02-18-carnivore-family-dinner",
-      "date": "2026-02-18",
+      "slug": "2026-02-08-carnivore-family-dinner",
+      "date": "2026-02-08",
       "category": "lifestyle",
       "tags": [
         "family",
@@ -2268,8 +2268,8 @@
     {
       "title": "Reddit's Favorite Carnivore Hacks: What Actually Works",
       "excerpt": "The carnivore community swears by these tricks. We tested the top 10 to see which ones are legit.",
-      "slug": "2026-02-19-reddit-hacks-tested",
-      "date": "2026-02-19",
+      "slug": "2026-02-08-reddit-hacks-tested",
+      "date": "2026-02-08",
       "category": "lifestyle",
       "tags": [
         "reddit",
