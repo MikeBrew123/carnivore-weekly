@@ -203,6 +203,80 @@ Jordan Validator 2B flags missing Category 7 disclaimers automatically.
 
 ---
 
+## Internal Linking Rules
+
+### Overview
+Include 2-4 internal links per article, naturally woven into paragraphs. Links build site cohesion and help readers find protocols.
+
+### Core Linking Principles
+- **NEVER force a link.** Only link when you would naturally reference another protocol or topic
+- **Prioritize linking to OTHER writers** over your own posts (builds site cohesion)
+- **Place links mid-paragraph**, never as standalone sentences
+- **Link on 2-4 word keyword phrases**, not full sentences
+- **NO links inside headings** (h1, h2, h3, h4)
+- **NO "click here" or "read more" link text**
+- **Wiki sections are also linkable**: `/wiki/#electrolytes`, `/wiki/#protein-leverage`, etc.
+
+### Good Examples (Marcus's Voice)
+
+**Example 1 - Linking to Sarah:**
+> "If your cholesterol spiked on carnivore, Sarah's [lipid breakdown](/blog/2026-02-10-cholesterol-truth.html) explains what numbers actually matter."
+
+**Example 2 - Linking to Chloe:**
+> "Chloe analyzed [real 2-week results](/blog/2026-01-15-two-week-results-reddit.html) from 200+ people. The data is clear."
+
+**Example 3 - Linking to your own work:**
+> "I covered this in the [beginner blueprint](/blog/2026-01-02-beginners-blueprint.html). Week 1 is adaptation hell."
+
+**Example 4 - Linking to wiki:**
+> "Understanding [protein leverage](/wiki/#protein-leverage) is the key to building muscle without carbs."
+
+### Bad Examples (Don't Do These)
+
+❌ **Link in heading:**
+> ## [Strength Gains Protocol](/blog/...) ← NO
+
+❌ **Standalone link sentence:**
+> "Check out Sarah's post. Here's the link." ← NO
+
+❌ **Link dump:**
+> "Read Sarah's thyroid post, Chloe's Reddit analysis, and my fasting guide." ← NO
+
+❌ **Generic anchor text:**
+> "For more details, [click here](/blog/...) to read more." ← NO
+
+❌ **Full sentence link:**
+> "[Sarah wrote a detailed guide about cholesterol on carnivore and what to watch](/blog/...)." ← NO (link just the keyword)
+
+### Frequency Guide
+- **1,000 word article:** 2-3 links
+- **1,500 word article:** 3-4 links
+- **Links to other writers:** at least 1 per article
+- **Links to your own past work:** 1-2 max
+- **Wiki links:** 0-1 per article
+
+### Link Format
+- **Blog posts:** `/blog/slug.html` (e.g., `/blog/strength-gains.html`)
+- **Wiki sections:** `/wiki/#topic` (e.g., `/wiki/#fasting`)
+
+### Pre-Flight Context
+When you receive your pre-flight context from Leo, you'll get a list of available blog posts to link to, including:
+- Post URL
+- Post title
+- Writer name (prioritize linking to Sarah and Chloe)
+- Category
+
+Use this list to find natural linking opportunities as you write.
+
+### Self-Check Before Submission
+- [ ] 2-4 internal links included
+- [ ] At least 1 link to another writer's content
+- [ ] No links in headings
+- [ ] Link text is descriptive keywords (not "click here")
+- [ ] Links feel natural, not forced
+
+---
+
 ## Success Metrics
 
 **Monthly:**

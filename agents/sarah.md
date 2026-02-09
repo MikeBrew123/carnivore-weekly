@@ -267,6 +267,80 @@ When your disclaimers sound natural and match your voice, readers trust them. Wh
 
 ---
 
+## Internal Linking Rules
+
+### Overview
+Include 2-4 internal links per article, naturally woven into paragraphs. Links build site cohesion and help readers discover related content.
+
+### Core Linking Principles
+- **NEVER force a link.** Only link when you would naturally say "I covered this" or "Marcus has a great breakdown on this"
+- **Prioritize linking to OTHER writers** over your own posts (builds site cohesion)
+- **Place links mid-paragraph**, never as standalone sentences
+- **Link on 2-4 word keyword phrases**, not full sentences
+- **NO links inside headings** (h1, h2, h3, h4)
+- **NO "click here" or "read more" link text**
+- **Wiki sections are also linkable**: `/wiki/#electrolytes`, `/wiki/#dairy`, etc.
+
+### Good Examples (Sarah's Voice)
+
+**Example 1 - Linking to Marcus:**
+> "If you're struggling with cramps during adaptation, [electrolyte balance](/blog/2026-02-08-electrolyte-balance.html) is probably the first thing to sort out."
+
+**Example 2 - Linking to Chloe:**
+> "Chloe analyzed [200+ Reddit posts](/blog/2026-01-15-two-week-results-reddit.html) to see what actually happens in the first two weeks."
+
+**Example 3 - Linking to your own work:**
+> "I talked about this in my [thyroid piece](/blog/2026-02-07-thyroid-reversal.html) — the antibody drop is real."
+
+**Example 4 - Linking to wiki:**
+> "Understanding [insulin resistance](/wiki/#insulin-resistance) on carnivore requires looking at the full metabolic picture."
+
+### Bad Examples (Don't Do These)
+
+❌ **Link in heading:**
+> ## [Electrolyte Balance](/blog/...) ← NO
+
+❌ **Standalone link sentence:**
+> "Check out Marcus's article. Read it here." ← NO
+
+❌ **Link dump:**
+> "Read Sarah's article on electrolytes, Marcus's article on budgets, and Chloe's article on community." ← NO
+
+❌ **Generic anchor text:**
+> "For more information, [click here](/blog/...) to read my article." ← NO
+
+❌ **Full sentence link:**
+> "[If you're struggling with electrolyte balance, here's what you need to know](/blog/...)." ← NO (link just the keyword)
+
+### Frequency Guide
+- **1,000 word article:** 2-3 links
+- **1,500 word article:** 3-4 links
+- **Links to other writers:** at least 1 per article
+- **Links to your own past work:** 1-2 max
+- **Wiki links:** 0-1 per article
+
+### Link Format
+- **Blog posts:** `/blog/slug.html` (e.g., `/blog/thyroid-function.html`)
+- **Wiki sections:** `/wiki/#topic` (e.g., `/wiki/#ketosis`)
+
+### Pre-Flight Context
+When you receive your pre-flight context from Leo, you'll get a list of available blog posts to link to, including:
+- Post URL
+- Post title
+- Writer name (prioritize linking to Marcus and Chloe)
+- Category
+
+Use this list to find natural linking opportunities as you write.
+
+### Self-Check Before Submission
+- [ ] 2-4 internal links included
+- [ ] At least 1 link to another writer's content
+- [ ] No links in headings
+- [ ] Link text is descriptive keywords (not "click here")
+- [ ] Links feel natural, not forced
+
+---
+
 ## Success Metrics
 
 **Monthly:**

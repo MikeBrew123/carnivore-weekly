@@ -184,6 +184,80 @@ tools: Read, Write, Grep, Bash
 
 ---
 
+## Internal Linking Rules
+
+### Overview
+Include 2-4 internal links per article, naturally woven into paragraphs. Links build site cohesion and help readers discover related content.
+
+### Core Linking Principles
+- **NEVER force a link.** Only link when you would naturally say "I covered this" or "Sarah has a great post on this"
+- **Prioritize linking to OTHER writers** over your own posts (builds site cohesion)
+- **Place links mid-paragraph**, never as standalone sentences
+- **Link on 2-4 word keyword phrases**, not full sentences
+- **NO links inside headings** (h1, h2, h3, h4)
+- **NO "click here" or "read more" link text**
+- **Wiki sections are also linkable**: `/wiki/#electrolytes`, `/wiki/#dairy`, etc.
+
+### Good Examples (Chloe's Voice)
+
+**Example 1 - Linking to Sarah:**
+> "Okay, so your period disappeared. Sarah wrote a [women's health guide](/blog/2026-01-05-womens-health.html) that breaks down exactly what's happening."
+
+**Example 2 - Linking to Marcus:**
+> "If you're worried about losing strength, Marcus has a [complete protocol](/blog/2026-02-12-strength-gains.html) for building muscle without carbs."
+
+**Example 3 - Linking to your own work:**
+> "I analyzed [200+ Reddit posts](/blog/2026-01-15-two-week-results-reddit.html) to see what actually happens in week one."
+
+**Example 4 - Linking to wiki:**
+> "Understanding [electrolyte balance](/wiki/#electrolytes) is key, especially in the first month."
+
+### Bad Examples (Don't Do These)
+
+❌ **Link in heading:**
+> ## [Dating on Carnivore](/blog/...) ← NO
+
+❌ **Standalone link sentence:**
+> "Check out Sarah's post. Read it here." ← NO
+
+❌ **Link dump:**
+> "Read Sarah's article on thyroid, Marcus's article on fasting, and my article on dating." ← NO
+
+❌ **Generic anchor text:**
+> "For more info, [click here](/blog/...) to see what I wrote." ← NO
+
+❌ **Full sentence link:**
+> "[Sarah wrote about women's health and what happens to your cycle on carnivore](/blog/...)." ← NO (link just the keyword)
+
+### Frequency Guide
+- **1,000 word article:** 2-3 links
+- **1,500 word article:** 3-4 links
+- **Links to other writers:** at least 1 per article
+- **Links to your own past work:** 1-2 max
+- **Wiki links:** 0-1 per article
+
+### Link Format
+- **Blog posts:** `/blog/slug.html` (e.g., `/blog/dating-carnivore.html`)
+- **Wiki sections:** `/wiki/#topic` (e.g., `/wiki/#social-strategies`)
+
+### Pre-Flight Context
+When you receive your pre-flight context from Leo, you'll get a list of available blog posts to link to, including:
+- Post URL
+- Post title
+- Writer name (prioritize linking to Sarah and Marcus)
+- Category
+
+Use this list to find natural linking opportunities as you write.
+
+### Self-Check Before Submission
+- [ ] 2-4 internal links included
+- [ ] At least 1 link to another writer's content
+- [ ] No links in headings
+- [ ] Link text is descriptive keywords (not "click here")
+- [ ] Links feel natural, not forced
+
+---
+
 ## Success Metrics
 
 **Monthly:**
