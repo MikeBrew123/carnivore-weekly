@@ -162,11 +162,12 @@ def sync_blog_posts():
                     "content": content if content else "",  # Empty string for NOT NULL constraint
                 }
 
-                client.table("blog_posts").insert(insert_data).execute()
+                # Use upsert to handle duplicates gracefully
+                client.table("blog_posts").upsert(insert_data, on_conflict="slug").execute()
                 print(f"  ✓ Inserted: {title[:50]}...")
                 inserted_count += 1
             except Exception as e:
-                print(f"  ❌ Error inserting {title[:50]}: {e}")
+                print(f"  ❌ Error upserting {title[:50]}: {e}")
                 error_count += 1
 
     # Summary
@@ -182,9 +183,10 @@ def sync_blog_posts():
 
     if error_count > 0:
         print("⚠️  Some errors occurred during sync. Check output above.")
-        return False
+        print("   (Non-fatal - continuing with weekly automation)")
 
-    return True
+    # Always return True unless ALL operations failed
+    return (inserted_count + updated_count + skipped_count) > 0
 
 
 if __name__ == "__main__":
