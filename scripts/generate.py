@@ -1391,6 +1391,25 @@ class UnifiedGenerator:
             channel_name = video.get("channel_name", "Unknown")
             channel_id = video.get("channel_id", "")
 
+            # Skip non-English channels and Plant Based News
+            excluded_channels = ["PLANT BASED NEWS", "Abellybely", "しえいく"]
+            if channel_name in excluded_channels:
+                continue
+
+            # Check if channel name is likely English (same filter as YouTube collector)
+            non_latin_count = 0
+            total_chars = 0
+            for char in channel_name:
+                if char.isspace() or char.isdigit() or not char.isalnum():
+                    continue
+                total_chars += 1
+                if ord(char) > 0x024F:  # Non-Latin characters
+                    non_latin_count += 1
+
+            if total_chars > 0 and (non_latin_count / total_chars) >= 0.2:
+                # Skip channels with >20% non-Latin characters
+                continue
+
             if channel_name not in channels_dict:
                 channels_dict[channel_name] = {
                     "name": channel_name,
