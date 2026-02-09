@@ -422,6 +422,56 @@ class ContentValidator:
 
         return True
 
+    def fix_links_in_headings(self, content: str, filename: str) -> str:
+        """
+        CRITICAL: Remove links from headings (h1-h4).
+        Links in headings break SEO and accessibility.
+        """
+        import re
+
+        heading_pattern = r'<(h[1-4])([^>]*)>(.*?)</\1>'
+
+        def remove_link_from_heading(match):
+            tag = match.group(1)
+            attrs = match.group(2)
+            inner_content = match.group(3)
+
+            # Check if heading contains a link
+            if '<a' in inner_content:
+                # Extract just the text from the link
+                link_text = re.sub(r'<a[^>]*>(.*?)</a>', r'\1', inner_content)
+                if link_text != inner_content:
+                    self.log("AUTO-FIX", filename, f"Removed link from <{tag}> heading, kept text")
+                return f'<{tag}{attrs}>{link_text}</{tag}>'
+
+            return match.group(0)
+
+        content = re.sub(heading_pattern, remove_link_from_heading, content, flags=re.DOTALL)
+
+        return content
+
+    def check_internal_links(self, content: str, filename: str) -> None:
+        """
+        WARNING: Check if blog post has internal links.
+        Not blocking, but logs a warning if zero internal links found.
+        """
+        import re
+
+        # Skip non-blog files
+        if '/blog/' not in filename:
+            return
+
+        # Count internal blog links
+        internal_links = re.findall(r'href="/blog/[^"]+\.html"', content)
+        wiki_links = re.findall(r'href="/wiki/#[^"]+"', content)
+
+        total_internal = len(internal_links) + len(wiki_links)
+
+        if total_internal == 0:
+            self.log("WARNING", filename, "No internal links — consider adding 2-3 links to related content")
+        elif total_internal < 2:
+            self.log("WARNING", filename, f"Only {total_internal} internal link — consider adding 1-2 more")
+
     def validate_blog_path(self, filename: str) -> str:
         """
         Validate and correct blog post output path.
@@ -488,6 +538,8 @@ class ContentValidator:
         content = self.fix_heading_hierarchy(content, filename)
         content = self.fix_images(content, filename)
         content = self.fix_external_links(content, filename)
+        content = self.fix_links_in_headings(content, filename)
+        self.check_internal_links(content, filename)
 
         # Stage 3: Summary
         if not self.log_messages:

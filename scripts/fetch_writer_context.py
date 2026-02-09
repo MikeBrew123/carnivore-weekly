@@ -60,7 +60,9 @@ def fetch_writer_context(writer_slug):
                     published_slugs.append({
                         "slug": post.get("slug", ""),
                         "title": post.get("title", ""),
-                        "category": post.get("category", "")
+                        "author": post.get("author", "unknown"),
+                        "category": post.get("category", ""),
+                        "url": f"/blog/{post.get('slug', '')}.html"
                     })
 
     # Format the context
@@ -200,10 +202,11 @@ You are **{writer['name']}**, {writer['role_title']} at Carnivore Weekly.
     # Add list of published slugs for easy linking
     prompt += "**AVAILABLE BLOG POSTS TO LINK TO:**\n\n"
     for slug_info in context.get('published_slugs', [])[:20]:
-        slug = slug_info.get('slug', '')
-        title = slug_info.get('title', '')[:50]
+        url = slug_info.get('url', '')
+        title = slug_info.get('title', '')[:60]
+        author = slug_info.get('author', '').title()
         category = slug_info.get('category', '')
-        prompt += f"- `/blog/{slug}.html` - {title} ({category})\n"
+        prompt += f"- {url} - {title} (by {author}, {category})\n"
     prompt += "\n"
 
     prompt += "\n" + "="*80 + "\n\n"
