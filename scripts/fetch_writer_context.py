@@ -182,25 +182,26 @@ You are **{writer['name']}**, {writer['role_title']} at Carnivore Weekly.
     # Add internal linking rules
     prompt += f"\n\n# INTERNAL LINKING RULES (CRITICAL)\n\n"
     prompt += "**You MUST include 2-5 internal links in every article:**\n\n"
+    prompt += "**CRITICAL RULE: ONLY link to URLs from the 'AVAILABLE BLOG POSTS' list below.**\n"
+    prompt += "**NEVER make up or guess a blog post URL. If it's not in the list, don't link to it.**\n\n"
     prompt += "**DO:**\n"
     prompt += "- Link to OTHER writers' articles (prioritize cross-writer references)\n"
-    prompt += "- Link on relevant keywords (e.g., \"[electrolyte balance](/blog/electrolyte-balance.html)\")\n"
-    prompt += "- Link to wiki sections (e.g., \"[insulin resistance](/wiki/#insulin-resistance)\")\n"
+    prompt += "- Use EXACT URLs from the AVAILABLE BLOG POSTS list below\n"
+    prompt += "- Link on relevant keywords (2-4 words max)\n"
     prompt += "- Place links in body paragraphs, NOT in headings\n"
     prompt += "- Use descriptive anchor text (the keyword itself)\n\n"
     prompt += "**DON'T:**\n"
+    prompt += "- Make up blog post URLs or guess at slugs\n"
     prompt += "- Put links inside <h1>, <h2>, <h3>, or <h4> tags\n"
     prompt += "- Use \"click here\" or \"read more\" as anchor text\n"
     prompt += "- Link full sentences (link just the keyword)\n"
     prompt += "- Link to external sites (internal only)\n\n"
-    prompt += "**Link format:**\n"
-    prompt += "- Blog posts: `/blog/slug.html` (e.g., `/blog/thyroid-function.html`)\n"
-    prompt += "- Wiki sections: `/wiki/#topic` (e.g., `/wiki/#ketosis`)\n\n"
-    prompt += "**Example:**\n"
-    prompt += "\"Understanding [thyroid function](/blog/thyroid-function.html) on carnivore requires...\"\n\n"
+    prompt += "**Example (using an actual URL from the list below):**\n"
+    prompt += "If linking to a post about thyroid, find it in AVAILABLE BLOG POSTS, then:\n"
+    prompt += "\"Understanding [thyroid function](/blog/2026-02-07-thyroid-reversal.html) on carnivore requires...\"\n\n"
 
     # Add list of published slugs for easy linking
-    prompt += "**AVAILABLE BLOG POSTS TO LINK TO:**\n\n"
+    prompt += "**AVAILABLE BLOG POSTS TO LINK TO (use these EXACT URLs):**\n\n"
     for slug_info in context.get('published_slugs', [])[:20]:
         url = slug_info.get('url', '')
         title = slug_info.get('title', '')[:60]
