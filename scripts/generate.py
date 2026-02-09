@@ -184,11 +184,21 @@ class UnifiedGenerator:
         blog_posts = []
         for post in posts:
             if post.get("is_published"):
+                # Map author slugs to display names
+                author_slug = post.get("author", "")
+                author_names = {
+                    "sarah": "Sarah",
+                    "chloe": "Chloe",
+                    "marcus": "Marcus",
+                    "casey": "Casey",
+                }
+                author_display = author_names.get(author_slug, author_slug.title())
+
                 blog_posts.append(
                     {
                         "slug": post.get("slug"),
                         "title": post.get("title"),
-                        "author": writer_map.get(post.get("author_id"), {}).get("name", "Unknown"),
+                        "author": author_display,
                         "date": post.get("published_date"),
                         "excerpt": post.get("excerpt"),
                         "category": post.get("category"),
@@ -796,8 +806,9 @@ class UnifiedGenerator:
         newest_blog_posts = []
         popular_blog_posts = []
 
-        # Try to fetch from Supabase first (includes real popularity data)
-        if self.supabase:
+        # TODO: Fix Supabase schema mismatch (author_id is UUID but writers.id is INT)
+        # Temporarily use JSON fallback which has correct author field
+        if False and self.supabase:
             try:
                 # Fetch 5 newest published posts from last 7 days
                 from datetime import datetime, timedelta
@@ -903,6 +914,17 @@ class UnifiedGenerator:
                     newest_slugs = {p["slug"] for p in newest_blog_posts}
                     remaining = [p for p in published_posts if p["slug"] not in newest_slugs]
                     popular_blog_posts = sorted(remaining, key=lambda p: p.get("date", ""))[:3]
+
+                    # Map author slugs to display names
+                    author_map = {
+                        "sarah": "Sarah",
+                        "chloe": "Chloe",
+                        "marcus": "Marcus",
+                        "casey": "Casey",
+                    }
+                    for post in newest_blog_posts + popular_blog_posts:
+                        author_slug = post.get("author", "")
+                        post["author"] = author_map.get(author_slug, author_slug.title())
 
                     print(
                         f"  ✓ Loaded {len(newest_blog_posts)} newest + "

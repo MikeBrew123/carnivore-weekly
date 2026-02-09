@@ -71,7 +71,7 @@ def sync_blog_posts():
 
     # Get all existing posts from Supabase
     try:
-        response = client.table("blog_posts").select("id, slug, title, published_date").execute()
+        response = client.table("blog_posts").select("id, slug, title, published_date, author_id").execute()
         supabase_posts_by_title = {post["title"]: post for post in response.data}
         supabase_posts_by_slug = {post["slug"]: post for post in response.data}
     except Exception as e:
@@ -115,18 +115,32 @@ def sync_blog_posts():
         )
 
         if existing_post:
-            # Update if slug or date changed
+            # Map author slug to author_id
+            author_slug = json_post.get("author", "")
+            author_map = {"sarah": 1, "marcus": 2, "chloe": 3, "casey": 4}
+            correct_author_id = author_map.get(author_slug)
+
+            # Update if slug, date, or author_id changed
             current_slug = existing_post["slug"]
             current_date = existing_post["published_date"]
+            current_author_id = existing_post.get("author_id")
 
-            if current_slug != correct_slug or current_date != published_date:
+            if (current_slug != correct_slug or
+                current_date != published_date or
+                current_author_id != correct_author_id):
                 try:
-                    client.table("blog_posts").update(
-                        {"slug": correct_slug, "published_date": published_date}
-                    ).eq("id", existing_post["id"]).execute()
+                    update_data = {
+                        "slug": correct_slug,
+                        "published_date": published_date,
+                    }
+                    if correct_author_id:
+                        update_data["author_id"] = correct_author_id
+
+                    client.table("blog_posts").update(update_data).eq("id", existing_post["id"]).execute()
 
                     print(f"  ✓ Updated: {title[:50]}...")
-                    print(f"    {current_slug} → {correct_slug}")
+                    if current_author_id != correct_author_id:
+                        print(f"    author_id: {current_author_id} → {correct_author_id}")
                     updated_count += 1
                 except Exception as e:
                     print(f"  ❌ Error updating {title[:50]}: {e}")
@@ -150,6 +164,11 @@ def sync_blog_posts():
                     print(f"  ⚠️  WARNING: {title[:50]}... has empty content - forcing is_published=False")
                     is_published = False
 
+                # Map author slug to author_id
+                author_slug = json_post.get("author", "")
+                author_map = {"sarah": 1, "marcus": 2, "chloe": 3, "casey": 4}
+                author_id = author_map.get(author_slug)
+
                 # Prepare minimal insert data
                 insert_data = {
                     "slug": correct_slug,
@@ -161,6 +180,10 @@ def sync_blog_posts():
                     "is_published": is_published,
                     "content": content if content else "",  # Empty string for NOT NULL constraint
                 }
+
+                # Add author_id if valid
+                if author_id:
+                    insert_data["author_id"] = author_id
 
                 # Use upsert to handle duplicates gracefully
                 client.table("blog_posts").upsert(insert_data, on_conflict="slug").execute()
