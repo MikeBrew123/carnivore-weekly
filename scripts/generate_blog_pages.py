@@ -49,6 +49,9 @@ def markdown_to_html(markdown_text):
 
     html = markdown_text
 
+    # Links FIRST (before other conversions): [text](url) → <a href="url">text</a>
+    html = re.sub(r'\[([^\]]+)\]\(([^\)]+)\)', r'<a href="\2">\1</a>', html)
+
     # Headers (## Header → <h2>Header</h2>)
     html = re.sub(r'^### (.+)$', r'<h3>\1</h3>', html, flags=re.MULTILINE)
     html = re.sub(r'^## (.+)$', r'<h2>\1</h2>', html, flags=re.MULTILINE)
