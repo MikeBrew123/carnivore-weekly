@@ -39,6 +39,74 @@ def load_blog_posts():
 
     return data.get("blog_posts", [])
 
+def markdown_to_html(markdown_text):
+    """
+    Convert markdown to HTML.
+    Handles common markdown syntax without external dependencies.
+    """
+    if not markdown_text:
+        return ""
+
+    html = markdown_text
+
+    # Headers (## Header → <h2>Header</h2>)
+    html = re.sub(r'^### (.+)$', r'<h3>\1</h3>', html, flags=re.MULTILINE)
+    html = re.sub(r'^## (.+)$', r'<h2>\1</h2>', html, flags=re.MULTILINE)
+    html = re.sub(r'^# (.+)$', r'<h1>\1</h1>', html, flags=re.MULTILINE)
+
+    # Bold (**text** → <strong>text</strong>)
+    html = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', html)
+
+    # Italic (*text* → <em>text</em>)
+    html = re.sub(r'(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)', r'<em>\1</em>', html)
+
+    # Unordered lists (- item → <li>item</li>, wrapped in <ul>)
+    # First, find blocks of list items
+    lines = html.split('\n')
+    in_list = False
+    result_lines = []
+
+    for line in lines:
+        if line.strip().startswith('- '):
+            if not in_list:
+                result_lines.append('<ul>')
+                in_list = True
+            # Remove the leading dash and wrap in <li>
+            item_text = line.strip()[2:]
+            result_lines.append(f'<li>{item_text}</li>')
+        else:
+            if in_list:
+                result_lines.append('</ul>')
+                in_list = False
+            result_lines.append(line)
+
+    if in_list:
+        result_lines.append('</ul>')
+
+    html = '\n'.join(result_lines)
+
+    # Paragraphs (wrap non-tag lines in <p>)
+    lines = html.split('\n')
+    result_lines = []
+
+    for line in lines:
+        stripped = line.strip()
+        # Skip empty lines or lines that are already HTML tags
+        if not stripped:
+            result_lines.append('')
+        elif stripped.startswith('<') and stripped.endswith('>'):
+            result_lines.append(line)
+        elif stripped.startswith('<h') or stripped.startswith('<ul') or stripped.startswith('</ul') or stripped.startswith('<li'):
+            result_lines.append(line)
+        else:
+            # Wrap in paragraph if not already wrapped
+            if not line.strip().startswith('<p>'):
+                result_lines.append(f'<p>{line.strip()}</p>')
+            else:
+                result_lines.append(line)
+
+    return '\n'.join(result_lines)
+
 def setup_jinja():
     """Set up Jinja2 environment."""
     env = Environment(
@@ -77,6 +145,12 @@ def generate_blog_posts(env, posts, validator=None):
             print(f"⚠️  SKIPPED: {post['title'][:60]} - empty content (slug: {slug})")
             print(f"   This post is marked published but has no content. Set published: false in blog_posts.json")
             continue
+
+        # Convert markdown to HTML if content contains markdown syntax
+        # Check for common markdown patterns: ##, **, -
+        if '##' in content or '**' in content or re.search(r'^\s*-\s', content, re.MULTILINE):
+            print(f"   🔄 Converting markdown to HTML: {post['title'][:50]}...")
+            content = markdown_to_html(content)
 
         # Convert H1 tags to H2 in content (prevent multiple H1s per page)
         content = re.sub(r'<h1([^>]*)>', r'<h2\1>', content)
