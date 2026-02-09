@@ -135,6 +135,51 @@ def is_less_than_24_hours_old(timestamp_str: str) -> bool:
         return False
 
 
+def is_likely_english(text: str) -> bool:
+    """
+    Check if text is likely English by detecting non-Latin characters.
+
+    Filters out videos with titles containing:
+    - Japanese (Hiragana, Katakana, Kanji)
+    - Chinese (Hanzi)
+    - Korean (Hangul)
+    - Arabic, Thai, Devanagari, etc.
+
+    Args:
+        text: Video title or description to check
+
+    Returns:
+        True if text appears to be English (Latin characters), False otherwise
+    """
+    if not text:
+        return True  # Empty text is fine
+
+    # Count non-Latin characters
+    non_latin_count = 0
+    total_chars = 0
+
+    for char in text:
+        # Skip spaces, numbers, and punctuation
+        if char.isspace() or char.isdigit() or not char.isalnum():
+            continue
+
+        total_chars += 1
+
+        # Check if character is outside Latin character range
+        # Latin: Basic Latin (0000-007F) + Latin-1 Supplement (0080-00FF) +
+        #        Latin Extended-A (0100-017F) + Latin Extended-B (0180-024F)
+        if ord(char) > 0x024F:
+            non_latin_count += 1
+
+    # If we have no alphanumeric characters, assume English
+    if total_chars == 0:
+        return True
+
+    # If more than 20% of characters are non-Latin, reject as non-English
+    non_latin_ratio = non_latin_count / total_chars
+    return non_latin_ratio < 0.2
+
+
 # ============================================================================
 # MAIN COLLECTOR CLASS
 # ============================================================================
@@ -787,6 +832,13 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
 
                 filtered_videos = []
                 for video in creator.get("videos", []):
+                    # Filter out non-English videos first
+                    title = video.get("title", "")
+                    if not is_likely_english(title):
+                        total_filtered += 1
+                        print(f"   ✗ Filtered (non-English): {title[:50]}...")
+                        continue
+
                     # Check if video already has a score
                     if "relevance_score" not in video or video.get("relevance_score") == "N/A":
                         # Score it with Claude
@@ -832,10 +884,16 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             print(f"\n🔍 Query: '{query}'")
             query_videos = self.search_videos(query, max_results=30)
 
-            # Deduplicate
+            # Deduplicate and filter non-English videos
             for video in query_videos:
                 video_id = video.get("video_id")
                 if video_id not in seen_video_ids:
+                    # Filter out non-English videos by title
+                    title = video.get("title", "")
+                    if not is_likely_english(title):
+                        print(f"   ✗ Skipped non-English: {title[:60]}...")
+                        continue
+
                     all_videos.append(video)
                     seen_video_ids.add(video_id)
 
@@ -894,6 +952,12 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             # For each video, score relevance and get comments
             scored_videos = []
             for video in videos:
+                # Filter out non-English videos first (before scoring with Claude)
+                title = video.get("title", "")
+                if not is_likely_english(title):
+                    print(f"      ✗ Skipped (non-English): {title[:45]}...")
+                    continue
+
                 # Score this video's relevance
                 score, reason = self.score_video_relevance(
                     video.get("title", ""), video.get("description", "")
