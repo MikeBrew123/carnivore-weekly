@@ -49,7 +49,12 @@
       "@type": "WebSite",
       "name": "Carnivore Weekly",
       "url": "https://carnivoreweekly.com/",
-      "description": "Your weekly carnivore intelligence. Curated science, creator insights, and practical protocols delivered every week."
+      "description": "Your weekly carnivore intelligence. Curated science, creator insights, and practical protocols delivered every week.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://carnivoreweekly.com/wiki/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     }
     </script>
     <script type="application/ld+json">
@@ -58,8 +63,29 @@
       "@type": "Organization",
       "name": "Carnivore Weekly",
       "url": "https://carnivoreweekly.com/",
-      "logo": "https://carnivoreweekly.com/images/logo.png",
-      "description": "Evidence-based carnivore diet resources including research summaries, calculators, and weekly content curation."
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://carnivoreweekly.com/images/logo.png"
+      },
+      "description": "Evidence-based carnivore diet resources including research summaries, macro calculators, and weekly content curation for the meat-based community.",
+      "sameAs": [
+        "https://carnivoreweekly.com"
+      ],
+      "knowsAbout": [
+        "Carnivore diet",
+        "Animal-based nutrition",
+        "Ketogenic diet",
+        "Macro calculation",
+        "Meat-based meal planning",
+        "Electrolyte supplementation"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "name": "Free Carnivore Macro Calculator",
+        "url": "https://carnivoreweekly.com/calculator.html",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
     }
     </script>
 

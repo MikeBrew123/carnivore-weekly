@@ -2,8 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://carnivoreweekly.com/</loc>
-        <lastmod>2026-02-08</lastmod>
-        <changefreq>monthly</changefreq>
+        <lastmod>2026-02-09</lastmod>
+        <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
@@ -360,4 +360,29 @@
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
-<url><loc>https://carnivoreweekly.com/blog/medical-establishment-backlash.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/beginners-complete-blueprint-30-days-carnivore.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/coffee-on-carnivore-practical-answer.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/real-2-week-results-carnivore.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/organ-meats-for-skeptics.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/carnivore-didnt-fix-everything-content.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url></urlset>
+<url><loc>https://carnivoreweekly.com/blog/medical-establishment-backlash.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/beginners-complete-blueprint-30-days-carnivore.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/coffee-on-carnivore-practical-answer.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/real-2-week-results-carnivore.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/organ-meats-for-skeptics.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url><url><loc>https://carnivoreweekly.com/blog/carnivore-didnt-fix-everything-content.html</loc><lastmod>2026-02-08</lastmod><priority>0.8</priority></url>
+    <url>
+        <loc>https://carnivoreweekly.com/calculator.html</loc>
+        <lastmod>2026-02-09</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/wiki/</loc>
+        <lastmod>2026-02-09</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/archive.html</loc>
+        <lastmod>2026-02-09</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/channels.html</loc>
+        <lastmod>2026-02-09</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.5</priority>
+    </url>
+</urlset>
