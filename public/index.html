@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Security Meta Tags -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://i.ytimg.com https://carnivoreweekly.com data:; connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://api.stripe.com; frame-src https://js.stripe.com https://www.youtube.com;">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- SEO Meta Tags -->
@@ -96,10 +99,13 @@
     <link rel="stylesheet" href="/css/global.css">
 </head>
 <body>
+    <!-- Skip Navigation -->
+    <a href="#main-content" class="skip-nav" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;">Skip to main content</a>
+
     <!-- HEADER -->
     <header class="header-2026">
         <div class="container-2026">
-            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo">
+            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo" width="900" height="491">
             <h1>CARNIVORE WEEKLY</h1>
             <p class="subtitle">The Meat-Eater's Digest</p>
             <p class="tagline">Premium Editorial for 2026</p>
@@ -117,6 +123,7 @@
     </nav>
 
     <!-- MAIN CONTENT -->
+    <a id="main-content"></a>
     <main class="site-content" role="main" id="homepage-main-content">
 
         <!-- ZONE 1: HERO -->
@@ -131,6 +138,7 @@
                     sizes="100vw">
                 <img
                     src="/images/hero-steak-1200w.jpg"
+                    width="1200" height="678"
                     srcset="/images/hero-steak-400w.jpg 400w,
                             /images/hero-steak-800w.jpg 800w,
                             /images/hero-steak-1200w.jpg 1200w,
@@ -221,7 +229,7 @@
                     <article class="video-card card card--clickable">
                         
                         <div class="video-thumbnail">
-                            <img src="https://i.ytimg.com/vi/31HgHtSWvfU/mqdefault.jpg" alt="This Carnivore Recipe Destroyed My Carb Cravings" loading="lazy">
+                            <img src="https://i.ytimg.com/vi/31HgHtSWvfU/mqdefault.jpg" alt="This Carnivore Recipe Destroyed My Carb Cravings" width="320" height="180" loading="lazy">
                             <span class="play-overlay" aria-hidden="true">▶</span>
                         </div>
                         
@@ -259,7 +267,7 @@
                     <article class="video-card card card--clickable">
                         
                         <div class="video-thumbnail">
-                            <img src="https://i.ytimg.com/vi/t_Fv3LW_-sM/mqdefault.jpg" alt="Why Are These Carnivores Becoming Diabetic?" loading="lazy">
+                            <img src="https://i.ytimg.com/vi/t_Fv3LW_-sM/mqdefault.jpg" alt="Why Are These Carnivores Becoming Diabetic?" width="320" height="180" loading="lazy">
                             <span class="play-overlay" aria-hidden="true">▶</span>
                         </div>
                         
@@ -297,7 +305,7 @@
                     <article class="video-card card card--clickable">
                         
                         <div class="video-thumbnail">
-                            <img src="https://i.ytimg.com/vi/Lz4jihODhL4/mqdefault.jpg" alt="New Study DESTROYS What Everyone Thought About Carnivore" loading="lazy">
+                            <img src="https://i.ytimg.com/vi/Lz4jihODhL4/mqdefault.jpg" alt="New Study DESTROYS What Everyone Thought About Carnivore" width="320" height="180" loading="lazy">
                             <span class="play-overlay" aria-hidden="true">▶</span>
                         </div>
                         
@@ -335,7 +343,7 @@
                     <article class="video-card card card--clickable">
                         
                         <div class="video-thumbnail">
-                            <img src="https://i.ytimg.com/vi/pA0RqpYBWDM/mqdefault.jpg" alt="Diet Changes for Perimenopause and How to Make Carnivore Cereal" loading="lazy">
+                            <img src="https://i.ytimg.com/vi/pA0RqpYBWDM/mqdefault.jpg" alt="Diet Changes for Perimenopause and How to Make Carnivore Cereal" width="320" height="180" loading="lazy">
                             <span class="play-overlay" aria-hidden="true">▶</span>
                         </div>
                         
@@ -373,7 +381,7 @@
                     <article class="video-card card card--clickable">
                         
                         <div class="video-thumbnail">
-                            <img src="https://i.ytimg.com/vi/rn9W4tawBb0/mqdefault.jpg" alt="Why Testosterone Levels Are Failing | Dr. Anthony Jay" loading="lazy">
+                            <img src="https://i.ytimg.com/vi/rn9W4tawBb0/mqdefault.jpg" alt="Why Testosterone Levels Are Failing | Dr. Anthony Jay" width="320" height="180" loading="lazy">
                             <span class="play-overlay" aria-hidden="true">▶</span>
                         </div>
                         
@@ -411,7 +419,7 @@
                     <article class="video-card card card--clickable">
                         
                         <div class="video-thumbnail">
-                            <img src="https://i.ytimg.com/vi/3dh97jsuE1U/mqdefault.jpg" alt="Maasai Tribe Diet: Drinking Blood & Milk - Joe Rogan with Sonny" loading="lazy">
+                            <img src="https://i.ytimg.com/vi/3dh97jsuE1U/mqdefault.jpg" alt="Maasai Tribe Diet: Drinking Blood & Milk - Joe Rogan with Sonny" width="320" height="180" loading="lazy">
                             <span class="play-overlay" aria-hidden="true">▶</span>
                         </div>
                         
@@ -620,7 +628,7 @@
                     <div class="essential-card">
                         <picture>
                             <source type="image/webp" srcset="/images/organ-meats-400w.webp 400w, /images/organ-meats-800w.webp 800w" sizes="(max-width: 768px) 100vw, 400px">
-                            <img src="/images/organ-meats-800w.jpg" srcset="/images/organ-meats-400w.jpg 400w, /images/organ-meats-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Fresh organ meats on cutting board" loading="lazy">
+                            <img src="/images/organ-meats-800w.jpg" srcset="/images/organ-meats-400w.jpg 400w, /images/organ-meats-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Fresh organ meats on cutting board" width="800" height="625" loading="lazy">
                         </picture>
                         <div class="essential-content">
                             <h3>Organ Meats</h3>
@@ -633,7 +641,7 @@
                     <div class="essential-card">
                         <picture>
                             <source type="image/webp" srcset="/images/bone-broth-400w.webp 400w, /images/bone-broth-800w.webp 800w" sizes="(max-width: 768px) 100vw, 400px">
-                            <img src="/images/bone-broth-800w.jpg" srcset="/images/bone-broth-400w.jpg 400w, /images/bone-broth-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Steaming bone broth in white mug" loading="lazy">
+                            <img src="/images/bone-broth-800w.jpg" srcset="/images/bone-broth-400w.jpg 400w, /images/bone-broth-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Steaming bone broth in white mug" width="800" height="868" loading="lazy">
                         </picture>
                         <div class="essential-content">
                             <h3>Bone Broth</h3>
@@ -646,7 +654,7 @@
                     <div class="essential-card">
                         <picture>
                             <source type="image/webp" srcset="/images/ground-beef-400w.webp 400w, /images/ground-beef-800w.webp 800w" sizes="(max-width: 768px) 100vw, 400px">
-                            <img src="/images/ground-beef--800w.jpg" srcset="/images/ground-beef--400w.jpg 400w, /images/ground-beef--800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Fresh ground beef patties" loading="lazy">
+                            <img src="/images/ground-beef--800w.jpg" srcset="/images/ground-beef--400w.jpg 400w, /images/ground-beef--800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Fresh ground beef patties" width="800" height="625" loading="lazy">
                         </picture>
                         <div class="essential-content">
                             <h3>Ground Beef</h3>
@@ -659,7 +667,7 @@
                     <div class="essential-card">
                         <picture>
                             <source type="image/webp" srcset="/images/bacon-and-eggs-400w.webp 400w, /images/bacon-and-eggs-800w.webp 800w" sizes="(max-width: 768px) 100vw, 400px">
-                            <img src="/images/bacon-and-eggs-800w.jpg" srcset="/images/bacon-and-eggs-400w.jpg 400w, /images/bacon-and-eggs-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Bacon and eggs in cast iron skillet" loading="lazy">
+                            <img src="/images/bacon-and-eggs-800w.jpg" srcset="/images/bacon-and-eggs-400w.jpg 400w, /images/bacon-and-eggs-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Bacon and eggs in cast iron skillet" width="800" height="597" loading="lazy">
                         </picture>
                         <div class="essential-content">
                             <h3>Bacon & Eggs</h3>
@@ -672,7 +680,7 @@
                     <div class="essential-card">
                         <picture>
                             <source type="image/webp" srcset="/images/saltelectrolytes-400w.webp 400w, /images/saltelectrolytes-800w.webp 800w" sizes="(max-width: 768px) 100vw, 400px">
-                            <img src="/images/saltelectrolytes-800w.jpg" srcset="/images/saltelectrolytes-400w.jpg 400w, /images/saltelectrolytes-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Sea salt and pink Himalayan salt in bowls" loading="lazy">
+                            <img src="/images/saltelectrolytes-800w.jpg" srcset="/images/saltelectrolytes-400w.jpg 400w, /images/saltelectrolytes-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Sea salt and pink Himalayan salt in bowls" width="800" height="868" loading="lazy">
                         </picture>
                         <div class="essential-content">
                             <h3>Salt & Electrolytes</h3>
@@ -685,7 +693,7 @@
                     <div class="essential-card">
                         <picture>
                             <source type="image/webp" srcset="/images/butter-block-400w.webp 400w, /images/butter-block-800w.webp 800w" sizes="(max-width: 768px) 100vw, 400px">
-                            <img src="/images/butter-block-800w.jpg" srcset="/images/butter-block-400w.jpg 400w, /images/butter-block-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Block of grass-fed butter on slate" loading="lazy">
+                            <img src="/images/butter-block-800w.jpg" srcset="/images/butter-block-400w.jpg 400w, /images/butter-block-800w.jpg 800w" sizes="(max-width: 768px) 100vw, 400px" alt="Block of grass-fed butter on slate" width="800" height="868" loading="lazy">
                         </picture>
                         <div class="essential-content">
                             <h3>Butter</h3>
@@ -718,7 +726,7 @@
                     <!-- ButcherBox Card -->
                     <a href="https://butcherbox.pxf.io/Z6oVMR" class="affiliate-card affiliate-card--premium" rel="sponsored" data-partner="butcherbox" data-placement="homepage_toolkit">
                         <div class="affiliate-card__image">
-                            <img src="/butcherbox-ad.jpeg" alt="ButcherBox premium steaks" loading="lazy">
+                            <img src="/butcherbox-ad.jpeg" alt="ButcherBox premium steaks" width="1200" height="430" loading="lazy">
                             <div class="affiliate-card__badge">Partner</div>
                         </div>
                         <div class="affiliate-card__content">
@@ -732,7 +740,7 @@
                     <!-- LMNT Card -->
                     <a href="http://elementallabs.refr.cc" class="affiliate-card affiliate-card--premium" rel="sponsored" data-partner="lmnt" data-placement="homepage_toolkit">
                         <div class="affiliate-card__image affiliate-card__image--lmnt">
-                            <img src="/lmnt-sticks-fruit.avif" alt="LMNT electrolyte packets" loading="lazy">
+                            <img src="/lmnt-sticks-fruit.avif" alt="LMNT electrolyte packets" width="1176" height="1176" loading="lazy">
                             <div class="affiliate-card__badge">Partner</div>
                         </div>
                         <div class="affiliate-card__content">
