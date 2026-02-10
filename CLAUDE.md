@@ -136,6 +136,145 @@ See `VALIDATION-CHECKLIST.md` for complete details.
 
 ---
 
+## 🤖 AUTONOMOUS CONTENT GENERATION WORKFLOW
+
+**One-Command Pipeline:** "Generate this week's blog content"
+
+### How It Works
+
+The autonomous pipeline replaces the old `generate_weekly_blog_posts.py` with a Supabase-powered writer agent swarm:
+
+```bash
+# Generate 5 posts (default)
+./scripts/autonomous_blog_generation.sh
+
+# Generate 15 posts (Batch 2)
+./scripts/autonomous_blog_generation.sh 15
+
+# Dry run (show what would happen)
+python3 scripts/generate_weekly_content.py --dry-run
+```
+
+### Pipeline Steps (Fully Automated)
+
+1. **Chloe Research** - Web search for trending carnivore topics
+   - Searches Reddit (r/carnivore, r/zerocarb)
+   - Analyzes YouTube trends
+   - Creates assignments in `blog_topics_queue.json`
+
+2. **Leo Pre-Flight** - Fetch writer context from Supabase
+   - Persona and voice formula
+   - Top 10 memories by relevance score
+   - Last 10 past articles (avoid repetition)
+   - Recent 20 team articles (cross-reference)
+
+3. **Writer Swarm** - Parallel content generation
+   - Sarah (health topics)
+   - Chloe (community/lifestyle topics)
+   - Marcus (performance/protocol topics)
+   - All 3 writers work in parallel using Claude Code teams
+
+4. **Leo Post-Flight** - Save to Supabase
+   - Store articles in `writer_content` table
+   - Extract lessons for `writer_memory_log`
+   - Update cross-references
+
+5. **HTML Generation** - `generate_blog_pages.py`
+   - Creates HTML from templates
+   - Updates `blog_posts.json`
+
+6. **Wall 1 Validation** - `content_validator.py`
+   - AI tell detection
+   - Em-dash check
+   - Contraction verification
+
+7. **Site Regeneration**
+   - Sitemap (`generate_sitemap.py`)
+   - Blog index (`update_blog_index.py`)
+   - Homepage (`update_homepage.py`)
+
+8. **Final Validation** - `validate_before_commit.py`
+   - SEO checks
+   - Brand compliance
+   - Accessibility
+
+9. **Git Automation**
+   - Stage changes
+   - Commit with co-author attribution
+   - Push to production
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `scripts/autonomous_blog_generation.sh` | Entry point (one-command) |
+| `scripts/generate_weekly_content.py` | Master orchestration script |
+| `scripts/spawn_writer_swarm.py` | Parallel writer task generator |
+| `scripts/fetch_writer_context.py` | Supabase context fetcher |
+| `blog_topics_queue.json` | Topic assignments (Chloe creates this) |
+
+### Writer Agent Integration
+
+**All content uses Supabase-powered writer agents:**
+
+- **Sarah** (`sarah-health-coach`) - Health, nutrition, women's health
+  - Voice: Conversational, evidence-based, empathetic
+  - Memories: Specificity drives engagement, budget barriers, cholesterol panic
+
+- **Chloe** (`chloe-community-manager`) - Community, trending, social
+  - Voice: Enthusiastic, trendy, community-focused
+  - Memories: Reddit testimonials, fast turnaround, conversational openings
+
+- **Marcus** (`marcus-performance-coach`) - Performance, protocols, training
+  - Voice: Professional, strategic, direct
+  - Memories: Protocol-heavy content, budget gap, fasting combinations
+
+Each writer:
+1. Queries Supabase for persona, memories, past articles
+2. Applies voice formula automatically
+3. References past work to avoid repetition
+4. Stores results back to Supabase for future learning
+
+### Manual Override
+
+If you need to manually generate content without the full pipeline:
+
+```bash
+# Prepare writing task for Sarah
+python3 scripts/fetch_writer_context.py sarah > /tmp/sarah_context.txt
+
+# Invoke Sarah via Claude Code Task tool
+Task(
+    subagent_type="general-purpose",
+    name="sarah-health-coach",
+    prompt=Read("/tmp/sarah_context.txt") + "Write article about [topic]"
+)
+
+# Save to Supabase
+python3 scripts/orchestrate_writer_content.py --save-article /tmp/article.html --writer sarah --title "Title" --tags "tag1,tag2"
+```
+
+### Validation Status
+
+✅ **All 3 writers validated** (2026-02-08)
+- Sarah: 1001-word electrolyte article
+- Chloe: 1050-word seed oil drama article
+- Marcus: 1025-word strength training article
+
+✅ **Supabase integration complete**
+- Writers query database for context
+- Articles saved to `writer_content` table
+- Memories applied correctly
+
+✅ **Ready for Batch 2** (15 posts)
+- Topic queue created
+- Writer assignments balanced
+- Full pipeline tested
+
+See `WRITER_AGENTS_VALIDATED.md` for complete validation report.
+
+---
+
 ## 📍 PROJECT STATUS
 **Before starting work, read STATUS.md for current state, validated features, and pending tasks.**
 
@@ -538,3 +677,28 @@ Run `scripts/generate_blog_pages.py` - uses blog_post_template_2026.html automat
 - Optimize for clarity over volume
 - No influencer fluff
 - Research > opinion
+
+---
+
+## Lessons Learned (Don't Repeat These)
+
+### Content Generation
+1. **Content agents must NOT include template HTML in content fields.** Content = article body only. Template handles reactions, wiki links, videos, footers, tags.
+2. **Content agents must NOT generate cross-links to unpublished posts.** Links should only point to files that exist on disk at generation time. Check `public/blog/` before adding cross-links.
+3. **Never set future dates on blog posts.** Google penalizes content dated ahead of crawl time.
+4. **Amazon book links should wrap only the title**, not the full citation sentence. Studies link the full citation to PubMed.
+5. **Template variables must match generator output.** `{{ tag1 }}` failed because generator passes `tags` array. Always check both sides.
+
+### Code & Scripts
+6. **Always use absolute paths** in Python scripts (`/Users/mbrew/Developer/carnivore-weekly/data/blog_posts.json`, not `data/blog_posts.json`).
+7. **content_validator.py double-slash regex** was breaking `https://` URLs. Fixed with `[^:]` before `//`. Don't touch this regex again.
+
+### Validation & Deployment
+8. **Pre-commit validator must check link targets exist on disk.** Checking that hrefs aren't empty is not enough. Check 10 now enforces this.
+9. **Affiliate links must use https://.** Mixed content (http links on https pages) triggers browser warnings. Check 10b warns on this.
+10. **New validators catch old bugs.** Always run new checks against the full codebase, not just new files.
+11. **Health checks must cover blog-to-blog cross-links**, not just homepage navigation links.
+12. **GitHub Pages limitations are real.** No custom HTTP headers, no caching control beyond 10min, limited HTTPS redirect. Plan Cloudflare migration.
+
+### Root Cause Analysis
+See `docs/project-log/root-cause-analysis-2026-02-10.md` for full details on all 11 issues found and fixed during the 2026-02-10 health audit.
