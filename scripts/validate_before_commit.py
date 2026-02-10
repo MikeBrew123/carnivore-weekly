@@ -233,6 +233,34 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                     'Fix JSON syntax in structured data'
                 )
 
+        # Check 10: Broken internal blog cross-links (CRITICAL)
+        # Derive project root by walking up from file_path to find 'public/'
+        project_root = file_path
+        while project_root.parent != project_root:
+            if (project_root / 'public').is_dir():
+                break
+            project_root = project_root.parent
+
+        for link in soup.find_all('a', href=True):
+            href = link['href']
+            if href.startswith('/blog/'):
+                target = project_root / 'public' / href.lstrip('/')
+                if not target.exists():
+                    line = get_line_number(content, href)
+                    results.add_critical(
+                        rel_path, line,
+                        f'Broken internal link: {href} — target file does not exist',
+                        'Update href to point to an existing blog post, or remove the link'
+                    )
+            # Check 10b: Mixed content — http:// links to own domain (WARNING)
+            if href.startswith('http://carnivoreweekly.com') or href.startswith('http://www.carnivoreweekly.com'):
+                line = get_line_number(content, href)
+                results.add_warning(
+                    rel_path, line,
+                    f'Mixed content: {href} uses http:// instead of https://',
+                    'Change http:// to https:// to avoid mixed content warnings'
+                )
+
     except Exception as e:
         results.add_warning(str(file_path), 1, f'Error reading file: {str(e)}', 'Check file encoding or format')
 
