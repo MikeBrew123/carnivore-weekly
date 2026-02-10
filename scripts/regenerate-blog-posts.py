@@ -16,6 +16,15 @@ from datetime import datetime
 BLOG_DIR = Path('public/blog')
 TEMPLATE_PATH = Path('templates/blog_post_template_2026.html')
 BACKUP_DIR = Path('data/blog_content_backup')
+PERSONAS_PATH = Path('data/personas.json')
+
+def load_personas():
+    """Load author bios from personas.json."""
+    if PERSONAS_PATH.exists():
+        with open(PERSONAS_PATH, 'r') as f:
+            data = json.load(f)
+        return {k: v.get('author_bio', 'Writer at Carnivore Weekly') for k, v in data.get('personas', {}).items()}
+    return {}
 
 def extract_metadata(soup):
     """Extract title, date, author, and description from existing post."""
@@ -71,7 +80,9 @@ def extract_metadata(soup):
         metadata['author_bio'] = bio_text.replace(metadata['author_name'], '').strip()
     else:
         metadata['author_name'] = metadata['author']
-        metadata['author_bio'] = 'Writer at Carnivore Weekly'
+        bios = load_personas()
+        author_key = metadata['author'].lower().strip()
+        metadata['author_bio'] = bios.get(author_key, 'Writer at Carnivore Weekly')
 
     return metadata
 

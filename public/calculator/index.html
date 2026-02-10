@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Security Meta Tags -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://i.ytimg.com https://carnivoreweekly.com data:; connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://api.stripe.com; frame-src https://js.stripe.com https://www.youtube.com;">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- SEO Meta Tags -->
@@ -31,7 +34,30 @@
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
 
-    <title>Carnivore Calculator 2 - Personalized Macro Protocol | Carnivore Weekly</title>
+    <title>Free Carnivore Calculator - Personalized Macros | CW</title>
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Carnivore Calculator",
+        "url": "https://carnivoreweekly.com/calculator/",
+        "description": "Free carnivore diet macro calculator. Get personalized calories, protein, and fat targets with meal examples and electrolyte guidance.",
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "creator": {
+            "@type": "Organization",
+            "name": "Carnivore Weekly",
+            "url": "https://carnivoreweekly.com"
+        }
+    }
+    </script>
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>

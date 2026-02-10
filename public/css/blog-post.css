@@ -178,6 +178,33 @@ header h1 {
     }
 }
 
+/* ============================================
+   POST FOOTER TAGS
+   ============================================ */
+.post-footer {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--cw-cream);
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--cw-brown);
+    background: var(--cw-cream);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 @media (max-width: 480px) {
     .post-content, .post-content p, .post-content li {
         font-size: 16px;
