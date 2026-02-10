@@ -58,20 +58,46 @@ Specifically:
 
 **Why Link Checker Missed It:** The health check only tested homepage links (22/22). Blog cross-links were never checked. The pre-commit validator (`validate_before_commit.py`) checks for empty/placeholder hrefs but does NOT verify that internal link targets exist on disk. The `content_validator.py` has a `check_internal_links()` function that only counts links (warns if zero) but never validates targets.
 
-**Fix Applied:** Fixed all 18 links — corrected 3 wrong-dated links to actual files, removed 15 dead links (kept anchor text intact).
+**Fix Applied (Pass 1):** Fixed all 18 links — corrected 3 wrong-dated links to actual files, removed 15 dead links (kept anchor text intact).
+
+**Fix Applied (Pass 2):** Discovered the 3 "non-existent" posts (autoimmune-remission, strength-gains, cholesterol-truth) actually DO exist with `2026-02-08` dates. Restored 16 cross-links across 11 blog posts with correct dates.
 
 **Prevention (CRITICAL):**
-1. Add broken internal link check to `validate_before_commit.py` — for any `href="/blog/..."` in staged HTML files, verify the target file exists in `public/blog/`
+1. ✅ DONE — Added broken internal link check (Check 10) to `validate_before_commit.py`
 2. Content generation agents MUST only link to posts that already exist on disk, never to planned/future posts
 3. Add this rule to agent prompts: "Only link to blog posts that exist. Check `public/blog/` before adding cross-links."
 
+## Issue 10: 8 Additional Broken Links (FOUND BY NEW VALIDATOR)
+**Root Cause:** Same as Issue 9 — content agents generated cross-links to `electrolyte-balance.html` and `carnivore-sleep.html`, neither of which exist. The actual electrolyte file is `2026-01-04-electrolyte-deficiency-part-1.html`. No sleep article exists.
+
+**Why This Wasn't Found Earlier:** These links were only detected after Check 10 was added to the pre-commit validator. The first commit attempt after adding Check 10 correctly blocked the commit with 8 critical errors.
+
+Specifically:
+- `/blog/2026-02-08-electrolyte-balance.html` → actual file is `2026-01-04-electrolyte-deficiency-part-1.html` (3 references)
+- `/blog/electrolyte-balance.html` → actual file is `2026-01-04-electrolyte-deficiency-part-1.html` (3 references)
+- `/blog/2026-02-08-carnivore-sleep.html` → does not exist (2 references)
+
+Files affected: adaptation-timeline, carnivore-constipation, crossfit-high-intensity, endurance-running-marathon, weightlifting-muscle-building, women-over-40
+
+**Fix Applied:** Redirected 6 electrolyte links to `2026-01-04-electrolyte-deficiency-part-1.html`. Removed 2 sleep links (kept anchor text as plain text).
+
+**Prevention:** ✅ Already covered by Check 10. The pre-commit validator now catches these automatically.
+
+## Issue 11: Mixed Content (http:// affiliate links)
+**Root Cause:** LMNT affiliate link (`http://elementallabs.refr.cc`) was hardcoded with `http://` in the blog post template and all 62 generated blog files. The site serves over HTTPS, so these are mixed content references.
+
+**Fix Applied:** Bulk replaced `http://elementallabs.refr.cc` → `https://elementallabs.refr.cc` across 62 HTML files + the blog post template.
+
+**Prevention:** ✅ Added Check 10b to pre-commit validator — warns on `http://carnivoreweekly.com` links. Template now uses `https://`. Future blog generations will be clean.
+
 ---
 
-## Validation Gap Summary
+## Validation Gap Summary (Updated)
 
-| Gap | Current State | Needed |
-|-----|--------------|--------|
-| Internal link target validation | Not checked | Pre-commit should verify href targets exist on disk |
+| Gap | Status | Resolution |
+|-----|--------|-----------|
+| Internal link target validation | ✅ FIXED | Check 10 in pre-commit validates href targets exist on disk |
+| Mixed content detection | ✅ FIXED | Check 10b in pre-commit warns on http:// own-domain links |
 | Image width/height | Not checked | Pre-commit should warn on images missing dimensions |
 | Skip-nav presence | Not checked | Pre-commit should check for skip-nav in full pages |
 | Title tag length | Not checked | Pre-commit should warn if >60 chars |
@@ -81,9 +107,11 @@ Specifically:
 
 ---
 
-## Lessons Learned (Add to CLAUDE.md)
+## Lessons Learned (Added to CLAUDE.md)
 
 1. **Content agents must NOT generate cross-links to unpublished posts.** Links should only point to files that exist on disk at generation time.
-2. **Pre-commit validator needs internal link validation.** Checking that hrefs aren't empty is not enough — targets must exist.
+2. **Pre-commit validator needs internal link validation.** Checking that hrefs aren't empty is not enough — targets must exist. ✅ Check 10 now enforces this.
 3. **Health checks must cover blog-to-blog cross-links**, not just homepage navigation links.
 4. **GitHub Pages limitations are real.** Security headers, caching control, and HTTP→HTTPS redirect are all limited. Plan Cloudflare migration.
+5. **New validators catch old bugs.** Adding Check 10 immediately found 8 additional broken links that existed since blog generation. Always run new checks against the full codebase, not just new files.
+6. **Affiliate links must use https://.** Mixed content (http links on https pages) triggers browser warnings and health check failures. Template and all existing files must match.
