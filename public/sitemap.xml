@@ -385,34 +385,4 @@
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
-    <url>
-        <loc>https://carnivoreweekly.com/blog/2026-02-20-carnivore-meal-plan-complete-guide.html</loc>
-        <lastmod>2026-02-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://carnivoreweekly.com/blog/2026-02-20-carnivore-food-list-complete.html</loc>
-        <lastmod>2026-02-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://carnivoreweekly.com/blog/2026-02-20-carnivore-weight-loss-results.html</loc>
-        <lastmod>2026-02-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://carnivoreweekly.com/blog/2026-02-20-how-much-protein-carnivore.html</loc>
-        <lastmod>2026-02-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://carnivoreweekly.com/blog/2026-02-20-carnivore-inflammation-joint-pain.html</loc>
-        <lastmod>2026-02-20</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
 </urlset>
