@@ -31,6 +31,12 @@ except ImportError:
     print("  pip3 install beautifulsoup4")
     sys.exit(1)
 
+try:
+    from PIL import Image as PILImage
+    HAS_PILLOW = True
+except ImportError:
+    HAS_PILLOW = False
+
 
 @dataclass
 class Issue:
@@ -93,6 +99,9 @@ def get_line_number(content: str, search_text: str) -> int:
 
 def validate_html_file(file_path: Path, results: ValidationResults):
     """Validate single HTML file"""
+    # Cache for image reads (avoid reading same file twice)
+    _image_cache = {}
+
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -170,6 +179,18 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                         f'Add content to meta {meta_name} tag'
                     )
 
+        # Check 12: Title tag length (WARNING)
+        title_tag = soup.find('title')
+        if title_tag:
+            title_text = title_tag.get_text().strip()
+            if len(title_text) > 60:
+                line = get_line_number(content, '<title>')
+                results.add_warning(
+                    rel_path, line,
+                    f"Title tag too long ({len(title_text)} chars, max 60): '{title_text[:50]}...'",
+                    "Shorten title to ≤60 chars. Consider removing ' - Carnivore Weekly Blog' suffix"
+                )
+
         # Check 5: Canonical URL (CRITICAL if present and malformed)
         canonical = soup.find('link', attrs={'rel': 'canonical'})
         if canonical:
@@ -207,6 +228,62 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                     'Add alt="description" to <img> tag'
                 )
 
+        # Check 11: Image width/height missing (WARNING)
+        # Derive project root early for image path resolution
+        _project_root = file_path
+        while _project_root.parent != _project_root:
+            if (_project_root / 'public').is_dir():
+                break
+            _project_root = _project_root.parent
+
+        for img in images:
+            width_attr = img.get('width')
+            height_attr = img.get('height')
+            has_attr_dims = width_attr is not None and height_attr is not None
+
+            # Check inline style for width/height
+            has_style_dims = False
+            style = img.get('style', '')
+            if style:
+                has_style_width = bool(re.search(r'width\s*:', style))
+                has_style_height = bool(re.search(r'height\s*:', style))
+                has_style_dims = has_style_width and has_style_height
+
+            if not has_attr_dims and not has_style_dims:
+                line = get_line_number(content, str(img)[:80])
+                results.add_warning(
+                    rel_path, line,
+                    'Image missing width/height attributes',
+                    'Add width and height attributes to prevent layout shift (CLS)'
+                )
+
+            # Aspect ratio sub-check (only for attribute-based dimensions with local images)
+            if HAS_PILLOW and has_attr_dims:
+                src = img.get('src', '')
+                if src.startswith('/'):
+                    img_file = _project_root / 'public' / src.lstrip('/')
+                    if img_file.exists():
+                        try:
+                            if str(img_file) not in _image_cache:
+                                with PILImage.open(img_file) as pil_img:
+                                    _image_cache[str(img_file)] = pil_img.size
+                            actual_w, actual_h = _image_cache[str(img_file)]
+                            if actual_h > 0:
+                                try:
+                                    expected_ratio = int(width_attr) / int(height_attr)
+                                    actual_ratio = actual_w / actual_h
+                                    if abs(expected_ratio - actual_ratio) / actual_ratio > 0.05:
+                                        line = get_line_number(content, str(img)[:80])
+                                        results.add_warning(
+                                            rel_path, line,
+                                            f'Image aspect ratio mismatch: HTML {width_attr}x{height_attr} vs actual {actual_w}x{actual_h}',
+                                            'Update width/height attributes to match actual image aspect ratio'
+                                        )
+                                except (ValueError, ZeroDivisionError):
+                                    pass
+                        except Exception:
+                            pass
+
         # Check 8: Empty href attributes (WARNING)
         links = soup.find_all('a', href=True)
         for link in links:
@@ -217,6 +294,16 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                     rel_path, line,
                     'Link with empty or placeholder href',
                     'Add proper URL to href attribute'
+                )
+
+        # Check 13: Skip-nav missing (WARNING)
+        if soup.find('html') and soup.find('body'):
+            skip_nav = soup.find('a', class_='skip-nav') or soup.find('a', href=lambda h: h and '#main-content' in h)
+            if not skip_nav:
+                results.add_warning(
+                    rel_path, 1,
+                    'Missing skip navigation link',
+                    "Add skip navigation: <a href='#main-content' class='skip-nav'>Skip to main content</a> after <body>"
                 )
 
         # Check 9: JSON-LD structured data validation (WARNING)
@@ -231,6 +318,15 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                     rel_path, line,
                     f'Invalid JSON-LD: {str(e)}',
                     'Fix JSON syntax in structured data'
+                )
+
+        # Check 14: JSON-LD missing on full pages (WARNING)
+        if soup.find('html'):
+            if not scripts:
+                results.add_warning(
+                    rel_path, 1,
+                    'No JSON-LD structured data found',
+                    'Add JSON-LD structured data for SEO'
                 )
 
         # Check 10: Broken internal blog cross-links (CRITICAL)
@@ -252,14 +348,26 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                         f'Broken internal link: {href} — target file does not exist',
                         'Update href to point to an existing blog post, or remove the link'
                     )
-            # Check 10b: Mixed content — http:// links to own domain (WARNING)
-            if href.startswith('http://carnivoreweekly.com') or href.startswith('http://www.carnivoreweekly.com'):
-                line = get_line_number(content, href)
-                results.add_warning(
-                    rel_path, line,
-                    f'Mixed content: {href} uses http:// instead of https://',
-                    'Change http:// to https:// to avoid mixed content warnings'
-                )
+
+        # Check 10b: Mixed content — any http:// links (WARNING)
+        for tag in soup.find_all(['a', 'img', 'script', 'link', 'source']):
+            for attr in ['href', 'src', 'srcset']:
+                val = tag.get(attr, '')
+                if not val:
+                    continue
+                # For srcset, check each URL in the comma-separated list
+                urls = [val] if attr != 'srcset' else [u.strip().split()[0] for u in val.split(',')]
+                for url in urls:
+                    if url.startswith('http://'):
+                        # Exclude safe protocols and SVG data URIs
+                        if any(url.startswith(safe) for safe in ['http://www.w3.org/', 'http://xmlns']):
+                            continue
+                        line = get_line_number(content, url[:40])
+                        results.add_warning(
+                            rel_path, line,
+                            f'Mixed content: {url[:80]} uses http://',
+                            'Change to https:// or verify the site supports HTTPS'
+                        )
 
     except Exception as e:
         results.add_warning(str(file_path), 1, f'Error reading file: {str(e)}', 'Check file encoding or format')
@@ -326,6 +434,52 @@ def validate_sitemap(sitemap_path: Path, results: ValidationResults):
         )
 
 
+def validate_sitemap_sync(sitemap_path: Path, public_dir: Path, results: ValidationResults):
+    """Cross-reference sitemap URLs against actual files on disk"""
+    if not sitemap_path.exists():
+        return
+
+    try:
+        tree = ET.parse(sitemap_path)
+        root = tree.getroot()
+        ns = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+
+        sitemap_urls = set()
+        for url_elem in root.findall('ns:url', ns):
+            loc = url_elem.find('ns:loc', ns)
+            if loc is not None and loc.text:
+                sitemap_urls.add(loc.text.strip())
+
+        # Check A: Sitemap references non-existent files (CRITICAL)
+        for url in sitemap_urls:
+            # Convert URL to file path
+            path_part = url.replace('https://carnivoreweekly.com/', '').replace('https://www.carnivoreweekly.com/', '')
+            if not path_part or path_part.endswith('/'):
+                path_part += 'index.html'
+            file_path = public_dir / path_part
+            if not file_path.exists():
+                results.add_critical(
+                    str(sitemap_path), 1,
+                    f'Sitemap references non-existent file: {url} (expected {file_path})',
+                    'Remove from sitemap or create the missing file'
+                )
+
+        # Check B: Blog files missing from sitemap (WARNING)
+        import re as _re
+        for html_file in sorted(public_dir.glob('blog/[0-9][0-9][0-9][0-9]-*.html')):
+            rel = str(html_file.relative_to(public_dir))
+            expected_url = f'https://carnivoreweekly.com/{rel}'
+            if expected_url not in sitemap_urls:
+                results.add_warning(
+                    str(html_file), 1,
+                    f'Blog post not in sitemap: {rel}',
+                    'Add to sitemap.xml for SEO coverage'
+                )
+
+    except ET.ParseError:
+        pass  # Already caught by validate_sitemap()
+
+
 def validate_python_file(file_path: Path, results: ValidationResults):
     """Validate Python file syntax"""
     try:
@@ -361,8 +515,8 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
             return results
     else:
         files_to_check = []
-        # Get all HTML and Python files
-        files_to_check.extend(list(project_root.glob('**/*.html')))
+        # Get all HTML files under public/ and Python files anywhere
+        files_to_check.extend(list((project_root / 'public').glob('**/*.html')))
         files_to_check.extend(list(project_root.glob('**/*.py')))
 
     # Filter out unwanted directories and files
@@ -372,6 +526,9 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
         'public/includes/',  # HTML fragments without full HTML structure
         'public/components/',  # Reusable components without full HTML structure
         'docs/archive/',  # Archived files
+        'archive/',  # Archived/orphaned blog dupes
+        'backups/',  # Backup directories
+        'demos/',  # Demo/test files
     ]
 
     def is_blog_fragment(path):
@@ -411,6 +568,7 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
     sitemap_path = project_root / 'public' / 'sitemap.xml'
     if sitemap_path.exists() or not staged_only:
         validate_sitemap(sitemap_path, results)
+    validate_sitemap_sync(sitemap_path, project_root / 'public', results)
 
     return results
 
