@@ -477,8 +477,8 @@ class ContentValidator:
             for match in blog_matches:
                 self.log("AUTO-FIX", filename, f"Fixed doubled blog path: /blog//blog/{match[1]} → /blog/{match[1]}")
 
-        # Pattern 3: Double slashes in any path
-        double_slash_pattern = r'href="([^"]*?)//+([^"]*)"'
+        # Pattern 3: Double slashes in any path (but NOT protocol ://)
+        double_slash_pattern = r'href="([^"]*?[^:])//+([^"]*)"'
         double_slash_matches = re.findall(double_slash_pattern, content)
         if double_slash_matches:
             content = re.sub(double_slash_pattern, r'href="\1/\2"', content)
