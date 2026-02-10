@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Security Meta Tags -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://i.ytimg.com https://carnivoreweekly.com data:; connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://api.stripe.com; frame-src https://js.stripe.com https://www.youtube.com;">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} - Carnivore Weekly Blog</title>
     <meta name="description" content="{{ meta_description }}">
@@ -202,6 +205,9 @@
     <link rel="stylesheet" href="../css/blog-post.css">
 </head>
 <body>
+    <!-- Skip Navigation -->
+    <a href="#main-content" class="skip-nav" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;">Skip to main content</a>
+
     <!-- Site Header -->
     <header class="header-2026">
         <div class="container-2026">
@@ -225,6 +231,7 @@
     <!-- Layout Wrapper -->
     <div class="layout-wrapper-2026">
         <main class="main-content-2026">
+            <a id="main-content"></a>
             <a href="/blog/" class="back-to-blog">← Back to Blog</a>
 
             <!-- Post Header -->
@@ -361,7 +368,7 @@
                     <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Our Partners</h4>
                     <div style="display: flex; flex-direction: column; gap: var(--space-3);">
                         <a href="https://butcherbox.pxf.io/Z6oVMR" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">ButcherBox</a>
-                        <a href="http://elementallabs.refr.cc" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">LMNT</a>
+                        <a href="https://elementallabs.refr.cc" rel="sponsored" style="display: inline-block; font-size: var(--text-sm);">LMNT</a>
                     </div>
                     <p style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-3);">
                         Products we personally use and recommend.
