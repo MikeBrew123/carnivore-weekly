@@ -208,8 +208,9 @@ def sync_blog_posts():
         print("⚠️  Some errors occurred during sync. Check output above.")
         print("   (Non-fatal - continuing with weekly automation)")
 
-    # Always return True unless ALL operations failed
-    return (inserted_count + updated_count + skipped_count) > 0
+    # Return True unless every single post errored (partial success is OK)
+    total_processed = inserted_count + updated_count + skipped_count + error_count
+    return total_processed == 0 or error_count < total_processed
 
 
 if __name__ == "__main__":

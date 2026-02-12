@@ -7,14 +7,27 @@
 # - Content validation (before publishing)
 # - See VALIDATION_CHECKLIST.md for manual review steps
 
-set -e  # Exit on any error
+# Error handling strategy:
+#   Pre-flight checks: BLOCKING — bad code quality stops everything
+#   Data steps (1-4.6): NON-FATAL — errors logged, pipeline continues
+#   Generation steps (5-9): FATAL — page build failures stop the pipeline
+#   Validation/deploy: FATAL — must pass before deploying
+#
+# Why: Data steps depend on external APIs (YouTube, Supabase, Claude) that
+# can fail transiently. Page generation must ALWAYS run with whatever data
+# is available. This was added after Pipeline Lockdown Phase 9 exposed that
+# set -e + a Supabase sync failure killed steps 5-9 entirely.
+DATA_ERRORS=0
 
 echo "======================================================================"
 echo "🥩 CARNIVORE WEEKLY - WEEKLY UPDATE WORKFLOW"
 echo "======================================================================"
 echo ""
 
-# Pre-flight checks
+# ======================================================================
+# PRE-FLIGHT CHECKS (BLOCKING — bad code stops everything)
+# ======================================================================
+set -e
 echo "🔍 Pre-flight checks..."
 
 # Structural Validation of Templates (BLOCKING - critical issues only)
@@ -97,53 +110,107 @@ if [ -f ~/.claude/skills/w3c-validator/validate.js ]; then
 fi
 echo ""
 
+# ======================================================================
+# DATA COLLECTION STEPS (NON-FATAL — errors logged, pipeline continues)
+# ======================================================================
+set +e  # Disable exit-on-error for data steps
+
 # Step 1: Collect YouTube Data
-echo "📺 Step 1/5: Collecting YouTube data..."
-python3 scripts/youtube_collector.py
-echo "✓ YouTube data collected"
+echo "📺 Step 1/9: Collecting YouTube data..."
+if ! python3 scripts/youtube_collector.py; then
+    echo "   ⚠️ YouTube collection failed (non-fatal, continuing)"
+    DATA_ERRORS=$((DATA_ERRORS + 1))
+else
+    echo "✓ YouTube data collected"
+fi
 echo ""
 
 # Step 2: Analyze Content with Claude (Token-Optimized)
-echo "🧠 Step 2/5: Analyzing content with Claude AI (98% token reduction)..."
-python3 scripts/content_analyzer_optimized.py
-echo "✓ Content analyzed with token optimization"
+echo "🧠 Step 2/9: Analyzing content with Claude AI (98% token reduction)..."
+if ! python3 scripts/content_analyzer_optimized.py; then
+    echo "   ⚠️ Content analysis failed (non-fatal, continuing)"
+    DATA_ERRORS=$((DATA_ERRORS + 1))
+else
+    echo "✓ Content analyzed with token optimization"
+fi
 echo ""
 
 # Step 3: Add Sentiment Analysis
-echo "💭 Step 3/5: Adding sentiment analysis..."
-python3 scripts/add_sentiment.py
-echo "✓ Sentiment analysis complete"
+echo "💭 Step 3/9: Adding sentiment analysis..."
+if ! python3 scripts/add_sentiment.py; then
+    echo "   ⚠️ Sentiment analysis failed (non-fatal, continuing)"
+    DATA_ERRORS=$((DATA_ERRORS + 1))
+else
+    echo "✓ Sentiment analysis complete"
+fi
 echo ""
 
 # Step 3.5: Generate Editorial Commentary
-echo "🎨 Step 3.5/5: Generating editorial commentary..."
-python3 scripts/generate_commentary.py
-echo "✓ Editorial commentary generated"
+echo "🎨 Step 3.5/9: Generating editorial commentary..."
+if ! python3 scripts/generate_commentary.py; then
+    echo "   ⚠️ Editorial commentary failed (non-fatal, continuing)"
+    DATA_ERRORS=$((DATA_ERRORS + 1))
+else
+    echo "✓ Editorial commentary generated"
+fi
 echo ""
 
 # Step 3.6: Generate Blog Posts for Upcoming Week
 echo "📝 Step 3.6/9: Generating blog posts for next 7 days..."
-python3 scripts/generate_weekly_blog_posts.py
-echo "✓ Blog posts generated"
+if ! python3 scripts/generate_weekly_blog_posts.py; then
+    echo "   ⚠️ Blog post generation failed (non-fatal, continuing)"
+    DATA_ERRORS=$((DATA_ERRORS + 1))
+else
+    echo "✓ Blog posts generated"
+fi
 echo ""
 
 # Step 4: Answer Common Questions
 echo "❓ Step 4/9: Generating Q&A with scientific citations..."
-python3 scripts/answer_questions.py
-echo "✓ Q&A generated"
+if ! python3 scripts/answer_questions.py; then
+    echo "   ⚠️ Q&A generation failed (non-fatal, continuing)"
+    DATA_ERRORS=$((DATA_ERRORS + 1))
+else
+    echo "✓ Q&A generated"
+fi
 echo ""
 
 # Step 4.5: Extract Wiki Keywords for Auto-Linking
 echo "🔗 Step 4.5/9: Extracting wiki keywords for auto-linking..."
-python3 scripts/extract_wiki_keywords.py
-echo "✓ Wiki keywords extracted"
+if ! python3 scripts/extract_wiki_keywords.py; then
+    echo "   ⚠️ Wiki keyword extraction failed (non-fatal, continuing)"
+    DATA_ERRORS=$((DATA_ERRORS + 1))
+else
+    echo "✓ Wiki keywords extracted"
+fi
 echo ""
 
 # Step 4.6: Sync Blog Posts to Supabase
 echo "📚 Step 4.6/9: Syncing blog posts to Supabase..."
-python3 scripts/sync_blog_posts_to_supabase.py
-echo "✓ Blog posts synced"
+if ! python3 scripts/sync_blog_posts_to_supabase.py; then
+    echo "   ⚠️ Supabase sync failed (non-fatal, continuing)"
+    DATA_ERRORS=$((DATA_ERRORS + 1))
+else
+    echo "✓ Blog posts synced"
+fi
 echo ""
+
+# ======================================================================
+echo "======================================================================"
+echo "📊 DATA COLLECTION SUMMARY"
+if [ $DATA_ERRORS -gt 0 ]; then
+    echo "   ⚠️ $DATA_ERRORS data step(s) had errors (see above)"
+    echo "   Continuing with page generation using available data..."
+else
+    echo "   ✅ All data steps completed successfully"
+fi
+echo "======================================================================"
+echo ""
+
+# ======================================================================
+# PAGE GENERATION STEPS (FATAL — build failures stop the pipeline)
+# ======================================================================
+set -e  # Re-enable exit-on-error for generation steps
 
 # Step 5: Generate Website Pages (unified generator)
 echo "🎨 Step 5/9: Generating website..."
