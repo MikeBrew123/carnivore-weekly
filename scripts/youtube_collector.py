@@ -305,7 +305,8 @@ class YouTubeCollector:
                                 "comment_count": video.get("comment_count", 0),
                             },
                             "tags": video.get("topic_tags", []),
-                            "top_comments": [],  # Comments not stored in current schema
+                            "top_comments": video.get("top_comments", []),
+                            "comment_sentiment": video.get("comment_sentiment"),
                         }
                     )
 
@@ -1085,7 +1086,9 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
                             "view_count": video.get("statistics", {}).get("view_count", 0),
                             "like_count": video.get("statistics", {}).get("like_count", 0),
                             "comment_count": video.get("statistics", {}).get("comment_count", 0),
-                            "topic_tags": video.get("tags", [])[:10],  # Limit to 10 tags
+                            "topic_tags": video.get("tags", [])[:10],
+                            # Persist comments for commentary generation (limit 10)
+                            "top_comments": video.get("top_comments", [])[:10],
                         }
 
                         # Insert or update in Supabase (upsert on youtube_id)
