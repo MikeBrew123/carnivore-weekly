@@ -244,6 +244,9 @@ def update_sitemap(posts):
     import xml.etree.ElementTree as ET
     from collections import OrderedDict
 
+    # Register namespace to prevent ns0: prefix in output
+    ET.register_namespace('', 'http://www.sitemaps.org/schemas/sitemap/0.9')
+
     published_posts = [p for p in posts if p.get("published", False)]
     sitemap_file = PUBLIC_DIR / "sitemap.xml"
 
@@ -283,22 +286,59 @@ def update_sitemap(posts):
                 'priority': priority_text
             }
 
-    # Update main page lastmod dates based on actual file modification times
+    # Auto-discover ALL non-blog pages from disk — never rely on manual lists
+    # This ensures no page is ever missing from the sitemap after a regeneration
+    SITEMAP_EXCLUDE = {
+        '404.html', 'calculator-form-rebuild.html', 'index.html',
+        'report.html', 'questionnaire.html',
+    }
+    SITEMAP_EXCLUDE_DIRS = {'components', 'includes', 'assets'}
+
     main_pages = [
         ('https://carnivoreweekly.com/', 'public/index.html'),
         ('https://carnivoreweekly.com/channels.html', 'public/channels.html'),
         ('https://carnivoreweekly.com/wiki/', 'public/wiki/index.html'),
         ('https://carnivoreweekly.com/calculator.html', 'public/calculator.html'),
         ('https://carnivoreweekly.com/archive.html', 'public/archive.html'),
+        ('https://carnivoreweekly.com/about/', 'public/about/index.html'),
+        ('https://carnivoreweekly.com/blog/', 'public/blog/index.html'),
+        ('https://carnivoreweekly.com/privacy.html', 'public/privacy.html'),
+        ('https://carnivoreweekly.com/the-lab.html', 'public/the-lab.html'),
     ]
+
+    # Also scan public/ for any top-level HTML pages not in the list above
+    known_urls = {url for url, _ in main_pages}
+    public_dir = PROJECT_ROOT / 'public'
+    for html_file in public_dir.glob('*.html'):
+        if html_file.name in SITEMAP_EXCLUDE:
+            continue
+        # Check it's a real page (has <head> tag)
+        try:
+            content = html_file.read_text(encoding='utf-8', errors='ignore')[:2000]
+            if '<head' not in content:
+                continue
+        except Exception:
+            continue
+        candidate_url = f'https://carnivoreweekly.com/{html_file.name}'
+        if candidate_url not in known_urls:
+            main_pages.append((candidate_url, f'public/{html_file.name}'))
 
     for url, file_path in main_pages:
         full_path = PROJECT_ROOT / file_path
-        if full_path.exists() and url in url_data:
+        if full_path.exists():
             # Get file modification time
             mtime = os.path.getmtime(full_path)
             lastmod = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
-            url_data[url]['lastmod'] = lastmod
+            if url in url_data:
+                url_data[url]['lastmod'] = lastmod
+            else:
+                # Page exists on disk but missing from sitemap — ADD IT
+                priority = '1.0' if url == 'https://carnivoreweekly.com/' else '0.7'
+                url_data[url] = {
+                    'lastmod': lastmod,
+                    'changefreq': 'weekly',
+                    'priority': priority
+                }
 
     # Update blog post URLs from published posts
     for post in published_posts:
