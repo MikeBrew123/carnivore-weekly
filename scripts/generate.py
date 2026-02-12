@@ -463,7 +463,11 @@ class UnifiedGenerator:
                             wiki_kw = topic.get("wiki_keyword")
                             if wiki_kw and wiki_kw in wiki_keyword_map:
                                 # Strip both /wiki/# and wiki.html# prefixes to get clean anchor
-                                anchor = wiki_keyword_map[wiki_kw].replace("/wiki/#", "").replace("wiki.html#", "")
+                                anchor = (
+                                    wiki_keyword_map[wiki_kw]
+                                    .replace("/wiki/#", "")
+                                    .replace("wiki.html#", "")
+                                )
                                 topic_obj["wiki_links"] = [
                                     {"anchor": anchor, "title": wiki_kw.title()}
                                 ]
@@ -1111,7 +1115,9 @@ class UnifiedGenerator:
                                 )
 
                         # Build template variables (based on _generate_pages but with correct canonical)
-                        archive_canonical = f"https://carnivoreweekly.com/archive/{archive_file.stem}.html"
+                        archive_canonical = (
+                            f"https://carnivoreweekly.com/archive/{archive_file.stem}.html"
+                        )
                         week_template_vars = {
                             "canonical_url": archive_canonical,
                             "analysis_date": week_data.get("analysis_date", ""),

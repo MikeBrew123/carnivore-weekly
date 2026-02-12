@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- Security Meta Tags -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://i.ytimg.com https://carnivoreweekly.com data:; connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://api.stripe.com; frame-src https://js.stripe.com https://www.youtube.com;">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What Top YouTube Creators Are Teaching in 2026 - Carnivore Weekly Blog</title>
     <meta name="description" content="The carnivore YouTube space has evolved. Some channels grew massive. Some pivoted. Here&#39;s what the biggest names are teaching in 2026 and what matters.">
@@ -177,7 +180,6 @@
             padding-bottom: 20px;
         }
 
-        
 
         /* Post meta information */
         .post-meta {
@@ -190,6 +192,9 @@
     <link rel="stylesheet" href="../css/blog-post.css">
 </head>
 <body>
+    <!-- Skip Navigation -->
+    <a href="#main-content" class="skip-nav" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;">Skip to main content</a>
+
     <!-- Site Header -->
     <header class="header-2026">
         <div class="container-2026">
@@ -213,6 +218,7 @@
     <!-- Layout Wrapper -->
     <div class="layout-wrapper-2026">
         <main class="main-content-2026">
+            <a id="main-content"></a>
             <a href="/blog/" class="back-to-blog">← Back to Blog</a>
 
             <!-- Post Header -->
@@ -223,12 +229,13 @@
                         <span>2026-01-03</span>
                         <span>by chloe</span>
                     </div>
+
                 </div>
 
                 <!-- Post Reactions - Top (Summary) -->
                 <div class="post-reactions post-reactions--top" data-post-slug="2026-01-03-top-creators-2026" style="background: #f5f5f0; padding: 15px 20px; border-radius: 8px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #e0e0e0;">
                     <div class="reactions-header" style="display: flex; align-items: center; gap: 15px;">
-                        <h2 style="font-size: 14px; color: #4a4a4a; font-weight: 600; margin: 0;">Was this helpful?</h2>
+                        <h4 style="font-size: 14px; color: #4a4a4a; font-weight: 600; margin: 0;">Was this helpful?</h4>
                         <div class="reactions-buttons" style="display: flex; gap: 10px;">
                             <button class="reaction-btn reaction-btn--up" style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: white; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; font-size: 16px; transition: all 0.2s ease;">
                                 <span>👍</span>
