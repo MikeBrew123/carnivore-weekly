@@ -2,10 +2,12 @@
 """
 Generate Editorial Commentary for Content of the Week
 Assigns videos to writers (Sarah, Marcus, Chloe) and generates humanized commentary.
+Uses writer memory from Supabase and local context for cross-referencing.
 """
 
 import json
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
@@ -14,6 +16,9 @@ from anthropic import Anthropic
 # Load environment variables from project root
 PROJECT_ROOT = Path(__file__).parent.parent
 load_dotenv(PROJECT_ROOT / ".env", override=True)
+
+# Add scripts/ to path for fetch_writer_context import
+sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
 # Initialize Claude
 client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
@@ -28,6 +33,136 @@ WRITERS = {
     "Marcus": "Performance coach. Direct, action-oriented, practical advice.",
     "Chloe": "Community voice. Casual tone, reads trends, understands social dynamics.",
 }
+
+
+def load_writer_context(writer_name):
+    """Load writer context from Supabase (memories, past articles, team articles).
+    Falls back to local-only context if Supabase is unavailable."""
+    try:
+        from fetch_writer_context import (
+            fetch_writer_context,
+            format_context_for_prompt,
+        )
+
+        context = fetch_writer_context(writer_name.lower())
+        if "error" not in context:
+            formatted = format_context_for_prompt(context)
+            # Append wiki topics (not included in fetch_writer_context)
+            formatted += _build_wiki_context()
+            print(f"   ✓ Loaded {writer_name} memory from Supabase")
+            return formatted
+    except Exception as e:
+        print(f"   ⚠ Could not load {writer_name} memory from Supabase: {e}")
+
+    # Fallback: minimal local-only context
+    return build_local_context(writer_name)
+
+
+def build_local_context(writer_name):
+    """Build minimal writer context from local JSON files when Supabase is unavailable."""
+    context = f"\n# CONTEXT FOR {writer_name.upper()}\n\n"
+
+    # Load published blog posts for linking
+    blog_path = PROJECT_ROOT / "data" / "blog_posts.json"
+    if blog_path.exists():
+        blog_data = json.loads(blog_path.read_text())
+        posts = [
+            p
+            for p in blog_data.get("blog_posts", [])[:30]
+            if p.get("published")
+        ]
+        # Show this writer's recent posts
+        own_posts = [
+            p for p in posts
+            if p.get("author", "").lower() == writer_name.lower()
+        ]
+        if own_posts:
+            context += "## Your Recent Articles\n"
+            for p in own_posts[:5]:
+                context += f"- /blog/{p['slug']}.html — {p['title']}\n"
+        # Show team posts
+        team_posts = [
+            p for p in posts
+            if p.get("author", "").lower() != writer_name.lower()
+        ]
+        if team_posts:
+            context += "\n## Teammate Articles (cross-reference these)\n"
+            for p in team_posts[:10]:
+                author = p.get("author", "").title()
+                context += f"- /blog/{p['slug']}.html — {p['title']} (by {author})\n"
+
+    # Add wiki topics
+    context += _build_wiki_context()
+
+    return context
+
+
+def _build_wiki_context():
+    """Build wiki topics section from wiki-keywords.json."""
+    wiki_path = PROJECT_ROOT / "data" / "wiki-keywords.json"
+    if not wiki_path.exists():
+        return ""
+
+    wiki_data = json.loads(wiki_path.read_text())
+    keywords = wiki_data.get("keyword_map", {})
+
+    # Get unique wiki pages (deduplicate by URL)
+    seen = set()
+    wiki_topics = []
+    for kw, url in keywords.items():
+        if url not in seen and len(kw) > 3:
+            seen.add(url)
+            wiki_topics.append(f"- {url} — {kw}")
+
+    if not wiki_topics:
+        return ""
+
+    result = "\n## Wiki Topics (link when relevant)\n"
+    result += "\n".join(wiki_topics[:15]) + "\n"
+    return result
+
+
+def store_commentary_memory(writer_name, video_title, commentary):
+    """Store generated commentary as a new memory for the writer.
+    Non-critical: never blocks commentary generation."""
+    try:
+        from supabase import create_client
+
+        supabase_url = os.environ.get("SUPABASE_URL")
+        supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+        if not supabase_url or not supabase_key:
+            return
+
+        sb = create_client(supabase_url, supabase_key)
+
+        # Get writer_id
+        writer_result = (
+            sb.table("writers")
+            .select("id")
+            .eq("slug", writer_name.lower())
+            .execute()
+        )
+        if not writer_result.data:
+            return
+
+        writer_id = writer_result.data[0]["id"]
+
+        sb.table("writer_memory_log").insert(
+            {
+                "writer_id": writer_id,
+                "memory_type": "pattern_identified",
+                "title": f"Commentary: {video_title[:80]}",
+                "description": commentary[:300],
+                "source": "direct_learning",
+                "tags": ["commentary", "video-reaction", "weekly"],
+                "relevance_score": 0.70,
+                "impact_category": "engagement_boost",
+                "implementation_status": "implemented",
+            }
+        ).execute()
+        print(f"   ✓ Stored memory for {writer_name}")
+    except Exception as e:
+        print(f"   ⚠ Could not store memory for {writer_name}: {e}")
 
 
 def load_youtube_data():
@@ -129,10 +264,15 @@ def humanize_text(text):
 
 
 def generate_commentary(video, writer):
-    """Generate editorial commentary using Claude with humanization"""
+    """Generate editorial commentary using Claude with humanization and memory"""
     writer_persona = WRITERS[writer]
 
+    # Load full writer context (memories + articles + wiki)
+    writer_context = load_writer_context(writer)
+
     prompt = f"""You are {writer}, a writer for Carnivore Weekly. {writer_persona}
+
+{writer_context}
 
 Write a 3-4 sentence editorial commentary for this video.
 
@@ -153,8 +293,18 @@ SOFT-CONVERSION APPROACH:
 CONTENT REQUIREMENTS:
 - React to what the COMMUNITY is saying in the comments (if available)
 - Quote or paraphrase specific comments when interesting
+- Reference your own past writing if the topic connects ("I covered this in...")
+- Mention teammates' articles when relevant ("Marcus had a great take on...")
+- Naturally mention wiki topics when the video touches on them
 - Explain why this video matters to the carnivore world
 - Use short sentences (vary length for rhythm)
+
+LINKING RULES:
+- You may reference blog posts or wiki topics from the context above
+- Use natural phrasing: "check out our dairy guide" not "[click here](/wiki/#dairy)"
+- Only reference content that genuinely relates to the video topic
+- Don't force links, only include if they add real value
+- Keep it to 0-1 references max (this is short commentary, not an article)
 
 Video Details:
 Title: {video['title']}
@@ -223,8 +373,11 @@ def main():
         writer = assign_writer(i)
         print(f"   {i+1}. {video['title'][:50]}... (assigned to {writer})")
 
-        # Generate commentary
+        # Generate commentary with memory context
         commentary = generate_commentary(video, writer)
+
+        # Store commentary as memory for future runs
+        store_commentary_memory(writer, video["title"], commentary)
 
         # Create editorial title
         editorial_title = create_editorial_title(video["title"])
