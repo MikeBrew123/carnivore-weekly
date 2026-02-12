@@ -75,12 +75,22 @@ class HTMLStructureParser(HTMLParser):
 
 
 class ContentValidator:
-    """Self-healing content validator with auto-fix capabilities."""
+    """Self-healing content validator with auto-fix capabilities.
 
-    def __init__(self, log_dir: Path = None):
+    Modes:
+        "warn" (default) — runs all checks, logs issues, NEVER modifies content.
+        "fix" (legacy)   — runs all checks AND auto-fixes content.
+
+    Pipeline Lockdown (2026-02-12): Default changed from "fix" to "warn".
+    The template is the single source of truth. The validator detects issues
+    but does not compete with the template by rewriting its output.
+    """
+
+    def __init__(self, log_dir: Path = None, mode: str = "warn"):
         self.log_dir = log_dir or Path(__file__).parent.parent / "logs"
         self.log_dir.mkdir(exist_ok=True)
         self.log_messages = []
+        self.mode = mode  # "warn" or "fix"
 
     def log(self, category: str, filename: str, message: str):
         """Add log entry."""
@@ -543,6 +553,58 @@ class ContentValidator:
         # Path is correct - return as is
         return filename
 
+    def validate_only(self, content: str, filename: str) -> Tuple[bool, List[str], str]:
+        """
+        Validate content WITHOUT modifying it. Returns original content unchanged.
+
+        Runs all fix methods on a TRUE DEEP COPY to detect issues, but the
+        original content string is never touched. This is the default mode
+        since Pipeline Lockdown (2026-02-12).
+
+        Returns:
+            (is_valid: bool, log_messages: list, corrected_filename: str)
+            is_valid is False only for blocking issues (template vars, bad JSON-LD, <200 words)
+        """
+        import copy
+        self.log_messages = []
+
+        # Stage 0: Validate output path
+        corrected_filename = self.validate_blog_path(filename)
+
+        # Stage 1: Blocking checks on ORIGINAL content
+        if not self.check_template_variables(content, filename):
+            return False, self.log_messages, corrected_filename
+
+        if not self.validate_json_ld(content, filename):
+            return False, self.log_messages, corrected_filename
+
+        if not self.validate_minimum_content(content, filename):
+            return False, self.log_messages, corrected_filename
+
+        # Stage 2: Run fix methods on a THROWAWAY COPY to detect issues
+        # The original content is NEVER modified
+        throwaway = copy.deepcopy(content)
+        throwaway = self.fix_h1_tags(throwaway, filename)
+        throwaway = self.fix_duplicate_ids(throwaway, filename)
+        throwaway = self.fix_meta_tags(throwaway, filename)
+        throwaway = self.fix_heading_hierarchy(throwaway, filename)
+        throwaway = self.fix_images(throwaway, filename)
+        throwaway = self.fix_external_links(throwaway, filename)
+        throwaway = self.fix_links_in_headings(throwaway, filename)
+        throwaway = self.fix_doubled_paths(throwaway, filename)
+        self.check_internal_links(content, filename)  # Read-only check on original
+
+        # Stage 3: Summary
+        fix_count = len([m for m in self.log_messages if "[AUTO-FIX]" in m])
+        block_count = len([m for m in self.log_messages if "[BLOCKED]" in m])
+        if fix_count > 0:
+            self.log("SUMMARY", filename,
+                     f"{fix_count} issues detected (warn-only mode, original content preserved)")
+        elif not self.log_messages:
+            self.log("SUMMARY", filename, "No issues found")
+
+        return True, self.log_messages, corrected_filename
+
     def validate_and_fix(self, content: str, filename: str) -> Tuple[Optional[str], List[str], str]:
         """
         Validates and auto-fixes HTML content.
@@ -632,19 +694,28 @@ class ContentValidator:
         print("=" * 60 + "\n")
 
 
-# Convenience function for external use
+# Convenience functions for external use
+def validate_only(content: str, filename: str) -> Tuple[bool, List[str], str]:
+    """
+    Validates HTML content WITHOUT modifying it. Default since Pipeline Lockdown.
+
+    Returns:
+        (is_valid, log_messages, corrected_filename)
+    """
+    validator = ContentValidator(mode="warn")
+    return validator.validate_only(content, filename)
+
+
 def validate_and_fix(content: str, filename: str) -> Tuple[Optional[str], List[str], str]:
     """
-    Validates and auto-fixes HTML content.
+    Legacy: Validates and auto-fixes HTML content.
+    Use validate_only() for new code — this mutates content.
 
     Returns:
         (fixed_content, log_messages, corrected_filename)
-
-    Returns:
-        (fixed_content, log_messages) if content is fixable
-        (None, log_messages) if content must be blocked
+        (None, log_messages, corrected_filename) if content must be blocked
     """
-    validator = ContentValidator()
+    validator = ContentValidator(mode="fix")
     return validator.validate_and_fix(content, filename)
 
 

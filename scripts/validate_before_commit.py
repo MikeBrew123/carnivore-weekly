@@ -544,11 +544,26 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
         # Everything else in blog/ is a fragment
         return True
 
+    def is_redirect_stub(path):
+        """Check if file is a meta-refresh redirect stub (under 500 bytes).
+        # NOTE: Redirect stubs are excluded here. If you add new redirects to
+        # data/redirects.json, they are automatically excluded by this size/content check.
+        """
+        try:
+            if path.stat().st_size < 500:
+                content = path.read_text(encoding='utf-8', errors='ignore')[:100]
+                if 'meta http-equiv="refresh"' in content:
+                    return True
+        except (OSError, IOError):
+            pass
+        return False
+
     files_to_check = [
         f for f in files_to_check
         if not any(ex in f.parts for ex in exclude_dirs)
         and not any(str(f).replace(str(project_root) + '/', '').startswith(pattern) for pattern in exclude_patterns)
         and not is_blog_fragment(f)
+        and not is_redirect_stub(f)
     ]
 
     if verbose:
@@ -569,6 +584,93 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
     if sitemap_path.exists() or not staged_only:
         validate_sitemap(sitemap_path, results)
     validate_sitemap_sync(sitemap_path, project_root / 'public', results)
+
+    # === Pipeline Lockdown Phase 7: Enforcement Gates ===
+    # These gates enforce every lesson learned as automated checks.
+
+    # Gate 1: Future date check on blog filenames
+    today = datetime.now().date()
+    date_pattern = re.compile(r'^(\d{4}-\d{2}-\d{2})-.+\.html$')
+    blog_dir = project_root / 'public' / 'blog'
+    if blog_dir.exists():
+        for bf in blog_dir.glob('*.html'):
+            m = date_pattern.match(bf.name)
+            if m:
+                try:
+                    file_date = datetime.strptime(m.group(1), '%Y-%m-%d').date()
+                    if file_date > today:
+                        results.add_critical(
+                            f'public/blog/{bf.name}', 1,
+                            f'Future date in filename: {m.group(1)} is after today ({today})',
+                            'Google penalizes future-dated content. Fix the date in blog_posts.json.'
+                        )
+                except ValueError:
+                    pass
+
+    # Gate 2: Fragment check (blog HTML missing <!DOCTYPE)
+    if blog_dir.exists():
+        for bf in blog_dir.glob('*.html'):
+            if bf.name == 'index.html':
+                continue
+            # Skip redirect stubs (tiny files under 500 bytes)
+            # NOTE: Redirect stubs are excluded here. If you add new redirects to
+            # data/redirects.json, they are automatically excluded by this size/content check.
+            if bf.stat().st_size < 500:
+                continue
+            first_line = bf.read_text(encoding='utf-8', errors='ignore')[:30].strip().lower()
+            if not first_line.startswith(('<!doctype', '<html')):
+                results.add_critical(
+                    f'public/blog/{bf.name}', 1,
+                    'HTML fragment — missing <!DOCTYPE html>',
+                    'This is not a complete page. Regenerate through the template.'
+                )
+
+    # Gate 3-5: Baseline regression checks
+    baseline_path = project_root / 'data' / 'site_baseline.json'
+    if baseline_path.exists():
+        baseline = json.loads(baseline_path.read_text())
+
+        # Gate 3: Sitemap regression
+        if sitemap_path.exists():
+            try:
+                tree = ET.parse(sitemap_path)
+                ns = {'ns': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+                url_count = len(tree.getroot().findall('ns:url', ns))
+                min_urls = baseline.get('sitemap_urls_min', 0)
+                if url_count < min_urls:
+                    results.add_critical(
+                        'public/sitemap.xml', 1,
+                        f'Sitemap regression: {url_count} URLs < baseline {min_urls}',
+                        'Content was lost. Do NOT deploy. Compare against last known-good snapshot.'
+                    )
+            except ET.ParseError:
+                pass
+
+        # Gate 4: RSS regression
+        feed_path = project_root / 'public' / 'feed.xml'
+        if feed_path.exists():
+            try:
+                tree = ET.parse(feed_path)
+                item_count = len(tree.getroot().findall('.//item'))
+                min_items = baseline.get('rss_items_min', 0)
+                if item_count < min_items:
+                    results.add_critical(
+                        'public/feed.xml', 1,
+                        f'RSS regression: {item_count} items < baseline {min_items}',
+                        'Feed subscribers would lose posts. Do NOT deploy.'
+                    )
+            except ET.ParseError:
+                pass
+
+        # Gate 5: Main pages existence
+        for page in baseline.get('main_pages', []):
+            page_path = project_root / 'public' / page
+            if not page_path.exists():
+                results.add_critical(
+                    f'public/{page}', 1,
+                    f'Main page missing: {page}',
+                    'A core site page has disappeared. Regenerate or restore from backup.'
+                )
 
     return results
 

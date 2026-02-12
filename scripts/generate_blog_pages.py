@@ -189,27 +189,27 @@ def generate_blog_posts(env, posts, validator=None):
             seo=seo
         )
 
-        # Validate and fix content BEFORE writing to disk
+        # Validate content (warn-only — template output is source of truth)
         filename = f"{post['slug']}.html"
-        fixed_content, log_messages, corrected_filename = validator.validate_and_fix(rendered, filename)
+        is_valid, log_messages, corrected_filename = validator.validate_only(rendered, filename)
 
-        if fixed_content is None:
-            # Content blocked - do not write
+        if not is_valid:
+            # Content blocked — template vars, bad JSON-LD, or insufficient content
             print(f"❌ BLOCKED: {post['title']} (validation failed)")
             blocked_count += 1
             continue
 
         if log_messages:
-            fixes = len([m for m in log_messages if "[AUTO-FIX]" in m])
-            if fixes > 0:
-                fixed_count += 1
+            issues = len([m for m in log_messages if "[AUTO-FIX]" in m])
+            if issues > 0:
+                fixed_count += 1  # Count as "had issues" for reporting
 
-        # Write to file (using corrected filename if path was fixed)
-        # Extract just the basename from corrected filename (in case it has path)
+        # Write TEMPLATE OUTPUT to disk (not validator-modified version)
+        # Pipeline Lockdown: one-way flow — template → disk, validator only warns
         final_filename = Path(corrected_filename).name
         post_file = BLOG_DIR / final_filename
         with open(post_file, "w") as f:
-            f.write(fixed_content)
+            f.write(rendered)
 
         print(f"✅ {post['title']}")
 

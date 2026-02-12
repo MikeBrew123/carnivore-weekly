@@ -31,7 +31,7 @@ echo ""
 # Python validation (BLOCKING for modified and new scripts)
 echo "   Running Python validation (flake8)..."
 # Check critical scripts strictly (must pass)
-CRITICAL_SCRIPTS="scripts/youtube_collector.py scripts/generate.py scripts/generate_commentary.py scripts/fix-blog-seo.py scripts/fix-h1-duplicates.py scripts/extract_wiki_keywords.py"
+CRITICAL_SCRIPTS="scripts/youtube_collector.py scripts/generate.py scripts/generate_commentary.py scripts/generate_blog_pages.py scripts/content_validator.py scripts/extract_wiki_keywords.py"
 LINTING_ISSUES=0
 for script in $CRITICAL_SCRIPTS; do
     if [ -f "$script" ]; then
