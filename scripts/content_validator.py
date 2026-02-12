@@ -33,40 +33,40 @@ class HTMLStructureParser(HTMLParser):
         attrs_dict = dict(attrs)
 
         # Track H1 tags
-        if tag == 'h1':
+        if tag == "h1":
             self.h1_count += 1
             self.h1_tags.append(attrs_dict)
 
         # Track heading hierarchy
-        if tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+        if tag in ["h1", "h2", "h3", "h4", "h5", "h6"]:
             level = int(tag[1])
             self.heading_levels.append(level)
 
         # Track IDs
-        if 'id' in attrs_dict:
-            self.ids.append(attrs_dict['id'])
+        if "id" in attrs_dict:
+            self.ids.append(attrs_dict["id"])
 
         # Track images
-        if tag == 'img':
+        if tag == "img":
             self.images.append(attrs_dict)
 
         # Track links
-        if tag == 'a':
+        if tag == "a":
             self.links.append(attrs_dict)
 
         # Track meta tags
-        if tag == 'meta':
-            if 'name' in attrs_dict:
-                self.meta_tags[attrs_dict['name']] = attrs_dict.get('content', '')
-            if 'property' in attrs_dict:
-                self.meta_tags[attrs_dict['property']] = attrs_dict.get('content', '')
+        if tag == "meta":
+            if "name" in attrs_dict:
+                self.meta_tags[attrs_dict["name"]] = attrs_dict.get("content", "")
+            if "property" in attrs_dict:
+                self.meta_tags[attrs_dict["property"]] = attrs_dict.get("content", "")
 
         # Check for post-content wrapper
-        if tag == 'div' and attrs_dict.get('class') == 'post-content':
+        if tag == "div" and attrs_dict.get("class") == "post-content":
             self.has_post_content_wrapper = True
 
         # Track unclosed tags (simplified)
-        if tag not in ['meta', 'link', 'img', 'br', 'hr', 'input']:
+        if tag not in ["meta", "link", "img", "br", "hr", "input"]:
             self.tag_stack.append(tag)
 
     def handle_endtag(self, tag):
@@ -103,18 +103,18 @@ class ContentValidator:
         parser = HTMLStructureParser()
         try:
             parser.feed(content)
-        except:
+        except Exception:
             pass
 
         if parser.h1_count == 0:
             # No H1s found - promote first H2
-            if '<h2' in content:
-                content = content.replace('<h2', '<h1', 1)
-                content = content.replace('</h2>', '</h1>', 1)
+            if "<h2" in content:
+                content = content.replace("<h2", "<h1", 1)
+                content = content.replace("</h2>", "</h1>", 1)
                 self.log("AUTO-FIX", filename, "Promoted first H2 to H1 (no H1s found)")
         elif parser.h1_count > 1:
             # Multiple H1s - keep first, convert rest
-            h1_pattern = re.compile(r'<h1([^>]*)>(.*?)</h1>', re.DOTALL)
+            h1_pattern = re.compile(r"<h1([^>]*)>(.*?)</h1>", re.DOTALL)
             matches = list(h1_pattern.finditer(content))
 
             if len(matches) > 1:
@@ -122,7 +122,7 @@ class ContentValidator:
                 for i, match in enumerate(matches):
                     if i > 0:
                         old = match.group(0)
-                        new = f'<h2{match.group(1)}>{match.group(2)}</h2>'
+                        new = f"<h2{match.group(1)}>{match.group(2)}</h2>"
                         content = content.replace(old, new, 1)
 
                 self.log("AUTO-FIX", filename, f"Had {parser.h1_count} H1 tags, corrected to 1")
@@ -134,7 +134,7 @@ class ContentValidator:
         parser = HTMLStructureParser()
         try:
             parser.feed(content)
-        except:
+        except Exception:
             pass
 
         # Find duplicates
@@ -161,17 +161,21 @@ class ContentValidator:
                         end = match.end()
                         content = content[:start] + new + content[end:]
 
-                self.log("AUTO-FIX", filename, f"Fixed duplicate ID: {dup_id} ({seen_ids[dup_id]} occurrences)")
+                self.log(
+                    "AUTO-FIX",
+                    filename,
+                    f"Fixed duplicate ID: {dup_id} ({seen_ids[dup_id]} occurrences)",
+                )
 
         return content
 
     def check_template_variables(self, content: str, filename: str) -> bool:
         """Block pages with unrendered template variables."""
         patterns = [
-            r'\{\{.*?\}\}',  # Jinja {{ }}
-            r'\{%.*?%\}',    # Jinja {% %}
-            r'\{#.*?#\}',    # Jinja {# #}
-            r'\{variable\}', # Generic {variable}
+            r"\{\{.*?\}\}",  # Jinja {{ }}
+            r"\{%.*?%\}",  # Jinja {% %}
+            r"\{#.*?#\}",  # Jinja {# #}
+            r"\{variable\}",  # Generic {variable}
         ]
 
         issues = []
@@ -181,7 +185,9 @@ class ContentValidator:
                 issues.extend(matches)
 
         if issues:
-            self.log("BLOCKED", filename, f"Unrendered template variables: {', '.join(set(issues))}")
+            self.log(
+                "BLOCKED", filename, f"Unrendered template variables: {', '.join(set(issues))}"
+            )
             return False
 
         return True
@@ -191,21 +197,21 @@ class ContentValidator:
         parser = HTMLStructureParser()
         try:
             parser.feed(content)
-        except:
+        except Exception:
             pass
 
         fixes = []
 
         # Extract title
-        title_match = re.search(r'<title>(.*?)</title>', content)
+        title_match = re.search(r"<title>(.*?)</title>", content)
         title = title_match.group(1) if title_match else "Carnivore Weekly"
 
         # Check for missing description
-        if 'description' not in parser.meta_tags or not parser.meta_tags['description']:
+        if "description" not in parser.meta_tags or not parser.meta_tags["description"]:
             # Try to extract from first paragraph
-            p_match = re.search(r'<p[^>]*>(.*?)</p>', content, re.DOTALL)
+            p_match = re.search(r"<p[^>]*>(.*?)</p>", content, re.DOTALL)
             if p_match:
-                desc = re.sub(r'<[^>]+>', '', p_match.group(1))[:160]
+                desc = re.sub(r"<[^>]+>", "", p_match.group(1))[:160]
                 desc = desc.strip()
 
                 # Insert or fix description
@@ -213,63 +219,66 @@ class ContentValidator:
                     content = re.sub(
                         r'<meta name="description" content="[^"]*"',
                         f'<meta name="description" content="{desc}"',
-                        content
+                        content,
                     )
                 else:
                     # Add after charset
                     content = content.replace(
                         '<meta charset="UTF-8">',
-                        f'<meta charset="UTF-8">\n    <meta name="description" content="{desc}">'
+                        f'<meta charset="UTF-8">\n    <meta name="description" content="{desc}">',
                     )
                 fixes.append("description")
 
         # Check meta description length (should be 150-160 chars)
-        if 'description' in parser.meta_tags and parser.meta_tags['description']:
-            current_desc = parser.meta_tags['description']
+        if "description" in parser.meta_tags and parser.meta_tags["description"]:
+            current_desc = parser.meta_tags["description"]
             desc_len = len(current_desc)
 
             if desc_len < 150 or desc_len > 160:
                 # Try to adjust length
                 if desc_len < 150:
                     # Too short - try to extract more from first paragraph
-                    p_match = re.search(r'<p[^>]*>(.*?)</p>', content, re.DOTALL)
+                    p_match = re.search(r"<p[^>]*>(.*?)</p>", content, re.DOTALL)
                     if p_match:
-                        full_text = re.sub(r'<[^>]+>', '', p_match.group(1)).strip()
+                        full_text = re.sub(r"<[^>]+>", "", p_match.group(1)).strip()
                         # Take first 155 chars for optimal length
                         new_desc = full_text[:155].strip()
                         if len(new_desc) >= 150:
                             content = re.sub(
                                 r'<meta name="description" content="[^"]*"',
                                 f'<meta name="description" content="{new_desc}"',
-                                content
+                                content,
                             )
-                            fixes.append(f"meta description length ({desc_len} → {len(new_desc)} chars)")
+                            fixes.append(
+                                f"meta description length ({desc_len} → {len(new_desc)} chars)"
+                            )
                 elif desc_len > 160:
                     # Too long - truncate to 160
                     new_desc = current_desc[:160].strip()
                     content = re.sub(
                         r'<meta name="description" content="[^"]*"',
                         f'<meta name="description" content="{new_desc}"',
-                        content
+                        content,
                     )
                     fixes.append(f"meta description length ({desc_len} → {len(new_desc)} chars)")
 
         # Check for missing canonical — only inject for files actually in blog/ directory
-        if 'canonical' not in content:
+        if "canonical" not in content:
             file_path = Path(filename)
             # Only auto-generate canonical for blog posts (files in blog/ directory)
-            if 'blog' in str(file_path.parent).lower() or str(file_path).startswith('blog/'):
+            if "blog" in str(file_path.parent).lower() or str(file_path).startswith("blog/"):
                 slug = file_path.stem
-                canonical = f'<link rel="canonical" href="https://carnivoreweekly.com/blog/{slug}.html">'
-                content = re.sub(
-                    r'(</head>)',
-                    f'    {canonical}\n\\1',
-                    content,
-                    count=1
+                canonical = (
+                    f'<link rel="canonical" href="https://carnivoreweekly.com/blog/{slug}.html">'
                 )
+                content = re.sub(r"(</head>)", f"    {canonical}\n\\1", content, count=1)
                 fixes.append("canonical")
             else:
-                self.log("SKIP", filename, "No canonical tag found — not a blog post, skipping auto-inject")
+                self.log(
+                    "SKIP",
+                    filename,
+                    "No canonical tag found — not a blog post, skipping auto-inject",
+                )
 
         if fixes:
             self.log("AUTO-FIX", filename, f"Added missing meta tags: {', '.join(fixes)}")
@@ -281,7 +290,7 @@ class ContentValidator:
         parser = HTMLStructureParser()
         try:
             parser.feed(content)
-        except:
+        except Exception:
             pass
 
         if not parser.heading_levels:
@@ -296,16 +305,16 @@ class ContentValidator:
             # If jump > 1, it's a skip
             if next_level - current > 1:
                 # Downgrade the next heading
-                wrong_tag = f'h{next_level}'
-                correct_tag = f'h{current + 1}'
+                wrong_tag = f"h{next_level}"
+                correct_tag = f"h{current + 1}"
 
                 # Find first occurrence after position i
-                pattern = re.compile(f'<{wrong_tag}([^>]*)>(.*?)</{wrong_tag}>', re.DOTALL)
+                pattern = re.compile(f"<{wrong_tag}([^>]*)>(.*?)</{wrong_tag}>", re.DOTALL)
                 match = pattern.search(content)
 
                 if match:
                     old = match.group(0)
-                    new = f'<{correct_tag}{match.group(1)}>{match.group(2)}</{correct_tag}>'
+                    new = f"<{correct_tag}{match.group(1)}>{match.group(2)}</{correct_tag}>"
                     content = content.replace(old, new, 1)
                     fixes.append(f"{wrong_tag}→{correct_tag}")
 
@@ -319,15 +328,15 @@ class ContentValidator:
         parser = HTMLStructureParser()
         try:
             parser.feed(content)
-        except:
+        except Exception:
             pass
 
         fixes = 0
         for img in parser.images:
-            if 'alt' not in img or not img['alt']:
-                src = img.get('src', '')
+            if "alt" not in img or not img["alt"]:
+                src = img.get("src", "")
                 # Generate alt from filename
-                alt = Path(src).stem.replace('-', ' ').replace('_', ' ').title()
+                alt = Path(src).stem.replace("-", " ").replace("_", " ").title()
 
                 # Find and replace this specific img tag
                 old_pattern = f'<img[^>]*src="{re.escape(src)}"[^>]*>'
@@ -335,9 +344,9 @@ class ContentValidator:
 
                 for match in matches:
                     old = match.group(0)
-                    if 'alt=' not in old:
+                    if "alt=" not in old:
                         # Add alt attribute
-                        new = old.replace('<img', f'<img alt="{alt}"')
+                        new = old.replace("<img", f'<img alt="{alt}"')
                         content = content.replace(old, new, 1)
                         fixes += 1
 
@@ -351,25 +360,25 @@ class ContentValidator:
         parser = HTMLStructureParser()
         try:
             parser.feed(content)
-        except:
+        except Exception:
             pass
 
         fixes = 0
         for link in parser.links:
-            href = link.get('href', '')
+            href = link.get("href", "")
 
             # Check if external
-            if href.startswith('http') and 'carnivoreweekly.com' not in href:
+            if href.startswith("http") and "carnivoreweekly.com" not in href:
                 # Check if missing rel
-                if 'rel' not in link or 'noopener' not in link.get('rel', ''):
+                if "rel" not in link or "noopener" not in link.get("rel", ""):
                     # Find and fix
                     old_pattern = f'<a[^>]*href="{re.escape(href)}"[^>]*>'
                     matches = re.finditer(old_pattern, content)
 
                     for match in matches:
                         old = match.group(0)
-                        if 'rel=' not in old:
-                            new = old.replace('<a', '<a rel="noopener noreferrer"')
+                        if "rel=" not in old:
+                            new = old.replace("<a", '<a rel="noopener noreferrer"')
                             content = content.replace(old, new, 1)
                             fixes += 1
 
@@ -384,7 +393,7 @@ class ContentValidator:
         Block publication if article body has less than 200 words.
         """
         # Only validate blog posts
-        if 'blog/' not in filename:
+        if "blog/" not in filename:
             return True
 
         # Extract content from post-content div (exclude nav, footer, template)
@@ -398,21 +407,26 @@ class ContentValidator:
         article_content = match.group(1)
 
         # Strip HTML tags to count actual words
-        text_only = re.sub(r'<[^>]+>', ' ', article_content)
-        text_only = re.sub(r'\s+', ' ', text_only).strip()
+        text_only = re.sub(r"<[^>]+>", " ", article_content)
+        text_only = re.sub(r"\s+", " ", text_only).strip()
 
         word_count = len(text_only.split())
 
         if word_count < 200:
-            self.log("BLOCKED", filename,
-                    f"Insufficient content ({word_count} words). Minimum 200 words required for blog posts.")
+            self.log(
+                "BLOCKED",
+                filename,
+                f"Insufficient content ({word_count} words). Minimum 200 words required for blog posts.",
+            )
             return False
 
         return True
 
     def validate_json_ld(self, content: str, filename: str) -> bool:
         """Verify JSON-LD schema is valid."""
-        json_ld_pattern = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.DOTALL)
+        json_ld_pattern = re.compile(
+            r'<script type="application/ld\+json">(.*?)</script>', re.DOTALL
+        )
         matches = json_ld_pattern.findall(content)
 
         for i, match in enumerate(matches):
@@ -420,12 +434,16 @@ class ContentValidator:
                 data = json.loads(match)
 
                 # Check required fields for Article schema
-                if data.get('@type') == 'Article':
-                    required = ['headline', 'author', 'publisher', 'datePublished']
+                if data.get("@type") == "Article":
+                    required = ["headline", "author", "publisher", "datePublished"]
                     missing = [f for f in required if f not in data]
 
                     if missing:
-                        self.log("BLOCKED", filename, f"JSON-LD missing required fields: {', '.join(missing)}")
+                        self.log(
+                            "BLOCKED",
+                            filename,
+                            f"JSON-LD missing required fields: {', '.join(missing)}",
+                        )
                         return False
 
             except json.JSONDecodeError as e:
@@ -441,7 +459,7 @@ class ContentValidator:
         """
         import re
 
-        heading_pattern = r'<(h[1-4])([^>]*)>(.*?)</\1>'
+        heading_pattern = r"<(h[1-4])([^>]*)>(.*?)</\1>"
 
         def remove_link_from_heading(match):
             tag = match.group(1)
@@ -449,12 +467,12 @@ class ContentValidator:
             inner_content = match.group(3)
 
             # Check if heading contains a link
-            if '<a' in inner_content:
+            if "<a" in inner_content:
                 # Extract just the text from the link
-                link_text = re.sub(r'<a[^>]*>(.*?)</a>', r'\1', inner_content)
+                link_text = re.sub(r"<a[^>]*>(.*?)</a>", r"\1", inner_content)
                 if link_text != inner_content:
                     self.log("AUTO-FIX", filename, f"Removed link from <{tag}> heading, kept text")
-                return f'<{tag}{attrs}>{link_text}</{tag}>'
+                return f"<{tag}{attrs}>{link_text}</{tag}>"
 
             return match.group(0)
 
@@ -479,7 +497,11 @@ class ContentValidator:
         if wiki_matches:
             content = re.sub(wiki_pattern, r'href="/wiki/#\2"', content)
             for match in wiki_matches:
-                self.log("AUTO-FIX", filename, f"Fixed doubled wiki path: /wiki/#/wiki/#{match[1]} → /wiki/#{match[1]}")
+                self.log(
+                    "AUTO-FIX",
+                    filename,
+                    f"Fixed doubled wiki path: /wiki/#/wiki/#{match[1]} → /wiki/#{match[1]}",
+                )
 
         # Pattern 2: /blog//blog/ → /blog/
         blog_pattern = r'href="(/blog/)/blog/([^"]*)"'
@@ -487,7 +509,11 @@ class ContentValidator:
         if blog_matches:
             content = re.sub(blog_pattern, r'href="/blog/\2"', content)
             for match in blog_matches:
-                self.log("AUTO-FIX", filename, f"Fixed doubled blog path: /blog//blog/{match[1]} → /blog/{match[1]}")
+                self.log(
+                    "AUTO-FIX",
+                    filename,
+                    f"Fixed doubled blog path: /blog//blog/{match[1]} → /blog/{match[1]}",
+                )
 
         # Pattern 3: Double slashes in any path (but NOT protocol ://)
         double_slash_pattern = r'href="([^"]*?[^:])//+([^"]*)"'
@@ -495,7 +521,11 @@ class ContentValidator:
         if double_slash_matches:
             content = re.sub(double_slash_pattern, r'href="\1/\2"', content)
             for match in double_slash_matches:
-                self.log("AUTO-FIX", filename, f"Fixed double slash: {match[0]}//{match[1]} → {match[0]}/{match[1]}")
+                self.log(
+                    "AUTO-FIX",
+                    filename,
+                    f"Fixed double slash: {match[0]}//{match[1]} → {match[0]}/{match[1]}",
+                )
 
         return content
 
@@ -507,7 +537,7 @@ class ContentValidator:
         import re
 
         # Skip non-blog files
-        if '/blog/' not in filename:
+        if "/blog/" not in filename:
             return
 
         # Count internal blog links
@@ -517,9 +547,17 @@ class ContentValidator:
         total_internal = len(internal_links) + len(wiki_links)
 
         if total_internal == 0:
-            self.log("WARNING", filename, "No internal links — consider adding 2-3 links to related content")
+            self.log(
+                "WARNING",
+                filename,
+                "No internal links — consider adding 2-3 links to related content",
+            )
         elif total_internal < 2:
-            self.log("WARNING", filename, f"Only {total_internal} internal link — consider adding 1-2 more")
+            self.log(
+                "WARNING",
+                filename,
+                f"Only {total_internal} internal link — consider adding 1-2 more",
+            )
 
     def validate_blog_path(self, filename: str) -> str:
         """
@@ -566,6 +604,7 @@ class ContentValidator:
             is_valid is False only for blocking issues (template vars, bad JSON-LD, <200 words)
         """
         import copy
+
         self.log_messages = []
 
         # Stage 0: Validate output path
@@ -598,8 +637,11 @@ class ContentValidator:
         fix_count = len([m for m in self.log_messages if "[AUTO-FIX]" in m])
         block_count = len([m for m in self.log_messages if "[BLOCKED]" in m])
         if fix_count > 0:
-            self.log("SUMMARY", filename,
-                     f"{fix_count} issues detected (warn-only mode, original content preserved)")
+            self.log(
+                "SUMMARY",
+                filename,
+                f"{fix_count} issues detected (warn-only mode, original content preserved)",
+            )
         elif not self.log_messages:
             self.log("SUMMARY", filename, "No issues found")
 
@@ -661,9 +703,9 @@ class ContentValidator:
         # Create log file with date
         log_file = self.log_dir / f"validation_{datetime.now().strftime('%Y-%m-%d')}.log"
 
-        with open(log_file, 'a') as f:
+        with open(log_file, "a") as f:
             for msg in self.log_messages:
-                f.write(msg + '\n')
+                f.write(msg + "\n")
 
         # Rotate old logs (keep last 30 days)
         for old_log in self.log_dir.glob("validation_*.log"):
