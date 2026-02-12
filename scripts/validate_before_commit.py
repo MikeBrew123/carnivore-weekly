@@ -502,6 +502,56 @@ def validate_python_file(file_path: Path, results: ValidationResults):
         )
 
 
+def check_flake8_formatting(results: ValidationResults):
+    """Run flake8 on scripts/ directory (warn-only, non-blocking).
+
+    Catches the exact formatting issues that broke the Phase 9 weekly
+    pipeline dry run: blank lines (E302/E303), line length (E501),
+    bare except (E722), and fatal errors (E9/F63/F7/F82).
+    """
+    scripts_dir = Path.cwd() / 'scripts'
+    if not scripts_dir.exists():
+        return
+
+    try:
+        result = subprocess.run(
+            [
+                'flake8',
+                '--count',
+                '--select=E9,F63,F7,F82,E302,E303,E501,E722,W291,W292,W293',
+                '--max-line-length=120',
+                '--exclude=_archived_legacy,__pycache__,venv',
+                str(scripts_dir),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except FileNotFoundError:
+        print('ℹ️  flake8 not installed, skipping format check')
+        return
+    except subprocess.TimeoutExpired:
+        return
+
+    if not result.stdout.strip():
+        results.stats['flake8_issues'] = 0
+        return
+
+    lines = result.stdout.strip().split('\n')
+    issue_count = 0
+    for line in lines:
+        if ':' in line and not line.strip().isdigit():
+            issue_count += 1
+            results.add_warning(
+                line.split(':')[0] if ':' in line else 'scripts/',
+                1,
+                f'flake8: {line}',
+                'Run: python3 -m black scripts/ to auto-fix formatting'
+            )
+
+    results.stats['flake8_issues'] = issue_count
+
+
 def run_validation(staged_only: bool = False, verbose: bool = False) -> ValidationResults:
     """Run all validations"""
     results = ValidationResults()
@@ -584,6 +634,9 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
     if sitemap_path.exists() or not staged_only:
         validate_sitemap(sitemap_path, results)
     validate_sitemap_sync(sitemap_path, project_root / 'public', results)
+
+    # Python formatting check (warn-only — catches issues before weekly pipeline)
+    check_flake8_formatting(results)
 
     # === Pipeline Lockdown Phase 7: Enforcement Gates ===
     # These gates enforce every lesson learned as automated checks.
