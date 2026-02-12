@@ -1,0 +1,19 @@
+{
+  "sitemap_urls_min": 60,
+  "rss_items_min": 51,
+  "published_blog_posts_min": 50,
+  "known_undated_posts": ["insulin-resistance-morning-glucose.html"],
+  "main_pages": [
+    "index.html",
+    "archive.html",
+    "calculator.html",
+    "channels.html",
+    "privacy.html",
+    "the-lab.html",
+    "blog/index.html",
+    "wiki/index.html",
+    "about/index.html"
+  ],
+  "created": "2026-02-12",
+  "note": "Baseline minimums for regression detection. These numbers can ONLY go up, never down. Updated after each verified successful deployment."
+}
