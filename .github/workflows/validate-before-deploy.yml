@@ -162,6 +162,12 @@ jobs:
               print("✅ All referenced CSS/JS files exist")
           EOF
 
+      - name: Validate canonical URLs
+        if: always()
+        run: |
+          echo "Validating canonical tags across all HTML files..."
+          python3 scripts/validate_canonicals.py
+
       - name: Check for new 404s (sitemap vs files)
         if: always()
         run: |

@@ -1110,8 +1110,10 @@ class UnifiedGenerator:
                                     "channel_id", ""
                                 )
 
-                        # Build template variables (same as _generate_pages)
+                        # Build template variables (based on _generate_pages but with correct canonical)
+                        archive_canonical = f"https://carnivoreweekly.com/archive/{archive_file.stem}.html"
                         week_template_vars = {
+                            "canonical_url": archive_canonical,
                             "analysis_date": week_data.get("analysis_date", ""),
                             "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             "search_query": week_data.get("source_data", {}).get(

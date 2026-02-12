@@ -67,8 +67,12 @@ def fix_blog_post(file_path):
         print(f"✓ {Path(file_path).name} - already has OG tags")
         return False
 
-    # Add canonical URL and OG/Twitter tags before closing </head>
-    head_insert = f"{canonical_tag}\n{og_tags}\n{twitter_tags}"
+    # If canonical already exists, don't add another one — only add OG/Twitter
+    if 'rel="canonical"' in content:
+        print(f"⚠ {Path(file_path).name} - canonical exists, adding OG/Twitter only")
+        head_insert = f"{og_tags}\n{twitter_tags}"
+    else:
+        head_insert = f"{canonical_tag}\n{og_tags}\n{twitter_tags}"
     content = content.replace("</head>", f"{head_insert}\n</head>")
 
     # Add Google Analytics before closing </head>

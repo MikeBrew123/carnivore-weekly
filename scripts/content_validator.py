@@ -244,20 +244,22 @@ class ContentValidator:
                     )
                     fixes.append(f"meta description length ({desc_len} → {len(new_desc)} chars)")
 
-        # Check for missing canonical
+        # Check for missing canonical — only inject for files actually in blog/ directory
         if 'canonical' not in content:
-            # Extract slug from filename
-            slug = Path(filename).stem
-            canonical = f'<link rel="canonical" href="https://carnivoreweekly.com/blog/{slug}.html">'
-
-            # Insert after last meta tag
-            content = re.sub(
-                r'(</head>)',
-                f'    {canonical}\n\\1',
-                content,
-                count=1
-            )
-            fixes.append("canonical")
+            file_path = Path(filename)
+            # Only auto-generate canonical for blog posts (files in blog/ directory)
+            if 'blog' in str(file_path.parent).lower() or str(file_path).startswith('blog/'):
+                slug = file_path.stem
+                canonical = f'<link rel="canonical" href="https://carnivoreweekly.com/blog/{slug}.html">'
+                content = re.sub(
+                    r'(</head>)',
+                    f'    {canonical}\n\\1',
+                    content,
+                    count=1
+                )
+                fixes.append("canonical")
+            else:
+                self.log("SKIP", filename, "No canonical tag found — not a blog post, skipping auto-inject")
 
         if fixes:
             self.log("AUTO-FIX", filename, f"Added missing meta tags: {', '.join(fixes)}")
