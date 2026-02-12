@@ -23,6 +23,22 @@ GREEN = '\033[92m'
 BLUE = '\033[94m'
 RESET = '\033[0m'
 
+def is_redirect_stub(filepath):
+    """Check if a file is a meta-refresh redirect stub.
+    # NOTE: Redirect stubs are excluded here. If you add new redirects to
+    # data/redirects.json, they are automatically excluded by this size/content check.
+    """
+    try:
+        p = Path(filepath)
+        if p.stat().st_size < 500:
+            content = p.read_text(encoding='utf-8', errors='ignore')[:100]
+            if 'meta http-equiv="refresh"' in content:
+                return True
+    except (OSError, IOError):
+        pass
+    return False
+
+
 class ValidationReport:
     def __init__(self):
         self.critical = []
@@ -322,10 +338,13 @@ def check_404s(report):
         'public/calculator.html',
     ]
 
-    # Also check blog posts
+    # Also check blog posts (skip redirect stubs)
     blog_dir = Path('public/blog')
     if blog_dir.exists():
-        pages_to_check.extend([str(p) for p in list(blog_dir.glob('*.html'))[:5]])
+        pages_to_check.extend([
+            str(p) for p in list(blog_dir.glob('*.html'))[:5]
+            if not is_redirect_stub(p)
+        ])
 
     for page in pages_to_check:
         page_path = Path(page)
@@ -407,10 +426,13 @@ def check_seo_basics(report):
         'public/blog.html',
     ]
 
-    # Add blog posts
+    # Add blog posts (skip redirect stubs)
     blog_dir = Path('public/blog')
     if blog_dir.exists():
-        pages_to_check.extend([str(p) for p in list(blog_dir.glob('*.html'))])
+        pages_to_check.extend([
+            str(p) for p in blog_dir.glob('*.html')
+            if not is_redirect_stub(p)
+        ])
 
     for page in pages_to_check:
         page_path = Path(page)
