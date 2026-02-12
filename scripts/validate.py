@@ -172,6 +172,7 @@ class UnifiedValidator:
             "public/blog/2025-12-26-",  # Legacy blog posts (pre-template)
             "public/blog/2025-12-27-",  # Legacy blog posts (pre-template)
             "public/blog/2025-12-28-",  # Legacy blog posts (pre-template)
+            "public/404.html",  # Error page (intentionally minimal structure)
         ]
 
         for html_file in html_files:
@@ -179,6 +180,16 @@ class UnifiedValidator:
             file_str = str(html_file)
             if any(pattern in file_str for pattern in exclude_patterns):
                 continue
+            # Skip redirect stubs (tiny meta-refresh files under 500 bytes)
+            # NOTE: Redirect stubs are excluded here. If you add new redirects to
+            # data/redirects.json, they are automatically excluded by this size/content check.
+            try:
+                if html_file.stat().st_size < 500:
+                    peek = html_file.read_text(encoding="utf-8", errors="ignore")[:100]
+                    if 'meta http-equiv="refresh"' in peek:
+                        continue
+            except (OSError, IOError):
+                pass
             self._validate_html_file(html_file)
 
     def _validate_html_file(self, file_path: Path):
