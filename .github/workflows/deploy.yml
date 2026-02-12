@@ -1,0 +1,112 @@
+name: Validate & Deploy to GitHub Pages
+
+# Pipeline Lockdown (2026-02-12): Merged static.yml + validate-before-deploy.yml
+# Validation MUST pass before deploy runs. No more race condition.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  issues: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install beautifulsoup4 lxml html5lib
+
+      - name: Check baselines (sitemap, RSS, posts, pages)
+        run: python scripts/check_baselines.py
+
+      - name: Run full validation sweep
+        run: python scripts/full-validation-sweep.py
+
+      - name: Validate canonical URLs
+        run: python scripts/validate_canonicals.py
+
+      - name: Validate JSON-LD structured data
+        run: |
+          python3 << 'EOF'
+          import json, re
+          from pathlib import Path
+          errors = []
+          for f in Path('public').rglob('*.html'):
+              for i, block in enumerate(re.findall(r'<script type="application/ld\+json">(.*?)</script>', f.read_text(), re.DOTALL)):
+                  try: json.loads(block)
+                  except json.JSONDecodeError as e: errors.append(f"{f}: block {i+1} - {e}")
+          if errors:
+              print("JSON-LD validation FAILED:"); [print(f"  {e}") for e in errors]; exit(1)
+          else:
+              print("All JSON-LD structured data is valid")
+          EOF
+
+      - name: Validate sitemap.xml
+        run: |
+          python3 << 'EOF'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          p = Path('public/sitemap.xml')
+          if not p.exists(): print("No sitemap.xml"); exit(1)
+          tree = ET.parse(p)
+          urls = tree.getroot().findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url')
+          print(f"sitemap.xml valid: {len(urls)} URLs")
+          EOF
+
+      - name: Verify asset references exist
+        run: |
+          python3 << 'EOF'
+          import re
+          from pathlib import Path
+          missing = []
+          for f in Path('public').rglob('*.html'):
+              content = f.read_text()
+              for ref in re.findall(r'<link[^>]*href="([^"]+\.css)"', content) + re.findall(r'<script[^>]*src="([^"]+\.js)"', content):
+                  if ref.startswith('http'): continue
+                  rp = Path('public') / ref.lstrip('/') if ref.startswith('/') else (f.parent / ref).resolve()
+                  if not rp.exists(): missing.append(f"{f}: {ref}")
+          if missing:
+              print("Missing assets:"); [print(f"  {m}") for m in missing]; exit(1)
+          else:
+              print("All referenced CSS/JS files exist")
+          EOF
+
+  deploy:
+    needs: validate
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
