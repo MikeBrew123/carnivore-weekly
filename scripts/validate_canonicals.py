@@ -54,6 +54,21 @@ def is_standalone_html(html: str) -> bool:
     return bool(re.search(r'<head[\s>]', html, re.IGNORECASE))
 
 
+def is_redirect_stub(filepath: Path) -> bool:
+    """Check if a file is a meta-refresh redirect stub.
+    # NOTE: Redirect stubs are excluded here. If you add new redirects to
+    # data/redirects.json, they are automatically excluded by this size/content check.
+    """
+    try:
+        if filepath.stat().st_size < 500:
+            content = filepath.read_text(encoding="utf-8", errors="ignore")[:100]
+            if 'meta http-equiv="refresh"' in content:
+                return True
+    except (OSError, IOError):
+        pass
+    return False
+
+
 def is_excluded(rel_path: str) -> bool:
     """Check if a file should be excluded from canonical validation."""
     if rel_path in EXCLUDED_FILES:
@@ -193,6 +208,11 @@ def main() -> int:
 
         # Skip excluded paths (components, includes, error pages)
         if is_excluded(rel_path):
+            skipped += 1
+            continue
+
+        # Skip redirect stubs (tiny meta-refresh files — canonical intentionally points to destination)
+        if is_redirect_stub(filepath):
             skipped += 1
             continue
 
