@@ -603,6 +603,8 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
         channel_names = {}  # Store channel names
 
         # Sum up total views for each channel
+        # Filter out live/upcoming videos that report 0 views
+        filtered_count = 0
         for video in videos:
             video_id = video["video_id"]
             channel_id = video["channel_id"]
@@ -610,11 +612,20 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             # Get view count from stats (default to 0 if not found)
             views = stats.get(video_id, {}).get("view_count", 0)
 
+            # Skip videos with 0 views — these are live/upcoming broadcasts
+            # that haven't accumulated real engagement data yet
+            if views == 0:
+                filtered_count += 1
+                continue
+
             # Add to channel's total
             channel_views[channel_id] += views
 
             # Remember channel name
             channel_names[channel_id] = video["channel_title"]
+
+        if filtered_count > 0:
+            print(f"   Filtered {filtered_count} live/upcoming videos (0 views)")
 
         # Convert to list of dictionaries and sort by views
         ranked_channels = [
@@ -714,6 +725,13 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
                     or ""
                 )
 
+                view_count = int(stats.get("viewCount", 0))
+
+                # Skip live/upcoming videos with 0 views — no real
+                # engagement data yet, pollutes rankings and analysis
+                if view_count == 0:
+                    continue
+
                 video_data = {
                     "video_id": item["id"],
                     "title": snippet["title"],
@@ -721,7 +739,7 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
                     "thumbnail_url": thumbnail_url,
                     "published_at": snippet["publishedAt"],
                     "statistics": {
-                        "view_count": int(stats.get("viewCount", 0)),
+                        "view_count": view_count,
                         "like_count": int(stats.get("likeCount", 0)),
                         "comment_count": int(stats.get("commentCount", 0)),
                     },
