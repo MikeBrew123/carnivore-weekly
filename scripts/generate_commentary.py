@@ -48,7 +48,10 @@ def get_top_6_videos(data):
                     "creator": creator["channel_name"],
                     "views": video["statistics"]["view_count"],
                     "description": video.get("description", "")[:300],
-                    "comments_sample": [c["text"] for c in video.get("top_comments", [])[:5]],
+                    "comments_sample": [
+                        {"text": c["text"], "likes": c.get("likes", 0)}
+                        for c in video.get("top_comments", [])[:10]
+                    ],
                 }
             )
             if len(videos) >= 6:
@@ -148,8 +151,9 @@ SOFT-CONVERSION APPROACH:
 - Trust the reader to make their own decisions
 
 CONTENT REQUIREMENTS:
-- Explain WHY this video matters to the carnivore community
-- Reference specific details from the video or comments
+- React to what the COMMUNITY is saying in the comments (if available)
+- Quote or paraphrase specific comments when interesting
+- Explain why this video matters to the carnivore world
 - Use short sentences (vary length for rhythm)
 
 Video Details:
@@ -157,11 +161,24 @@ Title: {video['title']}
 Creator: {video['creator']}
 Views: {video['views']:,}
 Description: {video['description']}
+"""
 
-Top Comments:
-{chr(10).join(f"- {comment}" for comment in video['comments_sample'][:3])}
+    # Add comments section only if there are comments
+    comments = video.get("comments_sample", [])
+    if comments:
+        comments_text = chr(10).join(
+            f"- [{c.get('likes', 0)} likes] {c['text']}" for c in comments[:10]
+        )
+        prompt += f"""
+Top Community Comments (react to these):
+{comments_text}
+"""
+    else:
+        prompt += """
+(No community comments available yet — focus on the video content itself)
+"""
 
-Write ONLY the commentary text (no labels, no intro). Make it sound human."""
+    prompt += """Write ONLY the commentary text (no labels, no intro). Make it sound human."""
 
     response = client.messages.create(
         model="claude-3-5-haiku-20241022",
