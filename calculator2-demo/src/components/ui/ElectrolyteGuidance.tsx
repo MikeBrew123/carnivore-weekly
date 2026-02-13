@@ -114,7 +114,7 @@ export default function ElectrolyteGuidance() {
           <strong>LMNT</strong> electrolyte packets are specifically formulated for low-carb diets. Zero sugar, optimal ratios, tastes great. Used by athletes and carnivores worldwide.
         </p>
         <a
-          href="http://elementallabs.refr.cc/default/u/michelbrew"
+          href="https://elementallabs.refr.cc/default/u/michelbrew"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block bg-primary text-accent px-4 py-2 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity"
