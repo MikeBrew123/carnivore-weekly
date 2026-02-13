@@ -74,15 +74,16 @@
             text-transform: uppercase;
             letter-spacing: 3px;
             font-weight: 700;
-            color: var(--color-oxblood);
+            color: #8b4513;
             margin: 0 0 var(--space-3) 0;
         }
 
-        .sp-intro h1 {
+        .sp-intro h1,
+        .sp-intro h2 {
             font-family: var(--font-heading);
             font-size: var(--text-4xl);
             font-weight: 900;
-            color: var(--color-charcoal);
+            color: #8b4513;
             margin: 0 0 var(--space-4) 0;
             line-height: 1.15;
         }
@@ -108,7 +109,7 @@
         .sp-form-card h2 {
             font-family: var(--font-heading);
             font-size: var(--text-xl);
-            color: var(--color-charcoal);
+            color: #8b4513;
             margin: 0 0 var(--space-2) 0;
             text-align: center;
         }
@@ -193,12 +194,12 @@
 
         .sp-success h3 {
             font-family: var(--font-heading);
-            color: var(--color-oxblood);
+            color: #8b4513;
             font-size: var(--text-xl);
             margin: 0 0 var(--space-2) 0;
         }
         .sp-success p { color: var(--color-text-secondary); margin: var(--space-1) 0; }
-        .sp-success .email-confirm { color: var(--color-oxblood); font-weight: 600; }
+        .sp-success .email-confirm { color: #8b4513; font-weight: 600; }
 
         .sp-error p {
             color: #c0392b;
@@ -219,7 +220,7 @@
             font-family: var(--font-heading);
             font-size: var(--text-2xl);
             font-weight: 700;
-            color: var(--color-charcoal);
+            color: #8b4513;
             margin: 0 0 var(--space-8) 0;
             text-align: center;
         }
@@ -244,8 +245,8 @@
             flex-shrink: 0;
             width: 40px;
             height: 40px;
-            background: var(--color-oxblood);
-            color: var(--color-cream);
+            background: #8b4513;
+            color: #ffd700;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -268,45 +269,46 @@
             line-height: var(--leading-relaxed);
         }
 
-        /* Bottom CTA — uses site's calculator-cta pattern */
+        /* Bottom CTA — cream background, gold accent */
         .sp-bottom-cta {
-            background: linear-gradient(135deg, var(--color-oxblood), var(--color-charcoal));
+            background: var(--color-cream);
             text-align: center;
             padding: var(--space-12) var(--space-6);
+            border-top: 3px solid #8b4513;
         }
 
         .sp-bottom-cta p.cta-heading {
             font-family: var(--font-heading);
             font-size: var(--text-2xl);
             font-weight: 700;
-            color: var(--color-white);
+            color: #8b4513;
             margin: 0 0 var(--space-2) 0;
         }
 
         .sp-bottom-cta p.cta-sub {
             font-size: var(--text-lg);
-            color: var(--color-cream);
+            color: var(--color-text-secondary);
             margin: 0 0 var(--space-8) 0;
         }
 
         .sp-bottom-cta .sp-form-card {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: none;
+            background: var(--color-white);
+            border: 1px solid var(--color-border);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
         }
 
         .sp-bottom-cta .sp-input {
-            background: rgba(255, 255, 255, 0.95);
-            border-color: transparent;
+            background: var(--color-cream);
+            border-color: var(--color-border);
         }
 
         .sp-bottom-cta .sp-privacy {
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--color-text-muted);
         }
 
-        .sp-bottom-cta .sp-success h3 { color: var(--color-amber); }
-        .sp-bottom-cta .sp-success p { color: rgba(255,255,255,0.85); }
-        .sp-bottom-cta .sp-success .email-confirm { color: var(--color-amber); }
+        .sp-bottom-cta .sp-success h3 { color: var(--color-oxblood); }
+        .sp-bottom-cta .sp-success p { color: var(--color-text-secondary); }
+        .sp-bottom-cta .sp-success .email-confirm { color: var(--color-oxblood); }
 
         /* Sarah callout */
         .sp-author {
@@ -324,7 +326,7 @@
         }
 
         .sp-author strong {
-            color: var(--color-oxblood);
+            color: #8b4513;
             font-style: normal;
         }
 
