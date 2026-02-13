@@ -309,17 +309,18 @@ class YouTubeCollector:
                     videos_by_channel[channel_id].append(
                         {
                             "video_id": video.get("youtube_id"),
-                            "title": video.get("title"),
-                            "description": video.get("description", ""),
-                            "thumbnail_url": video.get("thumbnail_url"),
-                            "published_at": video.get("published_at"),
+                            "title": video.get("title") or "",
+                            "channel_name": video.get("channel_name") or "Unknown",
+                            "description": video.get("description") or "",
+                            "thumbnail_url": video.get("thumbnail_url") or "",
+                            "published_at": video.get("published_at") or "",
                             "statistics": {
-                                "view_count": video.get("view_count", 0),
-                                "like_count": video.get("like_count", 0),
-                                "comment_count": video.get("comment_count", 0),
+                                "view_count": video.get("view_count") or 0,
+                                "like_count": video.get("like_count") or 0,
+                                "comment_count": video.get("comment_count") or 0,
                             },
-                            "tags": video.get("topic_tags", []),
-                            "top_comments": video.get("top_comments", []),
+                            "tags": video.get("topic_tags") or [],
+                            "top_comments": video.get("top_comments") or [],
                             "comment_sentiment": video.get("comment_sentiment"),
                         }
                     )
@@ -328,7 +329,7 @@ class YouTubeCollector:
             top_creators = []
             for channel_id, videos in videos_by_channel.items():
                 if videos:
-                    channel_name = videos[0].get("title", "Unknown")  # Simplified
+                    channel_name = videos[0].get("channel_name", "Unknown")
                     total_views = sum(v["statistics"]["view_count"] for v in videos)
                     top_creators.append(
                         {
