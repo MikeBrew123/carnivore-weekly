@@ -63,25 +63,24 @@ fi
 echo "   ✓ Python code quality passed"
 echo ""
 
-# Python code formatting (BLOCKING for critical scripts)
+# Python code formatting (WARN-ONLY — formatting should never block content publishing)
 echo "   Running Python code formatting check (black)..."
-# Check critical scripts strictly (must pass)
 FORMAT_ISSUES=0
 for script in $CRITICAL_SCRIPTS; do
     if [ -f "$script" ]; then
         if ! python3 -m black --check "$script" 2>/dev/null; then
             FORMAT_ISSUES=$((FORMAT_ISSUES + 1))
-            echo "   ❌ Formatting issue in $script"
+            echo "   ⚠️  Formatting issue in $script (non-blocking)"
         fi
     fi
 done
 
 if [ $FORMAT_ISSUES -gt 0 ]; then
-    echo "   ❌ Critical scripts have formatting issues. Fix with: black scripts/[script-name]"
-    exit 1
+    echo "   ⚠️  $FORMAT_ISSUES script(s) have formatting issues. Fix with: black scripts/[script-name]"
+    echo "   (Continuing — formatting is warn-only)"
+else
+    echo "   ✓ Python code formatting passed"
 fi
-
-echo "   ✓ Python code formatting passed"
 echo ""
 
 # JavaScript validation (for any modified .js files)
