@@ -575,6 +575,7 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
         'templates/',  # Template files with template variables
         'public/includes/',  # HTML fragments without full HTML structure
         'public/components/',  # Reusable components without full HTML structure
+        'data/drip-emails/',  # Email templates with runtime placeholders (n8n)
         'docs/archive/',  # Archived files
         'archive/',  # Archived/orphaned blog dupes
         'backups/',  # Backup directories
