@@ -19,6 +19,12 @@
     <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
     <meta property="og:site_name" content="Carnivore Weekly">
 
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Free 7-Day Carnivore Starter Plan | Carnivore Weekly">
+    <meta name="twitter:description" content="One email per day. Everything you need to start carnivore — no fluff, no guesswork.">
+    <meta name="twitter:image" content="https://carnivoreweekly.com/images/logo.png">
+
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -314,9 +320,11 @@
 </head>
 <body>
     <!-- Minimal Header -->
-    <div class="sp-header">
-        <a href="/">CARNIVORE WEEKLY</a>
-    </div>
+    <header class="sp-header">
+        <nav><a href="/">CARNIVORE WEEKLY</a></nav>
+    </header>
+
+    <main>
 
     <!-- Hero + Form -->
     <section class="sp-hero">
@@ -336,7 +344,7 @@
                 <p class="sp-privacy">No spam. Unsubscribe anytime. Day 1 arrives instantly.</p>
 
                 <div class="sp-success">
-                    <h3>Check your inbox</h3>
+                    <h2 style="font-size:1.25rem;">Check your inbox</h2>
                     <p>Day 1 is on its way to <span class="email-confirm"></span></p>
                     <p style="font-size:0.85rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">One new email each morning for the next 7 days.</p>
                 </div>
@@ -418,7 +426,7 @@
             <p class="sp-privacy">No spam. Unsubscribe anytime. Day 1 arrives instantly.</p>
 
             <div class="sp-success">
-                <h3>Check your inbox</h3>
+                <h2 style="font-size:1.25rem;">Check your inbox</h2>
                 <p>Day 1 is on its way to <span class="email-confirm"></span></p>
             </div>
 
@@ -428,11 +436,13 @@
         </div>
     </section>
 
+    </main>
+
     <!-- Footer -->
-    <div class="sp-footer">
+    <footer class="sp-footer">
         <p><a href="/">Carnivore Weekly</a> — Evidence-based carnivore resources</p>
         <p><a href="/blog/">Read our articles</a> · <a href="/calculator.html">Try the calculator</a></p>
-    </div>
+    </footer>
 
     <!-- Engagement Tracking -->
     <script src="/js/engagement-tracking.js"></script>
