@@ -62,7 +62,6 @@ class WikiPreviewManager {
             }
         });
 
-        console.log('WikiPreviewManager initialized');
     }
 
     /**

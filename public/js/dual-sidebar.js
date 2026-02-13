@@ -3,8 +3,6 @@
  * Dynamically calculates menu sidebar sticky position based on fixed sidebar height
  */
 
-console.log('[DualSidebar] Script loading...');
-
 const dualSidebar = {
     config: {
         desktopBreakpoint: 1200,
@@ -17,11 +15,9 @@ const dualSidebar = {
         const menuSidebar = document.querySelector('.sidebar-menu');
 
         if (!fixedSidebar || !menuSidebar) {
-            console.warn('[DualSidebar] Sidebars not found');
             return;
         }
 
-        console.log('[DualSidebar] Initialized');
         this.updateMenuPosition(fixedSidebar, menuSidebar);
 
         // Listen for resize
@@ -44,7 +40,6 @@ const dualSidebar = {
         if (!isDesktop) {
             menuSidebar.style.position = '';
             menuSidebar.style.top = '';
-            console.log('[DualSidebar] Mobile mode');
             return;
         }
 
@@ -53,17 +48,14 @@ const dualSidebar = {
 
         menuSidebar.style.position = 'sticky';
         menuSidebar.style.top = menuTop + 'px';
-        console.log('[DualSidebar] Desktop - menuTop:', menuTop);
     }
 };
 
 // Initialize when ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('[DualSidebar] DOMContentLoaded');
         dualSidebar.init();
     });
 } else {
-    console.log('[DualSidebar] DOM already ready');
     dualSidebar.init();
 }
