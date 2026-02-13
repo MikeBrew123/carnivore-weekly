@@ -179,6 +179,7 @@ def store_commentary_memory(writer_name, video_title, commentary):
                 "memory_type": "pattern_identified",
                 "title": f"Commentary: {video_title[:80]}",
                 "description": commentary[:300],
+                "content": commentary[:300],
                 "source": "direct_learning",
                 "tags": ["commentary", "video-reaction", "weekly"],
                 "relevance_score": 0.70,
