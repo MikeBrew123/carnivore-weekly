@@ -281,8 +281,17 @@ def assign_heat_badge(views, index):
         return "🔥 Success Story"
 
 
+def markdown_links_to_html(text):
+    """Convert any markdown [text](url) links to HTML <a> tags."""
+    import re
+    return re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', text)
+
+
 def humanize_text(text):
     """Apply humanization rules to remove AI tells"""
+    # Convert any stray markdown links to HTML
+    text = markdown_links_to_html(text)
+
     replacements = {
         # AI tell phrases
         "utilize": "use",
@@ -364,7 +373,10 @@ CONTENT REQUIREMENTS:
 
 LINKING RULES:
 - You may reference blog posts or wiki topics from the context above
-- Use natural phrasing: "check out our dairy guide" not "[click here](/wiki/#dairy)"
+- CRITICAL: Write links as HTML, NOT markdown. Commentary is inserted into HTML templates.
+  CORRECT: <a href="/blog/2026-02-08-strength-gains.html">strength gains</a>
+  WRONG:   [strength gains](/blog/2026-02-08-strength-gains.html)
+- Use natural phrasing: "check out our <a href="...">dairy guide</a>"
 - Only reference content that genuinely relates to the video topic
 - Don't force links, only include if they add real value
 - Keep it to 0-1 references max (this is short commentary, not an article)
