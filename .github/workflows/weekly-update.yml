@@ -2,6 +2,7 @@ name: Weekly YouTube Data Collection
 on:
   schedule:
     - cron: '0 0 * * 0'  # Every Sunday at midnight UTC
+    - cron: '0 0 * * 3'  # Every Wednesday at midnight UTC
   workflow_dispatch:  # Allow manual trigger
 jobs:
     run:
