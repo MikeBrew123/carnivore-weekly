@@ -34,8 +34,10 @@ MIN_COMMENTS_FOR_SELECTION = 5
 try:
     from youtube_collector import is_blocked_channel
 except ImportError:
+
     def is_blocked_channel(name):
         return False, None
+
 
 # Writer personas
 WRITERS = {
@@ -92,25 +94,15 @@ def build_local_context(writer_name):
     blog_path = PROJECT_ROOT / "data" / "blog_posts.json"
     if blog_path.exists():
         blog_data = json.loads(blog_path.read_text())
-        posts = [
-            p
-            for p in blog_data.get("blog_posts", [])[:30]
-            if p.get("published")
-        ]
+        posts = [p for p in blog_data.get("blog_posts", [])[:30] if p.get("published")]
         # Show this writer's recent posts
-        own_posts = [
-            p for p in posts
-            if p.get("author", "").lower() == writer_name.lower()
-        ]
+        own_posts = [p for p in posts if p.get("author", "").lower() == writer_name.lower()]
         if own_posts:
             context += "## Your Recent Articles\n"
             for p in own_posts[:5]:
                 context += f"- /blog/{p['slug']}.html — {p['title']}\n"
         # Show team posts
-        team_posts = [
-            p for p in posts
-            if p.get("author", "").lower() != writer_name.lower()
-        ]
+        team_posts = [p for p in posts if p.get("author", "").lower() != writer_name.lower()]
         if team_posts:
             context += "\n## Teammate Articles (cross-reference these)\n"
             for p in team_posts[:10]:
@@ -162,12 +154,7 @@ def store_commentary_memory(writer_name, video_title, commentary):
         sb = create_client(supabase_url, supabase_key)
 
         # Get writer_id
-        writer_result = (
-            sb.table("writers")
-            .select("id")
-            .eq("slug", writer_name.lower())
-            .execute()
-        )
+        writer_result = sb.table("writers").select("id").eq("slug", writer_name.lower()).execute()
         if not writer_result.data:
             return
 
@@ -249,8 +236,10 @@ def get_top_6_videos(data):
         shortfall = 6 - len(selected)
         unqualified.sort(key=lambda v: v["views"], reverse=True)
         backfill = unqualified[:shortfall]
-        print(f"   ⚠ Only {len(qualified)} videos had {MIN_COMMENTS_FOR_SELECTION}+ comments, "
-              f"filling {shortfall} slots from lower-comment videos")
+        print(
+            f"   ⚠ Only {len(qualified)} videos had {MIN_COMMENTS_FOR_SELECTION}+ comments, "
+            f"filling {shortfall} slots from lower-comment videos"
+        )
         selected.extend(backfill)
 
     # Clean up internal scoring field
@@ -285,7 +274,8 @@ def assign_heat_badge(views, index):
 def markdown_links_to_html(text):
     """Convert any markdown [text](url) links to HTML <a> tags."""
     import re
-    return re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', text)
+
+    return re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', text)
 
 
 def humanize_text(text):
