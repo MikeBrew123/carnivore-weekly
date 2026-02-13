@@ -65,9 +65,23 @@ COMMENTS_PER_VIDEO = 20  # Top comments per video
 MIN_RELEVANCE_SCORE = 7  # Minimum Claude relevance score (1-10)
 
 # PERMANENT BLOCKLIST - Channels that should NEVER appear
-BLOCKED_CHANNELS = [
-    "Ouachita Mountain Living",  # General lifestyle/cultural commentary, not carnivore
-]
+# Categories: "off-topic" = not carnivore content, "opposing-stance" = anti-carnivore advocacy
+BLOCKED_CHANNELS = {
+    "off-topic": [
+        "Ouachita Mountain Living",  # General lifestyle/cultural commentary
+    ],
+    "opposing-stance": [
+        "Mic the Vegan",  # Anti-carnivore advocacy channel
+    ],
+}
+
+
+def is_blocked_channel(channel_name):
+    """Check if channel is on any blocklist. Returns (blocked, reason) tuple."""
+    for reason, names in BLOCKED_CHANNELS.items():
+        if any(blocked.lower() in channel_name.lower() for blocked in names):
+            return True, reason
+    return False, None
 
 
 # ============================================================================
@@ -378,6 +392,7 @@ Scoring guidelines:
 - 7-8: Carnivore-adjacent topics (keto for carnivore, exercise ON carnivore, health improvements FROM carnivore)
 - 4-6: General health/fitness that MENTIONS carnivore but isn't focused on it
 - 1-3: Off-topic (general commentary, societal issues, generic fitness without carnivore)
+- 1: Anti-carnivore advocacy (content attacking, debunking, or discouraging carnivore diet)
 
 REJECT if: Video is about general lifestyle, culture, society, or fitness WITHOUT carnivore diet context.
 ACCEPT if: Video discusses carnivore diet, eating carnivore, living carnivore, or health changes from carnivore.
@@ -844,8 +859,11 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             for creator in cached_creators:
                 # Skip blocked channels
                 channel_name = creator.get("channel_name", "")
-                if any(blocked in channel_name for blocked in BLOCKED_CHANNELS):
-                    print(f"   ✗ BLOCKED: {channel_name} (permanent blocklist)")
+                blocked, block_reason = is_blocked_channel(channel_name)
+                if blocked:
+                    print(f"   ✗ BLOCKED: {channel_name} ({block_reason})")
+                    for video in creator.get("videos", []):
+                        self.log_rejected_video(video, 0, f"{block_reason} creator")
                     total_filtered += len(creator.get("videos", []))
                     continue
 
@@ -942,6 +960,22 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
 
         print(f"   ✓ Kept: {len(relevant_videos)} videos (score >= {MIN_RELEVANCE_SCORE})")
         print(f"   ✗ Rejected: {rejected_count} videos (score < {MIN_RELEVANCE_SCORE})")
+
+        # Step 1.6: Filter blocked channels (not caught by relevance scoring)
+        pre_block_count = len(relevant_videos)
+        filtered_relevant = []
+        for video in relevant_videos:
+            ch_name = video.get("channel_title", "") or video.get("channel_name", "")
+            blocked, block_reason = is_blocked_channel(ch_name)
+            if blocked:
+                self.log_rejected_video(video, 0, f"{block_reason} creator")
+                print(f"   ✗ BLOCKED: {ch_name} ({block_reason})")
+            else:
+                filtered_relevant.append(video)
+        relevant_videos = filtered_relevant
+        blocked_count = pre_block_count - len(relevant_videos)
+        if blocked_count:
+            print(f"   ✗ Blocked: {blocked_count} videos from blocklisted channels")
 
         if not relevant_videos:
             print("✗ No relevant videos after filtering. Exiting.")
