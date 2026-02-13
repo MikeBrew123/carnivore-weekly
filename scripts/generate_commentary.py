@@ -37,21 +37,37 @@ WRITERS = {
 
 def load_writer_context(writer_name):
     """Load writer context from Supabase (memories, past articles, team articles).
-    Falls back to local-only context if Supabase is unavailable."""
+    Falls back to local-only context if Supabase is unavailable.
+    Uses signal-based timeout to prevent hanging on Supabase connection."""
+    import signal
+
+    def _timeout_handler(signum, frame):
+        raise TimeoutError("Supabase connection timed out")
+
     try:
+        # Set 10s timeout — import triggers module-level create_client()
+        old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+        signal.alarm(10)
+
         from fetch_writer_context import (
             fetch_writer_context,
             format_context_for_prompt,
         )
 
         context = fetch_writer_context(writer_name.lower())
+        signal.alarm(0)  # Cancel timeout
+        signal.signal(signal.SIGALRM, old_handler)
+
         if "error" not in context:
             formatted = format_context_for_prompt(context)
             # Append wiki topics (not included in fetch_writer_context)
             formatted += _build_wiki_context()
             print(f"   ✓ Loaded {writer_name} memory from Supabase")
             return formatted
+        else:
+            print(f"   ⚠ Supabase returned error for {writer_name}: {context.get('error')}")
     except Exception as e:
+        signal.alarm(0)  # Cancel any pending alarm
         print(f"   ⚠ Could not load {writer_name} memory from Supabase: {e}")
 
     # Fallback: minimal local-only context
