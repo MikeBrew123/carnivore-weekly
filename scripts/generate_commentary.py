@@ -27,6 +27,16 @@ client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 YOUTUBE_DATA_PATH = PROJECT_ROOT / "data" / "youtube_data.json"
 OUTPUT_PATH = PROJECT_ROOT / "data" / "content-of-the-week.json"
 
+# Video selection — editorial model requires community signal
+MIN_COMMENTS_FOR_SELECTION = 5
+
+# Import channel blocklist for selection-time filtering
+try:
+    from youtube_collector import is_blocked_channel
+except ImportError:
+    def is_blocked_channel(name):
+        return False, None
+
 # Writer personas
 WRITERS = {
     "Sarah": "Evidence-based researcher. Focuses on science, mechanisms, metabolic health.",
@@ -188,28 +198,65 @@ def load_youtube_data():
 
 
 def get_top_6_videos(data):
-    """Extract top 6 videos from YouTube data"""
-    videos = []
+    """Select top 6 videos ranked by engagement, requiring minimum comment count.
+
+    Videos with fewer than MIN_COMMENTS_FOR_SELECTION comments are deprioritized
+    because the editorial model depends on community reactions. Engagement score
+    weights comments highest (editorial value), then likes, then views.
+    """
+    # Flatten all videos from all creators
+    all_videos = []
     for creator in data.get("top_creators", []):
         for video in creator.get("videos", []):
-            videos.append(
+            stats = video.get("statistics", {})
+            comment_count = stats.get("comment_count", 0)
+            like_count = stats.get("like_count", 0)
+            view_count = stats.get("view_count", 0)
+            all_videos.append(
                 {
                     "video_id": video["video_id"],
                     "title": video["title"],
                     "creator": creator["channel_name"],
-                    "views": video["statistics"]["view_count"],
+                    "views": view_count,
+                    "comment_count": comment_count,
                     "description": video.get("description", "")[:300],
                     "comments_sample": [
                         {"text": c["text"], "likes": c.get("likes", 0)}
                         for c in video.get("top_comments", [])[:10]
                     ],
+                    "_engagement": comment_count * 2 + like_count + (view_count / 1000),
                 }
             )
-            if len(videos) >= 6:
-                break
-        if len(videos) >= 6:
-            break
-    return videos
+
+    # Filter out blocked channels (safety net — collector should catch these upstream)
+    pre_filter = len(all_videos)
+    all_videos = [v for v in all_videos if not is_blocked_channel(v["creator"])[0]]
+    if len(all_videos) < pre_filter:
+        print(f"   ✗ Filtered {pre_filter - len(all_videos)} videos from blocklisted channels")
+
+    # Split by comment threshold
+    qualified = [v for v in all_videos if v["comment_count"] >= MIN_COMMENTS_FOR_SELECTION]
+    unqualified = [v for v in all_videos if v["comment_count"] < MIN_COMMENTS_FOR_SELECTION]
+
+    # Rank qualified by engagement score (comments weighted highest)
+    qualified.sort(key=lambda v: v["_engagement"], reverse=True)
+
+    selected = qualified[:6]
+
+    # Backfill if we don't have 6 qualified videos
+    if len(selected) < 6:
+        shortfall = 6 - len(selected)
+        unqualified.sort(key=lambda v: v["views"], reverse=True)
+        backfill = unqualified[:shortfall]
+        print(f"   ⚠ Only {len(qualified)} videos had {MIN_COMMENTS_FOR_SELECTION}+ comments, "
+              f"filling {shortfall} slots from lower-comment videos")
+        selected.extend(backfill)
+
+    # Clean up internal scoring field
+    for v in selected:
+        v.pop("_engagement", None)
+
+    return selected
 
 
 def assign_writer(index):
