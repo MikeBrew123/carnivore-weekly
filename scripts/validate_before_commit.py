@@ -725,6 +725,17 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
                     'A core site page has disappeared. Regenerate or restore from backup.'
                 )
 
+    # Gate 6: Empty-slug HTML files in public/blog/
+    if blog_dir.exists():
+        for bf in blog_dir.glob('*.html'):
+            stem = bf.stem  # filename without extension
+            if not stem or stem == '.':
+                results.add_critical(
+                    f'public/blog/{bf.name}', 1,
+                    f'Empty-slug HTML file: {bf.name} (no basename before .html)',
+                    'This file was generated from an empty slug. Remove it and fix the source data.'
+                )
+
     return results
 
 
