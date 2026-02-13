@@ -41,9 +41,17 @@ def generate_redirects():
     redirects = data.get("redirects", [])
     created = 0
 
+    skipped = 0
     for rule in redirects:
         source = rule["from"]
         destination = rule["to"]
+
+        # Guard: skip empty or malformed slugs
+        source_stem = Path(source).stem
+        if not source_stem or source_stem == "." or source == ".html":
+            print(f"  ⚠ Skipping bad redirect: '{source}' → '{destination}' (empty slug)")
+            skipped += 1
+            continue
 
         # Build canonical URL for the destination
         if destination.startswith("http"):
@@ -64,6 +72,8 @@ def generate_redirects():
         created += 1
 
     print(f"  Generated {created} redirect files from {len(redirects)} rules")
+    if skipped:
+        print(f"  ⚠ Skipped {skipped} rules with empty/malformed slugs")
     return created
 
 
