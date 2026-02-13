@@ -326,7 +326,7 @@ def humanize_text(text):
     return text
 
 
-def generate_commentary(video, writer):
+def generate_commentary(video, writer, previous_commentaries=None):
     """Generate editorial commentary using Claude with humanization and memory"""
     writer_persona = WRITERS[writer]
 
@@ -346,6 +346,11 @@ HUMANIZATION REQUIREMENTS (CRITICAL):
 - Sound like talking to a friend, not writing an essay
 - Use contractions where natural (it's, don't, can't)
 - Be direct and specific (not vague generalizations)
+
+VARIETY REQUIREMENTS (CRITICAL):
+- Vary your opening. Never start two commentaries the same way.
+- Mix it up: start with a question, a bold claim, a community observation, a personal reference.
+- Don't reuse sentence structures or framing patterns from previous commentary.
 
 SOFT-CONVERSION APPROACH:
 - If mentioning products/supplements, use natural context (not sales pitches)
@@ -394,6 +399,16 @@ Top Community Comments (react to these):
 (No community comments available yet — focus on the video content itself)
 """
 
+    # Add previous commentaries from this batch to prevent repetition
+    if previous_commentaries:
+        prev_text = chr(10).join(
+            f"- \"{c[:120]}...\"" for c in previous_commentaries
+        )
+        prompt += f"""
+You already wrote this commentary earlier in this batch. Do NOT repeat your opening structure, framing, or sentence patterns:
+{prev_text}
+"""
+
     prompt += """Write ONLY the commentary text (no labels, no intro). Make it sound human."""
 
     response = client.messages.create(
@@ -434,13 +449,18 @@ def main():
 
     # Generate commentary for each video
     featured_videos = []
+    writer_batch_history = {}  # Track previous commentaries per writer
 
     for i, video in enumerate(videos):
         writer = assign_writer(i)
         print(f"   {i+1}. {video['title'][:50]}... (assigned to {writer})")
 
-        # Generate commentary with memory context
-        commentary = generate_commentary(video, writer)
+        # Pass previous commentaries from this writer to avoid repetition
+        prev = writer_batch_history.get(writer, [])
+        commentary = generate_commentary(video, writer, previous_commentaries=prev if prev else None)
+
+        # Track this writer's output for future calls in this batch
+        writer_batch_history.setdefault(writer, []).append(commentary)
 
         # Store commentary as memory for future runs
         store_commentary_memory(writer, video["title"], commentary)
