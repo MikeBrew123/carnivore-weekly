@@ -12,7 +12,8 @@
     "the-lab.html",
     "blog/index.html",
     "wiki/index.html",
-    "about/index.html"
+    "about/index.html",
+    "starter-plan.html"
   ],
   "created": "2026-02-12",
   "note": "Baseline minimums for regression detection. These numbers can ONLY go up, never down. Updated after each verified successful deployment."
