@@ -56,6 +56,10 @@ public/weekly/*.html
 public/creators/*.html
 public/studies/*.html
 
+# Source image files (site serves webp versions)
+images/*.png
+images/**/*.png
+
 # Video files
 *.mp4
 *.mov
