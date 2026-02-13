@@ -17,7 +17,6 @@
     {"from": "blog/2025-01-17-carnivore-bar-guide.html", "to": "/blog/2026-01-06-carnivore-bar-guide.html"},
     {"from": "blog/wiki.html", "to": "/wiki/"},
     {"from": "wiki.html", "to": "/wiki/"},
-    {"from": "wiki/calculator.html", "to": "/calculator.html"},
-    {"from": "blog/.html", "to": "/blog/"}
+    {"from": "wiki/calculator.html", "to": "/calculator.html"}
   ]
 }
