@@ -28,6 +28,7 @@
     <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
 
     <title>Free 7-Day Carnivore Starter Plan | Carnivore Weekly</title>
 
@@ -56,113 +57,102 @@
     </script>
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Merriweather:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/global.css">
 
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: var(--color-cream, #f5f5f0);
-            color: var(--color-text-primary, #1a1a1a);
-            font-family: var(--font-body, 'Inter', -apple-system, sans-serif);
-        }
-
-        .sp-header {
-            background: linear-gradient(135deg, var(--color-oxblood, #4a0404), var(--color-charcoal, #1a1a1a));
-            padding: 1rem 0;
-            text-align: center;
-        }
-
-        .sp-header a {
-            color: var(--color-cream, #f5f5f0);
-            text-decoration: none;
-            font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .sp-header a:hover {
-            color: var(--color-amber, #ffbf00);
-        }
-
-        .sp-hero {
-            background: linear-gradient(135deg, var(--color-charcoal, #1a1a1a) 0%, #2a1a0e 100%);
-            color: var(--color-cream, #f5f5f0);
-            padding: 4rem 1.5rem;
-            text-align: center;
-        }
-
-        .sp-hero-inner {
-            max-width: 640px;
+        /* Page-specific styles that extend global.css */
+        .sp-intro {
+            max-width: 680px;
             margin: 0 auto;
+            padding: var(--space-12) var(--space-6) var(--space-8);
+            text-align: center;
         }
 
-        .sp-eyebrow {
-            font-size: 0.8rem;
+        .sp-intro .sp-eyebrow {
+            font-size: var(--text-xs);
             text-transform: uppercase;
             letter-spacing: 3px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.5);
-            margin: 0 0 1rem 0;
+            font-weight: 700;
+            color: var(--color-oxblood);
+            margin: 0 0 var(--space-3) 0;
         }
 
-        .sp-hero h1 {
-            font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
-            font-size: 2.5rem;
+        .sp-intro h1 {
+            font-family: var(--font-heading);
+            font-size: var(--text-4xl);
             font-weight: 900;
-            color: var(--color-amber, #ffbf00);
-            margin: 0 0 1rem 0;
-            line-height: 1.2;
+            color: var(--color-charcoal);
+            margin: 0 0 var(--space-4) 0;
+            line-height: 1.15;
         }
 
-        .sp-hero p.subtitle {
-            font-size: 1.15rem;
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.6;
-            margin: 0 0 2rem 0;
+        .sp-intro .subtitle {
+            font-size: var(--text-xl);
+            color: var(--color-text-secondary);
+            line-height: var(--leading-relaxed);
+            margin: 0 0 var(--space-8) 0;
         }
 
-        /* Form */
-        .sp-form-wrap {
-            max-width: 460px;
-            margin: 0 auto;
+        /* Form card */
+        .sp-form-card {
+            max-width: 520px;
+            margin: 0 auto var(--space-12);
+            background: var(--color-white);
+            border-radius: 12px;
+            padding: var(--space-8);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--color-border);
+        }
+
+        .sp-form-card h2 {
+            font-family: var(--font-heading);
+            font-size: var(--text-xl);
+            color: var(--color-charcoal);
+            margin: 0 0 var(--space-2) 0;
+            text-align: center;
+        }
+
+        .sp-form-card .form-subtitle {
+            font-size: var(--text-sm);
+            color: var(--color-text-secondary);
+            text-align: center;
+            margin: 0 0 var(--space-6) 0;
         }
 
         .sp-form {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
+            gap: var(--space-3);
         }
 
         .sp-input {
             flex: 1;
-            padding: 0.95rem 1rem;
+            padding: 0.85rem 1rem;
             font-family: inherit;
-            font-size: 1rem;
-            border: 2px solid transparent;
+            font-size: var(--text-base);
+            border: 2px solid var(--color-border);
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.95);
-            color: var(--color-charcoal, #1a1a1a);
+            background: var(--color-cream);
+            color: var(--color-charcoal);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .sp-input:focus {
             outline: none;
-            border-color: var(--color-amber, #ffbf00);
-            box-shadow: 0 0 0 3px rgba(255, 191, 0, 0.2);
+            border-color: var(--color-amber);
+            box-shadow: 0 0 0 3px rgba(255, 191, 0, 0.15);
+            background: var(--color-white);
         }
 
         .sp-input::placeholder { color: #999; }
 
         .sp-button {
-            padding: 0.95rem 1.75rem;
+            padding: 0.85rem 1.75rem;
             font-family: inherit;
-            font-size: 1rem;
+            font-size: var(--text-base);
             font-weight: 700;
-            background: var(--color-amber, #ffbf00);
-            color: var(--color-charcoal, #1a1a1a);
+            background: var(--color-amber);
+            color: var(--color-charcoal);
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -181,9 +171,10 @@
         }
 
         .sp-privacy {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.45);
-            margin: 0;
+            font-size: var(--text-xs);
+            color: var(--color-text-muted);
+            margin: var(--space-3) 0 0;
+            text-align: center;
         }
 
         .sp-spinner {
@@ -191,7 +182,7 @@
             width: 16px;
             height: 16px;
             border: 2px solid rgba(0,0,0,0.2);
-            border-top-color: var(--color-charcoal, #1a1a1a);
+            border-top-color: var(--color-charcoal);
             border-radius: 50%;
             animation: sp-spin 0.6s linear infinite;
         }
@@ -202,34 +193,34 @@
 
         .sp-success h3 {
             font-family: var(--font-heading);
-            color: var(--color-amber, #ffbf00);
-            font-size: 1.5rem;
-            margin: 0 0 0.5rem 0;
+            color: var(--color-oxblood);
+            font-size: var(--text-xl);
+            margin: 0 0 var(--space-2) 0;
         }
-        .sp-success p { color: rgba(255,255,255,0.85); margin: 0.3rem 0; }
-        .sp-success .email-confirm { color: var(--color-amber, #ffbf00); font-weight: 600; }
+        .sp-success p { color: var(--color-text-secondary); margin: var(--space-1) 0; }
+        .sp-success .email-confirm { color: var(--color-oxblood); font-weight: 600; }
 
         .sp-error p {
-            color: #ff6b6b;
+            color: #c0392b;
             font-weight: 500;
-            background: rgba(255,107,107,0.1);
-            padding: 0.75rem 1rem;
+            background: rgba(192, 57, 43, 0.08);
+            padding: var(--space-3) var(--space-4);
             border-radius: 8px;
         }
 
-        /* What You'll Get */
-        .sp-details {
-            max-width: 640px;
+        /* Day-by-day breakdown */
+        .sp-schedule {
+            max-width: 680px;
             margin: 0 auto;
-            padding: 3.5rem 1.5rem;
+            padding: 0 var(--space-6) var(--space-12);
         }
 
-        .sp-details h2 {
-            font-family: var(--font-heading, 'Playfair Display', Georgia, serif);
-            font-size: 1.75rem;
+        .sp-schedule h2 {
+            font-family: var(--font-heading);
+            font-size: var(--text-2xl);
             font-weight: 700;
-            color: var(--color-charcoal, #1a1a1a);
-            margin: 0 0 2rem 0;
+            color: var(--color-charcoal);
+            margin: 0 0 var(--space-8) 0;
             text-align: center;
         }
 
@@ -242,98 +233,151 @@
         .sp-day-list li {
             display: flex;
             align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--color-border, #e0e0e0);
+            gap: var(--space-4);
+            padding: var(--space-4) 0;
+            border-bottom: 1px solid var(--color-border);
         }
 
         .sp-day-list li:last-child { border-bottom: none; }
 
         .sp-day-num {
             flex-shrink: 0;
-            width: 44px;
-            height: 44px;
-            background: var(--color-oxblood, #4a0404);
-            color: var(--color-cream, #f5f5f0);
+            width: 40px;
+            height: 40px;
+            background: var(--color-oxblood);
+            color: var(--color-cream);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: var(--text-sm);
         }
 
         .sp-day-content h3 {
-            margin: 0 0 0.25rem 0;
-            font-size: 1.05rem;
+            margin: 0 0 var(--space-1) 0;
+            font-size: var(--text-base);
             font-weight: 600;
-            color: var(--color-charcoal, #1a1a1a);
+            color: var(--color-charcoal);
         }
 
         .sp-day-content p {
             margin: 0;
-            font-size: 0.9rem;
-            color: var(--color-text-secondary, #4a4a4a);
-            line-height: 1.5;
+            font-size: var(--text-sm);
+            color: var(--color-text-secondary);
+            line-height: var(--leading-relaxed);
         }
 
-        /* Bottom CTA */
+        /* Bottom CTA — uses site's calculator-cta pattern */
         .sp-bottom-cta {
-            background: var(--color-charcoal, #1a1a1a);
-            color: var(--color-cream, #f5f5f0);
+            background: linear-gradient(135deg, var(--color-oxblood), var(--color-charcoal));
             text-align: center;
-            padding: 3rem 1.5rem;
+            padding: var(--space-12) var(--space-6);
         }
 
-        .sp-bottom-cta p {
-            font-size: 1.1rem;
-            margin: 0 0 1.5rem 0;
-            color: rgba(255,255,255,0.85);
+        .sp-bottom-cta p.cta-heading {
+            font-family: var(--font-heading);
+            font-size: var(--text-2xl);
+            font-weight: 700;
+            color: var(--color-white);
+            margin: 0 0 var(--space-2) 0;
         }
 
-        .sp-bottom-cta .sp-form-wrap { max-width: 460px; margin: 0 auto; }
+        .sp-bottom-cta p.cta-sub {
+            font-size: var(--text-lg);
+            color: var(--color-cream);
+            margin: 0 0 var(--space-8) 0;
+        }
 
-        /* Footer */
-        .sp-footer {
+        .sp-bottom-cta .sp-form-card {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: none;
+        }
+
+        .sp-bottom-cta .sp-input {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: transparent;
+        }
+
+        .sp-bottom-cta .sp-privacy {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .sp-bottom-cta .sp-success h3 { color: var(--color-amber); }
+        .sp-bottom-cta .sp-success p { color: rgba(255,255,255,0.85); }
+        .sp-bottom-cta .sp-success .email-confirm { color: var(--color-amber); }
+
+        /* Sarah callout */
+        .sp-author {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 var(--space-6) var(--space-10);
             text-align: center;
-            padding: 2rem 1.5rem;
-            font-size: 0.85rem;
-            color: var(--color-text-muted, #6b6b6b);
         }
 
-        .sp-footer a {
-            color: var(--color-oxblood, #4a0404);
-            text-decoration: none;
+        .sp-author p {
+            font-size: var(--text-sm);
+            color: var(--color-text-secondary);
+            line-height: var(--leading-relaxed);
+            font-style: italic;
         }
 
-        .sp-footer a:hover { text-decoration: underline; }
+        .sp-author strong {
+            color: var(--color-oxblood);
+            font-style: normal;
+        }
 
         /* Mobile */
         @media (max-width: 640px) {
-            .sp-hero { padding: 3rem 1.25rem; }
-            .sp-hero h1 { font-size: 1.85rem; }
+            .sp-intro { padding: var(--space-8) var(--space-4) var(--space-6); }
+            .sp-intro h1 { font-size: var(--text-2xl); }
             .sp-form { flex-direction: column; }
             .sp-button { width: 100%; }
-            .sp-details { padding: 2.5rem 1.25rem; }
+            .sp-form-card { margin-left: var(--space-4); margin-right: var(--space-4); padding: var(--space-6); }
+            .sp-schedule { padding: 0 var(--space-4) var(--space-8); }
+            .sp-bottom-cta { padding: var(--space-8) var(--space-4); }
         }
     </style>
 </head>
 <body>
-    <!-- Minimal Header -->
-    <header class="sp-header">
-        <nav><a href="/">CARNIVORE WEEKLY</a></nav>
+    <!-- Skip Navigation -->
+    <a href="#main-content" class="skip-nav" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;">Skip to main content</a>
+
+    <!-- HEADER — matches site header -->
+    <header class="header-2026">
+        <div class="container-2026">
+            <img src="/images/logo.png" alt="Carnivore Weekly Logo" class="logo" width="900" height="491">
+            <h1>CARNIVORE WEEKLY</h1>
+            <p class="subtitle">The Meat-Eater's Digest</p>
+        </div>
     </header>
 
-    <main>
+    <!-- NAVIGATION — matches site nav -->
+    <nav class="nav-menu-2026">
+        <a href="/index.html">Home</a>
+        <a href="/channels.html">Weekly Watch</a>
+        <a href="/wiki/">Protocols & Basics</a>
+        <a href="/blog/">Insights</a>
+        <a href="/calculator.html">Calculator</a>
+    </nav>
 
-    <!-- Hero + Form -->
-    <section class="sp-hero">
-        <div class="sp-hero-inner">
+    <!-- MAIN CONTENT -->
+    <main class="site-content" role="main" id="main-content">
+
+        <!-- Intro -->
+        <section class="sp-intro">
             <p class="sp-eyebrow">Free Email Course</p>
-            <h1>7-Day Carnivore Starter Plan</h1>
-            <p class="subtitle">One email per day. Everything you need to start — no fluff, no guesswork.</p>
+            <h2>7-Day Carnivore Starter Plan</h2>
+            <p class="subtitle">One email per day. Everything you need to start carnivore — no fluff, no guesswork.</p>
+        </section>
 
-            <div class="sp-form-wrap" id="hero-form-wrap">
+        <!-- Sign-up form card -->
+        <div class="container">
+            <div class="sp-form-card" id="hero-form-wrap">
+                <h2>Get started free</h2>
+                <p class="form-subtitle">Day 1 arrives in your inbox instantly.</p>
+
                 <form class="sp-form" id="sp-form-hero">
                     <input type="email" class="sp-input" placeholder="your@email.com" required aria-label="Email address">
                     <button type="submit" class="sp-button">
@@ -341,111 +385,150 @@
                         <span class="btn-loading" style="display:none"><span class="sp-spinner"></span></span>
                     </button>
                 </form>
-                <p class="sp-privacy">No spam. Unsubscribe anytime. Day 1 arrives instantly.</p>
+                <p class="sp-privacy">No spam. Unsubscribe anytime.</p>
 
                 <div class="sp-success">
-                    <h2 style="font-size:1.25rem;">Check your inbox</h2>
+                    <h3>Check your inbox</h3>
                     <p>Day 1 is on its way to <span class="email-confirm"></span></p>
-                    <p style="font-size:0.85rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">One new email each morning for the next 7 days.</p>
+                    <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-3);">One new email each morning for the next 7 days.</p>
                 </div>
 
                 <div class="sp-error">
                     <p class="error-msg">Something went wrong. Please try again.</p>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- What You'll Get -->
-    <section class="sp-details">
-        <h2>What you'll get each day</h2>
-        <ul class="sp-day-list">
-            <li>
-                <div class="sp-day-num">1</div>
-                <div class="sp-day-content">
-                    <h3>What to eat (keep it simple)</h3>
-                    <p>Beef, salt, water. We strip away the overthinking and give you a dead-simple starting point.</p>
-                </div>
-            </li>
-            <li>
-                <div class="sp-day-num">2</div>
-                <div class="sp-day-content">
-                    <h3>The first few days might suck</h3>
-                    <p>Adaptation symptoms are real — headaches, fatigue, cravings. Here's what's happening and why it passes.</p>
-                </div>
-            </li>
-            <li>
-                <div class="sp-day-num">3</div>
-                <div class="sp-day-content">
-                    <h3>Your shopping list</h3>
-                    <p>Exactly what to buy and how to meal prep so you're never stuck wondering what to eat.</p>
-                </div>
-            </li>
-            <li>
-                <div class="sp-day-num">4</div>
-                <div class="sp-day-content">
-                    <h3>The #1 mistake beginners make</h3>
-                    <p>Most people undereat fat and skip salt. We'll make sure you don't fall into the same trap.</p>
-                </div>
-            </li>
-            <li>
-                <div class="sp-day-num">5</div>
-                <div class="sp-day-content">
-                    <h3>When the magic kicks in</h3>
-                    <p>Energy, mental clarity, better sleep — here's a realistic timeline for when you'll start feeling the difference.</p>
-                </div>
-            </li>
-            <li>
-                <div class="sp-day-num">6</div>
-                <div class="sp-day-content">
-                    <h3>Eating out and handling questions</h3>
-                    <p>Social situations, restaurants, the "but what about fiber?" crowd. Practical answers for real life.</p>
-                </div>
-            </li>
-            <li>
-                <div class="sp-day-num">7</div>
-                <div class="sp-day-content">
-                    <h3>What's next</h3>
-                    <p>You made it through the first week. Here's how to dial in your approach with a personalized protocol.</p>
-                </div>
-            </li>
-        </ul>
-    </section>
+            <!-- What You'll Get -->
+            <section class="sp-schedule">
+                <h2>What you'll get each day</h2>
+                <ul class="sp-day-list">
+                    <li>
+                        <div class="sp-day-num">1</div>
+                        <div class="sp-day-content">
+                            <h3>What to eat (keep it simple)</h3>
+                            <p>Beef, salt, water. We strip away the overthinking and give you a dead-simple starting point.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sp-day-num">2</div>
+                        <div class="sp-day-content">
+                            <h3>The first few days might suck</h3>
+                            <p>Adaptation symptoms are real — headaches, fatigue, cravings. Here's what's happening and why it passes.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sp-day-num">3</div>
+                        <div class="sp-day-content">
+                            <h3>Your shopping list</h3>
+                            <p>Exactly what to buy and how to meal prep so you're never stuck wondering what to eat.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sp-day-num">4</div>
+                        <div class="sp-day-content">
+                            <h3>The #1 mistake beginners make</h3>
+                            <p>Most people undereat fat and skip salt. We'll make sure you don't fall into the same trap.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sp-day-num">5</div>
+                        <div class="sp-day-content">
+                            <h3>When the magic kicks in</h3>
+                            <p>Energy, mental clarity, better sleep — here's a realistic timeline for when you'll start feeling the difference.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sp-day-num">6</div>
+                        <div class="sp-day-content">
+                            <h3>Eating out and handling questions</h3>
+                            <p>Social situations, restaurants, the "but what about fiber?" crowd. Practical answers for real life.</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sp-day-num">7</div>
+                        <div class="sp-day-content">
+                            <h3>What's next</h3>
+                            <p>You made it through the first week. Here's how to dial in your approach with a personalized protocol.</p>
+                        </div>
+                    </li>
+                </ul>
+            </section>
 
-    <!-- Bottom CTA -->
-    <section class="sp-bottom-cta">
-        <p>Ready to start? Your first email arrives in minutes.</p>
-        <div class="sp-form-wrap" id="bottom-form-wrap">
-            <form class="sp-form" id="sp-form-bottom">
-                <input type="email" class="sp-input" placeholder="your@email.com" required aria-label="Email address">
-                <button type="submit" class="sp-button">
-                    <span class="btn-text">Start Free</span>
-                    <span class="btn-loading" style="display:none"><span class="sp-spinner"></span></span>
-                </button>
-            </form>
-            <p class="sp-privacy">No spam. Unsubscribe anytime. Day 1 arrives instantly.</p>
-
-            <div class="sp-success">
-                <h2 style="font-size:1.25rem;">Check your inbox</h2>
-                <p>Day 1 is on its way to <span class="email-confirm"></span></p>
-            </div>
-
-            <div class="sp-error">
-                <p class="error-msg">Something went wrong. Please try again.</p>
+            <!-- Sarah attribution -->
+            <div class="sp-author">
+                <p>Written by <strong>Sarah</strong>, health coach at Carnivore Weekly. Based on real coaching experience with hundreds of beginners.</p>
             </div>
         </div>
-    </section>
+
+        <!-- Bottom CTA — oxblood gradient like calculator-cta -->
+        <section class="sp-bottom-cta">
+            <p class="cta-heading">Ready to start?</p>
+            <p class="cta-sub">Your first email arrives in minutes.</p>
+            <div class="sp-form-card" id="bottom-form-wrap">
+                <form class="sp-form" id="sp-form-bottom">
+                    <input type="email" class="sp-input" placeholder="your@email.com" required aria-label="Email address">
+                    <button type="submit" class="sp-button">
+                        <span class="btn-text">Start Free</span>
+                        <span class="btn-loading" style="display:none"><span class="sp-spinner"></span></span>
+                    </button>
+                </form>
+                <p class="sp-privacy">No spam. Unsubscribe anytime.</p>
+
+                <div class="sp-success">
+                    <h3>Check your inbox</h3>
+                    <p>Day 1 is on its way to <span class="email-confirm"></span></p>
+                </div>
+
+                <div class="sp-error">
+                    <p class="error-msg">Something went wrong. Please try again.</p>
+                </div>
+            </div>
+        </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="sp-footer">
-        <p><a href="/">Carnivore Weekly</a> — Evidence-based carnivore resources</p>
-        <p><a href="/blog/">Read our articles</a> · <a href="/calculator.html">Try the calculator</a></p>
+    <!-- FOOTER — matches site footer -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-8); margin-bottom: var(--space-8);">
+                <div>
+                    <h3 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Carnivore Weekly</h3>
+                    <p style="color: var(--color-cream); font-size: var(--text-sm); line-height: var(--leading-relaxed);">
+                        Evidence-based insights, real community stories, and practical protocols for the meat-based movement.
+                    </p>
+                </div>
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Explore</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/">Home</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/channels.html">Weekly Watch</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/wiki/">Protocols & Basics</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/blog/">Insights</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/calculator.html">Calculator</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="font-family: var(--font-heading); color: var(--color-white); margin-bottom: var(--space-4);">Resources</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; font-size: var(--text-sm);">
+                        <li style="margin-bottom: var(--space-2);"><a href="/archive.html">Archive</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/the-lab.html">The Lab</a></li>
+                        <li style="margin-bottom: var(--space-2);"><a href="/privacy.html">Privacy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <p style="color: var(--color-cream); font-size: var(--text-sm); margin: 0;">
+                    &copy; 2026 Carnivore Weekly. Evidence-based content for the carnivore community.
+                </p>
+            </div>
+        </div>
     </footer>
 
     <!-- Engagement Tracking -->
     <script src="/js/engagement-tracking.js"></script>
+
+    <!-- Mobile Nav -->
+    <script src="/js/mobile-nav.js"></script>
 
     <script>
     (function() {
@@ -464,7 +547,7 @@
             e.preventDefault();
 
             var form = e.target;
-            var wrap = form.closest('.sp-form-wrap') || form.parentElement;
+            var wrap = form.closest('.sp-form-card') || form.parentElement;
             var input = form.querySelector('input[type="email"]');
             var btn = form.querySelector('.sp-button');
             var btnText = btn.querySelector('.btn-text');
@@ -494,17 +577,21 @@
                     // Success
                     form.style.display = 'none';
                     wrap.querySelector('.sp-privacy').style.display = 'none';
+                    if (wrap.querySelector('h2')) wrap.querySelector('h2').style.display = 'none';
+                    if (wrap.querySelector('.form-subtitle')) wrap.querySelector('.form-subtitle').style.display = 'none';
                     success.style.display = 'block';
                     success.querySelector('.email-confirm').textContent = email;
 
                     // Also show success on the other form
-                    document.querySelectorAll('.sp-form-wrap').forEach(function(w) {
+                    document.querySelectorAll('.sp-form-card').forEach(function(w) {
                         if (w !== wrap) {
                             var otherForm = w.querySelector('.sp-form');
                             var otherPrivacy = w.querySelector('.sp-privacy');
                             var otherSuccess = w.querySelector('.sp-success');
                             if (otherForm) otherForm.style.display = 'none';
                             if (otherPrivacy) otherPrivacy.style.display = 'none';
+                            if (w.querySelector('h2')) w.querySelector('h2').style.display = 'none';
+                            if (w.querySelector('.form-subtitle')) w.querySelector('.form-subtitle').style.display = 'none';
                             if (otherSuccess) {
                                 otherSuccess.style.display = 'block';
                                 otherSuccess.querySelector('.email-confirm').textContent = email;
