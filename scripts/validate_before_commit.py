@@ -741,6 +741,36 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
                     'This file was generated from an empty slug. Remove it and fix the source data.'
                 )
 
+    # Gate 7: No unrendered Jinja2 in public/blog/ (Loop 9 prevention)
+    # If any blog file contains {{ or {% tags, it means someone wrote
+    # directly to the HTML instead of using the pipeline.
+    if blog_dir.exists():
+        for bf in blog_dir.glob('*.html'):
+            if bf.name == 'index.html':
+                continue
+            try:
+                blog_content = bf.read_text(encoding='utf-8', errors='ignore')
+                if '{{ ' in blog_content or '{%' in blog_content:
+                    results.add_critical(
+                        f'public/blog/{bf.name}', 1,
+                        'Unrendered Jinja2 in blog HTML — pipeline was bypassed',
+                        'Blog posts must be generated via generate_blog_pages.py, not written directly.'
+                    )
+            except (OSError, IOError):
+                pass
+
+    # Gate 8: No blog HTML files without date prefix (orphan detection)
+    if blog_dir.exists():
+        for bf in blog_dir.glob('*.html'):
+            if bf.name in ('index.html', 'wiki.html'):
+                continue
+            if not re.match(r'^\d{4}-\d{2}-\d{2}-', bf.name):
+                results.add_warning(
+                    f'public/blog/{bf.name}', 1,
+                    f'No date prefix — possible orphan from broken pipeline',
+                    'Blog filenames must start with YYYY-MM-DD-. Remove or rename this file.'
+                )
+
     return results
 
 
