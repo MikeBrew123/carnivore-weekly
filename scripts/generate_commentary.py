@@ -405,7 +405,8 @@ Top Community Comments (react to these):
             f"- \"{c[:120]}...\"" for c in previous_commentaries
         )
         prompt += f"""
-You already wrote this commentary earlier in this batch. Do NOT repeat your opening structure, framing, or sentence patterns:
+You already wrote this commentary earlier in this batch. Do NOT repeat your opening structure, framing,
+or sentence patterns:
 {prev_text}
 """
 
