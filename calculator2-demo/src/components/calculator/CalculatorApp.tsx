@@ -207,9 +207,17 @@ export default function CalculatorApp({
   const handlePaymentSuccess = () => {
     // Payment successful, user has upgraded to premium
     if (window.gtag) {
-      window.gtag('event', 'calculator_payment_complete', {
-        'event_category': 'calculator',
-        'event_label': 'payment_complete'
+      // GA4 standard purchase event (ecommerce format)
+      window.gtag('event', 'purchase', {
+        transaction_id: paymentState.stripeSessionId || `T_${Date.now()}`,
+        value: 9.99,
+        currency: 'USD',
+        items: [{
+          item_id: 'carnivore-protocol',
+          item_name: 'Personalized Carnivore Protocol',
+          price: 9.99,
+          quantity: 1
+        }]
       })
     }
     setIsPremium(true)
