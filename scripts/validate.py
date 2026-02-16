@@ -173,6 +173,7 @@ class UnifiedValidator:
             "public/blog/2025-12-27-",  # Legacy blog posts (pre-template)
             "public/blog/2025-12-28-",  # Legacy blog posts (pre-template)
             "public/404.html",  # Error page (intentionally minimal structure)
+            "public/wiki.html",  # Redirect stub to /wiki/
         ]
 
         for html_file in html_files:
