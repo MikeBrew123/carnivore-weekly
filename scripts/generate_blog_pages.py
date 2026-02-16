@@ -311,6 +311,7 @@ def update_sitemap(posts):
         "index.html",
         "report.html",
         "questionnaire.html",
+        "wiki.html",  # Redirect page — canonical is /wiki/
     }
     SITEMAP_EXCLUDE_DIRS = {"components", "includes", "assets"}
 
