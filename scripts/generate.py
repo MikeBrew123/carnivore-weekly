@@ -676,7 +676,7 @@ class UnifiedGenerator:
                     youtube_data = json.loads(youtube_path.read_text())
                     # Convert YouTube data to template format
                     for creator in youtube_data.get("top_creators", []):
-                        for video in creator.get("videos", [])[:2]:  # Take first 2 per creator
+                        for video in creator.get("videos", []):  # All videos (editorial filter trims later)
                             video_obj = {
                                 "video_id": video["video_id"],
                                 "title": self._sanitize_text(video["title"]),
