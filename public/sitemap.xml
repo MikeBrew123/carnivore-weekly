@@ -361,12 +361,6 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://carnivoreweekly.com/wiki.html</loc>
-        <lastmod>2026-02-13</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    <url>
         <loc>https://carnivoreweekly.com/starter-plan.html</loc>
         <lastmod>2026-02-13</lastmod>
         <changefreq>weekly</changefreq>
