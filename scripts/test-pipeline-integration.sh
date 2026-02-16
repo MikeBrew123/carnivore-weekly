@@ -80,9 +80,9 @@ else
 fi
 echo ""
 
-# Test 8: Verify template structure
+# Test 8: Verify template structure (validate_structure.py removed — use validate.py instead)
 echo "Test 8: Running template validation..."
-if python3 scripts/validate_structure.py templates/ --mode template --severity critical 2>/dev/null; then
+if python3 scripts/validate.py --type structure --path templates/ --severity critical 2>/dev/null; then
     echo "   ✅ PASS: Template structure valid"
 else
     echo "   ⚠️  WARNING: Template validation had issues (may be non-blocking)"

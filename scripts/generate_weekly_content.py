@@ -368,17 +368,13 @@ WAIT FOR ALL WRITERS TO COMPLETE before proceeding to Phase 4.
         """
         self.step(7, 10, "Regenerate Site Indexes")
 
-        self.log("Regenerating sitemap...")
+        self.log("Regenerating blog pages, sitemap, and blog index...")
         if not self.dry_run:
-            os.system("python3 scripts/generate_sitemap.py")
-
-        self.log("Regenerating blog index...")
-        if not self.dry_run:
-            os.system("python3 scripts/update_blog_index.py")
+            os.system("python3 scripts/generate_blog_pages.py")
 
         self.log("Updating homepage...")
         if not self.dry_run:
-            os.system("python3 scripts/update_homepage.py")
+            os.system("python3 scripts/generate.py --type pages")
 
         return True
 
