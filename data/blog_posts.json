@@ -2,7 +2,7 @@
   "blog_posts": [
     {
       "slug": "2026-02-10-carnivore-vs-keto",
-      "title": "Carnivore vs Keto: What's Actually Different (And Which Works Better)",
+      "title": "Carnivore vs Keto: What's Different and Which Wins",
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2026-02-10",
@@ -66,7 +66,7 @@
     },
     {
       "slug": "2026-02-12-carnivore-depression-anxiety",
-      "title": "Carnivore and Mental Health: What Happens to Depression and Anxiety on Meat",
+      "title": "Carnivore and Mental Health: Depression and Anxiety",
       "author": "chloe",
       "author_title": "Community & Lifestyle Writer",
       "date": "2026-02-12",
@@ -98,7 +98,7 @@
     },
     {
       "slug": "2026-02-13-carnivore-diabetes-blood-sugar",
-      "title": "Type 2 Diabetes on Carnivore: The Blood Sugar Results Nobody Expected",
+      "title": "Type 2 Diabetes on Carnivore: Blood Sugar Results",
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2026-02-13",
@@ -227,7 +227,7 @@
     },
     {
       "slug": "2026-02-09-carnivore-inflammation-joint-pain",
-      "title": "Carnivore Diet and Inflammation: Why Joint Pain Disappears on Meat",
+      "title": "Carnivore and Inflammation: Why Joint Pain Vanishes",
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2026-02-09",
@@ -302,7 +302,7 @@
     },
     {
       "slug": "2026-02-09-carnivore-weight-loss-results",
-      "title": "Carnivore Diet Weight Loss: What the Science and Real Results Show",
+      "title": "Carnivore Weight Loss: What Science and Results Show",
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2026-02-09",
@@ -417,7 +417,7 @@
     {
       "id": "2026-02-07-thyroid-reversal",
       "slug": "2026-02-07-thyroid-reversal",
-      "title": "Thyroid Function on Carnivore: What the Research Actually Shows",
+      "title": "Thyroid on Carnivore: What the Research Shows",
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2026-02-07",
@@ -602,7 +602,7 @@
     {
       "id": "2026-01-15-two-week-results-reddit",
       "slug": "2026-01-15-two-week-results-reddit",
-      "title": "Real 2-Week Carnivore Results: What Actually Happens (Reddit Data)",
+      "title": "2-Week Carnivore Results: What Actually Happens",
       "author": "chloe",
       "author_title": "Community Curator",
       "date": "2026-01-15",
@@ -689,7 +689,7 @@
     {
       "id": "2026-01-05-ground-beef-budget",
       "slug": "2026-01-05-ground-beef-budget",
-      "title": "Ground Beef Only: Why the Cheapest Meat Is Becoming a Carnivore Strategy",
+      "title": "Ground Beef Only: The Cheapest Carnivore Strategy",
       "author": "chloe",
       "author_title": "Community Manager",
       "date": "2026-01-05",
@@ -762,7 +762,7 @@
     {
       "id": "2026-01-04-electrolyte-deficiency-part-1",
       "slug": "2026-01-04-electrolyte-deficiency-part-1",
-      "title": "Why Everyone's Talking About Electrolytes Right Now (And Why You're Probably Low)",
+      "title": "Electrolytes on Carnivore: Why You're Probably Low",
       "author": "chloe",
       "author_title": "Community Manager",
       "date": "2026-01-04",
@@ -808,7 +808,7 @@
     {
       "id": "2026-01-03-adhd-carnivore",
       "slug": "2026-01-03-adhd-carnivore",
-      "title": "ADHD + Carnivore: What 20 Reddit Testimonials Reveal (And What Science Actually Shows)",
+      "title": "ADHD + Carnivore: What Reddit and Science Actually Show",
       "author": "chloe",
       "author_title": "Community Manager",
       "date": "2026-01-03",
@@ -921,7 +921,7 @@
     {
       "id": "2026-01-02-beginners-blueprint",
       "slug": "2026-01-02-beginners-blueprint",
-      "title": "Beginner's Complete Blueprint: How to Actually Start Carnivore",
+      "title": "Beginner's Blueprint: How to Start Carnivore",
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2026-01-02",
@@ -993,7 +993,7 @@
     {
       "id": "insulin-resistance-morning-glucose",
       "slug": "2025-12-20-insulin-resistance-morning-glucose",
-      "title": "Understanding Insulin Resistance: What Your Morning Glucose Really Tells You",
+      "title": "Insulin Resistance: What Morning Glucose Tells You",
       "author": "marcus",
       "author_title": "Research Editor",
       "date": "2025-12-20",
@@ -1023,7 +1023,7 @@
     {
       "id": "2025-12-18-carnivore-bar-guide",
       "slug": "2025-12-18-carnivore-bar-guide",
-      "title": "The Carnivore Bar Guide: What to Order When the Squad is Drinking",
+      "title": "Carnivore Bar Guide: What to Order While Drinking",
       "author": "chloe",
       "author_title": "Community Manager",
       "date": "2025-12-18",
@@ -1144,7 +1144,7 @@
     {
       "id": "2025-12-21-night-sweats",
       "slug": "2025-12-21-night-sweats",
-      "title": "Night Sweats on Carnivore: Why They Happen and How to Fix Them",
+      "title": "Night Sweats on Carnivore: Why and How to Fix Them",
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2025-12-21",
@@ -1268,7 +1268,7 @@
     {
       "id": "2025-12-31-acne-purge",
       "slug": "2025-12-31-acne-purge",
-      "title": "Adult Acne Purge: Why Your Skin Gets Worse Before It Gets Better",
+      "title": "Acne Purge: Why Skin Gets Worse Before It Gets Better",
       "author": "chloe",
       "author_title": "Community Manager",
       "date": "2025-12-31",
@@ -1473,7 +1473,7 @@
     {
       "id": "2025-12-28-physiological-insulin-resistance",
       "slug": "2025-12-28-physiological-insulin-resistance",
-      "title": "Physiological Insulin Resistance: The Hidden Adaptation Your Body Needs",
+      "title": "Physiological Insulin Resistance: The Hidden Adaptation",
       "author": "sarah",
       "author_title": "Health Coach",
       "date": "2025-12-28",
@@ -1515,7 +1515,7 @@
     {
       "id": "2025-12-27-anti-resolution-playbook",
       "slug": "2025-12-27-anti-resolution-playbook",
-      "title": "The Anti-Resolution Playbook: Why Carnivore Beats New Year Goals",
+      "title": "Anti-Resolution Playbook: Why Carnivore Beats Goals",
       "author": "casey",
       "author_title": "Wellness Guide",
       "date": "2025-12-27",
@@ -1555,7 +1555,7 @@
     {
       "id": "2025-12-25-new-year-same-you",
       "slug": "2025-12-25-new-year-same-you",
-      "title": "The Mental Health Angle: Why People Are Saying Carnivore 'Fixed' Their Brain (And Why They Might Be Right)",
+      "title": "Why Carnivore 'Fixed' Their Brain (And Why It's Real)",
       "author": "chloe",
       "author_title": "Community Manager",
       "date": "2025-12-25",
@@ -1684,7 +1684,7 @@
       "comments_enabled": true
     },
     {
-      "title": "Carnivore and Thyroid: Why TSH Goes Up (And Why It's Not a Problem)",
+      "title": "Carnivore and Thyroid: Why TSH Goes Up",
       "excerpt": "Your thyroid numbers changed on carnivore and your doctor is worried. Here's what's actually happening with your metabolism.",
       "slug": "2026-02-08-thyroid-tsh",
       "date": "2026-02-08",
@@ -1706,7 +1706,7 @@
       "comments_enabled": true
     },
     {
-      "title": "Why Carnivore YouTube Is Lying About Results (And What's Real)",
+      "title": "Why Carnivore YouTube Is Lying About Results",
       "excerpt": "The before/after videos are misleading. Here's what actually happens in the first 90 days, backed by data.",
       "slug": "2026-02-08-youtube-results-truth",
       "date": "2026-02-08",
@@ -1772,7 +1772,7 @@
       "comments_enabled": true
     },
     {
-      "title": "Carnivore Family Dinner: How to Feed Kids Without Going Insane",
+      "title": "Carnivore Family Dinner: Feeding Kids Without Chaos",
       "excerpt": "Your kids aren't giving up pizza. Here's how to do carnivore while the rest of the family eats normally.",
       "slug": "2026-02-08-carnivore-family-dinner",
       "date": "2026-02-08",
@@ -1837,7 +1837,7 @@
       "published": true
     },
     {
-      "title": "Carnivore Powerlifting: How to Program Training on Zero Carbs",
+      "title": "Carnivore Powerlifting: Training on Zero Carbs",
       "excerpt": "Conventional wisdom says you need carbs for strength. Here's the exact protocol for hitting PRs on carnivore.",
       "slug": "2026-02-08-powerlifting-programming",
       "date": "2026-02-08",
