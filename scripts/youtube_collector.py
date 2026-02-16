@@ -566,26 +566,26 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
         stats_dict = {}
 
         try:
-            # Join video IDs with commas (API accepts comma-separated list)
-            video_ids_str = ",".join(video_ids)
+            # YouTube API allows max 50 IDs per request — batch in chunks
+            for i in range(0, len(video_ids), 50):
+                chunk = video_ids[i:i + 50]
+                video_ids_str = ",".join(chunk)
 
-            # Request statistics for all videos at once
-            request = self.youtube.videos().list(part="statistics", id=video_ids_str)
+                request = self.youtube.videos().list(
+                    part="statistics", id=video_ids_str
+                )
+                response = request.execute()
 
-            response = request.execute()
+                # Build dictionary of video_id -> stats
+                for item in response.get("items", []):
+                    video_id = item["id"]
+                    stats = item["statistics"]
 
-            # Build dictionary of video_id -> stats
-            for item in response.get("items", []):
-                video_id = item["id"]
-                stats = item["statistics"]
-
-                # Convert view count to integer (API returns strings)
-                # Use .get() with default value to handle missing fields
-                stats_dict[video_id] = {
-                    "view_count": int(stats.get("viewCount", 0)),
-                    "like_count": int(stats.get("likeCount", 0)),
-                    "comment_count": int(stats.get("commentCount", 0)),
-                }
+                    stats_dict[video_id] = {
+                        "view_count": int(stats.get("viewCount", 0)),
+                        "like_count": int(stats.get("likeCount", 0)),
+                        "comment_count": int(stats.get("commentCount", 0)),
+                    }
 
             return stats_dict
 
