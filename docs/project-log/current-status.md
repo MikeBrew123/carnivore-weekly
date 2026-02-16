@@ -1,32 +1,28 @@
 # Current Status
 
-**Last Updated:** 2026-02-16 (SEO Mega Audit + Critical Compliance Fixes)
+**Last Updated:** 2026-02-16 (Phases 1-9 Cleanup Complete + Pipeline Lockdown)
 
 **Current Focus:**
-Critical compliance and tracking issues RESOLVED. SEO mega audit complete (25 Cory Haines skills, 100+ findings). Two critical fixes deployed: (1) Unsubscribe link now CAN-SPAM compliant, (2) GA4 revenue tracking fixed - purchase events now in ecommerce format. Email deliverability still needs fixing (DKIM/SPF/DMARC). SEO roadmap ready for implementation.
+All 9 cleanup phases COMPLETE. Codebase is clean: 0 critical errors, 0 warnings. Blog pipeline permanently locked down in CLAUDE.md with mandatory 7-step process. Validation guardrails added (Jinja2 detection, orphan file detection). 7 blog posts expanded to full length (1,000-1,700 words). 28 broken cross-links fixed. 88 validation warnings resolved. Ready for regular content publishing.
 
 ---
 
-## Latest Session (Feb 16 - SEO Mega Audit + Critical Compliance Fixes)
+## Latest Session (Feb 16 - Phases 1-9 Cleanup + Pipeline Lockdown)
 
 ### Accomplishments
-1. **SEO mega audit recovered and compiled** - 25 Cory Haines skills ran, session crashed during report compilation. Spawned 3 parallel agents to recover and compile findings from 23 successful agents. 100+ issues identified across 10 categories.
-2. **Unsubscribe link fixed (CAN-SPAM compliance)** - Day 1 email had hardcoded PLACEHOLDER_TOKEN. Fixed N8N workflow to pull actual unsubscribe_token from Supabase. Deployed via N8N API.
-3. **GA4 revenue tracking fixed (monetization visibility)** - Calculator was sending custom calculator_payment_complete event instead of GA4 standard purchase event. Fixed to use ecommerce format with transaction_id, value, currency, items[]. Revenue will now appear in Monetization reports.
-4. **Both fixes deployed to production** - Unsubscribe fix live in N8N, GA4 fix deployed via GitHub Actions after fixing canonical URL validation issues.
+1. **Phase 1-3: Dead file removal + doc fixes** — 84 dead files removed, broken references fixed, documentation contradictions corrected
+2. **Phase 4: Blog assessment** — 6 orphan files identified, 7 target posts confirmed, pipeline verified
+3. **Phase 5: Orphan cleanup** — 6 broken orphan HTML files deleted, insulin-resistance file renamed with date prefix
+4. **Phase 6: Content expansion** — 7 blog posts (Feb 10-16) expanded from ~600-700 words to 1,000-1,700 words using writer personas
+5. **Phase 7: Cross-link fixes** — 28 broken internal links fixed (26 corrected date prefix, 2 removed)
+6. **Phase 8: Warning resolution** — 88 validation warnings resolved to 0 (titles shortened, skip-nav added, JSON-LD added, image dims added)
+7. **Phase 9: Pipeline lockdown** — Canonical blog pipeline added to CLAUDE.md, validation guardrails added (Jinja2 detection, orphan detection)
 
-### Top SEO Findings (from mega audit)
-1. Remove 4-tier pricing modal → direct to checkout (+20-40% conversion, 15 min)
-2. Add "Free Email Course" to main nav (+200-300% traffic, 5 min)
-3. Add email capture on calculator Step 3 (+10-50x leads, 2 hrs)
-4. Fix GA4 purchase event format (DONE ✅)
-5. Add BreadcrumbList schema site-wide (+5-15% CTR, 1 hr)
-
-### Files Created
-- `/Users/mbrew/Developer/carnivore-weekly/docs/reports/seo-mega-report.md` - Master consolidated report
-- `/Users/mbrew/Developer/carnivore-weekly/docs/reports/seo-report-wave0.md` - Wave 0 findings
-- `/Users/mbrew/Developer/carnivore-weekly/seo-report-wave1.md` - Wave 1 findings
-- `/Users/mbrew/Developer/carnivore-weekly/seo-report-wave2.md` - Wave 2 findings
+### Validation State
+- **Critical errors: 0** (was 28 before Phase 7)
+- **Warnings: 0** (was 88 before Phase 8)
+- **Blog posts: 58** (all rendering cleanly, all with date prefixes)
+- **Sitemap: 68 URLs** (all validated)
 
 ---
 
@@ -224,7 +220,7 @@ Critical compliance and tracking issues RESOLVED. SEO mega audit complete (25 Co
 - Blog: Post reactions JS, related content JS, feedback modal, WCAG compliant colors
 - Blog Index: Data-driven (Jinja2), magazine layout, author/category filters
 - Blog Validation: 3-wall system (Wall 1: 95% auto-fix, Wall 2: pre-commit, Wall 3: GitHub Actions)
-- Blog Content: 58 published posts, 28 pre-existing cross-link errors
+- Blog Content: 58 published posts, 0 cross-link errors, all 1,000+ words
 - Blog Template: Revenue scripts (calculator-cta.js, newsletter-inject.js) included (Feb 9)
 - Blog References: Amazon affiliate links for books, PubMed for studies (Feb 9)
 - Internal Linking: 2-5 links per post, cross-writer references
@@ -247,41 +243,32 @@ Critical compliance and tracking issues RESOLVED. SEO mega audit complete (25 Co
 
 ## Next Session Priorities (Updated Feb 16)
 
-**Phase: GROWTH — Post-cleanup, fixing content gaps.**
+**Phase: GROWTH — Clean baseline achieved, focus on traffic and revenue.**
 
-1. **Fix 12 broken blog HTML files** — 6 orphan no-date-prefix files from failed agents, 6 others need re-rendering
-2. **Generate content for 7 blog posts (Feb 10-16)** — Entries in blog_posts.json, need content via writer agents
-3. **Fix 28 pre-existing broken cross-links** — From Feb 8 agent content, blocking clean validation
-4. **Email deliverability** — DKIM/SPF/DMARC for carnivoreweekly.com (emails hitting spam)
-5. **Google Search Console review** — SEO cooldown ends ~Feb 17. Check indexing, impressions, page 2 rankings
-6. **GA4 funnel analysis** — Calculator views → Step 3 → upgrade clicks → Stripe completions
-7. **Implement top SEO audit findings** — Remove pricing modal, add email capture on calculator Step 3, BreadcrumbList schema
+1. **Email deliverability** — DKIM/SPF/DMARC for carnivoreweekly.com (emails hitting spam)
+2. **Google Search Console review** — SEO cooldown ends ~Feb 17. Check indexing, impressions, page 2 rankings
+3. **GA4 funnel analysis** — Calculator views → Step 3 → upgrade clicks → Stripe completions
+4. **Implement top SEO audit findings** — Remove pricing modal, add email capture on calculator Step 3, BreadcrumbList schema
+5. **Scale content** — Next batch of 5-10 SEO-targeted posts using locked-down pipeline
+6. **Boost starter-plan traffic** — Only 18 views in 7 days, needs promotion strategy
 
 ---
 
 ## Summary
 
-**System Status:** PRODUCTION - FULLY OPERATIONAL (post-cleanup)
+**System Status:** PRODUCTION - FULLY OPERATIONAL (clean baseline)
 
-**Pipeline:** One-way, gated, all 9 weekly steps run end-to-end. Every push validates before deploying.
-**Homepage:** 6 videos ranked by engagement, comment-based commentary with agent memory, sentiment bars, HTML links.
+**Validation:** 0 critical errors, 0 warnings. Clean baseline achieved Feb 16.
+**Pipeline:** Blog pipeline locked down in CLAUDE.md — mandatory 7-step process, no exceptions.
+**Guardrails:** 8 automated gates in validator (future dates, fragments, Jinja2 detection, orphan detection, baselines, etc.)
 **Baselines:** Sitemap 68, RSS 51, posts 58, 9 main pages — all enforced.
-**Supabase:** Active, 3 writers, 20 memories, fallback chain intact.
+**Supabase:** Active, 3 writers, 56 memories, fallback chain intact.
 **Stripe:** $9.99 paid flow tested and working. TEST999 coupon verified.
-**Blog:** 58 published posts. Writer agents connected to Supabase memory.
+**Blog:** 58 published posts, all 1,000+ words, all rendering cleanly.
 
-**Latest Session (Feb 16):**
-- Phase 1+2 cleanup complete: 84 dead files removed, broken references fixed
-- 28 pre-existing critical validation errors (broken cross-links from Feb 8 agent content)
-- 7 blog posts (Feb 10-16) need content generation
-- 12 broken HTML files in public/blog/ need re-rendering (6 orphan no-date-prefix files)
-- SEO mega audit compiled (100+ findings across 10 categories)
-- GA4 revenue tracking fixed (ecommerce format)
-- Unsubscribe link fixed (CAN-SPAM compliance)
-
-**Current Focus:** Fix broken blog files, generate missing content, fix 28 cross-links.
+**Current Focus:** Email deliverability, SEO audit implementation, content scaling.
 **Next automation:** Sunday midnight UTC.
-**Phase:** GROWTH — Content generation → cross-link fixes → email deliverability → organic discovery.
+**Phase:** GROWTH — Email deliverability → organic discovery → content scaling.
 **Drip System:** LIVE, 2 subscribers, 3 N8N workflows active.
 
 **Latest Log:** `/Users/mbrew/Documents/Brew-Vault/07-Daily/2026-02-16.md`
