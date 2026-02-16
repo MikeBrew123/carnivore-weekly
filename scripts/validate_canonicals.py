@@ -29,8 +29,6 @@ WHITELIST = {
     "channels/index.html": f"{SITE_ORIGIN}/channels.html",
     # Redirect pages — canonical points to destination
     "wiki.html": f"{SITE_ORIGIN}/wiki/",
-    # Dev/internal pages — canonical points to production equivalent
-    "calculator-form-rebuild.html": f"{SITE_ORIGIN}/calculator.html",
 }
 
 CANONICAL_RE = re.compile(
