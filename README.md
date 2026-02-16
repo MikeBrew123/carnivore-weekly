@@ -19,6 +19,54 @@ Carnivore Weekly automatically:
 
 ---
 
+## 🤖 Autonomous Content Generation
+
+**One-command pipeline:** Generate weekly blog content with Supabase-powered writer agents.
+
+### Quick Start
+
+```bash
+# Generate 5 blog posts
+./scripts/autonomous_blog_generation.sh
+
+# Generate 15 posts (larger batch)
+./scripts/autonomous_blog_generation.sh 15
+
+# Dry run (see what would happen)
+python3 scripts/generate_weekly_content.py --dry-run
+```
+
+### How It Works
+
+The autonomous pipeline uses three AI writer agents (Sarah, Chloe, Marcus) to generate authentic, high-quality blog content:
+
+1. **Chloe** researches trending carnivore topics → creates assignments
+2. **Leo** fetches writer context from Supabase (persona, memories, past articles)
+3. **All 3 writers** generate content in parallel (swarm)
+4. **Leo** saves to Supabase → learns from new articles
+5. **Validation** runs automatically (Wall 1, 2, 3)
+6. **Git** commits and pushes to production
+
+### Writer Agents
+
+- **Sarah** (Health Coach) - Health, nutrition, women's health
+  - Conversational, evidence-based, empathetic
+  - Applies "specificity drives engagement" memory
+
+- **Chloe** (Community Manager) - Community, trending, social
+  - Enthusiastic, trendy, insider perspective
+  - Applies "Reddit testimonials add credibility" memory
+
+- **Marcus** (Performance Coach) - Performance, protocols, training
+  - Professional, strategic, actionable
+  - Applies "protocol-heavy content resonates" memory
+
+Each writer queries Supabase for their persona, voice formula, and memory lessons before writing. Articles are saved back to Supabase to inform future content.
+
+**Validation Status:** ✅ All 3 writers tested and validated (see `docs/archive/WRITER_AGENTS_VALIDATED.md`)
+
+---
+
 ## Live Site
 
 🔗 **https://carnivoreweekly.com**

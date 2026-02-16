@@ -132,7 +132,7 @@ def validate_post(html_file):
 **✅ GO:** All validators pass, zero critical issues
 **❌ NO-GO:** ANY validator fails or critical issue found
 
-See `VALIDATION-CHECKLIST.md` for complete details.
+See `docs/archive/VALIDATION-CHECKLIST.md` for complete details.
 
 ---
 
@@ -271,7 +271,7 @@ python3 scripts/orchestrate_writer_content.py --save-article /tmp/article.html -
 - Writer assignments balanced
 - Full pipeline tested
 
-See `WRITER_AGENTS_VALIDATED.md` for complete validation report.
+See `docs/archive/WRITER_AGENTS_VALIDATED.md` for complete validation report.
 
 ---
 
@@ -282,27 +282,21 @@ Location: `/Users/mbrew/Developer/carnivore-weekly/STATUS.md`
 
 ### To Resume Next Session
 1. **Read STATUS.md** for complete project state
-2. **Deploy redesign files to production**:
-   - Swap index-redesign.html → index.html
-   - Swap channels-redesign.html → channels.html
-   - See detailed commands in STATUS.md
-3. **Run full payment test** with real Stripe checkout:
-   - Use $9.99 Complete Protocol Bundle (NO coupon)
-   - Manually enter test CC: 4242 4242 4242 4242
-   - Verify Stripe redirect works
-   - Verify Step 4 health profile loads after payment
-   - Verify report generation
-3. **Refund test payment** via Stripe Dashboard (MCP not configured)
-4. **Deploy Migration 009** to Supabase (engagement tables)
-5. **Proceed to Phase 7** (agent prompt updates)
+2. **SEO cooldown period** — major SEO push completed Feb 10. Leave site alone for 1 week (until ~Feb 17) to let Google re-crawl and reindex. Only act if GSC shows new broken links.
+3. **Monitor Etsy listings** — 5 products launched Feb 10, check impressions/views
+4. **Next blog content batch** — when ready, use autonomous pipeline with writer agents
 
-Last major update: January 9, 2026
+Last major update: February 11, 2026
 - ✅ Phases 1-6 complete
 - ✅ Calculator Steps 1-3 validated on production
 - ✅ TEST999 ($0) coupon flow validated
-- ⏳ Full paid flow ($9.99 Stripe redirect) NOT YET TESTED
-- ⏳ Step 4 health profile NOT YET SEEN
-- ⏳ Report generation NOT YET VALIDATED
+- ✅ Full paid flow ($9.99 Stripe redirect) TESTED AND WORKING
+- ✅ Step 4 health profile loads after payment
+- ✅ Report generation working
+- ✅ Blog validation: 258 warnings resolved, all posts clean
+- ✅ Image optimization: ~55MB removed, WebP conversion complete
+- ✅ 6 new validator checks added (Feb 10)
+- ✅ SEO push: broken URLs fixed, sitemap updated, priority URLs submitted
 
 ---
 
@@ -515,14 +509,79 @@ Before marking any story "complete" or deploying:
 | You Say | I Do |
 |---------|------|
 | "good morning" or "standup" | Run /standup (status, blockers, priorities) |
-| "wrap up" or "done" or "end session" | Quinn updates daily note + current-status.md |
+| "wrap up" or "done" or "end session" | Generate session report + distribute to project files (see Session Wrap-Up Protocol) |
 | "decision:" or "we decided" | Quinn logs to decisions.md |
 | "validate site" or "visual check" | Run /visual-validator on all pages + report findings |
 | "show reports" or "analytics" or "show analytics" | Run dashboard/generate-all-reports.sh + open HTML reports |
 
 ## Session Flow
-**Start:** Read docs/project-log/current-status.md
-**End:** Quinn updates daily/ + status files
+
+### Two Log Systems (Different Purposes)
+
+| System | Audience | Purpose | Location |
+|--------|----------|---------|----------|
+| **Obsidian daily notes** | Mike (human) | Non-technical session recap, feeds weekly email report | `Brew-Vault/07-Daily/YYYY/MM/YYYY-MM-DD.md` |
+| **Project logs** | Claude Code | Technical context, decisions, status for CC to catch up | `docs/project-log/current-status.md`, `decisions.md` |
+
+- Obsidian = plain-language, what happened today, for the human
+- Project logs = technical details, architectural decisions, for CC memory
+- These are separate systems. Don't duplicate one into the other.
+
+**Start:** Read `docs/project-log/current-status.md` for technical context
+**End:** Run Session Wrap-Up Protocol (see below)
+
+## Session Wrap-Up Protocol
+**Trigger phrases:** "wrap up", "done", "end session"
+
+When triggered, do ALL of these steps:
+
+### Step 1: Obsidian Daily Note (for Mike — human-readable)
+Append session block to: `/Users/mbrew/Documents/Brew-Vault/07-Daily/YYYY/MM/YYYY-MM-DD.md`
+Write in plain language — this is for a human, not Claude Code.
+Format: Summary, Accomplishments, In Progress, Blockers, Decisions, Next Session
+
+**Project Naming Rule (for weekly report automation):**
+- ALWAYS include the project name in the `# Session:` title: `# Session: YYYY-MM-DD (Project Name)`
+- If a single daily note covers multiple projects, use separate `# Session:` blocks for each
+- Example: `# Session: 2026-02-14 (Carnivore Weekly)` then later `# Session: 2026-02-14 (FireSmart)`
+- Each session block gets its own Summary, Accomplishments, Decisions, Next Session sections
+- This enables automated weekly reports to correctly group activity by project
+- Valid project names: Carnivore Weekly, Project Nexus, FireSmart, MyBudget, SitRep, Health Dashboard, WFR, BCWS, Personal
+
+### Step 2: Project Logs (for Claude Code — technical)
+Update the project's own technical files so CC can catch up next session:
+
+- `docs/project-log/current-status.md` — latest technical state, what's working/broken
+- `docs/project-log/decisions.md` — new decisions with technical rationale
+
+**DO NOT** create separate daily files in `docs/project-log/daily/`. Session activity goes to Obsidian only.
+
+### Step 3: Obsidian Project Files (optional, if actionable items)
+For EACH project touched in the session, update these Obsidian files:
+
+**Action items** go to the project's `todos.md`:
+- New tasks: add to the right urgency tier
+- Completed tasks: move to Completed section with date
+- Location by project:
+  - FireSmart: `/Users/mbrew/Documents/Brew-Vault/03-FireSmart/todos.md`
+  - Carnivore Weekly: `/Users/mbrew/Documents/Brew-Vault/04-Projects/carnivore-weekly/todos.md`
+  - Project Nexus: `/Users/mbrew/Documents/Brew-Vault/04-Projects/project-nexus/todos.md`
+
+**Decisions** go to the project's Obsidian `decisions.md` (plain-language version):
+- Append new decisions under today's date header
+- Location by project: same parent folders as todos.md
+
+**Dates/deadlines** go to the project's `upcoming.md` (if applicable):
+- Only for FireSmart (seasonal dates) and any project with time-bound milestones
+
+### Step 4: Update frontmatter
+Set `updated: YYYY-MM-DD` in each modified Obsidian project file's frontmatter.
+
+### Rules
+- Only touch project files for projects that were actually worked on in the session.
+- Don't duplicate info. Obsidian daily note gets the plain-language narrative. Project logs get technical details.
+- If a project file doesn't exist yet, create it following the same format as the existing ones.
+- Append, don't overwrite. New items go under existing items.
 
 ## File Locations
 - Status: docs/project-log/current-status.md

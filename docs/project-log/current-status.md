@@ -1,13 +1,50 @@
 # Current Status
 
-**Last Updated:** 2026-02-12 (Pipeline Lockdown + Content Quality)
+**Last Updated:** 2026-02-16 (SEO Mega Audit + Critical Compliance Fixes)
 
 **Current Focus:**
-Pipeline lockdown complete — all 9 weekly steps run end-to-end with gated validation. Commentary system rebuilt: engagement-based video selection (5-comment minimum), agent memory from Supabase, HTML link output, creator stance filtering. Homepage shows 6 highest-engagement videos with comment-reactive editorial commentary. Baselines enforced: sitemap 61, RSS 51, posts 50, 9 main pages.
+Critical compliance and tracking issues RESOLVED. SEO mega audit complete (25 Cory Haines skills, 100+ findings). Two critical fixes deployed: (1) Unsubscribe link now CAN-SPAM compliant, (2) GA4 revenue tracking fixed - purchase events now in ecommerce format. Email deliverability still needs fixing (DKIM/SPF/DMARC). SEO roadmap ready for implementation.
 
 ---
 
-## Latest Session (Feb 12 - Pipeline Lockdown + Content Quality)
+## Latest Session (Feb 16 - SEO Mega Audit + Critical Compliance Fixes)
+
+### Accomplishments
+1. **SEO mega audit recovered and compiled** - 25 Cory Haines skills ran, session crashed during report compilation. Spawned 3 parallel agents to recover and compile findings from 23 successful agents. 100+ issues identified across 10 categories.
+2. **Unsubscribe link fixed (CAN-SPAM compliance)** - Day 1 email had hardcoded PLACEHOLDER_TOKEN. Fixed N8N workflow to pull actual unsubscribe_token from Supabase. Deployed via N8N API.
+3. **GA4 revenue tracking fixed (monetization visibility)** - Calculator was sending custom calculator_payment_complete event instead of GA4 standard purchase event. Fixed to use ecommerce format with transaction_id, value, currency, items[]. Revenue will now appear in Monetization reports.
+4. **Both fixes deployed to production** - Unsubscribe fix live in N8N, GA4 fix deployed via GitHub Actions after fixing canonical URL validation issues.
+
+### Top SEO Findings (from mega audit)
+1. Remove 4-tier pricing modal → direct to checkout (+20-40% conversion, 15 min)
+2. Add "Free Email Course" to main nav (+200-300% traffic, 5 min)
+3. Add email capture on calculator Step 3 (+10-50x leads, 2 hrs)
+4. Fix GA4 purchase event format (DONE ✅)
+5. Add BreadcrumbList schema site-wide (+5-15% CTR, 1 hr)
+
+### Files Created
+- `/Users/mbrew/Developer/carnivore-weekly/docs/reports/seo-mega-report.md` - Master consolidated report
+- `/Users/mbrew/Developer/carnivore-weekly/docs/reports/seo-report-wave0.md` - Wave 0 findings
+- `/Users/mbrew/Developer/carnivore-weekly/seo-report-wave1.md` - Wave 1 findings
+- `/Users/mbrew/Developer/carnivore-weekly/seo-report-wave2.md` - Wave 2 findings
+
+---
+
+## Previous Session (Feb 15 - Drip System Debugging + Email Deliverability)
+
+### Accomplishments
+1. **N8N webhook deregistration fixed** — Welcome webhook (pQS0oOhXXX0yovPY) was deregistered after server restart. Reactivated by toggling workflow off/on.
+2. **2 subscribers in drip_subscribers table** — iambrew@gmail.com (Feb 13), mbrew@telus.net (Feb 15)
+3. **starter-plan.html updated** — Success messages now include spam folder note so users know to check spam/promotions
+4. **N8N drip workflow IDs documented** — Welcome: pQS0oOhXXX0yovPY, Daily: xpwh8xew6VK7mxDq, Unsubscribe: XltAK9xjHH8V8kGR
+
+### Known Issues
+- **Email deliverability** — Day 1 welcome emails landing in spam. DKIM/SPF/DMARC configuration for carnivoreweekly.com needs investigation.
+- **N8N webhook deregistration** — Webhooks deregister on server restart. Added to troubleshooting playbook: deactivate then reactivate workflow to re-register. Weekly health check should verify all webhook workflows respond.
+
+---
+
+## Previous Session (Feb 12 - Pipeline Lockdown + Content Quality)
 
 ### Accomplishments
 1. **Pipeline lockdown phases 1-9 complete** — snapshot, archive, gates, dry run
@@ -208,7 +245,7 @@ Pipeline lockdown complete — all 9 weekly steps run end-to-end with gated vali
 
 ---
 
-## Next Session Priorities (Updated Feb 13)
+## Next Session Priorities (Updated Feb 15)
 
 **Phase: GROWTH — Infrastructure complete, pivoting to traffic.**
 
@@ -233,17 +270,17 @@ Pipeline lockdown complete — all 9 weekly steps run end-to-end with gated vali
 **Stripe:** $9.99 paid flow tested and working. TEST999 coupon verified.
 **Blog:** 50+ published posts clean. Writer agents connected to Supabase memory.
 
-**Latest Session (Feb 12):**
-- Pipeline lockdown complete (phases 1-9)
-- Commentary system rebuilt with engagement ranking + agent memory
-- Creator stance filtering live (anti-carnivore channels blocked)
-- Ghost file bug fixed with prevention guards
-- Memory write-back fixed, Supabase keep-alive added, 2x/week publishing enabled
-- 13 orphan redirect stubs cleaned, pre-commit 0 warnings
-- **Backlog: empty**
+**Latest Session (Feb 15):**
+- N8N webhook deregistration fixed (Welcome workflow reactivated)
+- 2 drip subscribers confirmed in Supabase
+- starter-plan.html updated with spam folder note
+- N8N drip workflow IDs documented
+- Email deliverability issue identified (Day 1 emails landing in spam — DKIM/SPF/DMARC needs investigation)
+- N8N webhook deregistration added to weekly health check
 
-**Current Focus:** Traffic and growth. Infrastructure phase complete.
-**Next automation:** Sunday midnight UTC (first 2x/week cycle).
-**Phase:** GROWTH — GA4 analysis → SEO review → lead magnet → organic discovery.
+**Current Focus:** Traffic and growth. Email deliverability fix needed.
+**Next automation:** Sunday midnight UTC.
+**Phase:** GROWTH — Fix email deliverability → GA4 analysis → SEO review → organic discovery.
+**Drip System:** LIVE, 2 subscribers, 3 N8N workflows active.
 
-**Latest Log:** `/Users/mbrew/Documents/Brew-Vault/07-Daily/2026-02-12.md`
+**Latest Log:** `/Users/mbrew/Documents/Brew-Vault/07-Daily/2026-02-15.md`
