@@ -78,8 +78,9 @@ ORDER BY created_at DESC LIMIT 5;
 Add or update entry in `data/blog_posts.json`:
 - `slug`: `YYYY-MM-DD-topic-name` (MUST have date prefix)
 - `content`: full article body HTML from Step 2
-- `status`: `"published"`
-- `publish_date`: ISO date string
+- `status`: `"ready"` for scheduled posts (daily cron publishes them), or `"published"` for immediate
+- `publish_date`: ISO date string (YYYY-MM-DD)
+- `published`: `false` for ready posts, `true` for published
 - `author`: writer slug (`sarah`, `marcus`, or `chloe`)
 - All other required fields (`title`, `meta_description`, `tags`, etc.)
 
@@ -117,6 +118,38 @@ git push
 
 ### Multiple Posts
 When generating multiple posts, process them ONE AT A TIME through Steps 1-3. Then run Steps 4-7 once after all content is stored. Never spawn parallel agents writing to `blog_posts.json` — last writer wins and earlier content is lost.
+
+---
+
+## 📅 WEEKLY CONTENT WORKFLOW
+
+### Cadence
+- 9 posts per week (3 per writer: Sarah, Marcus, Chloe)
+- Generated in one session using scripts/weekly_content_prompt.md
+- Published automatically one per day by daily-publish.yml
+
+### How to Generate
+1. Open Claude Code
+2. Paste the contents of scripts/weekly_content_prompt.md
+3. Approve Chloe's 9 topic assignments
+4. Wait for all 9 posts to generate
+5. Done — daily cron handles publishing
+
+### How Daily Publishing Works
+- GitHub Action runs daily at 9 AM EST
+- scripts/daily_publish.py checks for posts with:
+  - status = "ready" AND publish_date <= today
+- Publishes ALL matching posts (no backlog)
+- Commits and pushes automatically
+- deploy.yml handles the actual site deployment
+
+### Mid-Week Top-Up
+Run the generation prompt again anytime to add more posts. New posts get dates starting after the last queued date. The daily cron doesn't care when content was generated — it only checks publish_date and status.
+
+### Status Values
+- draft: not ready, writer still working
+- ready: content complete, waiting for publish_date
+- published: live on site, don't touch
 
 ---
 

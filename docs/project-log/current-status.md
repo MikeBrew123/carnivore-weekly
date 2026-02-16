@@ -1,13 +1,31 @@
 # Current Status
 
-**Last Updated:** 2026-02-16 (Phases 1-9 Cleanup Complete + Pipeline Lockdown)
+**Last Updated:** 2026-02-16 (Blog Automation Build)
 
 **Current Focus:**
-All 9 cleanup phases COMPLETE. Codebase is clean: 0 critical errors, 0 warnings. Blog pipeline permanently locked down in CLAUDE.md with mandatory 7-step process. Validation guardrails added (Jinja2 detection, orphan file detection). 7 blog posts expanded to full length (1,000-1,700 words). 28 broken cross-links fixed. 88 validation warnings resolved. Ready for regular content publishing.
+Blog automation fully built. Daily publish cron (GitHub Action at 9 AM EST) auto-publishes posts with status="ready" and publish_date<=today. Weekly generation prompt template created for 9 posts/week (3 per writer). blog_posts.json schema updated with status + publish_date fields. Pipeline locked down. 0 critical, 0 warnings.
 
 ---
 
-## Latest Session (Feb 16 - Phases 1-9 Cleanup + Pipeline Lockdown)
+## Latest Session (Feb 16 - Blog Automation Build)
+
+### Accomplishments
+1. **Daily Publish GitHub Action** — `.github/workflows/daily-publish.yml` runs at 9 AM EST, publishes ready posts, commits, pushes
+2. **daily_publish.py** — Finds status="ready" + publish_date<=today, flips to published, regenerates site, validates before commit
+3. **Weekly content prompt** — `scripts/weekly_content_prompt.md` template for generating 9 posts/week (3 per writer)
+4. **blog_posts.json schema** — All 58 posts now have `status: "published"` and `publish_date` fields
+5. **CLAUDE.md updated** — Weekly content workflow section added, pipeline Step 3 updated for status values
+6. **CI fix** — Deleted dead `calculator-form-rebuild.html`, cleaned references, fixed accidental secret staging
+
+### Blog Automation Architecture
+- **Generation:** Paste `weekly_content_prompt.md` into Claude Code → 9 posts queued with status="ready"
+- **Publishing:** daily-publish.yml (cron 9 AM EST) → daily_publish.py → generate → validate → commit → deploy.yml
+- **Backlog prevention:** Uses `publish_date <= today` (not `==`), so overdue posts publish on next run
+- **Status flow:** draft → ready → published
+
+---
+
+## Previous Session (Feb 16 - Phases 1-9 Cleanup + Pipeline Lockdown)
 
 ### Accomplishments
 1. **Phase 1-3: Dead file removal + doc fixes** — 84 dead files removed, broken references fixed, documentation contradictions corrected
@@ -267,7 +285,8 @@ All 9 cleanup phases COMPLETE. Codebase is clean: 0 critical errors, 0 warnings.
 **Blog:** 58 published posts, all 1,000+ words, all rendering cleanly.
 
 **Current Focus:** Email deliverability, SEO audit implementation, content scaling.
-**Next automation:** Sunday midnight UTC.
+**Blog Automation:** Daily publish cron ACTIVE (9 AM EST). Weekly prompt template ready.
+**Content cadence:** 9 posts/week (3 per writer), published one per day automatically.
 **Phase:** GROWTH — Email deliverability → organic discovery → content scaling.
 **Drip System:** LIVE, 2 subscribers, 3 N8N workflows active.
 
