@@ -162,7 +162,6 @@ class UnifiedValidator:
             "public/includes/",  # HTML fragments (header, footer)
             "public/calculator/report.html",  # PDF report template
             "public/calculator-simple.html",  # Old calculator variant
-            "public/calculator-form-rebuild.html",  # Old calculator variant
             "public/test-index.html",  # Test file
             "public/blog-redesign.html",  # Test/redesign file
             "public/report.html",  # PDF report template (standalone)
