@@ -705,6 +705,36 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             print(f"   ✗ Error fetching videos for channel: {e}")
             return []
 
+    @staticmethod
+    def _parse_duration_seconds(duration_str: str) -> int:
+        """Parse ISO 8601 duration (PT1H2M3S) to seconds."""
+        import re
+        match = re.match(
+            r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", duration_str or ""
+        )
+        if not match:
+            return 0
+        h = int(match.group(1) or 0)
+        m = int(match.group(2) or 0)
+        s = int(match.group(3) or 0)
+        return h * 3600 + m * 60 + s
+
+    def _get_video_durations(self, video_ids: List[str]) -> Dict[str, int]:
+        """Fetch durations for videos missing duration_seconds."""
+        durations = {}
+        try:
+            for i in range(0, len(video_ids), 50):
+                chunk = video_ids[i:i + 50]
+                resp = self.youtube.videos().list(
+                    part="contentDetails", id=",".join(chunk)
+                ).execute()
+                for item in resp.get("items", []):
+                    dur = item.get("contentDetails", {}).get("duration", "")
+                    durations[item["id"]] = self._parse_duration_seconds(dur)
+        except HttpError as e:
+            print(f"   ⚠ Could not fetch durations: {e}")
+        return durations
+
     def _get_detailed_video_info(self, video_ids: List[str]) -> List[Dict]:
         """
         Get complete details for videos (private helper method)
@@ -719,53 +749,68 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
             List of detailed video dictionaries
         """
         try:
-            # Join IDs
-            video_ids_str = ",".join(video_ids)
-
-            # Request full video details
-            # part='snippet,statistics' gets both metadata and stats in one request
-            request = self.youtube.videos().list(part="snippet,statistics", id=video_ids_str)
-
-            response = request.execute()
-
             detailed_videos = []
 
-            for item in response.get("items", []):
-                snippet = item["snippet"]
-                stats = item["statistics"]
+            # Batch in chunks of 50 (YouTube API limit)
+            for i in range(0, len(video_ids), 50):
+                chunk = video_ids[i:i + 50]
+                video_ids_str = ",".join(chunk)
 
-                # Extract thumbnail URL (prefer medium, fallback to default)
-                thumbnails = snippet.get("thumbnails", {})
-                thumbnail_url = (
-                    thumbnails.get("medium", {}).get("url")
-                    or thumbnails.get("default", {}).get("url")
-                    or ""
+                # Include contentDetails for duration (shorts filter)
+                request = self.youtube.videos().list(
+                    part="snippet,statistics,contentDetails",
+                    id=video_ids_str,
                 )
+                response = request.execute()
 
-                view_count = int(stats.get("viewCount", 0))
+                for item in response.get("items", []):
+                    snippet = item["snippet"]
+                    stats = item["statistics"]
+                    content = item.get("contentDetails", {})
 
-                # Skip live/upcoming videos with 0 views — no real
-                # engagement data yet, pollutes rankings and analysis
-                if view_count == 0:
-                    continue
+                    # Filter shorts (< 60 seconds)
+                    duration_sec = self._parse_duration_seconds(
+                        content.get("duration", "")
+                    )
+                    if 0 < duration_sec < 60:
+                        print(
+                            f"   ✗ Skipped short ({duration_sec}s):"
+                            f" {snippet['title'][:50]}..."
+                        )
+                        continue
 
-                video_data = {
-                    "video_id": item["id"],
-                    "title": snippet["title"],
-                    "description": snippet["description"],
-                    "thumbnail_url": thumbnail_url,
-                    "published_at": snippet["publishedAt"],
-                    "statistics": {
-                        "view_count": view_count,
-                        "like_count": int(stats.get("likeCount", 0)),
-                        "comment_count": int(stats.get("commentCount", 0)),
-                    },
-                    # Tags might not exist for all videos
-                    "tags": snippet.get("tags", []),
-                    "top_comments": [],  # Will be filled later
-                }
+                    thumbnails = snippet.get("thumbnails", {})
+                    thumbnail_url = (
+                        thumbnails.get("medium", {}).get("url")
+                        or thumbnails.get("default", {}).get("url")
+                        or ""
+                    )
 
-                detailed_videos.append(video_data)
+                    view_count = int(stats.get("viewCount", 0))
+
+                    # Skip live/upcoming videos with 0 views
+                    if view_count == 0:
+                        continue
+
+                    video_data = {
+                        "video_id": item["id"],
+                        "title": snippet["title"],
+                        "description": snippet["description"],
+                        "thumbnail_url": thumbnail_url,
+                        "published_at": snippet["publishedAt"],
+                        "duration_seconds": duration_sec,
+                        "statistics": {
+                            "view_count": view_count,
+                            "like_count": int(stats.get("likeCount", 0)),
+                            "comment_count": int(
+                                stats.get("commentCount", 0)
+                            ),
+                        },
+                        "tags": snippet.get("tags", []),
+                        "top_comments": [],
+                    }
+
+                    detailed_videos.append(video_data)
 
             return detailed_videos
 
@@ -868,8 +913,27 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
                     total_filtered += len(creator.get("videos", []))
                     continue
 
+                # Fetch durations for shorts filtering if missing
+                vids_needing_duration = [
+                    v["video_id"] for v in creator.get("videos", [])
+                    if "duration_seconds" not in v
+                ]
+                if vids_needing_duration and self.youtube:
+                    dur_info = self._get_video_durations(vids_needing_duration)
+                    for v in creator.get("videos", []):
+                        if v["video_id"] in dur_info:
+                            v["duration_seconds"] = dur_info[v["video_id"]]
+
                 filtered_videos = []
                 for video in creator.get("videos", []):
+                    # Filter shorts (< 60 seconds)
+                    dur = video.get("duration_seconds", 999)
+                    if 0 < dur < 60:
+                        total_filtered += 1
+                        title = video.get("title", "")
+                        print(f"   ✗ Filtered (short {dur}s): {title[:50]}...")
+                        continue
+
                     # Filter out non-English videos first
                     title = video.get("title", "")
                     if not is_likely_english(title):
