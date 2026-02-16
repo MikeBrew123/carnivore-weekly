@@ -33,6 +33,93 @@
 
 ---
 
+## 🔒 BLOG POST PIPELINE (MANDATORY — NO EXCEPTIONS)
+
+Every blog post request MUST follow this pipeline. No shortcuts. No alternative approaches. If you're tempted to do it differently, re-read this section. See recurring-loops.md Loop 9 for why.
+
+### The One Rule
+**Writers produce CONTENT ONLY. `generate_blog_pages.py` produces HTML PAGES.**
+Writers NEVER open, edit, or create files in `public/blog/` or `templates/`.
+
+### Pipeline Steps (in exact order)
+
+**Step 1 — Pre-Flight (Supabase queries)**
+Execute these MCP queries directly (Leo cannot execute MCP):
+```sql
+-- Get writer persona
+SELECT * FROM writers WHERE slug = '{writer}';
+
+-- Get writer memories
+SELECT memory_type, title, description
+FROM writer_memory_log
+WHERE writer_id = (SELECT id FROM writers WHERE slug = '{writer}')
+ORDER BY created_at DESC LIMIT 10;
+
+-- Get recent articles for cross-referencing
+SELECT title, slug FROM writer_content
+WHERE writer_id = (SELECT id FROM writers WHERE slug = '{writer}')
+ORDER BY created_at DESC LIMIT 5;
+```
+
+**Step 2 — Write Content**
+- Read the writer's agent file from `agents/{writer}.md`
+- Write article body content as clean HTML: `<h2>`, `<p>`, `<ul>`, `<strong>`, `<blockquote>` only
+- NO page-level tags (`<html>`, `<head>`, `<body>`)
+- NO Jinja2 variables (`{{ }}`, `{% %}`)
+- Target: 1,000-1,500 words (7,000-10,000 characters)
+- Follow copy-editor rules:
+  - No em-dashes (max 1 per post)
+  - No AI tell words
+  - Grade 8-10 reading level
+  - Use contractions
+  - Short paragraphs (2-4 sentences)
+
+**Step 3 — Store in blog_posts.json**
+Add or update entry in `data/blog_posts.json`:
+- `slug`: `YYYY-MM-DD-topic-name` (MUST have date prefix)
+- `content`: full article body HTML from Step 2
+- `status`: `"published"`
+- `publish_date`: ISO date string
+- `author`: writer slug (`sarah`, `marcus`, or `chloe`)
+- All other required fields (`title`, `meta_description`, `tags`, etc.)
+
+**Step 4 — Render HTML**
+```bash
+python3 scripts/generate_blog_pages.py
+```
+This reads blog_posts.json → applies Jinja2 template → writes to `public/blog/`. It also regenerates sitemap, RSS, and blog index.
+
+**Step 5 — Validate**
+```bash
+python3 scripts/validate_before_commit.py
+```
+Must pass with 0 critical errors. Warnings acceptable if pre-existing.
+
+**Step 6 — Post-Flight (Supabase save)**
+Save article to `writer_content` table. Save new memories to `writer_memory_log`.
+
+**Step 7 — Commit and Push**
+```bash
+git add -A
+git commit -m "content: {description of posts added}"
+git push
+```
+
+### PROHIBITED Actions (will break the pipeline)
+- ❌ Opening or editing files in `templates/` during content generation
+- ❌ Doing find-and-replace on Jinja2 template variables
+- ❌ Writing full HTML pages manually instead of using `generate_blog_pages.py`
+- ❌ Calling the Anthropic API for content (no Supabase memory access)
+- ❌ Creating HTML files without date prefixes in the slug
+- ❌ Spawning parallel agents that write to `blog_posts.json` simultaneously
+- ❌ Cross-linking to posts that don't exist yet (check slugs first)
+- ❌ Skipping validation before commit
+
+### Multiple Posts
+When generating multiple posts, process them ONE AT A TIME through Steps 1-3. Then run Steps 4-7 once after all content is stored. Never spawn parallel agents writing to `blog_posts.json` — last writer wins and earlier content is lost.
+
+---
+
 ## 🚨 MANDATORY: BLOG POST VALIDATION CHECKLIST
 
 **BEFORE DEPLOYING ANY BLOG POST - RUN ALL VALIDATORS**
