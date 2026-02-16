@@ -25,7 +25,7 @@
 - "Some people find X helpful" > "You must buy X"
 - Trust readers to decide
 
-📚 **Full details:** See "CONTENT QUALITY RULES" section below + `docs/WRITER_AGENTS.md`
+📚 **Full details:** See "CONTENT QUALITY RULES" section below + `docs/archive/WRITER_AGENTS_VALIDATED.md`
 
 🤖 **Automation:** `scripts/generate_commentary.py` enforces this automatically
 
@@ -106,26 +106,8 @@ grep '<div class="post-content">' "$POST" > /dev/null && echo "✅ PASS: Wrapper
 
 ### Automation Integration:
 
-`scripts/check_scheduled_posts.py` MUST validate posts before publishing. Add validation function:
-
-```python
-def validate_post(html_file):
-    """Return list of validation errors"""
-    issues = []
-    with open(html_file) as f:
-        content = f.read()
-        if 'content=""' in content:
-            issues.append("Empty meta description")
-        if '/.html"' in content and 'canonical' in content:
-            issues.append("Broken canonical URL")
-        if 'fonts.googleapis.com' not in content:
-            issues.append("Missing Google Fonts")
-        if 'blog-post.css' not in content:
-            issues.append("Missing blog-post.css")
-        if '<div class="post-content">' not in content:
-            issues.append("Missing post-content wrapper")
-    return issues
-```
+`scripts/validate_before_commit.py` runs all validation checks before commits.
+`scripts/content_validator.py` validates individual posts during generation.
 
 ### DEPLOY DECISION:
 
@@ -189,9 +171,8 @@ python3 scripts/generate_weekly_content.py --dry-run
    - Contraction verification
 
 7. **Site Regeneration**
-   - Sitemap (`generate_sitemap.py`)
-   - Blog index (`update_blog_index.py`)
-   - Homepage (`update_homepage.py`)
+   - Sitemap + blog index (`generate_blog_pages.py`)
+   - Homepage (`generate.py --type pages`)
 
 8. **Final Validation** - `validate_before_commit.py`
    - SEO checks
@@ -276,27 +257,11 @@ See `docs/archive/WRITER_AGENTS_VALIDATED.md` for complete validation report.
 ---
 
 ## 📍 PROJECT STATUS
-**Before starting work, read STATUS.md for current state, validated features, and pending tasks.**
-
-Location: `/Users/mbrew/Developer/carnivore-weekly/STATUS.md`
+**Before starting work, read `docs/project-log/current-status.md` for current state.**
 
 ### To Resume Next Session
-1. **Read STATUS.md** for complete project state
-2. **SEO cooldown period** — major SEO push completed Feb 10. Leave site alone for 1 week (until ~Feb 17) to let Google re-crawl and reindex. Only act if GSC shows new broken links.
-3. **Monitor Etsy listings** — 5 products launched Feb 10, check impressions/views
-4. **Next blog content batch** — when ready, use autonomous pipeline with writer agents
-
-Last major update: February 11, 2026
-- ✅ Phases 1-6 complete
-- ✅ Calculator Steps 1-3 validated on production
-- ✅ TEST999 ($0) coupon flow validated
-- ✅ Full paid flow ($9.99 Stripe redirect) TESTED AND WORKING
-- ✅ Step 4 health profile loads after payment
-- ✅ Report generation working
-- ✅ Blog validation: 258 warnings resolved, all posts clean
-- ✅ Image optimization: ~55MB removed, WebP conversion complete
-- ✅ 6 new validator checks added (Feb 10)
-- ✅ SEO push: broken URLs fixed, sitemap updated, priority URLs submitted
+1. **Read `docs/project-log/current-status.md`** for complete project state
+2. **Next blog content batch** — when ready, use autonomous pipeline with writer agents
 
 ---
 
@@ -433,16 +398,17 @@ carnivore-weekly - No-bullshit carnivore diet research, tools, and weekly insigh
 
 ### Quinn Logging Protocol (CRITICAL)
 When Quinn logs a session, he MUST:
-1. Write to `docs/project-log/daily/YYYY-MM-DD.md`
-2. Update `docs/project-log/current-status.md`
+1. Update `docs/project-log/current-status.md`
+2. Update `docs/project-log/decisions.md` (if new decisions)
 3. **VERIFY** files exist with `ls` or `cat` command
 4. Only report "complete" AFTER verification succeeds
 
+**DO NOT** write to `docs/project-log/daily/`. Daily session notes go to Obsidian only.
+
 **Deprecated locations (NEVER use):**
+- `docs/project-log/daily/` - old location, session activity goes to Obsidian
 - `agents/daily_logs/` - old location, do not use
 - `memory.log` - deprecated
-
-**Verification requirement:** Quinn cannot claim logging is complete until he runs a bash command that confirms the file exists and contains content. This prevents false success reports when sessions end mid-write.
 
 ## Visual Validation — ES Module Pattern (Calculator & React Projects)
 
@@ -585,9 +551,9 @@ Set `updated: YYYY-MM-DD` in each modified Obsidian project file's frontmatter.
 
 ## File Locations
 - Status: docs/project-log/current-status.md
-- Daily notes: docs/project-log/daily/YYYY-MM-DD.md
 - Decisions: docs/project-log/decisions.md
 - Log system: docs/project-log/README.md
+- Daily session notes: Obsidian only (NOT docs/project-log/daily/)
 
 ## File Management Rules (Quinn)
 - project-log/ is the only source of truth
@@ -688,7 +654,7 @@ All new blog posts MUST use blog_post_template_2026.html structure:
 - Related-content component
 - mobile-nav.js
 
-**DO NOT** use blog_post_template.html (deprecated - renamed to .OLD.bak).
+**DO NOT** use blog_post_template.html (deprecated, deleted Feb 2026).
 
 ### Manual Blog Post Creation
 1. Copy `public/blog/2025-12-23-adhd-connection.html`
@@ -706,7 +672,7 @@ Run `scripts/generate_blog_pages.py` - uses blog_post_template_2026.html automat
 - `public/channels.html` (from templates/channels_template.html)
 
 **Rule**: Manual edits are allowed when instructed (e.g., fixing writer copy), but:
-1. DOCUMENT the change in `docs/PROJECT-STATUS.md` under MANUAL EDITS LOG
+1. DOCUMENT the change in `docs/project-log/current-status.md` under MANUAL EDITS LOG
 2. Note that it may be overwritten by next automation run (every Sunday via `run_weekly_update.sh`)
 3. If fix is permanent, ALSO update the source template file
 
