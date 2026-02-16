@@ -546,6 +546,9 @@
                             <div class="stat-label">Videos</div>
                         </div>
                     </div>
+                    {% if channel.total_videos == 0 %}
+                    <div style="font-size: 0.8em; color: #d4a574; text-align: center; padding: 8px 12px; margin-top: 8px;">Trending in carnivore searches</div>
+                    {% endif %}
 
                     {% if channel.top_videos %}
                     <div class="top-videos">
@@ -570,7 +573,9 @@
                         Visit Channel →
                     </a>
 
+                    {% if channel.latest_date %}
                     <div class="last-seen">Last seen: {{ channel.latest_date }}</div>
+                    {% endif %}
                 </div>
 
                 <!-- ButcherBox Ad after top 6 channels -->

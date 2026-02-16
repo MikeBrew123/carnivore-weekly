@@ -1337,8 +1337,7 @@ class UnifiedGenerator:
                         }
                         top_videos.append(video_obj)
 
-                # Filter out channels with no videos and sort by video count
-                channels_list = [ch for ch in channels_list if ch["total_videos"] > 0]
+                # Sort channels: those with videos first (by video count), then the rest
                 channels_list.sort(key=lambda x: x["total_videos"], reverse=True)
 
                 # Build Top 10 Leaderboard from youtube_data
