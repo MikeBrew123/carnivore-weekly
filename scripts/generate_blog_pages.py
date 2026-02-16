@@ -307,7 +307,6 @@ def update_sitemap(posts):
     # This ensures no page is ever missing from the sitemap after a regeneration
     SITEMAP_EXCLUDE = {
         "404.html",
-        "calculator-form-rebuild.html",
         "index.html",
         "report.html",
         "questionnaire.html",
