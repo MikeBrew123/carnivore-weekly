@@ -1337,11 +1337,70 @@ class UnifiedGenerator:
                         }
                         top_videos.append(video_obj)
 
+                # Build Top 10 Leaderboard from youtube_data
+                # Calculate engagement score per channel
+                for ch in channels_list:
+                    total_views = 0
+                    total_likes = 0
+                    total_comments = 0
+                    creator_match = next(
+                        (c for c in youtube_data["top_creators"] if c.get("channel_name") == ch["name"]),
+                        None,
+                    )
+                    if creator_match:
+                        for v in creator_match.get("videos", []):
+                            stats = v.get("statistics", {})
+                            total_views += stats.get("view_count", 0)
+                            total_likes += stats.get("like_count", 0)
+                            total_comments += stats.get("comment_count", 0)
+                    ch["engagement_score"] = total_views + (total_likes * 10) + (total_comments * 20)
+
+                # Load previous rankings for movement indicators
+                data_dir = self.project_root / self.config["paths"]["data_dir"]
+                leaderboard_file = os.path.join(data_dir, "channel_rankings.json")
+                previous_rankings = {}
+                try:
+                    if os.path.exists(leaderboard_file):
+                        with open(leaderboard_file, "r") as f:
+                            previous_data = json.load(f)
+                            previous_rankings = {
+                                ch["name"]: ch["rank"] for ch in previous_data.get("leaderboard", [])
+                            }
+                except (json.JSONDecodeError, IOError):
+                    pass
+
+                leaderboard = sorted(channels_list, key=lambda x: x["engagement_score"], reverse=True)[:10]
+                for i, channel in enumerate(leaderboard, 1):
+                    channel["rank"] = i
+                    prev_rank = previous_rankings.get(channel["name"])
+                    if prev_rank is None:
+                        channel["movement"] = "new"
+                    elif prev_rank > i:
+                        channel["movement"] = "up"
+                        channel["movement_delta"] = prev_rank - i
+                    elif prev_rank < i:
+                        channel["movement"] = "down"
+                        channel["movement_delta"] = i - prev_rank
+                    else:
+                        channel["movement"] = "same"
+                        channel["movement_delta"] = 0
+
+                # Save current rankings
+                try:
+                    with open(leaderboard_file, "w") as f:
+                        json.dump(
+                            {"leaderboard": [{"name": ch["name"], "rank": ch["rank"]} for ch in leaderboard]},
+                            f,
+                        )
+                except IOError:
+                    pass
+
                 template_vars = {
                     "channels": channels_list,
                     "total_channels": len(channels_list),
                     "total_weeks": 1,
                     "top_videos": top_videos[:10],  # Limit to 10 videos
+                    "leaderboard": leaderboard,
                     "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 }
 
