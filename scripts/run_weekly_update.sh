@@ -154,13 +154,16 @@ else
 fi
 echo ""
 
-# Step 3.6: Generate Blog Posts for Upcoming Week
-echo "📝 Step 3.6/9: Generating blog posts for next 7 days..."
-if ! python3 scripts/generate_weekly_blog_posts.py; then
-    echo "   ⚠️ Blog post generation failed (non-fatal, continuing)"
+# Step 3.6: Render Blog Pages from blog_posts.json
+# NOTE: generate_weekly_blog_posts.py removed (Feb 2026).
+# Blog content is now generated via generate_weekly_content.py (autonomous pipeline)
+# or manually via Claude Code sessions. This step renders existing content.
+echo "📝 Step 3.6/9: Rendering blog pages from blog_posts.json..."
+if ! python3 scripts/generate_blog_pages.py; then
+    echo "   ⚠️ Blog page rendering failed (non-fatal, continuing)"
     DATA_ERRORS=$((DATA_ERRORS + 1))
 else
-    echo "✓ Blog posts generated"
+    echo "✓ Blog pages rendered"
 fi
 echo ""
 

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# NOTE: CI runs additional checks (check_baselines.py,
+# validate_canonicals.py) that this script does not.
+# See .github/workflows/deploy.yml for CI validation.
+# TODO: Unify local and CI validation into one script.
 """
 Pre-Commit Validation Script for Carnivore Weekly
 
