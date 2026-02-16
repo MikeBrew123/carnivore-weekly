@@ -396,7 +396,9 @@ class UnifiedGenerator:
                 print(f"Unknown generation type: {generation_type}")
                 return False
         except Exception as e:
+            import traceback
             print(f"Error generating {generation_type}: {e}")
+            traceback.print_exc()
             return False
 
     def _generate_pages(self) -> bool:
@@ -1269,10 +1271,9 @@ class UnifiedGenerator:
             print(f"Error loading template {mapping['template']}: {e}")
             return False
 
-        # Try to fetch videos from Supabase first
-        videos = self._fetch_from_supabase("youtube_videos", limit=100)
-
-        # If Supabase is empty, fall back to youtube_data.json
+        # Always use youtube_data.json (fresh local data from collector)
+        # Supabase youtube_videos table has stale cache — skip it
+        videos = None
         if not videos:
             youtube_data = self.load_data("youtube_data")
             if youtube_data and "top_creators" in youtube_data:
@@ -1390,7 +1391,7 @@ class UnifiedGenerator:
 
         # Group videos by channel from Supabase
         # Track unique weeks (by added_at) separately from video count
-        from datetime import datetime
+        # (datetime already imported at module level)
 
         channels_dict = {}
         unique_channel_ids = set()
