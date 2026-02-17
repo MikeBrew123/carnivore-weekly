@@ -591,6 +591,49 @@ Before marking any story "complete" or deploying:
 3. Mobile test: `node test-mobile.js`
 4. All tests PASS = deploy. Any FAIL = fix first.
 
+## Weekly Newsletter
+
+### How It Works
+- Content written by Claude Code using writer personas during the weekly session
+- Editorial content saved to `data/newsletter_content.json`
+- Renderer script combines content + YouTube data + template
+- Output: `newsletters/{date}.html` + `public/newsletter-preview.html`
+
+### Generation
+```bash
+python3 scripts/generate_newsletter.py
+python3 scripts/generate_newsletter.py --date 2026-02-16
+```
+
+### Content File (`data/newsletter_content.json`)
+Written by CC each week. Contains:
+- `subject_line` — for email service only, NOT displayed in template
+- `opening` (Chloe) — warm intro, what's hot
+- `blog_teasers` — 3 recent posts with slug, title, writer, teaser
+- `by_the_numbers` (Marcus) — stat blocks as inline HTML
+- `whats_trending` (Chloe) — 2-3 trending topics
+- `community_pulse` (Sarah) — health/science angle
+- `looking_ahead` (Marcus) — next week preview
+
+### Template
+- `templates/newsletter_template.html` — table-based, all inline CSS
+- Email-safe: no flexbox, no grid, no JS, 600px max
+- 2 featured videos pulled from `data/youtube_data.json`
+
+### Delivery
+TODO: Connect to email service (Resend)
+Currently generates HTML only — manual send or automation TBD.
+
+### Sections (in order)
+1. Opening (Chloe) — warm intro
+2. This Week on the Blog — 3 posts with teasers (primary traffic driver)
+3. By the Numbers (Marcus) — 3 stat blocks
+4. What's Trending (Chloe) — hot topics
+5. Community Pulse (Sarah) — health/science questions
+6. Worth Watching — 2 featured YouTube videos
+7. Looking Ahead (Marcus) — next week preview
+8. Footer — share links, unsubscribe, writer credits
+
 ## Triggers
 | You Say | I Do |
 |---------|------|
