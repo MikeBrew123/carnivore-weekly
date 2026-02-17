@@ -1,0 +1,29 @@
+{
+  "date": "2026-02-16",
+  "subject_line": "CGMs, Gut Health, and Carnivore Cake?",
+  "opening": "<p style=\"margin:0;\">Big week over here. We published <strong>13 new articles</strong>, including a deep dive where all three of us weighed in on continuous glucose monitors. Emma the Carnivore broke the internet with a zero-carb cake recipe. And the gut health paradox piece is already our most-shared article this month. Let's get into it.</p>",
+  "by_the_numbers": "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td width=\"33%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;line-height:1;\">13</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">New Articles</span></td><td width=\"34%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;border-left:1px solid #E5DDD4;border-right:1px solid #E5DDD4;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;line-height:1;\">59</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">Total Library</span></td><td width=\"33%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;line-height:1;\">207K</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">YouTube Views</span></td></tr></table>",
+  "whats_trending": "<p style=\"margin:0 0 10px 0;\"><strong style=\"color:#1C1210;\">CGMs on carnivore</strong> &mdash; everyone wants to see their flat glucose lines and freak out about dawn phenomenon. Our three-writer deep dive covers the science, the protocol, and what the community is actually seeing.</p><p style=\"margin:0 0 10px 0;\"><strong style=\"color:#1C1210;\">Gut health without fiber</strong> &mdash; the paradox is catching on. No fiber, better digestion. The gastroenterologists are not thrilled, but the data is interesting.</p><p style=\"margin:0;\"><strong style=\"color:#1C1210;\">Skin healing stories</strong> &mdash; eczema and psoriasis results are flooding the community forums. Turns out acne clearing was just the beginning.</p>",
+  "community_pulse": "<p style=\"margin:0;\">The questions I'm seeing most this week center around blood sugar and metabolic health. A lot of people are strapping on CGMs for the first time and wondering why their fasting glucose went <em>up</em> after starting carnivore. Short answer: it's normal, it's temporary, and we wrote an <a href=\"https://carnivoreweekly.com/blog/2026-02-16-cgm-continuous-glucose-monitor-carnivore.html\" style=\"color:#8B5E3C;text-decoration:underline;\">entire article</a> explaining the mechanisms. I'm also seeing renewed interest in the gut health conversation, especially from people whose gastroenterologists told them fiber was non-negotiable. The data tells a more interesting story.</p>",
+  "looking_ahead": "<p style=\"margin:0;\">Next week: carnivore on a budget (real numbers, real meal plans) and a deep dive into recovery protocols for training athletes. More research, less noise. See you Monday.</p>",
+  "blog_teasers": [
+    {
+      "slug": "2026-02-16-cgm-continuous-glucose-monitor-carnivore",
+      "title": "CGM on Carnivore: When, Why, and What You'll Learn",
+      "writer": "Sarah, Marcus & Chloe",
+      "teaser": "All three writers tackle glucose monitors \u2014 the science, the protocol, and what the community is actually seeing on their screens."
+    },
+    {
+      "slug": "2026-02-11-gut-health-microbiome",
+      "title": "The Carnivore Gut Health Paradox",
+      "writer": "Sarah",
+      "teaser": "No fiber, better digestion. The data behind the claim your gastroenterologist won't like."
+    },
+    {
+      "slug": "2026-02-13-carnivore-diabetes-blood-sugar",
+      "title": "Type 2 Diabetes on Carnivore: Blood Sugar Results",
+      "writer": "Sarah",
+      "teaser": "When diabetics drop carbs entirely, the numbers move fast. Here's what actually happens."
+    }
+  ]
+}

@@ -1157,63 +1157,34 @@ class UnifiedGenerator:
         return True
 
     def _generate_newsletter(self) -> bool:
-        """Generate newsletter"""
-        mapping = self.config["generation"]["template_mappings"]["newsletter"]
+        """Generate newsletter by delegating to scripts/generate_newsletter.py.
 
-        # Load data
-        data = self.load_data("analyzed_content")
-        if not data:
-            print("Error: No data available for newsletter generation")
+        The newsletter requires pre-written editorial content in
+        data/newsletter_content.json (written by Claude Code during the
+        weekly content session). This method shells out to the standalone
+        renderer script.
+        """
+        import subprocess
+
+        script_path = self.project_root / "scripts" / "generate_newsletter.py"
+        if not script_path.exists():
+            print("Error: scripts/generate_newsletter.py not found")
             return False
 
-        # Load template
-        try:
-            template = self.jinja_env.get_template(mapping["template"])
-        except Exception as e:
-            print(f"Error loading template {mapping['template']}: {e}")
+        result = subprocess.run(
+            [sys.executable, str(script_path)],
+            cwd=str(self.project_root),
+            capture_output=True,
+            text=True,
+        )
+
+        if result.stdout:
+            print(result.stdout)
+        if result.returncode != 0:
+            if result.stderr:
+                print(result.stderr)
             return False
-
-        # Prepare template variables
-        # Handle both flat and nested data structures
-        analysis = data.get("analysis", {})
-
-        # Support both flat structure (from new analyzer) and nested structure
-        weekly_summary = analysis.get("weekly_summary", data.get("weekly_summary", ""))
-        trending_topics = analysis.get("trending_topics", data.get("trending_topics", ""))
-        key_insights = analysis.get("key_insights", data.get("key_insights", ""))
-        top_videos = analysis.get("top_videos", data.get("top_videos", []))
-
-        template_vars = {
-            "analysis_date": data.get(
-                "analysis_date", data.get("timestamp", datetime.now().isoformat())
-            ),
-            "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "weekly_summary": weekly_summary,
-            "trending_topics": trending_topics,
-            "top_videos": top_videos,
-            "key_insights": key_insights,
-            "newsletter_config": self.config["newsletter"],
-        }
-
-        # Render template
-        try:
-            html_content = template.render(**template_vars)
-        except Exception as e:
-            print(f"Error rendering newsletter template: {e}")
-            return False
-
-        # Write output
-        output_file = self.project_root / mapping["output"]
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-
-        try:
-            with open(output_file, "w", encoding="utf-8") as f:
-                f.write(html_content)
-            print(f"✓ Generated: {output_file}")
-            return True
-        except Exception as e:
-            print(f"Error writing newsletter file {output_file}: {e}")
-            return False
+        return True
 
     def _fetch_channel_profile_images(self, channel_ids: list) -> Dict[str, str]:
         """Fetch channel profile images from YouTube API"""

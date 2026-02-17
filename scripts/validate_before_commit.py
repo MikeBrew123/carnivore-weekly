@@ -584,6 +584,8 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
         'archive/',  # Archived/orphaned blog dupes
         'backups/',  # Backup directories
         'demos/',  # Demo/test files
+        'newsletters/',  # Generated newsletter HTML (email format, not web pages)
+        'public/newsletter-preview.html',  # Newsletter preview (email format)
     ]
 
     def is_blog_fragment(path):
