@@ -653,6 +653,57 @@ Currently generates HTML only — manual send or automation TBD.
 ❌ Creating new guide files instead of updating existing ones
 ❌ Leaving one-time reports in `docs/reports/` (archive them)
 ❌ Creating audit/validation snapshots without archiving previous ones
+❌ Including API keys, secrets, tokens, or credentials in any .md file, report, or documentation — even as examples or verification logs. Use `***REDACTED***` placeholder instead.
+
+## 🔄 SESSION WORKFLOW (Beads Integration)
+
+### Starting a Session
+1. Run `bd ready` — see what tasks have no blockers
+2. Run `bd list --status=in-progress` — pick up where last session left off
+3. Ask Brew what to work on, or pick the highest priority ready task
+4. Run `bd update <id> --status=in-progress` on whatever you're starting
+
+### During a Session
+- When you discover work that needs doing later:
+  `bd create "task description" --priority <1-5>`
+- When something blocks something else:
+  `bd create "blocked task" --blocked-by <id>`
+- When you complete a task:
+  `bd update <id> --status=done`
+- When you hit a blocker:
+  `bd update <id> --status=blocked --comment "reason"`
+
+### Ending a Session (Brew says "end session" or "wrap up")
+This is MANDATORY. When Brew signals end of session:
+
+1. **File remaining work as Beads tasks:**
+   - Anything discussed but not completed → `bd create`
+   - Any bugs discovered → `bd create --type=bug`
+   - Any TODOs mentioned → `bd create`
+
+2. **Update in-progress tasks:**
+   - Completed → `bd update <id> --status=done`
+   - Partially done → `bd update <id> --comment "progress notes"`
+   - Blocked → `bd update <id> --status=blocked --comment "why"`
+
+3. **Sync Beads to git:**
+   ```bash
+   bd flush
+   git add .beads/
+   git commit -m "beads: end session — filed X tasks, completed Y"
+   git push
+   ```
+
+4. **Report to Brew:**
+   - Tasks completed this session
+   - Tasks filed for next session
+   - Current `bd ready` output (what's next)
+
+### Rules
+- NEVER end a session without syncing Beads
+- NEVER leave tasks in-progress when session ends — either done, blocked, or filed
+- Beads is the source of truth for what needs doing, not markdown files
+- If something is in current-status.md or a TODO comment, it should ALSO be in Beads
 
 ## Triggers
 | You Say | I Do |
