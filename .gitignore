@@ -50,6 +50,7 @@ data/*.csv
 !data/blog_topics_queue.json
 !data/published_blogs.json
 !data/wiki-keywords.json
+!data/newsletter_content.json
 
 # Generated content
 public/weekly/*.html

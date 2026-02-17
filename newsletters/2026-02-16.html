@@ -10,7 +10,7 @@
     <title>Your Weekly Carnivore Briefing</title>
     <!-- Preview text (inbox snippet) -->
     <div style="display:none;font-size:1px;color:#2c1810;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
-        {{ subject_line }} — Your weekly carnivore briefing with research, videos, and community intel.
+        CGMs, Gut Health, and Carnivore Cake? — Your weekly carnivore briefing with research, videos, and community intel.
     </div>
     <!--[if mso]>
     <style>
@@ -40,7 +40,7 @@
                 </tr>
                 <tr>
                     <td style="font-family:Verdana,Geneva,sans-serif;font-size:12px;color:#9B8574;padding-top:6px;letter-spacing:0.5px;">
-                        Week of {{ date }} &nbsp;&bull;&nbsp; carnivoreweekly.com
+                        Week of February 16, 2026 &nbsp;&bull;&nbsp; carnivoreweekly.com
                     </td>
                 </tr>
             </table>
@@ -55,7 +55,7 @@
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                     <td style="font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.65;color:#2A2018;">
-                        {{ opening }}
+                        <p style="margin:0;">Big week over here. We published <strong>13 new articles</strong>, including a deep dive where all three of us weighed in on continuous glucose monitors. Emma the Carnivore broke the internet with a zero-carb cake recipe. And the gut health paradox piece is already our most-shared article this month. Let's get into it.</p>
                     </td>
                 </tr>
             </table>
@@ -74,7 +74,7 @@
     <!-- ============================================ -->
     <!-- THIS WEEK ON THE BLOG — Primary traffic driver -->
     <!-- ============================================ -->
-    {% if blog_teasers %}
+    
     <tr>
         <td style="padding:28px 32px 8px 32px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -83,27 +83,59 @@
                         This Week on the Blog
                     </td>
                 </tr>
-                {% for post in blog_teasers %}
+                
                 <tr>
                     <td style="padding-bottom:20px;">
                         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:3px solid #C8956C;padding-left:0;">
                             <tr>
                                 <td style="padding-left:16px;">
-                                    <a href="https://carnivoreweekly.com/blog/{{ post.slug }}.html" style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:bold;color:#1C1210;text-decoration:none;line-height:1.3;">{{ post.title }}</a>
+                                    <a href="https://carnivoreweekly.com/blog/2026-02-16-cgm-continuous-glucose-monitor-carnivore.html" style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:bold;color:#1C1210;text-decoration:none;line-height:1.3;">CGM on Carnivore: When, Why, and What You'll Learn</a>
                                     <br>
-                                    <span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;">{{ post.writer }}</span>
+                                    <span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;">Sarah, Marcus & Chloe</span>
                                     <br>
-                                    <span style="font-family:Verdana,Geneva,sans-serif;font-size:13px;color:#5A4A3A;line-height:1.5;">{{ post.teaser }}</span>
+                                    <span style="font-family:Verdana,Geneva,sans-serif;font-size:13px;color:#5A4A3A;line-height:1.5;">All three writers tackle glucose monitors — the science, the protocol, and what the community is actually seeing on their screens.</span>
                                 </td>
                             </tr>
                         </table>
                     </td>
                 </tr>
-                {% endfor %}
+                
+                <tr>
+                    <td style="padding-bottom:20px;">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:3px solid #C8956C;padding-left:0;">
+                            <tr>
+                                <td style="padding-left:16px;">
+                                    <a href="https://carnivoreweekly.com/blog/2026-02-11-gut-health-microbiome.html" style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:bold;color:#1C1210;text-decoration:none;line-height:1.3;">The Carnivore Gut Health Paradox</a>
+                                    <br>
+                                    <span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;">Sarah</span>
+                                    <br>
+                                    <span style="font-family:Verdana,Geneva,sans-serif;font-size:13px;color:#5A4A3A;line-height:1.5;">No fiber, better digestion. The data behind the claim your gastroenterologist won't like.</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td style="padding-bottom:20px;">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:3px solid #C8956C;padding-left:0;">
+                            <tr>
+                                <td style="padding-left:16px;">
+                                    <a href="https://carnivoreweekly.com/blog/2026-02-13-carnivore-diabetes-blood-sugar.html" style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:bold;color:#1C1210;text-decoration:none;line-height:1.3;">Type 2 Diabetes on Carnivore: Blood Sugar Results</a>
+                                    <br>
+                                    <span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;">Sarah</span>
+                                    <br>
+                                    <span style="font-family:Verdana,Geneva,sans-serif;font-size:13px;color:#5A4A3A;line-height:1.5;">When diabetics drop carbs entirely, the numbers move fast. Here's what actually happens.</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                
             </table>
         </td>
     </tr>
-    {% endif %}
+    
 
     <!-- Thin rule -->
     <tr>
@@ -127,7 +159,7 @@
                 </tr>
                 <tr>
                     <td>
-                        {{ by_the_numbers }}
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="33%" align="center" valign="top" style="padding:8px 4px;"><span style="font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;line-height:1;">13</span><br><span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;">New Articles</span></td><td width="34%" align="center" valign="top" style="padding:8px 4px;border-left:1px solid #E5DDD4;border-right:1px solid #E5DDD4;"><span style="font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;line-height:1;">59</span><br><span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;">Total Library</span></td><td width="33%" align="center" valign="top" style="padding:8px 4px;"><span style="font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;line-height:1;">207K</span><br><span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;">YouTube Views</span></td></tr></table>
                     </td>
                 </tr>
             </table>
@@ -156,7 +188,7 @@
                 </tr>
                 <tr>
                     <td style="font-family:Verdana,Geneva,sans-serif;font-size:14px;line-height:1.65;color:#2A2018;">
-                        {{ whats_trending }}
+                        <p style="margin:0 0 10px 0;"><strong style="color:#1C1210;">CGMs on carnivore</strong> &mdash; everyone wants to see their flat glucose lines and freak out about dawn phenomenon. Our three-writer deep dive covers the science, the protocol, and what the community is actually seeing.</p><p style="margin:0 0 10px 0;"><strong style="color:#1C1210;">Gut health without fiber</strong> &mdash; the paradox is catching on. No fiber, better digestion. The gastroenterologists are not thrilled, but the data is interesting.</p><p style="margin:0;"><strong style="color:#1C1210;">Skin healing stories</strong> &mdash; eczema and psoriasis results are flooding the community forums. Turns out acne clearing was just the beginning.</p>
                     </td>
                 </tr>
             </table>
@@ -179,7 +211,7 @@
                             </tr>
                             <tr>
                                 <td style="font-family:Verdana,Geneva,sans-serif;font-size:14px;line-height:1.65;color:#2A2018;">
-                                    {{ community_pulse }}
+                                    <p style="margin:0;">The questions I'm seeing most this week center around blood sugar and metabolic health. A lot of people are strapping on CGMs for the first time and wondering why their fasting glucose went <em>up</em> after starting carnivore. Short answer: it's normal, it's temporary, and we wrote an <a href="https://carnivoreweekly.com/blog/2026-02-16-cgm-continuous-glucose-monitor-carnivore.html" style="color:#8B5E3C;text-decoration:underline;">entire article</a> explaining the mechanisms. I'm also seeing renewed interest in the gut health conversation, especially from people whose gastroenterologists told them fiber was non-negotiable. The data tells a more interesting story.</p>
                                 </td>
                             </tr>
                         </table>
@@ -201,7 +233,7 @@
     <!-- ============================================ -->
     <!-- FEATURED VIDEOS (2 max)                      -->
     <!-- ============================================ -->
-    {% if featured_video_1 %}
+    
     <tr>
         <td style="padding:20px 32px 8px 32px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -220,42 +252,42 @@
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E5DDD4;border-radius:4px;overflow:hidden;">
                 <tr>
                     <td width="160" valign="top" style="width:160px;">
-                        <a href="{{ featured_video_1.url }}" target="_blank" style="text-decoration:none;">
-                            <img src="{{ featured_video_1.thumbnail }}" alt="{{ featured_video_1.title }}" width="160" style="display:block;width:160px;height:auto;border:0;">
+                        <a href="https://youtube.com/watch?v=VUpF2K2x07w" target="_blank" style="text-decoration:none;">
+                            <img src="https://i.ytimg.com/vi/VUpF2K2x07w/mqdefault.jpg" alt="EASY Carnivore Potato Chips - Crunchy & Delicious" width="160" style="display:block;width:160px;height:auto;border:0;">
                         </a>
                     </td>
                     <td valign="middle" style="padding:12px 16px;">
-                        <a href="{{ featured_video_1.url }}" target="_blank" style="font-family:Georgia,'Times New Roman',serif;font-size:14px;font-weight:bold;color:#1C1210;text-decoration:none;line-height:1.35;">{{ featured_video_1.title }}</a>
+                        <a href="https://youtube.com/watch?v=VUpF2K2x07w" target="_blank" style="font-family:Georgia,'Times New Roman',serif;font-size:14px;font-weight:bold;color:#1C1210;text-decoration:none;line-height:1.35;">EASY Carnivore Potato Chips - Crunchy & Delicious</a>
                         <br>
-                        <span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;">{{ featured_video_1.creator }} &nbsp;&bull;&nbsp; {{ featured_video_1.views }} views</span>
+                        <span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;">Emmathecarnivore &nbsp;&bull;&nbsp; 69,838 views</span>
                     </td>
                 </tr>
             </table>
         </td>
     </tr>
-    {% endif %}
+    
 
-    {% if featured_video_2 %}
+    
     <!-- Video 2 -->
     <tr>
         <td style="padding:0 32px 20px 32px;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E5DDD4;border-radius:4px;overflow:hidden;">
                 <tr>
                     <td width="160" valign="top" style="width:160px;">
-                        <a href="{{ featured_video_2.url }}" target="_blank" style="text-decoration:none;">
-                            <img src="{{ featured_video_2.thumbnail }}" alt="{{ featured_video_2.title }}" width="160" style="display:block;width:160px;height:auto;border:0;">
+                        <a href="https://youtube.com/watch?v=txZX2dVQvZw" target="_blank" style="text-decoration:none;">
+                            <img src="https://i.ytimg.com/vi/txZX2dVQvZw/mqdefault.jpg" alt="Every Carnivore Food Ranked (Don't Waste Your Money)" width="160" style="display:block;width:160px;height:auto;border:0;">
                         </a>
                     </td>
                     <td valign="middle" style="padding:12px 16px;">
-                        <a href="{{ featured_video_2.url }}" target="_blank" style="font-family:Georgia,'Times New Roman',serif;font-size:14px;font-weight:bold;color:#1C1210;text-decoration:none;line-height:1.35;">{{ featured_video_2.title }}</a>
+                        <a href="https://youtube.com/watch?v=txZX2dVQvZw" target="_blank" style="font-family:Georgia,'Times New Roman',serif;font-size:14px;font-weight:bold;color:#1C1210;text-decoration:none;line-height:1.35;">Every Carnivore Food Ranked (Don't Waste Your Money)</a>
                         <br>
-                        <span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;">{{ featured_video_2.creator }} &nbsp;&bull;&nbsp; {{ featured_video_2.views }} views</span>
+                        <span style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;">Steak and Butter Gal &nbsp;&bull;&nbsp; 62,223 views</span>
                     </td>
                 </tr>
             </table>
         </td>
     </tr>
-    {% endif %}
+    
 
     <!-- Thin rule -->
     <tr>
@@ -279,7 +311,7 @@
                 </tr>
                 <tr>
                     <td style="font-family:Verdana,Geneva,sans-serif;font-size:14px;line-height:1.65;color:#2A2018;">
-                        {{ looking_ahead }}
+                        <p style="margin:0;">Next week: carnivore on a budget (real numbers, real meal plans) and a deep dive into recovery protocols for training athletes. More research, less noise. See you Monday.</p>
                     </td>
                 </tr>
             </table>
@@ -330,7 +362,7 @@
                     <td align="center">
                         <a href="https://carnivoreweekly.com" style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-decoration:none;">carnivoreweekly.com</a>
                         <span style="color:#5A4A3A;font-size:11px;"> &nbsp;&bull;&nbsp; </span>
-                        <a href="{{ unsubscribe_link }}" style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-decoration:underline;">Unsubscribe</a>
+                        <a href="{{unsubscribe_url}}" style="font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-decoration:underline;">Unsubscribe</a>
                     </td>
                 </tr>
             </table>
