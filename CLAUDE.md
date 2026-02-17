@@ -634,6 +634,26 @@ Currently generates HTML only — manual send or automation TBD.
 7. Looking Ahead (Marcus) — next week preview
 8. Footer — share links, unsubscribe, writer credits
 
+## DOCUMENTATION STANDARDS
+
+### File Creation Rules
+- **Reports:** One-time snapshots go to `/docs/archive/reports-archive/YYYY-MM-DD-topic.md`
+- **Guides:** Update existing themed guides in `/docs/guides/`, do NOT create new guide files
+- **Daily logs:** NEVER create in this project — session notes go to Obsidian
+- **Feature specs:** Mark `[COMPLETE]` or `[ACTIVE]` in filename
+- **Investigation logs:** Go directly to `/docs/archive/reports-archive/`
+
+### Archive Policy
+- Reports older than 90 days → `/docs/archive/reports-archive/`
+- Completed feature work → `/docs/archive/YYYY-QN-features.md`
+- Investigation logs → `/docs/archive/YYYY-QN-investigations.md`
+
+### PROHIBITED (Documentation)
+❌ Creating new files in `docs/project-log/daily/`
+❌ Creating new guide files instead of updating existing ones
+❌ Leaving one-time reports in `docs/reports/` (archive them)
+❌ Creating audit/validation snapshots without archiving previous ones
+
 ## Triggers
 | You Say | I Do |
 |---------|------|
