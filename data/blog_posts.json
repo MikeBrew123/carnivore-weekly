@@ -2118,8 +2118,8 @@
       "author_title": "Health Coach",
       "date": "2026-02-18",
       "scheduled_date": "2026-02-18",
-      "published": false,
-      "status": "ready",
+      "published": true,
+      "status": "published",
       "publish_date": "2026-02-18",
       "category": "nutrition",
       "tags": [
