@@ -2192,8 +2192,8 @@
       "author_title": "Health Coach",
       "date": "2026-02-20",
       "scheduled_date": "2026-02-20",
-      "published": false,
-      "status": "ready",
+      "published": true,
+      "status": "published",
       "publish_date": "2026-02-20",
       "category": "health",
       "tags": [
