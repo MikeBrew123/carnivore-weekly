@@ -2266,8 +2266,8 @@
       "author_title": "Performance Coach",
       "date": "2026-02-22",
       "scheduled_date": "2026-02-22",
-      "published": false,
-      "status": "ready",
+      "published": true,
+      "status": "published",
       "publish_date": "2026-02-22",
       "category": "getting-started",
       "tags": [
