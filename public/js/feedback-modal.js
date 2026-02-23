@@ -1,9 +1,8 @@
 (function() {
     'use strict';
 
-    // Supabase connection
-    const SUPABASE_URL = 'https://kwtdpvnjewtahuxjyltn.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2NTMwODMsImV4cCI6MjA1MTIyOTA4M30.xHKnN93F5cC4CSLZ4gQEIa0Gn_MvPYdaC-1HhL7Ayzc';
+    // API endpoint
+    const FEEDBACK_URL = 'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/feedback';
 
     // Rate limit key
     const RATE_LIMIT_KEY = 'cw_feedback_last_submit';
@@ -14,24 +13,6 @@
     let formView, successView, errorView;
     let submitButton, cancelButton, closeButton, retryButton, closeSuccessButton;
     let charCount;
-
-    // Simple browser fingerprint
-    function generateFingerprint() {
-        const data = [
-            navigator.userAgent,
-            navigator.language,
-            screen.width + 'x' + screen.height,
-            new Date().getTimezoneOffset()
-        ].join('|');
-
-        let hash = 0;
-        for (let i = 0; i < data.length; i++) {
-            const char = data.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash;
-        }
-        return 'fp_' + Math.abs(hash).toString(36);
-    }
 
     // Check rate limit
     function checkRateLimit() {
@@ -167,36 +148,21 @@
         submitButton.querySelector('.button-loading').style.display = 'inline-block';
 
         try {
-            const fingerprint = generateFingerprint();
+            const response = await fetch(FEEDBACK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    request_text: requestText,
+                    email: email
+                })
+            });
+            const data = await response.json();
 
-            // Submit to Supabase
-            const response = await fetch(
-                `${SUPABASE_URL}/rest/v1/content_feedback`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        request_text: requestText,
-                        email: email,
-                        fingerprint: fingerprint,
-                        ip_address: null // Backend can extract this if needed
-                    })
-                }
-            );
-
-            if (response.ok || response.status === 201) {
-                // Success
+            if (response.ok && data.success) {
                 localStorage.setItem(RATE_LIMIT_KEY, Date.now().toString());
                 showSuccess();
-
-                // TODO: Trigger N8N webhook notification
             } else {
-                throw new Error('Submission failed');
+                throw new Error(data.message || 'Submission failed');
             }
 
         } catch (error) {
