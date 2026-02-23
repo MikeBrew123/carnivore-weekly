@@ -537,8 +537,8 @@
     (function() {
         'use strict';
 
-        // n8n webhook URL for instant Day 1 delivery
-        const WEBHOOK_URL = 'https://n8n.srv927040.hstgr.cloud/webhook/drip-welcome';
+        // MailerLite subscribe via Cloudflare Worker proxy
+        const WEBHOOK_URL = 'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe';
 
         function initForms() {
             document.querySelectorAll('.sp-form').forEach(function(form) {
