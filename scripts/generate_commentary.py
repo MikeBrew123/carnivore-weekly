@@ -413,7 +413,7 @@ or sentence patterns:
     prompt += """Write ONLY the commentary text (no labels, no intro). Make it sound human."""
 
     response = client.messages.create(
-        model="claude-3-5-haiku-20241022",
+        model="claude-haiku-4-5-20251001",
         max_tokens=300,
         messages=[{"role": "user", "content": prompt}],
     )
