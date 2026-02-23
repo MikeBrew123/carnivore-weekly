@@ -52,7 +52,7 @@ DATA_DIR = PROJECT_ROOT / "data"
 ANALYZED_FILE = DATA_DIR / "analyzed_content.json"
 
 # Use Haiku for cost savings
-CLAUDE_MODEL = "claude-3-5-haiku-20241022"
+CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 
 
 # ============================================================================

@@ -32,7 +32,7 @@ YOUTUBE_DATA_FILE = DATA_DIR / "youtube_data.json"
 ANALYZED_FILE = DATA_DIR / "analyzed_content.json"
 
 # Use Haiku for cost savings - 10x cheaper than Sonnet!
-CLAUDE_MODEL = "claude-3-5-haiku-20241022"
+CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 
 
 # ============================================================================
