@@ -4997,6 +4997,52 @@ async function handleMailerLiteSubscribe(request, env) {
   }
 }
 
+// ===== FEEDBACK HANDLER =====
+async function handleFeedback(request, env) {
+  try {
+    const { request_text, email } = await request.json();
+
+    if (!request_text || request_text.trim().length < 10) {
+      return createErrorResponse('INVALID_FEEDBACK', 'Feedback must be at least 10 characters', 400);
+    }
+    if (request_text.length > 1000) {
+      return createErrorResponse('FEEDBACK_TOO_LONG', 'Feedback must be under 1000 characters', 400);
+    }
+
+    const response = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/content_feedback`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({
+          request_text: request_text.trim(),
+          email: email || null,
+          fingerprint: null,
+          ip_address: request.headers.get('CF-Connecting-IP') || null,
+        }),
+      }
+    );
+
+    if (response.ok || response.status === 201) {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const errorText = await response.text();
+    console.error('Supabase feedback error:', response.status, errorText);
+    return createErrorResponse('FEEDBACK_FAILED', 'Failed to save feedback', 500);
+  } catch (err) {
+    return createErrorResponse('FEEDBACK_ERROR', String(err), 500);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -5167,6 +5213,11 @@ export default {
     // ===== MAILERLITE SUBSCRIBE PROXY =====
     if (path === '/api/v1/subscribe' && method === 'POST') {
       return sendWithCors(await handleMailerLiteSubscribe(request, env));
+    }
+
+    // ===== FEEDBACK PROXY =====
+    if (path === '/api/v1/feedback' && method === 'POST') {
+      return sendWithCors(await handleFeedback(request, env));
     }
 
     // 404
