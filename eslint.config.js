@@ -29,11 +29,15 @@ const sharedRules = {
 export default [
   {
     ignores: [
-      'node_modules/**',
+      '**/node_modules/**',
       'dist/**',
       'build/**',
       'coverage/**',
       'public/**',
+      'assets/**',
+      'calculator2-demo/**',
+      'dashboard/**',
+      'config/**',
       '.next/**',
       '.wrangler/**',
       'api/.wrangler/**'
