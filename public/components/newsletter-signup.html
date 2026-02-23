@@ -38,8 +38,8 @@
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
             <h4>You're in!</h4>
-            <p>We sent a confirmation link to <strong class="user-email"></strong></p>
-            <p class="small-text">Click the link to complete your subscription.</p>
+            <p>Weekly briefings are heading to <strong class="user-email"></strong></p>
+            <p class="small-text">Check your spam folder if you don't see it.</p>
         </div>
 
         <!-- Error message (hidden by default) -->
@@ -386,139 +386,74 @@
 (function() {
     'use strict';
 
-    // Supabase connection
-    const SUPABASE_URL = 'https://kwtdpvnjewtahuxjyltn.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3dGRwdm5qZXd0YWh1eGp5bHRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU2NTMwODMsImV4cCI6MjA1MTIyOTA4M30.xHKnN93F5cC4CSLZ4gQEIa0Gn_MvPYdaC-1HhL7Ayzc';
+    var SUBSCRIBE_URL = 'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe';
 
-    // Simple browser fingerprint (for spam prevention)
-    function generateFingerprint() {
-        const data = [
-            navigator.userAgent,
-            navigator.language,
-            screen.width + 'x' + screen.height,
-            new Date().getTimezoneOffset()
-        ].join('|');
-
-        // Simple hash
-        let hash = 0;
-        for (let i = 0; i < data.length; i++) {
-            const char = data.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash;
-        }
-        return 'fp_' + Math.abs(hash).toString(36);
-    }
-
-    // Generate confirmation token
-    function generateToken() {
-        const array = new Uint8Array(32);
-        crypto.getRandomValues(array);
-        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-    }
-
-    // Initialize all newsletter forms
     function initNewsletterForms() {
-        const forms = document.querySelectorAll('.newsletter-form');
-
-        forms.forEach(form => {
+        document.querySelectorAll('.newsletter-form').forEach(function(form) {
             form.addEventListener('submit', handleSubmit);
         });
     }
 
-    // Handle form submission
     async function handleSubmit(event) {
         event.preventDefault();
 
-        const form = event.target;
-        const container = form.closest('.newsletter-signup');
-        const emailInput = form.querySelector('input[type="email"]');
-        const button = form.querySelector('.newsletter-button');
-        const buttonText = button.querySelector('.button-text');
-        const buttonLoading = button.querySelector('.button-loading');
-        const successDiv = container.querySelector('.newsletter-success');
-        const errorDiv = container.querySelector('.newsletter-error');
+        var form = event.target;
+        var container = form.closest('.newsletter-signup');
+        var emailInput = form.querySelector('input[type="email"]');
+        var button = form.querySelector('.newsletter-button');
+        var buttonText = button.querySelector('.button-text');
+        var buttonLoading = button.querySelector('.button-loading');
+        var successDiv = container.querySelector('.newsletter-success');
+        var errorDiv = container.querySelector('.newsletter-error');
 
-        const email = emailInput.value.trim();
-        const source = container.dataset.source || 'homepage';
+        var email = emailInput.value.trim();
+        var source = container.dataset.source || 'homepage';
 
-        // Disable button
         button.disabled = true;
         buttonText.style.display = 'none';
         buttonLoading.style.display = 'inline-block';
-
-        // Hide previous messages
         errorDiv.style.display = 'none';
 
         try {
-            const confirmationToken = generateToken();
-            const fingerprint = generateFingerprint();
+            var resp = await fetch(SUBSCRIBE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, group: 'newsletter' })
+            });
+            var data = await resp.json();
 
-            // Submit to Supabase
-            const response = await fetch(
-                `${SUPABASE_URL}/rest/v1/newsletter_subscribers`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        source: source,
-                        confirmation_token: confirmationToken
-                    })
-                }
-            );
-
-            if (response.ok || response.status === 201) {
-                // Success - show confirmation message
+            if (resp.ok && data.success) {
                 form.style.display = 'none';
                 successDiv.style.display = 'block';
                 successDiv.querySelector('.user-email').textContent = email;
 
-                // Track conversion
                 if (typeof gtag === 'function') {
                     gtag('event', 'newsletter_signup', {
                         source: source,
                         article: window.location.pathname
                     });
                 }
-
-            } else if (response.status === 409) {
-                // Duplicate email
-                showError(container, 'You\'re already subscribed! Check your email for the confirmation link.');
+            } else if (data.existing) {
+                showError(container, "You're already subscribed!");
             } else {
-                throw new Error('Subscription failed');
+                throw new Error(data.message || 'Subscription failed');
             }
-
         } catch (error) {
             console.error('Newsletter signup error:', error);
             showError(container, 'Something went wrong. Please try again later.');
-
-            // Re-enable button
             button.disabled = false;
             buttonText.style.display = 'inline';
             buttonLoading.style.display = 'none';
         }
     }
 
-    // Show error message
     function showError(container, message) {
-        const errorDiv = container.querySelector('.newsletter-error');
-        const errorMessage = errorDiv.querySelector('.error-message');
-
-        errorMessage.textContent = message;
+        var errorDiv = container.querySelector('.newsletter-error');
+        errorDiv.querySelector('.error-message').textContent = message;
         errorDiv.style.display = 'block';
-
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            errorDiv.style.display = 'none';
-        }, 5000);
+        setTimeout(function() { errorDiv.style.display = 'none'; }, 5000);
     }
 
-    // Initialize on DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initNewsletterForms);
     } else {
