@@ -1,13 +1,73 @@
 # Current Status
 
-**Last Updated:** 2026-02-16 (Blog Automation Build)
+**Last Updated:** 2026-02-23 (SEO Audit + MailerLite Migration + Form Fixes + Validation Pipeline Fix)
 
 **Current Focus:**
-Blog automation fully built. Daily publish cron (GitHub Action at 9 AM EST) auto-publishes posts with status="ready" and publish_date<=today. Weekly generation prompt template created for 9 posts/week (3 per writer). blog_posts.json schema updated with status + publish_date fields. Pipeline locked down. 0 critical, 0 warnings.
+SEO audit completed (22 meta descriptions rewritten, template autoescaping fixed, calculator page optimized). All email systems migrated to MailerLite via Cloudflare Worker. All 3 forms fixed and live-tested. No more Supabase keys in client-side JS. Fixed recurring archive.html validation regression at the TEMPLATE level (Loop 12). Publishing pipeline no longer blocks on warnings.
 
 ---
 
-## Latest Session (Feb 16 - Blog Automation Build)
+## Outstanding TODOs
+
+- **SECURITY: Rotate Supabase service role key** — old key exposed in git history (commit range `1e4216a`–`54f1d9d`). The key in `secrets/api-keys.json` matches the one leaked in archived reports. Rotate in Supabase Dashboard → Settings → API, then update `secrets/api-keys.json` and `wrangler secret put SUPABASE_SERVICE_ROLE_KEY`.
+- **Newsletter sending mechanism** — `generate_newsletter.py` creates HTML but no automated flow to send via MailerLite campaign yet.
+
+---
+
+## Latest Session (Feb 23 - SEO Audit + MailerLite Migration + Form Fixes)
+
+### SEO Audit Accomplishments
+1. **Template autoescaping fix** — Jinja2 was rendering `&#39;` in titles/descriptions. Added `|safe` filter to blog template.
+2. **22 meta descriptions rewritten** — 15 too short, 6 too long, 1 mismatched. All now 120-160 chars with keywords.
+3. **Calculator page optimized** — Title/description rewritten for actual GSC query demand ("carnivore macro calculator").
+4. **Adaptation timeline CTAs** — Added calculator CTAs to post with 848 impressions and 0 clicks.
+5. **SEO tooling** — Built `dashboard/gsc-report.js` (GSC data pull) and `dashboard/seo-audit.py` (automated meta/title audit).
+6. **54 files updated** — Blog posts, calculator page, and blog template.
+
+### MailerLite Migration Accomplishments
+1. **Starter plan form fix** — Deployed site still had old N8N webhook URL. Committed and pushed correct Worker URL.
+2. **7-day drip automation in MailerLite** — All 7 emails built and activated in MailerLite automation.
+3. **Newsletter Subscribers group** — Created in MailerLite (ID: `180231939510240621`).
+4. **Worker group routing** — `/api/v1/subscribe` now accepts `group` param ("starter" or "newsletter"). Single endpoint serves both.
+5. **Newsletter signup migrated** — `newsletter-signup.html` switched from Supabase direct insert to Worker proxy.
+6. **Drip-to-newsletter handoff** — "Copy to groups" step added after Day 7 email. MailerLite deduplicates automatically.
+7. **Feedback form fix** — Supabase anon key was rotated (401 errors). Migrated to new `/api/v1/feedback` Worker endpoint.
+8. **No more client-side Supabase keys** — All 3 forms (starter plan, newsletter, feedback) now route through Worker.
+
+### MailerLite Architecture
+- **Starter Plan group:** `180222507377231448` — receives drip signups
+- **Newsletter group:** `180231939510240621` — receives newsletter signups + Day 7 drip completers
+- **Worker endpoint:** `POST /api/v1/subscribe` with `{ email, group }` routes to correct MailerLite group
+- **Feedback endpoint:** `POST /api/v1/feedback` with `{ request_text, email }` proxies to Supabase `content_feedback` table
+- **Deduplication:** MailerLite handles natively — adding to a group someone's already in is a no-op
+
+### Files Modified
+- `api/calculator-api.js` — Added `MAILERLITE_GROUPS` mapping, group routing, `/api/v1/feedback` handler
+- `public/starter-plan.html` — Fixed webhook URL (N8N → Worker)
+- `public/components/newsletter-signup.html` — Switched from Supabase to Worker
+- `public/js/feedback-modal.js` — Switched from Supabase direct to Worker proxy
+
+### Validation Pipeline Fix (archive.html — Loop 12)
+1. **Root cause identified** — archive.html lost skip-nav and JSON-LD on EVERY regeneration because past fixes (Feb 10, Feb 16) patched the output file, not the template.
+2. **Template fixed** — Added skip-nav link, `id="main-content"`, and CollectionPage JSON-LD to `templates/archive_template.html` (source of truth).
+3. **Publisher resilience** — `daily_publish.py` now blocks on exit 1 (critical) only, not exit 2 (warnings). Warnings logged but don't block publishing.
+4. **Documented** — Full timeline in `recurring-loops.md` Loop 12 with past attempts and why they failed.
+
+### Files Modified
+- `api/calculator-api.js` — Added `MAILERLITE_GROUPS` mapping, group routing, `/api/v1/feedback` handler
+- `public/starter-plan.html` — Fixed webhook URL (N8N → Worker)
+- `public/components/newsletter-signup.html` — Switched from Supabase to Worker
+- `public/js/feedback-modal.js` — Switched from Supabase direct to Worker proxy
+- `templates/archive_template.html` — Added skip-nav + JSON-LD (prevents Loop 12 regression)
+- `scripts/daily_publish.py` — Critical-only blocking (exit 1), warnings non-blocking (exit 2)
+
+### Git Activity
+- 3 commits pushed to main (form URL fix, newsletter migration, feedback migration)
+- Worker deployed 2x via `wrangler deploy --env production`
+
+---
+
+## Previous Session (Feb 16 - Blog Automation Build)
 
 ### Accomplishments
 1. **Daily Publish GitHub Action** — `.github/workflows/daily-publish.yml` runs at 9 AM EST, publishes ready posts, commits, pushes
@@ -284,10 +344,11 @@ Blog automation fully built. Daily publish cron (GitHub Action at 9 AM EST) auto
 **Stripe:** $9.99 paid flow tested and working. TEST999 coupon verified.
 **Blog:** 58 published posts, all 1,000+ words, all rendering cleanly.
 
-**Current Focus:** Email deliverability, SEO audit implementation, content scaling.
+**Current Focus:** Newsletter sending mechanism, email deliverability, content scaling.
 **Blog Automation:** Daily publish cron ACTIVE (9 AM EST). Weekly prompt template ready.
 **Content cadence:** 9 posts/week (3 per writer), published one per day automatically.
 **Phase:** GROWTH — Email deliverability → organic discovery → content scaling.
-**Drip System:** LIVE, 2 subscribers, 3 N8N workflows active.
+**Email System:** MailerLite (replaced N8N + Resend). 7-day drip + newsletter groups. All forms via Cloudflare Worker.
+**Feedback Form:** LIVE via Worker → Supabase content_feedback table.
 
-**Latest Log:** `/Users/mbrew/Documents/Brew-Vault/07-Daily/2026-02-16.md`
+**Latest Log:** `/Users/mbrew/Documents/Brew-Vault/07-Daily/2026/02/2026-02-23.md`

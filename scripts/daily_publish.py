@@ -91,8 +91,19 @@ def run_generator():
 
 def run_validator():
     """
-    Run validate_before_commit.py — if critical errors, exit 1.
-    This blocks the GitHub Action from committing broken HTML.
+    Run validate_before_commit.py — block on CRITICAL errors only.
+
+    Exit codes from validate_before_commit.py:
+      0 = clean (no issues)
+      1 = critical issues (broken links, missing files, etc.)
+      2 = warnings only (missing skip-nav, JSON-LD, etc.)
+
+    We block publishing on exit 1 (critical) but allow exit 2 (warnings).
+    Warnings are logged but do NOT prevent blog posts from going live.
+
+    History: Before this fix, `returncode != 0` treated warnings as blocking,
+    which caused the daily-publish pipeline to fail and leave posts stuck
+    in "ready" status. See docs/project-log/recurring-loops.md Loop 12.
     """
     print("\n🔍 Running validation...")
     result = subprocess.run(
@@ -101,12 +112,16 @@ def run_validator():
         capture_output=True,
         text=True,
     )
-    if result.returncode != 0:
-        print("❌ Validation failed — blocking commit:")
+    if result.returncode == 1:
+        print("❌ Validation CRITICAL — blocking commit:")
         print(result.stdout)
         print(result.stderr)
         sys.exit(1)
-    print("✅ Validation passed")
+    elif result.returncode == 2:
+        print("⚠️ Validation warnings (non-blocking):")
+        print(result.stdout)
+    else:
+        print("✅ Validation passed")
 
 
 def get_next_scheduled(posts):
