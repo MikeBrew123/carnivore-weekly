@@ -2303,8 +2303,8 @@
       "author_title": "Performance Coach",
       "date": "2026-02-23",
       "scheduled_date": "2026-02-23",
-      "published": false,
-      "status": "ready",
+      "published": true,
+      "status": "published",
       "publish_date": "2026-02-23",
       "category": "protocol",
       "tags": [
@@ -2340,8 +2340,8 @@
       "author_title": "Community Manager",
       "date": "2026-02-24",
       "scheduled_date": "2026-02-24",
-      "published": false,
-      "status": "ready",
+      "published": true,
+      "status": "published",
       "publish_date": "2026-02-24",
       "category": "lifestyle",
       "tags": [
@@ -2377,8 +2377,8 @@
       "author_title": "Community Manager",
       "date": "2026-02-25",
       "scheduled_date": "2026-02-25",
-      "published": false,
-      "status": "ready",
+      "published": true,
+      "status": "published",
       "publish_date": "2026-02-25",
       "category": "community",
       "tags": [
