@@ -189,10 +189,15 @@ def generate_newsletter(date_str=None):
     newsletter_path.write_text(html_output, encoding="utf-8")
     print(f"  \u2713 {newsletter_path}")
 
-    # public/newsletter-preview.html
+    # public/newsletter-preview.html (sanitized for public web)
     preview_path = PROJECT_ROOT / "public" / "newsletter-preview.html"
-    preview_path.write_text(html_output, encoding="utf-8")
-    print(f"  \u2713 {preview_path}")
+    preview_html = html_output.replace("{{unsubscribe_url}}", "#")
+    preview_html = preview_html.replace(
+        '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
+        '<meta http-equiv="X-UA-Compatible" content="IE=edge">\n    <meta name="robots" content="noindex, nofollow">',
+    )
+    preview_path.write_text(preview_html, encoding="utf-8")
+    print(f"  \u2713 {preview_path} (sanitized)")
 
     # Summary
     print(f"\n{'='*60}")
