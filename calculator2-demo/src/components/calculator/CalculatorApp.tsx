@@ -15,7 +15,8 @@ declare global {
     gtag?: (...args: any[]) => void
   }
 }
-import PricingModal from '../ui/PricingModal'
+import StripePaymentModal from '../ui/StripePaymentModal'
+import { AnimatePresence } from 'framer-motion'
 import ReportGeneratingScreen from '../ui/ReportGeneratingScreen'
 
 interface CalculatorAppProps {
@@ -89,7 +90,7 @@ export default function CalculatorApp({
   console.log('isHydrated:', isHydrated);
 
   // UI state (non-persisted, transient)
-  const [showPricingModal, setShowPricingModal] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [email, setEmail] = useState('')
@@ -200,8 +201,8 @@ export default function CalculatorApp({
 
   const handleUpgradeClick = () => {
     console.log('[CalculatorApp] Upgrade button clicked')
-    console.log('[CalculatorApp] Setting showPricingModal to true')
-    setShowPricingModal(true)
+    console.log('[CalculatorApp] Setting showPaymentModal to true')
+    setShowPaymentModal(true)
   }
 
   const handlePaymentSuccess = () => {
@@ -221,7 +222,7 @@ export default function CalculatorApp({
       })
     }
     setIsPremium(true)
-    setShowPricingModal(false)
+    setShowPaymentModal(false)
     setCurrentStep(4) // Go to premium health profile
     scrollToCalculator()
   }
@@ -821,16 +822,21 @@ export default function CalculatorApp({
         </div>
       </div>
 
-      {/* Pricing Modal */}
-      {showPricingModal && (
-        <PricingModal
-          email={email}
-          onEmailChange={setEmail}
-          formData={formData as FormData}
-          onClose={() => setShowPricingModal(false)}
-          onProceed={() => handlePaymentSuccess()}
-        />
-      )}
+      {/* Stripe Payment Modal — direct from Step 3 CTA (no intermediate PricingModal) */}
+      <AnimatePresence>
+        {showPaymentModal && (
+          <StripePaymentModal
+            tierId="bundle"
+            tierTitle="Complete Carnivore Protocol"
+            tierPrice="$29"
+            email={email}
+            onEmailChange={setEmail}
+            formData={formData as FormData}
+            onSuccess={() => handlePaymentSuccess()}
+            onCancel={() => setShowPaymentModal(false)}
+          />
+        )}
+      </AnimatePresence>
     </>
   )
 }
