@@ -135,6 +135,7 @@ const stripeCouponMap = {
   'TEST95': 'ZnZXGHka',       // 95% off forever (testing - $0.50 minimum)
   'WELCOME10': 'kFK8x4SZ',    // 10% off once ($26.10)
   'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($23.20)
+  'CARNIVORE50': '0yWiiOLv',  // 25% off once ($21.75) — name says 50 but it's actually 25% off 😏
   // TEST99 removed - $0.10 below Stripe's 50 cent minimum
   'EARLY25': null,            // TODO: Create in Stripe
   'LAUNCH50': null,           // TODO: Create in Stripe
