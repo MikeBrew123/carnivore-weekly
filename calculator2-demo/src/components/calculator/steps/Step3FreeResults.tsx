@@ -277,7 +277,7 @@ export default function Step3FreeResults({
             <span style={{ fontSize: '28px', marginBottom: '8px' }}>🔒</span>
             <p style={{ color: '#ffd700', fontWeight: 600, fontSize: '16px', margin: 0 }}>Your full daily protocol is ready</p>
             <p style={{ color: '#a3a3a3', fontSize: '13px', marginTop: '6px' }}>4 more meals + snack timing — included in your Custom Protocol</p>
-            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}>$9.99 — Unlock Now</p>
+            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}>$29 — Unlock Now</p>
           </div>
         </div>
       </div>
@@ -288,7 +288,7 @@ export default function Step3FreeResults({
           Get Your Full 30+ Page {config.label} Protocol
         </h3>
         <p style={{ fontSize: '14px', color: '#a0a0a0', textAlign: 'center', marginBottom: '20px', fontFamily: "'Merriweather', Georgia, serif" }}>
-          $60 Value for just <span style={{ color: '#ffd700', fontWeight: '600' }}>$9.99</span>
+          $298 Value for just <span style={{ color: '#ffd700', fontWeight: '600' }}>$29</span>
         </p>
 
         {/* Value Stack */}
@@ -366,12 +366,12 @@ export default function Step3FreeResults({
             e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
-          Get My Protocol — $9.99
+          Get My Protocol — $29
         </button>
 
         {/* Pricing anchor */}
         <p style={{ fontSize: '12px', color: '#666', textAlign: 'center', fontFamily: "'Merriweather', Georgia, serif" }}>
-          Nutritionists charge $150+/hr for this level of personalization. You're getting it for $9.99.
+          Nutritionists charge $150+/hr for this level of personalization. You're getting it for $29.
         </p>
 
         {/* Satisfaction guarantee */}

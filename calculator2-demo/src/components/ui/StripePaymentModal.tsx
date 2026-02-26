@@ -63,10 +63,7 @@ export default function StripePaymentModal({
   }, [])
 
   const priceMap: Record<string, number> = {
-    bundle: 999,
-    meal_plan: 2700,
-    shopping: 1900,
-    doctor: 1500,
+    bundle: 2900,
   }
 
   const getDiscountedPrice = () => {

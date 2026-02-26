@@ -133,8 +133,8 @@ function checkRateLimit(sessionToken, limit = 10) {
 const stripeCouponMap = {
   'TEST999': 'DjCf14wH',      // 100% off forever (testing - FREE)
   'TEST95': 'ZnZXGHka',       // 95% off forever (testing - $0.50 minimum)
-  'WELCOME10': 'kFK8x4SZ',    // 10% off once ($8.99)
-  'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($7.99)
+  'WELCOME10': 'kFK8x4SZ',    // 10% off once ($26.10)
+  'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($23.20)
   // TEST99 removed - $0.10 below Stripe's 50 cent minimum
   'EARLY25': null,            // TODO: Create in Stripe
   'LAUNCH50': null,           // TODO: Create in Stripe
@@ -4227,10 +4227,7 @@ async function handleCreateCheckout(request, env) {
 
     // Map tier_id to Stripe price_id
     const tierPriceMap = {
-      'shopping': 'price_1SmnwoEVDfkpGz8wzdG365qu',  // $19 USD
-      'meal_plan': 'price_1SmnxZEVDfkpGz8wKsduACYH',  // $27 USD
-      'doctor': 'price_1Smny5EVDfkpGz8wDpgDuKKW',    // $47 USD
-      'bundle': 'price_1SmnylEVDfkpGz8w4WO79kXd',    // $9.99 USD
+      'bundle': 'price_1T5CZkEVDfkpGz8wnvZEnZH7',    // $29 USD - Complete Carnivore Protocol
     };
 
     const stripePriceId = tierPriceMap[tier_id] || tierPriceMap['bundle'];  // Default to bundle
