@@ -210,12 +210,12 @@ export default function CalculatorApp({
       // GA4 standard purchase event (ecommerce format)
       window.gtag('event', 'purchase', {
         transaction_id: paymentState.stripeSessionId || `T_${Date.now()}`,
-        value: 9.99,
+        value: 29,
         currency: 'USD',
         items: [{
           item_id: 'carnivore-protocol',
           item_name: 'Personalized Carnivore Protocol',
-          price: 9.99,
+          price: 29,
           quantity: 1
         }]
       })

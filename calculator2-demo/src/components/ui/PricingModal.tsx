@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
-import PricingCard from './PricingCard'
 import StripePaymentModal from './StripePaymentModal'
 import Portal from './Portal'
 import { useFormStore } from '../../stores/formStore'
@@ -27,126 +26,48 @@ interface PricingModalProps {
   onProceed: (tier: string) => void
 }
 
-const pricingOptions = [
-  {
-    id: 'shopping',
-    title: 'Shopping Lists',
-    price: '$19',
-    description: 'Grocery focused',
-    features: [
-      '4-week organized grocery lists',
-      'Budget-aware shopping options',
-      'Macro tracking by store',
-      'Category organization',
-      'Weekly item breakdowns',
-    ],
-  },
-  {
-    id: 'meal_plan',
-    title: '30-Day Meal Plan',
-    price: '$27',
-    description: 'Just meals',
-    features: [
-      '30-day meal plan with variety',
-      'Daily recipe suggestions',
-      'Ingredient macros per meal',
-      'Prep time estimates',
-      'Substitution options',
-    ],
-  },
-  {
-    id: 'doctor',
-    title: 'Doctor Script',
-    price: '$47',
-    description: 'Talk to your MD',
-    features: [
-      'Medication review framework',
-      'Lab work discussion talking points',
-      'Safety protocols & guidelines',
-      'Doctor conversation scripts',
-      'Follow-up questions guide',
-    ],
-  },
-  {
-    id: 'bundle',
-    title: 'Complete Protocol Bundle',
-    price: '$9.99',
-    popular: true,
-    description: 'Everything included',
-    features: [
-      '13-section personalized protocol',
-      '30-day meal plan with recipes',
-      'Weekly shopping lists',
-      'Doctor consultation guide',
-      'Macro & electrolyte calculations',
-      'AI-customized obstacle protocol',
-      'Adaptation timeline',
-    ],
-  },
-]
+const bundleOption = {
+  id: 'bundle',
+  title: 'Complete Carnivore Protocol',
+  price: '$29',
+  description: 'Everything included',
+  features: [
+    '13-section personalized protocol',
+    '30-day meal plan with recipes',
+    'Weekly shopping lists',
+    'Doctor consultation guide',
+    'Macro & electrolyte calculations',
+    'AI-customized obstacle protocol',
+    'Adaptation timeline',
+  ],
+}
 
 export default function PricingModal({ email, onEmailChange, formData, onClose, onProceed }: PricingModalProps) {
   console.log('[PricingModal] Component rendering')
   const { sessionToken } = useFormStore()
   const [selectedTier, setSelectedTier] = useState<string | null>(null)
 
-  // Add responsive styles for bundle card with proper spacing
   const pricingStyles = `
-    .pricing-grid {
-      gap: 48px;
-      row-gap: 48px;
-      align-items: stretch;
-      justify-content: center;
-    }
-
-    .pricing-card-container {
-      margin: 0 !important;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-width: 0;
-      justify-content: center;
+    .pricing-hero-card {
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
     }
 
     @media (max-width: 768px) {
-      .pricing-grid {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 24px !important;
-        align-items: center !important;
-      }
-      .pricing-card-container {
-        width: 100% !important;
-        max-width: 320px !important;
-      }
-    }
-
-    @media (min-width: 769px) {
-      .pricing-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 320px) !important;
-        gap: 48px !important;
-        justify-content: center !important;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .pricing-grid {
-        grid-template-columns: repeat(2, 320px) !important;
-        gap: 64px !important;
+      .pricing-hero-card {
+        max-width: 100% !important;
       }
     }
   `
 
   const stripePriceIds: Record<string, string> = {
-    bundle: 'price_1SmnylEVDfkpGz8w4WO79kXd',     // $9.99 USD
-    meal_plan: 'price_1SmnxZEVDfkpGz8wKsduACYH', // $27 USD
-    shopping: 'price_1SmnwoEVDfkpGz8wzdG365qu',  // $19 USD
-    doctor: 'price_1Smny5EVDfkpGz8wDpgDuKKW',    // $47 USD
+    bundle: 'price_1T5CZkEVDfkpGz8wnvZEnZH7',     // $29 USD
   }
 
   const getSelectedOption = () => {
-    return pricingOptions.find((opt) => opt.id === selectedTier)
+    if (selectedTier === 'bundle') return bundleOption
+    return undefined
   }
 
   const handleSelectTier = (tierId: string) => {
@@ -185,16 +106,16 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 9999, // Above site header (1000-1002)
+          zIndex: 9999,
           padding: '16px',
         }}
       >
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
-            backgroundColor: 'white',
+            backgroundColor: '#1a1a1a',
             borderRadius: '16px',
-            maxWidth: '1200px',
+            maxWidth: '640px',
             width: '100%',
             maxHeight: '90vh',
             overflowY: 'auto',
@@ -209,7 +130,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             top: 0,
             zIndex: 20,
             backgroundColor: '#1a1a1a',
-            padding: '32px',
+            padding: '32px 32px 24px',
             borderBottom: '2px solid #ffd700',
             pointerEvents: 'none',
           }}>
@@ -229,8 +150,8 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             >
               ✕
             </button>
-            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif", color: '#ffd700' }}>Choose Your Plan</h2>
-            <p style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Select the features that matter most to you</p>
+            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif", color: '#ffd700', textAlign: 'center' }}>Your Personalized Protocol</h2>
+            <p style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", textAlign: 'center' }}>Built from your calculator results</p>
           </div>
 
           {/* Limited Launch Pricing Banner */}
@@ -242,51 +163,112 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             borderBottom: '2px solid #ffd700',
           }}>
             <p style={{ fontSize: '16px', fontWeight: '600', fontFamily: "'Playfair Display', Georgia, serif" }}>Limited Launch Pricing</p>
-            <p style={{ fontSize: '13px', marginTop: '6px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Complete Protocol Bundle: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$9.99</span></p>
+            <p style={{ fontSize: '13px', marginTop: '6px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Complete Carnivore Protocol: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$29</span></p>
           </div>
 
-          {/* Pricing Cards */}
+          {/* Single Product Card */}
           <div style={{
-            padding: '48px 32px 32px 32px',
-            backgroundColor: '#f9f8f5',
+            padding: '32px 24px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
           }}>
-            {/* Grid Container - centered with slim cards and wide gutters */}
             <div
-              className="pricing-grid"
+              className="pricing-hero-card"
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(2, 320px)',
-                gap: '64px',
-                rowGap: '48px',
-                alignItems: 'stretch',
-                justifyContent: 'center',
-                maxWidth: '800px',
-                width: '100%',
-                marginBottom: '0px',
+                backgroundColor: '#2c1810',
+                borderRadius: '16px',
+                padding: '40px 32px',
+                border: '2px solid #ffd700',
+                boxShadow: '0 10px 40px rgba(255, 215, 0, 0.15)',
+                textAlign: 'center',
               }}
             >
-              {pricingOptions.map((option) => (
-                <div
-                  key={option.id}
-                  className="pricing-card-container"
-                  style={{
+              <h3 style={{
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: '#ffd700',
+                fontFamily: "'Playfair Display', Georgia, serif",
+                marginBottom: '8px',
+              }}>Complete Carnivore Protocol</h3>
+
+              <p style={{
+                color: '#a0a0a0',
+                fontFamily: "'Merriweather', Georgia, serif",
+                fontSize: '14px',
+                marginBottom: '24px',
+              }}>Everything you need to start and thrive</p>
+
+              {/* Price */}
+              <div style={{ marginBottom: '32px' }}>
+                <span style={{
+                  fontSize: '56px',
+                  fontWeight: 'bold',
+                  color: '#ffd700',
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  lineHeight: 1,
+                }}>$29</span>
+                <span style={{
+                  fontSize: '16px',
+                  color: '#a0a0a0',
+                  fontFamily: "'Merriweather', Georgia, serif",
+                  marginLeft: '8px',
+                }}>one-time</span>
+              </div>
+
+              {/* Features */}
+              <ul style={{
+                listStyle: 'none',
+                padding: 0,
+                margin: '0 0 32px 0',
+                textAlign: 'left',
+              }}>
+                {bundleOption.features.map((feature, i) => (
+                  <li key={i} style={{
                     display: 'flex',
-                    height: '100%',
-                  }}
-                >
-                  <PricingCard
-                    title={option.title}
-                    price={option.price}
-                    description={option.description}
-                    features={option.features}
-                    popular={option.popular}
-                    onClick={() => handleSelectTier(option.id)}
-                  />
-                </div>
-              ))}
+                    alignItems: 'flex-start',
+                    gap: '12px',
+                    marginBottom: '12px',
+                    fontSize: '15px',
+                    color: '#f5f5f5',
+                    fontFamily: "'Merriweather', Georgia, serif",
+                  }}>
+                    <span style={{ color: '#ffd700', fontWeight: 'bold', flexShrink: 0 }}>✓</span>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* CTA Button */}
+              <button
+                onClick={() => handleSelectTier('bundle')}
+                style={{
+                  width: '100%',
+                  padding: '16px 32px',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  backgroundColor: '#ffd700',
+                  color: '#1a120b',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  transition: 'all 0.2s',
+                  boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e6c200'
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 215, 0, 0.4)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffd700'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.3)'
+                }}
+              >
+                Get Your Protocol →
+              </button>
             </div>
 
             {/* Value Stack */}
@@ -295,9 +277,9 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
               borderRadius: '12px',
               padding: '32px',
               border: '2px solid #ffd700',
-              maxWidth: '1000px',
+              maxWidth: '480px',
               width: '100%',
-              marginTop: '32px',
+              marginTop: '24px',
               boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
             }}>
               <h3 style={{
@@ -309,9 +291,9 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                 textAlign: 'center',
               }}>What You Get</h3>
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '32px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '24px',
               }}>
                 <div>
                   <p style={{
@@ -320,7 +302,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     marginBottom: '8px',
                     fontSize: '14px',
                     fontFamily: "'Playfair Display', Georgia, serif",
-                  }}>📋 Every Plan Includes</p>
+                  }}>📋 Included In Your Protocol</p>
                   <ul style={{
                     fontSize: '14px',
                     listStyle: 'none',
@@ -349,8 +331,8 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     fontFamily: "'Merriweather', Georgia, serif",
                   }}>
                     <li style={{ marginBottom: '4px' }}>Complete bundle: $298 value</li>
-                    <li style={{ marginBottom: '4px' }}>Your price: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$9.99</span></li>
-                    <li>Save: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>96.6%</span></li>
+                    <li style={{ marginBottom: '4px' }}>Your price: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$29</span></li>
+                    <li>Save: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>90%</span></li>
                   </ul>
                 </div>
                 <div>
