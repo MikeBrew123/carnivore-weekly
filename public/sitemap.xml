@@ -278,7 +278,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/calculator.html</loc>
-        <lastmod>2026-02-23</lastmod>
+        <lastmod>2026-02-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
     </url>
@@ -332,13 +332,13 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/about/</loc>
-        <lastmod>2026-02-16</lastmod>
+        <lastmod>2026-02-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/blog/</loc>
-        <lastmod>2026-02-25</lastmod>
+        <lastmod>2026-02-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -416,7 +416,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/newsletter-preview.html</loc>
-        <lastmod>2026-02-22</lastmod>
+        <lastmod>2026-02-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -477,6 +477,12 @@
     <url>
         <loc>https://carnivoreweekly.com/blog/2026-02-25-media-vs-carnivore-2026.html</loc>
         <lastmod>2026-02-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-02-26-best-macro-calculator-carnivore-keto-low-carb.html</loc>
+        <lastmod>2026-02-26</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
