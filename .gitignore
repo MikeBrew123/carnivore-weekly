@@ -42,6 +42,7 @@ env/
 # Data files
 data/*.json
 data/*.csv
+!data/weekly_topics.json
 !data/config.json.example
 !data/content-of-the-week.json
 !data/featured-blog-post.json
