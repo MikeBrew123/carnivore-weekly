@@ -960,6 +960,7 @@ class UnifiedGenerator:
             "creator_channels": creator_channels,  # Map of creator names to YouTube channel IDs
             "newest_blog_posts": newest_blog_posts,  # 5 posts from last 7 days
             "popular_blog_posts": popular_blog_posts,  # 3 most popular blog posts (older/established)
+            "roundup_image": _get_roundup_image(),
         }
 
         # Render template
@@ -1660,6 +1661,23 @@ class UnifiedGenerator:
         except Exception as e:
             print(f"Error writing wiki file {output_file}: {e}")
             return False
+
+
+def _get_roundup_image():
+    """Generate or retrieve this week's roundup image. Returns relative path."""
+    import subprocess
+    script = Path(__file__).parent / "generate_roundup_image.py"
+    try:
+        result = subprocess.run(
+            ["python3", str(script)],
+            capture_output=True, text=True, timeout=180
+        )
+        path = result.stdout.strip()
+        if path and path.startswith("/images/"):
+            return path
+    except Exception:
+        pass
+    return "/images/lifestyle-cooking-1200w.webp"
 
 
 def main():
