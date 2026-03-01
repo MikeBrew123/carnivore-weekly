@@ -194,6 +194,7 @@ def generate_blog_posts(env, posts, validator=None):
             publish_date=post.get("date"),
             slug=post.get("slug"),
             content=content,
+            post_image=post.get("image"),
             tags=post.get("tags", []),
             keywords=keywords,
             meta_description=meta_description,
