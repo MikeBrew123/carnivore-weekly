@@ -798,39 +798,28 @@ nav.nav-menu-2026 a:hover {
   color: var(--color-amber);
 }
 
-/* Roundup two-column layout */
-.site-content .roundup-body {
-  display: flex;
-  gap: var(--space-8);
-  align-items: flex-start;
-}
-
-.site-content .roundup-body .roundup-content {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
+/* Roundup image floats right, text wraps around it */
 .site-content .roundup-image {
-  flex: 0 0 320px;
-  width: 320px;
-}
-
-.site-content .roundup-image img {
-  width: 100%;
+  float: right;
+  width: 340px;
   height: auto;
+  margin: 0 0 var(--space-5) var(--space-8);
   border-radius: 8px;
   object-fit: cover;
-  display: block;
   box-shadow: 0 4px 16px rgba(0,0,0,0.12);
 }
 
+.site-content .roundup-content::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
 @media (max-width: 768px) {
-  .site-content .roundup-body {
-    flex-direction: column;
-  }
   .site-content .roundup-image {
-    flex: none;
+    float: none;
     width: 100%;
+    margin: 0 0 var(--space-5) 0;
   }
 }
 
