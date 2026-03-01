@@ -209,19 +209,41 @@ class OptimizedContentAnalyzer:
         else:
             # Fallback: minimal embedded context
             if writer == "chloe" and "roundup" in analysis_type.lower():
-                prompt = """You are Chloe, a community insider and carnivore diet content creator.
-Write a conversational weekly roundup for the carnivore community.
+                # Load recent team posts so Chloe can reference them naturally
+                recent_posts = []
+                try:
+                    posts_path = Path(__file__).parent.parent / "data" / "blog_posts.json"
+                    all_posts = json.loads(posts_path.read_text()).get("blog_posts", [])
+                    from datetime import datetime, timedelta
+                    cutoff = (datetime.now() - timedelta(days=14)).strftime("%Y-%m-%d")
+                    recent_posts = [
+                        {"title": p["title"], "author": p.get("author",""), "slug": p["slug"]}
+                        for p in all_posts
+                        if p.get("publish_date","") >= cutoff and p.get("status") == "published"
+                    ][-5:]
+                except Exception:
+                    pass
+
+                recent_posts_text = ""
+                if recent_posts:
+                    lines = "\n".join(f'- {p["author"].title()}: "{p["title"]}" (/blog/{p["slug"]}.html)' for p in recent_posts)
+                    recent_posts_text = f"""
+Your teammates published these posts in the last two weeks — mention one if it genuinely fits the week's vibe. Keep it casual, one sentence max, like you'd namedrop a friend:
+{lines}
+"""
+
+                prompt = f"""You are Chloe, community scout and voice of the carnivore community.
+Write a conversational weekly roundup — 2-3 paragraphs, like you're texting a friend who missed the week.
 
 Style:
-- Start with "Okay, so..." or similar casual opener
-- Conversational, witty, community-focused
-- Use contractions (don't, can't, won't)
-- Real talk, not formal analysis
-- "Here's what the carnivore community is buzzing about this week..."
-- Specific examples, real voices
-- End with insight or reflection
-
-Analyze this YouTube data and write a 2-3 paragraph weekly community roundup."""
+- Casual opener ("Okay so..." / "Real talk..." / "This week was a lot...")
+- Witty, warm, a little opinionated
+- Specific about what actually happened, not generic cheerleading
+- End with a genuine reflection or question, not a motivational quote
+- Contractions throughout
+- If a teammate's recent post fits the week's theme, weave in a cheeky one-liner about it with a link — don't force it if it doesn't fit
+{recent_posts_text}
+Analyze this YouTube data and write the roundup."""
             elif "trending" in analysis_type.lower():
                 # Load wiki keywords to help Chloe pick linkable topics
                 wiki_keywords = []
