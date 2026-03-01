@@ -310,6 +310,9 @@
 
                 <!-- Post Content -->
                 <div class="post-content">
+                {% if post_image %}
+                <img class="post-inline-image" src="{{ post_image }}" alt="{{ title | safe }}">
+                {% endif %}
                 {{ content | safe }}
                 </div>
                 <!-- END Post Content -->
