@@ -3,6 +3,31 @@
    Premium Editorial Design
    ============================================ */
 
+/* Inline float-right article image */
+.post-content .post-inline-image {
+    float: right;
+    width: 320px;
+    height: auto;
+    margin: 4px 0 24px 32px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.post-content::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+@media (max-width: 640px) {
+    .post-content .post-inline-image {
+        float: none;
+        width: 100%;
+        margin: 0 0 20px 0;
+    }
+}
+
 :root {
     --cw-gold: #ffd700;
     --cw-gold-light: #ffed4a;
