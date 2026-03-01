@@ -124,6 +124,16 @@ else
 fi
 echo ""
 
+# Step 1.5: Community Research — Weekly Topic Ideas
+echo "🔍 Step 1.5/9: Chloe's community research (Reddit + YouTube → topic ideas)..."
+if ! python3 scripts/generate_weekly_topics.py; then
+    echo "   ⚠️ Topic research failed (non-fatal, continuing)"
+    DATA_ERRORS=$((DATA_ERRORS + 1))
+else
+    echo "✓ Weekly topics generated → data/weekly_topics.json"
+fi
+echo ""
+
 # Step 2: Analyze Content with Claude (Token-Optimized)
 echo "🧠 Step 2/9: Analyzing content with Claude AI (98% token reduction)..."
 if ! python3 scripts/content_analyzer_optimized.py; then
