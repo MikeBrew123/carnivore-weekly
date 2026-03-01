@@ -25,9 +25,8 @@ ANALYZED_CONTENT = BASE_DIR / "data" / "analyzed_content.json"
 IMAGES_DIR = BASE_DIR / "public" / "images"
 
 BRAND_SUFFIX = (
-    "cinematic food photography, warm natural light, rustic wooden surface, "
-    "rich earthy tones, shallow depth of field, high detail, photorealistic, "
-    "no text, no people"
+    "warm natural light, rich earthy tones, shallow depth of field, "
+    "high detail, photorealistic, no text, no people"
 )
 
 
@@ -51,19 +50,23 @@ def get_weekly_summary():
 def build_image_prompt_via_claude(api_key, summary):
     """Ask Claude to distill the summary into a vivid scene for image generation."""
     if not summary:
-        return "A beautifully plated ribeye steak with roasted bone marrow, " + BRAND_SUFFIX
+        return "A sunlit farmers market meat counter with cuts of grass-fed beef and pasture-raised eggs, " + BRAND_SUFFIX
 
-    user_prompt = f"""Based on this carnivore community weekly summary, write a single vivid scene description for a photorealistic food/lifestyle image. Output only the scene description — no explanation, no quotes.
+    user_prompt = f"""Based on this carnivore community weekly summary, write a single vivid scene description for a photorealistic lifestyle image. Output only the scene description — no explanation, no quotes.
 
-The scene must:
-- Feature real carnivore foods (beef, steak, eggs, bacon, organs, bone broth, etc.)
-- Be specific and visual (not generic)
-- Reflect the week's theme or mood
+Rules:
+- Reflect the ACTUAL theme or mood of this week — not just "steak on a board"
+- If the week is about food policy/politics: think farmers market, grocery store, family dinner table
+- If the week is about community/people: think someone cooking at home, meal prep, a kitchen scene
+- If the week is about science/health: think close-up ingredients, a simple meal, organ meats
+- Only default to a hero steak shot if the week genuinely has no other dominant theme
+- Be specific and visual — one concrete scene, not a list of foods
+- No text in the image, no people
 
 Weekly summary:
 {summary[:600]}
 
-Output format: one sentence describing the scene, ending with a comma, then I will append style keywords."""
+Output format: one sentence describing the scene, ending with a comma."""
 
     payload = json.dumps({
         "model": "claude-haiku-4-5-20251001",
