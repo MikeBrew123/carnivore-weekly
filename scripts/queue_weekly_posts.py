@@ -253,6 +253,18 @@ def main():
     blog_data["blog_posts"].extend(new_posts)
     BLOG_POSTS_FILE.write_text(json.dumps(blog_data, indent=2))
 
+    # Generate images for new posts
+    print("\n🖼  Generating post images...")
+    import subprocess
+    result = subprocess.run(
+        ["python3", str(BASE_DIR / "scripts" / "generate_post_images.py")],
+        capture_output=True, text=True, timeout=600
+    )
+    if result.returncode == 0:
+        print("✅ Images generated")
+    else:
+        print(f"⚠️  Image generation failed (non-fatal): {result.stderr[-200:]}")
+
     print(f"\n✅ {len(new_posts)}/{len(topics)} posts added → blog_posts.json (status: ready)")
     print("\nPublish schedule:")
     for p in new_posts:
