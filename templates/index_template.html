@@ -154,6 +154,11 @@
                         <span class="trending-tag-icon">🔥</span>
                         {{ topic.topic }}
                     </a>
+                    {% elif topic.blog_link %}
+                    <a href="{{ topic.blog_link }}" class="trending-tag">
+                        <span class="trending-tag-icon">🔥</span>
+                        {{ topic.topic }}
+                    </a>
                     {% else %}
                     <span class="trending-tag">
                         <span class="trending-tag-icon">🔥</span>
