@@ -58,9 +58,9 @@ OUTPUT_FILE = DATA_DIR / "youtube_data.json"
 
 # Search parameters
 SEARCH_QUERIES = ["carnivore diet", "animal-based diet", "meat only diet", "zero carb diet"]
-DAYS_BACK = 7  # How many days back to search
+DAYS_BACK = 14  # How many days back to search (14 = same API quota, wider window for long-form)
 TOP_CREATORS_COUNT = 12  # How many top creators to analyze (increased for diversity)
-MAX_VIDEOS_PER_CREATOR = 2  # Max videos per creator (enforces diversity)
+MAX_VIDEOS_PER_CREATOR = 3  # Max videos per creator (3 gives more chances to find long-form)
 COMMENTS_PER_VIDEO = 20  # Top comments per video
 MIN_RELEVANCE_SCORE = 7  # Minimum Claude relevance score (1-10)
 
