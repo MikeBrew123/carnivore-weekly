@@ -207,6 +207,7 @@ def get_top_6_videos(data):
                     "creator": creator["channel_name"],
                     "views": view_count,
                     "comment_count": comment_count,
+                    "duration_seconds": video.get("duration_seconds", 0),
                     "description": video.get("description", "")[:300],
                     "comments_sample": [
                         {"text": c["text"], "likes": c.get("likes", 0)}
@@ -221,6 +222,23 @@ def get_top_6_videos(data):
     all_videos = [v for v in all_videos if not is_blocked_channel(v["creator"])[0]]
     if len(all_videos) < pre_filter:
         print(f"   ✗ Filtered {pre_filter - len(all_videos)} videos from blocklisted channels")
+
+    # Filter shorts — require minimum 5 minutes (300 seconds)
+    # Videos with duration_seconds=0 are unknown length; filter those too if title looks like a Short
+    pre_dur = len(all_videos)
+    def _is_short(v):
+        dur = v.get("duration_seconds", 0)
+        if dur > 0 and dur < 300:
+            return True
+        # Hashtag-heavy titles with no duration stored → likely a Short
+        title = v.get("title", "")
+        hashtag_count = title.count("#")
+        if dur == 0 and hashtag_count >= 3:
+            return True
+        return False
+    all_videos = [v for v in all_videos if not _is_short(v)]
+    if len(all_videos) < pre_dur:
+        print(f"   ✗ Filtered {pre_dur - len(all_videos)} shorts/short-form videos (< 5 min)")
 
     # Split by comment threshold
     qualified = [v for v in all_videos if v["comment_count"] >= MIN_COMMENTS_FOR_SELECTION]
