@@ -461,6 +461,9 @@ class UnifiedGenerator:
                                 "description": "",
                                 "mentioned_by": ["Analysis"],
                             }
+                            # Carry through blog_link if set
+                            if topic.get("blog_link"):
+                                topic_obj["blog_link"] = topic["blog_link"]
                             # Add wiki link if keyword provided and exists in map
                             wiki_kw = topic.get("wiki_keyword")
                             if wiki_kw and wiki_kw in wiki_keyword_map:
