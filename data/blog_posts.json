@@ -2868,8 +2868,8 @@
       "author_title": "Performance Coach",
       "date": "2026-03-06",
       "scheduled_date": "2026-03-06",
-      "published": false,
-      "status": "ready",
+      "published": true,
+      "status": "published",
       "publish_date": "2026-03-06",
       "category": "performance",
       "tags": [
