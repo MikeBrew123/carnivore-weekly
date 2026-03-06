@@ -568,12 +568,15 @@ class UnifiedGenerator:
                     topic_name = topic.get("topic", "") if isinstance(topic, dict) else str(topic)
                     topic_lower = topic_name.lower()
 
-                    # Try to find a matching wiki keyword based on topic name
+                    # Try to find a matching wiki keyword based on topic name.
+                    # Require at least 2 meaningful words to overlap to avoid false matches
+                    # (e.g. single-word "coffee" matching "Ribeye Steak Preparation").
                     wiki_links = []
+                    topic_words = set(w for w in topic_lower.split() if len(w) > 3)
                     for keyword, wiki_url in keyword_map.items():
-                        # Check if keyword appears in topic name
-                        if keyword in topic_lower or topic_lower in keyword:
-                            # Strip both /wiki/# and wiki.html# prefixes to get clean anchor
+                        keyword_words = set(w for w in keyword.lower().split() if len(w) > 3)
+                        overlap = topic_words & keyword_words
+                        if len(overlap) >= 2:
                             anchor = wiki_url.replace("/wiki/#", "").replace("wiki.html#", "")
                             wiki_links.append({"anchor": anchor, "title": keyword.title()})
                             break  # Just need one match

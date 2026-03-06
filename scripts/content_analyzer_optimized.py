@@ -245,8 +245,9 @@ Style:
 {recent_posts_text}
 Analyze this YouTube data and write the roundup."""
             elif "trending" in analysis_type.lower():
-                # Load wiki keywords to help Chloe pick linkable topics
+                # Load wiki keywords and blog posts to help Chloe pick linkable topics
                 wiki_keywords = []
+                blog_slugs = {}
                 try:
                     wiki_path = Path(__file__).parent.parent / "data" / "wiki-keywords.json"
                     if wiki_path.exists():
@@ -254,28 +255,48 @@ Analyze this YouTube data and write the roundup."""
                         wiki_keywords = list(wiki_data.get("keyword_map", {}).keys())
                 except Exception:
                     pass
+                try:
+                    manifest_path = Path(__file__).parent.parent / "public" / "data" / "blog-manifest.json"
+                    if manifest_path.exists():
+                        manifest = json.loads(manifest_path.read_text())
+                        # Map slug → URL for top-level topics (convert slug to readable label)
+                        blog_slugs = {
+                            slug.replace("-", " "): f"/blog/{fname}"
+                            for slug, fname in manifest.items()
+                        }
+                except Exception:
+                    pass
 
                 wiki_list = ", ".join(wiki_keywords[:30]) if wiki_keywords else ""
+                blog_list = "\n".join(
+                    f'  "{label}": "{url}"'
+                    for label, url in list(blog_slugs.items())[:20]
+                )
                 prompt = f"""Based on this YouTube data, identify 3-5 trending topics.
 Topics should be from the carnivore community this week.
 
-IMPORTANT: When possible, use topics that match these wiki keywords so we can link them:
+OPTION 1 - Link to wiki section (preferred):
+Match topic to one of these wiki keywords:
 {wiki_list}
+
+OPTION 2 - Link to blog post (if no wiki match):
+Match topic to one of these blog posts:
+{blog_list}
 
 Return ONLY a JSON array of topic objects (no markdown):
 [
-  {{"topic": "Topic Name", "wiki_keyword": "matching keyword or null"}},
-  {{"topic": "Another Topic", "wiki_keyword": "cholesterol"}}
+  {{"topic": "Topic Name", "wiki_keyword": "cholesterol"}},
+  {{"topic": "Another Topic", "wiki_keyword": null, "blog_link": "/blog/2026-01-02-beginners-blueprint.html"}}
 ]
 
 Topics should be:
 - Short and descriptive (2-5 words each)
 - Based on actual video content this week
 - Relevant to carnivore/animal-based eating
-- PREFER topics that match wiki keywords above when the content supports it
+- ALWAYS set either wiki_keyword OR blog_link — never leave both null
 
-If a topic matches a wiki keyword, set wiki_keyword to that keyword.
-If no match, set wiki_keyword to null.
+If a topic matches a wiki keyword exactly, set wiki_keyword to that keyword and omit blog_link.
+If no wiki match, set wiki_keyword to null and set blog_link to the most relevant blog URL.
 
 Return ONLY the JSON array, nothing else."""
             else:
