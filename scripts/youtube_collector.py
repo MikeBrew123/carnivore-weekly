@@ -768,11 +768,11 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
                     stats = item["statistics"]
                     content = item.get("contentDetails", {})
 
-                    # Filter shorts (< 60 seconds)
+                    # Filter shorts and short-form content (< 5 minutes)
                     duration_sec = self._parse_duration_seconds(
                         content.get("duration", "")
                     )
-                    if 0 < duration_sec < 60:
+                    if 0 < duration_sec < 300:
                         print(
                             f"   ✗ Skipped short ({duration_sec}s):"
                             f" {snippet['title'][:50]}..."
@@ -926,9 +926,9 @@ Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
 
                 filtered_videos = []
                 for video in creator.get("videos", []):
-                    # Filter shorts (< 60 seconds)
+                    # Filter shorts and short-form content (< 5 minutes)
                     dur = video.get("duration_seconds", 999)
-                    if 0 < dur < 60:
+                    if 0 < dur < 300:
                         total_filtered += 1
                         title = video.get("title", "")
                         print(f"   ✗ Filtered (short {dur}s): {title[:50]}...")
