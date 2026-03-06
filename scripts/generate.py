@@ -644,28 +644,44 @@ class UnifiedGenerator:
             key_insights = []
 
         # Load editorial commentary from content-of-the-week.json
+        # Priority 1: If curated videos exist, build top_videos directly from them.
+        # This is the source of truth — no ID matching against youtube_data.json needed.
         editorial_commentary = {}
+        top_videos = []
         try:
             content_week_path = self.project_root / "data" / "content-of-the-week.json"
             if content_week_path.exists():
                 content_week_data = json.loads(content_week_path.read_text())
                 for video in content_week_data.get("featured_videos", []):
-                    editorial_commentary[video["video_id"]] = {
+                    vid_id = video["video_id"]
+                    editorial_commentary[vid_id] = {
                         "editorial_title": video.get("editorial_title"),
                         "heat_badge": video.get("heat_badge"),
                         "commentary": video.get("commentary"),
                         "curator": video.get("curator"),
                     }
-                print(f"  ✓ Loaded editorial commentary for {len(editorial_commentary)} videos")
+                    # Build top_videos directly — no ID matching required
+                    top_videos.append(
+                        {
+                            "video_id": vid_id,
+                            "title": video.get("title") or video.get("editorial_title", ""),
+                            "editorial_title": video.get("editorial_title"),
+                            "editorial_commentary": video.get("commentary"),
+                            "heat_badge": video.get("heat_badge"),
+                            "curator": video.get("curator"),
+                            "creator": video.get("creator", ""),
+                            "views": video.get("views", 0),
+                            "thumbnail_url": video.get(
+                                "thumbnail_url",
+                                f"https://i.ytimg.com/vi/{vid_id}/mqdefault.jpg",
+                            ),
+                        }
+                    )
+                print(f"  ✓ Loaded editorial commentary for {len(top_videos)} videos")
         except Exception as e:
             print(f"  Warning: Could not load content-of-the-week.json: {e}")
 
-        # Load real YouTube videos from youtube_data.json
-        top_videos = []
-
-        # Priority 1: Use JSON when we have editorial commentary (ensures fresh curated content)
-        # This prevents stale Supabase cache from overriding this week's curated videos
-        use_json_first = len(editorial_commentary) > 0
+        use_json_first = len(top_videos) > 0
 
         if not use_json_first:
             # Priority 2: Fetch from Supabase (cached data - no API calls needed)
@@ -783,31 +799,35 @@ class UnifiedGenerator:
             except Exception:
                 pass  # Silently fail if no additional videos available
 
-        # Merge editorial commentary into top_videos
-        for video in top_videos:
-            video_id = video.get("video_id")
-            if video_id and video_id in editorial_commentary:
-                commentary_data = editorial_commentary[video_id]
-                # Use editorial title if available, otherwise keep original
-                if commentary_data.get("editorial_title"):
-                    video["editorial_title"] = commentary_data["editorial_title"]
-                # Add editorial commentary with auto-linking (max 3 links per commentary)
-                if commentary_data.get("commentary"):
-                    raw_commentary = commentary_data["commentary"]
-                    linked_commentary = insert_wiki_links(f"<p>{raw_commentary}</p>", max_links=3)
-                    # Remove wrapper paragraph tags
-                    linked_commentary = linked_commentary.replace("<p>", "").replace("</p>", "")
-                    video["editorial_commentary"] = linked_commentary
-                # Add heat badge
-                if commentary_data.get("heat_badge"):
-                    video["heat_badge"] = commentary_data["heat_badge"]
-                # Add curator name
-                if commentary_data.get("curator"):
-                    video["curator"] = commentary_data["curator"]
+        # Apply wiki auto-linking to curated editorial commentary
+        if use_json_first:
+            for video in top_videos:
+                if video.get("editorial_commentary"):
+                    raw = video["editorial_commentary"]
+                    linked = insert_wiki_links(f"<p>{raw}</p>", max_links=3)
+                    video["editorial_commentary"] = linked.replace("<p>", "").replace("</p>", "")
 
-        # Filter: If we have curated content (editorial_commentary), only show videos WITH commentary
-        if editorial_commentary:
-            top_videos = [v for v in top_videos if v.get("editorial_commentary")]
+        # Merge editorial commentary into any remaining top_videos (loaded from fallback sources)
+        if editorial_commentary and not use_json_first:
+            for video in top_videos:
+                vid_id = video.get("video_id")
+                if vid_id and vid_id in editorial_commentary:
+                    commentary_data = editorial_commentary[vid_id]
+                    if commentary_data.get("editorial_title"):
+                        video["editorial_title"] = commentary_data["editorial_title"]
+                    if commentary_data.get("commentary"):
+                        raw_commentary = commentary_data["commentary"]
+                        linked_commentary = insert_wiki_links(
+                            f"<p>{raw_commentary}</p>", max_links=3
+                        )
+                        linked_commentary = linked_commentary.replace("<p>", "").replace(
+                            "</p>", ""
+                        )
+                        video["editorial_commentary"] = linked_commentary
+                    if commentary_data.get("heat_badge"):
+                        video["heat_badge"] = commentary_data["heat_badge"]
+                    if commentary_data.get("curator"):
+                        video["curator"] = commentary_data["curator"]
 
         # Build creator_channels mapping for JavaScript linking
         creator_channels = {}

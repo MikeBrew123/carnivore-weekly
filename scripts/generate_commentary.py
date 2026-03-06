@@ -493,6 +493,13 @@ def main():
         featured_videos.append(
             {
                 "video_id": video["video_id"],
+                "title": video.get("title", editorial_title),
+                "creator": video.get("creator", ""),
+                "thumbnail_url": video.get(
+                    "thumbnail_url",
+                    f"https://i.ytimg.com/vi/{video['video_id']}/mqdefault.jpg",
+                ),
+                "views": video.get("views", 0),
                 "editorial_title": editorial_title,
                 "heat_badge": heat_badge,
                 "commentary": commentary,
