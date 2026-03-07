@@ -2905,8 +2905,8 @@
       "author_title": "Community Manager",
       "date": "2026-03-07",
       "scheduled_date": "2026-03-07",
-      "published": false,
-      "status": "ready",
+      "published": true,
+      "status": "published",
       "publish_date": "2026-03-07",
       "category": "community",
       "tags": [
