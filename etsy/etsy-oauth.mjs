@@ -8,7 +8,7 @@ import http from 'http';
 import crypto from 'crypto';
 import { URL } from 'url';
 
-const CLIENT_ID = 'duahf60yca5rgztur8ighq6d';
+const CLIENT_ID = 'h0w3wf9q335ap0j3zkabfzxw';
 const REDIRECT_URI = 'http://localhost:3456/callback';
 const SCOPES = 'listings_r listings_w shops_r';
 

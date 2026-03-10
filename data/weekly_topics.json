@@ -1,84 +1,84 @@
 {
-  "generated_date": "2026-03-06",
-  "community_pulse": "The community is wrestling with practical meal optimization (ground beef vs. wagyu, fat intake limits) while simultaneously dealing with digestive healing and early-stage adaptation challenges. Meanwhile, food policy conversations are heating up around glyphosate and RFK Jr.'s influence on Trump's administration.",
+  "generated_date": "2026-03-09",
+  "community_pulse": "The community is splitting between newcomers questioning initial weight gain and mental clarity versus long-term carnivores troubleshooting specific health issues (SIBO, histamine sensitivity, digestive concerns). There's also renewed interest in meal simplicity\u2014ground beef with eggs is dominating engagement this week.",
   "topics": [
     {
       "rank": 1,
-      "title": "Ground Beef vs. Wagyu: Why Your $8 Patty Might Beat the $40 One",
-      "angle": "Data-driven breakdown of the viral r/carnivore post showing sensory and satiation differences are minimal between premium and conventional ground beef\u2014permission to save money without guilt.",
-      "why_now": "This post hit 8 upvotes but sparked genuine debate about ROI on expensive meat cuts. Community is questioning value propositions.",
-      "suggested_writer": "marcus",
-      "priority": "high"
-    },
-    {
-      "rank": 2,
-      "title": "The Fat Threshold Nobody Talks About: Why Dr. Baker's 'Unlimited Fat' Warning Matters",
-      "angle": "Unpack the 69-comment thread on Dr. Baker's recent stance that unlimited fat consumption can backfire\u2014practical macros for energy vs. excess storage without shame.",
-      "why_now": "One of the highest-engagement posts this week (43 upvotes, 69 comments). People are confused about how much fat is actually optimal.",
+      "title": "The 2-Week Weight Gain Phase: Why You Might Gain Before You Lose on Carnivore",
+      "angle": "Address the specific anxiety newcomers are experiencing around initial weight gain while experiencing mental clarity\u2014normalize it as a real phenomenon with metabolic explanation, not failure",
+      "why_now": "Multiple posts this week from people 2-4 weeks in reporting weight gain despite feeling mentally better; they're panicked and need reassurance with science",
       "suggested_writer": "sarah",
       "priority": "high"
     },
     {
+      "rank": 2,
+      "title": "Ground Meat + Eggs: The Unglamorous Meal Stack That Actually Works (And Why)",
+      "angle": "Celebrate the 'boring' staple that's getting 71+ upvotes\u2014analyze why ground beef and eggs dominate real-world adherence, macros, and simplicity over Instagram-worthy steaks",
+      "why_now": "This exact combo appeared in multiple top posts this week; the community is signaling this works better than premium options",
+      "suggested_writer": "marcus",
+      "priority": "high"
+    },
+    {
       "rank": 3,
-      "title": "SIBO, IBS-C, and Carnivore: What Actually Works When Everything Else Failed",
-      "angle": "Synthesize the multiple threads about digestive issues (SIBO/IBS-C, chronic gastritis, bloating) with real solutions\u2014not just 'try carnivore,' but specific protocol adjustments for damaged guts.",
-      "why_now": "Three separate high-engagement posts about digestive healing this week. This is clearly a pain point for newcomers.",
+      "title": "Carnivore for SIBO and IBS-C: What the Community is Actually Trying (When Antibiotics Failed)",
+      "angle": "Deep dive into the specific protocols people mention in the SIBO/IBS-C post\u2014strict lion diet variations, histamine management, white oak pastures sourcing; interview real users from that thread",
+      "why_now": "SIBO/IBS-C thread has 17 comments of active troubleshooting; this is a pain point with few resources",
       "suggested_writer": "chloe",
       "priority": "high"
     },
     {
       "rank": 4,
-      "title": "Week 2 Weight Gain Is Normal\u2014Here's Why Your Brain Feels Amazing While the Scale Doesn't",
-      "angle": "Address the psychological whiplash of the '2 weeks in, weight gain but mental freedom' post directly\u2014reframe early-stage adaptation as non-linear and explain the neurotransmitter shift happening underneath.",
-      "why_now": "This exact post got 25 upvotes and 16 comments. Early adopters need reassurance that mental gains are real even if body comp lags.",
-      "suggested_writer": "chloe",
-      "priority": "high"
-    },
-    {
-      "rank": 5,
-      "title": "Glyphosate, Food Policy, and Your Meat Supply: What RFK Jr.'s Influence Actually Means for Carnivores",
-      "angle": "Cut through the political noise\u2014explain what glyphosate residues on grain-fed beef actually are, why grass-fed advocates are excited, and whether the policy shift matters for your grocery bill and health.",
-      "why_now": "Dr. Baker's RFK/glyphosate video hit 100k+ views. Community is politically engaged but confused about implications for their diet.",
-      "suggested_writer": "sarah",
-      "priority": "high"
-    },
-    {
-      "rank": 6,
-      "title": "Histamine in Ground Meat: The White Oak Pastures Question and Fresh vs. Aged Beef",
-      "angle": "Deep dive into why some carnivores can't tolerate ground meat (histamine sensitivity) but thrive on whole cuts\u2014brands, storage hacks, and whether freshness matters more than sourcing.",
-      "why_now": "Nine upvotes but 44 comments\u2014high engagement on a specific practical problem. People are searching for solutions.",
+      "title": "Wagyu vs. 73/27 Ground Beef: The $$ Test Nobody Wanted to Admit",
+      "angle": "Lean into the practical finding that ground wagyu \u2260 dramatically better results; cost-benefit analysis for budget-conscious carnivores and the psychology of premium meat purchases",
+      "why_now": "Top post this week; directly challenges the premium-meat narrative dominating carnivore spaces",
       "suggested_writer": "marcus",
       "priority": "medium"
     },
     {
+      "rank": 5,
+      "title": "Histamine Sensitivity on Carnivore: Navigating Ground Meat Without the Reactions",
+      "angle": "Practical sourcing guide (white oak pastures, freshness protocols, grinding at home) for the 44-comment thread asking for solutions\u2014fill an actual resource gap",
+      "why_now": "44 comments on ground meat histamine sensitivity; community actively seeking solutions with limited guidance",
+      "suggested_writer": "marcus",
+      "priority": "medium"
+    },
+    {
+      "rank": 6,
+      "title": "The Water Intake Nobody's Talking About: Hydration Mistakes on Carnivore",
+      "angle": "Expand on the single water intake post\u2014connect it to the sluggishness/fatigue complaints in the 'Fat Thirst' thread; provide actual hydration math for carnivores",
+      "why_now": "Rare discussion point this week; connects to multiple unexplained fatigue complaints",
+      "suggested_writer": "sarah",
+      "priority": "medium"
+    },
+    {
       "rank": 7,
-      "title": "Carnivore Pregnancy at 26 Weeks: Everything the Community Wants to Know (Interview-Style)",
-      "angle": "The viral pregnancy update post (266 upvotes, 81 comments) signals massive community interest\u2014expand into a deeper Q&A format covering nutrition timing, energy needs, and birth outcomes.",
-      "why_now": "Highest-engagement post of the week. Shows carnivore community is aging into life stage questions beyond weight loss.",
-      "suggested_writer": "chloe",
+      "title": "Dental Health Transformation: Why Your Dentist Is Amazed (And What You're Actually Doing Right)",
+      "angle": "Validate the dental cleaning post (31 upvotes); explain the mechanism\u2014reduced inflammation, no sugar feeding pathogens, changes in oral microbiome",
+      "why_now": "Community is collectively noticing this benefit; positive result worth exploring scientifically",
+      "suggested_writer": "sarah",
       "priority": "medium"
     },
     {
       "rank": 8,
-      "title": "Water Intake on Carnivore: Why It's Not Just a Footnote",
-      "angle": "The 11-upvote post on water intake identified an underrated variable\u2014connect hydration directly to the energy crashes, sluggishness, and brain fog complaints flooding the threads this week.",
-      "why_now": "Multiple posts about low energy and brain fog. Water might be the unsexy missing link.",
+      "title": "Eating Carnivore When You're Healing: The Soft Diet Carnivore Approach (Without Soup)",
+      "angle": "Practical solutions for the mouth injury post\u2014ground meat textures, bone marrow, liverwurst, broth-free options that maintain muscle while healing",
+      "why_now": "Specific constraint post with 24 comments; under-resourced niche within carnivore",
       "suggested_writer": "marcus",
       "priority": "medium"
     },
     {
       "rank": 9,
-      "title": "Tallow Cracklings: The Underrated Carnivore Snack Everyone's Making",
-      "angle": "The 104-upvote beef fat cracklings post shows community excitement for rendered fat uses\u2014turn this into a how-to with flavor variations, macro breakdown, and why it's better than packaged pork rinds.",
-      "why_now": "Second-highest engagement post after the pregnancy update. Community is experimenting with fat optimization.",
-      "suggested_writer": "marcus",
+      "title": "Social Survival Guide: How to Eat Strict Carnivore Without Becoming 'That Person'",
+      "angle": "Lean into the 32-upvote post about social friction; real-world scripts, boundary-setting, and the psychology of why explaining 'just meat' creates resistance",
+      "why_now": "Social pressure is driving people offline; community-voiced concern with real conversation in comments",
+      "suggested_writer": "chloe",
       "priority": "medium"
     },
     {
       "rank": 10,
-      "title": "Dental Health Transformation on Carnivore: The Science Behind the 'Quick Cleaning' Effect",
-      "angle": "The 30-upvote dental cleaning post hints at something real\u2014connect reduced inflammation, improved gum health, and plaque reduction to actual mechanistic changes from eliminating plant antigens.",
-      "why_now": "Often-overlooked benefit thread showing carnivore wins beyond weight/digestion. Good lifestyle content angle.",
+      "title": "Carnivore for Muscle Building Without Carbs: What the Gym Crowd Isn't Understanding",
+      "angle": "Address the 'do I need carbs for gains?' debate directly\u2014research on protein timing, creatine, ammonia recycling, and real lifter results WITHOUT carbs",
+      "why_now": "Multiple posts this week from lifters surprised their performance is good without carbs; anti-carb gym gains narrative gaining traction",
       "suggested_writer": "sarah",
       "priority": "medium"
     }

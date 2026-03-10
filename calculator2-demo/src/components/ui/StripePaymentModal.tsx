@@ -53,6 +53,13 @@ export default function StripePaymentModal({
   useEffect(() => {
     console.log('[StripePaymentModal] Mounted for tier:', tierId, tierTitle)
 
+    // Pre-fill coupon from URL parameter (e.g. ?coupon=ETSY50)
+    const params = new URLSearchParams(window.location.search)
+    const urlCoupon = params.get('coupon')
+    if (urlCoupon && !couponCode) {
+      setCouponCode(urlCoupon.toUpperCase())
+    }
+
     // Track payment modal opened
     if (window.gtag) {
       window.gtag('event', 'calculator_payment_modal_opened', {
