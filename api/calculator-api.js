@@ -136,6 +136,7 @@ const stripeCouponMap = {
   'WELCOME10': 'kFK8x4SZ',    // 10% off once ($26.10)
   'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($23.20)
   'CARNIVORE50': '0yWiiOLv',  // 25% off once ($21.75) — name says 50 but it's actually 25% off 😏
+  'ETSY50': '52fYA51M',       // 50% off forever ($14.50) — Etsy cross-sell coupon
   // TEST99 removed - $0.10 below Stripe's 50 cent minimum
   'EARLY25': null,            // TODO: Create in Stripe
   'LAUNCH50': null,           // TODO: Create in Stripe

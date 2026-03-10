@@ -114,8 +114,10 @@ async function inspectUrls(sc, siteUrl) {
     .sort((a, b) => (b.publish_date || b.date || '').localeCompare(a.publish_date || a.date || ''))
     .slice(0, 20)
 
-  // URL Inspection API requires the URL-prefix property format, not sc-domain
-  const inspectionSiteUrl = 'https://carnivoreweekly.com/'
+  // Try domain property first (sc-domain:), fall back to URL-prefix
+  const inspectionSiteUrl = siteUrl.startsWith('sc-domain:')
+    ? siteUrl
+    : 'https://carnivoreweekly.com/'
 
   const results = []
   for (const post of published) {
