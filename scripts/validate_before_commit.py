@@ -195,6 +195,43 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                     "Shorten title to ≤60 chars. Consider removing ' - Carnivore Weekly Blog' suffix"
                 )
 
+        # Check 13b: Meta description length (WARNING)
+        meta_desc = soup.find('meta', attrs={'name': 'description'})
+        if meta_desc:
+            desc_content = meta_desc.get('content', '').strip()
+            desc_len = len(desc_content)
+            if desc_len < 120 and desc_len > 0:
+                line = get_line_number(content, 'name="description"')
+                results.add_warning(
+                    rel_path, line,
+                    f"Meta description too short ({desc_len} chars, target 130-165): '{desc_content[:60]}...'",
+                    "Expand meta description to 130-165 characters with keyword and value prop"
+                )
+            elif desc_len > 165:
+                line = get_line_number(content, 'name="description"')
+                results.add_warning(
+                    rel_path, line,
+                    f"Meta description too long ({desc_len} chars, max 165): '{desc_content[:60]}...'",
+                    "Trim meta description to under 165 characters"
+                )
+
+        # Check 13c: H1/title keyword alignment (WARNING)
+        title_tag = soup.find('title')
+        h1_tag = soup.find('h1')
+        if title_tag and h1_tag:
+            import re as _re
+            stop = {'the','a','an','and','or','for','to','of','in','on','with','your','our','how','why','what','is','are','carnivore','weekly'}
+            title_words = set(_re.sub(r'[^a-z0-9 ]','', title_tag.get_text().lower()).split()) - stop
+            h1_words = set(_re.sub(r'[^a-z0-9 ]','', h1_tag.get_text().lower()).split()) - stop
+            overlap = title_words & h1_words
+            if len(title_words) > 2 and len(overlap) < 2:
+                line = get_line_number(content, '<h1')
+                results.add_warning(
+                    rel_path, line,
+                    f"H1/title keyword mismatch — title keywords: {sorted(title_words)[:5]}, H1 keywords: {sorted(h1_words)[:5]}",
+                    "Align H1 with primary keyword from title tag for consistent SEO signals"
+                )
+
         # Check 5: Canonical URL (CRITICAL if present and malformed)
         canonical = soup.find('link', attrs={'rel': 'canonical'})
         if canonical:

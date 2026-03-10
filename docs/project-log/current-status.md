@@ -1,354 +1,170 @@
 # Current Status
 
-**Last Updated:** 2026-02-23 (SEO Audit + MailerLite Migration + Form Fixes + Validation Pipeline Fix)
+**Last Updated:** 2026-03-06 (Maintenance + Hardening Session)
 
 **Current Focus:**
-SEO audit completed (22 meta descriptions rewritten, template autoescaping fixed, calculator page optimized). All email systems migrated to MailerLite via Cloudflare Worker. All 3 forms fixed and live-tested. No more Supabase keys in client-side JS. Fixed recurring archive.html validation regression at the TEMPLATE level (Loop 12). Publishing pipeline no longer blocks on warnings.
+Maintenance and hardening complete. Fixed 4 GSC 404s, patched YouTube Shorts infiltration, deployed Supabase migration 029, fixed silent video-section bug (editorial IDs now sourced from content-of-the-week.json, not youtube_data.json). 70 published posts. GSC 12 new March posts submitted to Indexing API.
 
 ---
 
 ## Outstanding TODOs
 
-- **SECURITY: Rotate Supabase service role key** — old key exposed in git history (commit range `1e4216a`–`54f1d9d`). The key in `secrets/api-keys.json` matches the one leaked in archived reports. Rotate in Supabase Dashboard → Settings → API, then update `secrets/api-keys.json` and `wrangler secret put SUPABASE_SERVICE_ROLE_KEY`.
+- **Email deliverability** — DKIM/SPF/DMARC for carnivoreweekly.com; emails still hitting spam. Priority.
+- **GSC re-crawl confirmation** — Validate 4 stubs fixed after Google re-crawls (expected 24-72h from 2026-03-06).
+- **12 March posts indexing** — Submitted to Indexing API 2026-03-06; confirm indexed in next GSC check.
+- **SECURITY: Rotate Supabase service role key** — Old key exposed in git history (commit range `1e4216a`–`54f1d9d`). Rotate in Supabase Dashboard → Settings → API, then update `secrets/api-keys.json` and `wrangler secret put SUPABASE_SERVICE_ROLE_KEY`.
 - **Newsletter sending mechanism** — `generate_newsletter.py` creates HTML but no automated flow to send via MailerLite campaign yet.
+- **Affiliate content (queued)** — Starter Kit roundup hub page, then individual reviews: chest freezer, meat thermometer, cast iron skillet. One per week max.
+- **Chloe cross-promo** — Have Chloe casually mention Marcus's air fryer post in next weekend roundup. Link to `/blog/2026-02-25-best-air-fryer-carnivore-ninja-foodi.html`.
 
 ---
 
-## Latest Session (Feb 23 - SEO Audit + MailerLite Migration + Form Fixes)
+## Latest Session (2026-03-06 — Maintenance + Hardening)
 
-### SEO Audit Accomplishments
-1. **Template autoescaping fix** — Jinja2 was rendering `&#39;` in titles/descriptions. Added `|safe` filter to blog template.
-2. **22 meta descriptions rewritten** — 15 too short, 6 too long, 1 mismatched. All now 120-160 chars with keywords.
-3. **Calculator page optimized** — Title/description rewritten for actual GSC query demand ("carnivore macro calculator").
-4. **Adaptation timeline CTAs** — Added calculator CTAs to post with 848 impressions and 0 clicks.
-5. **SEO tooling** — Built `dashboard/gsc-report.js` (GSC data pull) and `dashboard/seo-audit.py` (automated meta/title audit).
-6. **54 files updated** — Blog posts, calculator page, and blog template.
+### GSC 404 Fixes
+- 4 GSC 404 errors resolved: redirect stubs deployed for dead URLs + blog manifest corrected
+- GSC "Validate Fix" triggered for all 4 URLs; Google re-crawl expected 24-72h
+- Root cause logged — stubs were missing from prior cleanup (Feb 26 orphan removal)
 
-### MailerLite Migration Accomplishments
-1. **Starter plan form fix** — Deployed site still had old N8N webhook URL. Committed and pushed correct Worker URL.
-2. **7-day drip automation in MailerLite** — All 7 emails built and activated in MailerLite automation.
-3. **Newsletter Subscribers group** — Created in MailerLite (ID: `180231939510240621`).
-4. **Worker group routing** — `/api/v1/subscribe` now accepts `group` param ("starter" or "newsletter"). Single endpoint serves both.
-5. **Newsletter signup migrated** — `newsletter-signup.html` switched from Supabase direct insert to Worker proxy.
-6. **Drip-to-newsletter handoff** — "Copy to groups" step added after Day 7 email. MailerLite deduplicates automatically.
-7. **Feedback form fix** — Supabase anon key was rotated (401 errors). Migrated to new `/api/v1/feedback` Worker endpoint.
-8. **No more client-side Supabase keys** — All 3 forms (starter plan, newsletter, feedback) now route through Worker.
+### YouTube Shorts Filter
+- Silent infiltration: Shorts (< 5 min) were slipping into content-of-the-week selections
+- Fix applied at two points: (1) collection stage in run_weekly_update.sh and (2) commentary selection in generate_commentary.py
+- Threshold: `duration_seconds >= 300` required for any video to qualify
+- Required Supabase migration 029 to store duration data
 
-### MailerLite Architecture
-- **Starter Plan group:** `180222507377231448` — receives drip signups
-- **Newsletter group:** `180231939510240621` — receives newsletter signups + Day 7 drip completers
-- **Worker endpoint:** `POST /api/v1/subscribe` with `{ email, group }` routes to correct MailerLite group
-- **Feedback endpoint:** `POST /api/v1/feedback` with `{ request_text, email }` proxies to Supabase `content_feedback` table
-- **Deduplication:** MailerLite handles natively — adding to a group someone's already in is a no-op
+### Supabase Migration 029
+- Added `duration_seconds INTEGER` and `top_comments JSONB` columns to `youtube_videos` table
+- Backfilled existing records where possible
+- Migration file: `migrations/029_add_duration_top_comments.sql`
 
-### Files Modified
-- `api/calculator-api.js` — Added `MAILERLITE_GROUPS` mapping, group routing, `/api/v1/feedback` handler
-- `public/starter-plan.html` — Fixed webhook URL (N8N → Worker)
-- `public/components/newsletter-signup.html` — Switched from Supabase to Worker
-- `public/js/feedback-modal.js` — Switched from Supabase direct to Worker proxy
+### Trending Topics Link Hardening
+- All trending topic entries now link to a relevant wiki anchor or blog post
+- Fallback matcher tightened: requires 2+ meaningful word overlap (prevents false positives like "coffee" matching "ribeye steak")
+- Previously some topics rendered with dead or missing hrefs
 
-### Validation Pipeline Fix (archive.html — Loop 12)
-1. **Root cause identified** — archive.html lost skip-nav and JSON-LD on EVERY regeneration because past fixes (Feb 10, Feb 16) patched the output file, not the template.
-2. **Template fixed** — Added skip-nav link, `id="main-content"`, and CollectionPage JSON-LD to `templates/archive_template.html` (source of truth).
-3. **Publisher resilience** — `daily_publish.py` now blocks on exit 1 (critical) only, not exit 2 (warnings). Warnings logged but don't block publishing.
-4. **Documented** — Full timeline in `recurring-loops.md` Loop 12 with past attempts and why they failed.
+### Migrations Folder Cleanup
+- 5 duplicate and draft migration files removed
+- Migrations folder now clean; each migration number is unique and applied exactly once
 
-### Files Modified
-- `api/calculator-api.js` — Added `MAILERLITE_GROUPS` mapping, group routing, `/api/v1/feedback` handler
-- `public/starter-plan.html` — Fixed webhook URL (N8N → Worker)
-- `public/components/newsletter-signup.html` — Switched from Supabase to Worker
-- `public/js/feedback-modal.js` — Switched from Supabase direct to Worker proxy
-- `templates/archive_template.html` — Added skip-nav + JSON-LD (prevents Loop 12 regression)
-- `scripts/daily_publish.py` — Critical-only blocking (exit 1), warnings non-blocking (exit 2)
+### Video Section Silent Bug — Root Cause + Fix
+- **Bug:** Homepage video section was rendering blank despite content-of-the-week.json having valid entries
+- **Root cause:** `generate.py` was attempting to match editorial video IDs against `youtube_data.json` IDs. When the weekly update rotated videos, IDs in content-of-the-week.json no longer matched IDs in youtube_data.json, so no videos passed the filter — silent blank.
+- **Fix:** `content-of-the-week.json` is now the authoritative source for the video section. `generate_commentary.py` now writes `creator`, `title`, and `thumbnail_url` directly into content-of-the-week.json at generation time. Homepage template reads directly from that file. No ID cross-reference against youtube_data.json.
+- **Impact:** Video section will always render as long as commentary generation succeeds. Resilient to youtube_data.json rotation.
 
-### Git Activity
-- 3 commits pushed to main (form URL fix, newsletter migration, feedback migration)
-- Worker deployed 2x via `wrangler deploy --env production`
+### Automation Hardening — Content Analyzer
+- Content analyzer prompt updated: Claude now receives a list of published blog post slugs/titles as options when selecting related content for trending topics and commentary
+- Eliminates hallucinated post references that previously caused dead internal links
+- Fallback: if no post matches with 2+ word overlap, topic renders without a link (no broken href)
 
----
+### Google Indexing API — 12 March Posts
+- `gsc-request-indexing.js` run against all March posts not yet confirmed indexed
+- 12 URLs submitted; crawl expected 24-48h
+- GSC snapshot pre-submission: March posts showing impressions but not indexed
 
-## Previous Session (Feb 16 - Blog Automation Build)
+### generate_commentary.py Enhancement
+- Now writes `creator`, `title`, and `thumbnail_url` into content-of-the-week.json for each selected video
+- Eliminates the dependency on youtube_data.json ID matching that caused the video section blank bug
 
-### Accomplishments
-1. **Daily Publish GitHub Action** — `.github/workflows/daily-publish.yml` runs at 9 AM EST, publishes ready posts, commits, pushes
-2. **daily_publish.py** — Finds status="ready" + publish_date<=today, flips to published, regenerates site, validates before commit
-3. **Weekly content prompt** — `scripts/weekly_content_prompt.md` template for generating 9 posts/week (3 per writer)
-4. **blog_posts.json schema** — All 58 posts now have `status: "published"` and `publish_date` fields
-5. **CLAUDE.md updated** — Weekly content workflow section added, pipeline Step 3 updated for status values
-6. **CI fix** — Deleted dead `calculator-form-rebuild.html`, cleaned references, fixed accidental secret staging
-
-### Blog Automation Architecture
-- **Generation:** Paste `weekly_content_prompt.md` into Claude Code → 9 posts queued with status="ready"
-- **Publishing:** daily-publish.yml (cron 9 AM EST) → daily_publish.py → generate → validate → commit → deploy.yml
-- **Backlog prevention:** Uses `publish_date <= today` (not `==`), so overdue posts publish on next run
-- **Status flow:** draft → ready → published
+### Files Modified (2026-03-06)
+- `migrations/029_add_duration_top_comments.sql` — NEW: duration_seconds + top_comments columns
+- `scripts/generate_commentary.py` — Shorts filter, blog post options in prompt, write creator/title/thumbnail to cotw.json
+- `scripts/run_weekly_update.sh` — Shorts filter at collection stage
+- `data/content-of-the-week.json` — Now authoritative source for video section (creator/title/thumbnail stored)
+- `public/index.html` — Video section reads from cotw.json directly (no youtube_data.json ID match)
+- `templates/index_template.html` — Same fix applied to source template
 
 ---
 
-## Previous Session (Feb 16 - Phases 1-9 Cleanup + Pipeline Lockdown)
+## Previous Session (Feb 26 Evening — Calculator Hype Post + SEO + CTR Optimization)
 
-### Accomplishments
-1. **Phase 1-3: Dead file removal + doc fixes** — 84 dead files removed, broken references fixed, documentation contradictions corrected
-2. **Phase 4: Blog assessment** — 6 orphan files identified, 7 target posts confirmed, pipeline verified
-3. **Phase 5: Orphan cleanup** — 6 broken orphan HTML files deleted, insulin-resistance file renamed with date prefix
-4. **Phase 6: Content expansion** — 7 blog posts (Feb 10-16) expanded from ~600-700 words to 1,000-1,700 words using writer personas
-5. **Phase 7: Cross-link fixes** — 28 broken internal links fixed (26 corrected date prefix, 2 removed)
-6. **Phase 8: Warning resolution** — 88 validation warnings resolved to 0 (titles shortened, skip-nav added, JSON-LD added, image dims added)
-7. **Phase 9: Pipeline lockdown** — Canonical blog pipeline added to CLAUDE.md, validation guardrails added (Jinja2 detection, orphan detection)
+### Calculator Hype Post
+- **New post published:** "The Only Macro Calculator for Carnivore, Keto & Low-Carb"
+- **URL:** `/blog/2026-02-26-best-macro-calculator-carnivore-keto-low-carb.html`
+- **3 writers:** Sarah (science), Marcus (performance), Chloe (real experience)
+- **17 calculator links, 4 CTA boxes, FAQ schema** (5 questions with microdata)
+- **SEO targets:** "carnivore macro calculator", "keto macro calculator", "carnivore diet calculator", "low carb macro calculator"
+- **Title:** 56 chars (shortened from 80 to avoid SERP truncation)
+- **7+ exact-match keyword placements** added to body text after SEO audit found zero
+- Submitted to Google Indexing API
 
-### Validation State
-- **Critical errors: 0** (was 28 before Phase 7)
-- **Warnings: 0** (was 88 before Phase 8)
-- **Blog posts: 58** (all rendering cleanly, all with date prefixes)
-- **Sitemap: 68 URLs** (all validated)
+### CTR Optimization — Adaptation Timeline
+- Post had **1,590 impressions, 0 clicks** at avg position 2-4
+- **New title:** "Carnivore Adaptation Timeline: Week-by-Week Symptoms & Fixes" (60 chars)
+- **New meta:** Concrete week-by-week preview with specific milestones
+- Check GSC for improvement
 
----
-
-## Previous Session (Feb 15 - Drip System Debugging + Email Deliverability)
-
-### Accomplishments
-1. **N8N webhook deregistration fixed** — Welcome webhook (pQS0oOhXXX0yovPY) was deregistered after server restart. Reactivated by toggling workflow off/on.
-2. **2 subscribers in drip_subscribers table** — iambrew@gmail.com (Feb 13), mbrew@telus.net (Feb 15)
-3. **starter-plan.html updated** — Success messages now include spam folder note so users know to check spam/promotions
-4. **N8N drip workflow IDs documented** — Welcome: pQS0oOhXXX0yovPY, Daily: xpwh8xew6VK7mxDq, Unsubscribe: XltAK9xjHH8V8kGR
-
-### Known Issues
-- **Email deliverability** — Day 1 welcome emails landing in spam. DKIM/SPF/DMARC configuration for carnivoreweekly.com needs investigation.
-- **N8N webhook deregistration** — Webhooks deregister on server restart. Added to troubleshooting playbook: deactivate then reactivate workflow to re-register. Weekly health check should verify all webhook workflows respond.
+### GSC Snapshot (Feb 26)
+- 7-day: 2,626 impressions, 5 clicks, 0.2% CTR, avg position 6.6
+- Top page: Calculator — 4 clicks, 211 impressions
+- 17/20 recent posts indexed, 3 stragglers submitted
 
 ---
 
-## Previous Session (Feb 12 - Pipeline Lockdown + Content Quality)
+## Previous Session (Feb 26 — Affiliate Post + GSC 404 Fixes + Site Cleanup)
 
-### Accomplishments
-1. **Pipeline lockdown phases 1-9 complete** — snapshot, archive, gates, dry run
-2. **Weekly pipeline reliability fix** — set -e killed at step 4.6, data steps now non-fatal
-3. **Commentary regenerated** with full Supabase writer memory (3 writers, 20 memories)
-4. **Video selection ranked by engagement** — comments x 2 + likes + views/1000
-5. **Minimum 5 comments** required for homepage video slot
-6. **Creator stance filtering** — Mic the Vegan blocked, logged to rejected_videos
-7. **Commentary links** output as HTML (not markdown) — renders correctly in templates
-8. **Ghost file bug** — public/blog/.html deleted with 3 prevention guards
-9. **3 P2 backlog items closed** — UUID sync, live video filter, Q&A structure
+### Affiliate Content
+- **First product review:** "Air Fry Everything: A Carnivore's Best Kitchen Upgrade"
+- **URL:** `/blog/2026-02-25-best-air-fryer-carnivore-ninja-foodi.html`
+- Amazon affiliate link (`amzn.to/4aSJxXQ`), 6% Kitchen & Dining commission
+- Already indexed by Google
 
-### Post-Recap (Feb 12 evening)
-- **Memory write-back fixed** — added missing `content` field. Agent memory grows each run now.
-- **Supabase keep-alive** — GitHub Action pings every 3 days, prevents free tier pausing.
-- **2x/week publishing** — weekly-update.yml runs Sunday + Wednesday at midnight UTC.
-- **13 orphan redirect stubs removed** — redirects.json cleaned, pre-commit now 0 warnings.
-- **Backlog: empty.** Next automation: Sunday midnight UTC.
+### GSC 404 Fixes (Feb 26)
+- `/{{unsubscribe_url}}` — MailerLite template variable leaked into newsletter-preview.html. Fixed preview + patched generate_newsletter.py.
+- `/about/about.html` — Relative href resolved to double path. Fixed to `/about/`.
+
+### Site Cleanup
+- 11 tracked orphan files deleted, ~6.2MB untracked stale files removed
 
 ---
 
-## Previous Session (Feb 9 - Revenue Infrastructure Sprint)
+## Previous Session (Feb 25 — GSC Tooling + Indexing API + Pipeline Deploy)
 
-### Starting State
-- 6 blog posts with future dates (Google penalty risk)
-- content_validator.py regex breaking all https:// URLs
-- Blog template missing revenue scripts (calculator CTA, newsletter inject)
-- 5 new posts had template HTML baked into content fields (duplication)
-- Blog template had hardcoded wiki links and video embed on every post
-- Tag placeholders not rendering from post data
-
-### Fixes Completed
-1. **Future dates:** 6 posts corrected (Feb 11/20 to Feb 9), stale files deleted
-2. **Validator regex:** Double-slash pattern was matching https:// -- fixed
-3. **Revenue scripts:** calculator-cta.js and newsletter-inject.js added to Jinja2 template
-4. **Content deduplication:** Stripped baked-in template HTML from 5 posts' content fields
-5. **Template cleanup:** Removed hardcoded wiki links and Anthony Chaffee video
-6. **Tag rendering:** Replaced empty {{ tag1 }} placeholders with dynamic {% for tag in tags %} loop
-7. **Reference links:** 24 links wired across 5 posts (6 Amazon affiliate, 10 PubMed, 8 other)
-
-### Git Activity
-- 4 commits pushed to main
-- Pre-commit validation passing
-
-### Still Outstanding (Cosmetic)
-- `.tag` CSS class unstyled -- tags render as raw text
-- `author_bio` field empty -- referenced in template but never populated by generator
+- GSC report fixed to use `sc-domain:` property format
+- Service account upgraded to Owner for URL inspection API
+- Indexing API enabled (`indexing.googleapis.com`)
+- `gsc-request-indexing.js` created — programmatic Indexing API submissions
+- 6 unindexed Feb 8-9 posts submitted
 
 ---
 
-## Previous Session (Feb 8 - Phase 9: Production Stabilization & Prevention Systems)
+## Previous Session (Feb 23 — SEO Audit + MailerLite Migration + Form Fixes)
 
-### Starting State
-- Site health: 68/100 (Google validation)
-- 19 published posts with multiple issues
-- No validation system
-- No writer personas connected to Supabase
-- Weekly automation untested
-
-### Emergency Fixes Completed
-**Sitemap & SEO:**
-- 156 duplicate sitemap URLs to 0 (100% deduplication)
-- 38 posts with multiple H1 tags to 1 H1 each
-- Duplicate HTML IDs to unique prefixed IDs
-- 12 unrendered template variables removed
-- 11 orphan posts added to sitemap
-
-**Validation System (3 Walls):**
-- Wall 1: content_validator.py (10 rules, 95% auto-fix rate)
-- Wall 2: Pre-commit hook (blocks bad commits)
-- Wall 3: GitHub Actions (blocks bad deploys, creates issues)
-- Weekly health check workflow added
-
-**Legacy Content Cleanup:**
-- 1,087 issues found to 6 intentional warnings
-- 71 blog files archived
-- 26 public pages fixed
-
-**Placeholder Post Crisis:**
-- 22 posts marked published with no content
-- Fixed sync layer, generation layer, validation layer
-- 3-layer prevention: can't happen again
-
-### Writer Agent System Connected
-**Supabase Integration:**
-- 3 writer profiles (Sarah, Chloe, Marcus)
-- Memory tables populated
-- Generation pipeline connected
-- Each writer pulls persona + memories + past articles before writing
-
-**Content Generated:**
-- Batch 1: 12 posts (4 per writer) - validated, published
-- Batch 2 Test: 3 posts through full pipeline - all passed
-- Batch 2 Full: 15 posts autonomous - all deployed
-- Internal cross-linking: 2-5 links per post
-
-### 10 Major Bugs Fixed
-1. Markdown not rendering - Added markdown-to-HTML converter
-2. Missing CSS references - Fixed blog-post.css and global.css paths
-3. GitHub Actions failing - Wall 3 blocked CSS references - resolved
-4. Broken internal links - 14 links to wrong slugs - 3 root causes fixed
-5. Path doubling - /wiki/#/wiki/# appeared 3 times - Wall 1 auto-fix added
-6. Supabase sync crashes - INSERT on duplicates - changed to UPSERT
-7. Future-dated posts - Flagged (need publish gate)
-8. "By" with no author - UUID vs INT schema mismatch - JSON fallback
-9. Non-English videos - Added language filter (>20% non-Latin = skip)
-10. Trending tags dead links - Doubled wiki anchors - fixed generation + Wall 1
-
-### Weekly Sunday Refresh Completed
-- YouTube collection: 11 videos, 134 comments, 12 creators
-- Sentiment analysis + editorial commentary generated
-- 2 non-English videos removed (filter working)
-- Homepage, channels, archive, wiki, newsletter regenerated
-- 120 wiki keywords extracted
-- Supabase sync: 22 inserted, 48 existing
-
-### End State
-- Published posts: 59 blog posts
-- Sitemap: 66 URLs (submitted to Google)
-- Validation errors: 0 critical, 0 blocking
-- GitHub Actions: Green (first clean deploy)
-- Writer agents: 3 active, Supabase connected
-- Internal linking: Active across all new posts
-- Weekly automation: UPSERT + language filter + path fix
-- Protection: 3 walls + path doubling auto-fix
-
-### Prevention Systems Added
-1. Wall 1: Content validator (10+ rules, 95% auto-fix)
-2. Wall 2: Pre-commit hook
-3. Wall 3: GitHub Actions deploy gate
-4. Sync script: UPSERT instead of INSERT
-5. Empty content guard
-6. Path doubling auto-fix
-7. Language filter for YouTube
-8. Writer URL restriction
-9. Meta description enforcement
-
----
-
-## Previous Session (Feb 8 - Phase 2: Self-Healing Validation Pipeline Complete)
-
-### Multi-Agent Parallel Execution
-- Spawned 3 agents simultaneously (A, B, C)
-- Agent A: Built Wall 1 in ~4 minutes
-- Agent B: Built Wall 2 in ~5.5 minutes
-- Agent C: Built Wall 3 in ~6 minutes
-- Total: ~6 minutes (60% faster than sequential)
-
-### Wall 1: Self-Healing Content Validator
-- Auto-fixes 10 types of issues BEFORE file write
-- Blocks unfixable issues (template variables, invalid JSON-LD)
-- Integrated into blog generation pipeline
-- Logging: logs/validation_YYYY-MM-DD.log (30-day rotation)
-
-### Wall 2: Pre-Commit Validation Gate
-- Blocks commits with critical HTML/SEO issues
-- Fast execution (< 2 seconds for staged files)
-- Clear error messages with line numbers
-
-### Wall 3: GitHub Actions Safety Net
-- Deployment gate + weekly health check workflows
-- Auto-creates GitHub Issues on failures
+- 22 meta descriptions rewritten (120-160 chars with keywords)
+- Jinja2 autoescaping fix (HTML entities in titles/descriptions)
+- MailerLite 7-day drip + newsletter groups wired
+- All 3 forms (starter plan, newsletter, feedback) routed through Cloudflare Worker
+- archive.html template fixed (skip-nav + JSON-LD added to source template)
 
 ---
 
 ## Current Status: PRODUCTION - FULLY OPERATIONAL
 
 **All Features Working:**
-- Calculator: Full flow + personalized reports + payment processing + conversion optimization
-- Calculator Analytics: GA4 tracking with 5 conversion events
-- Calculator Build: Post-build automation for reference updates
-- Payment: CORS headers correct, Stripe integration active, test999 coupon verified
-- Payment UX: Proper scroll behavior after redirect and success flow
-- PDF Generation: Clean output (no version text)
-- Homepage: Chloe's roundup, top videos, hero section, editorial commentary
-- Channels: Toggle functionality, featured creators, 70 videos loaded
-- Blog: Post reactions JS, related content JS, feedback modal, WCAG compliant colors
-- Blog Index: Data-driven (Jinja2), magazine layout, author/category filters
-- Blog Validation: 3-wall system (Wall 1: 95% auto-fix, Wall 2: pre-commit, Wall 3: GitHub Actions)
-- Blog Content: 58 published posts, 0 cross-link errors, all 1,000+ words
-- Blog Template: Revenue scripts (calculator-cta.js, newsletter-inject.js) included (Feb 9)
-- Blog References: Amazon affiliate links for books, PubMed for studies (Feb 9)
-- Internal Linking: 2-5 links per post, cross-writer references
-- Related Content Component: Fixed and working on all posts
-- RSS Feed: W3C valid, full content, auto-generated
-- Mobile: Navigation and layouts fixed (including calculator protein table)
-- Template System: Source of truth established, hardcoded content removed (Feb 9)
-- Supabase Caching: Videos cached, resilient to API failures
-- Newsletter: Connected to database, subscribers saving
-- Weekly Automation: 9-step pipeline operational with UPSERT + language filter + path fix
-- Deployment Pipeline: Verified working with /version endpoint
-- Accessibility: WCAG 2.1 AA color contrast validated
-- GEO: COMPLETE - All major pages have structured data + sameAs links
-- Analytics Tracking: Internal links, scroll depth, outbound clicks, wiki searches
-- Analytics Reports: 4 reports with "show reports" trigger
-- SEO: 68 URLs in sitemap, all URLs validated (200 OK), 11 priority URLs submitted for indexing
-- Writer Agents: 3 active (Sarah, Chloe, Marcus) connected to Supabase memory
+- Calculator: Full flow + Stripe $29 + PDF + conversion tracking
+- Blog: 70 published posts, 3-wall validation, daily-publish cron active
+- Email: MailerLite 7-day drip + newsletter groups, Worker proxy
+- Feedback: Worker → Supabase content_feedback
+- GSC Tooling: gsc-report.js + gsc-request-indexing.js
+- Etsy: 14 active listings, API scripted
+- Supabase: MCP connected, 30+ tables, keep-alive active
+- Weekly Automation: run_weekly_update.sh (Sun + Wed midnight UTC)
+- Homepage Video Section: cotw.json is authoritative, Shorts filtered
 
 ---
 
-## Next Session Priorities (Updated Feb 16)
+## Next Session Priorities (Updated 2026-03-06)
 
-**Phase: GROWTH — Clean baseline achieved, focus on traffic and revenue.**
+**Phase: GROWTH — Traffic building, CTR optimization, content scaling.**
 
-1. **Email deliverability** — DKIM/SPF/DMARC for carnivoreweekly.com (emails hitting spam)
-2. **Google Search Console review** — SEO cooldown ends ~Feb 17. Check indexing, impressions, page 2 rankings
-3. **GA4 funnel analysis** — Calculator views → Step 3 → upgrade clicks → Stripe completions
-4. **Implement top SEO audit findings** — Remove pricing modal, add email capture on calculator Step 3, BreadcrumbList schema
-5. **Scale content** — Next batch of 5-10 SEO-targeted posts using locked-down pipeline
-6. **Boost starter-plan traffic** — Only 18 views in 7 days, needs promotion strategy
+1. **Confirm GSC 404s cleared** — Re-crawl expected 24-72h; check GSC after
+2. **Confirm 12 March posts indexed** — Submitted 2026-03-06; check GSC in 24-48h
+3. **Email deliverability** — DKIM/SPF/DMARC for carnivoreweekly.com (top priority, emails hitting spam)
+4. **Monitor CTR improvements** — Adaptation timeline post (1,590 imp / 0 clicks before fix)
+5. **Chloe weekend roundup cross-promo** — Casual mention of Marcus's air fryer post
+6. **Starter Kit roundup hub page** — First spoke of affiliate content strategy
+7. **Rotate Supabase service role key** — Still outstanding from Feb security flag
 
 ---
 
-## Summary
-
-**System Status:** PRODUCTION - FULLY OPERATIONAL (clean baseline)
-
-**Validation:** 0 critical errors, 0 warnings. Clean baseline achieved Feb 16.
-**Pipeline:** Blog pipeline locked down in CLAUDE.md — mandatory 7-step process, no exceptions.
-**Guardrails:** 8 automated gates in validator (future dates, fragments, Jinja2 detection, orphan detection, baselines, etc.)
-**Baselines:** Sitemap 68, RSS 51, posts 58, 9 main pages — all enforced.
-**Supabase:** Active, 3 writers, 56 memories, fallback chain intact.
-**Stripe:** $9.99 paid flow tested and working. TEST999 coupon verified.
-**Blog:** 58 published posts, all 1,000+ words, all rendering cleanly.
-
-**Current Focus:** Newsletter sending mechanism, email deliverability, content scaling.
-**Blog Automation:** Daily publish cron ACTIVE (9 AM EST). Weekly prompt template ready.
-**Content cadence:** 9 posts/week (3 per writer), published one per day automatically.
-**Phase:** GROWTH — Email deliverability → organic discovery → content scaling.
-**Email System:** MailerLite (replaced N8N + Resend). 7-day drip + newsletter groups. All forms via Cloudflare Worker.
-**Feedback Form:** LIVE via Worker → Supabase content_feedback table.
-
-**Latest Log:** `/Users/mbrew/Documents/Brew-Vault/07-Daily/2026/02/2026-02-23.md`
+**Latest Obsidian Log:** `/Users/mbrew/Documents/Brew-Vault/07-Daily/2026/03/2026-03-06.md`

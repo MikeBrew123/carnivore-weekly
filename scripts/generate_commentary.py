@@ -226,6 +226,7 @@ def get_top_6_videos(data):
     # Filter shorts — require minimum 5 minutes (300 seconds)
     # Videos with duration_seconds=0 are unknown length; filter those too if title looks like a Short
     pre_dur = len(all_videos)
+
     def _is_short(v):
         dur = v.get("duration_seconds", 0)
         if dur > 0 and dur < 300:
