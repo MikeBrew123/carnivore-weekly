@@ -1,86 +1,96 @@
 {
-  "generated_date": "2026-03-09",
-  "community_pulse": "The community is splitting between newcomers questioning initial weight gain and mental clarity versus long-term carnivores troubleshooting specific health issues (SIBO, histamine sensitivity, digestive concerns). There's also renewed interest in meal simplicity\u2014ground beef with eggs is dominating engagement this week.",
+  "generated_date": "2026-03-12",
+  "community_pulse": "The carnivore community is split between chasing viral transformation content and grappling with real sustainability issues\u2014weight loss plateaus, cholesterol concerns, and budget constraints are dominating practical conversations while mega-creators capture massive views with lifestyle content.",
   "topics": [
     {
       "rank": 1,
-      "title": "The 2-Week Weight Gain Phase: Why You Might Gain Before You Lose on Carnivore",
-      "angle": "Address the specific anxiety newcomers are experiencing around initial weight gain while experiencing mental clarity\u2014normalize it as a real phenomenon with metabolic explanation, not failure",
-      "why_now": "Multiple posts this week from people 2-4 weeks in reporting weight gain despite feeling mentally better; they're panicked and need reassurance with science",
+      "title": "Why Your Carnivore Weight Loss Stopped (And It's Not What You Think)",
+      "angle": "Move beyond calorie counting\u2014explore metabolic adaptation, electrolyte imbalances, and hidden carb sources that actually stall progress on carnivore specifically",
+      "why_now": "Weight loss plateau is trending on YouTube this week; people are actively searching for answers mid-journey",
       "suggested_writer": "sarah",
-      "priority": "high"
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-03-15"
     },
     {
       "rank": 2,
-      "title": "Ground Meat + Eggs: The Unglamorous Meal Stack That Actually Works (And Why)",
-      "angle": "Celebrate the 'boring' staple that's getting 71+ upvotes\u2014analyze why ground beef and eggs dominate real-world adherence, macros, and simplicity over Instagram-worthy steaks",
-      "why_now": "This exact combo appeared in multiple top posts this week; the community is signaling this works better than premium options",
-      "suggested_writer": "marcus",
-      "priority": "high"
+      "title": "The Cholesterol Question Nobody's Answering: LDL on Carnivore (What the Data Actually Shows)",
+      "angle": "Cut through the fear-mongering\u2014present the nuanced research on LDL particle size, apoB, and why total cholesterol numbers alone miss the full picture for carnivores",
+      "why_now": "Cholesterol and LDL concerns are a trending search; new people are scared, existing practitioners are confused",
+      "suggested_writer": "sarah",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-03-17"
     },
     {
       "rank": 3,
-      "title": "Carnivore for SIBO and IBS-C: What the Community is Actually Trying (When Antibiotics Failed)",
-      "angle": "Deep dive into the specific protocols people mention in the SIBO/IBS-C post\u2014strict lion diet variations, histamine management, white oak pastures sourcing; interview real users from that thread",
-      "why_now": "SIBO/IBS-C thread has 17 comments of active troubleshooting; this is a pain point with few resources",
-      "suggested_writer": "chloe",
-      "priority": "high"
+      "title": "Ground Beef Nation: 7 High-Volume, Low-Cost Carnivore Meals Under $3/Serving",
+      "angle": "Stop pretending carnivore has to be expensive\u2014practical recipes and sourcing strategies for people eating on a real budget without sacrificing nutrition",
+      "why_now": "Budget ground beef meals are trending; shows interest in making carnivore accessible and sustainable long-term",
+      "suggested_writer": "marcus",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-03-19"
     },
     {
       "rank": 4,
-      "title": "Wagyu vs. 73/27 Ground Beef: The $$ Test Nobody Wanted to Admit",
-      "angle": "Lean into the practical finding that ground wagyu \u2260 dramatically better results; cost-benefit analysis for budget-conscious carnivores and the psychology of premium meat purchases",
-      "why_now": "Top post this week; directly challenges the premium-meat narrative dominating carnivore spaces",
-      "suggested_writer": "marcus",
-      "priority": "medium"
+      "title": "The Viral Transformation Trap: Why Those 'Before & Afters' Might Not Tell You the Whole Story",
+      "angle": "Real talk on consumption of viral carnivore content\u2014what gets hidden in transformation videos, realistic timelines, and how to spot greenwashing in the carnivore space",
+      "why_now": "This week's mega-viral content (4M+ views) is driving inflated expectations; community needs grounding in reality",
+      "suggested_writer": "chloe",
+      "priority": "high",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-03-21"
     },
     {
       "rank": 5,
-      "title": "Histamine Sensitivity on Carnivore: Navigating Ground Meat Without the Reactions",
-      "angle": "Practical sourcing guide (white oak pastures, freshness protocols, grinding at home) for the 44-comment thread asking for solutions\u2014fill an actual resource gap",
-      "why_now": "44 comments on ground meat histamine sensitivity; community actively seeking solutions with limited guidance",
+      "title": "Carnivore Meal Prep Hacks: 3-Hour Sunday Strategy for Busy Professionals",
+      "angle": "Structured system for batch cooking that works specifically for carnivore (storage, reheating, variety without complexity)",
+      "why_now": "Meal prep is trending as people look for sustainability and structure; practical content complements the viral excitement",
       "suggested_writer": "marcus",
-      "priority": "medium"
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-03-23"
     },
     {
       "rank": 6,
-      "title": "The Water Intake Nobody's Talking About: Hydration Mistakes on Carnivore",
-      "angle": "Expand on the single water intake post\u2014connect it to the sluggishness/fatigue complaints in the 'Fat Thirst' thread; provide actual hydration math for carnivores",
-      "why_now": "Rare discussion point this week; connects to multiple unexplained fatigue complaints",
-      "suggested_writer": "sarah",
-      "priority": "medium"
+      "title": "The Beginner's Honest First 30 Days: What Actually Happens (Not the Highlight Reel)",
+      "angle": "Raw breakdown of adaptation period\u2014the fatigue, cravings, digestion weirdness, and mental fog people don't talk about before the 'glow-up' starts",
+      "why_now": "Beginner guides are trending; new audience needs realistic expectations, not just inspirational stories",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-03-25"
     },
     {
       "rank": 7,
-      "title": "Dental Health Transformation: Why Your Dentist Is Amazed (And What You're Actually Doing Right)",
-      "angle": "Validate the dental cleaning post (31 upvotes); explain the mechanism\u2014reduced inflammation, no sugar feeding pathogens, changes in oral microbiome",
-      "why_now": "Community is collectively noticing this benefit; positive result worth exploring scientifically",
-      "suggested_writer": "sarah",
-      "priority": "medium"
+      "title": "Dr. Chaffee vs. The YouTube Algorithm: Why Quiet Science Outperforms Viral Drama Long-Term",
+      "angle": "Media analysis on the two-tier content ecosystem in carnivore\u2014what creators like Dr. Chaffee and Dr. Berry are building vs. what goes viral and why it matters",
+      "why_now": "Clear contrast between viral mega-content and steady educational creators this week; timely to discuss strategy and trust",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-03-27"
     },
     {
       "rank": 8,
-      "title": "Eating Carnivore When You're Healing: The Soft Diet Carnivore Approach (Without Soup)",
-      "angle": "Practical solutions for the mouth injury post\u2014ground meat textures, bone marrow, liverwurst, broth-free options that maintain muscle while healing",
-      "why_now": "Specific constraint post with 24 comments; under-resourced niche within carnivore",
+      "title": "Carnivore Performance for Athletes: Beyond Weight Loss (Strength, Endurance, Recovery)",
+      "angle": "Shift from transformation metrics to actual performance gains\u2014data on VO2 max, strength retention, and recovery speed for carnivore athletes",
+      "why_now": "Performance-focused creators (Core Instinct, iRick Wiggins) gaining traction; audience interested in carnivore beyond aesthetics",
       "suggested_writer": "marcus",
-      "priority": "medium"
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-03-29"
     },
     {
       "rank": 9,
-      "title": "Social Survival Guide: How to Eat Strict Carnivore Without Becoming 'That Person'",
-      "angle": "Lean into the 32-upvote post about social friction; real-world scripts, boundary-setting, and the psychology of why explaining 'just meat' creates resistance",
-      "why_now": "Social pressure is driving people offline; community-voiced concern with real conversation in comments",
-      "suggested_writer": "chloe",
-      "priority": "medium"
-    },
-    {
-      "rank": 10,
-      "title": "Carnivore for Muscle Building Without Carbs: What the Gym Crowd Isn't Understanding",
-      "angle": "Address the 'do I need carbs for gains?' debate directly\u2014research on protein timing, creatine, ammonia recycling, and real lifter results WITHOUT carbs",
-      "why_now": "Multiple posts this week from lifters surprised their performance is good without carbs; anti-carb gym gains narrative gaining traction",
+      "title": "Electrolytes on Carnivore: The Supplement You're Probably Dosing Wrong",
+      "angle": "Specific carnivore electrolyte protocol tied to common plateau and adaptation issues\u2014sodium, potassium, magnesium ratios that actually work",
+      "why_now": "Supports weight loss plateau and beginner guides trending; practical intervention people are searching for",
       "suggested_writer": "sarah",
-      "priority": "medium"
+      "priority": "medium",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-03-31"
     }
   ]
 }

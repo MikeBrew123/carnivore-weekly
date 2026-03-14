@@ -17,7 +17,7 @@ import sys
 import time
 import urllib.request
 import urllib.error
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent
@@ -225,7 +225,38 @@ def generate_weekly_topics():
         print(f"   ❌ Claude call failed: {e}")
         return False
 
-    # Step 5: Save
+    # Step 5: Assign writers and publish dates
+    # Marcus checked first so "performance/athletes" beats Sarah's "weight loss" keyword
+    WRITER_KEYWORDS = {
+        "marcus": ["performance", "athletes", "strength", "training", "workout", "protocol",
+                   "meal prep", "budget", "cost", "fasting", "muscle", "endurance"],
+        "sarah": ["weight loss", "cholesterol", "health", "medical", "women", "hormones",
+                  "thyroid", "gut", "electrolytes", "inflammation", "sleep", "skin",
+                  "autoimmune", "nutrition"],
+        "chloe": ["community", "beginner", "social", "viral", "media", "trending", "reddit",
+                  "transformation", "first 30 days", "lifestyle", "travel", "tips", "hacks",
+                  "content creator"],
+    }
+    RANK_CYCLE = {1: "sarah", 2: "sarah", 3: "sarah",
+                  4: "marcus", 5: "marcus", 6: "marcus",
+                  7: "chloe", 8: "chloe", 9: "chloe"}
+
+    tomorrow = datetime.now().date() + timedelta(days=1)
+
+    for i, topic in enumerate(result.get("topics", [])):
+        text = (topic.get("title", "") + " " + topic.get("angle", "")).lower()
+        assigned = None
+        for writer, keywords in WRITER_KEYWORDS.items():
+            if any(kw in text for kw in keywords):
+                assigned = writer
+                break
+        if assigned is None:
+            rank = topic.get("rank", i + 1)
+            assigned = RANK_CYCLE.get(rank, ["sarah", "marcus", "chloe"][i % 3])
+        topic["assigned_writer"] = assigned
+        topic["publish_date"] = (tomorrow + timedelta(days=i * 2)).isoformat()
+
+    # Step 6: Save
     OUTPUT_FILE.write_text(json.dumps(result, indent=2))
 
     print(f"\n✅ {len(result.get('topics', []))} topics generated")
