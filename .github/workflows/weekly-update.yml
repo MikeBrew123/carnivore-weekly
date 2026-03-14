@@ -1,26 +1,51 @@
-name: Weekly YouTube Data Collection
+name: Weekly Carnivore Site Refresh
+
 on:
   schedule:
     - cron: '0 0 * * 0'  # Every Sunday at midnight UTC
     - cron: '0 0 * * 3'  # Every Wednesday at midnight UTC
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch:
+
 jobs:
-    run:
-      runs-on: ubuntu-latest
-      steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install google-api-python-client python-dotenv anthropic jinja2 requests
-      - run: echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" >> .env
-      - run: echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
-      - run: chmod +x scripts/run_weekly_update.sh && ./scripts/run_weekly_update.sh
-      - run: |
+
+      - name: Install dependencies
+        run: pip install anthropic requests google-api-python-client jinja2
+
+      - name: Write .env
+        run: |
+          echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" >> .env
+          echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
+
+      - name: Decode GA4 credentials
+        run: echo "${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}" | base64 -d > dashboard/ga4-credentials.json
+
+      - name: Generate weekly topics (Chloe research)
+        run: python3 scripts/generate_weekly_topics.py
+
+      - name: Generate site report email
+        continue-on-error: true
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python3 scripts/generate_site_report.py
+
+      - name: Commit weekly_topics.json if changed
+        run: |
           git config user.email "bot@carnivoreweekly.com"
           git config user.name "Carnivore Weekly Bot"
-          git add data/youtube_data.json
-          git diff --quiet && git diff --staged --quiet || (
-            git commit -m "auto: update YouTube data (weekly collection - $(date -u +'%Y-%m-%d'))"
+          git add data/weekly_topics.json
+          git diff --staged --quiet || (
+            git commit -m "auto: weekly topics refresh ($(date -u +'%Y-%m-%d'))"
             git push
           )
