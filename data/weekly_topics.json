@@ -1,96 +1,106 @@
 {
-  "generated_date": "2026-03-12",
-  "community_pulse": "The carnivore community is split between chasing viral transformation content and grappling with real sustainability issues\u2014weight loss plateaus, cholesterol concerns, and budget constraints are dominating practical conversations while mega-creators capture massive views with lifestyle content.",
+  "generated_date": "2026-03-17",
+  "community_pulse": "The carnivore community is split between chasing viral transformation content and grappling with real obstacles: weight loss plateaus, cholesterol concerns, and budget sustainability. Educational creators are quietly building trust while viral moments dominate views.",
   "topics": [
     {
       "rank": 1,
       "title": "Why Your Carnivore Weight Loss Stopped (And It's Not What You Think)",
-      "angle": "Move beyond calorie counting\u2014explore metabolic adaptation, electrolyte imbalances, and hidden carb sources that actually stall progress on carnivore specifically",
-      "why_now": "Weight loss plateau is trending on YouTube this week; people are actively searching for answers mid-journey",
+      "angle": "Move past 'eat less meat' advice\u2014break down hormonal adaptation, electrolyte depletion, and meal timing as actual plateau triggers with diagnostic self-tests",
+      "why_now": "Weight loss plateau is #2 trending topic; people are searching for real answers, not generic 'just wait' responses",
       "suggested_writer": "sarah",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-03-15"
+      "publish_date": "2026-03-18"
     },
     {
       "rank": 2,
-      "title": "The Cholesterol Question Nobody's Answering: LDL on Carnivore (What the Data Actually Shows)",
-      "angle": "Cut through the fear-mongering\u2014present the nuanced research on LDL particle size, apoB, and why total cholesterol numbers alone miss the full picture for carnivores",
-      "why_now": "Cholesterol and LDL concerns are a trending search; new people are scared, existing practitioners are confused",
+      "title": "The LDL Conversation Nobody's Having: What Carnivore Doctors Actually Disagree On",
+      "angle": "Honest breakdown of why Dr. Chaffee and Dr. Berry approach cholesterol differently on carnivore\u2014pattern recognition vs. particle size vs. inflammation markers",
+      "why_now": "Cholesterol concerns are trending; community needs nuance instead of 'don't worry about it' or 'you're doomed'",
       "suggested_writer": "sarah",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-03-17"
+      "publish_date": "2026-03-20"
     },
     {
       "rank": 3,
-      "title": "Ground Beef Nation: 7 High-Volume, Low-Cost Carnivore Meals Under $3/Serving",
-      "angle": "Stop pretending carnivore has to be expensive\u2014practical recipes and sourcing strategies for people eating on a real budget without sacrificing nutrition",
-      "why_now": "Budget ground beef meals are trending; shows interest in making carnivore accessible and sustainable long-term",
+      "title": "Ground Beef Doesn't Have to Be Boring: 5 Flavor Hacks That Cost Under $2/Serving",
+      "angle": "Budget meal prep angle\u2014salt layering, fat ratios, temperature control, and shopping timing that turns cheap ground beef into craveable meals",
+      "why_now": "Ground beef budget meals trending; Marcus's lane for practical, cost-conscious execution",
       "suggested_writer": "marcus",
       "priority": "high",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-03-19"
+      "assigned_writer": "marcus",
+      "publish_date": "2026-03-22"
     },
     {
       "rank": 4,
-      "title": "The Viral Transformation Trap: Why Those 'Before & Afters' Might Not Tell You the Whole Story",
-      "angle": "Real talk on consumption of viral carnivore content\u2014what gets hidden in transformation videos, realistic timelines, and how to spot greenwashing in the carnivore space",
-      "why_now": "This week's mega-viral content (4M+ views) is driving inflated expectations; community needs grounding in reality",
-      "suggested_writer": "chloe",
-      "priority": "high",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-03-21"
+      "title": "The Sunday Prep That Actually Sticks: How to Batch Cook Meat Without the Burnout",
+      "angle": "Meal prep is trending but most guides are generic; focus on psychology of sustainability\u2014portion sizes that don't feel restrictive, storage mistakes people make, reheating science",
+      "why_now": "Meal prep in top 5 trending; people searching but likely struggling with execution",
+      "suggested_writer": "marcus",
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-03-24"
     },
     {
       "rank": 5,
-      "title": "Carnivore Meal Prep Hacks: 3-Hour Sunday Strategy for Busy Professionals",
-      "angle": "Structured system for batch cooking that works specifically for carnivore (storage, reheating, variety without complexity)",
-      "why_now": "Meal prep is trending as people look for sustainability and structure; practical content complements the viral excitement",
-      "suggested_writer": "marcus",
-      "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-03-23"
+      "title": "I Watched 'The Story' Go Viral (4M+ Views). Here's What the Carnivore Community Actually Got Wrong About It",
+      "angle": "Real-talk analysis of viral transformation content\u2014what's reproducible, what's genetics, what's editing, what creates unrealistic expectations in beginners",
+      "why_now": "THE STORY dominated with 4M+ views this week; cultural moment to discuss parasocial dynamics and viral content literacy",
+      "suggested_writer": "chloe",
+      "priority": "high",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-03-26"
     },
     {
       "rank": 6,
-      "title": "The Beginner's Honest First 30 Days: What Actually Happens (Not the Highlight Reel)",
-      "angle": "Raw breakdown of adaptation period\u2014the fatigue, cravings, digestion weirdness, and mental fog people don't talk about before the 'glow-up' starts",
-      "why_now": "Beginner guides are trending; new audience needs realistic expectations, not just inspirational stories",
+      "title": "Your First 30 Days as a Carnivore Beginner: The Honest Timeline (Not the Highlight Reel)",
+      "angle": "Beginners trending; show actual progression\u2014adaptation period sucks, energy dips before it rises, digestion gets weird, social situations are awkward. Normalize the messy middle",
+      "why_now": "Beginner guide is #2 trending topic; opportunity to own the real-talk lane vs. Instagram enthusiasm",
       "suggested_writer": "chloe",
-      "priority": "medium",
+      "priority": "high",
       "assigned_writer": "chloe",
-      "publish_date": "2026-03-25"
+      "publish_date": "2026-03-28"
     },
     {
       "rank": 7,
-      "title": "Dr. Chaffee vs. The YouTube Algorithm: Why Quiet Science Outperforms Viral Drama Long-Term",
-      "angle": "Media analysis on the two-tier content ecosystem in carnivore\u2014what creators like Dr. Chaffee and Dr. Berry are building vs. what goes viral and why it matters",
-      "why_now": "Clear contrast between viral mega-content and steady educational creators this week; timely to discuss strategy and trust",
+      "title": "Why Dr. Chaffee and Dr. Berry Aren't 'Quiet'\u2014They're Just Playing a Different Game",
+      "angle": "Contrast between viral creators and educational content builders; explore how trust compounds over time, why consistency beats virality, what makes educational content stick",
+      "why_now": "Weekly summary explicitly called out the split between viral and educational; timely to decode that tension",
       "suggested_writer": "chloe",
       "priority": "medium",
       "assigned_writer": "chloe",
-      "publish_date": "2026-03-27"
+      "publish_date": "2026-03-30"
     },
     {
       "rank": 8,
-      "title": "Carnivore Performance for Athletes: Beyond Weight Loss (Strength, Endurance, Recovery)",
-      "angle": "Shift from transformation metrics to actual performance gains\u2014data on VO2 max, strength retention, and recovery speed for carnivore athletes",
-      "why_now": "Performance-focused creators (Core Instinct, iRick Wiggins) gaining traction; audience interested in carnivore beyond aesthetics",
-      "suggested_writer": "marcus",
-      "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-03-29"
-    },
-    {
-      "rank": 9,
-      "title": "Electrolytes on Carnivore: The Supplement You're Probably Dosing Wrong",
-      "angle": "Specific carnivore electrolyte protocol tied to common plateau and adaptation issues\u2014sodium, potassium, magnesium ratios that actually work",
-      "why_now": "Supports weight loss plateau and beginner guides trending; practical intervention people are searching for",
+      "title": "Cholesterol on Carnivore: The Research Sarah Chaffee and Paul Saladino Actually Cite (Decoded)",
+      "angle": "Deep research dive into the actual studies these creators reference\u2014what the papers say vs. how they're interpreted, where evidence is strong vs. preliminary",
+      "why_now": "Cholesterol concerns are trending AND Dr. Chaffee is mentioned in weekly summary; research-backed authority play",
       "suggested_writer": "sarah",
       "priority": "medium",
       "assigned_writer": "sarah",
-      "publish_date": "2026-03-31"
+      "publish_date": "2026-04-01"
+    },
+    {
+      "rank": 9,
+      "title": "The Budget Carnivore Trap: Why Cheap Meat Doesn't Always Mean Cheap Health Outcomes",
+      "angle": "Ground beef budget meals trending but need nuance\u2014CAFO vs. pasture trade-offs on budget, organ meat ROI, when to splurge, grass-fed cost-benefit for beginners",
+      "why_now": "Budget meals trending; sophisticated angle on value vs. cost that beginners need",
+      "suggested_writer": "marcus",
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-04-03"
+    },
+    {
+      "rank": 10,
+      "title": "Carnivore Creators You Should Actually Be Learning From (And Why)",
+      "angle": "Curation piece on the difference between influencers and educators; rubric for evaluating creator credibility, what questions to ask, how to spot cherry-picked results",
+      "why_now": "Viral content is dominating but community needs media literacy; meta-moment to address signal vs. noise",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-04-05"
     }
   ]
 }
