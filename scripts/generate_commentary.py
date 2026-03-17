@@ -8,7 +8,7 @@ Uses writer memory from Supabase and local context for cross-referencing.
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from anthropic import Anthropic
@@ -26,6 +26,8 @@ client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 # Project paths
 YOUTUBE_DATA_PATH = PROJECT_ROOT / "data" / "youtube_data.json"
 OUTPUT_PATH = PROJECT_ROOT / "data" / "content-of-the-week.json"
+SEEN_IDS_PATH = PROJECT_ROOT / "data" / "seen_video_ids.json"
+SEEN_IDS_MAX_AGE_DAYS = 28  # Forget videos older than this so they can resurface eventually
 
 # Video selection — editorial model requires community signal
 MIN_COMMENTS_FOR_SELECTION = 5
@@ -179,6 +181,34 @@ def store_commentary_memory(writer_name, video_title, commentary):
         print(f"   ⚠ Could not store memory for {writer_name}: {e}")
 
 
+def load_seen_video_ids():
+    """Load previously featured video IDs, pruning entries older than SEEN_IDS_MAX_AGE_DAYS."""
+    if not SEEN_IDS_PATH.exists():
+        return set()
+    try:
+        data = json.loads(SEEN_IDS_PATH.read_text())
+        cutoff = (datetime.now() - timedelta(days=SEEN_IDS_MAX_AGE_DAYS)).strftime("%Y-%m-%d")
+        return {entry["video_id"] for entry in data if entry.get("featured_on", "") >= cutoff}
+    except Exception:
+        return set()
+
+
+def save_seen_video_ids(newly_featured):
+    """Append newly featured video IDs to the seen log."""
+    existing = []
+    if SEEN_IDS_PATH.exists():
+        try:
+            existing = json.loads(SEEN_IDS_PATH.read_text())
+        except Exception:
+            existing = []
+    today = datetime.now().strftime("%Y-%m-%d")
+    existing_ids = {e["video_id"] for e in existing}
+    for video_id in newly_featured:
+        if video_id not in existing_ids:
+            existing.append({"video_id": video_id, "featured_on": today})
+    SEEN_IDS_PATH.write_text(json.dumps(existing, indent=2))
+
+
 def load_youtube_data():
     """Load current YouTube data"""
     with open(YOUTUBE_DATA_PATH, "r") as f:
@@ -222,6 +252,13 @@ def get_top_6_videos(data):
     all_videos = [v for v in all_videos if not is_blocked_channel(v["creator"])[0]]
     if len(all_videos) < pre_filter:
         print(f"   ✗ Filtered {pre_filter - len(all_videos)} videos from blocklisted channels")
+
+    # Filter out previously featured videos
+    seen_ids = load_seen_video_ids()
+    pre_seen = len(all_videos)
+    all_videos = [v for v in all_videos if v["video_id"] not in seen_ids]
+    if len(all_videos) < pre_seen:
+        print(f"   ✗ Filtered {pre_seen - len(all_videos)} already-featured videos")
 
     # Filter shorts — require minimum 5 minutes (300 seconds)
     # Videos with duration_seconds=0 are unknown length; filter those too if title looks like a Short
@@ -519,6 +556,8 @@ def main():
     with open(OUTPUT_PATH, "w") as f:
         json.dump(output, f, indent=2)
 
+    # Record featured video IDs so they won't repeat next run
+    save_seen_video_ids([v["video_id"] for v in featured_videos])
     print(f"   ✓ Saved to {OUTPUT_PATH}")
     print("")
 
