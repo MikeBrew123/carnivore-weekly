@@ -6,6 +6,9 @@ on:
     - cron: '0 0 * * 3'  # Every Wednesday at midnight UTC
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
