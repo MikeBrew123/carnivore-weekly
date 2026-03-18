@@ -1,106 +1,96 @@
 {
-  "generated_date": "2026-03-17",
-  "community_pulse": "The carnivore community is shifting from weight loss hype to deeper nutritional conversations around organ meats, electrolytes, and debunking mainstream diet myths. Smaller creators are gaining serious traction by offering practical, nuanced content rather than recycled talking points.",
+  "generated_date": "2026-03-18",
+  "community_pulse": "Sleep optimization and cortisol management are dominating carnivore conversations this week, with viewers hungry for concrete protocols. Simultaneously, weight loss plateaus and electrolyte imbalances are creating frustration, while beginners are flooding in looking for clear starting points.",
   "topics": [
     {
       "rank": 1,
-      "title": "The Organ Meat Hierarchy: Which Offal Actually Matters Most (and Why)",
-      "angle": "Move beyond 'eat liver' advice \u2014 breakdown the micronutrient profiles of 6 organ meats, ranked by bioavailability and real deficiency prevention, not just marketing",
-      "why_now": "Organ meats are trending hard on YouTube this week; people want specifics, not generic supplementation talk",
+      "title": "The Cortisol-Carnivore Sleep Myth: What Actually Works (And What Doesn't)",
+      "angle": "Debunk the viral 'one teaspoon' claims while offering 3-4 evidence-based carnivore sleep interventions that actually move cortisol metrics",
+      "why_now": "Steak and Butter Gal's 1.3M view video is spreading misinformation; community needs reality check before people waste money on supplements",
       "suggested_writer": "sarah",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-03-18"
+      "publish_date": "2026-03-19"
     },
     {
       "rank": 2,
-      "title": "Why Weight Loss Plateaus on Carnivore (Hint: It's Not What Dr. Berry Said)",
-      "angle": "Counter the 'weight loss myths' narrative flooding YouTube by offering contrarian takes \u2014 sometimes plateaus aren't myths, they're metabolic adaptation signals people ignore",
-      "why_now": "Dr. Berry's Q&A on weight loss lies is massive; audiences are primed for a deeper rebuttal",
-      "suggested_writer": "chloe",
+      "title": "Electrolytes for Carnivores: Why Your Sodium Isn't Enough (And How Much You Actually Need)",
+      "angle": "Move beyond 'just add salt' \u2014 break down potassium, magnesium, calcium ratios specific to carnivore metabolism and address why beginners crash",
+      "why_now": "Electrolytes trending alongside weight loss stalls; most beginners don't understand the carnivore-specific mineral depletion problem",
+      "suggested_writer": "sarah",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-03-20"
+      "publish_date": "2026-03-21"
     },
     {
       "rank": 3,
-      "title": "Electrolyte Math for Carnivores: Stop Guessing Your Sodium/Potassium Ratios",
-      "angle": "Electrolytes are trending but vague; provide actual daily targets for different activity levels, body weights, and climate conditions \u2014 actionable numbers, not theory",
-      "why_now": "Electrolytes are a top-4 trending topic this week; people are searching for real guidance",
+      "title": "Weight Loss Plateau at Week 6? Here's the Carnivore Troubleshooting Flowchart",
+      "angle": "Decision tree format: is it adaptation phase, electrolyte crash, hidden carbs, or metabolic adjustment? Different fixes for different causes",
+      "why_now": "Weight loss stalls trending; people are frustrated and need systematic debugging instead of 'just eat more fat' advice",
       "suggested_writer": "marcus",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-03-22"
+      "publish_date": "2026-03-23"
     },
     {
       "rank": 4,
-      "title": "How THE STORY Channel Hit 4M Views: What Smaller Carnivore Creators Are Doing Right",
-      "angle": "Meta take on what's actually resonating \u2014 interview or analyze why THE STORY's content beats big-name channels; what's the format/hook?",
-      "why_now": "THE STORY just exploded with 4M views; audiences are clearly hungry for a specific style of content we haven't identified yet",
-      "suggested_writer": "chloe",
+      "title": "Red Light Therapy + Carnivore: Does It Actually Stack or Is It Hype?",
+      "angle": "Honest take on whether red light therapy synergizes with carnivore (mitochondrial health angle) or if it's just another biohack that doesn't move the needle",
+      "why_now": "Red light therapy suddenly trending in carnivore spaces; community needs to know if it's worth buying or just noise",
+      "suggested_writer": "sarah",
       "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-03-24"
+      "assigned_writer": "sarah",
+      "publish_date": "2026-03-25"
     },
     {
       "rank": 5,
-      "title": "Carnivore for Athletes: Performance Metrics That Actually Matter (Not Just Weight)",
-      "angle": "Performance angle \u2014 VO2 max, power output, recovery time \u2014 for carnivores in sports; address the misconception that carnivore = weight loss only",
-      "why_now": "Performance and benefits are trending; most content focuses on body comp, not athletic gains",
-      "suggested_writer": "marcus",
+      "title": "Carnivore for Beginners: The First 30 Days\u2014What Actually Matters vs. What Doesn't",
+      "angle": "Cut through the noise for newbies: focus on the 5 things that matter (not 50 optimization tricks), realistic expectations, and how to know if you're doing it right",
+      "why_now": "Carnivore Beginners Guide trending; influx of new people being overwhelmed by optimization content meant for experienced carnivores",
+      "suggested_writer": "chloe",
       "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-03-26"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-03-27"
     },
     {
       "rank": 6,
-      "title": "The Carnivore Detox Myth: Why You're Not 'Detoxing,' You're Just Adjusting",
-      "angle": "Real-talk on detox narratives floating in communities \u2014 break down what's actually happening physiologically when people feel worse before better",
-      "why_now": "Related to the weight loss myths trend; people are questioning mainstream narratives and open to nuance",
-      "suggested_writer": "sarah",
-      "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-03-28"
+      "title": "Why Your Sleep Actually Got Worse on Carnivore (And How to Fix It)",
+      "angle": "Real-talk about the adaptation phase insomnia, detox sleep disruption, and the circadian shifts people don't talk about before they fix cortisol",
+      "why_now": "Sleep trending but most content glosses over why it gets worse before it gets better\u2014people need to know this is normal",
+      "suggested_writer": "chloe",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-03-29"
     },
     {
       "rank": 7,
-      "title": "Budget Carnivore: Where Organ Meats Fit Into the Real Cost Conversation",
-      "angle": "Organ meats are trending but expensive perception; breakdown actual costs, where to source cheap, how they fit into tight budgets",
-      "why_now": "Organ meats are hot right now; practical cost angle is underserved in YouTube content",
+      "title": "Sodium Isn't the Enemy: How Carnivores Got the Salt Game Right (When Everyone Else Got It Wrong)",
+      "angle": "Reclaim the salt narrative\u2014show data on why carnivores actually need MORE sodium, not less, and demolish the 'salt kills' dogma for this population",
+      "why_now": "Electrolytes and sodium balance trending; confusion between general population salt guidelines and carnivore-specific needs",
       "suggested_writer": "marcus",
       "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-03-30"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-03-31"
     },
     {
       "rank": 8,
-      "title": "iRick Wiggins' Rise: What His Steady Growth Says About Authentic Carnivore Content",
-      "angle": "Second meta piece \u2014 why consistent, unglamorous creators outpace viral hype; the anti-algorithm angle",
-      "why_now": "iRick is steadily climbing views; signals a shift in audience preferences away from sensationalism",
-      "suggested_writer": "chloe",
+      "title": "The Sleep Optimization Stack: Carnivore + Timing + Environment (What Actually Costs Money vs. Free Wins)",
+      "angle": "Actionable protocol: meal timing, temperature, light exposure, supplement timing\u2014ranked by ROI to help people prioritize",
+      "why_now": "Sleep optimization trending; Marcus can give a performance-focused framework for people who want to optimize but don't have unlimited budget",
+      "suggested_writer": "marcus",
       "priority": "medium",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-04-01"
+      "assigned_writer": "marcus",
+      "publish_date": "2026-04-02"
     },
     {
       "rank": 9,
-      "title": "Mineral Deficiencies Carnivores Actually Get (And How to Spot Them Early)",
-      "angle": "Move beyond generic 'electrolytes matter' \u2014 specific symptoms, bloodwork markers, and prevention for copper, zinc, iron, calcium on zero-plant diet",
-      "why_now": "Minerals/electrolytes are trending; deep deficiency guide fills content gap",
-      "suggested_writer": "sarah",
-      "priority": "medium",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-04-03"
-    },
-    {
-      "rank": 10,
-      "title": "The Carnivore Plateau Isn't a Problem \u2014 Here's Why You Should Stop Chasing Scale Weight",
-      "angle": "Lifestyle reframe \u2014 body composition vs. weight, NSVs, metabolic health markers that matter more than the number",
-      "why_now": "Weight loss myths being debunked heavily; flip it to a mindset piece for long-term sustainability",
+      "title": "Cortisol Isn't Your Real Problem (And Chasing It Might Be Making Things Worse)",
+      "angle": "Reframe the obsession: address why the carnivore community is fixated on cortisol metrics, what actually matters, and when cortisol focus is worth it vs. noise",
+      "why_now": "Cortisol trending heavily; opportunity to add nuance and help people stop chasing metrics that don't correlate with real outcomes",
       "suggested_writer": "chloe",
       "priority": "medium",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-04-05"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-04-04"
     }
   ]
 }
