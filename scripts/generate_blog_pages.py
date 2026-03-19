@@ -369,6 +369,27 @@ def update_sitemap(posts):
         # Add or update blog post URL
         url_data[url] = {"lastmod": lastmod, "changefreq": "monthly", "priority": "0.8"}
 
+    # Auto-discover orphan blog posts — HTML files on disk not in blog_posts.json
+    # This prevents sitemap gaps when HTML files exist outside the normal pipeline
+    blog_dir = PUBLIC_DIR / "blog"
+    BLOG_SITEMAP_EXCLUDE = {"index.html"}
+    if blog_dir.exists():
+        for html_file in sorted(blog_dir.glob("*.html")):
+            if html_file.name in BLOG_SITEMAP_EXCLUDE:
+                continue
+            candidate_url = f"https://carnivoreweekly.com/blog/{html_file.name}"
+            if candidate_url not in url_data:
+                try:
+                    content = html_file.read_text(encoding="utf-8", errors="ignore")[:2000]
+                    if "<head" not in content:
+                        continue
+                except Exception:
+                    continue
+                date_match = re.match(r"(\d{4}-\d{2}-\d{2})", html_file.name)
+                lastmod = date_match.group(1) if date_match else "2026-01-01"
+                url_data[candidate_url] = {"lastmod": lastmod, "changefreq": "monthly", "priority": "0.8"}
+                print(f"  ℹ️  Orphan blog post added to sitemap: {html_file.name}")
+
     # Create new sitemap XML with deduplicated URLs
     new_root = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
 
