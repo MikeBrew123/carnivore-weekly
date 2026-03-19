@@ -36,8 +36,24 @@ jobs:
           from pathlib import Path
           import xml.etree.ElementTree as ET
 
-          # Count HTML files
-          html_count = len(list(Path('public').rglob('*.html')))
+          # Count real indexable pages (exclude redirects, components, and embeds)
+          EXCLUDE_DIRS = {'components', 'assets'}
+          EXCLUDE_FILES = {'404.html', 'report.html', 'questionnaire.html'}
+          real_pages = []
+          for f in Path('public').rglob('*.html'):
+              if any(d in f.parts for d in EXCLUDE_DIRS):
+                  continue
+              if f.name in EXCLUDE_FILES:
+                  continue
+              try:
+                  content = f.read_text(encoding='utf-8', errors='ignore')[:500]
+                  # Skip meta-refresh redirect stubs
+                  if 'http-equiv="refresh"' in content and len(content.strip()) < 400:
+                      continue
+              except Exception:
+                  pass
+              real_pages.append(f)
+          html_count = len(real_pages)
           print(f"HTML files: {html_count}")
 
           # Count sitemap entries
@@ -137,9 +153,17 @@ jobs:
 
           issues = []
 
+          EXCLUDE_DIRS = {'components', 'assets'}
+          EXCLUDE_FILES = {'404.html', 'report.html', 'questionnaire.html'}
           for html_file in Path('public').rglob('*.html'):
+              if any(d in html_file.parts for d in EXCLUDE_DIRS):
+                  continue
+              if html_file.name in EXCLUDE_FILES:
+                  continue
               with open(html_file) as f:
                   content = f.read()
+              if 'http-equiv="refresh"' in content[:500] and len(content.strip()) < 400:
+                  continue
 
               # Check for missing meta descriptions
               if '<meta name="description" content=""' in content:
@@ -184,10 +208,18 @@ jobs:
           total_pages = 0
           complete_pages = 0
 
+          EXCLUDE_DIRS = {'components', 'assets'}
+          EXCLUDE_FILES = {'404.html', 'report.html', 'questionnaire.html'}
           for html_file in Path('public').rglob('*.html'):
-              total_pages += 1
+              if any(d in html_file.parts for d in EXCLUDE_DIRS):
+                  continue
+              if html_file.name in EXCLUDE_FILES:
+                  continue
               with open(html_file) as f:
                   content = f.read()
+              if 'http-equiv="refresh"' in content[:500] and len(content.strip()) < 400:
+                  continue
+              total_pages += 1
 
               # Check if page has all SEO essentials
               has_meta_desc = bool(re.search(r'<meta name="description" content="[^"]+"', content))
