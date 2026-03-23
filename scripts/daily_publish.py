@@ -70,6 +70,7 @@ def publish_posts(posts_to_publish):
     for post in posts_to_publish:
         post["status"] = "published"
         post["published"] = True
+        post["date"] = post.get("publish_date") or post.get("scheduled_date") or post.get("date", "")
         print(f"  Publishing: {post['slug']} (scheduled: {post.get('publish_date', 'N/A')})")
 
 
