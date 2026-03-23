@@ -938,16 +938,16 @@ class UnifiedGenerator:
                     all_posts = blog_data.get("blog_posts", [])
                     published_posts = [p for p in all_posts if p.get("published", False)]
 
-                    # Filter to last 7 days
-                    one_week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
-                    recent_posts = [p for p in published_posts if p.get("date", "") >= one_week_ago]
+                    # Use scheduled_date (actual publish date) if available, else fall back to date
+                    def pub_date(p):
+                        return p.get("scheduled_date") or p.get("date", "")
 
-                    by_date = sorted(recent_posts, key=lambda p: p.get("date", ""), reverse=True)
+                    by_date = sorted(published_posts, key=pub_date, reverse=True)
                     newest_blog_posts = by_date[:5]
 
                     newest_slugs = {p["slug"] for p in newest_blog_posts}
                     remaining = [p for p in published_posts if p["slug"] not in newest_slugs]
-                    popular_blog_posts = sorted(remaining, key=lambda p: p.get("date", ""))[:3]
+                    popular_blog_posts = sorted(remaining, key=pub_date, reverse=True)[:3]
 
                     # Map author slugs to display names
                     author_map = {
