@@ -344,7 +344,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/blog/</loc>
-        <lastmod>2026-03-23</lastmod>
+        <lastmod>2026-03-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -585,6 +585,12 @@
     <url>
         <loc>https://carnivoreweekly.com/blog/2026-03-23-carnivore-meal-prep-sunday-strategy-busy-professionals.html</loc>
         <lastmod>2026-03-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-03-25-carnivore-first-30-days-honest-adaptation-guide.html</loc>
+        <lastmod>2026-03-25</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
