@@ -1,106 +1,106 @@
 {
-  "generated_date": "2026-03-22",
-  "community_pulse": "Sleep optimization and cortisol management are dominating carnivore conversations this week, with electrolyte balance and weight loss stalls running a close second. New people are also flooding in asking basic questions, creating an opportunity for beginner-focused content.",
+  "generated_date": "2026-03-25",
+  "community_pulse": "The community is obsessed with meat pricing and sourcing this week, with heated debates about Costco vs. premium suppliers and whether carnivore is actually affordable. Simultaneously, people hitting weight loss plateaus are searching for troubleshooting answers and beginner frameworks.",
   "topics": [
     {
       "rank": 1,
-      "title": "We Tested the '1 TSP Cortisol Hack' \u2014 Here's What Actually Happened",
-      "angle": "Debunk the viral sleep claim while showing what DOES work for carnivore sleep \u2014 salt timing, meal timing, actual cortisol science vs marketing hype",
-      "why_now": "Direct response to Steak and Butter Gal's 1.3M-view video that's all over the community right now",
-      "suggested_writer": "sarah",
+      "title": "Costco vs. Butcher: The Real Cost Breakdown (And Why People Keep Arguing)",
+      "angle": "Stop the debate\u2014actual price-per-pound math comparing Costco bulk buys, local butchers, and online meat clubs with hidden costs exposed",
+      "why_now": "Steak and Butter Gal's viral Costco video has comments exploding with conflicting advice; people need definitive numbers",
+      "suggested_writer": "marcus",
       "priority": "high",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-03-23"
+      "assigned_writer": "marcus",
+      "publish_date": "2026-03-26"
     },
     {
       "rank": 2,
-      "title": "Sodium Isn't the Enemy \u2014 Why Carnivores Need More Salt Than Everyone Else",
-      "angle": "Deep dive into why carnivore electrolyte needs differ from keto/general low-carb, with practical daily targets and signs you're under-salting",
-      "why_now": "Electrolytes trending as a support topic to sleep optimization \u2014 people fixing one thing and discovering they need the other",
+      "title": "Why Your Carnivore Weight Loss Stalled at Month 3 (And It's Not What You Think)",
+      "angle": "Deep dive into metabolic adaptation, electrolyte depletion, and liver saturation\u2014moving past 'just eat more fat' advice",
+      "why_now": "Weight loss plateau searches spiked this week; people are frustrated and looking for real answers beyond basic troubleshooting",
       "suggested_writer": "sarah",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-03-25"
+      "publish_date": "2026-03-28"
     },
     {
       "rank": 3,
-      "title": "The Weight Loss Plateau Playbook: 5 Carnivore-Specific Fixes That Actually Work",
-      "angle": "Move beyond generic 'eat less' advice \u2014 address carnivore-specific stalls: beef quality, organ meat ratio, meal frequency, hidden carbs in supplements, hydration status",
-      "why_now": "Weight loss stalls are a top trending topic and people are confused about carnivore-specific solutions",
-      "suggested_writer": "marcus",
+      "title": "The Meat Quality Myth: Lab Testing What Actually Matters (Grain-Fed vs. Grass-Fed Edition)",
+      "angle": "Break down the science of what nutritional differences actually exist vs. what's marketing hype in sourcing claims",
+      "why_now": "Meat quality and sourcing is trending as a top search topic; community is confused about what to prioritize",
+      "suggested_writer": "sarah",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-03-27"
+      "publish_date": "2026-03-30"
     },
     {
       "rank": 4,
-      "title": "First Week on Carnivore? Here's the Real Timeline (Not the Instagram Version)",
-      "angle": "Honest breakdown of days 1-7: when you'll actually feel good, when you might feel terrible, what's normal vs what's a red flag, what to eat on day 2 when you're bored",
-      "why_now": "Beginners guide content is trending and community is getting new members asking repetitive questions",
+      "title": "I Tested Every Beginner Carnivore Mistake So You Don't Have To",
+      "angle": "First-person narrative of common beginner pitfalls (electrolytes, protein ratios, digestion issues) with real solutions",
+      "why_now": "Beginner tips are trending; new people joining weekly need a relatable, honest guide that isn't a generic checklist",
       "suggested_writer": "chloe",
-      "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-03-29"
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-04-01"
     },
     {
       "rank": 5,
-      "title": "Red Light Therapy + Carnivore: Does It Actually Synergize? (Science Check)",
-      "angle": "Examine the intersection of red light therapy and carnivore metabolics \u2014 mitochondrial health, muscle recovery, sleep quality. Separate hype from evidence.",
-      "why_now": "Red light therapy trending in YouTube recommendations; community hasn't deeply explored this intersection yet",
-      "suggested_writer": "sarah",
-      "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-03-31"
+      "title": "Carnivore Isn't Expensive\u2014You're Just Buying Wrong Cuts",
+      "angle": "Strategic guide to affordable carnivore using underrated cuts (chuck, brisket, liver) that most people skip but are nutritionally superior",
+      "why_now": "Dr. Chaffee's doing damage control on the 'expensive' narrative this week; give people tactical solutions",
+      "suggested_writer": "marcus",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-04-03"
     },
     {
       "rank": 6,
-      "title": "Why Your Sleep Still Sucks on Carnivore (And It's Not the Food)",
-      "angle": "Move past nutrient fixes \u2014 address environmental, behavioral, and circadian factors that matter MORE than macros. Blue light, room temp, timing, stress.",
-      "why_now": "Sleep content dominance suggests people are frustrated even after 'fixing' their diet",
-      "suggested_writer": "chloe",
+      "title": "The Plateau Isn't Fat Loss\u2014It's Water and Inflammation (Here's How to Tell the Difference)",
+      "angle": "Biomarker-focused look at distinguishing real stalls from body composition changes people can't see on the scale",
+      "why_now": "Weight loss plateau is top trending topic; people need hope and perspective, not just protocol adjustments",
+      "suggested_writer": "sarah",
       "priority": "medium",
       "assigned_writer": "sarah",
-      "publish_date": "2026-04-02"
+      "publish_date": "2026-04-05"
     },
     {
       "rank": 7,
-      "title": "Electrolyte Calculators Are Wrong for Carnivores \u2014 Here's Your Real Number",
-      "angle": "Show why standard electrolyte math fails on carnivore (lower insulin = different needs), provide personalized assessment tool, address sodium/potassium/magnesium ratio specific to zero-carb",
-      "why_now": "Electrolytes trending as a hot topic but most resources assume standard low-carb",
-      "suggested_writer": "marcus",
+      "title": "Why Bella's Transformation Hit Different (And What Actually Changed)",
+      "angle": "Deconstruct what's actually driving transformation content virality\u2014is it diet or lifestyle factors the algorithm doesn't show?",
+      "why_now": "Bella's transformation content is pulling massive numbers; community is hungry to understand what works and why",
+      "suggested_writer": "chloe",
       "priority": "medium",
       "assigned_writer": "chloe",
-      "publish_date": "2026-04-04"
+      "publish_date": "2026-04-07"
     },
     {
       "rank": 8,
-      "title": "The Carnivore Beginner's Grocery List (Not What You Think You Need)",
-      "angle": "Practical, budget-conscious list focused on staples and variety, with notes on what's actually worth the premium price and what's marketing. Include organ meats.",
-      "why_now": "Beginner content trending; new members are confused about what to actually buy",
+      "title": "Organ Meats Are Your Secret Weapon for Budget Carnivore (And Why Everyone Avoids Them)",
+      "angle": "Practical guide to sourcing, preparing, and stomach the flavor profile of liver, kidney, heart with recipes and sourcing hacks",
+      "why_now": "Sourcing conversations are hot; organ meats are nutritionally dense but psychologically challenging\u2014underexplored angle",
       "suggested_writer": "marcus",
       "priority": "medium",
       "assigned_writer": "marcus",
-      "publish_date": "2026-04-06"
+      "publish_date": "2026-04-09"
     },
     {
       "rank": 9,
-      "title": "Cortisol Myth-Busting: What Carnivore Actually Does (And Doesn't Do) for Stress Hormones",
-      "angle": "Distinguish between cortisol management through diet vs lifestyle; show what carnivore realistically improves and where it's not a magic bullet",
-      "why_now": "Cortisol narrative is oversimplified in viral content; opportunity for nuanced take",
-      "suggested_writer": "sarah",
-      "priority": "low",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-04-08"
+      "title": "Carnivore Community Drama: Why the 'Expensive' Debate Keeps Happening",
+      "angle": "Meta take on why cost arguments persist despite evidence\u2014regional differences, lifestyle variables, and what people aren't saying",
+      "why_now": "The heated Costco comments reveal deeper class/access divides in the community; timely cultural moment",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-04-11"
     },
     {
       "rank": 10,
-      "title": "I Tried Every Popular Carnivore Sleep Protocol \u2014 Here's My Honest Ranking",
-      "angle": "Personal narrative comparing trending sleep optimization methods (salt timing, magnesium, red light, meal timing, fasting windows) with real results",
-      "why_now": "Sleep content dominance + personal narrative style resonates with community; creates talking point",
-      "suggested_writer": "chloe",
-      "priority": "low",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-10"
+      "title": "From Plateau to Progress: Macro Cycling for Carnivore (What the Research Actually Shows)",
+      "angle": "Evidence-based look at whether rotating fat/protein ratios breaks stalls or if it's just overthinking",
+      "why_now": "Plateau troubleshooting is trending; give skeptical audience a research-backed alternative to standard advice",
+      "suggested_writer": "sarah",
+      "priority": "medium",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-04-13"
     }
   ]
 }
