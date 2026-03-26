@@ -33,11 +33,16 @@ jobs:
         id: publish
         run: |
           python3 scripts/daily_publish.py
-          # Check if any files changed
-          if git diff --quiet && git diff --staged --quiet; then
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-          else
+          # Capture newly published HTML files for indexing
+          NEW_POSTS=$(git diff --name-only | grep "^public/blog/.*\.html$" | grep -v "index.html" || true)
+          if [ -n "$NEW_POSTS" ]; then
+            URLS=$(echo "$NEW_POSTS" | sed 's|public/blog/|https://carnivoreweekly.com/blog/|')
+            echo "new_post_urls<<EOF" >> $GITHUB_OUTPUT
+            echo "$URLS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
             echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Commit and push if changes
@@ -48,6 +53,15 @@ jobs:
           git add -A
           git diff --staged --quiet || git commit -m "auto: publish scheduled blog posts for $(date +%Y-%m-%d)"
           git push || true
+
+      - name: Submit new posts to Google Indexing API
+        if: steps.publish.outputs.has_changes == 'true' && steps.publish.outputs.new_post_urls != ''
+        env:
+          GA4_SERVICE_ACCOUNT_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}
+        run: |
+          echo "$GA4_SERVICE_ACCOUNT_JSON" > dashboard/ga4-credentials.json
+          cd dashboard && npm ci --silent
+          node gsc-request-indexing.js ${{ steps.publish.outputs.new_post_urls }}
 
   deploy:
     needs: publish
