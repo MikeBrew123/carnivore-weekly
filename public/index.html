@@ -766,50 +766,37 @@
             });
         });
 
-        // Newsletter form handling - Supabase integration
+        // Newsletter form handling - Beehiiv
         document.getElementById('newsletter-form')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = this.querySelector('#email').value;
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.textContent;
 
-            // Disable button and show loading state
             submitBtn.disabled = true;
             submitBtn.textContent = 'Subscribing...';
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('newsletter_subscribers')
-                    .insert({
-                        email: email,
-                        source: 'homepage',
-                        confirmation_status: 'pending',
-                        active: true
-                    });
+                const resp = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe/newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email.trim() })
+                });
+                const data = await resp.json();
 
-                if (error) {
-                    // Check if email already exists
-                    if (error.code === '23505') {
-                        alert('You are already subscribed!');
-                    } else {
-                        throw error;
-                    }
-                } else {
-                    // Success - clear form and show message
+                if (resp.ok && data.success) {
                     this.reset();
-                    alert('Thanks for subscribing! Check your email to confirm.');
-
-                    // Track signup event
-                    gtag('event', 'newsletter_signup', {
-                        source: 'homepage',
-                        page: window.location.pathname
-                    });
+                    alert('You\'re in! Welcome to Carnivore Weekly.');
+                    gtag('event', 'newsletter_signup', { source: 'homepage', page: window.location.pathname });
+                } else if (resp.status === 409 || data.existing) {
+                    alert('You\'re already subscribed!');
+                } else {
+                    throw new Error(data.message || 'Subscription failed');
                 }
             } catch (err) {
                 console.error('Newsletter signup error:', err);
                 alert('Oops! Something went wrong. Please try again.');
             } finally {
-                // Re-enable button
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalBtnText;
             }
