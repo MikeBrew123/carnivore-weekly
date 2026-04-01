@@ -20,7 +20,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install anthropic requests google-api-python-client jinja2
+        run: pip install anthropic requests google-api-python-client jinja2 python-dotenv supabase markdown
 
       - name: Write .env
         run: |
