@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { FormData } from '../../../types/form'
 import FormField from '../shared/FormField'
 import TextArea from '../shared/TextArea'
@@ -42,6 +43,8 @@ export default function Step4HealthProfile({
     }
   }
 
+  const [showOptional, setShowOptional] = useState(false)
+
   const handleSubmit = (e?: React.MouseEvent<HTMLButtonElement>) => {
     e?.preventDefault() // Prevent form submission/page reload
     console.log('========== Step4HealthProfile handleSubmit CALLED ==========')
@@ -68,12 +71,25 @@ export default function Step4HealthProfile({
 
   return (
     <div className="space-y-8">
+      {/* Price + value callout */}
+      <div style={{ background: '#1a120b', borderRadius: '10px', padding: '20px 24px', border: '1px solid #ffd700' }}>
+        <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: 'bold', margin: '0 0 10px 0' }}>
+          You're one step away — $29 unlocks your full protocol
+        </p>
+        <ul style={{ margin: 0, paddingLeft: '18px', color: '#f4e4d4', fontSize: '14px', lineHeight: '1.8' }}>
+          <li>30-day meal plan matched to your exact macros</li>
+          <li>Doctor conversation script for your next bloodwork appointment</li>
+          <li>Week-by-week adaptation guide + plateau protocol</li>
+        </ul>
+        <p style={{ color: '#a89080', fontSize: '13px', margin: '10px 0 0 0' }}>30-day money-back guarantee. No questions asked.</p>
+      </div>
+
       <div>
         <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#d4a574', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif" }}>
-          Complete Your Health Profile
+          Enter your email to continue
         </h2>
         <p style={{ color: '#666666' }}>
-          This information helps us personalize your nutrition plan and provide better recommendations.
+          Your protocol will be sent here. That's all we need to get started.
         </p>
       </div>
 
@@ -113,6 +129,20 @@ export default function Step4HealthProfile({
           />
         </div>
       </section>
+
+      {/* Optional sections toggle */}
+      <div className="border-t pt-4">
+        <button
+          type="button"
+          onClick={() => setShowOptional(!showOptional)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#d4a574', fontFamily: "'Inter', sans-serif", fontSize: '14px', padding: 0, display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          <span>{showOptional ? '▼' : '▶'}</span>
+          <span>{showOptional ? 'Hide optional details' : 'Add optional details to further personalize your protocol'}</span>
+        </button>
+      </div>
+
+      {showOptional && <>
 
       {/* SECTION 2: Health & Medical */}
       <section className="border-t pt-6">
@@ -392,6 +422,8 @@ export default function Step4HealthProfile({
           />
         </div>
       </section>
+
+      </>}
 
       {/* Submit Section */}
       <section className="border-t pt-8 space-y-4">
