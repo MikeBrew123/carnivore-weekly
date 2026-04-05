@@ -332,7 +332,16 @@ When you receive your pre-flight context from Leo, you'll get a list of availabl
 
 Use this list to find natural linking opportunities as you write.
 
+### SEO Requirements (Hard Rules — Validator Will Fail Without These)
+- **Title tag:** 50–60 characters MAX. Count carefully. If your title is longer, cut it.
+  - ✅ "Carnivore Flu Timeline: When Does Adaptation End?" (50 chars)
+  - ❌ "How Long Does Carnivore Adaptation Take? Week-by-Week Timeline" (62 chars)
+- **Meta description:** 130–155 characters. Required — don't leave blank. Must include primary keyword + value prop.
+- **H1:** Must include the primary keyword. Must match the intent of the title tag.
+
 ### Self-Check Before Submission
+- [ ] Title is ≤60 characters (count it)
+- [ ] Meta description is 130–155 characters (not blank)
 - [ ] 2-4 internal links included
 - [ ] At least 1 link to another writer's content
 - [ ] No links in headings

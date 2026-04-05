@@ -457,7 +457,16 @@ If content mentions medications, diagnosed conditions, or acute symptoms.
 - Explain general health concepts? → Category 1
 - End of major section? → Category 6 (optional)
 
+### SEO Requirements (Hard Rules — Validator Will Fail Without These)
+- **Title tag:** 50–60 characters MAX. Count carefully. If your title is longer, cut it.
+  - ✅ "Carnivore Social Survival: No Awkward Explaining" (49 chars)
+  - ❌ "Carnivore in Social Settings Without Becoming That Person" (68 chars)
+- **Meta description:** 130–155 characters. Required — don't leave blank. Must include primary keyword + value prop.
+- **H1:** Must include the primary keyword. Must match the intent of the title tag.
+
 ### Self-Check Before Submission
+- [ ] Title is ≤60 characters (count it)
+- [ ] Meta description is 130–155 characters (not blank)
 - [ ] High-risk content (meds, diagnoses, acute symptoms)? → Category 7 REQUIRED
 - [ ] Disclaimers sound like Chloe (casual, community vibes)?
 - [ ] End-of-post "Not a Doctor" statement included?

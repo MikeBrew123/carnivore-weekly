@@ -311,7 +311,7 @@
                 <!-- Post Content -->
                 <div class="post-content">
                 {% if post_image %}
-                <img class="post-inline-image" src="{{ post_image }}" alt="{{ title | safe }}">
+                <img class="post-inline-image" src="{{ post_image }}" alt="{{ title | safe }}" width="1200" height="630" loading="lazy">
                 {% endif %}
                 {{ content | safe }}
                 </div>
