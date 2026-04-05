@@ -1,96 +1,106 @@
 {
-  "generated_date": "2026-03-29",
-  "community_pulse": "The community is laser-focused on cost optimization and sourcing quality meat, with heated debates about bulk buying strategies and whether carnivore is truly affordable. Weight loss plateaus and beginner onboarding are secondary concerns gaining traction.",
+  "generated_date": "2026-04-05",
+  "community_pulse": "The carnivore community is obsessed with meat sourcing, pricing transparency, and breaking through weight loss plateaus. Budget-conscious members are debating Costco vs. specialty suppliers while newer practitioners seek practical guidance on quality and cost-effectiveness.",
   "topics": [
     {
       "rank": 1,
-      "title": "Costco vs. Local Butcher vs. Online: The Real Cost Breakdown for Carnivores",
-      "angle": "Go beyond the viral Costco video \u2014 actual price-per-pound math across all major sourcing options, accounting for membership costs, shipping, and waste/trim differences",
-      "why_now": "Steak and Butter Gal's 400k-view Costco video sparked comment wars; people need honest, comprehensive comparisons, not just hype",
+      "title": "Costco vs. Butcher vs. Online: The Real Cost Breakdown of Carnivore Meat in 2026",
+      "angle": "Raw price comparison with hidden costs (shipping, membership, waste) that the 400k-view Costco video didn't address",
+      "why_now": "Steak and Butter Gal's viral video sparked heated comment debates about cost-per-pound accuracy; community wants the full financial picture",
       "suggested_writer": "marcus",
       "priority": "high",
       "assigned_writer": "marcus",
-      "publish_date": "2026-03-30"
+      "publish_date": "2026-04-06"
     },
     {
       "rank": 2,
-      "title": "The Plateau Fix: Why Carnivores Stall and What Actually Works (New Research)",
-      "angle": "Deep dive into electrolyte depletion, metabolic adaptation, and meal timing adjustments \u2014 treat it as a troubleshooting guide, not generic advice",
-      "why_now": "Weight loss plateaus are a top trending topic; community needs science-backed solutions, not motivational fluff",
+      "title": "Why Your Carnivore Weight Loss Stalled (And It's Probably Not What You Think)",
+      "angle": "Move beyond 'eat more fat' advice\u2014cover meal timing, electrolyte patterns, and metabolic adaptation specific to carnivore plateaus",
+      "why_now": "Weight loss plateau videos are trending; community is frustrated and needs diagnostic depth, not generic tips",
       "suggested_writer": "sarah",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-04-01"
+      "publish_date": "2026-04-08"
     },
     {
       "rank": 3,
-      "title": "Is Carnivore Actually Expensive? Debunking Dr. Chaffee's Latest Numbers",
-      "angle": "Fact-check the affordability narrative \u2014 compare carnivore cost-per-nutrient to standard Western diet, address the 'expensive' myth head-on",
-      "why_now": "Dr. Chaffee is actively addressing the expense narrative this week; timely to validate or challenge his framing",
+      "title": "The Meat Quality Myth: Lab Testing Results From Popular Carnivore Proteins",
+      "angle": "Actual nutrient density and contaminant testing data on Costco, pasture-raised, and conventional meat sources (not just marketing claims)",
+      "why_now": "Meat sourcing is trending but mostly anecdotal; community needs science-backed comparison to make informed choices",
       "suggested_writer": "sarah",
       "priority": "high",
       "assigned_writer": "marcus",
-      "publish_date": "2026-04-03"
+      "publish_date": "2026-04-10"
     },
     {
       "rank": 4,
-      "title": "Beginner's Meat Quality Checklist: What to Actually Look For (Not Instagram Perfection)",
-      "angle": "Practical, unglamorous guide to selecting quality meat on a budget \u2014 color, marbling, freshness, what matters vs. what's marketing",
-      "why_now": "Meat quality and sourcing are top trending topics; beginners need actionable guidance beyond aesthetics",
-      "suggested_writer": "marcus",
+      "title": "I Tried Costco Carnivore for 30 Days: The Honest Money vs. Quality Trade-Off",
+      "angle": "Personal narrative testing whether budget-friendly Costco meat actually works for results, energy, and satiety vs. premium sources",
+      "why_now": "Follows the viral Costco moment but adds lived experience and real-talk about whether cheaper meat is worth it",
+      "suggested_writer": "chloe",
       "priority": "high",
       "assigned_writer": "marcus",
-      "publish_date": "2026-04-05"
+      "publish_date": "2026-04-12"
     },
     {
       "rank": 5,
-      "title": "Bella's Transformation: What the Algorithm Won't Tell You About Sustainable Carnivore Results",
-      "angle": "Honest behind-the-scenes look at long-term adherence, the unsexy parts of transformation content, and realistic timelines vs. highlight reels",
-      "why_now": "Bella's transformation content is pulling massive engagement; opportunity to provide realistic context and community perspective",
-      "suggested_writer": "chloe",
+      "title": "Carnivore for Beginners: The 5 Sourcing Mistakes That Kill Results Before Week 3",
+      "angle": "Not 'how to buy meat 101'\u2014specific beginner mistakes (wrong cuts, poor storage, wrong fat ratios) that derail early practitioners",
+      "why_now": "Beginner tips are trending; newbies are overwhelmed and making preventable errors based on community chatter",
+      "suggested_writer": "marcus",
       "priority": "medium",
       "assigned_writer": "chloe",
-      "publish_date": "2026-04-07"
+      "publish_date": "2026-04-14"
     },
     {
       "rank": 6,
-      "title": "Costco Meat Hacks: What Carnivores Are Actually Buying (Beyond the Ribeye Wars)",
-      "angle": "Insider tips on lesser-known Costco carnivore staples, seasonal deals, and underrated cuts \u2014 practical, actionable sourcing intel",
-      "why_now": "Costco guide is trending with heated comment debates; readers want the insider moves, not just the obvious choices",
-      "suggested_writer": "marcus",
+      "title": "Dr. Chaffee's 'Expensive' Defense Doesn't Hold Up\u2014Here's the Real Math",
+      "angle": "Fact-check the 'carnivore is cheaper than you think' narrative with actual cost-per-calorie and cost-per-nutrient data",
+      "why_now": "Dr. Chaffee is doing narrative control on cost criticism; community is skeptical and wants transparent analysis",
+      "suggested_writer": "sarah",
       "priority": "medium",
       "assigned_writer": "marcus",
-      "publish_date": "2026-04-09"
+      "publish_date": "2026-04-16"
     },
     {
       "rank": 7,
-      "title": "The Carnivore Beginner's Money Mistake: What Not to Do in Month One",
-      "angle": "Narrative-driven, mistake-focused approach \u2014 common financial pitfalls (overbuying, wrong cuts, failed supplements) that beginners actually make",
-      "why_now": "Beginner tips are trending; framing around money mistakes aligns with this week's cost-focused community conversation",
+      "title": "Transformation Content Fatigue: Why Carnivore Results Look Different for Everyone (And Why That's Okay)",
+      "angle": "Counter the Bella-style highlight-reel content with realistic expectations about timelines, body composition changes, and non-scale wins",
+      "why_now": "Transformation content is pulling huge views but setting unrealistic expectations; community needs permission to have different results",
       "suggested_writer": "chloe",
       "priority": "medium",
       "assigned_writer": "chloe",
-      "publish_date": "2026-04-11"
+      "publish_date": "2026-04-18"
     },
     {
       "rank": 8,
-      "title": "Grass-Fed, Grass-Finished, or Conventional? What the Research Actually Says for Carnivores",
-      "angle": "Evidence-based comparison \u2014 cut through the marketing noise on sourcing quality, address whether the premium is worth it nutritionally",
-      "why_now": "Meat quality and sourcing are top topics; beginners need evidence to justify sourcing decisions and budget allocation",
-      "suggested_writer": "sarah",
+      "title": "The Ground Beef Loophole: Why It's the Best Carnivore Budget Hack (If You Do It Right)",
+      "angle": "Deep dive into sourcing quality ground beef, storing it properly, and meal prep hacks to maximize budget efficiency without sacrificing results",
+      "why_now": "Budget-conscious members are asking about ground beef alternatives; practical tactical content fills a gap in the sourcing conversation",
+      "suggested_writer": "marcus",
       "priority": "medium",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-04-13"
+      "assigned_writer": "marcus",
+      "publish_date": "2026-04-20"
     },
     {
       "rank": 9,
-      "title": "Why Your Carnivore Plateau Might Not Be What You Think",
-      "angle": "Common misdiagnosis piece \u2014 distinguish between true metabolic plateaus, scale noise, body recomposition, and psychological expectation mismatches",
-      "why_now": "Weight loss plateaus trending; provides nuanced perspective beyond the obvious solutions",
-      "suggested_writer": "chloe",
+      "title": "Carnivore Meat Sourcing Red Flags: What the Labels Won't Tell You",
+      "angle": "Decode confusing labeling (grass-fed claims, 'natural,' 'antibiotic-free') and expose greenwashing in carnivore meat marketing",
+      "why_now": "Quality and sourcing are trending; many beginners can't distinguish between marketing and actual quality standards",
+      "suggested_writer": "sarah",
       "priority": "medium",
       "assigned_writer": "chloe",
-      "publish_date": "2026-04-15"
+      "publish_date": "2026-04-22"
+    },
+    {
+      "rank": 10,
+      "title": "The Social Cost of Carnivore: How to Navigate Skeptical Friends (When Everyone Knows About Your Diet)",
+      "angle": "Real-talk about social friction, family dinners, and how to handle the 'but what about the price?' questions from non-carnivore circles",
+      "why_now": "Cost debates in comments suggest many readers are defending their choices to others; lifestyle/relationship angle complements the technical content",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-04-24"
     }
   ]
 }
