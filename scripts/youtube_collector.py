@@ -56,27 +56,6 @@ SEARCH_QUERIES = ["carnivore diet", "animal-based diet", "meat only diet", "zero
 DAYS_BACK = 7  # How many days back to search (7 = fresh content only, avoids repeats across 2x/week runs)
 TOP_CREATORS_COUNT = 12  # How many top creators to analyze (increased for diversity)
 
-# Core channel allowlist — always checked regardless of search ranking.
-# Channel IDs verified from YouTube channel URLs (youtube.com/channel/ID)
-# To find an ID: go to channel page → view source → search "channelId"
-CORE_CHANNELS = {
-    # Verified IDs
-    "UCzoRyR_nlesKZuOlEjWRXQQ": "Anthony Chaffee MD",
-    "UCni9TCw0YPwTdu7BYF3j0Eg": "KenDBerryMD",
-    "UCh3d7mzrz_KHE4UM4cHBKKQ": "Carnivore MD",
-    "UCIma2WOQs1Mz2AuOt6wRSUw": "KenDBerryMD (alt)",
-    "UC5apkKkeZQXRSDbqSalG8CQ": "Shawn Baker MD",
-    "UCFVmPjPhx-XT6-ZVa9Tkuuw": "Low Carb Love",
-    # TODO: Verify these IDs — look up on YouTube
-    # "???": "Dr. Eric Westman - Adapt Your Life",
-    # "???": "Laura Spath",
-    # "???": "Kristi Davis",
-    # "???": "Richard Smith",
-    # "???": "Steak and Butter Gal",
-    # "???": "Maria Emmerich",
-    # "???": "Lauren Johnson",
-    # "???": "Dr. Tony Hampton",
-}
 MAX_VIDEOS_PER_CREATOR = 3  # Max videos per creator (3 gives more chances to find long-form)
 COMMENTS_PER_VIDEO = 20  # Top comments per video
 MIN_RELEVANCE_SCORE = 7  # Minimum keyword relevance score (1-10)
@@ -472,6 +451,7 @@ class YouTubeCollector:
                 maxResults=max_results,
                 relevanceLanguage="en",  # Prefer English content
                 safeSearch="none",  # Don't filter content
+                videoDuration="medium",  # Excludes Shorts (<4 min) at API level — saves quota
             )
 
             # Execute the API request
@@ -1019,20 +999,8 @@ class YouTubeCollector:
             print("✗ Could not rank channels. Exiting.")
             return {}
 
-        # Step 2.5: Inject core allowlist channels (always included regardless of search rank)
-        existing_ids = {c["channel_id"] for c in top_channels}
-        for channel_id, channel_name in CORE_CHANNELS.items():
-            if channel_id not in existing_ids:
-                top_channels.append({
-                    "channel_id": channel_id,
-                    "channel_name": channel_name,
-                    "total_views_week": 0,
-                    "videos": [],
-                })
-        print(f"\n✓ Core allowlist: {len(CORE_CHANNELS)} channels always included")
-
         # Step 3: Collect detailed data for top channels
-        print(f"\n📹 Collecting detailed data for {len(top_channels)} channels...")
+        print(f"\n📹 Collecting detailed data for top {TOP_CREATORS_COUNT} channels...")
 
         for i, channel in enumerate(top_channels, 1):
             channel_id = channel["channel_id"]
