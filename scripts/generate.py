@@ -1386,22 +1386,66 @@ class UnifiedGenerator:
                         channel["movement"] = "same"
                         channel["movement_delta"] = 0
 
-                # Save current rankings
+                # Load creator bios
+                creator_bios = {}
+                bios_file = os.path.join(data_dir, "creator_bios.json")
                 try:
+                    if os.path.exists(bios_file):
+                        with open(bios_file) as f:
+                            creator_bios = json.load(f).get("bios", {})
+                except (json.JSONDecodeError, IOError):
+                    pass
+
+                # Inject bios into channels_list
+                for ch in channels_list:
+                    bio_data = creator_bios.get(ch["name"], {})
+                    ch["bio"] = bio_data.get("bio", "")
+                    ch["tagline"] = bio_data.get("tagline", "")
+                    ch["specialty"] = bio_data.get("specialty", "")
+
+                # Save current rankings with cumulative appearances
+                try:
+                    # Load previous to carry forward appearances
+                    prev_appearances = {}
+                    try:
+                        if os.path.exists(leaderboard_file):
+                            with open(leaderboard_file) as f:
+                                prev_data = json.load(f)
+                                prev_appearances = {
+                                    ch["name"]: ch.get("appearances", 0)
+                                    for ch in prev_data.get("leaderboard", [])
+                                }
+                    except (json.JSONDecodeError, IOError):
+                        pass
+
+                    # Increment appearances for channels active this week
+                    active_names = {ch["name"] for ch in leaderboard}
+                    updated_leaderboard = []
+                    for ch in leaderboard:
+                        prev = prev_appearances.get(ch["name"], 0)
+                        ch["appearances"] = prev + 1 if ch["name"] in active_names else prev
+                        updated_leaderboard.append({
+                            "name": ch["name"],
+                            "rank": ch["rank"],
+                            "appearances": ch["appearances"],
+                            "channel_id": ch.get("channel_id", ""),
+                        })
+
                     with open(leaderboard_file, "w") as f:
-                        json.dump(
-                            {"leaderboard": [{"name": ch["name"], "rank": ch["rank"]} for ch in leaderboard]},
-                            f,
-                        )
+                        json.dump({
+                            "last_updated": datetime.now().strftime("%Y-%m-%d"),
+                            "leaderboard": updated_leaderboard,
+                        }, f, indent=2)
                 except IOError:
                     pass
 
                 template_vars = {
                     "channels": channels_list,
                     "total_channels": len(channels_list),
-                    "total_weeks": 1,
-                    "top_videos": top_videos[:10],  # Limit to 10 videos
+                    "total_weeks": max((ch.get("appearances", 1) for ch in leaderboard), default=1),
+                    "top_videos": top_videos[:10],
                     "leaderboard": leaderboard,
+                    "creator_bios": creator_bios,
                     "generation_timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 }
 

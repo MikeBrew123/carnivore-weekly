@@ -1,0 +1,76 @@
+{
+  "bios": {
+    "Steak and Butter Gal": {
+      "tagline": "Budget carnivore done right",
+      "bio": "Real-food carnivore on a real budget. Known for Costco hauls, practical meal prep, and cutting through the expensive cuts myth. One of the most practical voices in the space.",
+      "specialty": "Budget & meal prep",
+      "channel_id": "UCcTTiHZtNpiqD2EubIO5HFw"
+    },
+    "Anthony Chaffee MD": {
+      "tagline": "Neurosurgeon. All meat. No apologies.",
+      "bio": "Neurosurgical resident turned carnivore advocate. Makes the case for animal-based eating from a hard science angle — no hedging, no nuance theater. One of the most cited voices on carnivore and neurological health.",
+      "specialty": "Science & neurology",
+      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
+    },
+    "KenDBerryMD": {
+      "tagline": "Family doctor, carnivore champion",
+      "bio": "Tennessee family physician who went carnivore after decades of conventional medicine advice didn't work for his patients — or himself. Practical, plain-spoken, and not afraid to call out bad nutritional science.",
+      "specialty": "Metabolic health & family medicine",
+      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
+    },
+    "Shawn Baker MD": {
+      "tagline": "The OG carnivore MD",
+      "bio": "Orthopedic surgeon, former world record powerlifter, and the closest thing the carnivore movement has to a founding father. Author of The Carnivore Diet. Still lifts. Still only eats meat.",
+      "specialty": "Performance & athletics",
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+    },
+    "Laura Spath": {
+      "tagline": "Carnivore lifestyle, no fluff",
+      "bio": "Down-to-earth carnivore content covering what she actually eats, what actually works, and honest takes on adaptation, results, and community questions. Popular for her livestreams and real-time Q&As.",
+      "specialty": "Lifestyle & community",
+      "channel_id": ""
+    },
+    "Dr. Tony Hampton": {
+      "tagline": "Metabolic health physician",
+      "bio": "Family physician focused on reversing metabolic disease through low-carb and carnivore nutrition. Brings a clinical lens to everyday carnivore questions — especially around diabetes, obesity, and inflammation.",
+      "specialty": "Metabolic disease & clinical nutrition",
+      "channel_id": ""
+    },
+    "HomeSteadHow": {
+      "tagline": "Carnivore from the farm up",
+      "bio": "Homesteading meets carnivore — raising, processing, and eating real animal food. A grounding perspective for anyone who wants to understand where their food actually comes from.",
+      "specialty": "Homesteading & nose-to-tail",
+      "channel_id": ""
+    },
+    "Carnivore MD": {
+      "tagline": "Paul Saladino's original channel",
+      "bio": "The channel that launched a thousand beef debates. Dr. Paul Saladino brought animal-based eating into the mainstream conversation and made organ meats cool again.",
+      "specialty": "Animal-based & ancestral health",
+      "channel_id": "UCh3d7mzrz_KHE4UM4cHBKKQ"
+    },
+    "Maria Emmerich": {
+      "tagline": "Keto & carnivore recipe creator",
+      "bio": "Bestselling cookbook author who's made low-carb and carnivore cooking genuinely delicious. If you've made a keto or carnivore recipe that actually tasted good, there's a decent chance it was hers.",
+      "specialty": "Recipes & cooking",
+      "channel_id": ""
+    },
+    "Kristi Davis": {
+      "tagline": "Carnivore + intermittent fasting",
+      "bio": "Documents her carnivore journey with a focus on combining strict carnivore eating with intermittent fasting protocols. Relatable, consistent, and great for people who want to see what the day-to-day actually looks like.",
+      "specialty": "Fasting & meal timing",
+      "channel_id": ""
+    },
+    "Dr. Eric Westman": {
+      "tagline": "Obesity medicine pioneer",
+      "bio": "Duke University physician who has run clinical low-carb programs for over two decades. One of the most research-grounded voices in the keto and carnivore space.",
+      "specialty": "Clinical research & obesity medicine",
+      "channel_id": ""
+    },
+    "Richard Smith": {
+      "tagline": "Long-term carnivore, honest takes",
+      "bio": "One of the longer-running voices in the community with a focus on what actually happens after years on carnivore — not just the honeymoon phase. Covers carb reintroduction, sustainability, and the long game.",
+      "specialty": "Long-term carnivore & reintroduction",
+      "channel_id": ""
+    }
+  }
+}
