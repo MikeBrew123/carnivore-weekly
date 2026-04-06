@@ -177,30 +177,37 @@ def is_likely_english(text: str) -> bool:
     if not text:
         return True  # Empty text is fine
 
-    # Count non-Latin characters
+    # Count non-Latin and accented-Latin characters
     non_latin_count = 0
+    accented_latin_count = 0
     total_chars = 0
 
     for char in text:
-        # Skip spaces, numbers, and punctuation
         if char.isspace() or char.isdigit() or not char.isalnum():
             continue
-
         total_chars += 1
-
-        # Check if character is outside Latin character range
-        # Latin: Basic Latin (0000-007F) + Latin-1 Supplement (0080-00FF) +
-        #        Latin Extended-A (0100-017F) + Latin Extended-B (0180-024F)
-        if ord(char) > 0x024F:
+        cp = ord(char)
+        if cp > 0x024F:
+            # Non-Latin script (Arabic, CJK, Cyrillic, etc.)
             non_latin_count += 1
+        elif cp > 0x007F:
+            # Accented Latin (0x0080-0x024F): é, ã, ç, ñ, etc.
+            # Common in Portuguese, Spanish, French — rare in English titles
+            accented_latin_count += 1
 
-    # If we have no alphanumeric characters, assume English
     if total_chars == 0:
         return True
 
-    # If more than 20% of characters are non-Latin, reject as non-English
-    non_latin_ratio = non_latin_count / total_chars
-    return non_latin_ratio < 0.2
+    # Reject if >15% non-Latin script (Arabic, CJK, etc.)
+    if non_latin_count / total_chars > 0.15:
+        return False
+
+    # Reject if >8% accented Latin — catches Portuguese/Spanish/French titles
+    # English titles almost never exceed this threshold
+    if accented_latin_count / total_chars > 0.08:
+        return False
+
+    return True
 
 
 # ============================================================================
