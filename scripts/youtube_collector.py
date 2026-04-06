@@ -992,69 +992,62 @@ class YouTubeCollector:
             print("✗ No relevant videos after filtering. Exiting.")
             return {}
 
-        # Step 2: Rank channels
-        top_channels = self.calculate_channel_rankings(relevant_videos)
+        # Step 2: Fetch stats + comments for the search result videos directly.
+        # We use exactly what YouTube's search returned — no secondary channel lookups.
+        # This prevents off-topic videos from a creator's channel sneaking in.
+        print(f"\n📊 Fetching stats and comments for {len(relevant_videos)} search result videos...")
 
-        if not top_channels:
-            print("✗ Could not rank channels. Exiting.")
-            return {}
+        video_ids = [v["video_id"] for v in relevant_videos]
+        stats_map = self.get_video_statistics(video_ids)
 
-        # Step 3: Collect detailed data for top channels
-        print(f"\n📹 Collecting detailed data for top {TOP_CREATORS_COUNT} channels...")
+        enriched_videos = []
+        for video in relevant_videos:
+            vid_id = video["video_id"]
+            stats = stats_map.get(vid_id, {})
+            video["statistics"] = stats
+            video["view_count"] = stats.get("view_count", 0)
 
-        for i, channel in enumerate(top_channels, 1):
-            channel_id = channel["channel_id"]
-            channel_name = channel["channel_name"]
+            print(f"   Getting comments for: {video['title'][:55]}...")
+            video["top_comments"] = self.get_video_comments(vid_id, COMMENTS_PER_VIDEO)
+            enriched_videos.append(video)
 
-            print(f"\n   [{i}/{TOP_CREATORS_COUNT}] {channel_name}")
-            print(f"   Channel ID: {channel_id}")
+        # Sort by view count descending
+        enriched_videos.sort(key=lambda v: v.get("view_count", 0), reverse=True)
 
-            # Get recent videos from this channel (limited per creator for diversity)
-            videos = self.get_channel_videos(channel_id, MAX_VIDEOS_PER_CREATOR)
-            print(f"   ✓ Found {len(videos)} recent videos")
+        # Group by channel to match generate.py's expected top_creators structure
+        from collections import defaultdict
+        by_channel = defaultdict(list)
+        channel_names = {}
+        for v in enriched_videos:
+            cid = v.get("channel_id")
+            by_channel[cid].append(v)
+            channel_names[cid] = v.get("channel_title", "Unknown")
 
-            # For each video, score relevance and get comments
-            scored_videos = []
-            for video in videos:
-                # Filter out non-English videos first (before scoring with Claude)
-                title = video.get("title", "")
-                if not is_likely_english(title):
-                    print(f"      ✗ Skipped (non-English): {title[:45]}...")
-                    continue
+        top_creators = [
+            {
+                "channel_id": cid,
+                "channel_name": channel_names[cid],
+                "total_views_week": sum(v.get("view_count", 0) for v in vids),
+                "videos": vids,
+            }
+            for cid, vids in by_channel.items()
+        ]
+        top_creators.sort(key=lambda c: c["total_views_week"], reverse=True)
 
-                # Score this video's relevance
-                score, reason = self.score_video_relevance(
-                    video.get("title", ""), video.get("description", "")
-                )
-                video["relevance_score"] = score
-                video["relevance_reason"] = reason
+        print(f"\n✓ {len(enriched_videos)} videos from {len(top_creators)} channels")
 
-                # Only include videos that pass the relevance threshold
-                if score < MIN_RELEVANCE_SCORE:
-                    print(f"      ✗ Skipped (score {score}): {video['title'][:45]}...")
-                    continue
-
-                print(f"      Getting comments for: {video['title'][:50]}...")
-                comments = self.get_video_comments(video["video_id"], COMMENTS_PER_VIDEO)
-                video["top_comments"] = comments
-                print(f"      ✓ Collected {len(comments)} comments (score: {score})")
-                scored_videos.append(video)
-
-            # Add scored videos to channel data
-            channel["videos"] = scored_videos
-
-        # Step 4: Build final data structure
+        # Step 3: Build final data structure
         final_data = {
             "collection_date": datetime.now().strftime("%Y-%m-%d"),
             "collection_timestamp": datetime.now().isoformat(),
             "search_queries": SEARCH_QUERIES,
             "days_back": DAYS_BACK,
-            "total_videos_found": len(relevant_videos),
+            "total_videos_found": len(enriched_videos),
             "videos_per_creator_max": MAX_VIDEOS_PER_CREATOR,
             "min_relevance_score": MIN_RELEVANCE_SCORE,
-            "top_creators_count": len(top_channels),
-            "top_creators": top_channels,
-            "source": "api",  # Mark as fresh API data (vs 'cache')
+            "top_creators_count": len(top_creators),
+            "top_creators": top_creators,
+            "source": "api",
         }
 
         return final_data
