@@ -75,9 +75,7 @@ BLOCKED_CHANNELS = {
 # Title keyword blocklist — videos whose titles contain these are dropped
 # regardless of channel. Catches off-topic uploads from legit creators.
 BLOCKED_TITLE_KEYWORDS = [
-    "vegan", "plant-based", "plant based",          # anti-carnivore stance
-    "war zone", "war in", "military", "combat",     # off-topic news/travel
-    "recipe fails", "i quit carnivore", "why i stopped",  # clickbait negativity
+    "vegan", "plant-based", "plant based",   # anti-carnivore stance
 ]
 
 
