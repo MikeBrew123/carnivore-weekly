@@ -176,7 +176,7 @@ class OptimizedContentAnalyzer:
             print(f"⚠️  Could not fetch optimized prompt: {e}")
             return None
 
-    def analyze_with_optimization(self, youtube_data: Dict, writer: str, analysis_type: str) -> str:
+    def analyze_with_optimization(self, youtube_data: Dict, writer: str, analysis_type: str, analysis_date: str = "") -> str:
         """
         Analyze content using optimized prompts.
 
@@ -232,8 +232,11 @@ Your teammates published these posts in the last two weeks — mention one if it
 {lines}
 """
 
+                date_label = analysis_date or datetime.now().strftime("%B %d, %Y")
                 prompt = f"""You are Chloe, community scout and voice of the carnivore community.
-Write a conversational weekly roundup — 2-3 paragraphs, like you're texting a friend who missed the week.
+Write a conversational weekly roundup for the week of {date_label}.
+Start your response with "**Week of {date_label}**" on its own line, then a blank line, then your roundup.
+Write 2-3 paragraphs, like you're texting a friend who missed the week.
 
 Style:
 - Casual opener ("Okay so..." / "Real talk..." / "This week was a lot...")
@@ -335,12 +338,12 @@ Focus on actionable insights and specific examples."""
 
         analyses = {
             "weekly_summary": self.analyze_with_optimization(
-                youtube_data, "chloe", "weekly community roundup"
+                youtube_data, "chloe", "weekly community roundup", analysis_date
             ),
             "trending_topics": self.analyze_with_optimization(
-                youtube_data, "chloe", "trending topics"
+                youtube_data, "chloe", "trending topics", analysis_date
             ),
-            "key_insights": self.analyze_with_optimization(youtube_data, "marcus", "key insights"),
+            "key_insights": self.analyze_with_optimization(youtube_data, "marcus", "key insights", analysis_date),
             "analysis_date": analysis_date,
             "timestamp": now.isoformat(),
         }

@@ -7,10 +7,15 @@
 import http from 'http';
 import crypto from 'crypto';
 import { URL } from 'url';
+import { readFileSync, writeFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const SECRETS_PATH = path.join(__dirname, '../secrets/api-keys.json');
 
 const CLIENT_ID = 'h0w3wf9q335ap0j3zkabfzxw';
 const REDIRECT_URI = 'http://localhost:3456/callback';
-const SCOPES = 'listings_r listings_w shops_r';
+const SCOPES = 'listings_r listings_w shops_r transactions_r';
 
 // Generate PKCE challenge
 function generatePKCE() {
@@ -80,11 +85,21 @@ const server = http.createServer(async (req, res) => {
       } else {
         console.log('\n✅ SUCCESS! Tokens received:\n');
         console.log('Access Token:', tokens.access_token?.substring(0, 20) + '...');
-        console.log('Refresh Token:', tokens.refresh_token);
+        console.log('Refresh Token:', tokens.refresh_token?.substring(0, 20) + '...');
         console.log('Expires In:', tokens.expires_in, 'seconds');
-        console.log('\n📋 Add this refresh_token to secrets/api-keys.json');
-        console.log('\n🔧 Then add to Wrangler:');
-        console.log(`   wrangler secret put ETSY_REFRESH_TOKEN`);
+
+        // Auto-save tokens to secrets file
+        try {
+          const secrets = JSON.parse(readFileSync(SECRETS_PATH, 'utf8'));
+          secrets.etsy.access_token = tokens.access_token;
+          secrets.etsy.refresh_token = tokens.refresh_token;
+          secrets.etsy.last_rotated = new Date().toISOString().split('T')[0];
+          writeFileSync(SECRETS_PATH, JSON.stringify(secrets, null, 2));
+          console.log('\n✅ Tokens auto-saved to secrets/api-keys.json');
+        } catch (e) {
+          console.log('\n⚠️  Could not auto-save tokens:', e.message);
+          console.log('📋 Manually add refresh_token to secrets/api-keys.json');
+        }
 
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(`
