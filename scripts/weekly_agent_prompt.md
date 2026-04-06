@@ -27,11 +27,24 @@ From `youtube_data.json`, find all videos across `top_creators[].videos[]`.
 **Filter out:**
 - Any `video_id` already in `seen_video_ids.json`
 - Videos with `duration_seconds` < 300 (Shorts that slipped through)
-- Any channel in the blocked list: `["VeganLinked", "Mic the Vegan", "Plant Based News"]`
+- Any channel in the blocked list: `["VeganLinked", "Mic the Vegan", "Plant Based News", "Ela Vegan"]`
+- Any title containing: `["vegan", "plant-based", "plant based"]`
 
-**Rank by engagement score:**
+**Rank by engagement score with carnivore multiplier:**
 ```
-score = (comment_count * 2) + like_count + (view_count / 1000)
+base_score = (comment_count * 2) + like_count + (view_count / 1000)
+
+# Carnivore bonus: reward content that is explicitly about carnivore diet
+# vs. generic keto/low-carb content
+carnivore_terms = ["carnivore", "animal-based", "zero carb", "meat only", "lion diet", "nose to tail"]
+keto_only_terms = ["keto", "low carb", "low-carb"]  # only keto, no carnivore signal
+
+title_lower = title.lower()
+has_carnivore = any(t in title_lower for t in carnivore_terms)
+has_keto_only = any(t in title_lower for t in keto_only_terms) and not has_carnivore
+
+multiplier = 1.5 if has_carnivore else (0.8 if has_keto_only else 1.0)
+score = base_score * multiplier
 ```
 
 Pick top 6. If fewer than 6 are available use all of them.
@@ -123,6 +136,9 @@ Spawn the `marcus-performance-coach` agent with this prompt:
 ## Step 5 — Assemble outputs
 
 Combine what Chloe, Sarah, and Marcus returned.
+
+**Before writing any content field, scrub em-dashes:**
+Replace all ` — ` (em-dash with spaces) and `—` (em-dash) in commentary, weekly_summary, and key_insights with either a comma, a period, or nothing — whichever reads better in context. The writers do not use em-dashes. If you see them in the output, they're a mistake. Remove them.
 
 **Write `data/content-of-the-week.json`:**
 ```json
