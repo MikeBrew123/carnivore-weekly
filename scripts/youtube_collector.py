@@ -30,12 +30,7 @@ except ImportError:
     print("Warning: Supabase client not installed. Install with: pip install supabase")
     create_client = None
 
-# Anthropic for relevance scoring
-try:
-    from anthropic import Anthropic
-except ImportError:
-    print("Warning: Anthropic client not installed. Install with: pip install anthropic")
-    Anthropic = None
+# Note: Claude relevance scoring removed — keyword filtering used instead.
 
 # Load environment variables from .env file
 # This keeps sensitive data like API keys out of your code
@@ -62,7 +57,7 @@ DAYS_BACK = 7  # How many days back to search (7 = fresh content only, avoids re
 TOP_CREATORS_COUNT = 12  # How many top creators to analyze (increased for diversity)
 MAX_VIDEOS_PER_CREATOR = 3  # Max videos per creator (3 gives more chances to find long-form)
 COMMENTS_PER_VIDEO = 20  # Top comments per video
-MIN_RELEVANCE_SCORE = 7  # Minimum Claude relevance score (1-10)
+MIN_RELEVANCE_SCORE = 7  # Minimum keyword relevance score (1-10)
 
 # PERMANENT BLOCKLIST - Channels that should NEVER appear
 # Categories: "off-topic" = not carnivore content, "opposing-stance" = anti-carnivore advocacy
@@ -243,17 +238,7 @@ class YouTubeCollector:
         except Exception as e:
             print(f"⚠ Warning: Could not initialize Supabase: {e}")
 
-        # Initialize Anthropic client for relevance scoring
-        self.anthropic = None
-        try:
-            anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-            if anthropic_key and Anthropic:
-                self.anthropic = Anthropic(api_key=anthropic_key)
-                print("✓ Claude API initialized (smart content filtering enabled)")
-            else:
-                print("⚠ Claude API not configured - using basic keyword filtering")
-        except Exception as e:
-            print(f"⚠ Warning: Could not initialize Claude API: {e}")
+        print("✓ Relevance filtering: keyword matching")
 
     def load_from_cache(self) -> Dict:
         """
@@ -363,63 +348,20 @@ class YouTubeCollector:
 
     def score_video_relevance(self, title: str, description: str) -> tuple:
         """
-        Score video relevance to carnivore diet content using Claude API
-
-        Args:
-            title: Video title
-            description: Video description
-
-        Returns:
-            Tuple of (score: int, reason: str)
+        Score video relevance to carnivore diet content using keyword matching.
+        Claude scoring removed — all AI analysis handled by the weekly agent.
         """
-        if not self.anthropic:
-            # Fallback: basic keyword matching
-            text = (title + " " + description).lower()
-            carnivore_keywords = ["carnivore", "meat", "beef", "animal-based", "zero carb"]
-            if any(kw in text for kw in carnivore_keywords):
-                return (8, "Contains carnivore keywords")
-            return (5, "No specific carnivore keywords")
-
-        try:
-            prompt = f"""Score this video's relevance to CARNIVORE DIET content (1-10):
-
-Title: {title}
-Description: {description[:500]}
-
-CARNIVORE DIET = eating only animal products (meat, fish, eggs, dairy). Content must discuss this eating style.
-
-Scoring guidelines:
-- 9-10: Directly about carnivore/animal-based diet (recipes, results, protocols, experiences, "what I eat")
-- 7-8: Carnivore-adjacent topics (keto for carnivore, exercise ON carnivore, health improvements FROM carnivore)
-- 4-6: General health/fitness that MENTIONS carnivore but isn't focused on it
-- 1-3: Off-topic (general commentary, societal issues, generic fitness without carnivore)
-- 1: Anti-carnivore advocacy (content attacking, debunking, or discouraging carnivore diet)
-
-REJECT if: Video is about general lifestyle, culture, society, or fitness WITHOUT carnivore diet context.
-ACCEPT if: Video discusses carnivore diet, eating carnivore, living carnivore, or health changes from carnivore.
-
-Return ONLY valid JSON: {{"score": X, "reason": "brief reason"}}"""
-
-            response = self.anthropic.messages.create(
-                model="claude-haiku-4-5-20251001",
-                max_tokens=100,
-                messages=[{"role": "user", "content": prompt}],
-            )
-
-            result_text = response.content[0].text.strip()
-            # Parse JSON response
-            import json
-
-            result = json.loads(result_text)
-            return (result["score"], result["reason"])
-
-        except Exception as e:
-            print(f"   ⚠ Claude scoring failed: {e}")
-            # Fallback to basic keyword matching
-            text = (title + " " + description).lower()
-            if "carnivore" in text or "meat diet" in text:
-                return (7, "Fallback: contains carnivore keywords")
-            return (5, "Fallback: relevance unclear")
+        text = (title + " " + description).lower()
+        strong_keywords = [
+            "carnivore diet", "carnivore", "animal-based", "zero carb",
+            "meat diet", "beef only", "lion diet", "nose to tail",
+        ]
+        weak_keywords = ["keto", "low carb", "steak", "ribeye", "organ meat"]
+        if any(kw in text for kw in strong_keywords):
+            return (9, "Contains carnivore keywords")
+        if any(kw in text for kw in weak_keywords):
+            return (7, "Contains keto/meat keywords")
+        return (4, "No carnivore keywords found")
 
     def enforce_creator_diversity(self, videos: List[Dict]) -> List[Dict]:
         """

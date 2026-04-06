@@ -30,14 +30,14 @@ DATA_DIR = PROJECT_ROOT / "data"
 OUTPUT_FILE = DATA_DIR / "reddit_data.json"
 
 # Subreddits to monitor
-SUBREDDITS = ["carnivore", "meat_only", "animalbaseddiet"]
+SUBREDDITS = ["carnivore", "carnivorediet", "meat_only", "animalbaseddiet", "zerocarb"]
 DAYS_BACK = 7
 TOP_POSTS_PER_SUBREDDIT = 10
 TOP_COMMENTS_PER_POST = 15
 MIN_UPVOTES = 5  # Filter posts with at least this many upvotes
 
 # Reddit JSON API (no auth required for public subreddits)
-REDDIT_API_BASE = "https://reddit.com"
+REDDIT_API_BASE = "https://www.reddit.com"
 HEADERS = {
     "User-Agent": "CarnivoreWeekly/1.0 (Python Reddit Data Collector)"
 }
