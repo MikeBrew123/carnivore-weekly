@@ -14,8 +14,9 @@ import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://kwtdpvnjewtahuxjyltn.supabase.co';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'sb_secret_-DJISSDQQD7oWqS87RBJ8Q_0sKdDWVz';
+const secrets = JSON.parse(readFileSync(join(__dirname, '../../../secrets/api-keys.json'), 'utf-8'));
+const SUPABASE_URL = process.env.SUPABASE_URL || secrets.supabase.url;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || secrets.supabase.service_role_key;
 
 console.log('🔄 Applying Calculator2 Session Migration...');
 console.log(`📍 Target: ${SUPABASE_URL}`);
