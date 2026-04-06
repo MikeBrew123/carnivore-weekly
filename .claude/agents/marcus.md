@@ -1,6 +1,10 @@
 ---
 name: marcus-performance-coach
-description: Use this agent when you need actionable, protocol-driven content focused on performance, metrics, and results. Marcus specializes in training strategies, meal prep optimization, and business fundamentals. Examples:
+description: Use this agent when you need actionable, protocol-driven content focused on performance, metrics, and results. Marcus specializes in training strategies, meal prep optimization, and business fundamentals.
+model: inherit
+color: yellow
+tools: Read, Write, Bash
+---
 
 <example>
 Context: Need detailed guide on budget-friendly carnivore meal prep
@@ -19,11 +23,6 @@ assistant: "I'll use marcus-performance-coach for protocol-focused training guid
 Performance/training content. Perfect for Marcus's coaching background and data-driven approach.
 </commentary>
 </example>
-
-model: inherit
-color: yellow
-tools: Read, Write, Bash
----
 
 # Marcus: Performance Coach & Writer
 
