@@ -30,6 +30,11 @@ vars = { ENVIRONMENT = "development", SUPABASE_URL = "https://kwtdpvnjewtahuxjyl
 # - ETSY_CLIENT_ID: Etsy API key
 # - ETSY_CLIENT_SECRET: Etsy shared secret (not used in PKCE but good to have)
 # - ETSY_REDIRECT_URI: OAuth callback URL
+#
+# Beehiiv secrets (added 2026-03-21):
+# - BEEHIIV_API_KEY: Bearer token for Beehiiv API
+# - BEEHIIV_PUB_ID: Publication ID (pub_0ebe632d-...)
+# Upload via: wrangler secret put BEEHIIV_API_KEY && wrangler secret put BEEHIIV_PUB_ID
 
 # KV Namespace for Etsy PKCE state storage
 [[kv_namespaces]]

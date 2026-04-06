@@ -4996,6 +4996,54 @@ async function handleMailerLiteSubscribe(request, env) {
   }
 }
 
+// ===== BEEHIIV NEWSLETTER SUBSCRIBE HANDLER =====
+async function handleBeehiivSubscribe(request, env) {
+  try {
+    const { email } = await request.json();
+    if (!email || !email.includes('@')) {
+      return createErrorResponse('INVALID_EMAIL', 'Valid email required', 400);
+    }
+
+    const bhResponse = await fetch(
+      `https://api.beehiiv.com/v2/publications/${env.BEEHIIV_PUB_ID}/subscriptions`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.BEEHIIV_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          reactivate_existing: false,
+          send_welcome_email: true,
+          utm_source: 'homepage',
+        }),
+      }
+    );
+
+    if (bhResponse.ok) {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // 409 = already subscribed — treat as success
+    if (bhResponse.status === 409) {
+      return new Response(JSON.stringify({ success: true, existing: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const errBody = await bhResponse.text().catch(() => '');
+    console.error('Beehiiv subscribe error:', bhResponse.status, errBody);
+    return createErrorResponse('SUBSCRIBE_FAILED', 'Subscription failed', 500);
+  } catch (err) {
+    return createErrorResponse('SUBSCRIBE_ERROR', String(err), 500);
+  }
+}
+
 // ===== FEEDBACK HANDLER =====
 async function handleFeedback(request, env) {
   try {
@@ -5212,6 +5260,11 @@ export default {
     // ===== MAILERLITE SUBSCRIBE PROXY =====
     if (path === '/api/v1/subscribe' && method === 'POST') {
       return sendWithCors(await handleMailerLiteSubscribe(request, env));
+    }
+
+    // ===== BEEHIIV NEWSLETTER SUBSCRIBE PROXY =====
+    if (path === '/api/v1/subscribe/newsletter' && method === 'POST') {
+      return sendWithCors(await handleBeehiivSubscribe(request, env));
     }
 
     // ===== FEEDBACK PROXY =====

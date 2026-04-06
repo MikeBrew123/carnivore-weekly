@@ -2,99 +2,99 @@
   "performance": [
     {
       "keys": [
-        "2026-02-28"
-      ],
-      "clicks": 0,
-      "impressions": 998,
-      "ctr": 0,
-      "position": 6.129258517034068
-    },
-    {
-      "keys": [
-        "2026-03-01"
+        "2026-03-27"
       ],
       "clicks": 2,
-      "impressions": 793,
-      "ctr": 0.0025220680958385876,
-      "position": 6.573770491803279
+      "impressions": 1422,
+      "ctr": 0.0014064697609001407,
+      "position": 6.879746835443038
     },
     {
       "keys": [
-        "2026-03-02"
+        "2026-03-28"
       ],
       "clicks": 4,
-      "impressions": 1253,
-      "ctr": 0.0031923383878691143,
-      "position": 5.97366320830008
+      "impressions": 1173,
+      "ctr": 0.0034100596760443308,
+      "position": 7.076726342710997
     },
     {
       "keys": [
-        "2026-03-03"
+        "2026-03-29"
       ],
-      "clicks": 2,
-      "impressions": 1981,
-      "ctr": 0.0010095911155981827,
-      "position": 5.338717819283191
+      "clicks": 7,
+      "impressions": 1444,
+      "ctr": 0.004847645429362881,
+      "position": 7.087950138504155
     },
     {
       "keys": [
-        "2026-03-04"
+        "2026-03-30"
       ],
-      "clicks": 2,
-      "impressions": 682,
-      "ctr": 0.002932551319648094,
-      "position": 8.868035190615835
+      "clicks": 5,
+      "impressions": 941,
+      "ctr": 0.005313496280552604,
+      "position": 6.781083953241232
     },
     {
       "keys": [
-        "2026-03-05"
+        "2026-03-31"
       ],
       "clicks": 3,
-      "impressions": 1033,
-      "ctr": 0.002904162633107454,
-      "position": 7.209099709583737
+      "impressions": 1229,
+      "ctr": 0.0024410089503661514,
+      "position": 6.094385679414158
     },
     {
       "keys": [
-        "2026-03-06"
+        "2026-04-01"
       ],
       "clicks": 2,
-      "impressions": 665,
-      "ctr": 0.0030075187969924814,
-      "position": 8.837593984962407
+      "impressions": 751,
+      "ctr": 0.002663115845539281,
+      "position": 7.1797603195739015
+    },
+    {
+      "keys": [
+        "2026-04-02"
+      ],
+      "clicks": 1,
+      "impressions": 681,
+      "ctr": 0.0014684287812041115,
+      "position": 7.675477239353891
+    },
+    {
+      "keys": [
+        "2026-04-03"
+      ],
+      "clicks": 2,
+      "impressions": 756,
+      "ctr": 0.0026455026455026454,
+      "position": 7.965608465608466
     }
   ],
   "queries": [
     {
       "keys": [
-        "\"1.5 g protein per lb\" bodybuilding"
+        "carnivore macro calculator"
       ],
-      "clicks": 0,
-      "impressions": 3,
-      "ctr": 0,
-      "position": 5.666666666666667
+      "clicks": 2,
+      "impressions": 21,
+      "ctr": 0.09523809523809523,
+      "position": 8.523809523809524
     },
     {
       "keys": [
-        "\"anthony chaffee\" \"vitamin d\" \"ng/ml\""
+        "\"anthony chaffee\" alcohol frequency carnivore"
       ],
       "clicks": 0,
-      "impressions": 27,
+      "impressions": 1,
       "ctr": 0,
-      "position": 9.25925925925926
+      "position": 5
     },
     {
       "keys": [
-        "\"anthony chaffee\" \"vitamin d\" \"ng/ml\" or \"ng/ml\""
-      ],
-      "clicks": 0,
-      "impressions": 19,
-      "ctr": 0,
-      "position": 9.105263157894736
-    },
-    {
-      "keys": [
-        "30 day dinner meal carnivore diet meal plan pdf"
+        "all meat diet plan"
       ],
       "clicks": 0,
       "impressions": 1,
@@ -103,30 +103,12 @@
     },
     {
       "keys": [
-        "30-day carnivore diet meal plan"
-      ],
-      "clicks": 0,
-      "impressions": 2,
-      "ctr": 0,
-      "position": 67
-    },
-    {
-      "keys": [
-        "7 day carnivore diet"
-      ],
-      "clicks": 0,
-      "impressions": 1,
-      "ctr": 0,
-      "position": 57
-    },
-    {
-      "keys": [
         "animal based calculator"
       ],
       "clicks": 0,
-      "impressions": 2,
+      "impressions": 3,
       "ctr": 0,
-      "position": 42
+      "position": 26.333333333333332
     },
     {
       "keys": [
@@ -135,337 +117,29 @@
       "clicks": 0,
       "impressions": 1,
       "ctr": 0,
-      "position": 6
+      "position": 8
     },
     {
       "keys": [
-        "animal based diet macro calculator"
+        "animal based diet calculator"
       ],
       "clicks": 0,
-      "impressions": 1,
+      "impressions": 5,
       "ctr": 0,
-      "position": 14
+      "position": 16.6
     },
     {
       "keys": [
         "animal based macro calculator"
       ],
       "clicks": 0,
-      "impressions": 4,
+      "impressions": 6,
       "ctr": 0,
-      "position": 20.25
-    },
-    {
-      "keys": [
-        "beginner carnivore diet meal plan pdf"
-      ],
-      "clicks": 0,
-      "impressions": 4,
-      "ctr": 0,
-      "position": 75.25
+      "position": 17
     },
     {
       "keys": [
         "best air fryer for carnivore diet"
-      ],
-      "clicks": 0,
-      "impressions": 2,
-      "ctr": 0,
-      "position": 10.5
-    },
-    {
-      "keys": [
-        "best carnivore diet meal plan"
-      ],
-      "clicks": 0,
-      "impressions": 1,
-      "ctr": 0,
-      "position": 66
-    },
-    {
-      "keys": [
-        "carnivore air fryer meals"
-      ],
-      "clicks": 0,
-      "impressions": 1,
-      "ctr": 0,
-      "position": 63
-    },
-    {
-      "keys": [
-        "carnivore calculator"
-      ],
-      "clicks": 0,
-      "impressions": 3,
-      "ctr": 0,
-      "position": 30.666666666666668
-    },
-    {
-      "keys": [
-        "carnivore calorie calculator"
-      ],
-      "clicks": 0,
-      "impressions": 2,
-      "ctr": 0,
-      "position": 23
-    },
-    {
-      "keys": [
-        "carnivore dating"
-      ],
-      "clicks": 0,
-      "impressions": 1,
-      "ctr": 0,
-      "position": 21
-    },
-    {
-      "keys": [
-        "carnivore diet 7-day meal plan"
-      ],
-      "clicks": 0,
-      "impressions": 4,
-      "ctr": 0,
-      "position": 64.25
-    },
-    {
-      "keys": [
-        "carnivore diet adaptation period duration"
-      ],
-      "clicks": 0,
-      "impressions": 12,
-      "ctr": 0,
-      "position": 5.833333333333333
-    },
-    {
-      "keys": [
-        "carnivore diet adaptation period keto flu duration"
-      ],
-      "clicks": 0,
-      "impressions": 4,
-      "ctr": 0,
-      "position": 6.5
-    },
-    {
-      "keys": [
-        "carnivore diet adaptation period symptoms timeline"
-      ],
-      "clicks": 0,
-      "impressions": 13,
-      "ctr": 0,
-      "position": 1.7692307692307692
-    },
-    {
-      "keys": [
-        "carnivore diet adaptation period time frame"
-      ],
-      "clicks": 0,
-      "impressions": 2,
-      "ctr": 0,
-      "position": 4.5
-    },
-    {
-      "keys": [
-        "carnivore diet adaptation period timeline"
-      ],
-      "clicks": 0,
-      "impressions": 28,
-      "ctr": 0,
-      "position": 2.9642857142857144
-    },
-    {
-      "keys": [
-        "carnivore diet adaptation phase duration"
-      ],
-      "clicks": 0,
-      "impressions": 52,
-      "ctr": 0,
-      "position": 6.326923076923077
-    },
-    {
-      "keys": [
-        "carnivore diet adaptation phase symptoms"
-      ],
-      "clicks": 0,
-      "impressions": 6,
-      "ctr": 0,
-      "position": 6
-    }
-  ],
-  "pages": [
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-08-endurance-running-marathon.html"
-      ],
-      "clicks": 3,
-      "impressions": 75,
-      "ctr": 0.04,
-      "position": 5.733333333333333
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-20-oxalate-dumping-carnivore.html"
-      ],
-      "clicks": 3,
-      "impressions": 117,
-      "ctr": 0.02564102564102564,
-      "position": 10.854700854700855
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-09-carnivore-meal-plan-complete-guide.html"
-      ],
-      "clicks": 2,
-      "impressions": 347,
-      "ctr": 0.005763688760806916,
-      "position": 25.389048991354468
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-07-thyroid-reversal.html"
-      ],
-      "clicks": 1,
-      "impressions": 90,
-      "ctr": 0.011111111111111112,
-      "position": 6.722222222222222
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-08-adaptation-timeline.html"
-      ],
-      "clicks": 1,
-      "impressions": 3916,
-      "ctr": 0.0002553626149131767,
-      "position": 4.089632277834525
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-08-weightlifting-muscle-building.html"
-      ],
-      "clicks": 1,
-      "impressions": 36,
-      "ctr": 0.027777777777777776,
-      "position": 7.861111111111111
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-11-gut-health-microbiome.html"
-      ],
-      "clicks": 1,
-      "impressions": 260,
-      "ctr": 0.0038461538461538464,
-      "position": 6.6
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-14-valentines-day-carnivore-date-night.html"
-      ],
-      "clicks": 1,
-      "impressions": 2,
-      "ctr": 0.5,
-      "position": 23.5
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-15-carnivore-skin-eczema-psoriasis.html"
-      ],
-      "clicks": 1,
-      "impressions": 49,
-      "ctr": 0.02040816326530612,
-      "position": 8.959183673469388
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-16-cgm-continuous-glucose-monitor-carnivore.html"
-      ],
-      "clicks": 1,
-      "impressions": 72,
-      "ctr": 0.013888888888888888,
-      "position": 3.5416666666666665
-    },
-    {
-      "keys": [
-        "http://carnivoreweekly.com/blog/2025-12-18-carnivore-bar-guide.html"
-      ],
-      "clicks": 0,
-      "impressions": 23,
-      "ctr": 0,
-      "position": 8.782608695652174
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/"
-      ],
-      "clicks": 0,
-      "impressions": 14,
-      "ctr": 0,
-      "position": 7.785714285714286
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/about/"
-      ],
-      "clicks": 0,
-      "impressions": 1,
-      "ctr": 0,
-      "position": 10
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/"
-      ],
-      "clicks": 0,
-      "impressions": 6,
-      "ctr": 0,
-      "position": 5.5
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2025-12-28-physiological-insulin-resistance.html"
-      ],
-      "clicks": 0,
-      "impressions": 74,
-      "ctr": 0,
-      "position": 5.702702702702703
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-01-02-beginners-blueprint.html"
-      ],
-      "clicks": 0,
-      "impressions": 7,
-      "ctr": 0,
-      "position": 7
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-01-02-lion-diet-research.html"
-      ],
-      "clicks": 0,
-      "impressions": 1,
-      "ctr": 0,
-      "position": 10
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-01-03-top-creators-2026.html"
-      ],
-      "clicks": 0,
-      "impressions": 119,
-      "ctr": 0,
-      "position": 3.8739495798319328
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-01-05-womens-health.html"
-      ],
-      "clicks": 0,
-      "impressions": 14,
-      "ctr": 0,
-      "position": 8.571428571428571
-    },
-    {
-      "keys": [
-        "https://carnivoreweekly.com/blog/2026-01-13-carnivore-plateaus-honest-truth.html"
       ],
       "clicks": 0,
       "impressions": 1,
@@ -474,70 +148,500 @@
     },
     {
       "keys": [
-        "https://carnivoreweekly.com/blog/2026-01-15-two-week-results-reddit.html"
+        "best carnivore diet meal plan"
       ],
       "clicks": 0,
-      "impressions": 5,
+      "impressions": 1,
       "ctr": 0,
-      "position": 7.4
+      "position": 74
     },
     {
       "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-08-autoimmune-remission.html"
+        "best carnivore diet plan"
+      ],
+      "clicks": 0,
+      "impressions": 2,
+      "ctr": 0,
+      "position": 65
+    },
+    {
+      "keys": [
+        "canivore challenge calculator"
+      ],
+      "clicks": 0,
+      "impressions": 7,
+      "ctr": 0,
+      "position": 5.428571428571429
+    },
+    {
+      "keys": [
+        "carnivor bar"
+      ],
+      "clicks": 0,
+      "impressions": 1,
+      "ctr": 0,
+      "position": 20
+    },
+    {
+      "keys": [
+        "carnivor protein bars"
+      ],
+      "clicks": 0,
+      "impressions": 1,
+      "ctr": 0,
+      "position": 49
+    },
+    {
+      "keys": [
+        "carnivore adaptation period"
+      ],
+      "clicks": 0,
+      "impressions": 3,
+      "ctr": 0,
+      "position": 6.333333333333333
+    },
+    {
+      "keys": [
+        "carnivore adaptation symptoms"
+      ],
+      "clicks": 0,
+      "impressions": 1,
+      "ctr": 0,
+      "position": 12
+    },
+    {
+      "keys": [
+        "carnivore bar"
+      ],
+      "clicks": 0,
+      "impressions": 3,
+      "ctr": 0,
+      "position": 41.666666666666664
+    },
+    {
+      "keys": [
+        "carnivore bars"
+      ],
+      "clicks": 0,
+      "impressions": 1,
+      "ctr": 0,
+      "position": 14
+    },
+    {
+      "keys": [
+        "carnivore calculator"
+      ],
+      "clicks": 0,
+      "impressions": 1,
+      "ctr": 0,
+      "position": 9
+    },
+    {
+      "keys": [
+        "carnivore calorie calculator"
+      ],
+      "clicks": 0,
+      "impressions": 1,
+      "ctr": 0,
+      "position": 10
+    },
+    {
+      "keys": [
+        "carnivore diet 7-day meal plan"
+      ],
+      "clicks": 0,
+      "impressions": 1,
+      "ctr": 0,
+      "position": 55
+    },
+    {
+      "keys": [
+        "carnivore diet adaptation"
+      ],
+      "clicks": 0,
+      "impressions": 7,
+      "ctr": 0,
+      "position": 13.714285714285714
+    },
+    {
+      "keys": [
+        "carnivore diet adaptation period"
       ],
       "clicks": 0,
       "impressions": 18,
       "ctr": 0,
-      "position": 7
+      "position": 4.611111111111111
     },
     {
       "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-08-bloodwork-guide.html"
+        "carnivore diet adaptation period constipation"
       ],
       "clicks": 0,
-      "impressions": 13,
+      "impressions": 2,
       "ctr": 0,
-      "position": 6.3076923076923075
+      "position": 9
     },
     {
       "keys": [
-        "https://carnivoreweekly.com/blog/2026-02-08-carnivore-constipation.html"
+        "carnivore diet adaptation period digestive issues"
       ],
       "clicks": 0,
-      "impressions": 291,
+      "impressions": 2,
       "ctr": 0,
-      "position": 6.625429553264605
+      "position": 10
+    },
+    {
+      "keys": [
+        "carnivore diet adaptation period duration"
+      ],
+      "clicks": 0,
+      "impressions": 8,
+      "ctr": 0,
+      "position": 3.875
+    }
+  ],
+  "pages": [
+    {
+      "keys": [
+        "https://carnivoreweekly.com/calculator.html"
+      ],
+      "clicks": 9,
+      "impressions": 415,
+      "ctr": 0.021686746987951807,
+      "position": 8.351807228915662
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-02-08-adaptation-timeline.html"
+      ],
+      "clicks": 3,
+      "impressions": 3535,
+      "ctr": 0.0008486562942008486,
+      "position": 4.117963224893918
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2025-12-21-night-sweats.html"
+      ],
+      "clicks": 2,
+      "impressions": 41,
+      "ctr": 0.04878048780487805,
+      "position": 4.829268292682927
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-02-16-cgm-continuous-glucose-monitor-carnivore.html"
+      ],
+      "clicks": 2,
+      "impressions": 112,
+      "ctr": 0.017857142857142856,
+      "position": 5.785714285714286
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-02-19-carnivore-sleep-insomnia.html"
+      ],
+      "clicks": 2,
+      "impressions": 230,
+      "ctr": 0.008695652173913044,
+      "position": 5.391304347826087
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2025-12-23-adhd-connection.html"
+      ],
+      "clicks": 1,
+      "impressions": 92,
+      "ctr": 0.010869565217391304,
+      "position": 7.728260869565218
     },
     {
       "keys": [
         "https://carnivoreweekly.com/blog/2026-02-08-carnivore-family-dinner.html"
       ],
+      "clicks": 1,
+      "impressions": 8,
+      "ctr": 0.125,
+      "position": 12.25
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-02-08-thyroid-tsh.html"
+      ],
+      "clicks": 1,
+      "impressions": 45,
+      "ctr": 0.022222222222222223,
+      "position": 9.622222222222222
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-02-09-how-much-protein-carnivore.html"
+      ],
+      "clicks": 1,
+      "impressions": 211,
+      "ctr": 0.004739336492890996,
+      "position": 9.218009478672986
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-02-12-carnivore-depression-anxiety.html"
+      ],
+      "clicks": 1,
+      "impressions": 111,
+      "ctr": 0.009009009009009009,
+      "position": 10.936936936936936
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-02-20-oxalate-dumping-carnivore.html"
+      ],
+      "clicks": 1,
+      "impressions": 56,
+      "ctr": 0.017857142857142856,
+      "position": 8.678571428571429
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-02-21-carnivore-fertility-conception.html"
+      ],
+      "clicks": 1,
+      "impressions": 39,
+      "ctr": 0.02564102564102564,
+      "position": 8.897435897435898
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/the-lab.html"
+      ],
+      "clicks": 1,
+      "impressions": 4,
+      "ctr": 0.25,
+      "position": 8
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/"
+      ],
       "clicks": 0,
-      "impressions": 16,
+      "impressions": 34,
       "ctr": 0,
-      "position": 7.0625
+      "position": 6.617647058823529
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/about/"
+      ],
+      "clicks": 0,
+      "impressions": 3,
+      "ctr": 0,
+      "position": 3.3333333333333335
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/archive.html"
+      ],
+      "clicks": 0,
+      "impressions": 4,
+      "ctr": 0,
+      "position": 4.5
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/"
+      ],
+      "clicks": 0,
+      "impressions": 11,
+      "ctr": 0,
+      "position": 10.636363636363637
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2025-12-18-carnivore-bar-guide.html"
+      ],
+      "clicks": 0,
+      "impressions": 38,
+      "ctr": 0,
+      "position": 18.763157894736842
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2025-12-19-psmf-fat-loss.html"
+      ],
+      "clicks": 0,
+      "impressions": 87,
+      "ctr": 0,
+      "position": 5.149425287356322
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2025-12-20-lipid-energy-model.html"
+      ],
+      "clicks": 0,
+      "impressions": 5,
+      "ctr": 0,
+      "position": 6.6
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2025-12-22-mtor-muscle.html"
+      ],
+      "clicks": 0,
+      "impressions": 7,
+      "ctr": 0,
+      "position": 7.857142857142857
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2025-12-24-deep-freezer-strategy.html"
+      ],
+      "clicks": 0,
+      "impressions": 1,
+      "ctr": 0,
+      "position": 8
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2025-12-28-physiological-insulin-resistance.html"
+      ],
+      "clicks": 0,
+      "impressions": 116,
+      "ctr": 0,
+      "position": 6.741379310344827
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-01-02-beginners-blueprint.html"
+      ],
+      "clicks": 0,
+      "impressions": 5,
+      "ctr": 0,
+      "position": 7
+    },
+    {
+      "keys": [
+        "https://carnivoreweekly.com/blog/2026-01-02-lion-diet-research.html"
+      ],
+      "clicks": 0,
+      "impressions": 2,
+      "ctr": 0,
+      "position": 9.5
     }
   ],
   "sitemaps": [
     {
       "path": "https://carnivoreweekly.com/sitemap.xml",
-      "lastSubmitted": "2026-02-23T17:55:09.746Z",
+      "lastSubmitted": "2026-03-22T16:54:14.942Z",
       "isPending": false,
       "isSitemapsIndex": false,
       "type": "sitemap",
-      "lastDownloaded": "2026-02-23T17:55:10.441Z",
+      "lastDownloaded": "2026-03-22T16:54:15.960Z",
       "warnings": "0",
       "errors": "0",
       "contents": [
         {
           "type": "web",
-          "submitted": "76",
+          "submitted": "97",
           "indexed": "0"
         }
       ]
     }
   ],
   "inspections": [
+    {
+      "url": "/blog/2026-03-25-carnivore-first-30-days-honest-adaptation-guide.html",
+      "slug": "2026-03-25-carnivore-first-30-days-honest-adaptation-guide",
+      "title": "The Beginner's Honest First 30 Days: What Actually Happens (Not the Highlight Reel)",
+      "publishDate": "2026-03-25",
+      "verdict": "NEUTRAL",
+      "coverageState": "URL is unknown to Google",
+      "robotsTxt": "ROBOTS_TXT_STATE_UNSPECIFIED",
+      "lastCrawl": null,
+      "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
+      "indexingState": "INDEXING_STATE_UNSPECIFIED",
+      "referringUrls": []
+    },
+    {
+      "url": "/blog/2026-03-23-carnivore-meal-prep-sunday-strategy-busy-professionals.html",
+      "slug": "2026-03-23-carnivore-meal-prep-sunday-strategy-busy-professionals",
+      "title": "Carnivore Meal Prep Hacks: 3-Hour Sunday Strategy for Busy Professionals",
+      "publishDate": "2026-03-23",
+      "verdict": "NEUTRAL",
+      "coverageState": "URL is unknown to Google",
+      "robotsTxt": "ROBOTS_TXT_STATE_UNSPECIFIED",
+      "lastCrawl": null,
+      "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
+      "indexingState": "INDEXING_STATE_UNSPECIFIED",
+      "referringUrls": []
+    },
+    {
+      "url": "/blog/2026-03-21-viral-transformation-trap-before-after-photos-carnivore.html",
+      "slug": "2026-03-21-viral-transformation-trap-before-after-photos-carnivore",
+      "title": "The Viral Transformation Trap: Why Those 'Before & Afters' Might Not Tell You the Whole Story",
+      "publishDate": "2026-03-21",
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "robotsTxt": "ALLOWED",
+      "lastCrawl": "2026-03-22T17:51:57Z",
+      "pageFetchState": "SUCCESSFUL",
+      "indexingState": "INDEXING_ALLOWED",
+      "referringUrls": [
+        "https://carnivoreweekly.com/sitemap.xml"
+      ]
+    },
+    {
+      "url": "/blog/2026-03-19-ground-beef-budget-carnivore-meals-under-3-dollars.html",
+      "slug": "2026-03-19-ground-beef-budget-carnivore-meals-under-3-dollars",
+      "title": "Ground Beef Nation: 7 High-Volume, Low-Cost Carnivore Meals Under $3/Serving",
+      "publishDate": "2026-03-19",
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "robotsTxt": "ALLOWED",
+      "lastCrawl": "2026-03-22T17:51:27Z",
+      "pageFetchState": "SUCCESSFUL",
+      "indexingState": "INDEXING_ALLOWED",
+      "referringUrls": [
+        "https://carnivoreweekly.com/sitemap.xml"
+      ]
+    },
+    {
+      "url": "/blog/2026-03-17-cholesterol-ldl-carnivore-what-data-shows.html",
+      "slug": "2026-03-17-cholesterol-ldl-carnivore-what-data-shows",
+      "title": "The Cholesterol Question Nobody's Answering: LDL on Carnivore (What the Data Actually Shows)",
+      "publishDate": "2026-03-17",
+      "verdict": "NEUTRAL",
+      "coverageState": "URL is unknown to Google",
+      "robotsTxt": "ROBOTS_TXT_STATE_UNSPECIFIED",
+      "lastCrawl": null,
+      "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
+      "indexingState": "INDEXING_STATE_UNSPECIFIED",
+      "referringUrls": []
+    },
+    {
+      "url": "/blog/2026-03-15-carnivore-weight-loss-stopped-metabolic-adaptation.html",
+      "slug": "2026-03-15-carnivore-weight-loss-stopped-metabolic-adaptation",
+      "title": "Why Your Carnivore Weight Loss Stopped (And It's Not What You Think)",
+      "publishDate": "2026-03-15",
+      "verdict": "NEUTRAL",
+      "coverageState": "URL is unknown to Google",
+      "robotsTxt": "ROBOTS_TXT_STATE_UNSPECIFIED",
+      "lastCrawl": null,
+      "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
+      "indexingState": "INDEXING_STATE_UNSPECIFIED",
+      "referringUrls": []
+    },
+    {
+      "url": "/blog/2026-03-07-carnivore-weekly-roundup-what-we-are-watching-march-202.html",
+      "slug": "2026-03-07-carnivore-weekly-roundup-what-we-are-watching-march-202",
+      "title": "Carnivore Weekly Roundup: What We're Watching This Week",
+      "publishDate": "2026-03-07",
+      "verdict": "NEUTRAL",
+      "coverageState": "URL is unknown to Google",
+      "robotsTxt": "ROBOTS_TXT_STATE_UNSPECIFIED",
+      "lastCrawl": null,
+      "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
+      "indexingState": "INDEXING_STATE_UNSPECIFIED",
+      "referringUrls": []
+    },
     {
       "url": "/blog/2026-03-06-ground-beef-eggs-the-underrated-carnivore-baseline-68-upvote.html",
       "slug": "2026-03-06-ground-beef-eggs-the-underrated-carnivore-baseline-68-upvote",
@@ -634,13 +738,15 @@
       "slug": "2026-03-02-ground-beef-and-histamine-sensitivity-why-fresh-matters-more",
       "title": "Ground Beef and Histamine Sensitivity: Why Fresh Matters More Than You Think",
       "publishDate": "2026-03-02",
-      "verdict": "NEUTRAL",
-      "coverageState": "URL is unknown to Google",
-      "robotsTxt": "ROBOTS_TXT_STATE_UNSPECIFIED",
-      "lastCrawl": null,
-      "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
-      "indexingState": "INDEXING_STATE_UNSPECIFIED",
-      "referringUrls": []
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "robotsTxt": "ALLOWED",
+      "lastCrawl": "2026-03-22T17:51:21Z",
+      "pageFetchState": "SUCCESSFUL",
+      "indexingState": "INDEXING_ALLOWED",
+      "referringUrls": [
+        "https://carnivoreweekly.com/sitemap.xml"
+      ]
     },
     {
       "url": "/blog/2026-03-02-the-first-2-weeks-weight-gain-phenomenon-what-your-body-is-a.html",
@@ -663,7 +769,7 @@
       "verdict": "PASS",
       "coverageState": "Submitted and indexed",
       "robotsTxt": "ALLOWED",
-      "lastCrawl": "2026-02-27T00:37:14Z",
+      "lastCrawl": "2026-03-20T04:46:46Z",
       "pageFetchState": "SUCCESSFUL",
       "indexingState": "INDEXING_ALLOWED",
       "referringUrls": []
@@ -676,7 +782,7 @@
       "verdict": "PASS",
       "coverageState": "Submitted and indexed",
       "robotsTxt": "ALLOWED",
-      "lastCrawl": "2026-02-26T13:22:50Z",
+      "lastCrawl": "2026-03-18T20:44:34Z",
       "pageFetchState": "SUCCESSFUL",
       "indexingState": "INDEXING_ALLOWED",
       "referringUrls": []
@@ -686,13 +792,15 @@
       "slug": "2026-02-25-media-vs-carnivore-2026",
       "title": "The Media vs Carnivore: Why 2026 Is the Year of the Debate",
       "publishDate": "2026-02-25",
-      "verdict": "NEUTRAL",
-      "coverageState": "URL is unknown to Google",
-      "robotsTxt": "ROBOTS_TXT_STATE_UNSPECIFIED",
-      "lastCrawl": null,
-      "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
-      "indexingState": "INDEXING_STATE_UNSPECIFIED",
-      "referringUrls": []
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "robotsTxt": "ALLOWED",
+      "lastCrawl": "2026-03-22T17:07:26Z",
+      "pageFetchState": "SUCCESSFUL",
+      "indexingState": "INDEXING_ALLOWED",
+      "referringUrls": [
+        "https://carnivoreweekly.com/sitemap.xml"
+      ]
     },
     {
       "url": "/blog/2026-02-24-carnivore-travel-guide.html",
@@ -706,110 +814,7 @@
       "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
       "indexingState": "INDEXING_STATE_UNSPECIFIED",
       "referringUrls": []
-    },
-    {
-      "url": "/blog/2026-02-23-carnivore-plateau-stall.html",
-      "slug": "2026-02-23-carnivore-plateau-stall",
-      "title": "When Carnivore Stops Working: Plateaus and Fixes",
-      "publishDate": "2026-02-23",
-      "verdict": "NEUTRAL",
-      "coverageState": "URL is unknown to Google",
-      "robotsTxt": "ROBOTS_TXT_STATE_UNSPECIFIED",
-      "lastCrawl": null,
-      "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
-      "indexingState": "INDEXING_STATE_UNSPECIFIED",
-      "referringUrls": []
-    },
-    {
-      "url": "/blog/2026-02-22-if-i-started-carnivore-2026.html",
-      "slug": "2026-02-22-if-i-started-carnivore-2026",
-      "title": "If I Started Carnivore in 2026: What I'd Do Differently",
-      "publishDate": "2026-02-22",
-      "verdict": "PASS",
-      "coverageState": "Submitted and indexed",
-      "robotsTxt": "ALLOWED",
-      "lastCrawl": "2026-02-23T18:09:14Z",
-      "pageFetchState": "SUCCESSFUL",
-      "indexingState": "INDEXING_ALLOWED",
-      "referringUrls": [
-        "https://carnivoreweekly.com/sitemap.xml"
-      ]
-    },
-    {
-      "url": "/blog/2026-02-21-carnivore-fertility-conception.html",
-      "slug": "2026-02-21-carnivore-fertility-conception",
-      "title": "Carnivore and Fertility: What Women Are Reporting",
-      "publishDate": "2026-02-21",
-      "verdict": "PASS",
-      "coverageState": "Submitted and indexed",
-      "robotsTxt": "ALLOWED",
-      "lastCrawl": "2026-02-23T18:44:12Z",
-      "pageFetchState": "SUCCESSFUL",
-      "indexingState": "INDEXING_ALLOWED",
-      "referringUrls": [
-        "https://carnivoreweekly.com/sitemap.xml"
-      ]
-    },
-    {
-      "url": "/blog/2026-02-20-oxalate-dumping-carnivore.html",
-      "slug": "2026-02-20-oxalate-dumping-carnivore",
-      "title": "Oxalate Dumping: Why You Feel Worse Before Better",
-      "publishDate": "2026-02-20",
-      "verdict": "PASS",
-      "coverageState": "Submitted and indexed",
-      "robotsTxt": "ALLOWED",
-      "lastCrawl": "2026-02-23T18:17:23Z",
-      "pageFetchState": "SUCCESSFUL",
-      "indexingState": "INDEXING_ALLOWED",
-      "referringUrls": [
-        "https://carnivoreweekly.com/sitemap.xml"
-      ]
-    },
-    {
-      "url": "/blog/2026-02-19-carnivore-sleep-insomnia.html",
-      "slug": "2026-02-19-carnivore-sleep-insomnia",
-      "title": "Carnivore and Sleep: Why You're Wired at 2 AM",
-      "publishDate": "2026-02-19",
-      "verdict": "PASS",
-      "coverageState": "Submitted and indexed",
-      "robotsTxt": "ALLOWED",
-      "lastCrawl": "2026-02-23T18:00:27Z",
-      "pageFetchState": "SUCCESSFUL",
-      "indexingState": "INDEXING_ALLOWED",
-      "referringUrls": [
-        "https://carnivoreweekly.com/sitemap.xml"
-      ]
-    },
-    {
-      "url": "/blog/2026-02-18-new-dietary-guidelines-2026.html",
-      "slug": "2026-02-18-new-dietary-guidelines-2026",
-      "title": "The 2026 Dietary Guidelines: What Actually Changed",
-      "publishDate": "2026-02-18",
-      "verdict": "PASS",
-      "coverageState": "Submitted and indexed",
-      "robotsTxt": "ALLOWED",
-      "lastCrawl": "2026-02-23T18:11:57Z",
-      "pageFetchState": "SUCCESSFUL",
-      "indexingState": "INDEXING_ALLOWED",
-      "referringUrls": [
-        "https://carnivoreweekly.com/sitemap.xml"
-      ]
-    },
-    {
-      "url": "/blog/2026-02-17-rfk-carnivore-diet-movement.html",
-      "slug": "2026-02-17-rfk-carnivore-diet-movement",
-      "title": "RFK's Carnivore Diet: What It Means for the Movement",
-      "publishDate": "2026-02-17",
-      "verdict": "PASS",
-      "coverageState": "Submitted and indexed",
-      "robotsTxt": "ALLOWED",
-      "lastCrawl": "2026-02-23T18:20:04Z",
-      "pageFetchState": "SUCCESSFUL",
-      "indexingState": "INDEXING_ALLOWED",
-      "referringUrls": [
-        "https://carnivoreweekly.com/sitemap.xml"
-      ]
     }
   ],
-  "generatedAt": "2026-03-09T04:40:34.643Z"
+  "generatedAt": "2026-04-05T14:11:22.556Z"
 }

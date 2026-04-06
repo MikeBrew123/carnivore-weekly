@@ -23,9 +23,10 @@ const PROJECT_DIR = '/Users/mbrew/Developer/carnivore-weekly';
 const MIGRATION_1_FILE = path.join(PROJECT_DIR, 'SUPABASE_MIGRATION_COMBINED.sql');
 const MIGRATION_2_FILE = path.join(PROJECT_DIR, 'SUPABASE_SEED_PAYMENT_TIERS.sql');
 
-const SUPABASE_URL = 'https://kwtdpvnjewtahuxjyltn.supabase.co';
-const PROJECT_ID = 'kwtdpvnjewtahuxjyltn';
-const SERVICE_ROLE_KEY = 'sb_secret_-DJISSDQQD7oWqS87RBJ8Q_0sKdDWVz';
+const secrets = JSON.parse(fs.readFileSync('/Users/mbrew/Developer/carnivore-weekly/secrets/api-keys.json', 'utf-8'));
+const SUPABASE_URL = secrets.supabase.url;
+const PROJECT_ID = secrets.supabase.project_id;
+const SERVICE_ROLE_KEY = secrets.supabase.service_role_key;
 
 console.log('\n='.repeat(60));
 console.log('  Carnivore Weekly: Database Migration Executor');
