@@ -1,55 +1,65 @@
 {
-  "generated_date": "2026-04-06",
+  "week": "2026-04-06",
   "topics": [
     {
-      "title": "Carnivore and A1C: What Getting from 7.4 to 4.1 Actually Looks Like (and Why Your Doctor Might Disagree)",
-      "source": "reddit + youtube",
-      "priority": "high"
+      "title": "Carnivore Wardrobe Crisis: The Hidden Cost Nobody Warns You About",
+      "writer": "chloe",
+      "angle": "The hilarious, relatable problem of losing weight so fast your clothes don't fit. Community stories from the 236-upvote Reddit thread.",
+      "keyword": "carnivore weight loss clothes don't fit"
     },
     {
-      "title": "LMNT vs Re-Lyte vs Making Your Own: An Honest Breakdown Without the Affiliate Links",
-      "source": "youtube",
-      "priority": "high"
+      "title": "Period Came Back on Carnivore: What Women Are Reporting",
+      "writer": "sarah",
+      "angle": "The 205-upvote Reddit post about menstruation returning after 11 days. Women sharing hormone recovery timelines.",
+      "keyword": "carnivore diet period came back hormones"
     },
     {
-      "title": "The DIY Electrolyte Formula That's Beating LMNT on Price and Ingredient Quality",
-      "source": "youtube",
-      "priority": "high"
+      "title": "Quitting Your Doctor After Carnivore: When It Makes Sense and When It Doesn't",
+      "writer": "sarah",
+      "angle": "The 388-upvote post about dropping medications. Real talk about when self-management works and when you still need medical oversight.",
+      "keyword": "carnivore quit medications doctor A1C"
     },
     {
-      "title": "How to Buy Beef in Bulk at Costco: Whole Loins, Vacuum Sealers, and the Real Math on Cost Per Pound",
-      "source": "reddit",
-      "priority": "medium"
+      "title": "OMAD on Carnivore: What Reddit's Favorite Meal Photos Actually Look Like",
+      "writer": "marcus",
+      "angle": "Breaking down the OMAD posts flooding Reddit. What people eat in one sitting. Protein and fat ratios.",
+      "keyword": "OMAD carnivore diet one meal a day"
     },
     {
-      "title": "Period Returning on Carnivore: What Women Are Reporting (and What the Research Says)",
-      "source": "reddit",
-      "priority": "medium"
+      "title": "Whole Loin at Costco: The Bulk Buying Strategy Carnivores Swear By",
+      "writer": "marcus",
+      "angle": "Vacuum sealing, cutting your own steaks, rendering tallow. Real cost-per-pound savings.",
+      "keyword": "costco carnivore bulk buying whole loin"
     },
     {
-      "title": "Six Medications to Zero: Carnivore and Prescription Drug Reduction Stories from Reddit",
-      "source": "reddit",
-      "priority": "medium"
+      "title": "DIY Electrolytes vs LMNT: What Dr. Hampton's Video Got Right",
+      "writer": "sarah",
+      "angle": "Dr. Hampton's 22K-view video questioning maltodextrin in popular brands. The homemade recipe.",
+      "keyword": "LMNT electrolytes carnivore DIY homemade"
     },
     {
-      "title": "The Low Protein Diet Debate: Why Some Longevity Researchers Say Less Is More (and Why Carnivores Disagree)",
-      "source": "youtube",
-      "priority": "medium"
+      "title": "Eating Out on Carnivore: The Community's Best Restaurant Hacks",
+      "writer": "chloe",
+      "angle": "Crowdsourced from the Keto Twins' 141-comment video. Crustless pizza bowls, riceless sushi.",
+      "keyword": "carnivore keto eating out restaurant guide"
     },
     {
-      "title": "HbA1c on Keto and Carnivore: Why Your Numbers Look Weird to Your Doctor but Might Be Fine",
-      "source": "youtube",
-      "priority": "medium"
+      "title": "The 'Everyone Thinks I'm Crazy' Phase: Surviving Social Pressure on Carnivore",
+      "writer": "chloe",
+      "angle": "The Carnivore Pensioner survey showing isolation is the #1 struggle. How to hold your ground.",
+      "keyword": "carnivore social pressure family thinks crazy"
     },
     {
-      "title": "Carnivore and Dating: Real Talk About Relationships, Social Eating, and Finding Someone Who Gets It",
-      "source": "youtube + reddit",
-      "priority": "low"
+      "title": "Carnivore at 2 Months: What the Weight Loss Timeline Actually Looks Like",
+      "writer": "sarah",
+      "angle": "The 156-upvote transformation post. Creatine and body recomposition. Fat loss vs weight loss.",
+      "keyword": "carnivore 2 month results weight loss timeline"
     },
     {
-      "title": "Clothes Don't Fit and You Can't Buy New Ones Yet: The Carnivore Problem Nobody Talks About",
-      "source": "reddit",
-      "priority": "low"
+      "title": "Easter on Carnivore: 26 Eggs and Zero Regrets",
+      "writer": "chloe",
+      "angle": "The viral Easter egg post. Holiday survival on carnivore.",
+      "keyword": "carnivore easter holiday eggs celebration"
     }
   ]
 }
