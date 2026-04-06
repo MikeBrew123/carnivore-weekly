@@ -61,17 +61,30 @@ COMMENTS_PER_VIDEO = 20  # Top comments per video
 MIN_RELEVANCE_SCORE = 7  # Minimum keyword relevance score (1-10)
 
 # PERMANENT BLOCKLIST - Channels that should NEVER appear
-# Categories: "off-topic" = not carnivore content, "opposing-stance" = anti-carnivore advocacy
 BLOCKED_CHANNELS = {
     "off-topic": [
-        "Ouachita Mountain Living",  # General lifestyle/cultural commentary
+        "Ouachita Mountain Living",
     ],
     "opposing-stance": [
-        "Mic the Vegan",   # Anti-carnivore advocacy
-        "VeganLinked",     # Anti-carnivore panel content
-        "Plant Based News", # Anti-carnivore
+        "Mic the Vegan",
+        "VeganLinked",
+        "Plant Based News",
     ],
 }
+
+# Title keyword blocklist — videos whose titles contain these are dropped
+# regardless of channel. Catches off-topic uploads from legit creators.
+BLOCKED_TITLE_KEYWORDS = [
+    "vegan", "plant-based", "plant based",          # anti-carnivore stance
+    "war zone", "war in", "military", "combat",     # off-topic news/travel
+    "recipe fails", "i quit carnivore", "why i stopped",  # clickbait negativity
+]
+
+
+def is_blocked_title(title: str) -> bool:
+    """Return True if the video title contains a blocked keyword."""
+    t = title.lower()
+    return any(kw in t for kw in BLOCKED_TITLE_KEYWORDS)
 
 
 def is_blocked_channel(channel_name):
@@ -987,6 +1000,16 @@ class YouTubeCollector:
         blocked_count = pre_block_count - len(relevant_videos)
         if blocked_count:
             print(f"   ✗ Blocked: {blocked_count} videos from blocklisted channels")
+
+        # Title keyword failsafe — catches off-topic uploads regardless of channel
+        pre_title_count = len(relevant_videos)
+        relevant_videos = [
+            v for v in relevant_videos
+            if not is_blocked_title(v.get("title", ""))
+        ]
+        title_blocked = pre_title_count - len(relevant_videos)
+        if title_blocked:
+            print(f"   ✗ Title filter: {title_blocked} off-topic videos removed")
 
         if not relevant_videos:
             print("✗ No relevant videos after filtering. Exiting.")
