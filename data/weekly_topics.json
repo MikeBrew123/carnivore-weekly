@@ -1,106 +1,55 @@
 {
-  "generated_date": "2026-04-05",
-  "community_pulse": "The carnivore community is obsessed with meat sourcing, pricing transparency, and breaking through weight loss plateaus. Budget-conscious members are debating Costco vs. specialty suppliers while newer practitioners seek practical guidance on quality and cost-effectiveness.",
+  "generated_date": "2026-04-06",
   "topics": [
     {
-      "rank": 1,
-      "title": "Costco vs. Butcher vs. Online: The Real Cost Breakdown of Carnivore Meat in 2026",
-      "angle": "Raw price comparison with hidden costs (shipping, membership, waste) that the 400k-view Costco video didn't address",
-      "why_now": "Steak and Butter Gal's viral video sparked heated comment debates about cost-per-pound accuracy; community wants the full financial picture",
-      "suggested_writer": "marcus",
-      "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-06"
+      "title": "Carnivore and A1C: What Getting from 7.4 to 4.1 Actually Looks Like (and Why Your Doctor Might Disagree)",
+      "source": "reddit + youtube",
+      "priority": "high"
     },
     {
-      "rank": 2,
-      "title": "Why Your Carnivore Weight Loss Stalled (And It's Probably Not What You Think)",
-      "angle": "Move beyond 'eat more fat' advice\u2014cover meal timing, electrolyte patterns, and metabolic adaptation specific to carnivore plateaus",
-      "why_now": "Weight loss plateau videos are trending; community is frustrated and needs diagnostic depth, not generic tips",
-      "suggested_writer": "sarah",
-      "priority": "high",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-04-08"
+      "title": "LMNT vs Re-Lyte vs Making Your Own: An Honest Breakdown Without the Affiliate Links",
+      "source": "youtube",
+      "priority": "high"
     },
     {
-      "rank": 3,
-      "title": "The Meat Quality Myth: Lab Testing Results From Popular Carnivore Proteins",
-      "angle": "Actual nutrient density and contaminant testing data on Costco, pasture-raised, and conventional meat sources (not just marketing claims)",
-      "why_now": "Meat sourcing is trending but mostly anecdotal; community needs science-backed comparison to make informed choices",
-      "suggested_writer": "sarah",
-      "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-10"
+      "title": "The DIY Electrolyte Formula That's Beating LMNT on Price and Ingredient Quality",
+      "source": "youtube",
+      "priority": "high"
     },
     {
-      "rank": 4,
-      "title": "I Tried Costco Carnivore for 30 Days: The Honest Money vs. Quality Trade-Off",
-      "angle": "Personal narrative testing whether budget-friendly Costco meat actually works for results, energy, and satiety vs. premium sources",
-      "why_now": "Follows the viral Costco moment but adds lived experience and real-talk about whether cheaper meat is worth it",
-      "suggested_writer": "chloe",
-      "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-12"
+      "title": "How to Buy Beef in Bulk at Costco: Whole Loins, Vacuum Sealers, and the Real Math on Cost Per Pound",
+      "source": "reddit",
+      "priority": "medium"
     },
     {
-      "rank": 5,
-      "title": "Carnivore for Beginners: The 5 Sourcing Mistakes That Kill Results Before Week 3",
-      "angle": "Not 'how to buy meat 101'\u2014specific beginner mistakes (wrong cuts, poor storage, wrong fat ratios) that derail early practitioners",
-      "why_now": "Beginner tips are trending; newbies are overwhelmed and making preventable errors based on community chatter",
-      "suggested_writer": "marcus",
-      "priority": "medium",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-04-14"
+      "title": "Period Returning on Carnivore: What Women Are Reporting (and What the Research Says)",
+      "source": "reddit",
+      "priority": "medium"
     },
     {
-      "rank": 6,
-      "title": "Dr. Chaffee's 'Expensive' Defense Doesn't Hold Up\u2014Here's the Real Math",
-      "angle": "Fact-check the 'carnivore is cheaper than you think' narrative with actual cost-per-calorie and cost-per-nutrient data",
-      "why_now": "Dr. Chaffee is doing narrative control on cost criticism; community is skeptical and wants transparent analysis",
-      "suggested_writer": "sarah",
-      "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-16"
+      "title": "Six Medications to Zero: Carnivore and Prescription Drug Reduction Stories from Reddit",
+      "source": "reddit",
+      "priority": "medium"
     },
     {
-      "rank": 7,
-      "title": "Transformation Content Fatigue: Why Carnivore Results Look Different for Everyone (And Why That's Okay)",
-      "angle": "Counter the Bella-style highlight-reel content with realistic expectations about timelines, body composition changes, and non-scale wins",
-      "why_now": "Transformation content is pulling huge views but setting unrealistic expectations; community needs permission to have different results",
-      "suggested_writer": "chloe",
-      "priority": "medium",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-04-18"
+      "title": "The Low Protein Diet Debate: Why Some Longevity Researchers Say Less Is More (and Why Carnivores Disagree)",
+      "source": "youtube",
+      "priority": "medium"
     },
     {
-      "rank": 8,
-      "title": "The Ground Beef Loophole: Why It's the Best Carnivore Budget Hack (If You Do It Right)",
-      "angle": "Deep dive into sourcing quality ground beef, storing it properly, and meal prep hacks to maximize budget efficiency without sacrificing results",
-      "why_now": "Budget-conscious members are asking about ground beef alternatives; practical tactical content fills a gap in the sourcing conversation",
-      "suggested_writer": "marcus",
-      "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-20"
+      "title": "HbA1c on Keto and Carnivore: Why Your Numbers Look Weird to Your Doctor but Might Be Fine",
+      "source": "youtube",
+      "priority": "medium"
     },
     {
-      "rank": 9,
-      "title": "Carnivore Meat Sourcing Red Flags: What the Labels Won't Tell You",
-      "angle": "Decode confusing labeling (grass-fed claims, 'natural,' 'antibiotic-free') and expose greenwashing in carnivore meat marketing",
-      "why_now": "Quality and sourcing are trending; many beginners can't distinguish between marketing and actual quality standards",
-      "suggested_writer": "sarah",
-      "priority": "medium",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-04-22"
+      "title": "Carnivore and Dating: Real Talk About Relationships, Social Eating, and Finding Someone Who Gets It",
+      "source": "youtube + reddit",
+      "priority": "low"
     },
     {
-      "rank": 10,
-      "title": "The Social Cost of Carnivore: How to Navigate Skeptical Friends (When Everyone Knows About Your Diet)",
-      "angle": "Real-talk about social friction, family dinners, and how to handle the 'but what about the price?' questions from non-carnivore circles",
-      "why_now": "Cost debates in comments suggest many readers are defending their choices to others; lifestyle/relationship angle complements the technical content",
-      "suggested_writer": "chloe",
-      "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-24"
+      "title": "Clothes Don't Fit and You Can't Buy New Ones Yet: The Carnivore Problem Nobody Talks About",
+      "source": "reddit",
+      "priority": "low"
     }
   ]
 }
