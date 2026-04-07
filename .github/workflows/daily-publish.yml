@@ -56,6 +56,7 @@ jobs:
 
       - name: Submit new posts to Google Indexing API
         if: steps.publish.outputs.has_changes == 'true' && steps.publish.outputs.new_post_urls != ''
+        continue-on-error: true
         env:
           GA4_SERVICE_ACCOUNT_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}
         run: |
