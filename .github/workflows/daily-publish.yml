@@ -60,7 +60,7 @@ jobs:
           GA4_SERVICE_ACCOUNT_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}
         run: |
           echo "$GA4_SERVICE_ACCOUNT_JSON" > dashboard/ga4-credentials.json
-          cd dashboard && npm ci --silent
+          cd dashboard && npm install --silent
           node gsc-request-indexing.js ${{ steps.publish.outputs.new_post_urls }}
 
   deploy:
