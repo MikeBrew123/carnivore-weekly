@@ -40,7 +40,9 @@
       "author": {
         "@type": "Person",
         "name": "{{ author_name | safe }}",
-        "jobTitle": "{{ author_title | safe }}"
+        "jobTitle": "{{ author_title | safe }}",
+        "url": "https://carnivoreweekly.com/about.html#{{ author }}",
+        "image": "https://carnivoreweekly.com/images/images/writers/{{ author }}.webp"
       },
       "publisher": {
         "@type": "Organization",
@@ -283,7 +285,7 @@
                     <h1 class="post-title page-header">{{ title | safe }}</h1>
                     <div class="post-meta">
                         <span>{{ publish_date }}</span>
-                        <span>by {{ author }}</span>
+                        <span>by {{ author_name }}</span>
                     </div>
 
                 </div>
