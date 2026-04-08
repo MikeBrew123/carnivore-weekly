@@ -1,65 +1,96 @@
 {
-  "week": "2026-04-06",
+  "generated_date": "2026-04-08",
+  "community_pulse": "Community is buzzing about dramatic health reversals (A1C drops, medication exits) and questioning traditional medical oversight, while simultaneously asking practical questions about electrolytes, protein targets, and how to navigate restaurants without sabotaging results.",
   "topics": [
     {
-      "title": "Carnivore Wardrobe Crisis: The Hidden Cost Nobody Warns You About",
-      "writer": "chloe",
-      "angle": "The hilarious, relatable problem of losing weight so fast your clothes don't fit. Community stories from the 236-upvote Reddit thread.",
-      "keyword": "carnivore weight loss clothes don't fit"
+      "rank": 1,
+      "title": "Before You Fire Your Doctor: What Labs You Actually Need to Monitor on Carnivore",
+      "angle": "Not 'should you ditch your doctor' but 'here's what bloodwork matters if you're managing your own health' \u2014 practical harm reduction for the DIY lab crowd",
+      "why_now": "u/IM_DaWarez's post sparked debate about self-directed health; people need guidance on which metrics actually matter for safety",
+      "suggested_writer": "sarah",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-04-09"
     },
     {
-      "title": "Period Came Back on Carnivore: What Women Are Reporting",
-      "writer": "sarah",
-      "angle": "The 205-upvote Reddit post about menstruation returning after 11 days. Women sharing hormone recovery timelines.",
-      "keyword": "carnivore diet period came back hormones"
+      "rank": 2,
+      "title": "The Electrolyte Panic: Why Carnivore Creators Got It Wrong (And What Actually Works)",
+      "angle": "Electrolyte supplements on carnivore are overhyped \u2014 break down sodium/potassium/magnesium needs from actual food sources first",
+      "why_now": "Electrolytes are trending on YouTube; people are confused and spending money unnecessarily",
+      "suggested_writer": "sarah",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-04-11"
     },
     {
-      "title": "Quitting Your Doctor After Carnivore: When It Makes Sense and When It Doesn't",
-      "writer": "sarah",
-      "angle": "The 388-upvote post about dropping medications. Real talk about when self-management works and when you still need medical oversight.",
-      "keyword": "carnivore quit medications doctor A1C"
+      "rank": 3,
+      "title": "How Much Protein Is Actually Enough? The Carnivore Math Nobody Wants to Do",
+      "angle": "Cut through the debate with actual calculation methods (body composition, activity level, age) \u2014 not just 'eat more meat'",
+      "why_now": "Protein requirements debate is actively trending; community divided on optimal amounts",
+      "suggested_writer": "marcus",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-04-13"
     },
     {
-      "title": "OMAD on Carnivore: What Reddit's Favorite Meal Photos Actually Look Like",
-      "writer": "marcus",
-      "angle": "Breaking down the OMAD posts flooding Reddit. What people eat in one sitting. Protein and fat ratios.",
-      "keyword": "OMAD carnivore diet one meal a day"
+      "rank": 4,
+      "title": "Restaurant Survival Without the Guilt: A Real-World Script for Carnivores",
+      "angle": "Specific dialogue and ordering hacks for common restaurant scenarios (steakhouses, casual chains, sushi bars) \u2014 not just 'ask for no carbs'",
+      "why_now": "Restaurant survival is trending; people need practical tactics they can actually use",
+      "suggested_writer": "marcus",
+      "priority": "medium",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-04-15"
     },
     {
-      "title": "Whole Loin at Costco: The Bulk Buying Strategy Carnivores Swear By",
-      "writer": "marcus",
-      "angle": "Vacuum sealing, cutting your own steaks, rendering tallow. Real cost-per-pound savings.",
-      "keyword": "costco carnivore bulk buying whole loin"
+      "rank": 5,
+      "title": "The 95-lb Transformation Everyone Missed: What u/IM_DaWarez Actually Did Different",
+      "angle": "Decode the viral post \u2014 what was the actual protocol? Diet composition, meal timing, fasting window, exercise? Break down the variables",
+      "why_now": "Specific transformation post just went viral; community wants to replicate it",
+      "suggested_writer": "chloe",
+      "priority": "high",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-04-17"
     },
     {
-      "title": "DIY Electrolytes vs LMNT: What Dr. Hampton's Video Got Right",
-      "writer": "sarah",
-      "angle": "Dr. Hampton's 22K-view video questioning maltodextrin in popular brands. The homemade recipe.",
-      "keyword": "LMNT electrolytes carnivore DIY homemade"
+      "rank": 6,
+      "title": "OMAD vs. Carnivore: When One Meal a Day Becomes Too Much",
+      "angle": "OMAD trending but carnivores have unique concerns \u2014 satiety, nutrient density per meal, digestive capacity \u2014 when does it become counterproductive?",
+      "why_now": "OMAD and fasting on carnivore is actively trending on YouTube",
+      "suggested_writer": "marcus",
+      "priority": "medium",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-04-19"
     },
     {
-      "title": "Eating Out on Carnivore: The Community's Best Restaurant Hacks",
-      "writer": "chloe",
-      "angle": "Crowdsourced from the Keto Twins' 141-comment video. Crustless pizza bowls, riceless sushi.",
-      "keyword": "carnivore keto eating out restaurant guide"
+      "rank": 7,
+      "title": "I Dropped My Doctor and Ordered My Own Labs: What I Learned (And What Went Wrong)",
+      "angle": "First-person from someone actually doing this \u2014 the logistics, costs, what surprised them, what they wish they'd known",
+      "why_now": "Community is discussing self-directed health and lab ordering; personal narrative would resonate",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-04-21"
     },
     {
-      "title": "The 'Everyone Thinks I'm Crazy' Phase: Surviving Social Pressure on Carnivore",
-      "writer": "chloe",
-      "angle": "The Carnivore Pensioner survey showing isolation is the #1 struggle. How to hold your ground.",
-      "keyword": "carnivore social pressure family thinks crazy"
+      "rank": 8,
+      "title": "Medication Exit Stories: Three Carnivores Share What Changed (And What Didn't)",
+      "angle": "Nuanced interviews showing that med exits aren't universal or simple \u2014 some people need them, some don't, here's how to think about it",
+      "why_now": "Viral post sparked medication exit conversation; community needs real examples and honesty about complexity",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-04-23"
     },
     {
-      "title": "Carnivore at 2 Months: What the Weight Loss Timeline Actually Looks Like",
-      "writer": "sarah",
-      "angle": "The 156-upvote transformation post. Creatine and body recomposition. Fat loss vs weight loss.",
-      "keyword": "carnivore 2 month results weight loss timeline"
-    },
-    {
-      "title": "Easter on Carnivore: 26 Eggs and Zero Regrets",
-      "writer": "chloe",
-      "angle": "The viral Easter egg post. Holiday survival on carnivore.",
-      "keyword": "carnivore easter holiday eggs celebration"
+      "rank": 9,
+      "title": "Why Your A1C Dropped and How to Keep It There (Without Yo-Yoing)",
+      "angle": "A1C improvements are trending in transformations \u2014 explain the mechanism, timeline, and what actually maintains it long-term",
+      "why_now": "Multiple A1C improvements mentioned in viral post and comments; people want to understand and replicate",
+      "suggested_writer": "sarah",
+      "priority": "medium",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-04-25"
     }
   ]
 }
