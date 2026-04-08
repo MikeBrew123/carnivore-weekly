@@ -181,8 +181,14 @@ def generate_blog_posts(env, posts, validator=None):
         meta_description = seo.get("meta_description", "")
         keywords = ", ".join(post.get("tags", []))
 
-        # Prepare author name
-        author_name = post.get("author", "marcus").title()
+        # Prepare author name (full names from personas)
+        author_slug = post.get("author", "marcus")
+        author_full_names = {
+            "sarah": "Sarah Whitfield",
+            "chloe": "Chloe Navarro",
+            "marcus": "Marcus Cole"
+        }
+        author_name = author_full_names.get(author_slug, author_slug.title())
 
         # Render the template with post data
         rendered = template.render(
