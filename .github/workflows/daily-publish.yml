@@ -33,8 +33,10 @@ jobs:
         id: publish
         run: |
           python3 scripts/daily_publish.py
+          # Stage all changes so git diff --staged can detect new files
+          git add -A
           # Capture newly published HTML files for indexing
-          NEW_POSTS=$(git diff --name-only | grep "^public/blog/.*\.html$" | grep -v "index.html" || true)
+          NEW_POSTS=$(git diff --staged --name-only | grep "^public/blog/.*\.html$" | grep -v "index.html" || true)
           if [ -n "$NEW_POSTS" ]; then
             URLS=$(echo "$NEW_POSTS" | sed 's|public/blog/|https://carnivoreweekly.com/blog/|')
             echo "new_post_urls<<EOF" >> $GITHUB_OUTPUT

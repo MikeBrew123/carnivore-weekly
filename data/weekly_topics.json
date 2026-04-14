@@ -1,106 +1,96 @@
 {
   "generated_date": "2026-04-12",
-  "community_pulse": "The community is celebrating dramatic health reversals (especially A1C and medication exits) and asking harder questions about managing carnivore independently\u2014electrolytes, protein math, and navigating restaurants. There's underlying tension between traditional medical relationships and self-directed health optimization.",
+  "community_pulse": "Community is defending carnivore on three fronts this week: bloodwork science, 200-year history, and institutional credibility (surgeons, doctors attacking the diet). Weight loss transformations and real-world snacking are driving practical engagement alongside the deeper legitimacy debates.",
   "topics": [
     {
       "rank": 1,
-      "title": "The Medication Exit Playbook: What You Need to Know Before Your Doctor Conversation",
-      "angle": "Practical, non-dogmatic guide on safely tapering vs. stopping medications while on carnivore\u2014acknowledging this IS medical territory but giving readers the framework to discuss it intelligently with their doctors (or find ones who will listen)",
-      "why_now": "u/IM_DaWarez's post exploded with people sharing med exits; this prevents dangerous DIY approaches while validating real results",
-      "suggested_writer": "marcus",
+      "title": "Your Doctor Is On Blood Pressure Meds and Thinks Your Diet Is Unsustainable",
+      "angle": "Community-sourced take on the credibility gap between conventional medical advice and the lived results carnivores are actually seeing",
+      "why_now": "Heart surgeon video and comment about 112/70 BP carnivore eater went viral this week",
+      "suggested_writer": "chloe",
       "priority": "high",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-04-13"
+      "assigned_writer": "chloe"
     },
     {
       "rank": 2,
-      "title": "Electrolytes on Carnivore: The Math Nobody Talks About (Sodium, Potassium, Magnesium)",
-      "angle": "Data-driven breakdown of actual electrolyte needs on zero-carb vs. keto, with specific food sources and supplementation thresholds\u2014not just 'drink salt water'",
-      "why_now": "Electrolyte supplements are trending on YouTube; people are confused about quantities and sources",
+      "title": "Carnivore Was Never a Fad: The 200-Year History Nobody Taught You",
+      "angle": "Walk through the actual history: John Rollo 1797, William Banting, Salisbury, early Argentine cattle culture",
+      "why_now": "Reddit post 'carnivore is a dangerous fad diet... apparently since 1797' got 225 upvotes",
       "suggested_writer": "sarah",
       "priority": "high",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-04-15"
+      "assigned_writer": "sarah"
     },
     {
       "rank": 3,
-      "title": "Why Restaurant Carnivore Fails (And How to Actually Execute It)",
-      "angle": "Honest post on the hidden carbs in 'bunless burgers' (binders, sauces, cross-contamination) with specific scripts and restaurant selection strategy instead of generic tips",
-      "why_now": "Restaurant survival is trending; most guides are vague and people are disappointed with results",
-      "suggested_writer": "chloe",
+      "title": "1,000 Days Zero Carb: What Actually Happens to Your Blood",
+      "angle": "Are standard cholesterol ranges meaningful for long-term carnivore eaters? Evidence-based breakdown with context for self-tracking",
+      "why_now": "Max German's bloodwork video: 24k views, 405 comments, top comment is about reference range validity",
+      "suggested_writer": "sarah",
       "priority": "high",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-04-17"
+      "assigned_writer": "sarah"
     },
     {
       "rank": 4,
-      "title": "The Protein Requirement Debate Explained: 0.8g vs. 2.2g per lb\u2014What Does the Research Actually Say?",
-      "angle": "Deep dive on the protein debate with citations to actual studies, addressing performance vs. metabolic health vs. satiety outcomes",
-      "why_now": "Protein requirements debate is trending on YouTube; community is confused about conflicting advice",
-      "suggested_writer": "sarah",
-      "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-19"
+      "title": "Is Chipotle Carnivore? The Community's Surprisingly Sane Answer",
+      "angle": "Cover the seed oil concern, the better-than-pizza logic, and what people actually order at fast food spots on carnivore",
+      "why_now": "Pragmatism vs. purity debate active in community this week",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "chloe"
     },
     {
       "rank": 5,
-      "title": "OMAD Carnivore: Performance Gains or Metabolic Stress? (The 30-Day Reality Check)",
-      "angle": "Honest breakdown of OMAD on carnivore\u2014who benefits, who tanks, biomarker changes, and how to know if you're one vs. the other",
-      "why_now": "OMAD and fasting are trending; a lot of hype without nuance",
+      "title": "The Pork Rind Problem: How to Know If Your Snack Is Actually Clean",
+      "angle": "Label-reading protocol for carnivore snacks. Which brands use pork fat vs. seed oils. What 'encapsulated lactic acid' actually means.",
+      "why_now": "Two separate videos sparked the debate this week; comment sections are doing the detective work",
       "suggested_writer": "marcus",
       "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-21"
+      "assigned_writer": "marcus"
     },
     {
       "rank": 6,
-      "title": "The A1C Reversal Phenomenon: Why Carnivore Works So Fast (And Why Your Doctor Might Freak Out)",
-      "angle": "Explain the mechanism behind rapid A1C drops on carnivore, address why labs can look 'alarming' (LDL spikes, etc.) when metabolically appropriate, and how to communicate that to skeptical doctors",
-      "why_now": "u/IM_DaWarez's post is the emotional center of this week; people want to understand AND defend the results",
+      "title": "Starting Carnivore After a Serious Diagnosis: What the Community Tells You",
+      "angle": "Sensitive guide to carnivore as an adjunct approach for serious illness, with Warburg effect context and appropriate medical caveats",
+      "why_now": "Cancer + carnivore Reddit post got 245 upvotes with substantive metabolic science discussion",
       "suggested_writer": "sarah",
-      "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-04-23"
+      "priority": "medium",
+      "assigned_writer": "sarah"
     },
     {
       "rank": 7,
-      "title": "Self-Ordered Labs on Carnivore: What Tests Matter, Which Ones Don't, and How to Interpret Them",
-      "angle": "Practical guide to independent health monitoring\u2014which labs to order, frequency, red flags vs. normal carnivore adaptations, reputable testing platforms",
-      "why_now": "Community thread mentioned ordering their own labs; this is a real need without dogma",
-      "suggested_writer": "marcus",
+      "title": "The Cholesterol Conversation Carnivores Keep Having (And How to Win It)",
+      "angle": "Focus on 'how do I talk to my doctor about this' angle: NMR lipoprofile, triglyceride/HDL ratio, fasting insulin context",
+      "why_now": "Recurring theme in comment sections across bloodwork and heart surgeon videos",
+      "suggested_writer": "sarah",
       "priority": "medium",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-04-25"
+      "assigned_writer": "sarah"
     },
     {
       "rank": 8,
-      "title": "95 lbs and Off Six Meds: What u/IM_DaWarez Did (And Why You Might Not Get the Same Results)",
-      "angle": "Celebrate real wins while being honest about individual variation, starting metrics, timeline, and the specific practices (not just 'eat meat') that likely mattered most",
-      "why_now": "This is the viral post driving momentum; people want the replicable specifics, not just inspiration",
+      "title": "55 Days, 44 Pounds, and a Suit That Finally Fits: What Transformation Stories Actually Do",
+      "angle": "Why transformation posts resonate, what the community's reaction reveals about motivation, what the first 60 days look like",
+      "why_now": "Reddit transformation post: 336 upvotes, bought the suit, community went wild",
       "suggested_writer": "chloe",
-      "priority": "high",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-04-27"
+      "priority": "medium",
+      "assigned_writer": "chloe"
     },
     {
       "rank": 9,
-      "title": "Choosing Between Your Doctor and Your Data: The Carnivore Dilemma",
-      "angle": "Real-talk essay on the uncomfortable position many carnivores are in\u2014results aren't matching doctor advice, which is normal in paradigm shifts but creates genuine risk if you're actually unwell. How to think about this decision.",
-      "why_now": "Subtext of this week's viral thread; people are grappling with trust, autonomy, and responsibility",
-      "suggested_writer": "chloe",
-      "priority": "medium",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-04-29"
+      "title": "OMAD + Liver + Butter: Is This the Carnivore Meal That Does Everything?",
+      "angle": "Practical breakdown: what each component does, fat ratio optimization, whether OMAD is the right structure for this macro profile",
+      "why_now": "OMAD meal post + carnivore reversion video signal that meal structure questions are top of mind",
+      "suggested_writer": "marcus",
+      "priority": "low",
+      "assigned_writer": "marcus"
     },
     {
       "rank": 10,
-      "title": "Carnivore Weight Loss Plateaus: When It's Metabolic Adaptation vs. When You're Actually Eating Too Much",
-      "angle": "Practical troubleshooting with calorie/protein analysis, not shame; addresses the difference between stalls and true plateaus",
-      "why_now": "Weight loss transformations are trending; people will want next-level content on overcoming stalls",
-      "suggested_writer": "marcus",
-      "priority": "medium",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-05-01"
+      "title": "What Carnivore People Are Getting Wrong About Craving Triggers",
+      "angle": "Pull the best community wisdom from Jenny Mitich's comment section and turn it into a practical craving mechanics guide for the first 90 days",
+      "why_now": "Jenny Mitich's craving video surfaced specific community wisdom: sardine strategy, eliminating sweet taste, 'food faster than bad decisions'",
+      "suggested_writer": "chloe",
+      "priority": "low",
+      "assigned_writer": "chloe"
     }
   ]
 }
