@@ -344,7 +344,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/blog/</loc>
-        <lastmod>2026-04-08</lastmod>
+        <lastmod>2026-04-13</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -633,6 +633,36 @@
     <url>
         <loc>https://carnivoreweekly.com/blog/2026-04-08-period-came-back-carnivore-women-hormones.html</loc>
         <lastmod>2026-04-08</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-04-06-eating-out-carnivore-community-restaurant-hacks.html</loc>
+        <lastmod>2026-04-06</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-04-10-costco-whole-loin-bulk-buying-carnivore.html</loc>
+        <lastmod>2026-04-10</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-04-11-diy-electrolytes-vs-lmnt-dr-hampton.html</loc>
+        <lastmod>2026-04-11</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-04-12-everyone-thinks-im-crazy-social-pressure-carnivore.html</loc>
+        <lastmod>2026-04-12</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-04-13-carnivore-2-months-weight-loss-timeline.html</loc>
+        <lastmod>2026-04-13</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
