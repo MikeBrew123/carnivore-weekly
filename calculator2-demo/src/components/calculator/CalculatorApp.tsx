@@ -64,6 +64,32 @@ export default function CalculatorApp({
   useEffect(() => {
     // Small delay to ensure Zustand persist has loaded from localStorage
     const timer = setTimeout(() => {
+      // Preselect diet from URL query param (?mode=keto, etc).
+      // Runs after hydration so it overrides persisted value on initial load.
+      try {
+        if (typeof window !== 'undefined') {
+          const params = new URLSearchParams(window.location.search)
+          const mode = params.get('mode')
+          const validDiets = ['carnivore', 'pescatarian', 'keto', 'lowcarb'] as const
+          // Accept a couple common aliases so links like ?mode=low-carb or ?mode=animal-based work
+          const aliasMap: Record<string, typeof validDiets[number]> = {
+            'low-carb': 'lowcarb',
+            'lowcarb': 'lowcarb',
+            'animal-based': 'carnivore',
+            'lion': 'carnivore',
+          }
+          if (mode) {
+            const normalized = (validDiets as readonly string[]).includes(mode)
+              ? (mode as typeof validDiets[number])
+              : aliasMap[mode]
+            if (normalized) {
+              setFormData({ diet: normalized })
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('[CalculatorApp] URL param preselect failed:', e)
+      }
       setIsHydrated(true)
       console.log('[CalculatorApp] Hydration complete')
     }, 50)
