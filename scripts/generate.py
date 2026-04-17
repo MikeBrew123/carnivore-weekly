@@ -839,6 +839,7 @@ class UnifiedGenerator:
         # Load blog posts for Featured Insights section (5 from last week + 3 popular)
         newest_blog_posts = []
         popular_blog_posts = []
+        more_blog_posts = []  # Additional posts for "More Insights" progressive-disclosure section
 
         # TODO: Fix Supabase schema mismatch (author_id is UUID but writers.id is INT)
         # Temporarily use JSON fallback which has correct author field
@@ -956,13 +957,20 @@ class UnifiedGenerator:
                         "marcus": "Marcus",
                         "casey": "Casey",
                     }
-                    for post in newest_blog_posts + popular_blog_posts:
+                    # Build "More Insights" list: up to 60 additional posts
+                    # (excluding the 5 newest + 3 popular already shown in bento).
+                    shown_slugs = newest_slugs | {p["slug"] for p in popular_blog_posts}
+                    more_candidates = [p for p in by_date if p["slug"] not in shown_slugs]
+                    more_blog_posts = more_candidates[:60]
+
+                    for post in newest_blog_posts + popular_blog_posts + more_blog_posts:
                         author_slug = post.get("author", "")
                         post["author"] = author_map.get(author_slug, author_slug.title())
 
                     print(
                         f"  ✓ Loaded {len(newest_blog_posts)} newest + "
-                        f"{len(popular_blog_posts)} popular blog posts from JSON (fallback)"
+                        f"{len(popular_blog_posts)} popular + "
+                        f"{len(more_blog_posts)} more blog posts from JSON (fallback)"
                     )
             except Exception as e:
                 print(f"  Warning: Could not load blog posts: {e}")
@@ -986,6 +994,7 @@ class UnifiedGenerator:
             "creator_channels": creator_channels,  # Map of creator names to YouTube channel IDs
             "newest_blog_posts": newest_blog_posts,  # 5 posts from last 7 days
             "popular_blog_posts": popular_blog_posts,  # 3 most popular blog posts (older/established)
+            "more_blog_posts": more_blog_posts,  # Up to 60 additional posts for Load More section
             "roundup_image": _get_roundup_image(),
         }
 

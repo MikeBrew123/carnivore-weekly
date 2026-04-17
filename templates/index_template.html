@@ -303,6 +303,69 @@
                 </div>
                 {% endif %}
 
+                <!-- More Insights (Progressive Disclosure) - DYNAMIC -->
+                {% if more_blog_posts %}
+                {% set batch_size = 20 %}
+                {% set total_more = more_blog_posts|length %}
+                {% set visible_count = [batch_size, total_more]|min %}
+                <h3 style="font-size: var(--text-lg); color: var(--color-text-secondary); margin-top: var(--space-8); margin-bottom: var(--space-4); text-transform: uppercase; letter-spacing: 0.05em;">More Insights</h3>
+                <div class="post-list" id="more-insights-list">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-6);">
+                        {% for post in more_blog_posts[:batch_size] %}
+                        <article class="post-card card card--clickable" data-batch="1">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
+                                <span style="font-size: var(--text-xs); color: var(--color-text-secondary);">{{ post.date }}</span>
+                            </div>
+                            <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-3);">{{ post.title }}</h3>
+                            {% if post.excerpt %}
+                            <p style="color: var(--color-text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+                                {{ post.excerpt[:140] }}{% if post.excerpt|length > 140 %}...{% endif %}
+                            </p>
+                            {% endif %}
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: var(--text-sm); color: var(--color-oxblood); font-weight: 600;">By {{ post.author|title }}</span>
+                                <a href="/blog/{{ post.slug }}.html" style="color: var(--color-oxblood); text-decoration: none; font-weight: 600;">Read →</a>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+
+                    {% set batch_num = 2 %}
+                    {% for start in range(batch_size, total_more, batch_size) %}
+                    <div class="post-batch" data-batch="{{ batch_num }}" hidden>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-6);">
+                            {% for post in more_blog_posts[start:start + batch_size] %}
+                            <article class="post-card card card--clickable">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2);">
+                                    <span style="font-size: var(--text-xs); color: var(--color-text-secondary);">{{ post.date }}</span>
+                                </div>
+                                <h3 style="font-size: var(--text-lg); margin-bottom: var(--space-3);">{{ post.title }}</h3>
+                                {% if post.excerpt %}
+                                <p style="color: var(--color-text-secondary); margin-bottom: var(--space-4); font-size: var(--text-sm);">
+                                    {{ post.excerpt[:140] }}{% if post.excerpt|length > 140 %}...{% endif %}
+                                </p>
+                                {% endif %}
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: var(--text-sm); color: var(--color-oxblood); font-weight: 600;">By {{ post.author|title }}</span>
+                                    <a href="/blog/{{ post.slug }}.html" style="color: var(--color-oxblood); text-decoration: none; font-weight: 600;">Read →</a>
+                                </div>
+                            </article>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% set batch_num = batch_num + 1 %}
+                    {% endfor %}
+                </div>
+
+                {% if total_more > batch_size %}
+                <div class="section-cta" style="text-align: center; margin-bottom: var(--space-6);">
+                    <button type="button" id="load-more-posts" class="btn btn--secondary load-more-btn" data-next-batch="2">
+                        Load More Posts <span class="post-count">({{ total_more - batch_size }} remaining)</span>
+                    </button>
+                </div>
+                {% endif %}
+                {% endif %}
+
                 <div class="section-cta">
                     <a href="/blog/" class="btn btn--secondary">View All Insights →</a>
                 </div>
@@ -547,6 +610,34 @@
             'https://kwtdpvnjewtahuxjyltn.supabase.co',
             'sb_publishable_bQlgBZ7Otay8D9AErt8daA_2lQI36jk'
         );
+
+        // Load More Posts (progressive disclosure on homepage)
+        document.getElementById('load-more-posts')?.addEventListener('click', function() {
+            const next = parseInt(this.dataset.nextBatch, 10);
+            const batch = document.querySelector('.post-batch[data-batch="' + next + '"]');
+            if (!batch) return;
+            batch.removeAttribute('hidden');
+            const newNext = next + 1;
+            const hasMore = !!document.querySelector('.post-batch[data-batch="' + newNext + '"]');
+            this.dataset.nextBatch = newNext;
+
+            const hiddenBatches = document.querySelectorAll('.post-batch[hidden]');
+            let remaining = 0;
+            hiddenBatches.forEach(b => { remaining += b.querySelectorAll('.post-card').length; });
+            const countEl = this.querySelector('.post-count');
+            if (countEl) {
+                countEl.textContent = remaining ? '(' + remaining + ' remaining)' : '';
+            }
+
+            if (!hasMore) this.style.display = 'none';
+
+            if (typeof gtag === 'function') {
+                gtag('event', 'load_more_posts', {
+                    batch_revealed: next,
+                    posts_now_visible: 20 * next,
+                });
+            }
+        });
 
         // Track affiliate clicks
         document.querySelectorAll('a[data-partner]').forEach(link => {
