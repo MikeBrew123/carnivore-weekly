@@ -35,17 +35,21 @@ From `youtube_data.json`, find all videos across `top_creators[].videos[]`.
 base_score = (comment_count * 2) + like_count + (view_count / 1000)
 
 # Carnivore bonus: reward content that is explicitly about carnivore diet
-# vs. generic keto/low-carb content
+# vs. generic keto/low-carb or unrelated content
 carnivore_terms = ["carnivore", "animal-based", "zero carb", "meat only", "lion diet", "nose to tail"]
 keto_only_terms = ["keto", "low carb", "low-carb"]  # only keto, no carnivore signal
 
 title_lower = title.lower()
-has_carnivore = any(t in title_lower for t in carnivore_terms)
+channel_lower = channel_name.lower()
+has_carnivore = any(t in title_lower for t in carnivore_terms) or any(t in channel_lower for t in carnivore_terms)
 has_keto_only = any(t in title_lower for t in keto_only_terms) and not has_carnivore
+has_no_diet_signal = not has_carnivore and not has_keto_only  # generic cooking/health channel with no diet identity
 
-multiplier = 1.5 if has_carnivore else (0.8 if has_keto_only else 1.0)
+multiplier = 1.5 if has_carnivore else (0.8 if has_keto_only else (0.7 if has_no_diet_signal else 1.0))
 score = base_score * multiplier
 ```
+
+**Hard rule:** At least 4 of the top 6 featured videos must have a carnivore or keto term in their title. If the ranking doesn't produce this naturally, replace lower-ranked generic videos with the next carnivore/keto-titled video in the list.
 
 Pick top 6. If fewer than 6 are available use all of them.
 
@@ -72,7 +76,7 @@ Spawn the `chloe-community-manager` agent with this prompt:
 >
 > **Job 2 — Editorial commentary** for your assigned videos (positions 1 and 3 in the featured list):
 > Videos assigned to you: [INSERT VIDEO TITLES AND IDs FROM STEP 1]
-> Write 3-4 sentences per video in your voice. Use HTML links `<a href>` not markdown. Add an editorial_title (punchy rewrite, max 60 chars) and heat_badge (🔥🔥🔥 Viral >100k views, 🔥🔥 Trending >10k, 🔥 Rising ≤10k).
+> Write 3-4 sentences per video in your voice. Use HTML links `<a href>` not markdown. Add an editorial_title (punchy rewrite, max 60 chars) and heat_badge (🔥🔥🔥 Viral >100k views, 🔥🔥 Trending >10k, 🔥 Rising ≤10k). **IMPORTANT:** If the original video title mentions "carnivore", "keto", "animal-based", or "zero carb", the editorial_title MUST also contain one of those terms — never genericize the diet identity.
 >
 > **Job 3 — Blog topic ideas** (for `weekly_topics.json`)
 > Based on what's buzzing in the YouTube comments and Reddit this week, suggest 8-10 carnivore blog topics that would resonate right now. Cross-check against `data/blog_posts.json` slugs so you don't suggest something we already have.
@@ -93,7 +97,7 @@ Spawn the `sarah-health-coach` agent with this prompt:
 >
 > **Job 1 — Editorial commentary** for your assigned videos (positions 2, 4, and 6):
 > Videos assigned to you: [INSERT VIDEO TITLES AND IDs FROM STEP 1]
-> Write 3-4 sentences per video through a health and evidence lens. Use HTML links `<a href>` not markdown. Add an editorial_title (max 60 chars) and heat_badge.
+> Write 3-4 sentences per video through a health and evidence lens. Use HTML links `<a href>` not markdown. Add an editorial_title (max 60 chars) and heat_badge. **IMPORTANT:** If the original video title mentions "carnivore", "keto", "animal-based", or "zero carb", the editorial_title MUST also contain one of those terms — never genericize the diet identity.
 >
 > **Job 2 — Q&A section**
 > From the trending topics this week (derived from the YouTube video themes and Reddit posts in `data/reddit_data.json`), write 3 health-focused questions and answers. Format:
@@ -118,7 +122,7 @@ Spawn the `marcus-performance-coach` agent with this prompt:
 >
 > **Job 1 — Editorial commentary** for your assigned video (position 5):
 > Video assigned to you: [INSERT VIDEO TITLE AND ID FROM STEP 1]
-> Write 3-4 sentences, performance and results angle. HTML links, not markdown. editorial_title (max 60 chars) and heat_badge.
+> Write 3-4 sentences, performance and results angle. HTML links, not markdown. editorial_title (max 60 chars) and heat_badge. **IMPORTANT:** If the original video title mentions "carnivore", "keto", "animal-based", or "zero carb", the editorial_title MUST also contain one of those terms — never genericize the diet identity.
 >
 > **Job 2 — Key insights**
 > Write a punchy markdown analysis of what this week's content signals. Use actual view counts and engagement numbers from `data/youtube_data.json`. Format:
