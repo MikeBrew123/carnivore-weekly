@@ -1,25 +1,74 @@
 # Current Status
 
-**Last Updated:** 2026-04-05 (Security Hardening + GSC Indexing Push)
+**Last Updated:** 2026-04-13 (Daily-Publish Pipeline Fix + E-E-A-T Overhaul)
 
 **Current Focus:**
-Security debt cleared. Email deliverability fixed. 14 March posts submitted to Indexing API. Growth phase — traffic, CTR, conversion tracking.
+Daily-publish pipeline fixed after 5-day silent failure. E-E-A-T signals added to writer agents. Etsy cross-sell messaging updated. Growth phase — traffic, conversion, Etsy→site funnel.
 
 ---
 
 ## Outstanding TODOs
 
-- **Confirm 14 March posts indexed** — Submitted to Indexing API 2026-04-05; check GSC in 24-48h
-- **Calculator CTA conversion tracking** — 9 clicks/week with zero visibility into what converts
-- **Internal linking** — Indexed posts don't link to calculator; leaving authority on the table
-- **Starter plan page traffic** — Only 18 views/7 days; needs promotion
-- **Affiliate content** — Starter Kit roundup hub page (first spoke of affiliate strategy)
-- **Chloe cross-promo** — Mention Marcus's air fryer post in next weekend roundup
-- **Newsletter sending mechanism** — generate_newsletter.py creates HTML but no automated send flow
+- **Generate proper hero images** — 12 posts using placeholder copies; need unique images
+- **Author profile pages** — /about.html#sarah-whitfield etc. needed for Google Quality Raters
+- **Author bio/photo block in template** — Only byline + schema updated; no visible bio on posts
+- **PubMed citation links** — PMIDs exist in posts but aren't hyperlinked
+- **Calculator CTA conversion tracking** — Still no visibility into what converts
+- **Internal linking** — Indexed posts don't link to calculator
+- **Starter plan page traffic** — Only 3 views/30 days (down from 18/week)
+- **Newsletter flows broken** — Confirmation stuck on "pending", drip stalled since Feb 22
+- **Backfill E-E-A-T signals** — 75+ existing posts still lack new writer identity signals
+- **Etsy buyer message** — Updated copy written by Sarah; needs to be pasted into Etsy dashboard (digital + merch messages)
+- **Blog post queue empty** — Next scheduled: None. Writers need to batch new posts.
 
 ---
 
-## Latest Session (2026-04-05 — Security Hardening + GSC Push)
+## Latest Session (2026-04-13 — Pipeline Fix + Etsy Review)
+
+### Daily-Publish Pipeline Bug — FIXED (commit 208b5ab)
+
+**Root cause:** `.github/workflows/daily-publish.yml` line 37 used `git diff --name-only` to detect new blog HTML files. But new files are **untracked** — `git diff` only sees modifications to already-tracked files. So new posts were generated in the runner, but `has_changes` was always `false`, the commit step was skipped, and the HTML was thrown away. Every day from Apr 8-12 the workflow ran, published posts in memory, and discarded the results.
+
+**Fix:** Changed to `git add -A` before the diff, then `git diff --staged --name-only` to detect both new and modified files.
+
+**Impact:** 5 posts sat unpublished for up to 5 days. Sarah's Apr 8 post (published manually on Apr 8) was live but showed 404 initially because the index listed it before the HTML existed.
+
+**Verification:** All 5 backlogged posts manually published and pushed. Workflow fix deployed — future runs should commit correctly.
+
+### Missing Hero Images — PATCHED (commit 1a09ecd)
+
+**Root cause:** 12 posts (Mar 15 onward) never had hero images generated. The "Validate & Deploy" workflow treats missing images as critical and exits with code 1, blocking deployment.
+
+**Fix:** Copied placeholder images for all 12 posts. These are identical copies — proper unique images still need to be generated.
+
+### Etsy Sales & Cross-Sell
+
+- 4 total Etsy orders: 2x Keto Food List, 1x Lion Diet, 1x Pescatarian (CA$4.49 each)
+- **Zero Etsy referral traffic** to carnivoreweekly.com in GA4 — old buyer messages had no links
+- Sarah wrote updated "Message to buyers" for both digital and merch purchases
+- Digital message includes free calculator CTA + ETSY50 discount code for all diet types
+- Messages not yet applied in Etsy dashboard — needs manual paste
+
+### E-E-A-T Overhaul (from Apr 7 session, context carried forward)
+
+- Writers got full names: Sarah Whitfield, Marcus Cole, Chloe Navarro
+- Conference memories created (~800 words each) for first-person experience signals
+- Cross-referencing rules: writers reference each other's previous week articles only
+- Affiliate links: LMNT + ButcherBox integrated; Amazon discontinued
+- Template updated: full author names in byline + enhanced Person schema with url/image
+- Generator updated: full name lookup dictionary
+
+### Site Traffic (7-day snapshot, Apr 6-13)
+
+- 44 users, 53 sessions, 101 pageviews
+- Calculator: 28 views (17 users) — still #1 draw
+- Starter plan: 3 views in 30 days — effectively dead
+- Sources: 105 direct, 30 Google, 15 DuckDuckGo, 7 Bing, 2 ChatGPT
+- No Etsy referral traffic at all
+
+---
+
+## Session (2026-04-05 — Security Hardening + GSC Push)
 
 ### Email Deliverability — FIXED
 - DMARC record added: `v=DMARC1; p=none; rua=mailto:dmarc-reports@carnivoreweekly.com`

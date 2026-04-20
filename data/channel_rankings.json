@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-04-06",
+  "last_updated": "2026-04-19",
   "leaderboard": [
     {
-      "name": "Nutricionista Patricia Leite",
+      "name": "Patricia Delicious Nutrition",
       "rank": 1,
       "appearances": 2,
-      "channel_id": "UCJCIbrvEJyRJnHGvh7z0-bQ"
-    },
-    {
-      "name": "Keto Twins",
-      "rank": 2,
-      "appearances": 1,
-      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
-    },
-    {
-      "name": "Patricia Delicious Nutrition",
-      "rank": 3,
-      "appearances": 1,
       "channel_id": "UCUU-glcsz57qVD8_xhriglg"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "HomeSteadHow",
+      "rank": 2,
+      "appearances": 1,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 3,
+      "appearances": 1,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
+      "name": "Shawn Baker MD",
       "rank": 4,
       "appearances": 1,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+    },
+    {
+      "name": "Mitch Weiss, OGC, Healthy Aging",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCoLOzrRmjuhKDwYFB_BiK1A"
+    },
+    {
+      "name": "Silvana Costa - Del\u00edcias da Sil",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UCGr6iFA0h05x-5HXHiemUdw"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 7,
+      "appearances": 2,
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "Kent Carnivore",
-      "rank": 5,
-      "appearances": 1,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
-    },
-    {
-      "name": "Ela Vegan",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UC80facrUfOSKTiiMA6V6Owg"
-    },
-    {
-      "name": "Chris Cooking Nashville",
-      "rank": 7,
-      "appearances": 1,
-      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
-    },
-    {
-      "name": "Carnivore Rx",
+      "name": "Carnivore Quest",
       "rank": 8,
       "appearances": 1,
-      "channel_id": "UCWwbEBlCbXN2Z3Y3c9Y_FoA"
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "Ground Beef Chief",
+      "name": "Haircafe",
       "rank": 9,
       "appearances": 1,
-      "channel_id": "UCbJfi-2vfoyK2kLZpI2zZbQ"
+      "channel_id": "UCcaWKkWjPre0HyNwVZW5kLA"
     },
     {
-      "name": "2krazyketos",
+      "name": "Brandon Pitts",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCQ5Dh6Wuvt4b9BFYXigWKvA"
+      "channel_id": "UCDY_LPTz6rXZZh8duZ2PhEw"
     }
   ]
 }
