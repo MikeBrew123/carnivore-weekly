@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "carnivore-site",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "public", "-p", "8766", "-c-1"],
+      "port": 8766
+    },
+    {
+      "name": "etsy-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "etsy/products", "-p", "8765", "-c-1"],
+      "port": 8765
+    }
+  ]
+}

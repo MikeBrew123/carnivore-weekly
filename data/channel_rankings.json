@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-04-19",
+  "last_updated": "2026-04-26",
   "leaderboard": [
     {
-      "name": "Patricia Delicious Nutrition",
+      "name": "Dr. Elizabeth Bright",
       "rank": 1,
-      "appearances": 2,
-      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
+      "appearances": 1,
+      "channel_id": "UCg2P30x_2cWeXbKfnLeLTWQ"
     },
     {
       "name": "HomeSteadHow",
       "rank": 2,
-      "appearances": 1,
+      "appearances": 2,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Emmathecarnivore",
+      "name": "Keto Twins",
       "rank": 3,
       "appearances": 1,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
+    },
+    {
+      "name": "Patricia Delicious Nutrition",
+      "rank": 4,
+      "appearances": 3,
+      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
+    },
+    {
+      "name": "Appalachia's Homestead with Patara",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
     },
     {
       "name": "Shawn Baker MD",
-      "rank": 4,
-      "appearances": 1,
+      "rank": 6,
+      "appearances": 2,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "Mitch Weiss, OGC, Healthy Aging",
-      "rank": 5,
-      "appearances": 1,
-      "channel_id": "UCoLOzrRmjuhKDwYFB_BiK1A"
-    },
-    {
-      "name": "Silvana Costa - Del\u00edcias da Sil",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UCGr6iFA0h05x-5HXHiemUdw"
-    },
-    {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "Dr. Eric Westman - Adapt Your Life",
       "rank": 7,
-      "appearances": 2,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "appearances": 1,
+      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
     },
     {
-      "name": "Carnivore Quest",
+      "name": "Professor Bart Kay - Nutrition and Health Science",
       "rank": 8,
       "appearances": 1,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
     },
     {
-      "name": "Haircafe",
+      "name": "CJsKetoKitchen",
       "rank": 9,
       "appearances": 1,
-      "channel_id": "UCcaWKkWjPre0HyNwVZW5kLA"
+      "channel_id": "UC4hVTN20m5D9UH4I7skqnyg"
     },
     {
-      "name": "Brandon Pitts",
+      "name": "KetoFocus",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCDY_LPTz6rXZZh8duZ2PhEw"
+      "channel_id": "UCx83l0vZEKMkz93qR2m8CTA"
     }
   ]
 }

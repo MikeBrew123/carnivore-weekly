@@ -102,3 +102,8 @@ gemini-code-assist-mcp/
 archive/
 logs/
 public/ux-analysis/
+
+# n8n workflow exports — contain inline credentials (Authorization headers, tokens).
+# Source of truth is the n8n instance itself; never commit exports.
+# Blocked by .git/hooks/pre-commit secret scanner as a backstop.
+n8n-workflows/
