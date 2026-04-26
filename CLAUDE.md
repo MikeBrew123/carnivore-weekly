@@ -75,14 +75,33 @@ ORDER BY created_at DESC LIMIT 5;
   - Short paragraphs (2-4 sentences)
 
 **Step 3 — Store in blog_posts.json**
-Add or update entry in `data/blog_posts.json`:
-- `slug`: `YYYY-MM-DD-topic-name` (MUST have date prefix)
-- `content`: full article body HTML from Step 2
-- `status`: `"ready"` for scheduled posts (daily cron publishes them), or `"published"` for immediate
-- `publish_date`: ISO date string (YYYY-MM-DD)
-- `published`: `false` for ready posts, `true` for published
-- `author`: writer slug (`sarah`, `marcus`, or `chloe`)
-- All other required fields (`title`, `meta_description`, `tags`, etc.)
+Add or update entry in `data/blog_posts.json`. **ALL these fields are required** — partial entries cause silent rendering failures (homepage bento template raises `'dict object' has no attribute 'excerpt'` and falls back to stale; blog index sorts orphaned posts to the bottom because it sorts by `date` not `publish_date`).
+
+🚨 **Required schema (every blog post entry MUST have all of these):**
+```json
+{
+  "slug": "YYYY-MM-DD-topic-name",          // MUST have date prefix
+  "title": "...",
+  "content": "<full HTML body>",            // body only — no <html>/<body>/<head>, no Jinja2
+  "author": "sarah|marcus|chloe",
+  "author_title": "Health Coach|Performance Coach|Community Manager",
+  "status": "ready|published",              // "ready" = daily cron publishes; "published" = live now
+  "published": true|false,                  // true if status=published
+  "publish_date": "YYYY-MM-DD",             // ISO date (used by daily_publish.py)
+  "date": "YYYY-MM-DD",                     // SAME value — used by blog index sort
+  "scheduled_date": "YYYY-MM-DD",           // SAME value — used by homepage bento sort
+  "excerpt": "<150-char hook>",             // used in card previews; meta_description is fine as fallback
+  "category": "health|protocol|community|strategy|news|featured",
+  "image": "/images/blog/<slug>.jpg or empty",
+  "tags": ["tag1", "tag2"],
+  "meta_description": "<150-160 chars>",
+  "seo": { "meta_description": "<same as above>" }
+}
+```
+
+**Why both `publish_date` AND `date`/`scheduled_date`** — the codebase uses different field names in different places: `daily_publish.py` reads `publish_date`, the blog index template sorts by `date`, the homepage bento template sorts by `scheduled_date or date`. They MUST all match. There is a TODO to consolidate but until then, set all three.
+
+**LESSON LEARNED (2026-04-26):** Spawning writer agents directly via the Agent tool to "skip the proper pipeline" works for content but produces minimal-schema entries. The 9-post April 14-24 backfill rendered fine on individual post pages but broke the homepage bento (no `excerpt`) and blog index (sorted to bottom because `date` was null). If you must shortcut the pipeline, use this exact schema. Better: fix the actual pipeline.
 
 **Step 4 — Render HTML**
 ```bash
@@ -947,6 +966,12 @@ Run `scripts/generate_blog_pages.py` - uses blog_post_template_2026.html automat
 3. **Never set future dates on blog posts.** Google penalizes content dated ahead of crawl time.
 4. **Amazon book links should wrap only the title**, not the full citation sentence. Studies link the full citation to PubMed.
 5. **Template variables must match generator output.** `{{ tag1 }}` failed because generator passes `tags` array. Always check both sides.
+6. **🚨 NEVER bypass the proper blog post pipeline.** The "BLOG POST PIPELINE" section above is mandatory. Specifically:
+   - **Use the FULL required schema** (slug, title, content, author, author_title, status, published, publish_date, **date**, **scheduled_date**, excerpt, category, image, tags, meta_description, seo). Minimal-schema entries silently break the homepage bento (`'dict object' has no attribute 'excerpt'`) and the blog index sort (posts with null `date` sink to the bottom).
+   - **Always run post-flight Supabase sync** (`python3 scripts/sync_blog_posts_to_supabase.py`) so blog_posts.json and the Supabase blog_posts table stay in agreement.
+   - **Always run BOTH `generate_blog_pages.py` AND `generate.py --type pages`** before commit. The first generates the blog index + per-post pages. The second generates the homepage bento. Skipping the second is how Apr 14-24 was missing from the homepage on 2026-04-26.
+   - **Stricter check on a fresh clone:** `validate_before_commit.py` should be enhanced to flag missing schema fields on new posts (currently it only catches broken links). Until then, `jq '.blog_posts[-1] | {has_excerpt: (.excerpt != null), has_date: (.date != null)}'` is a manual sanity check.
+7. **The "autonomous_blog_generation.sh" script is NOT autonomous.** It contains `input("yes/no")` prompts that block on stdin, so it cannot run on a GitHub Actions schedule. The blog-queue-watchdog workflow (Mon + Thu) catches the silent failure pattern this creates by opening a labeled issue when the queue has been dry >5 days. Permanent fix is a TODO — refactor the script to take an `--auto` flag.
 
 ### Code & Scripts
 6. **Always use absolute paths** in Python scripts (`/Users/mbrew/Developer/carnivore-weekly/data/blog_posts.json`, not `data/blog_posts.json`).
