@@ -71,69 +71,25 @@ export default function Step4HealthProfile({
 
   return (
     <div className="space-y-8">
-      {/* V2 lock overlay — Sarah's conversion-focused copy (deployed 2026-04-27) */}
-      <div style={{ background: '#1a120b', borderRadius: '10px', padding: '24px 28px', border: '2px solid #ffd700', boxShadow: '0 10px 15px -3px rgba(245, 158, 11, 0.2)' }}>
-        <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px 0', textAlign: 'center' }}>
-          A few more questions, then YOUR protocol.
+      {/* Price + value callout */}
+      <div style={{ background: '#1a120b', borderRadius: '10px', padding: '20px 24px', border: '1px solid #ffd700' }}>
+        <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '18px', fontWeight: 'bold', margin: '0 0 10px 0' }}>
+          You're one step away — $29 unlocks your full protocol
         </p>
-        <p style={{ color: '#f4e4d4', fontSize: '14px', textAlign: 'center', margin: '0 0 18px 0', fontStyle: 'italic' }}>
-          You've got the basics. Twelve more questions and we build the plan around your actual life.
-        </p>
-
-        {/* Hero testimonial — third-person community framing */}
-        <div style={{ background: 'rgba(255, 215, 0, 0.07)', borderLeft: '3px solid #ffd700', padding: '12px 16px', margin: '0 0 18px 0', borderRadius: '4px' }}>
-          <p style={{ color: '#f4e4d4', fontSize: '14px', margin: 0, lineHeight: '1.6', fontStyle: 'italic' }}>
-            Readers tell us the protocol felt "uncomfortably specific" in a good way. Like we'd been reading their bloodwork over their shoulder.
-          </p>
-        </div>
-
-        <p style={{ color: '#ffd700', fontSize: '14px', fontWeight: 'bold', margin: '0 0 10px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          Here's what gets built for YOU:
-        </p>
-        <ul style={{ margin: 0, paddingLeft: '18px', color: '#f4e4d4', fontSize: '14px', lineHeight: '1.7' }}>
-          <li><strong>YOUR 30-day meal plan</strong>, built around your bodyweight and goals. Grocery lists priced for $80–120 a week, swaps for picky eaters, "I cook 3 nights" or "6 nights" versions. <span style={{ color: '#a89080' }}>($97 value)</span></li>
-          <li><strong>YOUR doctor conversation script.</strong> Exact sentences for when LDL jumps and your GP panics, plus four labs to ask for that aren't on a standard panel. <span style={{ color: '#a89080' }}>($79 value)</span></li>
-          <li><strong>YOUR week-by-week adaptation guide.</strong> What week 2 fatigue means, when leg cramps signal sodium vs magnesium, the plateau protocol for week 6. <span style={{ color: '#a89080' }}>($69 value)</span></li>
-          <li><strong>YOUR symptom-to-fix map.</strong> Brain fog, sleep, digestion, hormones. Matched to the likely cause from what you tell us. <span style={{ color: '#a89080' }}>($53 value)</span></li>
-          <li><strong>YOUR bloodwork interpretation guide.</strong> What your numbers should look like at 30, 60, 90 days. Carnivore ranges, not standard-diet ranges.</li>
-          <li><strong>Lifetime access.</strong> Free updates when the science evolves.</li>
+        <ul style={{ margin: 0, paddingLeft: '18px', color: '#f4e4d4', fontSize: '14px', lineHeight: '1.8' }}>
+          <li>30-day meal plan matched to your exact macros</li>
+          <li>Doctor conversation script for your next bloodwork appointment</li>
+          <li>Week-by-week adaptation guide + plateau protocol</li>
         </ul>
-
-        <div style={{ background: '#0d0a07', borderRadius: '8px', padding: '14px 18px', margin: '18px 0 14px 0', textAlign: 'center', border: '1px solid #ffd700' }}>
-          <p style={{ color: '#a89080', fontSize: '13px', margin: '0 0 4px 0' }}>Total value: $298</p>
-          <p style={{ color: '#ffd700', fontSize: '20px', fontWeight: 'bold', margin: 0, fontFamily: "'Playfair Display', Georgia, serif" }}>Today: $29 · Yours forever</p>
-        </div>
-
-        <p style={{ color: '#f4e4d4', fontSize: '13px', margin: '0', textAlign: 'center', lineHeight: '1.5' }}>
-          <strong style={{ color: '#ffd700' }}>30 days to read it, try it, decide.</strong> If it doesn't feel built for you, email us. Same-day refund. No survey, no friction.
-        </p>
-      </div>
-
-      {/* What we'll ask after payment — preview only, no answering before paywall */}
-      <div style={{ background: '#0d0a07', borderRadius: '8px', padding: '18px 22px', border: '1px solid #3a2818' }}>
-        <p style={{ color: '#d4a574', fontSize: '14px', fontWeight: 'bold', margin: '0 0 12px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          After you complete your purchase, we'll ask 12 quick questions:
-        </p>
-        <ul style={{ margin: 0, paddingLeft: '20px', color: '#a89080', fontSize: '13px', lineHeight: '1.8', listStyle: 'none' }}>
-          <li>✓ Your health conditions (diabetes, thyroid, PCOS, etc.)</li>
-          <li>✓ Your symptoms (fatigue, brain fog, joint pain, etc.)</li>
-          <li>✓ Your dietary preferences and tolerances</li>
-          <li>✓ Your cooking skill and meal prep time</li>
-          <li>✓ Your budget range</li>
-          <li>✓ Your family situation</li>
-          <li>✓ Your specific goals</li>
-        </ul>
-        <p style={{ color: '#666666', fontSize: '12px', margin: '12px 0 0 0', fontStyle: 'italic' }}>
-          Each answer changes what's in your plan. Generic plans don't work. Yours will be built around the answers above.
-        </p>
+        <p style={{ color: '#a89080', fontSize: '13px', margin: '10px 0 0 0' }}>30-day money-back guarantee. No questions asked.</p>
       </div>
 
       <div>
-        <h2 style={{ fontSize: '22px', fontWeight: 'bold', color: '#d4a574', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif" }}>
-          Where should we send your protocol?
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#d4a574', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif" }}>
+          Enter your email to continue
         </h2>
-        <p style={{ color: '#a89080', fontSize: '14px' }}>
-          Your email is where we send the final protocol. The $29 unlocks the next 12 questions and the personalized plan they build. Both happen on the next screen, together.
+        <p style={{ color: '#666666' }}>
+          Your protocol will be sent here. That's all we need to get started.
         </p>
       </div>
 
@@ -500,7 +456,7 @@ export default function Step4HealthProfile({
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            Build My Personalized Protocol → $29
+            Generate My Protocol
           </button>
       </section>
     </div>
