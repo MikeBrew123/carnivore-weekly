@@ -282,81 +282,141 @@ export default function Step3FreeResults({
         </div>
       </div>
 
-      {/* Premium Upgrade Card — v2 conversion copy (2026-04-27) */}
-      <div style={{ background: '#1a120b', borderRadius: '10px', padding: '24px 28px', border: '2px solid #ffd700', boxShadow: '0 10px 15px -3px rgba(245, 158, 11, 0.2)' }}>
-        <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '22px', fontWeight: 'bold', margin: '0 0 6px 0', textAlign: 'center' }}>
-          A few more questions, then YOUR protocol.
-        </p>
-        <p style={{ color: '#f4e4d4', fontSize: '14px', textAlign: 'center', margin: '0 0 18px 0', fontStyle: 'italic' }}>
-          You've got the basics. Twelve more questions and we build the plan around your actual life.
-        </p>
+      {/* Premium Upgrade Card — v2 redesign */}
+      <style>{`
+        .cw-upgrade-card { animation: cwGlow 5s ease-in-out infinite; }
+        @keyframes cwGlow {
+          0%, 100% { box-shadow: 0 0 0 1px rgba(255,215,0,0.2), 0 0 40px rgba(255,215,0,0.06), 0 24px 60px rgba(0,0,0,0.55); }
+          50%       { box-shadow: 0 0 0 1px rgba(255,215,0,0.35), 0 0 60px rgba(255,215,0,0.13), 0 24px 60px rgba(0,0,0,0.55); }
+        }
+        .cw-upgrade-item + .cw-upgrade-item { border-top: 1px solid rgba(255,215,0,0.08); padding-top: 14px; margin-top: 14px; }
+        .cw-upgrade-btn:hover { background: linear-gradient(135deg,#ffe84d,#ffd700,#e8b800) !important; transform: translateY(-2px) !important; box-shadow: 0 8px 32px rgba(255,215,0,0.35) !important; }
+      `}</style>
+      <div
+        className="cw-upgrade-card"
+        style={{ background: 'linear-gradient(160deg,#1e1008 0%,#120a02 55%,#0c0701 100%)', borderRadius: '16px', padding: '0', border: '1px solid rgba(255,215,0,0.28)', overflow: 'hidden', position: 'relative' }}
+      >
+        {/* Gold top bar */}
+        <div style={{ height: '3px', background: 'linear-gradient(90deg,transparent,#ffd700 25%,#ffd700 75%,transparent)' }} />
 
-        {/* Testimonial */}
-        <div style={{ background: 'rgba(255, 215, 0, 0.07)', borderLeft: '3px solid #ffd700', padding: '12px 16px', margin: '0 0 18px 0', borderRadius: '4px' }}>
-          <p style={{ color: '#f4e4d4', fontSize: '14px', margin: 0, lineHeight: '1.6', fontStyle: 'italic' }}>
-            Readers tell us the protocol felt "uncomfortably specific" in a good way. Like we'd been reading their bloodwork over their shoulder.
+        <div style={{ padding: '28px 28px 28px' }}>
+          {/* Headline */}
+          <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '26px', fontWeight: '700', margin: '0 0 8px 0', textAlign: 'center', lineHeight: '1.25', letterSpacing: '-0.02em' }}>
+            A few more questions,<br />then YOUR protocol.
           </p>
+          <p style={{ color: 'rgba(244,228,212,0.65)', fontSize: '14px', textAlign: 'center', margin: '0 0 22px 0', fontStyle: 'italic', fontFamily: "'Merriweather', Georgia, serif", lineHeight: '1.6' }}>
+            You've got the basics. Twelve more questions and we build the plan around your actual life.
+          </p>
+
+          {/* Divider */}
+          <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,rgba(255,215,0,0.3) 20%,rgba(255,215,0,0.3) 80%,transparent)', margin: '0 0 22px 0' }} />
+
+          {/* Testimonial */}
+          <div style={{ position: 'relative', background: 'rgba(255,215,0,0.05)', border: '1px solid rgba(255,215,0,0.12)', borderRadius: '10px', padding: '20px 20px 16px', margin: '0 0 24px 0' }}>
+            <span style={{ position: 'absolute', top: '-18px', left: '16px', fontSize: '52px', lineHeight: 1, color: 'rgba(255,215,0,0.25)', fontFamily: 'Georgia,serif', userSelect: 'none' }}>"</span>
+            <p style={{ color: 'rgba(244,228,212,0.8)', fontSize: '14px', margin: '6px 0 0 0', lineHeight: '1.7', fontStyle: 'italic', fontFamily: "'Merriweather', Georgia, serif", textAlign: 'center' }}>
+              Readers tell us the protocol felt "uncomfortably specific" in a good way. Like we'd been reading their bloodwork over their shoulder.
+            </p>
+          </div>
+
+          {/* Section label */}
+          <p style={{ color: '#ffd700', fontSize: '10px', fontWeight: '700', margin: '0 0 16px 0', textTransform: 'uppercase', letterSpacing: '0.14em', fontFamily: "'Merriweather', Georgia, serif" }}>
+            Here's what gets built for YOU:
+          </p>
+
+          {/* List items */}
+          <div style={{ marginBottom: '24px' }}>
+            <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
+              <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
+                <strong style={{ color: '#f4e4d4' }}>YOUR 30-day meal plan</strong>, built around your bodyweight and goals. Grocery lists priced for $80–120 a week, swaps for picky eaters, "I cook 3 nights" or "6 nights" versions.{' '}
+                <span style={{ display: 'inline-block', color: '#ffd700', fontSize: '11px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '4px', padding: '1px 7px', verticalAlign: 'middle' }}>$97 value</span>
+              </p>
+            </div>
+            <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
+              <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
+                <strong style={{ color: '#f4e4d4' }}>YOUR doctor conversation script.</strong> Exact sentences for when LDL jumps and your GP panics, plus four labs to ask for that aren't on a standard panel.{' '}
+                <span style={{ display: 'inline-block', color: '#ffd700', fontSize: '11px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '4px', padding: '1px 7px', verticalAlign: 'middle' }}>$79 value</span>
+              </p>
+            </div>
+            <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
+              <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
+                <strong style={{ color: '#f4e4d4' }}>YOUR week-by-week adaptation guide.</strong> What week 2 fatigue means, when leg cramps signal sodium vs magnesium, the plateau protocol for week 6.{' '}
+                <span style={{ display: 'inline-block', color: '#ffd700', fontSize: '11px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '4px', padding: '1px 7px', verticalAlign: 'middle' }}>$69 value</span>
+              </p>
+            </div>
+            <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
+              <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
+                <strong style={{ color: '#f4e4d4' }}>YOUR symptom-to-fix map.</strong> Brain fog, sleep, digestion, hormones. Matched to the likely cause from what you tell us.{' '}
+                <span style={{ display: 'inline-block', color: '#ffd700', fontSize: '11px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '4px', padding: '1px 7px', verticalAlign: 'middle' }}>$53 value</span>
+              </p>
+            </div>
+            <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
+              <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
+                <strong style={{ color: '#f4e4d4' }}>YOUR bloodwork interpretation guide.</strong> What your numbers should look like at 30, 60, 90 days. Carnivore ranges, not standard-diet ranges.
+              </p>
+            </div>
+            <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
+              <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
+                <strong style={{ color: '#f4e4d4' }}>Lifetime access.</strong> Free updates when the science evolves.
+              </p>
+            </div>
+          </div>
+
+          {/* Price box */}
+          <div style={{ background: 'rgba(0,0,0,0.45)', borderRadius: '12px', padding: '20px 24px', margin: '0 0 20px 0', textAlign: 'center', border: '1px solid rgba(255,215,0,0.2)' }}>
+            <p style={{ color: 'rgba(168,144,128,0.6)', fontSize: '13px', margin: '0 0 4px 0', fontFamily: "'Merriweather', Georgia, serif", textDecoration: 'line-through' }}>Total value: $298</p>
+            <p style={{ color: '#ffd700', fontSize: '28px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>$29 — Yours forever</p>
+            <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, fontFamily: "'Merriweather', Georgia, serif" }}>One-time · No subscription · Instant access</p>
+          </div>
+
+          {/* CTA Button */}
+          <button
+            className="cw-upgrade-btn"
+            onClick={(e) => {
+              console.log('[Step3FreeResults] Upgrade button clicked, event:', e)
+              if (window.gtag) {
+                window.gtag('event', 'calculator_upgrade_click', {
+                  'event_category': 'calculator',
+                  'event_label': 'upgrade_clicked',
+                  'diet_type': data.diet
+                })
+              }
+              onUpgrade()
+            }}
+            style={{
+              width: '100%',
+              background: 'linear-gradient(135deg,#ffd700 0%,#f0c800 100%)',
+              color: '#1a0d00',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '18px',
+              fontWeight: '700',
+              padding: '18px 32px',
+              borderRadius: '10px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              marginBottom: '16px',
+              letterSpacing: '0.01em',
+              boxShadow: '0 4px 20px rgba(255,215,0,0.2), inset 0 1px 0 rgba(255,255,255,0.12)'
+            }}
+          >
+            Build My Personalized Protocol → $29
+          </button>
+
+          {/* Guarantee */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '15px', flexShrink: 0, marginTop: '1px' }}>🛡️</span>
+            <p style={{ color: 'rgba(244,228,212,0.55)', fontSize: '13px', margin: 0, lineHeight: '1.55', fontFamily: "'Merriweather', Georgia, serif" }}>
+              <strong style={{ color: 'rgba(255,215,0,0.75)' }}>30 days to read it, try it, decide.</strong> If it doesn't feel built for you, email us. Same-day refund. No survey, no friction.
+            </p>
+          </div>
         </div>
-
-        <p style={{ color: '#ffd700', fontSize: '14px', fontWeight: 'bold', margin: '0 0 10px 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          Here's what gets built for YOU:
-        </p>
-        <ul style={{ margin: 0, paddingLeft: '18px', color: '#f4e4d4', fontSize: '14px', lineHeight: '1.7' }}>
-          <li><strong>YOUR 30-day meal plan</strong>, built around your bodyweight and goals. Grocery lists priced for $80–120 a week, swaps for picky eaters, "I cook 3 nights" or "6 nights" versions. <span style={{ color: '#a89080' }}>($97 value)</span></li>
-          <li><strong>YOUR doctor conversation script.</strong> Exact sentences for when LDL jumps and your GP panics, plus four labs to ask for that aren't on a standard panel. <span style={{ color: '#a89080' }}>($79 value)</span></li>
-          <li><strong>YOUR week-by-week adaptation guide.</strong> What week 2 fatigue means, when leg cramps signal sodium vs magnesium, the plateau protocol for week 6. <span style={{ color: '#a89080' }}>($69 value)</span></li>
-          <li><strong>YOUR symptom-to-fix map.</strong> Brain fog, sleep, digestion, hormones. Matched to the likely cause from what you tell us. <span style={{ color: '#a89080' }}>($53 value)</span></li>
-          <li><strong>YOUR bloodwork interpretation guide.</strong> What your numbers should look like at 30, 60, 90 days. Carnivore ranges, not standard-diet ranges.</li>
-          <li><strong>Lifetime access.</strong> Free updates when the science evolves.</li>
-        </ul>
-
-        <div style={{ background: '#0d0a07', borderRadius: '8px', padding: '14px 18px', margin: '18px 0 14px 0', textAlign: 'center', border: '1px solid #ffd700' }}>
-          <p style={{ color: '#a89080', fontSize: '13px', margin: '0 0 4px 0' }}>Total value: $298</p>
-          <p style={{ color: '#ffd700', fontSize: '20px', fontWeight: 'bold', margin: 0, fontFamily: "'Playfair Display', Georgia, serif" }}>Today: $29 · Yours forever</p>
-        </div>
-
-        {/* CTA Button */}
-        <button
-          onClick={(e) => {
-            console.log('[Step3FreeResults] Upgrade button clicked, event:', e)
-            if (window.gtag) {
-              window.gtag('event', 'calculator_upgrade_click', {
-                'event_category': 'calculator',
-                'event_label': 'upgrade_clicked',
-                'diet_type': data.diet
-              })
-            }
-            onUpgrade()
-          }}
-          style={{
-            width: '100%',
-            backgroundColor: '#ffd700',
-            color: '#1a120b',
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: '18px',
-            fontWeight: '600',
-            padding: '16px 32px',
-            borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            marginBottom: '12px'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#e6c200';
-            e.currentTarget.style.transform = 'translateY(-1px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#ffd700';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          Build My Personalized Protocol → $29
-        </button>
-
-        <p style={{ color: '#f4e4d4', fontSize: '13px', margin: '0', textAlign: 'center', lineHeight: '1.5' }}>
-          <strong style={{ color: '#ffd700' }}>30 days to read it, try it, decide.</strong> If it doesn't feel built for you, email us. Same-day refund. No survey, no friction.
-        </p>
       </div>
 
       {/* Start Over Button */}
