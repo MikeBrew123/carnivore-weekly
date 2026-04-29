@@ -1,76 +1,106 @@
 {
-  "generated_date": "2026-04-26",
-  "community_pulse": "The dominant tensions this week: mainstream medicine vs. carnivore community (surgeon controversy, diabetes reversal), budget accessibility, and the quitting/staying problem. Creative recipe culture (pizza, wraps) is a strong secondary signal. The sunburn thread opened a new angle that the community hasn't seen covered seriously yet.",
+  "generated_date": "2026-04-29",
+  "community_pulse": "The community is wrestling with three competing conversations: budget constraints pushing people toward cheaper carnivore options, health concerns around LDL cholesterol creating doubt, and heated debates over fat intake and meal frequency. Dr. Elizabeth Bright's viral video sparked the week's biggest engagement around avoiding beginner mistakes.",
   "topics": [
     {
       "rank": 1,
-      "title": "The Carnivore Mistake I Wish Someone Had Warned Me About",
-      "angle": "Community-sourced roundup of the most common first-year mistakes, framed around Dr. Bright's video this week. Not beginner basics, but the subtler stuff: too much protein too fast, not enough fat, electrolytes too late, and the mindset traps. Real talk format.",
-      "why_now": "Dr. Elizabeth Bright's 64k-view video this week hit a nerve. The comment section is full of experienced carnivores sharing what they wish they'd known.",
-      "suggested_writer": "chloe"
+      "title": "The Butter Wars: How Much Fat Should You Actually Eat on Carnivore?",
+      "angle": "Cut through the OMAD vs. frequent eating debate by breaking down fat intake by metabolic goal (fat loss vs. performance vs. maintenance) instead of one-size-fits-all advice",
+      "why_now": "Dr. Bright's video ignited a comments section full of conflicting fat advice; people need a practical framework, not ideology",
+      "suggested_writer": "marcus",
+      "priority": "high",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-04-30"
     },
     {
       "rank": 2,
-      "title": "Why Heart Surgeons and Carnivore Dieters Keep Talking Past Each Other",
-      "angle": "Not a takedown piece. A genuine look at why mainstream medicine is slow to update on carnivore evidence, what the actual points of disagreement are, and how carnivores can have more productive conversations with their doctors.",
-      "why_now": "The HomeSteadHow surgeon video hit 49k views and 1,260 comments. The community is fired up and this gives them something more useful than outrage.",
-      "suggested_writer": "sarah"
+      "title": "LDL on Carnivore: What the Recent Studies Actually Say (vs. What You're Hearing)",
+      "angle": "Address the LDL anxiety by distinguishing between particle size, apoB, and context \u2014 not just raw LDL numbers \u2014 with recent 2025-2026 research cited",
+      "why_now": "LDL cholesterol is trending because people are scared; this defuses panic with real data",
+      "suggested_writer": "sarah",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-02"
     },
     {
       "rank": 3,
-      "title": "Carnivore and Sunburn: What's Actually Going On With Your Skin",
-      "angle": "Dr. Hampton's sunburn video opened a real question worth exploring. What do we know about seed oil elimination, skin inflammation, and UV tolerance? What's testimonial versus what has science behind it? Covers the PUFA hypothesis with citations.",
-      "why_now": "Dr. Tony Hampton's video hit 12,903 views with compelling community testimonials. Nobody has written a serious explainer on the mechanism yet.",
-      "suggested_writer": "sarah"
+      "title": "Carnivore on $50/Week: The Budget Breakdown That Actually Works",
+      "angle": "Get specific with chicken thighs, organ meats, and eggs \u2014 show real meal plans and sourcing hacks instead of vague 'buy cheap cuts' advice",
+      "why_now": "Budget carnivore is trending on YouTube; people want to know HOW, not just that it's possible",
+      "suggested_writer": "marcus",
+      "priority": "high",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-04"
     },
     {
       "rank": 4,
-      "title": "The Birthday Ribeye: How Carnivore Changes Your Relationship With Food Celebrations",
-      "angle": "That 396-upvote birthday ribeye post is a cultural moment. Explores how carnivore reshapes food rituals, what it's like to opt out of cake culture, and why the community celebrates these moments so enthusiastically.",
-      "why_now": "The post went viral on r/carnivorediet this week. Pure community energy worth capturing while it's fresh.",
-      "suggested_writer": "chloe"
+      "title": "I Watched the Critics' Latest Carnivore Attack. Here's What They Got Wrong.",
+      "angle": "Steelman the criticism (don't strawman), then systematically dismantle bad arguments while acknowledging legitimate concerns about muscle loss or nutrient gaps",
+      "why_now": "Critics vs. Carnivore is trending; the community wants ammunition, but credibility comes from fair debate",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-06"
     },
     {
       "rank": 5,
-      "title": "You're Basically Carnivore (You Just Haven't Admitted It Yet)",
-      "angle": "Inspired by the 204-upvote Reddit post about the guy eating 15 eggs and 250g beef daily who insists he's not carnivore. A playful look at the borderline converts. Welcoming, not judgmental.",
-      "why_now": "The post is relatable and funny, and it captures a real phenomenon: people doing the diet without the label.",
-      "suggested_writer": "chloe"
+      "title": "Electrolytes on Carnivore: The Dosing Math Nobody Explains Right",
+      "angle": "Provide actual sodium/potassium/magnesium targets based on activity level and sweat rate, not just 'add more salt' \u2014 include how to test if you're actually deficient",
+      "why_now": "Electrolytes balancing act is trending; people know it matters but don't know the specifics",
+      "suggested_writer": "sarah",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-08"
     },
     {
       "rank": 6,
-      "title": "Carnivore on $5 a Day: A Real Cost-Per-Gram-of-Protein Analysis",
-      "angle": "Baker's budget video plus Reddit's bulk buying threads give enough data to build a real protocol. Protein targets, cost per gram, weekly meal prep block, freezer strategy. Actual numbers, not theory.",
-      "why_now": "Shawn Baker's budget video hit 28,713 views and 371 comments. Budget is the top conversion barrier for new carnivores right now.",
-      "suggested_writer": "marcus"
+      "title": "Keto to Carnivore: What Actually Changes (And What Dr. Bright Got Right)",
+      "angle": "Map the specific metabolic and practical shifts \u2014 fat ratio, fiber withdrawal, appetite suppression timeline \u2014 so people know what to expect in weeks 1-4",
+      "why_now": "Keto to Carnivore Transition is trending; people want a roadmap tied to Bright's viral insights",
+      "suggested_writer": "marcus",
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-10"
     },
     {
       "rank": 7,
-      "title": "Diabetes Reversed in 60 Days on Carnivore: What the Clinical Picture Actually Looks Like",
-      "angle": "The Appalachia's Homestead video is compelling but needs context. What's happening physiologically when people reverse type 2 diabetes on carnivore, what the expected timeline is, what markers to track, and what to discuss with your doctor before stopping medications.",
-      "why_now": "25,966 views on the Patara video and strong comment engagement. People need the clinical framework, not just the inspiration.",
-      "suggested_writer": "sarah"
+      "title": "The Carnivore Mistake Audit: What Dr. Bright Missed in 7 Minutes",
+      "angle": "Expand on Bright's framework by adding 3-4 mistakes she didn't mention (sleep, timing of salt, overeating when stressed) \u2014 honest, not dismissive",
+      "why_now": "Dr. Bright's video is the week's biggest moment; response content now will ride that wave",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-12"
     },
     {
       "rank": 8,
-      "title": "Why People Quit Carnivore (And Why Most of Them Come Back)",
-      "angle": "Professor Bart Kay's video with 540 comments is a rich data source. Pulls the real reasons people bail, separates the valid concerns from the quitting-too-soon stories, and looks at the comeback arc that happens more often than people admit.",
-      "why_now": "540 comments on 17k views is unusually high engagement. This topic is personal for a lot of people right now.",
-      "suggested_writer": "chloe"
+      "title": "Heart Surgeon vs. Carnivore: What HomesteadHow's Video Revealed",
+      "angle": "Discuss the framing challenge of doctor testimonials \u2014 why one surgeon's blessing doesn't prove the diet, but also why dismissing all doctors isn't the answer either",
+      "why_now": "The HomesteadHow heart surgeon story is trending but the post cut off in the signal; community wants perspective on doctor credibility",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-05-14"
     },
     {
       "rank": 9,
-      "title": "Fast Food Carnivore: The McDonald's Egg Hack and Other Survival Strategies",
-      "angle": "The 85-upvote Reddit post about eating fast food carnivore-style deserves a real treatment. What to order at the most common chains, how to minimize the damage, and when fast food is actually fine versus when it sets you back.",
-      "why_now": "Practical travel and convenience content consistently performs. This week's post opened the door.",
-      "suggested_writer": "marcus"
+      "title": "Carnivore Performance: How to Structure Eating Around Workouts (Not Against It)",
+      "angle": "Practical timing and portions for strength training vs. endurance vs. casual activity \u2014 uses the OMAD debate as springboard but answers the real question",
+      "why_now": "Fat intake debate often includes performance questions; give people the actionable version",
+      "suggested_writer": "marcus",
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-16"
     },
     {
       "rank": 10,
-      "title": "Zero Carb Pizza Is Real Now: How Carnivore Cooking Has Actually Evolved",
-      "angle": "The pizza crust trend is a jumping-off point for a broader look at how carnivore cooking has evolved. Cottage cheese and egg wraps, chicken skin chips, creative crusts. Not a recipe post but a cultural piece about how the community keeps food interesting.",
-      "why_now": "The Keto Twins zero carb pizza video hit 48,340 views the same week Reddit carnivore pizza posts stacked upvotes.",
-      "suggested_writer": "chloe"
+      "title": "Why People Quit Carnivore in Week 3 (And How to Actually Get Past It)",
+      "angle": "Tied to 'mistakes' trend but focus on the emotional/social wall, not just nutrition \u2014 loneliness, family pushback, food boredom \u2014 with solutions",
+      "why_now": "Mistake-focused content is resonating; expand beyond technical mistakes to behavioral ones",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-18"
     }
   ]
 }
