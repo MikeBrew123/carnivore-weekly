@@ -1,6 +1,20 @@
 # CLAUDE.md
 
 ---
+## 🔁 RECURRING ISSUES — CHECK THIS BEFORE DIAGNOSING ANYTHING
+
+**If something seems broken, check here first:** [`docs/project-log/recurring-issues.md`](docs/project-log/recurring-issues.md)
+
+Issues tracked:
+- **ISSUE-001** — Blog queue empty, no new posts publishing (happened 3x — root cause: content generation was never automated)
+- **ISSUE-002** — daily_publish.py runs green but nothing commits (fixed Apr 13 — `git add -A` before diff)
+- **ISSUE-003** — GitHub Actions fails on missing script (always: commit scripts before referencing in workflows)
+- **ISSUE-004** — Homepage stuck on stale week / wrong YouTube videos (fixed — quota burn from second script)
+- **ISSUE-005** — Sitemap not updating after publish (fixed — generate_blog_pages.py handles it)
+
+**Rule:** If you spend >30 min on an issue that isn't in this list, add it when you're done.
+
+---
 ## ⚠️ BEFORE YOU DO ANYTHING — READ THIS FIRST ⚠️
 
 ### 🚨 CRITICAL: ALL Written Content MUST Use Writer Agents
