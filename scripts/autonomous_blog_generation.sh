@@ -6,11 +6,12 @@
 # It orchestrates the full Supabase-powered writer agent pipeline.
 #
 # Usage:
-#   ./scripts/autonomous_blog_generation.sh [batch_size]
+#   ./scripts/autonomous_blog_generation.sh [batch_size] [--auto]
 #
 # Examples:
-#   ./scripts/autonomous_blog_generation.sh           # Generate 5 posts
-#   ./scripts/autonomous_blog_generation.sh 15        # Generate 15 posts (Batch 2)
+#   ./scripts/autonomous_blog_generation.sh           # Generate 5 posts (interactive)
+#   ./scripts/autonomous_blog_generation.sh 15        # Generate 15 posts (interactive)
+#   ./scripts/autonomous_blog_generation.sh 9 --auto  # Non-interactive (for scheduled runs)
 #
 # What happens:
 #   1. Chloe researches trending topics → blog_topics_queue.json
@@ -29,6 +30,7 @@ set -e  # Exit on error
 
 # Default batch size
 BATCH_SIZE=${1:-5}
+AUTO_FLAG=${2:-""}
 
 echo "=============================================================================="
 echo "CARNIVORE WEEKLY - AUTONOMOUS CONTENT GENERATION"
@@ -60,7 +62,7 @@ echo ""
 echo "🚀 Launching autonomous pipeline..."
 echo ""
 
-python3 scripts/generate_weekly_content.py --batch-size "$BATCH_SIZE"
+python3 scripts/generate_weekly_content.py --batch-size "$BATCH_SIZE" $AUTO_FLAG
 
 EXIT_CODE=$?
 
