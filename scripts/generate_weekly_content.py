@@ -45,11 +45,12 @@ class ContentPipeline:
     Orchestrates the full content generation pipeline
     """
 
-    def __init__(self, batch_size=5, skip_research=False, skip_commit=False, dry_run=False):
+    def __init__(self, batch_size=5, skip_research=False, skip_commit=False, dry_run=False, auto=False):
         self.batch_size = batch_size
         self.skip_research = skip_research
         self.skip_commit = skip_commit
         self.dry_run = dry_run
+        self.auto = auto  # skip all input() prompts, assume "yes"
         self.queue_file = PROJECT_ROOT / "blog_topics_queue.json"
         self.session_log = []
 
@@ -152,8 +153,9 @@ WAIT FOR AGENT TO COMPLETE before proceeding to Phase 2.
             self.log(instructions)
             self.log("=" * 80)
 
-            # In production, this would be automated via Claude Code's Task tool
-            # For now, require manual confirmation
+            if self.auto:
+                self.log("--auto mode: skipping research confirmation prompt")
+                return True
             response = input("\nHas Chloe completed research? (yes/no): ")
             return response.lower() == "yes"
 
@@ -291,6 +293,9 @@ WAIT FOR ALL WRITERS TO COMPLETE before proceeding to Phase 4.
             self.log(instructions)
             self.log("=" * 80)
 
+            if self.auto:
+                self.log("--auto mode: skipping writer swarm confirmation prompt")
+                return True
             response = input(f"\nHave all {len(assignments)} articles been generated? (yes/no): ")
             return response.lower() == "yes"
 
@@ -516,6 +521,8 @@ Examples:
                         help="Don't auto-commit/push (for testing)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Show what would happen without executing")
+    parser.add_argument("--auto", action="store_true",
+                        help="Non-interactive mode: skip all yes/no prompts (for scheduled runs)")
 
     args = parser.parse_args()
 
@@ -523,7 +530,8 @@ Examples:
         batch_size=args.batch_size,
         skip_research=args.skip_research,
         skip_commit=args.skip_commit,
-        dry_run=args.dry_run
+        dry_run=args.dry_run,
+        auto=args.auto
     )
 
     success = pipeline.run()
