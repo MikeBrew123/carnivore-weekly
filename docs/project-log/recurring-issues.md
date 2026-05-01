@@ -30,7 +30,9 @@ Referenced from: CLAUDE.md → "⚠️ BEFORE YOU DO ANYTHING"
 
 **Fix (permanent — ISSUE-001-FIX, NOT YET DONE):** Refactor `scripts/autonomous_blog_generation.sh` and `scripts/generate_weekly_content.py` to accept a `--auto` flag that skips all `input()` prompts. Then schedule a weekly local task (Sunday evening) that runs it unattended. See Beads issue for tracking.
 
-**Current status:** 🔴 OPEN — permanent fix not implemented. Manual trigger still required each week. Local scheduled task created for GSC indexing (weekly-gsc-indexing) but content generation still manual.
+**Current status:** ✅ FIXED (2026-05-01) — Weekly local scheduled task `weekly-blog-content-generation` created. Runs every Sunday at 8pm, invokes Chloe for research then Sarah/Marcus/Chloe to write 9 posts, commits and pushes. Daily publisher handles the rest. `--auto` flag added to `generate_weekly_content.py` to prevent any future `input()` blocks.
+
+**Next run:** Sunday 2026-05-03 at 8pm.
 
 **Last worked on:** 2026-05-01
 
