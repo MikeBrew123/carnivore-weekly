@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-04-26",
+  "last_updated": "2026-05-03",
   "leaderboard": [
     {
-      "name": "Dr. Elizabeth Bright",
+      "name": "Shawn Baker MD",
       "rank": 1,
-      "appearances": 1,
-      "channel_id": "UCg2P30x_2cWeXbKfnLeLTWQ"
+      "appearances": 3,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
       "name": "HomeSteadHow",
       "rank": 2,
-      "appearances": 2,
+      "appearances": 3,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Keto Twins",
+      "name": "Nutricionista Patricia Leite",
       "rank": 3,
       "appearances": 1,
-      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
+      "channel_id": "UCJCIbrvEJyRJnHGvh7z0-bQ"
+    },
+    {
+      "name": "Steak and Butter Gal",
+      "rank": 4,
+      "appearances": 1,
+      "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
+    },
+    {
+      "name": "Kent Carnivore",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     },
     {
       "name": "Patricia Delicious Nutrition",
-      "rank": 4,
-      "appearances": 3,
+      "rank": 6,
+      "appearances": 4,
       "channel_id": "UCUU-glcsz57qVD8_xhriglg"
     },
     {
-      "name": "Appalachia's Homestead with Patara",
-      "rank": 5,
-      "appearances": 1,
-      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
-    },
-    {
-      "name": "Shawn Baker MD",
-      "rank": 6,
+      "name": "Dr. Elizabeth Bright",
+      "rank": 7,
       "appearances": 2,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+      "channel_id": "UCg2P30x_2cWeXbKfnLeLTWQ"
     },
     {
       "name": "Dr. Eric Westman - Adapt Your Life",
-      "rank": 7,
-      "appearances": 1,
+      "rank": 8,
+      "appearances": 2,
       "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
     },
     {
-      "name": "Professor Bart Kay - Nutrition and Health Science",
-      "rank": 8,
-      "appearances": 1,
-      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
-    },
-    {
-      "name": "CJsKetoKitchen",
+      "name": "Meet Carnivore",
       "rank": 9,
       "appearances": 1,
-      "channel_id": "UC4hVTN20m5D9UH4I7skqnyg"
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "KetoFocus",
+      "name": "Carnivore Quest",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCx83l0vZEKMkz93qR2m8CTA"
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     }
   ]
 }
