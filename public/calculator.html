@@ -1104,6 +1104,7 @@
 
                     <!-- Calculator React App Mount Point -->
                     <div id="root"></div>
+                    <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; color: #666; text-align: center; margin: 12px 0 0 0;">Want the printable version? <a href="https://www.etsy.com/ca/shop/CarnivoreWeekly" rel="noopener" target="_blank" style="color: #8b4513;">Get it on Etsy.</a></p>
                 </div>
 
                 <!-- FAQ Section -->
@@ -1255,6 +1256,14 @@
         // Start the rotation
         setInterval(showNext, displayTime + fadeTime);
     })();
+    </script>
+    <script>
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.cw-upgrade-btn');
+        if (btn && typeof gtag === 'function') {
+            gtag('event', 'starter_plan_cta_click');
+        }
+    });
     </script>
 </body>
 </html>
