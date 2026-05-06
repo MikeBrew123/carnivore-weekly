@@ -1,76 +1,96 @@
 {
-  "generated_date": "2026-05-03",
-  "community_pulse": "Retention is the week's dominant story. Shawn Baker's 'quitting carnivore' video drew 1,400 comments from people who aren't quitting. Budget eating is the second biggest signal, with cheap ground beef content pulling strong engagement. Electrolytes and first-day tips are active in the community, and the 'animals need meat too' conversation is picking up from the Kent Carnivore viral video.",
+  "generated_date": "2026-05-06",
+  "community_pulse": "The community is experiencing a surge in long-term success stories and retention, with people debunking the 'carnivore doesn't last' narrative while simultaneously wrestling with practical challenges like electrolyte management and affordability.",
   "topics": [
     {
       "rank": 1,
-      "title": "Why Long-Term Carnivore Dieters Never Go Back (What 3+ Years Actually Looks Like)",
-      "angle": "Interview-style breakdown of what happens to health markers, energy, and lifestyle after years on carnivore. Use real comment data from this week's Shawn Baker video: 6 years, 10 years, the 83-year-old still going strong.",
-      "why_now": "Shawn Baker's video drew 1,400 comments from people actively defending their long-term commitment. The audience wants proof of longevity.",
-      "suggested_writer": "sarah"
+      "title": "The 6-Year Club: What 83-Year-Olds Know About Staying Carnivore Long-Term",
+      "angle": "Profile-style deep dive into what separates people who stick with carnivore for years vs. months, using real age demographics from the Baker comments as proof",
+      "why_now": "Baker's video sparked a flood of multi-year success stories; people want to know what the long-haulers are actually doing differently",
+      "suggested_writer": "chloe",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-07"
     },
     {
       "rank": 2,
-      "title": "How to Do Carnivore on a Ground Beef Budget: 5 Meals That Actually Rotate Well",
-      "angle": "Practical weekly meal plan built around ground beef as the foundation. Cost per day breakdown, prep tips, variety hacks. Inspired by Steak and Butter Gal's viral cheap meal plan video.",
-      "why_now": "48k views and a 7.7% like rate on the Steak and Butter Gal video this week. Budget carnivore content is in demand.",
-      "suggested_writer": "marcus"
+      "title": "Leg Cramps on Carnivore: It's Not Just Electrolytes (Here's What Actually Works)",
+      "angle": "Go beyond the standard 'add salt' advice\u2014explore magnesium timing, potassium myths, and why some people cramp despite supplementing correctly",
+      "why_now": "Electrolytes and leg cramps are trending this week; an evidence-based troubleshooting guide fills a real gap",
+      "suggested_writer": "sarah",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-09"
     },
     {
       "rank": 3,
-      "title": "Your First Week on Carnivore: What to Eat, What to Expect, and What Not to Stress About",
-      "angle": "Direct, practical first-week guide. Anticipate the keto flu, explain why fat is important early, give a simple 7-day plan. Written for the Reddit newcomer archetype.",
-      "why_now": "Reddit first-day post got 291 upvotes and 57 comments of community advice this week. There's a large audience at the starting line.",
-      "suggested_writer": "chloe"
+      "title": "Reversed AFIB, Psoriasis, and Diverticulitis: The 74-Year-Old Blueprint",
+      "angle": "Case study format examining the intersection of multiple autoimmune/digestive reversals on carnivore with specific timeline and food choices",
+      "why_now": "Specific health wins in the Baker comments are resurfacing conversation about carnivore's therapeutic potential beyond weight loss",
+      "suggested_writer": "sarah",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-11"
     },
     {
       "rank": 4,
-      "title": "Carnivore and Fasting: Why the Two Go Together Better Than You'd Think",
-      "angle": "Evidence-based explanation of why carnivore makes intermittent fasting easier, with practical protocols for OMAD, 16:8, and extended fasts. Tie to the top comment theme from HomeSteadHow's video.",
-      "why_now": "The fasting + carnivore combination was the dominant theme in HomeSteadHow's 109k-view video this week.",
-      "suggested_writer": "marcus"
+      "title": "Budget Carnivore Without Compromise: Feeding Yourself on $8/Day",
+      "angle": "Tactical breakdown of sourcing strategies (bulk buying, organ meats, regional variations) rather than generic 'carnivore is expensive' dismissal",
+      "why_now": "Budget meal plans are trending; the community actively discusses affordability barriers",
+      "suggested_writer": "marcus",
+      "priority": "high",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-13"
     },
     {
       "rank": 5,
-      "title": "13 Months on Carnivore: What Changes (and What Surprises People Most)",
-      "angle": "Timeline piece on the transformation arc. Month 1 symptoms, month 3 stabilization, month 6 clarity, month 12 'this is just how I eat now.' Use the Reddit 13-month post as a frame.",
-      "why_now": "Reddit transformation post ('getting out of fat prison') got 268 upvotes this week. Before-and-after timelines are what the audience shares.",
-      "suggested_writer": "chloe"
+      "title": "The Cholesterol Panic Cycle: Why Your Doctor's Numbers Don't Match Your Results",
+      "angle": "Investigate the gap between elevated cholesterol markers and reported health improvements\u2014when to monitor vs. when to ignore the numbers",
+      "why_now": "Cholesterol myths are trending; people need permission structures and science to ignore conventional wisdom",
+      "suggested_writer": "sarah",
+      "priority": "high",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-15"
     },
     {
       "rank": 6,
-      "title": "Should You Feed Your Pet a Raw Meat Diet? What the Carnivore Community Is Debating",
-      "angle": "Evidence-based look at raw/meat-based feeding for dogs and cats. What does the biology say? What are the risks? Tie to the Kent Carnivore video about forcing carnivore pets onto vegan diets.",
-      "why_now": "Kent Carnivore's Packham video hit 771 comments (1.5% comment rate) on the topic of vegan dogs. The audience cares about this.",
-      "suggested_writer": "sarah"
+      "title": "First Week Carnivore: Your Hour-by-Hour Survival Guide (Not Just Tips)",
+      "angle": "Honest timeline of what actually happens days 1-7 (energy crashes, digestive shifts, mood changes) with real interventions, not cheerleading",
+      "why_now": "First week tips are trending; opportunity to own this evergreen with authority and candor",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-05-17"
     },
     {
       "rank": 7,
-      "title": "Carnivore OMAD: Is One Meal a Day the Secret the Long-Timers All Converge On?",
-      "angle": "Look at why so many long-term carnivore dieters naturally drift toward OMAD. Metabolic reasons, satiety, simplicity. Feature real testimonials from this week's HomeSteadHow comment section.",
-      "why_now": "OMAD carnivore came up repeatedly in the top comment threads across multiple high-view videos this week.",
-      "suggested_writer": "marcus"
+      "title": "70 Lbs in Six Months + Zero Arthritis: The Performance Angle Nobody Mentions",
+      "angle": "Explore how rapid fat loss specifically impacts joint load and inflammation recovery differently than gradual weight loss methods",
+      "why_now": "The 70 lb weight loss + arthritis reversal comment is a perfect hook for performance-focused readers; ties to practical outcomes",
+      "suggested_writer": "marcus",
+      "priority": "medium",
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-19"
     },
     {
       "rank": 8,
-      "title": "Cheap Cuts, Big Results: How the Community Is Eating Carnivore for Less",
-      "angle": "Deep-dive on budget carnivore protein sources: ground beef, chicken thighs, eggs, sardines, chicken liver. Cost-per-gram breakdowns, bulk buying strategy, freezer tips.",
-      "why_now": "Budget carnivore is the second-biggest signal in this week's YouTube and Reddit data. The cost barrier is real and people want solutions.",
-      "suggested_writer": "sarah"
+      "title": "Why Shawn Baker's 'People Are Leaving' Video Actually Proved the Opposite",
+      "angle": "Meta-analysis of comment sentiment and demographic patterns\u2014what the 1,400 'absolutely not leaving' responses reveal about community composition and satisfaction",
+      "why_now": "The Baker video and comment explosion are this week's water-cooler moment; frame it as data rather than drama",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-05-21"
     },
     {
       "rank": 9,
-      "title": "The Best Carnivore Fast Food Hacks That Actually Work (Beyond the Burger No Bun)",
-      "angle": "Practical guide to eating carnivore when you're traveling or don't have time to cook. Goes beyond the obvious no-bun burger to specific menu items, ordering scripts, and what to avoid.",
-      "why_now": "First-day and beginner posts consistently ask about practicality and eating on the go. This is an evergreen gap with current community momentum.",
-      "suggested_writer": "chloe"
-    },
-    {
-      "rank": 10,
-      "title": "Carnivore and Skin: What People Actually Notice After 3 to 6 Months",
-      "angle": "Document the skin transformation pattern from carnivore. Acne, redness, aging, wound healing. Pull from HomeSteadHow comment: 'The one thing I really notice on carnivore is skin. Everyone's skin looks amazing.'",
-      "why_now": "Skin improvement was a standout comment theme in HomeSteadHow's 109k-view video this week. Vanity metrics drive clicks.",
-      "suggested_writer": "sarah"
+      "title": "Arthritis Reversal on Carnivore: The Inflammation Timeline You Need to Know",
+      "angle": "Detailed breakdown of when people typically see joint improvement, what markers change first, and realistic expectations by severity",
+      "why_now": "Arthritis reversals are appearing repeatedly in trending comments; audiences want evidence-based timelines",
+      "suggested_writer": "sarah",
+      "priority": "medium",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-23"
     }
   ]
 }
