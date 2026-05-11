@@ -116,6 +116,28 @@ Referenced from: CLAUDE.md → "⚠️ BEFORE YOU DO ANYTHING"
 
 ---
 
+## ISSUE-006 — GSC "Page with redirect" blocking indexing
+
+**Symptom:** Google Search Console shows pages with coverage status "Page with redirect" — they can't be indexed at their submitted URL.
+
+**Has happened:** May 2026 (2026-01-06-transformation-stories.html, 2026-02-15-carnivore-constipation.html)
+
+**Root cause:** When a post's slug changes or a URL returns a 404, the instinct is to create a meta-refresh stub file at the old URL pointing to the new one. GitHub Pages cannot issue real 301 redirects, so meta-refresh stubs are not real redirects. GSC sees them as "Page with redirect" and won't index them. The stubs also get auto-discovered by `generate_blog_pages.py`'s orphan scan and re-added to the sitemap.
+
+**Do NOT:** Create stub HTML files with `http-equiv="refresh"` to fix 404s. They don't pass SEO equity and create a new GSC problem.
+
+**Fix:**
+1. Find what's linking to the old URL (`grep -rl "old-slug" public/ data/`)
+2. Update the source link to point to the correct slug
+3. If the stub file already exists, delete it
+4. `generate_blog_pages.py` now skips meta-refresh files in orphan discovery (patched May 2026)
+
+**Sitemap check:** `grep "transformation-stories\|carnivore-constipation" public/sitemap.xml` — should return nothing.
+
+**Current status:** ✅ FIXED (May 2026) — stubs deleted, sitemap cleaned, generator patched to skip redirect files.
+
+---
+
 ## How to Add a New Entry
 
 Copy this template:
