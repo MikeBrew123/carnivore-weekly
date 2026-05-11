@@ -389,6 +389,8 @@ def update_sitemap(posts):
                     content = html_file.read_text(encoding="utf-8", errors="ignore")[:2000]
                     if "<head" not in content:
                         continue
+                    if 'http-equiv="refresh"' in content or "http-equiv='refresh'" in content:
+                        continue  # Skip redirect pages — GSC marks them as "Page with redirect"
                 except Exception:
                     continue
                 date_match = re.match(r"(\d{4}-\d{2}-\d{2})", html_file.name)
