@@ -19,12 +19,6 @@
         <priority>0.95</priority>
     </url>
     <url>
-        <loc>https://carnivoreweekly.com/blog/2026-01-06-transformation-stories.html</loc>
-        <lastmod>2026-01-06</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
         <loc>https://carnivoreweekly.com/blog/2026-01-05-ground-beef-budget.html</loc>
         <lastmod>2026-01-05</lastmod>
         <changefreq>monthly</changefreq>
@@ -350,7 +344,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/blog/</loc>
-        <lastmod>2026-05-10</lastmod>
+        <lastmod>2026-05-11</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -573,12 +567,6 @@
     <url>
         <loc>https://carnivoreweekly.com/blog/2026-03-19-ground-beef-budget-carnivore-meals-under-3-dollars.html</loc>
         <lastmod>2026-03-19</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://carnivoreweekly.com/blog/2026-02-15-carnivore-constipation.html</loc>
-        <lastmod>2026-02-15</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
