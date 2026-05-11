@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-05-03",
+  "last_updated": "2026-05-10",
   "leaderboard": [
     {
-      "name": "Shawn Baker MD",
-      "rank": 1,
-      "appearances": 3,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
-    },
-    {
-      "name": "HomeSteadHow",
-      "rank": 2,
-      "appearances": 3,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
-      "name": "Nutricionista Patricia Leite",
-      "rank": 3,
-      "appearances": 1,
-      "channel_id": "UCJCIbrvEJyRJnHGvh7z0-bQ"
-    },
-    {
       "name": "Steak and Butter Gal",
-      "rank": 4,
-      "appearances": 1,
+      "rank": 1,
+      "appearances": 2,
       "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
     },
     {
-      "name": "Kent Carnivore",
-      "rank": 5,
+      "name": "Alison Johnson",
+      "rank": 2,
       "appearances": 1,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
-    },
-    {
-      "name": "Patricia Delicious Nutrition",
-      "rank": 6,
-      "appearances": 4,
-      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
-    },
-    {
-      "name": "Dr. Elizabeth Bright",
-      "rank": 7,
-      "appearances": 2,
-      "channel_id": "UCg2P30x_2cWeXbKfnLeLTWQ"
-    },
-    {
-      "name": "Dr. Eric Westman - Adapt Your Life",
-      "rank": 8,
-      "appearances": 2,
-      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
+      "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg"
     },
     {
       "name": "Meet Carnivore",
-      "rank": 9,
-      "appearances": 1,
+      "rank": 3,
+      "appearances": 2,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Carnivore Quest",
+      "name": "Dr. Eric Westman - Adapt Your Life",
+      "rank": 4,
+      "appearances": 3,
+      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
+    },
+    {
+      "name": "HomeSteadHow",
+      "rank": 5,
+      "appearances": 4,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
+      "name": "Adam Witt",
+      "rank": 7,
+      "appearances": 1,
+      "channel_id": "UCrTYsIJ3VADideZ7-euOMmw"
+    },
+    {
+      "name": "Carnivore Teacher Alpha",
+      "rank": 8,
+      "appearances": 1,
+      "channel_id": "UCLoe46vokIWT50lOoqcr5kg"
+    },
+    {
+      "name": "Professor Bart Kay - Nutrition and Health Science",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
+    },
+    {
+      "name": "Coach Carnivore Cam ",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+      "channel_id": "UC3vywUwv6B-JB4jmdhZnX7A"
     }
   ]
 }
