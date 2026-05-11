@@ -1502,52 +1502,6 @@
       "image": "/images/blog/2025-12-23-adhd-connection.jpg"
     },
     {
-      "id": "2025-12-31-acne-purge",
-      "slug": "2025-12-31-acne-purge",
-      "title": "Acne Purge: Why Skin Gets Worse Before It Gets Better",
-      "author": "chloe",
-      "author_title": "Community Manager",
-      "date": "2025-12-31",
-      "scheduled_date": "2025-01-10",
-      "published": true,
-      "category": "health",
-      "tags": [
-        "skin",
-        "detox",
-        "adaptation",
-        "week-2",
-        "side-effects"
-      ],
-      "excerpt": "Week 2 carnivore and your skin explodes. Don't panic. This is detox. You'll have the clearest skin of your life by week 6.",
-      "wiki_links": [
-        "#skin",
-        "#adaptation"
-      ],
-      "related_posts": [],
-      "sponsor_callout": null,
-      "seo": {
-        "meta_description": "Starting carnivore and breaking out worse? The acne purge is real and temporary. Here is the week-by-week timeline to clear skin and when to actually worry.",
-        "keywords": [
-          "acne",
-          "skin",
-          "detox",
-          "carnivore",
-          "week 2",
-          "adaptation"
-        ]
-      },
-      "validation": {
-        "copy_editor": "pending",
-        "brand_validator": "pending",
-        "humanization": "pending"
-      },
-      "comments_enabled": true,
-      "content": "<p>This is a placeholder for: Adult Acne Purge: Why Your Skin Gets Worse Before It Gets Better</p>\n\n<p>Content coming soon. This post will cover the key points about this topic as discussed in our research and community experience.</p>\n\n<h2>Key Topics</h2>\n\n<p>More detailed content will be added here.</p>\n\n<h2>Next Steps</h2>\n\n<p>Stay tuned for more updates on this topic.</p>",
-      "status": "published",
-      "publish_date": "2025-12-31",
-      "image": "/images/blog/2025-12-31-acne-purge.jpg"
-    },
-    {
       "id": "2025-12-24-deep-freezer-strategy",
       "slug": "2025-12-24-deep-freezer-strategy",
       "title": "The Deep Freezer Strategy: How to Never Run Out of Meat",
@@ -1676,50 +1630,6 @@
       "status": "published",
       "publish_date": "2025-12-29",
       "image": "/images/blog/2025-12-29-lion-diet-challenge.jpg"
-    },
-    {
-      "id": "2025-12-26-seven-dollar-survival-guide",
-      "slug": "2025-12-26-seven-dollar-survival-guide",
-      "title": "The $7/Day Survival Guide: Ground Beef + Eggs Protocol",
-      "author": "marcus",
-      "author_title": "Performance Coach",
-      "date": "2025-12-26",
-      "scheduled_date": "2025-01-06",
-      "published": true,
-      "category": "protocol",
-      "tags": [
-        "budget",
-        "protocol",
-        "carnivore-month",
-        "macros"
-      ],
-      "excerpt": "Thriving on carnivore for $7 per day. Here's the exact math and protocol.",
-      "wiki_links": [
-        "#macros",
-        "#budget"
-      ],
-      "related_posts": [],
-      "sponsor_callout": null,
-      "seo": {
-        "meta_description": "Carnivore on a budget is possible. The ground beef and eggs protocol costs $7/day with complete nutrition. Full shopping list and weekly meal prep included.",
-        "keywords": [
-          "budget carnivore",
-          "cheap meat",
-          "ground beef",
-          "eggs",
-          "macros"
-        ]
-      },
-      "validation": {
-        "copy_editor": "pending",
-        "brand_validator": "pending",
-        "humanization": "pending"
-      },
-      "comments_enabled": true,
-      "content": "<p>This is a placeholder for: The $7/Day Survival Guide: Ground Beef + Eggs Protocol</p>\n\n<p>Content coming soon. This post will cover the key points about this topic as discussed in our research and community experience.</p>\n\n<h2>Key Topics</h2>\n\n<p>More detailed content will be added here.</p>\n\n<h2>Next Steps</h2>\n\n<p>Stay tuned for more updates on this topic.</p>",
-      "status": "published",
-      "publish_date": "2025-12-26",
-      "image": "/images/blog/2025-12-26-seven-dollar-survival-guide.jpg"
     },
     {
       "id": "2025-12-28-physiological-insulin-resistance",
