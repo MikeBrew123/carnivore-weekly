@@ -24,7 +24,10 @@
       "Bash(gh run:*)",
       "Bash(find /Users/mbrew/Developer/carnivore-weekly -name *calculator* -o -name *promo* -o -name *unlock*)",
       "Bash(find /Users/mbrew/Developer/carnivore-weekly/dashboard -name *.json)",
-      "mcp__pgvector-memory__query"
+      "mcp__pgvector-memory__query",
+      "Bash(node site-overview-report.js)",
+      "Bash(node gsc-report.js)",
+      "Bash(node gsc-request-indexing.js)"
     ]
   },
   "disabledMcpjsonServers": [
