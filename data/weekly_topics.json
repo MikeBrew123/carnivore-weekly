@@ -1,96 +1,96 @@
 {
-  "generated_date": "2026-05-10",
-  "community_pulse": "The community is experiencing a surge in long-term success stories and retention confidence, with simultaneous interest in practical barriers like electrolytes, budget constraints, and cholesterol concerns. New adopters are seeking first-week guidance while veterans are cementing their commitment.",
+  "generated_date": "2026-05-13",
+  "community_pulse": "The community is experiencing a 'staying power' moment\u2014long-term adherence is being celebrated with viral success stories, while newcomers are seeking practical guidance on electrolytes, budgeting, and the first week. There's also a notable pushback against cholesterol fearmongering.",
   "topics": [
     {
       "rank": 1,
-      "title": "The 'Why Everyone's Leaving' Paradox: What Shawn Baker's Comments Section Actually Reveals About Carnivore Staying Power",
-      "angle": "Analysis of the unexpected community response to Baker's provocative title\u2014turning a clickbait moment into genuine data about who stays and why (84-year-olds, disease reversal cases, major weight loss)",
-      "why_now": "Viral moment happening this week with 1,400+ comments; captures the real sentiment vs. the sensational headline",
+      "title": "The 6-Year Test: What Keeps People on Carnivore (Hint: It's Not Willpower)",
+      "angle": "Deep-dive into the psychology and physiology of long-term carnivore adherence by analyzing why some people stick with it for decades while others quit\u2014focusing on the 'staying power' conversation that exploded this week",
+      "why_now": "Shawn Baker's 'Why Everyone's Leaving' video sparked a flood of testimonials proving people actually aren't leaving; this is the moment to explore why retention is so high",
       "suggested_writer": "chloe",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-05-11"
+      "publish_date": "2026-05-14"
     },
     {
       "rank": 2,
-      "title": "Leg Cramps on Carnivore? Your Electrolyte Ratio Might Be Backwards",
-      "angle": "Deep dive into why standard electrolyte advice (sodium, potassium, magnesium) fails for carnivores\u2014focus on the specific mineral ratios and timing that actually work for this diet",
-      "why_now": "Electrolytes and leg cramps is a top YouTube trending topic this week; most generic advice assumes carb-based metabolism",
+      "title": "Electrolytes on Carnivore: The Cramp-Free Protocol (Science-Backed)",
+      "angle": "A research-based guide that separates electrolyte myths from solutions, addressing the specific leg cramp issue that's currently trending without relying on generic keto advice",
+      "why_now": "Leg cramps and electrolytes are trending YouTube searches this week\u2014demand is high and existing resources often miss carnivore-specific needs",
       "suggested_writer": "sarah",
       "priority": "high",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-05-13"
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-16"
     },
     {
       "rank": 3,
-      "title": "Budget Carnivore Without the Guilt: Eating Nose-to-Tail on $4/Day",
-      "angle": "Practical meal plans and sourcing strategies using organ meats, ground beef, and whole animals\u2014not just expensive steaks",
-      "why_now": "Budget Carnivore Meal Plans trending; addresses economic barrier to entry without sacrificing nutritional completeness",
+      "title": "Budget Carnivore Reality Check: Can You Actually Do This for Under $300/Month?",
+      "angle": "Honest breakdown of budget carnivore with real meal plans, regional price comparisons, and which 'cheap cuts' actually work vs. which are false economy",
+      "why_now": "Budget meal plans are trending; the community needs honest, numbers-based guidance rather than clickbait promises",
       "suggested_writer": "marcus",
       "priority": "high",
       "assigned_writer": "marcus",
-      "publish_date": "2026-05-15"
+      "publish_date": "2026-05-18"
     },
     {
       "rank": 4,
-      "title": "Cholesterol Numbers Going Up on Carnivore? Here's What Your Doctor Won't Tell You",
-      "angle": "Break down LDL particle size, apoB, inflammation markers, and why total cholesterol \u2260 heart disease risk\u2014with actual case studies from the community",
-      "why_now": "Cholesterol Myths trending; addresses the #1 concern preventing people from staying on carnivore long-term",
+      "title": "Cholesterol on Carnivore: What the 74-Year-Old With Reversed AFIB Actually Knows",
+      "angle": "Interview-style deep-dive with community members who've addressed cholesterol concerns through bloodwork and longevity markers, plus myth-busting of the most persistent misunderstandings",
+      "why_now": "Cholesterol myths are trending; this hooks into the viral comment thread of people with real health reversals addressing the concern directly",
       "suggested_writer": "sarah",
       "priority": "high",
       "assigned_writer": "sarah",
-      "publish_date": "2026-05-17"
+      "publish_date": "2026-05-20"
     },
     {
       "rank": 5,
-      "title": "First Week on Carnivore: Your Hour-by-Hour Survival Guide (What Actually Happens)",
-      "angle": "Real timeline of week one including energy crashes, digestive shifts, cravings, sleep changes\u2014normalize the experience with solutions",
-      "why_now": "First Week Carnivore Tips is trending; new adopters need authentic expectations, not cheerleading",
+      "title": "First Week Carnivore: The Hour-by-Hour Reality (Not the Highlight Reel)",
+      "angle": "Honest account of what happens physically and emotionally in days 1-7, including the unglamorous parts, adaptation timeline, and when to actually worry vs. when to wait it out",
+      "why_now": "First week tips are trending; new people need real expectations, not motivational content",
       "suggested_writer": "chloe",
       "priority": "high",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-05-19"
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-22"
     },
     {
       "rank": 6,
-      "title": "Six Years In: The 83-Year-Old Carnivore's Non-Negotiables for Long-Term Adherence",
-      "angle": "Interview-style profile of the elderly success story from comments\u2014extract their actual protocols, mindset shifts, and what kept them committed through 6 years",
-      "why_now": "Carnivore Long-Term Adherence trending; older demographic proof-of-concept is compelling and underreported",
+      "title": "The 70-Lb Weight Loss in 6 Months Club: What's Actually Different About Their Approach?",
+      "angle": "Pattern analysis of high-success stories from the community (70 lbs + arthritis reversal in 6 months) to extract the variables that correlate with dramatic results",
+      "why_now": "The YouTube comments are filled with specific outcome stories; this synthesizes them into actionable patterns",
       "suggested_writer": "marcus",
       "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-05-21"
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-24"
     },
     {
       "rank": 7,
-      "title": "Disease Reversal Without the Restart: How AFIB, Psoriasis, and Diverticulitis Resolved on Carnivore",
-      "angle": "Medical deep-dive on the inflammatory mechanisms these conditions share and why zero-plant-foods created reversal (not just symptom suppression)",
-      "why_now": "Community highlighted specific disease wins this week (AFIB, psoriasis, diverticulitis); science-backed explanation for why",
+      "title": "Why Carnivore People Don't Leave: The Neuroscience of Adherence Bias (and Why It Might Be Real)",
+      "angle": "Explore whether the 1,400 'we're not leaving' comments represent genuine satisfaction, confirmation bias, or something about carnivore's neurochemical effects that actually does improve compliance",
+      "why_now": "This directly responds to the Baker video's framing and the unusual comment volume suggesting something worth investigating",
       "suggested_writer": "sarah",
       "priority": "medium",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-05-23"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-05-26"
     },
     {
       "rank": 8,
-      "title": "70 Pounds in Six Months With Arthritis Gone: The Dual-Win Nobody Talks About",
-      "angle": "Unpack why weight loss on carnivore is often accompanied by pain/inflammation reversal\u2014different mechanism than calorie restriction",
-      "why_now": "Specific success story from trending comments; reframe weight loss beyond vanity to systemic healing",
-      "suggested_writer": "marcus",
+      "title": "Carnivore for Chronic Disease Reversal: The 83-Year-Old, 74-Year-Old, and What We're Missing",
+      "angle": "Case study synthesis of the age-group success stories (reversing AFIB, psoriasis, diverticulitis) with focus on why these conditions respond and what the timeline actually looks like",
+      "why_now": "These specific health reversals are getting attention in the comments; people want to know if they apply to them",
+      "suggested_writer": "sarah",
       "priority": "medium",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-05-25"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-05-28"
     },
     {
       "rank": 9,
-      "title": "The 'Staying Forever' Mentality: How Carnivore Veterans Are Different From Dieters",
-      "angle": "Psychological analysis of why the comment section showed commitment language ('in for the duration') vs. temporary diet language",
-      "why_now": "Observational angle from Baker's comment section; speaks to identity shift, not willpower",
-      "suggested_writer": "chloe",
+      "title": "The Carnivore Plateau After Month 3: What's Normal, What Isn't, and How to Troubleshoot",
+      "angle": "Address the common experience of rapid initial results followed by a plateau, with practical adjustments based on what actually works in the community vs. generic advice",
+      "why_now": "Implicit in the 'long-term adherence' trend is that people need guidance beyond the first month\u2014this fills that gap",
+      "suggested_writer": "marcus",
       "priority": "medium",
       "assigned_writer": "chloe",
-      "publish_date": "2026-05-27"
+      "publish_date": "2026-05-30"
     }
   ]
 }
