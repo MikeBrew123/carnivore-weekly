@@ -1,0 +1,28 @@
+#!/bin/sh
+# Pre-push validator. Runs the same validate_before_commit.py that CI runs.
+# Prevents the "push → CI fails with critical → fix → push → CI fails with different critical" loop.
+# Bypass with `git push --no-verify` only if you understand what you're skipping.
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT" || exit 1
+
+if [ ! -f scripts/validate_before_commit.py ]; then
+  exit 0
+fi
+
+python3 scripts/validate_before_commit.py
+EXIT=$?
+
+# Exit codes from validate_before_commit.py:
+#   0 = all clean
+#   1 = critical issues found (blocks)
+#   2 = warnings only (allowed)
+# CI mirrors this contract — match it here.
+if [ $EXIT -eq 1 ]; then
+  echo ""
+  echo "❌ Pre-push validation failed (criticals). CI will fail too."
+  echo "   Emergency bypass: git push --no-verify"
+  exit 1
+fi
+
+exit 0

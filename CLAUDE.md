@@ -1,18 +1,28 @@
 # CLAUDE.md
 
 ---
-## 🔁 RECURRING ISSUES — CHECK THIS BEFORE DIAGNOSING ANYTHING
+## 🔁 ERROR PROTOCOL — SELF-ENFORCING, NO PROMPTING
 
-**If something seems broken, check here first:** [`docs/project-log/recurring-issues.md`](docs/project-log/recurring-issues.md)
+**Error log:** [`docs/project-log/recurring-issues.md`](docs/project-log/recurring-issues.md) — keep entries short, scannable, no bloat.
 
-Issues tracked:
-- **ISSUE-001** — Blog queue empty, no new posts publishing (happened 3x — root cause: content generation was never automated)
-- **ISSUE-002** — daily_publish.py runs green but nothing commits (fixed Apr 13 — `git add -A` before diff)
-- **ISSUE-003** — GitHub Actions fails on missing script (always: commit scripts before referencing in workflows)
-- **ISSUE-004** — Homepage stuck on stale week / wrong YouTube videos (fixed — quota burn from second script)
-- **ISSUE-005** — Sitemap not updating after publish (fixed — generate_blog_pages.py handles it)
+**On every error, follow this loop without being asked:**
 
-**Rule:** If you spend >30 min on an issue that isn't in this list, add it when you're done.
+1. **Before diagnosing:** open the error log. If the symptom matches a tracked ISSUE, read the Attempts list. Pick a NEW angle — never repeat a fix that already failed.
+2. **After fixing (anything that took >15 min, OR any CI/workflow failure):** add or update the entry. Format:
+   ```
+   ## ISSUE-NNN — One-line title
+   🟢 FIXED | 🟡 RECURRING | 🔴 OPEN — Last: YYYY-MM-DD
+   Pattern: one sentence
+   Attempts:
+   - YYYY-MM-DD — what was tried → outcome (commit hash optional)
+   If recurs: next angle to try
+   ```
+3. **If the issue is already tracked and recurred:** append a new dated Attempt line. Do not rewrite history. Update status to 🟡 RECURRING.
+4. **Keep entries ≤15 lines.** No decision trees, no preamble — pattern + attempts + next angle only.
+
+This protocol is mandatory and circular: every error feeds the log, every diagnosis starts from the log.
+
+**Pre-push hook:** `scripts/install-hooks.sh` installs a hook that runs `validate_before_commit.py` before every push. Run it once after cloning. Don't bypass with `--no-verify` unless you understand what you're skipping.
 
 ---
 ## ⚠️ BEFORE YOU DO ANYTHING — READ THIS FIRST ⚠️
