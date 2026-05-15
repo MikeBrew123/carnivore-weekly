@@ -14,6 +14,9 @@ permissions:
   id-token: write
   issues: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 concurrency:
   group: "pages"
   cancel-in-progress: false
