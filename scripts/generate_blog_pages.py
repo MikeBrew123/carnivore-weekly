@@ -136,6 +136,33 @@ def setup_jinja():
     return env
 
 
+def find_related_posts(current_post, all_posts, n=3):
+    """Find n related posts by shared tags and category, excluding self."""
+    slug = current_post.get("slug", "")
+    tags = set(current_post.get("tags", []))
+    category = current_post.get("category", "")
+
+    scored = []
+    for post in all_posts:
+        if not post.get("published", False):
+            continue
+        if post.get("slug", "") == slug:
+            continue
+        shared_tags = tags & set(post.get("tags", []))
+        score = len(shared_tags) * 2 + (1 if post.get("category") == category else 0)
+        if score > 0:
+            scored.append((score, post))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    # Fill up to n with recent posts if not enough tag matches
+    result = [p for _, p in scored[:n]]
+    if len(result) < n:
+        recent = [p for p in sorted(all_posts, key=lambda x: x.get("date", ""), reverse=True)
+                  if p.get("published") and p.get("slug") != slug and p not in result]
+        result += recent[:n - len(result)]
+    return result[:n]
+
+
 def generate_blog_posts(env, posts, validator=None):
     """Generate individual blog post HTML files."""
     template = env.get_template("blog_post_template_2026.html")
@@ -204,7 +231,7 @@ def generate_blog_posts(env, posts, validator=None):
             tags=post.get("tags", []),
             keywords=keywords,
             meta_description=meta_description,
-            related_posts=post.get("related_posts", []),
+            related_posts=find_related_posts(post, posts),
             sponsor_callout=post.get("sponsor_callout"),
             comments_enabled=post.get("comments_enabled", True),
             seo=seo,
