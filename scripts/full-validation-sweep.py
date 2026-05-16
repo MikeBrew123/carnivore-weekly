@@ -383,7 +383,10 @@ def check_404s(report):
                     check_path = page_path.parent / clean_link
 
                 if not check_path.exists():
-                    report.add_warning('404 Check', str(page), f'Broken link: {link}')
+                    if clean_link.startswith('/blog/') and clean_link.endswith('.html'):
+                        report.add_critical('404 Check', str(page), f'Broken internal link: {link}')
+                    else:
+                        report.add_warning('404 Check', str(page), f'Broken link: {link}')
 
             # CSS files
             css_links = re.findall(r'<link[^>]+href=["\']([^"\']+\.css)["\']', content)

@@ -1753,7 +1753,9 @@ def _get_roundup_image():
         )
         path = result.stdout.strip()
         if path and path.startswith("/images/"):
-            return path
+            disk_path = Path(__file__).parent.parent / "public" / path.lstrip("/")
+            if disk_path.exists():
+                return path
     except Exception:
         pass
     return "/images/lifestyle-cooking-1200w.webp"
