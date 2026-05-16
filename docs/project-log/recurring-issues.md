@@ -86,3 +86,14 @@ Attempts:
 - 2026-05-14 — Added canonicals to bride pages (a410a49). Fixed that critical, next run hit missing meta descriptions.
 - 2026-05-15 — Fixed broken `seven-dollar-survival-guide` link, added meta descriptions to bride/keto-bride, moved stray `bride-protocol-template.html` from `public/` to `templates/`. Installed `pre-push` hook running `validate_before_commit.py` so future pushes can't surface new criticals in CI.
 If recurs: someone pushed with `--no-verify` (check `git reflog` and last pusher), or the validator was bypassed. Next angles: (1) make CI's validator warn-only for non-blog pages, (2) add a `daily-publish-failed` watchdog that pings when workflow fails (separate from blog-queue-watchdog which only checks post age).
+
+---
+
+## ISSUE-008 — New blog posts not being indexed by Google
+🟢 FIXED — Last: 2026-05-15
+
+Pattern: Weekly Indexing API requests submitted but posts stay "URL is unknown to Google." 131 URLs in sitemap, 0 indexed per GSC sitemap report. Root cause: posts had no inbound static links once they rolled off the homepage bento grid (~2 weeks). Googlebot had no crawl path to them.
+Attempts:
+- 2026-05-15 (months of weekly indexing API calls) — Requesting indexing weekly via `gsc-request-indexing.js` → no sustained effect. Google finds the URL but deprioritizes it with no inbound links.
+- 2026-05-15 — Replaced JS-fetched related content (invisible to Googlebot) with 3 static `<a href>` related posts baked in at build time in `generate_blog_pages.py`. Tag/category matching algorithm. All 122 published posts rebuilt (5342b3d).
+If recurs: check that `find_related_posts()` is still being called in `generate_blog_pages.py` (not reverted to `post.get("related_posts", [])`). Also verify new posts have tags set — posts with no tags fall back to recency-only matching.
