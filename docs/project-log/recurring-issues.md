@@ -85,7 +85,8 @@ Attempts:
 - 2026-05-13 — Added skip-nav to calculator2 (449b12f). Fixed that critical, next run hit canonical missing on bride pages.
 - 2026-05-14 — Added canonicals to bride pages (a410a49). Fixed that critical, next run hit missing meta descriptions.
 - 2026-05-15 — Fixed broken `seven-dollar-survival-guide` link, added meta descriptions to bride/keto-bride, moved stray `bride-protocol-template.html` from `public/` to `templates/`. Installed `pre-push` hook running `validate_before_commit.py` so future pushes can't surface new criticals in CI.
-If recurs: someone pushed with `--no-verify` (check `git reflog` and last pusher), or the validator was bypassed. Next angles: (1) make CI's validator warn-only for non-blog pages, (2) add a `daily-publish-failed` watchdog that pings when workflow fails (separate from blog-queue-watchdog which only checks post age).
+- 2026-05-16 — Hardcoded link in `index_template.html` pointed to non-existent post; uncommitted roundup image baked into `index.html`. Fixed both symptoms. Root fix: promoted broken `/blog/*.html` links from warning→critical in `full-validation-sweep.py` (caught on every push now, not just daily publish); `_get_roundup_image()` in `generate.py` now verifies image exists on disk before returning path (falls back to default if not committed).
+If recurs: someone pushed with `--no-verify` (check `git reflog` and last pusher), or the validator was bypassed. Next angle: add a `daily-publish-failed` watchdog that pings when workflow fails.
 
 ---
 
