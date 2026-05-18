@@ -98,3 +98,13 @@ Attempts:
 - 2026-05-15 (months of weekly indexing API calls) — Requesting indexing weekly via `gsc-request-indexing.js` → no sustained effect. Google finds the URL but deprioritizes it with no inbound links.
 - 2026-05-15 — Replaced JS-fetched related content (invisible to Googlebot) with 3 static `<a href>` related posts baked in at build time in `generate_blog_pages.py`. Tag/category matching algorithm. All 122 published posts rebuilt (5342b3d).
 If recurs: check that `find_related_posts()` is still being called in `generate_blog_pages.py` (not reverted to `post.get("related_posts", [])`). Also verify new posts have tags set — posts with no tags fall back to recency-only matching.
+
+---
+
+## ISSUE-009 — Weekly refresh workflow only ran 2 of 9 pipeline steps
+🟢 FIXED — Last: 2026-05-18
+
+Pattern: `weekly-update.yml` was a stub that only ran `generate_weekly_topics.py` + `generate.py` (no --type flag). Missing: `youtube_collector.py`, `content_analyzer_optimized.py`, `add_sentiment.py`, `generate_commentary.py`, `generate_blog_pages.py`, `answer_questions.py`, `extract_wiki_keywords.py`, `sync_blog_posts_to_supabase.py`, and all `--type` variants. Homepage showed "Week of May 03" for 2+ weeks because `analyzed_content.json` was never refreshed. Git commit step only staged `data/weekly_topics.json` + `index.html`, discarding all other generated files.
+Attempts:
+- 2026-05-18 — Rewrote `weekly-update.yml` to mirror `run_weekly_update.sh`: all 9 data steps (continue-on-error), `generate.py --type all`, git add of `data/` + `public/` + generated root files. Also added blog_link existence check in `generate.py` to prevent hallucinated trending tag URLs (cfdcd56).
+If recurs: diff `weekly-update.yml` against `run_weekly_update.sh` — they must stay in sync. If a new script is added to the local pipeline, it must also be added to the workflow.
