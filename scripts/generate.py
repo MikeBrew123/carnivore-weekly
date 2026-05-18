@@ -461,9 +461,11 @@ class UnifiedGenerator:
                                 "description": "",
                                 "mentioned_by": ["Analysis"],
                             }
-                            # Carry through blog_link if set
+                            # Carry through blog_link only if target file exists
                             if topic.get("blog_link"):
-                                topic_obj["blog_link"] = topic["blog_link"]
+                                blog_file = Path(__file__).parent.parent / "public" / topic["blog_link"].lstrip("/")
+                                if blog_file.exists():
+                                    topic_obj["blog_link"] = topic["blog_link"]
                             # Add wiki link if keyword provided and exists in map
                             wiki_kw = topic.get("wiki_keyword")
                             if wiki_kw and wiki_kw in wiki_keyword_map:

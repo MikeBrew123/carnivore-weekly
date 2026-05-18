@@ -11,6 +11,10 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
 jobs:
   refresh:
@@ -29,15 +33,56 @@ jobs:
         run: |
           echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" >> .env
           echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env
 
       - name: Decode GA4 credentials
         run: echo "${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}" | base64 -d > dashboard/ga4-credentials.json
 
-      - name: Generate weekly topics (Chloe research)
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      # ── DATA COLLECTION (non-fatal — errors logged, pipeline continues) ──
+
+      - name: "Step 1: Collect YouTube data"
+        continue-on-error: true
+        run: python3 scripts/youtube_collector.py
+
+      - name: "Step 1.5: Generate weekly topics (Chloe research)"
+        continue-on-error: true
         run: python3 scripts/generate_weekly_topics.py
+
+      - name: "Step 2: Analyze content with Claude"
+        continue-on-error: true
+        run: python3 scripts/content_analyzer_optimized.py
+
+      - name: "Step 3: Add sentiment analysis"
+        continue-on-error: true
+        run: python3 scripts/add_sentiment.py
+
+      - name: "Step 3.5: Generate editorial commentary"
+        continue-on-error: true
+        run: python3 scripts/generate_commentary.py
+
+      - name: "Step 3.6: Render blog pages"
+        continue-on-error: true
+        run: python3 scripts/generate_blog_pages.py
+
+      - name: "Step 4: Generate Q&A"
+        continue-on-error: true
+        run: python3 scripts/answer_questions.py
+
+      - name: "Step 4.5: Extract wiki keywords"
+        continue-on-error: true
+        run: python3 scripts/extract_wiki_keywords.py
+
+      - name: "Step 4.6: Sync blog posts to Supabase"
+        continue-on-error: true
+        run: python3 scripts/sync_blog_posts_to_supabase.py
+
+      # ── SITE GENERATION (fatal — build failures stop the pipeline) ──
+
+      - name: "Step 5: Generate all site pages"
+        run: python3 scripts/generate.py --type all
+
+      # ── REPORTS (non-fatal) ──
 
       - name: Generate site report email
         continue-on-error: true
@@ -46,23 +91,16 @@ jobs:
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           MAILERLITE_API_KEY: ${{ secrets.MAILERLITE_API_KEY }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python3 scripts/generate_site_report.py
 
-      - name: Regenerate site (update homepage date)
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: python3 scripts/generate.py
+      # ── COMMIT & DEPLOY ──
 
-      - name: Commit weekly_topics.json if changed
+      - name: Commit all changes
         run: |
           git config user.email "bot@carnivoreweekly.com"
           git config user.name "Carnivore Weekly Bot"
-          git add data/weekly_topics.json index.html
+          git add data/ public/ index.html archive.html channels.html images/ blog/ templates/ 2>/dev/null || true
           git diff --staged --quiet || (
-            git commit -m "auto: weekly topics refresh ($(date -u +'%Y-%m-%d'))"
+            git commit -m "auto: weekly site refresh ($(date -u +'%Y-%m-%d'))"
             git push
           )
