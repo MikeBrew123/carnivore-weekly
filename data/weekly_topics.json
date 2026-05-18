@@ -1,106 +1,106 @@
 {
-  "generated_date": "2026-05-17",
-  "community_pulse": "The community is experiencing a surge in long-term success stories and adherence confidence, with Shawn Baker's contrarian video sparking 1,400+ comments from people doubling down on carnivore. Simultaneously, newcomers are flooding in with practical questions about electrolytes, budget constraints, and first-week survival.",
+  "generated_date": "2026-05-18",
+  "community_pulse": "The community is balancing practical affordability questions (budget cuts, cheap vs. wagyu beef) with deeper health optimization concerns (lipid panels, organ meats, supplements), while newcomers flood in with foundational questions about hunger control and skin healing.",
   "topics": [
     {
       "rank": 1,
-      "title": "The Shawn Baker Effect: Why Contrarian Videos Are Actually Converting More People to Carnivore",
-      "angle": "Analysis of the psychological pattern where 'Why Everyone's Leaving' prompted 1,400 defiant comments\u2014examining why negativity frames actually strengthen community conviction",
-      "why_now": "Baker's video and the unprecedented comment response happened THIS week; perfect moment to capture the viral momentum",
-      "suggested_writer": "chloe",
+      "title": "Plastic Wrap or Paper? Why Your Meat's Packaging Actually Matters on Carnivore",
+      "angle": "Deep dive into microplastic contamination risks specific to carnivore dieters who consume meat daily, plus practical sourcing solutions beyond the butcher",
+      "why_now": "Top post this week with genuine frustration\u2014people are struggling to find plastic-free options and want real answers, not dismissal",
+      "suggested_writer": "sarah",
       "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-05-18"
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-19"
     },
     {
       "rank": 2,
-      "title": "Electrolyte Deficiency vs. Adaptation: Why Your Leg Cramps Aren't What You Think They Are",
-      "angle": "Deep dive separating true electrolyte needs from normal metabolic transition symptoms; includes blood work markers to track vs. folklore solutions",
-      "why_now": "Electrolytes and leg cramps are trending on YouTube right now\u2014people need clarity beyond 'just add salt'",
-      "suggested_writer": "sarah",
+      "title": "The Budget Carnivore Showdown: Ground Beef vs. Wagyu (And Why One Guy Says It Doesn't Matter)",
+      "angle": "Forensic breakdown of the cost-to-benefit ratio using actual community data; when to splurge and when cheap cuts win",
+      "why_now": "28-upvote post sparking real debate; timely with inflation and accessibility concerns from multiple threads",
+      "suggested_writer": "marcus",
       "priority": "high",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-05-20"
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-21"
     },
     {
       "rank": 3,
-      "title": "Budget Carnivore Math: How to Eat Meat-Only for Less Than $6 Per Day (Real Numbers)",
-      "angle": "Tactical breakdown of fattier cuts, organ meat sourcing, and wholesale strategies; includes meal-by-meal cost tracking for a full week",
-      "why_now": "Budget carnivore meal plans are trending; practical guide fills the gap between theory and execution",
+      "title": "Hunger Control: The Carnivore Superpower Nobody Talks About (Until Now)",
+      "angle": "Unpack why sustained satiety on carnivore outperforms carb-heavy alternatives through metabolic mechanism + real hiking/endurance examples",
+      "why_now": "112-upvote post\u2014strongest engagement signal this week; taps into performance angle and newcomer curiosity",
       "suggested_writer": "marcus",
       "priority": "high",
       "assigned_writer": "marcus",
-      "publish_date": "2026-05-22"
+      "publish_date": "2026-05-23"
     },
     {
       "rank": 4,
-      "title": "The 70-Pound Six-Month Club: What These Success Stories Have in Common (It's Not What You Think)",
-      "angle": "Pattern analysis of rapid-loss stories from Baker's comments\u2014identifying the 3-4 hidden factors beyond 'just eat meat'",
-      "why_now": "The YouTube comment section is flooded with transformation testimonials; synthesizing patterns into actionable insights",
-      "suggested_writer": "chloe",
+      "title": "Acne Relapse After Carnivore: Why Reintroducing Carbs Triggers Flare-Ups (And What to Do)",
+      "angle": "Address the real fear: does carnivore 'fix' acne or just mask it? Skin barrier recovery vs. rebound inflammation explained",
+      "why_now": "Low upvotes but emotionally weighted question\u2014someone asking if their gains are temporary signals deeper reader anxiety",
+      "suggested_writer": "sarah",
       "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-05-24"
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-25"
     },
     {
       "rank": 5,
-      "title": "Carnivore Cholesterol Explained: What Your Labs Actually Mean (And Why Cardiologists Get It Wrong)",
-      "angle": "Research breakdown of LDL-P vs. LDL-C, particle size context, and inflammation markers that matter more than total cholesterol numbers",
-      "why_now": "Cholesterol myths are trending on YouTube\u2014science-backed reframe needed for people starting carnivore and worried about their doctor's reaction",
+      "title": "Organs, Nose-to-Tail, and Why Your Ancestors Knew Something Modern Carnivores Are Just Rediscovering",
+      "angle": "Cultural/ancestral angle on organ meats + bioavailability data; connect Lewis & Clark reference to modern nutrient optimization",
+      "why_now": "Organs thread (20 comments) + historical survival food post (30 upvotes) converging; zeitgeist moment",
       "suggested_writer": "sarah",
       "priority": "high",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-05-26"
+      "assigned_writer": "marcus",
+      "publish_date": "2026-05-27"
     },
     {
       "rank": 6,
-      "title": "First Week Carnivore: The 5-Day Survival Kit (What Actually Works vs. What Everyone Says)",
-      "angle": "Debunk common first-week advice; include exact food quantities, timing, and warning signs vs. normal adaptation (keto flu isn't real here)",
-      "why_now": "First week tips are trending; new people need an honest roadmap that doesn't overpromise",
-      "suggested_writer": "marcus",
-      "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-05-28"
-    },
-    {
-      "rank": 7,
-      "title": "The Reverse Conversion: Why 74-Year-Olds Ditching Medications on Carnivore Terrify Conventional Medicine",
-      "angle": "Case study breakdown of AFIB + psoriasis + diverticulitis reversal\u2014what does the research say about carnivore as intervention for age-related conditions?",
-      "why_now": "Baker's comments section featured multiple 70+ year-olds with serious health reversals; timely to validate these stories with research",
-      "suggested_writer": "sarah",
-      "priority": "medium",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-05-30"
-    },
-    {
-      "rank": 8,
-      "title": "Arthritis Gone in Months: The Inflammation Reset Nobody Talks About on Carnivore",
-      "angle": "Mechanism dive into why joint pain resolves so quickly; includes timeline expectations and what labs predict good arthritis outcomes",
-      "why_now": "Arthritis reversal testimonials appeared prominently in Baker's viral comments; people want to know if they'll experience the same",
-      "suggested_writer": "sarah",
-      "priority": "medium",
-      "assigned_writer": "sarah",
-      "publish_date": "2026-06-01"
-    },
-    {
-      "rank": 9,
-      "title": "Carnivore for Life: The Psychological Shift from 'Diet' to 'Duration' (What the 83-Year Veteran Knows)",
-      "angle": "Mindset analysis of long-term adherence; interview-style exploration of how permanent mindset differs from temporary diet mentality",
-      "why_now": "Long-term adherence is trending; the 83-year, 6-year veteran exemplifies what sustainability looks like",
+      "title": "Dating on Carnivore: How to Talk About Steaks Without Losing Your Match",
+      "angle": "Real-talk lifestyle piece on social friction; practical scripts for explaining strict carnivore to partners/dates without sounding obsessive",
+      "why_now": "42 upvotes + 59 comments on dating struggles; social challenges are rarely addressed but clearly matter to community retention",
       "suggested_writer": "chloe",
       "priority": "medium",
       "assigned_writer": "chloe",
-      "publish_date": "2026-06-03"
+      "publish_date": "2026-05-29"
+    },
+    {
+      "rank": 7,
+      "title": "The Lipid Panel Paradox: Why Some Long-Term Carnivores See 'Bad' Numbers (And What They're Actually Telling You)",
+      "angle": "Tackle the LMHR phenotype fear directly; challenge conventional lipid interpretation for carnivore populations using latest research",
+      "why_now": "45-upvote post about 3-year adherent with lipid concerns\u2014signals growing cohort of people staying long-term but worried about markers",
+      "suggested_writer": "sarah",
+      "priority": "high",
+      "assigned_writer": "chloe",
+      "publish_date": "2026-05-31"
+    },
+    {
+      "rank": 8,
+      "title": "Seven Weeks In: What First-Time Carnivores Actually Need to Know (Beyond the Hype)",
+      "angle": "Synthesis of recurring beginner questions (constipation, eye floaters, mental health, dairy tolerance) with evidence-based expectations",
+      "why_now": "Multiple megathreads for sub-7-week folks drowning in questions; editorial opportunity to serve a high-volume, high-turnover audience",
+      "suggested_writer": "marcus",
+      "priority": "medium",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-06-02"
+    },
+    {
+      "rank": 9,
+      "title": "Rosacea, Keratosis Pilaris, and Skin Healing Timelines: What the Community Actually Experienced",
+      "angle": "Crowdsource + synthesize real recovery data from active thread; set realistic expectations (weeks vs. months) with variability breakdowns",
+      "why_now": "Skin condition thread active with people sharing timelines; perfect moment for longitudinal synthesis post",
+      "suggested_writer": "chloe",
+      "priority": "medium",
+      "assigned_writer": "sarah",
+      "publish_date": "2026-06-04"
     },
     {
       "rank": 10,
-      "title": "Performance on Carnivore: Strength Gains, Energy Crashes, and the 8-Week Reset Nobody Mentions",
-      "angle": "Practical guide for athletes transitioning\u2014when to expect performance dips, adaptation timeline, and macro considerations for strength sports",
-      "why_now": "Performance is an underserved angle in trending topics; athletes in the community need realistic expectations",
+      "title": "Soy Sauce Alternatives That Actually Work: Asian Flavor on Strict Carnivore (Without Compromise)",
+      "angle": "Bridge lifestyle and practicality; catalog amino acid-rich substitutes for culinary adventurousness while staying compliant",
+      "why_now": "Emerging trend in zerocarb community; signals demographic shift toward younger, foodie-minded adherents",
       "suggested_writer": "marcus",
       "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-06-05"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-06-06"
     }
   ]
 }
