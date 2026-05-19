@@ -2,6 +2,10 @@
 
 | Date | Decision | Why | Alternatives |
 |------|----------|-----|--------------|
+| 2026-05-19 | CLAUDE.md = prescriptive rules only; facts go to memory files | Reduces context window waste, makes rules findable, prevents bloat | Keep everything in CLAUDE.md (rejected — 1012 lines was unmanageable) |
+| 2026-05-19 | Root CLAUDE.md is global (all projects); project CLAUDE.md is CW-specific with zero overlap | Prevents contradictions, root serves 7+ projects | Single CLAUDE.md (rejected — CW rules don't apply to FireSmart/MyBudget) |
+| 2026-05-19 | Casey, Jordan, Alex, Eric, Sam agents deprecated and deleted | Functionality covered by built-in skills; agents hadn't been used in months | Keep agents (rejected by Brew) |
+| 2026-05-19 | CW goals need monthly review with Sarah and writer team | Goals went 3+ months without review; priorities drift | Set-and-forget (rejected — led to stale goals) |
 | 2025-01-02 | Use Quinn as operations manager for project logging | Centralized coordination and institutional memory | Manual logs, distributed tracking |
 | 2025-01-02 | Implement daily/status/decisions log structure | Clear separation of concerns, easy to search and review | Single monolithic log file |
 | 2025-01-02 | Store logs in docs/project-log/ | Versioned with git, accessible to all team members | Local .claude only, separate system |

@@ -1,9 +1,9 @@
 # Current Status
 
-**Last Updated:** 2026-04-13 (Daily-Publish Pipeline Fix + E-E-A-T Overhaul)
+**Last Updated:** 2026-05-19 (CLAUDE.md Consolidation + Docs Purge)
 
 **Current Focus:**
-Daily-publish pipeline fixed after 5-day silent failure. E-E-A-T signals added to writer agents. Etsy cross-sell messaging updated. Growth phase — traffic, conversion, Etsy→site funnel.
+Housekeeping complete. CLAUDE.md consolidated (project: 1012→281 lines, root: 286→136 lines). Memory system established (12 files). 251 stale files purged (~95K lines). Deprecated agents removed. Ready for content/growth work.
 
 ---
 
@@ -23,7 +23,32 @@ Daily-publish pipeline fixed after 5-day silent failure. E-E-A-T signals added t
 
 ---
 
-## Latest Session (2026-04-13 — Pipeline Fix + Etsy Review)
+## Latest Session (2026-05-19 — CLAUDE.md Consolidation + Docs Purge)
+
+### CLAUDE.md Cleanup
+- Project CLAUDE.md: 1,012 → 281 lines. Only prescriptive rules remain.
+- Root CLAUDE.md: 286 → 136 lines. Global rules only, zero CW-specific content.
+- Applied Prescriptive Test: rules stay in CLAUDE.md, facts move to memory files.
+- Fixed Leo/MCP contradiction: Leo designs SQL but cannot execute MCP tools.
+
+### Memory System Established
+- 12 memory files created at `.claude/projects/.../memory/`
+- Covers: credentials, Supabase config, Stripe MCP, newsletter workflow, autonomous pipeline, calculator validation, goals, user profile, feedback rules
+- MEMORY.md index file for discoverability
+
+### Stale Documentation Purge (251 files, ~95K lines)
+- Deleted: docs/architecture/, docs/specs/, docs/qa/, docs/design-system/, docs/systems/, docs/getting-started/, docs/agents/, api/, calculator2-demo/ .md files
+- Deleted: AGENTS.md, FAQ.md, START_HERE.md, STATUS.md, brand-kit.md, style-guide.md, etc.
+- Archived: agent reports, visual baselines, daily logs → docs/archive/reports-archive/
+
+### Agent Cleanup
+- Deleted: casey.md, jordan.md, alex.md, eric.md, sam.md
+- Casey/Jordan refs in scripts are harmless — low-priority future cleanup
+- Active agents: Quinn (ops), Sarah/Marcus/Chloe (writers), Leo (DB design)
+
+---
+
+## Session (2026-04-13 — Pipeline Fix + Etsy Review)
 
 ### Daily-Publish Pipeline Bug — FIXED (commit 208b5ab)
 
