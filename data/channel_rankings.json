@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-05-18",
+  "last_updated": "2026-05-20",
   "leaderboard": [
     {
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
       "rank": 1,
-      "appearances": 1,
+      "appearances": 2,
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
       "name": "Professor Bart Kay - Nutrition and Health Science",
       "rank": 2,
-      "appearances": 2,
+      "appearances": 3,
       "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
     },
     {
-      "name": "Low Carb Love",
+      "name": "Jenny Mitich",
       "rank": 3,
-      "appearances": 1,
-      "channel_id": "UCFVmPjPhx-XT6-ZVa9Tkuuw"
+      "appearances": 2,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "Jenny Mitich",
+      "name": "Patricia Delicious Nutrition",
       "rank": 4,
-      "appearances": 1,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+      "appearances": 2,
+      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
     },
     {
       "name": "Shawn Baker MD",
       "rank": 5,
-      "appearances": 1,
+      "appearances": 2,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "Patricia Delicious Nutrition",
+      "name": "HomeSteadHow",
       "rank": 6,
       "appearances": 1,
-      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
-    },
-    {
-      "name": "Alison Johnson",
-      "rank": 7,
-      "appearances": 2,
-      "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg"
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
       "name": "Silvana Costa - Del\u00edcias da Sil",
-      "rank": 8,
-      "appearances": 1,
+      "rank": 7,
+      "appearances": 2,
       "channel_id": "UCGr6iFA0h05x-5HXHiemUdw"
     },
     {
-      "name": "Kent Carnivore",
-      "rank": 9,
+      "name": "Vegetable Police",
+      "rank": 8,
       "appearances": 1,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+      "channel_id": "UCFuLNktnqqBEF_9ZcmjC_bw"
     },
     {
       "name": "Meet Carnivore",
-      "rank": 10,
-      "appearances": 3,
+      "rank": 9,
+      "appearances": 4,
       "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+    },
+    {
+      "name": "Kent Carnivore",
+      "rank": 10,
+      "appearances": 2,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     }
   ]
 }
