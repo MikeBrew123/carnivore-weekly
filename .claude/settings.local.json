@@ -27,7 +27,12 @@
       "mcp__pgvector-memory__query",
       "Bash(node site-overview-report.js)",
       "Bash(node gsc-report.js)",
-      "Bash(node gsc-request-indexing.js)"
+      "Bash(node gsc-request-indexing.js)",
+      "Bash(bd stats *)",
+      "Bash(./scripts/install-hooks.sh)",
+      "Bash(bd create *)",
+      "Bash(bd sync *)",
+      "Bash(cp scripts/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push && git add scripts/hooks/pre-push && git commit --amend --no-edit 2>&1 | tail -3)"
     ]
   },
   "disabledMcpjsonServers": [
