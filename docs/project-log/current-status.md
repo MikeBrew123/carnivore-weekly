@@ -37,14 +37,18 @@ Housekeeping complete. CLAUDE.md consolidated (project: 1012→281 lines, root: 
 - MEMORY.md index file for discoverability
 
 ### Stale Documentation Purge (251 files, ~95K lines)
-- Deleted: docs/architecture/, docs/specs/, docs/qa/, docs/design-system/, docs/systems/, docs/getting-started/, docs/agents/, api/, calculator2-demo/ .md files
+- Deleted: docs/architecture/ (34), docs/specs/ (40), docs/qa/ (19), docs/design-system/ (18), docs/systems/ (11), docs/getting-started/ (11), docs/agents/ (12), api/ (12), calculator2-demo/ (13 .md files)
 - Deleted: AGENTS.md, FAQ.md, START_HERE.md, STATUS.md, brand-kit.md, style-guide.md, etc.
 - Archived: agent reports, visual baselines, daily logs → docs/archive/reports-archive/
 
 ### Agent Cleanup
-- Deleted: casey.md, jordan.md, alex.md, eric.md, sam.md
-- Casey/Jordan refs in scripts are harmless — low-priority future cleanup
+- Deleted: casey.md, jordan.md, alex.md, eric.md, sam.md (both agents/ and .claude/agents/)
+- Casey/Jordan refs in scripts (generate.py, full-validation-sweep.py, seed_writer_data.js) are harmless — low-priority future cleanup
 - Active agents: Quinn (ops), Sarah/Marcus/Chloe (writers), Leo (DB design)
+
+### Commit
+- `5c25235 chore: consolidate CLAUDE.md and purge 95K lines of stale docs`
+- Branch: claude/magical-leavitt-11291e (pushed to remote)
 
 ---
 
