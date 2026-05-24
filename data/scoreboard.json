@@ -1,0 +1,36 @@
+{
+  "target": {
+    "metric": "net_profit",
+    "goal": 1000,
+    "currency": "CAD",
+    "definition": "Gross sales minus all costs (Etsy fees, ad spend, tools, materials)"
+  },
+  "weeks": [
+    {
+      "week_start": "2026-05-19",
+      "sessions": 72,
+      "users": 53,
+      "top_page": "/calculator.html",
+      "search_clicks": 2,
+      "search_impressions": 22,
+      "calculator_sessions": 19,
+      "email_subscribers_total": 8,
+      "new_email_subscribers": 0,
+      "email_capture_rate": null,
+      "etsy_orders": 1,
+      "etsy_revenue": 4.49,
+      "etsy_aov": 4.49,
+      "etsy_top_listing": "Low Carb Food Cheat Sheet",
+      "costs": {
+        "etsy_fees": 0.58,
+        "ad_spend": 0,
+        "tools": 0,
+        "materials": 0
+      },
+      "net_profit_estimate": 3.91,
+      "experiment_running": "Email capture fix deployed (May 24)",
+      "decision": null,
+      "notes": "Baseline week. Capture forms were broken — fixed May 24."
+    }
+  ]
+}
