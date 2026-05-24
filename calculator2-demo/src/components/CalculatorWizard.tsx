@@ -104,12 +104,20 @@ export default function CalculatorWizard() {
     }
   }
 
+  const trackCalculatorEvent = (eventName: string, params: Record<string, string | undefined> = {}) => {
+    window.gtag?.('event', eventName, {
+      page_path: window.location.pathname,
+      calculator_version: window.location.pathname.includes('keto') ? 'keto_calculator' : 'carnivore_calculator',
+      ...params,
+    })
+  }
+
   const handleShowResults = (results: MacroResults) => {
     setResultsData(results)
     setShowResults(true)
-    window.gtag?.('event', 'calculate', {
-      event_category: 'Calculator',
-      event_label: `${form.diet} - ${form.goal}`
+    trackCalculatorEvent('calculator_completed', {
+      diet_type: form.diet || 'carnivore',
+      goal: form.goal || 'unknown',
     })
   }
 
@@ -384,7 +392,13 @@ export default function CalculatorWizard() {
         </label>
         <select
           id="diet"
-          {...register('diet')}
+          {...register('diet', {
+            onChange: (e) => {
+              trackCalculatorEvent('calculator_diet_selected', {
+                diet_type: e.target.value,
+              })
+            }
+          })}
           className="w-full px-4 py-3 text-base rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
         >
           <option value="carnivore">Carnivore</option>

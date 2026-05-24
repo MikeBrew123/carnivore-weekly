@@ -28,6 +28,14 @@ interface CalculatorAppProps {
 
 const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Unlock Your Protocol']
 
+function trackCalculatorEvent(eventName: string, params: Record<string, string | undefined> = {}) {
+  window.gtag?.('event', eventName, {
+    page_path: window.location.pathname,
+    calculator_version: window.location.pathname.includes('keto') ? 'keto_calculator' : 'carnivore_calculator',
+    ...params,
+  })
+}
+
 export default function CalculatorApp({
   sessionToken,
   onReportGenerated,
@@ -106,6 +114,15 @@ export default function CalculatorApp({
       setAssessmentId(paymentState.stripeSessionId)
     }
   }, [paymentState.stripeSessionId, storedAssessmentId, setAssessmentId])
+
+  // Track diet selection changes
+  useEffect(() => {
+    if (isHydrated && formData.diet) {
+      trackCalculatorEvent('calculator_diet_selected', {
+        diet_type: formData.diet,
+      })
+    }
+  }, [formData.diet, isHydrated])
 
   // DEBUG: Log payment status
   console.log('========== CalculatorApp RENDER ==========');
@@ -206,6 +223,12 @@ export default function CalculatorApp({
   // Step navigation
   const handleStepContinue = (step: number) => {
     console.log('[CalculatorApp] Advancing to step:', step)
+    if (step === 3) {
+      trackCalculatorEvent('calculator_completed', {
+        diet_type: formData.diet || 'unknown',
+        goal: formData.goal || 'unknown',
+      })
+    }
     setCurrentStep(step)
     setErrors({})
     scrollToCalculator()

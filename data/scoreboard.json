@@ -14,6 +14,14 @@
       "search_clicks": 2,
       "search_impressions": 22,
       "calculator_sessions": 19,
+      "calculator_completions": null,
+      "calculator_diet_mix": {
+        "carnivore_pct": null,
+        "keto_pct": null,
+        "other_pct": null
+      },
+      "calculator_email_cta_clicks": null,
+      "calculator_product_cta_clicks": null,
       "email_subscribers_total": 8,
       "new_email_subscribers": 0,
       "email_capture_rate": null,
