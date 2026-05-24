@@ -1,9 +1,9 @@
 # Current Status
 
-**Last Updated:** 2026-05-19 (CLAUDE.md Consolidation + Docs Purge)
+**Last Updated:** 2026-05-24 (Hermes Onboarding + Calculator Tracking)
 
 **Current Focus:**
-Housekeeping complete. CLAUDE.md consolidated (project: 1012→281 lines, root: 286→136 lines). Memory system established (12 files). 251 stale files purged (~95K lines). Deprecated agents removed. Ready for content/growth work.
+Hermes onboarded as growth analyst. Email capture chain fixed (was silently broken). Scoreboard built. Calculator diet-selection GA4 tracking deployed. Waiting ~48h for data to confirm keto vs carnivore demand split.
 
 ---
 
@@ -13,17 +13,51 @@ Housekeeping complete. CLAUDE.md consolidated (project: 1012→281 lines, root: 
 - **Author profile pages** — /about.html#sarah-whitfield etc. needed for Google Quality Raters
 - **Author bio/photo block in template** — Only byline + schema updated; no visible bio on posts
 - **PubMed citation links** — PMIDs exist in posts but aren't hyperlinked
-- **Calculator CTA conversion tracking** — Still no visibility into what converts
+- **Calculator CTA conversion tracking** — ✅ DONE (May 24) — diet_selected, completed, email_cta, product_cta events live
 - **Internal linking** — Indexed posts don't link to calculator
 - **Starter plan page traffic** — Only 3 views/30 days (down from 18/week)
-- **Newsletter flows broken** — Confirmation stuck on "pending", drip stalled since Feb 22
+- **Newsletter flows broken** — ✅ FIXED (May 24) — forms now hit Cloudflare Worker → MailerLite directly. N8N bypassed.
 - **Backfill E-E-A-T signals** — 75+ existing posts still lack new writer identity signals
 - **Etsy buyer message** — Updated copy written by Sarah; needs to be pasted into Etsy dashboard (digital + merch messages)
 - **Blog post queue empty** — Next scheduled: None. Writers need to batch new posts.
 
 ---
 
-## Latest Session (2026-05-19 — CLAUDE.md Consolidation + Docs Purge)
+## Latest Session (2026-05-24 — Hermes Onboarding + Measurement Sprint)
+
+### Hermes Onboarded
+- Growth/Ops Analyst role, communicates via Brew-Vault GitHub repo
+- First spec delivered and executed same day (calculator tracking)
+- Claude is CAO, Hermes advises, Brew has final say
+
+### Email Capture Fixed (Was Silently Broken)
+- starter-plan.html: N8N webhook → Cloudflare Worker (N8N had broken Supabase JWT)
+- index.html: wrong form ID + Supabase client → corrected selector + Worker fetch
+- calculator.html + keto-macro-calculator.html: added capture forms (didn't exist before)
+- Uploaded MAILERLITE_API_KEY to Cloudflare (was missing)
+- End-to-end tested: form → Worker → MailerLite → correct group → automation triggers
+
+### Calculator Diet-Selection Tracking (GA4)
+- `calculator_diet_selected` — fires on diet dropdown change
+- `calculator_completed` — fires when results shown (step 3)
+- `calculator_email_cta_clicked` — fires on post-calc email form submit
+- `calculator_product_cta_clicked` — already existed as `calculator_upgrade_click`
+- Fixed: tracking was in dead CalculatorWizard.tsx, moved to active CalculatorApp.tsx
+- Rebuilt and deployed React app with new bundle hash
+
+### Scoreboard
+- `data/scoreboard.json` — baseline week (May 19) with all metrics
+- Calculator tracking fields added (null until ~48h data collection)
+- Brew-Vault `scoreboard.md` pushed for Hermes
+
+### Team Overview Document
+- Full architecture writeup: writer agents, memory system, why we chose this design
+- Wins and losses honestly documented
+- Current state: 131 posts, 72 sessions/week, $3.91 net profit, 62x gap to $1k target
+
+---
+
+## Previous Session (2026-05-19 — CLAUDE.md Consolidation + Docs Purge)
 
 ### CLAUDE.md Cleanup
 - Project CLAUDE.md: 1,012 → 281 lines. Only prescriptive rules remain.
