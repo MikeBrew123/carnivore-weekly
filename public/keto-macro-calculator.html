@@ -451,7 +451,53 @@
             <span class="sub">Free. 90 seconds. Select "Keto" in the diet dropdown.</span>
         </div>
 
+        <!-- Email Capture -->
+        <section style="max-width: 520px; margin: 48px auto 0; background: linear-gradient(135deg, #4a0404, #1a1a1a); border-radius: 12px; padding: 2.5rem; text-align: center; color: #fff;">
+            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2.5px; color: rgba(255,255,255,0.5); margin: 0 0 0.5rem;">Free 7-day email course</p>
+            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.5rem; color: #ffbf00; margin: 0 0 0.6rem;">Get the starter plan with your macros</h3>
+            <p style="font-size: 0.95rem; color: rgba(255,255,255,0.85); line-height: 1.6; margin: 0 0 1.5rem;">Simple meals, grocery list, and first-week rules. One email per day for 7 days.</p>
+            <form id="keto-capture-form" style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <input type="email" name="email" required placeholder="your@email.com" aria-label="Email address" style="flex: 1; padding: 0.875rem 1rem; font-size: 1rem; border: 2px solid transparent; border-radius: 8px; background: rgba(255,255,255,0.95); color: #1a1a1a;">
+                <button type="submit" style="padding: 0.875rem 1.75rem; font-size: 1rem; font-weight: 700; background: #ffbf00; color: #1a1a1a; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap;">Start Free</button>
+            </form>
+            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.5); margin: 0;">No spam. Unsubscribe anytime.</p>
+            <div id="keto-capture-success" style="display: none;">
+                <p style="color: #ffbf00; font-weight: 700; font-size: 1.1rem; margin: 0 0 0.5rem;">You're in!</p>
+                <p style="color: rgba(255,255,255,0.85); margin: 0;">Check your inbox for Day 1.</p>
+            </div>
+        </section>
+
     </main>
+
+    <script>
+    document.getElementById('keto-capture-form')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="email"]').value.trim();
+        const btn = this.querySelector('button');
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+        try {
+            const resp = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, group: 'starter' })
+            });
+            const data = await resp.json();
+            if (resp.ok && data.success) {
+                this.style.display = 'none';
+                this.previousElementSibling.style.display = 'none';
+                document.getElementById('keto-capture-success').style.display = 'block';
+                if (typeof gtag === 'function') {
+                    gtag('event', 'starter_plan_signup', { source: 'keto_calculator' });
+                }
+            } else { throw new Error(); }
+        } catch (err) {
+            btn.disabled = false;
+            btn.textContent = 'Start Free';
+            alert('Something went wrong. Please try again.');
+        }
+    });
+    </script>
 
     <!-- FOOTER -->
     <footer class="site-footer" role="contentinfo">
