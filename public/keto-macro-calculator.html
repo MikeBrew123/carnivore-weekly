@@ -489,6 +489,12 @@
                 document.getElementById('keto-capture-success').style.display = 'block';
                 if (typeof gtag === 'function') {
                     gtag('event', 'starter_plan_signup', { source: 'keto_calculator' });
+                    gtag('event', 'calculator_email_cta_clicked', {
+                        diet_type: 'keto',
+                        page_path: window.location.pathname,
+                        calculator_version: 'keto_calculator',
+                        cta_label: 'starter_plan'
+                    });
                 }
             } else { throw new Error(); }
         } catch (err) {

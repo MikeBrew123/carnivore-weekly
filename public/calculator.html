@@ -1182,33 +1182,53 @@
 
     <!-- Calculator capture form handler -->
     <script>
-    document.getElementById('calculator-capture-form')?.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const email = this.querySelector('input[type="email"]').value.trim();
-        const btn = this.querySelector('button');
-        btn.disabled = true;
-        btn.textContent = 'Sending...';
-        try {
-            const resp = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, group: 'starter' })
-            });
-            const data = await resp.json();
-            if (resp.ok && data.success) {
-                this.style.display = 'none';
-                this.previousElementSibling.style.display = 'none';
-                document.getElementById('calculator-capture-success').style.display = 'block';
-                if (typeof gtag === 'function') {
-                    gtag('event', 'starter_plan_signup', { source: 'calculator' });
-                }
-            } else { throw new Error(); }
-        } catch (err) {
-            btn.disabled = false;
-            btn.textContent = 'Start Free';
-            alert('Something went wrong. Please try again.');
+    (function() {
+        function getCalcDiet() {
+            try {
+                var stored = JSON.parse(localStorage.getItem('carnivore-calculator-form') || '{}');
+                return (stored.state && stored.state.form && stored.state.form.diet) || 'unknown';
+            } catch(e) { return 'unknown'; }
         }
-    });
+
+        document.getElementById('calculator-capture-form')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value.trim();
+            const btn = this.querySelector('button');
+            const dietType = getCalcDiet();
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            if (typeof gtag === 'function') {
+                gtag('event', 'calculator_email_cta_clicked', {
+                    diet_type: dietType,
+                    page_path: window.location.pathname,
+                    calculator_version: 'carnivore_calculator',
+                    cta_label: 'starter_plan_post_calc'
+                });
+            }
+
+            try {
+                const resp = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, group: 'starter' })
+                });
+                const data = await resp.json();
+                if (resp.ok && data.success) {
+                    this.style.display = 'none';
+                    this.previousElementSibling.style.display = 'none';
+                    document.getElementById('calculator-capture-success').style.display = 'block';
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'starter_plan_signup', { source: 'calculator', diet_type: dietType });
+                    }
+                } else { throw new Error(); }
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Start Free';
+                alert('Something went wrong. Please try again.');
+            }
+        });
+    })();
     </script>
 
     <!-- FOOTER -->
@@ -1274,7 +1294,7 @@
             </div>
         </div>
     </footer>
-    <script type="module" src="https://carnivoreweekly.com/assets/calculator2/assets/index-BV9_spPz.js"></script>
+    <script type="module" src="https://carnivoreweekly.com/assets/calculator2/assets/index-g1jpHg8-.js"></script>
     <link rel="stylesheet" href="https://carnivoreweekly.com/assets/calculator2/assets/index-Bs0hGwdz.css">
     <script src="/js/mobile-nav.js"></script>
 
