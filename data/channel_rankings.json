@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-05-20",
+  "last_updated": "2026-05-24",
   "leaderboard": [
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "HomeSteadHow",
       "rank": 1,
       "appearances": 2,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
-    },
-    {
-      "name": "Professor Bart Kay - Nutrition and Health Science",
-      "rank": 2,
-      "appearances": 3,
-      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
-    },
-    {
-      "name": "Jenny Mitich",
-      "rank": 3,
-      "appearances": 2,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
-    },
-    {
-      "name": "Patricia Delicious Nutrition",
-      "rank": 4,
-      "appearances": 2,
-      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
-    },
-    {
-      "name": "Shawn Baker MD",
-      "rank": 5,
-      "appearances": 2,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
-    },
-    {
-      "name": "HomeSteadHow",
-      "rank": 6,
-      "appearances": 1,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Silvana Costa - Del\u00edcias da Sil",
-      "rank": 7,
-      "appearances": 2,
-      "channel_id": "UCGr6iFA0h05x-5HXHiemUdw"
+      "name": "Patricia Delicious Nutrition",
+      "rank": 2,
+      "appearances": 3,
+      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
     },
     {
-      "name": "Vegetable Police",
+      "name": "Dr. Abs MChD BChD BSc FRSM FRSPH CISSN MISCT",
+      "rank": 3,
+      "appearances": 1,
+      "channel_id": "UCRvpMkBXFaWmhIWPdvsMiCw"
+    },
+    {
+      "name": "Dr. Eric Berg DC",
+      "rank": 4,
+      "appearances": 1,
+      "channel_id": "UC3w193M5tYPJqF0Hi-7U-2g"
+    },
+    {
+      "name": " Kochen  Familie  Cool ",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UC5wwrI9ZPV1hIj9_khgLChw"
+    },
+    {
+      "name": "Appalachia's Homestead with Patara",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 7,
+      "appearances": 3,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+    },
+    {
+      "name": "Keto Twins",
       "rank": 8,
       "appearances": 1,
-      "channel_id": "UCFuLNktnqqBEF_9ZcmjC_bw"
+      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
     },
     {
-      "name": "Meet Carnivore",
+      "name": "Professor Bart Kay - Nutrition and Health Science",
       "rank": 9,
       "appearances": 4,
-      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
     },
     {
-      "name": "Kent Carnivore",
+      "name": "Emmathecarnivore",
       "rank": 10,
-      "appearances": 2,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+      "appearances": 1,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     }
   ]
 }
