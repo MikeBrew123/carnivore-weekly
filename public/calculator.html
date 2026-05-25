@@ -1298,6 +1298,20 @@
     <link rel="stylesheet" href="https://carnivoreweekly.com/assets/calculator2/assets/index-Bs0hGwdz.css">
     <script src="/js/mobile-nav.js"></script>
 
+    <!-- Post-hydration hash scroll fallback: React renders #calculator-start after mount -->
+    <script>
+    (function() {
+        if (!window.location.hash) return;
+        var hash = window.location.hash.substring(1);
+        var attempts = 0;
+        var poll = setInterval(function() {
+            var el = document.getElementById(hash);
+            if (el) { clearInterval(poll); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            if (++attempts > 20) clearInterval(poll);
+        }, 250);
+    })();
+    </script>
+
     <!-- Food Pyramid Carousel Animation -->
     <script>
     (function() {
