@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { FormData } from '../../../types/form'
 import FormField from '../shared/FormField'
 import TextArea from '../shared/TextArea'
@@ -42,8 +41,6 @@ export default function Step4HealthProfile({
       onSetErrors?.(newErrors)
     }
   }
-
-  const [showOptional, setShowOptional] = useState(false)
 
   const handleSubmit = (e?: React.MouseEvent<HTMLButtonElement>) => {
     e?.preventDefault() // Prevent form submission/page reload
@@ -130,19 +127,7 @@ export default function Step4HealthProfile({
         </div>
       </section>
 
-      {/* Optional sections toggle */}
-      <div className="border-t pt-4">
-        <button
-          type="button"
-          onClick={() => setShowOptional(!showOptional)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#d4a574', fontFamily: "'Inter', sans-serif", fontSize: '14px', padding: 0, display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          <span>{showOptional ? '▼' : '▶'}</span>
-          <span>{showOptional ? 'Hide optional details' : 'Add optional details to further personalize your protocol'}</span>
-        </button>
-      </div>
-
-      {showOptional && <>
+      {/* Personalization sections - always visible (this is the $29 value) */}
 
       {/* SECTION 2: Health & Medical */}
       <section className="border-t pt-6">
@@ -422,8 +407,6 @@ export default function Step4HealthProfile({
           />
         </div>
       </section>
-
-      </>}
 
       {/* Submit Section */}
       <section className="border-t pt-8 space-y-4">
