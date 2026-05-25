@@ -32,7 +32,8 @@
       "Bash(./scripts/install-hooks.sh)",
       "Bash(bd create *)",
       "Bash(bd sync *)",
-      "Bash(cp scripts/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push && git add scripts/hooks/pre-push && git commit --amend --no-edit 2>&1 | tail -3)"
+      "Bash(cp scripts/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push && git add scripts/hooks/pre-push && git commit --amend --no-edit 2>&1 | tail -3)",
+      "Bash(git log *)"
     ]
   },
   "disabledMcpjsonServers": [
