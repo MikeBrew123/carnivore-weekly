@@ -1355,12 +1355,12 @@
         }, { threshold: 0.05 });
         observer.observe(slot);
 
-        // Hide if payment modal opens
+        // Hide if payment modal opens (scoped to calculator to avoid browser extension false positives)
         var modalObserver = new MutationObserver(function() {
-            var modal = document.querySelector('[style*="position: fixed"][style*="inset: 0"]');
-            if (modal) cta.style.display = 'none';
+            var modal = slot.querySelector('[style*="position: fixed"]');
+            if (modal) { cta.style.display = 'none'; }
         });
-        modalObserver.observe(document.body, { childList: true, subtree: true });
+        modalObserver.observe(slot, { childList: true, subtree: true });
 
         cta.addEventListener('click', function() {
             slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
