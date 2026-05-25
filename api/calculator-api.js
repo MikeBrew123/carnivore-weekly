@@ -239,8 +239,8 @@ async function handleCreateSession(request, env) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Supabase error:', errorText);
-      return createErrorResponse('DB_INSERT_FAILED', 'Failed to create session', 500);
+      console.error('Supabase error:', response.status, errorText);
+      return createErrorResponse('DB_INSERT_FAILED', `Failed to create session: ${response.status}`, 500);
     }
 
     const data = await response.json();
