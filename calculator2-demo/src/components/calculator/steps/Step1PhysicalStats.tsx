@@ -8,6 +8,7 @@ interface Step1PhysicalStatsProps {
   onDataChange: (data: FormData) => void
   onContinue: () => void
   onFieldChange?: (fieldName: string) => void
+  onSetErrors?: (errors: Record<string, string>) => void
   errors: Record<string, string>
 }
 
@@ -16,6 +17,7 @@ export default function Step1PhysicalStats({
   onDataChange,
   onContinue,
   onFieldChange,
+  onSetErrors,
   errors,
 }: Step1PhysicalStatsProps) {
   const handleInputChange = (field: string, value: any) => {
@@ -147,9 +149,7 @@ export default function Step1PhysicalStats({
     if (Object.keys(newErrors).length > 0) {
       // Validation failed - errors will be displayed
       console.log('[Step1] Validation failed, showing errors')
-      Object.entries(newErrors).forEach(([key, msg]) => {
-        errors[key] = msg
-      })
+      onSetErrors?.(newErrors)
       return
     }
 

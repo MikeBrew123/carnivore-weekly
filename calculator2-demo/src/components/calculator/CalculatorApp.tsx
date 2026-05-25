@@ -775,6 +775,7 @@ export default function CalculatorApp({
             onDataChange={(data) => setFormData(data as Partial<FormData>)}
             onContinue={() => handleStepContinue(2)}
             onFieldChange={handleFieldChange}
+            onSetErrors={handleSetErrors}
             errors={errors}
           />
         )
