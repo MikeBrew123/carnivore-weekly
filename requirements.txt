@@ -11,6 +11,7 @@ lxml>=4.9.0                # XML/HTML parser
 
 # Template Engine
 jinja2>=3.1.0              # HTML template rendering
+markdown>=3.5.0            # Markdown→HTML (roundup section, generate.py filter)
 
 # Date/Time
 python-dateutil>=2.8.0     # Date parsing
