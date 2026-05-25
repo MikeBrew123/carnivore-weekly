@@ -139,11 +139,14 @@
                 </div>
 
                 <div class="roundup-content">
-                    <img class="roundup-image" src="/images/lifestyle-cooking-1200w.webp" alt="This week's carnivore community roundup" loading="lazy" width="360" height="240">
-                    <p><strong>Week of May 24, 2026</strong></p>
-<p>Okay so this week felt like everyone collectively decided to get practical about food. The top video was Patricia's zero-carb dinner situation with like 55k views, and honestly the comment section was the real story,  someone came back specifically to share they reversed their type 2 diabetes doing meals like this and dropped their meds five months ago. That's the kind of stuff that reminds me why we're all here, you know? Less drama, more people quietly figuring out what works for their bodies.</p>
-<p>The vibe this week was very "just tell me what to eat and how to make it easy" which I'm here for. We're past the phase where everyone needs to debate whether carnivore is legit,  now it's about the boring-but-essential stuff like keeping it sustainable when life gets busy. Speaking of practical, if you're still white-knuckling your electrolytes or wondering why you feel weird at 3pm, Sarah's piece on <a href="/blog/2026-05-17-carnivore-electrolyte-problem.html">the electrolyte problem</a> is worth a read because apparently nobody warns newbies about this and it shows.</p>
-<p>What I keep thinking about is that diabetes reversal comment. That person didn't make a video or start a podcast,  they just came back to say thank you on a random cooking video. How many people are out there having these quiet wins that we never hear about? Makes me wonder what this community actually looks like beyond the loud voices on YouTube.</p>
+                    <img class="roundup-image" src="/images/roundup-2026-05-25.jpg" alt="This week's carnivore community roundup" loading="lazy" width="360" height="240">
+                    **Week of May 24, 2026**
+
+Okay so this week felt like everyone collectively decided to get practical about food. The top video was Patricia's zero-carb dinner situation with like 55k views, and honestly the comment section was the real story,  someone came back specifically to share they reversed their type 2 diabetes doing meals like this and dropped their meds five months ago. That's the kind of stuff that reminds me why we're all here, you know? Less drama, more people quietly figuring out what works for their bodies.
+
+The vibe this week was very "just tell me what to eat and how to make it easy" which I'm here for. We're past the phase where everyone needs to debate whether carnivore is legit,  now it's about the boring-but-essential stuff like keeping it sustainable when life gets busy. Speaking of practical, if you're still white-knuckling your electrolytes or wondering why you feel weird at 3pm, Sarah's piece on [the electrolyte problem](/blog/2026-05-17-carnivore-electrolyte-problem.html) is worth a read because apparently nobody warns newbies about this and it shows.
+
+What I keep thinking about is that diabetes reversal comment. That person didn't make a video or start a podcast,  they just came back to say thank you on a random cooking video. How many people are out there having these quiet wins that we never hear about? Makes me wonder what this community actually looks like beyond the loud voices on YouTube.
                     <p class="starter-plan-rec"><strong>New to carnivore?</strong> Our health coach Sarah put together a free <a href="/starter-plan.html">7-day starter plan</a> — one email a day covering what to eat, what to expect, and how to make it stick. <a href="/starter-plan.html">Get it here →</a></p>
                 </div>
 
@@ -1831,42 +1834,50 @@
             });
         });
 
-        // Newsletter form handling - MailerLite via Cloudflare Worker
-        document.getElementById('homepage-newsletter-form')?.addEventListener('submit', async function(e) {
+        // Newsletter form handling - Supabase integration
+        document.getElementById('newsletter-form')?.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const email = this.querySelector('#homepage-email').value.trim();
+            const email = this.querySelector('#email').value;
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.textContent;
 
+            // Disable button and show loading state
             submitBtn.disabled = true;
             submitBtn.textContent = 'Subscribing...';
 
             try {
-                const resp = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, group: 'newsletter' })
-                });
-                const data = await resp.json();
+                const { data, error } = await supabaseClient
+                    .from('newsletter_subscribers')
+                    .insert({
+                        email: email,
+                        source: 'homepage',
+                        confirmation_status: 'pending',
+                        active: true
+                    });
 
-                if (resp.ok && data.success) {
-                    this.reset();
-                    if (data.existing) {
-                        alert("You're already subscribed!");
+                if (error) {
+                    // Check if email already exists
+                    if (error.code === '23505') {
+                        alert('You are already subscribed!');
                     } else {
-                        alert('Thanks for subscribing! Check your inbox.');
-                        gtag('event', 'newsletter_signup', {
-                            source: 'homepage',
-                            page: window.location.pathname
-                        });
+                        throw error;
                     }
                 } else {
-                    throw new Error(data.message || 'Subscription failed');
+                    // Success - clear form and show message
+                    this.reset();
+                    alert('Thanks for subscribing! Check your email to confirm.');
+
+                    // Track signup event
+                    gtag('event', 'newsletter_signup', {
+                        source: 'homepage',
+                        page: window.location.pathname
+                    });
                 }
             } catch (err) {
                 console.error('Newsletter signup error:', err);
-                alert('Something went wrong. Please try again.');
+                alert('Oops! Something went wrong. Please try again.');
             } finally {
+                // Re-enable button
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalBtnText;
             }
