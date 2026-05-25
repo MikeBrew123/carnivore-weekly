@@ -363,7 +363,7 @@ export default function Step3FreeResults({
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
-                <strong style={{ color: '#f4e4d4' }}>Lifetime access.</strong> Free updates when the science evolves.
+                <strong style={{ color: '#f4e4d4' }}>Yours to keep.</strong> Download your protocol as a PDF and reference it anytime.
               </p>
             </div>
           </div>
