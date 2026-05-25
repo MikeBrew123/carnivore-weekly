@@ -124,13 +124,6 @@ export default function CalculatorApp({
     }
   }, [formData.diet, isHydrated])
 
-  // DEBUG: Log payment status
-  console.log('========== CalculatorApp RENDER ==========');
-  console.log('Payment status (from hook):', paymentState.paymentStatus);
-  console.log('Stripe session ID:', stripeSessionId);
-  console.log('isPremium (from hook):', paymentState.isPremium);
-  console.log('isPremium (from store):', isPremium);
-  console.log('isHydrated:', isHydrated);
 
   // UI state (non-persisted, transient)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
@@ -141,19 +134,14 @@ export default function CalculatorApp({
   const [isEmailingSent, setIsEmailingSent] = useState(false)
   const [isEmailingReport, setIsEmailingReport] = useState(false)
 
-  // Helper: Scroll to calculator on step changes
-  const scrollToCalculator = () => {
+  // Helper: Scroll to a specific anchor after React render settles
+  const scrollToAnchor = (anchorId: string, delay = 100) => {
     setTimeout(() => {
-      console.log('[SCROLL DEBUG] scrollToCalculator firing, target:', document.getElementById('calculator-app'));
-      const element = document.getElementById('calculator-app');
+      const element = document.getElementById(anchorId)
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Ensure scroll sticks after smooth scroll completes
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: 'auto', block: 'start' });
-        }, 100);
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
-    }, 800);
+    }, delay)
   }
 
   // Derived state for success page - use payment hook
@@ -162,18 +150,15 @@ export default function CalculatorApp({
   // Sync payment hook's isPremium to Zustand store (single source of truth)
   useEffect(() => {
     if (paymentState.isPremium && !isPremium) {
-      console.log('[CalculatorApp] Payment hook detected premium - syncing to store')
       setIsPremium(true)
-      scrollToCalculator()
+      scrollToAnchor('payment-success')
     }
   }, [paymentState.isPremium, isPremium, setIsPremium])
 
   // Scroll to success message when success page shows after payment redirect
   useEffect(() => {
     if (isPaymentSuccess && currentStep !== 4) {
-      setTimeout(() => {
-        document.getElementById('payment-success')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 200);
+      scrollToAnchor('payment-success', 200)
     }
   }, [isPaymentSuccess, currentStep]);
 
@@ -231,7 +216,7 @@ export default function CalculatorApp({
     }
     setCurrentStep(step)
     setErrors({})
-    scrollToCalculator()
+    scrollToAnchor('calculator-start')
   }
 
   // Clear error for a specific field when it changes
@@ -273,18 +258,10 @@ export default function CalculatorApp({
     setIsPremium(true)
     setShowPaymentModal(false)
     setCurrentStep(4) // Go to premium health profile
-    scrollToCalculator()
+    scrollToAnchor('health-profile-start')
   }
 
   const handleStep4Submit = async () => {
-    console.log('========== GENERATE PROTOCOL BUTTON CLICKED ==========')
-    console.log('[Step4] stripeSessionId:', stripeSessionId)
-    console.log('[Step4] email:', formData.email)
-    console.log('[Step4] isGenerating:', isGenerating)
-    console.log('[Step4] isPremium:', isPremium)
-    console.log('[Step4] paymentStatus:', paymentState.paymentStatus)
-    console.log('[Step4] currentStep:', currentStep)
-    console.log('[Step4] Full formData:', formData)
 
     // Validate email
     if (!formData.email) {
@@ -304,7 +281,7 @@ export default function CalculatorApp({
     }
 
     setIsGenerating(true)
-    scrollToCalculator()
+    scrollToAnchor('calculator-start')
 
     try {
       // Call step 4 submission endpoint (user already paid)
@@ -327,7 +304,14 @@ export default function CalculatorApp({
       }
 
       const data = await response.json()
-      console.log('[Step4] Submission successful:', data)
+
+      // Track Step 4 submission
+      if (window.gtag) {
+        window.gtag('event', 'calculator_step4_submitted', {
+          event_category: 'calculator',
+          event_label: 'health_profile_submitted',
+        })
+      }
 
       // Step 4 data saved, now trigger report generation
       console.log('[Step4] Triggering report generation for assessment:', stripeSessionId)
@@ -480,10 +464,9 @@ export default function CalculatorApp({
               try {
                 // GUARD: If form is dirty (user edited), don't overwrite with Supabase data
                 if (isDirty) {
-                  console.log('[Success Page] Form is dirty - skipping Supabase restore, proceeding with current data')
                   markClean()
                   setCurrentStep(4)
-                  scrollToCalculator()
+                  scrollToAnchor('health-profile-start', 200)
                   return
                 }
 
@@ -504,15 +487,13 @@ export default function CalculatorApp({
                   // Load the saved form data into the form, including email from session
                   const mergedFormData = {
                     ...sessionData.form_data,
-                    email: sessionData.email || sessionData.form_data.email, // Use session email as default
+                    email: sessionData.email || sessionData.form_data.email,
                     firstName: sessionData.first_name || sessionData.form_data.firstName,
                   }
                   setFormData(mergedFormData)
-                  console.log('[Success Page] Form data restored with email:', mergedFormData.email)
-                  markClean()  // Mark clean after successful restore
-                  // Jump to Step 4 (Health Profile)
+                  markClean()
                   setCurrentStep(4)
-                  scrollToCalculator()
+                  scrollToAnchor('health-profile-start', 200)
                 } else {
                   console.error('[Success Page] No form data in session')
                 }
@@ -802,7 +783,7 @@ export default function CalculatorApp({
         )
       case 4:
         return isPremium ? (
-          <Step4HealthProfile
+          <><div id="health-profile-start" style={{ position: 'relative', top: '-16px' }} /><Step4HealthProfile
             data={dataAsFormData}
             onDataChange={(data) => setFormData(data as Partial<FormData>)}
             onSubmit={handleStep4Submit}
@@ -810,7 +791,7 @@ export default function CalculatorApp({
             onFieldChange={handleFieldChange}
             onSetErrors={handleSetErrors}
             errors={errors}
-          />
+          /></>
         ) : (
           // Show upgrade prompt if accessing step 4 without payment
           <div style={{ textAlign: 'center', paddingTop: '48px', paddingBottom: '48px' }}>
@@ -855,6 +836,7 @@ export default function CalculatorApp({
   return (
     <>
       <div id="calculator-app" style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '32px', paddingBottom: '32px', paddingLeft: '16px', paddingRight: '16px', boxSizing: 'border-box' }}>
+        <div id="calculator-start" style={{ position: 'relative', top: '-16px' }} />
         <div style={{ maxWidth: '1400px', margin: '0 auto', boxSizing: 'border-box' }}>
           {/* Form container with sidebar */}
           <FormContainer

@@ -153,16 +153,24 @@ export default function StripePaymentModal({
 
       const data = await response.json()
 
+      // Track checkout started
+      if (window.gtag) {
+        window.gtag('event', 'begin_checkout', {
+          value: finalPrice / 100,
+          currency: 'USD',
+          items: [{ item_id: tierId, item_name: tierTitle, price: finalPrice / 100, quantity: 1 }],
+          coupon: discountApplied?.code || undefined,
+        })
+      }
+
       // If amount is 0 (100% discount), skip Stripe and go directly to success
       if (finalPrice === 0 || data.amount === 0) {
-        console.log('[StripePaymentModal] 100% discount - using backend redirect URL:', data.checkout_url)
         window.location.href = data.checkout_url
         return
       }
 
       // Otherwise, redirect to Stripe checkout
       if (data.url) {
-        console.log('[StripePaymentModal] Redirecting to Stripe:', data.url)
         window.location.href = data.url
       } else {
         throw new Error('No checkout URL returned')
