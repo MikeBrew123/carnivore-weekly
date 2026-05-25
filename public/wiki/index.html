@@ -4649,5 +4649,19 @@ Adding alcohol (especially beer) creates a <strong>triple traffic jam</strong>, 
 
     <!-- Engagement Tracking (Internal Links, Scroll Depth, Outbound Clicks) -->
     <script src="/js/engagement-tracking.js"></script>
+
+    <!-- Feedback Modal Component -->
+    <script>
+        fetch('/components/feedback-modal.html')
+            .then(response => response.text())
+            .then(html => {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                document.body.appendChild(div);
+                const script = document.createElement('script');
+                script.src = '/js/feedback-modal.js';
+                document.body.appendChild(script);
+            });
+    </script>
 </body>
 </html>
