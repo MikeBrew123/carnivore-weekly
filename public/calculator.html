@@ -980,7 +980,7 @@
                     </blockquote>
 
                     <p style="margin-top: 24px; margin-bottom: 0;">
-                        <a href="#calculator-slot" style="color: #8b4513; font-weight: 600;">Skip to Calculator</a> | <a href="#faq-section" style="color: #8b4513; font-weight: 600;">Jump to FAQ</a>
+                        <a href="#calculator-start" style="color: #8b4513; font-weight: 600;">Skip to Calculator</a> | <a href="#faq-section" style="color: #8b4513; font-weight: 600;">Jump to FAQ</a>
                     </p>
                 </section>
 
@@ -1363,7 +1363,9 @@
         modalObserver.observe(slot, { childList: true, subtree: true });
 
         cta.addEventListener('click', function() {
-            slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Scroll to React form anchor (inside calculator-slot), fallback to slot wrapper
+            var target = document.getElementById('calculator-start') || slot;
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (typeof gtag === 'function') {
                 gtag('event', 'calculator_mobile_cta_click', { event_category: 'calculator' });
             }
