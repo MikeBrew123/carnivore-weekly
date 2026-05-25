@@ -1294,7 +1294,7 @@
             </div>
         </div>
     </footer>
-    <script type="module" src="https://carnivoreweekly.com/assets/calculator2/assets/index-DPiWECtT.js"></script>
+    <script type="module" src="https://carnivoreweekly.com/assets/calculator2/assets/index-fT8Bou0Q.js"></script>
     <link rel="stylesheet" href="https://carnivoreweekly.com/assets/calculator2/assets/index-Bs0hGwdz.css">
     <script src="/js/mobile-nav.js"></script>
 
@@ -1331,6 +1331,42 @@
             gtag('event', 'starter_plan_cta_click');
         }
     });
+    </script>
+
+    <!-- Mobile Floating CTA: Jump to Calculator -->
+    <div id="mobile-calc-cta" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:999; padding:12px 24px; background:linear-gradient(135deg,#ffd700,#e6c200); color:#1a120b; font-family:'Playfair Display',Georgia,serif; font-size:15px; font-weight:700; border-radius:30px; box-shadow:0 4px 20px rgba(0,0,0,0.25); cursor:pointer; white-space:nowrap;">
+        ↓ Start Calculator
+    </div>
+    <script>
+    (function() {
+        if (window.innerWidth > 768) return; // Desktop doesn't need this
+        var cta = document.getElementById('mobile-calc-cta');
+        var slot = document.getElementById('calculator-slot');
+        if (!cta || !slot) return;
+
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                // Hide CTA when calculator is in view (or below it)
+                cta.style.display = entry.isIntersecting ? 'none' : 'block';
+            });
+        }, { threshold: 0.05 });
+
+        observer.observe(slot);
+
+        // Also hide if payment modal is open (check for fixed overlay)
+        var modalObserver = new MutationObserver(function() {
+            var modal = document.querySelector('[style*="position: fixed"][style*="inset: 0"]');
+            if (modal) cta.style.display = 'none';
+        });
+        modalObserver.observe(document.body, { childList: true, subtree: true });
+
+        cta.addEventListener('click', function() {
+            slot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (typeof gtag === 'function') {
+                gtag('event', 'calculator_mobile_cta_click', { event_category: 'calculator' });
+            }
+        });
+    })();
     </script>
 </body>
 </html>

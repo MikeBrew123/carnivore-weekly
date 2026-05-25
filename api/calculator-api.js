@@ -4266,8 +4266,8 @@ async function handleCreateCheckout(request, env) {
       : '';
 
     // Use success/cancel URLs from request, fall back to calculator app with payment status
-    const finalSuccessUrl = success_url || `https://carnivoreweekly.com/calculator.html?payment=success&session_id={CHECKOUT_SESSION_ID}`;
-    const finalCancelUrl = cancel_url || `https://carnivoreweekly.com/calculator.html?payment=cancelled`;
+    const finalSuccessUrl = success_url || `https://carnivoreweekly.com/calculator.html?payment=success&session_id={CHECKOUT_SESSION_ID}#payment-success`;
+    const finalCancelUrl = cancel_url || `https://carnivoreweekly.com/calculator.html?payment=cancelled#upgrade-cta`;
 
     // Generate UUIDs
     const sessionUUID = generateUUID();
@@ -4349,7 +4349,7 @@ async function handleCreateCheckout(request, env) {
       // Return success response with direct redirect (no Stripe)
       return createSuccessResponse({
         success: true,
-        checkout_url: `https://carnivoreweekly.com/calculator.html?payment=success&session_id=${sessionUUID}`,
+        checkout_url: `https://carnivoreweekly.com/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`,
         session_uuid: sessionUUID,
         message: 'Free checkout completed (100% discount)',
       }, 200);
@@ -4368,8 +4368,8 @@ async function handleCreateCheckout(request, env) {
       console.log('[Worker] Detected localhost - using request origin:', baseDomain);
     }
 
-    const successUrlWithId = `${baseDomain}/calculator.html?payment=success&session_id=${sessionUUID}`;
-    const cancelUrlWithId = `${baseDomain}/calculator.html?payment=cancelled&session_id=${sessionUUID}`;
+    const successUrlWithId = `${baseDomain}/calculator.html?payment=success&session_id=${sessionUUID}#payment-success`;
+    const cancelUrlWithId = `${baseDomain}/calculator.html?payment=cancelled&session_id=${sessionUUID}#upgrade-cta`;
 
     console.log('Sending to Stripe:');
     console.log('  success_url:', successUrlWithId);

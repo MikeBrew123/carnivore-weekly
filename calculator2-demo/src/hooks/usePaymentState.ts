@@ -55,7 +55,6 @@ export function usePaymentState({
       const urlSessionId = urlParams.get('session_id') || urlParams.get('assessment_id')
 
       if (urlPayment || urlSessionId) {
-        console.log('[usePaymentState] Found URL params:', { urlPayment, urlSessionId })
         setPaymentStatus(urlPayment)
         setStripeSessionId(urlSessionId)
 
@@ -66,7 +65,20 @@ export function usePaymentState({
         // Mark as premium if payment succeeded
         if (urlPayment === 'success' || urlPayment === 'free') {
           setIsPremium(true)
-          console.log('[usePaymentState] Payment success from URL - isPremium = true')
+        }
+
+        // Track payment cancel and scroll to upgrade CTA
+        if (urlPayment === 'cancelled') {
+          if (typeof window !== 'undefined' && (window as any).gtag) {
+            (window as any).gtag('event', 'calculator_payment_cancelled', {
+              event_category: 'calculator',
+              event_label: 'payment_cancelled',
+            })
+          }
+          // Post-hydration scroll fallback
+          setTimeout(() => {
+            document.getElementById('upgrade-cta')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }, 300)
         }
 
         setIsLoading(false)

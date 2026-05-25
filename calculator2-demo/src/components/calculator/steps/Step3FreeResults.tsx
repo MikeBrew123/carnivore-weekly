@@ -142,6 +142,7 @@ export default function Step3FreeResults({
 
   return (
     <div className="space-y-8">
+      <div id="free-results" style={{ position: 'relative', top: '-16px' }} />
       {/* Results Header */}
       <div>
         <h2 className="text-2xl md:text-3xl lg:text-4xl" style={{ fontFamily: "'Playfair Display', Georgia, serif", fontWeight: '700', color: '#ffd700', marginBottom: '8px' }}>Your Personalized {config.label} Macros</h2>
@@ -283,6 +284,7 @@ export default function Step3FreeResults({
       </div>
 
       {/* Premium Upgrade Card — v2 redesign */}
+      <div id="upgrade-cta" style={{ position: 'relative', top: '-16px' }} />
       <style>{`
         .cw-upgrade-card { animation: cwGlow 5s ease-in-out infinite; }
         @keyframes cwGlow {
