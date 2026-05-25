@@ -1339,21 +1339,23 @@
     </div>
     <script>
     (function() {
-        if (window.innerWidth > 768) return; // Desktop doesn't need this
+        if (window.innerWidth > 768) return;
         var cta = document.getElementById('mobile-calc-cta');
         var slot = document.getElementById('calculator-slot');
         if (!cta || !slot) return;
 
+        // Show CTA immediately — calculator is always below the fold on mobile
+        cta.style.display = 'block';
+
+        // Hide when calculator scrolls into view
         var observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
-                // Hide CTA when calculator is in view (or below it)
                 cta.style.display = entry.isIntersecting ? 'none' : 'block';
             });
         }, { threshold: 0.05 });
-
         observer.observe(slot);
 
-        // Also hide if payment modal is open (check for fixed overlay)
+        // Hide if payment modal opens
         var modalObserver = new MutationObserver(function() {
             var modal = document.querySelector('[style*="position: fixed"][style*="inset: 0"]');
             if (modal) cta.style.display = 'none';
