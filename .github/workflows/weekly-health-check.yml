@@ -255,8 +255,8 @@ jobs:
           SEO_COUNT=${{ steps.seo_check.outputs.seo_count }}
           COMPLETENESS=${{ steps.seo_completeness.outputs.completeness }}
 
-          # Determine status
-          if [ "$CRITICAL" -eq "0" ] && [ "$SEO_COUNT" -eq "0" ] && [ "$MANUAL_COUNT" -eq "0" ]; then
+          # Determine status (manual edits are expected, don't trigger yellow)
+          if [ "$CRITICAL" -eq "0" ] && [ "$SEO_COUNT" -eq "0" ]; then
               STATUS="✅ HEALTHY"
               EMOJI="✅"
           elif [ "$CRITICAL" -gt "0" ]; then
@@ -292,8 +292,31 @@ jobs:
           echo "emoji=$EMOJI" >> $GITHUB_OUTPUT
           echo "date=$DATE" >> $GITHUB_OUTPUT
 
+      - name: Close previous health-check issues
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'health-check',
+              state: 'open',
+              per_page: 10
+            });
+            for (const issue of issues.data) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+                state_reason: 'completed'
+              });
+              console.log(`Closed stale health check #${issue.number}`);
+            }
+
       - name: Create GitHub Issue if issues found
-        if: steps.validation.outputs.critical != '0' || steps.seo_check.outputs.seo_count != '0' || steps.manual_check.outputs.manual_count != '0'
+        if: steps.validation.outputs.critical != '0' || steps.seo_check.outputs.seo_count != '0'
         continue-on-error: true
         uses: actions/github-script@v7
         with:
@@ -306,7 +329,7 @@ jobs:
             const manual_count = '${{ steps.manual_check.outputs.manual_count }}';
             const emoji = '${{ steps.report.outputs.emoji }}';
 
-            const total_issues = parseInt(critical) + parseInt(seo_count) + parseInt(manual_count);
+            const total_issues = parseInt(critical) + parseInt(seo_count);
 
             const title = `${emoji} Weekly Health Check: ${total_issues} issues found — ${date}`;
 
@@ -373,7 +396,7 @@ jobs:
             }
 
       - name: Log successful health check
-        if: steps.validation.outputs.critical == '0' && steps.seo_check.outputs.seo_count == '0' && steps.manual_check.outputs.manual_count == '0'
+        if: steps.validation.outputs.critical == '0' && steps.seo_check.outputs.seo_count == '0'
         run: |
           echo "✅ Weekly health check passed - no issues found"
           cat health_report.txt
