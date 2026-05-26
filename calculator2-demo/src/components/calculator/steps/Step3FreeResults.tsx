@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { FormData, MacroResults } from '../../../types/form'
 import { calculateBMR, calculateMacros } from '../../../lib/calculations'
 import MacroPreview from '../../ui/MacroPreview'
+import ReportPreviewTeaser from '../ReportPreviewTeaser'
 import { useFormStore } from '../../../stores/formStore'
 
 declare global {
@@ -283,6 +284,9 @@ export default function Step3FreeResults({
         </div>
       </div>
 
+      {/* Protocol Preview Teaser */}
+      <ReportPreviewTeaser onUpgrade={onUpgrade} dietType={data.diet} />
+
       {/* Premium Upgrade Card — v2 redesign */}
       <div id="upgrade-cta" style={{ position: 'relative', top: '-16px' }} />
       <style>{`
@@ -303,77 +307,41 @@ export default function Step3FreeResults({
 
         <div style={{ padding: '28px 28px 28px' }}>
           {/* Headline */}
-          <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '26px', fontWeight: '700', margin: '0 0 8px 0', textAlign: 'center', lineHeight: '1.25', letterSpacing: '-0.02em' }}>
-            A few more questions,<br />then YOUR protocol.
+          <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '24px', fontWeight: '700', margin: '0 0 8px 0', textAlign: 'center', lineHeight: '1.25', letterSpacing: '-0.02em' }}>
+            Turn your macros into a custom 30-day protocol
           </p>
-          <p style={{ color: 'rgba(244,228,212,0.65)', fontSize: '14px', textAlign: 'center', margin: '0 0 22px 0', fontStyle: 'italic', fontFamily: "'Merriweather', Georgia, serif", lineHeight: '1.6' }}>
-            You've got the basics. Twelve more questions and we build the plan around your actual life.
+          <p style={{ color: 'rgba(244,228,212,0.6)', fontSize: '13.5px', textAlign: 'center', margin: '0 0 22px 0', fontFamily: "'Merriweather', Georgia, serif", lineHeight: '1.6' }}>
+            Built for your diet style, goal, activity level, and food preferences — not a generic meal plan.
           </p>
 
           {/* Divider */}
           <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,rgba(255,215,0,0.3) 20%,rgba(255,215,0,0.3) 80%,transparent)', margin: '0 0 22px 0' }} />
 
-          {/* Testimonial */}
-          <div style={{ position: 'relative', background: 'rgba(255,215,0,0.05)', border: '1px solid rgba(255,215,0,0.12)', borderRadius: '10px', padding: '20px 20px 16px', margin: '0 0 24px 0' }}>
-            <span style={{ position: 'absolute', top: '-18px', left: '16px', fontSize: '52px', lineHeight: 1, color: 'rgba(255,215,0,0.25)', fontFamily: 'Georgia,serif', userSelect: 'none' }}>"</span>
-            <p style={{ color: 'rgba(244,228,212,0.8)', fontSize: '14px', margin: '6px 0 0 0', lineHeight: '1.7', fontStyle: 'italic', fontFamily: "'Merriweather', Georgia, serif", textAlign: 'center' }}>
-              Readers tell us the protocol felt "uncomfortably specific" in a good way. Like we'd been reading their bloodwork over their shoulder.
-            </p>
-          </div>
-
-          {/* Section label */}
-          <p style={{ color: '#ffd700', fontSize: '10px', fontWeight: '700', margin: '0 0 16px 0', textTransform: 'uppercase', letterSpacing: '0.14em', fontFamily: "'Merriweather', Georgia, serif" }}>
-            Here's what gets built for YOU:
-          </p>
-
-          {/* List items */}
+          {/* Three tight value bullets */}
           <div style={{ marginBottom: '24px' }}>
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
-                <strong style={{ color: '#f4e4d4' }}>YOUR 30-day meal plan</strong>, built around your bodyweight and goals. Grocery lists priced for $80–120 a week, swaps for picky eaters, "I cook 3 nights" or "6 nights" versions.{' '}
-                <span style={{ display: 'inline-block', color: '#ffd700', fontSize: '11px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '4px', padding: '1px 7px', verticalAlign: 'middle' }}>$97 value</span>
+                <strong style={{ color: '#f4e4d4' }}>30-day meal structure</strong> matched to your calories, protein, and fat targets. Weekly grocery lists priced for your budget.
               </p>
             </div>
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
-                <strong style={{ color: '#f4e4d4' }}>YOUR doctor conversation script.</strong> Exact sentences for when LDL jumps and your GP panics, plus four labs to ask for that aren't on a standard panel.{' '}
-                <span style={{ display: 'inline-block', color: '#ffd700', fontSize: '11px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '4px', padding: '1px 7px', verticalAlign: 'middle' }}>$79 value</span>
+                <strong style={{ color: '#f4e4d4' }}>Week-by-week adaptation guide</strong> for cravings, energy dips, electrolytes, and stalls. What to expect and when to adjust.
               </p>
             </div>
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
-                <strong style={{ color: '#f4e4d4' }}>YOUR week-by-week adaptation guide.</strong> What week 2 fatigue means, when leg cramps signal sodium vs magnesium, the plateau protocol for week 6.{' '}
-                <span style={{ display: 'inline-block', color: '#ffd700', fontSize: '11px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '4px', padding: '1px 7px', verticalAlign: 'middle' }}>$69 value</span>
-              </p>
-            </div>
-            <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
-              <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
-                <strong style={{ color: '#f4e4d4' }}>YOUR symptom-to-fix map.</strong> Brain fog, sleep, digestion, hormones. Matched to the likely cause from what you tell us.{' '}
-                <span style={{ display: 'inline-block', color: '#ffd700', fontSize: '11px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: '4px', padding: '1px 7px', verticalAlign: 'middle' }}>$53 value</span>
-              </p>
-            </div>
-            <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
-              <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
-                <strong style={{ color: '#f4e4d4' }}>YOUR bloodwork interpretation guide.</strong> What your numbers should look like at 30, 60, 90 days. Carnivore ranges, not standard-diet ranges.
-              </p>
-            </div>
-            <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
-              <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', fontFamily: "'Merriweather', Georgia, serif" }}>
-                <strong style={{ color: '#f4e4d4' }}>Yours to keep.</strong> Download your protocol as a PDF and reference it anytime.
+                <strong style={{ color: '#f4e4d4' }}>Doctor conversation notes</strong> plus shopping, prep guidance, and lab markers to track at 30, 60, and 90 days.
               </p>
             </div>
           </div>
 
-          {/* Price box */}
-          <div style={{ background: 'rgba(0,0,0,0.45)', borderRadius: '12px', padding: '20px 24px', margin: '0 0 20px 0', textAlign: 'center', border: '1px solid rgba(255,215,0,0.2)' }}>
-            <p style={{ color: 'rgba(168,144,128,0.6)', fontSize: '13px', margin: '0 0 4px 0', fontFamily: "'Merriweather', Georgia, serif", textDecoration: 'line-through' }}>Total value: $298</p>
-            <p style={{ color: '#ffd700', fontSize: '28px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>$29 — Yours forever</p>
+          {/* Price + CTA compact */}
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>$29 — Yours forever</p>
             <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, fontFamily: "'Merriweather', Georgia, serif" }}>One-time · No subscription · Instant access</p>
           </div>
 
@@ -414,8 +382,8 @@ export default function Step3FreeResults({
           {/* Guarantee */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '8px' }}>
             <span style={{ fontSize: '15px', flexShrink: 0, marginTop: '1px' }}>🛡️</span>
-            <p style={{ color: 'rgba(244,228,212,0.55)', fontSize: '13px', margin: 0, lineHeight: '1.55', fontFamily: "'Merriweather', Georgia, serif" }}>
-              <strong style={{ color: 'rgba(255,215,0,0.75)' }}>30 days to read it, try it, decide.</strong> If it doesn't feel built for you, email us. Same-day refund. No survey, no friction.
+            <p style={{ color: 'rgba(244,228,212,0.5)', fontSize: '12.5px', margin: 0, lineHeight: '1.55', fontFamily: "'Merriweather', Georgia, serif" }}>
+              30 days to try it. If it doesn't feel useful, email us for a same-day refund.
             </p>
           </div>
         </div>
