@@ -838,7 +838,7 @@ export default function CalculatorApp({
   return (
     <>
       <div id="calculator-app" style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '32px', paddingBottom: '32px', paddingLeft: '16px', paddingRight: '16px', boxSizing: 'border-box' }}>
-        <div id="calculator-start" style={{ position: 'relative', top: '-16px' }} />
+        {/* calculator-start anchor lives in static HTML (calculator.html) to avoid duplicate IDs */}
         <div style={{ maxWidth: '1400px', margin: '0 auto', boxSizing: 'border-box' }}>
           {/* Form container with sidebar */}
           <FormContainer
