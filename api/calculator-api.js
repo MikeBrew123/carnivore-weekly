@@ -5257,9 +5257,9 @@ export default {
       }
     }
 
-    // ===== MAILERLITE SUBSCRIBE PROXY =====
+    // ===== SUBSCRIBE PROXY (Beehiiv — migrated from MailerLite 2026-05-26) =====
     if (path === '/api/v1/subscribe' && method === 'POST') {
-      return sendWithCors(await handleMailerLiteSubscribe(request, env));
+      return sendWithCors(await handleBeehiivSubscribe(request, env));
     }
 
     // ===== BEEHIIV NEWSLETTER SUBSCRIBE PROXY =====
