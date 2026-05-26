@@ -186,6 +186,21 @@ Manual edits allowed when instructed, but:
 
 ---
 
+## Email & Newsletter
+
+- **Platform:** Beehiiv (free Launch plan, 2,500 sub limit)
+- **Dashboard:** https://app.beehiiv.com/
+- **Sending from:** carnivoreweekly@mail.beehiiv.com (Reply-to: iambrew@gmail.com)
+- **Signup endpoint:** `/api/v1/subscribe` → Beehiiv API (Cloudflare Worker)
+- **Subscriber API:** `scripts/beehiiv_client.py`
+- **Publishing:** `scripts/publish_to_beehiiv.py --copy` → paste into Beehiiv editor
+- **Welcome email:** Enabled (auto-sends on signup)
+- **Drip automation:** Not on free plan. Build in N8N if needed later.
+- **MailerLite:** DEPRECATED (2026-05-26). Do not use. Had 12.5% open rate due to shared IPs.
+- **Resend/SES:** Still used for internal transactional emails only, NOT subscriber newsletters.
+
+---
+
 ## Database Access
 
 - **Supabase MCP** is configured. Main session executes directly: `mcp__supabase__execute_sql({ query: "SQL" })`
