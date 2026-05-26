@@ -243,6 +243,7 @@ export default function StripePaymentModal({
             fontWeight: 'bold',
             marginBottom: '4px',
             fontFamily: "'Playfair Display', Georgia, serif",
+            color: '#1a0d00',
           }}>Complete Payment</h2>
           <p style={{
             opacity: 0.8,
