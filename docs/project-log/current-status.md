@@ -1,9 +1,9 @@
 # Current Status
 
-**Last Updated:** 2026-05-24 (Hermes Onboarding + Calculator Tracking)
+**Last Updated:** 2026-05-26 (Protocol Preview + Hermes Audit Fixes)
 
 **Current Focus:**
-Hermes onboarded as growth analyst. Email capture chain fixed (was silently broken). Scoreboard built. Calculator diet-selection GA4 tracking deployed. Waiting ~48h for data to confirm keto vs carnivore demand split.
+Calculator funnel improved: protocol preview teaser deployed (realistic masked sample), upgrade card copy tightened to 3 bullets, diet language broadened in hero. Hermes visual audit complete — all items fixed and pushed. Monitoring funnel with new changes for 2-4 weeks.
 
 ---
 
@@ -23,7 +23,37 @@ Hermes onboarded as growth analyst. Email capture chain fixed (was silently brok
 
 ---
 
-## Latest Session (2026-05-24 — Hermes Onboarding + Measurement Sprint)
+## Latest Session (2026-05-25/26 — Hermes Recommendations + Audit Fixes)
+
+### Protocol Preview Teaser (commit 7848920)
+- `ReportPreviewTeaser.tsx` — static masked preview on Step 3
+- Shows fictional complex profile (insulin resistance, food intolerances, budget, sedentary)
+- Visible: executive summary, sample Day 1 meals, Week 2 adaptation
+- Locked: 6 sections behind blur/gradient with gold CTA
+- New GA4 event: `calculator_preview_unlock_click`
+
+### Upgrade Card Tightened
+- Removed verbose 6-bullet card with $97/$79/$69/$53 value badges
+- Now: 3 clear bullets + "$29 — Yours forever" + simple guarantee
+
+### Hero Diet Language Broadened
+- calculator.html h1: "Free Carnivore, Keto & Low-Carb Macro Calculator"
+- Title/OG/Twitter meta tags updated to match
+
+### Hermes Visual Audit Fixes (commit 41a07a9)
+- P2: Payment modal header color fixed for contrast
+- P2: Success card box-sizing/maxWidth fixed for mobile
+- P1: GA4 preview event verified in source + production bundle (needs real traffic confirmation)
+
+### Other Changes
+- Etsy link updated from dead printable to bundle ($7.99) (commit 12e2c78)
+- Feedback modals added to 4 pages (commit 032a1ea)
+- 245 dead files cleaned up (commit 04ac96e)
+- .gitignore cleaned up
+
+---
+
+## Previous Session (2026-05-24 — Hermes Onboarding + Measurement Sprint)
 
 ### Hermes Onboarded
 - Growth/Ops Analyst role, communicates via Brew-Vault GitHub repo
