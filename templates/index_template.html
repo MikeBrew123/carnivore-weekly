@@ -599,18 +599,8 @@
         </div>
     </footer>
 
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Analytics Tracking Script -->
+    <!-- Analytics & Interaction Scripts -->
     <script>
-        // Initialize Supabase client
-        const { createClient } = supabase;
-        const supabaseClient = createClient(
-            'https://kwtdpvnjewtahuxjyltn.supabase.co',
-            'sb_publishable_bQlgBZ7Otay8D9AErt8daA_2lQI36jk'
-        );
-
         // Load More Posts (progressive disclosure on homepage)
         document.getElementById('load-more-posts')?.addEventListener('click', function() {
             const next = parseInt(this.dataset.nextBatch, 10);
@@ -650,50 +640,44 @@
             });
         });
 
-        // Newsletter form handling - Supabase integration
-        document.getElementById('newsletter-form')?.addEventListener('submit', async function(e) {
+        // Newsletter form handling — Beehiiv via Cloudflare Worker
+        document.getElementById('homepage-newsletter-form')?.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const email = this.querySelector('#email').value;
+            const email = this.querySelector('#homepage-email').value.trim();
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.textContent;
 
-            // Disable button and show loading state
             submitBtn.disabled = true;
             submitBtn.textContent = 'Subscribing...';
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('newsletter_subscribers')
-                    .insert({
-                        email: email,
-                        source: 'homepage',
-                        confirmation_status: 'pending',
-                        active: true
-                    });
+                const resp = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, group: 'newsletter' })
+                });
+                const data = await resp.json();
 
-                if (error) {
-                    // Check if email already exists
-                    if (error.code === '23505') {
-                        alert('You are already subscribed!');
+                if (resp.ok && data.success) {
+                    this.reset();
+                    if (data.existing) {
+                        alert("You're already subscribed!");
                     } else {
-                        throw error;
+                        alert('Thanks for subscribing! Check your email for a welcome message.');
+                    }
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'newsletter_signup', {
+                            source: 'homepage',
+                            page: window.location.pathname
+                        });
                     }
                 } else {
-                    // Success - clear form and show message
-                    this.reset();
-                    alert('Thanks for subscribing! Check your email to confirm.');
-
-                    // Track signup event
-                    gtag('event', 'newsletter_signup', {
-                        source: 'homepage',
-                        page: window.location.pathname
-                    });
+                    throw new Error(data.message || 'Subscription failed');
                 }
             } catch (err) {
                 console.error('Newsletter signup error:', err);
                 alert('Oops! Something went wrong. Please try again.');
             } finally {
-                // Re-enable button
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalBtnText;
             }
