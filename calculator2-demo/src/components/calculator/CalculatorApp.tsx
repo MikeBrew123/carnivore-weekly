@@ -413,9 +413,11 @@ export default function CalculatorApp({
             backgroundColor: '#1a1a1a',
             border: '1px solid #333',
             borderRadius: '8px',
-            padding: '32px',
+            padding: '24px',
             marginBottom: '32px',
             textAlign: 'left',
+            boxSizing: 'border-box',
+            maxWidth: '100%',
           }}>
             <h2 style={{
               fontSize: '20px',
