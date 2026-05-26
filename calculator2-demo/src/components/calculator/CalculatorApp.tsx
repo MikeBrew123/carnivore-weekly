@@ -383,8 +383,8 @@ export default function CalculatorApp({
   // Show payment success screen (but not if user has proceeded to Step 4)
   if (isPaymentSuccess && currentStep !== 4) {
     return (
-      <div id="payment-success" style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '64px', paddingBottom: '64px', paddingLeft: '16px', paddingRight: '16px', minHeight: '100vh' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+      <div id="payment-success" style={{ width: '100%', backgroundColor: '#F2F0E6', paddingTop: '64px', paddingBottom: '64px', paddingLeft: '16px', paddingRight: '16px', minHeight: '100vh', boxSizing: 'border-box' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center', width: '100%' }}>
           <div style={{
             fontSize: '64px',
             marginBottom: '24px',
