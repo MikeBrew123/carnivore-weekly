@@ -44,7 +44,7 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="/css/global.css">
     <link rel="stylesheet" href="/assets/calculator2/assets/index-BGR8GvWk.css">
-    <link rel="modulepreload" href="/assets/calculator2/assets/index-c2n1uETS.js">
+    <link rel="modulepreload" href="/assets/calculator2/assets/index-C3nzDwT1.js">
 
     <style>
         /* Calculator page hero styles - Premium sizing matching brand standards */
@@ -839,7 +839,7 @@
           "name": "How much protein do I need on carnivore?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Dr. Donald Layman's research shows most adults need 1.0-1.6g protein per pound of lean body mass, depending on your goal. Fat loss? Aim higher (1.2-1.6g). Maintenance? 0.8-1.0g works. Most people undereat protein by 20-30g daily. Apps like Cronometer can help you track if you're hitting your target. Our calculator figures out your personalized number in 90 seconds."
+            "text": "Dr. Donald Layman's research supports roughly 2g of protein per kilogram of body weight (about 0.9g per pound) as a strong baseline for most adults. Fat loss? You'll need that protein to preserve muscle while cutting calories. Maintenance? The same baseline keeps you covered. Most people undereat protein by 20-30g daily. Our calculator figures out your personalized number in 90 seconds."
           }
         },
         {
@@ -847,7 +847,7 @@
           "name": "How do I calculate carnivore macros?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "The standard approach uses the Mifflin-St Jeor equation to estimate your base metabolism, then adjusts for activity. First, calculate your lean body mass (total weight minus body fat). Set protein based on Dr. Layman's research for your goal. Fat fills the remaining calories. Our free calculator handles this math automatically. If you want to track manually, Cronometer makes it simple."
+            "text": "The standard approach uses the Mifflin-St Jeor equation to estimate your base metabolism, then adjusts for activity. Protein is set at roughly 2g per kilogram of body weight. Fat fills the remaining calories. Your goal determines the calorie target, which shifts how much fat you eat. Our free calculator handles this math automatically. If you want to track manually, Cronometer makes it simple."
           }
         },
         {
@@ -879,7 +879,7 @@
           "name": "Can I use this calculator for keto or low-carb diets?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Absolutely. This works for keto, carnivore, pescatarian, or what Dr. Paul Saladino calls animal-based eating. The protein math is universal, based on lean body mass and your goal. Whether you're strict carnivore or keto with vegetables, the underlying calculations are identical. The calculator doesn't care about diet labels. It gives you the numbers your body actually needs."
+            "text": "Absolutely. This works for keto, carnivore, pescatarian, or what Dr. Paul Saladino calls animal-based eating. The protein math is the same across all diets: roughly 2g per kilogram of body weight. What changes is the food list and carb allowance. Carnivore keeps carbs at zero. Keto allows 20-50g from low-carb vegetables. The calculator adjusts automatically based on which diet you select."
           }
         }
       ]
@@ -1055,7 +1055,7 @@
                         <div style="margin-bottom: 24px;">
                             <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 19px; color: #8b4513; margin-bottom: 10px;">Step 1: Enter Your Stats</h3>
                             <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
-                                Your age, weight, height, and sex determine your lean mass, and lean mass is what actually drives how many calories you need. Not a generic chart number. Your real metabolic baseline.
+                                Your age, weight, height, and sex determine your metabolic rate, which drives how many calories you need. Not a generic chart number. Your real baseline, calculated using the Mifflin-St Jeor equation.
                             </p>
                         </div>
 
@@ -1079,7 +1079,7 @@
                         <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: #8b4513; margin-top: 0; margin-bottom: 16px;">Protein Targets by Goal</h2>
 
                         <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin-bottom: 24px;">
-                            Your protein target depends on your goal. Fat fills the remaining calories. The table below shows research-backed ranges for a 180 lb person with roughly 140 lbs of lean mass.
+                            Our calculator uses approximately 2g of protein per kilogram of body weight (about 0.9g per pound). This is a well-established baseline that works across goals. The table below shows how your goal shifts the final number, using a 180 lb person as an example.
                         </p>
 
                         <div style="overflow-x: auto;">
@@ -1095,34 +1095,34 @@
                                 <tbody>
                                     <tr>
                                         <td>Fat Loss</td>
-                                        <td data-label="Protein:">1.0-1.2g/lb lean mass</td>
+                                        <td data-label="Protein:">~0.9g/lb body weight</td>
                                         <td data-label="Fat:">Fill remaining calories</td>
-                                        <td data-label="Example:">140-168g protein, ~100g fat</td>
+                                        <td data-label="Example:">~163g protein, ~100g fat</td>
                                     </tr>
                                     <tr>
                                         <td>Muscle Gain</td>
-                                        <td data-label="Protein:">1.2-1.6g/lb lean mass</td>
+                                        <td data-label="Protein:">~0.9g/lb body weight</td>
                                         <td data-label="Fat:">Surplus of 300-500 cal</td>
-                                        <td data-label="Example:">168-224g protein, ~130g fat</td>
+                                        <td data-label="Example:">~163g protein, ~150g fat</td>
                                     </tr>
                                     <tr>
                                         <td>Maintenance</td>
-                                        <td data-label="Protein:">0.8-1.0g/lb lean mass</td>
+                                        <td data-label="Protein:">~0.9g/lb body weight</td>
                                         <td data-label="Fat:">To satiety</td>
-                                        <td data-label="Example:">112-140g protein, ~120g fat</td>
+                                        <td data-label="Example:">~163g protein, ~130g fat</td>
                                     </tr>
                                     <tr>
                                         <td>Athletic Performance</td>
-                                        <td data-label="Protein:">1.4-1.8g/lb lean mass</td>
-                                        <td data-label="Fat:">Higher; carb-cycling optional</td>
-                                        <td data-label="Example:">196-252g protein, variable fat</td>
+                                        <td data-label="Protein:">~0.9g/lb + activity surplus</td>
+                                        <td data-label="Fat:">Higher; adjust to energy needs</td>
+                                        <td data-label="Example:">~163g protein, variable fat</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
                         <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; color: #666; margin-top: 16px; margin-bottom: 0; font-style: italic;">
-                            Based on research from <a href="https://pubmed.ncbi.nlm.nih.gov/?term=layman+protein" rel="noopener" target="_blank" style="color: #8b4513;">Dr. Donald Layman</a> and sports nutrition consensus.
+                            Protein baseline from the 2g/kg recommendation supported by <a href="https://pubmed.ncbi.nlm.nih.gov/?term=layman+protein" rel="noopener" target="_blank" style="color: #8b4513;">Dr. Donald Layman's</a> research. Calorie adjustments via Mifflin-St Jeor equation. Your goal changes your calorie target, which shifts the protein-to-fat ratio.
                         </p>
                     </section>
 
@@ -1166,14 +1166,14 @@
                     <div style="margin-bottom: 30px;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">How much protein do I need on carnivore?</h3>
                         <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/?term=layman+protein" rel="noopener" target="_blank" style="color: #8b4513;">Dr. Donald Layman's</a> research shows most adults need 1.0-1.6g protein per pound of lean body mass, depending on your goal. Fat loss? Aim higher (1.2-1.6g). Maintenance? 0.8-1.0g works. Most people undereat protein by 20-30g daily. Apps like <a href="https://cronometer.com" rel="noopener" target="_blank" style="color: #8b4513;">Cronometer</a> can help you track if you're hitting your target. Our calculator figures out your personalized number in 90 seconds.
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/?term=layman+protein" rel="noopener" target="_blank" style="color: #8b4513;">Dr. Donald Layman's</a> research supports roughly 2g of protein per kilogram of body weight (about 0.9g per pound) as a strong baseline for most adults. Fat loss? You'll need that protein to preserve muscle while cutting calories. Maintenance? The same baseline keeps you covered. Most people undereat protein by 20-30g daily. Apps like <a href="https://cronometer.com" rel="noopener" target="_blank" style="color: #8b4513;">Cronometer</a> can help you track if you're hitting your target. Our calculator figures out your personalized number in 90 seconds.
                         </p>
                     </div>
 
                     <div style="margin-bottom: 30px;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">How do I calculate carnivore macros?</h3>
                         <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
-                            The standard approach uses the Mifflin-St Jeor equation to estimate your base metabolism, then adjusts for activity. First, calculate your lean body mass (total weight minus body fat). Set protein based on Dr. Layman's research for your goal. Fat fills the remaining calories. Our free calculator handles this math automatically. If you want to track manually, <a href="https://cronometer.com" rel="noopener" target="_blank" style="color: #8b4513;">Cronometer</a> makes it simple.
+                            The standard approach uses the Mifflin-St Jeor equation to estimate your base metabolism, then adjusts for activity. Protein is set at roughly 2g per kilogram of your body weight. Fat fills the remaining calories. Your goal (fat loss, maintenance, or muscle gain) determines the calorie target, which shifts how much fat you eat. Our free calculator handles this math automatically. If you want to track manually, <a href="https://cronometer.com" rel="noopener" target="_blank" style="color: #8b4513;">Cronometer</a> makes it simple.
                         </p>
                     </div>
 
@@ -1201,7 +1201,7 @@
                     <div style="margin-bottom: 0;">
                         <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: #8b4513; margin-bottom: 12px;">Can I use this calculator for keto or low-carb diets?</h3>
                         <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1.75; color: #333; margin: 0;">
-                            Absolutely. This works for keto, carnivore, pescatarian, or what <a href="https://heartandsoil.co" rel="noopener" target="_blank" style="color: #8b4513;">Dr. Paul Saladino</a> calls "animal-based" eating. The protein math is universal, based on lean body mass and your goal. Whether you're strict carnivore or keto with vegetables, the underlying calculations are identical. The calculator doesn't care about diet labels. It gives you the numbers your body actually needs.
+                            Absolutely. This works for keto, carnivore, pescatarian, or what <a href="https://heartandsoil.co" rel="noopener" target="_blank" style="color: #8b4513;">Dr. Paul Saladino</a> calls "animal-based" eating. The protein math is the same across all diets: roughly 2g per kilogram of body weight. What changes is the food list and carb allowance. Carnivore keeps carbs at zero. Keto allows 20-50g from low-carb vegetables. The calculator adjusts automatically based on which diet you select.
                         </p>
                     </div>
                 </section>
@@ -1339,7 +1339,7 @@
             </div>
         </div>
     </footer>
-    <script type="module" src="/assets/calculator2/assets/index-c2n1uETS.js"></script>
+    <script type="module" src="/assets/calculator2/assets/index-C3nzDwT1.js"></script>
     <script src="/js/mobile-nav.js"></script>
 
     <!-- Post-hydration hash scroll fallback: React renders #calculator-start after mount -->

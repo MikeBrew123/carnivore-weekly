@@ -56,30 +56,30 @@ const dietConfig: Record<string, {
   'keto': {
     label: 'Keto',
     meal1: { description: '3 Eggs + 1 Avocado + 2 oz Cheddar', calories: 620 },
-    meal2: { protein: 'Salmon Fillet or Chicken Thighs', calPerLb: 1000 },
+    meal2: { protein: 'Chicken Thighs (skin-on)', calPerLb: 950 },
     meal3: { description: 'Grilled Chicken Thigh + Spinach Salad + Olive Oil Dressing', calories: 520, protein: 36, fat: 38 },
-    meal4: { description: 'Salmon + Roasted Broccoli + Butter', calories: 580, protein: 40, fat: 36 },
-    snack: { description: 'Macadamia Nuts + Celery with Cream Cheese', calories: 300, protein: 6, fat: 28 },
+    meal4: { description: 'Salmon Fillet + Roasted Broccoli + Butter', calories: 540, protein: 38, fat: 32 },
+    snack: { description: 'Macadamia Nuts + Hard Cheese', calories: 300, protein: 8, fat: 26 },
     troubleshooting: 'Strategies for keto flu and electrolyte balance',
     socialProof: 'keto dieters'
   },
   'lowcarb': {
     label: 'Low Carb',
     meal1: { description: '3 Eggs + 4 oz Sausage + Sauteed Peppers', calories: 550 },
-    meal2: { protein: 'Chicken Thighs or Pork Chops', calPerLb: 1100 },
+    meal2: { protein: 'Pork Chops (bone-in)', calPerLb: 1090 },
     meal3: { description: 'Turkey Burger Lettuce Wrap + Avocado + Side Salad', calories: 480, protein: 34, fat: 30 },
-    meal4: { description: 'Pork Chop + Roasted Zucchini + Olive Oil', calories: 560, protein: 42, fat: 34 },
-    snack: { description: 'Almonds + String Cheese + Cucumber Slices', calories: 280, protein: 14, fat: 20 },
+    meal4: { description: 'Chicken Thighs + Roasted Zucchini + Olive Oil', calories: 520, protein: 38, fat: 32 },
+    snack: { description: 'Almonds + String Cheese', calories: 280, protein: 14, fat: 20 },
     troubleshooting: 'Managing carb cravings and energy dips',
     socialProof: 'low-carb followers'
   },
   'pescatarian': {
     label: 'Pescatarian',
     meal1: { description: '3 Eggs + 4 oz Smoked Salmon + Capers', calories: 480 },
-    meal2: { protein: 'Wild-Caught White Fish + 2 tbsp Butter', calPerLb: 600 },
+    meal2: { protein: 'Wild Salmon Fillet', calPerLb: 1270 },
     meal3: { description: 'Grilled Shrimp + Cauliflower Rice + Garlic Butter', calories: 420, protein: 38, fat: 22 },
-    meal4: { description: 'Seared Tuna Steak + Asparagus + Lemon Butter', calories: 480, protein: 46, fat: 24 },
-    snack: { description: 'Sardines + Cream Cheese + Seaweed Crisps', calories: 290, protein: 22, fat: 18 },
+    meal4: { description: 'Seared Tuna Steak + Asparagus + Lemon Butter', calories: 380, protein: 44, fat: 16 },
+    snack: { description: 'Sardines + Cream Cheese', calories: 290, protein: 22, fat: 18 },
     troubleshooting: 'Optimizing Omega-3 ratios and mercury safety',
     socialProof: 'pescatarians'
   }
