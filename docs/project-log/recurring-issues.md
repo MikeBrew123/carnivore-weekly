@@ -113,9 +113,19 @@ If recurs: diff `weekly-update.yml` against `run_weekly_update.sh` — they must
 ---
 
 ## ISSUE-010 — Blog post images missing since April 2026
-🔴 OPEN — Last: 2026-05-26
+🟢 FIXED — Last: 2026-05-26
 
 Pattern: `generate_post_images.py` (Replicate API) was never added to any pipeline. Images generated manually in sessions through March; when content went automated, image step was omitted. SKILL.md hardcodes `"image": ""`. 43 posts (all Apr+May) have no images.
 Attempts:
-- 2026-05-26 — Identified root cause. Fix: add `python3 scripts/generate_post_images.py` to weekly-blog-content-generation SKILL.md (after Step 5), to weekly_content_prompt.md (after Step 3), and to daily_publish.py as fallback. Backfill all 43 missing images.
+- 2026-05-26 — Identified root cause. Fix: added image generation to SKILL.md Step 5, weekly_content_prompt.md Step 3, daily_publish.py (non-blocking fallback before HTML render), and GH Actions workflow (REPLICATE_API_TOKEN secret added). Commits: 0887dcb, a75720f.
 If recurs: check that SKILL.md still includes the image generation step after any scheduled task edits.
+
+---
+
+## ISSUE-012 — Hermes crashes: 'NoneType' object is not iterable
+🟢 FIXED — Last: 2026-05-27
+
+Pattern: OpenAI Python SDK `parse_response()` does `for output in response.output:` with no null guard. ChatGPT Codex backend (`chatgpt.com/backend-api/codex`) returns `output: null` in stream `response.completed` events. SDK crashes at `openai/lib/_parsing/_responses.py:61`. Affects ALL SDK versions through 2.38.0.
+Attempts:
+- 2026-05-27 — `hermes update` (471 commits) → no fix. SDK bump 2.24→2.25→2.30→2.38 → same bug in all versions. Patched SDK line 61: `response.output` → `(response.output or [])`. Hermes operational.
+If recurs: Re-apply patch after any `hermes update` or `pip install openai`. Filed: openai/openai-python, NousResearch/hermes-agent.
