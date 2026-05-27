@@ -1,29 +1,59 @@
 # Current Status
 
-**Last Updated:** 2026-05-26 (Protocol Preview + Hermes Audit Fixes)
+**Last Updated:** 2026-05-26 (Blog Recovery + Image Pipeline Fix)
 
 **Current Focus:**
-Calculator funnel improved: protocol preview teaser deployed (realistic masked sample), upgrade card copy tightened to 3 bullets, diet language broadened in hero. Hermes visual audit complete — all items fixed and pushed. Monitoring funnel with new changes for 2-4 weeks.
+Blog queue recovered after 7-day gap (May 20-26). 9 new posts generated with images. Image pipeline fixed in weekly workflow (SKILL.md, weekly_content_prompt.md). Daily publish CI just flips status and deploys — images are built locally with the weekly content batch. Newsletter migrated from MailerLite to Beehiiv (May 26). Calculator funnel monitoring ongoing (protocol preview teaser + tightened upgrade card deployed May 25).
 
 ---
 
 ## Outstanding TODOs
 
-- **Generate proper hero images** — 12 posts using placeholder copies; need unique images
+- **Etsy content series** — Sarah's 4-week bridal Etsy series: post 1 shipped (May 19), posts 2-4 not yet written. Space them out with other content between.
+- **Scheduled task auth (ISSUE-001)** — Sunday cron fires but Claude Code agent hits 401. Only worked once (May 2). Needs durable fix: GitHub Actions-based weekly generation or alert watchdog.
 - **Author profile pages** — /about.html#sarah-whitfield etc. needed for Google Quality Raters
 - **Author bio/photo block in template** — Only byline + schema updated; no visible bio on posts
 - **PubMed citation links** — PMIDs exist in posts but aren't hyperlinked
 - **Calculator CTA conversion tracking** — ✅ DONE (May 24) — diet_selected, completed, email_cta, product_cta events live
 - **Internal linking** — Indexed posts don't link to calculator
 - **Starter plan page traffic** — Only 3 views/30 days (down from 18/week)
-- **Newsletter flows broken** — ✅ FIXED (May 24) — forms now hit Cloudflare Worker → MailerLite directly. N8N bypassed.
+- **Newsletter migrated to Beehiiv** — ✅ DONE (May 26) — MailerLite deprecated due to 12.5% open rates on shared IPs
 - **Backfill E-E-A-T signals** — 75+ existing posts still lack new writer identity signals
-- **Etsy buyer message** — Updated copy written by Sarah; needs to be pasted into Etsy dashboard (digital + merch messages)
-- **Blog post queue empty** — Next scheduled: None. Writers need to batch new posts.
+- **Etsy buyer message** — Updated copy written by Sarah; needs to be pasted into Etsy dashboard
+- **Old blog images** — 43 posts (Apr+May) have no article images. NOT backfilling — only generating for new posts going forward.
 
 ---
 
-## Latest Session (2026-05-25/26 — Hermes Recommendations + Audit Fixes)
+## Latest Session (2026-05-26 — Blog Recovery + Image Pipeline Fix)
+
+### Blog Queue Recovery
+- 7-day publishing gap (May 20-26) — daily cron had nothing to publish
+- Root cause: scheduled task auth fails every week (ISSUE-001, recurring since May 5)
+- Generated 9 new posts: 3 Sarah (health), 3 Marcus (performance), 3 Chloe (community)
+- 7 posts set to published (May 20-26 backfill), 2 queued ready (May 27-28)
+- All 9 posts have article images generated via Replicate
+- Total blog posts: 139
+
+### Image Pipeline Fixed
+- Root cause: `generate_post_images.py` was never added to any automated pipeline (ISSUE-010)
+- Fixed in: SKILL.md Step 5, weekly_content_prompt.md Step 3
+- Images built locally during weekly batch, committed to repo, deployed by daily cron
+- CI (daily_publish.py) does NOT run Replicate — images ship with content
+- 43 older posts still missing images — NOT backfilling per Brew decision
+
+### Newsletter Migrated to Beehiiv
+- MailerLite deprecated (12.5% open rate due to shared IPs)
+- Beehiiv free Launch plan (2,500 sub limit)
+- Signup endpoint: Cloudflare Worker → Beehiiv API
+- Welcome email enabled, drip automation not on free plan
+
+### Etsy Series Status
+- Sarah's 4-week bridal Etsy content series: post 1 live (May 19), posts 2-4 not written
+- Will be spaced out with other content between (not an "Etsy dump")
+
+---
+
+## Previous Session (2026-05-25/26 — Hermes Recommendations + Audit Fixes)
 
 ### Protocol Preview Teaser (commit 7848920)
 - `ReportPreviewTeaser.tsx` — static masked preview on Step 3
