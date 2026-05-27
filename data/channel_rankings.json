@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-05-24",
+  "last_updated": "2026-05-27",
   "leaderboard": [
     {
-      "name": "HomeSteadHow",
+      "name": "Dr. Abs MChD BChD BSc FRSM FRSPH CISSN MISCT",
       "rank": 1,
       "appearances": 2,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
-      "name": "Patricia Delicious Nutrition",
-      "rank": 2,
-      "appearances": 3,
-      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
-    },
-    {
-      "name": "Dr. Abs MChD BChD BSc FRSM FRSPH CISSN MISCT",
-      "rank": 3,
-      "appearances": 1,
       "channel_id": "UCRvpMkBXFaWmhIWPdvsMiCw"
     },
     {
       "name": "Dr. Eric Berg DC",
-      "rank": 4,
-      "appearances": 1,
+      "rank": 2,
+      "appearances": 2,
       "channel_id": "UC3w193M5tYPJqF0Hi-7U-2g"
     },
     {
-      "name": " Kochen  Familie  Cool ",
-      "rank": 5,
-      "appearances": 1,
-      "channel_id": "UC5wwrI9ZPV1hIj9_khgLChw"
-    },
-    {
       "name": "Appalachia's Homestead with Patara",
-      "rank": 6,
-      "appearances": 1,
+      "rank": 3,
+      "appearances": 2,
       "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 7,
-      "appearances": 3,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "name": "Emmathecarnivore",
+      "rank": 4,
+      "appearances": 2,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
       "name": "Keto Twins",
-      "rank": 8,
-      "appearances": 1,
+      "rank": 5,
+      "appearances": 2,
       "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
     },
     {
-      "name": "Professor Bart Kay - Nutrition and Health Science",
-      "rank": 9,
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 6,
       "appearances": 4,
-      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "Emmathecarnivore",
-      "rank": 10,
+      "name": "Patricia Delicious Nutrition",
+      "rank": 7,
+      "appearances": 4,
+      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
+    },
+    {
+      "name": "Laura Spath",
+      "rank": 8,
       "appearances": 1,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
+    },
+    {
+      "name": "Meet Carnivore",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+    },
+    {
+      "name": "HomeSteadHow",
+      "rank": 10,
+      "appearances": 3,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     }
   ]
 }
