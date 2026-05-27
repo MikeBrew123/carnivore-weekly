@@ -22,7 +22,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 BLOG_POSTS_JSON = ROOT / "data" / "blog_posts.json"
 GENERATE_SCRIPT = ROOT / "scripts" / "generate_blog_pages.py"
-IMAGE_SCRIPT = ROOT / "scripts" / "generate_post_images.py"
 VALIDATE_SCRIPT = ROOT / "scripts" / "validate_before_commit.py"
 
 TODAY = date.today().isoformat()  # YYYY-MM-DD
@@ -73,23 +72,6 @@ def publish_posts(posts_to_publish):
         post["published"] = True
         post["date"] = post.get("publish_date") or post.get("scheduled_date") or post.get("date", "")
         print(f"  Publishing: {post['slug']} (scheduled: {post.get('publish_date', 'N/A')})")
-
-
-def run_image_generator():
-    """Generate article images for any published posts missing them."""
-    print("\n🖼️  Generating missing article images...")
-    result = subprocess.run(
-        [sys.executable, str(IMAGE_SCRIPT)],
-        cwd=str(ROOT),
-        capture_output=True,
-        text=True,
-        timeout=600,
-    )
-    if result.returncode != 0:
-        print("⚠️  Image generation failed (non-blocking):")
-        print(result.stderr[-500:] if result.stderr else "no stderr")
-    else:
-        print("✅ Article images generated")
 
 
 def run_generator():
@@ -194,9 +176,6 @@ def main():
 
     # Save updated JSON
     save_posts(data)
-
-    # Generate images for any posts missing them
-    run_image_generator()
 
     # Regenerate site HTML
     run_generator()
