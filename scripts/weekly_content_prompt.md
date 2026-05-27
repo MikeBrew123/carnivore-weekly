@@ -64,9 +64,12 @@ Process ONE post at a time. Report progress after each:
 After all 9 posts are in blog_posts.json:
 
 1. Run `generate_blog_pages.py`
-2. Run `validate_before_commit.py` (must pass 0 critical, 0 warnings)
-3. Commit: `"content: queue 9 blog posts for {date_range}"`
-4. Push
+2. Run `generate_post_images.py` (generates article images via Replicate for any post missing one)
+3. Run `generate_blog_pages.py` again (bakes image paths into HTML)
+4. Run `generate.py --type pages` (regenerates homepage bento)
+5. Run `validate_before_commit.py` (must pass 0 critical)
+6. Commit: `"content: queue 9 blog posts for {date_range}"`
+7. Push
 
 ---
 
