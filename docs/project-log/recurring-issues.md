@@ -18,12 +18,13 @@ Keep entries under 15 lines. No bloat. No decision trees — just enough to reco
 ---
 
 ## ISSUE-001 — Blog queue empty, no new posts publishing
-🟢 FIXED — Last: 2026-05-01
+🟡 RECURRING — Last: 2026-05-26
 
-Pattern: `autonomous_blog_generation.sh` had interactive `input()` prompts, never ran unattended. Queue ran dry whenever no one manually triggered it.
+Pattern: Scheduled task fires but Claude Code agent session fails auth. Queue runs dry silently.
 Attempts:
-- 2026-05-01 — Added `--auto` flag to `generate_weekly_content.py`, created Sunday 8pm local scheduled task `weekly-blog-content-generation` → green.
-If recurs: scheduled task probably didn't fire — check `crontab -l` and macOS scheduled-tasks log.
+- 2026-05-01 — Added `--auto` flag, created Sunday 8pm scheduled task → worked ONCE (May 2 batch).
+- 2026-05-26 — Recurred. Task fires every Sunday but agent hits 401/not-logged-in. Session logs show "Failed to authenticate. API Error: 401" (May 25) and "Not logged in · Please run /login" (May 24). All content since May 5 was manual sessions. Automated batch only succeeded once (commit 6c1255d).
+If recurs: Scheduled tasks can't self-heal auth. Options: (1) move to GitHub Actions workflow that calls generate_weekly_content.py directly, (2) add health check that alerts when no "content:" commit in 7 days.
 
 ---
 
@@ -108,3 +109,13 @@ Pattern: `weekly-update.yml` was a stub that only ran `generate_weekly_topics.py
 Attempts:
 - 2026-05-18 — Rewrote `weekly-update.yml` to mirror `run_weekly_update.sh`: all 9 data steps (continue-on-error), `generate.py --type all`, git add of `data/` + `public/` + generated root files. Also added blog_link existence check in `generate.py` to prevent hallucinated trending tag URLs (cfdcd56).
 If recurs: diff `weekly-update.yml` against `run_weekly_update.sh` — they must stay in sync. If a new script is added to the local pipeline, it must also be added to the workflow.
+
+---
+
+## ISSUE-010 — Blog post images missing since April 2026
+🔴 OPEN — Last: 2026-05-26
+
+Pattern: `generate_post_images.py` (Replicate API) was never added to any pipeline. Images generated manually in sessions through March; when content went automated, image step was omitted. SKILL.md hardcodes `"image": ""`. 43 posts (all Apr+May) have no images.
+Attempts:
+- 2026-05-26 — Identified root cause. Fix: add `python3 scripts/generate_post_images.py` to weekly-blog-content-generation SKILL.md (after Step 5), to weekly_content_prompt.md (after Step 3), and to daily_publish.py as fallback. Backfill all 43 missing images.
+If recurs: check that SKILL.md still includes the image generation step after any scheduled task edits.

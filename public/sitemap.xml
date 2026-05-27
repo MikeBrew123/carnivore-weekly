@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://carnivoreweekly.com/</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
@@ -14,7 +14,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/calculator.html</loc>
-        <lastmod>2026-05-25</lastmod>
+        <lastmod>2026-05-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.95</priority>
     </url>
@@ -332,7 +332,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/blog/</loc>
-        <lastmod>2026-05-25</lastmod>
+        <lastmod>2026-05-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -410,7 +410,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/newsletter-preview.html</loc>
-        <lastmod>2026-05-24</lastmod>
+        <lastmod>2026-05-26</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -861,6 +861,48 @@
     <url>
         <loc>https://carnivoreweekly.com/blog/2026-05-19-partner-thinks-carnivore-cult.html</loc>
         <lastmod>2026-05-19</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-05-20-pork-chops-performance-meat.html</loc>
+        <lastmod>2026-05-20</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-05-23-200-month-carnivore-couple.html</loc>
+        <lastmod>2026-05-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-05-26-first-month-carnivore-budget-guide.html</loc>
+        <lastmod>2026-05-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-05-21-why-i-made-carnivore-food-list-card.html</loc>
+        <lastmod>2026-05-21</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-05-24-lion-diet-when-elimination-is-the-answer.html</loc>
+        <lastmod>2026-05-24</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-05-22-start-with-eggs-not-steak.html</loc>
+        <lastmod>2026-05-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-05-25-carnivore-couples-shared-diets-work-better.html</loc>
+        <lastmod>2026-05-25</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
