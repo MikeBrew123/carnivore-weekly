@@ -1,106 +1,96 @@
 {
-  "generated_date": "2026-05-24",
-  "community_pulse": "The community is shifting from aspirational content to practical money-saving strategies, with real people proving that carnivore doesn't require premium cuts to deliver results. Budget consciousness and beginner accessibility are dominating conversations this week.",
+  "generated_date": "2026-05-27",
+  "community_pulse": "Community is shifting focus from debate to practical results\u2014particularly around blood sugar control and medication reversal. People want quick, actionable meals and real proof that carnivore works for metabolic health.",
   "topics": [
     {
       "rank": 1,
-      "title": "Ground Beef vs. Ribeye: Why Dr. Hampton Changed His Mind (And Why Your Wallet Will Thank You)",
-      "angle": "Direct response to the viral Dr. Tony Hampton video, breaking down the actual cost-per-calorie math and why 80/20 ground beef is nutritionally competitive for most people",
-      "why_now": "The Hampton video is the week's biggest conversation driver; people are actively debating this in comments",
+      "title": "The 5-Month Mark: Why Type 2 Reversal Takes Time (And What Actually Changes)",
+      "angle": "Deep dive into the timeline of metabolic recovery\u2014what happens month-by-month when someone drops medication on carnivore, backed by what we're seeing in community stories",
+      "why_now": "Patricia's video comment sparked the narrative; people want to understand if this is realistic for them and what to expect",
       "suggested_writer": "sarah",
       "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-05-25"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-05-28"
     },
     {
       "rank": 2,
-      "title": "The $200/Month Carnivore Couple: How They Lost 90 Lbs Without Premium Meat",
-      "angle": "Deep-dive case study format featuring the YouTube commenter's 10-month journey, including actual grocery receipts, meal rotation, and what their budget looked like before carnivore",
-      "why_now": "This real success story is resonating hard in the community; people want to see the actual blueprint",
-      "suggested_writer": "chloe",
+      "title": "15-Minute Zero-Carb Dinners: Meal Ideas That Actually Fit a Monday Night",
+      "angle": "Practical, real-world recipes that work for busy people\u2014not 'gourmet' carnivore, just fast and filling",
+      "why_now": "Quick carnivore meals are trending hard; people searching for what to actually cook tonight, not inspiration",
+      "suggested_writer": "marcus",
       "priority": "high",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-05-27"
+      "assigned_writer": "sarah",
+      "publish_date": "2026-05-30"
     },
     {
       "rank": 3,
-      "title": "Carnivore for Beginners: Why You Should Start With Eggs, Not Steak",
-      "angle": "Counter-narrative positioning eggs as the ideal entry point\u2014cheaper, easier to source, psychologically less intimidating, and metabolically identical results",
-      "why_now": "Beginners content is trending, but most guides start with expensive proteins; this flips that script",
-      "suggested_writer": "marcus",
+      "title": "Coming Off Diabetes Meds on Carnivore: What You Actually Need to Know Before You Start",
+      "angle": "Honest safety framework\u2014when to track blood sugar, how to talk to your doctor, what metrics matter",
+      "why_now": "Medication reversal stories are circulating; need responsible guidance before someone gets hurt",
+      "suggested_writer": "sarah",
       "priority": "high",
-      "assigned_writer": "chloe",
-      "publish_date": "2026-05-29"
+      "assigned_writer": "sarah",
+      "publish_date": "2026-06-01"
     },
     {
       "rank": 4,
-      "title": "Pork Chops as a Performance Meat: Carnitine, Creatine, and Cost Breakdown",
-      "angle": "Science-backed nutritional comparison showing pork chops punch above their weight class for athletic performance, with emphasis on micronutrient density vs. price point",
-      "why_now": "Pork chops appear in the trending success story but aren't getting scientific coverage; performance audience will engage",
-      "suggested_writer": "sarah",
-      "priority": "medium",
+      "title": "Why the Keto-to-Carnivore Jump Isn't As Hard As People Think (And When to Make It)",
+      "angle": "Real transitional roadmap\u2014address the fear, show what actually changes week by week",
+      "why_now": "Major trending search term; people are at the decision point right now",
+      "suggested_writer": "marcus",
+      "priority": "high",
       "assigned_writer": "marcus",
-      "publish_date": "2026-05-31"
+      "publish_date": "2026-06-03"
     },
     {
       "rank": 5,
-      "title": "Pickles on Carnivore: The Electrolyte Hack Nobody Talks About",
-      "angle": "The YouTube commenter mentioned pickles as a regular inclusion; explore whether fermentation benefits, sodium content, and cost-effectiveness make this a legitimate strategy rather than a side note",
-      "why_now": "Specific detail from the trending success story that hints at a broader electrolyte conversation people need",
+      "title": "The Quiet Win: How Carnivore Changed My Relationship With Food (No Drama, Just Results)",
+      "angle": "Lifestyle piece focused on the non-scale victories\u2014energy, mental clarity, freedom from thinking about food\u2014captured through real voices",
+      "why_now": "Community vibe this week is 'less drama, more people quietly figuring things out'\u2014lean into that authenticity",
       "suggested_writer": "chloe",
       "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-06-02"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-06-05"
     },
     {
       "rank": 6,
-      "title": "How to Build Your First Month on Carnivore Without Breaking the Bank",
-      "angle": "Practical buying guide with seasonal meat sourcing, bulk-buying tips, and a week-by-week meal template using only budget proteins",
-      "why_now": "Beginners + budget consciousness colliding; this fills an execution gap",
+      "title": "Blood Sugar Control Without the Obsession: A Carnivore Approach to Monitoring",
+      "angle": "How to use data without becoming neurotic\u2014when to check, what to ignore, when to celebrate invisible wins",
+      "why_now": "Blood sugar control is a top search; people want guidance on *how* to approach it, not just theory",
       "suggested_writer": "marcus",
       "priority": "medium",
       "assigned_writer": "marcus",
-      "publish_date": "2026-06-04"
+      "publish_date": "2026-06-07"
     },
     {
       "rank": 7,
-      "title": "Eggs and Dairy: The Financial Anchor of Long-Term Carnivore Success",
-      "angle": "Examine why couples and families staying on carnivore past 6 months heavily rely on eggs/dairy for adherence and economics\u2014with research on nutrient sufficiency of egg-heavy phases",
-      "why_now": "Eggs and dairy are trending; this explores them through the lens of sustainability rather than just 'can you eat them'",
-      "suggested_writer": "sarah",
+      "title": "Patricia's Viral Dinner (And 3 Others Like It): What Made Them Hit Different",
+      "angle": "Analyze what makes certain carnivore meal videos resonate\u2014simplicity, relatability, or results?\u2014plus recipes people actually want",
+      "why_now": "Patricia's video is the talk of the week; capitalize on that momentum and curiosity",
+      "suggested_writer": "chloe",
       "priority": "medium",
       "assigned_writer": "chloe",
-      "publish_date": "2026-06-06"
+      "publish_date": "2026-06-09"
     },
     {
       "rank": 8,
-      "title": "The Processed Food Rebound: What People Actually Save When They Stop Buying Ultra-Processed Alternatives",
-      "angle": "The YouTube comment mentioned grocery bills went DOWN\u2014analyze the hidden costs of processed convenience foods and show the real comparison (not just meat vs. processed, but full household spend)",
-      "why_now": "This validates the community's experience but frames it in economic terms that convince skeptics",
-      "suggested_writer": "chloe",
+      "title": "Reversing Type 2 Diabetes on Carnivore: The Research vs. What We're Actually Seeing",
+      "angle": "Honest synthesis\u2014what does the science say, what are communities reporting, where are the gaps?",
+      "why_now": "Medication reversal comments are driving real engagement; readers want both hope and realism",
+      "suggested_writer": "sarah",
       "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-06-08"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-06-11"
     },
     {
       "rank": 9,
-      "title": "Carnivore Couples: Why Shared Diets Lead to Better Adherence (And Better Results)",
-      "angle": "Behavioral psychology angle on why the YouTube success story featured a couple\u2014examine partner accountability, shared meal prep, and relationship dynamics in dietary change",
-      "why_now": "The trending example is a couple; relationship-focused content is underexplored in carnivore space",
+      "title": "The Comment Section Made Me Believe It: How Real Stories Beat Influencer Claims",
+      "angle": "Meta piece about why person-to-person testimony in YouTube comments matters more than polished content\u2014building trust in the community",
+      "why_now": "The most impactful moment this week was a *comment*, not the video itself\u2014speaks to community authenticity",
       "suggested_writer": "chloe",
       "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-06-10"
-    },
-    {
-      "rank": 10,
-      "title": "The 80/20 Ground Beef Question: Macro Breakdown and Why It's Not 'Inferior' to Ribeye",
-      "angle": "Detailed nutritional audit: fat ratios, fat-soluble vitamin absorption, satiety markers, and cost-adjusted nutrient density",
-      "why_now": "The Hampton video sparked debate; science-driven readers need the full breakdown",
-      "suggested_writer": "sarah",
-      "priority": "medium",
-      "assigned_writer": "marcus",
-      "publish_date": "2026-06-12"
+      "assigned_writer": "chloe",
+      "publish_date": "2026-06-13"
     }
   ]
 }
