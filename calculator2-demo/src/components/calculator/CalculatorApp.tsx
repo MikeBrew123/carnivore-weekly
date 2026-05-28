@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FormData, MacroResults } from '../../types/form'
 import { calculateBMR, calculateMacros } from '../../lib/calculations'
 import { useFormStore } from '../../stores/formStore'
@@ -115,9 +115,11 @@ export default function CalculatorApp({
     }
   }, [paymentState.stripeSessionId, storedAssessmentId, setAssessmentId])
 
-  // Track diet selection changes
+  // Track diet selection changes (only user-initiated, not hydration defaults)
+  const prevDiet = useRef(formData.diet)
   useEffect(() => {
-    if (isHydrated && formData.diet) {
+    if (isHydrated && formData.diet && prevDiet.current !== formData.diet) {
+      prevDiet.current = formData.diet
       trackCalculatorEvent('calculator_diet_selected', {
         diet_type: formData.diet,
       })
