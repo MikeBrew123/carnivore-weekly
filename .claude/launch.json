@@ -12,6 +12,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["http-server", "etsy/products", "-p", "8765", "-c-1"],
       "port": 8765
+    },
+    {
+      "name": "calculator",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "calculator2-demo"],
+      "port": 5173
     }
   ]
 }

@@ -28,6 +28,8 @@ interface CalculatorAppProps {
 
 const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Unlock Your Protocol']
 
+const API_BASE = 'https://carnivore-report-api-production.iambrew.workers.dev'
+
 function trackCalculatorEvent(eventName: string, params: Record<string, string | undefined> = {}) {
   window.gtag?.('event', eventName, {
     page_path: window.location.pathname,
@@ -63,6 +65,8 @@ export default function CalculatorApp({
     setMacros,
     assessmentId: storedAssessmentId,
     setAssessmentId,
+    sessionToken: storedSessionToken,
+    setSessionToken,
     isDirty,
     markDirty,
     markClean,
@@ -149,10 +153,11 @@ export default function CalculatorApp({
   // Derived state for success page - use payment hook
   const isPaymentSuccess = paymentState.isPaymentSuccess
 
-  // Sync payment hook's isPremium to Zustand store (single source of truth)
+  // Sync payment hook's isPremium to Zustand store and fire GA4 purchase event
   useEffect(() => {
     if (paymentState.isPremium && !isPremium) {
       setIsPremium(true)
+      handlePaymentSuccess()
       scrollToAnchor('payment-success')
     }
   }, [paymentState.isPremium, isPremium, setIsPremium])
@@ -207,6 +212,73 @@ export default function CalculatorApp({
     }
   }, [formData.sex, formData.age, formData.weight, formData.heightFeet, formData.heightInches, formData.heightCm, formData.lifestyle, formData.exercise, formData.goal, formData.deficit, formData.diet])
 
+  // Persist step data to backend (fire-and-forget, don't block UI)
+  const saveStepToBackend = async (completedStep: number) => {
+    try {
+      let token = storedSessionToken
+      if (!token) {
+        const params = new URLSearchParams(window.location.search)
+        const gaCookie = document.cookie.split(';').find(c => c.trim().startsWith('_ga='))
+        const gaClientId = gaCookie ? gaCookie.split('.').slice(-2).join('.') : undefined
+        const res = await fetch(`${API_BASE}/api/v1/calculator/session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ga_client_id: gaClientId,
+            utm_source: params.get('utm_source') || undefined,
+            utm_medium: params.get('utm_medium') || undefined,
+            utm_campaign: params.get('utm_campaign') || undefined,
+            utm_content: params.get('utm_content') || undefined,
+            utm_term: params.get('utm_term') || undefined,
+            referrer: document.referrer || undefined,
+            landing_page: window.location.pathname + window.location.search,
+            device_type: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop',
+          }),
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        token = data.session_token
+        setSessionToken(token)
+      }
+
+      if (completedStep === 1) {
+        await fetch(`${API_BASE}/api/v1/calculator/step/1`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_token: token,
+            data: {
+              sex: formData.sex,
+              age: formData.age,
+              height_feet: formData.heightFeet || null,
+              height_inches: formData.heightInches || null,
+              height_cm: formData.heightCm || null,
+              weight_value: formData.weight,
+              weight_unit: 'lbs',
+            },
+          }),
+        })
+      } else if (completedStep === 2) {
+        await fetch(`${API_BASE}/api/v1/calculator/step/2`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_token: token,
+            data: {
+              lifestyle_activity: formData.lifestyle,
+              exercise_frequency: formData.exercise,
+              goal: formData.goal,
+              deficit_percentage: formData.deficit || null,
+              diet_type: formData.diet,
+            },
+          }),
+        })
+      }
+    } catch (err) {
+      console.warn('[CalculatorApp] Step save failed (non-blocking):', err)
+    }
+  }
+
   // Step navigation
   const handleStepContinue = (step: number) => {
     console.log('[CalculatorApp] Advancing to step:', step)
@@ -216,6 +288,8 @@ export default function CalculatorApp({
         goal: formData.goal || 'unknown',
       })
     }
+    // Save completed step data (step param is the NEXT step, so completed = step - 1)
+    saveStepToBackend(step - 1)
     setCurrentStep(step)
     setErrors({})
     scrollToAnchor('calculator-start')
@@ -242,20 +316,23 @@ export default function CalculatorApp({
   }
 
   const handlePaymentSuccess = () => {
-    // Payment successful, user has upgraded to premium
-    if (window.gtag) {
-      // GA4 standard purchase event (ecommerce format)
+    const sessionId = paymentState.stripeSessionId || 'unknown'
+    const dedupKey = `purchase_fired_${sessionId}`
+    if (window.gtag && !localStorage.getItem(dedupKey)) {
+      const paidCents = parseInt(localStorage.getItem('amountPaidCents') || '2900', 10)
+      const paidDollars = paidCents / 100
       window.gtag('event', 'purchase', {
-        transaction_id: paymentState.stripeSessionId || `T_${Date.now()}`,
-        value: 29,
+        transaction_id: sessionId,
+        value: paidDollars,
         currency: 'USD',
         items: [{
           item_id: 'carnivore-protocol',
           item_name: 'Personalized Carnivore Protocol',
-          price: 29,
+          price: paidDollars,
           quantity: 1
         }]
       })
+      localStorage.setItem(dedupKey, '1')
     }
     setIsPremium(true)
     setShowPaymentModal(false)

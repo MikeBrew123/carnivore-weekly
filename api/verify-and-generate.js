@@ -85,18 +85,8 @@ async function verifyStripePayment(stripeSecretKey, sessionId) {
       };
     }
 
-    // Verify session is recent (within 24 hours)
-    const sessionCreatedAt = new Date(session.created * 1000);
-    const now = new Date();
-    const hoursSinceCreation = (now.getTime() - sessionCreatedAt.getTime()) / (1000 * 60 * 60);
-
-    if (hoursSinceCreation > 24) {
-      return {
-        verified: false,
-        error: 'Checkout session expired (older than 24 hours)',
-      };
-    }
-
+    // Stripe sessions remain valid indefinitely once paid — no time-based rejection.
+    // Previously rejected after 24 hours, which locked out users who paid and returned later.
     return { verified: true };
   } catch (err) {
     return {

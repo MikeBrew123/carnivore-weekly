@@ -215,6 +215,25 @@ async function handleCreateSession(request, env) {
     const sessionToken = generateSessionToken();
     const now = new Date().toISOString();
 
+    // Parse optional attribution data from request body
+    let attribution = {};
+    try {
+      if (request.headers.get('content-type')?.includes('application/json')) {
+        const body = await request.json();
+        attribution = {
+          ga_client_id: body.ga_client_id || null,
+          utm_source: body.utm_source || null,
+          utm_medium: body.utm_medium || null,
+          utm_campaign: body.utm_campaign || null,
+          utm_content: body.utm_content || null,
+          utm_term: body.utm_term || null,
+          referrer: body.referrer || null,
+          landing_page: body.landing_page || null,
+          device_type: body.device_type || null,
+        };
+      }
+    } catch (_) { /* no body is fine */ }
+
     // Call Supabase REST API
     const response = await fetch(
       `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2`,
@@ -233,6 +252,7 @@ async function handleCreateSession(request, env) {
           payment_status: 'pending',
           created_at: now,
           updated_at: now,
+          ...attribution,
         }),
       }
     );
@@ -5090,6 +5110,160 @@ async function handleFeedback(request, env) {
   }
 }
 
+// ===== STRIPE WEBHOOK HANDLER =====
+async function handleStripeWebhook(request, env) {
+  const signature = request.headers.get('stripe-signature');
+  if (!signature) {
+    return createErrorResponse('MISSING_SIGNATURE', 'Stripe signature required', 401);
+  }
+
+  const body = await request.text();
+
+  // Parse Stripe signature header: t=timestamp,v1=hash
+  const parts = {};
+  for (const item of signature.split(',')) {
+    const [key, value] = item.split('=');
+    parts[key.trim()] = value.trim();
+  }
+  if (!parts.t || !parts.v1) {
+    return createErrorResponse('INVALID_SIGNATURE', 'Malformed signature header', 401);
+  }
+
+  // Verify HMAC-SHA256 signature using Web Crypto API
+  const signedPayload = `${parts.t}.${body}`;
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(env.STRIPE_WEBHOOK_SECRET),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signedPayload));
+  const expectedSig = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+  if (expectedSig !== parts.v1) {
+    return createErrorResponse('SIGNATURE_MISMATCH', 'Invalid webhook signature', 401);
+  }
+
+  // Reject stale events (>5 minutes old)
+  const tolerance = 300;
+  const now = Math.floor(Date.now() / 1000);
+  if (Math.abs(now - parseInt(parts.t, 10)) > tolerance) {
+    return createErrorResponse('STALE_EVENT', 'Webhook timestamp too old', 401);
+  }
+
+  const event = JSON.parse(body);
+
+  if (event.type !== 'checkout.session.completed') {
+    return new Response(JSON.stringify({ received: true, ignored: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const session = event.data.object;
+  const sessionUUID = session.client_reference_id;
+  const customerEmail = session.customer_email || session.customer_details?.email;
+  const amountTotal = session.amount_total;
+
+  if (!sessionUUID) {
+    console.error('Webhook: checkout.session.completed missing client_reference_id');
+    return createErrorResponse('MISSING_REF', 'No client_reference_id in session', 400);
+  }
+
+  console.log(`Webhook: checkout.session.completed for session ${sessionUUID}`);
+
+  const patchHeaders = {
+    'Content-Type': 'application/json',
+    'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+    'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+  };
+
+  // Dedup: check if this Stripe event was already processed
+  const dedupCheck = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/stripe_webhook_events?stripe_event_id=eq.${event.id}&select=id`,
+    { headers: patchHeaders }
+  );
+  const existing = await dedupCheck.json();
+  if (Array.isArray(existing) && existing.length > 0) {
+    console.log(`Webhook: duplicate event ${event.id}, skipping`);
+    return new Response(JSON.stringify({ received: true, duplicate: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Record this event as processed
+  await fetch(`${env.SUPABASE_URL}/rest/v1/stripe_webhook_events`, {
+    method: 'POST',
+    headers: { ...patchHeaders, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({
+      stripe_event_id: event.id,
+      event_type: event.type,
+      session_id: sessionUUID,
+      amount_cents: amountTotal || 0,
+    }),
+  });
+
+  // Idempotent update: PATCH both tables (no-op if already completed)
+  const [assessmentRes, calcRes] = await Promise.all([
+    fetch(`${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}&payment_status=eq.pending`, {
+      method: 'PATCH',
+      headers: patchHeaders,
+      body: JSON.stringify({ payment_status: 'completed', updated_at: new Date().toISOString() }),
+    }),
+    fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}&payment_status=eq.pending`, {
+      method: 'PATCH',
+      headers: patchHeaders,
+      body: JSON.stringify({ payment_status: 'completed', paid_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
+    }),
+  ]);
+
+  if (!assessmentRes.ok) {
+    console.warn('Webhook: cw_assessment_sessions PATCH failed:', await assessmentRes.text());
+  }
+  if (!calcRes.ok) {
+    console.warn('Webhook: calculator_sessions_v2 PATCH failed:', await calcRes.text());
+  }
+
+  // Server-side GA4 purchase event via Measurement Protocol (fire-and-forget)
+  if (env.GA4_API_SECRET && env.GA4_MEASUREMENT_ID) {
+    // Try to get the original GA client_id from the calculator session for proper attribution
+    let clientId = sessionUUID;
+    try {
+      const sessionLookup = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}&select=ga_client_id`,
+        { headers: patchHeaders }
+      );
+      const sessionData = await sessionLookup.json();
+      if (Array.isArray(sessionData) && sessionData[0]?.ga_client_id) {
+        clientId = sessionData[0].ga_client_id;
+      }
+    } catch (_) { /* fallback to sessionUUID */ }
+    fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${env.GA4_MEASUREMENT_ID}&api_secret=${env.GA4_API_SECRET}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        client_id: clientId,
+        events: [{
+          name: 'purchase',
+          params: {
+            transaction_id: session.id,
+            value: (amountTotal || 0) / 100,
+            currency: session.currency?.toUpperCase() || 'USD',
+            items: [{ item_id: 'carnivore-protocol', item_name: 'Personalized Carnivore Protocol', price: (amountTotal || 0) / 100, quantity: 1 }],
+            source: 'stripe_webhook',
+          },
+        }],
+      }),
+    }).catch(err => console.warn('GA4 Measurement Protocol error:', err));
+  }
+
+  return new Response(JSON.stringify({ received: true, session_id: sessionUUID }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -5270,6 +5444,11 @@ export default {
     // ===== FEEDBACK PROXY =====
     if (path === '/api/v1/feedback' && method === 'POST') {
       return sendWithCors(await handleFeedback(request, env));
+    }
+
+    // ===== STRIPE WEBHOOK (server-to-server, no CORS) =====
+    if (path === '/webhook/stripe' && method === 'POST') {
+      return await handleStripeWebhook(request, env);
     }
 
     // 404

@@ -114,6 +114,7 @@ export const useFormStore = create<FormStore>()(
         isPremium: state.isPremium,
         macros: state.macros,
         assessmentId: state.assessmentId,
+        sessionToken: state.sessionToken,
       }),
     }
   )
