@@ -10,6 +10,7 @@
 | Nicewell 22lb Digital Kitchen Scale, Stainless Steel | 4.6 | 37.7k | https://amzn.to/3RCaVUa |
 | SMARTAKE 200 Pcs Unbleached Parchment Paper, Precut 12x16 | 4.7 | 21.4k | https://amzn.to/4wXgVqL |
 | Silicone Molds (Brew's original link) | — | — | https://amzn.to/49XmWty |
+| Goefun 80lb White Card Stock Paper, 100 Sheets 8.5x11, Amazon's Choice | 4.6 | 1.1k | https://amzn.to/4wXKBnr |
 
 ### Key Ingredients
 | Product | Rating | Reviews | Affiliate Link |
