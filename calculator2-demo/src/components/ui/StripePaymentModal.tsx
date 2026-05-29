@@ -163,6 +163,9 @@ export default function StripePaymentModal({
         })
       }
 
+      // Persist actual paid amount for GA4 purchase event after redirect
+      localStorage.setItem('amountPaidCents', String(finalPrice))
+
       // If amount is 0 (100% discount), skip Stripe and go directly to success
       if (finalPrice === 0 || data.amount === 0) {
         window.location.href = data.checkout_url

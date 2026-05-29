@@ -4,7 +4,7 @@ compatibility_date = "2024-12-19"
 compatibility_flags = ["nodejs_compat"]
 
 # Local development environment (wrangler dev - no env prefix)
-vars = { ENVIRONMENT = "development", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co" }
+vars = { ENVIRONMENT = "development", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", GA4_MEASUREMENT_ID = "G-NR4JVKW2JV" }
 
 # Secrets (stored securely in Cloudflare, not in this file)
 # Supabase credentials - MOVED TO WRANGLER SECRETS (2026-01-05)
@@ -47,4 +47,4 @@ vars = { ENVIRONMENT = "staging", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.s
 
 # Production environment variables
 [env.production]
-vars = { ENVIRONMENT = "production", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", FRONTEND_URL = "https://carnivoreweekly.com" }
+vars = { ENVIRONMENT = "production", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", FRONTEND_URL = "https://carnivoreweekly.com", GA4_MEASUREMENT_ID = "G-NR4JVKW2JV" }
