@@ -5154,24 +5154,15 @@ async function handleStripeWebhook(request, env) {
 
   const event = JSON.parse(body);
 
-  if (event.type !== 'checkout.session.completed') {
+  const supportedEvents = ['checkout.session.completed', 'charge.refunded'];
+  if (!supportedEvents.includes(event.type)) {
     return new Response(JSON.stringify({ received: true, ignored: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const session = event.data.object;
-  const sessionUUID = session.client_reference_id;
-  const customerEmail = session.customer_email || session.customer_details?.email;
-  const amountTotal = session.amount_total;
-
-  if (!sessionUUID) {
-    console.error('Webhook: checkout.session.completed missing client_reference_id');
-    return createErrorResponse('MISSING_REF', 'No client_reference_id in session', 400);
-  }
-
-  console.log(`Webhook: checkout.session.completed for session ${sessionUUID}`);
+  console.log(`Webhook: ${event.type} received`);
 
   const patchHeaders = {
     'Content-Type': 'application/json',
@@ -5194,71 +5185,145 @@ async function handleStripeWebhook(request, env) {
   }
 
   // Record this event as processed
+  const obj = event.data.object;
   await fetch(`${env.SUPABASE_URL}/rest/v1/stripe_webhook_events`, {
     method: 'POST',
     headers: { ...patchHeaders, 'Prefer': 'return=minimal' },
     body: JSON.stringify({
       stripe_event_id: event.id,
       event_type: event.type,
-      session_id: sessionUUID,
-      amount_cents: amountTotal || 0,
+      session_id: obj.client_reference_id || obj.metadata?.assessment_session_id || null,
+      amount_cents: obj.amount_total || obj.amount_refunded || 0,
     }),
   });
 
-  // Idempotent update: PATCH both tables (no-op if already completed)
-  const [assessmentRes, calcRes] = await Promise.all([
-    fetch(`${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}&payment_status=eq.pending`, {
-      method: 'PATCH',
-      headers: patchHeaders,
-      body: JSON.stringify({ payment_status: 'completed', updated_at: new Date().toISOString() }),
-    }),
-    fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}&payment_status=eq.pending`, {
-      method: 'PATCH',
-      headers: patchHeaders,
-      body: JSON.stringify({ payment_status: 'completed', paid_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
-    }),
-  ]);
+  // ===== CHECKOUT COMPLETED =====
+  if (event.type === 'checkout.session.completed') {
+    const sessionUUID = obj.client_reference_id;
+    const amountTotal = obj.amount_total;
 
-  if (!assessmentRes.ok) {
-    console.warn('Webhook: cw_assessment_sessions PATCH failed:', await assessmentRes.text());
-  }
-  if (!calcRes.ok) {
-    console.warn('Webhook: calculator_sessions_v2 PATCH failed:', await calcRes.text());
-  }
+    if (!sessionUUID) {
+      console.error('Webhook: checkout.session.completed missing client_reference_id');
+      return createErrorResponse('MISSING_REF', 'No client_reference_id in session', 400);
+    }
 
-  // Server-side GA4 purchase event via Measurement Protocol (fire-and-forget)
-  if (env.GA4_API_SECRET && env.GA4_MEASUREMENT_ID) {
-    // Try to get the original GA client_id from the calculator session for proper attribution
-    let clientId = sessionUUID;
-    try {
-      const sessionLookup = await fetch(
-        `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}&select=ga_client_id`,
-        { headers: patchHeaders }
-      );
-      const sessionData = await sessionLookup.json();
-      if (Array.isArray(sessionData) && sessionData[0]?.ga_client_id) {
-        clientId = sessionData[0].ga_client_id;
-      }
-    } catch (_) { /* fallback to sessionUUID */ }
-    fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${env.GA4_MEASUREMENT_ID}&api_secret=${env.GA4_API_SECRET}`, {
-      method: 'POST',
-      body: JSON.stringify({
-        client_id: clientId,
-        events: [{
-          name: 'purchase',
-          params: {
-            transaction_id: session.id,
-            value: (amountTotal || 0) / 100,
-            currency: session.currency?.toUpperCase() || 'USD',
-            items: [{ item_id: 'carnivore-protocol', item_name: 'Personalized Carnivore Protocol', price: (amountTotal || 0) / 100, quantity: 1 }],
-            source: 'stripe_webhook',
-          },
-        }],
+    const [assessmentRes, calcRes] = await Promise.all([
+      fetch(`${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}&payment_status=eq.pending`, {
+        method: 'PATCH',
+        headers: patchHeaders,
+        body: JSON.stringify({ payment_status: 'completed', updated_at: new Date().toISOString() }),
       }),
-    }).catch(err => console.warn('GA4 Measurement Protocol error:', err));
+      fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}&payment_status=eq.pending`, {
+        method: 'PATCH',
+        headers: patchHeaders,
+        body: JSON.stringify({ payment_status: 'completed', paid_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
+      }),
+    ]);
+
+    if (!assessmentRes.ok) console.warn('Webhook: cw_assessment_sessions PATCH failed:', await assessmentRes.text());
+    if (!calcRes.ok) console.warn('Webhook: calculator_sessions_v2 PATCH failed:', await calcRes.text());
+
+    // Server-side GA4 purchase event via Measurement Protocol (fire-and-forget)
+    if (env.GA4_API_SECRET && env.GA4_MEASUREMENT_ID) {
+      let clientId = sessionUUID;
+      try {
+        const sessionLookup = await fetch(
+          `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}&select=ga_client_id`,
+          { headers: patchHeaders }
+        );
+        const sessionData = await sessionLookup.json();
+        if (Array.isArray(sessionData) && sessionData[0]?.ga_client_id) {
+          clientId = sessionData[0].ga_client_id;
+        }
+      } catch (_) { /* fallback to sessionUUID */ }
+      fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${env.GA4_MEASUREMENT_ID}&api_secret=${env.GA4_API_SECRET}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          client_id: clientId,
+          events: [{
+            name: 'purchase',
+            params: {
+              transaction_id: obj.id,
+              value: (amountTotal || 0) / 100,
+              currency: obj.currency?.toUpperCase() || 'USD',
+              items: [{ item_id: 'carnivore-protocol', item_name: 'Personalized Carnivore Protocol', price: (amountTotal || 0) / 100, quantity: 1 }],
+              source: 'stripe_webhook',
+            },
+          }],
+        }),
+      }).catch(err => console.warn('GA4 Measurement Protocol error:', err));
+    }
+
+    return new Response(JSON.stringify({ received: true, session_id: sessionUUID }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
-  return new Response(JSON.stringify({ received: true, session_id: sessionUUID }), {
+  // ===== CHARGE REFUNDED =====
+  if (event.type === 'charge.refunded') {
+    const charge = obj;
+    const paymentIntentId = charge.payment_intent;
+    const amountRefunded = charge.amount_refunded;
+    const isFullRefund = charge.refunded === true;
+
+    console.log(`Webhook: charge.refunded — PI: ${paymentIntentId}, amount: ${amountRefunded}, full: ${isFullRefund}`);
+
+    if (isFullRefund && paymentIntentId) {
+      // Look up checkout session by payment_intent to find the original session UUID
+      const piLookup = await fetch(
+        `https://api.stripe.com/v1/checkout/sessions?payment_intent=${paymentIntentId}&limit=1`,
+        { headers: { 'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}` } }
+      );
+      const piData = await piLookup.json();
+      const checkoutSession = piData.data?.[0];
+      const sessionUUID = checkoutSession?.client_reference_id;
+
+      if (sessionUUID) {
+        await Promise.all([
+          fetch(`${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}`, {
+            method: 'PATCH',
+            headers: patchHeaders,
+            body: JSON.stringify({ payment_status: 'refunded', updated_at: new Date().toISOString() }),
+          }),
+          fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}`, {
+            method: 'PATCH',
+            headers: patchHeaders,
+            body: JSON.stringify({ payment_status: 'refunded', is_premium: false, updated_at: new Date().toISOString() }),
+          }),
+        ]);
+        console.log(`Webhook: refund processed for session ${sessionUUID}`);
+
+        // Server-side GA4 refund event
+        if (env.GA4_API_SECRET && env.GA4_MEASUREMENT_ID) {
+          fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${env.GA4_MEASUREMENT_ID}&api_secret=${env.GA4_API_SECRET}`, {
+            method: 'POST',
+            body: JSON.stringify({
+              client_id: sessionUUID,
+              events: [{
+                name: 'refund',
+                params: {
+                  transaction_id: checkoutSession.id,
+                  value: amountRefunded / 100,
+                  currency: charge.currency?.toUpperCase() || 'USD',
+                  source: 'stripe_webhook',
+                },
+              }],
+            }),
+          }).catch(err => console.warn('GA4 refund event error:', err));
+        }
+      } else {
+        console.warn('Webhook: refund — could not resolve session UUID from payment_intent');
+      }
+    }
+
+    return new Response(JSON.stringify({ received: true, refund_processed: isFullRefund }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  return new Response(JSON.stringify({ received: true }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   });
