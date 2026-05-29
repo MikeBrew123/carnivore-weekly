@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Thank you for grabbing Sarah's Keto Dessert Recipe Cards! Here are the exact tools and ingredients she uses, plus a free keto macro calculator.">
+    <meta name="keywords" content="keto dessert ingredients, keto baking tools, sugar free baking, keto macro calculator, erythritol, almond flour">
+    <meta name="author" content="Carnivore Weekly">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://carnivoreweekly.com/desserts">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://carnivoreweekly.com/desserts">
+    <meta property="og:title" content="You're In! Keto Dessert Essentials | Carnivore Weekly">
+    <meta property="og:description" content="Sarah's exact tools and ingredients for every keto dessert recipe. Plus a free keto macro calculator.">
+    <meta property="og:image" content="https://carnivoreweekly.com/images/logo.png">
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <title>You're In! Keto Dessert Essentials | Carnivore Weekly</title>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: #FFFBF5;
+            color: #3D3028;
+            line-height: 1.6;
+        }
+        .page-wrap { display: flex; max-width: 1200px; margin: 0 auto; padding: 40px 20px; gap: 40px; }
+        .main-col { flex: 1; min-width: 0; }
+        .side-col { width: 300px; flex-shrink: 0; }
+
+        h1 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 2.2em;
+            color: #4A6B3E;
+            margin-bottom: 6px;
+        }
+        .welcome-line {
+            font-size: 1.15em;
+            color: #D4967E;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .sarah-intro {
+            background: #F5D5C8;
+            border-radius: 12px;
+            padding: 22px 28px;
+            margin-bottom: 35px;
+            font-family: 'Libre Baskerville', serif;
+            font-style: italic;
+            font-size: 0.92em;
+            line-height: 1.8;
+        }
+        .sarah-intro .sig {
+            font-style: normal;
+            font-weight: 700;
+            color: #D4967E;
+            margin-top: 8px;
+        }
+
+        .not-a-buyer {
+            background: #F7F2EC;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+            color: #8B7D6B;
+        }
+        .not-a-buyer a { color: #D4967E; font-weight: 600; }
+
+        .section-header {
+            display: inline-block;
+            padding: 8px 22px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.95em;
+            margin-bottom: 16px;
+        }
+        .section-header.tools { background: #7B9E6B; }
+        .section-header.ingredients { background: #D4967E; }
+
+        .product-card {
+            display: flex;
+            align-items: center;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            transition: transform 0.15s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .product-card:hover { transform: translateX(4px); }
+        .product-card.tool { background: #E8EFE4; }
+        .product-card.ingredient { background: #F5D5C8; }
+
+        .product-check {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 13px;
+            flex-shrink: 0; margin-right: 14px;
+        }
+        .product-check.tool { background: #7B9E6B; }
+        .product-check.ingredient { background: #D4967E; }
+
+        .product-info { flex: 1; }
+        .product-name { font-weight: 700; color: #4A6B3E; font-size: 1em; }
+        .product-card.ingredient .product-name { color: #3D3028; }
+        .product-desc { color: #3D3028; font-size: 0.85em; margin-top: 2px; }
+
+        .product-cta {
+            background: #7B9E6B;
+            color: white;
+            padding: 7px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.82em;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+        .product-card.ingredient .product-cta { background: #D4967E; }
+
+        .pro-tip {
+            background: #E8EFE4;
+            border-radius: 8px;
+            padding: 16px 22px;
+            margin: 25px 0;
+            font-size: 0.92em;
+        }
+        .pro-tip strong { color: #4A6B3E; }
+
+        /* --- SIDEBAR --- */
+        .sidebar-card {
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .calc-card {
+            background: linear-gradient(135deg, #4A6B3E 0%, #7B9E6B 100%);
+            color: white;
+            text-align: left;
+        }
+        .calc-card h3 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .calc-card p { font-size: 0.9em; opacity: 0.9; margin-bottom: 16px; line-height: 1.5; text-align: left; }
+        .calc-card a {
+            display: inline-block;
+            background: white;
+            color: #4A6B3E;
+            padding: 10px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+        .calc-card a:hover { background: #F5D5C8; }
+        .calc-card .calc-features {
+            text-align: left;
+            margin: 12px 0 16px;
+            font-size: 0.85em;
+        }
+        .calc-card .calc-features li {
+            list-style: none;
+            padding: 3px 0;
+        }
+        .calc-card .calc-features li::before {
+            content: "✓ ";
+            font-weight: bold;
+        }
+
+        .etsy-card {
+            background: #F5D5C8;
+        }
+        .etsy-card h3 {
+            font-family: 'Libre Baskerville', serif;
+            color: #D4967E;
+            font-size: 1.15em;
+            margin-bottom: 8px;
+        }
+        .etsy-card p { font-size: 0.88em; color: #3D3028; margin-bottom: 14px; }
+        .etsy-card a {
+            display: inline-block;
+            background: #D4967E;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        .review-card {
+            background: #E8EFE4;
+        }
+        .review-card h3 {
+            font-family: 'Libre Baskerville', serif;
+            color: #4A6B3E;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+        .review-card p { font-size: 0.88em; color: #3D3028; line-height: 1.5; }
+        .review-card .stars { font-size: 1.8em; margin: 10px 0; }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #8B7D6B;
+            font-size: 0.82em;
+            margin-top: 30px;
+            border-top: 1px solid #E8EFE4;
+        }
+        .footer a { color: #7B9E6B; }
+
+        @media (max-width: 800px) {
+            .page-wrap { flex-direction: column; }
+            .side-col { width: 100%; }
+            .product-card { flex-wrap: wrap; }
+            .product-cta { margin-top: 8px; margin-left: 42px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="main-col">
+            <p class="welcome-line">You made it! Welcome to the good stuff.</p>
+            <h1>Keto Dessert Essentials</h1>
+
+            <div class="not-a-buyer">
+                Landed here by accident? No worries. These are the tools and ingredients from Sarah's <a href="https://www.etsy.com/shop/CarnivoreWeekly?utm_source=carnivoreweekly&utm_medium=desserts_page&utm_campaign=accidental_visitor" onclick="gtag('event','etsy_click',{source:'desserts_not_buyer'})">Keto Dessert Recipe Cards on Etsy</a> — 20 macro-counted recipes + 5 bonus pages. Grab a copy and come back here for the shopping links.
+            </div>
+
+            <div class="sarah-intro">
+                Look, I'm not going to pretend I don't have an Amazon problem. My delivery driver knows me by name. But the upside of my shopping habit is that I've tested every brand, every tool, and every weird specialty ingredient so you don't have to. I linked the exact products I actually use right here. Full honesty: yes, I get a small bonus if you shop through these links, but I wouldn't recommend something I haven't personally bought, used, and repurchased at least twice.
+                <div class="sig">— Sarah</div>
+            </div>
+
+            <div class="section-header tools">KITCHEN TOOLS</div>
+
+            <a href="https://amzn.to/3RV8mwt" target="_blank" rel="noopener" class="product-card tool" onclick="gtag('event','affiliate_click',{item:'mini_muffin_pan',category:'tool',source:'desserts_page'})">
+                <div class="product-check tool">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Silicone Mini Muffin Pan</div>
+                    <div class="product-desc">For fat bombs, cups, and clusters. Easy pop-out, no mess.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/4v9II5m" target="_blank" rel="noopener" class="product-card tool" onclick="gtag('event','affiliate_click',{item:'popsicle_molds',category:'tool',source:'desserts_page'})">
+                <div class="product-check tool">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Popsicle Molds (10-Cavity)</div>
+                    <div class="product-desc">For freezer pops and ice cream bites. Comes with sticks and bags.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/4dTKMYe" target="_blank" rel="noopener" class="product-card tool" onclick="gtag('event','affiliate_click',{item:'mason_jars',category:'tool',source:'desserts_page'})">
+                <div class="product-check tool">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Small Glass Jars (4oz, 8-Pack)</div>
+                    <div class="product-desc">For cheesecake jars, chia pudding, and parfaits.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/3RCaVUa" target="_blank" rel="noopener" class="product-card tool" onclick="gtag('event','affiliate_click',{item:'kitchen_scale',category:'tool',source:'desserts_page'})">
+                <div class="product-check tool">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Digital Kitchen Scale</div>
+                    <div class="product-desc">For precise macros. Weighs grams and ounces.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/4wXgVqL" target="_blank" rel="noopener" class="product-card tool" onclick="gtag('event','affiliate_click',{item:'parchment_paper',category:'tool',source:'desserts_page'})">
+                <div class="product-check tool">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Parchment Paper (200 Precut)</div>
+                    <div class="product-desc">For bark, cookies, and bars. No sticking, no tearing.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/49XmWty" target="_blank" rel="noopener" class="product-card tool" onclick="gtag('event','affiliate_click',{item:'silicone_molds',category:'tool',source:'desserts_page'})">
+                <div class="product-check tool">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Silicone Candy & Fat Bomb Molds</div>
+                    <div class="product-desc">Perfect shape for fat bombs, chocolate clusters, and mini treats.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <br>
+            <div class="section-header ingredients">KEY INGREDIENTS</div>
+            <p style="color:#8B7D6B;font-size:0.88em;margin-bottom:16px;margin-top:-8px;">The exact brands I use in every recipe</p>
+
+            <a href="https://amzn.to/4u4HCqO" target="_blank" rel="noopener" class="product-card ingredient" onclick="gtag('event','affiliate_click',{item:'erythritol',category:'ingredient',source:'desserts_page'})">
+                <div class="product-check ingredient">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Powdered Erythritol Sweetener</div>
+                    <div class="product-desc">Zero-calorie keto sweetener. Used in almost every recipe.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/4vgEyc7" target="_blank" rel="noopener" class="product-card ingredient" onclick="gtag('event','affiliate_click',{item:'almond_flour',category:'ingredient',source:'desserts_page'})">
+                <div class="product-check ingredient">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Blanched Almond Flour</div>
+                    <div class="product-desc">The base for mug cakes, cookie bites, and crusts.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/4wXh1yD" target="_blank" rel="noopener" class="product-card ingredient" onclick="gtag('event','affiliate_click',{item:'chocolate_chips',category:'ingredient',source:'desserts_page'})">
+                <div class="product-check ingredient">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Sugar-Free Dark Chocolate Chips</div>
+                    <div class="product-desc">70% cacao, no sugar added. For bark, clusters, and dipping.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/49xthM5" target="_blank" rel="noopener" class="product-card ingredient" onclick="gtag('event','affiliate_click',{item:'coconut_oil',category:'ingredient',source:'desserts_page'})">
+                <div class="product-check ingredient">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Organic Virgin Coconut Oil</div>
+                    <div class="product-desc">For melting, binding, and adding richness to fat bombs.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/43BSfq6" target="_blank" rel="noopener" class="product-card ingredient" onclick="gtag('event','affiliate_click',{item:'cocoa_powder',category:'ingredient',source:'desserts_page'})">
+                <div class="product-check ingredient">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Unsweetened Cocoa Powder</div>
+                    <div class="product-desc">Rich dark cacao. Essential for anything chocolate.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/4fQUux7" target="_blank" rel="noopener" class="product-card ingredient" onclick="gtag('event','affiliate_click',{item:'chia_seeds',category:'ingredient',source:'desserts_page'})">
+                <div class="product-check ingredient">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Organic Chia Seeds</div>
+                    <div class="product-desc">For puddings, parfaits, and adding texture.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <a href="https://amzn.to/43olqx7" target="_blank" rel="noopener" class="product-card ingredient" onclick="gtag('event','affiliate_click',{item:'vanilla_extract',category:'ingredient',source:'desserts_page'})">
+                <div class="product-check ingredient">✓</div>
+                <div class="product-info">
+                    <div class="product-name">Pure Vanilla Extract</div>
+                    <div class="product-desc">Madagascar vanilla beans. The real stuff, not imitation.</div>
+                </div>
+                <div class="product-cta">Shop →</div>
+            </a>
+
+            <div class="pro-tip">
+                <strong>Pro tip:</strong> Stock erythritol, almond flour, cocoa, and coconut oil. With those four pantry staples you can make 80% of the recipes without a grocery run.
+            </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="side-col">
+            <div class="sidebar-card calc-card">
+                <h3>Free Keto Macro Calculator</h3>
+                <p>Know your macros before you bake. Figure out your daily carbs, fat, and protein targets in 60 seconds.</p>
+                <ul class="calc-features">
+                    <li>Personalized keto macros</li>
+                    <li>Adjust for your goals</li>
+                    <li>Totally free, no signup</li>
+                </ul>
+                <a href="/keto-macro-calculator.html?utm_source=desserts_page&utm_medium=sidebar&utm_campaign=calc_promo" onclick="gtag('event','calc_click',{source:'desserts_sidebar'})">Calculate My Macros →</a>
+            </div>
+
+            <div class="sidebar-card etsy-card">
+                <h3>Love the Recipe Cards?</h3>
+                <p>Check out our other keto and carnivore printables — food lists, cheat sheets, meal planners, and starter bundles.</p>
+                <a href="https://www.etsy.com/shop/CarnivoreWeekly?utm_source=carnivoreweekly&utm_medium=desserts_sidebar&utm_campaign=cross_sell" target="_blank" rel="noopener" onclick="gtag('event','etsy_click',{source:'desserts_sidebar'})">Visit Our Etsy Shop →</a>
+            </div>
+
+            <div class="sidebar-card review-card">
+                <h3>One Quick Favor?</h3>
+                <div class="stars">★★★★★</div>
+                <p>If you're enjoying the recipe cards, a quick review on Etsy would mean the world. It helps other people find these recipes too. Even just a star rating takes 10 seconds.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Sarah's Low-Carb Kitchen · <a href="https://carnivoreweekly.com">CarnivoreWeekly.com</a></p>
+        <p style="margin-top:8px;">Some links on this page are affiliate links. If you purchase through them, we may earn a small commission at no extra cost to you.</p>
+    </div>
+</body>
+</html>
