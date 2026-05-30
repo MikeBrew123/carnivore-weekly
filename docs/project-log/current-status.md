@@ -1,16 +1,16 @@
 # Current Status
 
-**Last Updated:** 2026-05-26 (Blog Recovery + Image Pipeline Fix)
+**Last Updated:** 2026-05-30 (Calculator Tracking Fix + Content Pipeline Restructure)
 
 **Current Focus:**
-Blog queue recovered after 7-day gap (May 20-26). 9 new posts generated with images. Image pipeline fixed in weekly workflow (SKILL.md, weekly_content_prompt.md). Daily publish CI just flips status and deploys — images are built locally with the weekly content batch. Newsletter migrated from MailerLite to Beehiiv (May 26). Calculator funnel monitoring ongoing (protocol preview teaser + tightened upgrade card deployed May 25).
+Fixed calculator diet_selected event gap (wasn't firing for default diet selection). Restructured content pipeline: all content creation (Chloe research + writer generation) now lives in Claude Code scheduled task (Sun+Wed 4:30am PST). GitHub Actions only handles homepage data refresh and daily publish (flip ready→published). Sarah's bridal Etsy post #2 published. ISSUE-001 (scheduled task auth) still the main risk — completion notifications enabled.
 
 ---
 
 ## Outstanding TODOs
 
-- **Etsy content series** — Sarah's 4-week bridal Etsy series: post 1 shipped (May 19), posts 2-4 not yet written. Space them out with other content between.
-- **Scheduled task auth (ISSUE-001)** — Sunday cron fires but Claude Code agent hits 401. Only worked once (May 2). Needs durable fix: GitHub Actions-based weekly generation or alert watchdog.
+- **Etsy content series** — Sarah's bridal Etsy series: posts 1-2 shipped (May 19, May 30), posts 3-4 not yet written.
+- **Scheduled task auth (ISSUE-001)** — Sunday cron fires but Claude Code agent may hit 401. Completion notifications now enabled. Next test: Sunday June 1 at 4:30am PST.
 - **Author profile pages** — /about.html#sarah-whitfield etc. needed for Google Quality Raters
 - **Author bio/photo block in template** — Only byline + schema updated; no visible bio on posts
 - **PubMed citation links** — PMIDs exist in posts but aren't hyperlinked
