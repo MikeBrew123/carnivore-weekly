@@ -34,12 +34,14 @@ try {
   // 3. Update calculator.html
   let calculatorHtml = readFileSync(calculatorHtmlPath, 'utf-8');
 
-  // Replace JS reference (with full domain)
-  const jsRegex = /src="https:\/\/carnivoreweekly\.com\/assets\/calculator2\/assets\/index-[^"]+\.js"/g;
+  // Replace JS reference (both full domain and relative paths)
   const updatedCalculatorHtml = calculatorHtml
-    .replace(jsRegex, `src="https://carnivoreweekly.com/assets/calculator2/assets/${jsFilename}"`)
-    .replace(/href="https:\/\/carnivoreweekly\.com\/assets\/calculator2\/assets\/index-[^"]+\.css"/g,
-             `href="https://carnivoreweekly.com/assets/calculator2/assets/${cssFilename}"`);
+    .replace(/src="(?:https:\/\/carnivoreweekly\.com)?\/assets\/calculator2\/assets\/index-[^"]+\.js"/g,
+             `src="/assets/calculator2/assets/${jsFilename}"`)
+    .replace(/href="(?:https:\/\/carnivoreweekly\.com)?\/assets\/calculator2\/assets\/index-[^"]+\.js"/g,
+             `href="/assets/calculator2/assets/${jsFilename}"`)
+    .replace(/href="(?:https:\/\/carnivoreweekly\.com)?\/assets\/calculator2\/assets\/index-[^"]+\.css"/g,
+             `href="/assets/calculator2/assets/${cssFilename}"`);
 
   writeFileSync(calculatorHtmlPath, updatedCalculatorHtml, 'utf-8');
   console.log(`✅ Updated: public/calculator.html`);

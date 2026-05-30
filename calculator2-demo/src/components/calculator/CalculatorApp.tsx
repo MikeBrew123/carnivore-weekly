@@ -283,6 +283,9 @@ export default function CalculatorApp({
   const handleStepContinue = (step: number) => {
     console.log('[CalculatorApp] Advancing to step:', step)
     if (step === 3) {
+      trackCalculatorEvent('calculator_diet_selected', {
+        diet_type: formData.diet || 'unknown',
+      })
       trackCalculatorEvent('calculator_completed', {
         diet_type: formData.diet || 'unknown',
         goal: formData.goal || 'unknown',
