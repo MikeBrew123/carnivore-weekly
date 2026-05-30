@@ -7,12 +7,6 @@
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>https://carnivoreweekly.com/keto-macro-calculator.html</loc>
-        <lastmod>2026-05-24</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.95</priority>
-    </url>
-    <url>
         <loc>https://carnivoreweekly.com/calculator.html</loc>
         <lastmod>2026-05-30</lastmod>
         <changefreq>weekly</changefreq>
@@ -806,12 +800,6 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/bride-protocol.html</loc>
-        <lastmod>2026-05-25</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    <url>
-        <loc>https://carnivoreweekly.com/keto-bride-protocol.html</loc>
         <lastmod>2026-05-25</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
