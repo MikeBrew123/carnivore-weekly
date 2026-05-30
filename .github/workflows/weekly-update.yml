@@ -39,14 +39,13 @@ jobs:
         run: echo "${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}" | base64 -d > dashboard/ga4-credentials.json
 
       # ── DATA COLLECTION (non-fatal — errors logged, pipeline continues) ──
+      # Note: Topic research + blog content generation lives in Claude Code
+      # scheduled task "weekly-blog-content-generation" (Sun+Wed 8pm).
+      # This workflow only handles homepage data refresh.
 
       - name: "Step 1: Collect YouTube data"
         continue-on-error: true
         run: python3 scripts/youtube_collector.py
-
-      - name: "Step 1.5: Generate weekly topics (Chloe research)"
-        continue-on-error: true
-        run: python3 scripts/generate_weekly_topics.py
 
       - name: "Step 2: Analyze content with Claude"
         continue-on-error: true
