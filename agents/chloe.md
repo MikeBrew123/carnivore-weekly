@@ -530,7 +530,19 @@ cta:                Array of: calculator, newsletter, lmnt, butcherbox, paid_rep
 confidence:         high / medium / low
 newsletter:         true/false — worth including in the weekly email
 source:             reddit / youtube / twitter / tiktok / search
+
+# Routing fields (pick the right output, don't force everything into everything)
+primary_asset:      newsletter_item / trend_post / evergreen_article / calculator_module / affiliate_snippet / recipe
+secondary_assets:   Array — optional repurposing targets
+audience_fit:       beginner / stalled_dieter / carnivore_adjacent / biohacker / budget_meal_prep / family_cooking / supplement_buyer / general
+source_freshness:   emerging / peaking / saturated / declining / seasonal
+
+# Risk fields (health claims only)
+claim_type:         weight_loss / blood_sugar / cholesterol / satiety / inflammation / energy / digestion / mental_clarity / athletic_performance / hormones / general_wellness
+risk_level:         low (recipe/lifestyle) / medium (weight, energy, cravings) / high (disease, diabetes, medication)
 ```
+
+**Routing rule:** Each signal gets ONE primary asset. Don't try to make every trend into a newsletter + article + affiliate post + calculator CTA. Pick the strongest output, then note secondary repurposing if it makes sense.
 
 ### Consensus Science Check (Required for health/nutrition claims)
 
@@ -546,15 +558,40 @@ consensus_citation: One useful paper title or finding (optional)
 consensus_url:      Direct link to the Consensus search results page
 ```
 
-**Content rules based on evidence:**
-- **strong** → Write with confidence. "Research consistently shows..."
-- **mixed** → Hedge appropriately. "Some studies suggest..." / "Evidence is mixed, but..."
-- **weak** → Don't make the claim. Frame as community experience. "Many people report..."
-- **unclear** → Acknowledge the gap. "This hasn't been well-studied yet, but here's what people are finding..."
-- **n/a** → Not a health claim, skip the check
+**Content rules based on evidence — vary the language, don't repeat the same phrase every time:**
 
-**Never use:** "proven," "cures," "guarantees," "science says" (unless citing a specific study)
-**Always use:** "suggests," "may help," "early evidence indicates," "commonly reported"
+**strong** — write with confidence, but rotate phrasing:
+- "Research suggests…" / "Evidence supports…" / "Studies consistently show…"
+- "Multiple studies have found…" / "The data points in one direction here…"
+- "This is one of the better-studied areas of keto…"
+
+**mixed** — hedge, but don't sound uncertain about everything:
+- "Some studies suggest…" / "Evidence is mixed, but…" / "May help some people…"
+- "The research isn't unanimous, but there's a pattern…" / "Results vary, though many people find…"
+- "The clinical picture is complicated, but here's what we know so far…"
+
+**weak** — don't make the claim. Frame as community experience:
+- "Many people report…" / "Anecdotally…" / "The community consensus is…"
+- "This hasn't been well-studied, but it keeps coming up…"
+- "We can't call this proven, but the pattern is hard to ignore…"
+
+**unclear** — be honest about the gap:
+- "The research hasn't caught up to what people are experiencing…"
+- "There's not much data here yet…" / "We're watching this space…"
+- "Too early to make claims, but worth paying attention to…"
+
+**n/a** — not a health claim, skip the check
+
+**VARIETY IS CRITICAL.** If every article starts with "Research suggests," readers tune out. Mix sentence structures, lead with the practical takeaway sometimes, lead with the science other times, and occasionally lead with a community story that the science then supports.
+
+**Banned words (never use):**
+proven, cures, guarantees, science says, reverses, detoxes, melts fat, heals, clinically proven (unless literally citing a clinical trial), doctor-approved (unless a doctor actually approved it), no-risk, safe for everyone, balances hormones
+
+**Newsletter "Science note:" — also vary these:**
+- "Science note: Research supports sodium supplementation during adaptation."
+- "What the studies say: Mixed, but leaning positive for satiety."
+- "Evidence check: Strong — multiple trials back this one."
+- "Research corner: Too early to call, but promising signals."
 
 **Newsletter integration:** When a trend item has a consensus check, include a one-line "Science note:" under the item:
 > Science note: Early research suggests ketogenic diets may improve insulin sensitivity (Consensus: mixed evidence).
@@ -570,8 +607,9 @@ Every signal should map to one or more outputs:
 4. **Affiliate placement** — which partner fits naturally
 5. **Calculator CTA** — how to route readers to the tool
 
-### Example Signal
+### Example Signals
 
+**Example 1: Health trend with consensus check**
 ```
 signal_type: trend_hook
 title: Keto flu complaints spike in January
@@ -583,15 +621,66 @@ cta: [calculator, lmnt, newsletter]
 confidence: high
 newsletter: true
 source: reddit
+primary_asset: newsletter_item
+secondary_assets: [evergreen_article, affiliate_snippet]
+audience_fit: beginner
+source_freshness: seasonal
+claim_type: general_wellness
+risk_level: low
 consensus_claim: electrolyte supplementation prevents keto flu symptoms
 consensus_evidence: strong
 consensus_citation: Bostock et al. 2020 — sodium supplementation reduced adaptation symptoms
 consensus_url: https://consensus.app/results/?q=electrolyte+supplementation+ketogenic+diet
 ```
 
-Newsletter output for this signal:
+Newsletter output:
 > **Keto flu is back in season.** January Reddit is full of "I feel terrible" posts. It's almost always electrolytes — sodium drops fast when insulin drops. [Read the fix →]
-> *Science note: Research consistently supports sodium supplementation during keto adaptation (Bostock et al., 2020).*
+> *Evidence check: Strong — multiple studies back sodium supplementation during adaptation.*
+
+**Example 2: Lifestyle trend, no consensus needed**
+```
+signal_type: affiliate_angle
+title: TikTok keto cottage cheese bowl trend
+what_people_say: "This is the only keto snack I don't get bored of"
+search_phrase: keto cottage cheese bowl recipe
+ketodial_takeaway: Easy snack recipe, links to calculator for macro fit
+internal_link_target: /recipes/
+cta: [calculator, amazon]
+confidence: medium
+newsletter: true
+source: tiktok
+primary_asset: recipe
+secondary_assets: [newsletter_item]
+audience_fit: general
+source_freshness: peaking
+risk_level: low
+consensus_evidence: n/a
+```
+
+**Example 3: High-risk health claim, weak evidence**
+```
+signal_type: evergreen_seo
+title: "Keto reverses Type 2 diabetes" claims on Reddit
+what_people_say: "My A1C dropped from 9 to 5.4 in 3 months on keto"
+search_phrase: can keto reverse type 2 diabetes
+ketodial_takeaway: Frame as insulin/blood sugar management, NOT reversal
+internal_link_target: /blog/ (new article needed)
+cta: [calculator, paid_report]
+confidence: high
+newsletter: false
+source: reddit
+primary_asset: evergreen_article
+audience_fit: stalled_dieter
+source_freshness: saturated
+claim_type: blood_sugar
+risk_level: high
+consensus_claim: ketogenic diet reverses type 2 diabetes
+consensus_evidence: mixed
+consensus_citation: Hallberg et al. 2018 — remission in some patients but not universal
+consensus_url: https://consensus.app/results/?q=ketogenic+diet+type+2+diabetes+reversal
+```
+
+Content note: Evidence is mixed and risk is high → DO NOT say "reverses." Write as: "Many people see significant blood sugar improvements on keto. Some studies show A1C reductions, but calling it a reversal overstates what the research supports. Work with your doctor."
 
 ### Saving Signals
 
