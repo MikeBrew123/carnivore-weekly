@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What “net carbs” really means — KetoDial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,16..72,400;0,16..72,500;0,16..72,600;1,16..72,400;1,16..72,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="blog.css" />
+<style>
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:60;transition:width .1s linear}
+
+  .art-head{padding:40px 0 26px}
+  .crumbs{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-faint);margin-bottom:20px}
+  .crumbs a{color:var(--ink-faint)}.crumbs a:hover{color:var(--accent-deep)}
+  .art-head .kicker{margin-bottom:14px;display:block}
+  .art-head h1{font-family:var(--serif);font-size:clamp(34px,5vw,54px);font-weight:500;line-height:1.05;letter-spacing:-.02em;max-width:840px}
+  .dek{font-family:var(--serif);font-size:21px;font-style:italic;color:var(--ink-soft);line-height:1.5;max-width:680px;margin-top:18px}
+  .art-meta{display:flex;align-items:center;gap:14px;margin-top:24px;flex-wrap:wrap}
+  .art-meta .avatar{width:42px;height:42px;font-size:16px}
+  .art-meta .who b{font-size:14.5px;font-weight:700;color:var(--ink);display:block}
+  .art-meta .who span{font-size:12.5px;color:var(--ink-faint)}
+  .art-meta .sep{width:1px;height:30px;background:var(--line)}
+  .art-meta .mi{font-size:12.5px;color:var(--ink-soft)}
+  .art-meta .mi b{color:var(--ink);font-weight:600}
+  .share{margin-left:auto;display:flex;gap:8px}
+  .share button{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .share button:hover{border-color:var(--accent-deep);color:var(--accent-deep)}
+  .share svg{width:16px;height:16px}
+
+  .hero-img{height:440px;border-radius:20px;margin-bottom:8px}
+  .hero-cap{font-size:12px;color:var(--ink-faint);text-align:center;margin-bottom:34px;font-style:italic;font-family:var(--serif)}
+
+  .art-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:48px;align-items:start}
+
+  /* PROSE */
+  .prose{max-width:680px}
+  .prose>p{font-family:var(--serif);font-size:19px;line-height:1.72;color:#1e293b;margin-bottom:22px}
+  .prose>p:first-of-type::first-letter{font-size:62px;font-weight:600;float:left;line-height:.82;padding:6px 12px 0 0;color:var(--ink)}
+  .prose h2{font-size:27px;font-weight:800;letter-spacing:-.02em;margin:40px 0 14px;line-height:1.15}
+  .prose h3{font-size:19px;font-weight:700;margin:28px 0 10px}
+  .prose a.link{color:var(--accent-deep);font-weight:500;border-bottom:1px solid rgba(14,165,233,.35)}
+  .prose ul.body-list{list-style:none;margin:0 0 22px;display:flex;flex-direction:column;gap:12px}
+  .prose ul.body-list li{font-family:var(--serif);font-size:18px;line-height:1.6;color:#1e293b;padding-left:26px;position:relative}
+  .prose ul.body-list li::before{content:"";position:absolute;left:2px;top:11px;width:8px;height:8px;border-radius:2px;background:var(--accent)}
+
+  .pullquote{margin:34px 0;padding:4px 0 4px 26px;border-left:3px solid var(--accent);font-family:var(--serif);font-size:25px;font-style:italic;line-height:1.4;color:var(--ink)}
+
+  .keybox{background:#f7fbfe;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:22px 24px;margin:30px 0}
+  .keybox .kt{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-deep);font-weight:600;margin-bottom:14px}
+  .keybox ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .keybox li{display:flex;gap:11px;font-size:15px;line-height:1.5;color:var(--ink-soft)}
+  .keybox li b{color:var(--ink)}
+  .keybox li svg{width:18px;height:18px;color:var(--accent-deep);flex:none;margin-top:1px}
+
+  /* data table inside article */
+  .nc-table{width:100%;border-collapse:collapse;margin:24px 0;font-family:var(--sans)}
+  .nc-table th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:500;padding:10px 14px;border-bottom:1.5px solid var(--line)}
+  .nc-table td{padding:11px 14px;border-bottom:1px solid var(--line-soft);font-size:14.5px;color:var(--ink-soft)}
+  .nc-table td b{color:var(--ink)}
+  .nc-table .n{font-family:var(--mono);font-weight:600;color:var(--ink);text-align:right}
+
+  /* in-article ad */
+  .art-ad{margin:34px 0}
+  .art-ad .adslot{border-radius:14px}
+
+  /* cross-link to CW */
+  .crosslink{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:30px 0}
+  .crosslink .cl-ic{width:42px;height:42px;border-radius:11px;background:#1a1410;display:flex;align-items:center;justify-content:center;flex:none}
+  .crosslink .cl-ic span{font-family:var(--mono);font-weight:700;color:#d4a843;font-size:18px}
+  .crosslink .cl-body{flex:1}
+  .crosslink .cl-k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:3px}
+  .crosslink .cl-t{font-size:14.5px;font-weight:600;color:var(--ink);line-height:1.35}
+  .crosslink .cl-go{font-size:13px;font-weight:600;color:var(--accent-deep);white-space:nowrap}
+
+  /* author bio */
+  .authorbio{display:flex;gap:18px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;margin:40px 0 0;max-width:680px}
+  .authorbio .avatar{width:56px;height:56px;font-size:22px;flex:none}
+  .authorbio .ab-name{font-size:16px;font-weight:700}
+  .authorbio .ab-role{font-size:12.5px;color:var(--accent-deep);font-family:var(--mono);letter-spacing:.04em;margin:2px 0 9px}
+  .authorbio .ab-bio{font-size:14px;color:var(--ink-soft);line-height:1.55}
+
+  .sidebar .sticky{position:sticky;top:90px}
+
+  /* related */
+  .related{margin-top:60px;border-top:1px solid var(--line);padding-top:36px}
+  .related .feed-title{margin-bottom:22px}
+  .rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+
+  /* newsletter band */
+  .nl-band{background:radial-gradient(120% 130% at 20% -20%,#15324c,var(--panel));border-radius:22px;padding:44px 48px;margin-top:54px;display:flex;align-items:center;justify-content:space-between;gap:30px;flex-wrap:wrap;position:relative;overflow:hidden}
+  .nl-band::before{content:"";position:absolute;inset:0;opacity:.5;background-image:linear-gradient(rgba(56,189,248,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.06) 1px,transparent 1px);background-size:24px 24px;-webkit-mask-image:radial-gradient(70% 90% at 80% 10%,#000,transparent);mask-image:radial-gradient(70% 90% at 80% 10%,#000,transparent)}
+  .nl-band>*{position:relative}
+  .nl-band h3{font-family:var(--serif);font-size:28px;font-weight:500;color:#fff;letter-spacing:-.01em;margin-bottom:8px}
+  .nl-band p{font-size:15px;color:#9fc0d6;max-width:380px;line-height:1.5}
+  .nl-form{display:flex;gap:10px;flex:none}
+  .nl-form input{height:50px;width:240px;border:1px solid var(--panel-line);border-radius:11px;background:rgba(255,255,255,.05);color:#fff;padding:0 16px;font-family:var(--sans);font-size:15px;outline:none}
+  .nl-form input::placeholder{color:#6da6c9}
+  .nl-form button{height:50px;padding:0 22px;border-radius:11px;background:var(--accent);color:#062234;font-weight:700;font-size:15px}
+
+  @media(max-width:920px){.art-layout{grid-template-columns:1fr}.sidebar{display:none}.hero-img{height:300px}.rel-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="../KetoDial Home.html">
+      <svg class="mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="19" fill="#0b1620"/><path d="M9 25 A 12 12 0 1 1 31 25" stroke="#1e3a52" stroke-width="3" stroke-linecap="round"/><path d="M9 25 A 12 12 0 0 1 18.5 8.4" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/><line x1="20" y1="20" x2="26.5" y2="13.5" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="20" r="3" fill="#e2eef7"/></svg>
+      <span class="word">Keto<b>Dial</b></span>
+    </a>
+    <nav class="nav-links">
+      <a href="../KetoDial Home.html#calc">Calculator</a>
+      <a href="../KetoDial Home.html#how">How it works</a>
+      <a href="Blog.html" class="active">Guides</a>
+      <a href="#">Recipes</a>
+      <a href="#">About</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn-ghost" href="#">Log in</a>
+      <a class="btn-pill" href="../KetoDial Home.html#calc">Get my macros</a>
+    </div>
+  </div>
+</header>
+
+<!-- ARTICLE HEADER -->
+<div class="wrap-narrow">
+  <div class="art-head">
+    <div class="crumbs"><a href="Blog.html">Guides</a> / <a href="Blog.html">Fundamentals</a></div>
+    <span class="kicker science">Fundamentals</span>
+    <h1>What “net carbs” really means — and why it decides your whole day</h1>
+    <p class="dek">Fiber, sugar alcohols, and the small piece of arithmetic that quietly determines whether a food fits your keto target.</p>
+    <div class="art-meta">
+      <span class="avatar s">S</span>
+      <div class="who"><b>Sarah Chen</b><span>Health &amp; science writer</span></div>
+      <div class="sep"></div>
+      <div class="mi">Published <b>May 28, 2026</b></div>
+      <div class="sep"></div>
+      <div class="mi"><b>8 min</b> read</div>
+      <div class="share">
+        <button aria-label="Share on X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.3 8.3L23 22h-6.8l-5-6.7L5.3 22H2l7.7-8.9L1.5 2h6.9l4.6 6.1L18.9 2Zm-1.2 18h1.8L7.2 3.9H5.3L17.7 20Z"/></svg></button>
+        <button aria-label="Copy link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO IMAGE -->
+<div class="wrap-narrow">
+  <div class="ph hero-img"><span class="lbl">article hero · 16:7</span></div>
+  <p class="hero-cap">Most “low-carb” labels are counting something different than your body does.</p>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="wrap-narrow" style="margin-bottom:36px">
+  <div class="adslot ad-leaderboard"><span class="adlbl">Advertisement</span><span class="addim">728 × 90</span><span class="adnote">leaderboard</span></div>
+</div>
+
+<!-- BODY + SIDEBAR -->
+<div class="wrap-narrow art-layout">
+  <article class="prose">
+    <p>If you've spent any time on a keto diet, you've run into the phrase “net carbs” — usually in big, friendly letters on a package that's quietly hoping you won't do the math. The good news is the math is simple. The better news is that once you understand it, almost every confusing food label suddenly makes sense.</p>
+
+    <p>Net carbs are the carbohydrates your body actually digests and turns into glucose. Not every gram on the label does that — and the gap between “total carbs” and “net carbs” is exactly where keto lives or dies.</p>
+
+    <h2>The one piece of arithmetic that matters</h2>
+    <p>Here's the whole formula. Take the total carbohydrates on a label, then subtract the parts that don't raise your blood sugar:</p>
+
+    <div class="keybox">
+      <div class="kt">The net-carb formula</div>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span><b>Net carbs = total carbohydrates − fiber − sugar alcohols.</b> Those last two largely pass through without spiking glucose.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Fiber is a carbohydrate you can't digest — subtract <b>all</b> of it.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Sugar alcohols are partly absorbed — subtract <b>half</b> as a safe rule of thumb (erythritol is the exception; subtract it all).</span></li>
+      </ul>
+    </div>
+
+    <p>That's it. Everything else is just applying it carefully and not getting fooled by marketing.</p>
+
+    <h2>Why fiber gets a free pass</h2>
+    <p>Fiber is technically a carbohydrate, but your small intestine lacks the enzymes to break most of it down. It either feeds the bacteria in your gut or passes straight through. Either way, it doesn't flood your bloodstream with glucose — so it doesn't count against your ketogenic ceiling.</p>
+
+    <p class="pullquote">A cup of spinach and a slice of bread can have similar “total carbs.” Only one of them will keep you in ketosis.</p>
+
+    <p>This is why leafy greens, avocados, and chia seeds are keto staples despite showing carbs on the label: most of those carbs are fiber. Subtract it, and what's left barely registers.</p>
+
+    <!-- IN-ARTICLE AD -->
+    <div class="art-ad">
+      <div class="adslot ad-inline"><span class="adlbl">Advertisement</span><span class="addim">300 × 250</span><span class="adnote">in-article rectangle</span></div>
+    </div>
+
+    <h2>Sugar alcohols: the tricky ones</h2>
+    <p>Sugar alcohols (erythritol, xylitol, maltitol and friends) are where “net carb” labels get optimistic. Manufacturers love to subtract 100% of them, but they're not all equal. Erythritol genuinely passes through almost untouched. Maltitol, on the other hand, raises blood sugar quite a bit — subtracting all of it is wishful thinking.</p>
+
+    <table class="nc-table">
+      <thead><tr><th>Food</th><th>Total carbs</th><th>Fiber</th><th style="text-align:right">Net carbs</th></tr></thead>
+      <tbody>
+        <tr><td><b>Avocado</b> (½)</td><td>9 g</td><td>7 g</td><td class="n">1 g</td></tr>
+        <tr><td><b>Spinach</b> (2 cups)</td><td>2 g</td><td>1.4 g</td><td class="n">0.6 g</td></tr>
+        <tr><td><b>Almonds</b> (1 oz)</td><td>6 g</td><td>3.5 g</td><td class="n">2.5 g</td></tr>
+        <tr><td><b>“Keto” bar</b> w/ maltitol</td><td>22 g</td><td>3 g</td><td class="n">~12 g*</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:13.5px;color:var(--ink-faint);font-family:var(--sans);margin-top:-8px">*Label may claim 2g. Maltitol's real glycemic impact means you should count roughly half of it.</p>
+
+    <h2>How this plays out on your daily target</h2>
+    <p>Your <a class="link" href="../KetoDial Home.html#calc">KetoDial macro target</a> gives you a net-carb ceiling — often around 20–25 g per day. Spend it on whole foods and you'll feel like you're eating a lot. Spend it on a single “keto” pastry made with maltitol and you might blow through it without realizing.</p>
+
+    <ul class="body-list">
+      <li>Lean on the green-light foods: leafy greens, avocado, eggs, meat, fish, olive oil.</li>
+      <li>Treat packaged “keto” snacks as occasional, and trust erythritol over maltitol.</li>
+      <li>When a label seems too good to be true, recompute it yourself with the formula above.</li>
+    </ul>
+
+    <!-- CROSS-LINK TO CARNIVORE WEEKLY -->
+    <div class="crosslink">
+      <div class="cl-ic"><span>CW</span></div>
+      <div class="cl-body">
+        <div class="cl-k">Going further · from our sister site</div>
+        <div class="cl-t">Thinking about dropping carbs to zero? Carnivore Weekly covers the all-meat approach.</div>
+      </div>
+      <a class="cl-go" href="#">Read on CW →</a>
+    </div>
+
+    <h2>The bottom line</h2>
+    <p>Net carbs aren't a loophole — they're a more accurate way of counting what your body actually does with food. Learn the formula once, apply a little skepticism to sugar alcohols, and you'll never have to trust a misleading front-of-package claim again.</p>
+
+    <!-- AUTHOR BIO -->
+    <div class="authorbio">
+      <span class="avatar s">S</span>
+      <div>
+        <div class="ab-name">Sarah Chen</div>
+        <div class="ab-role">Health &amp; science writer</div>
+        <p class="ab-bio">Sarah translates nutrition research into plain English. She's written about metabolic health for KetoDial since launch and reads the studies so you don't have to.</p>
+      </div>
+    </div>
+  </article>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sticky">
+      <a class="widget calc-cta" href="../KetoDial Home.html#calc">
+        <div class="ce">Free tool</div>
+        <h4>What's your net-carb ceiling?</h4>
+        <p>Find your exact keto target in about 30 seconds — no signup.</p>
+        <span class="go">Open the calculator
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <div class="adslot ad-rect" style="margin:0 auto 20px"><span class="adlbl">Advertisement</span><span class="addim">300 × 250</span><span class="adnote">medium rectangle</span></div>
+
+      <div class="widget">
+        <h4>Keep reading</h4>
+        <div class="poplist">
+          <a class="pop" href="Blog Post.html"><span class="rank">→</span><div><div class="pt">The keto-flu cure is electrolytes</div><div class="pm">Getting started · 4 min</div></div></a>
+          <a class="pop" href="Blog Post.html"><span class="rank">→</span><div><div class="pt">How much protein is too much?</div><div class="pm">Science · 9 min</div></div></a>
+          <a class="pop" href="Blog Post.html"><span class="rank">→</span><div><div class="pt">Cholesterol on keto, decoded</div><div class="pm">Science · 11 min</div></div></a>
+        </div>
+      </div>
+
+      <div class="adslot ad-half" style="margin:0 auto"><span class="adlbl">Advertisement</span><span class="addim">300 × 600</span><span class="adnote">half-page (sticky)</span></div>
+    </div>
+  </aside>
+</div>
+
+<!-- RELATED -->
+<div class="wrap-narrow related">
+  <div class="feed-title"><h2>Related guides</h2><a href="Blog.html">All guides →</a></div>
+  <div class="rel-grid">
+    <a class="pcard" href="Blog Post.html"><div class="ph" style="height:150px"><span class="lbl">guide · 16:10</span></div><div class="body"><span class="kicker start">Getting started</span><h3>Your first two weeks on keto</h3><div class="byline"><span class="avatar m">M</span><b>Marcus Reed</b><span class="dotsep">·</span><span>6 min</span></div></div></a>
+    <a class="pcard" href="Blog Post.html"><div class="ph" style="height:150px"><span class="lbl">guide · 16:10</span></div><div class="body"><span class="kicker science">Science</span><h3>How much protein is too much?</h3><div class="byline"><span class="avatar s">S</span><b>Sarah Chen</b><span class="dotsep">·</span><span>9 min</span></div></div></a>
+    <a class="pcard" href="Blog Post.html"><div class="ph" style="height:150px"><span class="lbl">guide · 16:10</span></div><div class="body"><span class="kicker life">Lifestyle</span><h3>Keto when cooking for a family</h3><div class="byline"><span class="avatar c">C</span><b>Chloe Park</b><span class="dotsep">·</span><span>5 min</span></div></div></a>
+  </div>
+</div>
+
+<!-- NEWSLETTER BAND -->
+<div class="wrap-narrow">
+  <div class="nl-band">
+    <div>
+      <h3>The weekly dial-in</h3>
+      <p>One science-backed keto guide a week, straight to your inbox. No spam, no fluff.</p>
+    </div>
+    <form class="nl-form" onsubmit="return false">
+      <input type="email" placeholder="you@email.com" />
+      <button>Subscribe</button>
+    </form>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="../KetoDial Home.html"><svg class="mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="19" fill="#0f2236"/><path d="M9 25 A 12 12 0 1 1 31 25" stroke="#1e3a52" stroke-width="3" stroke-linecap="round"/><path d="M9 25 A 12 12 0 0 1 18.5 8.4" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/><line x1="20" y1="20" x2="26.5" y2="13.5" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="20" r="3" fill="#e2eef7"/></svg><span class="word">Keto<b>Dial</b></span></a>
+        <p>Dial in your macros. A tool-first keto calculator that hands you a plan, not a homework assignment.</p>
+      </div>
+      <div class="foot-col"><h4>Product</h4><a href="../KetoDial Home.html#calc">Calculator</a><a href="../KetoDial Home.html#how">How it works</a><a href="#">Pricing</a></div>
+      <div class="foot-col"><h4>Learn</h4><a href="Blog.html">Guides</a><a href="#">Recipes</a><a href="#">Food lists</a><a href="#">FAQ</a></div>
+      <div class="foot-col"><h4>Company</h4><a href="#">About</a><a href="#">Contact</a><a href="#">Advertise</a><a href="#">Privacy</a></div>
+    </div>
+    <div class="foot-bottom">
+      <p class="disclaimer">KetoDial provides general nutrition information for educational purposes only and is not medical advice. Consult a qualified healthcare provider before changing your diet.</p>
+      <span class="copy">© 2026 KetoDial</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  var prog=document.getElementById('progress');
+  window.addEventListener('scroll',function(){
+    var h=document.documentElement;
+    var pct=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100;
+    prog.style.width=pct+'%';
+  });
+</script>
+</body>
+</html>
