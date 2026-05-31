@@ -83,6 +83,37 @@ function activityLabel(a) {
   return map[a] || a || 'Not specified';
 }
 
+function normalizeMedications(raw) {
+  if (!raw || raw === 'None reported') return raw;
+  // Common misspellings/brand names → proper names
+  const fixes = [
+    [/ozimpic/gi, 'Ozempic (semaglutide)'],
+    [/ozempic/gi, 'Ozempic (semaglutide)'],
+    [/wegovy/gi, 'Wegovy (semaglutide)'],
+    [/mounjaro/gi, 'Mounjaro (tirzepatide)'],
+    [/zepbound/gi, 'Zepbound (tirzepatide)'],
+    [/metformin/gi, 'Metformin'],
+    [/lisinopril/gi, 'Lisinopril'],
+    [/losartan/gi, 'Losartan'],
+    [/atorvastatin/gi, 'Atorvastatin'],
+    [/lipitor/gi, 'Lipitor (atorvastatin)'],
+    [/synthroid/gi, 'Synthroid (levothyroxine)'],
+    [/levothyroxine/gi, 'Levothyroxine'],
+    [/jardiance/gi, 'Jardiance (empagliflozin)'],
+    [/invokana/gi, 'Invokana (canagliflozin)'],
+    [/glipizide/gi, 'Glipizide'],
+    [/januvia/gi, 'Januvia (sitagliptin)'],
+    [/insulin/gi, 'Insulin'],
+    [/amlodipine/gi, 'Amlodipine'],
+    [/hydrochlorothiazide/gi, 'Hydrochlorothiazide'],
+  ];
+  let result = raw;
+  for (const [pattern, replacement] of fixes) {
+    result = result.replace(pattern, replacement);
+  }
+  return result;
+}
+
 function goalLabel(g) {
   const map = {
     lose: 'Fat loss',
@@ -484,7 +515,8 @@ export function generateDoctorReport(name, d) {
   const tdee = d.tdee || cal;
 
   const conditions = (d.conditions || []).filter(c => c !== 'none' && CONDITION_INFO[c]);
-  const meds = d.meds || 'None reported';
+  const rawMeds = d.meds || 'None reported';
+  const meds = normalizeMedications(rawMeds);
 
   // Build conditions table rows
   const conditionRows = conditions.length > 0
