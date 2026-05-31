@@ -1,0 +1,44 @@
+{
+  "products": {
+    "doctor": {
+      "product_id": "prod_Uc9w7W8wjGRYVS",
+      "price_id": "price_1TcvcxEVDfkpGz8w3XZgaWjN",
+      "name": "KetoDial Doctor's Report",
+      "amount": 599,
+      "currency": "usd"
+    },
+    "meal": {
+      "product_id": "prod_Uc9wQ21TDU5j4c",
+      "price_id": "price_1TcvcyEVDfkpGz8wIVkjBfBA",
+      "name": "KetoDial 7-Day Meal Plan",
+      "amount": 599,
+      "currency": "usd"
+    },
+    "starter": {
+      "product_id": "prod_Uc9w1stJOIrLlt",
+      "price_id": "price_1TcvczEVDfkpGz8wNMsXPD4d",
+      "name": "KetoDial Keto Starter Kit",
+      "amount": 399,
+      "currency": "usd"
+    },
+    "essentials": {
+      "product_id": "prod_Uc9waGaNQLe3lp",
+      "price_id": "price_1Tcvd0EVDfkpGz8wft66SJ6g",
+      "name": "KetoDial Keto Essentials Bundle",
+      "amount": 799,
+      "currency": "usd",
+      "contains": ["meal", "starter"]
+    },
+    "protocol": {
+      "product_id": "prod_Uc9wngyhL1WpS6",
+      "price_id": "price_1Tcvd0EVDfkpGz8wCtiZSJT6",
+      "name": "KetoDial Full Protocol Bundle",
+      "amount": 1099,
+      "currency": "usd",
+      "contains": ["doctor", "meal", "starter"]
+    }
+  },
+  "ga4_property": "G-0Y79FB48EG",
+  "domain": "ketodial.com",
+  "github_repo": "MikeBrew123/ketodial"
+}
