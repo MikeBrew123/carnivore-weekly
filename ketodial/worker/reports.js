@@ -914,43 +914,129 @@ function getMealDatabase(noDairy) {
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+function getBudgetDinners(noDairy) {
+  return [
+    { name: 'Ground beef &amp; broccoli bowl', desc: '8 oz ground beef 80/20 (227g) · 1 cup broccoli (91g) · 1 tbsp butter (14g)', kcal: 585, f: 40, p: 49, c: 4 },
+    { name: 'Chicken thighs + green beans', desc: '10 oz bone-in chicken thighs (283g) · 1 cup green beans (100g) · 1 tbsp olive oil (14ml)', kcal: 601, f: 40, p: 49, c: 4 },
+    { name: 'Pork loin + buttered cabbage', desc: '6 oz pork loin (170g) · 2 cups shredded cabbage (150g) · 2 tbsp butter (28g)', kcal: 452, f: 30, p: 40, c: 5 },
+    { name: 'Salmon patties + spinach', desc: '6 oz canned salmon (170g) · 1 large egg (50g) · 2 cups spinach (60g) · 1 tbsp olive oil (14ml)', kcal: 398, f: 24, p: 40, c: 2 },
+    { name: 'Roast drumsticks + zucchini', desc: '8 oz chicken drumsticks (227g) · 1 medium zucchini (200g) · 1 tbsp butter (14g)', kcal: 520, f: 33, p: 50, c: 4 },
+    { name: 'Turkey taco bowl, no shell', desc: '6 oz ground turkey 85/15 (170g) · 2 cups shredded lettuce (94g) · ¼ avocado (34g) · 1 tbsp olive oil (14ml)', kcal: 418, f: 29, p: 33, c: 4 },
+    { name: 'Slow-roast pork shoulder + slaw', desc: '8 oz pork shoulder, pulled (227g) · 1 cup coleslaw with olive-oil dressing (120g) · no sugar', kcal: 540, f: 36, p: 45, c: 4 },
+  ];
+}
+
+// Fat-only add-on: 1 tbsp butter or olive oil (102-120 cal, 12-14f, 0p, 0c)
+const FAT_ADD = { kcal: 102, f: 12, p: 0, c: 0, unit: '1 tbsp butter (14g)' };
+// Lean protein snacks for when protein is short
+const LEAN_SNACKS = [
+  { name: 'Hard-boiled eggs ×2', desc: '2 large eggs (100g)', kcal: 140, f: 10, p: 12, c: 1 },
+  { name: 'Turkey roll-ups', desc: '3 oz deli turkey (85g) · mustard', kcal: 90, f: 1, p: 18, c: 2 },
+  { name: 'Beef jerky', desc: '1 oz (28g)', kcal: 80, f: 1, p: 13, c: 3 },
+];
+
+function scaleMeal(base, s) {
+  return { ...base, kcal: Math.round(base.kcal * s), f: Math.round(base.f * s), p: Math.round(base.p * s), c: Math.round(base.c * s) };
+}
+
 function buildMealPlanDays(d) {
   const cal = d.calories || 1800;
-  const fat = d.fatG || 140;
   const prot = d.proteinG || 113;
   const carb = d.carbG || 25;
+  const budget = d.budget || 'mod';
   const dairyPref = (d.dairy || '').toLowerCase();
   const noDairy = dairyPref.includes('free') || dairyPref.includes('none') || dairyPref.includes('strict');
   const lightDairy = noDairy || dairyPref.includes('light') || dairyPref.includes('little') || dairyPref.includes('bother');
-  const scale = cal / 1800;
   const db = getMealDatabase(lightDairy);
+  const budgetDins = budget === 'tight' ? getBudgetDinners(lightDairy) : null;
+
+  // 1. Minimum protein density for template filtering
+  const minDensity = prot / cal;
+  const premiumWords = ['salmon', 'shrimp', 'prosciutto', 'caprese', 'mozzarella', 'ribeye'];
+  function filterPool(pool, skipPremium) {
+    let filtered = pool;
+    if (skipPremium) {
+      filtered = pool.filter(m => !premiumWords.some(w => m.name.toLowerCase().includes(w)));
+      if (filtered.length < 3) filtered = pool;
+    }
+    const ranked = filtered.slice().sort((a, b) => (b.p / b.kcal) - (a.p / a.kcal));
+    const good = ranked.filter(m => (m.p / m.kcal) >= minDensity * 0.65);
+    return good.length >= 4 ? good : ranked.slice(0, Math.max(4, Math.ceil(filtered.length * 0.6)));
+  }
+  const isTight = budget === 'tight';
+  const bPool = filterPool(db.breakfast, isTight);
+  const lPool = filterPool(db.lunch, isTight);
+  const dPool = filterPool(budgetDins || db.dinner, isTight);
 
   const days = [];
   for (let i = 0; i < 7; i++) {
-    const b = db.breakfast[i];
-    const l = db.lunch[i];
-    const dn = db.dinner[i];
-    const s = db.snack[i];
+    const b = bPool[i % bPool.length];
+    const l = lPool[i % lPool.length];
+    const dn = dPool[i % dPool.length];
 
-    // Scale each meal
-    const meals = [
-      { slot: 'Breakfast', ...b, kcal: Math.round(b.kcal * scale), f: Math.round(b.f * scale), p: Math.round(b.p * scale), c: Math.round(b.c * scale) },
-      { slot: 'Lunch', ...l, kcal: Math.round(l.kcal * scale), f: Math.round(l.f * scale), p: Math.round(l.p * scale), c: Math.round(l.c * scale) },
-      { slot: 'Dinner', ...dn, kcal: Math.round(dn.kcal * scale), f: Math.round(dn.f * scale), p: Math.round(dn.p * scale), c: Math.round(dn.c * scale) },
-      { slot: 'Snack', ...s, kcal: Math.round(s.kcal * scale), f: Math.round(s.f * scale), p: Math.round(s.p * scale), c: Math.round(s.c * scale) },
-    ];
+    // 2. Scale uniformly to anchor protein
+    const baseP = b.p + l.p + dn.p;
+    const protScale = baseP > 0 ? prot / baseP : 1;
+    const clamped = Math.max(0.6, Math.min(2.0, protScale));
 
+    const mB = { slot: 'Breakfast', ...scaleMeal(b, clamped) };
+    const mL = { slot: 'Lunch', ...scaleMeal(l, clamped) };
+    const mD = { slot: 'Dinner', ...scaleMeal(dn, clamped) };
+    const mainP = mB.p + mL.p + mD.p;
+    const mainKcal = mB.kcal + mL.kcal + mD.kcal;
+
+    // 3. Fat knob: add/remove fat to hit calorie target
+    //    Half-tbsp increments (~51 kcal, 6g fat each) for finer control
+    const halfTbspKcal = 51;
+    const halfTbspF = 6;
+    const targetMainKcal = cal * 0.90;
+    const calGap = targetMainKcal - mainKcal;
+    const halfTbspAdj = Math.round(calGap / halfTbspKcal);
+
+    if (halfTbspAdj !== 0) {
+      mD.kcal += halfTbspAdj * halfTbspKcal;
+      mD.f += halfTbspAdj * halfTbspF;
+      const wholeTbsp = Math.abs(halfTbspAdj) / 2;
+      if (halfTbspAdj > 0) {
+        const label = wholeTbsp >= 1 ? (Number.isInteger(wholeTbsp) ? wholeTbsp : wholeTbsp.toFixed(1)) + ' tbsp' : '½ tbsp';
+        mD.desc += ` · +${label} butter`;
+      } else if (halfTbspAdj < 0) {
+        const label = wholeTbsp >= 1 ? (Number.isInteger(wholeTbsp) ? wholeTbsp : wholeTbsp.toFixed(1)) + ' tbsp' : '½ tbsp';
+        mD.desc += ` · −${label} fat`;
+      }
+      if (mD.f < 0) mD.f = 0;
+      if (mD.kcal < 100) mD.kcal = 100;
+    }
+
+    const adjustedMainKcal = mB.kcal + mL.kcal + mD.kcal;
+    const remainKcal = cal - adjustedMainKcal;
+    const remainP = prot - mainP;
+
+    // 4. Snack as final buffer — context-dependent selection
+    let mS;
+    if (remainP > 8) {
+      // Protein short → lean protein snack
+      const lean = LEAN_SNACKS[i % LEAN_SNACKS.length];
+      const leanScale = Math.max(0.5, Math.min(3.0, remainP / lean.p));
+      mS = { slot: 'Snack', ...scaleMeal(lean, leanScale) };
+    } else if (remainKcal > 50) {
+      // Calories short, protein ok → fat-heavy snack (low protein density)
+      const fatSnacks = db.snack.filter(s => s.p <= 3);
+      const sBase = fatSnacks.length > 0 ? fatSnacks[i % fatSnacks.length] : db.snack[i % db.snack.length];
+      const sScale = Math.max(0.3, Math.min(4.0, remainKcal / sBase.kcal));
+      mS = { slot: 'Snack', ...scaleMeal(sBase, sScale) };
+    } else {
+      // At or over budget → minimal
+      mS = { slot: 'Snack', name: 'Celery + sea salt', desc: '3 stalks celery (90g)', kcal: 14, f: 0, p: 1, c: 2 };
+    }
+
+    const meals = [mB, mL, mD, mS];
     const totKcal = meals.reduce((a, m) => a + m.kcal, 0);
     const totF = meals.reduce((a, m) => a + m.f, 0);
     const totP = meals.reduce((a, m) => a + m.p, 0);
     const totC = meals.reduce((a, m) => a + m.c, 0);
 
-    days.push({
-      dayNum: i + 1,
-      dayName: DAY_NAMES[i],
-      meals,
-      totKcal, totF, totP, totC,
-    });
+    days.push({ dayNum: i + 1, dayName: DAY_NAMES[i], meals, totKcal, totF, totP, totC });
   }
   return days;
 }
@@ -986,7 +1072,15 @@ function grocerySection(d) {
   const noDairy = noDairyGS || dairyPrefGS.includes('light') || dairyPrefGS.includes('little') || dairyPrefGS.includes('bother');
   const budget = d.budget || 'mod';
 
-  const proteins = [
+  const proteins = budget === 'tight' ? [
+    ['Ground beef 80/20', '2 lb'],
+    ['Chicken thighs &amp; drumsticks (bone-in)', '3 lb'],
+    ['Pork loin + shoulder', '2.5 lb'],
+    ['Canned salmon · canned tuna', '3 cans'],
+    ['Ground turkey 85/15', '1 lb'],
+    ['Bacon &amp; breakfast sausage', '1 pack ea'],
+    ['Eggs', '2.5 dozen'],
+  ] : [
     ['Ribeye / sirloin steak', '12 oz'],
     ['Chicken thighs (skin-on)', '2 lb'],
     ['Salmon &amp; cod fillets', '1.5 lb'],
@@ -996,7 +1090,13 @@ function grocerySection(d) {
     ['Shrimp · canned tuna', 'as needed'],
   ];
 
-  const fats = [
+  const fats = budget === 'tight' ? [
+    ['Olive oil (store brand)', '1 bottle'],
+    ['Butter', '1 block'],
+    ['Avocados', '4'],
+    ['Almonds or pecans', '1 bag'],
+    ['Olive-oil mayo', '1 jar'],
+  ] : [
     ['Extra-virgin olive oil', '1 bottle'],
     ['Grass-fed butter', '1 block'],
     ['Avocados', '5'],
@@ -1096,7 +1196,7 @@ export function generateMealPlan(name, d) {
   const dairyLabel = noDairyMP ? 'dairy-free' : lightDairyMP ? 'dairy-light' : 'dairy-included';
 
   const footLeft = `KetoDial 7-Day Meal Plan <span class="dot">·</span> ${escHtml(name)}`;
-  const footCenter = 'Macros are estimates — swap freely at equal counts';
+  const footCenter = 'Macros are estimates based on USDA data — adjust portions based on your labels and clinician guidance';
 
   // Week at a glance
   const weekGlance = days.map(day =>
