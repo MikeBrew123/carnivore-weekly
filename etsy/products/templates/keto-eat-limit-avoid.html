@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Keto Diet Food List — Eat, Limit, Avoid</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+  @page { size: 8.5in 11in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: #fefefe;
+    color: #2d2d2d;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: 0.3in 0.35in 0.25in;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    text-align: center;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+  }
+  .header-icon { font-size: 22pt; }
+  .header h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 22pt;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 1px 0;
+  }
+  .header .subtitle {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 12pt;
+    font-weight: 500;
+    color: #e07b39;
+    letter-spacing: 3px;
+  }
+  .header .tagline {
+    font-size: 7pt;
+    color: #888;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* ─── SIZE LABELS ─── */
+  .size-bar {
+    background: #2d2d2d;
+    color: #fff;
+    text-align: center;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 5px 0;
+    border-radius: 4px 4px 0 0;
+    margin-bottom: 0;
+  }
+
+  /* ─── 3-COLUMN LAYOUT ─── */
+  .columns {
+    flex: 1;
+    display: flex;
+    gap: 0;
+    border: 2px solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-right: 1.5px solid #e8e8e8;
+  }
+  .col:last-child { border-right: none; }
+
+  /* ─── COLUMN HEADERS ─── */
+  .col-header {
+    text-align: center;
+    padding: 5px 5px 4px;
+    flex-shrink: 0;
+  }
+  .col-header .icon { font-size: 16pt; display: block; margin-bottom: 1px; }
+  .col-header h2 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .col-eat .col-header { background: #e8f5e9; }
+  .col-eat .col-header h2 { color: #2e7d32; }
+  .col-limit .col-header { background: #fff8e1; }
+  .col-limit .col-header h2 { color: #ef6c00; }
+  .col-avoid .col-header { background: #ffebee; }
+  .col-avoid .col-header h2 { color: #c62828; }
+
+  /* ─── FOOD ITEMS ─── */
+  .food-list {
+    flex: 1;
+    padding: 6px 8px;
+    overflow: hidden;
+  }
+
+  .col-eat .food-list { background: #f1f8f1; }
+  .col-limit .food-list { background: #fffdf5; }
+  .col-avoid .food-list { background: #fef5f5; }
+
+  .food-item {
+    font-size: 7.5pt;
+    line-height: 1.35;
+    padding: 0.5px 0;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .food-item .fi { font-size: 8pt; flex-shrink: 0; width: 13px; text-align: center; }
+  .food-item span { flex: 1; }
+
+  .food-section {
+    margin-bottom: 2px;
+  }
+  .food-section-title {
+    font-size: 6.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 2px 0 1px;
+    border-bottom: 1px dashed #d0d0d0;
+    margin-bottom: 1px;
+  }
+  .col-eat .food-section-title { color: #2e7d32; }
+  .col-limit .food-section-title { color: #ef6c00; }
+  .col-avoid .food-section-title { color: #c62828; }
+
+  /* ─── CUTE CHARACTERS ─── */
+  .mascot {
+    text-align: center;
+    font-size: 22pt;
+    padding: 2px 0 1px;
+    flex-shrink: 0;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    text-align: center;
+    font-size: 6pt;
+    color: #bbb;
+    padding-top: 6px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── PAGE 2 (A4) ─── */
+  .page-a4 {
+    width: 210mm;
+    height: 297mm;
+    padding: 8mm 10mm 7mm;
+  }
+  @media print {
+    .page { page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ PAGE 1: US LETTER ═══════════════════════════════════════ -->
+<div class="page">
+  <div class="header">
+    <div class="header-icon">🥑</div>
+    <h1>Keto Diet</h1>
+    <div class="subtitle">Food List</div>
+    <div class="tagline">STAY UNDER 20G NET CARBS • YOUR COMPLETE GUIDE</div>
+  </div>
+
+  <div class="size-bar">US LETTER &nbsp;|&nbsp; A4 &nbsp;|&nbsp; INSTANT DOWNLOAD</div>
+
+  <div class="columns">
+    <!-- ✅ EAT COLUMN -->
+    <div class="col col-eat">
+      <div class="col-header">
+        <span class="icon">✅</span>
+        <h2>Eat</h2>
+      </div>
+      <div class="food-list">
+        <div class="food-section">
+          <div class="food-section-title">Meat & Poultry</div>
+          <div class="food-item"><span class="fi">🥩</span><span>Beef (all cuts)</span></div>
+          <div class="food-item"><span class="fi">🍗</span><span>Chicken</span></div>
+          <div class="food-item"><span class="fi">🦃</span><span>Turkey</span></div>
+          <div class="food-item"><span class="fi">🐑</span><span>Lamb</span></div>
+          <div class="food-item"><span class="fi">🥓</span><span>Bacon</span></div>
+          <div class="food-item"><span class="fi">🍖</span><span>Pork</span></div>
+          <div class="food-item"><span class="fi">🦆</span><span>Duck</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Seafood</div>
+          <div class="food-item"><span class="fi">🐟</span><span>Salmon</span></div>
+          <div class="food-item"><span class="fi">🐠</span><span>Tuna</span></div>
+          <div class="food-item"><span class="fi">🦐</span><span>Shrimp</span></div>
+          <div class="food-item"><span class="fi">🦀</span><span>Crab</span></div>
+          <div class="food-item"><span class="fi">🐚</span><span>Sardines</span></div>
+          <div class="food-item"><span class="fi">🦞</span><span>Lobster</span></div>
+          <div class="food-item"><span class="fi">🐟</span><span>Cod & Mackerel</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Eggs & Dairy</div>
+          <div class="food-item"><span class="fi">🥚</span><span>Eggs</span></div>
+          <div class="food-item"><span class="fi">🧈</span><span>Butter & Ghee</span></div>
+          <div class="food-item"><span class="fi">🧀</span><span>Hard Cheese</span></div>
+          <div class="food-item"><span class="fi">🫕</span><span>Cream Cheese</span></div>
+          <div class="food-item"><span class="fi">🥛</span><span>Heavy Cream</span></div>
+          <div class="food-item"><span class="fi">🧀</span><span>Sour Cream</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Vegetables</div>
+          <div class="food-item"><span class="fi">🥬</span><span>Spinach & Kale</span></div>
+          <div class="food-item"><span class="fi">🥦</span><span>Broccoli</span></div>
+          <div class="food-item"><span class="fi">🥒</span><span>Cucumber</span></div>
+          <div class="food-item"><span class="fi">🫑</span><span>Bell Peppers</span></div>
+          <div class="food-item"><span class="fi">🍄</span><span>Mushrooms</span></div>
+          <div class="food-item"><span class="fi">🥗</span><span>Lettuce</span></div>
+          <div class="food-item"><span class="fi">🥬</span><span>Asparagus</span></div>
+          <div class="food-item"><span class="fi">🫒</span><span>Zucchini</span></div>
+          <div class="food-item"><span class="fi">🥬</span><span>Cauliflower</span></div>
+          <div class="food-item"><span class="fi">🥬</span><span>Celery</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Fats & Oils</div>
+          <div class="food-item"><span class="fi">🫒</span><span>Olive Oil</span></div>
+          <div class="food-item"><span class="fi">🥥</span><span>Coconut Oil</span></div>
+          <div class="food-item"><span class="fi">🥑</span><span>Avocado Oil</span></div>
+          <div class="food-item"><span class="fi">🧈</span><span>Lard & Tallow</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⚠️ LIMIT COLUMN -->
+    <div class="col col-limit">
+      <div class="col-header">
+        <span class="icon">⚠️</span>
+        <h2>Limit</h2>
+      </div>
+      <div class="food-list">
+        <div class="food-section">
+          <div class="food-section-title">Vegetables</div>
+          <div class="food-item"><span class="fi">🍅</span><span>Tomatoes</span></div>
+          <div class="food-item"><span class="fi">🧅</span><span>Onions</span></div>
+          <div class="food-item"><span class="fi">🥕</span><span>Carrots</span></div>
+          <div class="food-item"><span class="fi">🎃</span><span>Pumpkin</span></div>
+          <div class="food-item"><span class="fi">🫛</span><span>Peas</span></div>
+          <div class="food-item"><span class="fi">🥕</span><span>Turnips</span></div>
+          <div class="food-item"><span class="fi">🟤</span><span>Beetroot</span></div>
+          <div class="food-item"><span class="fi">🌿</span><span>Okra</span></div>
+          <div class="food-item"><span class="fi">🌿</span><span>Fennel</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Processed Meats</div>
+          <div class="food-item"><span class="fi">🌭</span><span>Deli Meats</span></div>
+          <div class="food-item"><span class="fi">🥓</span><span>Ham (low sugar)</span></div>
+          <div class="food-item"><span class="fi">🌭</span><span>Sausage (clean)</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Dairy</div>
+          <div class="food-item"><span class="fi">🧀</span><span>Ricotta Cheese</span></div>
+          <div class="food-item"><span class="fi">🥛</span><span>Greek Yogurt</span></div>
+          <div class="food-item"><span class="fi">🫙</span><span>Cottage Cheese</span></div>
+          <div class="food-item"><span class="fi">🥛</span><span>Whole Milk (small)</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Nuts & Seeds</div>
+          <div class="food-item"><span class="fi">🥜</span><span>Cashews</span></div>
+          <div class="food-item"><span class="fi">🫘</span><span>Pistachios</span></div>
+          <div class="food-item"><span class="fi">🥜</span><span>Peanut Butter</span></div>
+          <div class="food-item"><span class="fi">🌰</span><span>Pine Nuts</span></div>
+          <div class="food-item"><span class="fi">🥜</span><span>Mixed Nuts</span></div>
+          <div class="food-item"><span class="fi">🫘</span><span>Nut Butters</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Fruits</div>
+          <div class="food-item"><span class="fi">🥥</span><span>Coconut Flakes</span></div>
+          <div class="food-item"><span class="fi">🫐</span><span>Blueberries</span></div>
+          <div class="food-item"><span class="fi">🍓</span><span>Strawberries</span></div>
+          <div class="food-item"><span class="fi">🫐</span><span>Raspberries</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Other</div>
+          <div class="food-item"><span class="fi">🍫</span><span>Dark Chocolate (85%+)</span></div>
+          <div class="food-item"><span class="fi">🍷</span><span>Dry Red Wine</span></div>
+          <div class="food-item"><span class="fi">🌿</span><span>Nut Flours</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ❌ AVOID COLUMN -->
+    <div class="col col-avoid">
+      <div class="col-header">
+        <span class="icon">❌</span>
+        <h2>Avoid</h2>
+      </div>
+      <div class="food-list">
+        <div class="food-section">
+          <div class="food-section-title">Grains & Starches</div>
+          <div class="food-item"><span class="fi">🍚</span><span>Rice</span></div>
+          <div class="food-item"><span class="fi">🍝</span><span>Pasta</span></div>
+          <div class="food-item"><span class="fi">🍞</span><span>Bread</span></div>
+          <div class="food-item"><span class="fi">🥣</span><span>Oats & Cereal</span></div>
+          <div class="food-item"><span class="fi">🌽</span><span>Corn</span></div>
+          <div class="food-item"><span class="fi">🫘</span><span>Flour</span></div>
+          <div class="food-item"><span class="fi">🥔</span><span>Quinoa</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Sugary Foods</div>
+          <div class="food-item"><span class="fi">🍬</span><span>Candy</span></div>
+          <div class="food-item"><span class="fi">🍪</span><span>Cookies</span></div>
+          <div class="food-item"><span class="fi">🎂</span><span>Cake & Pastries</span></div>
+          <div class="food-item"><span class="fi">🍩</span><span>Donuts</span></div>
+          <div class="food-item"><span class="fi">🍦</span><span>Ice Cream</span></div>
+          <div class="food-item"><span class="fi">🍫</span><span>Chocolate (Milk)</span></div>
+          <div class="food-item"><span class="fi">🍯</span><span>Honey</span></div>
+          <div class="food-item"><span class="fi">🧁</span><span>Maple Syrup</span></div>
+          <div class="food-item"><span class="fi">🫙</span><span>Jams & Syrups</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Drinks</div>
+          <div class="food-item"><span class="fi">🥤</span><span>Soda</span></div>
+          <div class="food-item"><span class="fi">🧃</span><span>Fruit Juice</span></div>
+          <div class="food-item"><span class="fi">🍺</span><span>Beer</span></div>
+          <div class="food-item"><span class="fi">🧋</span><span>Sweetened Drinks</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Fruits (High Sugar)</div>
+          <div class="food-item"><span class="fi">🍌</span><span>Bananas</span></div>
+          <div class="food-item"><span class="fi">🍎</span><span>Apples</span></div>
+          <div class="food-item"><span class="fi">🍇</span><span>Grapes</span></div>
+          <div class="food-item"><span class="fi">🥭</span><span>Mango</span></div>
+          <div class="food-item"><span class="fi">🍍</span><span>Pineapple</span></div>
+          <div class="food-item"><span class="fi">🍉</span><span>Watermelon</span></div>
+          <div class="food-item"><span class="fi">🍑</span><span>Peaches & Pears</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Snacks</div>
+          <div class="food-item"><span class="fi">🥨</span><span>Crackers & Pretzels</span></div>
+          <div class="food-item"><span class="fi">🫓</span><span>Tortillas</span></div>
+          <div class="food-item"><span class="fi">🍿</span><span>Popcorn</span></div>
+          <div class="food-item"><span class="fi">🥔</span><span>Potato Chips</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">CarnivoreWeekly.com • For personal use only • Not medical advice — consult your doctor before starting any diet</div>
+</div>
+
+<!-- ═══════════════════════════════════════ PAGE 2: A4 VERSION ═══════════════════════════════════════ -->
+<div class="page page-a4">
+  <div class="header">
+    <div class="header-icon">🥑</div>
+    <h1>Keto Diet</h1>
+    <div class="subtitle">Food List</div>
+    <div class="tagline">STAY UNDER 20G NET CARBS • YOUR COMPLETE GUIDE</div>
+  </div>
+
+  <div class="size-bar">A4 &nbsp;|&nbsp; 210 × 297 MM &nbsp;|&nbsp; INSTANT DOWNLOAD</div>
+
+  <div class="columns">
+    <!-- ✅ EAT COLUMN -->
+    <div class="col col-eat">
+      <div class="col-header">
+        <span class="icon">✅</span>
+        <h2>Eat</h2>
+      </div>
+      <div class="food-list">
+        <div class="food-section">
+          <div class="food-section-title">Meat & Poultry</div>
+          <div class="food-item"><span class="fi">🥩</span><span>Beef (all cuts)</span></div>
+          <div class="food-item"><span class="fi">🍗</span><span>Chicken</span></div>
+          <div class="food-item"><span class="fi">🦃</span><span>Turkey</span></div>
+          <div class="food-item"><span class="fi">🐑</span><span>Lamb</span></div>
+          <div class="food-item"><span class="fi">🥓</span><span>Bacon</span></div>
+          <div class="food-item"><span class="fi">🍖</span><span>Pork</span></div>
+          <div class="food-item"><span class="fi">🦆</span><span>Duck</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Seafood</div>
+          <div class="food-item"><span class="fi">🐟</span><span>Salmon</span></div>
+          <div class="food-item"><span class="fi">🐠</span><span>Tuna</span></div>
+          <div class="food-item"><span class="fi">🦐</span><span>Shrimp</span></div>
+          <div class="food-item"><span class="fi">🦀</span><span>Crab</span></div>
+          <div class="food-item"><span class="fi">🐚</span><span>Sardines</span></div>
+          <div class="food-item"><span class="fi">🦞</span><span>Lobster</span></div>
+          <div class="food-item"><span class="fi">🐟</span><span>Cod & Mackerel</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Eggs & Dairy</div>
+          <div class="food-item"><span class="fi">🥚</span><span>Eggs</span></div>
+          <div class="food-item"><span class="fi">🧈</span><span>Butter & Ghee</span></div>
+          <div class="food-item"><span class="fi">🧀</span><span>Hard Cheese</span></div>
+          <div class="food-item"><span class="fi">🫕</span><span>Cream Cheese</span></div>
+          <div class="food-item"><span class="fi">🥛</span><span>Heavy Cream</span></div>
+          <div class="food-item"><span class="fi">🧀</span><span>Sour Cream</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Vegetables</div>
+          <div class="food-item"><span class="fi">🥬</span><span>Spinach & Kale</span></div>
+          <div class="food-item"><span class="fi">🥦</span><span>Broccoli</span></div>
+          <div class="food-item"><span class="fi">🥒</span><span>Cucumber</span></div>
+          <div class="food-item"><span class="fi">🫑</span><span>Bell Peppers</span></div>
+          <div class="food-item"><span class="fi">🍄</span><span>Mushrooms</span></div>
+          <div class="food-item"><span class="fi">🥗</span><span>Lettuce</span></div>
+          <div class="food-item"><span class="fi">🥬</span><span>Asparagus</span></div>
+          <div class="food-item"><span class="fi">🫒</span><span>Zucchini</span></div>
+          <div class="food-item"><span class="fi">🥬</span><span>Cauliflower</span></div>
+          <div class="food-item"><span class="fi">🥬</span><span>Celery</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Fats & Oils</div>
+          <div class="food-item"><span class="fi">🫒</span><span>Olive Oil</span></div>
+          <div class="food-item"><span class="fi">🥥</span><span>Coconut Oil</span></div>
+          <div class="food-item"><span class="fi">🥑</span><span>Avocado Oil</span></div>
+          <div class="food-item"><span class="fi">🧈</span><span>Lard & Tallow</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⚠️ LIMIT COLUMN -->
+    <div class="col col-limit">
+      <div class="col-header">
+        <span class="icon">⚠️</span>
+        <h2>Limit</h2>
+      </div>
+      <div class="food-list">
+        <div class="food-section">
+          <div class="food-section-title">Vegetables</div>
+          <div class="food-item"><span class="fi">🍅</span><span>Tomatoes</span></div>
+          <div class="food-item"><span class="fi">🧅</span><span>Onions</span></div>
+          <div class="food-item"><span class="fi">🥕</span><span>Carrots</span></div>
+          <div class="food-item"><span class="fi">🎃</span><span>Pumpkin</span></div>
+          <div class="food-item"><span class="fi">🫛</span><span>Peas</span></div>
+          <div class="food-item"><span class="fi">🥕</span><span>Turnips</span></div>
+          <div class="food-item"><span class="fi">🟤</span><span>Beetroot</span></div>
+          <div class="food-item"><span class="fi">🌿</span><span>Okra</span></div>
+          <div class="food-item"><span class="fi">🌿</span><span>Fennel</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Processed Meats</div>
+          <div class="food-item"><span class="fi">🌭</span><span>Deli Meats</span></div>
+          <div class="food-item"><span class="fi">🥓</span><span>Ham (low sugar)</span></div>
+          <div class="food-item"><span class="fi">🌭</span><span>Sausage (clean)</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Dairy</div>
+          <div class="food-item"><span class="fi">🧀</span><span>Ricotta Cheese</span></div>
+          <div class="food-item"><span class="fi">🥛</span><span>Greek Yogurt</span></div>
+          <div class="food-item"><span class="fi">🫙</span><span>Cottage Cheese</span></div>
+          <div class="food-item"><span class="fi">🥛</span><span>Whole Milk (small)</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Nuts & Seeds</div>
+          <div class="food-item"><span class="fi">🥜</span><span>Cashews</span></div>
+          <div class="food-item"><span class="fi">🫘</span><span>Pistachios</span></div>
+          <div class="food-item"><span class="fi">🥜</span><span>Peanut Butter</span></div>
+          <div class="food-item"><span class="fi">🌰</span><span>Pine Nuts</span></div>
+          <div class="food-item"><span class="fi">🥜</span><span>Mixed Nuts</span></div>
+          <div class="food-item"><span class="fi">🫘</span><span>Nut Butters</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Fruits</div>
+          <div class="food-item"><span class="fi">🥥</span><span>Coconut Flakes</span></div>
+          <div class="food-item"><span class="fi">🫐</span><span>Blueberries</span></div>
+          <div class="food-item"><span class="fi">🍓</span><span>Strawberries</span></div>
+          <div class="food-item"><span class="fi">🫐</span><span>Raspberries</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Other</div>
+          <div class="food-item"><span class="fi">🍫</span><span>Dark Chocolate (85%+)</span></div>
+          <div class="food-item"><span class="fi">🍷</span><span>Dry Red Wine</span></div>
+          <div class="food-item"><span class="fi">🌿</span><span>Nut Flours</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ❌ AVOID COLUMN -->
+    <div class="col col-avoid">
+      <div class="col-header">
+        <span class="icon">❌</span>
+        <h2>Avoid</h2>
+      </div>
+      <div class="food-list">
+        <div class="food-section">
+          <div class="food-section-title">Grains & Starches</div>
+          <div class="food-item"><span class="fi">🍚</span><span>Rice</span></div>
+          <div class="food-item"><span class="fi">🍝</span><span>Pasta</span></div>
+          <div class="food-item"><span class="fi">🍞</span><span>Bread</span></div>
+          <div class="food-item"><span class="fi">🥣</span><span>Oats & Cereal</span></div>
+          <div class="food-item"><span class="fi">🌽</span><span>Corn</span></div>
+          <div class="food-item"><span class="fi">🫘</span><span>Flour</span></div>
+          <div class="food-item"><span class="fi">🥔</span><span>Quinoa</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Sugary Foods</div>
+          <div class="food-item"><span class="fi">🍬</span><span>Candy</span></div>
+          <div class="food-item"><span class="fi">🍪</span><span>Cookies</span></div>
+          <div class="food-item"><span class="fi">🎂</span><span>Cake & Pastries</span></div>
+          <div class="food-item"><span class="fi">🍩</span><span>Donuts</span></div>
+          <div class="food-item"><span class="fi">🍦</span><span>Ice Cream</span></div>
+          <div class="food-item"><span class="fi">🍫</span><span>Chocolate (Milk)</span></div>
+          <div class="food-item"><span class="fi">🍯</span><span>Honey</span></div>
+          <div class="food-item"><span class="fi">🧁</span><span>Maple Syrup</span></div>
+          <div class="food-item"><span class="fi">🫙</span><span>Jams & Syrups</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Drinks</div>
+          <div class="food-item"><span class="fi">🥤</span><span>Soda</span></div>
+          <div class="food-item"><span class="fi">🧃</span><span>Fruit Juice</span></div>
+          <div class="food-item"><span class="fi">🍺</span><span>Beer</span></div>
+          <div class="food-item"><span class="fi">🧋</span><span>Sweetened Drinks</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Fruits (High Sugar)</div>
+          <div class="food-item"><span class="fi">🍌</span><span>Bananas</span></div>
+          <div class="food-item"><span class="fi">🍎</span><span>Apples</span></div>
+          <div class="food-item"><span class="fi">🍇</span><span>Grapes</span></div>
+          <div class="food-item"><span class="fi">🥭</span><span>Mango</span></div>
+          <div class="food-item"><span class="fi">🍍</span><span>Pineapple</span></div>
+          <div class="food-item"><span class="fi">🍉</span><span>Watermelon</span></div>
+          <div class="food-item"><span class="fi">🍑</span><span>Peaches & Pears</span></div>
+        </div>
+        <div class="food-section">
+          <div class="food-section-title">Snacks</div>
+          <div class="food-item"><span class="fi">🥨</span><span>Crackers & Pretzels</span></div>
+          <div class="food-item"><span class="fi">🫓</span><span>Tortillas</span></div>
+          <div class="food-item"><span class="fi">🍿</span><span>Popcorn</span></div>
+          <div class="food-item"><span class="fi">🥔</span><span>Potato Chips</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">CarnivoreWeekly.com • For personal use only • Not medical advice — consult your doctor before starting any diet</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Keto Food List Bundle — Additional Pages</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+  @page { size: 8.5in 11in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: #fefefe;
+    color: #2d2d2d;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: 0.3in 0.35in 0.2in;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+  /* ─── SHARED HEADER ─── */
+  .page-header {
+    text-align: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .page-header h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 22pt;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: 1px;
+  }
+  .page-header .sub {
+    font-size: 9pt;
+    color: #888;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+  }
+
+  /* ─── SHARED FOOTER ─── */
+  .page-footer {
+    text-align: center;
+    font-size: 6pt;
+    color: #bbb;
+    padding-top: 5px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── GRID LAYOUTS ─── */
+  .grid-2col {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    min-height: 0;
+  }
+  .grid-3col {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    min-height: 0;
+  }
+  .grid-4col {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    min-height: 0;
+  }
+
+  /* ─── CARD STYLE ─── */
+  .card {
+    border: 1px solid #e4e4e4;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-hdr {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 8px;
+    color: #fff;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .card-body {
+    flex: 1;
+    padding: 5px 7px;
+    background: #fff;
+  }
+
+  /* ─── LIST ITEMS ─── */
+  .item {
+    font-size: 7.5pt;
+    line-height: 1.4;
+    padding: 1px 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .item .ic { font-size: 8pt; flex-shrink: 0; width: 13px; text-align: center; }
+  .item span { flex: 1; }
+  .item .carbs {
+    font-size: 6.5pt;
+    color: #888;
+    flex-shrink: 0;
+    text-align: right;
+    min-width: 30px;
+  }
+
+  .check {
+    width: 9px;
+    height: 9px;
+    border: 1.2px solid #bbb;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .sec-title {
+    font-size: 6.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    padding: 2px 0 1px;
+    border-bottom: 1px dashed #ddd;
+    margin-bottom: 1px;
+    color: #555;
+  }
+
+  /* ─── TABLE STYLE ─── */
+  .carb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.5pt;
+  }
+  .carb-table th {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 7pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 5px;
+    text-align: left;
+    border-bottom: 1.5px solid #ddd;
+  }
+  .carb-table td {
+    padding: 2.5px 5px;
+    border-bottom: 0.5px solid #f0f0f0;
+  }
+  .carb-table tr:nth-child(even) td { background: #fafafa; }
+  .carb-table .net { font-weight: 700; color: #2e7d32; text-align: right; }
+  .carb-table .total { color: #888; text-align: right; }
+
+  /* ─── MEAL PLANNER ─── */
+  .meal-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 70px 1fr 1fr 1fr 1fr;
+    gap: 0;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .meal-cell {
+    padding: 4px 5px;
+    border-right: 0.5px solid #e8e8e8;
+    border-bottom: 0.5px solid #e8e8e8;
+    font-size: 7pt;
+    min-height: 55px;
+  }
+  .meal-cell:last-child { border-right: none; }
+  .meal-day {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 8pt;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .meal-hdr {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 7.5pt;
+    text-align: center;
+    padding: 6px 4px;
+    color: #fff;
+  }
+
+  /* ─── COLOR PALETTE ─── */
+  .bg-green { background: #27ae60; }
+  .bg-teal { background: #16a085; }
+  .bg-blue { background: #2980b9; }
+  .bg-orange { background: #e67e22; }
+  .bg-red { background: #c0392b; }
+  .bg-purple { background: #8e44ad; }
+  .bg-brown { background: #8e6d47; }
+  .bg-dark { background: #2c3e50; }
+  .bg-gray { background: #7f8c8d; }
+  .bg-amber { background: #f39c12; }
+
+  .bg-green-light { background: #f0faf4; }
+  .bg-teal-light { background: #f0faf7; }
+  .bg-blue-light { background: #f0f7fc; }
+  .bg-orange-light { background: #fef6ed; }
+  .bg-red-light { background: #fef2f2; }
+  .bg-purple-light { background: #f9f3fc; }
+  .bg-amber-light { background: #fef9ed; }
+
+  /* ─── NOTES LINES ─── */
+  .note-line {
+    border-bottom: 1px solid #e0e0e0;
+    height: 22px;
+  }
+  .note-line-sm {
+    border-bottom: 1px solid #e8e8e8;
+    height: 18px;
+  }
+
+  /* ─── SPAN HELPERS ─── */
+  .span-2 { grid-column: span 2; }
+  .span-full { grid-column: 1 / -1; }
+
+  /* ─── HIGHLIGHT BOX ─── */
+  .tip-box {
+    background: #f0faf4;
+    border-left: 3px solid #27ae60;
+    padding: 5px 8px;
+    font-size: 7pt;
+    line-height: 1.4;
+    border-radius: 0 4px 4px 0;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .warn-box {
+    background: #fef6ed;
+    border-left: 3px solid #e67e22;
+    padding: 5px 8px;
+    font-size: 7pt;
+    line-height: 1.4;
+    border-radius: 0 4px 4px 0;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PAGE 1: NET CARB CHEAT SHEET
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h1>📊 Net Carb Cheat Sheet</h1>
+    <div class="sub">QUICK REFERENCE • NET CARBS PER SERVING</div>
+  </div>
+
+  <div class="grid-3col">
+    <!-- VEGETABLES -->
+    <div class="card">
+      <div class="card-hdr bg-green">🥦 Vegetables</div>
+      <div class="card-body bg-green-light">
+        <table class="carb-table">
+          <tr><th>Food (1 cup)</th><th class="net">Net</th></tr>
+          <tr><td>Spinach (raw)</td><td class="net">0.4g</td></tr>
+          <tr><td>Lettuce (romaine)</td><td class="net">0.5g</td></tr>
+          <tr><td>Celery (chopped)</td><td class="net">1.4g</td></tr>
+          <tr><td>Mushrooms (sliced)</td><td class="net">1.6g</td></tr>
+          <tr><td>Zucchini (sliced)</td><td class="net">2.4g</td></tr>
+          <tr><td>Cucumber (sliced)</td><td class="net">2.9g</td></tr>
+          <tr><td>Asparagus (6 spears)</td><td class="net">2.4g</td></tr>
+          <tr><td>Broccoli (florets)</td><td class="net">3.6g</td></tr>
+          <tr><td>Cauliflower (florets)</td><td class="net">3.2g</td></tr>
+          <tr><td>Green beans</td><td class="net">3.7g</td></tr>
+          <tr><td>Bell pepper (1 med)</td><td class="net">4.7g</td></tr>
+          <tr><td>Brussels sprouts</td><td class="net">4.7g</td></tr>
+          <tr><td>Cabbage (shredded)</td><td class="net">3.3g</td></tr>
+          <tr><td>Kale (chopped)</td><td class="net">5.4g</td></tr>
+          <tr><td>Tomato (1 med)</td><td class="net">3.3g</td></tr>
+          <tr><td>Onion (1/4 cup)</td><td class="net">2.8g</td></tr>
+          <tr><td>Carrots (1 med)</td><td class="net">5.3g</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROTEINS -->
+    <div class="card">
+      <div class="card-hdr bg-red">🥩 Proteins</div>
+      <div class="card-body bg-red-light">
+        <table class="carb-table">
+          <tr><th>Food</th><th class="net">Net</th></tr>
+          <tr><td>Beef (any cut, 4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Chicken breast (4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Pork chop (4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Salmon (4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Shrimp (4oz)</td><td class="net">0.8g</td></tr>
+          <tr><td>Eggs (1 large)</td><td class="net">0.4g</td></tr>
+          <tr><td>Bacon (2 slices)</td><td class="net">0g</td></tr>
+          <tr><td>Turkey (4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Lamb (4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Tuna canned (4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Sardines (3oz can)</td><td class="net">0g</td></tr>
+          <tr><td>Duck (4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Bison (4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Cod (4oz)</td><td class="net">0g</td></tr>
+          <tr><td>Crab (4oz)</td><td class="net">0g</td></tr>
+        </table>
+        <div class="sec-title" style="margin-top: 6px;">Dairy</div>
+        <table class="carb-table">
+          <tr><td>Butter (1 tbsp)</td><td class="net">0g</td></tr>
+          <tr><td>Heavy cream (1 tbsp)</td><td class="net">0.4g</td></tr>
+          <tr><td>Cheddar (1oz)</td><td class="net">0.4g</td></tr>
+          <tr><td>Cream cheese (1oz)</td><td class="net">0.8g</td></tr>
+          <tr><td>Mozzarella (1oz)</td><td class="net">0.7g</td></tr>
+          <tr><td>Sour cream (2 tbsp)</td><td class="net">1.0g</td></tr>
+          <tr><td>Greek yogurt (1/2 cup)</td><td class="net">3.5g</td></tr>
+          <tr><td>Parmesan (1oz)</td><td class="net">0.9g</td></tr>
+          <tr><td>Brie (1oz)</td><td class="net">0.1g</td></tr>
+          <tr><td>Cottage cheese (1/2 c)</td><td class="net">3.0g</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- FATS, NUTS, FRUITS -->
+    <div class="card">
+      <div class="card-hdr bg-amber">🥑 Fats, Nuts & Fruits</div>
+      <div class="card-body bg-amber-light">
+        <div class="sec-title">Fats & Oils</div>
+        <table class="carb-table">
+          <tr><td>Olive oil (1 tbsp)</td><td class="net">0g</td></tr>
+          <tr><td>Coconut oil (1 tbsp)</td><td class="net">0g</td></tr>
+          <tr><td>Avocado (1/2)</td><td class="net">1.8g</td></tr>
+          <tr><td>MCT oil (1 tbsp)</td><td class="net">0g</td></tr>
+          <tr><td>Ghee (1 tbsp)</td><td class="net">0g</td></tr>
+          <tr><td>Lard (1 tbsp)</td><td class="net">0g</td></tr>
+          <tr><td>Tallow (1 tbsp)</td><td class="net">0g</td></tr>
+          <tr><td>Sesame oil (1 tbsp)</td><td class="net">0g</td></tr>
+        </table>
+        <div class="sec-title" style="margin-top: 4px;">Nuts & Seeds (1oz)</div>
+        <table class="carb-table">
+          <tr><td>Pecans</td><td class="net">1.2g</td></tr>
+          <tr><td>Macadamia</td><td class="net">1.5g</td></tr>
+          <tr><td>Walnuts</td><td class="net">2.0g</td></tr>
+          <tr><td>Almonds</td><td class="net">2.7g</td></tr>
+          <tr><td>Pumpkin seeds</td><td class="net">2.0g</td></tr>
+          <tr><td>Chia seeds (1 tbsp)</td><td class="net">0.4g</td></tr>
+          <tr><td>Flax seeds (1 tbsp)</td><td class="net">0.1g</td></tr>
+          <tr><td>Cashews</td><td class="net">7.7g</td></tr>
+          <tr><td>Pistachios</td><td class="net">5.0g</td></tr>
+        </table>
+        <div class="sec-title" style="margin-top: 4px;">Berries (1/2 cup)</div>
+        <table class="carb-table">
+          <tr><td>Raspberries</td><td class="net">3.3g</td></tr>
+          <tr><td>Blackberries</td><td class="net">3.1g</td></tr>
+          <tr><td>Strawberries</td><td class="net">4.1g</td></tr>
+          <tr><td>Blueberries</td><td class="net">8.9g</td></tr>
+        </table>
+        <div class="sec-title" style="margin-top: 4px;">Condiments</div>
+        <table class="carb-table">
+          <tr><td>Mustard (1 tsp)</td><td class="net">0g</td></tr>
+          <tr><td>Mayo (1 tbsp)</td><td class="net">0g</td></tr>
+          <tr><td>Hot sauce (1 tsp)</td><td class="net">0g</td></tr>
+          <tr><td>Soy sauce (1 tbsp)</td><td class="net">0.8g</td></tr>
+          <tr><td>Ranch (2 tbsp)</td><td class="net">1.5g</td></tr>
+          <tr><td>Salsa (2 tbsp)</td><td class="net">2g</td></tr>
+          <tr><td>Pesto (1 tbsp)</td><td class="net">1g</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <strong>Net Carbs = Total Carbs − Fiber.</strong> On keto, aim for under 20g net carbs per day. Track what you eat for the first 2 weeks — it gets intuitive fast.
+  </div>
+
+  <div class="page-footer">CarnivoreWeekly.com • KetoDial.com • For personal use only</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PAGE 2: KETO SNACKS LIST
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h1>🥜 Keto Snacks List</h1>
+    <div class="sub">GRAB-AND-GO • NO-COOK • UNDER 5G NET CARBS EACH</div>
+  </div>
+
+  <div class="grid-3col">
+    <!-- QUICK GRAB -->
+    <div class="card">
+      <div class="card-hdr bg-green">⚡ Quick Grab</div>
+      <div class="card-body bg-green-light">
+        <div class="item"><span class="ic">🧀</span><span>String cheese</span><span class="carbs">0.5g</span></div>
+        <div class="item"><span class="ic">🥚</span><span>Hard-boiled eggs</span><span class="carbs">0.4g</span></div>
+        <div class="item"><span class="ic">🥓</span><span>Bacon strips</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🥒</span><span>Cucumber slices</span><span class="carbs">1.5g</span></div>
+        <div class="item"><span class="ic">🫒</span><span>Olives (10)</span><span class="carbs">1.5g</span></div>
+        <div class="item"><span class="ic">🥑</span><span>Avocado half</span><span class="carbs">1.8g</span></div>
+        <div class="item"><span class="ic">🥜</span><span>Handful of almonds</span><span class="carbs">2.7g</span></div>
+        <div class="item"><span class="ic">🧈</span><span>Pepperoni slices</span><span class="carbs">0.5g</span></div>
+        <div class="item"><span class="ic">🥬</span><span>Celery + cream cheese</span><span class="carbs">1.5g</span></div>
+        <div class="item"><span class="ic">🫘</span><span>Macadamia nuts</span><span class="carbs">1.5g</span></div>
+        <div class="item"><span class="ic">🧀</span><span>Cheese crisps</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🥓</span><span>Pork rinds</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🫑</span><span>Mini bell peppers</span><span class="carbs">2g</span></div>
+        <div class="item"><span class="ic">🥬</span><span>Radishes + butter</span><span class="carbs">0.5g</span></div>
+        <div class="item"><span class="ic">🧀</span><span>Brie wedge</span><span class="carbs">0.1g</span></div>
+        <div class="item"><span class="ic">🥩</span><span>Prosciutto-wrapped mozz</span><span class="carbs">0.5g</span></div>
+        <div class="item"><span class="ic">🫒</span><span>Stuffed olives</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🥜</span><span>Pecans (handful)</span><span class="carbs">1.2g</span></div>
+        <div class="item"><span class="ic">🥒</span><span>Pickle spears</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🧈</span><span>Salami chips</span><span class="carbs">0g</span></div>
+      </div>
+    </div>
+
+    <!-- MAKE AHEAD -->
+    <div class="card">
+      <div class="card-hdr bg-blue">🍳 Make Ahead</div>
+      <div class="card-body bg-blue-light">
+        <div class="item"><span class="ic">🥚</span><span>Egg muffins</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🥩</span><span>Beef jerky (no sugar)</span><span class="carbs">3g</span></div>
+        <div class="item"><span class="ic">🍖</span><span>Chicken drumsticks</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🥜</span><span>Fat bombs</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🥒</span><span>Pickle roll-ups</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🧀</span><span>Cheese + salami rolls</span><span class="carbs">0.5g</span></div>
+        <div class="item"><span class="ic">🥬</span><span>Lettuce wraps</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🐟</span><span>Tuna salad cups</span><span class="carbs">0.5g</span></div>
+        <div class="item"><span class="ic">🥑</span><span>Guacamole + veggies</span><span class="carbs">3g</span></div>
+        <div class="item"><span class="ic">🥩</span><span>Meatballs (4 mini)</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🍳</span><span>Deviled eggs</span><span class="carbs">0.5g</span></div>
+        <div class="item"><span class="ic">🥥</span><span>Coconut clusters</span><span class="carbs">2g</span></div>
+        <div class="item"><span class="ic">🥩</span><span>Bacon-wrapped jalapeños</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🧀</span><span>Cheese stuffed peppers</span><span class="carbs">1.5g</span></div>
+        <div class="item"><span class="ic">🥬</span><span>Turkey + cheese roll-ups</span><span class="carbs">0.5g</span></div>
+        <div class="item"><span class="ic">🐟</span><span>Smoked salmon bites</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🍖</span><span>Buffalo chicken dip</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🥑</span><span>Avocado egg boats</span><span class="carbs">2g</span></div>
+        <div class="item"><span class="ic">🫕</span><span>Cream cheese stuffed celery</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🥓</span><span>BLT lettuce cups</span><span class="carbs">1.5g</span></div>
+      </div>
+    </div>
+
+    <!-- SWEET TOOTH -->
+    <div class="card">
+      <div class="card-hdr bg-purple">🍫 Sweet Tooth</div>
+      <div class="card-body bg-purple-light">
+        <div class="item"><span class="ic">🍫</span><span>Dark chocolate (85%+)</span><span class="carbs">4g</span></div>
+        <div class="item"><span class="ic">🍓</span><span>Berries + whipped cream</span><span class="carbs">4g</span></div>
+        <div class="item"><span class="ic">🥜</span><span>Almond butter (1 tbsp)</span><span class="carbs">3g</span></div>
+        <div class="item"><span class="ic">🥥</span><span>Coconut chips</span><span class="carbs">2g</span></div>
+        <div class="item"><span class="ic">🫐</span><span>Frozen berries</span><span class="carbs">4g</span></div>
+        <div class="item"><span class="ic">🍮</span><span>Sugar-free jello</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🧁</span><span>Keto mug cake</span><span class="carbs">3g</span></div>
+        <div class="item"><span class="ic">🍦</span><span>Cream cheese bites</span><span class="carbs">1g</span></div>
+        <div class="item"><span class="ic">🥜</span><span>Peanut butter fat bombs</span><span class="carbs">2g</span></div>
+        <div class="item"><span class="ic">🍫</span><span>Cocoa almonds (10)</span><span class="carbs">3g</span></div>
+        <div class="item"><span class="ic">🫐</span><span>Frozen blueberries (1/4c)</span><span class="carbs">4g</span></div>
+        <div class="item"><span class="ic">🥥</span><span>Coconut butter spoonful</span><span class="carbs">2g</span></div>
+        <div class="item"><span class="ic">🍮</span><span>Chia pudding</span><span class="carbs">2g</span></div>
+        <div class="item"><span class="ic">🍦</span><span>Whipped cream (plain)</span><span class="carbs">0.4g</span></div>
+
+        <div class="sec-title" style="margin-top: 8px;">Drinks</div>
+        <div class="item"><span class="ic">☕</span><span>Bulletproof coffee</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🍵</span><span>Bone broth</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">💧</span><span>Sparkling water</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🧊</span><span>Iced tea (unsweetened)</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🥛</span><span>Almond milk (unsweet)</span><span class="carbs">0.5g</span></div>
+        <div class="item"><span class="ic">🧉</span><span>Electrolyte drink</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">☕</span><span>Black coffee</span><span class="carbs">0g</span></div>
+        <div class="item"><span class="ic">🍋</span><span>Lemon water</span><span class="carbs">0.5g</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <strong>Watch out:</strong> "Keto-friendly" packaged snacks often have hidden carbs from maltitol, dextrose, or fillers. Always check the label. Whole foods are the safest bet.
+  </div>
+
+  <div class="page-footer">CarnivoreWeekly.com • KetoDial.com • For personal use only</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PAGE 3: FOODS TO AVOID (DETAILED)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h1>🚫 Foods to Avoid on Keto</h1>
+    <div class="sub">THESE FOODS WILL KNOCK YOU OUT OF KETOSIS</div>
+  </div>
+
+  <div class="grid-2col">
+    <!-- LEFT COLUMN -->
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <div class="card">
+        <div class="card-hdr bg-red">🍞 Grains & Starches</div>
+        <div class="card-body bg-red-light">
+          <div class="item"><span class="ic">🍞</span><span>Bread (all types)</span><span class="carbs">12-15g/slice</span></div>
+          <div class="item"><span class="ic">🍝</span><span>Pasta</span><span class="carbs">40g/cup</span></div>
+          <div class="item"><span class="ic">🍚</span><span>Rice (white or brown)</span><span class="carbs">44g/cup</span></div>
+          <div class="item"><span class="ic">🥣</span><span>Oatmeal</span><span class="carbs">27g/cup</span></div>
+          <div class="item"><span class="ic">🌽</span><span>Corn & corn products</span><span class="carbs">29g/cup</span></div>
+          <div class="item"><span class="ic">🥔</span><span>Potatoes</span><span class="carbs">33g/med</span></div>
+          <div class="item"><span class="ic">🍠</span><span>Sweet potatoes</span><span class="carbs">24g/med</span></div>
+          <div class="item"><span class="ic">🥨</span><span>Crackers & pretzels</span><span class="carbs">20g/oz</span></div>
+          <div class="item"><span class="ic">🫓</span><span>Tortillas (flour)</span><span class="carbs">24g/each</span></div>
+          <div class="item"><span class="ic">🥞</span><span>Pancakes & waffles</span><span class="carbs">30g/each</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr bg-red">🍬 Sugar & Sweeteners</div>
+        <div class="card-body bg-red-light">
+          <div class="item"><span class="ic">🍬</span><span>Table sugar</span><span class="carbs">12g/tbsp</span></div>
+          <div class="item"><span class="ic">🍯</span><span>Honey</span><span class="carbs">17g/tbsp</span></div>
+          <div class="item"><span class="ic">🧁</span><span>Maple syrup</span><span class="carbs">13g/tbsp</span></div>
+          <div class="item"><span class="ic">🍫</span><span>Agave nectar</span><span class="carbs">16g/tbsp</span></div>
+          <div class="item"><span class="ic">🫙</span><span>Corn syrup</span><span class="carbs">16g/tbsp</span></div>
+          <div class="item"><span class="ic">🍩</span><span>Candy, cookies, cake</span><span class="carbs">20-50g</span></div>
+          <div class="item"><span class="ic">🍦</span><span>Ice cream</span><span class="carbs">24g/cup</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr bg-red">🫘 Legumes & Beans</div>
+        <div class="card-body bg-red-light">
+          <div class="item"><span class="ic">🫘</span><span>Black beans</span><span class="carbs">26g/cup</span></div>
+          <div class="item"><span class="ic">🫛</span><span>Chickpeas</span><span class="carbs">32g/cup</span></div>
+          <div class="item"><span class="ic">🫘</span><span>Lentils</span><span class="carbs">24g/cup</span></div>
+          <div class="item"><span class="ic">🥜</span><span>Peanuts (technically legume)</span><span class="carbs">4.5g/oz</span></div>
+          <div class="item"><span class="ic">🫛</span><span>Kidney beans</span><span class="carbs">22g/cup</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <div class="card">
+        <div class="card-hdr bg-red">🍌 High-Sugar Fruits</div>
+        <div class="card-body bg-red-light">
+          <div class="item"><span class="ic">🍌</span><span>Banana</span><span class="carbs">24g/med</span></div>
+          <div class="item"><span class="ic">🍎</span><span>Apple</span><span class="carbs">21g/med</span></div>
+          <div class="item"><span class="ic">🍊</span><span>Orange</span><span class="carbs">15g/med</span></div>
+          <div class="item"><span class="ic">🍇</span><span>Grapes</span><span class="carbs">26g/cup</span></div>
+          <div class="item"><span class="ic">🥭</span><span>Mango</span><span class="carbs">25g/cup</span></div>
+          <div class="item"><span class="ic">🍍</span><span>Pineapple</span><span class="carbs">19g/cup</span></div>
+          <div class="item"><span class="ic">🍉</span><span>Watermelon</span><span class="carbs">11g/cup</span></div>
+          <div class="item"><span class="ic">🍑</span><span>Peaches</span><span class="carbs">13g/med</span></div>
+          <div class="item"><span class="ic">🍒</span><span>Cherries</span><span class="carbs">18g/cup</span></div>
+          <div class="item"><span class="ic">🍈</span><span>Cantaloupe</span><span class="carbs">13g/cup</span></div>
+          <div class="item"><span class="ic">🍐</span><span>Pear</span><span class="carbs">22g/med</span></div>
+          <div class="item"><span class="ic">🫐</span><span>Dried fruit (any)</span><span class="carbs">30g+/oz</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr bg-red">🥤 Drinks</div>
+        <div class="card-body bg-red-light">
+          <div class="item"><span class="ic">🥤</span><span>Soda (regular)</span><span class="carbs">39g/can</span></div>
+          <div class="item"><span class="ic">🧃</span><span>Fruit juice</span><span class="carbs">28g/cup</span></div>
+          <div class="item"><span class="ic">🍺</span><span>Beer</span><span class="carbs">13g/can</span></div>
+          <div class="item"><span class="ic">☕</span><span>Sweetened coffee drinks</span><span class="carbs">40g+</span></div>
+          <div class="item"><span class="ic">🧋</span><span>Bubble tea</span><span class="carbs">35g+</span></div>
+          <div class="item"><span class="ic">⚡</span><span>Energy drinks (sugared)</span><span class="carbs">27g/can</span></div>
+          <div class="item"><span class="ic">🥛</span><span>Milk (1 cup)</span><span class="carbs">12g</span></div>
+          <div class="item"><span class="ic">🥤</span><span>Smoothies (store)</span><span class="carbs">40g+</span></div>
+          <div class="item"><span class="ic">🍷</span><span>Sweet wine</span><span class="carbs">8g/glass</span></div>
+          <div class="item"><span class="ic">🍹</span><span>Cocktails (mixed)</span><span class="carbs">20-40g</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr bg-red">⚠️ Hidden Carb Traps</div>
+        <div class="card-body bg-red-light">
+          <div class="item"><span class="ic">🥫</span><span>Ketchup (1 tbsp)</span><span class="carbs">4g</span></div>
+          <div class="item"><span class="ic">🥫</span><span>BBQ sauce (2 tbsp)</span><span class="carbs">12g</span></div>
+          <div class="item"><span class="ic">🍶</span><span>Teriyaki sauce (2 tbsp)</span><span class="carbs">7g</span></div>
+          <div class="item"><span class="ic">🥛</span><span>Fat-free dressing</span><span class="carbs">5-8g</span></div>
+          <div class="item"><span class="ic">🫙</span><span>Balsamic vinegar (1 tbsp)</span><span class="carbs">3g</span></div>
+          <div class="item"><span class="ic">🥗</span><span>"Low fat" anything</span><span class="carbs">varies</span></div>
+          <div class="item"><span class="ic">🌮</span><span>Breaded meats</span><span class="carbs">10-20g</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">CarnivoreWeekly.com • KetoDial.com • For personal use only</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PAGE 4: PROTEIN-FIRST KETO FOODS
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h1>💪 Protein-First Keto Foods</h1>
+    <div class="sub">HIGH PROTEIN • LOW CARB • SORTED BY PROTEIN PER SERVING</div>
+  </div>
+
+  <div class="grid-2col">
+    <!-- ANIMAL PROTEINS -->
+    <div class="card" style="grid-row: span 2;">
+      <div class="card-hdr bg-red">🥩 Animal Proteins</div>
+      <div class="card-body bg-red-light">
+        <table class="carb-table">
+          <tr><th>Food (4 oz / 113g)</th><th style="text-align:right">Protein</th><th style="text-align:right">Fat</th><th class="net">Carbs</th></tr>
+          <tr><td>Chicken breast</td><td style="text-align:right">31g</td><td style="text-align:right">4g</td><td class="net">0g</td></tr>
+          <tr><td>Turkey breast</td><td style="text-align:right">30g</td><td style="text-align:right">1g</td><td class="net">0g</td></tr>
+          <tr><td>Tuna (canned)</td><td style="text-align:right">28g</td><td style="text-align:right">1g</td><td class="net">0g</td></tr>
+          <tr><td>Shrimp</td><td style="text-align:right">26g</td><td style="text-align:right">1g</td><td class="net">0.8g</td></tr>
+          <tr><td>Salmon</td><td style="text-align:right">25g</td><td style="text-align:right">12g</td><td class="net">0g</td></tr>
+          <tr><td>Lean beef (sirloin)</td><td style="text-align:right">26g</td><td style="text-align:right">10g</td><td class="net">0g</td></tr>
+          <tr><td>Pork tenderloin</td><td style="text-align:right">26g</td><td style="text-align:right">4g</td><td class="net">0g</td></tr>
+          <tr><td>Ground beef (85%)</td><td style="text-align:right">24g</td><td style="text-align:right">17g</td><td class="net">0g</td></tr>
+          <tr><td>Lamb chop</td><td style="text-align:right">23g</td><td style="text-align:right">17g</td><td class="net">0g</td></tr>
+          <tr><td>Chicken thigh</td><td style="text-align:right">22g</td><td style="text-align:right">11g</td><td class="net">0g</td></tr>
+          <tr><td>Sardines (canned)</td><td style="text-align:right">22g</td><td style="text-align:right">10g</td><td class="net">0g</td></tr>
+          <tr><td>Bacon (4 slices)</td><td style="text-align:right">16g</td><td style="text-align:right">18g</td><td class="net">0g</td></tr>
+        </table>
+        <div class="sec-title" style="margin-top: 6px;">Seafood</div>
+        <table class="carb-table">
+          <tr><td>Cod</td><td style="text-align:right">26g</td><td style="text-align:right">1g</td><td class="net">0g</td></tr>
+          <tr><td>Halibut</td><td style="text-align:right">24g</td><td style="text-align:right">3g</td><td class="net">0g</td></tr>
+          <tr><td>Mahi mahi</td><td style="text-align:right">24g</td><td style="text-align:right">1g</td><td class="net">0g</td></tr>
+          <tr><td>Scallops</td><td style="text-align:right">20g</td><td style="text-align:right">1g</td><td class="net">3g</td></tr>
+          <tr><td>Crab</td><td style="text-align:right">21g</td><td style="text-align:right">1g</td><td class="net">0g</td></tr>
+          <tr><td>Lobster</td><td style="text-align:right">22g</td><td style="text-align:right">1g</td><td class="net">0g</td></tr>
+        </table>
+        <div class="sec-title" style="margin-top: 6px;">Eggs & Other</div>
+        <table class="carb-table">
+          <tr><td>Eggs (2 large)</td><td style="text-align:right">12g</td><td style="text-align:right">10g</td><td class="net">0.8g</td></tr>
+          <tr><td>Egg whites (4)</td><td style="text-align:right">14g</td><td style="text-align:right">0g</td><td class="net">0.8g</td></tr>
+          <tr><td>Bison</td><td style="text-align:right">28g</td><td style="text-align:right">7g</td><td class="net">0g</td></tr>
+          <tr><td>Venison</td><td style="text-align:right">30g</td><td style="text-align:right">3g</td><td class="net">0g</td></tr>
+          <tr><td>Duck breast</td><td style="text-align:right">24g</td><td style="text-align:right">11g</td><td class="net">0g</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- DAIRY PROTEINS -->
+    <div class="card">
+      <div class="card-hdr bg-amber">🧀 Dairy Proteins</div>
+      <div class="card-body bg-amber-light">
+        <table class="carb-table">
+          <tr><th>Food</th><th style="text-align:right">Protein</th><th class="net">Carbs</th></tr>
+          <tr><td>Cottage cheese (1/2 c)</td><td style="text-align:right">14g</td><td class="net">3g</td></tr>
+          <tr><td>Greek yogurt (1/2 c)</td><td style="text-align:right">12g</td><td class="net">3.5g</td></tr>
+          <tr><td>Cheddar (1.5 oz)</td><td style="text-align:right">10g</td><td class="net">0.5g</td></tr>
+          <tr><td>Mozzarella (1.5 oz)</td><td style="text-align:right">10g</td><td class="net">1g</td></tr>
+          <tr><td>Parmesan (1 oz)</td><td style="text-align:right">10g</td><td class="net">0.9g</td></tr>
+          <tr><td>Swiss (1.5 oz)</td><td style="text-align:right">11g</td><td class="net">0.5g</td></tr>
+          <tr><td>Ricotta (1/4 c)</td><td style="text-align:right">7g</td><td class="net">1.5g</td></tr>
+          <tr><td>Gouda (1.5 oz)</td><td style="text-align:right">10g</td><td class="net">0.6g</td></tr>
+          <tr><td>Brie (1.5 oz)</td><td style="text-align:right">9g</td><td class="net">0.1g</td></tr>
+          <tr><td>Cream cheese (2 oz)</td><td style="text-align:right">4g</td><td class="net">1.6g</td></tr>
+          <tr><td>Goat cheese (1.5 oz)</td><td style="text-align:right">9g</td><td class="net">0g</td></tr>
+          <tr><td>Colby jack (1.5 oz)</td><td style="text-align:right">10g</td><td class="net">0.5g</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- PLANT PROTEINS -->
+    <div class="card">
+      <div class="card-hdr bg-green">🌱 Plant Proteins (Keto-Friendly)</div>
+      <div class="card-body bg-green-light">
+        <table class="carb-table">
+          <tr><th>Food</th><th style="text-align:right">Protein</th><th class="net">Carbs</th></tr>
+          <tr><td>Hemp hearts (3 tbsp)</td><td style="text-align:right">10g</td><td class="net">1g</td></tr>
+          <tr><td>Pumpkin seeds (1 oz)</td><td style="text-align:right">8g</td><td class="net">2g</td></tr>
+          <tr><td>Almonds (1 oz)</td><td style="text-align:right">6g</td><td class="net">2.7g</td></tr>
+          <tr><td>Chia seeds (2 tbsp)</td><td style="text-align:right">5g</td><td class="net">0.8g</td></tr>
+          <tr><td>Sunflower seeds (1 oz)</td><td style="text-align:right">6g</td><td class="net">3.2g</td></tr>
+          <tr><td>Walnuts (1 oz)</td><td style="text-align:right">4g</td><td class="net">2g</td></tr>
+          <tr><td>Flax seeds (2 tbsp)</td><td style="text-align:right">4g</td><td class="net">0.2g</td></tr>
+          <tr><td>Pecans (1 oz)</td><td style="text-align:right">3g</td><td class="net">1.2g</td></tr>
+          <tr><td>Macadamia (1 oz)</td><td style="text-align:right">2g</td><td class="net">1.5g</td></tr>
+          <tr><td>Brazil nuts (1 oz)</td><td style="text-align:right">4g</td><td class="net">1.4g</td></tr>
+          <tr><td>Sesame seeds (2 tbsp)</td><td style="text-align:right">5g</td><td class="net">1g</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <strong>Protein target:</strong> Most keto dieters need 0.7–1.0g protein per pound of lean body mass. Use the KetoDial calculator to find your personal macro targets.
+  </div>
+
+  <div class="page-footer">CarnivoreWeekly.com • KetoDial.com • For personal use only</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PAGE 5: ELECTROLYTE & KETO FLU CHECKLIST
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h1>⚡ Electrolyte & Keto Flu Checklist</h1>
+    <div class="sub">YOUR FIRST 2 WEEKS • PREVENT & FIX COMMON SYMPTOMS</div>
+  </div>
+
+  <div class="grid-2col">
+    <!-- SYMPTOMS -->
+    <div class="card">
+      <div class="card-hdr bg-orange">🤒 Common Keto Flu Symptoms</div>
+      <div class="card-body bg-orange-light">
+        <div class="item"><div class="check"></div><span>Headache</span></div>
+        <div class="item"><div class="check"></div><span>Fatigue / brain fog</span></div>
+        <div class="item"><div class="check"></div><span>Muscle cramps</span></div>
+        <div class="item"><div class="check"></div><span>Dizziness</span></div>
+        <div class="item"><div class="check"></div><span>Nausea</span></div>
+        <div class="item"><div class="check"></div><span>Irritability</span></div>
+        <div class="item"><div class="check"></div><span>Sugar cravings</span></div>
+        <div class="item"><div class="check"></div><span>Trouble sleeping</span></div>
+        <div class="item"><div class="check"></div><span>Constipation</span></div>
+        <div class="item"><div class="check"></div><span>Heart palpitations</span></div>
+
+        <div style="font-size:7pt; color:#888; margin-top:8px; line-height:1.4;">
+          Most symptoms peak days 2-5 and resolve within 1-2 weeks. Electrolytes help a lot.
+        </div>
+      </div>
+    </div>
+
+    <!-- DAILY TARGETS -->
+    <div class="card">
+      <div class="card-hdr bg-teal">🎯 Daily Electrolyte Targets</div>
+      <div class="card-body bg-teal-light">
+        <table class="carb-table">
+          <tr><th>Electrolyte</th><th style="text-align:right">Daily Target</th></tr>
+          <tr><td><strong>Sodium</strong></td><td style="text-align:right; font-weight:700;">3,000 – 5,000 mg</td></tr>
+          <tr><td><strong>Potassium</strong></td><td style="text-align:right; font-weight:700;">3,500 – 4,700 mg</td></tr>
+          <tr><td><strong>Magnesium</strong></td><td style="text-align:right; font-weight:700;">300 – 400 mg</td></tr>
+        </table>
+
+        <div class="sec-title" style="margin-top: 8px;">Food Sources</div>
+        <div class="item"><span class="ic">🧂</span><span><strong>Sodium:</strong> salt, bone broth, pickles, olives</span></div>
+        <div class="item"><span class="ic">🥑</span><span><strong>Potassium:</strong> avocado, salmon, spinach, mushrooms</span></div>
+        <div class="item"><span class="ic">🥬</span><span><strong>Magnesium:</strong> pumpkin seeds, almonds, spinach, dark chocolate</span></div>
+      </div>
+    </div>
+
+    <!-- FIRST WEEK CHECKLIST -->
+    <div class="card span-2">
+      <div class="card-hdr bg-dark">✅ First 2 Weeks — Daily Checklist</div>
+      <div class="card-body">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div>
+            <div class="sec-title">Hydration & Electrolytes</div>
+            <div class="item"><div class="check"></div><span>Drink 2-3 liters of water</span></div>
+            <div class="item"><div class="check"></div><span>Add salt to food (don't be shy)</span></div>
+            <div class="item"><div class="check"></div><span>Drink bone broth (1 cup/day)</span></div>
+            <div class="item"><div class="check"></div><span>Take magnesium before bed</span></div>
+            <div class="item"><div class="check"></div><span>Eat potassium-rich foods</span></div>
+
+            <div class="sec-title" style="margin-top: 8px;">Nutrition</div>
+            <div class="item"><div class="check"></div><span>Stay under 20g net carbs</span></div>
+            <div class="item"><div class="check"></div><span>Hit your protein target</span></div>
+            <div class="item"><div class="check"></div><span>Eat enough fat (don't fear it)</span></div>
+            <div class="item"><div class="check"></div><span>Track food for first 2 weeks</span></div>
+          </div>
+          <div>
+            <div class="sec-title">Lifestyle</div>
+            <div class="item"><div class="check"></div><span>Sleep 7-9 hours</span></div>
+            <div class="item"><div class="check"></div><span>Light exercise only (walking)</span></div>
+            <div class="item"><div class="check"></div><span>Avoid intense workouts week 1</span></div>
+            <div class="item"><div class="check"></div><span>Manage stress levels</span></div>
+
+            <div class="sec-title" style="margin-top: 8px;">Pantry Prep</div>
+            <div class="item"><div class="check"></div><span>Remove temptation foods</span></div>
+            <div class="item"><div class="check"></div><span>Stock keto snacks</span></div>
+            <div class="item"><div class="check"></div><span>Prep meals for the week</span></div>
+            <div class="item"><div class="check"></div><span>Have electrolyte drinks ready</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <strong>Not medical advice.</strong> If symptoms are severe or persist beyond 2 weeks, consult your doctor. Keto flu is usually just your body adjusting to burning fat instead of sugar.
+  </div>
+
+  <div class="page-footer">CarnivoreWeekly.com • KetoDial.com • For personal use only</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PAGE 6: 7-DAY SIMPLE MEAL PLANNER
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h1>📅 7-Day Keto Meal Planner</h1>
+    <div class="sub">PLAN YOUR WEEK • STAY ON TRACK • UNDER 20G NET CARBS</div>
+  </div>
+
+  <div class="meal-grid">
+    <!-- HEADER ROW -->
+    <div class="meal-cell meal-hdr bg-dark"></div>
+    <div class="meal-cell meal-hdr bg-green">🍳 Breakfast</div>
+    <div class="meal-cell meal-hdr bg-blue">🥗 Lunch</div>
+    <div class="meal-cell meal-hdr bg-orange">🍖 Dinner</div>
+    <div class="meal-cell meal-hdr bg-purple">🥜 Snack</div>
+
+    <!-- MONDAY -->
+    <div class="meal-cell meal-day bg-dark">Mon</div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+
+    <!-- TUESDAY -->
+    <div class="meal-cell meal-day bg-dark">Tue</div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+
+    <!-- WEDNESDAY -->
+    <div class="meal-cell meal-day bg-dark">Wed</div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+
+    <!-- THURSDAY -->
+    <div class="meal-cell meal-day bg-dark">Thu</div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+
+    <!-- FRIDAY -->
+    <div class="meal-cell meal-day bg-dark">Fri</div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+
+    <!-- SATURDAY -->
+    <div class="meal-cell meal-day bg-dark">Sat</div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+    <div class="meal-cell"></div>
+
+    <!-- SUNDAY -->
+    <div class="meal-cell meal-day bg-dark" style="border-bottom:none;">Sun</div>
+    <div class="meal-cell" style="border-bottom:none;"></div>
+    <div class="meal-cell" style="border-bottom:none;"></div>
+    <div class="meal-cell" style="border-bottom:none;"></div>
+    <div class="meal-cell" style="border-bottom:none;"></div>
+  </div>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:8px; flex-shrink:0;">
+    <div style="background:#f0faf4; border-radius:4px; padding:5px 8px; font-size:7pt;">
+      <strong style="color:#27ae60;">Weekly Grocery Budget:</strong><br>
+      $ __________
+    </div>
+    <div style="background:#f0f7fc; border-radius:4px; padding:5px 8px; font-size:7pt;">
+      <strong style="color:#2980b9;">Meal Prep Day:</strong><br>
+      __________
+    </div>
+    <div style="background:#fef6ed; border-radius:4px; padding:5px 8px; font-size:7pt;">
+      <strong style="color:#e67e22;">Net Carb Target:</strong><br>
+      ______ g / day
+    </div>
+  </div>
+
+  <div class="page-footer">CarnivoreWeekly.com • KetoDial.com • For personal use only</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PAGE 7: BLANK GROCERY CHECKLIST
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h1>🛒 Blank Grocery Checklist</h1>
+    <div class="sub">WRITE YOUR OWN • REPRINT WEEKLY</div>
+  </div>
+
+  <div class="grid-4col" style="flex:1;">
+    <div class="card">
+      <div class="card-hdr bg-red">🥩 Proteins</div>
+      <div class="card-body">
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr bg-green">🥦 Vegetables</div>
+      <div class="card-body">
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr bg-amber">🧀 Dairy & Eggs</div>
+      <div class="card-body">
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr bg-brown">🫒 Fats & Oils</div>
+      <div class="card-body">
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr bg-purple">🥜 Nuts & Seeds</div>
+      <div class="card-body">
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr bg-teal">🍓 Fruits</div>
+      <div class="card-body">
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr bg-gray">🫙 Pantry</div>
+      <div class="card-body">
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr bg-blue">🍵 Drinks & Other</div>
+      <div class="card-body">
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+        <div class="note-line-sm"></div><div class="note-line-sm"></div><div class="note-line-sm"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">CarnivoreWeekly.com • KetoDial.com • Print as many copies as you need • For personal use only</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PAGE 8: MACRO NOTES PAGE
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h1>📝 My Keto Macros & Notes</h1>
+    <div class="sub">TRACK YOUR TARGETS • ADJUST AS YOU GO</div>
+  </div>
+
+  <!-- MACRO TARGETS BOX -->
+  <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:8px; margin-bottom:10px; flex-shrink:0;">
+    <div style="background:#2c3e50; color:#fff; border-radius:6px; padding:10px; text-align:center;">
+      <div style="font-family:'Fredoka'; font-size:8pt; letter-spacing:1px; text-transform:uppercase; opacity:0.8;">Daily Calories</div>
+      <div style="font-size:22pt; font-family:'Fredoka'; font-weight:700; margin:4px 0;">_____</div>
+      <div style="font-size:7pt; opacity:0.6;">kcal / day</div>
+    </div>
+    <div style="background:#27ae60; color:#fff; border-radius:6px; padding:10px; text-align:center;">
+      <div style="font-family:'Fredoka'; font-size:8pt; letter-spacing:1px; text-transform:uppercase; opacity:0.8;">Fat</div>
+      <div style="font-size:22pt; font-family:'Fredoka'; font-weight:700; margin:4px 0;">_____</div>
+      <div style="font-size:7pt; opacity:0.6;">grams (_____%)</div>
+    </div>
+    <div style="background:#e67e22; color:#fff; border-radius:6px; padding:10px; text-align:center;">
+      <div style="font-family:'Fredoka'; font-size:8pt; letter-spacing:1px; text-transform:uppercase; opacity:0.8;">Protein</div>
+      <div style="font-size:22pt; font-family:'Fredoka'; font-weight:700; margin:4px 0;">_____</div>
+      <div style="font-size:7pt; opacity:0.6;">grams (_____%)</div>
+    </div>
+    <div style="background:#c0392b; color:#fff; border-radius:6px; padding:10px; text-align:center;">
+      <div style="font-family:'Fredoka'; font-size:8pt; letter-spacing:1px; text-transform:uppercase; opacity:0.8;">Net Carbs</div>
+      <div style="font-size:22pt; font-family:'Fredoka'; font-weight:700; margin:4px 0;">_____</div>
+      <div style="font-size:7pt; opacity:0.6;">grams (_____%)</div>
+    </div>
+  </div>
+
+  <!-- PERSONAL INFO -->
+  <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-bottom:10px; flex-shrink:0;">
+    <div style="background:#f7f8f8; border-radius:4px; padding:6px 8px; font-size:7.5pt; border: 1px solid #e4e4e4;">
+      <strong>Starting Weight:</strong> ________<br>
+      <strong>Goal Weight:</strong> ________<br>
+      <strong>Start Date:</strong> ________
+    </div>
+    <div style="background:#f7f8f8; border-radius:4px; padding:6px 8px; font-size:7.5pt; border: 1px solid #e4e4e4;">
+      <strong>Height:</strong> ________<br>
+      <strong>Age:</strong> ________<br>
+      <strong>Activity Level:</strong> ________
+    </div>
+    <div style="background:#f7f8f8; border-radius:4px; padding:6px 8px; font-size:7.5pt; border: 1px solid #e4e4e4;">
+      <strong>Goal:</strong> ________<br>
+      <strong>Keto Type:</strong> ________<br>
+      <strong>Calorie Deficit:</strong> ________%
+    </div>
+  </div>
+
+  <!-- WEEKLY PROGRESS -->
+  <div class="card" style="flex:0 0 auto; margin-bottom:8px;">
+    <div class="card-hdr bg-dark">📊 Weekly Progress Tracker</div>
+    <div class="card-body">
+      <table class="carb-table" style="font-size: 7.5pt;">
+        <tr>
+          <th>Week</th><th style="text-align:center">Weight</th><th style="text-align:center">Waist</th>
+          <th style="text-align:center">Energy (1-10)</th><th style="text-align:center">In Ketosis?</th><th>Notes</th>
+        </tr>
+        <tr><td>1</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">Y / N</td><td>_________________</td></tr>
+        <tr><td>2</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">Y / N</td><td>_________________</td></tr>
+        <tr><td>3</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">Y / N</td><td>_________________</td></tr>
+        <tr><td>4</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">Y / N</td><td>_________________</td></tr>
+        <tr><td>5</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">Y / N</td><td>_________________</td></tr>
+        <tr><td>6</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">Y / N</td><td>_________________</td></tr>
+        <tr><td>7</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">Y / N</td><td>_________________</td></tr>
+        <tr><td>8</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">______</td><td style="text-align:center">Y / N</td><td>_________________</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div style="flex:1; min-height:0;">
+    <div style="font-family:'Fredoka'; font-size:9pt; font-weight:600; margin-bottom:4px;">Notes & Observations</div>
+    <div class="note-line"></div><div class="note-line"></div><div class="note-line"></div>
+    <div class="note-line"></div><div class="note-line"></div><div class="note-line"></div>
+    <div class="note-line"></div><div class="note-line"></div><div class="note-line"></div>
+    <div class="note-line"></div>
+  </div>
+
+  <div class="tip-box">
+    <strong>Get your exact macros:</strong> Visit <strong>KetoDial.com</strong> to calculate your personalized keto macros based on your body stats and goals.
+  </div>
+
+  <div class="page-footer">CarnivoreWeekly.com • KetoDial.com • For personal use only</div>
+</div>
+
+</body>
+</html>

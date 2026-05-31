@@ -34,7 +34,7 @@ landscape_map = {
 
 # For landscape: add a small icon image after select category headers
 # We'll add an <img> tag right after the cat-header div for selected categories
-html = open('products/diet-food-list-landscape.html', 'r').read()
+html = open('products/templates/diet-food-list-landscape.html', 'r').read()
 
 # Add CSS for the icons
 icon_css = """
@@ -62,12 +62,12 @@ for (diet, cat_header), icon_name in landscape_map.items():
     if search in html:
         html = html.replace(search, replace, 1)  # Only first occurrence might not be right
 
-with open('products/diet-food-list-landscape.html', 'w') as f:
+with open('products/templates/diet-food-list-landscape.html', 'w') as f:
     f.write(html)
 print('✅ Landscape HTML updated with food icons')
 
 # === PORTRAIT VERSION ===
-html2 = open('products/diet-food-list-pages.html', 'r').read()
+html2 = open('products/templates/diet-food-list-pages.html', 'r').read()
 
 portrait_map = {
     # Lion
@@ -117,6 +117,6 @@ for cat_header, icon_name in portrait_map.items():
     # Replace all occurrences (same header might appear on different pages)
     html2 = html2.replace(search, replace)
 
-with open('products/diet-food-list-pages.html', 'w') as f:
+with open('products/templates/diet-food-list-pages.html', 'w') as f:
     f.write(html2)
 print('✅ Portrait HTML updated with food icons')

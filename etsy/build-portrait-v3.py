@@ -381,7 +381,7 @@ html = f'''<!DOCTYPE html>
 </body>
 </html>'''
 
-with open('products/diet-food-list-pages.html', 'w') as f:
+with open('products/templates/diet-food-list-pages.html', 'w') as f:
     f.write(html)
 
 print('✅ Portrait fridge cards built — 4 pages, 2-column dense layout')

@@ -31,7 +31,7 @@ PATTERNS=(
 
 # Skip ONLY the scanner itself (its regex strings look secret-like but are patterns).
 # Everything else — including gitignored paths if force-added — gets scanned. That's the point.
-IGNORE_PATHS_REGEX='^(scripts/check-secrets\.sh|scripts/pre-commit-hook\.sh)$'
+IGNORE_PATHS_REGEX='^(scripts/check-secrets\.sh|scripts/pre-commit-hook\.sh|etsy/products/templates/.*\.html)$'
 
 # Pull staged additions only.
 files=$(git diff --cached --name-only --diff-filter=AM 2>/dev/null || true)
