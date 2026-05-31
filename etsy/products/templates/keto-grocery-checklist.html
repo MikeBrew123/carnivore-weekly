@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Keto Grocery List — Shopping Checklist</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+  @page { size: 8.5in 11in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: #fefefe;
+    color: #2d2d2d;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: 0.3in 0.35in 0.2in;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    text-align: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .header h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 28pt;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .header .subtitle {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 11pt;
+    font-weight: 500;
+    color: #888;
+    letter-spacing: 2px;
+    margin-top: 1px;
+  }
+
+  /* ─── GRID ─── */
+  .grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    min-height: 0;
+  }
+
+  /* ─── CATEGORY CARD ─── */
+  .cat {
+    display: flex;
+    flex-direction: column;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e8e8e8;
+  }
+
+  .cat-header {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 8px;
+    color: #fff;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .cat-body {
+    flex: 1;
+    padding: 4px 6px;
+    background: #fff;
+  }
+
+  .check-item {
+    font-size: 7.5pt;
+    line-height: 1.45;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.5px 0;
+  }
+  .check-item .box {
+    width: 9px;
+    height: 9px;
+    border: 1.2px solid #bbb;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .check-item .fi {
+    font-size: 8pt;
+    flex-shrink: 0;
+  }
+  .check-item span { flex: 1; }
+
+  /* ─── CATEGORY COLORS ─── */
+  .cat-meat .cat-header { background: #c0392b; }
+  .cat-meat .cat-body { background: #fdf2f2; }
+
+  .cat-poultry .cat-header { background: #d4760a; }
+  .cat-poultry .cat-body { background: #fef9f0; }
+
+  .cat-seafood .cat-header { background: #2980b9; }
+  .cat-seafood .cat-body { background: #f0f7fc; }
+
+  .cat-dairy .cat-header { background: #f39c12; }
+  .cat-dairy .cat-body { background: #fef9ed; }
+
+  .cat-eggs .cat-header { background: #e67e22; }
+  .cat-eggs .cat-body { background: #fef6ed; }
+
+  .cat-veg .cat-header { background: #27ae60; }
+  .cat-veg .cat-body { background: #f0faf4; }
+
+  .cat-fats .cat-header { background: #8e6d47; }
+  .cat-fats .cat-body { background: #faf6f1; }
+
+  .cat-nuts .cat-header { background: #a0522d; }
+  .cat-nuts .cat-body { background: #faf5f0; }
+
+  .cat-pantry .cat-header { background: #7f8c8d; }
+  .cat-pantry .cat-body { background: #f7f8f8; }
+
+  .cat-baking .cat-header { background: #9b59b6; }
+  .cat-baking .cat-body { background: #f9f3fc; }
+
+  .cat-drinks .cat-header { background: #16a085; }
+  .cat-drinks .cat-body { background: #f0faf7; }
+
+  .cat-condiments .cat-header { background: #e74c3c; }
+  .cat-condiments .cat-body { background: #fef2f2; }
+
+  /* ─── SPAN 2 ROWS ─── */
+  .cat-tall { grid-row: span 2; }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    text-align: center;
+    font-size: 6pt;
+    color: #bbb;
+    padding-top: 5px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── A4 ─── */
+  .page-a4 {
+    width: 210mm;
+    height: 297mm;
+    padding: 8mm 10mm 6mm;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ PAGE 1: US LETTER ═══════════════════════════════════════ -->
+<div class="page">
+  <div class="header">
+    <h1>🥑 Keto Grocery List</h1>
+    <div class="subtitle">Your Low-Carb Shopping Checklist</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- MEAT -->
+    <div class="cat cat-meat cat-tall">
+      <div class="cat-header">🥩 Meat</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Beef (ground)</span></div>
+        <div class="check-item"><div class="box"></div><span>Beef (steak)</span></div>
+        <div class="check-item"><div class="box"></div><span>Beef (roast)</span></div>
+        <div class="check-item"><div class="box"></div><span>Lamb</span></div>
+        <div class="check-item"><div class="box"></div><span>Pork chops</span></div>
+        <div class="check-item"><div class="box"></div><span>Pork belly</span></div>
+        <div class="check-item"><div class="box"></div><span>Bacon</span></div>
+        <div class="check-item"><div class="box"></div><span>Sausage (no sugar)</span></div>
+        <div class="check-item"><div class="box"></div><span>Ham</span></div>
+        <div class="check-item"><div class="box"></div><span>Veal</span></div>
+        <div class="check-item"><div class="box"></div><span>Venison</span></div>
+        <div class="check-item"><div class="box"></div><span>Bison</span></div>
+        <div class="check-item"><div class="box"></div><span>Pepperoni</span></div>
+        <div class="check-item"><div class="box"></div><span>Salami</span></div>
+        <div class="check-item"><div class="box"></div><span>Prosciutto</span></div>
+        <div class="check-item"><div class="box"></div><span>Jerky (no sugar)</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- DAIRY -->
+    <div class="cat cat-dairy">
+      <div class="cat-header">🧀 Dairy</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Butter</span></div>
+        <div class="check-item"><div class="box"></div><span>Ghee</span></div>
+        <div class="check-item"><div class="box"></div><span>Cheese (cheddar)</span></div>
+        <div class="check-item"><div class="box"></div><span>Cheese (mozzarella)</span></div>
+        <div class="check-item"><div class="box"></div><span>Cream cheese</span></div>
+        <div class="check-item"><div class="box"></div><span>Heavy cream</span></div>
+        <div class="check-item"><div class="box"></div><span>Sour cream</span></div>
+        <div class="check-item"><div class="box"></div><span>Greek yogurt</span></div>
+        <div class="check-item"><div class="box"></div><span>Parmesan</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- VEGETABLES -->
+    <div class="cat cat-veg cat-tall">
+      <div class="cat-header">🥦 Vegetables</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Spinach</span></div>
+        <div class="check-item"><div class="box"></div><span>Kale</span></div>
+        <div class="check-item"><div class="box"></div><span>Broccoli</span></div>
+        <div class="check-item"><div class="box"></div><span>Cauliflower</span></div>
+        <div class="check-item"><div class="box"></div><span>Zucchini</span></div>
+        <div class="check-item"><div class="box"></div><span>Bell peppers</span></div>
+        <div class="check-item"><div class="box"></div><span>Asparagus</span></div>
+        <div class="check-item"><div class="box"></div><span>Mushrooms</span></div>
+        <div class="check-item"><div class="box"></div><span>Cucumber</span></div>
+        <div class="check-item"><div class="box"></div><span>Celery</span></div>
+        <div class="check-item"><div class="box"></div><span>Lettuce (romaine)</span></div>
+        <div class="check-item"><div class="box"></div><span>Arugula</span></div>
+        <div class="check-item"><div class="box"></div><span>Green beans</span></div>
+        <div class="check-item"><div class="box"></div><span>Cabbage</span></div>
+        <div class="check-item"><div class="box"></div><span>Brussels sprouts</span></div>
+        <div class="check-item"><div class="box"></div><span>Radishes</span></div>
+        <div class="check-item"><div class="box"></div><span>Bok choy</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- BAKING -->
+    <div class="cat cat-baking">
+      <div class="cat-header">🧁 Baking Essentials</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Almond flour</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut flour</span></div>
+        <div class="check-item"><div class="box"></div><span>Psyllium husk</span></div>
+        <div class="check-item"><div class="box"></div><span>Flaxseed meal</span></div>
+        <div class="check-item"><div class="box"></div><span>Cocoa powder</span></div>
+        <div class="check-item"><div class="box"></div><span>Baking powder</span></div>
+        <div class="check-item"><div class="box"></div><span>Vanilla extract</span></div>
+        <div class="check-item"><div class="box"></div><span>Gelatin</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- POULTRY -->
+    <div class="cat cat-poultry">
+      <div class="cat-header">🍗 Poultry</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Chicken thighs</span></div>
+        <div class="check-item"><div class="box"></div><span>Chicken breast</span></div>
+        <div class="check-item"><div class="box"></div><span>Chicken wings</span></div>
+        <div class="check-item"><div class="box"></div><span>Turkey (ground)</span></div>
+        <div class="check-item"><div class="box"></div><span>Duck</span></div>
+        <div class="check-item"><div class="box"></div><span>Eggs</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- PANTRY -->
+    <div class="cat cat-pantry">
+      <div class="cat-header">🫙 Pantry</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Apple cider vinegar</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut aminos</span></div>
+        <div class="check-item"><div class="box"></div><span>Canned fish</span></div>
+        <div class="check-item"><div class="box"></div><span>Bone broth</span></div>
+        <div class="check-item"><div class="box"></div><span>Herbs & spices</span></div>
+        <div class="check-item"><div class="box"></div><span>Hot sauce</span></div>
+        <div class="check-item"><div class="box"></div><span>Mustard</span></div>
+        <div class="check-item"><div class="box"></div><span>Mayo (avocado oil)</span></div>
+        <div class="check-item"><div class="box"></div><span>Pickles</span></div>
+        <div class="check-item"><div class="box"></div><span>Olives</span></div>
+        <div class="check-item"><div class="box"></div><span>Pork rinds</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- SEAFOOD -->
+    <div class="cat cat-seafood">
+      <div class="cat-header">🐟 Seafood</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Salmon</span></div>
+        <div class="check-item"><div class="box"></div><span>Shrimp</span></div>
+        <div class="check-item"><div class="box"></div><span>Tuna</span></div>
+        <div class="check-item"><div class="box"></div><span>Cod</span></div>
+        <div class="check-item"><div class="box"></div><span>Crab</span></div>
+        <div class="check-item"><div class="box"></div><span>Sardines</span></div>
+        <div class="check-item"><div class="box"></div><span>Mussels</span></div>
+        <div class="check-item"><div class="box"></div><span>Lobster</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- FATS & OILS -->
+    <div class="cat cat-fats">
+      <div class="cat-header">🫒 Fats & Oils</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Olive oil (EVOO)</span></div>
+        <div class="check-item"><div class="box"></div><span>Avocado oil</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut oil</span></div>
+        <div class="check-item"><div class="box"></div><span>MCT oil</span></div>
+        <div class="check-item"><div class="box"></div><span>Lard / tallow</span></div>
+        <div class="check-item"><div class="box"></div><span>Sesame oil</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- NUTS & SEEDS -->
+    <div class="cat cat-nuts">
+      <div class="cat-header">🥜 Nuts & Seeds</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Almonds</span></div>
+        <div class="check-item"><div class="box"></div><span>Walnuts</span></div>
+        <div class="check-item"><div class="box"></div><span>Pecans</span></div>
+        <div class="check-item"><div class="box"></div><span>Macadamia</span></div>
+        <div class="check-item"><div class="box"></div><span>Chia seeds</span></div>
+        <div class="check-item"><div class="box"></div><span>Flax seeds</span></div>
+        <div class="check-item"><div class="box"></div><span>Hemp hearts</span></div>
+        <div class="check-item"><div class="box"></div><span>Sunflower seeds</span></div>
+        <div class="check-item"><div class="box"></div><span>Pumpkin seeds</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- SWEETENERS -->
+    <div class="cat cat-drinks">
+      <div class="cat-header">🍵 Sweeteners & Drinks</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Erythritol</span></div>
+        <div class="check-item"><div class="box"></div><span>Stevia</span></div>
+        <div class="check-item"><div class="box"></div><span>Monk fruit</span></div>
+        <div class="check-item"><div class="box"></div><span>Coffee</span></div>
+        <div class="check-item"><div class="box"></div><span>Tea</span></div>
+        <div class="check-item"><div class="box"></div><span>Sparkling water</span></div>
+        <div class="check-item"><div class="box"></div><span>Almond milk</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut milk</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- FRUITS -->
+    <div class="cat cat-condiments">
+      <div class="cat-header">🍓 Fruits (Low Carb)</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Avocado</span></div>
+        <div class="check-item"><div class="box"></div><span>Strawberries</span></div>
+        <div class="check-item"><div class="box"></div><span>Raspberries</span></div>
+        <div class="check-item"><div class="box"></div><span>Blackberries</span></div>
+        <div class="check-item"><div class="box"></div><span>Blueberries (small)</span></div>
+        <div class="check-item"><div class="box"></div><span>Lemon & Lime</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="cat" style="border: 1.5px dashed #ccc; background: #fafafa;">
+      <div class="cat-header" style="background: #555;">📝 Notes</div>
+      <div class="cat-body" style="background: #fafafa;">
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">CarnivoreWeekly.com • For personal use only • * full fat / sugar free where possible</div>
+</div>
+
+<!-- ═══════════════════════════════════════ PAGE 2: A4 ═══════════════════════════════════════ -->
+<div class="page page-a4">
+  <div class="header">
+    <h1>🥑 Keto Grocery List</h1>
+    <div class="subtitle">Your Low-Carb Shopping Checklist &nbsp;•&nbsp; A4</div>
+  </div>
+
+  <div class="grid">
+
+    <div class="cat cat-meat cat-tall">
+      <div class="cat-header">🥩 Meat</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Beef (ground)</span></div>
+        <div class="check-item"><div class="box"></div><span>Beef (steak)</span></div>
+        <div class="check-item"><div class="box"></div><span>Beef (roast)</span></div>
+        <div class="check-item"><div class="box"></div><span>Lamb</span></div>
+        <div class="check-item"><div class="box"></div><span>Pork chops</span></div>
+        <div class="check-item"><div class="box"></div><span>Pork belly</span></div>
+        <div class="check-item"><div class="box"></div><span>Bacon</span></div>
+        <div class="check-item"><div class="box"></div><span>Sausage (no sugar)</span></div>
+        <div class="check-item"><div class="box"></div><span>Ham</span></div>
+        <div class="check-item"><div class="box"></div><span>Veal</span></div>
+        <div class="check-item"><div class="box"></div><span>Venison</span></div>
+        <div class="check-item"><div class="box"></div><span>Bison</span></div>
+        <div class="check-item"><div class="box"></div><span>Pepperoni</span></div>
+        <div class="check-item"><div class="box"></div><span>Salami</span></div>
+        <div class="check-item"><div class="box"></div><span>Prosciutto</span></div>
+        <div class="check-item"><div class="box"></div><span>Jerky (no sugar)</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-dairy">
+      <div class="cat-header">🧀 Dairy</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Butter</span></div>
+        <div class="check-item"><div class="box"></div><span>Ghee</span></div>
+        <div class="check-item"><div class="box"></div><span>Cheese (cheddar)</span></div>
+        <div class="check-item"><div class="box"></div><span>Cheese (mozzarella)</span></div>
+        <div class="check-item"><div class="box"></div><span>Cream cheese</span></div>
+        <div class="check-item"><div class="box"></div><span>Heavy cream</span></div>
+        <div class="check-item"><div class="box"></div><span>Sour cream</span></div>
+        <div class="check-item"><div class="box"></div><span>Greek yogurt</span></div>
+        <div class="check-item"><div class="box"></div><span>Parmesan</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-veg cat-tall">
+      <div class="cat-header">🥦 Vegetables</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Spinach</span></div>
+        <div class="check-item"><div class="box"></div><span>Kale</span></div>
+        <div class="check-item"><div class="box"></div><span>Broccoli</span></div>
+        <div class="check-item"><div class="box"></div><span>Cauliflower</span></div>
+        <div class="check-item"><div class="box"></div><span>Zucchini</span></div>
+        <div class="check-item"><div class="box"></div><span>Bell peppers</span></div>
+        <div class="check-item"><div class="box"></div><span>Asparagus</span></div>
+        <div class="check-item"><div class="box"></div><span>Mushrooms</span></div>
+        <div class="check-item"><div class="box"></div><span>Cucumber</span></div>
+        <div class="check-item"><div class="box"></div><span>Celery</span></div>
+        <div class="check-item"><div class="box"></div><span>Lettuce (romaine)</span></div>
+        <div class="check-item"><div class="box"></div><span>Arugula</span></div>
+        <div class="check-item"><div class="box"></div><span>Green beans</span></div>
+        <div class="check-item"><div class="box"></div><span>Cabbage</span></div>
+        <div class="check-item"><div class="box"></div><span>Brussels sprouts</span></div>
+        <div class="check-item"><div class="box"></div><span>Radishes</span></div>
+        <div class="check-item"><div class="box"></div><span>Bok choy</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-baking">
+      <div class="cat-header">🧁 Baking Essentials</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Almond flour</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut flour</span></div>
+        <div class="check-item"><div class="box"></div><span>Psyllium husk</span></div>
+        <div class="check-item"><div class="box"></div><span>Flaxseed meal</span></div>
+        <div class="check-item"><div class="box"></div><span>Cocoa powder</span></div>
+        <div class="check-item"><div class="box"></div><span>Baking powder</span></div>
+        <div class="check-item"><div class="box"></div><span>Vanilla extract</span></div>
+        <div class="check-item"><div class="box"></div><span>Gelatin</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-poultry">
+      <div class="cat-header">🍗 Poultry & Eggs</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Chicken thighs</span></div>
+        <div class="check-item"><div class="box"></div><span>Chicken breast</span></div>
+        <div class="check-item"><div class="box"></div><span>Chicken wings</span></div>
+        <div class="check-item"><div class="box"></div><span>Turkey (ground)</span></div>
+        <div class="check-item"><div class="box"></div><span>Duck</span></div>
+        <div class="check-item"><div class="box"></div><span>Eggs</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-pantry">
+      <div class="cat-header">🫙 Pantry</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Apple cider vinegar</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut aminos</span></div>
+        <div class="check-item"><div class="box"></div><span>Canned fish</span></div>
+        <div class="check-item"><div class="box"></div><span>Bone broth</span></div>
+        <div class="check-item"><div class="box"></div><span>Herbs & spices</span></div>
+        <div class="check-item"><div class="box"></div><span>Hot sauce</span></div>
+        <div class="check-item"><div class="box"></div><span>Mustard</span></div>
+        <div class="check-item"><div class="box"></div><span>Mayo (avocado oil)</span></div>
+        <div class="check-item"><div class="box"></div><span>Pickles</span></div>
+        <div class="check-item"><div class="box"></div><span>Olives</span></div>
+        <div class="check-item"><div class="box"></div><span>Pork rinds</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-seafood">
+      <div class="cat-header">🐟 Seafood</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Salmon</span></div>
+        <div class="check-item"><div class="box"></div><span>Shrimp</span></div>
+        <div class="check-item"><div class="box"></div><span>Tuna</span></div>
+        <div class="check-item"><div class="box"></div><span>Cod</span></div>
+        <div class="check-item"><div class="box"></div><span>Crab</span></div>
+        <div class="check-item"><div class="box"></div><span>Sardines</span></div>
+        <div class="check-item"><div class="box"></div><span>Mussels</span></div>
+        <div class="check-item"><div class="box"></div><span>Lobster</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-fats">
+      <div class="cat-header">🫒 Fats & Oils</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Olive oil (EVOO)</span></div>
+        <div class="check-item"><div class="box"></div><span>Avocado oil</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut oil</span></div>
+        <div class="check-item"><div class="box"></div><span>MCT oil</span></div>
+        <div class="check-item"><div class="box"></div><span>Lard / tallow</span></div>
+        <div class="check-item"><div class="box"></div><span>Sesame oil</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-nuts">
+      <div class="cat-header">🥜 Nuts & Seeds</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Almonds</span></div>
+        <div class="check-item"><div class="box"></div><span>Walnuts</span></div>
+        <div class="check-item"><div class="box"></div><span>Pecans</span></div>
+        <div class="check-item"><div class="box"></div><span>Macadamia</span></div>
+        <div class="check-item"><div class="box"></div><span>Chia seeds</span></div>
+        <div class="check-item"><div class="box"></div><span>Flax seeds</span></div>
+        <div class="check-item"><div class="box"></div><span>Hemp hearts</span></div>
+        <div class="check-item"><div class="box"></div><span>Sunflower seeds</span></div>
+        <div class="check-item"><div class="box"></div><span>Pumpkin seeds</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-drinks">
+      <div class="cat-header">🍵 Sweeteners & Drinks</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Erythritol</span></div>
+        <div class="check-item"><div class="box"></div><span>Stevia</span></div>
+        <div class="check-item"><div class="box"></div><span>Monk fruit</span></div>
+        <div class="check-item"><div class="box"></div><span>Coffee</span></div>
+        <div class="check-item"><div class="box"></div><span>Tea</span></div>
+        <div class="check-item"><div class="box"></div><span>Sparkling water</span></div>
+        <div class="check-item"><div class="box"></div><span>Almond milk</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut milk</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-condiments">
+      <div class="cat-header">🍓 Fruits (Low Carb)</div>
+      <div class="cat-body">
+        <div class="check-item"><div class="box"></div><span>Avocado</span></div>
+        <div class="check-item"><div class="box"></div><span>Strawberries</span></div>
+        <div class="check-item"><div class="box"></div><span>Raspberries</span></div>
+        <div class="check-item"><div class="box"></div><span>Blackberries</span></div>
+        <div class="check-item"><div class="box"></div><span>Blueberries (small)</span></div>
+        <div class="check-item"><div class="box"></div><span>Lemon & Lime</span></div>
+        <div class="check-item"><div class="box"></div><span>Coconut</span></div>
+        <div class="check-item"><div class="box"></div><span>___________</span></div>
+      </div>
+    </div>
+
+    <div class="cat" style="border: 1.5px dashed #ccc;">
+      <div class="cat-header" style="background: #555;">📝 Notes</div>
+      <div class="cat-body" style="background: #fafafa;">
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+        <div class="check-item"><span style="color:#aaa;">_______________</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">CarnivoreWeekly.com • For personal use only • * full fat / sugar free where possible</div>
+</div>
+
+</body>
+</html>

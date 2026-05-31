@@ -329,6 +329,6 @@ html = '''<!DOCTYPE html>
 </body>
 </html>'''
 
-with open('products/diet-food-list-landscape.html', 'w') as f:
+with open('products/templates/diet-food-list-landscape.html', 'w') as f:
     f.write(html)
 print('✅ Landscape rebuilt — dense, image-rich, full-page layout')

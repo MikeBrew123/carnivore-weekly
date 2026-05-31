@@ -30,8 +30,8 @@ const headers = {
 const SHOP = 63916912;
 
 const uploads = [
-  { listingId: 4464128243, file: 'products/grocery-list.pdf', name: 'Carnivore-Grocery-List.pdf' },
-  { listingId: 4464128247, file: 'products/meal-plan-30day.pdf', name: '30-Day-Carnivore-Meal-Plan.pdf' }
+  { listingId: 4464128243, file: 'products/pdfs/grocery-list.pdf', name: 'Carnivore-Grocery-List.pdf' },
+  { listingId: 4464128247, file: 'products/pdfs/meal-plan-30day.pdf', name: '30-Day-Carnivore-Meal-Plan.pdf' }
 ];
 
 for (const u of uploads) {
