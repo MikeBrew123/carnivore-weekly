@@ -50,6 +50,9 @@ export default {
     if (url.pathname === '/webhook' && request.method === 'POST') {
       return handleWebhook(request, env);
     }
+    if (url.pathname === '/session' && request.method === 'POST') {
+      return handleSession(request, env);
+    }
     if (url.pathname.startsWith('/report/') && request.method === 'GET') {
       const sessionId = url.pathname.split('/report/')[1];
       const reportType = url.searchParams.get('type') || 'all';
@@ -59,6 +62,50 @@ export default {
     return jsonResponse(404, { error: 'Not found' });
   },
 };
+
+// ──────────────────────────────────────────────
+// SESSION — save calculator data to Supabase
+// ──────────────────────────────────────────────
+async function handleSession(request, env) {
+  try {
+    const b = await request.json();
+    const token = 'kd_' + crypto.randomUUID().replace(/-/g, '').slice(0, 29);
+    const row = {
+      source: 'ketodial',
+      session_token: token,
+      sex: b.sex || null,
+      age: b.age || null,
+      goal: b.goal || null,
+      height_cm: b.height_cm || null,
+      weight_value: b.weight_value || null,
+      weight_unit: b.weight_unit || 'lbs',
+      diet_type: 'keto',
+      step_completed: 1,
+      email: b.email || null,
+      calculated_macros: b.macros || null,
+      referrer: b.referrer || null,
+      device_type: b.device_type || null,
+      landing_page: '/',
+    };
+    const res = await fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(row),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      return jsonResponse(500, { error: err });
+    }
+    return jsonResponse(200, { ok: true, token });
+  } catch (e) {
+    return jsonResponse(500, { error: e.message });
+  }
+}
 
 // ──────────────────────────────────────────────
 // CHECKOUT
