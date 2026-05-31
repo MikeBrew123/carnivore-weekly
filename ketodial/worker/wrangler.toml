@@ -1,0 +1,6 @@
+name = "ketodial-api"
+main = "index.js"
+compatibility_date = "2024-12-01"
+
+[vars]
+# STRIPE_SECRET_KEY set via: wrangler secret put STRIPE_SECRET_KEY

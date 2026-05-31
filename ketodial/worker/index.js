@@ -79,8 +79,9 @@ async function handleCheckout(request, env) {
 
     const sessionParams = new URLSearchParams();
     sessionParams.append('mode', 'payment');
-    sessionParams.append('success_url', 'https://ketodial.com/?success=true&session_id={CHECKOUT_SESSION_ID}');
-    sessionParams.append('cancel_url', 'https://ketodial.com/?cancelled=true');
+    sessionParams.append('ui_mode', 'embedded');
+    sessionParams.append('return_url', 'https://ketodial.com/?success=true&session_id={CHECKOUT_SESSION_ID}');
+    sessionParams.append('allow_promotion_codes', 'true');
 
     line_items.forEach((item, i) => {
       sessionParams.append(`line_items[${i}][price]`, item.price);
@@ -98,7 +99,7 @@ async function handleCheckout(request, env) {
     const session = await stripeAPI('checkout/sessions', sessionParams, env);
 
     if (session.error) return jsonResponse(500, { error: session.error.message });
-    return jsonResponse(200, { url: session.url, sessionId: session.id });
+    return jsonResponse(200, { clientSecret: session.client_secret, sessionId: session.id });
   } catch (err) {
     return jsonResponse(500, { error: 'Internal server error' });
   }
