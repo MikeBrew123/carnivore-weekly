@@ -63,6 +63,16 @@ function escHtml(s) {
 }
 
 function activityLabel(a) {
+  // Handle numeric multiplier values (e.g. 1.375)
+  const v = parseFloat(a);
+  if (!isNaN(v)) {
+    if (v <= 1.2) return 'Sedentary';
+    if (v <= 1.375) return 'Lightly active';
+    if (v <= 1.55) return 'Moderately active';
+    if (v <= 1.725) return 'Very active';
+    return 'Athlete';
+  }
+  // Handle string labels
   const map = {
     sedentary: 'Sedentary',
     light: 'Lightly active',
@@ -357,7 +367,7 @@ const DOCTOR_CSS = `
 const CONDITION_INFO = {
   t2d: {
     label: 'Type 2 diabetes',
-    relevance: 'Glycemic improvement expected; medication review advised',
+    relevance: 'Glycemic changes are common during carbohydrate restriction; monitoring advised',
     risk: 'hi', riskLabel: 'monitor',
     labs: [
       { panel: 'HbA1c + fasting glucose', rationale: 'Track glycemic response; anticipate medication titration.', cadence: 'Baseline, 6 &amp; 12 wk' },
@@ -480,7 +490,7 @@ export function generateDoctorReport(name, d) {
   const conditionRows = conditions.length > 0
     ? conditions.map(c => {
         const info = CONDITION_INFO[c];
-        return `<tr><td><b>${info.label}</b></td><td>${info.relevance} <span class="risk ${info.risk}">${info.riskLabel}</span></td></tr>`;
+        return `<tr><td><b>${info.label}</b></td><td>${info.relevance} <span class="risk ${info.risk}">${info.risk === 'hi' ? 'High' : info.risk === 'med' ? 'Medium' : 'Low'} — ${info.riskLabel}</span></td></tr>`;
       }).join('')
     : '<tr><td><b>None reported</b></td><td>Standard monitoring recommended</td></tr>';
 
@@ -544,7 +554,7 @@ export function generateDoctorReport(name, d) {
     });
   });
   const medConsRows = Array.from(medMap.values()).map(m =>
-    `<tr><td><b>${escHtml(m.name)}</b>${m.sub ? `<br /><span style="font-size:11px;color:var(--ink-faint)">${escHtml(m.sub)}</span>` : ''}</td><td>${escHtml(m.note)}</td><td><span class="risk ${m.risk}">${m.risk}</span></td></tr>`
+    `<tr><td><b>${escHtml(m.name)}</b>${m.sub ? `<br /><span style="font-size:11px;color:var(--ink-faint)">${escHtml(m.sub)}</span>` : ''}</td><td>${escHtml(m.note)}</td><td><span class="risk ${m.risk}">${m.risk === 'hi' ? 'High' : m.risk === 'med' ? 'Medium' : 'Low'}</span></td></tr>`
   ).join('');
 
   // Build questions for physician
@@ -850,9 +860,11 @@ function buildMealPlanDays(d) {
   const fat = d.fatG || 140;
   const prot = d.proteinG || 113;
   const carb = d.carbG || 25;
-  const noDairy = (d.dairy || '').includes('free') || (d.dairy || '').includes('none') || (d.dairy || '').toLowerCase().includes('no dairy');
+  const dairyPref = (d.dairy || '').toLowerCase();
+  const noDairy = dairyPref.includes('free') || dairyPref.includes('none') || dairyPref.includes('strict');
+  const lightDairy = noDairy || dairyPref.includes('light') || dairyPref.includes('little') || dairyPref.includes('bother');
   const scale = cal / 1800;
-  const db = getMealDatabase(noDairy);
+  const db = getMealDatabase(lightDairy);
 
   const days = [];
   for (let i = 0; i < 7; i++) {
@@ -910,7 +922,9 @@ function dayBlock(day) {
 }
 
 function grocerySection(d) {
-  const noDairy = (d.dairy || '').includes('free') || (d.dairy || '').includes('none') || (d.dairy || '').toLowerCase().includes('no dairy');
+  const dairyPrefGS = (d.dairy || '').toLowerCase();
+  const noDairyGS = dairyPrefGS.includes('free') || dairyPrefGS.includes('none') || dairyPrefGS.includes('strict');
+  const noDairy = noDairyGS || dairyPrefGS.includes('light') || dairyPrefGS.includes('little') || dairyPrefGS.includes('bother');
   const budget = d.budget || 'mod';
 
   const proteins = [
@@ -1012,13 +1026,15 @@ export function generateMealPlan(name, d) {
   const prot = d.proteinG || 113;
   const carb = d.carbG || 25;
   const budget = d.budget || 'mod';
-  const noDairy = (d.dairy || '').includes('free') || (d.dairy || '').includes('none') || (d.dairy || '').toLowerCase().includes('no dairy');
+  const dairyPrefMP = (d.dairy || '').toLowerCase();
+  const noDairyMP = dairyPrefMP.includes('free') || dairyPrefMP.includes('none') || dairyPrefMP.includes('strict');
+  const lightDairyMP = noDairyMP || dairyPrefMP.includes('light') || dairyPrefMP.includes('little') || dairyPrefMP.includes('bother');
   const prepTime = d.prepTime || '30 min';
 
   const days = buildMealPlanDays(d);
 
   const budgetLabel = budget === 'tight' ? 'Tight' : budget === 'generous' ? 'Generous' : 'Moderate';
-  const dairyLabel = noDairy ? 'dairy-free' : 'dairy-light';
+  const dairyLabel = noDairyMP ? 'dairy-free' : lightDairyMP ? 'dairy-light' : 'dairy-included';
 
   const footLeft = `KetoDial 7-Day Meal Plan <span class="dot">·</span> ${escHtml(name)}`;
   const footCenter = 'Macros are estimates — swap freely at equal counts';
@@ -1049,7 +1065,7 @@ export function generateMealPlan(name, d) {
         <div class="row">BUDGET <b>${budgetLabel} · ${dairyLabel}</b></div>
       </div>
     </div>
-    <div class="rh-prepared">Tuned to your target, your cooking time (~${escHtml(prepTime)}/day) and a ${dairyLabel} preference. Swap any meal for another at the same macro count.</div>
+    <div class="rh-prepared">Tuned to your target, your cooking time (~${escHtml(prepTime.replace(/\/day$/i, ''))}/day) and a ${dairyLabel} preference. Swap any meal for another at the same macro count.</div>
   </header>
 
   <div class="rep-body">
@@ -1059,7 +1075,7 @@ export function generateMealPlan(name, d) {
       <span class="mpill"><span class="d" style="background:var(--fat)"></span>Fat ${fat}g</span>
       <span class="mpill"><span class="d" style="background:var(--protein)"></span>Protein ${prot}g</span>
       <span class="mpill"><span class="d" style="background:var(--carbs)"></span>Net carbs ${carb}g</span>
-      <span style="margin-left:auto;font-size:12px;color:var(--ink-soft)">Each day lands within ±5% of target.</span>
+      <span style="margin-left:auto;font-size:12px;color:var(--ink-soft)">Designed around your weekly target, with lighter and heavier days for variety.</span>
     </div>
 
     <div class="week-glance">
@@ -1099,7 +1115,7 @@ export function generateMealPlan(name, d) {
     ${dayBlock(days[6])}
 
     <div class="callout" style="margin-top:6px">
-      <span class="ct">Batch-prep shortcut for your ~${escHtml(prepTime)}/day</span>
+      <span class="ct">Batch-prep shortcut for your ~${escHtml(prepTime.replace(/\/day$/i, ''))}/day</span>
       Sunday: hard-boil 6 eggs, roast the chicken thighs and pork shoulder, and pre-portion nuts into ¼-cup bags. That covers most lunches and snacks for the first half of the week.
     </div>
   </div>
@@ -1405,7 +1421,7 @@ export function generateStarterKit(name, d) {
 
     <div class="callout" style="margin-top:8px">
       <span class="ct">You've got this, ${escHtml(firstName)}</span>
-      When week-one gets hard, it's almost never willpower — it's electrolytes. Salt, hydrate, sleep, and let the cravings pass. By day 10 most people wonder what the fuss was about.
+      When week-one gets hard, it's almost never willpower — it's electrolytes. Salt, hydrate, sleep, and let the cravings pass. Many people feel noticeably better by days 8-14.
     </div>
   </div>
   ${pageFooter(footLeft, '<a href="https://ketodial.com">ketodial.com</a> — educational, not medical advice', 4, 4)}
