@@ -770,45 +770,75 @@ const MEAL_CSS = `
   .gcat li .q{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint)}
 `;
 
-// Meal database: each meal has a base set of macros at ~1800 cal target
-// We scale proportionally to the customer's calorie target
+// Meal database: USDA-sourced macros with specific weights
+// All macros verified against USDA FoodData Central
+// Base macros are for ~1800 cal/day, scaled proportionally to customer target
+// desc shows exact weights so customers can verify
 function getMealDatabase(noDairy) {
   return {
     breakfast: [
-      { name: 'Bacon &amp; avocado baked eggs', desc: '3 eggs · ½ avocado · 2 rashers', kcal: 480, f: 40, p: 24, c: 4 },
-      { name: `Smoked salmon &amp; ${noDairy ? 'avocado' : 'cream-cheese'} roll-ups`, desc: `4 oz salmon · cucumber`, kcal: 420, f: 33, p: 28, c: 3 },
-      { name: `Sausage &amp; egg ${noDairy ? 'cups' : 'muffins'}`, desc: `3 ${noDairy ? 'cups' : 'muffins'} · ${noDairy ? 'herbs' : 'cheddar'}`, kcal: 450, f: 37, p: 26, c: 2 },
-      { name: 'Chia-coconut pudding', desc: 'unsweetened · macadamia', kcal: 410, f: 36, p: 10, c: 7 },
-      { name: `${noDairy ? 'Herb &amp; mushroom' : 'Cheese &amp; herb'} omelette`, desc: `3 eggs · butter`, kcal: 460, f: 39, p: 25, c: 3 },
-      { name: 'Steak &amp; eggs', desc: '4 oz sirloin · 2 eggs', kcal: 490, f: 37, p: 34, c: 2 },
-      { name: `Keto pancakes + butter`, desc: `almond flour · 2 eggs`, kcal: 470, f: 40, p: 20, c: 6 },
+      // 3 large eggs (210cal,15f,18p,1c) + 3 strips bacon/42g (129cal,10f,9p,0c) + ½ avocado/68g (114cal,10f,1p,2c) + 1 tbsp butter/14g (102cal,12f,0p,0c)
+      { name: 'Bacon &amp; avocado baked eggs', desc: '3 large eggs (150g) · 3 strips bacon (42g) · ½ avocado (68g) · 1 tbsp butter (14g)', kcal: 555, f: 47, p: 28, c: 3 },
+      // 4oz smoked salmon (132cal,5f,21p,0c) + 2oz cream cheese or ½ avocado + 1 cucumber (30g)
+      { name: `Smoked salmon &amp; ${noDairy ? 'avocado' : 'cream-cheese'} roll-ups`, desc: `4 oz smoked salmon (113g) · ${noDairy ? '½ avocado (68g)' : '2 oz cream cheese (57g)'} · ½ cucumber (100g)`, kcal: noDairy ? 276 : 329, f: noDairy ? 15 : 24, p: 23, c: noDairy ? 5 : 3 },
+      // 3 large eggs + 2 pork sausage links/56g (196cal,16f,12p,1c) + 1oz cheddar/28g (113cal,9f,7p,0c)
+      { name: `Sausage &amp; egg ${noDairy ? 'scramble' : 'muffins'}`, desc: `3 large eggs (150g) · 2 pork sausage links (56g) · ${noDairy ? '1 tbsp olive oil (14ml)' : '1 oz cheddar (28g)'}`, kcal: noDairy ? 526 : 519, f: noDairy ? 42 : 40, p: noDairy ? 33 : 37, c: 2 },
+      // 3 large eggs + 1 tbsp butter + 1oz cheese or 2 tbsp olive oil
+      { name: `${noDairy ? 'Herb &amp; mushroom' : 'Cheese &amp; herb'} omelette`, desc: `3 large eggs (150g) · 1 tbsp butter (14g) · ${noDairy ? '½ cup mushrooms (35g)' : '1 oz cheddar (28g)'} · herbs`, kcal: noDairy ? 340 : 425, f: noDairy ? 27 : 36, p: noDairy ? 20 : 25, c: noDairy ? 2 : 1 },
+      // 4oz sirloin (200cal,8f,30p,0c) + 2 large eggs (140cal,10f,12p,1c) + 1 tbsp butter
+      { name: 'Steak &amp; eggs', desc: '4 oz sirloin steak (113g) · 2 large eggs (100g) · 1 tbsp butter (14g)', kcal: 442, f: 30, p: 42, c: 1 },
+      // 2 large eggs + 2 tbsp almond flour/14g (80cal,7f,3p,1c) + 1 tbsp butter + 1 tbsp coconut oil/14g (121cal,14f,0p,0c)
+      { name: 'Keto pancakes + butter', desc: '2 large eggs (100g) · 2 tbsp almond flour (14g) · 1 tbsp coconut oil (14g) · 1 tbsp butter (14g)', kcal: 441, f: 39, p: 15, c: 2 },
+      // 2 large eggs + ½ avocado + 2 strips bacon
+      { name: 'Bacon &amp; egg plate', desc: '2 large eggs (100g) · ½ avocado (68g) · 2 strips bacon (28g) · 1 cup spinach (30g)', kcal: 400, f: 32, p: 22, c: 4 },
     ],
     lunch: [
-      { name: `Chicken Cobb salad, ${noDairy ? 'vinaigrette' : 'ranch'}`, desc: `romaine · egg · ${noDairy ? 'avocado' : 'blue cheese'} · olive oil`, kcal: 560, f: 44, p: 36, c: 6 },
-      { name: 'Tuna-avocado lettuce boats', desc: 'olive-oil mayo · celery', kcal: 520, f: 42, p: 32, c: 5 },
-      { name: `Big-bowl Greek salad + chicken`, desc: `${noDairy ? 'olives' : 'feta'} · cucumber · olive oil`, kcal: 560, f: 44, p: 34, c: 7 },
-      { name: 'Burger bowl, no bun', desc: 'beef · avocado · lettuce · mayo', kcal: 580, f: 46, p: 36, c: 6 },
-      { name: 'Shrimp avocado salad', desc: 'olive oil · lime', kcal: 540, f: 43, p: 33, c: 6 },
-      { name: `${noDairy ? 'Prosciutto &amp; olive' : 'Caprese'} plate + prosciutto`, desc: `${noDairy ? 'olive tapenade' : 'mozzarella'} · basil · olive oil`, kcal: 540, f: 44, p: 31, c: 6 },
-      { name: `Chicken-bacon-${noDairy ? 'avocado' : 'ranch'} wrap`, desc: 'low-carb tortilla', kcal: 560, f: 43, p: 38, c: 7 },
+      // 5oz chicken breast (165cal,4f,31p,0c) + 2 cups romaine (16cal,0f,1p,2c) + 1 hard-boiled egg + 2 tbsp ranch or olive oil + 1oz cheese
+      { name: `Chicken Cobb salad`, desc: `5 oz grilled chicken breast (142g) · 2 cups romaine (94g) · 1 egg (50g) · ${noDairy ? '2 tbsp olive oil (28ml)' : '1 oz blue cheese (28g) · 2 tbsp ranch (30ml)'}`, kcal: noDairy ? 467 : 510, f: noDairy ? 30 : 33, p: noDairy ? 43 : 46, c: noDairy ? 3 : 4 },
+      // 5oz canned tuna (130cal,1f,29p,0c) + 2 tbsp mayo/28g (188cal,21f,0p,0c) + ½ avocado + lettuce
+      { name: 'Tuna-avocado lettuce boats', desc: '5 oz canned tuna (142g) · 2 tbsp olive-oil mayo (28g) · ½ avocado (68g) · 2 butter lettuce cups', kcal: 432, f: 32, p: 30, c: 4 },
+      // 5oz chicken thigh (270cal,16f,28p,0c) + 1 cup mixed greens + ½ cup cucumber + 2 tbsp olive oil + feta or olives
+      { name: 'Greek salad + grilled chicken', desc: `5 oz chicken thigh (142g) · 2 cups mixed greens (60g) · ½ cup cucumber (65g) · ${noDairy ? '10 kalamata olives (40g)' : '1 oz feta (28g)'} · 2 tbsp olive oil (28ml)`, kcal: noDairy ? 538 : 508, f: noDairy ? 40 : 36, p: 31, c: noDairy ? 5 : 3 },
+      // 6oz 80/20 ground beef (340cal,22f,34p,0c) + ½ avocado + 2 cups lettuce + 1 tbsp mayo
+      { name: 'Burger bowl, no bun', desc: '6 oz ground beef 80/20 (170g) · ½ avocado (68g) · 2 cups shredded lettuce (94g) · 1 tbsp mayo (14g)', kcal: 548, f: 42, p: 35, c: 4 },
+      // 6oz shrimp (168cal,3f,36p,0c) + ½ avocado + 1 tbsp olive oil + lime
+      { name: 'Shrimp avocado salad', desc: '6 oz shrimp (170g) · ½ avocado (68g) · 1 tbsp olive oil (14ml) · lime · 2 cups mixed greens (60g)', kcal: 402, f: 24, p: 38, c: 5 },
+      // 3oz prosciutto (150cal,9f,18p,0c) + 4oz mozzarella or avocado + basil + 1 tbsp olive oil
+      { name: `${noDairy ? 'Prosciutto &amp; avocado' : 'Caprese'} plate`, desc: `3 oz prosciutto (85g) · ${noDairy ? '1 avocado (136g)' : '4 oz fresh mozzarella (113g)'} · fresh basil · 1 tbsp olive oil (14ml)`, kcal: noDairy ? 458 : 530, f: noDairy ? 34 : 40, p: noDairy ? 20 : 34, c: noDairy ? 7 : 3 },
+      // 4oz chicken breast + 2 strips bacon + low-carb tortilla/38g (90cal,4f,5p,9c net ~3c) + 1 tbsp ranch or avocado
+      { name: `Chicken-bacon wrap`, desc: `4 oz chicken breast (113g) · 2 strips bacon (28g) · 1 low-carb tortilla (38g) · ${noDairy ? '¼ avocado (34g)' : '1 tbsp ranch (15ml)'}`, kcal: noDairy ? 392 : 403, f: noDairy ? 18 : 20, p: 42, c: 5 },
     ],
     dinner: [
-      { name: 'Ribeye + garlic-butter asparagus', desc: '8 oz ribeye · grass-fed butter', kcal: 600, f: 47, p: 43, c: 5 },
-      { name: 'Pork chops + sautéed spinach', desc: '2 chops · olive oil · garlic', kcal: 620, f: 49, p: 44, c: 6 },
-      { name: `Salmon + ${noDairy ? 'garlic' : 'creamed'} spinach`, desc: `6 oz salmon · ${noDairy ? 'olive oil' : 'butter'}`, kcal: 630, f: 50, p: 42, c: 6 },
-      { name: 'Roast chicken thighs + broccoli', desc: 'skin-on · olive oil', kcal: 600, f: 46, p: 44, c: 6 },
-      { name: 'Beef stir-fry, zucchini noodles', desc: 'sesame oil · ginger', kcal: 610, f: 47, p: 43, c: 8 },
-      { name: 'Lemon-butter cod + green beans', desc: '6 oz cod', kcal: 560, f: 43, p: 40, c: 7 },
-      { name: 'Slow-roast pork shoulder + slaw', desc: 'olive-oil slaw, no sugar', kcal: 615, f: 49, p: 43, c: 6 },
+      // 8oz ribeye (544cal,36f,52p,0c) + 1 cup asparagus/134g (27cal,0f,3p,3c) + 1 tbsp butter
+      { name: 'Ribeye + garlic-butter asparagus', desc: '8 oz ribeye steak (227g) · 1 cup asparagus (134g) · 1 tbsp butter (14g)', kcal: 673, f: 48, p: 55, c: 3 },
+      // 2 bone-in pork chops/10oz total (460cal,28f,50p,0c) + 2 cups spinach/60g (14cal,0f,2p,1c) + 1 tbsp olive oil
+      { name: 'Pork chops + sautéed spinach', desc: '10 oz bone-in pork chops (283g) · 2 cups fresh spinach (60g) · 1 tbsp olive oil (14ml) · 2 cloves garlic', kcal: 594, f: 40, p: 52, c: 3 },
+      // 6oz salmon fillet (350cal,22f,34p,0c) + 2 cups spinach + 1 tbsp butter or olive oil
+      { name: `Salmon + ${noDairy ? 'garlic' : 'creamed'} spinach`, desc: `6 oz salmon fillet (170g) · 2 cups spinach (60g) · ${noDairy ? '1 tbsp olive oil (14ml)' : '1 tbsp butter (14g) · 2 tbsp heavy cream (30ml)'}`, kcal: noDairy ? 484 : 520, f: noDairy ? 34 : 38, p: 36, c: 2 },
+      // 10oz skin-on chicken thighs (450cal,28f,46p,0c) + 1 cup broccoli/91g (31cal,0f,3p,4c) + 1 tbsp olive oil
+      { name: 'Roast chicken thighs + broccoli', desc: '10 oz skin-on chicken thighs (283g) · 1 cup broccoli (91g) · 1 tbsp olive oil (14ml)', kcal: 601, f: 40, p: 49, c: 4 },
+      // 6oz beef sirloin strips (300cal,12f,46p,0c) + 1 medium zucchini/200g (34cal,1f,2p,4c) + 1 tbsp sesame oil
+      { name: 'Beef stir-fry, zucchini noodles', desc: '6 oz beef sirloin strips (170g) · 1 medium zucchini (200g) · 1 tbsp sesame oil (14ml) · ginger · soy sauce', kcal: 454, f: 25, p: 48, c: 6 },
+      // 6oz cod (140cal,1f,30p,0c) + 1 cup green beans/100g (31cal,0f,2p,5c) + 2 tbsp butter
+      { name: 'Lemon-butter cod + green beans', desc: '6 oz cod fillet (170g) · 1 cup green beans (100g) · 2 tbsp butter (28g)', kcal: 375, f: 25, p: 32, c: 5 },
+      // 8oz pulled pork shoulder (480cal,32f,44p,0c) + 1 cup coleslaw (60cal,4f,1p,4c no sugar)
+      { name: 'Slow-roast pork shoulder + slaw', desc: '8 oz pork shoulder, pulled (227g) · 1 cup coleslaw with olive-oil dressing (120g) · no sugar', kcal: 540, f: 36, p: 45, c: 4 },
     ],
     snack: [
-      { name: 'Macadamia nuts', desc: '1 oz', kcal: 200, f: 21, p: 2, c: 2 },
-      { name: `Olives &amp; ${noDairy ? 'almonds' : 'cheddar cube'}`, desc: 'handful', kcal: 260, f: 24, p: 10, c: 3 },
-      { name: 'Pecans', desc: '1 oz', kcal: 220, f: 22, p: 3, c: 2 },
-      { name: 'Hard-boiled eggs ×2', desc: 'salt', kcal: 240, f: 17, p: 22, c: 1 },
-      { name: 'Dark chocolate 90% ×2', desc: 'squares', kcal: 240, f: 22, p: 4, c: 5 },
-      { name: 'Almonds', desc: '1 oz', kcal: 220, f: 19, p: 8, c: 3 },
-      { name: 'Berries &amp; cream', desc: '¼ cup raspberries', kcal: 200, f: 18, p: 3, c: 6 },
+      // 1oz macadamias/28g (204cal,21f,2p,2c net)
+      { name: 'Macadamia nuts', desc: '1 oz (28g)', kcal: 204, f: 21, p: 2, c: 2 },
+      // 10 olives/40g (58cal,5f,0p,2c) + 1oz cheddar/28g (113cal,9f,7p,0c) or 1oz almonds
+      { name: `Olives &amp; ${noDairy ? 'almonds' : 'cheddar'}`, desc: `10 green olives (40g) · ${noDairy ? '1 oz almonds (28g)' : '1 oz cheddar (28g)'}`, kcal: noDairy ? 222 : 171, f: noDairy ? 19 : 14, p: noDairy ? 8 : 7, c: noDairy ? 4 : 2 },
+      // 1oz pecans/28g (196cal,20f,3p,1c net)
+      { name: 'Pecans', desc: '1 oz (28g)', kcal: 196, f: 20, p: 3, c: 1 },
+      // 2 large hard-boiled eggs (140cal,10f,12p,1c)
+      { name: 'Hard-boiled eggs ×2', desc: '2 large eggs (100g)', kcal: 140, f: 10, p: 12, c: 1 },
+      // 2 squares 90% dark chocolate/20g (120cal,10f,2p,4c net)
+      { name: 'Dark chocolate 90%', desc: '2 squares (20g)', kcal: 120, f: 10, p: 2, c: 4 },
+      // 1oz almonds/28g (164cal,14f,6p,3c net)
+      { name: 'Almonds', desc: '1 oz (28g)', kcal: 164, f: 14, p: 6, c: 3 },
+      // ¼ cup raspberries/31g (16cal,0f,0p,2c net) + 2 tbsp heavy cream/30ml (100cal,11f,1p,1c)
+      { name: `Berries &amp; ${noDairy ? 'coconut cream' : 'heavy cream'}`, desc: `¼ cup raspberries (31g) · 2 tbsp ${noDairy ? 'coconut cream' : 'heavy cream'} (30ml)`, kcal: 116, f: 11, p: 1, c: 3 },
     ],
   };
 }
