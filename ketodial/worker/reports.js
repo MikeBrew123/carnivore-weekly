@@ -399,6 +399,7 @@ const CONDITION_INFO = {
   t2d: {
     label: 'Type 2 diabetes',
     relevance: 'Glycemic changes are common during carbohydrate restriction; monitoring advised',
+    why: 'You reported Type 2 diabetes. Carbohydrate restriction directly affects blood glucose management.',
     risk: 'hi', riskLabel: 'monitor',
     labs: [
       { panel: 'HbA1c + fasting glucose', rationale: 'Track glycemic response; anticipate medication titration.', cadence: 'Baseline, 6 &amp; 12 wk' },
@@ -413,6 +414,7 @@ const CONDITION_INFO = {
   pre: {
     label: 'Prediabetes',
     relevance: 'Fasting glucose may normalize; monitor weekly',
+    why: 'You reported prediabetes. Blood glucose monitoring is especially important during dietary changes.',
     risk: 'med', riskLabel: 'monitor',
     labs: [
       { panel: 'HbA1c + fasting glucose', rationale: 'Track glycemic normalization over time.', cadence: 'Baseline, 6 &amp; 12 wk' },
@@ -423,6 +425,7 @@ const CONDITION_INFO = {
   bp: {
     label: 'Hypertension',
     relevance: 'BP may fall with carb restriction &amp; diuresis',
+    why: 'You reported hypertension. Sodium and fluid shifts during keto adaptation can affect blood pressure.',
     risk: 'med', riskLabel: 'monitor',
     labs: [
       { panel: 'Comprehensive metabolic panel', rationale: 'Electrolytes, renal &amp; hepatic function during diuresis.', cadence: 'Baseline, 4 &amp; 12 wk' },
@@ -436,6 +439,7 @@ const CONDITION_INFO = {
   chol: {
     label: 'High cholesterol',
     relevance: 'Lipid shifts expected; particle count more informative than LDL-C',
+    why: 'You reported high cholesterol. Dietary fat changes will affect your lipid panel readings.',
     risk: 'med', riskLabel: 'retest',
     labs: [
       { panel: 'Lipid panel + ApoB / LDL-P', rationale: 'Particle count is more informative than LDL-C on keto.', cadence: 'Baseline, 12 wk' },
@@ -447,6 +451,7 @@ const CONDITION_INFO = {
   thy: {
     label: 'Thyroid condition',
     relevance: 'T3 may shift with carb restriction; monitor thyroid panel',
+    why: 'You reported a thyroid condition. Carbohydrate intake can affect T3 levels.',
     risk: 'med', riskLabel: 'monitor',
     labs: [
       { panel: 'TSH + free T4', rationale: 'Reported thyroid relevance; rule out confounders.', cadence: 'Baseline' },
@@ -458,6 +463,7 @@ const CONDITION_INFO = {
   pcos: {
     label: 'PCOS',
     relevance: 'Insulin sensitivity and hormonal balance may improve',
+    why: 'You reported PCOS. Insulin sensitivity improvements on keto may affect hormonal balance.',
     risk: 'med', riskLabel: 'monitor',
     labs: [
       { panel: 'Fasting insulin / HOMA-IR', rationale: 'Quantify insulin resistance driving PCOS symptoms.', cadence: 'Baseline, 12 wk' },
@@ -468,6 +474,7 @@ const CONDITION_INFO = {
   liver: {
     label: 'Fatty liver (NAFLD)',
     relevance: 'Liver fat reduction expected with carb restriction',
+    why: 'You reported fatty liver. Ketogenic diets have shown reduction in liver fat in studies.',
     risk: 'lo', riskLabel: 'favorable',
     labs: [
       { panel: 'Liver function panel (ALT, AST, GGT)', rationale: 'Track hepatic improvement with carb restriction.', cadence: 'Baseline, 12 wk' },
@@ -522,7 +529,7 @@ export function generateDoctorReport(name, d) {
   const conditionRows = conditions.length > 0
     ? conditions.map(c => {
         const info = CONDITION_INFO[c];
-        return `<tr><td><b>${info.label}</b></td><td>${info.relevance} <span class="risk ${info.risk}">${info.risk === 'hi' ? 'High' : info.risk === 'med' ? 'Medium' : 'Low'} — ${info.riskLabel}</span></td></tr>`;
+        return `<tr><td><b>${info.label}</b></td><td>${info.relevance} <span class="risk ${info.risk}">${info.risk === 'hi' ? 'High' : info.risk === 'med' ? 'Medium' : 'Low'} — ${info.riskLabel}</span>${info.why ? `<br /><span style="font-size:11px;color:var(--ink-faint);line-height:1.4">${info.why}</span>` : ''}</td></tr>`;
       }).join('')
     : '<tr><td><b>None reported</b></td><td>Standard monitoring recommended</td></tr>';
 
@@ -540,6 +547,16 @@ export function generateDoctorReport(name, d) {
               <tr><td>None reported</td><td class="mono">N/A</td></tr>
             </tbody>
           </table>`;
+
+  // Check for GLP-1 medications
+  const glp1Pattern = /ozempic|semaglutide|mounjaro|tirzepatide|wegovy|zepbound/i;
+  const hasGlp1 = meds && glp1Pattern.test(meds);
+  const glp1Callout = hasGlp1
+    ? `<div class="callout warn" style="margin-top:16px">
+        <span class="ct">GLP-1 medication note</span>
+        GLP-1 medications can significantly reduce appetite. During keto adaptation, monitor whether calorie intake drops too aggressively — undereating protein is a common risk when appetite is already suppressed.
+      </div>`
+    : '';
 
   // Build warning callout based on conditions
   let warningCallout = '';
@@ -652,7 +669,7 @@ export function generateDoctorReport(name, d) {
     <section class="sec avoid-break">
       <div class="sec-eyebrow">Section 2</div>
       <div class="sec-title"><span class="num">02</span> Proposed dietary intervention</div>
-      <div class="sec-sub">A ketogenic macronutrient distribution${d.goal === 'lose' ? ' at a 20% caloric deficit from estimated maintenance' : d.goal === 'gain' ? ' at a 10% caloric surplus above maintenance' : ' at estimated maintenance'}. Protein set to preserve lean mass.</div>
+      <div class="sec-sub">A ketogenic macronutrient distribution${d.goal === 'lose' ? ' at a 20% caloric deficit from estimated maintenance' : d.goal === 'gain' ? ' at a 10% caloric surplus above maintenance' : ' at estimated maintenance'}. Protein set to approximately 25% of calories to support body composition during fat loss.</div>
       <div class="intervention">
         <div class="macro-line">
           <div class="ml" style="margin-bottom:4px">
@@ -704,6 +721,7 @@ export function generateDoctorReport(name, d) {
         </div>
         <div>
           ${medsHtml}
+          ${glp1Callout}
         </div>
       </div>
       ${warningCallout}
@@ -762,6 +780,11 @@ export function generateDoctorReport(name, d) {
         </div>
       </div>
     </section>
+
+    <div class="callout" style="border-left-color:var(--accent);margin-top:8px">
+      <span class="ct">Bring this to your appointment</span>
+      Print this report and bring it to your next appointment. The lab recommendations, medication notes, and talking points are designed to make a productive 5-minute conversation with your physician.
+    </div>
 
   </div>
 
@@ -1209,6 +1232,18 @@ export function generateStarterKit(name, d) {
   const prot = d.proteinG || 113;
   const meds = d.meds || '';
   const conditions = (d.conditions || []).filter(c => c !== 'none');
+  const symptoms = (d.symptoms || []).filter(s => s !== 'none');
+
+  // Build watch-outs from customer data
+  const watchOuts = [];
+  if (conditions.includes('t2d')) watchOuts.push({title: 'Blood sugar may drop fast', detail: 'Carb restriction can lower blood glucose quickly. If you take diabetes medication, monitor closely and talk to your doctor about dose adjustments in the first 2 weeks.'});
+  if (conditions.includes('bp')) watchOuts.push({title: 'Blood pressure may shift', detail: 'Sodium and fluid changes during keto can affect blood pressure. If you take blood pressure medication, monitor daily and watch for lightheadedness.'});
+  if (conditions.includes('chol')) watchOuts.push({title: 'Cholesterol numbers will change', detail: 'LDL may temporarily rise while triglycerides typically drop and HDL rises. Get an advanced lipid panel at 3 months, not a standard one.'});
+  if (meds && meds !== 'None reported') watchOuts.push({title: 'Your medications need attention', detail: `You reported taking ${escHtml(meds)}. Some medications interact with carbohydrate restriction. Review your medication plan with your doctor before starting.`});
+  if (symptoms.includes('energy')) watchOuts.push({title: 'Low energy will get worse before better', detail: 'Days 3-5 are the hardest for energy. This is normal adaptation, not failure. Electrolytes (page 2) are your fix.'});
+  if (symptoms.includes('sleep')) watchOuts.push({title: 'Sleep may be disrupted temporarily', detail: 'Some people experience lighter sleep in week 1. Extra magnesium at bedtime helps. It resolves by week 2 for most.'});
+  if (symptoms.includes('crave')) watchOuts.push({title: 'Cravings will peak around day 3-4', detail: 'Sugar cravings are real withdrawal. They pass. Eating enough fat and staying full is the strategy, not willpower.'});
+  const topWatchOuts = watchOuts.slice(0, 3);
 
   // Check if there's a med interaction warning needed
   const hasBPMed = meds && (meds.toLowerCase().includes('lisinopril') || meds.toLowerCase().includes('ace') || meds.toLowerCase().includes('arb') || conditions.includes('bp'));
@@ -1285,6 +1320,15 @@ export function generateStarterKit(name, d) {
         Net carbs = total carbs − fiber − sugar alcohols. Stay under this and ketosis takes care of itself. The cheat sheet on page 3 shows exactly which foods fit — keep it somewhere you'll see it.
       </div>
     </section>
+
+    ${topWatchOuts.length > 0 ? `<section class="sec avoid-break">
+      <div class="sec-eyebrow">Personalized for you</div>
+      <div class="sec-title">Your first 3 watch-outs</div>
+      ${topWatchOuts.map(w => `<div class="callout" style="margin-bottom:10px">
+        <span class="ct">${escHtml(w.title)}</span>
+        ${w.detail}
+      </div>`).join('\n      ')}
+    </section>` : ''}
   </div>
 
   ${pageFooter(footLeft, 'Educational — not medical advice', 1, 4)}
