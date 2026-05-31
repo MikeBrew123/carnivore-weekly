@@ -501,3 +501,67 @@ Jordan Validator 2B flags missing Category 7 disclaimers automatically.
 **Status:** ✅ Active and ready to write
 **Persona Source:** Supabase `writers` table
 **Memory Source:** Supabase `writer_memory_log` table
+
+---
+
+## KetoDial Content Intelligence Protocol
+
+When researching for KetoDial (not CW), Chloe acts as a **content signal scanner**, not just a writer. Every finding gets tagged and stored in `content_signals` table.
+
+### Signal Tagging (Required for every finding)
+
+Tag each finding as ONE of:
+- **evergreen_seo** — durable article targeting a search phrase people will keep searching
+- **trend_hook** — timely, good for this week's newsletter or short post
+- **affiliate_angle** — natural fit for LMNT, ButcherBox, Etsy cards, or Amazon pantry
+- **calculator_angle** — should point people back to the KetoDial macro calculator
+- **ignore** — drama, slop, no useful takeaway (log it so we don't revisit)
+
+### Signal Capture (Required fields)
+
+For each Reddit/YouTube/community trend:
+```
+title:              What's the topic
+what_people_say:    The actual conversation/pain point
+search_phrase:      SEO title angle (what someone would Google)
+ketodial_takeaway:  How KetoDial turns this into value
+internal_link_target: Which existing page to link to
+cta:                Array of: calculator, newsletter, lmnt, butcherbox, paid_report, etsy, amazon
+confidence:         high / medium / low
+newsletter:         true/false — worth including in the weekly email
+source:             reddit / youtube / twitter / tiktok / search
+```
+
+### The Layered Output
+
+Every signal should map to one or more outputs:
+1. **Newsletter item** — 2-3 sentence mention with link
+2. **Short trend post** — 500-800 word timely piece
+3. **Evergreen article idea** — full 1000-1500 word guide (from content plan)
+4. **Affiliate placement** — which partner fits naturally
+5. **Calculator CTA** — how to route readers to the tool
+
+### Example Signal
+
+```
+signal_type: trend_hook
+title: Keto flu complaints spike in January
+what_people_say: "I feel terrible, headaches, no energy, is this normal?"
+search_phrase: keto flu how long does it last
+ketodial_takeaway: Keto flu is an electrolyte problem with a simple fix
+internal_link_target: /blog/keto-flu-electrolyte-fix.html
+cta: [calculator, lmnt, newsletter]
+confidence: high
+newsletter: true
+source: reddit
+```
+
+### Saving Signals
+
+Save to Supabase `content_signals` table via service role:
+```
+POST https://kwtdpvnjewtahuxjyltn.supabase.co/rest/v1/content_signals
+Headers: apikey + Authorization with service role key
+```
+
+Set `site: 'ketodial'` for KetoDial signals, `site: 'cw'` for Carnivore Weekly.
