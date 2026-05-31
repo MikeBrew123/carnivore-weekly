@@ -210,7 +210,13 @@ async function handleReport(sessionId, reportType, env) {
   }
 
   return new Response(html, {
-    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'X-Robots-Tag': 'noindex, nofollow',
+      'Cache-Control': 'private, no-store',
+      'Referrer-Policy': 'no-referrer',
+      'X-Content-Type-Options': 'nosniff',
+    },
   });
 }
 

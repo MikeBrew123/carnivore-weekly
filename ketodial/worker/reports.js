@@ -85,32 +85,36 @@ function activityLabel(a) {
 
 function normalizeMedications(raw) {
   if (!raw || raw === 'None reported') return raw;
-  // Common misspellings/brand names → proper names
-  const fixes = [
-    [/ozimpic/gi, 'Ozempic (semaglutide)'],
-    [/ozempic/gi, 'Ozempic (semaglutide)'],
-    [/wegovy/gi, 'Wegovy (semaglutide)'],
-    [/mounjaro/gi, 'Mounjaro (tirzepatide)'],
-    [/zepbound/gi, 'Zepbound (tirzepatide)'],
-    [/metformin/gi, 'Metformin'],
-    [/lisinopril/gi, 'Lisinopril'],
-    [/losartan/gi, 'Losartan'],
-    [/atorvastatin/gi, 'Atorvastatin'],
-    [/lipitor/gi, 'Lipitor (atorvastatin)'],
-    [/synthroid/gi, 'Synthroid (levothyroxine)'],
-    [/levothyroxine/gi, 'Levothyroxine'],
-    [/jardiance/gi, 'Jardiance (empagliflozin)'],
-    [/invokana/gi, 'Invokana (canagliflozin)'],
-    [/glipizide/gi, 'Glipizide'],
-    [/januvia/gi, 'Januvia (sitagliptin)'],
-    [/insulin/gi, 'Insulin'],
-    [/amlodipine/gi, 'Amlodipine'],
-    [/hydrochlorothiazide/gi, 'Hydrochlorothiazide'],
-  ];
+  // Normalize common misspellings first, then brand names
+  // Order matters: fix typos before brand-name matching to avoid double-replacement
   let result = raw;
-  for (const [pattern, replacement] of fixes) {
-    result = result.replace(pattern, replacement);
-  }
+  // Step 1: Fix misspellings to correct brand names
+  result = result.replace(/ozimpic/gi, 'Ozempic');
+  // Step 2: Add generic names to brand names (only if generic not already present)
+  const brandGenerics = [
+    [/\bOzempic\b(?!\s*[\/(])/gi, 'Ozempic / semaglutide'],
+    [/\bWegovy\b(?!\s*[\/(])/gi, 'Wegovy / semaglutide'],
+    [/\bMounjaro\b(?!\s*[\/(])/gi, 'Mounjaro / tirzepatide'],
+    [/\bZepbound\b(?!\s*[\/(])/gi, 'Zepbound / tirzepatide'],
+    [/\bLipitor\b(?!\s*[\/(])/gi, 'Lipitor / atorvastatin'],
+    [/\bSynthroid\b(?!\s*[\/(])/gi, 'Synthroid / levothyroxine'],
+    [/\bJardiance\b(?!\s*[\/(])/gi, 'Jardiance / empagliflozin'],
+    [/\bInvokana\b(?!\s*[\/(])/gi, 'Invokana / canagliflozin'],
+    [/\bJanuvia\b(?!\s*[\/(])/gi, 'Januvia / sitagliptin'],
+  ];
+  // Step 3: Capitalize common generics
+  const generics = [
+    [/\bmetformin\b/gi, 'Metformin'],
+    [/\blisinopril\b/gi, 'Lisinopril'],
+    [/\blosartan\b/gi, 'Losartan'],
+    [/\batorvastatin\b/gi, 'Atorvastatin'],
+    [/\blevothyroxine\b/gi, 'Levothyroxine'],
+    [/\bglipizide\b/gi, 'Glipizide'],
+    [/\binsulin\b/gi, 'Insulin'],
+    [/\bamlodipine\b/gi, 'Amlodipine'],
+  ];
+  for (const [p, r] of brandGenerics) result = result.replace(p, r);
+  for (const [p, r] of generics) result = result.replace(p, r);
   return result;
 }
 
@@ -1230,7 +1234,7 @@ const STARTER_CSS = `
 export function generateStarterKit(name, d) {
   const carb = d.carbG || 25;
   const prot = d.proteinG || 113;
-  const meds = d.meds || '';
+  const meds = normalizeMedications(d.meds || '');
   const conditions = (d.conditions || []).filter(c => c !== 'none');
   const symptoms = (d.symptoms || []).filter(s => s !== 'none');
 
