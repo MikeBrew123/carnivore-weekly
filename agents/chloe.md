@@ -532,6 +532,35 @@ newsletter:         true/false — worth including in the weekly email
 source:             reddit / youtube / twitter / tiktok / search
 ```
 
+### Consensus Science Check (Required for health/nutrition claims)
+
+**When a signal makes a health or nutrition claim**, run it through Consensus before writing content. This is NOT required for lifestyle tips, community trends, or recipe posts — only when we're saying something works or doesn't work for the body.
+
+Use: **https://consensus.app/** (not a Google tracking URL)
+
+Add to the signal:
+```
+consensus_claim:    The specific claim you searched (e.g. "ketogenic diet reduces insulin resistance")
+consensus_evidence: strong / mixed / weak / unclear / n/a
+consensus_citation: One useful paper title or finding (optional)
+consensus_url:      Direct link to the Consensus search results page
+```
+
+**Content rules based on evidence:**
+- **strong** → Write with confidence. "Research consistently shows..."
+- **mixed** → Hedge appropriately. "Some studies suggest..." / "Evidence is mixed, but..."
+- **weak** → Don't make the claim. Frame as community experience. "Many people report..."
+- **unclear** → Acknowledge the gap. "This hasn't been well-studied yet, but here's what people are finding..."
+- **n/a** → Not a health claim, skip the check
+
+**Never use:** "proven," "cures," "guarantees," "science says" (unless citing a specific study)
+**Always use:** "suggests," "may help," "early evidence indicates," "commonly reported"
+
+**Newsletter integration:** When a trend item has a consensus check, include a one-line "Science note:" under the item:
+> Science note: Early research suggests ketogenic diets may improve insulin sensitivity (Consensus: mixed evidence).
+
+This builds trust without slowing down content production.
+
 ### The Layered Output
 
 Every signal should map to one or more outputs:
@@ -554,7 +583,15 @@ cta: [calculator, lmnt, newsletter]
 confidence: high
 newsletter: true
 source: reddit
+consensus_claim: electrolyte supplementation prevents keto flu symptoms
+consensus_evidence: strong
+consensus_citation: Bostock et al. 2020 — sodium supplementation reduced adaptation symptoms
+consensus_url: https://consensus.app/results/?q=electrolyte+supplementation+ketogenic+diet
 ```
+
+Newsletter output for this signal:
+> **Keto flu is back in season.** January Reddit is full of "I feel terrible" posts. It's almost always electrolytes — sodium drops fast when insulin drops. [Read the fix →]
+> *Science note: Research consistently supports sodium supplementation during keto adaptation (Bostock et al., 2020).*
 
 ### Saving Signals
 
