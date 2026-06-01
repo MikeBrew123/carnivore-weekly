@@ -390,6 +390,30 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                         'Update href to point to an existing blog post, or remove the link'
                     )
 
+        # Check 10c: Missing local images on disk (CRITICAL for absolute, WARNING for relative)
+        for img in soup.find_all('img', src=True):
+            src = img['src']
+            if src.startswith('http') or src.startswith('data:'):
+                continue
+            if src.startswith('/'):
+                img_path = project_root / 'public' / src.lstrip('/')
+                if not img_path.exists():
+                    line = get_line_number(content, src)
+                    results.add_critical(
+                        rel_path, line,
+                        f'Missing image on disk: {src}',
+                        'Commit the image file or update the src to an existing image'
+                    )
+            else:
+                img_path = file_path.parent / src
+                if not img_path.exists():
+                    line = get_line_number(content, src)
+                    results.add_warning(
+                        rel_path, line,
+                        f'Missing image (relative path): {src}',
+                        'Move image to the correct directory or use an absolute /images/ path'
+                    )
+
         # Check 10b: Mixed content — any http:// links (WARNING)
         for tag in soup.find_all(['a', 'img', 'script', 'link', 'source']):
             for attr in ['href', 'src', 'srcset']:
