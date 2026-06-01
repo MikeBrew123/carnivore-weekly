@@ -1760,6 +1760,49 @@ blockquote.pull-quote {
     font-weight: 700;
 }
 
+/* Sister Site CTA - KetoDial */
+.cta-box--ketodial {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e1f0fd 100%);
+    border: 2px solid #38bdf8;
+    border-radius: 8px;
+    padding: var(--space-6);
+    margin: var(--space-10) 0;
+    text-align: center;
+}
+.cta-box--ketodial h4 {
+    font-size: var(--text-xl);
+    margin: 0 0 var(--space-3) 0;
+    color: #0b1620;
+}
+.cta-box--ketodial p {
+    margin: 0 0 var(--space-4) 0;
+    color: #475569;
+    font-size: var(--text-base);
+}
+.cta-box--ketodial .btn--ketodial {
+    display: inline-block;
+    padding: 10px 24px;
+    background: #0ea5e9;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.cta-box--ketodial .btn--ketodial:hover {
+    background: #0284c7;
+}
+.cta-box--ketodial .sister-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #0ea5e9;
+    margin-bottom: var(--space-2);
+}
+
 /* CTA Box - Calculator callout */
 .cta-box {
     background: linear-gradient(135deg, #fff9ed 0%, #fff4db 100%);
