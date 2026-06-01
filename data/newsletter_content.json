@@ -1,29 +1,35 @@
 {
-  "date": "2026-05-26",
-  "subject_line": "130 Articles, 50 Blood Tests, and BBQ Season Is Here",
-  "opening": "<p style=\"margin:0;\">Hey friends — we just crossed 130 published articles in the library, which is wild to think about. Big news on our end: newsletters now come from mail.carnivoreweekly.com (our own domain, finally). This week we've got pieces on partners thinking you've joined a cult, electrolyte fixes, the seed oil wars, beef organ supplements, and a full carnivore travel playbook. Oh, and summer's here — which means BBQ season is basically a carnivore holiday. Let's get into it.</p>",
+  "date": "2026-06-01",
+  "subject_line": "KetoDial Is Live, a 500-Day Stall Breakthrough, and the Real Cost of Ozempic",
+  "opening": "<p style=\"margin:0;\">Okay so this was a big week. We officially launched <a href=\"https://ketodial.com\">KetoDial</a>, our free keto macro calculator, and honestly the response has been incredible. We also dropped posts on bridal carnivore protocols, why eggs and dairy are your best anchors, a starter gift guide, and how to eat carnivore without going broke. On the video side, we covered the lion diet, the real biological costs of Ozempic, and a wild 500-day stall breakthrough that you need to hear about. Let's get into it.</p>",
   "blog_teasers": [
     {
-      "slug": "2026-05-19-partner-thinks-carnivore-cult",
-      "title": "What Happens When Your Partner Thinks You've Joined a Cult",
-      "writer": "chloe",
-      "teaser": "Relationship tension posts are spiking on r/carnivore. Here's what the friction actually looks like, why it happens, and how couples are working through it."
-    },
-    {
-      "slug": "2026-05-19-bridal-season-etsy-wish",
-      "title": "Bridal Season, My First Etsy Sale, and a Wish",
+      "slug": "2026-06-01-we-built-something-for-the-keto-questions",
+      "title": "We Built Something for the Keto Questions",
       "writer": "sarah",
-      "teaser": "An Etsy email about bridal season sent me back to my own wedding. Here's what I wish someone had told me about inflammation, energy, and feeling good on the big day."
+      "teaser": "We kept hearing the same questions about keto macros, so we built KetoDial — a free calculator that gives you personalized targets in 30 seconds. Here's why we made it."
     },
     {
-      "slug": "2026-05-18-carnivore-cheat-reentry-protocol",
-      "title": "I Cheated. Now What? The Carnivore Re-Entry Protocol",
+      "slug": "2026-05-30-the-90-day-bridal-carnivore-protocol",
+      "title": "The 90-Day Bridal Carnivore Protocol",
+      "writer": "sarah",
+      "teaser": "A practical timeline for brides who want to feel their best on the big day — no crash diets, no gimmicks, just a structured carnivore approach that actually works."
+    },
+    {
+      "slug": "2026-05-28-eggs-and-dairy-the-long-term-carnivore-anchor",
+      "title": "Eggs and Dairy: The Long-Term Carnivore Anchor",
+      "writer": "chloe",
+      "teaser": "Most people start with steak. The ones who stick around learn to love eggs, butter, and cheese. Here's why these staples matter more than you think."
+    },
+    {
+      "slug": "2026-05-26-your-first-month-carnivore-without-going-broke",
+      "title": "Your First Month Carnivore Without Going Broke",
       "writer": "marcus",
-      "teaser": "You ate the carbs. Here's what actually happened and the exact steps to get back on track fast — without the guilt spiral."
+      "teaser": "The biggest objection to carnivore is cost. Marcus breaks down exactly how to eat well for under $200 a month — with a full shopping list."
     }
   ],
-  "by_the_numbers": "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td width=\"33%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;\">130</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">Articles in Our Library</span></td><td width=\"34%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;border-left:1px solid #E5DDD4;border-right:1px solid #E5DDD4;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;\">44</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">YouTube Creators Tracked</span></td><td width=\"33%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;\">174K</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">Views on Top Video This Week</span></td></tr></table>",
-  "whats_trending": "<p style=\"margin:0;\"><strong>Carnivore MD vs. Big Pharma:</strong> Dr. Paul Saladino went on Valuetainment (174K views) breaking down what he calls the pharmaceutical industry's war on meat-based nutrition. It's spicy, it's controversial, and the comment section is a warzone.<br><br><strong>\"Carnivore Wasn't Enough\":</strong> HomeSteadHow dropped a brutally honest video (64K views) about how strict carnivore tanked their health and what they changed. Refreshing to see someone talk about what didn't work instead of just the highlight reel.<br><br><strong>50 Patients, One Shocking Result:</strong> Dr. Abs tested bloodwork on 50 carnivore patients and one finding changed his clinical approach entirely (55K views). Won't spoil it — but it's not what you'd expect.</p>",
-  "community_pulse": "<p>The community lit up this week after Dr. Abs shared blood work results from 50 carnivore patients — and the findings challenged a lot of assumptions about what happens to your lipid panel on this way of eating. It's the kind of real-world data we don't see enough of, and it lines up with what we've been breaking down in our own deep dive on cholesterol changes after 90 days. The other big conversation? Electrolytes. It's still the #1 question from people starting out, and for good reason — getting sodium, potassium, and magnesium wrong can make the first few weeks miserable. If that's you, you're not alone, and the science behind why it happens is actually pretty straightforward once someone explains it.</p>",
-  "looking_ahead": "<p style=\"font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;\">Next week we're dropping fresh posts on summer carnivore strategies — think grilling protocols, staying consistent when the routine breaks, and meal prep for hot weather. We just switched to a custom email domain, which means these newsletters should land in your inbox more reliably. Got questions or topics you want us to cover? Just hit reply.</p>"
+  "by_the_numbers": "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td width=\"33%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;\">140+</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">Articles in the Library</span></td><td width=\"34%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;border-left:1px solid #E5DDD4;border-right:1px solid #E5DDD4;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;\">109K</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">Views on Top Video</span></td><td width=\"33%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;\">1</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">New Free Tool Launched</span></td></tr></table>",
+  "whats_trending": "<p style=\"margin:0;\"><strong>KetoDial is live (and free):</strong> We built a keto macro calculator from scratch because most of the ones out there are either paywalled or trying to sell you something. KetoDial gives you personalized macros in about 30 seconds, no account required. Early feedback from the community has been really positive.<br><br><strong>The real cost of GLP-1 shortcuts:</strong> Kent Carnivore's video on the biological costs of Ozempic and Mounjaro hit 109K views and the comments section is on fire. People are split between \"let them have the drugs\" and \"you're trading one problem for another.\" It's the biggest debate in the community right now and it's not slowing down.<br><br><strong>Lion diet vs standard carnivore:</strong> Emma's 30-day lion diet experiment is making the rounds and the results are hard to ignore. Turns out stripping it down to just beef, salt, and water actually helped her identify triggers she'd been missing for months. If you've been stalled or dealing with mystery inflammation, the elimination approach is worth a serious look.</p>",
+  "community_pulse": "<p>This week's conversations reminded me why I love this community. HomeSteadHow's video on breaking a 500-day stall hit 37K views, and Jen's story is one I've heard dozens of times now. She cut dairy and the scale finally moved. The comments section turned into its own support group, with women sharing almost identical experiences about dairy being their hidden stall trigger. It lines up with what we know about casein sensitivity and its effects on insulin response in some people. Meanwhile, Dr. Ken Berry dropped a simple day-in-the-life video that honestly felt like a breath of fresh air. No complicated protocols, no optimization talk, just a doctor eating meat and living his life. It's a good reminder that this doesn't have to be perfect to work. And speaking of \"just start where you are,\" our 90-day bridal carnivore post picked up real traction this week. If you're planning a wedding or know someone who is, that piece breaks down a practical timeline without the crash-diet nonsense.</p>",
+  "looking_ahead": "<p style=\"font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;\">Summer's here and we're leaning into it. Next week you'll get carnivore grilling guides, tips for staying on track at cookouts, and fresh content built around warm-weather eating. We're also adding new features to the KetoDial calculator, so if you haven't tried it yet, now's a great time. Hit reply and tell us what topics you want to see. We actually read every one.</p>"
 }
