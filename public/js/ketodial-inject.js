@@ -1,33 +1,38 @@
 /**
  * KetoDial Sister Site CTA Injection — Carnivore Weekly
- * Adds a contextual "Looking for keto?" banner on keto-adjacent blog posts.
- * Only shows on posts whose content mentions "keto" 3+ times.
+ * Shows on blog posts where keto/carnivore comparison is natural.
+ * Requires 5+ keto mentions AND excludes bride/bridal/wedding content.
+ * Per Hermes spec: comparison/decision framing, never on calculator page.
  */
 (function() {
-  if (!window.location.pathname.startsWith('/blog/') ||
-      window.location.pathname === '/blog/' ||
-      window.location.pathname === '/blog/index.html') return;
+  var path = window.location.pathname;
+  if (!path.startsWith('/blog/') ||
+      path === '/blog/' ||
+      path === '/blog/index.html') return;
 
   if (document.querySelector('.cta-box--ketodial')) return;
+
+  // Exclude bride/bridal pages
+  if (path.indexOf('bridal') !== -1 || path.indexOf('bride') !== -1) return;
 
   var content = document.querySelector('.post-content');
   if (!content) return;
 
   var ketoCount = (content.textContent.match(/\bketo\b/gi) || []).length;
-  if (ketoCount < 3) return;
+  if (ketoCount < 5) return;
 
-  var slug = window.location.pathname.split('/').pop().replace('.html', '');
+  var slug = path.split('/').pop().replace('.html', '');
   var utm = '?utm_source=carnivoreweekly&utm_medium=blog_banner&utm_campaign=ketodial_crosslink&utm_content=' + encodeURIComponent(slug);
 
   var box = document.createElement('div');
   box.className = 'cta-box--ketodial';
   box.innerHTML =
     '<span class="sister-label">From our sister site</span>' +
-    '<h4>Looking for keto macros?</h4>' +
-    '<p>We built KetoDial for the meat-forward keto crowd. Free calculator, real recipes, no fluff.</p>' +
+    '<h4>Still deciding between keto and carnivore?</h4>' +
+    '<p>KetoDial gives you advanced macro planning for keto, low-carb, and carnivore approaches. Compare your targets and pick the path that fits.</p>' +
     '<a href="https://ketodial.com' + utm + '" class="btn--ketodial" target="_blank" rel="noopener" ' +
     'onclick="try{gtag(\'event\',\'ketodial_banner_click\',{event_category:\'cross_site\',content_id:\'' + slug + '\'})}catch(e){}">' +
-    'Try KetoDial Free</a>';
+    'Compare your targets ›</a>';
 
   var headings = content.querySelectorAll('h2');
   if (headings.length >= 3) {
