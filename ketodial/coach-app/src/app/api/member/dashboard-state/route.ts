@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: { 'Cache-Control': 'no-store' } })
   }
 
   const serviceClient = await createServiceClient()
@@ -15,12 +15,12 @@ export async function GET(request: NextRequest) {
   // Fetch member row
   const { data: member } = await serviceClient
     .from('coach_members')
-    .select('id, display_name, status, tier, founding_member, subscription_status, onboarding_step, onboarded_at, current_weight, start_weight, goal_weight, diet_type, risk_level, bonus_credit_balance, timezone, cancel_at_period_end, current_period_end')
+    .select('id, display_name, status, tier, founding_member, subscription_status, onboarding_step, onboarded_at, current_weight, start_weight, goal_weight, diet_type, bonus_credit_balance, timezone, cancel_at_period_end, current_period_end')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   if (!member) {
-    return NextResponse.json({ state: 'no_member' }, { status: 404 })
+    return NextResponse.json({ state: 'no_member' }, { status: 404, headers: { 'Cache-Control': 'no-store' } })
   }
 
   // Onboarding incomplete
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     .eq('checkin_type', 'weekly')
     .order('submitted_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
   // Compute check-in state
   const checkInState = getCurrentCheckInState(
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     .not('sent_at', 'is', null)
     .order('sent_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
   // Extract focus from latest response (last paragraph or explicit marker)
   let focus = null

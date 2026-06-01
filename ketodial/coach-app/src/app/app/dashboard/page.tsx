@@ -30,6 +30,8 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardState | null>(null)
   const [noteText, setNoteText] = useState('')
   const [sendingNote, setSendingNote] = useState(false)
+  const [noteError, setNoteError] = useState('')
+  const [noteSent, setNoteSent] = useState(false)
 
   useEffect(() => {
     fetch('/api/member/dashboard-state')
@@ -49,12 +51,25 @@ export default function DashboardPage() {
   async function sendNote() {
     if (!noteText.trim() || sendingNote) return
     setSendingNote(true)
-    await fetch('/api/member/notes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: noteText }),
-    })
-    setNoteText('')
+    setNoteError('')
+    setNoteSent(false)
+    try {
+      const res = await fetch('/api/member/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: noteText }),
+      })
+      if (res.ok) {
+        setNoteText('')
+        setNoteSent(true)
+        setTimeout(() => setNoteSent(false), 3000)
+      } else {
+        const data = await res.json()
+        setNoteError(data.error || 'Failed to send note')
+      }
+    } catch {
+      setNoteError('Network error — try again')
+    }
     setSendingNote(false)
   }
 
@@ -195,6 +210,8 @@ export default function DashboardPage() {
             </button>
           )}
         </div>
+        {noteError && <p style={{ fontSize: '12px', color: 'var(--bad)', marginTop: '6px' }}>{noteError}</p>}
+        {noteSent && <p style={{ fontSize: '12px', color: 'var(--good)', marginTop: '6px' }}>Note sent to Coach Remy</p>}
 
         {/* Focus card */}
         {data.focus && (
