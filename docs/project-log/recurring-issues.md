@@ -130,3 +130,33 @@ Pattern: OpenAI Python SDK `parse_response()` does `for output in response.outpu
 Attempts:
 - 2026-05-27 — `hermes update` (471 commits) → no fix. SDK bump 2.24→2.25→2.30→2.38 → same bug in all versions. Patched SDK line 61: `response.output` → `(response.output or [])`. Hermes operational.
 If recurs: Re-apply patch after any `hermes update` or `pip install openai`. Filed: openai/openai-python, NousResearch/hermes-agent.
+
+---
+
+## ISSUE-013 — Weekly agent fails: nested `claude --print` "Not logged in"
+🔴 OPEN — Last: 2026-05-31
+
+Pattern: `run_weekly_agent.sh` Step 3 spawns a child `claude --print < weekly_agent_prompt.md`. In a scheduled/headless run the child CLI has no auth session and exits with "Not logged in · Please run /login". `set -e` aborts the script, so Steps 4 (build) and deploy never run — site NOT updated. The parent Claude Code session is authenticated; the spawned subprocess does not inherit those credentials.
+Attempts:
+- 2026-05-31 — Scheduled run hit this on first attempt. Did not retry (per task policy). No fix applied yet.
+If recurs: the architecture (scheduled task → bash → nested `claude` CLI) is the root problem. Next angles: (a) provision a long-lived API key / `ANTHROPIC_API_KEY` env for the headless child; (b) have the scheduled task itself perform the agent analysis inline instead of shelling out to a second `claude`; (c) confirm `claude setup-token`/credentials file is readable in the cron environment.
+
+---
+
+## ISSUE-014 — Reddit collector 403 Blocked on all subreddits
+🟡 RECURRING — Last: 2026-05-31
+
+Pattern: `reddit_collector.py` hits `https://www.reddit.com/r/{sub}/top.json` → `403 Client Error: Blocked` for all 5 subreddits. Reddit blocks unauthenticated/UA-spoofed JSON scrapes. Non-fatal (script continues; agent works from YouTube only) but Reddit signal is lost from the weekly update.
+Attempts:
+- 2026-05-31 — Observed during scheduled run. No fix applied (non-fatal, and run aborted at Step 3 anyway).
+If recurs: Reddit now requires OAuth for API access. Next angles: register a Reddit app for OAuth (client_id/secret), or route through an Apify Reddit actor (Apify MCP is available), or rotate user-agent/add auth headers.
+
+---
+
+## ISSUE-015 — Deploy fails: roundup image referenced but not committed
+🟢 FIXED — Last: 2026-06-01
+
+Pattern: `generate.py` creates roundup image and references it in `index.html`. Image exists locally but isn't git-tracked — CI 404 check fails on every push. Caused 10+ consecutive deploy failures.
+Attempts:
+- 2026-06-01 — Committed missing image. Added Check 10c to `validate_before_commit.py`: missing absolute-path images are now CRITICAL (blocks commit), relative-path images are WARNING. Prevents future occurrences at pre-commit.
+If recurs: Check if `generate_roundup_image.py` output is being staged. Consider auto-staging in `generate.py`.
