@@ -101,6 +101,26 @@ async function handleSession(request, env) {
       const err = await res.text();
       return jsonResponse(500, { error: err });
     }
+    if (b.email && b.newsletter_opt_in) {
+      fetch(`${env.SUPABASE_URL}/rest/v1/newsletter_subscribers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({
+          email: b.email,
+          site: 'kd',
+          status: 'active',
+          signup_source: 'calculator',
+          utm_source: b.utm_source || null,
+          utm_medium: b.utm_medium || null,
+          utm_campaign: b.utm_campaign || null,
+        }),
+      }).catch(() => {});
+    }
     return jsonResponse(200, { ok: true, token });
   } catch (e) {
     return jsonResponse(500, { error: e.message });
