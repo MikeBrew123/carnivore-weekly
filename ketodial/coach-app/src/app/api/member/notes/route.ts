@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { canMemberAccessCoaching } from '@/lib/member-access'
 
 const MAX_NOTE_LENGTH = 2000
-const MIN_NOTE_INTERVAL_MS = 5000 // 5 second debounce
+const MIN_NOTE_INTERVAL_MS = 5000
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -24,14 +25,14 @@ export async function POST(request: NextRequest) {
 
   const serviceClient = await createServiceClient()
 
-  // Verify member is active
+  // Verify member has active coaching access (includes billing check)
   const { data: member } = await serviceClient
     .from('coach_members')
-    .select('status, onboarded_at')
+    .select('status, subscription_status, onboarded_at, current_period_end')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
-  if (!member || member.status !== 'active' || !member.onboarded_at) {
+  if (!member || !canMemberAccessCoaching(member)) {
     return NextResponse.json({ error: 'Active membership required' }, { status: 403 })
   }
 
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     .eq('direction', 'member')
     .order('created_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
   if (lastMsg) {
     const elapsed = Date.now() - new Date(lastMsg.created_at).getTime()
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
       content: content.trim(),
     })
     .select('id, content, sent_at, created_at')
-    .single()
+    .maybeSingle()
 
   if (error) {
     console.error('Failed to insert note:', error)
