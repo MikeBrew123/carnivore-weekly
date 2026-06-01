@@ -1,25 +1,30 @@
-# CODING AGENTS: READ THIS FIRST
+# KetoDial
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+Keto/carnivore macro calculator and coaching platform.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+## Structure
 
-## What you should do — IMPORTANT
+```
+ketodial/
+  public/            # Live site (GitHub Pages at ketodial.com) — don't edit directly
+  worker/            # Cloudflare Worker (calculator API, Stripe checkout)
+  coach-app/         # KetoDial Coach web app (Next.js, Vercel at coach.ketodial.com)
+  design/            # Claude Design prototypes (reference only, not served)
+    coach/           # Coach app prototypes — Landing, Member App, Admin
+    homepage/        # Homepage prototype (implemented)
+    blog/            # Blog prototypes (implemented)
+    recipes/         # Recipe prototypes (implemented)
+    newsletter/      # Newsletter templates
+  PLAN-coach-app.md          # Coach product spec
+  DESIGN-BRIEF-coach-app.md  # Coach design brief
+  stripe-products.json       # Stripe product config
+```
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `ketodial/chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+## Coach App
 
-**Read `ketodial/project/KetoDial Home.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+Text-based accountability coaching. AI-drafted, human-reviewed by a carnivore nutrition reviewer.
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
-
-## About the design files
-
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
-
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
-
-## Bundle contents
-
-- `ketodial/README.md` — this file
-- `ketodial/chats/` — conversation transcripts (read these!)
-- `ketodial/project/` — the `KetoDial` project files (HTML prototypes, assets, components)
+- Weekly: $49/mo (Sunday check-in, one coached response/week)
+- Daily: $129/mo (Phase 2)
+- Tech: Next.js + Supabase + Stripe + Claude API
+- Domain: coach.ketodial.com
