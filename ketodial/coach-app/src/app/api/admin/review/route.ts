@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { updateMemberSummary } from '@/lib/claude/summary-updater'
+import { sendCoachRepliedNotification } from '@/lib/email/send'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -47,6 +49,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Message not found' }, { status: 404 })
   }
 
+  // Get member info for notifications
+  const { data: memberInfo } = await serviceClient
+    .from('coach_members')
+    .select('email, display_name')
+    .eq('id', message.member_id)
+    .single()
+
   // Race protection: only act on pending/flagged messages
   if (!['pending', 'flagged'].includes(message.review_status)) {
     return NextResponse.json({ error: 'Message already reviewed' }, { status: 409 })
@@ -77,6 +86,18 @@ export async function POST(request: NextRequest) {
           target_message_id: message_id,
           metadata: { red_flag: message.red_flag },
         })
+
+      // Update member summary after approved send (non-blocking)
+      updateMemberSummary(serviceClient, message.member_id).catch(err =>
+        console.error('Summary update failed after approve:', err)
+      )
+
+      // Notify member (non-blocking)
+      if (memberInfo) {
+        sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name).catch(err =>
+          console.error('Reply notification failed:', err)
+        )
+      }
 
       return NextResponse.json({ ok: true, action: 'approved_and_sent' })
     }
@@ -110,6 +131,18 @@ export async function POST(request: NextRequest) {
           before_state: { content: message.content },
           after_state: { content: content.trim() },
         })
+
+      // Update member summary after edited send (non-blocking)
+      updateMemberSummary(serviceClient, message.member_id).catch(err =>
+        console.error('Summary update failed after edit:', err)
+      )
+
+      // Notify member (non-blocking)
+      if (memberInfo) {
+        sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name).catch(err =>
+          console.error('Reply notification failed:', err)
+        )
+      }
 
       return NextResponse.json({ ok: true, action: 'edited_and_sent' })
     }

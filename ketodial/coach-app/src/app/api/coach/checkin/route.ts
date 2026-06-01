@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { detectSafetyFlags } from '@/lib/safety/keywords'
 import { canMemberAccessCoaching } from '@/lib/member-access'
+import { generateCoachDraft } from '@/lib/claude/coach'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -133,9 +134,11 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // TODO: Trigger async Claude draft generation
-  // For now, the check-in sits in the queue for manual response by Keren
-  // Claude API integration is Day 7 of the build plan
+  // Trigger async Claude draft generation (non-blocking)
+  // Check-in is saved regardless of whether draft generation succeeds
+  generateCoachDraft(serviceClient, user.id, checkin.id).catch(err =>
+    console.error('Coach draft generation failed:', err)
+  )
 
   return NextResponse.json({ ok: true, checkin_id: checkin.id })
 }
