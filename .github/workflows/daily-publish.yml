@@ -29,6 +29,14 @@ jobs:
       - name: Install dependencies
         run: pip install beautifulsoup4 lxml html5lib markdown jinja2 supabase python-dotenv
 
+      - name: Send drip emails (7-Day Starter)
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: python3 scripts/send_drip.py
+
       - name: Publish scheduled posts
         id: publish
         env:

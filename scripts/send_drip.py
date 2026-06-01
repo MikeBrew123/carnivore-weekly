@@ -16,6 +16,7 @@ Usage:
 
 import argparse
 import json
+import os
 import re
 import sys
 from datetime import datetime, timezone
@@ -33,6 +34,14 @@ TEST_EMAIL = "iambrew@gmail.com"
 
 
 def load_secrets():
+    sb_url = os.environ.get("SUPABASE_URL")
+    sb_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+    resend_key = os.environ.get("RESEND_API_KEY")
+    if sb_url and sb_key and resend_key:
+        return {
+            "supabase": {"url": sb_url, "service_role_key": sb_key},
+            "resend": {"key": resend_key},
+        }
     secrets = json.loads(SECRETS_PATH.read_text())
     return secrets
 
