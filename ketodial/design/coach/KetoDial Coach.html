@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KetoDial Coach — Screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,16..72,400;0,16..72,500;1,16..72,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="coach.css" />
+<style>
+  body{min-height:100vh;background:radial-gradient(140% 80% at 50% -10%,#15324c,#0b1620 60%);color:#e2eef7;padding:52px 28px 70px}
+  [data-brand="cw"] body{background:radial-gradient(140% 80% at 50% -10%,#2a201a,#1a1410 60%)}
+  .wrap{max-width:1080px;margin:0 auto}
+  .hub-top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:40px}
+  .kd-brand .word{color:#fff}
+  .kd-brand .sub{color:#6da6c9;border-color:var(--panel-line)}
+
+  .skin-toggle{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.05);border:1px solid var(--panel-line);border-radius:var(--r-pill);padding:5px}
+  .skin-toggle button{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;color:#9fc0d6;padding:8px 14px;border-radius:var(--r-pill);transition:all .15s}
+  .skin-toggle button.on{background:var(--accent);color:#062234}
+  [data-brand="cw"] .skin-toggle button.on{background:var(--accent);color:#fff}
+
+  .hub-hero{max-width:640px;margin-bottom:44px}
+  .hub-hero .eyebrow{color:var(--accent);margin-bottom:14px;display:block}
+  .hub-hero h1{font-size:clamp(34px,5vw,52px);font-weight:800;letter-spacing:-.03em;line-height:1.04;color:#fff;margin-bottom:16px}
+  .hub-hero p{font-size:17px;color:#9fc0d6;line-height:1.55}
+
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:36px}
+  .hcard{background:rgba(255,255,255,.04);border:1px solid var(--panel-line);border-radius:18px;padding:26px;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s,background .15s;display:flex;flex-direction:column;position:relative;overflow:hidden}
+  .hcard:hover{transform:translateY(-4px);border-color:var(--accent);background:rgba(56,189,248,.06)}
+  [data-brand="cw"] .hcard:hover{background:rgba(192,57,43,.08)}
+  .hcard.wide{grid-column:1/-1}
+  .hcard .hc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .hc-ic{width:46px;height:46px;border-radius:12px;background:rgba(56,189,248,.12);display:flex;align-items:center;justify-content:center}
+  [data-brand="cw"] .hc-ic{background:rgba(192,57,43,.14)}
+  .hc-ic svg{width:24px;height:24px;color:var(--accent)}
+  .hc-tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#6da6c9}
+  .hcard h2{font-size:21px;font-weight:700;letter-spacing:-.01em;color:#fff;margin-bottom:7px}
+  .hcard p{font-size:14px;color:#9fc0d6;line-height:1.5;flex:1}
+  .hc-screens{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+  .hc-screens span{font-family:var(--mono);font-size:10.5px;color:#7fb2d3;background:rgba(255,255,255,.05);border:1px solid var(--panel-line);padding:4px 9px;border-radius:6px}
+  .hc-go{display:inline-flex;align-items:center;gap:7px;color:var(--accent);font-weight:700;font-size:14px;margin-top:18px}
+
+  .skin-note{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.04);border:1px solid var(--panel-line);border-radius:14px;padding:16px 20px;font-size:13.5px;color:#9fc0d6;line-height:1.5}
+  .skin-swatches{display:flex;gap:6px;flex:none}
+  .sw{width:26px;height:26px;border-radius:7px;border:1px solid rgba(255,255,255,.15)}
+  .foot-note{margin-top:30px;font-family:var(--mono);font-size:11px;color:#5f8198;text-align:center;line-height:1.6}
+  .foot-note a{color:#7fb2d3}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hub-top">
+    <div class="kd-brand">
+      <svg class="mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="19" fill="#0b1620"/><path d="M9 25 A 12 12 0 1 1 31 25" stroke="#1e3a52" stroke-width="3" stroke-linecap="round"/><path d="M9 25 A 12 12 0 0 1 18.5 8.4" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/><line x1="20" y1="20" x2="26.5" y2="13.5" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="20" r="3" fill="#e2eef7"/></svg>
+      <span class="word">Keto<b>Dial</b></span><span class="sub">Coach</span>
+    </div>
+    <div class="skin-toggle">
+      <button class="on" data-skin="default">KetoDial</button>
+      <button data-skin="cw">Carnivore Weekly</button>
+    </div>
+  </div>
+
+  <div class="hub-hero">
+    <span class="eyebrow">Product design · 7 screens</span>
+    <h1>KetoDial Coach, end to end.</h1>
+    <p>Low-carb accountability coaching by text — weekly or daily check-ins, with one clear focus per response. Below: the sales page, the member app, and the review console, every screen from the brief on one brand system.</p>
+  </div>
+
+  <div class="cards">
+    <a class="hcard wide" href="Coach Landing.html">
+      <div class="hc-top">
+        <span class="hc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></span>
+        <span class="hc-tag">Screen 1 · Marketing</span>
+      </div>
+      <h2>Landing page</h2>
+      <p>The sales page that turns a calculator user into a paying member — pain point, how it works, pricing tiers, FAQ, and the disclaimer that keeps it honest: a check-in tool, not medical advice.</p>
+      <div class="hc-screens"><span>Hero</span><span>How it works</span><span>What you get / isn't</span><span>Pricing</span><span>FAQ</span><span>Social proof</span></div>
+      <span class="hc-go">Open landing page →</span>
+    </a>
+
+    <a class="hcard" href="Coach Member App.html">
+      <div class="hc-top">
+        <span class="hc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M11 18h2"/></svg></span>
+        <span class="hc-tag">Screens 2–5 · Member</span>
+      </div>
+      <h2>Member app</h2>
+      <p>Phone-framed and interactive. Onboarding, home, check-ins, a Responses thread that takes your notes, and a Progress view. Switch between three member states.</p>
+      <div class="hc-screens"><span>Onboarding</span><span>Home</span><span>Check-Ins</span><span>Responses</span><span>Progress</span></div>
+      <span class="hc-go">Open member app →</span>
+    </a>
+
+    <a class="hcard" href="Coach Admin.html">
+      <div class="hc-top">
+        <span class="hc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+        <span class="hc-tag">Screens 6–7 · Admin</span>
+      </div>
+      <h2>Check-in review console</h2>
+      <p>The 30-minute daily workflow for whoever reviews check-ins. Two-panel queue with red-flag triage, one-click approve, AI-draft editing, and a full member profile. Built for speed.</p>
+      <div class="hc-screens"><span>Review queue</span><span>Member context</span><span>AI draft editor</span><span>Member profile</span></div>
+      <span class="hc-go">Open admin console →</span>
+    </a>
+  </div>
+
+  <div class="skin-note">
+    <div class="skin-swatches" id="swatches">
+      <span class="sw" style="background:#0b1620"></span>
+      <span class="sw" style="background:#38bdf8"></span>
+      <span class="sw" style="background:#2dd4bf"></span>
+      <span class="sw" style="background:#f1f5f9"></span>
+    </div>
+    <div><b style="color:#cfe2ef">One backend, two brands.</b> Carnivore Weekly is the same product behind a single <span class="mono" style="color:#7fb2d3">[data-brand="cw"]</span> swap — palette and logo change, every screen inherits it. Toggle the skin above to preview, and it carries through to each screen.</div>
+  </div>
+
+  <p class="foot-note">
+    Coach persona: <a href="#">“Coach Remy”</a> — placeholder, easy to rename · Sample members: Alex (thriving), Jordan (new), Priya (struggling)<br />
+    KetoDial Coach provides low-carb accountability coaching, not medical care.
+  </p>
+</div>
+
+<script>
+  function applySkin(skin){
+    if(skin==='cw'){document.documentElement.setAttribute('data-brand','cw');}
+    else{document.documentElement.removeAttribute('data-brand');}
+    try{localStorage.setItem('kd-coach-brand',skin);}catch(e){}
+    document.querySelectorAll('.skin-toggle button').forEach(function(b){b.classList.toggle('on',b.dataset.skin===skin);});
+    var sw=document.getElementById('swatches');
+    sw.innerHTML = skin==='cw'
+      ? '<span class="sw" style="background:#1a1410"></span><span class="sw" style="background:#c0392b"></span><span class="sw" style="background:#c98a2b"></span><span class="sw" style="background:#f5f1ec"></span>'
+      : '<span class="sw" style="background:#0b1620"></span><span class="sw" style="background:#38bdf8"></span><span class="sw" style="background:#2dd4bf"></span><span class="sw" style="background:#f1f5f9"></span>';
+  }
+  document.querySelectorAll('.skin-toggle button').forEach(function(b){
+    b.addEventListener('click',function(){applySkin(b.dataset.skin);});
+  });
+  // links carry the chosen skin via ?brand=
+  document.querySelectorAll('.hcard').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var skin=localStorage.getItem('kd-coach-brand');
+      if(skin==='cw'){e.preventDefault();window.location.href=a.getAttribute('href')+'?brand=cw';}
+    });
+  });
+  (function(){var s='default';try{s=localStorage.getItem('kd-coach-brand')||'default';}catch(e){}applySkin(s);})();
+</script>
+</body>
+</html>

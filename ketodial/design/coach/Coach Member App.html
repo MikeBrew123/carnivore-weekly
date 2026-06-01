@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KetoDial Coach — Member App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,16..72,400;0,16..72,500;1,16..72,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="coach.css" />
+<script>(function(){try{var p=new URLSearchParams(location.search).get('brand');var s=p||localStorage.getItem('kd-coach-brand');if(s==='cw'){document.documentElement.setAttribute('data-brand','cw');localStorage.setItem('kd-coach-brand','cw');}}catch(e){}})();</script>
+<style>
+  body{min-height:100vh;background:radial-gradient(140% 90% at 50% -10%,#dde7f1,#eef2f7 55%)}
+  .stage{display:flex;gap:38px;align-items:flex-start;justify-content:center;padding:36px 24px 56px;flex-wrap:wrap}
+
+  /* demo rail */
+  .rail{width:280px;flex:none;position:sticky;top:36px}
+  .rail .kd-brand{margin-bottom:6px}
+  .rail .rail-sub{font-size:13px;color:var(--ink-soft);line-height:1.5;margin-bottom:22px}
+  .rail h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 11px}
+  .rail-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+  .mstate{display:flex;flex-direction:column;gap:8px}
+  .mstate button{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;border:1.5px solid var(--line);background:var(--surface);text-align:left;transition:all .14s}
+  .mstate button.on{border-color:var(--accent-deep);background:var(--accent-wash)}
+  .mstate button .mem-av{width:34px;height:34px;font-size:14px}
+  .mstate button .mn{font-size:13.5px;font-weight:700}
+  .mstate button .md{font-size:11px;color:var(--ink-faint)}
+  .jumps{display:flex;flex-wrap:wrap;gap:7px}
+  .jumps button{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink-soft);padding:7px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);transition:all .14s}
+  .jumps button:hover{border-color:var(--accent-deep);color:var(--accent-deep)}
+  @media(max-width:920px){.rail{position:static;width:393px}}
+
+  /* views */
+  .view{display:none;flex-direction:column;height:100%}
+  .view.on{display:flex}
+
+  /* ===== ONBOARDING ===== */
+  .ob{padding:8px 22px 26px;display:flex;flex-direction:column;min-height:100%}
+  .ob-prog{display:flex;gap:6px;padding:6px 0 22px}
+  .ob-prog i{height:4px;flex:1;border-radius:3px;background:var(--line)}
+  .ob-prog i.on{background:var(--accent-deep)}
+  .ob-step{display:none;flex-direction:column;flex:1}
+  .ob-step.on{display:flex;animation:fade .4s}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .ob-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--coach-deep);margin-bottom:10px}
+  .ob h2{font-size:25px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:12px}
+  .ob .lead{font-size:14.5px;color:var(--ink-soft);line-height:1.55;margin-bottom:20px}
+  .waiver{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;font-size:14px;color:var(--ink-soft);line-height:1.6;margin-bottom:18px}
+  .waiver b{color:var(--ink)}
+  .check-row{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;margin-bottom:auto}
+  .check-row input{width:22px;height:22px;accent-color:var(--accent-deep);flex:none;margin-top:1px}
+  .check-row span{font-size:14px;font-weight:600;line-height:1.4}
+  .ob-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .welcome-hero{text-align:center;padding:20px 0}
+  .welcome-hero .coach-av{margin:0 auto 16px;width:72px;height:72px;font-size:30px}
+
+  /* ===== APP CHROME ===== */
+  .appbar .back{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+  .appbar .back svg{width:22px;height:22px}
+
+  /* ===== DASHBOARD ===== */
+  .dash{padding:18px 18px 26px}
+  .dash-hello{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .dash-hello .dh-l h1{font-size:23px;font-weight:800;letter-spacing:-.02em}
+  .dash-hello .dh-l .wk{font-size:12.5px;color:var(--ink-faint);font-family:var(--mono);margin-top:2px}
+
+  .status-card{border-radius:16px;padding:18px;margin-bottom:16px;border:1px solid var(--line);background:var(--surface)}
+  .status-card.reply{border-color:var(--coach);background:linear-gradient(180deg,var(--coach-wash),var(--surface))}
+  .status-card.due{border-color:var(--accent-deep);background:linear-gradient(180deg,var(--accent-wash),var(--surface))}
+  .status-card.overdue{border-color:var(--warn);background:var(--warn-wash)}
+  .sc-top{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+  .sc-top .sc-k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--coach-deep)}
+  .sc-top .sc-title{font-size:16px;font-weight:800;letter-spacing:-.01em;margin-top:1px}
+  .sc-top .sc-dot{margin-left:auto;width:9px;height:9px;border-radius:50%;background:var(--coach);box-shadow:0 0 0 4px var(--coach-wash)}
+  .sc-snip{font-size:13.5px;color:var(--ink-soft);line-height:1.5;margin-bottom:14px}
+
+  .a2hs{display:flex;align-items:flex-start;gap:12px;background:var(--accent-wash);border:1px solid var(--accent-deep);border-radius:14px;padding:13px 14px;margin-bottom:4px}
+  .a2hs .a2-ic{width:34px;height:34px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex:none}
+  .a2hs .a2-ic svg{width:19px;height:19px;color:#062234}
+  [data-brand="cw"] .a2hs .a2-ic svg{color:#fff}
+  .a2hs .a2-body{flex:1;display:flex;flex-direction:column;gap:2px}
+  .a2hs .a2-body b{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .a2hs .a2-body span{font-size:12px;color:var(--ink-soft);line-height:1.45}
+  .a2hs .a2-x{width:24px;height:24px;flex:none;color:var(--ink-faint);display:flex;align-items:center;justify-content:center}
+  .a2hs .a2-x svg{width:16px;height:16px}
+  .section-label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:20px 2px 11px;display:flex;justify-content:space-between;align-items:center}
+  .section-label a{color:var(--accent-deep);font-weight:600}
+
+  .thread-prev{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;transition:border-color .14s}
+  .thread-prev:hover{border-color:var(--ink-faint)}
+  .thread-prev .tp-body{flex:1;min-width:0}
+  .thread-prev .tp-name{font-size:13px;font-weight:700}
+  .thread-prev .tp-snip{font-size:12.5px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .thread-prev .tp-go{color:var(--ink-faint)}
+  .quick-reply{display:flex;gap:8px;margin-top:9px}
+  .quick-reply .qr-inp{flex:1;height:42px;border:1.5px solid var(--line);border-radius:11px;padding:0 13px;font-size:13.5px;color:var(--ink-faint);display:flex;align-items:center;cursor:pointer}
+
+  .progress-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+  .pg-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .pg-head .pg-t{font-size:13px;font-weight:700}
+  .pg-delta{font-family:var(--mono);font-size:13px;font-weight:700}
+  .pg-delta.down{color:var(--good)}.pg-delta.flat{color:var(--ink-faint)}
+  .pg-range{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);margin-top:4px}
+  .empty-chart{font-size:12.5px;color:var(--ink-faint);text-align:center;padding:24px 10px;line-height:1.5}
+
+  .focus-card{display:flex;gap:13px;align-items:flex-start;background:var(--panel);border-radius:16px;padding:16px;color:#e2eef7;margin-top:14px}
+  .focus-card .fi{width:38px;height:38px;border-radius:10px;background:var(--coach);display:flex;align-items:center;justify-content:center;flex:none}
+  .focus-card .fi svg{width:20px;height:20px;color:#06352c}
+  .focus-card .fk{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--coach);margin-bottom:4px}
+  .focus-card .fv{font-size:14px;line-height:1.45;font-weight:500}
+
+  .streak-row{margin-top:14px}
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  .stat-mini{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:13px;text-align:center}
+  .stat-mini .v{font-family:var(--mono);font-size:20px;font-weight:700}
+  .stat-mini .l{font-size:10.5px;color:var(--ink-faint);margin-top:3px}
+
+  /* ===== CHECK-IN ===== */
+  .ci{padding:18px 18px 26px}
+  .ci-intro{font-size:14px;color:var(--ink-soft);line-height:1.5;margin-bottom:20px}
+  .ci-sec{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--coach-deep);margin:22px 2px 13px;font-weight:600}
+  .ci-q{font-size:14px;font-weight:600;margin-bottom:9px}
+  .adh-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+  .adh-head .av{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent-deep)}
+  .adh-scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin-top:6px}
+
+  /* ===== THREAD ===== */
+  .thread-view{display:flex;flex-direction:column;height:100%}
+  .thread-scroll{flex:1;overflow-y:auto;padding:18px 16px 10px}
+  .thread-scroll::-webkit-scrollbar{width:0}
+  .coach-banner{display:flex;align-items:center;gap:8px;justify-content:center;font-size:11.5px;color:var(--ink-faint);padding:8px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+  .coach-banner svg{width:13px;height:13px;color:var(--coach-deep)}
+  .cm-free{font-size:12.5px;color:#cfe2ef;line-height:1.5;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.1)}
+  .cm-free b{color:#fff}
+  .thread-input{flex:none;display:flex;gap:9px;align-items:center;padding:11px 14px;background:var(--surface);border-top:1px solid var(--line)}
+  .thread-input input{flex:1;height:44px;border:1.5px solid var(--line);border-radius:var(--r-pill);padding:0 16px;font-size:14.5px;outline:none}
+  .thread-input input:focus{border-color:var(--accent-deep)}
+  .thread-input .send{width:44px;height:44px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex:none}
+  [data-brand="cw"] .thread-input .send svg{color:#fff}
+  .thread-input .send svg{width:20px;height:20px;color:#062234}
+
+  /* settings */
+  .settings{padding:18px}
+  .set-group{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:16px}
+  .set-row{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid var(--line-soft);font-size:14.5px}
+  .set-row:last-child{border-bottom:none}
+  .set-row .sr-v{color:var(--ink-faint);font-size:13.5px;font-family:var(--mono)}
+  .set-row.danger{color:var(--bad);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- DEMO RAIL -->
+  <div class="rail">
+    <a class="kd-brand" href="KetoDial Coach.html">
+      <svg class="mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="19" fill="#0b1620"/><path d="M9 25 A 12 12 0 1 1 31 25" stroke="#1e3a52" stroke-width="3" stroke-linecap="round"/><path d="M9 25 A 12 12 0 0 1 18.5 8.4" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/><line x1="20" y1="20" x2="26.5" y2="13.5" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="20" r="3" fill="#e2eef7"/></svg>
+      <span class="word">Keto<b>Dial</b></span><span class="sub">Coach</span>
+    </a>
+    <p class="rail-sub">Member app — interactive demo. Switch the member state and walk the flow; the Responses thread actually takes your notes.</p>
+
+    <div class="rail-card">
+      <h4>Member state</h4>
+      <div class="mstate">
+        <button data-member="alex" class="on"><span class="mem-av a">A</span><span><span class="mn">Alex Rivera</span><br /><span class="md">Thriving · week 8 · −12 lb</span></span></button>
+        <button data-member="jordan"><span class="mem-av j">J</span><span><span class="mn">Jordan Lee</span><br /><span class="md">New · week 1 · just joined</span></span></button>
+        <button data-member="priya"><span class="mem-av p">P</span><span><span class="mn">Priya Shah</span><br /><span class="md">Struggling · stalled · overdue</span></span></button>
+      </div>
+    </div>
+
+    <div class="rail-card">
+      <h4>Jump to screen</h4>
+      <div class="jumps">
+        <button data-jump="dashboard">Home</button>
+        <button data-jump="checkin">Check-Ins</button>
+        <button data-jump="thread">Responses</button>
+        <button data-jump="progress">Progress</button>
+        <button data-jump="settings">Account</button>
+        <button data-jump="onboarding">Onboarding</button>
+      </div>
+    </div>
+    <div class="rail-card" style="font-size:12.5px;color:var(--ink-soft);line-height:1.5">
+      <h4>Try it</h4>
+      Open <b>Onboarding</b> to sign up as Jordan, or open <b>Responses</b> and add a note — Coach Remy replies.
+    </div>
+  </div>
+
+  <!-- PHONE -->
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-screen">
+      <div class="statusbar">
+        <span>9:41</span>
+        <span class="sb-r">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h4V10H2v12zm6 0h4V2H8v20zm6 0h4v-8h-4v8zm6 0h4v-4h-4v4z" opacity=".9"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 6c3.3 0 6.3 1.3 8.5 3.4l1.4-1.5C19.3 5.3 15.8 4 12 4S4.7 5.3 2.1 7.9l1.4 1.5C5.7 7.3 8.7 6 12 6zm0 4c1.9 0 3.6.8 4.9 2l1.4-1.5C16.6 13 14.4 12 12 12s-4.6 1-6.3 2.5L7.1 16c1.3-1.2 3-2 4.9-2zm0 4c.8 0 1.5.3 2.1.9l-2.1 2.2-2.1-2.2c.6-.6 1.3-.9 2.1-.9z"/></svg>
+          <svg viewBox="0 0 26 24" fill="none"><rect x="1" y="6" width="20" height="12" rx="3" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="8" width="15" height="8" rx="1.5" fill="currentColor"/><rect x="22" y="10" width="2.5" height="4" rx="1" fill="currentColor"/></svg>
+        </span>
+      </div>
+
+      <!-- APP CHROME (hidden during onboarding) -->
+      <div id="appChrome" class="hidden" style="display:contents">
+        <div class="appbar">
+          <div id="appbarBrand" class="kd-brand"><svg class="mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px"><circle cx="20" cy="20" r="19" fill="#0b1620"/><path d="M9 25 A 12 12 0 1 1 31 25" stroke="#1e3a52" stroke-width="3" stroke-linecap="round"/><path d="M9 25 A 12 12 0 0 1 18.5 8.4" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/><circle cx="20" cy="20" r="3" fill="#e2eef7"/></svg><span class="word" style="font-size:17px">Keto<b>Dial</b></span></div>
+          <button id="appbarBack" class="back hidden" onclick="__show('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div id="appTitle" class="title" style="position:absolute;left:50%;transform:translateX(-50%)"></div>
+          <button class="ic-btn" onclick="__show('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="phone-body">
+
+        <!-- ===== ONBOARDING ===== -->
+        <div class="view" data-view="onboarding">
+          <div class="ob">
+            <div class="ob-prog"><i></i><i></i><i></i></div>
+
+            <!-- step 1: waiver -->
+            <div class="ob-step on" data-ob="1">
+              <div class="ob-eyebrow">Welcome to KetoDial Coach</div>
+              <h2>Before we start, a quick note.</h2>
+              <div class="waiver">
+                KetoDial Coach is <b>low-carb accountability coaching, not medical care</b>. We help you stay consistent and spot patterns. For medications, symptoms, diagnoses, or a medical condition, we'll always point you to your healthcare provider.<br /><br />That's not a cop-out. It's just the right thing to do.
+              </div>
+              <label class="check-row"><input type="checkbox" id="obWaiver" /><span>I understand this is coaching, not medical care.</span></label>
+              <button class="btn btn-accent btn-block btn-lg" id="obNext1" disabled style="margin-top:18px">Got it, let's go</button>
+            </div>
+
+            <!-- step 2: about you -->
+            <div class="ob-step" data-ob="2">
+              <div class="ob-eyebrow">Step 2 of 3 · About you</div>
+              <h2>Let's get acquainted.</h2>
+              <p class="lead">Your coach starts knowing who you are — not a blank slate.</p>
+              <div class="field"><label>First name</label><div class="inp"><input type="text" placeholder="Jordan" value="Jordan" /></div></div>
+              <div class="ob-2col">
+                <div class="field"><label>Age</label><div class="inp"><input type="number" placeholder="41" /></div></div>
+                <div class="field"><label>Sex</label><div class="sel"><select><option>Female</option><option selected>Male</option><option>Prefer not to say</option></select></div></div>
+              </div>
+              <div class="ob-2col">
+                <div class="field"><label>Current weight</label><div class="inp"><input type="number" placeholder="224" /><span class="suffix">lb</span></div></div>
+                <div class="field"><label>Goal weight</label><div class="inp"><input type="number" placeholder="195" /><span class="suffix">lb</span></div></div>
+              </div>
+              <div class="field"><label>How do you eat?</label><div class="sel"><select><option selected>Keto</option><option>Carnivore</option><option>General low-carb</option></select></div></div>
+              <div class="field"><label>Anything your coach should know about? <span class="opt">— optional</span></label>
+                <div class="checkchips" data-multi>
+                  <button class="checkchip" data-val="t2d">Type 2 diabetes</button>
+                  <button class="checkchip" data-val="pcos">PCOS</button>
+                  <button class="checkchip" data-val="thy">Thyroid</button>
+                  <button class="checkchip" data-val="bp">Blood pressure</button>
+                  <button class="checkchip" data-none data-val="none">None of these</button>
+                </div>
+              </div>
+              <div class="field"><label>Current medications <span class="opt">— optional, helps your coach</span></label><div class="inp"><input type="text" placeholder="e.g. metformin" /></div></div>
+              <button class="btn btn-accent btn-block btn-lg" id="obNext2" style="margin-top:6px">Continue</button>
+            </div>
+
+            <!-- step 3: goals -->
+            <div class="ob-step" data-ob="3">
+              <div class="ob-eyebrow">Step 3 of 3 · Your goals</div>
+              <h2>What does winning look like?</h2>
+              <p class="lead">The more honest you are here, the better your coaching.</p>
+              <div class="field"><label>What's your biggest challenge right now?</label><textarea class="ta" placeholder="Be honest — late-night cravings, falling off after week 3, eating out for work…"></textarea></div>
+              <div class="field"><label>What does success look like in 3 months?</label><textarea class="ta" placeholder="Down 20 lbs, off one medication, fitting the old jeans…"></textarea></div>
+              <div class="field"><label>How often do you want to check in?</label><div class="sel"><select><option selected>Weekly — $49/mo</option><option>Daily — $129/mo</option></select></div></div>
+              <div class="field"><label>What day works best to check in?</label><div class="sel"><select><option>Sunday</option><option>Monday</option><option>Friday</option><option>Saturday</option></select></div></div>
+              <div class="field"><label>How did you hear about us?</label><div class="sel"><select><option>KetoDial calculator</option><option>Carnivore Weekly</option><option>A friend</option><option>Search</option></select></div></div>
+              <button class="btn btn-coach btn-block btn-lg" id="obFinish" style="margin-top:6px">Meet Coach Remy →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== DASHBOARD ===== -->
+        <div class="view" data-view="dashboard">
+          <div class="dash">
+            <div class="dash-hello">
+              <div class="dh-l"><h1 id="dashHi">Hi, Alex</h1><div class="wk" id="dashWeek">Week 8 · on a roll</div></div>
+              <span class="mem-av a lg" id="dashAv">A</span>
+            </div>
+
+            <div id="statusCard" class="status-card"></div>
+
+            <div class="a2hs" id="a2hs">
+              <span class="a2-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 6v6M9 9h6"/></svg></span>
+              <div class="a2-body"><b>Add KetoDial to your home screen</b><span>One tap to open it like an app — no download. Share → “Add to Home Screen.”</span></div>
+              <button class="a2-x" onclick="document.getElementById('a2hs').style.display='none'" aria-label="Dismiss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+            </div>
+
+            <div class="section-label">Latest coaching response <a onclick="__show('thread')">All responses →</a></div>
+            <div class="thread-prev" id="dashThreadPrevWrap" onclick="__show('thread')">
+              <div id="dashThreadPrev" style="display:flex;align-items:center;gap:11px;flex:1;min-width:0"></div>
+              <span class="tp-go"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+            </div>
+            <div class="quick-reply"><div class="qr-inp" id="dashQuick">Add a note for your next response…</div></div>
+
+            <div class="focus-card">
+              <span class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a9 9 0 1 0 9 9"/><path d="M12 12l5-5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg></span>
+              <div><div class="fk">Your current focus</div><div class="fv" id="focusText"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== PROGRESS ===== -->
+        <div class="view" data-view="progress">
+          <div class="dash">
+            <div class="dash-hello">
+              <div class="dh-l"><h1>Progress</h1><div class="wk">Your trend over time</div></div>
+            </div>
+            <div class="section-label">Weight trend</div>
+            <div class="progress-card">
+              <div class="pg-head"><span class="pg-t">Weight trend</span><span class="pg-delta down" id="wChange">−12 lb</span></div>
+              <div id="sparkWrap"></div>
+              <div class="pg-range"><span>now <b id="wCurrent" style="color:var(--ink)">186</b></span><span>goal <b id="wGoal" style="color:var(--ink)">170</b></span></div>
+            </div>
+            <div class="streak-row" id="streakWrap"></div>
+            <div class="section-label">By the numbers</div>
+            <div class="stats-row">
+              <div class="stat-mini"><div class="v" id="stWeeks">8</div><div class="l">weeks active</div></div>
+              <div class="stat-mini"><div class="v" id="stCheckins">8</div><div class="l">check-ins</div></div>
+              <div class="stat-mini"><div class="v" id="stChange">−12</div><div class="l">lb change</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== CHECK-IN ===== -->
+        <div class="view" data-view="checkin">
+          <div class="ci">
+            <p class="ci-intro">How'd the week actually go? A few taps and a couple of honest sentences — takes about two minutes.</p>
+
+            <div class="ci-sec">The numbers</div>
+            <div class="field"><label>Current weight</label><div class="inp"><input type="number" id="ciWeight" /><span class="suffix">lb</span></div></div>
+            <div class="field"><label>Average daily steps <span class="opt">— or leave blank</span></label><div class="inp"><input type="text" id="ciSteps" placeholder="8,200" /></div></div>
+
+            <div class="ci-q" style="margin-top:6px">Sleep quality</div>
+            <div class="scale" id="scaleSleep">
+              <button data-v="1"><span class="emo">😩</span><span class="lb">terrible</span></button>
+              <button data-v="2"><span class="emo">😕</span><span class="lb">poor</span></button>
+              <button data-v="3"><span class="emo">😐</span><span class="lb">okay</span></button>
+              <button data-v="4"><span class="emo">🙂</span><span class="lb">good</span></button>
+              <button data-v="5"><span class="emo">😄</span><span class="lb">great</span></button>
+            </div>
+
+            <div class="ci-q" style="margin-top:18px">Energy level</div>
+            <div class="scale" id="scaleEnergy">
+              <button data-v="1"><span class="emo">🔋</span><span class="lb">crashed</span></button>
+              <button data-v="2"><span class="emo">😴</span><span class="lb">low</span></button>
+              <button data-v="3"><span class="emo">😐</span><span class="lb">normal</span></button>
+              <button data-v="4"><span class="emo">⚡</span><span class="lb">good</span></button>
+              <button data-v="5"><span class="emo">🔥</span><span class="lb">fired up</span></button>
+            </div>
+
+            <div class="ci-q" style="margin-top:18px">Cravings</div>
+            <div class="scale" id="scaleCraving">
+              <button data-v="1"><span class="emo">😌</span><span class="lb">none</span></button>
+              <button data-v="2"><span class="emo">🙂</span><span class="lb">mild</span></button>
+              <button data-v="3"><span class="emo">😬</span><span class="lb">moderate</span></button>
+              <button data-v="4"><span class="emo">😖</span><span class="lb">strong</span></button>
+              <button data-v="5"><span class="emo">🥵</span><span class="lb">intense</span></button>
+            </div>
+
+            <div class="adh-head" style="margin-top:22px"><span class="ci-q" style="margin:0">Adherence to plan</span><span class="av"><span id="ciAdhV">7</span><span style="font-size:13px;color:var(--ink-faint)">/10</span></span></div>
+            <input type="range" min="1" max="10" value="7" class="kd-slider" id="ciAdh" />
+            <div class="adh-scale"><span>fell off</span><span>nailed it</span></div>
+
+            <div class="ci-sec">The story</div>
+            <div class="field"><label>What went well this week?</label><textarea class="ta" id="ciWins" placeholder="Any wins, even small ones"></textarea></div>
+            <div class="field"><label>What was hard?</label><textarea class="ta" id="ciHard" placeholder="Struggles, slip-ups, frustrations — be honest"></textarea></div>
+            <div class="field"><label>Anything your coach should know?</label><textarea class="ta" id="ciNote" placeholder="Symptoms, life stuff, questions — whatever's on your mind"></textarea></div>
+
+            <button class="btn btn-coach btn-block btn-lg" id="ciSubmit" style="margin-top:8px">Submit check-in
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+            <p style="text-align:center;font-size:11.5px;color:var(--ink-faint);margin-top:11px">Coach Remy reviews this and sends your response within a day.</p>
+          </div>
+        </div>
+
+        <!-- ===== THREAD ===== -->
+        <div class="view" data-view="thread">
+          <div class="thread-view">
+            <div class="coach-banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Coach Remy responds within 1 business day</div>
+            <div class="thread-scroll"><div class="thread" id="threadList"></div></div>
+            <div class="thread-input">
+              <input type="text" id="threadInput" placeholder="Add a note for your next response…" />
+              <button class="send" id="threadSend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SETTINGS ===== -->
+        <div class="view" data-view="settings">
+          <div class="settings">
+            <div class="section-label" style="margin-top:4px">Membership</div>
+            <div class="set-group">
+              <div class="set-row"><span>Plan</span><span class="sr-v">Weekly Check-In · $49/mo</span></div>
+              <div class="set-row"><span>Next billing</span><span class="sr-v">Jun 30, 2026</span></div>
+              <div class="set-row"><span>Check-in day</span><span class="sr-v">Sunday</span></div>
+            </div>
+            <div class="section-label">Reminders</div>
+            <div class="set-group">
+              <div class="set-row"><span>Weekly check-in reminder</span><span class="sr-v">Email · Sun</span></div>
+              <div class="set-row"><span>Reply notifications</span><span class="sr-v">Email</span></div>
+            </div>
+            <div class="section-label">Profile</div>
+            <div class="set-group">
+              <div class="set-row"><span>Edit your details</span><span class="sr-v">›</span></div>
+              <div class="set-row"><span>Add to Home Screen</span><span class="sr-v">›</span></div>
+              <div class="set-row"><span>Switch to Carnivore Weekly</span><span class="sr-v">›</span></div>
+            </div>
+            <div class="set-group">
+              <div class="set-row danger"><span>Pause or cancel membership</span><span>›</span></div>
+            </div>
+            <p style="text-align:center;font-size:11.5px;color:var(--ink-faint);line-height:1.5;padding:8px 10px">KetoDial Coach provides low-carb accountability coaching, not medical care.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB BAR -->
+      <div id="tabChrome">
+        <div class="tabbar">
+          <button data-go="dashboard" class="on" onclick="__show('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Home</button>
+          <button data-go="checkin" onclick="__show('checkin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Check-Ins</button>
+          <button data-go="thread" onclick="__show('thread')" style="position:relative"><span id="threadBadge" class="badge-dot"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Responses</button>
+          <button data-go="progress" onclick="__show('progress')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Progress</button>
+          <button data-go="settings" onclick="__show('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg>Account</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="member.js"></script>
+<script>
+  // hide tab bar during onboarding
+  (function(){
+    var tab=document.getElementById('tabChrome');
+    var obs=new MutationObserver(function(){
+      var ob=document.querySelector('.view[data-view="onboarding"]').classList.contains('on');
+      tab.style.display=ob?'none':'block';
+    });
+    document.querySelectorAll('.view').forEach(function(v){obs.observe(v,{attributes:true,attributeFilter:['class']});});
+  })();
+</script>
+</body>
+</html>

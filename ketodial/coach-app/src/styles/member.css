@@ -1,0 +1,43 @@
+/* KetoDial Coach — Member App Styles */
+/* Extracted from Claude Design prototype */
+
+/* onboarding page */
+.ob-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
+.ob{max-width:480px;width:100%;padding:8px 22px 26px}
+.ob-prog{display:flex;gap:6px;padding:6px 0 22px}
+.ob-prog i{height:4px;flex:1;border-radius:3px;background:var(--line)}
+.ob-prog i.on{background:var(--accent-deep)}
+.ob-step{display:none;flex-direction:column}
+.ob-step.on{display:flex;animation:fade .4s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ob-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--coach-deep);margin-bottom:10px}
+.ob h2{font-size:25px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:12px}
+.ob .lead{font-size:14.5px;color:var(--ink-soft);line-height:1.55;margin-bottom:20px}
+.waiver{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;font-size:14px;color:var(--ink-soft);line-height:1.6;margin-bottom:18px}
+.waiver b{color:var(--ink)}
+.check-row{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer}
+.check-row input{width:22px;height:22px;accent-color:var(--accent-deep);flex:none;margin-top:1px}
+.check-row span{font-size:14px;font-weight:600;line-height:1.4}
+.ob-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* fields (shared) */
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.field label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+.field label .opt{font-weight:500;color:var(--ink-faint);font-size:11.5px}
+.inp{display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-btn);height:48px;padding:0 14px;transition:border-color .15s,box-shadow .15s}
+.inp:focus-within{border-color:var(--accent-deep);box-shadow:0 0 0 4px var(--accent-wash)}
+.inp input{border:none;outline:none;background:none;font-size:16px;color:var(--ink);width:100%;min-width:0}
+.inp input::placeholder{color:var(--ink-faint)}
+.inp .suffix{font-family:var(--mono);font-size:13px;color:var(--ink-faint);white-space:nowrap}
+textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:var(--r-btn);background:var(--surface);font-size:15px;color:var(--ink);padding:12px 14px;outline:none;resize:vertical;min-height:84px;line-height:1.5;transition:border-color .15s,box-shadow .15s;font-family:var(--sans)}
+textarea.ta:focus{border-color:var(--accent-deep);box-shadow:0 0 0 4px var(--accent-wash)}
+textarea.ta::placeholder{color:var(--ink-faint)}
+.sel{position:relative}
+.sel select{width:100%;height:48px;border:1.5px solid var(--line);border-radius:var(--r-btn);background:var(--surface);font-size:15px;color:var(--ink);padding:0 38px 0 14px;appearance:none;outline:none;cursor:pointer;font-family:var(--sans)}
+.sel select:focus{border-color:var(--accent-deep);box-shadow:0 0 0 4px var(--accent-wash)}
+.sel::after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid var(--ink-faint);border-bottom:2px solid var(--ink-faint);transform:translateY(-65%) rotate(45deg);pointer-events:none}
+
+/* checkchips */
+.checkchips{display:flex;flex-wrap:wrap;gap:8px}
+.checkchip{font-size:13px;font-weight:500;color:var(--ink-soft);padding:9px 14px;border:1.5px solid var(--line);border-radius:var(--r-pill);background:var(--surface);transition:all .14s;cursor:pointer;font-family:var(--sans)}
+.checkchip.on{border-color:var(--accent-deep);background:var(--accent-wash);color:var(--ink)}
