@@ -82,5 +82,29 @@
 .btn-escalate{background:var(--flag-wash);color:var(--flag);border:1.5px solid var(--flag)}
 .btn-escalate:hover{background:var(--flag);color:#fff}
 
+.ai-meta-panel{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:16px;margin-bottom:16px}
+.ai-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ai-meta-cell{background:var(--surface-2);border-radius:9px;padding:10px 12px}
+.ai-meta-cell.span2{grid-column:span 2}
+.ai-meta-k{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;font-weight:600}
+.ai-meta-v{font-size:12.5px;color:var(--ink);line-height:1.45}
+.ai-meta-v.trend-improving{color:var(--good)}
+.ai-meta-v.trend-declining{color:var(--flag)}
+.ai-meta-v.trend-stable{color:var(--accent-deep)}
+.ai-meta-v.tone-distressed{color:var(--flag);font-weight:700}
+.ai-meta-v.tone-struggling{color:#c2720e}
+.ai-flags{display:flex;flex-wrap:wrap;gap:5px}
+.ai-flag-pill{font-family:var(--mono);font-size:10px;background:var(--flag-wash);color:var(--flag);padding:3px 8px;border-radius:5px;font-weight:600}
+.ai-rationale{border-top:1px solid var(--line);padding-top:10px}
+.eligibility-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:12.5px;font-weight:600}
+.eligibility-bar.ok{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
+.eligibility-bar.bonus{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.eligibility-bar.blocked{background:var(--surface-2);color:var(--ink-faint);border:1px solid var(--line)}
+.elig-credits{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,.06);padding:3px 8px;border-radius:5px}
+
+.draft-status-banner{font-size:12.5px;padding:12px 15px;border-radius:10px;margin-bottom:13px;line-height:1.5}
+.draft-status-banner.pending{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.draft-tag.warn{background:#fef3c7;color:#92400e}
+
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-weight:600;font-size:14px;padding:13px 22px;border-radius:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:all .25s;z-index:100}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}

@@ -14,7 +14,7 @@ const PATTERNS: { pattern: RegExp; category: string; severity: SafetyFlag['sever
   { pattern: /\b(chest\s*pain|can'?t\s*breathe|heart\s*attack|faint(ed|ing)?|pass(ed)?\s*out|unconscious)\b/i, category: 'emergency', severity: 'critical' },
 
   // MEDICATION — high, always route to doctor
-  { pattern: /\b(stop(ped)?\s*(my|taking|the)\s*med|quit\s*(my|the)\s*med|medication|metformin|insulin|blood\s*pressure\s*med|lisinopril|statin|warfarin|prescription)\b/i, category: 'medication', severity: 'high' },
+  { pattern: /\b(stop(ped)?\s*(my|taking|the)\s*meds?|quit\s*(my|the)\s*meds?|medication|metformin|insulin|blood\s*pressure\s*meds?|lisinopril|statin|warfarin|prescription)\b/i, category: 'medication', severity: 'high' },
   { pattern: /\b(change\s*(my|the)\s*dose|adjust\s*(my|the)\s*med|off\s*my\s*med)\b/i, category: 'medication', severity: 'high' },
 
   // SYMPTOMS — high
@@ -26,7 +26,7 @@ const PATTERNS: { pattern: RegExp; category: string; severity: SafetyFlag['sever
   { pattern: /\b(punish\s*(my|your)self|haven'?t\s*eaten\s*in\s*\d+\s*day)\b/i, category: 'eating_disorder', severity: 'high' },
 
   // PREGNANCY — high
-  { pattern: /\b(pregnan|nursing|breastfeed|fertil|trying\s*to\s*(get\s*)?conceive)\b/i, category: 'pregnancy', severity: 'high' },
+  { pattern: /\b(pregnan\w*|nursing|breastfeed\w*|fertil\w*|trying\s*to\s*(get\s*)?conceive)\b/i, category: 'pregnancy', severity: 'high' },
 
   // MINORS — high
   { pattern: /\b(my\s*(kid|child|son|daughter|teen)\s*(is|wants|started)|under\s*18|minor)\b/i, category: 'minors', severity: 'high' },

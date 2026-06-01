@@ -41,3 +41,23 @@ textarea.ta::placeholder{color:var(--ink-faint)}
 .checkchips{display:flex;flex-wrap:wrap;gap:8px}
 .checkchip{font-size:13px;font-weight:500;color:var(--ink-soft);padding:9px 14px;border:1.5px solid var(--line);border-radius:var(--r-pill);background:var(--surface);transition:all .14s;cursor:pointer;font-family:var(--sans)}
 .checkchip.on{border-color:var(--accent-deep);background:var(--accent-wash);color:var(--ink)}
+
+/* settings page */
+.settings-page{max-width:520px;margin:0 auto;padding:24px 20px 60px}
+.settings-title{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-bottom:24px}
+.settings-loading{padding:60px;text-align:center;color:var(--ink-faint)}
+.settings-section{margin-bottom:28px}
+.ss-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:12px;font-weight:600}
+.sub-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.sub-row{display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.sub-k{color:var(--ink-faint);font-weight:500}
+.sub-v{font-weight:700;color:var(--ink)}
+.sub-v.status-active{color:var(--good)}
+.sub-v.status-past_due{color:var(--flag)}
+.sub-v.status-cancelled{color:var(--ink-faint)}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.form-label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+.form-input{height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;color:var(--ink);padding:0 14px;outline:none;font-family:var(--sans)}
+.form-input:focus{border-color:var(--accent-deep);box-shadow:0 0 0 3px var(--accent-wash)}
+select.form-input{appearance:none;cursor:pointer}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}

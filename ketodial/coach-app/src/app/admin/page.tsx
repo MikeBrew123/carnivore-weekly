@@ -54,6 +54,7 @@ export default function AdminQueuePage() {
   const [queue, setQueue] = useState<QueueItem[]>([])
   const [members, setMembers] = useState<Record<string, Member>>({})
   const [checkins, setCheckins] = useState<Record<string, CheckIn>>({})
+  const [eligibility, setEligibility] = useState<Record<string, any>>({})
   const [stats, setStats] = useState({ pending: 0, flagged: 0, overdue: 0 })
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [draftContent, setDraftContent] = useState('')
@@ -67,6 +68,7 @@ export default function AdminQueuePage() {
       setQueue(data.queue)
       setMembers(data.members)
       setCheckins(data.checkins)
+      setEligibility(data.eligibility || {})
       setStats(data.stats)
       if (data.queue.length > 0 && !selectedId) {
         setSelectedId(data.queue[0].id)
@@ -250,7 +252,9 @@ export default function AdminQueuePage() {
                       <div className="ctx-top">
                         <span className="mem-av lg">{member.display_name[0]?.toUpperCase()}</span>
                         <div className="ctx-id">
-                          <div className="ctx-name">{member.display_name}</div>
+                          <a href={`/admin/member/${selected.member_id}`} className="ctx-name" style={{ color: 'inherit', textDecoration: 'none' }}>
+                            {member.display_name} <span style={{ fontSize: 11, color: 'var(--accent-deep)' }}>&rarr; profile</span>
+                          </a>
                           <div className="ctx-sub">{member.tier} member &middot; {member.diet_type}</div>
                         </div>
                       </div>
@@ -260,8 +264,14 @@ export default function AdminQueuePage() {
                         <div className="cs"><div className="csk">Conditions</div><div className="csv sm">{member.health_conditions?.join(', ') || 'None'}</div></div>
                         <div className="cs"><div className="csk">Meds</div><div className="csv sm">{member.medications || 'None'}</div></div>
                       </div>
-                      {member.coach_notes && (
+                      {member.member_summary && (
                         <div className="ctx-notes">
+                          <div className="cn-label">Member summary</div>
+                          <div className="notes-area">{member.member_summary}</div>
+                        </div>
+                      )}
+                      {member.coach_notes && (
+                        <div className="ctx-notes" style={{ marginTop: 10 }}>
                           <div className="cn-label">Coach notes</div>
                           <div className="notes-area">{member.coach_notes}</div>
                         </div>
@@ -299,16 +309,80 @@ export default function AdminQueuePage() {
                     </div>
                   )}
 
+                  {/* AI metadata panel */}
+                  {selected.ai_structured_output && (
+                    <>
+                      <div className="d-label">AI assessment</div>
+                      <div className="ai-meta-panel">
+                        <div className="ai-meta-grid">
+                          <div className="ai-meta-cell">
+                            <div className="ai-meta-k">Trend</div>
+                            <div className={`ai-meta-v trend-${selected.ai_structured_output.trend_assessment}`}>
+                              {selected.ai_structured_output.trend_assessment?.replace('_', ' ')}
+                            </div>
+                          </div>
+                          <div className="ai-meta-cell">
+                            <div className="ai-meta-k">Tone</div>
+                            <div className={`ai-meta-v tone-${selected.ai_structured_output.emotional_tone}`}>
+                              {selected.ai_structured_output.emotional_tone}
+                            </div>
+                          </div>
+                          <div className="ai-meta-cell span2">
+                            <div className="ai-meta-k">Adherence</div>
+                            <div className="ai-meta-v">{selected.ai_structured_output.adherence_summary}</div>
+                          </div>
+                          <div className="ai-meta-cell span2">
+                            <div className="ai-meta-k">Recommended action</div>
+                            <div className="ai-meta-v">{selected.ai_structured_output.recommended_action}</div>
+                          </div>
+                          {selected.ai_structured_output.risk_flags?.length > 0 && (
+                            <div className="ai-meta-cell span2">
+                              <div className="ai-meta-k">Risk flags</div>
+                              <div className="ai-meta-v ai-flags">
+                                {selected.ai_structured_output.risk_flags.map((f: string, i: number) => (
+                                  <span key={i} className="ai-flag-pill">{f}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="ai-rationale">
+                          <div className="ai-meta-k">Why this draft</div>
+                          <div className="ai-meta-v">{selected.ai_structured_output.draft_rationale}</div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Draft status */}
+                  {!selected.ai_draft && !selected.content && (
+                    <div className="draft-status-banner pending">
+                      Draft generation in progress or failed. You can write a manual response below.
+                    </div>
+                  )}
+
                   {/* AI draft */}
                   <div className="d-label between">
                     <span>AI draft response</span>
-                    <span className={`draft-tag ${selected.red_flag ? 'flag' : ''}`}>{selected.red_flag ? 'flagged' : 'ready'}</span>
+                    <span className={`draft-tag ${selected.red_flag ? 'flag' : !selected.ai_draft ? 'warn' : ''}`}>
+                      {selected.red_flag ? 'flagged' : !selected.ai_draft ? 'no draft' : 'ready'}
+                    </span>
                   </div>
                   <textarea
                     className="draft-area"
                     value={draftContent}
                     onChange={e => setDraftContent(e.target.value)}
                   />
+
+                  {/* Eligibility status */}
+                  {selected && eligibility[selected.member_id] && (
+                    <div className={`eligibility-bar ${eligibility[selected.member_id].eligible ? 'ok' : eligibility[selected.member_id].can_use_bonus ? 'bonus' : 'blocked'}`}>
+                      <span className="elig-status">{eligibility[selected.member_id].reason}</span>
+                      {eligibility[selected.member_id].bonus_credits > 0 && (
+                        <span className="elig-credits">{eligibility[selected.member_id].bonus_credits} bonus credit{eligibility[selected.member_id].bonus_credits !== 1 ? 's' : ''}</span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Actions */}
                   <div className="action-row">

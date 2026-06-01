@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { checkResponseEligibility, EligibilityResult } from '@/lib/eligibility'
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
@@ -65,6 +66,16 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // Check eligibility for each member
+  const eligibility: Record<string, EligibilityResult> = {}
+  for (const mid of memberIds) {
+    try {
+      eligibility[mid] = await checkResponseEligibility(serviceClient, mid)
+    } catch {
+      eligibility[mid] = { eligible: false, status: 'inactive', reason: 'Eligibility check failed', bonus_credits: 0, can_use_bonus: false }
+    }
+  }
+
   // Count stats
   const total = (pending || []).length
   const flagged = (pending || []).filter(p => p.red_flag).length
@@ -73,6 +84,7 @@ export async function GET(request: NextRequest) {
     queue: pending || [],
     members,
     checkins,
+    eligibility,
     stats: { pending: total, flagged, overdue: 0 },
     admin_id: admin.id,
     admin_role: admin.role,
