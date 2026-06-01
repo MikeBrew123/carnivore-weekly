@@ -17,6 +17,10 @@
 /.next/
 /out/
 
+# override root .gitignore lib/ rule — our src/lib is application code
+!src/lib/
+!src/lib/**
+
 # production
 /build
 

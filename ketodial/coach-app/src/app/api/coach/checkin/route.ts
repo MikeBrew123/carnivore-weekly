@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { detectSafetyFlags } from '@/lib/safety/keywords'
+import { canMemberAccessCoaching } from '@/lib/member-access'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -10,17 +11,45 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const body = await request.json()
+  let body: any
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  // Server-side validation
+  if (body.weight != null && (body.weight < 50 || body.weight > 800)) {
+    return NextResponse.json({ error: 'Weight must be between 50 and 800' }, { status: 400 })
+  }
+  if (body.adherence != null && (body.adherence < 1 || body.adherence > 10)) {
+    return NextResponse.json({ error: 'Adherence must be between 1 and 10' }, { status: 400 })
+  }
+  if (body.sleep_quality != null && (body.sleep_quality < 1 || body.sleep_quality > 5)) {
+    return NextResponse.json({ error: 'Sleep quality must be between 1 and 5' }, { status: 400 })
+  }
+  if (body.energy_level != null && (body.energy_level < 1 || body.energy_level > 5)) {
+    return NextResponse.json({ error: 'Energy level must be between 1 and 5' }, { status: 400 })
+  }
+  if (body.cravings_level != null && (body.cravings_level < 1 || body.cravings_level > 5)) {
+    return NextResponse.json({ error: 'Cravings level must be between 1 and 5' }, { status: 400 })
+  }
+  // Truncate free text fields to 5000 chars
+  const maxText = 5000
+  if (body.wins) body.wins = body.wins.substring(0, maxText)
+  if (body.struggles) body.struggles = body.struggles.substring(0, maxText)
+  if (body.symptoms) body.symptoms = body.symptoms.substring(0, maxText)
+
   const serviceClient = await createServiceClient()
 
-  // Verify member is active
+  // Verify member has active coaching access (includes billing check)
   const { data: member } = await serviceClient
     .from('coach_members')
-    .select('status, tier, onboarded_at')
+    .select('status, tier, subscription_status, onboarded_at, current_period_end')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
-  if (!member || member.status !== 'active') {
+  if (!member || !canMemberAccessCoaching(member)) {
     return NextResponse.json({ error: 'Active membership required' }, { status: 403 })
   }
 

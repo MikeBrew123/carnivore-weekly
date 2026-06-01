@@ -18,29 +18,38 @@ export default function CheckInPage() {
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSubmit() {
     if (submitting) return
     setSubmitting(true)
+    setError('')
 
-    const res = await fetch('/api/coach/checkin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        weight: parseFloat(weight) || null,
-        steps_avg: parseInt(steps) || null,
-        sleep_quality: sleep || null,
-        energy_level: energy || null,
-        cravings_level: cravings || null,
-        adherence,
-        wins,
-        struggles,
-        symptoms: notes,
-      }),
-    })
+    try {
+      const res = await fetch('/api/coach/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weight: parseFloat(weight) || null,
+          steps_avg: parseInt(steps.replace(/,/g, '')) || null,
+          sleep_quality: sleep || null,
+          energy_level: energy || null,
+          cravings_level: cravings || null,
+          adherence,
+          wins,
+          struggles,
+          symptoms: notes,
+        }),
+      })
 
-    if (res.ok) {
-      setSubmitted(true)
+      if (res.ok) {
+        setSubmitted(true)
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Something went wrong')
+      }
+    } catch {
+      setError('Network error — try again')
     }
     setSubmitting(false)
   }
@@ -173,6 +182,7 @@ export default function CheckInPage() {
             </svg>
           )}
         </button>
+        {error && <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--bad)', marginTop: '11px' }}>{error}</p>}
         <p style={{ textAlign: 'center', fontSize: '11.5px', color: 'var(--ink-faint)', marginTop: '11px' }}>
           Coach Remy reviews this and sends your response within a day.
         </p>
