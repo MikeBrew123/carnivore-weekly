@@ -519,7 +519,7 @@ export default function AdminQueuePage() {
                     <span className="mt-c" style={{flex:2}}>
                       <span className="mem-av sm">{m.display_name[0]?.toUpperCase()}</span>
                       <span>
-                        <div className="mt-name">{m.display_name}</div>
+                        <a href={`/admin/member/${m.id}`} className="mt-name" onClick={e => e.stopPropagation()} style={{color:'inherit',textDecoration:'none'}}>{m.display_name}</a>
                         <div className="mt-diet">{m.diet_type} · {m.tier}</div>
                       </span>
                     </span>
