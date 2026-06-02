@@ -5520,6 +5520,11 @@ export default {
       return sendWithCors(await handleBeehiivSubscribe(request, env));
     }
 
+    // ===== UNSUBSCRIBE =====
+    if (path === '/api/v1/unsubscribe' && method === 'GET') {
+      return await handleUnsubscribe(url, env);
+    }
+
     // ===== FEEDBACK PROXY =====
     if (path === '/api/v1/feedback' && method === 'POST') {
       return sendWithCors(await handleFeedback(request, env));
@@ -5534,3 +5539,61 @@ export default {
     return createErrorResponse('NOT_FOUND', 'Endpoint not found', 404);
   },
 };
+
+// ===== UNSUBSCRIBE HANDLER =====
+async function handleUnsubscribe(url, env) {
+  const email = url.searchParams.get('email');
+  const site = url.searchParams.get('site') || 'cw';
+
+  if (!email) {
+    return new Response('<html><body style="font-family:sans-serif;text-align:center;padding:60px;"><h2>Invalid unsubscribe link</h2><p>No email address provided.</p></body></html>', {
+      status: 400, headers: { 'Content-Type': 'text/html' }
+    });
+  }
+
+  const cleanEmail = decodeURIComponent(email).trim().toLowerCase();
+
+  // Update newsletter_subscribers
+  const res = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/newsletter_subscribers?email=eq.${encodeURIComponent(cleanEmail)}&site=eq.${site}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        status: 'unsubscribed',
+        unsubscribed_at: new Date().toISOString(),
+      }),
+    }
+  );
+
+  // Also check drip_subscribers
+  await fetch(
+    `${env.SUPABASE_URL}/rest/v1/drip_subscribers?email=eq.${encodeURIComponent(cleanEmail)}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ unsubscribed: true }),
+    }
+  ).catch(() => {});
+
+  const siteName = site === 'kd' ? 'KetoDial' : 'Carnivore Weekly';
+  return new Response(`<html><body style="font-family:sans-serif;text-align:center;padding:60px;background:#f7f7f7;">
+    <div style="max-width:400px;margin:0 auto;background:#fff;padding:40px;border-radius:12px;">
+      <h2 style="margin:0 0 12px;">You've been unsubscribed</h2>
+      <p style="color:#666;">You won't receive any more emails from ${siteName}.</p>
+      <p style="color:#999;font-size:13px;">If this was a mistake, just sign up again at the site.</p>
+    </div>
+  </body></html>`, {
+    status: 200, headers: { 'Content-Type': 'text/html' }
+  });
+}
