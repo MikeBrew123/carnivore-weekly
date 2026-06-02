@@ -30,6 +30,20 @@ interface MemberProfile {
   tier: string
   weeks_active: number
   member_summary: string | null
+  // Expanded intake fields
+  primary_goal: string | null
+  personal_why: string | null
+  keto_experience: string | null
+  food_allergies: string | null
+  dietary_restrictions: string | null
+  feedback_tone: string | null
+  feedback_format: string | null
+  pregnant_or_nursing: boolean
+  eating_disorder_history: boolean
+  working_with_doctor: boolean
+  confidence_level: number | null
+  biggest_obstacle: string | null
+  typical_eating: string | null
 }
 
 interface CheckinSummary {
@@ -59,7 +73,7 @@ export async function buildMemberContext(
   const [memberResult, checkinsResult, exchangesResult, safetyResult] = await Promise.all([
     serviceClient
       .from('coach_members')
-      .select('display_name, age, sex, diet_type, diet_duration, start_weight, current_weight, goal_weight, activity_level, health_conditions, medications, biggest_challenge, success_vision, tier, onboarded_at, coach_notes, member_summary')
+      .select('display_name, age, sex, diet_type, diet_duration, start_weight, current_weight, goal_weight, activity_level, health_conditions, medications, biggest_challenge, success_vision, tier, onboarded_at, coach_notes, member_summary, primary_goal, personal_why, keto_experience, food_allergies, dietary_restrictions, feedback_tone, feedback_format, pregnant_or_nursing, eating_disorder_history, working_with_doctor, confidence_level, biggest_obstacle, typical_eating')
       .eq('id', memberId)
       .single(),
 
@@ -128,6 +142,19 @@ export async function buildMemberContext(
       tier: member.tier,
       weeks_active: weeksActive,
       member_summary: member.member_summary,
+      primary_goal: member.primary_goal,
+      personal_why: member.personal_why,
+      keto_experience: member.keto_experience,
+      food_allergies: member.food_allergies,
+      dietary_restrictions: member.dietary_restrictions,
+      feedback_tone: member.feedback_tone,
+      feedback_format: member.feedback_format,
+      pregnant_or_nursing: member.pregnant_or_nursing || false,
+      eating_disorder_history: member.eating_disorder_history || false,
+      working_with_doctor: member.working_with_doctor || false,
+      confidence_level: member.confidence_level,
+      biggest_obstacle: member.biggest_obstacle,
+      typical_eating: member.typical_eating,
     },
     checkinHistory: (checkinsResult.data || []).reverse(),
     recentExchanges: exchanges,
@@ -154,8 +181,21 @@ export function formatContextForPrompt(ctx: MemberContext): string {
 
   if (p.health_conditions?.length) lines.push(`Health conditions: ${p.health_conditions.join(', ')}`)
   if (p.medications) lines.push(`Medications: ${p.medications}`)
+  if (p.primary_goal) lines.push(`Primary goal: ${p.primary_goal}`)
   if (p.biggest_challenge) lines.push(`Biggest challenge: ${p.biggest_challenge}`)
   if (p.success_vision) lines.push(`Success vision: ${p.success_vision}`)
+  if (p.personal_why) lines.push(`Personal why: ${p.personal_why}`)
+  if (p.keto_experience) lines.push(`Keto experience: ${p.keto_experience.replace('_', ' ')}`)
+  if (p.typical_eating) lines.push(`Typical eating: ${p.typical_eating}`)
+  if (p.food_allergies) lines.push(`Food allergies: ${p.food_allergies}`)
+  if (p.dietary_restrictions) lines.push(`Dietary restrictions: ${p.dietary_restrictions}`)
+  if (p.biggest_obstacle) lines.push(`Biggest obstacle: ${p.biggest_obstacle}`)
+  if (p.confidence_level) lines.push(`Starting confidence: ${p.confidence_level}/5`)
+  if (p.pregnant_or_nursing) lines.push(`⚠️ Pregnant or nursing`)
+  if (p.eating_disorder_history) lines.push(`⚠️ History of disordered eating — adjust approach`)
+  if (p.working_with_doctor) lines.push(`Working with a doctor: yes`)
+  if (p.feedback_tone) lines.push(`Preferred tone: ${p.feedback_tone}`)
+  if (p.feedback_format) lines.push(`Preferred format: ${p.feedback_format}`)
 
   if (p.member_summary) {
     lines.push(`\n## Longitudinal Summary\n${p.member_summary}`)
