@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
     .eq('id', message.member_id)
     .single()
 
-  // Race protection: only act on pending/flagged messages
-  if (!['pending', 'flagged'].includes(message.review_status)) {
+  // Race protection: only act on pending/flagged messages (except edit_sent which works on sent ones)
+  if (action !== 'edit_sent' && !['pending', 'flagged'].includes(message.review_status)) {
     return NextResponse.json({ error: 'Message already reviewed' }, { status: 409 })
   }
 
@@ -212,6 +212,47 @@ export async function POST(request: NextRequest) {
         })
 
       return NextResponse.json({ ok: true, action: 'escalated' })
+    }
+
+    case 'edit_sent': {
+      // Edit an already-sent message — for corrections or updates
+      if (!content || typeof content !== 'string' || content.trim().length === 0) {
+        return NextResponse.json({ error: 'Content required' }, { status: 400 })
+      }
+
+      // Only allow editing sent messages
+      if (!message.review_status || !['approved', 'edited', 'escalated'].includes(message.review_status)) {
+        return NextResponse.json({ error: 'Can only edit sent messages' }, { status: 400 })
+      }
+
+      await serviceClient
+        .from('coach_messages')
+        .update({
+          content: content.trim(),
+          was_edited: true,
+          updated_at: now,
+        })
+        .eq('id', message_id)
+
+      await serviceClient
+        .from('coach_admin_audit_log')
+        .insert({
+          actor_admin_id: admin.id,
+          action: 'edit_sent',
+          target_member_id: message.member_id,
+          target_message_id: message_id,
+          before_state: { content: message.content },
+          after_state: { content: content.trim() },
+        })
+
+      // Notify member that response was updated (non-blocking)
+      if (memberInfo) {
+        sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name).catch(err =>
+          console.error('Update notification failed:', err)
+        )
+      }
+
+      return NextResponse.json({ ok: true, action: 'edit_sent' })
     }
 
     default:

@@ -18,6 +18,8 @@ export default function MemberProfilePage() {
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
+  const [editingMsgId, setEditingMsgId] = useState<string | null>(null)
+  const [editContent, setEditContent] = useState('')
 
   useEffect(() => {
     fetch(`/api/admin/member?id=${memberId}`)
@@ -29,6 +31,25 @@ export default function MemberProfilePage() {
         }
       })
   }, [memberId])
+
+  async function handleEditMessage(messageId: string) {
+    if (!editContent.trim()) return
+    setSaving(true)
+    const res = await fetch('/api/admin/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'edit_sent', message_id: messageId, content: editContent.trim() }),
+    })
+    if (res.ok) {
+      showToast('Response updated — member notified')
+      setEditingMsgId(null)
+      // Refresh data
+      fetch(`/api/admin/member?id=${memberId}`).then(r => r.ok ? r.json() : null).then(d => { if (d) setData(d) })
+    } else {
+      showToast('Failed to update')
+    }
+    setSaving(false)
+  }
 
   if (!data) return <div className="admin-page" style={{ padding: 60, textAlign: 'center' }}>Loading...</div>
 
@@ -215,17 +236,34 @@ export default function MemberProfilePage() {
 
         {tab === 'thread' && (
           <div className="tab-content">
-            {sentMessages.length === 0 && <div className="empty-tab">No messages yet.</div>}
-            {[...sentMessages].reverse().map((m: any) => (
-              <div key={m.id} className={`thread-msg ${m.direction}`}>
+            {messages.length === 0 && <div className="empty-tab">No messages yet.</div>}
+            {[...messages].reverse().map((m: any) => (
+              <div key={m.id} className={`thread-msg ${m.direction} ${!m.sent_at && m.direction === 'coach' ? 'pending' : ''}`}>
                 <div className="tm-head">
                   <span className="tm-who">{m.direction === 'coach' ? 'Coach Remy' : member.display_name}</span>
-                  <span className="tm-date">{fmtDate(m.sent_at)}</span>
+                  <span className="tm-date">{m.sent_at ? fmtDate(m.sent_at) : fmtDate(m.created_at)}</span>
+                  {!m.sent_at && m.direction === 'coach' && <span className="tm-badge pending-badge">Pending review</span>}
                   {m.was_edited && <span className="tm-badge edited">Edited</span>}
                   {m.was_auto_sent && <span className="tm-badge auto">Auto-sent</span>}
+                  {m.red_flag && <span className="tm-badge flag-badge">Flagged</span>}
+                  {m.sent_at && m.direction === 'coach' && editingMsgId !== m.id && (
+                    <button className="tm-edit-btn" onClick={() => { setEditingMsgId(m.id); setEditContent(m.content) }}>Edit</button>
+                  )}
                 </div>
-                <div className="tm-body">{m.content}</div>
-                {m.direction === 'coach' && m.ai_draft && m.was_edited && (
+                {editingMsgId === m.id ? (
+                  <div className="tm-edit-wrap">
+                    <textarea className="tm-edit-area" value={editContent} onChange={e => setEditContent(e.target.value)} />
+                    <div className="tm-edit-actions">
+                      <button className="btn btn-coach btn-sm" onClick={() => handleEditMessage(m.id)} disabled={saving}>
+                        {saving ? 'Saving...' : 'Update & notify member'}
+                      </button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setEditingMsgId(null)}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="tm-body">{m.content}</div>
+                )}
+                {m.direction === 'coach' && m.ai_draft && m.was_edited && editingMsgId !== m.id && (
                   <details className="tm-audit">
                     <summary>View original AI draft</summary>
                     <div className="tm-draft">{m.ai_draft}</div>
