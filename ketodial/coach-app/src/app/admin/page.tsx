@@ -119,6 +119,11 @@ export default function AdminQueuePage() {
   const [allMembers, setAllMembers] = useState<any[]>([])
   const [memberCheckins, setMemberCheckins] = useState<Record<string, any>>({})
   const [expandedMember, setExpandedMember] = useState<string | null>(null)
+  // Nudge state
+  const [nudgeSuggestions, setNudgeSuggestions] = useState<any[]>([])
+  const [nudgeEditing, setNudgeEditing] = useState<string | null>(null)
+  const [nudgeText, setNudgeText] = useState('')
+  const [nudgeSending, setNudgeSending] = useState(false)
 
   const loadQueue = useCallback(async () => {
     const res = await fetch('/api/admin/queue')
@@ -142,10 +147,10 @@ export default function AdminQueuePage() {
   useEffect(() => {
     if (tab === 'members') {
       fetch('/api/admin/members').then(r => r.ok ? r.json() : null).then(d => {
-        if (d) {
-          setAllMembers(d.members)
-          setMemberCheckins(d.checkins)
-        }
+        if (d) { setAllMembers(d.members); setMemberCheckins(d.checkins) }
+      })
+      fetch('/api/admin/nudge').then(r => r.ok ? r.json() : null).then(d => {
+        if (d) setNudgeSuggestions(d.suggestions)
       })
     }
   }, [tab])
@@ -200,6 +205,25 @@ export default function AdminQueuePage() {
       }
     }
     setActing(false)
+  }
+
+  async function sendNudge(memberId: string, reason: string) {
+    if (!nudgeText.trim() || nudgeSending) return
+    setNudgeSending(true)
+    const res = await fetch('/api/admin/nudge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ member_id: memberId, message: nudgeText, reason }),
+    })
+    if (res.ok) {
+      showToast('Nudge sent')
+      setNudgeEditing(null)
+      setNudgeSuggestions(prev => prev.filter(s => s.member_id !== memberId))
+    } else {
+      const err = await res.json()
+      showToast(err.error || 'Failed to send')
+    }
+    setNudgeSending(false)
   }
 
   function showToast(msg: string) {
@@ -495,6 +519,41 @@ export default function AdminQueuePage() {
             <h2>{allMembers.length} active member{allMembers.length !== 1 ? 's' : ''}</h2>
             <span className="mp-sub">{allMembers.filter(m => !m.submitted_this_week).length} haven&apos;t checked in this week</span>
           </div>
+          {/* Nudge suggestions */}
+          {nudgeSuggestions.filter(s => s.can_nudge).length > 0 && (
+            <div className="nudge-panel">
+              <div className="np-label">💡 Nudge suggestions</div>
+              {nudgeSuggestions.filter(s => s.can_nudge).map(s => (
+                <div key={s.member_id} className="nudge-card">
+                  <div className="nc-top">
+                    <span className="mem-av sm">{s.display_name[0]?.toUpperCase()}</span>
+                    <div className="nc-info">
+                      <div className="nc-name">{s.display_name}</div>
+                      <div className="nc-reason">{s.reason}</div>
+                    </div>
+                    <span className={`nc-cat cat-${s.category}`}>{s.category}</span>
+                  </div>
+                  {nudgeEditing === s.member_id ? (
+                    <div className="nc-edit">
+                      <textarea className="nc-textarea" value={nudgeText} onChange={e => setNudgeText(e.target.value)} />
+                      <div className="nc-actions">
+                        <button className="btn btn-coach btn-sm" onClick={() => sendNudge(s.member_id, s.reason)} disabled={nudgeSending}>
+                          {nudgeSending ? 'Sending...' : 'Send nudge'}
+                        </button>
+                        <button className="btn btn-ghost btn-sm" onClick={() => setNudgeEditing(null)}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="nc-preview" onClick={() => { setNudgeEditing(s.member_id); setNudgeText(s.suggested_message) }}>
+                      <div className="nc-msg">{s.suggested_message}</div>
+                      <button className="nc-send-btn">Edit &amp; send</button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="members-table">
             <div className="mt-header">
               <span className="mt-h" style={{flex:2}}>Member</span>
