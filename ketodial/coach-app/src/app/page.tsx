@@ -1,4 +1,5 @@
 import { KdLogo, CheckIcon } from '@/components/landing/KdBrand'
+import WaitlistForm from '@/components/landing/WaitlistForm'
 import '@/styles/coach.css'
 import '@/styles/landing.css'
 
@@ -18,7 +19,7 @@ export default function LandingPage() {
             <a href="#pricing">Pricing</a>
             <a href="#faq">FAQ</a>
           </nav>
-          <a className="btn btn-accent btn-sm" href="/signup?tier=weekly">Start coaching</a>
+          <WaitlistForm variant="inline" />
         </div>
       </header>
 
@@ -37,7 +38,7 @@ export default function LandingPage() {
               next right move — <b>without tracking every bite.</b>
             </p>
             <div className="hero-cta">
-              <a className="btn btn-accent btn-lg" href="/signup?tier=weekly">Start coaching</a>
+              <WaitlistForm variant="inline" />
               <a className="btn btn-ghost btn-lg" href="#how">See how it works</a>
             </div>
             <div className="hero-meta">
@@ -156,13 +157,13 @@ export default function LandingPage() {
               <p className="desc">For steady accountability. Founding price locked while active.</p>
               <ul>
                 <li><CheckIcon />1 coached response per week</li>
-                <li><CheckIcon />Sunday check-in reviewed by a carnivore nutrition reviewer</li>
+                <li><CheckIcon />Sunday check-in reviewed by a progress reviewer</li>
                 <li><CheckIcon />Add notes anytime between check-ins</li>
                 <li><CheckIcon />Pattern spotting from your history</li>
                 <li><CheckIcon />One clear focus for the week</li>
                 <li><CheckIcon />1 bonus mid-week check-in credit included</li>
               </ul>
-              <a className="btn btn-accent btn-block btn-lg" href="/signup?tier=weekly">Start weekly coaching</a>
+              <WaitlistForm variant="inline" />
             </div>
           </div>
         </div>
@@ -203,7 +204,7 @@ export default function LandingPage() {
             </details>
             <details className="qa">
               <summary>Who is the coach?<span className="pm"></span></summary>
-              <div className="ans">Coach Remy is KetoDial&apos;s AI-assisted coaching system. Your check-ins are drafted with AI for consistency and memory, then reviewed by a carnivore nutrition reviewer before delivery. AI-assisted, human-reviewed, exactly as it sounds.</div>
+              <div className="ans">Coach Remy is KetoDial&apos;s AI-assisted coaching system. Your check-ins are drafted with AI for consistency and memory, then reviewed by a progress reviewer before delivery. AI-assisted, human-reviewed, exactly as it sounds.</div>
             </details>
             <details className="qa">
               <summary>Do I need to log food?<span className="pm"></span></summary>
@@ -226,7 +227,7 @@ export default function LandingPage() {
         <div className="cta-band">
           <h2>Finally, someone to help you stay consistent.</h2>
           <p>You know what to do. KetoDial Coach gives you the rhythm to actually keep doing it.</p>
-          <a className="btn btn-accent btn-lg" href="/signup?tier=weekly">Start coaching</a>
+          <WaitlistForm />
         </div>
       </div>
 

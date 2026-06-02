@@ -25,10 +25,10 @@ const CONDITIONS = [
 const GOALS = [
   { value: 'weight_loss', label: 'Lose weight' },
   { value: 'body_recomp', label: 'Body recomposition' },
-  { value: 'blood_sugar', label: 'Blood sugar control' },
+  { value: 'blood_sugar', label: 'Blood sugar support' },
   { value: 'energy_clarity', label: 'Energy & mental clarity' },
   { value: 'athletic', label: 'Athletic performance' },
-  { value: 'therapeutic', label: 'Therapeutic / medical' },
+  { value: 'therapeutic', label: 'Wellness support alongside my doctor' },
 ]
 
 const OBSTACLES = [
@@ -183,7 +183,7 @@ export default function OnboardingPage() {
           <div className="ob-step on">
             <div className="ob-eyebrow">Step 2 of 3 · Safety + About you</div>
             <h2>Let&apos;s get acquainted.</h2>
-            <p className="lead">This helps your coach give safe, personalized guidance from day one.</p>
+            <p className="lead">This helps your coach provide relevant accountability and educational support from day one.</p>
 
             <div className="field">
               <label htmlFor="ob-name">First name</label>
@@ -303,7 +303,7 @@ export default function OnboardingPage() {
 
             <div className="field">
               <label>What does success look like? <span className="opt">— be specific</span></label>
-              <textarea className="ta" value={goals.goal_target} onChange={e => setGoals(g => ({ ...g, goal_target: e.target.value }))} placeholder="Down 20 lbs by October, A1c under 6, fitting my old jeans..." />
+              <textarea className="ta" value={goals.goal_target} onChange={e => setGoals(g => ({ ...g, goal_target: e.target.value }))} placeholder="Down 20 lbs by October, better energy, fitting my old jeans..." />
             </div>
 
             <div className="field">
