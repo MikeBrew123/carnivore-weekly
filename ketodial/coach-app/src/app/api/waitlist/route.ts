@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
 
 <!-- Header -->
 <tr><td style="background:#0b1620;padding:36px 32px;border-radius:14px 14px 0 0;text-align:center">
+  <img src="https://coach.ketodial.com/logo-dial.png" width="48" height="48" alt="KetoDial" style="display:block;margin:0 auto 12px" />
   <p style="margin:0;font-size:28px;font-weight:800;color:#e2eef7;letter-spacing:-0.02em">
     Keto<span style="color:#38bdf8">Dial</span>
   </p>
