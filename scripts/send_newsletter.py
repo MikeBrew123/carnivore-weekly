@@ -122,9 +122,21 @@ def load_subject(site_config):
     return f"{site_config['name']} — The Weekly Dial-In"
 
 
-def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subject, html):
+UNSUB_BASE = "https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe"
+
+
+def personalize_html(html, email, site):
+    from urllib.parse import quote
+    unsub_url = f"{UNSUB_BASE}?email={quote(email)}&site={site}"
+    html = html.replace("{{unsubscribe_url}}", unsub_url)
+    html = html.replace("{{ unsubscribe_link }}", unsub_url)
+    return html
+
+
+def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subject, html, site):
     results = []
     for email in to_emails:
+        personalized = personalize_html(html, email, site)
         resp = requests.post(
             "https://api.resend.com/emails",
             headers={
@@ -136,7 +148,7 @@ def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subj
                 "to": [email],
                 "reply_to": reply_to,
                 "subject": subject,
-                "html": html,
+                "html": personalized,
             },
         )
         if resp.status_code == 200:
@@ -184,7 +196,7 @@ def main():
 
     results = send_via_resend(
         resend_key, site["from_email"], site["from_name"],
-        site["reply_to"], to_emails, subject, html,
+        site["reply_to"], to_emails, subject, html, args.site,
     )
 
     sent = sum(1 for _, status, _ in results if status == "sent")
