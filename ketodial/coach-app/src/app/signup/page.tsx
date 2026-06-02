@@ -54,8 +54,8 @@ export default function SignupPage() {
         </p>
 
         <div className="auth-field">
-          <label>Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required autoFocus />
+          <label htmlFor="signup-email">Email</label>
+          <input id="signup-email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required autoFocus autoComplete="email" />
         </div>
 
         {error && <div className="auth-error">{error}</div>}

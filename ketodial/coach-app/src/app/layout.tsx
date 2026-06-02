@@ -21,7 +21,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <a href="#main-content" className="sr-only" style={{position:'absolute',left:'-9999px',top:'auto',width:'1px',height:'1px',overflow:'hidden'}}>Skip to content</a>
+        <main id="main-content">{children}</main>
+      </body>
     </html>
   )
 }
