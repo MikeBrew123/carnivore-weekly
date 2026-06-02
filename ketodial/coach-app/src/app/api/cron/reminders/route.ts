@@ -4,11 +4,11 @@ import { computeCheckinReminders, computeReplyNotifications } from '@/lib/email/
 import { sendCheckinReminder, sendCoachRepliedNotification } from '@/lib/email/send'
 
 export async function GET(request: NextRequest) {
-  // Verify cron secret (Vercel cron or manual trigger)
+  // Verify cron secret — fail closed (reject if no secret configured)
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
