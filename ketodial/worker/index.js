@@ -102,6 +102,7 @@ async function handleSession(request, env) {
       return jsonResponse(500, { error: err });
     }
     if (b.email && b.newsletter_opt_in) {
+      const cleanEmail = b.email.trim().toLowerCase();
       fetch(`${env.SUPABASE_URL}/rest/v1/newsletter_subscribers`, {
         method: 'POST',
         headers: {
@@ -111,7 +112,7 @@ async function handleSession(request, env) {
           'Prefer': 'return=minimal',
         },
         body: JSON.stringify({
-          email: b.email,
+          email: cleanEmail,
           site: 'kd',
           status: 'active',
           signup_source: 'calculator',
@@ -120,6 +121,28 @@ async function handleSession(request, env) {
           utm_campaign: b.utm_campaign || null,
         }),
       }).catch(() => {});
+
+      // Send latest newsletter immediately
+      if (env.RESEND_API_KEY) {
+        fetch('https://ketodial.com/newsletter/latest.html')
+          .then(r => r.ok ? r.text() : null)
+          .then(html => {
+            if (!html) return;
+            const unsubUrl = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(cleanEmail)}&site=kd`;
+            const personalized = html.replace('{{unsubscribe_url}}', unsubUrl);
+            return fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                from: 'KetoDial — The Weekly Dial-In <ketodial@carnivoreweekly.com>',
+                to: [cleanEmail],
+                reply_to: 'iambrew@gmail.com',
+                subject: 'Welcome to The Weekly Dial-In — here\'s your first issue',
+                html: personalized,
+              }),
+            });
+          }).catch(() => {});
+      }
     }
     return jsonResponse(200, { ok: true, token });
   } catch (e) {
