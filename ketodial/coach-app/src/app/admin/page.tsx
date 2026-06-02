@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { KdLogo } from '@/components/landing/KdBrand'
 import '@/styles/coach.css'
 import '@/styles/admin.css'
@@ -134,12 +134,17 @@ export default function AdminQueuePage() {
       setCheckins(data.checkins)
       setEligibility(data.eligibility || {})
       setStats(data.stats)
-      if (data.queue.length > 0 && !selectedId) {
-        setSelectedId(data.queue[0].id)
-        setDraftContent(data.queue[0].content || data.queue[0].ai_draft || '')
+      if (data.queue.length > 0) {
+        setSelectedId(prev => {
+          if (!prev) {
+            setDraftContent(data.queue[0].content || data.queue[0].ai_draft || '')
+            return data.queue[0].id
+          }
+          return prev
+        })
       }
     }
-  }, [selectedId])
+  }, [])
 
   useEffect(() => { loadQueue() }, [loadQueue])
 
@@ -161,18 +166,24 @@ export default function AdminQueuePage() {
     setDraftContent(item.content || item.ai_draft || '')
   }
 
+  // Stable ref for keyboard shortcut
+  const handleActionRef = useRef(handleAction)
+  handleActionRef.current = handleAction
+  const selectedIdRef = useRef(selectedId)
+  selectedIdRef.current = selectedId
+
   // Keyboard shortcuts
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.target instanceof HTMLTextAreaElement) return
-      if (e.key === 'Enter' && !e.shiftKey && selectedId) {
+      if (e.key === 'Enter' && !e.shiftKey && selectedIdRef.current) {
         e.preventDefault()
-        handleAction('approve_send')
+        handleActionRef.current('approve_send')
       }
     }
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
-  }, [selectedId])
+  }, [])
 
   async function handleAction(action: string) {
     if (!selectedId || acting) return
@@ -226,9 +237,11 @@ export default function AdminQueuePage() {
     setNudgeSending(false)
   }
 
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   function showToast(msg: string) {
+    if (toastTimer.current) clearTimeout(toastTimer.current)
     setToast(msg)
-    setTimeout(() => setToast(''), 2000)
+    toastTimer.current = setTimeout(() => setToast(''), 2000)
   }
 
   function timeAgo(dateStr: string) {
