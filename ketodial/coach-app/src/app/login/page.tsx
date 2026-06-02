@@ -16,12 +16,27 @@ export default function LoginPage() {
     setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       setError(error.message)
       setLoading(false)
       return
+    }
+
+    // Check if user is admin — redirect to admin queue instead of member dashboard
+    if (data.user) {
+      const { data: admin } = await supabase
+        .from('coach_admins')
+        .select('role')
+        .eq('auth_user_id', data.user.id)
+        .eq('active', true)
+        .maybeSingle()
+
+      if (admin) {
+        window.location.href = '/admin'
+        return
+      }
     }
 
     window.location.href = '/app/dashboard'
