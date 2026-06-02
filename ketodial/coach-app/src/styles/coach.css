@@ -29,6 +29,12 @@
   --warn:#d97706;--warn-wash:rgba(217,119,6,.12);
   --bad:#dc2626;--bad-wash:rgba(220,38,38,.1);
   --flag:#e8590c;--flag-wash:rgba(232,89,12,.1);
+  /* severity (used in admin/profile) */
+  --sev-critical-bg:#fca5a5;--sev-critical:#7f1d1d;
+  --sev-high-bg:var(--flag-wash);--sev-high:var(--flag);
+  --sev-medium-bg:#fef3c7;--sev-medium:#92400e;
+  --sev-low-bg:#d1fae5;--sev-low:#065f46;
+  --resolved-bg:#d1fae5;--resolved:#065f46;
   /* type */
   --sans:"Hanken Grotesk",system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,monospace;

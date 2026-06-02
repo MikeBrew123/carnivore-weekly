@@ -3,7 +3,7 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: "KetoDial Coach — Low-carb accountability coaching by text",
-  description: "Weekly text-based coaching to stay consistent with your keto or carnivore plan. AI-drafted, human-reviewed by a carnivore nutrition reviewer. $49/month, cancel anytime.",
+  description: "Weekly text-based coaching to stay consistent with your keto or carnivore plan. AI-drafted, human-reviewed. $49/month, cancel anytime.",
 }
 
 export default function RootLayout({
