@@ -37,13 +37,24 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const allowed = ['display_name', 'goal_weight', 'activity_level']
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
 
-  for (const key of allowed) {
-    if (body[key] !== undefined) {
-      updates[key] = body[key]
-    }
+  if (body.display_name !== undefined) {
+    const name = String(body.display_name).trim().substring(0, 100)
+    if (!name) return NextResponse.json({ error: 'Name cannot be empty' }, { status: 400 })
+    updates.display_name = name
+  }
+
+  if (body.goal_weight !== undefined) {
+    const w = Number(body.goal_weight)
+    if (isNaN(w) || w < 50 || w > 800) return NextResponse.json({ error: 'Goal weight must be between 50 and 800' }, { status: 400 })
+    updates.goal_weight = w
+  }
+
+  if (body.activity_level !== undefined) {
+    const valid = ['sedentary', 'lightly_active', 'active', 'very_active']
+    if (!valid.includes(body.activity_level)) return NextResponse.json({ error: 'Invalid activity level' }, { status: 400 })
+    updates.activity_level = body.activity_level
   }
 
   if (Object.keys(updates).length <= 1) {
