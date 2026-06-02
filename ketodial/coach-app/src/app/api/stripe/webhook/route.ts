@@ -5,7 +5,16 @@ import Stripe from 'stripe'
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
-  const sig = request.headers.get('stripe-signature')!
+  const sig = request.headers.get('stripe-signature')
+
+  if (!sig) {
+    return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 })
+  }
+
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    console.error('STRIPE_WEBHOOK_SECRET is not configured')
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+  }
 
   let event: Stripe.Event
 
@@ -13,7 +22,7 @@ export async function POST(request: NextRequest) {
     event = stripe.webhooks.constructEvent(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET
     )
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
@@ -106,7 +115,8 @@ export async function POST(request: NextRequest) {
     }
   } catch (err) {
     console.error(`Webhook processing error for ${event.type}:`, err)
-    // Event is already recorded — don't re-process on retry
+    // Return 500 so Stripe retries the event
+    return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
   }
 
   return NextResponse.json({ received: true })

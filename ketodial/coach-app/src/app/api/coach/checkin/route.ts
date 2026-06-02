@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
 
   if (flags.length > 0) {
     for (const flag of flags) {
-      await serviceClient
+      const { error: safetyErr } = await serviceClient
         .from('coach_safety_events')
         .insert({
           member_id: user.id,
@@ -131,6 +131,9 @@ export async function POST(request: NextRequest) {
           severity: flag.severity,
           detected_by: 'system',
         })
+      if (safetyErr) {
+        console.error('CRITICAL: Safety event insert failed:', safetyErr, 'Flag:', flag)
+      }
     }
   }
 

@@ -55,12 +55,12 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="auth-form">
           <div className="auth-field">
-            <label>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
+            <label htmlFor="email">Email</label>
+            <input id="email" name="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus autoComplete="email" />
           </div>
           <div className="auth-field">
-            <label>Password</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+            <label htmlFor="password">Password</label>
+            <input id="password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required autoComplete="current-password" />
           </div>
 
           {error && <div className="auth-error">{error}</div>}
