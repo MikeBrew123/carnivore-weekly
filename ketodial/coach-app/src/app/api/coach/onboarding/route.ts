@@ -116,9 +116,16 @@ export async function POST(request: NextRequest) {
       const dietType = validDiets.includes(body.diet_type) ? body.diet_type : 'keto'
 
       // Safety fields
-      const conditions = Array.isArray(body.health_conditions)
+      // Conditions: checkboxes + free text "other"
+      const checkedConditions = Array.isArray(body.health_conditions)
         ? body.health_conditions.slice(0, 15).map((c: any) => String(c).substring(0, 50))
         : []
+      const otherConditions = typeof body.other_conditions === 'string' ? body.other_conditions.trim().substring(0, 300) : ''
+      const conditions = otherConditions
+        ? [...checkedConditions, ...otherConditions.split(',').map((c: string) => c.trim()).filter(Boolean)]
+        : checkedConditions
+
+      // Medications: free text always — members type their own
       const medications = typeof body.medications === 'string' ? body.medications.substring(0, 500) : null
       const pregnant = body.pregnant_or_nursing === true
       const eatingDisorder = body.eating_disorder_history === true
