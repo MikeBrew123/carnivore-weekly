@@ -81,3 +81,13 @@
 .acct-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:var(--ink-soft);line-height:1.6}
 .acct-grid code{font-family:var(--mono);font-size:11px;background:var(--surface-2);padding:2px 5px;border-radius:4px}
 .acct-text{font-size:13px;color:var(--ink-soft);line-height:1.6;margin-top:8px}
+
+/* Thread enhancements */
+.thread-msg.pending{opacity:.7;border-style:dashed}
+.tm-badge.pending-badge{background:var(--warn-wash);color:var(--warn)}
+.tm-badge.flag-badge{background:var(--bad-wash);color:var(--bad)}
+.tm-edit-btn{font-family:var(--mono);font-size:10px;color:var(--accent-deep);background:none;border:1px solid var(--accent-deep);border-radius:5px;padding:2px 8px;cursor:pointer;margin-left:auto}
+.tm-edit-btn:hover{background:var(--accent-wash)}
+.tm-edit-wrap{margin-top:8px}
+.tm-edit-area{width:100%;border:1.5px solid var(--accent-deep);border-radius:10px;background:var(--surface);padding:12px;font-size:13.5px;line-height:1.6;resize:vertical;min-height:120px;outline:none;font-family:var(--sans)}
+.tm-edit-actions{display:flex;gap:8px;margin-top:8px}
