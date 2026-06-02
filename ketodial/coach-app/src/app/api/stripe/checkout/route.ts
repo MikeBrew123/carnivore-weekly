@@ -10,19 +10,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing tier or email' }, { status: 400 })
     }
 
+    // Validate email format
+    if (typeof email !== 'string' || !email.includes('@') || email.length > 320) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
+    }
+
     const priceId = PRICES[tier as keyof typeof PRICES]
     if (!priceId) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
     }
 
-    // Check founding cap atomically
+    // Check founding cap atomically (advisory lock prevents race condition)
     const supabase = await createServiceClient()
-    const { count } = await supabase
-      .from('coach_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('founding_member', true)
+    const { data: hasRoom, error: capError } = await supabase.rpc('check_founding_cap', { p_cap: FOUNDING_CAP })
 
-    if ((count ?? 0) >= FOUNDING_CAP) {
+    if (capError || !hasRoom) {
       return NextResponse.json(
         { error: 'Founding cohort is full' },
         { status: 409 }

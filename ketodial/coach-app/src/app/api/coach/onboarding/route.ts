@@ -26,7 +26,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const body = await request.json()
+  let body: any
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
   const { step } = body
 
   const serviceClient = await createServiceClient()
@@ -74,25 +79,52 @@ export async function POST(request: NextRequest) {
     }
 
     case 2: {
-      const risk = classifyRisk(body.health_conditions || [], body.medications || '')
+      // Input validation
+      const name = typeof body.display_name === 'string' ? body.display_name.trim().substring(0, 100) : ''
+      if (!name) return NextResponse.json({ error: 'Name is required' }, { status: 400 })
 
-      await serviceClient
+      const age = typeof body.age === 'number' ? body.age : parseInt(body.age)
+      if (isNaN(age) || age < 18 || age > 120) return NextResponse.json({ error: 'Age must be between 18 and 120' }, { status: 400 })
+
+      const currentWeight = typeof body.current_weight === 'number' ? body.current_weight : parseFloat(body.current_weight)
+      if (isNaN(currentWeight) || currentWeight < 50 || currentWeight > 800) return NextResponse.json({ error: 'Weight must be between 50 and 800' }, { status: 400 })
+
+      const goalWeight = typeof body.goal_weight === 'number' ? body.goal_weight : parseFloat(body.goal_weight)
+      if (isNaN(goalWeight) || goalWeight < 50 || goalWeight > 800) return NextResponse.json({ error: 'Goal weight must be between 50 and 800' }, { status: 400 })
+
+      const validDiets = ['keto', 'carnivore', 'lowcarb']
+      const dietType = validDiets.includes(body.diet_type) ? body.diet_type : 'keto'
+
+      const validSex = ['male', 'female', 'other']
+      const sex = validSex.includes(body.sex) ? body.sex : null
+
+      const conditions = Array.isArray(body.health_conditions) ? body.health_conditions.slice(0, 10).map((c: any) => String(c).substring(0, 50)) : []
+      const medications = typeof body.medications === 'string' ? body.medications.substring(0, 500) : null
+
+      const risk = classifyRisk(conditions, medications || '')
+
+      const { error: updateErr } = await serviceClient
         .from('coach_members')
         .update({
-          display_name: body.display_name,
-          age: body.age,
-          sex: body.sex,
-          current_weight: body.current_weight,
-          start_weight: body.current_weight,
-          goal_weight: body.goal_weight,
-          diet_type: body.diet_type,
-          health_conditions: body.health_conditions || [],
-          medications: body.medications || null,
+          display_name: name,
+          age,
+          sex,
+          current_weight: currentWeight,
+          start_weight: currentWeight,
+          goal_weight: goalWeight,
+          diet_type: dietType,
+          health_conditions: conditions,
+          medications,
           risk_level: risk,
           onboarding_step: 3,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id)
+
+      if (updateErr) {
+        console.error('Onboarding step 2 failed:', updateErr)
+        return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 })
+      }
 
       return NextResponse.json({ ok: true, next_step: 3, risk_level: risk })
     }

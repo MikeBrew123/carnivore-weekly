@@ -96,15 +96,16 @@ export async function POST(request: NextRequest) {
 
   // Update current weight on member
   if (body.weight) {
-    await serviceClient
+    const { error: weightErr } = await serviceClient
       .from('coach_members')
       .update({ current_weight: body.weight, updated_at: now.toISOString() })
       .eq('id', user.id)
+    if (weightErr) console.error('Weight update failed:', weightErr)
   }
 
   // Insert weight metric
   if (body.weight) {
-    await serviceClient
+    const { error: metricErr } = await serviceClient
       .from('coach_metrics')
       .insert({
         member_id: user.id,
@@ -113,6 +114,7 @@ export async function POST(request: NextRequest) {
         steps: body.steps_avg,
         source: 'checkin',
       })
+    if (metricErr) console.error('Metric insert failed:', metricErr)
   }
 
   // Run safety keyword detection on free-text fields

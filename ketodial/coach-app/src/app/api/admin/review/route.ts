@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
   switch (action) {
     case 'approve_send': {
-      await serviceClient
+      const { error: updateErr } = await serviceClient
         .from('coach_messages')
         .update({
           review_status: 'approved',
@@ -75,6 +75,11 @@ export async function POST(request: NextRequest) {
           updated_at: now,
         })
         .eq('id', message_id)
+
+      if (updateErr) {
+        console.error('Failed to approve message:', updateErr)
+        return NextResponse.json({ error: 'Failed to update message' }, { status: 500 })
+      }
 
       // Audit log
       await serviceClient
@@ -106,8 +111,11 @@ export async function POST(request: NextRequest) {
       if (!content || typeof content !== 'string' || content.trim().length === 0) {
         return NextResponse.json({ error: 'Content required for edit' }, { status: 400 })
       }
+      if (content.length > 10000) {
+        return NextResponse.json({ error: 'Content too long (max 10000 chars)' }, { status: 400 })
+      }
 
-      await serviceClient
+      const { error: editErr } = await serviceClient
         .from('coach_messages')
         .update({
           content: content.trim(),
@@ -119,6 +127,11 @@ export async function POST(request: NextRequest) {
           updated_at: now,
         })
         .eq('id', message_id)
+
+      if (editErr) {
+        console.error('Failed to edit message:', editErr)
+        return NextResponse.json({ error: 'Failed to update message' }, { status: 500 })
+      }
 
       // Audit log with before/after
       await serviceClient
