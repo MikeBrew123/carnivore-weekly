@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import '@/styles/coach.css'
+import '@/styles/member.css'
 
 export default function ProgressPage() {
   const [data, setData] = useState<any>(null)

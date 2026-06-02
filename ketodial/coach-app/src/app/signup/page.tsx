@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import '@/styles/coach.css'
+import '@/styles/member.css'
 
 export default function SignupPage() {
   const [tier] = useState(() => {

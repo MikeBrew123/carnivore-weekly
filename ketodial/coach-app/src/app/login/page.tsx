@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import '@/styles/coach.css'
+import '@/styles/member.css'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
