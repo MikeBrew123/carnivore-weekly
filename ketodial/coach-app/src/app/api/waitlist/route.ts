@@ -63,16 +63,18 @@ export async function POST(request: NextRequest) {
   const name = firstName || 'there'
   try {
     await getResend().emails.send({
-      from: 'Coach Remy <coach@ketodial.com>',
+      from: 'KetoDial Coach <coach@ketodial.com>',
       to: email,
-      subject: "You're on the list — KetoDial Coach founding cohort",
+      subject: "You're on the list — thanks for being early",
       html: `
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 20px;">
           <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Hey ${name},</p>
-          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">You're on the interest list for the KetoDial Coach founding cohort.</p>
-          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">We're putting the finishing touches on the coaching workflow with our first test group. Once we're ready for early access, you'll be the first to know.</p>
-          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">The founding cohort will be intentionally small — we want to get the experience right before opening it up.</p>
-          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Talk soon,<br/>Coach Remy<br/><span style="color: #94a3b8; font-size: 14px;">KetoDial Coach</span></p>
+          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Thank you for signing up. You're on the list for the KetoDial Coach founding cohort.</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Here's where we are: we're finishing up testing with a small group right now. We're close to opening the doors for our first founding members, and you'll be among the first to know when that happens.</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">As part of the founding group, we'll be asking for your honest feedback as you use the system. Your input will directly shape how this works for everyone who comes after you. That matters a lot to us.</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">One more thing: as we continue testing and grow the founding group, we'll be giving early members a <strong>bring-a-friend pass</strong> so someone you know can skip the line. Our way of saying thanks for being here from the start.</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Sit tight. We'll be in touch soon.</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">The KetoDial Coach Team</p>
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
           <p style="font-size: 12px; color: #94a3b8;">KetoDial provides educational information, accountability tools, and nutrition-related content. KetoDial does not provide medical advice, diagnosis, or treatment.</p>
         </div>

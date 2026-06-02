@@ -31,7 +31,7 @@ export default function LandingPage() {
               <span className="cp-dot"></span>
               Founding cohort &middot; <b>spots limited</b>
             </div>
-            <span className="eyebrow">Accountability coaching by text &middot; weekly</span>
+            <span className="eyebrow">Weekly accountability coaching &middot; human-reviewed</span>
             <h1>Low-carb accountability that <span className="accent">actually checks in.</span></h1>
             <p className="hero-sub">
               Weekly text-based coaching to stay consistent, spot patterns, and focus on the
@@ -196,15 +196,15 @@ export default function LandingPage() {
           <div className="faq">
             <details className="qa" open>
               <summary>Is this live chat?<span className="pm"></span></summary>
-              <div className="ans">No. KetoDial Coach is text-based accountability coaching. You can send notes anytime, and Coach Remy responds after your Sunday check-in. It&apos;s a steady rhythm, not an always-on conversation.</div>
+              <div className="ans">No. Coaching happens inside the KetoDial Coach platform, not by SMS or live chat. You complete your weekly check-in, and you receive a written coaching response in your account. It&apos;s async, so you don&apos;t need to schedule a call or be available at a specific time.</div>
             </details>
             <details className="qa">
               <summary>Are there video calls?<span className="pm"></span></summary>
-              <div className="ans">No. Coaching happens by text — quick check-ins and clear written responses you can come back to anytime.</div>
+              <div className="ans">No. Coaching happens through written responses inside the platform. Quick check-ins, clear feedback you can come back to anytime.</div>
             </details>
             <details className="qa">
-              <summary>Who is the coach?<span className="pm"></span></summary>
-              <div className="ans">Coach Remy is KetoDial&apos;s AI-assisted coaching system. Your check-ins are drafted with AI for consistency and memory, then reviewed by a progress reviewer before delivery. AI-assisted, human-reviewed, exactly as it sounds.</div>
+              <summary>Who reviews my progress?<span className="pm"></span></summary>
+              <div className="ans">A real person reviews every check-in and guides the coaching feedback. We also use behind-the-scenes tools to help organize your history, notice patterns, and keep your weekly responses consistent. But the coaching is guided by your reviewer&apos;s judgment, not a generic chatbot.</div>
             </details>
             <details className="qa">
               <summary>Do I need to log food?<span className="pm"></span></summary>
