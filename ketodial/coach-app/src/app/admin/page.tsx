@@ -50,7 +50,62 @@ interface CheckIn {
   submitted_at: string
 }
 
+// Helper: color-code 1-5 scores (1-2 red, 3 yellow, 4-5 green)
+function scoreColor(val: number | null, max: number = 5): string {
+  if (val == null) return ''
+  if (max === 10) { // adherence is out of 10
+    if (val <= 3) return 'score-red'
+    if (val <= 5) return 'score-yellow'
+    return 'score-green'
+  }
+  if (val <= 2) return 'score-red'
+  if (val === 3) return 'score-yellow'
+  return 'score-green'
+}
+
+// Helper: cravings are inverted (low is good)
+function cravingsColor(val: number | null): string {
+  if (val == null) return ''
+  if (val >= 4) return 'score-red'
+  if (val === 3) return 'score-yellow'
+  return 'score-green'
+}
+
+// Helper: trend arrow
+function trendArrow(current: number | null, previous: number | null, inverted: boolean = false): string {
+  if (current == null || previous == null) return ''
+  if (current === previous) return '→'
+  const up = current > previous
+  if (inverted) return up ? '↑' : '↓' // for cravings: up is bad
+  return up ? '↑' : '↓'
+}
+
+function trendClass(current: number | null, previous: number | null, inverted: boolean = false): string {
+  if (current == null || previous == null) return ''
+  if (current === previous) return 'trend-flat'
+  const better = inverted ? current < previous : current > previous
+  return better ? 'trend-good' : 'trend-bad'
+}
+
+// Weight trend: down is good
+function weightTrend(current: number | null, previous: number | null): { arrow: string; cls: string } {
+  if (current == null || previous == null) return { arrow: '', cls: '' }
+  if (current === previous) return { arrow: '→', cls: 'trend-flat' }
+  return current < previous
+    ? { arrow: '↓', cls: 'trend-good' }
+    : { arrow: '↑', cls: 'trend-bad' }
+}
+
+// Condition icons
+const CONDITION_ICONS: Record<string, string> = {
+  type_2_diabetes: '🩸', diabetes: '🩸',
+  high_blood_pressure: '❤️‍🩹', hypertension: '❤️‍🩹',
+  pcos: '🔬', thyroid: '🦋',
+  none: '',
+}
+
 export default function AdminQueuePage() {
+  const [tab, setTab] = useState<'queue' | 'members'>('queue')
   const [queue, setQueue] = useState<QueueItem[]>([])
   const [members, setMembers] = useState<Record<string, Member>>({})
   const [checkins, setCheckins] = useState<Record<string, CheckIn>>({})
@@ -60,6 +115,10 @@ export default function AdminQueuePage() {
   const [draftContent, setDraftContent] = useState('')
   const [acting, setActing] = useState(false)
   const [toast, setToast] = useState('')
+  // Members tab state
+  const [allMembers, setAllMembers] = useState<any[]>([])
+  const [memberCheckins, setMemberCheckins] = useState<Record<string, any>>({})
+  const [expandedMember, setExpandedMember] = useState<string | null>(null)
 
   const loadQueue = useCallback(async () => {
     const res = await fetch('/api/admin/queue')
@@ -78,6 +137,18 @@ export default function AdminQueuePage() {
   }, [selectedId])
 
   useEffect(() => { loadQueue() }, [loadQueue])
+
+  // Load all members when switching to members tab
+  useEffect(() => {
+    if (tab === 'members') {
+      fetch('/api/admin/members').then(r => r.ok ? r.json() : null).then(d => {
+        if (d) {
+          setAllMembers(d.members)
+          setMemberCheckins(d.checkins)
+        }
+      })
+    }
+  }, [tab])
 
   // Select item and load its draft
   function selectItem(item: QueueItem) {
@@ -158,12 +229,19 @@ export default function AdminQueuePage() {
             <span className="word">Keto<b>Dial</b></span>
             <span className="sub">Coach</span>
           </span>
-          <span className="badge-admin">Admin &middot; Review Queue</span>
+          <div className="admin-tabs">
+            <button className={`atab ${tab === 'queue' ? 'on' : ''}`} onClick={() => setTab('queue')}>
+              Review Queue {stats.pending > 0 && <span className="atab-count">{stats.pending}</span>}
+            </button>
+            <button className={`atab ${tab === 'members' ? 'on' : ''}`} onClick={() => setTab('members')}>
+              Members
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Browser chrome */}
-      <div className="browser">
+      {/* Review Queue tab */}
+      {tab === 'queue' && <div className="browser">
         <div className="browser-bar">
           <div className="lights"><span className="r"></span><span className="y"></span><span className="g"></span></div>
           <div className="urlbar">
@@ -284,12 +362,12 @@ export default function AdminQueuePage() {
                     <>
                       <div className="d-label">This check-in</div>
                       <div className="dgrid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '16px' }}>
-                        <div className="cell"><div className="k">Weight</div><div className="v">{checkin.weight || '—'}</div></div>
+                        <div className="cell"><div className="k">Weight</div><div className="v">{checkin.weight || '—'} {member && <span className={weightTrend(checkin.weight, member.start_weight).cls}>{weightTrend(checkin.weight, member.start_weight).arrow}</span>}</div></div>
                         <div className="cell"><div className="k">Steps</div><div className="v">{checkin.steps_avg ? `${(checkin.steps_avg / 1000).toFixed(1)}k` : '—'}</div></div>
-                        <div className="cell"><div className="k">Sleep</div><div className="v">{checkin.sleep_quality || '—'}/5</div></div>
-                        <div className="cell"><div className="k">Energy</div><div className="v">{checkin.energy_level || '—'}/5</div></div>
-                        <div className="cell"><div className="k">Cravings</div><div className="v">{checkin.cravings_level || '—'}/5</div></div>
-                        <div className="cell"><div className="k">Adherence</div><div className="v">{checkin.adherence || '—'}/10</div></div>
+                        <div className={`cell ${scoreColor(checkin.sleep_quality)}`}><div className="k">Sleep</div><div className="v">{checkin.sleep_quality || '—'}/5</div></div>
+                        <div className={`cell ${scoreColor(checkin.energy_level)}`}><div className="k">Energy</div><div className="v">{checkin.energy_level || '—'}/5</div></div>
+                        <div className={`cell ${cravingsColor(checkin.cravings_level)}`}><div className="k">Cravings</div><div className="v">{checkin.cravings_level || '—'}/5</div></div>
+                        <div className={`cell ${scoreColor(checkin.adherence, 10)}`}><div className="k">Adherence</div><div className="v">{checkin.adherence || '—'}/10</div></div>
                       </div>
 
                       <div className="d-label">In their words</div>
@@ -407,6 +485,87 @@ export default function AdminQueuePage() {
           </div>
         </div>
       </div>
+
+      }
+
+      {/* Members tab */}
+      {tab === 'members' && (
+        <div className="members-panel">
+          <div className="mp-head">
+            <h2>{allMembers.length} active member{allMembers.length !== 1 ? 's' : ''}</h2>
+            <span className="mp-sub">{allMembers.filter(m => !m.submitted_this_week).length} haven&apos;t checked in this week</span>
+          </div>
+          <div className="members-table">
+            <div className="mt-header">
+              <span className="mt-h" style={{flex:2}}>Member</span>
+              <span className="mt-h">Age</span>
+              <span className="mt-h">Tenure</span>
+              <span className="mt-h">Weight</span>
+              <span className="mt-h">Conditions</span>
+              <span className="mt-h">Sleep</span>
+              <span className="mt-h">Energy</span>
+              <span className="mt-h">Cravings</span>
+              <span className="mt-h">Adherence</span>
+              <span className="mt-h">Status</span>
+            </div>
+            {allMembers.map(m => {
+              const ci = memberCheckins[m.id]
+              const latest = ci?.latest
+              const prev = ci?.previous
+              const wt = weightTrend(latest?.weight, prev?.weight)
+              return (
+                <div key={m.id}>
+                  <div className="mt-row" onClick={() => setExpandedMember(expandedMember === m.id ? null : m.id)}>
+                    <span className="mt-c" style={{flex:2}}>
+                      <span className="mem-av sm">{m.display_name[0]?.toUpperCase()}</span>
+                      <span>
+                        <div className="mt-name">{m.display_name}</div>
+                        <div className="mt-diet">{m.diet_type} · {m.tier}</div>
+                      </span>
+                    </span>
+                    <span className="mt-c">{m.age || '—'}</span>
+                    <span className="mt-c">{m.weeks_active}w</span>
+                    <span className="mt-c">
+                      {latest?.weight || m.current_weight || '—'}
+                      {wt.arrow && <span className={`trend-arrow ${wt.cls}`}>{wt.arrow}</span>}
+                    </span>
+                    <span className="mt-c mt-conditions">
+                      {m.health_conditions?.filter((c: string) => c !== 'none').map((c: string) => (
+                        <span key={c} className="cond-icon" title={c}>{CONDITION_ICONS[c] || '⚕️'}</span>
+                      ))}
+                      {m.medications && <span className="cond-icon" title={m.medications}>💊</span>}
+                      {(!m.health_conditions?.length || (m.health_conditions.length === 1 && m.health_conditions[0] === 'none')) && !m.medications && '—'}
+                    </span>
+                    <span className={`mt-c ${scoreColor(latest?.sleep_quality)}`}>{latest?.sleep_quality || '—'}</span>
+                    <span className={`mt-c ${scoreColor(latest?.energy_level)}`}>{latest?.energy_level || '—'}</span>
+                    <span className={`mt-c ${cravingsColor(latest?.cravings_level)}`}>{latest?.cravings_level || '—'}</span>
+                    <span className={`mt-c ${scoreColor(latest?.adherence, 10)}`}>{latest?.adherence || '—'}</span>
+                    <span className="mt-c">
+                      {m.submitted_this_week
+                        ? <span className="status-chip ok">✓ Submitted</span>
+                        : <span className="status-chip miss">Not submitted</span>}
+                    </span>
+                  </div>
+                  {expandedMember === m.id && (
+                    <div className="mt-expanded">
+                      <div className="mte-grid">
+                        <div><b>Email:</b> {m.email}</div>
+                        <div><b>Start weight:</b> {m.start_weight || '—'} → Goal: {m.goal_weight || '—'}</div>
+                        <div><b>Conditions:</b> {m.health_conditions?.join(', ') || 'None'}</div>
+                        <div><b>Medications:</b> {m.medications || 'None'}</div>
+                      </div>
+                      <div className="mte-actions">
+                        <a href={`/admin/member/${m.id}`} className="btn btn-ghost btn-sm">View full profile →</a>
+                        {!m.submitted_this_week && <button className="btn btn-coach btn-sm">Send reminder</button>}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
       {toast && <div className="toast show">{toast}</div>}
