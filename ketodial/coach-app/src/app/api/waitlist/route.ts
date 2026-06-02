@@ -76,12 +76,16 @@ export async function POST(request: NextRequest) {
 <table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%">
 
 <!-- Header -->
-<tr><td style="background:#0b1620;padding:36px 32px;border-radius:14px 14px 0 0;text-align:center">
-  <img src="https://coach.ketodial.com/logo-dial.png" width="48" height="48" alt="KetoDial" style="display:block;margin:0 auto 12px" />
-  <p style="margin:0;font-size:28px;font-weight:800;color:#e2eef7;letter-spacing:-0.02em">
-    Keto<span style="color:#38bdf8">Dial</span>
-  </p>
-  <p style="margin:6px 0 0;font-size:12px;font-weight:600;color:#64748b;letter-spacing:0.16em;text-transform:uppercase">COACH</p>
+<tr><td style="background:#0b1620;padding:32px;border-radius:14px 14px 0 0;text-align:center">
+  <table cellpadding="0" cellspacing="0" style="margin:0 auto"><tr>
+    <td style="vertical-align:middle;padding-right:12px">
+      <img src="https://coach.ketodial.com/logo-dial.png" width="38" height="38" alt="" style="display:block" />
+    </td>
+    <td style="vertical-align:middle">
+      <span style="font-size:26px;font-weight:800;color:#e2eef7;letter-spacing:-0.02em">Keto<span style="color:#38bdf8">Dial</span></span>
+      <span style="font-size:11px;font-weight:600;color:#64748b;letter-spacing:0.14em;text-transform:uppercase;padding-left:8px">COACH</span>
+    </td>
+  </tr></table>
 </td></tr>
 
 <!-- Body -->
