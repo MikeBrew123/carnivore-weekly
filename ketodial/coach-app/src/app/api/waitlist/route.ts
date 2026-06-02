@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
   const name = firstName || 'there'
   try {
     await getResend().emails.send({
-      from: 'KetoDial Coach <coach@ketodial.com>',
+      from: 'KetoDial Coach <coach@carnivoreweekly.com>',
       to: email,
       subject: "You're on the list — thanks for being early",
       html: `

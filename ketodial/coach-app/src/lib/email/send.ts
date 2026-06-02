@@ -8,7 +8,7 @@ function getResend() {
   return _resend
 }
 
-const FROM = 'Coach Remy <coach@ketodial.com>'
+const FROM = 'KetoDial Coach <coach@carnivoreweekly.com>'
 
 export async function sendCheckinReminder(
   email: string,
