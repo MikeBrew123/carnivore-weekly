@@ -11,17 +11,22 @@ export default function SignupPage() {
     }
     return 'weekly'
   })
+  const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   async function handleCheckout() {
+    if (!email.trim() || !email.includes('@')) {
+      setError('Please enter a valid email address')
+      return
+    }
     setLoading(true)
     setError('')
 
     const res = await fetch('/api/stripe/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tier }),
+      body: JSON.stringify({ tier, email: email.trim() }),
     })
 
     if (res.ok) {
@@ -48,9 +53,14 @@ export default function SignupPage() {
             : 'Weekly check-ins with Coach Remy. $49/month.'}
         </p>
 
+        <div className="auth-field">
+          <label>Email</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required autoFocus />
+        </div>
+
         {error && <div className="auth-error">{error}</div>}
 
-        <button className="btn btn-coach auth-btn" onClick={handleCheckout} disabled={loading}>
+        <button className="btn btn-coach auth-btn" onClick={handleCheckout} disabled={loading || !email.trim()}>
           {loading ? 'Setting up...' : 'Start coaching'}
         </button>
 

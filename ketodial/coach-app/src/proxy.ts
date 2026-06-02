@@ -42,7 +42,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // /app/* routes — require authenticated user
-  if (pathname.startsWith('/app/')) {
+  if (pathname === '/app' || pathname.startsWith('/app/')) {
     if (!user) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('redirect', pathname)
@@ -52,7 +52,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // /admin/* routes — require authenticated admin
-  if (pathname.startsWith('/admin/')) {
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     if (!user) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('redirect', pathname)
