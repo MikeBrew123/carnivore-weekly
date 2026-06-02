@@ -4,6 +4,25 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "KetoDial Coach — Low-carb accountability coaching by text",
   description: "Weekly text-based coaching to stay consistent with your keto or carnivore plan. AI-drafted, human-reviewed. $49/month, cancel anytime.",
+  metadataBase: new URL('https://coach.ketodial.com'),
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: 'KetoDial Coach — Low-carb accountability that actually checks in',
+    description: 'Weekly text-based coaching for keto and carnivore. AI-drafted, human-reviewed. $49/month.',
+    url: 'https://coach.ketodial.com',
+    siteName: 'KetoDial Coach',
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'KetoDial Coach — The low-carb coach that checks on you',
+    description: 'Weekly text-based coaching for keto and carnivore. $49/month, cancel anytime.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({
