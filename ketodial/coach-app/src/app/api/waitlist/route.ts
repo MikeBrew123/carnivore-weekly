@@ -10,17 +10,31 @@ function getResend() {
   return _resend
 }
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': 'https://ketodial.com',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+function corsJson(data: any, init?: { status?: number }) {
+  return NextResponse.json(data, { ...init, headers: CORS_HEADERS })
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
+}
+
 export async function POST(request: NextRequest) {
   let body: any
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+    return corsJson({ error: 'Invalid JSON' }, { status: 400 })
   }
 
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
   if (!email || !email.includes('@') || email.length > 320) {
-    return NextResponse.json({ error: 'Valid email required' }, { status: 400 })
+    return corsJson({ error: 'Valid email required' }, { status: 400 })
   }
 
   const firstName = typeof body.first_name === 'string' ? body.first_name.trim().substring(0, 100) : null
@@ -42,7 +56,7 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     console.error('Waitlist insert error:', error)
-    return NextResponse.json({ error: 'Failed to join waitlist' }, { status: 500 })
+    return corsJson({ error: 'Failed to join waitlist' }, { status: 500 })
   }
 
   // Send welcome email (non-blocking)
@@ -73,5 +87,5 @@ export async function POST(request: NextRequest) {
     .from('coach_waitlist')
     .select('*', { count: 'exact', head: true })
 
-  return NextResponse.json({ ok: true, position: count })
+  return corsJson({ ok: true, position: count })
 }
