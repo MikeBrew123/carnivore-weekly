@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <rect width="180" height="180" rx="40" fill="#0b1620"/>
+  <circle cx="90" cy="78" r="38" fill="#2dd4bf"/>
+  <text x="90" y="92" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="36" fill="#06352c">R</text>
+  <text x="90" y="148" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="20" fill="#94a3b8">Keto</text>
+  <text x="90" y="148" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="20" fill="#38bdf8" dx="26">Dial</text>
+</svg>
