@@ -103,24 +103,25 @@ async function handleSession(request, env) {
     }
     if (b.email && b.newsletter_opt_in) {
       const cleanEmail = b.email.trim().toLowerCase();
-      fetch(`${env.SUPABASE_URL}/rest/v1/newsletter_subscribers`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
-          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-          'Prefer': 'return=minimal',
-        },
-        body: JSON.stringify({
-          email: cleanEmail,
-          site: 'kd',
-          status: 'active',
-          signup_source: 'calculator',
-          utm_source: b.utm_source || null,
-          utm_medium: b.utm_medium || null,
-          utm_campaign: b.utm_campaign || null,
-        }),
-      }).catch(() => {});
+      try {
+        const nlRes = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/upsert_newsletter_subscriber`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+          body: JSON.stringify({
+            p_email: cleanEmail,
+            p_site: 'kd',
+            p_signup_source: 'calculator',
+            p_utm_source: b.utm_source || null,
+            p_utm_medium: b.utm_medium || null,
+            p_utm_campaign: b.utm_campaign || null,
+          }),
+        });
+        if (!nlRes.ok) console.log('newsletter upsert failed:', await nlRes.text());
+      } catch (e) { console.log('newsletter upsert error:', e.message); }
 
       // Send latest newsletter immediately
       if (env.RESEND_API_KEY) {
