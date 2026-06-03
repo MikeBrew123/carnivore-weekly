@@ -5032,6 +5032,22 @@ async function handleBeehiivSubscribe(request, env) {
     }
     const cleanEmail = email.trim().toLowerCase();
 
+    // Upsert into newsletter_subscribers (re-activates unsubscribed users)
+    const nlRes = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/upsert_newsletter_subscriber`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+      body: JSON.stringify({
+        p_email: cleanEmail,
+        p_site: 'cw',
+        p_signup_source: 'homepage',
+      }),
+    });
+    if (!nlRes.ok) console.error('Newsletter upsert error:', await nlRes.text());
+
     // Insert into drip_subscribers for 7-day starter sequence
     const dripRes = await fetch(`${env.SUPABASE_URL}/rest/v1/drip_subscribers`, {
       method: 'POST',
@@ -5054,17 +5070,9 @@ async function handleBeehiivSubscribe(request, env) {
       });
     }
 
-    // 409/23505 = already exists — treat as success
-    if (dripRes.status === 409) {
-      return new Response(JSON.stringify({ success: true, existing: true }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
+    // 409/23505 = already exists — treat as success (drip already running)
     const errBody = await dripRes.text().catch(() => '');
-    // Unique violation = already subscribed
-    if (errBody.includes('23505') || errBody.includes('duplicate')) {
+    if (dripRes.status === 409 || errBody.includes('23505') || errBody.includes('duplicate')) {
       return new Response(JSON.stringify({ success: true, existing: true }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
