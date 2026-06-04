@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Thank You — KetoDial</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+  @page { size: 8.5in 11in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: #fefefe;
+    color: #2d2d2d;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: 0.35in 0.5in 0.25in;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Top accent bar */
+  .accent-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #2d6a4f, #52b788, #95d5b2);
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-top: 18px;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 28pt;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+  }
+  .header .sub {
+    font-size: 11pt;
+    color: #666;
+    font-style: italic;
+  }
+
+  .divider {
+    width: 60%;
+    margin: 8px auto 14px;
+    border: none;
+    border-top: 2px solid #ddd;
+  }
+
+  /* Intro text */
+  .intro {
+    font-size: 10.5pt;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 14px;
+    padding: 0 0.1in;
+  }
+  .intro p { margin-bottom: 8px; }
+
+  /* Card blocks */
+  .card {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+  }
+  .card h2 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 14pt;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .card p, .card li {
+    font-size: 10pt;
+    line-height: 1.55;
+    color: #444;
+  }
+  .card ul {
+    margin-left: 18px;
+    margin-top: 4px;
+  }
+  .card li { margin-bottom: 3px; }
+
+  /* Free report card — green */
+  .card-free {
+    background: #e8f5e9;
+    border-left: 5px solid #2d6a4f;
+  }
+  .card-free h2 { color: #2d6a4f; }
+  .promo-code {
+    display: inline-block;
+    background: #2d6a4f;
+    color: #fff;
+    font-family: 'Fredoka', monospace;
+    font-size: 16pt;
+    font-weight: 700;
+    padding: 6px 20px;
+    border-radius: 6px;
+    letter-spacing: 3px;
+    margin: 6px 0;
+  }
+  .promo-url {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #2d6a4f;
+  }
+  .promo-steps {
+    margin-top: 6px;
+    font-size: 9.5pt;
+    color: #555;
+  }
+  .promo-steps li { margin-bottom: 2px; }
+
+  /* Coach teaser card — blue/purple gradient feel */
+  .card-coach {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-left: 5px solid #5c6bc0;
+  }
+  .card-coach h2 { color: #3949ab; }
+  .coach-badge {
+    display: inline-block;
+    background: #5c6bc0;
+    color: #fff;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 8pt;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .coach-url {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #3949ab;
+  }
+
+  /* Review card — warm peach */
+  .card-review {
+    background: #fff3e0;
+    border-left: 5px solid #e65100;
+  }
+  .card-review h2 { color: #bf360c; }
+
+  /* Other products card — light green */
+  .card-more {
+    background: #f1f8e9;
+    border-left: 5px solid #558b2f;
+  }
+  .card-more h2 { color: #33691e; }
+
+  /* Footer */
+  .page-footer {
+    text-align: center;
+    font-size: 7pt;
+    color: #bbb;
+    margin-top: auto;
+    padding-top: 6px;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="accent-bar"></div>
+
+  <div class="header">
+    <h1>Thank You!</h1>
+    <div class="sub">for choosing CarnivoreWeekly on Etsy</div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="intro">
+    <p>Hey! Thanks for grabbing this. Everything in here was built to make your keto journey simpler — print it out, stick it on the fridge, bring it to the grocery store. Whatever works for you.</p>
+  </div>
+
+  <!-- 20% OFF REPORT -->
+  <div class="card card-free">
+    <h2>🎁 20% Off Your Personalized Keto Report</h2>
+    <p>As a thank you, here's <strong>20% off a personalized keto macro report</strong> — tailored to your body, your goals, and your lifestyle.</p>
+    <p style="margin-top:8px;">Visit <span class="promo-url">KetoDial.com</span> and use this code at checkout:</p>
+    <div style="text-align:center; margin: 4px 0;">
+      <span class="promo-code">KETO20</span>
+    </div>
+    <ol class="promo-steps">
+      <li>Go to <strong>KetoDial.com</strong> and take the 2-minute quiz</li>
+      <li>Enter code <strong>KETO20</strong> at checkout for 20% off</li>
+      <li>Get your personalized macros, meal timing, and food recommendations</li>
+    </ol>
+  </div>
+
+  <!-- COACH TEASER -->
+  <div class="card card-coach">
+    <span class="coach-badge">Coming Soon</span>
+    <h2>🤖 1-on-1 AI Keto Coaching</h2>
+    <p>We're building something new — a personal AI coach that checks in with you weekly, adjusts your plan, tracks your progress, and keeps you accountable. Real guidance, not generic advice.</p>
+    <p style="margin-top:6px;"><strong>Founding members get a locked-in rate for life.</strong> Spots are limited.</p>
+    <p style="margin-top:6px;">Join the waitlist: <span class="coach-url">KetoDial.com</span></p>
+  </div>
+
+  <!-- REVIEW ASK -->
+  <div class="card card-review">
+    <h2>⭐ One Quick Favor?</h2>
+    <p>If you're finding this useful, a quick review on Etsy would mean a lot. Even just a star rating takes 10 seconds and helps other people find us. Thank you!</p>
+  </div>
+
+  <!-- OTHER PRODUCTS -->
+  <div class="card card-more">
+    <h2>📋 More From CarnivoreWeekly</h2>
+    <p>Keto Food List &nbsp;·&nbsp; Carnivore Food List &nbsp;·&nbsp; Low Carb Cheat Sheet &nbsp;·&nbsp; Meal Planners &nbsp;·&nbsp; Starter Bundles</p>
+    <p style="margin-top:4px;">Search <strong>'CarnivoreWeekly'</strong> on Etsy to find them all.</p>
+  </div>
+
+  <div class="page-footer">CarnivoreWeekly.com &nbsp;·&nbsp; KetoDial.com &nbsp;·&nbsp; For personal use only</div>
+</div>
+
+</body>
+</html>
