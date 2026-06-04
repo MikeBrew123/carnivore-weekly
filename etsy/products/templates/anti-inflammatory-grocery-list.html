@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Anti-Inflammatory Grocery List — Large Print</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  @page { size: 8.5in 11in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: #faf8f4;
+    color: #2a2a2a;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: 0.3in 0.35in 0.25in;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    text-align: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .header h1 {
+    font-size: 24pt;
+    font-weight: 800;
+    color: #1b3a26;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .header .subtitle {
+    font-size: 11pt;
+    font-weight: 500;
+    color: #6b8f7b;
+    margin-top: 2px;
+  }
+  .divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #c8d8cc, #a0bca8, #c8d8cc, transparent);
+    margin: 4px 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* ─── GRID ─── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .category {
+    border: 1.5px solid #e0ddd5;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cat-hdr {
+    padding: 5px 10px;
+    color: #fff;
+    font-size: 13pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+  .cat-green { background: #2d6b3f; }
+  .cat-blue { background: #2a5a7a; }
+  .cat-gold { background: #8a6d1b; }
+  .cat-teal { background: #1a7a6a; }
+  .cat-berry { background: #6a2a5a; }
+  .cat-rust { background: #8a4a2a; }
+
+  .cat-body {
+    padding: 4px 8px;
+    flex: 1;
+    background: #fff;
+  }
+
+  /* ─── CHECKBOX ITEMS ─── */
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 1.5px 0;
+  }
+  .checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #aaa;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .item-text {
+    font-size: 14pt;
+    line-height: 1.4;
+    color: #2a2a2a;
+  }
+
+  /* ─── NOTES ─── */
+  .notes-section {
+    border: 1.5px solid #e0ddd5;
+    border-radius: 6px;
+    overflow: hidden;
+    grid-column: 1 / -1;
+  }
+  .notes-hdr {
+    background: #555;
+    color: #fff;
+    padding: 4px 10px;
+    font-size: 10pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .notes-body {
+    padding: 6px 10px;
+    background: #fff;
+    min-height: 50px;
+  }
+  .note-line {
+    border-bottom: 1px solid #e8e8e8;
+    height: 22px;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    text-align: center;
+    margin-top: 6px;
+    flex-shrink: 0;
+    padding-top: 4px;
+    border-top: 1px solid #e0ddd5;
+  }
+  .footer .tip {
+    font-size: 10pt;
+    color: #4a6b52;
+    font-weight: 600;
+    font-style: italic;
+  }
+  .footer .credit {
+    font-size: 7.5pt;
+    color: #aaa;
+    margin-top: 2px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <h1>Anti-Inflammatory Grocery List</h1>
+    <div class="subtitle">Check off what you need. Stick to the outside aisles.</div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="grid">
+
+    <!-- PROTEINS -->
+    <div class="category">
+      <div class="cat-hdr cat-green">Proteins</div>
+      <div class="cat-body">
+        <div class="item"><div class="checkbox"></div><span class="item-text">Wild-caught salmon</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Sardines (canned in olive oil)</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Mackerel</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Grass-fed ground beef</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Pasture-raised chicken</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Pasture-raised eggs</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Lamb</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Bone broth</span></div>
+      </div>
+    </div>
+
+    <!-- VEGETABLES -->
+    <div class="category">
+      <div class="cat-hdr cat-teal">Vegetables</div>
+      <div class="cat-body">
+        <div class="item"><div class="checkbox"></div><span class="item-text">Broccoli</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Spinach / leafy greens</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Cauliflower</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Asparagus</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Zucchini</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Mushrooms</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Garlic</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Onions</span></div>
+      </div>
+    </div>
+
+    <!-- HEALTHY FATS -->
+    <div class="category">
+      <div class="cat-hdr cat-gold">Healthy Fats</div>
+      <div class="cat-body">
+        <div class="item"><div class="checkbox"></div><span class="item-text">Extra virgin olive oil</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Avocado oil</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Coconut oil</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Avocados</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Grass-fed butter or ghee</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Olives</span></div>
+      </div>
+    </div>
+
+    <!-- FRUITS & BERRIES -->
+    <div class="category">
+      <div class="cat-hdr cat-berry">Fruits and Berries</div>
+      <div class="cat-body">
+        <div class="item"><div class="checkbox"></div><span class="item-text">Blueberries</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Strawberries</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Cherries</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Blackberries</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Lemons / limes</span></div>
+      </div>
+    </div>
+
+    <!-- NUTS, SEEDS & SPICES -->
+    <div class="category">
+      <div class="cat-hdr cat-rust">Nuts, Seeds and Spices</div>
+      <div class="cat-body">
+        <div class="item"><div class="checkbox"></div><span class="item-text">Walnuts</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Almonds</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Flaxseed / chia seeds</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Turmeric (ground or fresh)</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Ginger (ground or fresh)</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Cinnamon</span></div>
+      </div>
+    </div>
+
+    <!-- DAIRY & DRINKS -->
+    <div class="category">
+      <div class="cat-hdr cat-blue">Dairy and Drinks</div>
+      <div class="cat-body">
+        <div class="item"><div class="checkbox"></div><span class="item-text">Full-fat yogurt or kefir</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Aged cheese (small amounts)</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Green tea</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Herbal tea</span></div>
+        <div class="item"><div class="checkbox"></div><span class="item-text">Sparkling water</span></div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="notes-section">
+      <div class="notes-hdr">Notes</div>
+      <div class="notes-body">
+        <div class="note-line"></div>
+        <div class="note-line"></div>
+        <div class="note-line"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="tip">Shop the perimeter of the store first. That's where the real food lives.</div>
+    <div class="credit">CARNIVOREWEEKLY.COM &nbsp; · &nbsp; FOR PERSONAL USE ONLY &nbsp; · &nbsp; PRINT AT 100% FOR BEST QUALITY</div>
+  </div>
+
+</div>
+
+</body>
+</html>
