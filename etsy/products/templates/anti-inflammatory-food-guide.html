@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Anti-Inflammatory Food Guide — Large Print</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  @page { size: 8.5in 11in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: #faf8f4;
+    color: #2a2a2a;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: 0.35in 0.4in 0.3in;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    text-align: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+  .header h1 {
+    font-size: 24pt;
+    font-weight: 800;
+    color: #1b3a26;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0;
+    line-height: 1.1;
+  }
+  .header .subtitle {
+    font-size: 13pt;
+    font-weight: 500;
+    color: #6b8f7b;
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+  .header .tagline {
+    font-size: 10pt;
+    color: #8a8a7a;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #c8d8cc, #a0bca8, #c8d8cc, transparent);
+    margin: 6px 0 10px;
+    flex-shrink: 0;
+  }
+
+  /* ─── 3-COLUMN GRID ─── */
+  .columns {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .col {
+    flex: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1.5px solid #e0ddd5;
+  }
+
+  .col-eat { background: #f0f7f1; }
+  .col-limit { background: #fdf8ed; }
+  .col-avoid { background: #fdf0ee; }
+
+  /* ─── COLUMN HEADERS ─── */
+  .col-hdr {
+    text-align: center;
+    padding: 8px 6px 6px;
+    flex-shrink: 0;
+  }
+  .col-eat .col-hdr { background: #2d6b3f; color: #fff; }
+  .col-limit .col-hdr { background: #b8860b; color: #fff; }
+  .col-avoid .col-hdr { background: #a83232; color: #fff; }
+
+  .col-hdr h2 {
+    font-size: 16pt;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .col-hdr .hint {
+    font-size: 9pt;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
+  /* ─── COLUMN BODY ─── */
+  .col-body {
+    flex: 1;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  /* ─── SECTIONS ─── */
+  .sec {
+    margin-bottom: 2px;
+  }
+  .sec-hdr {
+    font-size: 10pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 3px;
+  }
+  .col-eat .sec-hdr { background: #d4edda; color: #1b5e2e; }
+  .col-limit .sec-hdr { background: #faecc8; color: #7a5d10; }
+  .col-avoid .sec-hdr { background: #f5d5d0; color: #8b2020; }
+
+  .sec-body {
+    font-size: 11pt;
+    line-height: 1.45;
+    color: #3a3a3a;
+    padding: 0 4px;
+    font-weight: 400;
+  }
+  .sec-body strong {
+    font-weight: 600;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    text-align: center;
+    margin-top: 8px;
+    flex-shrink: 0;
+    padding-top: 6px;
+    border-top: 1px solid #e0ddd5;
+  }
+  .footer .tip {
+    font-size: 11pt;
+    color: #4a6b52;
+    font-weight: 600;
+    font-style: italic;
+  }
+  .footer .credit {
+    font-size: 8pt;
+    color: #aaa;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <h1>Anti-Inflammatory Food Guide</h1>
+    <div class="subtitle">What to Eat, Limit, and Avoid</div>
+    <div class="tagline">Reduce inflammation naturally with the right foods on your plate</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="columns">
+
+    <!-- ═══ EAT FREELY ═══ -->
+    <div class="col col-eat">
+      <div class="col-hdr">
+        <h2>Eat Freely</h2>
+        <div class="hint">Anti-inflammatory powerhouses</div>
+      </div>
+      <div class="col-body">
+
+        <div class="sec">
+          <div class="sec-hdr">Fatty Fish</div>
+          <div class="sec-body">Salmon, Sardines, Mackerel, Anchovies, Herring</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Meat and Poultry</div>
+          <div class="sec-body">Grass-Fed Beef, Bison, Lamb, Pasture-Raised Chicken, Turkey, Bone Broth</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Eggs and Dairy</div>
+          <div class="sec-body">Pasture-Raised Eggs, Ghee, Grass-Fed Butter, Full-Fat Yogurt, Kefir</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Healthy Fats</div>
+          <div class="sec-body">Extra Virgin Olive Oil, Avocado Oil, Coconut Oil, Avocados, Olives</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Vegetables</div>
+          <div class="sec-body">Leafy Greens, Broccoli, Cauliflower, Asparagus, Zucchini, Mushrooms, Garlic, Onions</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Fruits and Berries</div>
+          <div class="sec-body">Blueberries, Strawberries, Cherries, Blackberries, Lemons, Limes</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Nuts and Seeds</div>
+          <div class="sec-body">Walnuts, Almonds, Flaxseed, Chia Seeds, Hemp Hearts</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Spices</div>
+          <div class="sec-body">Turmeric, Ginger, Cinnamon, Rosemary, Oregano</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Beverages</div>
+          <div class="sec-body">Water, Green Tea, Bone Broth, Herbal Tea</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ LIMIT ═══ -->
+    <div class="col col-limit">
+      <div class="col-hdr">
+        <h2>Limit</h2>
+        <div class="hint">Small amounts may be okay</div>
+      </div>
+      <div class="col-body">
+
+        <div class="sec">
+          <div class="sec-hdr">Grains</div>
+          <div class="sec-body">White Rice, Oats, Quinoa, Sourdough Bread</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Dairy</div>
+          <div class="sec-body">Aged Cheese, Heavy Cream, Cottage Cheese</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Nightshades</div>
+          <div class="sec-body">Tomatoes, Peppers, Eggplant, Potatoes <em>(may trigger inflammation for some)</em></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Legumes</div>
+          <div class="sec-body">Lentils, Black Beans, Chickpeas <em>(soak before cooking)</em></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Starchy Vegetables</div>
+          <div class="sec-body">Sweet Potatoes, Beets, Carrots, Winter Squash</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Fruits</div>
+          <div class="sec-body">Bananas, Grapes, Mangoes, Pineapple <em>(higher sugar)</em></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Natural Sweeteners</div>
+          <div class="sec-body">Raw Honey, Maple Syrup, Stevia <em>(in moderation)</em></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Alcohol</div>
+          <div class="sec-body">Red Wine <em>(1 glass occasionally)</em></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Coffee</div>
+          <div class="sec-body">Black Coffee <em>(1-2 cups, no sugar)</em></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ AVOID ═══ -->
+    <div class="col col-avoid">
+      <div class="col-hdr">
+        <h2>Avoid</h2>
+        <div class="hint">Known to increase inflammation</div>
+      </div>
+      <div class="col-body">
+
+        <div class="sec">
+          <div class="sec-hdr">Seed Oils</div>
+          <div class="sec-body">Canola, Soybean, Corn, Sunflower, Safflower, Cottonseed, Vegetable Oil</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Refined Sugar</div>
+          <div class="sec-body">Candy, Soda, Fruit Juice, Ice Cream, Pastries, High-Fructose Corn Syrup</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Processed Foods</div>
+          <div class="sec-body">Fast Food, Chips, Crackers, Frozen Meals, Deli Meats with Nitrates</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Refined Grains</div>
+          <div class="sec-body">White Bread, White Pasta, Flour Tortillas, Cereal, Muffins</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Trans Fats</div>
+          <div class="sec-body">Margarine, Shortening, Hydrogenated Oils, Non-Dairy Creamers</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Artificial Additives</div>
+          <div class="sec-body">MSG, Aspartame, Sucralose, Artificial Colors, Preservatives</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Gluten</div>
+          <div class="sec-body">Wheat, Barley, Rye, Spelt <em>(common trigger)</em></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Excess Alcohol</div>
+          <div class="sec-body">Beer, Cocktails, Spirits <em>(more than occasional use)</em></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hdr">Dairy (for some)</div>
+          <div class="sec-body">Conventional Milk, Processed Cheese, Flavored Yogurt</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="tip">Start simple: swap one "Avoid" food for one "Eat Freely" food each week.</div>
+    <div class="credit">CARNIVOREWEEKLY.COM &nbsp; · &nbsp; FOR PERSONAL USE ONLY &nbsp; · &nbsp; PRINT AT 100% FOR BEST QUALITY</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PAGE 2: BEFORE YOU START — DOCTOR DISCLAIMER           -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<div class="page" style="justify-content: center; padding: 0.6in 0.7in;">
+
+  <div style="text-align: center; margin-bottom: 30px;">
+    <div style="font-size: 40pt; margin-bottom: 10px;">&#9764;</div>
+    <h1 style="font-size: 22pt; font-weight: 800; color: #1b3a26; text-transform: uppercase; letter-spacing: 1px;">Before You Start</h1>
+    <div style="font-size: 13pt; color: #6b8f7b; margin-top: 6px;">A Quick Note About Your Health</div>
+  </div>
+
+  <div style="background: #f0f7f1; border: 2px solid #c8d8cc; border-radius: 10px; padding: 24px 28px; margin-bottom: 24px;">
+    <p style="font-size: 14pt; line-height: 1.7; color: #2a2a2a; margin-bottom: 16px;">
+      <strong>Please talk to your doctor before making changes to your diet.</strong>
+    </p>
+    <p style="font-size: 13pt; line-height: 1.7; color: #3a3a3a; margin-bottom: 16px;">
+      This is especially important if you:
+    </p>
+    <ul style="font-size: 13pt; line-height: 1.8; color: #3a3a3a; padding-left: 24px; margin-bottom: 16px;">
+      <li>Take prescription medications (especially blood thinners, diabetes, or blood pressure medication)</li>
+      <li>Have a diagnosed medical condition</li>
+      <li>Are pregnant or breastfeeding</li>
+      <li>Have a history of disordered eating</li>
+      <li>Are over 65 or have mobility concerns</li>
+    </ul>
+    <p style="font-size: 13pt; line-height: 1.7; color: #3a3a3a; margin-bottom: 16px;">
+      Some anti-inflammatory foods (like leafy greens high in Vitamin K) can interact with medications. Your doctor can help you make safe choices based on your specific situation.
+    </p>
+    <p style="font-size: 13pt; line-height: 1.7; color: #3a3a3a;">
+      This guide is for <strong>educational purposes only</strong> and is not medical advice. It was created to help you have a more informed conversation with your healthcare provider.
+    </p>
+  </div>
+
+  <div style="background: #fdf8ed; border: 2px solid #e8dcc0; border-radius: 10px; padding: 20px 24px; margin-bottom: 24px;">
+    <p style="font-size: 14pt; font-weight: 700; color: #7a5d10; margin-bottom: 8px;">Bring This to Your Appointment</p>
+    <p style="font-size: 12pt; line-height: 1.6; color: #5a5a4a;">
+      Print this food guide and bring it to your next doctor visit. It gives your doctor a clear picture of what you're eating (or planning to eat) so they can give you specific, personalized advice. Most doctors appreciate when patients come prepared.
+    </p>
+  </div>
+
+  <div style="text-align: center; margin-top: 20px;">
+    <p style="font-size: 12pt; color: #8a8a7a; font-style: italic;">Your health is personal. This guide is a starting point, not a prescription.</p>
+  </div>
+
+  <div class="footer" style="margin-top: auto;">
+    <div class="credit">CARNIVOREWEEKLY.COM &nbsp; · &nbsp; FOR PERSONAL USE ONLY</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PAGE 3: HOW TO PRINT THIS GUIDE                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<div class="page" style="padding: 0.5in 0.6in;">
+
+  <div style="text-align: center; margin-bottom: 20px;">
+    <div style="font-size: 36pt; margin-bottom: 8px;">&#128424;</div>
+    <h1 style="font-size: 20pt; font-weight: 800; color: #1b3a26; text-transform: uppercase; letter-spacing: 1px;">How to Print This Guide</h1>
+    <div style="font-size: 12pt; color: #6b8f7b; margin-top: 4px;">Step-by-step instructions for the best results</div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 14px;">
+
+    <!-- Step 1 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start;">
+      <div style="background: #2d6b3f; color: #fff; font-size: 18pt; font-weight: 800; min-width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</div>
+      <div>
+        <p style="font-size: 14pt; font-weight: 700; color: #1b3a26; margin-bottom: 4px;">Open the PDF File</p>
+        <p style="font-size: 12pt; line-height: 1.6; color: #3a3a3a;">Open the food guide PDF on your computer. It should open in Adobe Reader, Preview (Mac), or your web browser. If it opens in your browser, that works fine for printing.</p>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start;">
+      <div style="background: #2d6b3f; color: #fff; font-size: 18pt; font-weight: 800; min-width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</div>
+      <div>
+        <p style="font-size: 14pt; font-weight: 700; color: #1b3a26; margin-bottom: 4px;">Press Print</p>
+        <p style="font-size: 12pt; line-height: 1.6; color: #3a3a3a;"><strong>On a PC:</strong> Press <strong>Ctrl + P</strong> on your keyboard.<br>
+        <strong>On a Mac:</strong> Press <strong>Command + P</strong> on your keyboard.<br>
+        This opens the print window.</p>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start;">
+      <div style="background: #2d6b3f; color: #fff; font-size: 18pt; font-weight: 800; min-width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</div>
+      <div>
+        <p style="font-size: 14pt; font-weight: 700; color: #1b3a26; margin-bottom: 4px;">Check Your Settings</p>
+        <p style="font-size: 12pt; line-height: 1.6; color: #3a3a3a;">
+          <strong>Paper size:</strong> US Letter (8.5 x 11 inches)<br>
+          <strong>Scale:</strong> Set to <strong>100%</strong> or "Actual Size" (not "Fit to Page")<br>
+          <strong>Color:</strong> Select "Color" for the best result<br>
+          <strong>Orientation:</strong> Portrait (tall, not wide)
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start;">
+      <div style="background: #2d6b3f; color: #fff; font-size: 18pt; font-weight: 800; min-width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">4</div>
+      <div>
+        <p style="font-size: 14pt; font-weight: 700; color: #1b3a26; margin-bottom: 4px;">Print Only the Food Chart</p>
+        <p style="font-size: 12pt; line-height: 1.6; color: #3a3a3a;">
+          In the print window, look for <strong>"Pages"</strong> and type <strong>1</strong> to print just the food chart. You don't need to print this instructions page every time.
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div style="display: flex; gap: 14px; align-items: flex-start;">
+      <div style="background: #2d6b3f; color: #fff; font-size: 18pt; font-weight: 800; min-width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">5</div>
+      <div>
+        <p style="font-size: 14pt; font-weight: 700; color: #1b3a26; margin-bottom: 4px;">Click Print</p>
+        <p style="font-size: 12pt; line-height: 1.6; color: #3a3a3a;">Hit the Print button. Your food chart will print in about 30 seconds.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tips box -->
+  <div style="background: #f0f7f1; border: 2px solid #c8d8cc; border-radius: 10px; padding: 16px 20px; margin-top: 18px;">
+    <p style="font-size: 13pt; font-weight: 700; color: #1b3a26; margin-bottom: 6px;">Tips for Best Results</p>
+    <ul style="font-size: 11pt; line-height: 1.7; color: #3a3a3a; padding-left: 20px;">
+      <li><strong>Use thicker paper</strong> (cardstock or matte photo paper) if you plan to hang it on the fridge</li>
+      <li><strong>Laminate it</strong> to make it last longer in the kitchen</li>
+      <li><strong>Frame it</strong> with a simple $5 frame from the dollar store for a clean look on the wall</li>
+    </ul>
+  </div>
+
+  <!-- Print shop option -->
+  <div style="background: #fdf8ed; border: 2px solid #e8dcc0; border-radius: 10px; padding: 16px 20px; margin-top: 12px;">
+    <p style="font-size: 13pt; font-weight: 700; color: #7a5d10; margin-bottom: 6px;">No Printer? No Problem.</p>
+    <p style="font-size: 11pt; line-height: 1.6; color: #5a5a4a;">
+      Take this file on a USB drive to <strong>Staples</strong>, <strong>Office Depot</strong>, <strong>FedEx Office</strong>, or any local print shop. Ask for a color print on cardstock. It usually costs about $1-2 per page. They can laminate it for a few dollars more.
+    </p>
+  </div>
+
+  <div class="footer" style="margin-top: auto;">
+    <div class="credit">CARNIVOREWEEKLY.COM &nbsp; · &nbsp; FOR PERSONAL USE ONLY</div>
+  </div>
+
+</div>
+
+</body>
+</html>

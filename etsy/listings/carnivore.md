@@ -1,31 +1,38 @@
 # CARNIVORE LISTING
 
 ## Title
-Carnivore Diet Food List Printable | What to Eat Cheat Sheet | Fridge Poster PDF
+Carnivore Diet Kitchen Poster | Watercolor Food Chart | Printable Wall Art PDF
 
 ## Price
 $4.49 CAD
 
 ## Tags
-carnivore diet, carnivore food list, meat diet, zero carb, animal based diet, carnivore cheat sheet, what to eat carnivore, beef food list, printable pdf, kitchen poster, diet guide, fridge chart, carnivore guide
+carnivore diet poster, kitchen wall art, meat diet print, carnivore food chart, fridge poster printable, watercolor kitchen art, carnivore cheat sheet, animal based diet, diet wall decor, printable kitchen poster, carnivore guide, beef poster art, kitchen printable
 
 ## Files
 - fridge-card-carnivore.pdf
 
 ## Description
-Zero plants. Zero confusion. Just meat the essentials.
+The carnivore food chart your kitchen actually deserves.
 
-This carnivore diet food card puts every animal-based option right where you need it — on your fridge, at eye level, between the butter and the ribeyes. Beef, pork, poultry, fish, shellfish, organ meats, dairy, and cooking fats, all organized in a clean layout with hand-illustrated watercolor artwork that actually looks beautiful in your kitchen.
+Hand-illustrated watercolor artwork with every animal-based food organized by category. Beef, pork, poultry, fish, shellfish, organ meats, dairy, and cooking fats — all in a clean layout that looks as good on your wall as it does on your fridge.
 
-No seed oils. No grains. No squinting at ingredient labels. Just a simple, gorgeous reference for what belongs on your plate.
+Most diet charts look like they were made in a spreadsheet. This one looks like it belongs in a frame.
 
 What you get:
-• 1 high-res PDF, 8.5x11", 300 DPI, print-ready
+• 1 hand-illustrated watercolor food poster (PDF)
+• 8.5x11" print-ready, 300 DPI
 • Instant download — print at home or any print shop
+• Works framed on a wall, on the fridge with magnets, or laminated on the counter
 
-Whether you're 30 days in or just starting your first elimination protocol, this card keeps you focused. Hang it up, let it guide your grocery runs, and stop second-guessing every meal.
+Who it's for:
+• Starting your first elimination protocol and want a daily visual anchor
+• Already carnivore but want something beautiful for the kitchen
+• Looking for a gift for the meat lover in your life
 
-Because eating should be simple. And this is as simple as it gets.
+Print it at home for under $2. Frame it for under $10. You'll reach for it every time you make a grocery list.
+
+Pairs well with our keto and lion diet versions — build a gallery wall of your dietary journey.
 
 ⚠️ All sales are final. Due to the digital nature of this product, refunds or exchanges are not available. Please review the listing carefully before purchasing.
 
