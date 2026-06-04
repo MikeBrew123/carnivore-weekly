@@ -26,6 +26,7 @@ CREDS_PATH = os.path.join(PROJECT_ROOT, 'dashboard', 'ga4-credentials.json')
 
 SPREADSHEET_ID = '1tsEPlB4ZXzc9LY8ZIv4msf-AUti3q6Bb8abKor119Wk'
 SUPABASE_PROJECT_ID = 'kwtdpvnjewtahuxjyltn'
+SECRETS_PATH = os.path.join(PROJECT_ROOT, 'secrets', 'api-keys.json')
 CW_GA4_PROPERTY = 'properties/517632328'
 KD_GA4_PROPERTY = 'properties/539655784'
 GSC_CW_SITE = 'sc-domain:carnivoreweekly.com'
@@ -308,6 +309,34 @@ def update_dashboard():
     sp = supa_count('newsletter_subscribers', f'created_at=gte.{d14}&created_at=lt.{d8}')
     data.append(['NEWSLETTER', 'This 7d', 'Prior 7d', 'Trend'])
     data.append(['New Subscribers', str(s7), str(sp), arrow(s7, sp)])
+    data.append([])
+
+    # Revenue summary
+    stripe_key = ''
+    if os.path.exists(SECRETS_PATH):
+        with open(SECRETS_PATH) as f:
+            keys = json.loads(f.read())
+            stripe_key = keys.get('stripe', {}).get('secret_key_live', '')
+    if stripe_key:
+        import time
+        d7_ts = int(time.time()) - (7 * 86400)
+        d30_ts = int(time.time()) - (30 * 86400)
+        try:
+            url7 = f"https://api.stripe.com/v1/charges?limit=100&created[gte]={d7_ts}"
+            req7 = urllib.request.Request(url7, headers={'Authorization': f'Bearer {stripe_key}'})
+            with urllib.request.urlopen(req7, timeout=15) as resp:
+                c7 = [c for c in json.loads(resp.read()).get('data', []) if c.get('status') == 'succeeded']
+            url30 = f"https://api.stripe.com/v1/charges?limit=100&created[gte]={d30_ts}"
+            req30 = urllib.request.Request(url30, headers={'Authorization': f'Bearer {stripe_key}'})
+            with urllib.request.urlopen(req30, timeout=15) as resp:
+                c30 = [c for c in json.loads(resp.read()).get('data', []) if c.get('status') == 'succeeded']
+            rev7 = sum(c['amount'] for c in c7) / 100
+            rev30 = sum(c['amount'] for c in c30) / 100
+            data.append(['REVENUE', '7d', '30d'])
+            data.append(['Stripe Revenue', f'${rev7:.2f}', f'${rev30:.2f}'])
+            data.append(['Charges', str(len(c7)), str(len(c30))])
+        except Exception:
+            pass
 
     clear_sheet("'Dashboard'!A:H")
     write_sheet("'Dashboard'!A1", data)
@@ -395,6 +424,137 @@ def update_search_console():
 
     clear_sheet("'Search Console'!A:H")
     write_sheet("'Search Console'!A1", data)
+
+
+def update_utm_tab():
+    print("  UTM Tracking...")
+    rows = supa_fetch(
+        'calculator_sessions_v2',
+        select='created_at,source,utm_source,utm_medium,utm_campaign,utm_content,utm_term,step_completed,is_premium',
+        filters='utm_source=not.is.null&order=created_at.desc',
+        limit=100,
+    )
+    data = [['UTM Tracking — Calculator Sessions with UTM Tags', '', '', '', '', '', '', f'Updated: {NOW}']]
+    data.append([])
+
+    # Summary by source
+    source_counts = {}
+    for r in rows:
+        src = f"{r.get('utm_source', '')} / {r.get('utm_medium', '')}"
+        source_counts[src] = source_counts.get(src, 0) + 1
+    data.append(['UTM Source / Medium', 'Sessions', '', 'Campaign Breakdown', 'Sessions'])
+    campaign_counts = {}
+    for r in rows:
+        camp = r.get('utm_campaign', '') or '(none)'
+        campaign_counts[camp] = campaign_counts.get(camp, 0) + 1
+    max_rows = max(len(source_counts), len(campaign_counts), 1)
+    src_items = sorted(source_counts.items(), key=lambda x: -x[1])
+    camp_items = sorted(campaign_counts.items(), key=lambda x: -x[1])
+    for i in range(max_rows):
+        row = []
+        row += list(src_items[i]) if i < len(src_items) else ['', '']
+        row += ['']
+        row += list(camp_items[i]) if i < len(camp_items) else ['', '']
+        data.append(row)
+
+    data.extend([[], ['Date', 'Source', 'UTM Source', 'UTM Medium', 'UTM Campaign', 'UTM Content', 'Step', 'Premium']])
+    for r in rows[:50]:
+        data.append([
+            r.get('created_at', '')[:16], r.get('source', ''),
+            r.get('utm_source', ''), r.get('utm_medium', ''),
+            r.get('utm_campaign', ''), r.get('utm_content', ''),
+            str(r.get('step_completed', '')), str(r.get('is_premium', '')),
+        ])
+
+    meta = sheets_api.spreadsheets().get(spreadsheetId=SPREADSHEET_ID).execute()
+    existing = [s['properties']['title'] for s in meta['sheets']]
+    if 'UTM Tracking' not in existing:
+        sheets_api.spreadsheets().batchUpdate(spreadsheetId=SPREADSHEET_ID, body={'requests': [
+            {'addSheet': {'properties': {'title': 'UTM Tracking', 'index': 7}}},
+        ]}).execute()
+
+    clear_sheet("'UTM Tracking'!A:H")
+    write_sheet("'UTM Tracking'!A1", data)
+    return len(rows)
+
+
+def update_revenue():
+    print("  Revenue...")
+    stripe_key = ''
+    if os.path.exists(SECRETS_PATH):
+        with open(SECRETS_PATH) as f:
+            keys = json.loads(f.read())
+            stripe_key = keys.get('stripe', {}).get('secret_key_live', '')
+    if not stripe_key:
+        print("    No Stripe key found, skipping revenue tab")
+        return
+
+    # Fetch recent charges from Stripe
+    import time
+    thirty_days_ago = int(time.time()) - (30 * 86400)
+    url = f"https://api.stripe.com/v1/charges?limit=100&created[gte]={thirty_days_ago}"
+    req = urllib.request.Request(url, headers={
+        'Authorization': f'Bearer {stripe_key}',
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            charges = json.loads(resp.read()).get('data', [])
+    except Exception as e:
+        print(f"    Stripe error: {e}")
+        return
+
+    succeeded = [c for c in charges if c.get('status') == 'succeeded']
+    refunded = [c for c in charges if c.get('refunded')]
+
+    # Build summary
+    total_revenue = sum(c['amount'] for c in succeeded)
+    total_refunds = sum(c['amount_refunded'] for c in charges if c.get('amount_refunded'))
+    net = total_revenue - total_refunds
+
+    # Group by currency
+    by_currency = {}
+    for c in succeeded:
+        cur = c['currency'].upper()
+        by_currency[cur] = by_currency.get(cur, 0) + c['amount']
+
+    data = [['Stripe Revenue — Last 30 Days', '', '', f'Updated: {NOW}']]
+    data.append([])
+    data.append(['Metric', 'Value'])
+    data.append(['Total Revenue', f"${total_revenue / 100:.2f}"])
+    data.append(['Refunds', f"${total_refunds / 100:.2f}"])
+    data.append(['Net Revenue', f"${net / 100:.2f}"])
+    data.append(['Successful Charges', str(len(succeeded))])
+    data.append(['Refunded', str(len(refunded))])
+    data.append([])
+
+    data.append(['By Currency', 'Amount'])
+    for cur, amt in sorted(by_currency.items()):
+        data.append([cur, f"${amt / 100:.2f}"])
+    data.append([])
+
+    # Recent transactions
+    data.append(['Recent Transactions', 'Amount', 'Currency', 'Date', 'Status'])
+    for c in succeeded[:20]:
+        from datetime import datetime as dt
+        ts = dt.fromtimestamp(c['created']).strftime('%Y-%m-%d %H:%M')
+        status = 'Refunded' if c.get('refunded') else 'Paid'
+        promo = ''
+        if c.get('metadata', {}).get('promo_code'):
+            promo = f" ({c['metadata']['promo_code']})"
+        data.append([
+            c.get('description', '') or c['id'][:20],
+            f"${c['amount'] / 100:.2f}", c['currency'].upper(), ts, status + promo,
+        ])
+
+    meta = sheets_api.spreadsheets().get(spreadsheetId=SPREADSHEET_ID).execute()
+    existing_sheets = [s['properties']['title'] for s in meta['sheets']]
+    if 'Revenue' not in existing_sheets:
+        sheets_api.spreadsheets().batchUpdate(spreadsheetId=SPREADSHEET_ID, body={'requests': [
+            {'addSheet': {'properties': {'title': 'Revenue', 'index': 8}}},
+        ]}).execute()
+
+    clear_sheet("'Revenue'!A:E")
+    write_sheet("'Revenue'!A1", data)
 
 
 def update_chart_data():
@@ -647,6 +807,8 @@ def main():
     update_traffic('CW Traffic', CW_GA4_PROPERTY, 'CW')
     update_traffic('KD Traffic', KD_GA4_PROPERTY, 'KD')
     update_search_console()
+    update_utm_tab()
+    update_revenue()
     num_daily, cw_dev, kd_dev, cw_src, kd_src = update_chart_data()
     apply_formatting(dash_data)
     update_charts(num_daily, cw_dev, kd_dev, cw_src, kd_src)
