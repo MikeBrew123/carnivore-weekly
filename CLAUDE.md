@@ -294,3 +294,68 @@ Manual edits allowed when instructed, but:
 13. Affiliate links must use https:// (mixed content triggers browser warnings).
 14. New validators: always run against full codebase, not just new files.
 15. Health checks must cover blog-to-blog cross-links.
+
+---
+
+## KetoDial (ketodial.com) — Static Site
+
+KetoDial is a keto-focused site living inside this repo at `ketodial/`. The static site is at `ketodial/public/` (GitHub Pages). The Coach app is at `ketodial/coach-app/` (Vercel).
+
+### KetoDial Blog Post Pipeline
+
+Blog posts are standalone HTML files in `ketodial/public/blog/`. No generation script — each post is a complete HTML file.
+
+1. **Template:** Match the exact structure of existing posts (e.g., `keto-flu-electrolyte-fix.html`). Same CSS, nav, footer, JSON-LD schema, GA4 tag (G-0Y79FB48EG), fonts, skip-nav.
+2. **Writers:** Use Sarah (health), Marcus (performance), Chloe (community) agents. Same voice rules as CW: no em-dashes, no AI tells, contractions, grade 8-10 reading level.
+3. **Disclaimers:** Every health-adjacent post MUST include a "Not a Doctor" blockquote disclaimer before closing `</div>`.
+4. **Internal links:** Every new post gets 2-3 cross-links to related KetoDial posts (before the disclaimer). Add backlinks from existing posts to new ones.
+5. **After writing:** Update sitemap.xml, blog/index.html (add cards to feed-grid), and submit to GSC via Google Indexing API.
+6. **Cross-promo rules:** Max 25% of posts get product mentions. Match product to article topic naturally. Etsy links use UTM params: `?utm_source=ketodial&utm_medium=blog&utm_campaign={slug}`. CW cross-links announced naturally: "Sarah wrote a great piece over at Carnivore Weekly..."
+
+### KetoDial Recipe Pipeline (Mandatory — No Exceptions)
+
+**Step 1 — Scrape via Apify**
+Use the Apify MCP tools to scrape recipes from source sites. API key is in `project-nexus/secrets/api-keys.json` under `apify.api_key`.
+
+- Search Apify Store for a recipe scraper actor (e.g., `web-scraper`, recipe-specific actors)
+- Target sources: Wholesome Yum, Diet Doctor, KetoConnect, Ruled Me
+- **Quality gate:** Only 4.5+ star recipes with verified ratings. No recipes under 4.5 stars.
+- **No duplicates:** Check existing recipes in `ketodial/public/recipes/` before scraping
+- Extract: title, rating (stars + vote count), servings, prep/cook/total time, calories, fat, protein, net carbs, full ingredient list with amounts, step-by-step instructions
+
+**Step 2 — Build Recipe Cards**
+- Template: Match EXACTLY the structure of `ketodial/public/recipes/bacon-spinach-egg-cups.html`
+- Same CSS, card layout, gauge SVG, meta row, macro pills, two-column ingredients + method, tip box, pantry/shop section, footer, related recipes
+- Design template reference: `ketodial/design/recipes/Recipe-Card-Template.html`
+- Category tag in header: Breakfast, Lunch, Dinner, Snack, or Dessert
+- Each recipe gets 3 related recipe cards at the bottom linking to same-category recipes
+
+**Step 3 — Generate Images via Replicate**
+- NEVER use images from the source recipe site. We generate our own.
+- Use Replicate API (model: `black-forest-labs/flux-schnell` at ~$0.003/image). Do NOT use nano-banana-pro (~$0.04/image) or flux-pro.
+- API token: `secrets/api-keys.json` under `replicate.api_token`
+- Prompt pattern: describe the finished dish as a food photography scene. Append brand suffix: "warm natural light, rich earthy tones, shallow depth of field, high detail, photorealistic, no text, no people"
+- Save to: `ketodial/public/images/recipes/recipe-{slug}.jpg`
+- Reference script: `scripts/generate_post_images.py` (same Replicate flow, adapt for recipes)
+- Update the recipe HTML: replace the photo placeholder `<div class="photo">` with an `<img>` tag pointing to the generated image
+
+**Step 4 — Publish**
+After creating recipe HTML files with images:
+1. Add entries to `ketodial/public/sitemap.xml` (priority 0.7, monthly changefreq)
+2. Add cards to `ketodial/public/recipes/index.html` with correct `data-meal` attribute (breakfast/lunch/dinner/snack/dessert)
+3. Update the recipe count in the index filter JS (or use `cards.length` dynamic count)
+4. Submit URLs to Google Indexing API via service account at `dashboard/ga4-credentials.json`
+
+**PROHIBITED:**
+- ❌ Scraping without Apify (use MCP tools, not manual WebFetch)
+- ❌ Using images from source recipe sites (generate via Replicate, we own all images)
+- ❌ Publishing recipes below 4.5 stars
+- ❌ Duplicating existing recipes (check `ketodial/public/recipes/` first)
+- ❌ Missing sitemap or index updates
+- ❌ Skipping GSC submission
+- ❌ Recipes without the pantry/shop section linking to `/pantry.html`
+
+### KetoDial Supabase
+- Project ID: `kwtdpvnjewtahuxjyltn` (NOT the old `wnwkbbfuatdcfragrrpw`)
+- Same MCP tool: `mcp__eb179240-a327-4553-8a6a-04f57f7ea545__execute_sql`
+- Writer memory, waitlist, coach data all in this project
