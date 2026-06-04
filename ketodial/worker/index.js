@@ -32,7 +32,7 @@ const BUNDLE_EXPAND = {
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Allow-Methods': 'POST, GET, PATCH, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
@@ -52,6 +52,9 @@ export default {
     }
     if (url.pathname === '/session' && request.method === 'POST') {
       return handleSession(request, env);
+    }
+    if (url.pathname === '/session' && request.method === 'PATCH') {
+      return handleSessionUpdate(request, env);
     }
     if (url.pathname.startsWith('/report/') && request.method === 'GET') {
       const sessionId = url.pathname.split('/report/')[1];
@@ -86,6 +89,11 @@ async function handleSession(request, env) {
       referrer: b.referrer || null,
       device_type: b.device_type || null,
       landing_page: '/',
+      utm_source: b.utm_source || null,
+      utm_medium: b.utm_medium || null,
+      utm_campaign: b.utm_campaign || null,
+      utm_content: b.utm_content || null,
+      utm_term: b.utm_term || null,
     };
     const res = await fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2`, {
       method: 'POST',
@@ -146,6 +154,54 @@ async function handleSession(request, env) {
       }
     }
     return jsonResponse(200, { ok: true, token });
+  } catch (e) {
+    return jsonResponse(500, { error: e.message });
+  }
+}
+
+// ──────────────────────────────────────────────
+// SESSION UPDATE — track step progression
+// ──────────────────────────────────────────────
+async function handleSessionUpdate(request, env) {
+  try {
+    const b = await request.json();
+    if (!b.token) return jsonResponse(400, { error: 'Missing token' });
+
+    const updates = {};
+    if (b.step_completed) updates.step_completed = b.step_completed;
+    if (b.email) updates.email = b.email;
+    if (b.first_name) updates.first_name = b.first_name;
+    if (b.payment_status) updates.payment_status = b.payment_status;
+    if (b.conditions) updates.conditions = b.conditions;
+    if (b.symptoms) updates.symptoms = b.symptoms;
+    if (b.medications) updates.medications = b.medications;
+    if (b.cooking_skill) updates.cooking_skill = b.cooking_skill;
+    if (b.meal_prep_time) updates.meal_prep_time = b.meal_prep_time;
+    if (b.budget) updates.budget = b.budget;
+    if (b.family_situation) updates.family_situation = b.family_situation;
+    if (b.biggest_challenge) updates.biggest_challenge = b.biggest_challenge;
+    if (b.previous_diets) updates.previous_diets = b.previous_diets;
+    if (b.dairy_tolerance) updates.dairy_tolerance = b.dairy_tolerance;
+    updates.updated_at = new Date().toISOString();
+
+    const res = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${b.token}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(updates),
+      }
+    );
+    if (!res.ok) {
+      const err = await res.text();
+      return jsonResponse(500, { error: err });
+    }
+    return jsonResponse(200, { ok: true });
   } catch (e) {
     return jsonResponse(500, { error: e.message });
   }
