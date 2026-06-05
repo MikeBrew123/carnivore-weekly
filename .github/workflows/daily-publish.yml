@@ -80,6 +80,22 @@ jobs:
           URLS="${{ steps.publish.outputs.new_post_urls }}"
           node gsc-request-indexing.js $URLS
 
+      - name: Submit new posts to Bing via IndexNow
+        if: steps.publish.outputs.has_changes == 'true' && steps.publish.outputs.new_post_urls != ''
+        continue-on-error: true
+        run: |
+          URLS="${{ steps.publish.outputs.new_post_urls }}"
+          URL_LIST=$(echo "$URLS" | jq -R -s 'split("\n") | map(select(length > 0))')
+          curl -s -X POST "https://api.indexnow.org/IndexNow" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"host\": \"carnivoreweekly.com\",
+              \"key\": \"1d6e43b8829d44c28fbef02ee5b548d2\",
+              \"keyLocation\": \"https://carnivoreweekly.com/1d6e43b8829d44c28fbef02ee5b548d2.txt\",
+              \"urlList\": $URL_LIST
+            }"
+          echo "Submitted $(echo "$URLS" | wc -l | tr -d ' ') URLs to IndexNow"
+
   deploy:
     needs: publish
     runs-on: ubuntu-latest
