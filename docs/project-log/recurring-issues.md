@@ -160,3 +160,13 @@ Pattern: `generate.py` creates roundup image and references it in `index.html`. 
 Attempts:
 - 2026-06-01 — Committed missing image. Added Check 10c to `validate_before_commit.py`: missing absolute-path images are now CRITICAL (blocks commit), relative-path images are WARNING. Prevents future occurrences at pre-commit.
 If recurs: Check if `generate_roundup_image.py` output is being staged. Consider auto-staging in `generate.py`.
+
+---
+
+## ISSUE-009 — Drip emails not sending (401 Unauthorized)
+🟢 FIXED — Last: 2026-06-05
+
+Pattern: `send_drip.py` in daily-publish.yml gets 401 from Supabase because GitHub secrets point to old project. `continue-on-error: true` hides the failure — runs report success.
+Attempts:
+- 2026-06-05 — Updated GitHub secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to KetoDial project `kwtdpvnjewtahuxjyltn`. Manual workflow run confirmed Day 1 sent to real subscriber.
+If recurs: Check if Supabase keys were rotated or project changed again. Also verify RESEND_API_KEY is still valid.
