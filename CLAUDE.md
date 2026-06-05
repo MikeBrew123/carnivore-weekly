@@ -343,8 +343,9 @@ Use the Apify MCP tools to scrape recipes from source sites. API key is in `proj
 After creating recipe HTML files with images:
 1. Add entries to `ketodial/public/sitemap.xml` (priority 0.7, monthly changefreq)
 2. Add cards to `ketodial/public/recipes/index.html` with correct `data-meal` attribute (breakfast/lunch/dinner/snack/dessert)
-3. Update the recipe count in the index filter JS (or use `cards.length` dynamic count)
-4. Submit URLs to Google Indexing API via service account at `dashboard/ga4-credentials.json`
+3. **Index cards MUST include `<img>` tags** — match existing pattern: `<div class="rwrap"><img src="/images/recipes/recipe-{slug}.jpg" alt="..." loading="lazy" /><span class="net-tag">...`
+4. Update the recipe count in the index filter JS (or use `cards.length` dynamic count)
+5. Submit URLs to Google Indexing API via service account at `dashboard/ga4-credentials.json`
 
 **PROHIBITED:**
 - ❌ Scraping without Apify (use MCP tools, not manual WebFetch)
@@ -354,6 +355,7 @@ After creating recipe HTML files with images:
 - ❌ Missing sitemap or index updates
 - ❌ Skipping GSC submission
 - ❌ Recipes without the pantry/shop section linking to `/pantry.html`
+- ❌ Index cards without `<img>` tags (cards render blank without images)
 
 ### KetoDial Supabase
 - Project ID: `kwtdpvnjewtahuxjyltn` (NOT the old `wnwkbbfuatdcfragrrpw`)
