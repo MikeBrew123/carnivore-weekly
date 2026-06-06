@@ -1,9 +1,9 @@
 # Current Status
 
-**Last Updated:** 2026-05-30 (Calculator Tracking Fix + Content Pipeline Restructure)
+**Last Updated:** 2026-06-05 (Blog Pipeline Refill + KetoDial Recipe Fixes)
 
 **Current Focus:**
-Fixed calculator diet_selected event gap (wasn't firing for default diet selection). Restructured content pipeline: all content creation (Chloe research + writer generation) now lives in Claude Code scheduled task (Sun+Wed 4:30am PST). GitHub Actions only handles homepage data refresh and daily publish (flip ready→published). Sarah's bridal Etsy post #2 published. ISSUE-001 (scheduled task auth) still the main risk — completion notifications enabled.
+Blog pipeline refilled with 12 posts (Jun 6-17) + 1 published today. All posts have images via flux-schnell. KetoDial recipe section fixed: title spacing, category labels, Recipe JSON-LD schema on all 64 pages. Hermes confirmed all KD fixes pass on live site. Image generation switched from nano-banana-pro to flux-schnell (10x cheaper). Portuguese and anti-carnivore channels blocked from CW channels page.
 
 ---
 
