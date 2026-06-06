@@ -72,6 +72,12 @@ BLOCKED_CHANNELS = {
         "Rebecca Watson",
         "Skepchick",
     ],
+    "non-english": [
+        "Silvana Costa",
+        "Delícias da Sil",
+        "Primo Nico Bianchi",
+        "Mundo Zero Açúcar",
+    ],
 }
 
 # Title keyword blocklist — videos whose titles contain these are dropped
@@ -79,6 +85,15 @@ BLOCKED_CHANNELS = {
 BLOCKED_TITLE_KEYWORDS = [
     "vegan", "plant-based", "plant based",   # anti-carnivore stance
 ]
+
+
+def is_non_english_title(title: str) -> bool:
+    """Detect non-English titles by checking for high ratio of non-ASCII chars."""
+    if not title:
+        return False
+    non_ascii = sum(1 for c in title if ord(c) > 127 and c not in '™''""–—•…&♥️💪🍓')
+    # If more than 20% of chars are non-ASCII, likely non-English
+    return len(title) > 10 and non_ascii / len(title) > 0.15
 
 
 def is_blocked_title(title: str) -> bool:
