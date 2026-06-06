@@ -90,15 +90,12 @@ def generate_image_replicate(api_token, prompt):
             "prompt": prompt,
             "aspect_ratio": "4:3",
             "output_format": "jpg",
-            "resolution": "1K",
-            "image_input": [],
-            "safety_filter_level": "block_only_high",
-            "allow_fallback_model": False,
+            "num_outputs": 1,
         }
     }).encode()
 
     req = urllib.request.Request(
-        "https://api.replicate.com/v1/models/google/nano-banana-pro/predictions",
+        "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions",
         data=payload,
         headers={
             "Authorization": f"Bearer {api_token}",
@@ -183,10 +180,22 @@ def main():
         if dest.exists():
             print(f"  Image already exists, skipping generation")
         else:
-            image_url = generate_image_replicate(replicate_token, prompt)
-            with urllib.request.urlopen(image_url, timeout=60) as r:
-                dest.write_bytes(r.read())
-            print(f"  Saved: {dest}")
+            for attempt in range(3):
+                try:
+                    image_url = generate_image_replicate(replicate_token, prompt)
+                    with urllib.request.urlopen(image_url, timeout=60) as r:
+                        dest.write_bytes(r.read())
+                    print(f"  Saved: {dest}")
+                    break
+                except urllib.error.HTTPError as e:
+                    if e.code == 429 and attempt < 2:
+                        wait = 10 * (attempt + 1)
+                        print(f"  Rate limited, waiting {wait}s...")
+                        time.sleep(wait)
+                    else:
+                        print(f"  ❌ Failed after {attempt+1} attempts: {e}")
+                        break
+            time.sleep(3)  # pace requests
 
         post["image"] = f"/images/blog/{slug}.jpg"
         changed = True
