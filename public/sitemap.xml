@@ -2,13 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://carnivoreweekly.com/</loc>
-        <lastmod>2026-06-05</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/calculator.html</loc>
-        <lastmod>2026-06-05</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.95</priority>
     </url>
@@ -272,19 +272,19 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/wiki/</loc>
-        <lastmod>2026-05-25</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/archive.html</loc>
-        <lastmod>2026-05-18</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/channels.html</loc>
-        <lastmod>2026-06-03</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
     </url>
@@ -320,31 +320,31 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/about/</loc>
-        <lastmod>2026-02-26</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/blog/</loc>
-        <lastmod>2026-06-05</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/privacy.html</loc>
-        <lastmod>2026-06-01</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/the-lab.html</loc>
-        <lastmod>2026-03-10</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
     <url>
         <loc>https://carnivoreweekly.com/starter-plan.html</loc>
-        <lastmod>2026-05-25</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -404,7 +404,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/newsletter-preview.html</loc>
-        <lastmod>2026-06-03</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -800,7 +800,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/bride-protocol.html</loc>
-        <lastmod>2026-05-25</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -908,7 +908,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/desserts.html</loc>
-        <lastmod>2026-05-30</lastmod>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -927,6 +927,12 @@
     <url>
         <loc>https://carnivoreweekly.com/blog/2026-06-05-doctor-lost-70-pounds-carnivore.html</loc>
         <lastmod>2026-06-05</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/blog/2026-06-06-carnivore-hair-loss.html</loc>
+        <lastmod>2026-06-06</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
