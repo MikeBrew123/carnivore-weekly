@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-06-03",
+  "last_updated": "2026-06-05",
   "leaderboard": [
     {
-      "name": "Rebecca Watson (Skepchick)",
+      "name": "Kent Carnivore",
       "rank": 1,
-      "appearances": 2,
-      "channel_id": "UCFJxE0l3cVYU4kHzi4qVEkw"
+      "appearances": 1,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     },
     {
       "name": "HomeSteadHow",
       "rank": 2,
-      "appearances": 5,
+      "appearances": 6,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
       "name": "Patricia Delicious Nutrition",
       "rank": 3,
-      "appearances": 6,
+      "appearances": 7,
       "channel_id": "UCUU-glcsz57qVD8_xhriglg"
     },
     {
-      "name": "Patricia Leite Nutrici\u00f3n Deliciosa",
+      "name": "Courtney Luna",
       "rank": 4,
       "appearances": 1,
-      "channel_id": "UCZkvIPtDj4LJ08voaSxNfuA"
+      "channel_id": "UCzgj3pQycdp7SUUbz56wNCw"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
+      "name": "Jenny Mitich",
+      "rank": 6,
+      "appearances": 3,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 7,
+      "appearances": 7,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
       "name": "Steak and Butter Vlogs",
-      "rank": 5,
-      "appearances": 2,
+      "rank": 8,
+      "appearances": 3,
       "channel_id": "UCa_hjaV3k08DlJjPZNB-bRA"
     },
     {
       "name": "Shawn Baker MD",
-      "rank": 6,
-      "appearances": 1,
+      "rank": 9,
+      "appearances": 2,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "Jenny Mitich",
-      "rank": 7,
-      "appearances": 2,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
-    },
-    {
-      "name": "Butter Bob Briggs",
-      "rank": 8,
-      "appearances": 1,
-      "channel_id": "UCiue5Soilcbqp3XS2c1P1PA"
-    },
-    {
-      "name": "Keto Rewind",
-      "rank": 9,
-      "appearances": 1,
-      "channel_id": "UCSIhdpTAEdg2jPcsA7dU8JA"
-    },
-    {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "Highfalutin' Low Carb",
       "rank": 10,
-      "appearances": 6,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "appearances": 1,
+      "channel_id": "UCHhMFg6MNHc-VeqRHBghIJA"
     }
   ]
 }

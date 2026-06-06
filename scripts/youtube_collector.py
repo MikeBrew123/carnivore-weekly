@@ -69,6 +69,8 @@ BLOCKED_CHANNELS = {
         "Mic the Vegan",
         "VeganLinked",
         "Plant Based News",
+        "Rebecca Watson",
+        "Skepchick",
     ],
 }
 
