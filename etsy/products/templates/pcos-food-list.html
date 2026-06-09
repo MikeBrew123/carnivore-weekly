@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PCOS Diet Food List — What to Eat & What to Limit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+  @page { size: 8.5in 11in; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', 'Segoe UI', sans-serif;
+    background: #fefefe;
+    color: #2d2d2d;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: 0.3in 0.35in 0.2in;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .header h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 28pt;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+  }
+  .header .subtitle {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 11pt;
+    font-weight: 500;
+    color: #888;
+    letter-spacing: 2px;
+    margin-top: 1px;
+  }
+
+  /* GRID */
+  .grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 6px;
+    min-height: 0;
+  }
+
+  /* CATEGORY CARD */
+  .cat {
+    display: flex;
+    flex-direction: column;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e8e8e8;
+  }
+
+  .cat-header {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 8px;
+    color: #fff;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .cat-body {
+    flex: 1;
+    padding: 4px 6px;
+    background: #fff;
+  }
+
+  .food-item {
+    font-size: 7.5pt;
+    line-height: 1.45;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0.5px 0;
+  }
+  .food-item .dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #ccc;
+    flex-shrink: 0;
+  }
+  .food-item span { flex: 1; }
+
+  /* CATEGORY COLORS */
+  .cat-protein .cat-header { background: #2980b9; }
+  .cat-protein .cat-body { background: #f0f7fc; }
+
+  .cat-veg .cat-header { background: #27ae60; }
+  .cat-veg .cat-body { background: #f0faf4; }
+
+  .cat-fruits .cat-header { background: #8e44ad; }
+  .cat-fruits .cat-body { background: #f9f0fc; }
+
+  .cat-fats .cat-header { background: #d4760a; }
+  .cat-fats .cat-body { background: #fef9f0; }
+
+  .cat-nuts .cat-header { background: #a0522d; }
+  .cat-nuts .cat-body { background: #faf5f0; }
+
+  .cat-carbs .cat-header { background: #e67e22; }
+  .cat-carbs .cat-body { background: #fef6ed; }
+
+  .cat-dairy .cat-header { background: #16a085; }
+  .cat-dairy .cat-body { background: #f0faf7; }
+
+  .cat-antiinflam .cat-header { background: #f39c12; }
+  .cat-antiinflam .cat-body { background: #fef9ed; }
+
+  .cat-herbs .cat-header { background: #7f8c8d; }
+  .cat-herbs .cat-body { background: #f7f8f8; }
+
+  .cat-drinks .cat-header { background: #2c8c99; }
+  .cat-drinks .cat-body { background: #f0f9fa; }
+
+  .cat-limit .cat-header { background: #c0392b; }
+  .cat-limit .cat-body { background: #fdf2f2; }
+
+  .cat-tips .cat-header { background: #34495e; }
+  .cat-tips .cat-body { background: #f4f6f7; }
+
+  /* SPAN 2 ROWS */
+  .cat-tall { grid-row: span 2; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    font-size: 6pt;
+    color: #bbb;
+    padding-top: 5px;
+    flex-shrink: 0;
+    letter-spacing: 0.5px;
+  }
+
+  /* A4 */
+  .page-a4 {
+    width: 210mm;
+    height: 297mm;
+    padding: 8mm 10mm 6mm;
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: US LETTER -->
+<div class="page">
+  <div class="header">
+    <h1>PCOS Diet</h1>
+    <div class="subtitle">Foods to Nourish + Foods to Limit</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- PROTEINS -->
+    <div class="cat cat-protein cat-tall">
+      <div class="cat-header">Proteins</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Salmon</span></div>
+        <div class="food-item"><div class="dot"></div><span>Sardines</span></div>
+        <div class="food-item"><div class="dot"></div><span>Mackerel</span></div>
+        <div class="food-item"><div class="dot"></div><span>Chicken breast</span></div>
+        <div class="food-item"><div class="dot"></div><span>Turkey (ground)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Grass-fed beef</span></div>
+        <div class="food-item"><div class="dot"></div><span>Eggs (pasture-raised)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Shrimp</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cod</span></div>
+        <div class="food-item"><div class="dot"></div><span>Lentils</span></div>
+        <div class="food-item"><div class="dot"></div><span>Chickpeas</span></div>
+        <div class="food-item"><div class="dot"></div><span>Black beans</span></div>
+        <div class="food-item"><div class="dot"></div><span>Tempeh</span></div>
+        <div class="food-item"><div class="dot"></div><span>Tofu (organic)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Bone broth</span></div>
+        <div class="food-item"><div class="dot"></div><span>Collagen peptides</span></div>
+      </div>
+    </div>
+
+    <!-- HEALTHY FATS -->
+    <div class="cat cat-fats">
+      <div class="cat-header">Healthy Fats</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Avocado</span></div>
+        <div class="food-item"><div class="dot"></div><span>Extra virgin olive oil</span></div>
+        <div class="food-item"><div class="dot"></div><span>Coconut oil</span></div>
+        <div class="food-item"><div class="dot"></div><span>Avocado oil</span></div>
+        <div class="food-item"><div class="dot"></div><span>Ghee</span></div>
+        <div class="food-item"><div class="dot"></div><span>Flaxseed oil</span></div>
+        <div class="food-item"><div class="dot"></div><span>Almond butter</span></div>
+        <div class="food-item"><div class="dot"></div><span>Tahini</span></div>
+        <div class="food-item"><div class="dot"></div><span>Olives</span></div>
+      </div>
+    </div>
+
+    <!-- LOW-GI VEGETABLES -->
+    <div class="cat cat-veg cat-tall">
+      <div class="cat-header">Low-GI Vegetables</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Spinach</span></div>
+        <div class="food-item"><div class="dot"></div><span>Kale</span></div>
+        <div class="food-item"><div class="dot"></div><span>Broccoli</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cauliflower</span></div>
+        <div class="food-item"><div class="dot"></div><span>Zucchini</span></div>
+        <div class="food-item"><div class="dot"></div><span>Asparagus</span></div>
+        <div class="food-item"><div class="dot"></div><span>Brussels sprouts</span></div>
+        <div class="food-item"><div class="dot"></div><span>Bell peppers</span></div>
+        <div class="food-item"><div class="dot"></div><span>Green beans</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cucumber</span></div>
+        <div class="food-item"><div class="dot"></div><span>Celery</span></div>
+        <div class="food-item"><div class="dot"></div><span>Artichoke</span></div>
+        <div class="food-item"><div class="dot"></div><span>Swiss chard</span></div>
+        <div class="food-item"><div class="dot"></div><span>Arugula</span></div>
+        <div class="food-item"><div class="dot"></div><span>Mushrooms</span></div>
+        <div class="food-item"><div class="dot"></div><span>Radishes</span></div>
+      </div>
+    </div>
+
+    <!-- COMPLEX CARBS -->
+    <div class="cat cat-carbs">
+      <div class="cat-header">Complex Carbs</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Quinoa</span></div>
+        <div class="food-item"><div class="dot"></div><span>Sweet potato</span></div>
+        <div class="food-item"><div class="dot"></div><span>Steel-cut oats</span></div>
+        <div class="food-item"><div class="dot"></div><span>Brown rice</span></div>
+        <div class="food-item"><div class="dot"></div><span>Barley</span></div>
+        <div class="food-item"><div class="dot"></div><span>Buckwheat</span></div>
+        <div class="food-item"><div class="dot"></div><span>Farro</span></div>
+        <div class="food-item"><div class="dot"></div><span>Butternut squash</span></div>
+      </div>
+    </div>
+
+    <!-- NUTS & SEEDS -->
+    <div class="cat cat-nuts">
+      <div class="cat-header">Nuts & Seeds</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Walnuts</span></div>
+        <div class="food-item"><div class="dot"></div><span>Almonds</span></div>
+        <div class="food-item"><div class="dot"></div><span>Pecans</span></div>
+        <div class="food-item"><div class="dot"></div><span>Chia seeds</span></div>
+        <div class="food-item"><div class="dot"></div><span>Flax seeds (ground)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Pumpkin seeds</span></div>
+        <div class="food-item"><div class="dot"></div><span>Sunflower seeds</span></div>
+        <div class="food-item"><div class="dot"></div><span>Hemp hearts</span></div>
+        <div class="food-item"><div class="dot"></div><span>Brazil nuts</span></div>
+      </div>
+    </div>
+
+    <!-- DAIRY ALTERNATIVES -->
+    <div class="cat cat-dairy">
+      <div class="cat-header">Dairy & Alternatives</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Greek yogurt (plain)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Kefir (unsweetened)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Goat cheese</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cottage cheese</span></div>
+        <div class="food-item"><div class="dot"></div><span>Almond milk</span></div>
+        <div class="food-item"><div class="dot"></div><span>Coconut yogurt</span></div>
+        <div class="food-item"><div class="dot"></div><span>Oat milk</span></div>
+      </div>
+    </div>
+
+    <!-- LOW-GI FRUITS -->
+    <div class="cat cat-fruits">
+      <div class="cat-header">Low-GI Fruits</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Blueberries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Strawberries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Raspberries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Blackberries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cherries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Grapefruit</span></div>
+        <div class="food-item"><div class="dot"></div><span>Green apples</span></div>
+        <div class="food-item"><div class="dot"></div><span>Pears</span></div>
+        <div class="food-item"><div class="dot"></div><span>Peaches</span></div>
+      </div>
+    </div>
+
+    <!-- ANTI-INFLAMMATORY -->
+    <div class="cat cat-antiinflam">
+      <div class="cat-header">Anti-Inflammatory</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Turmeric</span></div>
+        <div class="food-item"><div class="dot"></div><span>Ginger</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cinnamon</span></div>
+        <div class="food-item"><div class="dot"></div><span>Green tea</span></div>
+        <div class="food-item"><div class="dot"></div><span>Fatty fish (omega-3)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Walnuts</span></div>
+        <div class="food-item"><div class="dot"></div><span>Dark chocolate (85%+)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Tart cherry juice</span></div>
+      </div>
+    </div>
+
+    <!-- HERBS & SUPPLEMENTS -->
+    <div class="cat cat-herbs">
+      <div class="cat-header">Herbs & Supplements</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Spearmint tea</span></div>
+        <div class="food-item"><div class="dot"></div><span>Inositol</span></div>
+        <div class="food-item"><div class="dot"></div><span>Berberine</span></div>
+        <div class="food-item"><div class="dot"></div><span>Vitamin D3</span></div>
+        <div class="food-item"><div class="dot"></div><span>Omega-3 (fish oil)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Magnesium glycinate</span></div>
+        <div class="food-item"><div class="dot"></div><span>Zinc</span></div>
+        <div class="food-item"><div class="dot"></div><span>NAC</span></div>
+        <div class="food-item"><div class="dot"></div><span>Probiotics</span></div>
+      </div>
+    </div>
+
+    <!-- DRINKS -->
+    <div class="cat cat-drinks">
+      <div class="cat-header">Drinks</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Water (filtered)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Green tea</span></div>
+        <div class="food-item"><div class="dot"></div><span>Spearmint tea</span></div>
+        <div class="food-item"><div class="dot"></div><span>Bone broth</span></div>
+        <div class="food-item"><div class="dot"></div><span>Black coffee</span></div>
+        <div class="food-item"><div class="dot"></div><span>Sparkling water</span></div>
+        <div class="food-item"><div class="dot"></div><span>Lemon water</span></div>
+      </div>
+    </div>
+
+    <!-- FOODS TO LIMIT -->
+    <div class="cat cat-limit">
+      <div class="cat-header">Foods to Limit</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Refined sugar</span></div>
+        <div class="food-item"><div class="dot"></div><span>White bread & pasta</span></div>
+        <div class="food-item"><div class="dot"></div><span>Soda & juice</span></div>
+        <div class="food-item"><div class="dot"></div><span>Processed snacks</span></div>
+        <div class="food-item"><div class="dot"></div><span>Fried foods</span></div>
+        <div class="food-item"><div class="dot"></div><span>Excess dairy</span></div>
+        <div class="food-item"><div class="dot"></div><span>Soy (processed)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Seed oils</span></div>
+        <div class="food-item"><div class="dot"></div><span>Alcohol</span></div>
+        <div class="food-item"><div class="dot"></div><span>High-GI fruits</span></div>
+      </div>
+    </div>
+
+    <!-- TIPS -->
+    <div class="cat cat-tips">
+      <div class="cat-header">Quick Tips</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Pair carbs with protein</span></div>
+        <div class="food-item"><div class="dot"></div><span>Eat veggies first</span></div>
+        <div class="food-item"><div class="dot"></div><span>Avoid skipping meals</span></div>
+        <div class="food-item"><div class="dot"></div><span>Prioritize fiber daily</span></div>
+        <div class="food-item"><div class="dot"></div><span>Limit added sugars</span></div>
+        <div class="food-item"><div class="dot"></div><span>Choose whole grains</span></div>
+        <div class="food-item"><div class="dot"></div><span>Stay hydrated</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">CarnivoreWeekly.com  |  For personal use only  |  Not medical advice -- consult your doctor</div>
+</div>
+
+<!-- PAGE 2: A4 -->
+<div class="page page-a4">
+  <div class="header">
+    <h1>PCOS Diet</h1>
+    <div class="subtitle">Foods to Nourish + Foods to Limit  --  A4</div>
+  </div>
+
+  <div class="grid">
+
+    <div class="cat cat-protein cat-tall">
+      <div class="cat-header">Proteins</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Salmon</span></div>
+        <div class="food-item"><div class="dot"></div><span>Sardines</span></div>
+        <div class="food-item"><div class="dot"></div><span>Mackerel</span></div>
+        <div class="food-item"><div class="dot"></div><span>Chicken breast</span></div>
+        <div class="food-item"><div class="dot"></div><span>Turkey (ground)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Grass-fed beef</span></div>
+        <div class="food-item"><div class="dot"></div><span>Eggs (pasture-raised)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Shrimp</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cod</span></div>
+        <div class="food-item"><div class="dot"></div><span>Lentils</span></div>
+        <div class="food-item"><div class="dot"></div><span>Chickpeas</span></div>
+        <div class="food-item"><div class="dot"></div><span>Black beans</span></div>
+        <div class="food-item"><div class="dot"></div><span>Tempeh</span></div>
+        <div class="food-item"><div class="dot"></div><span>Tofu (organic)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Bone broth</span></div>
+        <div class="food-item"><div class="dot"></div><span>Collagen peptides</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-fats">
+      <div class="cat-header">Healthy Fats</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Avocado</span></div>
+        <div class="food-item"><div class="dot"></div><span>Extra virgin olive oil</span></div>
+        <div class="food-item"><div class="dot"></div><span>Coconut oil</span></div>
+        <div class="food-item"><div class="dot"></div><span>Avocado oil</span></div>
+        <div class="food-item"><div class="dot"></div><span>Ghee</span></div>
+        <div class="food-item"><div class="dot"></div><span>Flaxseed oil</span></div>
+        <div class="food-item"><div class="dot"></div><span>Almond butter</span></div>
+        <div class="food-item"><div class="dot"></div><span>Tahini</span></div>
+        <div class="food-item"><div class="dot"></div><span>Olives</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-veg cat-tall">
+      <div class="cat-header">Low-GI Vegetables</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Spinach</span></div>
+        <div class="food-item"><div class="dot"></div><span>Kale</span></div>
+        <div class="food-item"><div class="dot"></div><span>Broccoli</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cauliflower</span></div>
+        <div class="food-item"><div class="dot"></div><span>Zucchini</span></div>
+        <div class="food-item"><div class="dot"></div><span>Asparagus</span></div>
+        <div class="food-item"><div class="dot"></div><span>Brussels sprouts</span></div>
+        <div class="food-item"><div class="dot"></div><span>Bell peppers</span></div>
+        <div class="food-item"><div class="dot"></div><span>Green beans</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cucumber</span></div>
+        <div class="food-item"><div class="dot"></div><span>Celery</span></div>
+        <div class="food-item"><div class="dot"></div><span>Artichoke</span></div>
+        <div class="food-item"><div class="dot"></div><span>Swiss chard</span></div>
+        <div class="food-item"><div class="dot"></div><span>Arugula</span></div>
+        <div class="food-item"><div class="dot"></div><span>Mushrooms</span></div>
+        <div class="food-item"><div class="dot"></div><span>Radishes</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-carbs">
+      <div class="cat-header">Complex Carbs</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Quinoa</span></div>
+        <div class="food-item"><div class="dot"></div><span>Sweet potato</span></div>
+        <div class="food-item"><div class="dot"></div><span>Steel-cut oats</span></div>
+        <div class="food-item"><div class="dot"></div><span>Brown rice</span></div>
+        <div class="food-item"><div class="dot"></div><span>Barley</span></div>
+        <div class="food-item"><div class="dot"></div><span>Buckwheat</span></div>
+        <div class="food-item"><div class="dot"></div><span>Farro</span></div>
+        <div class="food-item"><div class="dot"></div><span>Butternut squash</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-nuts">
+      <div class="cat-header">Nuts & Seeds</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Walnuts</span></div>
+        <div class="food-item"><div class="dot"></div><span>Almonds</span></div>
+        <div class="food-item"><div class="dot"></div><span>Pecans</span></div>
+        <div class="food-item"><div class="dot"></div><span>Chia seeds</span></div>
+        <div class="food-item"><div class="dot"></div><span>Flax seeds (ground)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Pumpkin seeds</span></div>
+        <div class="food-item"><div class="dot"></div><span>Sunflower seeds</span></div>
+        <div class="food-item"><div class="dot"></div><span>Hemp hearts</span></div>
+        <div class="food-item"><div class="dot"></div><span>Brazil nuts</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-dairy">
+      <div class="cat-header">Dairy & Alternatives</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Greek yogurt (plain)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Kefir (unsweetened)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Goat cheese</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cottage cheese</span></div>
+        <div class="food-item"><div class="dot"></div><span>Almond milk</span></div>
+        <div class="food-item"><div class="dot"></div><span>Coconut yogurt</span></div>
+        <div class="food-item"><div class="dot"></div><span>Oat milk</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-fruits">
+      <div class="cat-header">Low-GI Fruits</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Blueberries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Strawberries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Raspberries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Blackberries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cherries</span></div>
+        <div class="food-item"><div class="dot"></div><span>Grapefruit</span></div>
+        <div class="food-item"><div class="dot"></div><span>Green apples</span></div>
+        <div class="food-item"><div class="dot"></div><span>Pears</span></div>
+        <div class="food-item"><div class="dot"></div><span>Peaches</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-antiinflam">
+      <div class="cat-header">Anti-Inflammatory</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Turmeric</span></div>
+        <div class="food-item"><div class="dot"></div><span>Ginger</span></div>
+        <div class="food-item"><div class="dot"></div><span>Cinnamon</span></div>
+        <div class="food-item"><div class="dot"></div><span>Green tea</span></div>
+        <div class="food-item"><div class="dot"></div><span>Fatty fish (omega-3)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Walnuts</span></div>
+        <div class="food-item"><div class="dot"></div><span>Dark chocolate (85%+)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Tart cherry juice</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-herbs">
+      <div class="cat-header">Herbs & Supplements</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Spearmint tea</span></div>
+        <div class="food-item"><div class="dot"></div><span>Inositol</span></div>
+        <div class="food-item"><div class="dot"></div><span>Berberine</span></div>
+        <div class="food-item"><div class="dot"></div><span>Vitamin D3</span></div>
+        <div class="food-item"><div class="dot"></div><span>Omega-3 (fish oil)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Magnesium glycinate</span></div>
+        <div class="food-item"><div class="dot"></div><span>Zinc</span></div>
+        <div class="food-item"><div class="dot"></div><span>NAC</span></div>
+        <div class="food-item"><div class="dot"></div><span>Probiotics</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-drinks">
+      <div class="cat-header">Drinks</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Water (filtered)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Green tea</span></div>
+        <div class="food-item"><div class="dot"></div><span>Spearmint tea</span></div>
+        <div class="food-item"><div class="dot"></div><span>Bone broth</span></div>
+        <div class="food-item"><div class="dot"></div><span>Black coffee</span></div>
+        <div class="food-item"><div class="dot"></div><span>Sparkling water</span></div>
+        <div class="food-item"><div class="dot"></div><span>Lemon water</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-limit">
+      <div class="cat-header">Foods to Limit</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Refined sugar</span></div>
+        <div class="food-item"><div class="dot"></div><span>White bread & pasta</span></div>
+        <div class="food-item"><div class="dot"></div><span>Soda & juice</span></div>
+        <div class="food-item"><div class="dot"></div><span>Processed snacks</span></div>
+        <div class="food-item"><div class="dot"></div><span>Fried foods</span></div>
+        <div class="food-item"><div class="dot"></div><span>Excess dairy</span></div>
+        <div class="food-item"><div class="dot"></div><span>Soy (processed)</span></div>
+        <div class="food-item"><div class="dot"></div><span>Seed oils</span></div>
+        <div class="food-item"><div class="dot"></div><span>Alcohol</span></div>
+        <div class="food-item"><div class="dot"></div><span>High-GI fruits</span></div>
+      </div>
+    </div>
+
+    <div class="cat cat-tips">
+      <div class="cat-header">Quick Tips</div>
+      <div class="cat-body">
+        <div class="food-item"><div class="dot"></div><span>Pair carbs with protein</span></div>
+        <div class="food-item"><div class="dot"></div><span>Eat veggies first</span></div>
+        <div class="food-item"><div class="dot"></div><span>Avoid skipping meals</span></div>
+        <div class="food-item"><div class="dot"></div><span>Prioritize fiber daily</span></div>
+        <div class="food-item"><div class="dot"></div><span>Limit added sugars</span></div>
+        <div class="food-item"><div class="dot"></div><span>Choose whole grains</span></div>
+        <div class="food-item"><div class="dot"></div><span>Stay hydrated</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">CarnivoreWeekly.com  |  For personal use only  |  Not medical advice -- consult your doctor</div>
+</div>
+
+</body>
+</html>
