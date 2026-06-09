@@ -33,7 +33,17 @@
       "Bash(bd create *)",
       "Bash(bd sync *)",
       "Bash(cp scripts/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push && git add scripts/hooks/pre-push && git commit --amend --no-edit 2>&1 | tail -3)",
-      "Bash(git log *)"
+      "Bash(git log *)",
+      "Bash(cat /Users/mbrew/Documents/Brew-Vault/07-Daily/2026/05/2026-05-26.md 2>/dev/null | head -5)",
+      "Bash(kill 84600 84598)",
+      "Bash(node -e ' *)",
+      "Bash(git pull *)",
+      "Bash(curl -s \"https://www.reddit.com/r/carnivore/top.json?t=week&limit=25\" -H \"User-Agent: research-bot/1.0\")",
+      "Bash(curl -sL 'https://www.reddit.com/r/__TRACKED_VAR__/top.json?t=week&limit=20' -H 'User-Agent: Mozilla/5.0 \\(research\\)')",
+      "Bash(curl -sL https://www.reddit.com/r/__TRACKED_VAR__/top/.rss?t=week -H 'User-Agent: Mozilla/5.0')",
+      "Bash(curl -sL 'https://www.reddit.com/r/__TRACKED_VAR__/top.json?t=week&limit=18' -H 'User-Agent: web:carnivore-weekly-research:v1.0 \\(by /u/research\\)')",
+      "Bash(curl -sL \"https://www.reddit.com/r/carnivore/top.json?t=week&limit=5\" -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\" -i)",
+      "Bash(git stash *)"
     ]
   },
   "disabledMcpjsonServers": [
