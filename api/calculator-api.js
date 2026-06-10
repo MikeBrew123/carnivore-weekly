@@ -37,7 +37,7 @@
  */
 
 // Version marker for deployment verification
-const DEPLOY_VERSION = "v2026-01-18-clean";
+const DEPLOY_VERSION = "v2026-06-07-resend-webhook";
 
 // ===== UTILITY FUNCTIONS =====
 
@@ -5543,6 +5543,11 @@ export default {
       return await handleStripeWebhook(request, env);
     }
 
+    // ===== RESEND WEBHOOK (email open/click tracking) =====
+    if (path === '/webhook/resend' && method === 'POST') {
+      return await handleResendWebhook(request, env);
+    }
+
     // 404
     return createErrorResponse('NOT_FOUND', 'Endpoint not found', 404);
   },
@@ -5604,4 +5609,61 @@ async function handleUnsubscribe(url, env) {
   </body></html>`, {
     status: 200, headers: { 'Content-Type': 'text/html' }
   });
+}
+
+// ===== RESEND WEBHOOK HANDLER =====
+// Receives email.opened, email.clicked, email.delivered, email.bounced events
+// Docs: https://resend.com/docs/dashboard/webhooks/introduction
+async function handleResendWebhook(request, env) {
+  try {
+    const body = await request.json();
+    const eventType = body.type; // email.delivered, email.opened, email.clicked, email.bounced
+    const data = body.data || {};
+
+    // Map Resend event types to our simple types
+    const typeMap = {
+      'email.sent': 'sent',
+      'email.delivered': 'delivered',
+      'email.opened': 'opened',
+      'email.clicked': 'clicked',
+      'email.bounced': 'bounced',
+      'email.complained': 'complained',
+    };
+    const simpleType = typeMap[eventType] || eventType;
+
+    const payload = {
+      email: (data.to && data.to[0]) || data.email || '',
+      resend_id: data.email_id || '',
+      event_type: simpleType,
+      subject: data.subject || '',
+      metadata: JSON.stringify({
+        click_url: data.click?.url || null,
+        user_agent: data.user_agent || null,
+        ip: data.ip || null,
+        timestamp: body.created_at || new Date().toISOString(),
+      }),
+    };
+
+    await fetch(`${env.SUPABASE_URL}/rest/v1/drip_events`, {
+      method: 'POST',
+      headers: {
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    console.error('Resend webhook error:', err);
+    return new Response(JSON.stringify({ error: 'webhook processing failed' }), {
+      status: 200, // Return 200 so Resend doesn't retry
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }

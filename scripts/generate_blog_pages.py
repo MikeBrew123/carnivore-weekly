@@ -425,6 +425,24 @@ def update_sitemap(posts):
                 url_data[candidate_url] = {"lastmod": lastmod, "changefreq": "monthly", "priority": "0.8"}
                 print(f"  ℹ️  Orphan blog post added to sitemap: {html_file.name}")
 
+    # Remove blog URLs whose on-disk files are redirect stubs
+    blog_urls_to_remove = []
+    for url in url_data:
+        if "/blog/" in url and url.endswith(".html"):
+            filename = url.split("/blog/")[-1]
+            filepath = PUBLIC_DIR / "blog" / filename
+            if filepath.exists():
+                try:
+                    snippet = filepath.read_text(encoding="utf-8", errors="ignore")[:2000]
+                    if 'http-equiv="refresh"' in snippet or "http-equiv='refresh'" in snippet:
+                        blog_urls_to_remove.append(url)
+                except Exception:
+                    pass
+    for url in blog_urls_to_remove:
+        del url_data[url]
+    if blog_urls_to_remove:
+        print(f"  ℹ️  Removed {len(blog_urls_to_remove)} redirect stubs from sitemap")
+
     # Create new sitemap XML with deduplicated URLs
     new_root = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
 

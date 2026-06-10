@@ -352,7 +352,7 @@ def validate_html_file(file_path: Path, results: ValidationResults):
         for script in scripts:
             results.stats['json_ld_blocks'] += 1
             try:
-                json.loads(script.string or '{}')
+                ld_data = json.loads(script.string or '{}')
             except json.JSONDecodeError as e:
                 line = get_line_number(content, 'application/ld+json')
                 results.add_warning(
@@ -360,6 +360,37 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                     f'Invalid JSON-LD: {str(e)}',
                     'Fix JSON syntax in structured data'
                 )
+                continue
+
+            # Check 9b: Product schema must have review/aggregateRating for rich results
+            schema_type = ld_data.get('@type', '')
+            if schema_type == 'Product':
+                has_rating = 'aggregateRating' in ld_data or 'review' in ld_data
+                if not has_rating:
+                    line = get_line_number(content, '"Product"')
+                    results.add_critical(
+                        rel_path, line,
+                        'Product schema missing aggregateRating/review — triggers GSC errors',
+                        'Add real aggregateRating or remove Product schema'
+                    )
+                offers = ld_data.get('offers', {})
+                if isinstance(offers, dict):
+                    offers = [offers]
+                for offer in offers:
+                    if 'shippingDetails' in offer:
+                        line = get_line_number(content, 'shippingDetails')
+                        results.add_critical(
+                            rel_path, line,
+                            'Product schema has shippingDetails — triggers Merchant Listing validation in GSC',
+                            'Remove shippingDetails for digital products'
+                        )
+                    if 'hasMerchantReturnPolicy' in offer:
+                        line = get_line_number(content, 'hasMerchantReturnPolicy')
+                        results.add_critical(
+                            rel_path, line,
+                            'Product schema has hasMerchantReturnPolicy — triggers Merchant Listing validation in GSC',
+                            'Remove hasMerchantReturnPolicy for digital products'
+                        )
 
         # Check 14: JSON-LD missing on full pages (WARNING)
         if soup.find('html'):
@@ -823,11 +854,15 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
                 pass
 
     # Gate 8: No blog HTML files without date prefix (orphan detection)
+    # Skip redirect stubs (meta-refresh pages under ~500 bytes)
     if blog_dir.exists():
         for bf in blog_dir.glob('*.html'):
             if bf.name in ('index.html', 'wiki.html'):
                 continue
             if not re.match(r'^\d{4}-\d{2}-\d{2}-', bf.name):
+                content = bf.read_text(errors='ignore')
+                if 'http-equiv="refresh"' in content:
+                    continue
                 results.add_warning(
                     f'public/blog/{bf.name}', 1,
                     f'No date prefix — possible orphan from broken pipeline',
