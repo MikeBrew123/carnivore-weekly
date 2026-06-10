@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-06-07",
+  "last_updated": "2026-06-10",
   "leaderboard": [
     {
       "name": "HomeSteadHow",
       "rank": 1,
-      "appearances": 8,
+      "appearances": 9,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
       "name": "Laura Spath",
       "rank": 2,
-      "appearances": 1,
+      "appearances": 2,
       "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
     },
     {
-      "name": "Roseland Lashay",
+      "name": "FaceIQ",
       "rank": 3,
       "appearances": 1,
+      "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
+    },
+    {
+      "name": "Jenny Mitich",
+      "rank": 4,
+      "appearances": 1,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+    },
+    {
+      "name": "Low Carb Love",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCFVmPjPhx-XT6-ZVa9Tkuuw"
+    },
+    {
+      "name": "Bart Kay - Health Science",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
+    },
+    {
+      "name": "Roseland Lashay",
+      "rank": 7,
+      "appearances": 2,
       "channel_id": "UCqw2wJ4Ho9tvCQJ1cQ6-sMw"
     },
     {
-      "name": "Maria Emmerich",
-      "rank": 4,
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 8,
       "appearances": 1,
-      "channel_id": "UCyZia0TtezGqjGcXwXJhDoQ"
-    },
-    {
-      "name": "James Li",
-      "rank": 5,
-      "appearances": 1,
-      "channel_id": "UCV9Q7hKsPHf82RfoXWBK5uQ"
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
       "name": "TheSteakLad",
-      "rank": 6,
-      "appearances": 1,
+      "rank": 9,
+      "appearances": 2,
       "channel_id": "UCZ9uA3rRyPBUxRK9MJzsF9A"
     },
     {
-      "name": "Emmathecarnivore",
-      "rank": 7,
-      "appearances": 3,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
-    },
-    {
-      "name": "Kent Carnivore",
-      "rank": 8,
-      "appearances": 3,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
-    },
-    {
-      "name": "Chris Cooking Nashville",
-      "rank": 9,
-      "appearances": 1,
-      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
-    },
-    {
-      "name": "StevenSteph",
+      "name": "James Li",
       "rank": 10,
-      "appearances": 1,
-      "channel_id": "UC9HogCphFdf-Ykerc1Wsl_g"
+      "appearances": 2,
+      "channel_id": "UCV9Q7hKsPHf82RfoXWBK5uQ"
     }
   ]
 }
