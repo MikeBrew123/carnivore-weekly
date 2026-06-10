@@ -30,9 +30,9 @@ def is_redirect_stub(filepath):
     """
     try:
         p = Path(filepath)
-        if p.stat().st_size < 500:
-            content = p.read_text(encoding='utf-8', errors='ignore')[:100]
-            if 'meta http-equiv="refresh"' in content:
+        if p.stat().st_size < 1000:
+            content = p.read_text(encoding='utf-8', errors='ignore')[:500]
+            if 'http-equiv="refresh"' in content or "http-equiv='refresh'" in content:
                 return True
     except (OSError, IOError):
         pass
