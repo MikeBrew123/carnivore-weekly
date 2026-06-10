@@ -238,11 +238,15 @@ Prevention: Pre-commit validator exempts redirect stubs. `redirects.json` tracks
 
 ---
 
-## ISSUE-022 — 68% of site not indexed by Google
-🔴 OPEN — Last: 2026-06-10
+## ISSUE-022 — 68% of site not indexed by Google (date clustering)
+🟡 RECURRING — Last: 2026-06-10
 
-Pattern: GSC shows 26 crawled-not-indexed pages. Root cause: 19 posts shared datePublished 2026-02-08 — content farming signal.
+Pattern: 19 posts batch-dated to 2026-02-08 triggered Google's content farming detection. This is the SECOND time batch-dating caused GSC problems — ISSUE-021 was also caused by the same batch rename. The root mistake: renaming many post dates to the same value in a single operation.
 Attempts:
 - 2026-06-10 — Resubmitted sitemap. Identified date clustering via API audit.
-- 2026-06-10 — Redistributed 9 not-indexed 02-08 posts to Jan 10-27 (every 2 days). Renamed files, updated JSON-LD datePublished, blog_posts.json, sitemap. Created redirects from old URLs. Fixed 6 redirect chains. Added redirect-stub cleanup to sitemap generator.
-If recurs: Check new dates indexed within 2-4 weeks. If still rejected, investigate per-page quality signals.
+- 2026-06-10 — Redistributed 9 not-indexed 02-08 posts to Jan 10-27 (every 2 days). Renamed files, updated JSON-LD datePublished, blog_posts.json, sitemap. Created redirects from old URLs. Fixed 6 redirect chains. Added redirect-stub cleanup to sitemap generator. Resubmitted sitemap to GSC. Google Indexing API can't request indexing for regular pages (only JobPosting/BroadcastEvent). Must wait for natural recrawl.
+Prevention:
+- NEVER batch-rename blog post dates to the same value. Max 2 posts per date.
+- NEVER rename a published post's slug/date without creating a redirect from the old URL.
+- Added to CLAUDE.md Lessons Learned to prevent recurrence.
+If recurs: Check indexing status in 2-4 weeks via `scripts/gsc_404_check.py`. If still rejected, investigate per-page quality signals.

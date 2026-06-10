@@ -318,15 +318,21 @@ Manual edits allowed when instructed, but:
 8. Always run post-flight Supabase sync (`scripts/sync_blog_posts_to_supabase.py`).
 9. The `autonomous_blog_generation.sh` script blocks on stdin — it cannot run unattended. Use `weekly_content_prompt.md` instead.
 
+### SEO / Slug / Date Rules (burned us twice — ISSUE-021, ISSUE-022)
+10. **NEVER batch-rename blog post dates to the same value.** Max 2 posts sharing any single datePublished. Google treats date clustering as a content farming signal and refuses to index.
+11. **NEVER rename a published post's slug or date without creating a redirect** from the old URL to the new one (in `data/redirects.json` + a meta-refresh HTML stub). Google has already crawled the old URL — renaming without redirects creates 404s in GSC.
+12. **NEVER chain redirects.** If post A redirects to B and B's URL changes to C, update A to point directly to C. The sitemap generator strips redirect stubs automatically, but `redirects.json` entries pointing to old URLs must be manually updated.
+13. **Google Indexing API only works for JobPosting/BroadcastEvent schema.** For regular blog pages, resubmit the sitemap and wait for natural recrawl. There is no programmatic "request indexing" for normal pages.
+
 ### Code
-10. Always use absolute paths in Python scripts.
-11. Don't touch `content_validator.py` double-slash regex (fixed with `[^:]` before `//`).
+14. Always use absolute paths in Python scripts.
+15. Don't touch `content_validator.py` double-slash regex (fixed with `[^:]` before `//`).
 
 ### Validation
-12. Pre-commit validator must check link targets exist on disk, not just non-empty hrefs.
-13. Affiliate links must use https:// (mixed content triggers browser warnings).
-14. New validators: always run against full codebase, not just new files.
-15. Health checks must cover blog-to-blog cross-links.
+16. Pre-commit validator must check link targets exist on disk, not just non-empty hrefs.
+17. Affiliate links must use https:// (mixed content triggers browser warnings).
+18. New validators: always run against full codebase, not just new files.
+19. Health checks must cover blog-to-blog cross-links.
 
 ---
 
