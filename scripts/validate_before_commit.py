@@ -694,14 +694,14 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
         return True
 
     def is_redirect_stub(path):
-        """Check if file is a meta-refresh redirect stub (under 500 bytes).
+        """Check if file is a meta-refresh redirect stub (under 1000 bytes).
         # NOTE: Redirect stubs are excluded here. If you add new redirects to
         # data/redirects.json, they are automatically excluded by this size/content check.
         """
         try:
-            if path.stat().st_size < 500:
-                content = path.read_text(encoding='utf-8', errors='ignore')[:100]
-                if 'meta http-equiv="refresh"' in content:
+            if path.stat().st_size < 1000:
+                content = path.read_text(encoding='utf-8', errors='ignore')[:500]
+                if 'http-equiv="refresh"' in content or "http-equiv='refresh'" in content:
                     return True
         except (OSError, IOError):
             pass
@@ -764,10 +764,8 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
         for bf in blog_dir.glob('*.html'):
             if bf.name == 'index.html':
                 continue
-            # Skip redirect stubs (tiny files under 500 bytes)
-            # NOTE: Redirect stubs are excluded here. If you add new redirects to
-            # data/redirects.json, they are automatically excluded by this size/content check.
-            if bf.stat().st_size < 500:
+            # Skip redirect stubs (tiny files under 1000 bytes with meta refresh)
+            if bf.stat().st_size < 1000 and 'http-equiv="refresh"' in bf.read_text(encoding='utf-8', errors='ignore')[:500]:
                 continue
             first_line = bf.read_text(encoding='utf-8', errors='ignore')[:30].strip().lower()
             if not first_line.startswith(('<!doctype', '<html')):
