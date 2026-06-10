@@ -43,7 +43,8 @@
       "Bash(curl -sL https://www.reddit.com/r/__TRACKED_VAR__/top/.rss?t=week -H 'User-Agent: Mozilla/5.0')",
       "Bash(curl -sL 'https://www.reddit.com/r/__TRACKED_VAR__/top.json?t=week&limit=18' -H 'User-Agent: web:carnivore-weekly-research:v1.0 \\(by /u/research\\)')",
       "Bash(curl -sL \"https://www.reddit.com/r/carnivore/top.json?t=week&limit=5\" -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36\" -i)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(git checkout *)"
     ]
   },
   "disabledMcpjsonServers": [

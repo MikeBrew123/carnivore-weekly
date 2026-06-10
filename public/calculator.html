@@ -918,49 +918,9 @@
     }
     </script>
 
-    <!-- Schema Markup: Product (Full Carnivore Playbook) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": "Full Carnivore Playbook",
-      "description": "Personalized 30-day meal plan, doctor conversation guide, and week-by-week adaptation protocol matched to your exact macro targets.",
-      "image": "https://carnivoreweekly.com/images/calculator-promo-banner.png",
-      "brand": { "@type": "Brand", "name": "Carnivore Weekly" },
-      "offers": {
-        "@type": "Offer",
-        "price": "29.00",
-        "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock",
-        "url": "https://carnivoreweekly.com/calculator.html",
-        "shippingDetails": {
-          "@type": "OfferShippingDetails",
-          "shippingRate": {
-            "@type": "MonetaryAmount",
-            "value": "0",
-            "currency": "USD"
-          },
-          "shippingDestination": {
-            "@type": "DefinedRegion",
-            "addressCountry": "US"
-          },
-          "deliveryTime": {
-            "@type": "ShippingDeliveryTime",
-            "handlingTime": { "@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "d" },
-            "transitTime": { "@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "d" }
-          }
-        },
-        "hasMerchantReturnPolicy": {
-          "@type": "MerchantReturnPolicy",
-          "applicableCountry": "US",
-          "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-          "merchantReturnDays": 30,
-          "returnMethod": "https://schema.org/ReturnByMail",
-          "returnFees": "https://schema.org/FreeReturn"
-        }
-      }
-    }
-    </script>
+    <!-- Playbook product: no Product schema until we have real aggregateRating data.
+         WebApplication schema (Block 1) covers the free calculator. Re-add Product
+         when Stripe review count >= 5 and we can populate aggregateRating honestly. -->
 </head>
 <body>
     <a href="#main-content" class="skip-nav" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;">Skip to main content</a>

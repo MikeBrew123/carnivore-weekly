@@ -186,18 +186,51 @@ Manual edits allowed when instructed, but:
 
 ---
 
-## Email & Newsletter
+## Email & Newsletter — All In-House via Resend
 
-- **Platform:** Beehiiv (free Launch plan, 2,500 sub limit)
-- **Dashboard:** https://app.beehiiv.com/
-- **Sending from:** carnivoreweekly@mail.beehiiv.com (Reply-to: iambrew@gmail.com)
-- **Signup endpoint:** `/api/v1/subscribe` → Beehiiv API (Cloudflare Worker)
-- **Subscriber API:** `scripts/beehiiv_client.py`
-- **Publishing:** `scripts/publish_to_beehiiv.py --copy` → paste into Beehiiv editor
-- **Welcome email:** Enabled (auto-sends on signup)
-- **Drip automation:** Not on free plan. Build in N8N if needed later.
-- **MailerLite:** DEPRECATED (2026-05-26). Do not use. Had 12.5% open rate due to shared IPs.
-- **Resend/SES:** Still used for internal transactional emails only, NOT subscriber newsletters.
+**Beehiiv:** DEPRECATED. Do not use. All email is in-house now.
+**MailerLite:** DEPRECATED (2026-05-26). Do not use.
+
+### Sending Infrastructure
+- **Platform:** Resend (all email — drip, newsletter, transactional)
+- **Domain:** `carnivoreweekly.com` (verified, DKIM/SPF/DMARC live)
+- **From addresses:**
+  - CW newsletter: `newsletter@carnivoreweekly.com`
+  - KD newsletter: `ketodial@carnivoreweekly.com`
+  - KD coach: `coach@carnivoreweekly.com`
+- **Reply-to:** `iambrew@gmail.com`
+- **API key:** `secrets/api-keys.json` → `resend.key`
+
+### Drip Sequence (7-Day Carnivore Starter)
+- **Script:** `scripts/send_drip.py` — runs daily via `daily-publish.yml` GitHub Action
+- **Templates:** `data/drip-emails/day-1.html` through `day-7.html`
+- **Subscribers table:** `drip_subscribers` (Supabase) — tracks `current_day`, `last_sent_at`, `completed`
+- **Flow:** signup → Supabase insert → daily cron bumps day + sends next email → after Day 7 graduates to `newsletter_subscribers`
+- **Unsubscribe:** `/api/v1/unsubscribe` on Cloudflare Worker
+
+### Newsletter (Weekly)
+- **Generate:** `scripts/generate_newsletter.py` → `newsletters/{date}.html`
+- **Content:** `data/newsletter_content.json` (subject line, sections by writer)
+- **Send:** `scripts/send_newsletter.py --site cw` (or `--site kd`)
+- **Subscribers table:** `newsletter_subscribers` (Supabase) — `site` field = `cw` or `kd`
+- **KetoDial:** `scripts/send_newsletter.py --site kd`
+
+### Open/Click Tracking
+- **Webhook:** Resend → `https://carnivore-report-api.iambrew.workers.dev/webhook/resend`
+- **Events tracked:** sent, delivered, opened, clicked, bounced, complained
+- **Storage:** `drip_events` table (Supabase) — `email`, `resend_id`, `event_type`, `subject`, `metadata`
+- **Signing secret:** `secrets/api-keys.json` → `resend.webhook_signing_secret`
+- **Query opens:** `SELECT * FROM drip_events WHERE event_type = 'opened' ORDER BY created_at DESC`
+
+### Signup Endpoint
+- **Route:** `/api/v1/subscribe` on Cloudflare Worker → inserts to `drip_subscribers` (Supabase)
+- **Also:** `/api/v1/subscribe/newsletter` → inserts to `newsletter_subscribers`
+
+### NEVER
+- Use Beehiiv for anything (deprecated)
+- Use MailerLite for anything (deprecated)
+- Rich-text paste into any email editor (strips styling)
+- Send newsletters without `--test` first
 
 ---
 

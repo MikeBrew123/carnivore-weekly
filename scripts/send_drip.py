@@ -31,6 +31,7 @@ DRIP_DIR = PROJECT_ROOT / "data" / "drip-emails"
 FROM_EMAIL = "Carnivore Weekly <newsletter@carnivoreweekly.com>"
 REPLY_TO = "iambrew@gmail.com"
 TEST_EMAIL = "iambrew@gmail.com"
+WEBHOOK_URL = os.environ.get("RESEND_WEBHOOK_URL", "")
 
 
 def load_secrets():
@@ -100,31 +101,90 @@ def load_drip_email(day):
     return subject, html
 
 
-def send_email(resend_key, to, subject, html):
+def send_email(resend_key, to, subject, html, tags=None):
+    payload = {
+        "from": FROM_EMAIL,
+        "to": [to],
+        "reply_to": REPLY_TO,
+        "subject": subject,
+        "html": html,
+        "headers": {
+            "X-Entity-Ref-ID": f"drip-{to}-{subject[:30]}",
+        },
+    }
+    if tags:
+        payload["tags"] = tags
     resp = requests.post(
         "https://api.resend.com/emails",
         headers={
             "Authorization": f"Bearer {resend_key}",
             "Content-Type": "application/json",
         },
-        json={
-            "from": FROM_EMAIL,
-            "to": [to],
-            "reply_to": REPLY_TO,
-            "subject": subject,
-            "html": html,
-        },
+        json=payload,
     )
-    return resp.status_code == 200, resp.json() if resp.status_code == 200 else resp.text
+    result = resp.json() if resp.status_code == 200 else resp.text
+    if resp.status_code == 200:
+        email_id = result.get("id", "")
+        log_drip_event(secrets_cache, to, subject, email_id, tags)
+    return resp.status_code == 200, result
+
+
+# Global ref for secrets inside send_email logging
+secrets_cache = None
+
+
+def log_drip_event(secrets, to, subject, email_id, tags):
+    """Log each send to drip_events table for open/click tracking."""
+    if not secrets:
+        return
+    try:
+        supabase_insert(secrets, "drip_events", {
+            "email": to,
+            "resend_id": email_id,
+            "event_type": "sent",
+            "subject": subject,
+            "tags": json.dumps(tags) if tags else None,
+        })
+    except Exception:
+        pass  # Non-critical, don't break sends
+
+
+MAX_SENDS_PER_RUN = 20  # Hard cap — if more than this, something is wrong
+
+
+def already_sent_today(secrets, email):
+    """Check if this email already received a drip today. Prevents duplicates."""
+    sb = secrets["supabase"]
+    key = sb["service_role_key"]
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    try:
+        resp = requests.get(
+            f"{sb['url']}/rest/v1/drip_subscribers",
+            headers={"apikey": key, "Authorization": f"Bearer {key}"},
+            params={
+                "select": "last_sent_at",
+                "email": f"eq.{email}",
+            },
+        )
+        if resp.status_code == 200 and resp.json():
+            last = resp.json()[0].get("last_sent_at", "")
+            if last and last[:10] == today:
+                return True
+    except Exception:
+        pass  # Fail open — better to risk a send than silently skip
+    return False
 
 
 def main():
     parser = argparse.ArgumentParser(description="Send daily drip emails")
     parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--test", action="store_true", help="Send day 1 to test email")
+    parser.add_argument("--test", action="store_true",
+                        help="Dry-run Day 1 to test email (prints what WOULD send, never actually sends)")
     args = parser.parse_args()
 
     secrets = load_secrets()
+    global secrets_cache
+    secrets_cache = secrets
     resend_key = secrets["resend"]["key"]
 
     if args.test:
@@ -132,8 +192,9 @@ def main():
         if not html:
             print("Error: day-1.html not found")
             sys.exit(1)
-        ok, detail = send_email(resend_key, TEST_EMAIL, subject, html)
-        print(f"{'✅' if ok else '❌'} Test → {TEST_EMAIL}: {subject}")
+        print(f"🧪 TEST MODE — would send to {TEST_EMAIL}: {subject}")
+        print(f"   HTML size: {len(html):,} bytes")
+        print(f"   ⚠️  No email sent. Use normal run to send.")
         return
 
     pending = supabase_query(secrets, "drip_subscribers", {
@@ -146,10 +207,19 @@ def main():
         print("No pending drip subscribers")
         return
 
+    if len(pending) > MAX_SENDS_PER_RUN:
+        print(f"🚨 SAFETY STOP: {len(pending)} subscribers exceeds cap of {MAX_SENDS_PER_RUN}.")
+        print("   This is unexpected. Check for bad data before proceeding.")
+        print("   Override with MAX_SENDS_PER_RUN env var if intentional.")
+        cap = int(os.environ.get("MAX_SENDS_PER_RUN", MAX_SENDS_PER_RUN))
+        if len(pending) > cap:
+            sys.exit(1)
+
     print(f"Found {len(pending)} pending subscriber(s)\n")
     now = datetime.now(timezone.utc).isoformat()
 
     sent = 0
+    skipped_dup = 0
     graduated = 0
     for sub in pending:
         next_day = sub["current_day"] + 1
@@ -176,7 +246,17 @@ def main():
             print(f"  Would send day {next_day} to {sub['email']}: {subject}")
             continue
 
-        ok, detail = send_email(resend_key, sub["email"], subject, html)
+        # Dedup: skip if already sent today (prevents double-sends from re-runs)
+        if already_sent_today(secrets, sub["email"]):
+            skipped_dup += 1
+            print(f"  ⏭️  {sub['email']} — already sent today, skipping")
+            continue
+
+        tags = [
+            {"name": "drip_day", "value": str(next_day)},
+            {"name": "sequence", "value": "7day-starter"},
+        ]
+        ok, detail = send_email(resend_key, sub["email"], subject, html, tags=tags)
         if ok:
             supabase_update(secrets, "drip_subscribers", sub["id"], {
                 "current_day": next_day,
@@ -187,7 +267,10 @@ def main():
         else:
             print(f"  ❌ Day {next_day} → {sub['email']}: {str(detail)[:80]}")
 
-    print(f"\nDone: {sent} sent, {graduated} graduated to weekly")
+    summary = f"\nDone: {sent} sent, {graduated} graduated to weekly"
+    if skipped_dup:
+        summary += f", {skipped_dup} skipped (already sent today)"
+    print(summary)
 
 
 if __name__ == "__main__":

@@ -170,3 +170,79 @@ Pattern: `send_drip.py` in daily-publish.yml gets 401 from Supabase because GitH
 Attempts:
 - 2026-06-05 — Updated GitHub secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to KetoDial project `kwtdpvnjewtahuxjyltn`. Manual workflow run confirmed Day 1 sent to real subscriber.
 If recurs: Check if Supabase keys were rotated or project changed again. Also verify RESEND_API_KEY is still valid.
+
+---
+
+## ISSUE-016 — Drip emails contain broken blog post links
+🟢 FIXED — Last: 2026-06-07
+
+Pattern: 4 of 7 drip email templates linked to blog post slugs that never existed or were renamed. Links were written once and never validated against actual `public/blog/` files.
+Attempts:
+- 2026-06-07 — Audited all 7 drip templates. Fixed 4 broken links:
+  - Day 1: `beginners-complete-blueprint-30-days-carnivore.html` → `2026-01-02-beginners-blueprint.html`
+  - Day 3: `2025-12-26-seven-dollar-survival-guide.html` → `2026-04-19-carnivore-five-dollars-day-protein-cost-analysis.html`
+  - Day 5: `real-2-week-results-carnivore.html` → `2026-01-15-two-week-results-reddit.html`
+  - Day 7: was fine (HTML-encoded `&amp;` not a real break)
+If recurs: Run link audit before any drip template edit: `grep -oP 'href="https?://carnivoreweekly\.com(/[^"&]+)' data/drip-emails/*.html` and verify each path exists in `public/`.
+
+---
+
+## ISSUE-017 — No email open/click tracking on drip or newsletter
+🟢 FIXED — Last: 2026-06-07
+
+Pattern: Resend sends emails but no webhook was configured. Opens, clicks, bounces were invisible. Sending blind since drip launched.
+Attempts:
+- 2026-06-07 — Created `drip_events` table in Supabase. Added `/webhook/resend` endpoint to Cloudflare Worker (`calculator-api.js`). Registered webhook with Resend API (all events: sent, delivered, opened, clicked, bounced, complained). Added tags (`drip_day`, `sequence`) to `send_drip.py`. Deployed worker (v2026-06-07-resend-webhook). End-to-end verified: test email → sent + delivered events logged in Supabase.
+If recurs: Check webhook still registered: `GET https://api.resend.com/webhooks` with Bearer token. Check worker is deployed: `curl .../version`. Check `drip_events` table exists.
+
+---
+
+## ISSUE-018 — CLAUDE.md email section outdated (referenced Beehiiv)
+🟢 FIXED — Last: 2026-06-07
+
+Pattern: Email & Newsletter section in CLAUDE.md still described Beehiiv as the platform, referenced `beehiiv_client.py` and `publish_to_beehiiv.py`. All email moved to Resend in-house but CLAUDE.md was never updated. Caused confusion across sessions.
+Attempts:
+- 2026-06-07 — Rewrote entire Email & Newsletter section. Documents: Resend as sole platform, drip sequence flow, newsletter send flow, open/click tracking via webhook, signup endpoints, Supabase tables. Marked Beehiiv and MailerLite as DEPRECATED.
+
+---
+
+## ISSUE-019 — GSC Merchant Listings structured data errors
+🟢 FIXED — Last: 2026-06-10
+
+Pattern: calculator.html had a Product schema with `shippingDetails` and `hasMerchantReturnPolicy` — physical goods fields on a digital product. Triggered Merchant Listing validation in GSC which requires GTIN/MPN and Google Merchant Center feed we don't have.
+Root cause: Product schema was manually added to calculator.html with copy-pasted shipping/return fields from a physical product example. No template or generator involved, so no downstream risk.
+Attempts:
+- 2026-06-10 — Removed entire Product schema block from calculator.html. Digital product has no real aggregateRating data, so Product schema provides no rich result value. WebApplication schema (already present) covers the free calculator. Added schema validation to `validate_before_commit.py` — now flags Product schemas missing aggregateRating and Product schemas with shippingDetails/hasMerchantReturnPolicy as CRITICAL.
+Prevention: Pre-commit validator now blocks Product schemas with Merchant Listing fields. Re-add Product schema only when Stripe review count >= 5.
+
+---
+
+## ISSUE-020 — GSC Product Snippets structured data errors
+🟢 FIXED — Last: 2026-06-10
+
+Pattern: Same Product schema on calculator.html was missing `aggregateRating` and `review` fields, required by Google for Product Snippet rich results.
+Root cause: Same as ISSUE-019 — manually added Product schema without required fields.
+Attempts:
+- 2026-06-10 — Fixed alongside ISSUE-019 by removing the Product schema entirely. Pre-commit now blocks Product schemas without review data.
+Prevention: Same validator gate as ISSUE-019.
+
+---
+
+## ISSUE-021 — GSC 404 errors from renamed/deleted blog posts
+🟢 FIXED — Last: 2026-06-10
+
+Pattern: 10 real 404s found via GSC URL Inspection API on pages with actual search impressions. Root cause: a batch of Feb 2026 posts had their dates changed to 2026-02-08 (from 02-10, 02-12, 02-13, etc.), creating dead URLs Google had already indexed. Two deleted posts (`acne-purge`, `carnivore-didnt-fix-everything-content`) and one no-date slug also 404ing. Initial sitemap-only scan found 0 errors — the 404s only surfaced when scanning pages with Google impressions via search analytics API.
+Attempts:
+- 2026-06-10 — First scan (sitemap URLs only): found 0 actual 404s, misdiagnosed as indexing-only issue. Second scan (search analytics pages with impressions): found 10 real 404s. Created meta-refresh redirects for all 10: 7 date-renamed posts → correct 02-08 URLs, 1 no-date slug → dated version, 2 deleted posts → /blog/. Also created 14 preventive redirects for old slug patterns. Fixed broken `/calculator/` link in 404.html. Updated `redirects.json` with all 27 mappings. Resubmitted sitemap to GSC.
+Prevention: Pre-commit validator exempts redirect stubs. `redirects.json` tracks all mappings. **Key lesson:** always scan pages with impressions (search analytics API), not just sitemap URLs — the 404s are URLs Google crawled BEFORE they were renamed/deleted, and those old URLs aren't in the current sitemap.
+
+---
+
+## ISSUE-022 — 68% of site not indexed by Google
+🔴 OPEN — Last: 2026-06-10
+
+Pattern: GSC shows 26 crawled-not-indexed pages. Root cause: 19 posts shared datePublished 2026-02-08 — content farming signal.
+Attempts:
+- 2026-06-10 — Resubmitted sitemap. Identified date clustering via API audit.
+- 2026-06-10 — Redistributed 9 not-indexed 02-08 posts to Jan 10-27 (every 2 days). Renamed files, updated JSON-LD datePublished, blog_posts.json, sitemap. Created redirects from old URLs. Fixed 6 redirect chains. Added redirect-stub cleanup to sitemap generator.
+If recurs: Check new dates indexed within 2-4 weeks. If still rejected, investigate per-page quality signals.
