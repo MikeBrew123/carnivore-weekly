@@ -34,9 +34,9 @@ def _is_redirect_stub(filepath):
     # data/redirects.json, they are automatically excluded by this size/content check.
     """
     try:
-        if filepath.stat().st_size < 500:
-            content = filepath.read_text(encoding="utf-8", errors="ignore")[:100]
-            if 'meta http-equiv="refresh"' in content:
+        if filepath.stat().st_size < 1000:
+            content = filepath.read_text(encoding="utf-8", errors="ignore")[:500]
+            if 'http-equiv="refresh"' in content or "http-equiv='refresh'" in content:
                 return True
     except (OSError, IOError):
         pass
