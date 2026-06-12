@@ -71,7 +71,7 @@ jobs:
               f.write(f"latest={latest}\n")
               f.write(f"days_old={days}\n")
               f.write(f"ready={ready}\n")
-              f.write(f"stale={'true' if days > 7 else 'false'}\n")
+              f.write(f"stale={'true' if days > 5 else 'false'}\n")
           PYEOF
           cat github_output.txt >> $GITHUB_OUTPUT
 
