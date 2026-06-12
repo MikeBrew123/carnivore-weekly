@@ -59,9 +59,9 @@ jobs:
         continue-on-error: true
         run: python3 scripts/generate_commentary.py
 
-      - name: "Step 3.6: Render blog pages"
+      - name: "Step 3.6: Render CW blog pages"
         continue-on-error: true
-        run: python3 scripts/generate_blog_pages.py
+        run: python3 scripts/generate_blog_pages.py --site cw
 
       - name: "Step 4: Generate Q&A"
         continue-on-error: true
@@ -77,8 +77,8 @@ jobs:
 
       # ── SITE GENERATION (fatal — build failures stop the pipeline) ──
 
-      - name: "Step 5: Generate all site pages"
-        run: python3 scripts/generate.py --type all
+      - name: "Step 5: Generate CW site pages"
+        run: python3 scripts/generate.py --type all --site cw
 
       # ── REPORTS (non-fatal) ──
 

@@ -45,12 +45,13 @@ class ContentPipeline:
     Orchestrates the full content generation pipeline
     """
 
-    def __init__(self, batch_size=5, skip_research=False, skip_commit=False, dry_run=False, auto=False):
+    def __init__(self, batch_size=5, skip_research=False, skip_commit=False, dry_run=False, auto=False, site="cw"):
         self.batch_size = batch_size
         self.skip_research = skip_research
         self.skip_commit = skip_commit
         self.dry_run = dry_run
-        self.auto = auto  # skip all input() prompts, assume "yes"
+        self.auto = auto
+        self.site = site
         self.queue_file = PROJECT_ROOT / "blog_topics_queue.json"
         self.session_log = []
 
@@ -462,8 +463,9 @@ WAIT FOR ALL WRITERS TO COMPLETE before proceeding to Phase 4.
         """
         Execute the full pipeline
         """
+        site_label = {"cw": "CARNIVORE WEEKLY", "kd": "KETODIAL"}.get(self.site, self.site.upper())
         self.log("=" * 80)
-        self.log("CARNIVORE WEEKLY - AUTONOMOUS CONTENT GENERATION", "START")
+        self.log(f"{site_label} - AUTONOMOUS CONTENT GENERATION", "START")
         self.log(f"Batch size: {self.batch_size}")
         self.log(f"Mode: {'DRY RUN' if self.dry_run else 'PRODUCTION'}")
         self.log("=" * 80)
@@ -523,6 +525,8 @@ Examples:
                         help="Show what would happen without executing")
     parser.add_argument("--auto", action="store_true",
                         help="Non-interactive mode: skip all yes/no prompts (for scheduled runs)")
+    parser.add_argument("--site", choices=["cw", "kd"], default="cw",
+                        help="Which site to generate content for (default: cw)")
 
     args = parser.parse_args()
 
@@ -531,7 +535,8 @@ Examples:
         skip_research=args.skip_research,
         skip_commit=args.skip_commit,
         dry_run=args.dry_run,
-        auto=args.auto
+        auto=args.auto,
+        site=args.site
     )
 
     success = pipeline.run()

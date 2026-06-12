@@ -38,14 +38,14 @@ echo ""
 echo "🔧 Step 4/4: Building site..."
 
 python3 scripts/extract_wiki_keywords.py
-python3 scripts/generate_blog_pages.py
+python3 scripts/generate_blog_pages.py --site cw
 python3 scripts/sync_blog_posts_to_supabase.py || echo "⚠️  Supabase sync failed (non-fatal)"
 
-python3 scripts/generate.py --type pages
-python3 scripts/generate.py --type archive
-python3 scripts/generate.py --type channels
-python3 scripts/generate.py --type wiki
-python3 scripts/generate.py --type newsletter
+python3 scripts/generate.py --type pages --site cw
+python3 scripts/generate.py --type archive --site cw
+python3 scripts/generate.py --type channels --site cw
+python3 scripts/generate.py --type wiki --site cw
+python3 scripts/generate.py --type newsletter --site cw
 
 # Copy to root for GitHub Pages
 cp public/index.html index.html

@@ -68,11 +68,12 @@ except ImportError:
 class UnifiedGenerator:
     """Unified generation system for all content types"""
 
-    def __init__(self, config_path: str = "config/project.json"):
+    def __init__(self, config_path: str = "config/project.json", site: str = "cw"):
         """Initialize generator with configuration"""
         self.config_path = Path(config_path)
         self.config = self._load_config()
         self.project_root = Path(self.config["paths"]["project_root"])
+        self.site = site
         self.data_cache = {}
         self._setup_jinja()
         self._setup_supabase()
@@ -173,8 +174,9 @@ class UnifiedGenerator:
             return []
 
     def _fetch_blog_posts_from_db(self) -> Dict:
-        """Fetch blog posts from Supabase and format for templates"""
-        posts = self._fetch_from_supabase("blog_posts", limit=50)
+        """Fetch blog posts from Supabase and format for templates, filtered by site"""
+        posts = [p for p in self._fetch_from_supabase("blog_posts", limit=50)
+                 if p.get("site", "cw") == self.site]
         writers_list = self._fetch_from_supabase("writers", limit=100)
 
         # Create writer map
@@ -939,7 +941,8 @@ class UnifiedGenerator:
                 if blog_posts_path.exists():
                     blog_data = json.loads(blog_posts_path.read_text())
                     all_posts = blog_data.get("blog_posts", [])
-                    published_posts = [p for p in all_posts if p.get("published", False)]
+                    published_posts = [p for p in all_posts if p.get("published", False)
+                                       and p.get("site", "cw") == self.site]
 
                     # Use scheduled_date (actual publish date) if available, else fall back to date
                     def pub_date(p):
@@ -1775,15 +1778,28 @@ def main():
     parser.add_argument(
         "--config", default="config/project.json", help="Path to project configuration file"
     )
+    parser.add_argument(
+        "--site", choices=["cw", "kd"], default="cw",
+        help="Which site to generate for (default: cw)"
+    )
 
     args = parser.parse_args()
 
+    site_label = {"cw": "CARNIVORE WEEKLY", "kd": "KETODIAL"}[args.site]
+
+    # KD does not have its own static site yet. All page templates and output
+    # paths are CW-specific. Refuse to generate to prevent overwriting CW files.
+    if args.site != "cw":
+        print(f"\n🛑 SAFETY: generate.py only supports --site cw (got {args.site}).")
+        print(f"   KD content lives in blog_posts.json + Supabase only.")
+        sys.exit(1)
+
     print("\n" + "=" * 70)
-    print("🎨 CARNIVORE WEEKLY UNIFIED GENERATOR")
+    print(f"🎨 {site_label} UNIFIED GENERATOR")
     print("=" * 70)
 
     # Run generator
-    generator = UnifiedGenerator(args.config)
+    generator = UnifiedGenerator(args.config, site=args.site)
     success = generator.generate(args.type)
 
     print("\n" + "=" * 70)

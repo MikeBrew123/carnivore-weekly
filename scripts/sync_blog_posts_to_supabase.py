@@ -78,6 +78,14 @@ def sync_blog_posts():
         print(f"❌ Could not fetch existing posts from Supabase: {e}")
         return False
 
+    # Cross-post safety: refuse to sync if any post is missing a valid site tag
+    valid_sites = {"cw", "kd"}
+    untagged = [p for p in json_posts if p.get("site") not in valid_sites]
+    if untagged:
+        print(f"🛑 SAFETY: {len(untagged)} posts missing valid site tag. Refusing to sync.")
+        print(f"   First untagged: {untagged[0].get('slug', 'unknown')}")
+        return False
+
     updated_count = 0
     inserted_count = 0
     skipped_count = 0
@@ -122,11 +130,13 @@ def sync_blog_posts():
             current_slug = existing_post["slug"]
             current_date = existing_post["published_date"]
 
+            post_site = json_post.get("site", "cw")
             if current_slug != correct_slug or current_date != published_date:
                 try:
                     update_data = {
                         "slug": correct_slug,
                         "published_date": published_date,
+                        "site": post_site,
                     }
 
                     client.table("blog_posts").update(update_data).eq(
@@ -171,6 +181,7 @@ def sync_blog_posts():
                     "tags": json_post.get("tags", []),
                     "is_published": is_published,
                     "content": content if content else "",
+                    "site": json_post.get("site", "cw"),
                 }
 
                 # Use upsert to handle duplicates gracefully

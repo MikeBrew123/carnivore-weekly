@@ -12,6 +12,7 @@ If the cron misses a day or a post has a past date, it still gets published
 on the next run. No post can sit in the queue past its date.
 """
 
+import argparse
 import json
 import subprocess
 import sys
@@ -25,6 +26,9 @@ GENERATE_SCRIPT = ROOT / "scripts" / "generate_blog_pages.py"
 VALIDATE_SCRIPT = ROOT / "scripts" / "validate_before_commit.py"
 
 TODAY = date.today().isoformat()  # YYYY-MM-DD
+
+# Which site to publish for -- set via --site flag, default 'cw'
+SITE = "cw"
 
 
 def load_posts():
@@ -54,8 +58,9 @@ def find_ready_posts(posts):
     for post in posts:
         status = post.get("status", "")
         publish_date = post.get("publish_date", "")
+        post_site = post.get("site", "cw")
 
-        if status == "ready" and publish_date and publish_date <= TODAY:
+        if status == "ready" and publish_date and publish_date <= TODAY and post_site == SITE:
             ready.append(post)
 
     return ready
@@ -141,11 +146,12 @@ def run_validator():
 
 
 def get_next_scheduled(posts):
-    """Find the next scheduled post date (earliest 'ready' post in the future)."""
+    """Find the next scheduled post date (earliest 'ready' post in the future for this site)."""
     future_ready = [
         p.get("publish_date", "")
         for p in posts
         if p.get("status") == "ready" and p.get("publish_date", "") > TODAY
+        and p.get("site", "cw") == SITE
     ]
     if future_ready:
         return min(future_ready)
@@ -153,12 +159,20 @@ def get_next_scheduled(posts):
 
 
 def main():
+    global SITE
+    parser = argparse.ArgumentParser(description="Daily blog publisher")
+    parser.add_argument("--site", choices=["cw", "kd"], default="cw",
+                        help="Which site to publish for (default: cw)")
+    args = parser.parse_args()
+    SITE = args.site
+
     data = load_posts()
     posts = data["blog_posts"]
 
-    # Count already-published posts
-    already_published = sum(1 for p in posts if p.get("status") == "published" or
+    # Count already-published posts for this site
+    already_published = sum(1 for p in posts if (p.get("status") == "published" or
                            (p.get("published") and not p.get("status")))
+                           and p.get("site", "cw") == SITE)
 
     # Find posts ready to go live
     to_publish = find_ready_posts(posts)
@@ -170,8 +184,17 @@ def main():
         print(f"Next scheduled: {next_date}")
         sys.exit(0)
 
+    # Safety check: verify no posts are missing a site tag
+    untagged = [p for p in posts if not p.get("site")]
+    if untagged:
+        print(f"🛑 SAFETY: {len(untagged)} posts have no site tag. Refusing to publish.")
+        print("   Fix: ensure every post in blog_posts.json has a 'site' field ('cw' or 'kd')")
+        for p in untagged[:5]:
+            print(f"   - {p.get('slug', 'unknown')}")
+        sys.exit(1)
+
     # Publish them
-    print(f"📰 Publishing {len(to_publish)} post(s) for {TODAY}:")
+    print(f"📰 Publishing {len(to_publish)} post(s) for {TODAY} [site={SITE}]:")
     publish_posts(to_publish)
 
     # Save updated JSON
