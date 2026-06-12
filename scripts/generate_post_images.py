@@ -23,7 +23,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent.parent
 SECRETS_FILE = BASE_DIR / "secrets" / "api-keys.json"
 POSTS_FILE = BASE_DIR / "data" / "blog_posts.json"
-IMAGES_DIR = BASE_DIR / "public" / "images" / "blog"
+CW_IMAGES_DIR = BASE_DIR / "public" / "images" / "blog"
+KD_IMAGES_DIR = BASE_DIR / "ketodial" / "public" / "images" / "blog"
 
 BRAND_SUFFIX = (
     "warm natural light, rich earthy tones, shallow depth of field, "
@@ -32,10 +33,16 @@ BRAND_SUFFIX = (
 
 
 def load_secrets():
-    secrets = json.loads(SECRETS_FILE.read_text())
+    if SECRETS_FILE.exists():
+        secrets = json.loads(SECRETS_FILE.read_text())
+    else:
+        secrets = {}
     env_token = os.environ.get("REPLICATE_API_TOKEN", "")
     if env_token:
         secrets.setdefault("replicate", {})["api_token"] = env_token
+    env_anthropic = os.environ.get("ANTHROPIC_API_KEY", "")
+    if env_anthropic:
+        secrets.setdefault("anthropic", {})["key"] = env_anthropic
     return secrets
 
 
@@ -123,12 +130,24 @@ def generate_image_replicate(api_token, prompt):
     raise TimeoutError("Replicate timed out")
 
 
+def strip_date_prefix(slug: str) -> str:
+    import re
+    return re.sub(r"^\d{4}-\d{2}-\d{2}-", "", slug)
+
+
 def main():
     dry_run = "--dry-run" in sys.argv
     target_slug = None
+    site_filter = "cw"
+
     if "--slug" in sys.argv:
         idx = sys.argv.index("--slug")
         target_slug = sys.argv[idx + 1]
+    if "--site" in sys.argv:
+        idx = sys.argv.index("--site")
+        site_filter = sys.argv[idx + 1]
+
+    images_dir = KD_IMAGES_DIR if site_filter == "kd" else CW_IMAGES_DIR
 
     secrets = load_secrets()
     api_key = secrets.get("anthropic", {}).get("key", "")
@@ -141,7 +160,7 @@ def main():
         print("ERROR: No Replicate token", file=sys.stderr)
         sys.exit(1)
 
-    IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+    images_dir.mkdir(parents=True, exist_ok=True)
 
     data = json.loads(POSTS_FILE.read_text())
     posts = data["blog_posts"]
@@ -150,25 +169,27 @@ def main():
         p for p in posts
         if p.get("status") in ("ready", "published")
         and not p.get("image")
+        and p.get("site", "cw") == site_filter
         and (not target_slug or p.get("slug") == target_slug)
     ]
 
     if not targets:
-        print("No posts need images.")
+        print(f"No {site_filter.upper()} posts need images.")
         return
 
-    print(f"Generating images for {len(targets)} posts...")
+    print(f"Generating images for {len(targets)} {site_filter.upper()} posts...")
     changed = False
 
     for post in targets:
         slug = post["slug"]
+        file_slug = strip_date_prefix(slug) if site_filter == "kd" else slug
         title = post.get("title", slug)
         excerpt = post.get("excerpt", "")
         author = post.get("author", "")
         content = post.get("content", "")
-        dest = IMAGES_DIR / f"{slug}.jpg"
+        dest = images_dir / f"{file_slug}.jpg"
 
-        print(f"\n→ {slug[:60]}")
+        print(f"\n-> {slug[:60]}")
 
         prompt = build_image_prompt(api_key, title, excerpt, author, content)
         print(f"  Prompt: {prompt[:100]}...")
@@ -193,16 +214,16 @@ def main():
                         print(f"  Rate limited, waiting {wait}s...")
                         time.sleep(wait)
                     else:
-                        print(f"  ❌ Failed after {attempt+1} attempts: {e}")
+                        print(f"  Failed after {attempt+1} attempts: {e}")
                         break
-            time.sleep(3)  # pace requests
+            time.sleep(3)
 
-        post["image"] = f"/images/blog/{slug}.jpg"
+        post["image"] = f"/images/blog/{file_slug}.jpg"
         changed = True
 
     if changed and not dry_run:
         POSTS_FILE.write_text(json.dumps(data, indent=2))
-        print(f"\n✅ Updated blog_posts.json with image paths")
+        print(f"\n Updated blog_posts.json with image paths")
 
 
 if __name__ == "__main__":

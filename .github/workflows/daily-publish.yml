@@ -61,6 +61,13 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Generate KD post images
+        continue-on-error: true
+        env:
+          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python3 scripts/generate_post_images.py --site kd
+
       - name: Publish KD scheduled posts
         id: publish_kd
         env:
