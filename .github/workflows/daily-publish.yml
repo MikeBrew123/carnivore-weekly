@@ -69,7 +69,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python3 scripts/daily_publish.py --site kd
-          python3 ketodial/scripts/generate_kd_blog.py
+          python3 ketodial/scripts/generate_kd_blog.py --only-new
           git add -A
           NEW_POSTS=$(git diff --staged --name-only | grep "^ketodial/public/blog/.*\.html$" | grep -v "index.html" || true)
           if [ -n "$NEW_POSTS" ]; then
