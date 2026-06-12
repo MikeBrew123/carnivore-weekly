@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          submodules: true
+          token: ${{ secrets.KD_DEPLOY_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -84,9 +87,8 @@ jobs:
         env:
           KD_DEPLOY_TOKEN: ${{ secrets.KD_DEPLOY_TOKEN }}
         run: |
-          git clone --depth=1 https://x-access-token:${KD_DEPLOY_TOKEN}@github.com/MikeBrew123/ketodial.git /tmp/kd-deploy
-          rsync -av --delete --exclude='.git' ketodial/public/ /tmp/kd-deploy/
-          cd /tmp/kd-deploy
+          cd ketodial/public
+          git remote set-url origin https://x-access-token:${KD_DEPLOY_TOKEN}@github.com/MikeBrew123/ketodial.git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
@@ -127,7 +129,34 @@ jobs:
               \"keyLocation\": \"https://carnivoreweekly.com/1d6e43b8829d44c28fbef02ee5b548d2.txt\",
               \"urlList\": $URL_LIST
             }"
-          echo "Submitted $(echo "$URLS" | wc -l | tr -d ' ') URLs to IndexNow"
+          echo "Submitted $(echo "$URLS" | wc -l | tr -d ' ') CW URLs to IndexNow"
+
+      - name: Submit KD posts to Google Indexing API
+        if: steps.publish_kd.outputs.has_changes == 'true' && steps.publish_kd.outputs.new_post_urls != ''
+        continue-on-error: true
+        env:
+          GA4_SERVICE_ACCOUNT_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}
+        run: |
+          echo "$GA4_SERVICE_ACCOUNT_JSON" > dashboard/ga4-credentials.json
+          cd dashboard && npm install --silent
+          URLS="${{ steps.publish_kd.outputs.new_post_urls }}"
+          node gsc-request-indexing.js $URLS
+
+      - name: Submit KD posts to Bing via IndexNow
+        if: steps.publish_kd.outputs.has_changes == 'true' && steps.publish_kd.outputs.new_post_urls != ''
+        continue-on-error: true
+        run: |
+          URLS="${{ steps.publish_kd.outputs.new_post_urls }}"
+          URL_LIST=$(echo "$URLS" | jq -R -s 'split("\n") | map(select(length > 0))')
+          curl -s -X POST "https://api.indexnow.org/IndexNow" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"host\": \"ketodial.com\",
+              \"key\": \"98237dd632e84e4e8743193ac2e1ee61\",
+              \"keyLocation\": \"https://ketodial.com/98237dd632e84e4e8743193ac2e1ee61.txt\",
+              \"urlList\": $URL_LIST
+            }"
+          echo "Submitted $(echo "$URLS" | wc -l | tr -d ' ') KD URLs to IndexNow"
 
   deploy:
     needs: publish
