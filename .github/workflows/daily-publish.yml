@@ -66,10 +66,11 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python3 scripts/daily_publish.py --site kd
+          python3 ketodial/scripts/generate_kd_blog.py
           git add -A
-          NEW_POSTS=$(git diff --staged --name-only | grep "^public/blog/.*\.html$" | grep -v "index.html" || true)
+          NEW_POSTS=$(git diff --staged --name-only | grep "^ketodial/public/blog/.*\.html$" | grep -v "index.html" || true)
           if [ -n "$NEW_POSTS" ]; then
-            KD_URLS=$(echo "$NEW_POSTS" | sed 's|public/blog/|https://ketodial.com/blog/|')
+            KD_URLS=$(echo "$NEW_POSTS" | sed 's|ketodial/public/blog/|https://ketodial.com/blog/|')
             echo "new_post_urls<<EOF" >> $GITHUB_OUTPUT
             echo "$KD_URLS" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
@@ -77,6 +78,20 @@ jobs:
           else
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Deploy KD to ketodial repo
+        if: steps.publish_kd.outputs.has_changes == 'true'
+        env:
+          KD_DEPLOY_TOKEN: ${{ secrets.KD_DEPLOY_TOKEN }}
+        run: |
+          git clone --depth=1 https://x-access-token:${KD_DEPLOY_TOKEN}@github.com/MikeBrew123/ketodial.git /tmp/kd-deploy
+          rsync -av --delete --exclude='.git' ketodial/public/ /tmp/kd-deploy/
+          cd /tmp/kd-deploy
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --staged --quiet || git commit -m "auto: publish KD blog posts for $(date +%Y-%m-%d)"
+          git push origin main
 
       - name: Commit and push if changes
         if: steps.publish_cw.outputs.has_changes == 'true' || steps.publish_kd.outputs.has_changes == 'true'
