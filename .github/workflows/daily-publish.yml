@@ -37,18 +37,16 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: python3 scripts/send_drip.py
 
-      - name: Publish scheduled posts
-        id: publish
+      - name: Publish CW scheduled posts
+        id: publish_cw
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
-          python3 scripts/daily_publish.py
-          # Stage all changes so git diff --staged can detect new files
+          python3 scripts/daily_publish.py --site cw
           git add -A
-          # Capture newly published HTML files for indexing
           NEW_POSTS=$(git diff --staged --name-only | grep "^public/blog/.*\.html$" | grep -v "index.html" || true)
           if [ -n "$NEW_POSTS" ]; then
             URLS=$(echo "$NEW_POSTS" | sed 's|public/blog/|https://carnivoreweekly.com/blog/|')
@@ -60,8 +58,28 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Publish KD scheduled posts
+        id: publish_kd
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 scripts/daily_publish.py --site kd
+          git add -A
+          NEW_POSTS=$(git diff --staged --name-only | grep "^public/blog/.*\.html$" | grep -v "index.html" || true)
+          if [ -n "$NEW_POSTS" ]; then
+            KD_URLS=$(echo "$NEW_POSTS" | sed 's|public/blog/|https://ketodial.com/blog/|')
+            echo "new_post_urls<<EOF" >> $GITHUB_OUTPUT
+            echo "$KD_URLS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Commit and push if changes
-        if: steps.publish.outputs.has_changes == 'true'
+        if: steps.publish_cw.outputs.has_changes == 'true' || steps.publish_kd.outputs.has_changes == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -69,22 +87,22 @@ jobs:
           git diff --staged --quiet || git commit -m "auto: publish scheduled blog posts for $(date +%Y-%m-%d)"
           git push || true
 
-      - name: Submit new posts to Google Indexing API
-        if: steps.publish.outputs.has_changes == 'true' && steps.publish.outputs.new_post_urls != ''
+      - name: Submit CW posts to Google Indexing API
+        if: steps.publish_cw.outputs.has_changes == 'true' && steps.publish_cw.outputs.new_post_urls != ''
         continue-on-error: true
         env:
           GA4_SERVICE_ACCOUNT_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}
         run: |
           echo "$GA4_SERVICE_ACCOUNT_JSON" > dashboard/ga4-credentials.json
           cd dashboard && npm install --silent
-          URLS="${{ steps.publish.outputs.new_post_urls }}"
+          URLS="${{ steps.publish_cw.outputs.new_post_urls }}"
           node gsc-request-indexing.js $URLS
 
-      - name: Submit new posts to Bing via IndexNow
-        if: steps.publish.outputs.has_changes == 'true' && steps.publish.outputs.new_post_urls != ''
+      - name: Submit CW posts to Bing via IndexNow
+        if: steps.publish_cw.outputs.has_changes == 'true' && steps.publish_cw.outputs.new_post_urls != ''
         continue-on-error: true
         run: |
-          URLS="${{ steps.publish.outputs.new_post_urls }}"
+          URLS="${{ steps.publish_cw.outputs.new_post_urls }}"
           URL_LIST=$(echo "$URLS" | jq -R -s 'split("\n") | map(select(length > 0))')
           curl -s -X POST "https://api.indexnow.org/IndexNow" \
             -H "Content-Type: application/json" \

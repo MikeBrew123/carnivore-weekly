@@ -4,6 +4,7 @@ Generate blog HTML pages from templates and metadata.
 Creates individual post pages and blog index.
 """
 
+import argparse
 import json
 import os
 import re
@@ -27,8 +28,11 @@ BLOG_DIR = PUBLIC_DIR / "blog"
 BLOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
+SITE_FILTER = None  # Set by --site flag; None means all posts (backwards compat)
+
+
 def load_blog_posts():
-    """Load blog posts from JSON."""
+    """Load blog posts from JSON, filtered by site if set."""
     blog_posts_file = DATA_DIR / "blog_posts.json"
 
     if not blog_posts_file.exists():
@@ -38,7 +42,10 @@ def load_blog_posts():
     with open(blog_posts_file, "r") as f:
         data = json.load(f)
 
-    return data.get("blog_posts", [])
+    posts = data.get("blog_posts", [])
+    if SITE_FILTER:
+        posts = [p for p in posts if p.get("site", "cw") == SITE_FILTER]
+    return posts
 
 
 def markdown_to_html(markdown_text):
@@ -496,8 +503,16 @@ def generate_rss_feed(env, posts):
 
 def main():
     """Main execution."""
+    global SITE_FILTER
+    parser = argparse.ArgumentParser(description="Generate blog HTML pages")
+    parser.add_argument("--site", choices=["cw", "kd"], default=None,
+                        help="Filter to a specific site (default: all)")
+    args = parser.parse_args()
+    SITE_FILTER = args.site
+
+    site_label = args.site.upper() if args.site else "ALL"
     print("=" * 50)
-    print("🚀 Generating Blog Pages")
+    print(f"🚀 Generating Blog Pages [{site_label}]")
     print("=" * 50)
 
     # Load blog posts
@@ -512,11 +527,17 @@ def main():
     # Initialize validator once for all operations
     validator = ContentValidator()
 
-    # Generate pages (with validation)
+    # Generate individual post pages (with validation)
     generate_blog_posts(env, posts, validator)
-    generate_blog_index(env, posts)
-    generate_rss_feed(env, posts)
-    update_sitemap(posts)
+
+    # Blog index, RSS, and sitemap are CW-specific (hardcoded carnivoreweekly.com paths).
+    # Skip them for non-CW sites to prevent overwriting CW's live files.
+    if SITE_FILTER and SITE_FILTER != "cw":
+        print(f"\n⏭️  Skipping blog index/RSS/sitemap (site={SITE_FILTER}, CW-only assets)")
+    else:
+        generate_blog_index(env, posts)
+        generate_rss_feed(env, posts)
+        update_sitemap(posts)
 
     print("\n" + "=" * 50)
     print("✅ Blog generation complete!")
