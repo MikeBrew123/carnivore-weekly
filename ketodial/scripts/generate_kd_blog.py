@@ -145,13 +145,13 @@ BLOG_POST_TEMPLATE = r"""<!DOCTYPE html>
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{meta_description}">
 <meta property="og:site_name" content="KetoDial">
-<meta property="og:image" content="https://ketodial.com/images/og-image.jpg">
+<meta property="og:image" content="https://ketodial.com{og_image}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="675">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{meta_description}">
-<meta name="twitter:image" content="https://ketodial.com/images/og-image.jpg">
+<meta name="twitter:image" content="https://ketodial.com{og_image}">
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,16..72,400;0,16..72,500;1,16..72,400&display=swap" rel="stylesheet" />
@@ -243,6 +243,7 @@ footer{{background:#0b1620;color:#9fb8c9;padding:40px 0 24px}}
   <h1>{title}</h1>
   <div class="byline"><b>{author_display}</b> · {author_title} · {date_formatted}</div>
   <div class="content">
+    {article_image}
     {content}
     <div class="cta-box">
       <h3>Ready to dial in your macros?</h3>
@@ -267,6 +268,7 @@ footer{{background:#0b1620;color:#9fb8c9;padding:40px 0 24px}}
 # ---------------------------------------------------------------------------
 
 CARD_TEMPLATE = """      <a class="pcard" href="/blog/{kd_slug}.html">
+        {card_img}
         <div class="body">
           <span class="kicker {category_lower}">{category}</span>
           <h3>{title}</h3>
@@ -309,6 +311,14 @@ def generate_post_html(post: dict) -> str:
 
     json_ld = build_json_ld(post, kd_slug)
 
+    image = post.get("image", "")
+    if image:
+        article_image = f'<img src="{escape(image)}" alt="{escape(post["title"])}" style="float:right;max-width:260px;margin:0 0 18px 24px;border-radius:12px" loading="lazy">'
+    else:
+        article_image = ""
+
+    og_image = image if image else "/images/og-image.jpg"
+
     html = BLOG_POST_TEMPLATE.format(
         title=escape(post["title"]),
         meta_description=escape(meta_desc),
@@ -318,6 +328,8 @@ def generate_post_html(post: dict) -> str:
         author_title=post.get("author_title") or author_info["title"],
         date_formatted=format_date(pub_date),
         content=content,
+        article_image=article_image,
+        og_image=og_image,
         json_ld=json_ld,
     )
 
@@ -338,8 +350,15 @@ def generate_feed_grid(posts: list) -> str:
         read_time = reading_time(content)
         category_raw = post.get("category", "guide")
 
+        image = post.get("image", "")
+        if image:
+            card_img = f'<img class="card-img" src="{escape(image)}" alt="{escape(post["title"])}" loading="lazy">'
+        else:
+            card_img = ""
+
         card = CARD_TEMPLATE.format(
             kd_slug=kd_slug,
+            card_img=card_img,
             category_lower=category_raw.lower(),
             category=escape(category_raw.title()),
             title=escape(post["title"]),
