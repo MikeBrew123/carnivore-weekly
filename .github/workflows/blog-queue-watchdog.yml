@@ -1,11 +1,8 @@
 name: Blog Queue Watchdog
 
-# Catches the silent-failure pattern where the blog stops publishing because
-# the writer-swarm pipeline hasn't been triggered in days.
-#
-# Runs every Monday + Thursday at 13:00 UTC (after the daily-publish cron).
-# Opens a GitHub Issue if the most recent published post is >5 days old,
-# so we get a notification before the gap grows.
+# Catches silent failures where either CW or KD stops publishing.
+# Runs Mon+Thu at 13:00 UTC (after daily-publish).
+# Opens a GitHub Issue per site if the most recent published post is >5 days old.
 
 on:
   schedule:
@@ -22,60 +19,137 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Check for stale blog queue
-        id: check
+      - name: Check CW queue
+        id: check_cw
         run: |
-          LATEST=$(python3 -c "
+          python3 << 'PYEOF'
           import json
           from datetime import date
-          with open('data/blog_posts.json') as f:
+
+          with open("data/blog_posts.json") as f:
               bp = json.load(f)
-          published = [p for p in bp['blog_posts'] if p.get('status') == 'published' or p.get('published')]
-          dates = sorted([p.get('publish_date', '') for p in published if p.get('publish_date')])
-          today = date.today().isoformat()
-          past = [d for d in dates if d <= today]
-          print(past[-1] if past else '0000-00-00')
-          ")
-          DAYS_OLD=$(python3 -c "
+          posts = bp.get("blog_posts", bp) if isinstance(bp, dict) else bp
+          published = [p for p in posts
+                       if p.get("site", "cw") == "cw"
+                       and (p.get("status") == "published" or p.get("published"))]
+          dates = sorted([p.get("publish_date", "") for p in published if p.get("publish_date")])
+          past = [d for d in dates if d <= date.today().isoformat()]
+          latest = past[-1] if past else "0000-00-00"
+          days = (date.today() - date.fromisoformat(latest)).days if latest != "0000-00-00" else 999
+          ready = len([p for p in posts if p.get("site", "cw") == "cw" and p.get("status") == "ready"])
+          print(f"CW: latest={latest}, {days}d ago, {ready} ready in queue")
+
+          with open("github_output.txt", "w") as f:
+              f.write(f"latest={latest}\n")
+              f.write(f"days_old={days}\n")
+              f.write(f"ready={ready}\n")
+              f.write(f"stale={'true' if days > 5 else 'false'}\n")
+          PYEOF
+          cat github_output.txt >> $GITHUB_OUTPUT
+
+      - name: Check KD queue
+        id: check_kd
+        run: |
+          python3 << 'PYEOF'
+          import json
           from datetime import date
-          d = date.fromisoformat('$LATEST')
-          print((date.today() - d).days)
-          ")
-          echo "latest=$LATEST" >> $GITHUB_OUTPUT
-          echo "days_old=$DAYS_OLD" >> $GITHUB_OUTPUT
-          echo "Latest published: $LATEST ($DAYS_OLD days ago)"
-          if [ "$DAYS_OLD" -gt 5 ]; then
-              echo "stale=true" >> $GITHUB_OUTPUT
+
+          with open("data/blog_posts.json") as f:
+              bp = json.load(f)
+          posts = bp.get("blog_posts", bp) if isinstance(bp, dict) else bp
+          published = [p for p in posts
+                       if p.get("site") == "kd"
+                       and (p.get("status") == "published" or p.get("published"))]
+          dates = sorted([p.get("publish_date", "") for p in published if p.get("publish_date")])
+          past = [d for d in dates if d <= date.today().isoformat()]
+          latest = past[-1] if past else "0000-00-00"
+          days = (date.today() - date.fromisoformat(latest)).days if latest != "0000-00-00" else 999
+          ready = len([p for p in posts if p.get("site") == "kd" and p.get("status") == "ready"])
+          print(f"KD: latest={latest}, {days}d ago, {ready} ready in queue")
+
+          with open("github_output.txt", "w") as f:
+              f.write(f"latest={latest}\n")
+              f.write(f"days_old={days}\n")
+              f.write(f"ready={ready}\n")
+              f.write(f"stale={'true' if days > 7 else 'false'}\n")
+          PYEOF
+          cat github_output.txt >> $GITHUB_OUTPUT
+
+      - name: Check KD deploy health
+        id: check_kd_deploy
+        continue-on-error: true
+        run: |
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://ketodial.com/blog/ || echo "000")
+          echo "kd_blog_status=$HTTP_CODE" >> $GITHUB_OUTPUT
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "kd_blog_down=true" >> $GITHUB_OUTPUT
+            echo "KD blog index returned $HTTP_CODE"
           else
-              echo "stale=false" >> $GITHUB_OUTPUT
+            echo "kd_blog_down=false" >> $GITHUB_OUTPUT
+            echo "KD blog index OK (200)"
           fi
 
-      - name: Open issue if queue is stale
-        if: steps.check.outputs.stale == 'true'
+      - name: Open CW stale issue
+        if: steps.check_cw.outputs.stale == 'true'
         uses: actions/github-script@v7
         with:
           script: |
-            const latest = '${{ steps.check.outputs.latest }}';
-            const daysOld = '${{ steps.check.outputs.days_old }}';
+            const latest = '${{ steps.check_cw.outputs.latest }}';
+            const daysOld = '${{ steps.check_cw.outputs.days_old }}';
+            const ready = '${{ steps.check_cw.outputs.ready }}';
             const existing = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: 'blog-queue-stale',
-              state: 'open',
+              owner: context.repo.owner, repo: context.repo.repo,
+              labels: 'cw-queue-stale', state: 'open',
             });
-            if (existing.data.length > 0) {
-              console.log(`Existing watchdog issue #${existing.data[0].number}, skipping`);
-              return;
-            }
+            if (existing.data.length > 0) return;
             await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `Blog queue stale - last post ${daysOld} days ago (${latest})`,
-              labels: ['blog-queue-stale'],
-              body: `**Blog Queue Watchdog detected a silent failure.**\n\n- Latest published post: \`${latest}\`\n- Days since last publish: **${daysOld}**\n\n## Likely cause\n\n\`scripts/autonomous_blog_generation.sh\` is interactive (requires yes/no prompts), so it does not run unattended. When nobody triggers it manually, the queue goes dry. The daily publisher then runs successfully every day with nothing to publish, hiding the failure.\n\n## Recovery\n\nIn Claude Code: \"Generate 9 catch-up blog posts using Sarah, Marcus, Chloe from data/weekly_topics.json\". Backdate publish_date, run generate_blog_pages.py, commit + push, submit URLs via dashboard/gsc-request-indexing.js.\n\n## Permanent fix\n\nRefactor autonomous_blog_generation.sh to remove input() prompts.\n\n---\n*Auto-generated by .github/workflows/blog-queue-watchdog.yml*`,
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: `CW queue stale - last post ${daysOld} days ago (${latest})`,
+              labels: ['cw-queue-stale'],
+              body: `**CW Blog Queue Watchdog**\n\n- Site: **Carnivore Weekly**\n- Latest published: \`${latest}\` (${daysOld} days ago)\n- Ready in queue: ${ready}\n\n## Recovery\nRun the CW content generation task or manually trigger weekly-update workflow.\n\n---\n*Auto-generated by blog-queue-watchdog.yml*`,
             });
-            console.log('Created stale-queue issue');
 
-      - name: All clear
-        if: steps.check.outputs.stale != 'true'
-        run: echo "Queue healthy. Latest post ${{ steps.check.outputs.days_old }} days old."
+      - name: Open KD stale issue
+        if: steps.check_kd.outputs.stale == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const latest = '${{ steps.check_kd.outputs.latest }}';
+            const daysOld = '${{ steps.check_kd.outputs.days_old }}';
+            const ready = '${{ steps.check_kd.outputs.ready }}';
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              labels: 'kd-queue-stale', state: 'open',
+            });
+            if (existing.data.length > 0) return;
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: `KD queue stale - last post ${daysOld} days ago (${latest})`,
+              labels: ['kd-queue-stale'],
+              body: `**KD Blog Queue Watchdog**\n\n- Site: **KetoDial**\n- Latest published: \`${latest}\` (${daysOld} days ago)\n- Ready in queue: ${ready}\n\n## Recovery\nCheck kd-blog-content-generation scheduled task in Claude Code. Verify daily-publish.yml is running the KD step.\n\n---\n*Auto-generated by blog-queue-watchdog.yml*`,
+            });
+
+      - name: Open KD deploy issue
+        if: steps.check_kd_deploy.outputs.kd_blog_down == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.check_kd_deploy.outputs.kd_blog_status }}';
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              labels: 'kd-deploy-down', state: 'open',
+            });
+            if (existing.data.length > 0) return;
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: `KD blog down - ketodial.com/blog/ returned ${status}`,
+              labels: ['kd-deploy-down'],
+              body: `**KD Deploy Health Check Failed**\n\n- URL: https://ketodial.com/blog/\n- HTTP status: ${status}\n\n## Check\n- Is MikeBrew123/ketodial repo Pages enabled?\n- Did the KD deploy step in daily-publish.yml fail?\n- Is KD_DEPLOY_TOKEN secret still valid?\n\n---\n*Auto-generated by blog-queue-watchdog.yml*`,
+            });
+
+      - name: Summary
+        run: |
+          echo "=== Watchdog Summary ==="
+          echo "CW: last published ${{ steps.check_cw.outputs.latest }} (${{ steps.check_cw.outputs.days_old }}d ago), ${{ steps.check_cw.outputs.ready }} ready"
+          echo "KD: last published ${{ steps.check_kd.outputs.latest }} (${{ steps.check_kd.outputs.days_old }}d ago), ${{ steps.check_kd.outputs.ready }} ready"
+          echo "KD blog HTTP: ${{ steps.check_kd_deploy.outputs.kd_blog_status }}"
