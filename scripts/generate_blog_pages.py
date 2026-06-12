@@ -534,6 +534,7 @@ def main():
     # Skip them for non-CW sites to prevent overwriting CW's live files.
     if SITE_FILTER and SITE_FILTER != "cw":
         print(f"\n⏭️  Skipping blog index/RSS/sitemap (site={SITE_FILTER}, CW-only assets)")
+        print(f"   Use ketodial/scripts/generate_kd_blog.py for KD blog generation")
     else:
         generate_blog_index(env, posts)
         generate_rss_feed(env, posts)
