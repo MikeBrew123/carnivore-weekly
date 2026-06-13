@@ -211,7 +211,7 @@ export default function Step3FreeResults({
 
       {/* ════════════════════════════════════════════
           SECTION 4: Value Bridge — right after macros
-          "Your macros are ready. Now get the protocol."
+          "Your macros are ready. Now get your 30-day plan."
           ════════════════════════════════════════════ */}
       <div style={{
         background: 'linear-gradient(160deg, #1e1008 0%, #120a02 100%)',
@@ -223,7 +223,7 @@ export default function Step3FreeResults({
         <div style={{ height: '2px', background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.35) 30%, rgba(255,215,0,0.35) 70%, transparent)', marginBottom: '24px', marginTop: '-12px' }} />
 
         <p style={{ ...bodyFont, color: '#f59e0b', fontSize: '13px', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' as const, margin: '0 0 8px 0' }}>
-          Summer Sale
+          Summer Sale — Ends July 4th
         </p>
         <h3 style={{ ...goldHeading, fontSize: '22px', fontWeight: '700', margin: '0 0 10px 0', lineHeight: '1.3' }}>
           Your 30-day meal plan is ready.
@@ -296,7 +296,7 @@ export default function Step3FreeResults({
 
         <div style={{ padding: '24px 22px' }}>
           <p style={{ ...goldHeading, fontSize: '18px', fontWeight: '700', margin: '0 0 6px 0' }}>
-            What's in Your Custom {config.label} Protocol
+            What's in Your Custom {config.label} Plan
           </p>
           <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.45)', fontSize: '12px', margin: '0 0 20px 0', lineHeight: '1.5' }}>
             Built from your quiz answers. Here's what you'll get:
@@ -450,7 +450,7 @@ export default function Step3FreeResults({
             <span style={{ fontSize: '28px', marginBottom: '8px' }}>🔒</span>
             <p style={{ color: '#ffd700', fontWeight: 600, fontSize: '16px', margin: 0 }}>Your full 30-day meal plan is ready</p>
             <p style={{ color: '#a3a3a3', fontSize: '13px', marginTop: '6px' }}>4 more {config.label.toLowerCase()} meals + snack timing + grocery lists — included in your plan</p>
-            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>$29</span> $14.99 — Summer Sale</p>
+            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>$29</span> $14.99 — Summer Sale ends July 4th</p>
           </div>
         </div>
       </div>
@@ -476,7 +476,7 @@ export default function Step3FreeResults({
 
         <div style={{ padding: '28px 28px 28px' }}>
           <p style={{ color: '#f59e0b', fontSize: '12px', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' as const, margin: '0 0 6px 0', textAlign: 'center', ...bodyFont }}>
-            Summer Sale
+            Summer Sale — Ends July 4th
           </p>
           <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '24px', fontWeight: '700', margin: '0 0 8px 0', textAlign: 'center', lineHeight: '1.25', letterSpacing: '-0.02em' }}>
             Your 30-day {config.label.toLowerCase()} meal plan
