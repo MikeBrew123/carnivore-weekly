@@ -374,10 +374,15 @@ function generateFullMealPlan(data) {
       const altProtein = availableProteins[(proteinIndex + 1) % availableProteins.length];
 
       // Calculate portions based on user's macro targets
-      // Split: breakfast ~30%, lunch ~35%, dinner ~35% of daily protein
-      const bfProteinG = Math.round(targetProtein * 0.30);
-      const lnProteinG = Math.round(targetProtein * 0.35);
-      const dnProteinG = Math.round(targetProtein * 0.35);
+      // Subtract non-meat protein sources first: 3 eggs = 18g protein, butter = 0g
+      const isLion = diet.includes('Lion');
+      const eggProteinG = isLion ? 0 : 18;
+      const meatProteinNeeded = targetProtein - eggProteinG;
+
+      // Split meat protein: breakfast ~30%, lunch ~35%, dinner ~35%
+      const bfProteinG = Math.round(meatProteinNeeded * 0.30);
+      const lnProteinG = Math.round(meatProteinNeeded * 0.35);
+      const dnProteinG = Math.round(meatProteinNeeded * 0.35);
 
       // Convert grams of protein needed → oz of meat (protein per 100g → oz)
       const bfOz = mainProtein.protein > 0 ? Math.round((bfProteinG / mainProtein.protein) * 3.5) : 6;
@@ -484,10 +489,13 @@ function generateGroceryListByWeek(data) {
     fats = foodDatabase.fats;
   }
 
-  // Calculate weekly protein needs from user macros
+  // Calculate weekly protein needs from user macros (subtract egg protein for non-Lion)
   const targetProtein = data.macros?.protein || 130;
-  // Daily protein in grams → weekly oz of meat needed (protein per 100g avg ~22g, 100g = 3.5oz)
-  const weeklyProteinOz = Math.round((targetProtein / 22) * 3.5 * 7);
+  const dietTypeGrocery = (data.selectedProtocol || 'Carnivore');
+  const eggProteinDaily = dietTypeGrocery.includes('Lion') ? 0 : 18; // 3 eggs = 18g protein
+  const meatProteinDaily = targetProtein - eggProteinDaily;
+  // Daily meat protein in grams → weekly oz of meat needed (protein per 100g avg ~22g, 100g = 3.5oz)
+  const weeklyProteinOz = Math.round((meatProteinDaily / 22) * 3.5 * 7);
   const weeklyProteinLbs = (weeklyProteinOz / 16).toFixed(1);
   // Eggs: ~3/day for non-Lion diets
   const weeklyEggs = 21;
@@ -542,6 +550,15 @@ function generateGroceryListByWeek(data) {
         name: 'Eggs',
         quantity: `${weeklyEggs} (${Math.ceil(weeklyEggs / 12)} dozen)`
       });
+    }
+
+    // Add vegetables for Keto
+    if (dietTypeGrocery.includes('Keto')) {
+      groceryLists[`week${week}`].pantry.push(
+        { name: 'Leafy Greens / Spinach', quantity: '2 bags', category: 'Produce' },
+        { name: 'Broccoli', quantity: '2 heads', category: 'Produce' },
+        { name: 'Avocados', quantity: '7', category: 'Produce' }
+      );
     }
   }
 
@@ -2022,9 +2039,9 @@ function replacePlaceholders(template, data) {
     const targetProt = data.macros?.protein || 130;
     const targetFatG = data.macros?.fat || 150;
 
-    // Parse the meal strings to extract protein names and oz
+    // Parse the meal strings to extract protein names and oz (handles "3 Eggs + 7 oz Beef..." format)
     const parseMeal = (meal) => {
-      const ozMatch = meal.match(/^(\d+)\s*oz\s+(.+?)(?:\s*\+|$)/);
+      const ozMatch = meal.match(/(\d+)\s*oz\s+(.+?)(?:\s*\+|$)/);
       if (ozMatch) {
         const oz = parseInt(ozMatch[1]);
         const proteinName = ozMatch[2].trim();
