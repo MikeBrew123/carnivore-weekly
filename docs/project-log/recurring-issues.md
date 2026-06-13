@@ -154,12 +154,15 @@ If recurs: Reddit now requires OAuth for API access. Next angles: register a Red
 ---
 
 ## ISSUE-015 — Deploy fails: roundup image referenced but not committed
-🟢 FIXED — Last: 2026-06-01
+🟡 RECURRING — Last: 2026-06-13
 
-Pattern: `generate.py` creates roundup image and references it in `index.html`. Image exists locally but isn't git-tracked — CI 404 check fails on every push. Caused 10+ consecutive deploy failures.
+Pattern: `generate.py` creates roundup image and references it in `index.html`. Image exists locally but isn't git-tracked — CI 404 check fails on every push.
 Attempts:
-- 2026-06-01 — Committed missing image. Added Check 10c to `validate_before_commit.py`: missing absolute-path images are now CRITICAL (blocks commit), relative-path images are WARNING. Prevents future occurrences at pre-commit.
-If recurs: Check if `generate_roundup_image.py` output is being staged. Consider auto-staging in `generate.py`.
+- 2026-06-01 — Committed missing image. Added Check 10c to `validate_before_commit.py`: missing absolute-path images are now CRITICAL (blocks commit), relative-path images are WARNING.
+- 2026-06-13 — Recurred. `roundup-2026-06-13.jpg` generated locally, never staged. Caused 7 consecutive GitHub Actions failures across daily-publish and validate-deploy workflows (runs 27478127932, 27480232244, 27480239150, 27480579637, 27480688139, 27480854061, 27481101418). Hermes caught it via pipeline monitoring and queued outbox notes. Fix: committed image (b34ac51c). Verification: next CI run on main.
+Root cause: `generate.py` creates the image but does not `git add` it. The pre-push hook catches it locally, but commits pushed without running the hook (or before running `generate.py`) slip through.
+Prevention: `generate.py` should auto-stage roundup images after creation. Add `subprocess.run(['git', 'add', path])` after the image write in `_get_roundup_image()`.
+If recurs: apply the auto-stage fix above. This is the third time — manual discipline is not working.
 
 ---
 
