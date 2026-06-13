@@ -250,3 +250,14 @@ Prevention:
 - NEVER rename a published post's slug/date without creating a redirect from the old URL.
 - Added to CLAUDE.md Lessons Learned to prevent recurrence.
 If recurs: Check indexing status in 2-4 weeks via `scripts/gsc_404_check.py`. If still rejected, investigate per-page quality signals.
+
+---
+
+## ISSUE-023 — Report generator calorie overshoot (portions + eggs + butter)
+🟢 FIXED — Last: 2026-06-13
+
+Pattern: `generateFullMealPlan()` sized meat portions for 100% of protein target, then added eggs (18g protein, 210 cal) and butter (100 cal/tbsp) on top. A 1,500 cal target produced ~2,300 cal plans. Same math error duplicated in `generateGroceryListByWeek()` (weekly meat calculated for 100% protein, eggs added separately). Also: `parseMeal` regex `^(\d+)\s*oz` failed on Pescatarian/Keto breakfasts ("3 Eggs + 6 oz Salmon"). Keto grocery list missing vegetables entirely.
+Attempts:
+- 2026-05-30 — Same calorie overshoot in KetoDial's meal plan engine. Rebuilt `buildMealPlanDays()` with protein-first scaling + fat knob + budget-aware dinners. Got to 91% pass rate (was ~30%). Logged in Obsidian daily note but **NOT in recurring-issues.md**. Fix was in KetoDial repo (commit 4d04ac3), not CW's generate-report.js. Session went in circles before fix landed — Brew had to bring in Claude Chat to assist.
+- 2026-06-13 — Bug resurfaced (or persisted) when portions/grocery features were added (commit 3eb6f2c7). Four fixes in commit b413ca71: (1) subtract eggProteinG (18g for non-Lion) before meat sizing, (2) remove `^` anchor from parseMeal regex, (3) subtract eggProteinDaily in grocery protein calc, (4) add leafy greens/broccoli/avocados for Keto. Deployed to Cloudflare. Hermes verified all 4 PASS.
+If recurs: The root cause is any code that adds protein sources without subtracting their contribution from the meat budget. Check: does `targetProtein` get reduced by ALL non-meat protein sources before `meatOzPerMeal` is calculated? Also check grocery list uses the same subtraction. **Do NOT go in circles** — if the fix isn't working after 2 attempts, stop and ask Brew to bring in a second opinion.
