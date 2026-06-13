@@ -83,7 +83,7 @@ def run_generator():
     """Run generate_blog_pages.py to render HTML + sitemap + RSS + index."""
     print("\n🔄 Regenerating site...")
     result = subprocess.run(
-        [sys.executable, str(GENERATE_SCRIPT)],
+        [sys.executable, str(GENERATE_SCRIPT), "--site", SITE],
         cwd=str(ROOT),
         capture_output=True,
         text=True,
@@ -98,7 +98,7 @@ def run_generator():
     # newly published posts in the "More Insights" / Load More section.
     print("\n🔄 Regenerating main pages (homepage, etc.)...")
     pages_result = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "generate.py"), "--type", "pages"],
+        [sys.executable, str(ROOT / "scripts" / "generate.py"), "--type", "pages", "--site", SITE],
         cwd=str(ROOT),
         capture_output=True,
         text=True,
