@@ -2066,14 +2066,25 @@ function replacePlaceholders(template, data) {
     // Butter macros: 1 tbsp = 100 cal, 0g protein, 11g fat
     const butterCal = 100; const butterProt = 0; const butterFat = 11;
 
+    const isLionDiet = dietType.includes('Lion');
+    const isKetoDiet = dietType.includes('Keto');
+    const hasEggs = !isLionDiet && !(userAllergies && userAllergies.includes('egg'));
+
     let sampleDay = '';
     if (bf && ln && dn) {
-      const bfTotal = { cal: bf.cal + eggCal + butterCal, prot: bf.prot + eggProt, fat: bf.fat + eggFat + butterFat };
+      const bfEggCal = hasEggs ? eggCal : 0;
+      const bfEggProt = hasEggs ? eggProt : 0;
+      const bfEggFat = hasEggs ? eggFat : 0;
+      const bfTotal = { cal: bf.cal + bfEggCal + butterCal, prot: bf.prot + bfEggProt, fat: bf.fat + bfEggFat + butterFat };
       const lnTotal = { cal: ln.cal, prot: ln.prot, fat: ln.fat };
       const dnTotal = { cal: dn.cal + butterCal, prot: dn.prot, fat: dn.fat + butterFat };
       const dayTotal = { cal: bfTotal.cal + lnTotal.cal + dnTotal.cal, prot: bfTotal.prot + lnTotal.prot + dnTotal.prot, fat: bfTotal.fat + lnTotal.fat + dnTotal.fat };
 
-      sampleDay = `### Breakfast\n${day1.breakfast}\n- ${bf.oz} oz ${bf.name}: ${bf.cal} cal / ${bf.prot}g protein / ${bf.fat}g fat\n- 3 Eggs: ${eggCal} cal / ${eggProt}g protein / ${eggFat}g fat\n- 1 tbsp Butter: ${butterCal} cal / ${butterFat}g fat\n- **Meal total: ${bfTotal.cal} cal / ${bfTotal.prot}g protein / ${bfTotal.fat}g fat**\n\n### Lunch\n${day1.lunch}\n- ${ln.oz} oz ${ln.name}: ${ln.cal} cal / ${ln.prot}g protein / ${ln.fat}g fat\n- **Meal total: ${lnTotal.cal} cal / ${lnTotal.prot}g protein / ${lnTotal.fat}g fat**\n\n### Dinner\n${day1.dinner}\n- ${dn.oz} oz ${dn.name}: ${dn.cal} cal / ${dn.prot}g protein / ${dn.fat}g fat\n- 1 tbsp Butter: ${butterCal} cal / ${butterFat}g fat\n- **Meal total: ${dnTotal.cal} cal / ${dnTotal.prot}g protein / ${dnTotal.fat}g fat**\n\n### Day 1 Total\n**${dayTotal.cal} calories | ${dayTotal.prot}g protein | ${dayTotal.fat}g fat**`;
+      const bfExtras = [];
+      if (hasEggs) bfExtras.push(`- 3 Eggs: ${eggCal} cal / ${eggProt}g protein / ${eggFat}g fat`);
+      bfExtras.push(`- 1 tbsp Butter: ${butterCal} cal / ${butterFat}g fat`);
+
+      sampleDay = `### Breakfast\n${day1.breakfast}\n- ${bf.oz} oz ${bf.name}: ${bf.cal} cal / ${bf.prot}g protein / ${bf.fat}g fat\n${bfExtras.join('\n')}\n- **Meal total: ${bfTotal.cal} cal / ${bfTotal.prot}g protein / ${bfTotal.fat}g fat**\n\n### Lunch\n${day1.lunch}\n- ${ln.oz} oz ${ln.name}: ${ln.cal} cal / ${ln.prot}g protein / ${ln.fat}g fat\n- **Meal total: ${lnTotal.cal} cal / ${lnTotal.prot}g protein / ${lnTotal.fat}g fat**\n\n### Dinner\n${day1.dinner}\n- ${dn.oz} oz ${dn.name}: ${dn.cal} cal / ${dn.prot}g protein / ${dn.fat}g fat\n- 1 tbsp Butter: ${butterCal} cal / ${butterFat}g fat\n- **Meal total: ${dnTotal.cal} cal / ${dnTotal.prot}g protein / ${dnTotal.fat}g fat**\n\n### Day 1 Total\n**${dayTotal.cal} calories | ${dayTotal.prot}g protein | ${dayTotal.fat}g fat**`;
     } else {
       sampleDay = `### Breakfast\n${day1.breakfast}\n\n### Lunch\n${day1.lunch}\n\n### Dinner\n${day1.dinner}\n\n*Portions are calibrated to your ${targetCals} calorie target.*`;
     }
