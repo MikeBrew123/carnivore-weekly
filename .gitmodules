@@ -1,0 +1,3 @@
+[submodule "ketodial/public"]
+	path = ketodial/public
+	url = https://github.com/MikeBrew123/ketodial.git
