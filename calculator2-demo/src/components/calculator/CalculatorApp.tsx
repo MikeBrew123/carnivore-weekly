@@ -26,7 +26,7 @@ interface CalculatorAppProps {
   stripeSessionId?: string | null
 }
 
-const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Unlock Your Protocol']
+const STEP_LABELS = ['Physical Stats', 'Fitness & Diet', 'Free Results', 'Unlock Your Plan']
 
 const API_BASE = 'https://carnivore-report-api-production.iambrew.workers.dev'
 
@@ -322,7 +322,7 @@ export default function CalculatorApp({
     const sessionId = paymentState.stripeSessionId || 'unknown'
     const dedupKey = `purchase_fired_${sessionId}`
     if (window.gtag && !localStorage.getItem(dedupKey)) {
-      const paidCents = parseInt(localStorage.getItem('amountPaidCents') || '2900', 10)
+      const paidCents = parseInt(localStorage.getItem('amountPaidCents') || '1499', 10)
       const paidDollars = paidCents / 100
       window.gtag('event', 'purchase', {
         transaction_id: sessionId,

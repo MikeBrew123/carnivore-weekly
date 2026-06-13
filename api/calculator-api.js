@@ -4256,7 +4256,7 @@ async function handleCreateCheckout(request, env) {
 
     // Map tier_id to Stripe price_id
     const tierPriceMap = {
-      'bundle': 'price_1T5CZkEVDfkpGz8wnvZEnZH7',    // $29 USD - Complete Carnivore Protocol
+      'bundle': 'price_1ThzEIEVDfkpGz8wgEUuuXnQ',    // $14.99 USD - Summer Sale
     };
 
     const stripePriceId = tierPriceMap[tier_id] || tierPriceMap['bundle'];  // Default to bundle
