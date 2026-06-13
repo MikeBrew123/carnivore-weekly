@@ -28,17 +28,18 @@ interface PricingModalProps {
 
 const bundleOption = {
   id: 'bundle',
-  title: 'Complete Carnivore Protocol',
-  price: '$29',
-  description: 'Everything included',
+  title: 'Your 30-Day Meal Plan',
+  price: '$14.99',
+  originalPrice: '$29',
+  description: 'Summer Sale',
   features: [
-    '13-section personalized protocol',
-    '30-day meal plan with recipes',
-    'Weekly shopping lists',
-    'Doctor consultation guide',
-    'Macro & electrolyte calculations',
-    'AI-customized obstacle protocol',
-    'Adaptation timeline',
+    '30-day meal plan matched to your macros',
+    'Weekly grocery lists (take them to the store)',
+    'Simple meals that take less than 15 minutes',
+    'Week-by-week guide for your first month',
+    'What to tell your doctor about your diet',
+    'Electrolyte & supplement guidance',
+    'Stall-breaker troubleshooting protocol',
   ],
 }
 
@@ -62,7 +63,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   `
 
   const stripePriceIds: Record<string, string> = {
-    bundle: 'price_1T5CZkEVDfkpGz8wnvZEnZH7',     // $29 USD
+    bundle: 'price_1ThzEIEVDfkpGz8wgEUuuXnQ',     // $14.99 USD - Summer Sale
   }
 
   const getSelectedOption = () => {
@@ -150,7 +151,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             >
               ✕
             </button>
-            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif", color: '#ffd700', textAlign: 'center' }}>Your Personalized Protocol</h2>
+            <h2 style={{ fontSize: '28px', fontWeight: 'bold', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif", color: '#ffd700', textAlign: 'center' }}>Your 30-Day Meal Plan</h2>
             <p style={{ color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif", textAlign: 'center' }}>Built from your calculator results</p>
           </div>
 
@@ -162,8 +163,8 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             textAlign: 'center',
             borderBottom: '2px solid #ffd700',
           }}>
-            <p style={{ fontSize: '16px', fontWeight: '600', fontFamily: "'Playfair Display', Georgia, serif" }}>Limited Launch Pricing</p>
-            <p style={{ fontSize: '13px', marginTop: '6px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Complete Carnivore Protocol: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$29</span></p>
+            <p style={{ fontSize: '16px', fontWeight: '600', fontFamily: "'Playfair Display', Georgia, serif" }}>Summer Sale</p>
+            <p style={{ fontSize: '13px', marginTop: '6px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Your 30-Day Meal Plan: <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span> <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$14.99</span></p>
           </div>
 
           {/* Single Product Card */}
@@ -190,24 +191,34 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                 color: '#ffd700',
                 fontFamily: "'Playfair Display', Georgia, serif",
                 marginBottom: '8px',
-              }}>Complete Carnivore Protocol</h3>
+              }}>Your 30-Day Meal Plan</h3>
 
               <p style={{
                 color: '#a0a0a0',
                 fontFamily: "'Merriweather', Georgia, serif",
                 fontSize: '14px',
                 marginBottom: '24px',
-              }}>Everything you need to start and thrive</p>
+              }}>Exactly what to eat, when to shop, what to expect</p>
 
               {/* Price */}
               <div style={{ marginBottom: '32px' }}>
+                <span style={{
+                  fontSize: '28px',
+                  fontWeight: 'bold',
+                  color: '#a0a0a0',
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  lineHeight: 1,
+                  textDecoration: 'line-through',
+                  opacity: 0.5,
+                }}>$29</span>
                 <span style={{
                   fontSize: '56px',
                   fontWeight: 'bold',
                   color: '#ffd700',
                   fontFamily: "'Playfair Display', Georgia, serif",
                   lineHeight: 1,
-                }}>$29</span>
+                  marginLeft: '12px',
+                }}>$14.99</span>
                 <span style={{
                   fontSize: '16px',
                   color: '#a0a0a0',
@@ -267,7 +278,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                   e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.3)'
                 }}
               >
-                Get Your Protocol →
+                Get My 30-Day Plan →
               </button>
             </div>
 
@@ -330,9 +341,9 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     color: '#f5f5f5',
                     fontFamily: "'Merriweather', Georgia, serif",
                   }}>
-                    <li style={{ marginBottom: '4px' }}>Complete bundle: $298 value</li>
-                    <li style={{ marginBottom: '4px' }}>Your price: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$29</span></li>
-                    <li>Save: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>90%</span></li>
+                    <li style={{ marginBottom: '4px' }}>Regular price: <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span></li>
+                    <li style={{ marginBottom: '4px' }}>Summer Sale: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$14.99</span></li>
+                    <li>Save: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>48%</span></li>
                   </ul>
                 </div>
                 <div>
@@ -342,12 +353,12 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     marginBottom: '8px',
                     fontSize: '14px',
                     fontFamily: "'Playfair Display', Georgia, serif",
-                  }}>🔒 100% Money Back</p>
+                  }}>🔒 30-Day Money-Back Guarantee</p>
                   <p style={{
                     fontSize: '14px',
                     color: '#f5f5f5',
                     fontFamily: "'Merriweather', Georgia, serif",
-                  }}>Not satisfied? Full refund within 7 days, no questions asked.</p>
+                  }}>Not satisfied? Full refund within 30 days, no questions asked.</p>
                 </div>
               </div>
             </div>

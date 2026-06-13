@@ -222,21 +222,24 @@ export default function Step3FreeResults({
       }}>
         <div style={{ height: '2px', background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.35) 30%, rgba(255,215,0,0.35) 70%, transparent)', marginBottom: '24px', marginTop: '-12px' }} />
 
+        <p style={{ ...bodyFont, color: '#f59e0b', fontSize: '13px', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' as const, margin: '0 0 8px 0' }}>
+          Summer Sale
+        </p>
         <h3 style={{ ...goldHeading, fontSize: '22px', fontWeight: '700', margin: '0 0 10px 0', lineHeight: '1.3' }}>
-          Your macros are ready. Now get the protocol that helps you use them.
+          Your 30-day meal plan is ready.
         </h3>
         <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.6)', fontSize: '14px', lineHeight: '1.7', margin: '0 0 22px 0' }}>
-          The full protocol turns your numbers into a practical {config.label.toLowerCase()} plan, including meal structure, adaptation guidance, troubleshooting, and a doctor-conversation guide based on your quiz answers.
+          We built a personalized {config.label.toLowerCase()} plan from your calculator results — exactly what to eat, when to shop, and what to expect your first month.
         </p>
 
-        {/* Differentiated value bullets — doctor guide + troubleshooting lead */}
+        {/* Value bullets — meal plan and grocery list lead */}
         <div style={{ textAlign: 'left', marginBottom: '24px' }}>
           {[
-            { icon: '🩺', text: 'Doctor-conversation guide for labs, meds, and safety questions' },
-            { icon: '⚡', text: 'Adaptation plan for the first 7 days, including energy dips and cravings' },
-            { icon: '🔧', text: 'Troubleshooting for stalls, digestion, sleep, and electrolytes' },
-            { icon: '🍽️', text: 'Meal structure and portions based on your macro targets' },
-            { icon: '🛡️', text: 'Simple guardrails for staying consistent without overthinking' },
+            { icon: '🍽️', text: '30-day meal plan with portions matched to your macro targets' },
+            { icon: '🛒', text: 'Weekly grocery lists you can take to the store this weekend' },
+            { icon: '⚡', text: 'Week-by-week guide for your first 30 days (including the tough parts)' },
+            { icon: '🔧', text: 'What to do when weight loss stalls, energy drops, or cravings hit' },
+            { icon: '🩺', text: 'Doctor-conversation guide if your clinician has questions about your diet' },
           ].map((item, i) => (
             <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: i < 4 ? '12px' : 0 }}>
               <span style={{ fontSize: '15px', flexShrink: 0, marginTop: '1px' }}>{item.icon}</span>
@@ -272,10 +275,10 @@ export default function Step3FreeResults({
             marginBottom: '10px',
           }}
         >
-          Get My Custom Protocol — $29
+          Get My 30-Day Plan — <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span> $14.99
         </button>
         <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0 }}>
-          One-time purchase. Built from your quiz answers. No subscription.
+          One-time purchase. No subscription. 30-day money-back guarantee.
         </p>
       </div>
 
@@ -445,9 +448,9 @@ export default function Step3FreeResults({
             }}
           >
             <span style={{ fontSize: '28px', marginBottom: '8px' }}>🔒</span>
-            <p style={{ color: '#ffd700', fontWeight: 600, fontSize: '16px', margin: 0 }}>Your full daily protocol is ready</p>
-            <p style={{ color: '#a3a3a3', fontSize: '13px', marginTop: '6px' }}>4 more {config.label.toLowerCase()} meals + snack timing — included in your Custom Protocol</p>
-            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}>$29 — Unlock Now</p>
+            <p style={{ color: '#ffd700', fontWeight: 600, fontSize: '16px', margin: 0 }}>Your full 30-day meal plan is ready</p>
+            <p style={{ color: '#a3a3a3', fontSize: '13px', marginTop: '6px' }}>4 more {config.label.toLowerCase()} meals + snack timing + grocery lists — included in your plan</p>
+            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>$29</span> $14.99 — Summer Sale</p>
           </div>
         </div>
       </div>
@@ -472,11 +475,14 @@ export default function Step3FreeResults({
         <div style={{ height: '3px', background: 'linear-gradient(90deg,transparent,#ffd700 25%,#ffd700 75%,transparent)' }} />
 
         <div style={{ padding: '28px 28px 28px' }}>
+          <p style={{ color: '#f59e0b', fontSize: '12px', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' as const, margin: '0 0 6px 0', textAlign: 'center', ...bodyFont }}>
+            Summer Sale
+          </p>
           <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '24px', fontWeight: '700', margin: '0 0 8px 0', textAlign: 'center', lineHeight: '1.25', letterSpacing: '-0.02em' }}>
-            Turn your macros into a custom {config.label.toLowerCase()} protocol
+            Your 30-day {config.label.toLowerCase()} meal plan
           </p>
           <p style={{ color: 'rgba(244,228,212,0.6)', fontSize: '13.5px', textAlign: 'center', margin: '0 0 22px 0', ...bodyFont, lineHeight: '1.6' }}>
-            Built for your diet style, goal, activity level, and food preferences.
+            Meals, grocery lists, and guidance built from your calculator results.
           </p>
 
           <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,rgba(255,215,0,0.3) 20%,rgba(255,215,0,0.3) 80%,transparent)', margin: '0 0 22px 0' }} />
@@ -486,27 +492,27 @@ export default function Step3FreeResults({
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', ...bodyFont }}>
-                <strong style={{ color: '#f4e4d4' }}>Doctor conversation guide</strong> — what labs to request, how to discuss cholesterol, meds, and diet changes with your clinician.
+                <strong style={{ color: '#f4e4d4' }}>30-day meal plan</strong> — portions, timing, and simple meals built around your {macros.calories}-calorie, {macros.protein}g-protein targets.
               </p>
             </div>
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', ...bodyFont }}>
-                <strong style={{ color: '#f4e4d4' }}>Adaptation + troubleshooting</strong> — what to do when energy drops, cravings spike, digestion changes, or progress stalls.
+                <strong style={{ color: '#f4e4d4' }}>Weekly grocery lists</strong> — take them to the store this weekend. Budget-friendly options included.
               </p>
             </div>
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', ...bodyFont }}>
-                <strong style={{ color: '#f4e4d4' }}>Meal structure + shopping</strong> — portions, timing, and weekly grocery lists built around your {macros.calories}-calorie, {macros.protein}g-protein targets.
+                <strong style={{ color: '#f4e4d4' }}>First-month guide + doctor script</strong> — what to expect, what to do when progress stalls, and what to tell your clinician.
               </p>
             </div>
           </div>
 
           {/* Price + CTA */}
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>$29 — Yours forever</p>
-            <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, ...bodyFont }}>One-time · No subscription · Instant access</p>
+            <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}><span style={{ textDecoration: 'line-through', opacity: 0.45, fontSize: '18px' }}>$29</span> $14.99 — Yours forever</p>
+            <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, ...bodyFont }}>One-time · No subscription · 30-day money-back guarantee</p>
           </div>
 
           <button
@@ -536,7 +542,7 @@ export default function Step3FreeResults({
               boxShadow: '0 4px 20px rgba(255,215,0,0.2), inset 0 1px 0 rgba(255,255,255,0.12)'
             }}
           >
-            Get My Custom Protocol — $29
+            Get My 30-Day Plan — <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span> $14.99
           </button>
 
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '8px' }}>

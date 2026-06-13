@@ -70,12 +70,12 @@ export default function StripePaymentModal({
   }, [])
 
   const priceMap: Record<string, number> = {
-    bundle: 2900,
+    bundle: 1499,
   }
 
   const getDiscountedPrice = () => {
-    if (!discountApplied) return priceMap[tierId] || 2900
-    const originalPrice = priceMap[tierId] || 2900
+    if (!discountApplied) return priceMap[tierId] || 1499
+    const originalPrice = priceMap[tierId] || 1499
     return Math.round(originalPrice * (1 - discountApplied.percent / 100))
   }
 
@@ -140,7 +140,7 @@ export default function StripePaymentModal({
           tier_id: tierId,
           tier_title: tierTitle,
           amount: finalPrice,
-          original_amount: priceMap[tierId] || 2900,
+          original_amount: priceMap[tierId] || 1499,
           coupon_code: discountApplied?.code || null,
           discount_percent: discountApplied?.percent || 0,
           session_token: sessionToken,
@@ -294,7 +294,7 @@ export default function StripePaymentModal({
                     color: '#6b7280',
                     textDecoration: 'line-through',
                     marginBottom: '2px',
-                  }}>${((priceMap[tierId] || 2900) / 100).toFixed(2)}</p>
+                  }}>${((priceMap[tierId] || 1499) / 100).toFixed(2)}</p>
                 )}
                 <p style={{
                   fontSize: '18px',
@@ -316,7 +316,7 @@ export default function StripePaymentModal({
                 marginBottom: '4px',
               }}>
                 <span>Subtotal</span>
-                <span style={{ fontWeight: '600' }}>${((priceMap[tierId] || 2900) / 100).toFixed(2)}</span>
+                <span style={{ fontWeight: '600' }}>${((priceMap[tierId] || 1499) / 100).toFixed(2)}</span>
               </div>
               {discountApplied && (
                 <div style={{
@@ -330,7 +330,7 @@ export default function StripePaymentModal({
                   marginBottom: '4px',
                 }}>
                   <span>Discount ({discountApplied.code})</span>
-                  <span style={{ fontWeight: '600' }}>-${(((priceMap[tierId] || 2900) * discountApplied.percent / 100) / 100).toFixed(2)}</span>
+                  <span style={{ fontWeight: '600' }}>-${(((priceMap[tierId] || 1499) * discountApplied.percent / 100) / 100).toFixed(2)}</span>
                 </div>
               )}
               <div style={{
@@ -498,7 +498,7 @@ export default function StripePaymentModal({
                 color: '#15803d',
                 marginTop: '4px',
               }}>
-                Discount: -${(((priceMap[tierId] || 2900) * discountApplied.percent / 100) / 100).toFixed(2)}
+                Discount: -${(((priceMap[tierId] || 1499) * discountApplied.percent / 100) / 100).toFixed(2)}
               </p>
             </div>
           )}
