@@ -264,3 +264,16 @@ Attempts:
 - 2026-05-30 — Same calorie overshoot in KetoDial's meal plan engine. Rebuilt `buildMealPlanDays()` with protein-first scaling + fat knob + budget-aware dinners. Got to 91% pass rate (was ~30%). Logged in Obsidian daily note but **NOT in recurring-issues.md**. Fix was in KetoDial repo (commit 4d04ac3), not CW's generate-report.js. Session went in circles before fix landed — Brew had to bring in Claude Chat to assist.
 - 2026-06-13 — Bug resurfaced (or persisted) when portions/grocery features were added (commit 3eb6f2c7). Four fixes in commit b413ca71: (1) subtract eggProteinG (18g for non-Lion) before meat sizing, (2) remove `^` anchor from parseMeal regex, (3) subtract eggProteinDaily in grocery protein calc, (4) add leafy greens/broccoli/avocados for Keto. Deployed to Cloudflare. Hermes verified all 4 PASS.
 If recurs: The root cause is any code that adds protein sources without subtracting their contribution from the meat budget. Check: does `targetProtein` get reduced by ALL non-meat protein sources before `meatOzPerMeal` is calculated? Also check grocery list uses the same subtraction. **Do NOT go in circles** — if the fix isn't working after 2 attempts, stop and ask Brew to bring in a second opinion.
+
+---
+
+## ISSUE-024 — Missing .gitmodules for ketodial/public submodule
+🟢 FIXED — Last: 2026-06-13
+
+Pattern: `ketodial/public` was tracked as a git submodule (mode 160000) but `.gitmodules` was missing from the repo. GitHub Actions checkout failed because git couldn't resolve the submodule URL. Daily publish workflow blocked.
+Root cause: The submodule entry existed in the git index but the `.gitmodules` file mapping it to a remote URL was never committed. Likely from a manual `git submodule add` that was interrupted or partially reverted.
+Attempts:
+- 2026-06-13 — Added `.gitmodules` with correct mapping for `ketodial/public` → `https://github.com/MikeBrew123/ketodial-public.git`. Commit c57d2e01. Daily publish re-triggered manually and passed.
+Prevention: Before pushing any submodule changes, verify `.gitmodules` exists and contains the entry: `git config -f .gitmodules --list`. Pre-push hook should check that any mode-160000 index entries have matching `.gitmodules` entries.
+Verification: https://github.com/MikeBrew123/carnivore-weekly/actions/runs/27481584297 (green)
+If recurs: Run `git ls-files --stage | grep 160000` to find all submodule entries, then verify each has a `.gitmodules` mapping.
