@@ -285,7 +285,7 @@ export default function StripePaymentModal({
                   fontSize: '12px',
                   color: '#6b7280',
                   marginTop: '4px',
-                }}>Plan ID: {tierId}</p>
+                }}>One-time purchase</p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 {discountApplied && (

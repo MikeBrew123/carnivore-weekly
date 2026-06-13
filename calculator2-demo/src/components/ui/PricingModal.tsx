@@ -163,7 +163,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             textAlign: 'center',
             borderBottom: '2px solid #ffd700',
           }}>
-            <p style={{ fontSize: '16px', fontWeight: '600', fontFamily: "'Playfair Display', Georgia, serif" }}>Summer Sale</p>
+            <p style={{ fontSize: '16px', fontWeight: '600', fontFamily: "'Playfair Display', Georgia, serif" }}>Summer Sale — Ends July 4th</p>
             <p style={{ fontSize: '13px', marginTop: '6px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Your 30-Day Meal Plan: <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span> <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$14.99</span></p>
           </div>
 
@@ -313,7 +313,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     marginBottom: '8px',
                     fontSize: '14px',
                     fontFamily: "'Playfair Display', Georgia, serif",
-                  }}>📋 Included In Your Protocol</p>
+                  }}>📋 Included In Your Plan</p>
                   <ul style={{
                     fontSize: '14px',
                     listStyle: 'none',
@@ -321,9 +321,9 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     color: '#f5f5f5',
                     fontFamily: "'Merriweather', Georgia, serif",
                   }}>
-                    <li style={{ marginBottom: '4px' }}>✓ Personalized macro calculations</li>
-                    <li style={{ marginBottom: '4px' }}>✓ Your calorie targets</li>
-                    <li>✓ Instant results</li>
+                    <li style={{ marginBottom: '4px' }}>✓ 30 days of meals matched to your macros</li>
+                    <li style={{ marginBottom: '4px' }}>✓ Weekly grocery lists you can take to the store</li>
+                    <li>✓ Week-by-week adaptation guide</li>
                   </ul>
                 </div>
                 <div>
@@ -342,7 +342,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     fontFamily: "'Merriweather', Georgia, serif",
                   }}>
                     <li style={{ marginBottom: '4px' }}>Regular price: <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span></li>
-                    <li style={{ marginBottom: '4px' }}>Summer Sale: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$14.99</span></li>
+                    <li style={{ marginBottom: '4px' }}>Summer Sale (ends July 4th): <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$14.99</span></li>
                     <li>Save: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>48%</span></li>
                   </ul>
                 </div>
