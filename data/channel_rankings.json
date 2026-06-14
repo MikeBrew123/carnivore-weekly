@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-06-10",
+  "last_updated": "2026-06-14",
   "leaderboard": [
     {
-      "name": "HomeSteadHow",
+      "name": "Low Carb Love",
       "rank": 1,
-      "appearances": 9,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
-      "name": "Laura Spath",
-      "rank": 2,
       "appearances": 2,
-      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
-    },
-    {
-      "name": "FaceIQ",
-      "rank": 3,
-      "appearances": 1,
-      "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
+      "channel_id": "UCFVmPjPhx-XT6-ZVa9Tkuuw"
     },
     {
       "name": "Jenny Mitich",
-      "rank": 4,
-      "appearances": 1,
+      "rank": 2,
+      "appearances": 2,
       "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "Low Carb Love",
-      "rank": 5,
+      "name": "Keto Twins",
+      "rank": 3,
       "appearances": 1,
-      "channel_id": "UCFVmPjPhx-XT6-ZVa9Tkuuw"
+      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
+    },
+    {
+      "name": "Shawn Baker MD",
+      "rank": 4,
+      "appearances": 1,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+    },
+    {
+      "name": "FaceIQ",
+      "rank": 5,
+      "appearances": 2,
+      "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
     },
     {
       "name": "Bart Kay - Health Science",
       "rank": 6,
-      "appearances": 1,
+      "appearances": 2,
       "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
     },
     {
-      "name": "Roseland Lashay",
+      "name": "Emmathecarnivore",
       "rank": 7,
-      "appearances": 2,
-      "channel_id": "UCqw2wJ4Ho9tvCQJ1cQ6-sMw"
+      "appearances": 1,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
       "rank": 8,
-      "appearances": 1,
+      "appearances": 2,
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "TheSteakLad",
+      "name": "Chris Cooking Nashville",
       "rank": 9,
-      "appearances": 2,
-      "channel_id": "UCZ9uA3rRyPBUxRK9MJzsF9A"
+      "appearances": 1,
+      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
     },
     {
-      "name": "James Li",
+      "name": "HomeSteadHow",
       "rank": 10,
-      "appearances": 2,
-      "channel_id": "UCV9Q7hKsPHf82RfoXWBK5uQ"
+      "appearances": 10,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     }
   ]
 }
