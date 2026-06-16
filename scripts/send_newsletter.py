@@ -19,6 +19,8 @@ import os
 import sys
 from pathlib import Path
 
+import re
+
 import requests
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -51,7 +53,7 @@ SITES = {
     },
 }
 
-TEST_EMAIL = "iambrew@gmail.com"
+TEST_EMAILS = ["iambrew@gmail.com", "assistantbrew@gmail.com"]
 
 
 def load_secrets():
@@ -133,6 +135,21 @@ def personalize_html(html, email, site):
     return html
 
 
+def validate_newsletter_links(html):
+    """Check that blog post links in the newsletter resolve to real files."""
+    urls = re.findall(r'href="(https://(?:carnivoreweekly|ketodial)\.com/blog/[^"]+)"', html)
+    broken = []
+    for url in urls:
+        path = url.split(".com/", 1)[1].split("?")[0]
+        if "carnivoreweekly.com" in url:
+            local = PROJECT_ROOT / "public" / path
+        else:
+            local = PROJECT_ROOT / "ketodial" / "public" / path
+        if not local.exists():
+            broken.append(url)
+    return broken
+
+
 def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subject, html, site):
     results = []
     for email in to_emails:
@@ -174,8 +191,8 @@ def main():
     subject = load_subject(site)
 
     if args.test:
-        to_emails = [TEST_EMAIL]
-        print(f"TEST MODE: sending to {TEST_EMAIL} only")
+        to_emails = TEST_EMAILS
+        print(f"TEST MODE: sending to {', '.join(TEST_EMAILS)}")
     else:
         to_emails = get_subscribers(secrets, args.site)
         print(f"Found {len(to_emails)} active subscribers")
@@ -187,6 +204,18 @@ def main():
     print(f"  To:      {len(to_emails)} recipient(s)")
     print(f"  HTML:    {len(html):,} bytes")
     print(f"{'=' * 60}\n")
+
+    # Validate blog post links before sending
+    broken = validate_newsletter_links(html)
+    if broken:
+        print(f"  ⚠️  {len(broken)} broken blog link(s) found:")
+        for url in broken:
+            print(f"     404: {url}")
+        if not args.test:
+            print("  ABORTING: fix broken links before sending to subscribers.")
+            sys.exit(1)
+        else:
+            print("  (continuing in test mode despite broken links)")
 
     if args.dry_run:
         print("DRY RUN — no emails sent")

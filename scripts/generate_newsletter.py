@@ -141,34 +141,35 @@ def generate_newsletter(date_str=None):
     featured_videos = load_featured_videos(limit=2)
     print(f"  \u2713 {len(featured_videos)} featured videos")
 
-    blog_teasers = content.get("blog_teasers", [])
-    print(f"  \u2713 {len(blog_teasers)} blog teasers")
+    # New structure: hero + supporting + try_this_week
+    hero = content.get("hero")
+    supporting = content.get("supporting", [])
+    # Legacy fallback: if old blog_teasers format, convert
+    if not hero and content.get("blog_teasers"):
+        teasers = content["blog_teasers"]
+        hero = teasers[0] if teasers else None
+        if hero and "cta" not in hero:
+            hero["cta"] = "Read the full story"
+        supporting = teasers[1:4] if len(teasers) > 1 else []
 
-    # Editorial sections from content file
-    # subject_line is stored but NOT rendered in template (used by email service)
+    hero_label = f"Hero: {hero['title'][:40]}..." if hero else "No hero"
+    print(f"  \u2713 {hero_label}")
+    print(f"  \u2713 {len(supporting)} supporting links")
+
     editorial_sections = {
         "subject_line": content.get("subject_line", "This Week in Carnivore"),
         "opening": content.get("opening", ""),
-        "by_the_numbers": content.get("by_the_numbers", ""),
-        "whats_trending": content.get("whats_trending", ""),
-        "community_pulse": content.get("community_pulse", ""),
+        "try_this_week": content.get("try_this_week", ""),
         "looking_ahead": content.get("looking_ahead", ""),
     }
 
-    # Assemble template variables
     template_vars = {
-        # Static / config
         "date": display_date,
         "unsubscribe_link": "{{unsubscribe_url}}",
-
-        # Featured videos (2 slots)
         **featured_videos,
-
-        # Editorial sections (pre-written by CC using writer personas)
         **editorial_sections,
-
-        # Blog post teasers as objects for Jinja2 loop
-        "blog_teasers": blog_teasers,
+        "hero": hero,
+        "supporting": supporting,
     }
 
     # Load and render template
@@ -205,7 +206,8 @@ def generate_newsletter(date_str=None):
     print(f"{'='*60}")
     print(f"  Subject (email only): {editorial_sections['subject_line']}")
     print(f"  Date: {display_date}")
-    print(f"  Blog posts linked: {len(blog_teasers)}")
+    print(f"  Hero: {hero['title'][:50] if hero else 'None'}")
+    print(f"  Supporting links: {len(supporting)}")
     print(f"  Featured videos: {len(featured_videos)}")
 
     # Sections that render in template (exclude subject_line)
