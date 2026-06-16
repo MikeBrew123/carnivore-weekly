@@ -318,6 +318,7 @@ NEWSLETTER STRUCTURE:
 - Next-week hook: one sentence creating curiosity about next issue
 - Teasers create CURIOSITY, not summaries. Leave the answer in the article.
 - Any nutrition claim must be qualified ("a common starting range is..." not "you should eat exactly..."). Route specific guidance to the calculator.
+- Medical-adjacent content (bloodwork, cholesterol, glucose, hormones) must be SHORT teasers that click through to the article. Do not explain results or make claims in the email body. Use "some people find..." or "worth discussing with your doctor" framing.
 - ZERO em-dashes. Use commas, periods, or colons instead.
 
 Return ONLY valid JSON. No markdown fences, no explanation."""
@@ -384,10 +385,10 @@ Return a JSON object with these keys:
   "recipe_steps": "Numbered steps as <ol> HTML",
   "recipe_why": "One paragraph on why this works for keto",
   "tiny_win": "One specific, actionable tip for this week. Example: 'Before you buy any keto snack, check the sweetener line. If it leans on maltitol, put it back and pick real food instead.' 2-3 sentences, Marcus or Sarah voice.",
-  "community_body": "Chloe voice, 2-3 community observations with bold headers. Link to relevant KD blog posts using full URLs with UTM params: ?utm_source=newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}",
+  "community_body": "Chloe voice, 2-3 community observations with bold headers. Link to relevant KD blog posts using full URLs with UTM params: ?utm_source=kd_newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}",
   "next_week_hook": "One sentence teasing next week's issue. Create curiosity so they look forward to opening it.",
   "quick_links": [
-    {{"title": "Article title", "url": "https://ketodial.com/blog/slug.html?utm_source=newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}", "read_time": "5 min"}}
+    {{"title": "Article title", "url": "https://ketodial.com/blog/slug.html?utm_source=kd_newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}", "read_time": "5 min"}}
   ]
 }}
 
@@ -419,14 +420,21 @@ def build_kd_newsletter_html(content):
     utm = f"weekly_dialin_{issue_num:02d}"
     date_display = datetime.strptime(TODAY, "%Y-%m-%d").strftime("%B %-d, %Y")
 
-    # Pick a feature image from existing KD recipe images
+    # Pick a feature image that matches the issue theme
     recipe_images_dir = PROJECT_ROOT / "ketodial" / "public" / "images" / "recipes"
     feature_image = "https://ketodial.com/images/recipes/recipe-garlic-butter-ribeye-asparagus.jpg"
     if recipe_images_dir.exists():
         imgs = list(recipe_images_dir.glob("recipe-*.jpg"))
         if imgs:
-            # Pick one based on issue number for variety
-            pick = imgs[issue_num % len(imgs)]
+            theme = (content.get("issue_theme", "") + " " + content.get("headline", "")).lower()
+            alt = content.get("feature_image_alt", "").lower()
+            match = None
+            for img in imgs:
+                name = img.stem.replace("recipe-", "").replace("-", " ")
+                if any(word in theme or word in alt for word in name.split() if len(word) > 3):
+                    match = img
+                    break
+            pick = match or imgs[issue_num % len(imgs)]
             feature_image = f"https://ketodial.com/images/recipes/{pick.name}"
 
     html = f"""<!DOCTYPE html>
@@ -485,12 +493,12 @@ def build_kd_newsletter_html(content):
 
       <!-- ===== FEATURE IMAGE ===== -->
       <tr><td style="padding:26px 34px 0;">
-        <a href="https://ketodial.com/?utm_source=newsletter&utm_medium=email&utm_campaign={utm}#calc" style="text-decoration:none;">
+        <a href="https://ketodial.com/?utm_source=kd_newsletter&utm_medium=email&utm_campaign={utm}#calc" style="text-decoration:none;">
           <img src="{feature_image}" alt="{content.get("feature_image_alt", "Keto meal")}" width="532" style="width:100%;height:auto;border-radius:14px;display:block;" />
         </a>
       </td></tr>
 
-      <!-- ===== OPENING — Chloe ===== -->
+      <!-- ===== OPENING - Chloe ===== -->
       <tr><td style="padding:16px 34px 6px;">
         <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65;color:#475569;">
           {content.get("opening", "")}
@@ -500,7 +508,7 @@ def build_kd_newsletter_html(content):
       <!-- divider -->
       <tr><td style="padding:24px 34px 0;"><div style="height:1px;background:#e2e8f0;line-height:1px;font-size:1px;">&nbsp;</div></td></tr>
 
-      <!-- ===== DIAL-IN OF THE WEEK — Sarah ===== -->
+      <!-- ===== DIAL-IN OF THE WEEK - Sarah ===== -->
       <tr><td style="padding:26px 34px 0;">
         <div style="font-family:monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#0891b2;padding-bottom:14px;">Dial-in of the week</div>
         <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65;color:#475569;">
@@ -512,7 +520,7 @@ def build_kd_newsletter_html(content):
       <!-- divider -->
       <tr><td style="padding:24px 34px 0;"><div style="height:1px;background:#e2e8f0;line-height:1px;font-size:1px;">&nbsp;</div></td></tr>
 
-      <!-- ===== RECIPE — Marcus ===== -->
+      <!-- ===== RECIPE - Marcus ===== -->
       <tr><td style="padding:26px 34px 0;">
         <div style="font-family:monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#0891b2;padding-bottom:14px;">Cook this week</div>
         <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65;color:#475569;">
@@ -543,7 +551,7 @@ def build_kd_newsletter_html(content):
       <!-- divider -->
       <tr><td style="padding:24px 34px 0;"><div style="height:1px;background:#e2e8f0;line-height:1px;font-size:1px;">&nbsp;</div></td></tr>
 
-      <!-- ===== WHAT WE'RE HEARING — Chloe ===== -->
+      <!-- ===== WHAT WE'RE HEARING - Chloe ===== -->
       <tr><td style="padding:26px 34px 0;">
         <div style="font-family:monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#0891b2;padding-bottom:14px;">What we're hearing</div>
         <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65;color:#475569;">
@@ -562,7 +570,7 @@ def build_kd_newsletter_html(content):
             <div style="font-family:Georgia,serif;font-weight:500;font-size:22px;color:#ffffff;letter-spacing:-0.01em;padding-bottom:6px;">Dial in your fat-to-protein ratio</div>
             <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.5;color:#9fc0d6;padding-bottom:18px;">Get your personalized keto macros in about 30 seconds. No signup, completely free.</div>
             <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:#38bdf8;border-radius:11px;">
-              <a href="https://ketodial.com/?utm_source=newsletter&utm_medium=email&utm_campaign={utm}#calc" style="display:inline-block;font-family:Arial,sans-serif;font-weight:700;font-size:14px;color:#062234;padding:13px 22px;text-decoration:none;">Open the calculator →</a>
+              <a href="https://ketodial.com/?utm_source=kd_newsletter&utm_medium=email&utm_campaign={utm}#calc" style="display:inline-block;font-family:Arial,sans-serif;font-weight:700;font-size:14px;color:#062234;padding:13px 22px;text-decoration:none;">Open the calculator →</a>
             </td></tr></table>
           </td></tr>
         </table>
@@ -613,7 +621,7 @@ def build_kd_newsletter_html(content):
         </table>
       </td></tr>''' if content.get("next_week_hook") else ""}
 
-      <!-- ===== CROSS-PROMO — Carnivore Weekly ===== -->
+      <!-- ===== CROSS-PROMO - Carnivore Weekly ===== -->
       <tr><td style="padding:20px 34px 30px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAF7F2;border-radius:14px;border-left:3px solid #C8956C;overflow:hidden;">
           <tr><td style="padding:22px 26px;">
@@ -633,11 +641,11 @@ def build_kd_newsletter_html(content):
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr><td align="center" style="padding:6px 0 18px;">
         <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-          <td style="padding:0 9px;"><a href="https://ketodial.com/?utm_source=newsletter&utm_medium=email#calc" style="font-family:monospace;font-size:11px;color:#64788e;text-decoration:none;">Calculator</a></td>
+          <td style="padding:0 9px;"><a href="https://ketodial.com/?utm_source=kd_newsletter&utm_medium=email&utm_campaign={utm}#calc" style="font-family:monospace;font-size:11px;color:#64788e;text-decoration:none;">Calculator</a></td>
           <td style="color:#c7d2de;">·</td>
-          <td style="padding:0 9px;"><a href="https://ketodial.com/blog/?utm_source=newsletter&utm_medium=email" style="font-family:monospace;font-size:11px;color:#64788e;text-decoration:none;">Guides</a></td>
+          <td style="padding:0 9px;"><a href="https://ketodial.com/blog/?utm_source=kd_newsletter&utm_medium=email&utm_campaign={utm}" style="font-family:monospace;font-size:11px;color:#64788e;text-decoration:none;">Guides</a></td>
           <td style="color:#c7d2de;">·</td>
-          <td style="padding:0 9px;"><a href="https://ketodial.com/recipes/?utm_source=newsletter&utm_medium=email" style="font-family:monospace;font-size:11px;color:#64788e;text-decoration:none;">Recipes</a></td>
+          <td style="padding:0 9px;"><a href="https://ketodial.com/recipes/?utm_source=kd_newsletter&utm_medium=email&utm_campaign={utm}" style="font-family:monospace;font-size:11px;color:#64788e;text-decoration:none;">Recipes</a></td>
         </tr></table>
       </td></tr>
       <tr><td align="center" style="font-family:Arial,sans-serif;font-size:12px;line-height:1.6;color:#8499ad;padding:0 20px 14px;">
