@@ -277,3 +277,14 @@ Attempts:
 Prevention: Before pushing any submodule changes, verify `.gitmodules` exists and contains the entry: `git config -f .gitmodules --list`. Pre-push hook should check that any mode-160000 index entries have matching `.gitmodules` entries.
 Verification: https://github.com/MikeBrew123/carnivore-weekly/actions/runs/27481584297 (green)
 If recurs: Run `git ls-files --stage | grep 160000` to find all submodule entries, then verify each has a `.gitmodules` mapping.
+
+---
+
+## ISSUE-026 — KD blog posts rendered empty (content wiped by regeneration)
+🟢 FIXED — Last: 2026-06-15
+
+Pattern: A session "regenerated" all 26 KD blog HTML files to add images, but overwrote article body content with empty templates. KD posts are standalone HTML (no data store), so regeneration = content loss.
+Attempts:
+- 2026-06-15 — Restored content from pre-wipe commit (e559996), merged with current image/meta improvements. Commit 3e845c2. Added CLAUDE.md safeguard prohibiting bulk KD blog regeneration.
+Prevention: KD blog posts must NEVER be bulk-regenerated. Edits must be surgical (sed/python targeting specific tags). Any script touching KD blog HTML must preserve the <div class="content"> body.
+If recurs: Restore from last good commit before the wipe. Run `git log --oneline -- blog/ | head` in the KD submodule to find it.

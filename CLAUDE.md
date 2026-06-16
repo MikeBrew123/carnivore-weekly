@@ -334,6 +334,9 @@ Manual edits allowed when instructed, but:
 18. New validators: always run against full codebase, not just new files.
 19. Health checks must cover blog-to-blog cross-links.
 
+### KetoDial (ISSUE-026 — burned us hard)
+20. **NEVER bulk-regenerate KD blog HTML files.** KD posts are standalone HTML with inline content (no data store). A "regeneration" script wiped all 26 posts' article bodies on June 12. Edits must be surgical (sed/python targeting specific tags only).
+
 ---
 
 ## KetoDial (ketodial.com) — Static Site
@@ -342,7 +345,9 @@ KetoDial is a keto-focused site living inside this repo at `ketodial/`. The stat
 
 ### KetoDial Blog Post Pipeline
 
-Blog posts are standalone HTML files in `ketodial/public/blog/`. No generation script — each post is a complete HTML file.
+Blog posts are standalone HTML files in `ketodial/public/blog/`. No generation script — each post is a complete HTML file. **Content lives inline in the HTML — there is no separate data store.**
+
+**⚠️ NEVER bulk-regenerate KD blog HTML files.** Regeneration overwrites article content (ISSUE-026 wiped all 26 posts on June 12). All edits to existing KD posts must be surgical — use sed/python to target specific tags (meta, images, nav) without touching `<div class="content">`.
 
 1. **Template:** Match the exact structure of existing posts (e.g., `keto-flu-electrolyte-fix.html`). Same CSS, nav, footer, JSON-LD schema, GA4 tag (G-0Y79FB48EG), fonts, skip-nav.
 2. **Writers:** Use Sarah (health), Marcus (performance), Chloe (community) agents. Same voice rules as CW: no em-dashes, no AI tells, contractions, grade 8-10 reading level.
