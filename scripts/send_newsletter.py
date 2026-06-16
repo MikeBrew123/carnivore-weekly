@@ -184,16 +184,18 @@ def main():
     args = parser.parse_args()
 
     site = SITES[args.site]
-    secrets = load_secrets()
-    resend_key = secrets["resend"]["key"]
+    secrets = None
 
     html, date_slug = load_newsletter_html(site, args.date)
     subject = load_subject(site)
 
-    if args.test:
+    if args.dry_run:
+        to_emails = TEST_EMAILS
+    elif args.test:
         to_emails = TEST_EMAILS
         print(f"TEST MODE: sending to {', '.join(TEST_EMAILS)}")
     else:
+        secrets = load_secrets()
         to_emails = get_subscribers(secrets, args.site)
         print(f"Found {len(to_emails)} active subscribers")
 
@@ -222,6 +224,10 @@ def main():
         for email in to_emails:
             print(f"  Would send to: {email}")
         return
+
+    if not secrets:
+        secrets = load_secrets()
+    resend_key = secrets["resend"]["key"]
 
     results = send_via_resend(
         resend_key, site["from_email"], site["from_name"],
