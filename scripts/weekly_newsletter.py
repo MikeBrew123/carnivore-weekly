@@ -167,6 +167,15 @@ You write in three voices:
 
 {VOICE_RULES}
 
+NEWSLETTER STRUCTURE RULES:
+- ONE hero story at the top. This is the thing worth forwarding.
+- THREE supporting links max, each a single sentence that creates curiosity (an open loop, not a summary).
+- ONE "try this week" practical action the reader can do today.
+- ONE "next week" curiosity hook so they look forward to the next issue.
+- Teasers must create CURIOSITY, not summarize the article. Leave the answer in the article.
+- NEVER cite a statistic without qualifying it ("community members report..." or "based on a 2024 survey of..."). If you can't source it, soften it.
+- Hero CTA should be a short action phrase like "Read before Friday" or "See the protocol", NOT generic "Read more".
+
 Return ONLY valid JSON. No markdown fences, no explanation."""
 
 
@@ -175,7 +184,7 @@ def generate_cw_content(recent_posts, api_key):
     post_summaries = []
     for p in recent_posts:
         post_summaries.append(
-            f"- \"{p['title']}\" by {p.get('author','unknown')} ({p.get('category','')}) — {p.get('excerpt','')}"
+            f"- slug: \"{p['slug']}\" | \"{p['title']}\" by {p.get('author','unknown')} ({p.get('category','')}) — {p.get('excerpt','')}"
         )
 
     posts_text = "\n".join(post_summaries) if post_summaries else "No posts this week."
@@ -188,20 +197,29 @@ Recent blog posts published this week:
 Return a JSON object with these exact keys:
 {{
   "date": "{TODAY}",
-  "subject_line": "Catchy subject line, 6-10 words",
-  "opening": "<p style='margin:0;'>Chloe voice, 2-3 sentences welcoming readers and teasing this week's content</p>",
-  "blog_teasers": [
-    {{"slug": "post-slug", "title": "Post Title", "writer": "WriterName", "teaser": "2-3 sentence hook that makes people want to click"}}
+  "subject_line": "Catchy subject line, 6-10 words. Create curiosity, not a summary. No em-dashes.",
+  "opening": "<p style='margin:0;'>Chloe voice, 2-3 sentences. Quick, warm, energetic. Tease what's inside without giving it away. No em-dashes.</p>",
+  "hero": {{
+    "slug": "EXACT-slug-from-posts-above",
+    "title": "Post title",
+    "writer": "WriterName",
+    "teaser": "3-4 sentences creating an OPEN LOOP. Describe the problem or tension, hint at the answer, but leave the payoff in the article. Make readers NEED to click.",
+    "cta": "Short action phrase like 'Read before Friday' (not 'Read more')"
+  }},
+  "supporting": [
+    {{"slug": "EXACT-slug-with-date-prefix", "title": "Exact Post Title", "teaser": "ONE sentence, curiosity only. Example: 'Marcus gives the 12-week version, protein target first, nonsense last.'"}}
   ],
-  "by_the_numbers": "<table role='presentation' width='100%' cellpadding='0' cellspacing='0' border='0'><tr><td width='33%' align='center' valign='top' style='padding:8px 4px;'><span style='font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#1C1210;'>NUM</span><br><span style='font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;'>LABEL</span></td><td width='34%' align='center' valign='top' style='padding:8px 4px;border-left:1px solid #E5DDD4;border-right:1px solid #E5DDD4;'><span style='font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#1C1210;'>NUM</span><br><span style='font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;'>LABEL</span></td><td width='33%' align='center' valign='top' style='padding:8px 4px;'><span style='font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#1C1210;'>NUM</span><br><span style='font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;'>LABEL</span></td></tr></table>",
-  "whats_trending": "<p style='margin:0;'>Chloe voice, 2-3 trends in the carnivore community with bold headers</p>",
-  "community_pulse": "<p style='margin:0;'>Sarah voice, health insight from the community this week</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Marcus voice, what's coming next week</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>One practical action.</strong> Marcus or Sarah voice. Something specific the reader can do this week. 2-3 sentences max. No em-dashes.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>One sentence curiosity hook for next week. Make them want to open next week's email.</p>"
 }}
 
-For blog_teasers, create one entry per recent post (max 5). Use the actual slug and title from the posts above.
-For by_the_numbers, use 3 real/plausible stats related to this week's content. Use the exact HTML table format shown.
-All HTML content must use inline styles. No classes."""
+CRITICAL RULES:
+- Pick the MOST compelling post as the hero. The other posts (max 3) go in supporting.
+- Use the EXACT slug from the posts above (including date prefix like 2026-06-15-topic-name). Do NOT strip the date prefix.
+- Supporting teasers are ONE sentence each, maximum. Create curiosity, not summaries.
+- ZERO em-dashes in any content. Use commas, periods, or colons instead.
+- Any statistic must be qualified ("community members report..." or "based on..."). No unsourced numbers.
+- All HTML content must use inline styles. No classes."""
 
     print("  Calling Anthropic API for CW content...")
     raw = call_anthropic(CW_SYSTEM_PROMPT, user_prompt, api_key)
@@ -214,6 +232,38 @@ All HTML content must use inline styles. No classes."""
 
     content = json.loads(raw)
     content["date"] = TODAY
+
+    # Resolve bare slugs to actual date-prefixed slugs from blog_posts.json
+    bp_path = PROJECT_ROOT / "data" / "blog_posts.json"
+    if bp_path.exists():
+        data = json.loads(bp_path.read_text())
+        all_posts = data.get("blog_posts", data if isinstance(data, list) else [])
+        slug_map = {}
+        for p in all_posts:
+            full = p["slug"]
+            slug_map[full] = full
+            bare = re.sub(r"^\d{4}-\d{2}-\d{2}-", "", full)
+            if bare != full:
+                slug_map[bare] = full
+        # Resolve hero slug
+        if "hero" in content:
+            bare = content["hero"].get("slug", "")
+            if bare in slug_map:
+                content["hero"]["slug"] = slug_map[bare]
+        # Resolve supporting slugs and backfill missing titles
+        title_map = {p["slug"]: p["title"] for p in all_posts}
+        for item in content.get("supporting", []):
+            bare = item.get("slug", "")
+            if bare in slug_map:
+                item["slug"] = slug_map[bare]
+            if not item.get("title") and item.get("slug") in title_map:
+                item["title"] = title_map[item["slug"]]
+        # Legacy: resolve blog_teasers if present
+        for teaser in content.get("blog_teasers", []):
+            bare = teaser.get("slug", "")
+            if bare in slug_map:
+                teaser["slug"] = slug_map[bare]
+
     return content
 
 
@@ -257,8 +307,18 @@ You write in three voices:
 - Chloe (Community Manager): Community trends, what people are asking, relatable observations.
 
 The newsletter is for people following a ketogenic diet. Focus on practical advice.
+Position KetoDial as the weekly small fix that makes keto easier.
 
 {VOICE_RULES}
+
+NEWSLETTER STRUCTURE:
+- Hero: one useful guide or article (the reason to open this email)
+- Recipe: one practical keto recipe for the week
+- Tiny Win: one specific, actionable thing the reader can do THIS WEEK (a grocery swap, a label check, a meal prep trick)
+- Next-week hook: one sentence creating curiosity about next issue
+- Teasers create CURIOSITY, not summaries. Leave the answer in the article.
+- Any nutrition claim must be qualified ("a common starting range is..." not "you should eat exactly..."). Route specific guidance to the calculator.
+- ZERO em-dashes. Use commas, periods, or colons instead.
 
 Return ONLY valid JSON. No markdown fences, no explanation."""
 
@@ -293,13 +353,16 @@ def generate_kd_content(recent_posts, issue_number, api_key):
         except (json.JSONDecodeError, UnicodeDecodeError):
             continue
 
+    quick_links_json = json.dumps(
+        [{"title": p["title"], "slug": p["slug"]} for p in all_kd_posts[:20]], indent=2
+    )
     user_prompt = f"""Generate content for KetoDial newsletter issue #{issue_number}, dated {TODAY_DISPLAY}.
 
 Recent KD blog posts this week:
 {posts_text}
 
 All available KD blog posts (for quick-links):
-{json.dumps([{{"title": p["title"], "slug": p["slug"]}} for p in all_kd_posts[:20]], indent=2)}
+{quick_links_json}
 
 Return a JSON object with these keys:
 {{
@@ -320,24 +383,34 @@ Return a JSON object with these keys:
   "recipe_ingredients": "Ingredient list as HTML",
   "recipe_steps": "Numbered steps as <ol> HTML",
   "recipe_why": "One paragraph on why this works for keto",
-  "community_body": "Chloe voice, 3 community observations with bold headers. Link to relevant KD blog posts using full URLs with UTM params: ?utm_source=newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}",
+  "tiny_win": "One specific, actionable tip for this week. Example: 'Before you buy any keto snack, check the sweetener line. If it leans on maltitol, put it back and pick real food instead.' 2-3 sentences, Marcus or Sarah voice.",
+  "community_body": "Chloe voice, 2-3 community observations with bold headers. Link to relevant KD blog posts using full URLs with UTM params: ?utm_source=newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}",
+  "next_week_hook": "One sentence teasing next week's issue. Create curiosity so they look forward to opening it.",
   "quick_links": [
     {{"title": "Article title", "url": "https://ketodial.com/blog/slug.html?utm_source=newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}", "read_time": "5 min"}}
   ]
 }}
 
 For quick_links, pick 3 evergreen KD posts that relate to this week's theme. Use actual URLs from the post list above.
+ZERO em-dashes in any content. Qualify any nutrition claims.
 All content must use inline styles. No CSS classes."""
 
     print("  Calling Anthropic API for KD content...")
-    raw = call_anthropic(KD_SYSTEM_PROMPT, user_prompt, api_key)
-
-    raw = raw.strip()
-    if raw.startswith("```"):
-        raw = re.sub(r"^```(?:json)?\n?", "", raw)
-        raw = re.sub(r"\n?```$", "", raw)
-
-    return json.loads(raw)
+    for attempt in range(2):
+        raw = call_anthropic(KD_SYSTEM_PROMPT, user_prompt, api_key)
+        raw = raw.strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```(?:json)?\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError as e:
+            if attempt == 0:
+                print(f"  JSON parse error ({e}), retrying...")
+            else:
+                print(f"  JSON parse failed after retry: {e}")
+                print(f"  Raw (first 500 chars): {raw[:500]}")
+                raise
 
 
 def build_kd_newsletter_html(content):
@@ -365,7 +438,7 @@ def build_kd_newsletter_html(content):
 <meta name="x-apple-disable-message-reformatting" />
 <meta name="color-scheme" content="light" />
 <meta name="supported-color-schemes" content="light" />
-<title>The Weekly Dial-In — KetoDial</title>
+<title>The Weekly Dial-In | KetoDial</title>
 <!--[if mso]>
 <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
 <![endif]-->
@@ -455,6 +528,21 @@ def build_kd_newsletter_html(content):
       <!-- divider -->
       <tr><td style="padding:24px 34px 0;"><div style="height:1px;background:#e2e8f0;line-height:1px;font-size:1px;">&nbsp;</div></td></tr>
 
+      <!-- ===== THIS WEEK'S TINY WIN ===== -->
+      <tr><td style="padding:26px 34px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border-radius:14px;border-left:3px solid #4ade80;">
+          <tr><td style="padding:20px 24px;">
+            <div style="font-family:monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#16a34a;padding-bottom:10px;">This week's tiny win</div>
+            <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.65;color:#475569;">
+              {content.get("tiny_win", "")}
+            </div>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <!-- divider -->
+      <tr><td style="padding:24px 34px 0;"><div style="height:1px;background:#e2e8f0;line-height:1px;font-size:1px;">&nbsp;</div></td></tr>
+
       <!-- ===== WHAT WE'RE HEARING — Chloe ===== -->
       <tr><td style="padding:26px 34px 0;">
         <div style="font-family:monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#0891b2;padding-bottom:14px;">What we're hearing</div>
@@ -480,6 +568,23 @@ def build_kd_newsletter_html(content):
         </table>
       </td></tr>
 
+      <!-- ===== COACH DEMO CTA ===== -->
+      <tr><td style="padding:20px 34px 6px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0f9ff;border-radius:14px;border-left:3px solid #38bdf8;">
+          <tr><td style="padding:20px 24px;">
+            <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#475569;">
+              <strong style="color:#0f172a;">Want help staying consistent?</strong> We're testing KetoDial Coach: text-based low-carb accountability with weekly or daily check-ins. It's built for the part most people struggle with after the calculator, actually following through.
+            </div>
+            <div style="padding-top:14px;">
+              <table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:#0b1620;border-radius:11px;">
+                <a href="https://coach.ketodial.com/?utm_source=kd_newsletter&utm_medium=email&utm_campaign={utm}" style="display:inline-block;font-family:Arial,sans-serif;font-weight:700;font-size:13px;color:#38bdf8;padding:11px 20px;text-decoration:none;">See the Coach demo &rarr;</a>
+              </td></tr></table>
+            </div>
+            <div style="font-family:Arial,sans-serif;font-size:11px;color:#94a3b8;padding-top:8px;">General accountability only. Not medical care or medication guidance.</div>
+          </td></tr>
+        </table>
+      </td></tr>
+
       <!-- ===== QUICK LINKS ===== -->
       <tr><td style="padding:26px 34px 6px;">
         <div style="font-family:monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#94a3b8;padding-bottom:14px;">Also worth a read</div>
@@ -498,12 +603,22 @@ def build_kd_newsletter_html(content):
         </table>
       </td></tr>
 
+      <!-- ===== NEXT WEEK HOOK ===== -->
+      {f'''<tr><td style="padding:20px 34px 6px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fefce8;border-radius:14px;border-left:3px solid #facc15;">
+          <tr><td style="padding:16px 24px;">
+            <div style="font-family:monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#a16207;padding-bottom:6px;">Next week</div>
+            <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#475569;">{content.get("next_week_hook", "")}</div>
+          </td></tr>
+        </table>
+      </td></tr>''' if content.get("next_week_hook") else ""}
+
       <!-- ===== CROSS-PROMO — Carnivore Weekly ===== -->
       <tr><td style="padding:20px 34px 30px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAF7F2;border-radius:14px;border-left:3px solid #C8956C;overflow:hidden;">
           <tr><td style="padding:22px 26px;">
             <div style="font-family:monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#9B8574;padding-bottom:10px;">Love this? You might also like</div>
-            <a href="https://carnivoreweekly.com/?utm_source=kd_newsletter&utm_medium=email&utm_campaign=cross_promo" style="font-family:Georgia,serif;font-weight:500;font-size:18px;color:#0f172a;text-decoration:none;">Carnivore Weekly — Your Weekly Carnivore Briefing</a>
+            <a href="https://carnivoreweekly.com/?utm_source=kd_newsletter&utm_medium=email&utm_campaign=cross_promo" style="font-family:Georgia,serif;font-weight:500;font-size:18px;color:#0f172a;text-decoration:none;">Carnivore Weekly: Your Weekly Carnivore Briefing</a>
             <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.55;color:#475569;padding-top:8px;">Research, trending videos, and community intel from the carnivore world. Same team, meat-focused.</div>
             <div style="padding-top:12px;"><a href="https://carnivoreweekly.com/?utm_source=kd_newsletter&utm_medium=email&utm_campaign=cross_promo" style="font-family:Arial,sans-serif;font-weight:600;font-size:13.5px;color:#C8956C;text-decoration:none;">Check it out →</a></div>
           </td></tr>
@@ -603,6 +718,8 @@ def main():
     parser.add_argument("--dry-run", action="store_true",
                         help="Show what would happen without doing it")
     parser.add_argument("--date", help="Override date (YYYY-MM-DD)", default=None)
+    parser.add_argument("--lookback", type=int, default=7,
+                        help="How many days back to look for posts (default: 7)")
     args = parser.parse_args()
 
     global TODAY, TODAY_DISPLAY
@@ -624,9 +741,9 @@ def main():
     # --- CW ---
     if "cw" in sites:
         print("[CW] Checking for recent posts...")
-        cw_posts = get_recent_cw_posts()
+        cw_posts = get_recent_cw_posts(days=args.lookback)
         if not cw_posts:
-            print("[CW] No published posts in the last 7 days. Skipping CW newsletter.")
+            print(f"[CW] No published posts in the last {args.lookback} days. Skipping CW newsletter.")
             results["cw"] = "skipped"
         else:
             print(f"[CW] Found {len(cw_posts)} recent posts")
@@ -661,9 +778,9 @@ def main():
     # --- KD ---
     if "kd" in sites:
         print(f"\n[KD] Checking for recent posts...")
-        kd_posts = get_recent_kd_posts()
+        kd_posts = get_recent_kd_posts(days=args.lookback)
         if not kd_posts:
-            print("[KD] No KD posts published in the last 7 days. Skipping KD newsletter.")
+            print(f"[KD] No KD posts published in the last {args.lookback} days. Skipping KD newsletter.")
             results["kd"] = "skipped"
         else:
             print(f"[KD] Found {len(kd_posts)} recent posts")

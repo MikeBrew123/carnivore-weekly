@@ -1,41 +1,31 @@
 {
   "date": "2026-06-15",
-  "subject_line": "Tallow, Meatstock, and Your Summer Meal Plan",
-  "opening": "<p style='margin:0;font-family:Verdana,Geneva,sans-serif;font-size:15px;color:#1C1210;line-height:1.6;'>Happy Monday, carnivores. This week we've got everything from a 1,600-person convention recap to the science behind your grandma's favorite cooking fat. Grab your coffee, maybe fry an egg in some tallow, and let's get into it.</p>",
-  "blog_teasers": [
+  "subject_line": "Your First Drink on Carnivore Will Surprise You",
+  "opening": "<p style='margin:0;'>Happy Monday, friend. This week we've got something for everyone: a community story that gave us chills, a metabolic truth most carnivores learn the hard way, and one protocol worth printing out. Grab your coffee and let's get into it.</p>",
+  "hero": {
+    "slug": "2026-06-15-carnivore-and-alcohol",
+    "title": "Carnivore and Alcohol: What Happens When You Drink",
+    "writer": "Sarah",
+    "teaser": "You had two drinks. You felt like you had six. Then the next morning hit you like a freight train, and you had no idea why. It's not in your head. There's a real metabolic reason your body handles alcohol completely differently on carnivore, and once you understand it, you can actually plan around it. Sarah breaks down exactly what's happening inside your body, and what to do before, during, and after if you're going to drink.",
+    "cta": "Read before your next social event"
+  },
+  "supporting": [
     {
-      "slug": "carnivore-and-alcohol",
-      "title": "Carnivore and Alcohol: What Happens When You Drink",
-      "writer": "Sarah",
-      "teaser": "If you've noticed two drinks hitting like four since going carnivore, you're not imagining it. Sarah breaks down exactly what's happening in your liver when alcohol meets a fat-fueled metabolism. It's not bad news, but you'll definitely want to know before your next weekend plans."
-    },
-    {
-      "slug": "meatstock-2026",
+      "slug": "2026-06-14-meatstock-2026",
       "title": "Meatstock 2026: What 1,600 Carnivores in One Room Looks Like",
-      "writer": "Chloe",
-      "teaser": "Fads don't fill convention halls. Movements do, and Meatstock 2026 just proved carnivore is very much a movement. Chloe was there for all of it and her recap will honestly make you wish you'd bought a ticket."
+      "teaser": "Chloe walked the floor at Meatstock 2026 and came back with one observation that reframes everything people say about carnivore being a 'fringe diet.'"
     },
     {
-      "slug": "carnivore-recomp",
+      "slug": "2026-06-13-carnivore-recomp",
       "title": "Carnivore Recomp: Losing Fat and Building Muscle at the Same Time",
-      "writer": "Marcus",
-      "teaser": "Most people think recomposition is reserved for beginners or people on gear. Marcus is here to tell you that's wrong, and he's got a 12-week carnivore protocol with exact protein targets to back it up. If you've been spinning your wheels, this is your next move."
+      "teaser": "Marcus wrote down the exact protein targets and 12-week training structure he'd hand someone who insists you can't do both at once on carnivore."
     },
     {
-      "slug": "personalized-carnivore-meal-plan-summer",
-      "title": "Your Personalized Carnivore Meal Plan for Summer",
-      "writer": "Sarah",
-      "teaser": "A 30-day plan built around your actual macros, not some generic template someone copy-pasted from a forum. Sarah's included grocery lists, simple meals, and summer sale pricing that won't last long. This one's worth clicking on before the week gets away from you."
-    },
-    {
-      "slug": "what-beef-tallow-actually-does",
+      "slug": "2026-06-12-beef-tallow-trending",
       "title": "What Beef Tallow Actually Does (And Why It's Trending)",
-      "writer": "Sarah",
-      "teaser": "Tallow went from forgotten pantry staple to one of the most talked-about fats on the internet, and Sarah explains exactly why the hype is actually backed by science. Your grandmother cooked with it every day and she wasn't wrong. Here's the full story."
+      "teaser": "Sarah found the science behind why your grandmother's cooking fat is suddenly back, and one of the reasons might genuinely change how you think about fat."
     }
   ],
-  "by_the_numbers": "<table role='presentation' width='100%' cellpadding='0' cellspacing='0' border='0'><tr><td width='33%' align='center' valign='top' style='padding:8px 4px;'><span style='font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#1C1210;'>1,600</span><br><span style='font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;'>Carnivores at Meatstock 2026</span></td><td width='34%' align='center' valign='top' style='padding:8px 4px;border-left:1px solid #E5DDD4;border-right:1px solid #E5DDD4;'><span style='font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#1C1210;'>42%</span><br><span style='font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;'>Lower alcohol tolerance reported on carnivore</span></td><td width='33%' align='center' valign='top' style='padding:8px 4px;'><span style='font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#1C1210;'>12 wks</span><br><span style='font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;'>Marcus's recomp protocol length</span></td></tr></table>",
-  "whats_trending": "<p style='margin:0;font-family:Verdana,Geneva,sans-serif;font-size:15px;color:#1C1210;line-height:1.6;'><strong>Tallow Everything.</strong> Beef tallow is having a serious moment right now. People are cooking with it, skincare brands are putting it in moisturizers, and grocery stores can't keep it stocked. The old ways are coming back fast.<br><br><strong>Carnivore Summer Prep.</strong> With summer officially here, the community's big focus is keeping it simple outdoors. Grilled ribeyes, beach-friendly snacks like biltong and hard-boiled eggs, and no-fuss meal plans are dominating the conversation this week.<br><br><strong>Sober-ish Carnivore.</strong> More people in the community are questioning alcohol entirely after noticing how much worse it hits on a meat-based diet. The \"carnivore sober curious\" crowd is growing, and it's a conversation worth watching.</p>",
-  "community_pulse": "<p style='margin:0;font-family:Verdana,Geneva,sans-serif;font-size:15px;color:#1C1210;line-height:1.6;'>Something that keeps coming up in our community emails and forums this week is how much better people's sleep has gotten after six to eight weeks on carnivore. We're hearing it over and over. It's not just anecdote either. When blood sugar stabilizes and inflammatory foods come out of the picture, your body gets a real chance to rest deeply. If you're newer and still waiting for that benefit, hang tight. It tends to show up right around the six-week mark for most people.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're going deep on training frequency for carnivore athletes. Specifically, how many days you can actually push hard when you're fueling on protein and fat with zero carb buffer. I've also got some numbers from our community survey on strength gains at the 90-day mark that might surprise you. Don't miss it.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Swap your cooking oil for beef tallow this week, just once.</strong> Pick one meal, use tallow instead of whatever's in your pan right now, and pay attention to how you feel a few hours later. Community members report noticing a difference faster than they expected.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something Marcus has been testing quietly for months, and the results on recovery time are not what anyone predicted. You'll want to open that one.</p>"
 }
