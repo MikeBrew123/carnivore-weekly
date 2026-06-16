@@ -1,29 +1,41 @@
 {
-  "date": "2026-06-07",
-  "subject_line": "A Doctor Lost 70 Pounds Eating Steak",
-  "opening": "<p style=\"margin:0;\">Happy weekend, carnivores. This week got weird in the best way. A K-pop idol announced she's eating carnivore, the protein-first food pyramid went mainstream, and we've got a deep dive on the coffee debate that's been splitting the community for months. Grab your steak and let's catch up.</p>",
+  "date": "2026-06-15",
+  "subject_line": "Tallow, Meatstock, and Your Summer Meal Plan",
+  "opening": "<p style='margin:0;font-family:Verdana,Geneva,sans-serif;font-size:15px;color:#1C1210;line-height:1.6;'>Happy Monday, carnivores. This week we've got everything from a 1,600-person convention recap to the science behind your grandma's favorite cooking fat. Grab your coffee, maybe fry an egg in some tallow, and let's get into it.</p>",
   "blog_teasers": [
     {
-      "slug": "2026-06-09-carnivore-and-coffee",
-      "title": "Carnivore and Coffee: The Debate That Won't Die",
+      "slug": "carnivore-and-alcohol",
+      "title": "Carnivore and Alcohol: What Happens When You Drink",
       "writer": "Sarah",
-      "teaser": "Some people say coffee saved their mornings on carnivore. Others say ditching it changed everything. Sarah breaks down the actual research on caffeine, cortisol, and gut health so you can stop guessing."
+      "teaser": "If you've noticed two drinks hitting like four since going carnivore, you're not imagining it. Sarah breaks down exactly what's happening in your liver when alcohol meets a fat-fueled metabolism. It's not bad news, but you'll definitely want to know before your next weekend plans."
     },
     {
-      "slug": "2026-06-10-carnivore-morning-routine",
-      "title": "The Carnivore Morning Routine That Fixed My Workouts",
-      "writer": "Marcus",
-      "teaser": "Marcus was dragging through his first hour of training until he rearranged three things about his morning. The fix was simpler than he expected, and it might work for you too."
-    },
-    {
-      "slug": "2026-06-11-kpop-star-carnivore",
-      "title": "K-Pop Star Goes Carnivore and the Comments Are Unhinged",
+      "slug": "meatstock-2026",
+      "title": "Meatstock 2026: What 1,600 Carnivores in One Room Looks Like",
       "writer": "Chloe",
-      "teaser": "When a major K-pop idol posted her all-meat meals, fans had opinions. Lots of opinions. Chloe breaks down the reaction and why this moment matters more than you think."
+      "teaser": "Fads don't fill convention halls. Movements do, and Meatstock 2026 just proved carnivore is very much a movement. Chloe was there for all of it and her recap will honestly make you wish you'd bought a ticket."
+    },
+    {
+      "slug": "carnivore-recomp",
+      "title": "Carnivore Recomp: Losing Fat and Building Muscle at the Same Time",
+      "writer": "Marcus",
+      "teaser": "Most people think recomposition is reserved for beginners or people on gear. Marcus is here to tell you that's wrong, and he's got a 12-week carnivore protocol with exact protein targets to back it up. If you've been spinning your wheels, this is your next move."
+    },
+    {
+      "slug": "personalized-carnivore-meal-plan-summer",
+      "title": "Your Personalized Carnivore Meal Plan for Summer",
+      "writer": "Sarah",
+      "teaser": "A 30-day plan built around your actual macros, not some generic template someone copy-pasted from a forum. Sarah's included grocery lists, simple meals, and summer sale pricing that won't last long. This one's worth clicking on before the week gets away from you."
+    },
+    {
+      "slug": "what-beef-tallow-actually-does",
+      "title": "What Beef Tallow Actually Does (And Why It's Trending)",
+      "writer": "Sarah",
+      "teaser": "Tallow went from forgotten pantry staple to one of the most talked-about fats on the internet, and Sarah explains exactly why the hype is actually backed by science. Your grandmother cooked with it every day and she wasn't wrong. Here's the full story."
     }
   ],
-  "by_the_numbers": "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td width=\"33%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;\">154</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">Articles in the Library</span></td><td width=\"34%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;border-left:1px solid #E5DDD4;border-right:1px solid #E5DDD4;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;\">70%</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">Americans Now Prioritize Protein</span></td><td width=\"33%\" align=\"center\" valign=\"top\" style=\"padding:8px 4px;\"><span style=\"font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:bold;color:#1C1210;\">1,600</span><br><span style=\"font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;\">Carnivores at Meatstock 2026</span></td></tr></table>",
-  "whats_trending": "<p style=\"margin:0;\"><strong>The protein-first food pyramid is here:</strong> A redesigned food pyramid that puts protein at the base went viral this week. Nutritionists are split, but the carnivore community is calling it a win. After decades of grain-heavy guidance, seeing meat and eggs at the foundation feels like a turning point.<br><br><strong>Meatstock 2026 sold out:</strong> 1,600 people packed into one room to talk about meat. The lineup included Dr. Shawn Baker, Dr. Anthony Chaffee, and a live cooking demo that had the whole venue smelling like ribeye. If you missed it, Chloe's got a full recap dropping next week.<br><br><strong>K-pop meets carnivore:</strong> A major K-pop star shared her all-meat meals on social media and the fan reaction was... a lot. The crossover nobody predicted is bringing a whole new audience to this way of eating, and the comment sections are genuinely entertaining.</p>",
-  "community_pulse": "<p style=\"margin:0;\">The coffee conversation exploded this week and I don't think it's settling down anytime soon. Some folks are reporting better sleep and steadier energy after dropping caffeine entirely. Others swear black coffee with a side of butter is non-negotiable. Here's what I find interesting: the research on caffeine and cortisol response varies a lot depending on your baseline stress levels and how long you've been adapted. It's not a simple yes or no answer, and that's exactly why we wrote a full breakdown for you this week. On another note, beef tallow keeps gaining ground as the cooking fat of choice. I've seen more people ditching seed oils for rendered fat in the last month than in the entire past year. The trend is real and the science backs it up.</p>",
-  "looking_ahead": "<p style=\"font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;\">Next week we're going deep. Sarah's tackling the carnivore and alcohol question everyone keeps asking about. Marcus has a rendered fat vs. butter cooking protocol that'll change how you think about your pan. And we've got a full guide on body recomp, losing fat and building muscle on carnivore at the same time. It's going to be a big one.</p>"
+  "by_the_numbers": "<table role='presentation' width='100%' cellpadding='0' cellspacing='0' border='0'><tr><td width='33%' align='center' valign='top' style='padding:8px 4px;'><span style='font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#1C1210;'>1,600</span><br><span style='font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;'>Carnivores at Meatstock 2026</span></td><td width='34%' align='center' valign='top' style='padding:8px 4px;border-left:1px solid #E5DDD4;border-right:1px solid #E5DDD4;'><span style='font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#1C1210;'>42%</span><br><span style='font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;'>Lower alcohol tolerance reported on carnivore</span></td><td width='33%' align='center' valign='top' style='padding:8px 4px;'><span style='font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#1C1210;'>12 wks</span><br><span style='font-family:Verdana,Geneva,sans-serif;font-size:11px;color:#9B8574;text-transform:uppercase;letter-spacing:0.5px;'>Marcus's recomp protocol length</span></td></tr></table>",
+  "whats_trending": "<p style='margin:0;font-family:Verdana,Geneva,sans-serif;font-size:15px;color:#1C1210;line-height:1.6;'><strong>Tallow Everything.</strong> Beef tallow is having a serious moment right now. People are cooking with it, skincare brands are putting it in moisturizers, and grocery stores can't keep it stocked. The old ways are coming back fast.<br><br><strong>Carnivore Summer Prep.</strong> With summer officially here, the community's big focus is keeping it simple outdoors. Grilled ribeyes, beach-friendly snacks like biltong and hard-boiled eggs, and no-fuss meal plans are dominating the conversation this week.<br><br><strong>Sober-ish Carnivore.</strong> More people in the community are questioning alcohol entirely after noticing how much worse it hits on a meat-based diet. The \"carnivore sober curious\" crowd is growing, and it's a conversation worth watching.</p>",
+  "community_pulse": "<p style='margin:0;font-family:Verdana,Geneva,sans-serif;font-size:15px;color:#1C1210;line-height:1.6;'>Something that keeps coming up in our community emails and forums this week is how much better people's sleep has gotten after six to eight weeks on carnivore. We're hearing it over and over. It's not just anecdote either. When blood sugar stabilizes and inflammatory foods come out of the picture, your body gets a real chance to rest deeply. If you're newer and still waiting for that benefit, hang tight. It tends to show up right around the six-week mark for most people.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're going deep on training frequency for carnivore athletes. Specifically, how many days you can actually push hard when you're fueling on protein and fat with zero carb buffer. I've also got some numbers from our community survey on strength gains at the 90-day mark that might surprise you. Don't miss it.</p>"
 }
