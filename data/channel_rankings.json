@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-06-14",
+  "last_updated": "2026-06-17",
   "leaderboard": [
     {
-      "name": "Low Carb Love",
+      "name": "Shawn Baker MD",
       "rank": 1,
       "appearances": 2,
-      "channel_id": "UCFVmPjPhx-XT6-ZVa9Tkuuw"
-    },
-    {
-      "name": "Jenny Mitich",
-      "rank": 2,
-      "appearances": 2,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
-    },
-    {
-      "name": "Keto Twins",
-      "rank": 3,
-      "appearances": 1,
-      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
-    },
-    {
-      "name": "Shawn Baker MD",
-      "rank": 4,
-      "appearances": 1,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "FaceIQ",
-      "rank": 5,
+      "name": "Dr. Eric Westman - Adapt Your Life",
+      "rank": 2,
+      "appearances": 1,
+      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 3,
       "appearances": 2,
-      "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
+      "name": "Anthony Chaffee MD",
+      "rank": 4,
+      "appearances": 1,
+      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
+    },
+    {
+      "name": "HomeSteadHow",
+      "rank": 5,
+      "appearances": 11,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
       "name": "Bart Kay - Health Science",
       "rank": 6,
-      "appearances": 2,
+      "appearances": 3,
       "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
     },
     {
-      "name": "Emmathecarnivore",
+      "name": "Jenny Mitich",
       "rank": 7,
-      "appearances": 1,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "appearances": 3,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "Kathrin Hansen",
       "rank": 8,
-      "appearances": 2,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "appearances": 1,
+      "channel_id": "UC9b-xY7zqkAdRzry2RcFXmA"
     },
     {
-      "name": "Chris Cooking Nashville",
+      "name": "Carnivore Quest",
       "rank": 9,
       "appearances": 1,
-      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "HomeSteadHow",
+      "name": "Dr. Deepthi Kareti",
       "rank": 10,
-      "appearances": 10,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+      "appearances": 1,
+      "channel_id": "UCCB2AV4tDe50zaQ0eYJWu0A"
     }
   ]
 }
