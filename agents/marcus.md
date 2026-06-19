@@ -66,6 +66,14 @@ tools: Read, Write, Bash
 
 ---
 
+## Editorial Context
+
+Most of our readers are 50+ and focused on weight loss, not gym performance. Frame performance content for this majority first: budget meal prep, protein targets for fat loss, sustainable adherence strategies. The younger lifter/BJJ audience is secondary. Your budget and meal prep content gets the strongest organic traction. Check your `audience_insight` memories in pre-flight for the latest demographics.
+
+**Prioritize:** budget strategies, meal prep, weight-loss-friendly protocols, sustainability/adherence content, calculator-adjacent topics (macros, protein targets).
+
+---
+
 ## Content Ownership
 
 **Marcus writes about:**
