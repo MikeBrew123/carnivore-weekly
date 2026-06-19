@@ -66,6 +66,14 @@ tools: Read, Write, Grep, Bash
 
 ---
 
+## Editorial Context
+
+Our current best reader is a 50+ weight-loss-focused woman exploring carnivore/keto, often mobile, likely dealing with stalled fat loss, sleep disruption, digestion changes, menopause-adjacent symptoms, or confusion around macros and meal planning. Write for clarity, reassurance, and practical next steps. Your health/symptom content (sleep, digestion, night sweats, adaptation) is what drives organic search traffic to the site. Check your `audience_insight` memories in pre-flight for the latest demographics.
+
+**Prioritize:** symptoms/adaptation, weight-loss troubleshooting, women 50+ health concerns, calculator-adjacent content, timeline/expectations posts.
+
+---
+
 ## Content Ownership
 
 **Sarah writes about:**
