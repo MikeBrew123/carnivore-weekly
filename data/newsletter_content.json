@@ -1,31 +1,31 @@
 {
-  "date": "2026-06-15",
-  "subject_line": "Your First Drink on Carnivore Will Surprise You",
-  "opening": "<p style='margin:0;'>This week we're talking about the thing nobody wants to admit: what actually happens when you have a drink on carnivore. Sarah's not judging, but she's not sugarcoating it either. Plus, I'm still buzzing from Meatstock 2026 (1,600 carnivores in one room is exactly as intense as it sounds), Marcus breaks down how to lose fat and build muscle at the same time, and Sarah explains why your TikTok feed won't shut up about beef tallow.</p>",
+  "date": "2026-06-21",
+  "subject_line": "America Finally Agrees With Us on Protein",
+  "opening": "<p style='margin:0;'>Happy Sunday, and welcome to the week where mainstream America caught up to what we've known for years. There's a lot packed into this issue, from a stat that'll make you feel like a trendsetter to a cooking fat breakdown that'll change how you think about your skillet. Grab your coffee and let's get into it.</p>",
   "hero": {
-    "slug": "2026-06-15-carnivore-and-alcohol",
-    "title": "Carnivore and Alcohol: What Happens When You Drink",
-    "writer": "Sarah",
-    "teaser": "You used to handle two drinks just fine. Then you went carnivore, and suddenly two drinks hit like six. The hangover the next morning was something else entirely. There's a real metabolic reason this happens, and once you understand it, you'll never look at that glass of wine the same way.",
-    "cta": "Read before your next social event"
+    "slug": "2026-06-17-protein-priority-america",
+    "title": "70% of Americans Now Prioritize Protein. We've Been Saying This.",
+    "writer": "Chloe",
+    "teaser": "For years, people called us extreme. Now, based on new consumer research, protein has officially beaten 'fresh' as America's number one food criterion. The carnivore community didn't just see this coming. We've been living it for a long time. Chloe breaks down what this shift actually means, and why the most interesting part isn't the stat itself.",
+    "cta": "Read before Friday"
   },
   "supporting": [
     {
+      "slug": "2026-06-16-rendered-fat-vs-butter",
+      "title": "Rendered Fat vs Butter: The Cooking Fat Protocol",
+      "teaser": "Marcus lays out exactly which fat belongs in your pan for each job, including a method to render tallow at home for what he calls almost nothing per ounce."
+    },
+    {
+      "slug": "2026-06-15-carnivore-and-alcohol",
+      "title": "Carnivore and Alcohol: What Happens When You Drink",
+      "teaser": "Sarah explains the metabolic reason your two-drink limit now feels like four, and what to actually do about it before your next social event."
+    },
+    {
       "slug": "2026-06-14-meatstock-2026",
       "title": "Meatstock 2026: What 1,600 Carnivores in One Room Looks Like",
-      "teaser": "Chloe walked the floor at Meatstock 2026 and came back with one observation that reframes everything people say about carnivore being a fringe diet."
-    },
-    {
-      "slug": "2026-06-13-carnivore-recomp",
-      "title": "Carnivore Recomp: Losing Fat and Building Muscle at the Same Time",
-      "teaser": "I put together a 12-week protocol with specific daily protein targets for losing fat and building muscle on carnivore at the same time, and the data on whether it actually works might surprise you."
-    },
-    {
-      "slug": "2026-06-12-beef-tallow-trending",
-      "title": "What Beef Tallow Actually Does (And Why It's Trending)",
-      "teaser": "Your grandmother cooked with beef tallow every single day, then an entire generation was told to throw it out. So why are top chefs and nutrition researchers quietly bringing it back?"
+      "teaser": "Chloe went to Meatstock, and the one thing she says you can't fake at a convention of 1,600 people might change how you think about this community."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Cook one meal this week in beef tallow instead of your usual oil.</strong> Sear a steak or fry your eggs in it and watch the browning. Tallow gives you a deeper crust, richer flavor, and meals that actually keep you full through the afternoon. It's a simple swap you can taste immediately.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>I've been running the same lifting program for three months but shifting when I eat my biggest meal relative to training, and the recovery numbers went somewhere I didn't expect.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Render your own tallow this week.</strong> Marcus walks through the full process in his cooking fat post, but the short version is: grab beef fat from your butcher, low oven heat, strain it, done. Community members who've tried it report the cost comes out to almost nothing per ounce, and the flavor difference in your next pan sear is immediately noticeable.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week, we're getting into something Sarah has been quietly researching for months, and it has to do with why some long-term carnivores start feeling off after year two.</p>"
 }

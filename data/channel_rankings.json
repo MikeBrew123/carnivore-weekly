@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-06-17",
+  "last_updated": "2026-06-21",
   "leaderboard": [
     {
-      "name": "Shawn Baker MD",
+      "name": "Dr. Eric Westman - Adapt Your Life",
       "rank": 1,
       "appearances": 2,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
-    },
-    {
-      "name": "Dr. Eric Westman - Adapt Your Life",
-      "rank": 2,
-      "appearances": 1,
       "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
     },
     {
-      "name": "Emmathecarnivore",
-      "rank": 3,
+      "name": "Anthony Chaffee MD",
+      "rank": 2,
       "appearances": 2,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
     },
     {
-      "name": "Anthony Chaffee MD",
-      "rank": 4,
+      "name": "Coach Kolton",
+      "rank": 3,
       "appearances": 1,
-      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
+      "channel_id": "UC_dvmOtE1fbF7FfJIz-JWrg"
+    },
+    {
+      "name": "Shawn Baker MD",
+      "rank": 4,
+      "appearances": 3,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
       "name": "HomeSteadHow",
       "rank": 5,
-      "appearances": 11,
+      "appearances": 12,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Bart Kay - Health Science",
+      "name": "Carnivore Quest",
       "rank": 6,
-      "appearances": 3,
-      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
+      "appearances": 2,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "Jenny Mitich",
+      "name": "Appalachia's Homestead with Patara",
       "rank": 7,
-      "appearances": 3,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+      "appearances": 1,
+      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
     },
     {
       "name": "Kathrin Hansen",
       "rank": 8,
-      "appearances": 1,
+      "appearances": 2,
       "channel_id": "UC9b-xY7zqkAdRzry2RcFXmA"
     },
     {
-      "name": "Carnivore Quest",
+      "name": "Bartek Szemraj",
       "rank": 9,
       "appearances": 1,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+      "channel_id": "UCvRhY-GuNPU02pMsh2ejl9w"
     },
     {
-      "name": "Dr. Deepthi Kareti",
+      "name": "Kent Carnivore",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCCB2AV4tDe50zaQ0eYJWu0A"
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     }
   ]
 }
