@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-06-21",
+  "last_updated": "2026-06-24",
   "leaderboard": [
     {
-      "name": "Dr. Eric Westman - Adapt Your Life",
+      "name": "Coach Kolton",
       "rank": 1,
       "appearances": 2,
-      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
-    },
-    {
-      "name": "Anthony Chaffee MD",
-      "rank": 2,
-      "appearances": 2,
-      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
-    },
-    {
-      "name": "Coach Kolton",
-      "rank": 3,
-      "appearances": 1,
       "channel_id": "UC_dvmOtE1fbF7FfJIz-JWrg"
     },
     {
       "name": "Shawn Baker MD",
-      "rank": 4,
-      "appearances": 3,
+      "rank": 2,
+      "appearances": 4,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "HomeSteadHow",
-      "rank": 5,
-      "appearances": 12,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+      "name": "Anthony Chaffee MD",
+      "rank": 3,
+      "appearances": 3,
+      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
+    },
+    {
+      "name": "Dr. Eric Westman - Adapt Your Life",
+      "rank": 4,
+      "appearances": 3,
+      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
     },
     {
       "name": "Carnivore Quest",
-      "rank": 6,
-      "appearances": 2,
+      "rank": 5,
+      "appearances": 3,
       "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "Appalachia's Homestead with Patara",
+      "name": "Max German",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
+    },
+    {
+      "name": "Jenny Mitich",
       "rank": 7,
       "appearances": 1,
-      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "Kathrin Hansen",
+      "name": "Steak and Butter Gal",
       "rank": 8,
-      "appearances": 2,
-      "channel_id": "UC9b-xY7zqkAdRzry2RcFXmA"
+      "appearances": 1,
+      "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
     },
     {
-      "name": "Bartek Szemraj",
+      "name": "Patricia Delicious Nutrition",
       "rank": 9,
       "appearances": 1,
-      "channel_id": "UCvRhY-GuNPU02pMsh2ejl9w"
+      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
     },
     {
-      "name": "Kent Carnivore",
+      "name": "HomeSteadHow",
       "rank": 10,
-      "appearances": 1,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+      "appearances": 13,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     }
   ]
 }
