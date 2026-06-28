@@ -1,31 +1,31 @@
 {
-  "date": "2026-06-21",
-  "subject_line": "America Finally Agrees With Us on Protein",
-  "opening": "<p style='margin:0;'>Happy Sunday, and welcome to the week where mainstream America caught up to what we've known for years. There's a lot packed into this issue, from a stat that'll make you feel like a trendsetter to a cooking fat breakdown that'll change how you think about your skillet. Grab your coffee and let's get into it.</p>",
+  "date": "2026-06-28",
+  "subject_line": "Why Your Feed Is Full of Beef Right Now",
+  "opening": "<p style='margin:0;'>Happy Sunday, friend. This week the carnivore community did something kind of wild, and your social feed is probably still recovering. We've also got a few things inside that'll make your Monday a lot easier, whether you're heading to a restaurant or bracing for the break room donut ambush.</p>",
   "hero": {
-    "slug": "2026-06-17-protein-priority-america",
-    "title": "70% of Americans Now Prioritize Protein. We've Been Saying This.",
+    "slug": "2026-06-26-carnivore-before-photos",
+    "title": "Why Everyone's Posting Their Carnivore Before Photos",
     "writer": "Chloe",
-    "teaser": "For years, people called us extreme. Now, based on new consumer research, protein has officially beaten 'fresh' as America's number one food criterion. The carnivore community didn't just see this coming. We've been living it for a long time. Chloe breaks down what this shift actually means, and why the most interesting part isn't the stat itself.",
-    "cta": "Read before Friday"
+    "teaser": "Something shifted in the carnivore community this week, and it's showing up all over social media in a big way. Before photos are flooding feeds, and not just from the people you'd expect. Some of what's being shared is genuinely striking, but some of it is getting a lot more complicated than a simple glow-up story. Chloe breaks down what's real, what's not, and why this moment actually matters for all of us.",
+    "cta": "Read before it gets buried"
   },
   "supporting": [
     {
-      "slug": "2026-06-16-rendered-fat-vs-butter",
-      "title": "Rendered Fat vs Butter: The Cooking Fat Protocol",
-      "teaser": "Marcus lays out exactly which fat belongs in your pan for each job, including a method to render tallow at home for what he calls almost nothing per ounce."
+      "slug": "2026-06-23-carnivore-endurance-problem",
+      "title": "The Carnivore Endurance Problem Nobody Talks About",
+      "teaser": "Marcus found the wall most carnivore athletes hit during long cardio, and knowing it exists is only half the battle."
     },
     {
-      "slug": "2026-06-15-carnivore-and-alcohol",
-      "title": "Carnivore and Alcohol: What Happens When You Drink",
-      "teaser": "Sarah explains the metabolic reason your two-drink limit now feels like four, and what to actually do about it before your next social event."
+      "slug": "2026-06-25-carnivore-restaurant-order",
+      "title": "The Carnivore Restaurant Order That Never Fails",
+      "teaser": "There's one order the community swears by at almost any restaurant, and it's probably not what you'd guess."
     },
     {
-      "slug": "2026-06-14-meatstock-2026",
-      "title": "Meatstock 2026: What 1,600 Carnivores in One Room Looks Like",
-      "teaser": "Chloe went to Meatstock, and the one thing she says you can't fake at a convention of 1,600 people might change how you think about this community."
+      "slug": "2026-06-22-fasted-training-carnivore",
+      "title": "Fasted Training on Carnivore: Does It Actually Work",
+      "teaser": "Marcus tested the TikTok claim that you can crush any workout on zero food, and the answer depends on one thing most people overlook."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Render your own tallow this week.</strong> Marcus walks through the full process in his cooking fat post, but the short version is: grab beef fat from your butcher, low oven heat, strain it, done. Community members who've tried it report the cost comes out to almost nothing per ounce, and the flavor difference in your next pan sear is immediately noticeable.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week, we're getting into something Sarah has been quietly researching for months, and it has to do with why some long-term carnivores start feeling off after year two.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Pick one meal out this week and go full carnivore, no exceptions.</strong> Before you leave the house, check Chloe's restaurant order guide so you know exactly what to say when the server arrives. Community members report that having a default order ready is the single biggest thing that keeps them on track when eating out.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something Sarah's been researching for months, and it might change how you think about what carnivore is actually doing to your blood work.</p>"
 }
