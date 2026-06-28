@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-06-24",
+  "last_updated": "2026-06-28",
   "leaderboard": [
     {
-      "name": "Coach Kolton",
+      "name": "Steak and Butter Gal",
       "rank": 1,
       "appearances": 2,
-      "channel_id": "UC_dvmOtE1fbF7FfJIz-JWrg"
-    },
-    {
-      "name": "Shawn Baker MD",
-      "rank": 2,
-      "appearances": 4,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
-    },
-    {
-      "name": "Anthony Chaffee MD",
-      "rank": 3,
-      "appearances": 3,
-      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
-    },
-    {
-      "name": "Dr. Eric Westman - Adapt Your Life",
-      "rank": 4,
-      "appearances": 3,
-      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
-    },
-    {
-      "name": "Carnivore Quest",
-      "rank": 5,
-      "appearances": 3,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
-    },
-    {
-      "name": "Max German",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
-    },
-    {
-      "name": "Jenny Mitich",
-      "rank": 7,
-      "appearances": 1,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
-    },
-    {
-      "name": "Steak and Butter Gal",
-      "rank": 8,
-      "appearances": 1,
       "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
     },
     {
-      "name": "Patricia Delicious Nutrition",
-      "rank": 9,
-      "appearances": 1,
-      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
+      "name": "Max German",
+      "rank": 2,
+      "appearances": 2,
+      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
     },
     {
-      "name": "HomeSteadHow",
+      "name": "Love Sweat Fitness",
+      "rank": 3,
+      "appearances": 1,
+      "channel_id": "UCXxIurzUx2ztE6D5IzcyTcw"
+    },
+    {
+      "name": "Alison Johnson",
+      "rank": 4,
+      "appearances": 1,
+      "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg"
+    },
+    {
+      "name": "Mitch Weiss, OGC, Healthy Aging",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCoLOzrRmjuhKDwYFB_BiK1A"
+    },
+    {
+      "name": "Laura Spath",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
+    },
+    {
+      "name": "Appalachia's Homestead with Patara",
+      "rank": 7,
+      "appearances": 1,
+      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
+    },
+    {
+      "name": "Kent Carnivore",
+      "rank": 8,
+      "appearances": 1,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+    },
+    {
+      "name": "T\u0142uste Gary",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UCMhxDl-EOqsJrMoosvAShmQ"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
       "rank": 10,
-      "appearances": 13,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+      "appearances": 1,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     }
   ]
 }
