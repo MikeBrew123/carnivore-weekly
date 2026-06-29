@@ -137,6 +137,7 @@ const stripeCouponMap = {
   'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($23.20)
   'CARNIVORE50': '0yWiiOLv',  // 25% off once ($21.75) — name says 50 but it's actually 25% off 😏
   'ETSY50': '52fYA51M',       // 50% off forever ($14.50) — Etsy cross-sell coupon
+  'DRIP50': '52fYA51M',       // 50% off ($14.50) — Day 7 drip graduation reward
   // TEST99 removed - $0.10 below Stripe's 50 cent minimum
   'EARLY25': null,            // TODO: Create in Stripe
   'LAUNCH50': null,           // TODO: Create in Stripe
@@ -5026,11 +5027,13 @@ async function handleMailerLiteSubscribe(request, env) {
 // ===== NEWSLETTER SUBSCRIBE HANDLER =====
 async function handleBeehiivSubscribe(request, env) {
   try {
-    const { email } = await request.json();
+    const { email, site, source } = await request.json();
     if (!email || !email.includes('@')) {
       return createErrorResponse('INVALID_EMAIL', 'Valid email required', 400);
     }
     const cleanEmail = email.trim().toLowerCase();
+    const siteValue = (site === 'kd') ? 'kd' : 'cw';
+    const sourceValue = source || 'homepage';
 
     // Upsert into newsletter_subscribers (re-activates unsubscribed users)
     const nlRes = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/upsert_newsletter_subscriber`, {
@@ -5042,45 +5045,53 @@ async function handleBeehiivSubscribe(request, env) {
       },
       body: JSON.stringify({
         p_email: cleanEmail,
-        p_site: 'cw',
-        p_signup_source: 'homepage',
+        p_site: siteValue,
+        p_signup_source: sourceValue,
       }),
     });
     if (!nlRes.ok) console.error('Newsletter upsert error:', await nlRes.text());
 
-    // Insert into drip_subscribers for 7-day starter sequence
-    const dripRes = await fetch(`${env.SUPABASE_URL}/rest/v1/drip_subscribers`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
-        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({
-        email: cleanEmail,
-        source: 'homepage',
-      }),
+    // Insert into drip_subscribers for 7-day starter sequence (CW only)
+    if (siteValue === 'cw') {
+      const dripRes = await fetch(`${env.SUPABASE_URL}/rest/v1/drip_subscribers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({
+          email: cleanEmail,
+          source: sourceValue,
+        }),
+      });
+
+      if (dripRes.ok) {
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      // 409/23505 = already exists — treat as success (drip already running)
+      const errBody = await dripRes.text().catch(() => '');
+      if (dripRes.status === 409 || errBody.includes('23505') || errBody.includes('duplicate')) {
+        return new Response(JSON.stringify({ success: true, existing: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      console.error('Subscribe error:', dripRes.status, errBody);
+      return createErrorResponse('SUBSCRIBE_FAILED', 'Subscription failed', 500);
+    }
+
+    // KD signups: newsletter only, no drip sequence
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    if (dripRes.ok) {
-      return new Response(JSON.stringify({ success: true }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    // 409/23505 = already exists — treat as success (drip already running)
-    const errBody = await dripRes.text().catch(() => '');
-    if (dripRes.status === 409 || errBody.includes('23505') || errBody.includes('duplicate')) {
-      return new Response(JSON.stringify({ success: true, existing: true }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    console.error('Subscribe error:', dripRes.status, errBody);
-    return createErrorResponse('SUBSCRIBE_FAILED', 'Subscription failed', 500);
   } catch (err) {
     return createErrorResponse('SUBSCRIBE_ERROR', String(err), 500);
   }

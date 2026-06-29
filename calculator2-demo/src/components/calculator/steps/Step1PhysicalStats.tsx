@@ -126,6 +126,8 @@ export default function Step1PhysicalStats({
     // Validate required fields
     const newErrors: Record<string, string> = {}
 
+    if (!data.email) newErrors.email = 'Email is required to receive your results'
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) newErrors.email = 'Please enter a valid email'
     if (!data.sex) newErrors.sex = 'Please select your sex'
     if (!data.age || data.age < 14 || data.age > 99) newErrors.age = 'Age must be between 14 and 99'
     if (!data.heightFeet && !data.heightCm) newErrors.height = 'Please enter your height'
@@ -162,6 +164,22 @@ export default function Step1PhysicalStats({
       <div className="mb-10">
         <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', color: '#ffd700', fontWeight: '600', marginBottom: '8px' }}>Let's Start with Your Basics</h2>
         <p style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '18px', color: '#f5f5f5' }}>These measurements help us calculate your personalized macros.</p>
+      </div>
+
+      {/* Email */}
+      <div style={{ maxWidth: '400px' }}>
+        <FormField
+          id="email"
+          name="email"
+          type="email"
+          label="Email"
+          value={data.email || ''}
+          onChange={(e) => handleInputChange('email', e.target.value)}
+          error={errors.email}
+          placeholder="you@email.com"
+          required
+          helpText="We'll send your personalized results here"
+        />
       </div>
 
       {/* Sex */}

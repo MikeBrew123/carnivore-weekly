@@ -293,6 +293,16 @@ export default function CalculatorApp({
     }
     // Save completed step data (step param is the NEXT step, so completed = step - 1)
     saveStepToBackend(step - 1)
+
+    // Auto-subscribe to drip sequence when completing Step 1 (email captured)
+    if (step === 2 && formData.email) {
+      fetch(`${API_BASE}/api/v1/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, source: 'calculator' }),
+      }).catch(() => {})
+    }
+
     setCurrentStep(step)
     setErrors({})
     scrollToAnchor('calculator-start')
