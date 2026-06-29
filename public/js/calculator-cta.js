@@ -23,7 +23,7 @@
   };
 
   let headline = 'Know Exactly What to Eat';
-  let subtext = 'Get your personalized carnivore macros, 30-day meal plan, and custom protocol — built from your body stats and goals.';
+  let subtext = 'Get personalized macros and a 30-day meal plan built from your body stats, age, and goals. Takes 60 seconds.';
   let cta = 'Get Your Free Macros';
 
   if (topics.weightLoss.test(title + body.slice(0, 2000))) {
@@ -93,7 +93,7 @@
           font-family: 'Source Sans 3', sans-serif;
         ">${subtext}</p>
 
-        <a href="/calculator.html" style="
+        <a href="/calculator.html?utm_source=blog&utm_medium=cta&utm_campaign=${encodeURIComponent(window.location.pathname.split('/').pop().replace('.html',''))}" style="
           display: inline-block;
           background: linear-gradient(135deg, #ffd700 0%, #e6ac00 100%);
           color: #1a1a1a !important;

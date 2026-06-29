@@ -83,10 +83,10 @@ export default function Step4HealthProfile({
 
       <div>
         <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#d4a574', marginBottom: '8px', fontFamily: "'Playfair Display', Georgia, serif" }}>
-          Enter your email to continue
+          Tell us more about you
         </h2>
         <p style={{ color: '#666666' }}>
-          Your protocol will be sent here. That's all we need to get started.
+          Your protocol will be sent to <strong style={{ color: '#d4a574' }}>{data.email}</strong>
         </p>
       </div>
 
