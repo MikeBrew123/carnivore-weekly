@@ -375,6 +375,7 @@ async function handleSaveStep1(request, env) {
           height_cm: data.height_cm || null,
           weight_value: data.weight_value,
           weight_unit: data.weight_unit || 'lbs',
+          email: data.email || null,
           step_completed: 2,
           updated_at: new Date().toISOString(),
         }),

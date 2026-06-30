@@ -255,6 +255,7 @@ export default function CalculatorApp({
               height_cm: formData.heightCm || null,
               weight_value: formData.weight,
               weight_unit: 'lbs',
+              email: formData.email || null,
             },
           }),
         })
