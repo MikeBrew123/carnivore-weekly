@@ -15,6 +15,7 @@ Usage:
 
 import json
 import os
+import subprocess
 import sys
 import time
 import urllib.request
@@ -224,6 +225,8 @@ def main():
     if changed and not dry_run:
         POSTS_FILE.write_text(json.dumps(data, indent=2))
         print(f"\n Updated blog_posts.json with image paths")
+        subprocess.run(["git", "add", str(images_dir)], cwd=str(BASE_DIR), capture_output=True)
+        print(f" Staged generated images for git")
 
 
 if __name__ == "__main__":

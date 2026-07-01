@@ -288,3 +288,13 @@ Attempts:
 - 2026-06-15 — Restored content from pre-wipe commit (e559996), merged with current image/meta improvements. Commit 3e845c2. Added CLAUDE.md safeguard prohibiting bulk KD blog regeneration.
 Prevention: KD blog posts must NEVER be bulk-regenerated. Edits must be surgical (sed/python targeting specific tags). Any script touching KD blog HTML must preserve the <div class="content"> body.
 If recurs: Restore from last good commit before the wipe. Run `git log --oneline -- blog/ | head` in the KD submodule to find it.
+
+---
+
+## ISSUE-027 — Generated images not committed, CI fails on missing files
+🟢 FIXED — Last: 2026-06-30
+
+Pattern: Image generation scripts create files in public/images/ but don't stage them for git. Content HTML gets committed referencing images that only exist locally, causing CI 404 check failures.
+Attempts:
+- 2026-06-30 — Added `subprocess.run(["git", "add", ...])` auto-staging to both `generate_roundup_image.py` and `generate_post_images.py` so generated images are staged immediately after creation → fix deployed
+If recurs: Check for new image generation scripts that don't auto-stage. Add a pre-commit check that warns on untracked files in public/images/ referenced by staged HTML.
