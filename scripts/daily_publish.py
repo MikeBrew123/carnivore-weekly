@@ -94,20 +94,23 @@ def run_generator():
         sys.exit(1)
     print("✅ Blog pages regenerated")
 
-    # Also regenerate main pages (index.html, etc.) so the homepage picks up
-    # newly published posts in the "More Insights" / Load More section.
-    print("\n🔄 Regenerating main pages (homepage, etc.)...")
-    pages_result = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "generate.py"), "--type", "pages", "--site", SITE],
-        cwd=str(ROOT),
-        capture_output=True,
-        text=True,
-    )
-    if pages_result.returncode != 0:
-        print("❌ Main pages generator failed:")
-        print(pages_result.stderr)
-        sys.exit(1)
-    print("✅ Main pages regenerated")
+    # Regenerate main pages (homepage bento) — CW only.
+    # KD has no generate.py equivalent; its pages live in the ketodial submodule.
+    if SITE == "cw":
+        print("\n🔄 Regenerating main pages (homepage, etc.)...")
+        pages_result = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "generate.py"), "--type", "pages"],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+        )
+        if pages_result.returncode != 0:
+            print("❌ Main pages generator failed:")
+            print(pages_result.stderr)
+            sys.exit(1)
+        print("✅ Main pages regenerated")
+    else:
+        print("\n⏭️  Skipping main pages regeneration (not applicable for KD)")
 
 
 def run_validator():
