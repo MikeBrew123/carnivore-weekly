@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-06-28",
+  "last_updated": "2026-07-01",
   "leaderboard": [
     {
-      "name": "Steak and Butter Gal",
+      "name": "Anthony Chaffee MD",
       "rank": 1,
-      "appearances": 2,
-      "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
+      "appearances": 1,
+      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
     },
     {
-      "name": "Max German",
+      "name": "FaceIQ",
       "rank": 2,
-      "appearances": 2,
-      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
+      "appearances": 1,
+      "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
     },
     {
-      "name": "Love Sweat Fitness",
+      "name": "Keto Twins",
       "rank": 3,
       "appearances": 1,
-      "channel_id": "UCXxIurzUx2ztE6D5IzcyTcw"
-    },
-    {
-      "name": "Alison Johnson",
-      "rank": 4,
-      "appearances": 1,
-      "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg"
-    },
-    {
-      "name": "Mitch Weiss, OGC, Healthy Aging",
-      "rank": 5,
-      "appearances": 1,
-      "channel_id": "UCoLOzrRmjuhKDwYFB_BiK1A"
+      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
     },
     {
       "name": "Laura Spath",
-      "rank": 6,
-      "appearances": 1,
+      "rank": 4,
+      "appearances": 2,
       "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
     },
     {
-      "name": "Appalachia's Homestead with Patara",
-      "rank": 7,
-      "appearances": 1,
-      "channel_id": "UCXyRtDXzptYN56-UxNhYAbQ"
-    },
-    {
       "name": "Kent Carnivore",
-      "rank": 8,
-      "appearances": 1,
+      "rank": 5,
+      "appearances": 2,
       "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     },
     {
-      "name": "T\u0142uste Gary",
-      "rank": 9,
-      "appearances": 1,
-      "channel_id": "UCMhxDl-EOqsJrMoosvAShmQ"
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 6,
+      "appearances": 2,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "Roseland Lashay",
+      "rank": 7,
+      "appearances": 1,
+      "channel_id": "UCqw2wJ4Ho9tvCQJ1cQ6-sMw"
+    },
+    {
+      "name": "Patricia Delicious Nutrition",
+      "rank": 8,
+      "appearances": 1,
+      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
+    },
+    {
+      "name": "Ferrigno Freedom",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
+    },
+    {
+      "name": "Coach Carnivore Cam ",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "channel_id": "UC3vywUwv6B-JB4jmdhZnX7A"
     }
   ]
 }
