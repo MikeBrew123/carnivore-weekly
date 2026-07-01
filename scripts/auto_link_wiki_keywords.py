@@ -25,6 +25,17 @@ from html import escape, unescape
 class WikiKeywordLinker:
     """Smart wiki keyword linking engine with safety features."""
 
+    SKIP_CONTEXTS = {
+        "gut": r"gut[- ](?:check|feeling|punch|instinct|reaction|wrenching)",
+        "salt": r"grain of salt|take .{0,20} salt|salt of the earth|worth .{0,10} salt",
+        "tea": r"not my (?:cup of )?tea|real tea|cup of tea|tea leaves",
+        "heart": r"heart of the matter|by heart|change of heart|heart-felt|heartfelt",
+        "stall": r"stall for time|stall tactic",
+        "beer": r"hold my beer|beer goggles",
+        "cheap": r"cheap shot|cheap[- ]thrill",
+        "liver": r"deliver|liver[- ]spotted",
+    }
+
     def __init__(self, keywords_json_path: str):
         """
         Initialize the linker with keyword mappings.
@@ -69,29 +80,32 @@ class WikiKeywordLinker:
             if len(keyword) < self.min_keyword_length:
                 continue
 
-            # Case-insensitive search with word boundaries
-            # Handle phrases and single words differently
             if ' ' in keyword:
-                # For phrases, use simpler word boundary checking
                 pattern = re.escape(keyword)
-                for match in re.finditer(pattern, text, re.IGNORECASE):
-                    start, end = match.span()
-                    matches.append((keyword, self.keyword_map[keyword], start, end))
             else:
-                # For single words, use word boundaries
-                pattern = r'\b' + re.escape(keyword) + r'\b'
-                for match in re.finditer(pattern, text, re.IGNORECASE):
-                    start, end = match.span()
-                    matches.append((keyword, self.keyword_map[keyword], start, end))
+                pattern = r'(?<![-\w])' + re.escape(keyword) + r'(?![-\w])'
+
+            for match in re.finditer(pattern, text, re.IGNORECASE):
+                start, end = match.span()
+                kw_lower = keyword.lower()
+                if kw_lower in self.SKIP_CONTEXTS:
+                    ctx_start = max(0, start - 30)
+                    ctx_end = min(len(text), end + 30)
+                    context = text[ctx_start:ctx_end]
+                    if re.search(self.SKIP_CONTEXTS[kw_lower], context, re.IGNORECASE):
+                        continue
+                matches.append((keyword, self.keyword_map[keyword], start, end))
 
         # Sort by position and remove overlapping matches
         matches.sort(key=lambda x: x[2])
         cleaned = []
+        seen_urls = set()
         last_end = 0
 
         for keyword, url, start, end in matches:
-            if start >= last_end:
+            if start >= last_end and url not in seen_urls:
                 cleaned.append((keyword, url, start, end))
+                seen_urls.add(url)
                 last_end = end
 
         return cleaned
