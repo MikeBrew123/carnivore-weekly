@@ -13,6 +13,7 @@ Usage:
 
 import json
 import os
+import subprocess
 import sys
 import time
 import urllib.request
@@ -178,6 +179,9 @@ def main():
     dest = IMAGES_DIR / f"roundup-{date_str}.jpg"
     download_image(image_url, dest)
     print(f"   Saved: {dest}", file=sys.stderr)
+
+    subprocess.run(["git", "add", str(dest)], cwd=str(BASE_DIR), capture_output=True)
+    print(f"   Staged for git: {dest.name}", file=sys.stderr)
 
     # Print relative path for caller to capture
     print(f"/images/roundup-{date_str}.jpg")
