@@ -736,7 +736,7 @@ async function handleVerifyPayment(request, env) {
 
       // Create report record
       const accessToken = generateAccessToken();
-      const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+      const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
       const reportResponse = await fetch(
         `${env.SUPABASE_URL}/rest/v1/calculator_reports`,
@@ -1063,7 +1063,7 @@ async function handleReportInit(request, env) {
 
     // Queue report for generation
     accessToken = generateAccessToken();
-    const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
     // Call COMPREHENSIVE generator for full 60-80 page report (13 sections)
     console.log('=== FORM DATA FOR PERSONALIZATION ===');

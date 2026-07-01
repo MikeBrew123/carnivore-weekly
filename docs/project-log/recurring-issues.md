@@ -298,3 +298,17 @@ Pattern: Image generation scripts create files in public/images/ but don't stage
 Attempts:
 - 2026-06-30 — Added `subprocess.run(["git", "add", ...])` auto-staging to both `generate_roundup_image.py` and `generate_post_images.py` so generated images are staged immediately after creation → fix deployed
 If recurs: Check for new image generation scripts that don't auto-stage. Add a pre-commit check that warns on untracked files in public/images/ referenced by staged HTML.
+
+## ISSUE-028 — Paid calculator reports expired after 48 hours despite "yours forever" promise
+🟢 FIXED — Last: 2026-07-01
+Pattern: calculator-api.js hardcoded 48h expires_at on calculator_reports; app copy sells "One-time · Yours forever". June 28 $29 customer (real sale, verified in Stripe) lost web access after 2 days. Full report HTML is also emailed, so product was delivered, but link access broke the promise.
+Attempts:
+- 2026-07-01 — Changed both expiry sites to 365 days, deployed --env production; extended June 28 customer's report to 2027-06-28 → fixed
+If recurs: check handleVerifyPayment + handleReportInit expiresAt; consider removing expiry entirely for paid reports.
+
+## ISSUE-029 — Calculator funnel dashboard queried GA4 events that don't exist
+🟢 FIXED — Last: 2026-07-01
+Pattern: calculator-funnel-report.js counted calculator_free_results/calculator_upgrade_click (never fired by calculator2 app) and site-wide page_view, producing 0% interest rates and >100% completion rates. Made funnel look dead when modal→checkout→purchase data existed.
+Attempts:
+- 2026-07-01 — Rewrote funnel to real events: calculator_payment_modal_opened → begin_checkout → purchase → calculator_report_generated → fixed
+If recurs: any new calculator build must keep GA4 event names in sync with dashboard scripts; grep both sides.

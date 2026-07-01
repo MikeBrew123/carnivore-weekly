@@ -49,12 +49,12 @@ async function getCalculatorFunnelData() {
       dimensionFilter: {
         orGroup: {
           expressions: [
-            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_free_results' } } },
-            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_upgrade_click' } } },
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_step' } } },
             { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_payment_modal_opened' } } },
-            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_report_generated' } } },
-            { filter: { fieldName: 'eventName', stringFilter: { value: 'page_view' } } },
-            { filter: { fieldName: 'eventName', stringFilter: { value: 'session_start' } } }
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'begin_checkout' } } },
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'purchase' } } },
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_payment_cancelled' } } },
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_report_generated' } } }
           ]
         }
       },
@@ -212,23 +212,22 @@ function generateHTMLReport(data) {
   const dates = Object.keys(data.pageViews).sort()
   const eventTotals = data.events.totals
 
-  // Calculate funnel metrics using actual tracked events
-  const pageViews = eventTotals['page_view'] || totalViews
-  const sessions = eventTotals['session_start'] || 0
-  const freeResults = eventTotals['calculator_free_results'] || 0
-  const upgradeClicks = eventTotals['calculator_upgrade_click'] || 0
+  // Calculate funnel metrics using events the calculator app actually fires
+  const stepEvents = eventTotals['calculator_step'] || 0
   const paymentModals = eventTotals['calculator_payment_modal_opened'] || 0
+  const checkouts = eventTotals['begin_checkout'] || 0
+  const purchases = eventTotals['purchase'] || 0
+  const cancelled = eventTotals['calculator_payment_cancelled'] || 0
   const reports = eventTotals['calculator_report_generated'] || 0
 
   const totalViews = Object.values(data.pageViews).reduce((sum, d) => sum + d.views, 0)
   const totalUsers = Object.values(data.pageViews).reduce((sum, d) => sum + d.users, 0)
 
-  // Calculate conversion rates
-  const viewsToResults = totalUsers > 0 ? ((freeResults / totalUsers) * 100).toFixed(1) : 0
-  const resultsToUpgrade = freeResults > 0 ? ((upgradeClicks / freeResults) * 100).toFixed(1) : 0
-  const upgradeToModal = upgradeClicks > 0 ? ((paymentModals / upgradeClicks) * 100).toFixed(1) : 0
-  const modalToPayment = paymentModals > 0 ? ((reports / paymentModals) * 100).toFixed(1) : 0
-  const overallConversion = totalUsers > 0 ? ((reports / totalUsers) * 100).toFixed(2) : 0
+  // Calculate conversion rates (each step relative to the previous one)
+  const usersToModal = totalUsers > 0 ? ((paymentModals / totalUsers) * 100).toFixed(1) : 0
+  const modalToCheckout = paymentModals > 0 ? ((checkouts / paymentModals) * 100).toFixed(1) : 0
+  const checkoutToPurchase = checkouts > 0 ? ((purchases / checkouts) * 100).toFixed(1) : 0
+  const overallConversion = totalUsers > 0 ? ((purchases / totalUsers) * 100).toFixed(2) : 0
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -413,23 +412,23 @@ function generateHTMLReport(data) {
         <div class="metric-subtitle">Started calculator</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Free Results</div>
-        <div class="metric-value">${freeResults.toLocaleString()}</div>
-        <div class="metric-subtitle">Completed basic calculator</div>
+        <div class="metric-label">Step Progressions</div>
+        <div class="metric-value">${stepEvents.toLocaleString()}</div>
+        <div class="metric-subtitle">calculator_step events</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Paid Reports</div>
-        <div class="metric-value" style="color: #4ade80;">${reports.toLocaleString()}</div>
-        <div class="metric-subtitle">💰 Conversions</div>
+        <div class="metric-label">Purchases</div>
+        <div class="metric-value" style="color: #4ade80;">${purchases.toLocaleString()}</div>
+        <div class="metric-subtitle">💰 Verify amounts in Stripe</div>
       </div>
     </div>
 
     <div class="section">
       <h2>📊 Conversion Funnel</h2>
       <div class="funnel" style="
-        --width-2: ${totalUsers > 0 ? (freeResults/totalUsers*100) : 0}%;
-        --width-3: ${totalUsers > 0 ? (upgradeClicks/totalUsers*100) : 0}%;
-        --width-upgrade: ${totalUsers > 0 ? (paymentModals/totalUsers*100) : 0}%;
+        --width-2: ${totalUsers > 0 ? (paymentModals/totalUsers*100) : 0}%;
+        --width-3: ${totalUsers > 0 ? (checkouts/totalUsers*100) : 0}%;
+        --width-upgrade: ${totalUsers > 0 ? (purchases/totalUsers*100) : 0}%;
         --width-payment: ${totalUsers > 0 ? (reports/totalUsers*100) : 0}%;
       ">
         <div class="funnel-step step-1">
@@ -445,45 +444,45 @@ function generateHTMLReport(data) {
 
         <div class="funnel-step step-2">
           <div class="funnel-info">
-            <div class="funnel-label">✅ Free Results Viewed</div>
-            <div class="funnel-count">${freeResults.toLocaleString()}</div>
+            <div class="funnel-label">💳 Payment Modal Opened</div>
+            <div class="funnel-count">${paymentModals.toLocaleString()}</div>
           </div>
           <div class="funnel-conversion">
-            <div class="conversion-rate">${viewsToResults}%</div>
-            <div class="conversion-label">completion rate</div>
+            <div class="conversion-rate">${usersToModal}%</div>
+            <div class="conversion-label">of visitors</div>
           </div>
         </div>
 
         <div class="funnel-step step-3">
           <div class="funnel-info">
-            <div class="funnel-label">🔼 Upgrade Clicks</div>
-            <div class="funnel-count">${upgradeClicks.toLocaleString()}</div>
+            <div class="funnel-label">🛒 Checkout Started</div>
+            <div class="funnel-count">${checkouts.toLocaleString()}</div>
           </div>
           <div class="funnel-conversion">
-            <div class="conversion-rate">${resultsToUpgrade}%</div>
-            <div class="conversion-label">from free results</div>
+            <div class="conversion-rate">${modalToCheckout}%</div>
+            <div class="conversion-label">from modal opens</div>
           </div>
         </div>
 
         <div class="funnel-step upgrade">
           <div class="funnel-info">
-            <div class="funnel-label">💳 Payment Modal Opened</div>
-            <div class="funnel-count">${paymentModals.toLocaleString()}</div>
+            <div class="funnel-label">💰 Purchased</div>
+            <div class="funnel-count">${purchases.toLocaleString()}</div>
           </div>
           <div class="funnel-conversion">
-            <div class="conversion-rate">${upgradeToModal}%</div>
-            <div class="conversion-label">from upgrade clicks</div>
+            <div class="conversion-rate">${checkoutToPurchase}%</div>
+            <div class="conversion-label">from checkouts</div>
           </div>
         </div>
 
         <div class="funnel-step payment">
           <div class="funnel-info">
-            <div class="funnel-label">💰 Paid Report Generated</div>
+            <div class="funnel-label">📄 Report Delivered</div>
             <div class="funnel-count">${reports.toLocaleString()}</div>
           </div>
           <div class="funnel-conversion">
-            <div class="conversion-rate">${modalToPayment}%</div>
-            <div class="conversion-label">conversion rate</div>
+            <div class="conversion-rate">${purchases > 0 ? ((reports/purchases)*100).toFixed(0) : 0}%</div>
+            <div class="conversion-label">of purchases</div>
           </div>
         </div>
       </div>
@@ -557,12 +556,11 @@ function generateHTMLReport(data) {
     <div class="section">
       <h2>💡 Key Insights</h2>
       <ul style="color: #e0e0e0; line-height: 2;">
-        <li><strong class="highlight">Completion Rate:</strong> ${viewsToResults}% of visitors view their free results</li>
-        <li><strong class="highlight">Upgrade Interest:</strong> ${resultsToUpgrade}% of free result viewers click the upgrade button</li>
-        <li><strong class="highlight">Modal Engagement:</strong> ${upgradeToModal}% of upgrade clicks open the payment modal</li>
-        <li><strong class="highlight">Payment Conversion:</strong> ${modalToPayment}% of payment modals convert to paid reports</li>
+        <li><strong class="highlight">Upgrade Interest:</strong> ${usersToModal}% of visitors open the payment modal</li>
+        <li><strong class="highlight">Checkout Rate:</strong> ${modalToCheckout}% of modal opens start Stripe checkout</li>
+        <li><strong class="highlight">Purchase Rate:</strong> ${checkoutToPurchase}% of checkouts complete payment${cancelled > 0 ? ` (${cancelled} cancelled)` : ''}</li>
         <li><strong class="highlight">End-to-End Conversion:</strong> ${overallConversion}% of visitors become paying customers</li>
-        <li><strong class="highlight">Total Revenue Impact:</strong> ${reports} paid reports generated (${reports > 0 ? `$${(reports * 9.99).toFixed(2)}` : '$0'} if all used base tier)</li>
+        <li><strong class="highlight">Purchases:</strong> ${purchases} — verify actual amounts in the Stripe dashboard (price varies with sales/coupons)</li>
       </ul>
     </div>
   </div>
@@ -690,25 +688,25 @@ function printSummary(data) {
   console.log('-'.repeat(60))
 
   const events = data.events.totals
-  const freeResults = events['calculator_free_results'] || 0
-  const upgradeClicks = events['calculator_upgrade_click'] || 0
   const paymentModals = events['calculator_payment_modal_opened'] || 0
+  const checkouts = events['begin_checkout'] || 0
+  const purchases = events['purchase'] || 0
+  const cancelled = events['calculator_payment_cancelled'] || 0
   const reports = events['calculator_report_generated'] || 0
 
-  const viewsToResults = totalUsers > 0 ? ((freeResults/totalUsers)*100).toFixed(1) : 0
-  const resultsToUpgrade = freeResults > 0 ? ((upgradeClicks/freeResults)*100).toFixed(1) : 0
-  const upgradeToModal = upgradeClicks > 0 ? ((paymentModals/upgradeClicks)*100).toFixed(1) : 0
-  const modalToPayment = paymentModals > 0 ? ((reports/paymentModals)*100).toFixed(1) : 0
-  const overallConversion = totalUsers > 0 ? ((reports/totalUsers)*100).toFixed(2) : 0
+  const usersToModal = totalUsers > 0 ? ((paymentModals/totalUsers)*100).toFixed(1) : 0
+  const modalToCheckout = paymentModals > 0 ? ((checkouts/paymentModals)*100).toFixed(1) : 0
+  const checkoutToPurchase = checkouts > 0 ? ((purchases/checkouts)*100).toFixed(1) : 0
+  const overallConversion = totalUsers > 0 ? ((purchases/totalUsers)*100).toFixed(2) : 0
 
   console.log(`👥 Unique Visitors: ${totalUsers}`)
-  console.log(`✅ Free Results: ${freeResults} (${viewsToResults}% completion rate)`)
-  console.log(`🔼 Upgrade Clicks: ${upgradeClicks} (${resultsToUpgrade}% interest rate)`)
-  console.log(`💳 Payment Modals: ${paymentModals} (${upgradeToModal}% modal open rate)`)
-  console.log(`💰 Paid Reports: ${reports} (${modalToPayment}% conversion rate)`)
+  console.log(`💳 Payment Modals: ${paymentModals} (${usersToModal}% of visitors)`)
+  console.log(`🛒 Checkouts Started: ${checkouts} (${modalToCheckout}% of modal opens)`)
+  console.log(`💰 Purchases: ${purchases} (${checkoutToPurchase}% of checkouts)${cancelled > 0 ? ` — ${cancelled} cancelled` : ''}`)
+  console.log(`📄 Reports Delivered: ${reports}`)
   console.log(`📊 Overall Conversion: ${overallConversion}% (visitor → customer)`)
-  if (reports > 0) {
-    console.log(`💵 Revenue Generated: $${(reports * 9.99).toFixed(2)} (base tier estimate)`)
+  if (purchases > 0) {
+    console.log(`💵 Purchases recorded — verify amounts in Stripe dashboard`)
   }
   console.log()
 
