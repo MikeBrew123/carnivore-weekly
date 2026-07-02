@@ -326,3 +326,10 @@ Pattern: newsletter-inject.js fetched the signup component and inserted it with 
 Attempts:
 - 2026-07-01 — Recreate script nodes after insertion so they execute; component now sends site/source (was group:'newsletter', all signups mislabeled 'homepage'); widened newsletter_subscribers signup_source check to allow 'blog_inline' → verified end-to-end with test signup (drip row created, source=blog_inline)
 If recurs: check browser console on a live blog post; verify POST to /api/v1/subscribe fires on submit. Any component loaded via fetch+innerHTML has this trap.
+
+## ISSUE-032 — Daily Blog Publisher failing: KD posts rendered into CW tree
+🟢 FIXED — Last: 2026-07-02
+Pattern: daily_publish.py --site kd called generate_blog_pages.py, which filters by site but only outputs to CW public/blog/ with the CW template. KD post links then failed CW validation, blocking the whole publish. Failed Jul 1 (2x manual) + Jul 2 (scheduled). Also: health-check couldn't open failure issues (missing issues:write), and all 9 queued KD posts had no hero images.
+Attempts:
+- 2026-07-02 — daily_publish.py --site kd now calls generate_kd_blog.py --only-new, skips CW validator; added issues:write; generated 9 hero images via flux-schnell; published delayed Jul 1 post → fixed (workflow re-run green)
+If recurs: check run_generator()/run_validator() SITE branches in daily_publish.py. (Commit 0e60030b misnumbers this as ISSUE-031.)
