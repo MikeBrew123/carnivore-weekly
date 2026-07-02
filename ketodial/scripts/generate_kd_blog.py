@@ -374,7 +374,13 @@ def generate_feed_grid(posts: list) -> str:
 
 
 def update_blog_index(posts: list, dry_run: bool = False) -> bool:
-    """Replace the feed-grid contents in index.html. Returns True if changed."""
+    """INSERT new post cards at the top of the feed-grid in index.html.
+
+    Insert-only by design (ISSUE-034): most KD posts exist solely as standalone
+    HTML and are NOT in blog_posts.json, so rebuilding the grid from JSON wiped
+    26 of 27 cards on 2026-07-02. Existing cards are never touched or removed.
+    Returns True if changed.
+    """
     with open(INDEX_HTML, "r", encoding="utf-8") as f:
         html = f.read()
 
@@ -407,21 +413,30 @@ def update_blog_index(posts: list, dry_run: bool = False) -> bool:
 
     # i now points to the '<' of the closing </div>
     content_end = i
+    existing_grid = html[content_start:content_end]
 
-    new_grid = "\n" + generate_feed_grid(posts) + "\n    "
-    new_html = html[:content_start] + new_grid + html[content_end:]
-
-    if new_html == html:
-        print("  Blog index: no changes needed")
+    # Only build cards for posts not already in the grid — never remove anything.
+    new_posts = [
+        p for p in posts
+        if f'href="/blog/{strip_date_prefix(p["slug"])}.html"' not in existing_grid
+    ]
+    if not new_posts:
+        print("  Blog index: no new cards to insert")
         return False
 
+    new_cards = generate_feed_grid(new_posts)
+    new_html = (html[:content_start]
+                + "\n" + new_cards + "\n"
+                + existing_grid.lstrip("\n")
+                + html[content_end:])
+
     if dry_run:
-        print(f"  [DRY RUN] Would update blog index feed-grid with {len(posts)} cards")
+        print(f"  [DRY RUN] Would insert {len(new_posts)} new card(s) at top of feed-grid")
         return True
 
     with open(INDEX_HTML, "w", encoding="utf-8") as f:
         f.write(new_html)
-    print(f"  Updated blog index feed-grid with {len(posts)} cards")
+    print(f"  Inserted {len(new_posts)} new card(s) at top of feed-grid (existing cards preserved)")
     return True
 
 
