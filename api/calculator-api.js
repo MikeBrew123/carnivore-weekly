@@ -357,6 +357,11 @@ async function handleSaveStep1(request, env) {
     if (!data.age || data.age < 13 || data.age > 150) {
       return createErrorResponse('VALIDATION_FAILED', 'Age must be between 13 and 150', 400);
     }
+    // Email is mandatory on CW as of 2026-06-29; enforce here so stale cached
+    // frontends can't write email-less sessions (frontend saves are fire-and-forget)
+    if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      return createErrorResponse('VALIDATION_FAILED', 'Email is required', 400);
+    }
 
     const response = await fetch(
       `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${session_token}`,

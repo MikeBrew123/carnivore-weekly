@@ -80,10 +80,21 @@ def publish_posts(posts_to_publish):
 
 
 def run_generator():
-    """Run generate_blog_pages.py to render HTML + sitemap + RSS + index."""
+    """Render HTML for the site being published.
+
+    CW: generate_blog_pages.py renders into public/blog/.
+    KD: ketodial/scripts/generate_kd_blog.py renders into ketodial/public/blog/.
+        generate_blog_pages.py must NOT run for KD — it has no KD output path,
+        so `--site kd` rendered KD posts into CW's public/blog/ with the CW
+        template, where their internal links then failed validation.
+    """
     print("\n🔄 Regenerating site...")
+    if SITE == "kd":
+        generator_cmd = [sys.executable, str(ROOT / "ketodial" / "scripts" / "generate_kd_blog.py"), "--only-new"]
+    else:
+        generator_cmd = [sys.executable, str(GENERATE_SCRIPT), "--site", SITE]
     result = subprocess.run(
-        [sys.executable, str(GENERATE_SCRIPT), "--site", SITE],
+        generator_cmd,
         cwd=str(ROOT),
         capture_output=True,
         text=True,
@@ -129,6 +140,12 @@ def run_validator():
     which caused the daily-publish pipeline to fail and leave posts stuck
     in "ready" status. See docs/project-log/recurring-loops.md Loop 12.
     """
+    if SITE == "kd":
+        # validate_before_commit.py checks the CW public/ tree, which a KD
+        # publish never touches. Running it here can only produce false
+        # blocks. KD-specific validation: see beads task.
+        print("\n⏭️  Skipping CW-tree validation (not applicable for KD)")
+        return
     print("\n🔍 Running validation...")
     result = subprocess.run(
         [sys.executable, str(VALIDATE_SCRIPT)],

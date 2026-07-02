@@ -56,6 +56,9 @@ export default {
     if (url.pathname === '/session' && request.method === 'PATCH') {
       return handleSessionUpdate(request, env);
     }
+    if (url.pathname === '/email-plan' && request.method === 'POST') {
+      return handleEmailPlan(request, env);
+    }
     if (url.pathname.startsWith('/report/') && request.method === 'GET') {
       const sessionId = url.pathname.split('/report/')[1];
       const reportType = url.searchParams.get('type') || 'all';
@@ -202,6 +205,113 @@ async function handleSessionUpdate(request, env) {
       return jsonResponse(500, { error: err });
     }
     return jsonResponse(200, { ok: true });
+  } catch (e) {
+    return jsonResponse(500, { error: e.message });
+  }
+}
+
+// ──────────────────────────────────────────────
+// EMAIL PLAN — send free macro results by email
+// ──────────────────────────────────────────────
+function buildPlanEmail(m, goal) {
+  const goalLabel = { lose: 'fat loss', gain: 'muscle gain', maintain: 'maintenance' }[goal] || 'your goal';
+  const row = (k, v, color) =>
+    `<tr><td style="padding:10px 14px;border-bottom:1px solid #1e3a52;color:#9fb8c9;font-size:13px">${k}</td>` +
+    `<td style="padding:10px 14px;border-bottom:1px solid #1e3a52;color:${color || '#e2eef7'};font-size:15px;font-weight:700;text-align:right">${v}</td></tr>`;
+  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#e7edf3;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<div style="max-width:560px;margin:0 auto;padding:28px 16px">
+  <div style="background:#0b1620;border-radius:16px;overflow:hidden">
+    <div style="padding:26px 28px 18px;border-bottom:1px solid #1e3a52">
+      <span style="font-weight:800;font-size:19px;color:#fff">Keto<span style="color:#38bdf8">Dial</span></span>
+      <p style="margin:10px 0 0;color:#6da6c9;font-size:11px;letter-spacing:.14em;text-transform:uppercase">Your personalized keto plan</p>
+    </div>
+    <div style="padding:22px 28px 8px">
+      <p style="margin:0 0 6px;color:#e2eef7;font-size:15px;line-height:1.55">Here are your daily targets, tuned for ${goalLabel}. We used the Mifflin-St Jeor equation for your metabolism, then applied a keto-safe ratio.</p>
+    </div>
+    <table style="width:100%;border-collapse:collapse;padding:0 28px" cellpadding="0" cellspacing="0">
+      ${row('Daily calories', `${Number(m.calories).toLocaleString()} kcal`, '#38bdf8')}
+      ${row('Fat', `${m.fatG} g`)}
+      ${row('Protein', `${m.proteinG} g`)}
+      ${row('Net carbs', `${m.carbG} g`)}
+      ${row('Your TDEE (maintenance)', `${Number(m.tdee).toLocaleString()} kcal`)}
+    </table>
+    <div style="padding:20px 28px 26px">
+      <p style="margin:0 0 16px;color:#9fb8c9;font-size:13px;line-height:1.6">Hit the protein number first, use fat to stay full, and keep net carbs (total carbs minus fiber) under target. Give it two weeks before you judge anything.</p>
+      <a href="https://ketodial.com/recipes/" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;text-decoration:none">Browse keto recipes with these macros</a>
+      <p style="margin:16px 0 0"><a href="https://ketodial.com/blog/" style="color:#38bdf8;font-size:13px;text-decoration:none">Read the guides &rsaquo;</a></p>
+    </div>
+  </div>
+  <p style="margin:16px 8px 0;color:#94a3b8;font-size:11px;line-height:1.6">Estimates are for general nutrition information only, not medical advice. Consult a qualified healthcare provider before starting any diet. You received this one-time email because you asked for your results at ketodial.com. We won't email you again unless you subscribed to the newsletter.</p>
+</div>
+</body></html>`;
+}
+
+async function handleEmailPlan(request, env) {
+  try {
+    const b = await request.json();
+    const email = (b.email || '').trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return jsonResponse(400, { error: 'Valid email required' });
+    }
+    const m = b.macros || {};
+    if (!m.calories || !m.fatG || !m.proteinG || m.carbG == null || !m.tdee) {
+      return jsonResponse(400, { error: 'Macros required' });
+    }
+    if (!env.RESEND_API_KEY) {
+      return jsonResponse(500, { error: 'Email not configured' });
+    }
+
+    // Attach email to the calculator session if we have a token
+    if (b.token) {
+      fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${b.token}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({ email, updated_at: new Date().toISOString() }),
+      }).catch(() => {});
+    }
+
+    // Optional newsletter subscribe (no welcome send — the plan email is enough for one day)
+    if (b.newsletter_opt_in) {
+      fetch(`${env.SUPABASE_URL}/rest/v1/rpc/upsert_newsletter_subscriber`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+        body: JSON.stringify({
+          p_email: email,
+          p_site: 'kd',
+          p_signup_source: 'calculator-plan',
+          p_utm_source: b.utm_source || null,
+          p_utm_medium: b.utm_medium || null,
+          p_utm_campaign: b.utm_campaign || null,
+        }),
+      }).catch(() => {});
+    }
+
+    const sendRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'KetoDial <ketodial@carnivoreweekly.com>',
+        to: [email],
+        reply_to: 'iambrew@gmail.com',
+        subject: `Your keto plan: ${Number(m.calories).toLocaleString()} kcal · ${m.proteinG}g protein · ${m.carbG}g net carbs`,
+        html: buildPlanEmail(m, b.goal),
+      }),
+    });
+    if (!sendRes.ok) {
+      const err = await sendRes.text();
+      console.log('plan email send failed:', err);
+      return jsonResponse(502, { error: 'Send failed' });
+    }
+    return jsonResponse(200, { sent: true });
   } catch (e) {
     return jsonResponse(500, { error: e.message });
   }
