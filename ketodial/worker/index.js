@@ -237,8 +237,13 @@ function buildPlanEmail(m, goal) {
     </table>
     <div style="padding:20px 28px 26px">
       <p style="margin:0 0 16px;color:#9fb8c9;font-size:13px;line-height:1.6">Hit the protein number first, use fat to stay full, and keep net carbs (total carbs minus fiber) under target. Give it two weeks before you judge anything.</p>
-      <a href="https://ketodial.com/recipes/" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;text-decoration:none">Browse keto recipes with these macros</a>
-      <p style="margin:16px 0 0"><a href="https://ketodial.com/blog/" style="color:#38bdf8;font-size:13px;text-decoration:none">Read the guides &rsaquo;</a></p>
+      <a href="https://ketodial.com/recipes/?utm_source=plan_email&utm_medium=email&utm_campaign=plan_delivery" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;text-decoration:none">Browse keto recipes with these macros</a>
+      <p style="margin:16px 0 0"><a href="https://ketodial.com/blog/?utm_source=plan_email&utm_medium=email&utm_campaign=plan_delivery" style="color:#38bdf8;font-size:13px;text-decoration:none">Read the guides &rsaquo;</a></p>
+    </div>
+    <div style="margin:0 28px 26px;padding:16px 18px;background:rgba(56,189,248,.07);border:1px solid #1e3a52;border-radius:12px">
+      <p style="margin:0 0 8px;color:#6da6c9;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">If you want it dialed in further</p>
+      <p style="margin:0 0 12px;color:#bcd4e3;font-size:13px;line-height:1.6">These numbers are generic to your stats. The full protocol accounts for your health conditions, budget, and cooking style: a 7-day meal plan, a keto starter kit, and a doctor-ready report you can bring to your next appointment. One-time purchase from $3.99, all three for $10.99. No subscription.</p>
+      <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=protocol_upsell#calc" style="color:#38bdf8;font-size:13px;font-weight:700;text-decoration:none">See the full protocol &rsaquo;</a>
     </div>
   </div>
   <p style="margin:16px 8px 0;color:#94a3b8;font-size:11px;line-height:1.6">Estimates are for general nutrition information only, not medical advice. Consult a qualified healthcare provider before starting any diet. You received this one-time email because you asked for your results at ketodial.com. We won't email you again unless you subscribed to the newsletter.</p>
