@@ -45,6 +45,12 @@ node engagement-tracking-report.js
 echo "   ✅ engagement-tracking-report.html"
 echo ""
 
+# Report 5: Weekly Report (all-in-one: GA4 + Calculator + Newsletters + Drip + Coach + KD)
+echo "5/5 📋 Weekly Report (all-in-one dashboard)..."
+node weekly-report.js
+echo "   ✅ weekly-report.html"
+echo ""
+
 echo "======================================================================"
 echo "✅ ALL REPORTS GENERATED!"
 echo "======================================================================"
@@ -52,6 +58,7 @@ echo ""
 echo "📁 Reports saved to dashboard/"
 echo ""
 echo "View reports:"
+echo "  • open dashboard/weekly-report.html          ← START HERE (all-in-one)"
 echo "  • open dashboard/site-overview-report.html"
 echo "  • open dashboard/calculator-funnel-report.html"
 echo "  • open dashboard/wiki-search-report.html"

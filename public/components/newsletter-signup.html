@@ -418,7 +418,7 @@
             var resp = await fetch(SUBSCRIBE_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, group: 'newsletter' })
+                body: JSON.stringify({ email: email, site: 'cw', source: source })
             });
             var data = await resp.json();
 
