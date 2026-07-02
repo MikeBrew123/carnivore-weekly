@@ -319,3 +319,10 @@ Pattern: Old KD recipe import shipped "Prep. Gather all ingredients." filler met
 Attempts:
 - 2026-07-01 — Re-scraped sources via Apify, Sarah rewrote all 16 methods, staggered all dates ≤2/day, fixed HTML+JSON-LD+Supabase → fixed
 If recurs: validate recipe pages for filler text + date clustering before publish; add check to KD pipeline.
+
+## ISSUE-031 — Blog newsletter signup form was dead on all posts (scripts don't execute via innerHTML)
+🟢 FIXED — Last: 2026-07-01
+Pattern: newsletter-inject.js fetched the signup component and inserted it with innerHTML; inline <script> tags inserted that way never execute, so the submit handler never attached. Readers who submitted got a silent page reload. Zero blog signups ever despite blog = 56% of calc traffic.
+Attempts:
+- 2026-07-01 — Recreate script nodes after insertion so they execute; component now sends site/source (was group:'newsletter', all signups mislabeled 'homepage'); widened newsletter_subscribers signup_source check to allow 'blog_inline' → verified end-to-end with test signup (drip row created, source=blog_inline)
+If recurs: check browser console on a live blog post; verify POST to /api/v1/subscribe fires on submit. Any component loaded via fetch+innerHTML has this trap.
