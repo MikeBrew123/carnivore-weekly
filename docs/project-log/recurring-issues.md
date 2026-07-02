@@ -340,3 +340,11 @@ Pattern: All CW deploys 16:44–19:00 UTC failed with "Deployment failed, try ag
 Attempts:
 - 2026-07-02 — Spaced fresh workflow_dispatch retries (20 min apart) → first retry after backend recovery succeeded; all posts live
 If recurs: retry with FRESH dispatch only (never rerun-failed more than once — artifact accumulation); verify against live post URL, not run status; escalate to GitHub support if >3h.
+
+## ISSUE-034 — KD blog index wiped to 1 card by JSON-only feed-grid rebuild
+🟡 RECURRING (ISSUE-026 family) — Last: 2026-07-02
+Pattern: generate_kd_blog.py update_blog_index() REBUILT the feed-grid from blog_posts.json, but 26 of 27 KD posts exist only as standalone HTML (not in JSON). First KD publish through the new pipeline (gut-health, Jul 2) wiped all 26 cards. Posts stayed live at their URLs — index delisting only. Caught by Brew visually; my publish verification checked the new card was ADDED but not that existing cards SURVIVED.
+Attempts:
+- 2026-06-12 — (ISSUE-026) bulk regeneration wiped 26 post bodies → surgical-edits-only rule
+- 2026-07-02 — Restored index from pre-wipe commit; rewrote updater to INSERT-ONLY (never removes existing cards) → fixed
+If recurs: any KD index/page updater must be additive; verification after publish must assert count(before) <= count(after). KD-native validator bead should include this check.
