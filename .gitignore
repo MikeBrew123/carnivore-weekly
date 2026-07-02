@@ -114,3 +114,4 @@ api/.wrangler/tmp/
 # Source of truth is the n8n instance itself; never commit exports.
 # Blocked by .git/hooks/pre-commit secret scanner as a backstop.
 n8n-workflows/
+.next/

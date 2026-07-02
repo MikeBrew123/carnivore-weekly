@@ -5,7 +5,9 @@
 
 set -euo pipefail
 
-HERMES_HOST="root@148.230.83.87"
+# Hermes is reachable over Tailscale (hermes-vps, 100.92.115.43).
+# The old public IP 148.230.83.87:22 is firewalled and times out — do not use it.
+HERMES_HOST="root@100.92.115.43"
 SSH_TIMEOUT=10
 HERMES_TIMEOUT=60
 
