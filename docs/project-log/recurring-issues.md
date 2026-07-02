@@ -333,3 +333,10 @@ Pattern: daily_publish.py --site kd called generate_blog_pages.py, which filters
 Attempts:
 - 2026-07-02 — daily_publish.py --site kd now calls generate_kd_blog.py --only-new, skips CW validator; added issues:write; generated 9 hero images via flux-schnell; published delayed Jul 1 post → fixed (workflow re-run green)
 If recurs: check run_generator()/run_validator() SITE branches in daily_publish.py. (Commit 0e60030b misnumbers this as ISSUE-031.)
+
+## ISSUE-033 — GitHub Pages deploy outage (actions path) blocked CW deploys ~2.5h
+🟢 FIXED — Last: 2026-07-02
+Pattern: All CW deploys 16:44–19:00 UTC failed with "Deployment failed, try again later" (Pages backend; githubstatus stayed green). KD legacy builds recovered ~17:05; actions-path lagged. Today's 3 auto-published posts were 404 until recovery. Self-inflicted complication: rerunning the failed run 5x re-uploaded the artifact each time (upload step lives in the deploy job) → 7 artifacts named github-pages → deploy-pages hard-rejects.
+Attempts:
+- 2026-07-02 — Spaced fresh workflow_dispatch retries (20 min apart) → first retry after backend recovery succeeded; all posts live
+If recurs: retry with FRESH dispatch only (never rerun-failed more than once — artifact accumulation); verify against live post URL, not run status; escalate to GitHub support if >3h.
