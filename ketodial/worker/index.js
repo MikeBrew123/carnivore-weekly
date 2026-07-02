@@ -516,6 +516,11 @@ ${linkList}
 <strong>Your daily targets:</strong> ${formData.calories || '—'} kcal · ${formData.fatG || '—'}g fat · ${formData.proteinG || '—'}g protein · ${formData.carbG || '—'}g net carbs
 </div>
 <p style="margin-top:20px;font-size:13px;color:#94a3b8">These links are unique to your purchase and don't expire. Bookmark them for easy access.</p>
+<div style="margin-top:20px;padding:16px 18px;background:#0b1620;border-radius:12px">
+<p style="margin:0 0 8px;color:#6da6c9;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">Want a human in your corner?</p>
+<p style="margin:0 0 10px;color:#bcd4e3;font-size:13px;line-height:1.6">Your reports tell you what to do. KetoDial Coach is a weekly accountability check-in by text to make sure it actually happens. It's in early beta right now, which means a small group and real attention.</p>
+<a href="https://coach.ketodial.com/?utm_source=report_email&utm_medium=email&utm_campaign=coach_beta" style="color:#38bdf8;font-size:13px;font-weight:700;text-decoration:none">Take a look at Coach &rsaquo;</a>
+</div>
 </div>
 <p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:16px">© 2026 KetoDial — ketodial.com</p>
 </div>`;
