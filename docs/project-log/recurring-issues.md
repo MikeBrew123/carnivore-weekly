@@ -312,3 +312,10 @@ Pattern: calculator-funnel-report.js counted calculator_free_results/calculator_
 Attempts:
 - 2026-07-01 — Rewrote funnel to real events: calculator_payment_modal_opened → begin_checkout → purchase → calculator_report_generated → fixed
 If recurs: any new calculator build must keep GA4 event names in sync with dashboard scripts; grep both sides.
+
+## ISSUE-030 — 16 KD recipes published with placeholder instructions; fake clustered dates blocked indexing
+🟢 FIXED — Last: 2026-07-01
+Pattern: Old KD recipe import shipped "Prep. Gather all ingredients." filler methods (16 pages) and identical datePublished 2025-01-01 on 64 recipes + 10-posts-per-day blog date clusters. Google crawled and refused to index (classic scaled-content signals). Full SEO audit caught it.
+Attempts:
+- 2026-07-01 — Re-scraped sources via Apify, Sarah rewrote all 16 methods, staggered all dates ≤2/day, fixed HTML+JSON-LD+Supabase → fixed
+If recurs: validate recipe pages for filler text + date clustering before publish; add check to KD pipeline.
