@@ -40,3 +40,10 @@
 | 2026-04-07 | Posts stay status="ready" for daily-publish automation; never manually flip to published | Manually publishing Sarah's Apr 8 post caused it to appear on the index before HTML existed, resulting in 404 | Manual publish (index/HTML desync risk), separate index generation (unnecessary complexity) |
 | 2026-04-13 | daily-publish.yml must `git add -A` before `git diff --staged` to detect new files | `git diff --name-only` only sees tracked file modifications; new HTML files are untracked and invisible. Caused 5-day silent publish failure (Apr 8-12). | Use `git status --porcelain` (harder to parse), use `ls` on output dir (fragile) |
 | 2026-04-13 | Etsy buyer messages should reference all supported diet types, not just carnivore | 4/4 Etsy sales are non-carnivore (keto, lion, pescatarian). Old message said "if you're eating carnivore" — excludes majority of buyers | Keep carnivore-only messaging (alienates buyers), remove diet references entirely (loses specificity) |
+
+## 2026-07-01 — Calculator pricing freeze + KD quality gates
+- **Hold CW calculator at $29 ($14.99 sale through Jul 4) for 90 days.** The only real sale (Jun 28, verified in Stripe) came at full $29 with no coupon. At ~100 visitors/month, price changes produce no learnable signal; traffic is the constraint.
+- **Calculator's primary job is email capture; the 7-day drip is the sales vehicle.** Audience (66% 45+) doesn't impulse-buy from first visit.
+- **Pinterest capped at 10 pins/day** on the new account (spam-filter threshold). Automation: scheduled task pinterest-kd-daily-pins.
+- **KD date integrity:** replaced fabricated 2025-01-01 datePublished (64 recipes) with staggered ≤2/day dates; same rule for blog. Date clustering was a scaled-content signal blocking Google indexation.
+- **KD recipe net-carb ceiling:** rejected a 4.9★ recipe at 13.2g net carbs/serving — nothing over ~10g net goes on a keto site's recipe library.

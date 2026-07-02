@@ -1,9 +1,9 @@
 # Current Status
 
-**Last Updated:** 2026-06-05 (Blog Pipeline Refill + KetoDial Recipe Fixes)
+**Last Updated:** 2026-07-01 (Calculator Fixes + KD SEO Overhaul + Pinterest Launch)
 
 **Current Focus:**
-Blog pipeline refilled with 12 posts (Jun 6-17) + 1 published today. All posts have images via flux-schnell. KetoDial recipe section fixed: title spacing, category labels, Recipe JSON-LD schema on all 64 pages. Hermes confirmed all KD fixes pass on live site. Image generation switched from nano-banana-pro to flux-schnell (10x cheaper). Portuguese and anti-carnivore channels blocked from CW channels page.
+CW calculator instrumentation fixed (funnel report used nonexistent GA4 events; paid-report expiry was 48h vs "yours forever" — now 1yr, deployed). June 28 $29 sale CONFIRMED REAL (full price, no coupon — verified in Stripe). KetoDial: full 6-agent SEO audit found and fixed the actual indexation blockers (16 placeholder-instruction recipes, fake 2025-01-01 dates on 64 recipes, blog date clustering). 7 new KD recipes shipped (lunch gap), Pinterest launched with daily automation (10 posted, 61 queued), 8 CW→KD deep links live, llms.txt + about.html + robots AI-crawler policy shipped. KD's remaining constraint: zero real backlinks.
 
 ---
 
