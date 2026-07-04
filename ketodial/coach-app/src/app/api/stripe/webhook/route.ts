@@ -55,7 +55,16 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        const tier = session.metadata?.tier || 'weekly'
+
+        // Product filter: this Stripe account also receives CW calculator and KD
+        // report checkouts (payment mode, no tier). A coach checkout is always
+        // mode=subscription with metadata.tier set by /api/stripe/checkout.
+        if (session.mode !== 'subscription' || !session.metadata?.tier) {
+          console.log('Skipping non-coach checkout.session.completed:', session.id)
+          break
+        }
+
+        const tier = session.metadata.tier
         const founding = session.metadata?.founding_member === 'true'
 
         // Create Supabase auth user if not exists

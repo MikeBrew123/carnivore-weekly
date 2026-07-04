@@ -5238,12 +5238,15 @@ async function handleStripeWebhook(request, env) {
 
   // ===== CHECKOUT COMPLETED =====
   if (event.type === 'checkout.session.completed') {
-    const sessionUUID = obj.client_reference_id;
+    const sessionUUID = obj.client_reference_id || obj.metadata?.assessment_session_id;
     const amountTotal = obj.amount_total;
 
     if (!sessionUUID) {
-      console.error('Webhook: checkout.session.completed missing client_reference_id');
-      return createErrorResponse('MISSING_REF', 'No client_reference_id in session', 400);
+      // Product filter: this Stripe account also receives KD report and coach
+      // subscription checkouts, which never carry a CW session reference.
+      // Not ours — acknowledge so Stripe doesn't retry.
+      console.log('Skipping non-CW checkout.session.completed:', obj.id);
+      return createSuccessResponse({ received: true, skipped: true });
     }
 
     const [assessmentRes, calcRes] = await Promise.all([
