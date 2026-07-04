@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>30-Day Keto Meal Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: letter;
+    margin: 0.6in 0.5in;
+  }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: #faf8f4;
+    color: #1a1a1a;
+    font-size: 11pt;
+    line-height: 1.45;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* COVER / TITLE PAGE */
+  .cover-page {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .cover-page h1 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 36pt;
+    color: #4a0404;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .cover-page .subtitle {
+    font-size: 16pt;
+    font-weight: 600;
+    color: #ffbf00;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+  }
+
+  .cover-page .intro {
+    max-width: 520px;
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+  }
+
+  .cover-page .brand {
+    margin-top: 50px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 11pt;
+    color: #4a0404;
+    opacity: 0.7;
+  }
+
+  .cover-page .disclaimer {
+    margin-top: 30px;
+    font-size: 8.5pt;
+    color: #666;
+    max-width: 440px;
+    line-height: 1.4;
+    font-style: italic;
+  }
+
+  /* WEEK PAGES */
+  .week-page {
+    page-break-after: always;
+    padding: 10px 0;
+  }
+
+  .week-header {
+    background: #4a0404;
+    color: #faf8f4;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .week-header h2 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 16pt;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .week-header .week-tag {
+    font-size: 9pt;
+    font-weight: 700;
+    color: #ffbf00;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .week-intro {
+    font-size: 10pt;
+    color: #4a0404;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+
+  /* DAY ROWS */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 9.5pt;
+  }
+
+  thead th {
+    background: #4a0404;
+    color: #faf8f4;
+    font-weight: 700;
+    text-align: left;
+    padding: 6px 8px;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  thead th:first-child { width: 11%; }
+  thead th:nth-child(2) { width: 29%; }
+  thead th:nth-child(3) { width: 30%; }
+  thead th:nth-child(4) { width: 30%; }
+
+  tbody tr { border-bottom: 1px solid #e0dcd4; }
+
+  tbody tr:nth-child(even) { background: #f3f0ea; }
+
+  tbody td {
+    padding: 5px 8px;
+    vertical-align: top;
+    line-height: 1.35;
+  }
+
+  .day-label {
+    font-weight: 700;
+    color: #4a0404;
+    font-size: 9pt;
+  }
+
+  .meal-highlight {
+    font-weight: 600;
+    color: #4a0404;
+  }
+
+  /* PREP TIPS BOX */
+  .prep-tips {
+    background: #fff8e1;
+    border-left: 4px solid #ffbf00;
+    padding: 10px 14px;
+    margin-top: 8px;
+  }
+
+  .prep-tips-header {
+    font-weight: 700;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #4a0404;
+    margin-bottom: 4px;
+  }
+
+  .prep-tips ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 9pt;
+    line-height: 1.4;
+  }
+
+  .prep-tips li { margin-bottom: 2px; }
+
+  /* FOOTER */
+  .page-footer {
+    text-align: center;
+    font-size: 7.5pt;
+    color: #999;
+    margin-top: 10px;
+    padding-top: 6px;
+    border-top: 1px solid #e0dcd4;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== COVER PAGE ==================== -->
+<div class="cover-page">
+  <h1>30-Day Keto<br>Meal Plan</h1>
+  <div class="subtitle">Simple. Repeatable. Results.</div>
+  <div class="intro">
+    <p>This plan is for keto beginners who want a system, not a science lecture. The target is simple: stay under 20g net carbs a day. That's it. No calorie counting. No weighing food. Repeatable meals you'll actually cook on a Tuesday night.</p>
+    <p style="margin-top: 12px;"><strong>How to use it:</strong> Eat what's listed. Eat until full. Swap proteins if your store is out of something. Cook once, eat twice. Leftover days are built in on purpose.</p>
+    <p style="margin-top: 12px;">Step-by-step versions of many of these recipes are free at <strong>ketodial.com</strong>, our keto site.</p>
+  </div>
+  <div class="brand">carnivoreweekly.com</div>
+  <div class="disclaimer">I'm not a doctor. I've coached people and competed myself, so I know what works. But I'm not your doctor. If you have health issues or take meds, check with someone qualified before changing your diet. Everything here is based on what works in practice. Your mileage may vary.</div>
+</div>
+
+<!-- ==================== WEEK 1 ==================== -->
+<div class="week-page">
+  <div class="week-header">
+    <h2>Week 1: Foundation</h2>
+    <span class="week-tag">Days 1-7</span>
+  </div>
+  <p class="week-intro">Keep it stupid simple. Eggs, meat, cheese, green veg. Don't chase fancy recipes yet. Just get under 20g a day and repeat.</p>
+
+  <table>
+    <thead>
+      <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="day-label">Day 1</td>
+        <td>3 eggs scrambled in butter, 2 strips bacon</td>
+        <td>Keto egg salad in lettuce wraps</td>
+        <td>2 bunless cheeseburgers + half an avocado</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 2</td>
+        <td>Bacon spinach egg cups (made Sunday)</td>
+        <td>Deli turkey + cheese roll-ups, side of olives</td>
+        <td>Instant Pot bacon-ranch chicken</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 3</td>
+        <td>Bacon spinach egg cups</td>
+        <td>Leftover bacon-ranch chicken over salad</td>
+        <td>Low-carb Salisbury steak + buttered green beans</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 4</td>
+        <td>3 eggs fried in bacon grease</td>
+        <td>Keto tuna salad on cucumber slices</td>
+        <td>Leftover Salisbury steak</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 5</td>
+        <td>Bacon spinach egg cups</td>
+        <td>Keto chicken salad in lettuce cups</td>
+        <td>Creamy keto taco soup</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 6</td>
+        <td>2 eggs + 3 strips bacon</td>
+        <td>Leftover taco soup</td>
+        <td>Sirloin steak + cauliflower mac and cheese</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 7</td>
+        <td>Keto egg casserole (make a full pan)</td>
+        <td>Keto cobb salad</td>
+        <td>Rotisserie chicken + broccoli in butter</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="prep-tips">
+    <div class="prep-tips-header">Weekly Prep Tips</div>
+    <ul>
+      <li><strong>Sunday batch cook:</strong> Make a dozen bacon spinach egg cups and a pan of egg casserole. Breakfasts are done for the week.</li>
+      <li><strong>Boil a dozen eggs.</strong> Egg salad, tuna salad, and grab-and-go snacks all come from the same pot.</li>
+      <li><strong>Clear the kitchen.</strong> Bread, pasta, rice, chips, sugar. Out of the house or out of sight. Willpower is a terrible plan.</li>
+      <li><strong>Read labels.</strong> Net carbs = total carbs minus fiber. Sauces and dressings are where hidden carbs live.</li>
+      <li><strong>Eat until full.</strong> Don't count calories this week. Your only job is staying under 20g net carbs.</li>
+    </ul>
+  </div>
+  <div class="page-footer">carnivoreweekly.com | 30-Day Keto Meal Plan | Page 2</div>
+</div>
+
+<!-- ==================== WEEK 2 ==================== -->
+<div class="week-page">
+  <div class="week-header">
+    <h2>Week 2: Adaptation</h2>
+    <span class="week-tag">Days 8-14</span>
+  </div>
+  <p class="week-intro">This is keto flu week for most people. It's not the flu. It's electrolytes. Salt your food, drink water, and follow the plan. It passes.</p>
+
+  <table>
+    <thead>
+      <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="day-label">Day 8</td>
+        <td>Leftover keto egg casserole</td>
+        <td>Keto egg salad in lettuce wraps</td>
+        <td>Broccoli cheddar soup</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 9</td>
+        <td>Keto chaffles with butter</td>
+        <td>Leftover broccoli cheddar soup</td>
+        <td>Keto smothered chicken thighs</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 10</td>
+        <td>3 eggs scrambled + 2 sausage patties</td>
+        <td>Keto chicken salad in lettuce cups</td>
+        <td>Keto beef egg roll slaw</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 11</td>
+        <td>Keto chaffles + 2 strips bacon</td>
+        <td>Leftover beef egg roll slaw</td>
+        <td>Keto chicken parmesan + zucchini pasta</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 12</td>
+        <td>Bacon spinach egg cups</td>
+        <td>Keto tuna salad + cheese crisps</td>
+        <td>Low-carb tacos in cheese shells</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 13</td>
+        <td>90-second keto bread + 2 fried eggs</td>
+        <td>Leftover taco meat over salad greens</td>
+        <td>Low-carb chicken and mushroom soup</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 14</td>
+        <td>Cream cheese pancakes</td>
+        <td>Keto cobb salad</td>
+        <td>Ribeye + simple cauliflower casserole</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="prep-tips">
+    <div class="prep-tips-header">Weekly Prep Tips</div>
+    <ul>
+      <li><strong>Electrolytes first:</strong> Headache, fatigue, brain fog? That's sodium, not sickness. Salt everything. Sip salted water or broth daily.</li>
+      <li><strong>Magnesium and potassium:</strong> Avocado, spinach, and a magnesium supplement at night cover most of it. Leg cramps mean you're behind.</li>
+      <li><strong>Sunday ground beef:</strong> Brown 2-3 lbs. It becomes taco meat, egg roll slaw, and salad topper all week.</li>
+      <li><strong>Chaffles freeze great.</strong> Make a double batch, freeze, toast in the morning. Faster than cereal ever was.</li>
+      <li><strong>Don't quit on day 10.</strong> Almost everyone who fails keto quits during this week. You're one salty broth away from feeling fine.</li>
+    </ul>
+  </div>
+  <div class="page-footer">carnivoreweekly.com | 30-Day Keto Meal Plan | Page 3</div>
+</div>
+
+<!-- ==================== WEEK 3 ==================== -->
+<div class="week-page">
+  <div class="week-header">
+    <h2>Week 3: Variety</h2>
+    <span class="week-tag">Days 15-21</span>
+  </div>
+  <p class="week-intro">Adaptation is behind you. Energy comes back this week. Time for more variety, plus your first restaurant meals. Eating out on keto is easy once you know the moves.</p>
+
+  <table>
+    <thead>
+      <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="day-label">Day 15</td>
+        <td>Keto veggie frittata</td>
+        <td>Keto antipasto salad</td>
+        <td>Zucchini lasagna</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 16</td>
+        <td>Leftover frittata</td>
+        <td>Leftover zucchini lasagna</td>
+        <td>Keto spinach-artichoke chicken</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 17</td>
+        <td>Keto blueberry muffins + 2 eggs</td>
+        <td>Keto shrimp salad</td>
+        <td>Eating out: bunless burger, side salad, skip the fries</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 18</td>
+        <td>Keto overnight oats</td>
+        <td>Leftover spinach-artichoke chicken</td>
+        <td>Low-carb beef cabbage stew</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 19</td>
+        <td>Keto blueberry muffins + 3 strips bacon</td>
+        <td>Leftover beef cabbage stew</td>
+        <td>Keto smothered chicken thighs</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 20</td>
+        <td>Keto French toast</td>
+        <td>Keto egg salad in lettuce wraps</td>
+        <td>Eating out: steak fajitas, no tortillas, extra guac</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 21</td>
+        <td>Keto broccoli cheddar quiche</td>
+        <td>Keto chicken salad in lettuce cups</td>
+        <td>Lasagna pepper boats</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="prep-tips">
+    <div class="prep-tips-header">Weekly Prep Tips</div>
+    <ul>
+      <li><strong>Restaurant rules:</strong> Protein + vegetables + fat. Swap fries for salad. Ask for butter. Skip the bread basket. Done.</li>
+      <li><strong>Sauce check:</strong> BBQ sauce, ketchup, and teriyaki are sugar bombs. Ranch, blue cheese, oil and vinegar are safe.</li>
+      <li><strong>Bake once, eat twice:</strong> Frittata and quiche both give you two breakfasts per pan. Muffins keep 5 days in the fridge.</li>
+      <li><strong>Slow cooker stew:</strong> Beef cabbage stew takes 10 minutes of work. Dinner tonight, lunch tomorrow.</li>
+      <li><strong>Notice your hunger.</strong> By now you might skip a meal without thinking about it. That's fat adaptation working. Don't force three meals.</li>
+    </ul>
+  </div>
+  <div class="page-footer">carnivoreweekly.com | 30-Day Keto Meal Plan | Page 4</div>
+</div>
+
+<!-- ==================== WEEK 4 ==================== -->
+<div class="week-page">
+  <div class="week-header">
+    <h2>Week 4: Your Rhythm</h2>
+    <span class="week-tag">Days 22-30</span>
+  </div>
+  <p class="week-intro">Nine days left. Notice something? The winners are back. Repetition isn't boring, it's the system. This week you build the rotation you'll run long after day 30.</p>
+
+  <table>
+    <thead>
+      <tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="day-label">Day 22</td>
+        <td>Leftover broccoli cheddar quiche</td>
+        <td>Keto cobb salad</td>
+        <td>Creamy keto taco soup</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 23</td>
+        <td>Bacon spinach egg cups</td>
+        <td>Leftover taco soup</td>
+        <td>Instant Pot bacon-ranch chicken</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 24</td>
+        <td>Keto chaffles with butter</td>
+        <td>Leftover chicken + guacamole with cheese chips</td>
+        <td>Low-carb Salisbury steak + green beans</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 25</td>
+        <td>3 eggs + 3 strips bacon</td>
+        <td>Keto tuna salad on cucumber slices</td>
+        <td>Keto beef egg roll slaw</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 26</td>
+        <td>Keto English muffin + fried egg + cheese</td>
+        <td>Leftover beef egg roll slaw</td>
+        <td>Broccoli cheddar soup</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 27</td>
+        <td>Keto egg casserole</td>
+        <td>Keto antipasto salad</td>
+        <td>Keto chicken parmesan + zucchini pasta</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 28</td>
+        <td>Leftover egg casserole</td>
+        <td>Deli turkey + cheese roll-ups, side of olives</td>
+        <td>Low-carb tacos in cheese shells</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 29</td>
+        <td>Keto fluffy pancakes</td>
+        <td>Leftover taco meat over salad greens</td>
+        <td>Keto smothered chicken thighs</td>
+      </tr>
+      <tr>
+        <td class="day-label">Day 30</td>
+        <td>Bacon spinach egg cups</td>
+        <td>Keto cobb salad</td>
+        <td class="meal-highlight">Ribeye + cauliflower mac and cheese. You earned it.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="prep-tips">
+    <div class="prep-tips-header">Weekly Prep Tips</div>
+    <ul>
+      <li><strong>Build your rotation.</strong> Pick your 5 favorite dinners from this month. Write them down. That's your permanent meal plan.</li>
+      <li><strong>Sunday system:</strong> One pan of egg cups or casserole, one batch of ground beef, one soup or slow cooker meal. 90 minutes covers most of your week.</li>
+      <li><strong>Stock the freezer.</strong> Chaffles, muffins, soup portions, cooked ground beef. A stocked freezer beats a weak moment every time.</li>
+      <li><strong>Day 30 audit:</strong> Energy, sleep, mood, waistline, cravings. Write it all down. This is your baseline for the next 30.</li>
+      <li><strong>What's next:</strong> Keep going. The plan doesn't end at 30 days. It starts there.</li>
+    </ul>
+  </div>
+
+  <!-- CLOSING SECTION -->
+  <div style="margin-top: 20px; padding: 16px 20px; background: #4a0404; color: #faf8f4;">
+    <p style="font-family: 'Libre Baskerville', serif; font-size: 12pt; font-weight: 700; color: #ffbf00; margin-bottom: 8px;">The Whole Protocol in One Line</p>
+    <p style="font-size: 10pt; line-height: 1.5; margin-bottom: 10px;">Stay under 20g net carbs. Salt your food. Cook once, eat twice. Repeat for 30 days. Measure what matters and adjust based on data, not opinions.</p>
+    <p style="font-size: 8.5pt; color: #d4a574;">Marcus | carnivoreweekly.com</p>
+  </div>
+
+  <div class="page-footer">carnivoreweekly.com | 30-Day Keto Meal Plan | Page 5</div>
+</div>
+
+</body>
+</html>
