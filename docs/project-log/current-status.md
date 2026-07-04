@@ -1,6 +1,13 @@
 # Current Status
 
-**Last Updated:** 2026-07-04 (4-Day Revenue Sprint, Day 1 complete + Day 2 started)
+**Last Updated:** 2026-07-04 (Revenue Sprint Days 1-3 + a PM session of funnel/SEO/perf fixes)
+
+**PM session 2026-07-04 (funnel routing, calc SEO, bug fixes — all shipped + verified live):**
+- Diet-based signup routing live: carnivore→CW drip, keto/low-carb→KetoDial newsletter + KD welcome email, pescatarian→held on CW newsletter, unknown→CW drip. Worker (`handleBeehiivSubscribe` in api/calculator-api.js) + frontend (`calculator.html` now sends `diet_type`). Killed the day-28 keto router; unified finale with soft KD off-ramp. `funnel_by_diet` DB view feeds the weekly scoreboard; sprint task 3.6 (calc SEO) also done here.
+- Calculator SEO (3.6): title/H1/meta/OG lead with "carnivore diet calculator"; 2 new FAQ entries (calorie-calculator, fat-to-protein-ratio) for the GSC cluster ranking pos 5-9.
+- Bug fixes: 4 mobile-overflow bugs on calculator.html + sitewide `.site-title` overflow (global.css); payment-redirect scroll race (scrollToAnchor now polls for the anchor + cancels stale scrolls — CalculatorApp.tsx, rebuilt to bundle index-Cit1EhrW.js); un-broke update-references.mjs (was crashing every build on a deleted legacy file).
+- Perf: calculator images 38.9MB→10.2MB on disk (visitor download ~2.9MB→~800KB). NEW: LCP 7.3s mobile lab (poor) filed as its own task (defer gtag, lazy-load bundle, self-host 1 Unsplash image); CLS 0.036 is green.
+- ISSUE-033 (Pages "try again later") recurred; fresh dispatch fixed. Rule tightened: never rerun-failed.
 
 **Current Focus:**
 Executing the Jul 4-7 revenue sprint (`Brew-Vault/00-Core/Fable-Sprint-2026-07.md`). Day 1 and Day 2 are fully done. Day 1: webhook fixes, drip 7→30 days, WELCOME5 coupon, paid-report persistence alert, scoreboard truth-pass automation. Day 2: Keto Starter Kit bundle shipped a day early and live at $21.99 CAD (listing 4532542805, price ladder now $4.49 → $7.99 → $21.99); Etsy title/tag rewrite (2.4) finished across all 14 listings that scored above the audit threshold; task 2.3 (image refresh) reassigned permanently to Brew (Nano Banana needs hands-on iteration, not a batch job). Day 3 (distribution) started: 3.3 (KD backlink plan, 10 verified targets + 2 outreach drafts) and 3.1a (KD Pinterest queue replenish, 41→65 queued past the Jul 8 drain date) both done. Remaining Day 3: 3.2 (drip cross-promo, mostly satisfied already), 3.4 (newsletter), 3.5 (scoreboard distribution rows), 3.6 (CW calculator SEO — sprint's own "cheapest lever" pick). Day 4 (automation durability, docs truth-up, Operator Handbook) not started.
