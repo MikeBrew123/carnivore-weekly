@@ -6,8 +6,9 @@ Queries drip_subscribers for anyone not completed/unsubscribed,
 sends the next day's email via Resend, bumps the counter.
 The sequence is sparse past day 7 (days 10, 14, 21, 28); days with no
 day-N.html advance the counter silently without sending.
-Day 28 is segmented: subscribers whose latest calculator session has
-diet_type=keto get day-28-keto.html, everyone else gets day-28.html.
+Only carnivore-diet signups enter this drip; keto/low-carb/other diets are
+deflected to a newsletter at calculator Step 2 (see handleSaveStep2 in the
+worker), so every subscriber here is a carnivore selector.
 After day 28, marks completed and auto-subscribes to the CW weekly newsletter.
 
 Run daily (Hermes cron or GitHub Action).
@@ -107,20 +108,6 @@ def load_drip_email(day, variant=None):
     subject_match = re.search(r'Subject:\s*(.+?)(?:\s*-->)', html)
     subject = subject_match.group(1).strip() if subject_match else f"Day {day} — Your Carnivore Starter"
     return subject, html
-
-
-def get_diet_type(secrets, email):
-    """Latest calculator diet_type for this email, or '' if none."""
-    try:
-        rows = supabase_query(secrets, "calculator_sessions_v2", {
-            "select": "diet_type",
-            "email": f"eq.{email}",
-            "order": "created_at.desc",
-            "limit": "1",
-        })
-        return (rows[0].get("diet_type") or "").lower() if rows else ""
-    except Exception:
-        return ""
 
 
 def personalize(html, email):
@@ -267,12 +254,7 @@ def main():
             print(f"  🎓 {sub['email']} — completed drip, added to CW weekly")
             continue
 
-        variant = None
-        if next_day == 28:
-            diet = get_diet_type(secrets, sub["email"])
-            variant = "keto" if diet == "keto" else None
-
-        subject, html = load_drip_email(next_day, variant)
+        subject, html = load_drip_email(next_day)
         if not html:
             # Sparse sequence: no email defined for this day — advance silently
             if args.dry_run:

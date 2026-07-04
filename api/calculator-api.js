@@ -5067,16 +5067,100 @@ async function handleMailerLiteSubscribe(request, env) {
   }
 }
 
+// ===== KETODIAL WELCOME (keto/low-carb calculator opt-ins) =====
+// Someone used the Carnivore Weekly calculator, chose keto or low-carb, and opted in.
+// They likely don't know KetoDial exists — introduce the sister site, then they land
+// on the KD weekly newsletter. Best-effort: failures are logged, never block signup.
+async function sendKetoDialWelcome(email, env) {
+  if (!env.RESEND_API_KEY) {
+    console.error('KD welcome: RESEND_API_KEY not configured');
+    return;
+  }
+  const unsubUrl = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(email)}&site=kd`;
+  const html = `<div style="margin:0;padding:0;background:#e2eef7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#334155">
+  <div style="max-width:600px;margin:0 auto;background:#ffffff">
+    <div style="background:linear-gradient(135deg,#38bdf8 0%,#2dd4bf 100%);padding:32px 24px;text-align:center">
+      <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:800;letter-spacing:1px">KetoDial</h1>
+      <div style="color:#e0f7ff;font-size:14px;margin-top:6px">Welcome to the keto side</div>
+    </div>
+    <div style="padding:30px 26px;line-height:1.7;font-size:16px;color:#334155">
+      <p style="margin:0 0 16px 0">Hey, and welcome.</p>
+      <p style="margin:0 0 16px 0">You just ran your macros over at Carnivore Weekly and landed on keto. That's our cue to say hi, because keto is exactly what we do over here at KetoDial. Same small team, sister site. You'll just feel more at home on this side.</p>
+      <p style="margin:0 0 10px 0;font-weight:700;color:#0f172a">Here's what's waiting for you, all free:</p>
+      <ul style="margin:0 0 16px 0;padding-left:20px">
+        <li style="margin-bottom:8px">70+ keto recipes with the fat, protein, and net carbs already worked out. No math on your end.</li>
+        <li style="margin-bottom:8px">Straight guides on the stuff that trips people up early: keto flu, electrolytes, and what to do when the scale stalls.</li>
+      </ul>
+      <p style="margin:0 0 20px 0">Start with the recipes. Cook one thing this week and see how easy it feels when the numbers are already done.</p>
+      <a href="https://ketodial.com/recipes/?utm_source=cw_calculator&amp;utm_medium=email&amp;utm_campaign=kd_welcome" style="display:block;background:#38bdf8;color:#ffffff;text-decoration:none;padding:16px 28px;border-radius:8px;font-weight:700;font-size:17px;text-align:center;margin:0 0 20px 0">Browse the recipes</a>
+      <p style="margin:0 0 16px 0">Feeling the keto flu or stuck at a stall? The guides cover both. <a href="https://ketodial.com/blog/?utm_source=cw_calculator&amp;utm_medium=email&amp;utm_campaign=kd_welcome" style="color:#0ea5b7;font-weight:600">Read the keto guides</a>.</p>
+      <p style="margin:0 0 16px 0;font-size:15px;color:#475569">And if you ever want someone in your corner, <a href="https://ketodial.com/?utm_source=cw_calculator&amp;utm_medium=email&amp;utm_campaign=kd_welcome_coach" style="color:#0ea5b7;font-weight:600">KetoDial Coach</a> is weekly 1:1 keto coaching for $49/mo. It's there if you want it, no pressure at all.</p>
+      <p style="margin:0 0 16px 0">From here, you'll get the KetoDial newsletter once a week. Recipes and practical keto stuff you can actually use. One email, no fluff.</p>
+      <div style="margin-top:26px;padding-top:18px;border-top:1px solid #e2e8f0">
+        <p style="margin:0 0 4px 0;color:#475569">Glad you're here,</p>
+        <p style="margin:0;color:#0f172a;font-weight:700">The KetoDial Team</p>
+      </div>
+    </div>
+    <div style="background:#f1f5f9;padding:18px;text-align:center;font-size:12px;color:#64748b">
+      <p style="margin:0 0 6px 0">You're getting this because you signed up through the Carnivore Weekly calculator and chose keto.</p>
+      <p style="margin:0"><a href="${unsubUrl}" style="color:#64748b;text-decoration:underline">Unsubscribe</a></p>
+    </div>
+  </div>
+</div>`;
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'KetoDial <ketodial@carnivoreweekly.com>',
+        to: [email],
+        reply_to: 'iambrew@gmail.com',
+        subject: 'You found the keto side of the family',
+        html,
+      }),
+    });
+    if (!r.ok) console.error('KD welcome send failed:', r.status, await r.text().catch(() => ''));
+  } catch (e) {
+    console.error('KD welcome send error:', String(e));
+  }
+}
+
 // ===== NEWSLETTER SUBSCRIBE HANDLER =====
 async function handleBeehiivSubscribe(request, env) {
   try {
-    const { email, site, source } = await request.json();
+    const { email, site, source, diet_type } = await request.json();
     if (!email || !email.includes('@')) {
       return createErrorResponse('INVALID_EMAIL', 'Valid email required', 400);
     }
     const cleanEmail = email.trim().toLowerCase();
-    const siteValue = (site === 'kd') ? 'kd' : 'cw';
     const sourceValue = source || 'homepage';
+
+    // Route by diet_type when the calculator provides it. Only carnivore selectors
+    // enter the CW 30-day drip. Keto and low-carb go to the KetoDial newsletter with a
+    // KD welcome email. Pescatarian (no home yet) is held on the CW newsletter, no drip.
+    // Unknown/absent diet falls back to the carnivore drip, the safe default on a
+    // carnivore site. Homepage/newsletter forms pass an explicit `site` and keep their
+    // original behavior (cw → newsletter + drip, kd → newsletter only).
+    let newsletterSite = 'cw';
+    let enrollDrip = true;
+    let sendKdWelcome = false;
+    const diet = (diet_type || '').toLowerCase().replace(/[^a-z]/g, '');
+    if (diet_type) {
+      if (diet === 'keto' || diet === 'lowcarb') {
+        newsletterSite = 'kd';
+        enrollDrip = false;
+        sendKdWelcome = true;
+      } else if (diet === 'pescatarian') {
+        newsletterSite = 'cw';
+        enrollDrip = false;
+      } else {
+        newsletterSite = 'cw';
+        enrollDrip = true;
+      }
+    } else {
+      newsletterSite = (site === 'kd') ? 'kd' : 'cw';
+      enrollDrip = (newsletterSite === 'cw');
+    }
 
     // Upsert into newsletter_subscribers (re-activates unsubscribed users)
     const nlRes = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/upsert_newsletter_subscriber`, {
@@ -5088,14 +5172,19 @@ async function handleBeehiivSubscribe(request, env) {
       },
       body: JSON.stringify({
         p_email: cleanEmail,
-        p_site: siteValue,
+        p_site: newsletterSite,
         p_signup_source: sourceValue,
       }),
     });
     if (!nlRes.ok) console.error('Newsletter upsert error:', await nlRes.text());
 
-    // Insert into drip_subscribers for 7-day starter sequence (CW only)
-    if (siteValue === 'cw') {
+    // Introduce KetoDial to keto/low-carb selectors (best-effort, never blocks signup)
+    if (sendKdWelcome) {
+      await sendKetoDialWelcome(cleanEmail, env);
+    }
+
+    // Enroll carnivore selectors (and legacy cw signups) into the 30-day drip
+    if (enrollDrip) {
       const dripRes = await fetch(`${env.SUPABASE_URL}/rest/v1/drip_subscribers`, {
         method: 'POST',
         headers: {
@@ -5130,7 +5219,7 @@ async function handleBeehiivSubscribe(request, env) {
       return createErrorResponse('SUBSCRIBE_FAILED', 'Subscription failed', 500);
     }
 
-    // KD signups: newsletter only, no drip sequence
+    // Newsletter-only signups (KetoDial keto/low-carb, held pescatarian): no drip
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

@@ -1247,7 +1247,7 @@
                 const resp = await fetch('https://carnivore-report-api-production.iambrew.workers.dev/api/v1/subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, group: 'starter' })
+                    body: JSON.stringify({ email: email, group: 'starter', diet_type: dietType })
                 });
                 const data = await resp.json();
                 if (resp.ok && data.success) {
