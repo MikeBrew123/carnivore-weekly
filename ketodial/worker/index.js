@@ -384,6 +384,14 @@ async function handleWebhook(request, env) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+
+    // Product filter: this Stripe account also receives CW calculator and coach
+    // subscription checkouts. A KD report checkout always carries metadata.items.
+    if (!session.metadata?.items) {
+      console.log('Skipping non-KD checkout.session.completed:', session.id);
+      return jsonResponse(200, { received: true, skipped: true });
+    }
+
     const email = session.customer_email || session.customer_details?.email;
     const name = session.metadata?.customer_name || 'there';
     const items = (session.metadata?.items || '').split(',').filter(Boolean);
