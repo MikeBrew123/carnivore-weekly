@@ -1176,18 +1176,54 @@ async function handleReportInit(request, env) {
       }
     );
 
-    // Database save is optional - report is already generated and can be returned directly
-    if (saveResponse.ok) {
-      try {
-        const reportData = await saveResponse.json();
-        console.log('[handleReportInit] Report saved to database:', reportData[0]?.id);
-      } catch (e) {
-        console.warn('[handleReportInit] Could not parse database response');
-      }
+    // The report is returned from memory either way, but a PAID report that fails
+    // to persist means the customer loses access after this response. Retry once,
+    // then alert loudly (log + ops email) so it never fails silently.
+    let reportPersisted = saveResponse.ok;
+    let saveErrorText = '';
+    if (!saveResponse.ok) {
+      saveErrorText = (await saveResponse.text()).substring(0, 300);
+      const retryResponse = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/calculator_reports`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify({
+            session_id: session.id,
+            email: session.email || 'unknown@example.com',
+            access_token: accessToken,
+            report_html: reportHTML,
+            report_json: reportMeta,
+            is_generated: true,
+            is_expired: false,
+            expires_at: expiresAt.toISOString(),
+          }),
+        }
+      );
+      reportPersisted = retryResponse.ok;
+    }
+
+    if (reportPersisted) {
+      console.log('[handleReportInit] Report persisted for session', session.id);
     } else {
-      const errorText = await saveResponse.text();
-      console.warn('[handleReportInit] Database save skipped (PostgREST cache issue):', errorText.substring(0, 100));
-      // Continue anyway - report is generated and we can return it
+      console.error(`[ALERT][handleReportInit] PAID REPORT FAILED TO PERSIST after retry — session ${session.id}, email ${session.email}, error: ${saveErrorText}`);
+      if (env.RESEND_API_KEY) {
+        fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Carnivore Weekly <newsletter@carnivoreweekly.com>',
+            to: ['iambrew@gmail.com'],
+            subject: `🚨 Paid report failed to persist — session ${session.id}`,
+            html: `<p>A paid calculator report was generated but could NOT be saved to calculator_reports (retried once).</p><p>Session: ${session.id}<br>Email: ${session.email}<br>Error: ${saveErrorText}</p><p>The customer received the report in-browser/email but their access link will not work. Re-run report init for this session or insert the row manually.</p>`,
+          }),
+        }).catch(() => {});
+      }
     }
 
     // Append AI/medical disclaimer to report

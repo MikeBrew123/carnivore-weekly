@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """
-Daily drip email sender for the 7-Day Carnivore Starter sequence.
+Daily drip email sender for the 30-Day Carnivore Starter sequence.
 
 Queries drip_subscribers for anyone not completed/unsubscribed,
 sends the next day's email via Resend, bumps the counter.
-After day 7, marks completed and auto-subscribes to the CW weekly newsletter.
+The sequence is sparse past day 7 (days 10, 14, 21, 28); days with no
+day-N.html advance the counter silently without sending.
+Day 28 is segmented: subscribers whose latest calculator session has
+diet_type=keto get day-28-keto.html, everyone else gets day-28.html.
+After day 28, marks completed and auto-subscribes to the CW weekly newsletter.
 
 Run daily (Hermes cron or GitHub Action).
 
@@ -32,6 +36,8 @@ FROM_EMAIL = "Carnivore Weekly <newsletter@carnivoreweekly.com>"
 REPLY_TO = "iambrew@gmail.com"
 TEST_EMAIL = "iambrew@gmail.com"
 WEBHOOK_URL = os.environ.get("RESEND_WEBHOOK_URL", "")
+FINAL_DAY = 28  # Graduate to the weekly newsletter after this day's email
+UNSUB_URL = "https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe"
 
 
 def load_secrets():
@@ -91,8 +97,10 @@ def supabase_insert(secrets, table, data):
     return resp
 
 
-def load_drip_email(day):
-    path = DRIP_DIR / f"day-{day}.html"
+def load_drip_email(day, variant=None):
+    path = DRIP_DIR / (f"day-{day}-{variant}.html" if variant else f"day-{day}.html")
+    if variant and not path.exists():
+        path = DRIP_DIR / f"day-{day}.html"  # fall back to the default email
     if not path.exists():
         return None, None
     html = path.read_text(encoding="utf-8")
@@ -101,7 +109,28 @@ def load_drip_email(day):
     return subject, html
 
 
+def get_diet_type(secrets, email):
+    """Latest calculator diet_type for this email, or '' if none."""
+    try:
+        rows = supabase_query(secrets, "calculator_sessions_v2", {
+            "select": "diet_type",
+            "email": f"eq.{email}",
+            "order": "created_at.desc",
+            "limit": "1",
+        })
+        return (rows[0].get("diet_type") or "").lower() if rows else ""
+    except Exception:
+        return ""
+
+
+def personalize(html, email):
+    """Substitute merge tags. {$unsubscribe} was previously sent literally (dead link)."""
+    from urllib.parse import quote
+    return html.replace("{$unsubscribe}", f"{UNSUB_URL}?email={quote(email)}")
+
+
 def send_email(resend_key, to, subject, html, tags=None):
+    from urllib.parse import quote
     payload = {
         "from": FROM_EMAIL,
         "to": [to],
@@ -110,6 +139,7 @@ def send_email(resend_key, to, subject, html, tags=None):
         "html": html,
         "headers": {
             "X-Entity-Ref-ID": f"drip-{to}-{subject[:30]}",
+            "List-Unsubscribe": f"<{UNSUB_URL}?email={quote(to)}>",
         },
     }
     if tags:
@@ -223,7 +253,7 @@ def main():
     graduated = 0
     for sub in pending:
         next_day = sub["current_day"] + 1
-        if next_day > 7:
+        if next_day > FINAL_DAY:
             supabase_update(secrets, "drip_subscribers", sub["id"], {
                 "completed": True,
             })
@@ -237,9 +267,21 @@ def main():
             print(f"  🎓 {sub['email']} — completed drip, added to CW weekly")
             continue
 
-        subject, html = load_drip_email(next_day)
+        variant = None
+        if next_day == 28:
+            diet = get_diet_type(secrets, sub["email"])
+            variant = "keto" if diet == "keto" else None
+
+        subject, html = load_drip_email(next_day, variant)
         if not html:
-            print(f"  ⚠️  day-{next_day}.html missing, skipping {sub['email']}")
+            # Sparse sequence: no email defined for this day — advance silently
+            if args.dry_run:
+                print(f"  Would advance {sub['email']} to day {next_day} (quiet day, no email)")
+                continue
+            supabase_update(secrets, "drip_subscribers", sub["id"], {
+                "current_day": next_day,
+            })
+            print(f"  💤 {sub['email']} — day {next_day} is a quiet day, advanced without sending")
             continue
 
         if args.dry_run:
@@ -254,9 +296,9 @@ def main():
 
         tags = [
             {"name": "drip_day", "value": str(next_day)},
-            {"name": "sequence", "value": "7day-starter"},
+            {"name": "sequence", "value": "30day-starter"},
         ]
-        ok, detail = send_email(resend_key, sub["email"], subject, html, tags=tags)
+        ok, detail = send_email(resend_key, sub["email"], subject, personalize(html, sub["email"]), tags=tags)
         if ok:
             supabase_update(secrets, "drip_subscribers", sub["id"], {
                 "current_day": next_day,
