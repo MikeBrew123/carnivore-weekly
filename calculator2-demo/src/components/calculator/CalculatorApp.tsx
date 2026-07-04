@@ -333,7 +333,7 @@ export default function CalculatorApp({
     const sessionId = paymentState.stripeSessionId || 'unknown'
     const dedupKey = `purchase_fired_${sessionId}`
     if (window.gtag && !localStorage.getItem(dedupKey)) {
-      const paidCents = parseInt(localStorage.getItem('amountPaidCents') || '1499', 10)
+      const paidCents = parseInt(localStorage.getItem('amountPaidCents') || '2900', 10)
       const paidDollars = paidCents / 100
       window.gtag('event', 'purchase', {
         transaction_id: sessionId,

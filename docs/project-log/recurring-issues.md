@@ -348,3 +348,10 @@ Attempts:
 - 2026-06-12 — (ISSUE-026) bulk regeneration wiped 26 post bodies → surgical-edits-only rule
 - 2026-07-02 — Restored index from pre-wipe commit; rewrote updater to INSERT-ONLY (never removes existing cards) → fixed
 If recurs: any KD index/page updater must be additive; verification after publish must assert count(before) <= count(after). KD-native validator bead should include this check.
+
+## ISSUE-035 — Bare generate_blog_pages.py renders KD posts into CW tree
+🟢 FIXED | Last: 2026-07-04
+Pattern: running `generate_blog_pages.py` with no --site flag (SITE_FILTER=None = "all posts") writes site:kd entries into public/blog/ and appends them to CW's sitemap; validator then blocks commits on their KD-internal links.
+Attempts:
+- 2026-07-04 — deleted the 2 contaminated files, re-ran with `--site cw`, hand-pruned the 2 KD URLs from sitemap.xml (generator appends but never prunes) → validator green
+If recurs: CLAUDE.md pipeline Step 4 still documents the bare command; fix the doc AND consider defaulting SITE_FILTER to 'cw'.

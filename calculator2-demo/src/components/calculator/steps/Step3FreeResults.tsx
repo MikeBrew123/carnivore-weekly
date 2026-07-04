@@ -223,7 +223,7 @@ export default function Step3FreeResults({
         <div style={{ height: '2px', background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.35) 30%, rgba(255,215,0,0.35) 70%, transparent)', marginBottom: '24px', marginTop: '-12px' }} />
 
         <p style={{ ...bodyFont, color: '#f59e0b', fontSize: '13px', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' as const, margin: '0 0 8px 0' }}>
-          Summer Sale — Ends July 4th
+          Built From Your Results
         </p>
         <h3 style={{ ...goldHeading, fontSize: '22px', fontWeight: '700', margin: '0 0 10px 0', lineHeight: '1.3' }}>
           Your 30-day meal plan is ready.
@@ -275,7 +275,7 @@ export default function Step3FreeResults({
             marginBottom: '10px',
           }}
         >
-          Get My 30-Day Plan — <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span> $14.99
+          Get My 30-Day Plan — $29
         </button>
         <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0 }}>
           One-time purchase. No subscription. 30-day money-back guarantee.
@@ -450,7 +450,7 @@ export default function Step3FreeResults({
             <span style={{ fontSize: '28px', marginBottom: '8px' }}>🔒</span>
             <p style={{ color: '#ffd700', fontWeight: 600, fontSize: '16px', margin: 0 }}>Your full 30-day meal plan is ready</p>
             <p style={{ color: '#a3a3a3', fontSize: '13px', marginTop: '6px' }}>4 more {config.label.toLowerCase()} meals + snack timing + grocery lists — included in your plan</p>
-            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}><span style={{ textDecoration: 'line-through', opacity: 0.6 }}>$29</span> $14.99 — Summer Sale ends July 4th</p>
+            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}>$29 — Yours forever</p>
           </div>
         </div>
       </div>
@@ -476,7 +476,7 @@ export default function Step3FreeResults({
 
         <div style={{ padding: '28px 28px 28px' }}>
           <p style={{ color: '#f59e0b', fontSize: '12px', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' as const, margin: '0 0 6px 0', textAlign: 'center', ...bodyFont }}>
-            Summer Sale — Ends July 4th
+            Built From Your Results
           </p>
           <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '24px', fontWeight: '700', margin: '0 0 8px 0', textAlign: 'center', lineHeight: '1.25', letterSpacing: '-0.02em' }}>
             Your 30-day {config.label.toLowerCase()} meal plan
@@ -511,7 +511,7 @@ export default function Step3FreeResults({
 
           {/* Price + CTA */}
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}><span style={{ textDecoration: 'line-through', opacity: 0.45, fontSize: '18px' }}>$29</span> $14.99 — Yours forever</p>
+            <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>$29 — Yours forever</p>
             <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, ...bodyFont }}>One-time · No subscription · 30-day money-back guarantee</p>
           </div>
 
@@ -542,7 +542,7 @@ export default function Step3FreeResults({
               boxShadow: '0 4px 20px rgba(255,215,0,0.2), inset 0 1px 0 rgba(255,255,255,0.12)'
             }}
           >
-            Get My 30-Day Plan — <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span> $14.99
+            Get My 30-Day Plan — $29
           </button>
 
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '8px' }}>

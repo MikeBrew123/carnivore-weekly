@@ -100,8 +100,9 @@ Add or update entry in `data/blog_posts.json`. **ALL fields required** — parti
 
 ### Step 4 — Render HTML
 ```bash
-python3 scripts/generate_blog_pages.py
+python3 scripts/generate_blog_pages.py --site cw
 ```
+**ALWAYS pass `--site cw` (or `--site kd`).** Bare invocation renders ALL sites' posts into `public/blog/` and pollutes CW's sitemap with KD posts (ISSUE-035).
 
 ### Step 5 — Validate
 ```bash
