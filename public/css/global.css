@@ -2103,9 +2103,10 @@ html, body {
 @media (max-width: 768px) {
   /* Scale down header title */
   header h1,
-  .header-2026 h1 {
-    font-size: 2rem; /* Reduced from 4em */
-    letter-spacing: 2px; /* Reduced from 4px */
+  .header-2026 h1,
+  .site-title {
+    font-size: 2rem !important; /* Reduced from 4em inline style */
+    letter-spacing: 2px !important; /* Reduced from 4px inline style */
   }
 
   /* Scale down subtitle */

@@ -240,8 +240,13 @@
                 gap: 40px;
             }
 
+            .calculator-hero .hero-inner {
+                flex-direction: column;
+            }
+
             .calculator-hero .hero-content {
                 flex: none;
+                width: 100%;
                 text-align: center;
             }
 
@@ -659,7 +664,34 @@
                 margin: 0;
                 width: 100%;
                 max-width: 100%;
+                min-width: 0; /* Grid items default to min-width:auto, which silently overrides width:100% on content that resists shrinking */
                 box-sizing: border-box; /* Include padding in width calculation */
+            }
+
+            /* Email capture card: margin:auto opts this grid item out of default
+               stretch sizing, so it needs an explicit width instead of relying on
+               the grid cell */
+            #calculator-capture {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                box-sizing: border-box;
+                padding: 1.75rem 1.25rem;
+            }
+
+            /* Stack email input above the submit button instead of cramming both
+               into one row (input has flex:1 but a button with white-space:nowrap
+               plus the input's own default min-content width don't fit together
+               on a narrow screen) */
+            #calculator-capture-form {
+                flex-wrap: wrap;
+            }
+
+            #calculator-capture-form input,
+            #calculator-capture-form button {
+                flex: 1 1 100%;
+                min-width: 0;
+                box-sizing: border-box;
             }
 
             /* BOMBPROOF: Calculator slot mobile styles */
@@ -709,6 +741,10 @@
             .calculator-faq {
                 padding: 20px 12px !important;
                 margin-top: 40px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                box-sizing: border-box !important;
             }
 
             .calculator-faq h2 {
