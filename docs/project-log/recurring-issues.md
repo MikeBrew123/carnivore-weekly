@@ -335,11 +335,12 @@ Attempts:
 If recurs: check run_generator()/run_validator() SITE branches in daily_publish.py. (Commit 0e60030b misnumbers this as ISSUE-031.)
 
 ## ISSUE-033 — GitHub Pages deploy outage (actions path) blocked CW deploys ~2.5h
-🟢 FIXED — Last: 2026-07-02
+🟡 RECURRING — Last: 2026-07-04
 Pattern: All CW deploys 16:44–19:00 UTC failed with "Deployment failed, try again later" (Pages backend; githubstatus stayed green). KD legacy builds recovered ~17:05; actions-path lagged. Today's 3 auto-published posts were 404 until recovery. Self-inflicted complication: rerunning the failed run 5x re-uploaded the artifact each time (upload step lives in the deploy job) → 7 artifacts named github-pages → deploy-pages hard-rejects.
 Attempts:
 - 2026-07-02 — Spaced fresh workflow_dispatch retries (20 min apart) → first retry after backend recovery succeeded; all posts live
-If recurs: retry with FRESH dispatch only (never rerun-failed more than once — artifact accumulation); verify against live post URL, not run status; escalate to GitHub support if >3h.
+- 2026-07-04 — Single transient "try again later" at 22:08 UTC (githubstatus green). One rerun-failed → artifact count 2 → hard reject, exactly as documented. Fresh workflow_dispatch minutes later → success first try. Playbook holds; even ONE rerun-failed poisons the run.
+If recurs: retry with FRESH dispatch only (NEVER rerun-failed, not even once — one rerun already accumulates artifacts); verify against live post URL, not run status; escalate to GitHub support if >3h.
 
 ## ISSUE-034 — KD blog index wiped to 1 card by JSON-only feed-grid rebuild
 🟡 RECURRING (ISSUE-026 family) — Last: 2026-07-02
