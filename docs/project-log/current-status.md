@@ -1,9 +1,9 @@
 # Current Status
 
-**Last Updated:** 2026-07-01 (Calculator Fixes + KD SEO Overhaul + Pinterest Launch)
+**Last Updated:** 2026-07-04 (4-Day Revenue Sprint, Day 1 complete + Day 2 started)
 
 **Current Focus:**
-CW calculator instrumentation fixed (funnel report used nonexistent GA4 events; paid-report expiry was 48h vs "yours forever" — now 1yr, deployed). June 28 $29 sale CONFIRMED REAL (full price, no coupon — verified in Stripe). KetoDial: full 6-agent SEO audit found and fixed the actual indexation blockers (16 placeholder-instruction recipes, fake 2025-01-01 dates on 64 recipes, blog date clustering). 7 new KD recipes shipped (lunch gap), Pinterest launched with daily automation (10 posted, 61 queued), 8 CW→KD deep links live, llms.txt + about.html + robots AI-crawler policy shipped. KD's remaining constraint: zero real backlinks.
+Executing the Jul 4-7 revenue sprint (`Brew-Vault/00-Core/Fable-Sprint-2026-07.md`). Day 1 (webhook fixes, drip 7→30 days, WELCOME5 coupon, paid-report persistence alert, scoreboard truth-pass automation) is fully done. Day 2's centerpiece — the Keto Starter Kit bundle (task 2.1) — shipped a day early: 30-day keto meal plan authored by Marcus from 71 KD recipes, assembled with the existing keto food-list pack into a 20+ page bundle, listed and LIVE at $21.99 CAD (listing 4532542805). Etsy price ladder now spans $4.49 → $7.99 → $21.99. Task 2.4 (title/tag rewrite) started: full 32-listing audit table built, top 3 mid-tier listings' tags rewritten for long-tail intent. Remaining: ~9 more listings for 2.4, task 2.3 (image refresh), Day 3 distribution work (Pinterest queue replenishment — KD queue drains ~Jul 8).
 
 ---
 
@@ -280,3 +280,10 @@ CW calculator instrumentation fixed (funnel report used nonexistent GA4 events; 
 
 ### Key Lesson: Writer agents > batch sed for content edits
 Batch sed truncates blindly. Writer agents read the post, understand the topic, and write keyword-forward titles. Always use agents for title/meta rewrites.
+
+## 2026-07-03 — Sprint plan of record (read this first)
+
+A 4-day revenue sprint (Jul 4-7) is planned and pre-verified. Before doing ANY work in this repo:
+1. Read `/Users/mbrew/Documents/Brew-Vault/00-Core/Fable-Sprint-2026-07.md` — day-by-day tasks with model tiers, pre-flight results (Supabase/Stripe/GA4/Etsy all verified working Jul 3), and live baseline numbers.
+2. Read `/Users/mbrew/Documents/Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/technical-handoff-map-2026-07-03.md` — repo topology, the six landmines (manual Vite rebuild, submodule two-step, `--env production` deploys, dual Etsy token stores, shared DRIP50/ETSY50 coupon, KD generator contamination), and the confirmed cross-product Stripe webhook bug (task 1.3).
+Key correction vs older notes in this log: the "amount-capture bug" and "ISSUE-001 recurring" framings are stale; see the handoff map.
