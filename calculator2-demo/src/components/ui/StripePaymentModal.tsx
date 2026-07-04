@@ -46,7 +46,7 @@ export default function StripePaymentModal({
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState('')
   const [couponCode, setCouponCode] = useState('')
-  const [discountApplied, setDiscountApplied] = useState<{ code: string; percent: number } | null>(null)
+  const [discountApplied, setDiscountApplied] = useState<{ code: string; percent: number; amountOff: number } | null>(null)
   const [couponError, setCouponError] = useState('')
   const { sessionToken } = useFormStore()
 
@@ -76,7 +76,13 @@ export default function StripePaymentModal({
   const getDiscountedPrice = () => {
     if (!discountApplied) return priceMap[tierId] || 2900
     const originalPrice = priceMap[tierId] || 2900
-    return Math.round(originalPrice * (1 - discountApplied.percent / 100))
+    const afterPercent = Math.round(originalPrice * (1 - discountApplied.percent / 100))
+    return Math.max(0, afterPercent - discountApplied.amountOff)
+  }
+
+  const getDiscountCents = () => {
+    if (!discountApplied) return 0
+    return (priceMap[tierId] || 2900) - getDiscountedPrice()
   }
 
   const applyCoupon = async () => {
@@ -101,7 +107,7 @@ export default function StripePaymentModal({
       }
 
       const data = await response.json()
-      setDiscountApplied({ code: couponCode.toUpperCase(), percent: data.percent })
+      setDiscountApplied({ code: couponCode.toUpperCase(), percent: data.percent || 0, amountOff: data.amount_off || 0 })
       setCouponError('')
     } catch (err) {
       setCouponError('Failed to validate coupon. Try again.')
@@ -330,7 +336,7 @@ export default function StripePaymentModal({
                   marginBottom: '4px',
                 }}>
                   <span>Discount ({discountApplied.code})</span>
-                  <span style={{ fontWeight: '600' }}>-${(((priceMap[tierId] || 2900) * discountApplied.percent / 100) / 100).toFixed(2)}</span>
+                  <span style={{ fontWeight: '600' }}>-${(getDiscountCents() / 100).toFixed(2)}</span>
                 </div>
               )}
               <div style={{
@@ -491,14 +497,14 @@ export default function StripePaymentModal({
                 fontWeight: '600',
                 color: '#166534',
               }}>
-                ✓ Coupon applied: {discountApplied.code} ({discountApplied.percent}% off)
+                ✓ Coupon applied: {discountApplied.code} ({discountApplied.percent > 0 ? `${discountApplied.percent}% off` : `$${(discountApplied.amountOff / 100).toFixed(0)} off`})
               </p>
               <p style={{
                 fontSize: '12px',
                 color: '#15803d',
                 marginTop: '4px',
               }}>
-                Discount: -${(((priceMap[tierId] || 2900) * discountApplied.percent / 100) / 100).toFixed(2)}
+                Discount: -${(getDiscountCents() / 100).toFixed(2)}
               </p>
             </div>
           )}
