@@ -29,9 +29,8 @@ interface PricingModalProps {
 const bundleOption = {
   id: 'bundle',
   title: 'Your 30-Day Meal Plan',
-  price: '$14.99',
-  originalPrice: '$29',
-  description: 'Summer Sale',
+  price: '$29',
+  description: 'Complete Protocol',
   features: [
     '30-day meal plan matched to your macros',
     'Weekly grocery lists (take them to the store)',
@@ -63,7 +62,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
   `
 
   const stripePriceIds: Record<string, string> = {
-    bundle: 'price_1ThzEIEVDfkpGz8wgEUuuXnQ',     // $14.99 USD - Summer Sale
+    bundle: 'price_1T5CZkEVDfkpGz8wnvZEnZH7',     // $29 USD - Complete Carnivore Protocol
   }
 
   const getSelectedOption = () => {
@@ -163,8 +162,8 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
             textAlign: 'center',
             borderBottom: '2px solid #ffd700',
           }}>
-            <p style={{ fontSize: '16px', fontWeight: '600', fontFamily: "'Playfair Display', Georgia, serif" }}>Summer Sale — Ends July 4th</p>
-            <p style={{ fontSize: '13px', marginTop: '6px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Your 30-Day Meal Plan: <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span> <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$14.99</span></p>
+            <p style={{ fontSize: '16px', fontWeight: '600', fontFamily: "'Playfair Display', Georgia, serif" }}>Your 30-Day Meal Plan</p>
+            <p style={{ fontSize: '13px', marginTop: '6px', color: '#a0a0a0', fontFamily: "'Merriweather', Georgia, serif" }}>Personalized from your results — <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$29</span> one-time</p>
           </div>
 
           {/* Single Product Card */}
@@ -218,7 +217,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                   fontFamily: "'Playfair Display', Georgia, serif",
                   lineHeight: 1,
                   marginLeft: '12px',
-                }}>$14.99</span>
+                }}>$29</span>
                 <span style={{
                   fontSize: '16px',
                   color: '#a0a0a0',
@@ -341,9 +340,8 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     color: '#f5f5f5',
                     fontFamily: "'Merriweather', Georgia, serif",
                   }}>
-                    <li style={{ marginBottom: '4px' }}>Regular price: <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>$29</span></li>
-                    <li style={{ marginBottom: '4px' }}>Summer Sale (ends July 4th): <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$14.99</span></li>
-                    <li>Save: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>48%</span></li>
+                    <li style={{ marginBottom: '4px' }}>One-time purchase: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$29</span></li>
+                    <li>Yours forever — no subscription</li>
                   </ul>
                 </div>
                 <div>
