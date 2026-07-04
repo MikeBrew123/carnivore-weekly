@@ -5117,6 +5117,10 @@ async function sendKetoDialWelcome(email, env) {
         reply_to: 'iambrew@gmail.com',
         subject: 'You found the keto side of the family',
         html,
+        tags: [
+          { name: 'email_type', value: 'kd_welcome' },
+          { name: 'site', value: 'kd' },
+        ],
       }),
     });
     if (!r.ok) console.error('KD welcome send failed:', r.status, await r.text().catch(() => ''));

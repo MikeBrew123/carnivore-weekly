@@ -125,12 +125,18 @@ def pull_pinterest():
     return {"total": len(pins), "posted": posted, "queued": len(pins) - posted}
 
 
+def pull_funnel():
+    # funnel_by_diet is a DB view: per diet_type, how many calculator users with a
+    # known diet + captured email routed to a newsletter / drip and engaged by email.
+    return sb_query("funnel_by_diet", {"select": "*"}).json()
+
+
 def main():
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     snap = {"date": today}
     errors = []
     for name, fn in [("ga4", pull_ga4), ("stripe", pull_stripe), ("supabase", pull_supabase),
-                     ("etsy", pull_etsy), ("pinterest", pull_pinterest)]:
+                     ("etsy", pull_etsy), ("pinterest", pull_pinterest), ("funnel", pull_funnel)]:
         try:
             snap[name] = fn()
         except Exception as e:
@@ -156,6 +162,19 @@ def main():
         f"| Etsy | AOV ${e.get('aov_cad','?')} CAD; orders/mo {', '.join(f'{m} {n}' for m, n in (e.get('orders_by_month') or {}).items())} | Etsy API (sales-summary.mjs) |",
         f"| Pinterest queue | {p.get('total','?')} total, {p.get('posted','?')} posted, {p.get('queued','?')} queued | pin-queue.json |",
     ]
+    funnel = snap.get("funnel") or []
+    if funnel:
+        lines += [
+            "\n### Funnel by diet (calculator signups with a known diet + email)\n",
+            "| Diet | Chose it | On newsletter | In drip | Opened email | Clicked email |",
+            "|------|----------|---------------|---------|--------------|---------------|",
+        ]
+        for row in funnel:
+            lines.append(
+                f"| {row['diet_type']} | {row['chose_diet']} | {row['on_newsletter']} "
+                f"| {row['in_drip']} | {row['opened_email']} | {row['clicked_email']} |"
+            )
+
     if errors:
         lines.append(f"\n⚠️ Pull errors: {'; '.join(errors)}")
 
