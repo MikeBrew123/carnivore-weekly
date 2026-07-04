@@ -140,25 +140,48 @@ export default function CalculatorApp({
   const [isEmailingSent, setIsEmailingSent] = useState(false)
   const [isEmailingReport, setIsEmailingReport] = useState(false)
 
-  // Helper: Scroll to a specific anchor after React render settles
+  // Helper: Scroll to a specific anchor after React render settles.
+  // Polls for the element instead of firing once on a blind timeout — the old
+  // single-shot version raced React's re-render (screen swaps like
+  // payment-success -> Step 4), so on slow devices the scroll fired against
+  // whichever screen happened to exist at that instant and the user was left
+  // stranded. Retries every 100ms for up to 2s, then gives up silently.
+  const scrollRetryTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const scrollToAnchor = (anchorId: string, delay = 100) => {
-    setTimeout(() => {
+    // A newer scroll request always supersedes a pending one — never let a
+    // stale retry loop fight the latest transition for the scroll position.
+    if (scrollRetryTimer.current) {
+      clearTimeout(scrollRetryTimer.current)
+      scrollRetryTimer.current = null
+    }
+    const deadline = Date.now() + 2000
+    const attempt = () => {
       const element = document.getElementById(anchorId)
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        scrollRetryTimer.current = null
+      } else if (Date.now() < deadline) {
+        scrollRetryTimer.current = setTimeout(attempt, 100)
+      } else {
+        scrollRetryTimer.current = null
       }
-    }, delay)
+    }
+    scrollRetryTimer.current = setTimeout(attempt, delay)
   }
 
   // Derived state for success page - use payment hook
   const isPaymentSuccess = paymentState.isPaymentSuccess
 
-  // Sync payment hook's isPremium to Zustand store and fire GA4 purchase event
+  // Sync payment hook's isPremium to Zustand store and fire GA4 purchase event.
+  // NOTE: no scroll here — handlePaymentSuccess() already advances to Step 4 and
+  // scrolls to health-profile-start. A second scrollToAnchor('payment-success')
+  // used to race it (two targets, blind timers) and could strand the user on
+  // whichever screen won the race. The payment-success screen scroll lives in
+  // the effect below, which only fires when that screen actually renders.
   useEffect(() => {
     if (paymentState.isPremium && !isPremium) {
       setIsPremium(true)
       handlePaymentSuccess()
-      scrollToAnchor('payment-success')
     }
   }, [paymentState.isPremium, isPremium, setIsPremium])
 

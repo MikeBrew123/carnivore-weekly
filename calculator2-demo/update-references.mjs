@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -46,18 +46,24 @@ try {
   writeFileSync(calculatorHtmlPath, updatedCalculatorHtml, 'utf-8');
   console.log(`✅ Updated: public/calculator.html`);
 
-  // 4. Update calculator/index.html
-  let calculatorIndexHtml = readFileSync(calculatorIndexPath, 'utf-8');
+  // 4. Update calculator/index.html — legacy page, no longer exists in the repo.
+  // Skip gracefully instead of throwing AFTER calculator.html was already
+  // updated (the old behavior made every build exit 1 and look broken).
+  if (existsSync(calculatorIndexPath)) {
+    let calculatorIndexHtml = readFileSync(calculatorIndexPath, 'utf-8');
 
-  // Replace JS reference (relative path)
-  const jsRegexRelative = /src="\/assets\/calculator2\/assets\/index-[^"]+\.js"/g;
-  const updatedCalculatorIndexHtml = calculatorIndexHtml
-    .replace(jsRegexRelative, `src="/assets/calculator2/assets/${jsFilename}"`)
-    .replace(/href="\/assets\/calculator2\/assets\/index-[^"]+\.css"/g,
-             `href="/assets/calculator2/assets/${cssFilename}"`);
+    // Replace JS reference (relative path)
+    const jsRegexRelative = /src="\/assets\/calculator2\/assets\/index-[^"]+\.js"/g;
+    const updatedCalculatorIndexHtml = calculatorIndexHtml
+      .replace(jsRegexRelative, `src="/assets/calculator2/assets/${jsFilename}"`)
+      .replace(/href="\/assets\/calculator2\/assets\/index-[^"]+\.css"/g,
+               `href="/assets/calculator2/assets/${cssFilename}"`);
 
-  writeFileSync(calculatorIndexPath, updatedCalculatorIndexHtml, 'utf-8');
-  console.log(`✅ Updated: public/calculator/index.html\n`);
+    writeFileSync(calculatorIndexPath, updatedCalculatorIndexHtml, 'utf-8');
+    console.log(`✅ Updated: public/calculator/index.html\n`);
+  } else {
+    console.log(`⏭️  Skipped: public/calculator/index.html (file not present)\n`);
+  }
 
   console.log('🎉 Calculator references updated successfully!');
 
