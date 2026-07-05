@@ -8,6 +8,7 @@ Uses writer memory from Supabase and local context for cross-referencing.
 import json
 import os
 import sys
+from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
@@ -31,6 +32,14 @@ SEEN_IDS_MAX_AGE_DAYS = 28  # Forget videos older than this so they can resurfac
 
 # Video selection — editorial model requires community signal
 MIN_COMMENTS_FOR_SELECTION = 5
+
+# Creator diversity — stop the homepage from becoming one creator's highlight reel.
+# The mega-channels (Steak and Butter Gal, Shawn Baker, etc.) dominate engagement,
+# so without a cap they take most of the 6 slots. These constraints spread the
+# picks across distinct voices and deliberately surface smaller channels.
+MAX_VIDEOS_PER_CREATOR = 1   # each creator gets at most this many of the 6 slots
+RESERVED_MIDTIER_SLOTS = 2   # slots held for creators OUTSIDE the top-N by weekly views
+MIDTIER_RANK_THRESHOLD = 10  # "mega-channel" = ranked in the top 10 by weekly views
 
 # Import channel blocklist for selection-time filtering
 try:
@@ -215,6 +224,57 @@ def load_youtube_data():
         return json.load(f)
 
 
+def _select_diverse(qualified, target=6):
+    """Pick `target` videos from engagement-ranked `qualified` while spreading
+    them across creators.
+
+    Two constraints, applied in order:
+      1. Reserve RESERVED_MIDTIER_SLOTS for creators ranked outside the top
+         MIDTIER_RANK_THRESHOLD by weekly views (surfaces smaller channels).
+      2. No creator gets more than MAX_VIDEOS_PER_CREATOR slots.
+
+    `qualified` is assumed already sorted by engagement (highest first), so
+    within each pass we keep that ordering and just skip anything that would
+    violate a constraint.
+    """
+    selected = []
+    used = Counter()
+
+    def _take(video):
+        selected.append(video)
+        used[video["creator"]] += 1
+
+    # Pass 1 — fill the reserved mid-tier slots with the top-engagement videos
+    # from smaller creators (rank outside the top N).
+    midtier_taken = 0
+    for v in qualified:
+        if midtier_taken >= RESERVED_MIDTIER_SLOTS or len(selected) >= target:
+            break
+        if v["creator_rank"] > MIDTIER_RANK_THRESHOLD and used[v["creator"]] < MAX_VIDEOS_PER_CREATOR:
+            _take(v)
+            midtier_taken += 1
+
+    # Pass 2 — fill remaining slots by engagement, honoring the per-creator cap.
+    for v in qualified:
+        if len(selected) >= target:
+            break
+        if v in selected:
+            continue
+        if used[v["creator"]] < MAX_VIDEOS_PER_CREATOR:
+            _take(v)
+
+    # Pass 3 — if the cap left us short (few creators available this week),
+    # relax it and fill by engagement so we still ship a full lineup.
+    if len(selected) < target:
+        for v in qualified:
+            if len(selected) >= target:
+                break
+            if v not in selected:
+                _take(v)
+
+    return selected
+
+
 def get_top_6_videos(data):
     """Select top 6 videos ranked by engagement, requiring minimum comment count.
 
@@ -224,7 +284,9 @@ def get_top_6_videos(data):
     """
     # Flatten all videos from all creators
     all_videos = []
-    for creator in data.get("top_creators", []):
+    # top_creators is pre-sorted by weekly views, so the index is the creator's rank
+    # (rank 1 = biggest channel). We use it to hold slots for smaller creators below.
+    for creator_rank, creator in enumerate(data.get("top_creators", []), start=1):
         for video in creator.get("videos", []):
             stats = video.get("statistics", {})
             comment_count = stats.get("comment_count", 0)
@@ -235,6 +297,7 @@ def get_top_6_videos(data):
                     "video_id": video["video_id"],
                     "title": video["title"],
                     "creator": creator["channel_name"],
+                    "creator_rank": creator_rank,
                     "views": view_count,
                     "comment_count": comment_count,
                     "duration_seconds": video.get("duration_seconds", 0),
@@ -285,16 +348,25 @@ def get_top_6_videos(data):
     # Rank qualified by engagement score (comments weighted highest)
     qualified.sort(key=lambda v: v["_engagement"], reverse=True)
 
-    selected = qualified[:6]
+    selected = _select_diverse(qualified, target=6)
 
-    # Backfill if we don't have 6 qualified videos
+    # Backfill if the diversity pass couldn't find 6 qualified videos
     if len(selected) < 6:
         shortfall = 6 - len(selected)
         unqualified.sort(key=lambda v: v["views"], reverse=True)
-        backfill = unqualified[:shortfall]
+        # Backfill also respects the per-creator cap so a single creator can't
+        # sneak extra slots in through the low-comment pool.
+        used = Counter(v["creator"] for v in selected)
+        backfill = []
+        for v in unqualified:
+            if len(backfill) >= shortfall:
+                break
+            if used[v["creator"]] < MAX_VIDEOS_PER_CREATOR:
+                backfill.append(v)
+                used[v["creator"]] += 1
         print(
             f"   ⚠ Only {len(qualified)} videos had {MIN_COMMENTS_FOR_SELECTION}+ comments, "
-            f"filling {shortfall} slots from lower-comment videos"
+            f"filling {len(backfill)} slots from lower-comment videos"
         )
         selected.extend(backfill)
 
