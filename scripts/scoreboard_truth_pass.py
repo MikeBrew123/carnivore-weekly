@@ -131,12 +131,42 @@ def pull_funnel():
     return sb_query("funnel_by_diet", {"select": "*"}).json()
 
 
+def pull_affiliate_clicks():
+    """Site affiliate-link clicks (30d) from GA4 enhanced-measurement outbound
+    clicks, grouped by linkDomain. Needs no custom-dimension setup: linkDomain
+    is a standard dimension on the automatic 'click' event. Maps the two
+    affiliate domains to partner names; everything else is other outbound."""
+    import os
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(PROJECT_ROOT / "dashboard" / "ga4-credentials.json")
+    from google.analytics.data_v1beta import BetaAnalyticsDataClient
+    from google.analytics.data_v1beta.types import (
+        RunReportRequest, DateRange, Metric, Dimension, Filter, FilterExpression)
+    c = BetaAnalyticsDataClient()
+    r = c.run_report(RunReportRequest(
+        property=f"properties/{GA4_PROPS['cw']}",
+        date_ranges=[DateRange(start_date="30daysAgo", end_date="today")],
+        dimensions=[Dimension(name="linkDomain")],
+        metrics=[Metric(name="eventCount")],
+        dimension_filter=FilterExpression(filter=Filter(
+            field_name="eventName", string_filter=Filter.StringFilter(value="click"))),
+        limit=100,
+    ))
+    partners = {"elementallabs.refr.cc": "LMNT", "butcherbox.pxf.io": "ButcherBox"}
+    out = {"LMNT": 0, "ButcherBox": 0}
+    for row in r.rows:
+        label = partners.get(row.dimension_values[0].value)
+        if label:
+            out[label] += int(row.metric_values[0].value)
+    return out
+
+
 def main():
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     snap = {"date": today}
     errors = []
     for name, fn in [("ga4", pull_ga4), ("stripe", pull_stripe), ("supabase", pull_supabase),
-                     ("etsy", pull_etsy), ("pinterest", pull_pinterest), ("funnel", pull_funnel)]:
+                     ("etsy", pull_etsy), ("pinterest", pull_pinterest), ("funnel", pull_funnel),
+                     ("affiliate", pull_affiliate_clicks)]:
         try:
             snap[name] = fn()
         except Exception as e:
@@ -147,6 +177,7 @@ def main():
     (SNAPSHOT_DIR / f"{today}.json").write_text(json.dumps(snap, indent=2))
 
     g, s, d, e, p = (snap.get(k) or {} for k in ("ga4", "stripe", "supabase", "etsy", "pinterest"))
+    af = snap.get("affiliate") or {}
     cw, kd = g.get("cw", {}), g.get("kd", {})
     lines = [
         f"\n## Scoreboard — {today} (auto truth pass, primary sources only)\n",
@@ -161,6 +192,7 @@ def main():
         f"| Coach | {d.get('coach_active_paid','?')} paid, {d.get('coach_active_unpaid','?')} unpaid-manual active | Supabase coach_members |",
         f"| Etsy | AOV ${e.get('aov_cad','?')} CAD; orders/mo {', '.join(f'{m} {n}' for m, n in (e.get('orders_by_month') or {}).items())} | Etsy API (sales-summary.mjs) |",
         f"| Pinterest queue | {p.get('total','?')} total, {p.get('posted','?')} posted, {p.get('queued','?')} queued | pin-queue.json |",
+        f"| Affiliate clicks 30d (site) | LMNT {af.get('LMNT','?')}, ButcherBox {af.get('ButcherBox','?')} | GA4 outbound click by linkDomain |",
     ]
     funnel = snap.get("funnel") or []
     if funnel:
