@@ -340,7 +340,8 @@ Pattern: All CW deploys 16:44–19:00 UTC failed with "Deployment failed, try ag
 Attempts:
 - 2026-07-02 — Spaced fresh workflow_dispatch retries (20 min apart) → first retry after backend recovery succeeded; all posts live
 - 2026-07-04 — Single transient "try again later" at 22:08 UTC (githubstatus green). One rerun-failed → artifact count 2 → hard reject, exactly as documented. Fresh workflow_dispatch minutes later → success first try. Playbook holds; even ONE rerun-failed poisons the run.
-If recurs: retry with FRESH dispatch only (NEVER rerun-failed, not even once — one rerun already accumulates artifacts); verify against live post URL, not run status; escalate to GitHub support if >3h.
+- 2026-07-05 03:12 UTC — Transient failure on the "sprint day 4" commit's deploy run. No manual action taken: two commits pushed minutes later (beads sync, weekly ops review) each auto-triggered their own fresh dispatch, both succeeded. Verified only 1 github-pages artifact on the failed run (no contamination) and live site returns 200. Cheapest possible recovery — a new commit arriving shortly after supersedes the failure for free.
+If recurs: retry with FRESH dispatch only (NEVER rerun-failed, not even once — one rerun already accumulates artifacts); verify against live post URL, not run status; escalate to GitHub support if >3h. If no new commit is imminent, trigger `gh workflow run deploy.yml` manually rather than waiting.
 
 ## ISSUE-034 — KD blog index wiped to 1 card by JSON-only feed-grid rebuild
 🟡 RECURRING (ISSUE-026 family) — Last: 2026-07-02
