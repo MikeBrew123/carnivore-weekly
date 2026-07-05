@@ -52,6 +52,7 @@ data/*.csv
 !data/published_blogs.json
 !data/wiki-keywords.json
 !data/newsletter_content.json
+!data/newsletter_affiliates.json
 !data/scoreboard.json
 
 # Generated content
