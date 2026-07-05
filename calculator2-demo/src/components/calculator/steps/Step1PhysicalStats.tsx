@@ -178,7 +178,7 @@ export default function Step1PhysicalStats({
           error={errors.email}
           placeholder="you@email.com"
           required
-          helpText="We'll send your personalized results here"
+          helpText="We'll send your results here and add you to the free weekly Carnivore Weekly email. Unsubscribe anytime."
         />
       </div>
 

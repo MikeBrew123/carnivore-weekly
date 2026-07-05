@@ -5047,6 +5047,7 @@ async function sendKetoDialWelcome(email, env) {
     <div style="background:#f1f5f9;padding:18px;text-align:center;font-size:12px;color:#64748b">
       <p style="margin:0 0 6px 0">You're getting this because you signed up through the Carnivore Weekly calculator and chose keto.</p>
       <p style="margin:0"><a href="${unsubUrl}" style="color:#64748b;text-decoration:underline">Unsubscribe</a></p>
+      <p style="margin:6px 0 0 0;color:#94a3b8">KetoDial · 1505 Spring Creek, Whistler, BC, Canada</p>
     </div>
   </div>
 </div>`;
