@@ -156,9 +156,12 @@
             } else if (href.includes('amazon.com')) {
                 category = 'amazon';
                 label = 'Amazon: ' + (link.textContent || '').trim().substring(0, 50);
-            } else if (href.includes('drinklmnt.com')) {
-                category = 'lmnt';
+            } else if (href.includes('drinklmnt.com') || href.includes('elementallabs.refr.cc')) {
+                category = 'affiliate_lmnt';
                 label = 'LMNT';
+            } else if (href.includes('butcherbox.pxf.io') || href.includes('butcherbox.com')) {
+                category = 'affiliate_butcherbox';
+                label = 'ButcherBox';
             }
 
             // Add click listener
