@@ -364,3 +364,10 @@ Pattern: the workflow's final `git push` was rejected (remote main advanced mid-
 Attempts:
 - 2026-07-04 — added rebase-and-retry to the commit step: `git pull --rebase -X theirs origin main && git push`, 3 attempts, 10s apart (-X theirs keeps the freshly generated files during the rebase replay)
 If recurs: check whether the conflict is in a NON-generated file (rebase -X theirs would silently take ours there too); consider committing generated output to a dedicated branch instead.
+
+## ISSUE-037 — automation-staleness job crashed on blog_posts.json structure
+🟢 FIXED | Last: 2026-07-05
+Pattern: the `automation-staleness` job (added Jul 4, sprint 4.2) had inline Python `posts = json.load(open('data/blog_posts.json'))` then `for p in posts` — but the file is `{"blog_posts": [...]}`, so it iterated dict KEYS (strings) → `AttributeError: 'str' object has no attribute 'get'`, exit 1. Jul 5 03:26 UTC was the job's FIRST scheduled run, so the bug had never been exercised (prior "success" runs predate the job). daily-publish.yml and blog-queue-watchdog.yml already unwrap the dict correctly; only this new block didn't.
+Attempts:
+- 2026-07-05 — unwrap first: `data=json.load(...); posts = data['blog_posts'] if isinstance(data,dict) else data`. Verified locally (newest post 0d old, check passes) + fresh workflow_dispatch run green.
+If recurs: any new inline script reading blog_posts.json must unwrap `["blog_posts"]` — grep `.github/workflows/` for `json.load(open('data/blog_posts.json'))` when adding one.

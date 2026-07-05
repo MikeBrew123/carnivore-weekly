@@ -462,7 +462,8 @@ jobs:
           NEWEST_POST=$(python3 -c "
           import json
           from datetime import date
-          posts = json.load(open('data/blog_posts.json'))
+          data = json.load(open('data/blog_posts.json'))
+          posts = data['blog_posts'] if isinstance(data, dict) else data
           dates = [p.get('date','') for p in posts if p.get('status')=='published' and p.get('date')]
           newest = max(dates) if dates else ''
           print((date.today() - date.fromisoformat(newest)).days if newest else 999)
