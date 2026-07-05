@@ -112,6 +112,50 @@ def _format_yt_date(iso_str):
         return iso_str[:10]
 
 
+def _with_utm(url, campaign):
+    """Append CW newsletter UTMs, respecting any existing query string."""
+    if not url:
+        return url
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}utm_source=cw_newsletter&utm_medium=email&utm_campaign={campaign}"
+
+
+def load_affiliate_and_product(date_str=None):
+    """Pick this week's affiliate (rotate active ones by ISO week) + the product
+    feature, from data/newsletter_affiliates.json. Returns (affiliate|None,
+    product_feature|None) with UTM-tagged URLs. Inactive/missing → None so the
+    template section simply doesn't render."""
+    cfg_path = PROJECT_ROOT / "data" / "newsletter_affiliates.json"
+    if not cfg_path.exists():
+        return None, None
+    try:
+        cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"  ⚠ newsletter_affiliates.json unreadable: {e}")
+        return None, None
+
+    active = [a for a in cfg.get("affiliates", []) if a.get("active") and a.get("url")]
+    affiliate = None
+    if active:
+        try:
+            week = datetime.strptime(date_str, "%Y-%m-%d").isocalendar()[1] if date_str else datetime.now().isocalendar()[1]
+        except Exception:
+            week = datetime.now().isocalendar()[1]
+        chosen = dict(active[week % len(active)])
+        chosen["url"] = _with_utm(chosen["url"], f"affiliate_{chosen.get('key','x')}")
+        affiliate = chosen
+        print(f"  ✓ Affiliate slot: {chosen.get('name')} (week {week})")
+
+    pf = cfg.get("product_feature")
+    product_feature = None
+    if pf and pf.get("active") and pf.get("url"):
+        product_feature = dict(pf)
+        product_feature["url"] = _with_utm(product_feature["url"], "starter_kit")
+        print(f"  ✓ Product feature: on")
+
+    return affiliate, product_feature
+
+
 # ---------------------------------------------------------------------------
 # Main renderer
 # ---------------------------------------------------------------------------
@@ -163,6 +207,11 @@ def generate_newsletter(date_str=None):
         "looking_ahead": content.get("looking_ahead", ""),
     }
 
+    # Affiliate slot (rotates active affiliates by ISO week) + product feature.
+    # Config is committed in data/newsletter_affiliates.json so the automated
+    # send needs no secrets. URLs there are clean; UTMs are appended here.
+    affiliate, product_feature = load_affiliate_and_product(date_str)
+
     template_vars = {
         "date": display_date,
         "unsubscribe_link": "{{unsubscribe_url}}",
@@ -170,6 +219,8 @@ def generate_newsletter(date_str=None):
         **editorial_sections,
         "hero": hero,
         "supporting": supporting,
+        "affiliate": affiliate,
+        "product_feature": product_feature,
     }
 
     # Load and render template
