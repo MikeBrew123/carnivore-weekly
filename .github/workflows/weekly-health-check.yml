@@ -400,3 +400,96 @@ jobs:
         run: |
           echo "✅ Weekly health check passed - no issues found"
           cat health_report.txt
+
+  # Added 2026-07-04 (sprint 4.2): catch automations that die silently.
+  # Mac-side counterpart: scripts/heartbeat_check.py (Monday cron).
+  automation-staleness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+      actions: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check workflow and artifact freshness
+        id: stale
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PROBLEMS=""
+
+          check_workflow () {
+            local wf="$1" max_hours="$2"
+            local last_success
+            last_success=$(gh run list --workflow="$wf" --status=success --limit 1 \
+              --json createdAt --jq '.[0].createdAt' 2>/dev/null || echo "")
+            if [ -z "$last_success" ]; then
+              PROBLEMS="$PROBLEMS\n- $wf: no successful run found at all"
+              return
+            fi
+            local age_h=$(( ( $(date -u +%s) - $(date -u -d "$last_success" +%s) ) / 3600 ))
+            if [ "$age_h" -gt "$max_hours" ]; then
+              PROBLEMS="$PROBLEMS\n- $wf: last success ${age_h}h ago (threshold ${max_hours}h)"
+            fi
+          }
+
+          check_workflow daily-publish.yml 48
+          check_workflow weekly-update.yml 192
+          check_workflow supabase-keepalive.yml 96
+          check_workflow blog-queue-watchdog.yml 120
+
+          # weekly-update's LATEST run failing matters even if an older one succeeded
+          # (Jul 5 2026: final git push lost a race and the refresh commit was orphaned)
+          LATEST_WU=$(gh run list --workflow=weekly-update.yml --limit 1 \
+            --json conclusion --jq '.[0].conclusion' 2>/dev/null || echo "")
+          if [ -n "$LATEST_WU" ] && [ "$LATEST_WU" != "success" ]; then
+            PROBLEMS="$PROBLEMS\n- weekly-update.yml: most recent run concluded '$LATEST_WU'"
+          fi
+
+          # Pinterest queue should get self-commits roughly daily while pins remain
+          PIN_LAST=$(git log -1 --format=%ct -- ketodial/marketing/pinterest-pin-queue.json || echo 0)
+          PIN_AGE_D=$(( ( $(date -u +%s) - PIN_LAST ) / 86400 ))
+          if [ "$PIN_AGE_D" -gt 4 ]; then
+            PROBLEMS="$PROBLEMS\n- pinterest-pin-queue.json: last commit ${PIN_AGE_D}d ago (Mac scheduled task may be dead or queue empty)"
+          fi
+
+          # Newest published blog post should be at most 2 days old
+          NEWEST_POST=$(python3 -c "
+          import json
+          from datetime import date
+          posts = json.load(open('data/blog_posts.json'))
+          dates = [p.get('date','') for p in posts if p.get('status')=='published' and p.get('date')]
+          newest = max(dates) if dates else ''
+          print((date.today() - date.fromisoformat(newest)).days if newest else 999)
+          ")
+          if [ "$NEWEST_POST" -gt 2 ]; then
+            PROBLEMS="$PROBLEMS\n- blog_posts.json: newest published post is ${NEWEST_POST}d old (daily publish may be silently broken)"
+          fi
+
+          if [ -n "$PROBLEMS" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            printf "Stale automations:%b\n" "$PROBLEMS" | tee staleness.txt
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "All automations fresh" | tee staleness.txt
+          fi
+
+      - name: Open issue for stale automations
+        if: steps.stale.outputs.found == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('staleness.txt', 'utf8');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `⚠️ Automation staleness: something stopped running — ${new Date().toISOString().slice(0,10)}`,
+              body: '```\n' + body + '\n```\nDetected by the automation-staleness job (weekly-health-check.yml). Mac-side jobs are checked separately by scripts/heartbeat_check.py.',
+              labels: ['health-check', 'automated']
+            });

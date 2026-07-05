@@ -303,6 +303,7 @@ Manual edits allowed when instructed, but:
 | "decision:" or "we decided" | Quinn logs to decisions.md |
 | "validate site" or "visual check" | Run /visual-validator on all pages |
 | "show reports" or "analytics" | Run `dashboard/generate-all-reports.sh` |
+| "run the week" or "weekly ops" | Read `Brew-Vault/04-Systems/Projects/Carnivore-Weekly/Operator-Handbook.md`, run the weekly loop |
 
 ---
 
@@ -346,9 +347,13 @@ KetoDial is a keto-focused site living inside this repo at `ketodial/`. The stat
 
 ### KetoDial Blog Post Pipeline
 
-Blog posts are standalone HTML files in `ketodial/public/blog/`. No generation script — each post is a complete HTML file. **Content lives inline in the HTML — there is no separate data store.**
+KD blog is a **dual pipeline**:
 
-**⚠️ NEVER bulk-regenerate KD blog HTML files.** Regeneration overwrites article content (ISSUE-026 wiped all 26 posts on June 12). All edits to existing KD posts must be surgical — use sed/python to target specific tags (meta, images, nav) without touching `<div class="content">`.
+(a) **Legacy posts (~27 files):** standalone hand-authored HTML files in `ketodial/public/blog/`, content inline in the HTML, no separate data store.
+
+(b) **New posts (since Jun 12):** flow through `data/blog_posts.json` entries with `"site": "kd"` → `scripts/daily_publish.py --site kd` → `ketodial/scripts/generate_kd_blog.py --only-new` renders the HTML from the JSON entry.
+
+**⚠️ NEVER bulk-regenerate KD blog HTML files.** Regeneration overwrites article content (ISSUE-026 wiped all 26 posts on June 12). All edits to existing legacy KD posts must be surgical — use sed/python to target specific tags (meta, images, nav) without touching `<div class="content">`. `--only-new` exists specifically so `generate_kd_blog.py` skips posts whose HTML already exists on disk — never drop that flag.
 
 1. **Template:** Match the exact structure of existing posts (e.g., `keto-flu-electrolyte-fix.html`). Same CSS, nav, footer, JSON-LD schema, GA4 tag (G-0Y79FB48EG), fonts, skip-nav.
 2. **Writers:** Use Sarah (health), Marcus (performance), Chloe (community) agents. Same voice rules as CW: no em-dashes, no AI tells, contractions, grade 8-10 reading level.

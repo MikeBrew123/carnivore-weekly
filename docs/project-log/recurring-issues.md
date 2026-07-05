@@ -18,14 +18,14 @@ Keep entries under 15 lines. No bloat. No decision trees — just enough to reco
 ---
 
 ## ISSUE-001 — Blog queue empty, no new posts publishing
-🟡 RECURRING — Last: 2026-05-30
+🟢 FIXED — Last: 2026-07-04
 
 Pattern: Scheduled task fires but Claude Code agent session fails auth. Queue runs dry silently.
 Attempts:
 - 2026-05-01 — Added `--auto` flag, created Sunday 8pm scheduled task → worked ONCE (May 2 batch).
 - 2026-05-26 — Recurred. All content since May 5 was manual sessions.
-- 2026-05-30 — Restructured pipeline: moved Chloe research from GitHub Action into Claude Code task. Task now does full pipeline (research → write → build → push). Moved to Sun+Wed 4:30am PST. Enabled completion notifications. Removed `generate_weekly_topics.py` from `weekly-update.yml`. Auth issue still the risk — next test: Sunday June 1.
-If recurs: Check notification result Sunday morning. If auth fails, consider API-based content generation script as fallback.
+- 2026-05-30 — Restructured pipeline: moved Chloe research from GitHub Action into Claude Code task. Task now does full pipeline (research → write → build → push). Moved to Sun+Wed 4:30am PST. Enabled completion notifications. Removed `generate_weekly_topics.py` from `weekly-update.yml`.
+- 2026-07-04 — verified fixed in reality since the May 30 restructuring (queues full, runs green since); the issue entry was stale, not the pipeline.
 
 ---
 
@@ -356,3 +356,10 @@ Pattern: running `generate_blog_pages.py` with no --site flag (SITE_FILTER=None 
 Attempts:
 - 2026-07-04 — deleted the 2 contaminated files, re-ran with `--site cw`, hand-pruned the 2 KD URLs from sitemap.xml (generator appends but never prunes) → validator green
 If recurs: CLAUDE.md pipeline Step 4 still documents the bare command; fix the doc AND consider defaulting SITE_FILTER to 'cw'.
+
+## ISSUE-036 — weekly-update.yml lost its commit to a git push race
+🟢 FIXED | Last: 2026-07-04
+Pattern: the workflow's final `git push` was rejected (remote main advanced mid-run, e.g. deploy or pin-queue commits); the "auto: weekly site refresh" commit existed only in the runner and was discarded. Jul 5 02:45 UTC run: all 12 data steps + newsletter send succeeded, refresh commit orphaned. Content survived (newsletter sent, prior data still live) — only that week's data/homepage refresh was lost until the next run.
+Attempts:
+- 2026-07-04 — added rebase-and-retry to the commit step: `git pull --rebase -X theirs origin main && git push`, 3 attempts, 10s apart (-X theirs keeps the freshly generated files during the rebase replay)
+If recurs: check whether the conflict is in a NON-generated file (rebase -X theirs would silently take ours there too); consider committing generated output to a dedicated branch instead.
