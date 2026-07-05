@@ -38,7 +38,7 @@ python3 scripts/generate_weekly_content.py --dry-run
 
 ### How It Works
 
-The autonomous pipeline uses three AI writer agents (Sarah, Chloe, Marcus) to generate authentic, high-quality blog content:
+The autonomous pipeline uses three AI writer agents (Sarah, Chloe, Marcus) to generate authentic, high-quality blog content. Note: `autonomous_blog_generation.sh` blocks on stdin and cannot run unattended — use `scripts/weekly_content_prompt.md` for actual scheduled/automated runs.
 
 1. **Chloe** researches trending carnivore topics → creates assignments
 2. **Leo** fetches writer context from Supabase (persona, memories, past articles)
@@ -63,7 +63,7 @@ The autonomous pipeline uses three AI writer agents (Sarah, Chloe, Marcus) to ge
 
 Each writer queries Supabase for their persona, voice formula, and memory lessons before writing. Articles are saved back to Supabase to inform future content.
 
-**Validation Status:** ✅ All 3 writers tested and validated (see `docs/archive/WRITER_AGENTS_VALIDATED.md`)
+**Validation Status:** ✅ All 3 writers live in production, generating 9 posts/week.
 
 ---
 
@@ -126,7 +126,7 @@ python3 scripts/validate_before_commit.py
 - All internal links exist
 
 ### Wall 3: GitHub Actions Safety Net
-**Location:** `.github/workflows/validate-before-deploy.yml`
+**Location:** `.github/workflows/deploy.yml`
 **Triggers:** On push to main branch
 **Behavior:** Emergency backup validation before deployment
 
@@ -160,21 +160,18 @@ tail -50 logs/commit_validation.log
 
 ### Automated Weekly Workflow
 
-Every Monday (or on-demand):
-
-```bash
-./run_weekly_update.sh
-```
-
-This runs:
-1. `youtube_collector.py` - Fetch videos from past 7 days
-2. `content_analyzer.py` - Claude AI analyzes content (with persona guidance)
-3. `add_sentiment.py` - Sentiment analysis from comments
-4. `answer_questions.py` - Generate Q&A with citations (persona-assigned)
-5. `generate_pages.py` - Build HTML pages
-6. `generate_archive.py` - Archive current week
-7. `generate_channels.py` - Update channel rankings
-8. `update_wiki_videos.py` - Update wiki with featured videos (30-day expiration)
+Runs automatically via `.github/workflows/weekly-update.yml`. The workflow executes, in order:
+1. `scripts/youtube_collector.py` - Fetch videos from past 7 days
+2. `scripts/content_analyzer_optimized.py` - Claude AI analyzes content (with persona guidance)
+3. `scripts/add_sentiment.py` - Sentiment analysis from comments
+4. `scripts/generate_commentary.py` - Writer-agent commentary generation
+5. `scripts/generate_blog_pages.py --site cw` - Render blog HTML pages
+6. `scripts/answer_questions.py` - Generate Q&A with citations (persona-assigned)
+7. `scripts/extract_wiki_keywords.py` - Update wiki keyword index
+8. `scripts/sync_blog_posts_to_supabase.py` - Sync blog data to Supabase
+9. `scripts/generate.py --type all --site cw` - Build homepage, archive, channels pages
+10. `scripts/weekly_newsletter.py --site both` - Generate + queue newsletter
+11. `scripts/generate_site_report.py` - Email a site health report
 
 ### Content Validation Process
 
@@ -194,7 +191,7 @@ This runs:
    - Matches persona authenticity (Sarah, Marcus, Chloe)
    - Professional but accessible
 
-**See [CONTENT_VALIDATION.md](docs/qa/CONTENT_VALIDATION.md) for complete validation guidelines.**
+Validation runs automatically via the three-wall system above (`scripts/content_validator.py`, `scripts/validate_before_commit.py`, `.github/workflows/deploy.yml`).
 
 ### Tech Stack
 
@@ -212,13 +209,13 @@ This runs:
 ```
 carnivore-weekly/
 ├── scripts/
-│   ├── youtube_collector.py      # Collect YouTube data
-│   ├── content_analyzer.py       # Claude AI analysis
-│   ├── add_sentiment.py          # Comment sentiment
-│   ├── answer_questions.py       # Q&A generation
-│   ├── generate_pages.py         # HTML generation
-│   ├── generate_archive.py       # Archive system
-│   └── generate_channels.py      # Channel rankings
+│   ├── youtube_collector.py           # Collect YouTube data
+│   ├── content_analyzer_optimized.py  # Claude AI analysis
+│   ├── add_sentiment.py               # Comment sentiment
+│   ├── answer_questions.py            # Q&A generation
+│   ├── generate_blog_pages.py         # Blog HTML generation (--site cw|kd)
+│   ├── generate.py                    # Homepage/archive/channels generation
+│   └── daily_publish.py               # Daily publish cron (--site cw|kd)
 ├── templates/
 │   ├── index_template.html       # Main page template
 │   ├── archive_template.html     # Archive page
@@ -239,9 +236,9 @@ carnivore-weekly/
 │   ├── archive.html              # Archive index
 │   ├── archive/                  # Individual weeks
 │   └── blog/                     # Blog posts
-├── .github/workflows/
-│   └── update.yml                # GitHub Actions automation
-└── run_weekly_update.sh          # Main automation script
+└── .github/workflows/
+    ├── weekly-update.yml         # Weekly content pipeline
+    └── daily-publish.yml         # Daily publish cron
 ```
 
 ---
@@ -289,12 +286,7 @@ carnivore-weekly/
 
 ### Run Locally (Mac)
 
-```bash
-cd /Users/mbrew/Developer/carnivore-weekly
-./run_weekly_update.sh
-```
-
-Wait 5-10 minutes, then:
+Run the pipeline steps individually (see "Automated Weekly Workflow" above for the full ordered list), then preview:
 ```bash
 open public/index.html  # Preview the site
 ```
@@ -312,12 +304,12 @@ Site goes live at carnivoreweekly.com in ~1 minute!
 
 1. Open GitHub mobile app
 2. Go to carnivore-weekly repo
-3. Tap **Actions** → **Update**
+3. Tap **Actions** → **weekly-update**
 4. Tap **Run workflow**
 5. Wait 5-10 minutes
 6. Site updates automatically!
 
-Or set it to run automatically every Monday at 9 AM EST (see `update.yml`).
+Runs automatically every Sunday via `.github/workflows/weekly-update.yml`. Daily blog publishing runs separately via `.github/workflows/daily-publish.yml` (9 AM EST).
 
 ---
 
@@ -347,7 +339,7 @@ Or set it to run automatically every Monday at 9 AM EST (see `update.yml`).
 
 ### 🎯 Future Ideas
 
-- [ ] Email newsletter (Mailchimp/ConvertKit)
+- [x] Email newsletter — live via Resend (drip sequence + weekly newsletter, in-house since June 2026; Beehiiv and MailerLite are both deprecated)
 - [ ] Social media automation (Twitter/X posts)
 - [ ] Research paper integration (PubMed)
 - [ ] News aggregation
@@ -379,16 +371,12 @@ With 1,000+ weekly visitors:
 
 ### Initial Setup
 
-**One-time setup** (run once):
+**One-time setup** (run once, after cloning):
 ```bash
-./setup_dev_environment.sh
+./scripts/install-hooks.sh
 ```
 
-This configures:
-- ✅ Code quality tools (flake8, black)
-- ✅ Git pre-commit hooks
-- ✅ Python code formatters
-- ✅ Black configuration (100 char lines)
+This installs the pre-push hook that runs `scripts/validate_before_commit.py` before every push. Don't bypass it with `--no-verify`.
 
 ### Code Quality Standards
 
@@ -405,7 +393,6 @@ This configures:
 **Manual review before publishing:**
 - `/copy-editor` - AI detection, sentence structure, readability
 - `/carnivore-brand` - Voice, authenticity, evidence-based claims
-- See `docs/qa/VALIDATION_CHECKLIST.md` for complete checklist
 
 ### Testing Individual Scripts
 
@@ -414,34 +401,15 @@ This configures:
 python3 scripts/youtube_collector.py
 
 # Test Claude analysis
-python3 scripts/content_analyzer.py
+python3 scripts/content_analyzer_optimized.py
 
 # Test page generation
-python3 scripts/generate_pages.py
+python3 scripts/generate.py --type all --site cw
 
 # View locally
 python3 -m http.server 8000
 # Visit http://localhost:8000/public/
 ```
-
-### Template Structure Documentation
-
-**Auto-generated reference:** See `docs/architecture/TEMPLATE_STRUCTURE.md` for complete section map of `index_template.html`
-
-The template documentation is **automatically generated** every time you run `generate_pages.py`. It maps:
-- All 10 major sections with line numbers
-- CSS classes and which sections use them
-- JavaScript functions and their dependencies
-- Template variables
-- Critical shared dependencies (e.g., `.video-card` used by 5 sections)
-
-**When editing the template:**
-1. Check `docs/architecture/TEMPLATE_STRUCTURE.md` to see section dependencies
-2. Use minimal inline comments (`<!-- SECTION: -->`) as navigation aids
-3. Run `python3 scripts/generate_pages.py` (auto-updates docs)
-4. Check the updated documentation to verify your changes
-
-This prevents accidental deletions like CSS or JS code used by other sections.
 
 ### Code Quality Check
 
@@ -465,42 +433,24 @@ cd api && npm run lint:fix
 
 **Full validation before publishing:**
 ```bash
-./run_weekly_update.sh
-# Automatically checks both Python and JavaScript
+python3 scripts/validate_before_commit.py
 # Then: /copy-editor
 # Then: /carnivore-brand
 ```
 
 ### Making Changes
 
-1. Setup dev environment (one-time): `./setup_dev_environment.sh`
+1. Setup dev environment (one-time): `./scripts/install-hooks.sh`
 2. Create feature branch: `git checkout -b feature-name`
 3. Make changes to scripts or templates
-4. Code is auto-checked by pre-commit hook before commits
+4. Code is auto-checked by pre-push hook
 5. Fix any issues: `python3 -m black scripts/`
-6. Test locally: `./run_weekly_update.sh`
-7. Validate content: `/copy-editor` and `/carnivore-brand`
-8. Commit and push - site deploys automatically
+6. Validate content: `/copy-editor` and `/carnivore-brand`
+7. Commit and push - site deploys automatically
 
 ### Weekly Automation Workflow
 
-**Complete workflow with validation:**
-```bash
-./run_weekly_update.sh
-# Generates all content + checks Python code quality
-# (see output for validation steps)
-
-# Then REQUIRED before deploying:
-/copy-editor     # Check for AI patterns, readability
-/carnivore-brand # Check voice, personas, authenticity
-
-# If all validations PASS:
-git add .
-git commit -m "Weekly content update - $(date +%Y-%m-%d)"
-git push
-```
-
-**Site goes live:** ~1 minute after push to main
+Runs automatically via `.github/workflows/weekly-update.yml` (see "Automated Weekly Workflow" above for the pipeline steps). Validation (`/copy-editor`, `/carnivore-brand`) happens during content generation, not as a separate manual gate.
 
 ---
 
@@ -543,5 +493,5 @@ MIT License - Do whatever you want with this code!
 
 ---
 
-**Last Updated:** January 20, 2026
+**Last Updated:** July 4, 2026
 **Status:** ✅ Live and automated

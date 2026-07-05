@@ -1,6 +1,8 @@
 # Current Status
 
-**Last Updated:** 2026-07-04 (Revenue Sprint Days 1-3 DONE; Day 4 is next, fresh chat)
+**Last Updated:** 2026-07-04 (Revenue Sprint COMPLETE — Days 1-4 all shipped Jul 4)
+
+**Day 4 done (night):** Sprint finished. 4.1: two zombie scheduled tasks deleted; blackout policy = accept-gap for Claude tasks (pre-absence checklist in the Operator Handbook); dashboard cron → `dashboard-update.yml` on GHA, gated until Brew adds secrets. 4.2: two-sided staleness monitoring — `automation-staleness` job in weekly-health-check.yml + `scripts/heartbeat_check.py` (Mon 10:45 UTC cron, Resend email alerts, live-tested). Audit found weekly/monthly-report + vaultsync LaunchAgents silently dead (macOS Full Disk Access — Brew-only fix) and this week's weekly-update refresh commit lost to a push race (ISSUE-036, fixed with rebase-retry). 4.3: Beehiiv/MailerLite purge — `handleSubscribe` rename + dead MailerLite handler removed from the worker (deployed `--env production`, subscribe verified live), beehiiv scripts deleted, ISSUE-001 closed, README/CLAUDE.md truth-up. One deliberate leftover: `generate_site_report.py` still reads MailerLite (bead filed). 4.4: **Operator Handbook** at `Brew-Vault/04-Systems/Projects/Carnivore-Weekly/Operator-Handbook.md` — weekly loop, decision rules, blackout playbook, never-do list; CLAUDE.md trigger "run the week". 4.5: retro appended to `Brew-Vault/00-Core/Fable-Sprint-2026-07.md` (incl. Brew-only queue: FDA grant for LaunchAgents, GHA secrets, backlink emails, Schmitz ask, Etsy buyer message).
 
 **Day 3 finish (evening):** 3.3 backlinks were done in the morning. 3.4 newsletter done — rotating affiliate slot (LMNT ↔ ButcherBox by ISO week) + Starter Kit bundle feature added to the CW weekly, config in committed `data/newsletter_affiliates.json` (auto-sends Sun cron). Sealed a site-wide affiliate leak: the LMNT link on 180 pages was a bare uncredited `elementallabs.refr.cc`; swapped all 191 links to Brew's coded referral link + http→https. Fixed engagement-tracking.js affiliate labeling and added an "affiliate clicks by partner" scoreboard row (GA4 linkDomain). **Day 4 (durability audit, docs truth-up/Beehiiv purge, Operator Handbook, retro) not started — pick up in a fresh chat per Fable-Sprint-2026-07.md.**
 
@@ -20,14 +22,14 @@ Executing the Jul 4-7 revenue sprint (`Brew-Vault/00-Core/Fable-Sprint-2026-07.m
 ## Outstanding TODOs
 
 - **Etsy content series** — Sarah's bridal Etsy series: posts 1-2 shipped (May 19, May 30), posts 3-4 not yet written.
-- **Scheduled task auth (ISSUE-001)** — Sunday cron fires but Claude Code agent may hit 401. Completion notifications now enabled. Next test: Sunday June 1 at 4:30am PST.
+- **Scheduled task auth (ISSUE-001)** — ✅ FIXED (fixed since May 30 restructuring; entry was stale)
 - **Author profile pages** — /about.html#sarah-whitfield etc. needed for Google Quality Raters
 - **Author bio/photo block in template** — Only byline + schema updated; no visible bio on posts
 - **PubMed citation links** — PMIDs exist in posts but aren't hyperlinked
 - **Calculator CTA conversion tracking** — ✅ DONE (May 24) — diet_selected, completed, email_cta, product_cta events live
 - **Internal linking** — Indexed posts don't link to calculator
 - **Starter plan page traffic** — Only 3 views/30 days (down from 18/week)
-- **Newsletter migrated to Beehiiv** — ✅ DONE (May 26) — MailerLite deprecated due to 12.5% open rates on shared IPs
+- **Newsletter migrated to Beehiiv** — superseded: Beehiiv deprecated, all email in-house via Resend as of late June 2026
 - **Backfill E-E-A-T signals** — 75+ existing posts still lack new writer identity signals
 - **Etsy buyer message** — Updated copy written by Sarah; needs to be pasted into Etsy dashboard
 - **Old blog images** — 43 posts (Apr+May) have no article images. NOT backfilling — only generating for new posts going forward.

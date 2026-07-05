@@ -5010,63 +5010,6 @@ function getCorsOrigin(request, env) {
   return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
 }
 
-// ===== MAILERLITE SUBSCRIBE HANDLER =====
-const MAILERLITE_GROUPS = {
-  starter: '180222507377231448',
-  newsletter: '180231939510240621',
-};
-
-async function handleMailerLiteSubscribe(request, env) {
-  try {
-    const { email, group } = await request.json();
-    if (!email || !email.includes('@')) {
-      return createErrorResponse('INVALID_EMAIL', 'Valid email required', 400);
-    }
-
-    const groupId = MAILERLITE_GROUPS[group] || env.MAILERLITE_GROUP_ID || MAILERLITE_GROUPS.starter;
-
-    const mlResponse = await fetch('https://connect.mailerlite.com/api/subscribers', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${env.MAILERLITE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: email.trim().toLowerCase(),
-        groups: [groupId],
-      }),
-    });
-
-    const data = await mlResponse.json();
-
-    if (mlResponse.status === 200) {
-      // Subscriber already exists — check if already in group
-      return new Response(JSON.stringify({ success: true, existing: true }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (mlResponse.status === 201) {
-      return new Response(JSON.stringify({ success: true }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (mlResponse.status === 422 && data.message) {
-      return new Response(JSON.stringify({ error: 'invalid_email', message: data.message }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    return createErrorResponse('SUBSCRIBE_FAILED', 'Subscription failed', 500);
-  } catch (err) {
-    return createErrorResponse('SUBSCRIBE_ERROR', String(err), 500);
-  }
-}
-
 // ===== KETODIAL WELCOME (keto/low-carb calculator opt-ins) =====
 // Someone used the Carnivore Weekly calculator, chose keto or low-carb, and opted in.
 // They likely don't know KetoDial exists — introduce the sister site, then they land
@@ -5129,8 +5072,8 @@ async function sendKetoDialWelcome(email, env) {
   }
 }
 
-// ===== NEWSLETTER SUBSCRIBE HANDLER =====
-async function handleBeehiivSubscribe(request, env) {
+// ===== NEWSLETTER SUBSCRIBE HANDLER (in-house: Supabase + Resend) =====
+async function handleSubscribe(request, env) {
   try {
     const { email, site, source, diet_type } = await request.json();
     if (!email || !email.includes('@')) {
@@ -5668,14 +5611,14 @@ export default {
       }
     }
 
-    // ===== SUBSCRIBE PROXY (Beehiiv — migrated from MailerLite 2026-05-26) =====
+    // ===== SUBSCRIBE (drip signup — in-house Supabase + Resend) =====
     if (path === '/api/v1/subscribe' && method === 'POST') {
-      return sendWithCors(await handleBeehiivSubscribe(request, env));
+      return sendWithCors(await handleSubscribe(request, env));
     }
 
-    // ===== BEEHIIV NEWSLETTER SUBSCRIBE PROXY =====
+    // ===== NEWSLETTER SUBSCRIBE =====
     if (path === '/api/v1/subscribe/newsletter' && method === 'POST') {
-      return sendWithCors(await handleBeehiivSubscribe(request, env));
+      return sendWithCors(await handleSubscribe(request, env));
     }
 
     // ===== UNSUBSCRIBE =====

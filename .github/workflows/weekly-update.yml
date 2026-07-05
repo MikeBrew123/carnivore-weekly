@@ -112,5 +112,12 @@ jobs:
           git add data/ public/ index.html archive.html channels.html images/ blog/ templates/ newsletters/ ketodial/ 2>/dev/null || true
           git diff --staged --quiet || (
             git commit -m "auto: weekly site refresh ($(date -u +'%Y-%m-%d'))"
-            git push
+            # Push race guard (Jul 5 2026 run lost its commit to a rejected push):
+            # rebase onto whatever landed on main mid-run, preferring our fresh
+            # generated files (-X theirs = the replayed commit during a rebase),
+            # and retry up to 3 times.
+            for i in 1 2 3; do
+              git pull --rebase -X theirs origin main && git push && break
+              echo "push attempt $i failed, retrying..." && sleep 10
+            done
           )

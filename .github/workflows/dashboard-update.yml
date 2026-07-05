@@ -1,0 +1,67 @@
+# Daily CW+KD dashboard sheet update — moved off the Mac crontab (sprint 4.1, 2026-07-04)
+# so reporting survives a deployment blackout.
+#
+# Requires two repo secrets (Brew adds these once):
+#   GA4_CREDENTIALS_JSON      — full contents of dashboard/ga4-credentials.json
+#   SUPABASE_SERVICE_ROLE_KEY — service role key (Supabase dashboard → settings → API)
+# Optional for the Stripe/Etsy rows:
+#   API_KEYS_JSON             — full contents of secrets/api-keys.json
+#
+# Until the secrets exist, the run skips cleanly (no red X spam).
+# Once a green run appears here, delete the 10:00 UTC line from the Mac crontab.
+
+name: Dashboard Update
+
+on:
+  schedule:
+    - cron: '30 10 * * *'   # 10:30 UTC daily (Mac cron runs 10:00; overlap is harmless)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GA4_CREDS: ${{ secrets.GA4_CREDENTIALS_JSON }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      API_KEYS: ${{ secrets.API_KEYS_JSON }}
+    steps:
+      - name: Check secrets
+        id: gate
+        run: |
+          if [ -z "$GA4_CREDS" ]; then
+            echo "GA4_CREDENTIALS_JSON secret not set — skipping (Mac cron still covers this)."
+            echo "ready=false" >> $GITHUB_OUTPUT
+          else
+            echo "ready=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout code
+        if: steps.gate.outputs.ready == 'true'
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        if: steps.gate.outputs.ready == 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        if: steps.gate.outputs.ready == 'true'
+        run: pip install google-analytics-data google-api-python-client google-auth
+
+      - name: Write credential files
+        if: steps.gate.outputs.ready == 'true'
+        run: |
+          printf '%s' "$GA4_CREDS" > dashboard/ga4-credentials.json
+          if [ -n "$API_KEYS" ]; then
+            mkdir -p secrets
+            printf '%s' "$API_KEYS" > secrets/api-keys.json
+          fi
+
+      - name: Update dashboard sheet
+        if: steps.gate.outputs.ready == 'true'
+        run: python3 scripts/update_dashboard_sheet.py
