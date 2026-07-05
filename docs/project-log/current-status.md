@@ -1,6 +1,9 @@
 # Current Status
 
-**Last Updated:** 2026-07-04 (Revenue Sprint Days 1-3 + a PM session of funnel/SEO/perf fixes)
+**Last Updated:** 2026-07-04 (Revenue Sprint Days 1-3 DONE; Day 4 is next, fresh chat)
+
+**Day 3 finish (evening):** 3.3 backlinks were done in the morning. 3.4 newsletter done — rotating affiliate slot (LMNT ↔ ButcherBox by ISO week) + Starter Kit bundle feature added to the CW weekly, config in committed `data/newsletter_affiliates.json` (auto-sends Sun cron). Sealed a site-wide affiliate leak: the LMNT link on 180 pages was a bare uncredited `elementallabs.refr.cc`; swapped all 191 links to Brew's coded referral link + http→https. Fixed engagement-tracking.js affiliate labeling and added an "affiliate clicks by partner" scoreboard row (GA4 linkDomain). **Day 4 (durability audit, docs truth-up/Beehiiv purge, Operator Handbook, retro) not started — pick up in a fresh chat per Fable-Sprint-2026-07.md.**
+
 
 **PM session 2026-07-04 (funnel routing, calc SEO, bug fixes — all shipped + verified live):**
 - Diet-based signup routing live: carnivore→CW drip, keto/low-carb→KetoDial newsletter + KD welcome email, pescatarian→held on CW newsletter, unknown→CW drip. Worker (`handleBeehiivSubscribe` in api/calculator-api.js) + frontend (`calculator.html` now sends `diet_type`). Killed the day-28 keto router; unified finale with soft KD off-ramp. `funnel_by_diet` DB view feeds the weekly scoreboard; sprint task 3.6 (calc SEO) also done here.
