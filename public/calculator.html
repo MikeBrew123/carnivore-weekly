@@ -31,20 +31,28 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <!-- Google Analytics — script injected after window.load (LCP fix, carnivore-weekly-2q4).
+         The gtag stub queues events into dataLayer, so nothing fired early is lost. -->
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
         gtag('config', 'G-NR4JVKW2JV');
+        window.addEventListener('load', function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV';
+            document.head.appendChild(s);
+        });
     </script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
     <link rel="stylesheet" href="/css/global.css">
-    <link rel="stylesheet" href="/assets/calculator2/assets/index-BGR8GvWk.css">
-    <link rel="modulepreload" href="/assets/calculator2/assets/index-Cit1EhrW.js">
+    <!-- Calculator bundle CSS is injected by the lazy loader at the bottom of the page
+         together with the JS (LCP fix) — keep the hash in sync with the loader. -->
 
     <style>
         /* Calculator page hero styles - Premium sizing matching brand standards */
@@ -1396,7 +1404,50 @@
             </div>
         </div>
     </footer>
-    <script type="module" src="/assets/calculator2/assets/index-Cit1EhrW.js"></script>
+    <!-- Calculator bundle loader (LCP fix, carnivore-weekly-2q4). The calculator sits
+         below the fold, so the 109KB React bundle no longer competes with first paint.
+         MUST load eagerly on Stripe returns (?payment=...) and hash deep-links — the
+         payment-success flow depends on the app mounting immediately (see scrollToAnchor
+         in CalculatorApp.tsx). Keep the src in sync with the Vite bundle hash above. -->
+    <script>
+        (function () {
+            var SRC = '/assets/calculator2/assets/index-Cit1EhrW.js';
+            var CSS = '/assets/calculator2/assets/index-BGR8GvWk.css';
+            var loaded = false;
+            function loadCalc() {
+                if (loaded) return;
+                loaded = true;
+                var l = document.createElement('link');
+                l.rel = 'stylesheet';
+                l.href = CSS;
+                document.head.appendChild(l);
+                var s = document.createElement('script');
+                s.type = 'module';
+                s.src = SRC;
+                document.body.appendChild(s);
+                ['scroll', 'touchstart', 'mousedown', 'keydown'].forEach(function (ev) {
+                    window.removeEventListener(ev, loadCalc);
+                });
+            }
+            if (location.search.indexOf('payment=') !== -1 || location.hash) {
+                loadCalc();
+                return;
+            }
+            ['scroll', 'touchstart', 'mousedown', 'keydown'].forEach(function (ev) {
+                window.addEventListener(ev, loadCalc, { passive: true, once: false });
+            });
+            var root = document.getElementById('root');
+            if ('IntersectionObserver' in window && root) {
+                new IntersectionObserver(function (entries, obs) {
+                    if (entries.some(function (e) { return e.isIntersecting; })) {
+                        obs.disconnect();
+                        loadCalc();
+                    }
+                }, { rootMargin: '1200px' }).observe(root);
+            }
+            setTimeout(loadCalc, 5000); // idle fallback: always load eventually
+        })();
+    </script>
     <script src="/js/mobile-nav.js"></script>
 
     <!-- Post-hydration hash scroll fallback: React renders #calculator-start after mount -->

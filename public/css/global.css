@@ -251,7 +251,8 @@ header::after,
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('https://images.unsplash.com/photo-1558030006-450675393462?w=1200&q=80');
+  /* Self-hosted (was images.unsplash.com — 122KB offsite fetch for a 0.15-opacity texture) */
+  background-image: url('/images/leather-texture.jpg');
   background-size: cover;
   background-position: center;
   opacity: 0.15;

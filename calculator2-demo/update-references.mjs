@@ -41,7 +41,14 @@ try {
     .replace(/href="(?:https:\/\/carnivoreweekly\.com)?\/assets\/calculator2\/assets\/index-[^"]+\.js"/g,
              `href="/assets/calculator2/assets/${jsFilename}"`)
     .replace(/href="(?:https:\/\/carnivoreweekly\.com)?\/assets\/calculator2\/assets\/index-[^"]+\.css"/g,
-             `href="/assets/calculator2/assets/${cssFilename}"`);
+             `href="/assets/calculator2/assets/${cssFilename}"`)
+    // The lazy-load bootstrap in calculator.html (LCP fix) holds the bundle paths
+    // in single-quoted JS strings (var SRC / var CSS) — keep those in sync too,
+    // or the calculator silently breaks on the next rebuild.
+    .replace(/'\/assets\/calculator2\/assets\/index-[^']+\.js'/g,
+             `'/assets/calculator2/assets/${jsFilename}'`)
+    .replace(/'\/assets\/calculator2\/assets\/index-[^']+\.css'/g,
+             `'/assets/calculator2/assets/${cssFilename}'`);
 
   writeFileSync(calculatorHtmlPath, updatedCalculatorHtml, 'utf-8');
   console.log(`✅ Updated: public/calculator.html`);
