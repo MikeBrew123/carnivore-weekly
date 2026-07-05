@@ -123,9 +123,14 @@
         event.preventDefault();
 
         const requestText = feedbackTextarea.value.trim();
-        const email = document.getElementById('feedback-email').value.trim() || null;
+        const email = document.getElementById('feedback-email').value.trim();
 
         // Validation
+        if (!email) {
+            alert('Please enter your email so we can follow up.');
+            return;
+        }
+
         if (requestText.length < 10) {
             alert('Please write at least 10 characters.');
             return;

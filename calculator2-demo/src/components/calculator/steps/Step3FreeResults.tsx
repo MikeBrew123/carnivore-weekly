@@ -567,12 +567,12 @@ export default function Step3FreeResults({
           }
         }}
         style={{
-          background: 'none', border: 'none', color: '#737373', fontSize: '14px',
+          background: 'none', border: 'none', color: 'rgba(244,228,212,0.75)', fontSize: '15px',
           textDecoration: 'underline', cursor: 'pointer', padding: '8px', marginTop: '16px',
           fontFamily: "'Playfair Display', Georgia, serif"
         }}
       >
-        Start Over
+        ↺ Start Over (wrong diet type or details?)
       </button>
     </div>
   )
