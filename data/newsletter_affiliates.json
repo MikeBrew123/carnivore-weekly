@@ -1,5 +1,5 @@
 {
-  "_comment": "Affiliate + product config for the CW weekly newsletter. These are PUBLIC links shown in the email body, not secrets, so they live here (committed) rather than .env — that also lets the automated GitHub Actions send read them with no secret wiring. generate_newsletter.py rotates the ACTIVE affiliates by ISO week and appends UTMs at render time (base URLs here stay clean). TO ENABLE LMNT: replace its url with your real affiliate/ref link from the LMNT partner dashboard, then set active:true — the bare drinklmnt.com below earns no commission.",
+  "_comment": "Affiliate + product config for the CW weekly newsletter. These are PUBLIC links shown in the email body, not secrets, so they live here (committed) rather than .env — that also lets the automated GitHub Actions send read them with no secret wiring. generate_newsletter.py rotates the ACTIVE affiliates by ISO week and appends UTMs at render time (base URLs here stay clean). Both ButcherBox and LMNT are live coded links that credit Brew; LMNT's is his refr.cc referral link (same one used across the site). To add another affiliate, append an object with active:true and a real coded URL.",
   "affiliates": [
     {
       "key": "butcherbox",
@@ -12,8 +12,8 @@
     {
       "key": "lmnt",
       "name": "LMNT",
-      "active": false,
-      "url": "https://drinklmnt.com",
+      "active": true,
+      "url": "https://elementallabs.refr.cc/default/u/michelbrew",
       "blurb": "Those first few weeks of carnivore or keto can hit hard. The headaches, the tired legs, the random muscle cramps. A lot of that comes down to electrolytes running low as your body shifts. A lot of people reach for LMNT to top up sodium, potassium, and magnesium, whether they're adapting or just staying active.",
       "cta": "Try LMNT"
     }
