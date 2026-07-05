@@ -74,7 +74,21 @@
       "mcp__Claude_in_Chrome__computer",
       "mcp__Claude_in_Chrome__browser_batch",
       "mcp__Claude_in_Chrome__javascript_tool",
-      "Bash(curl -s -H 'x-api-key: U0e1iY6ViBSZCWIYKaHRoCfonhq74c2s0g4KndjA' http://192.168.8.170:2283/api/server/statistics)"
+      "Bash(curl -s -H 'x-api-key: U0e1iY6ViBSZCWIYKaHRoCfonhq74c2s0g4KndjA' http://192.168.8.170:2283/api/server/statistics)",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "mcp__claude-in-chrome__navigate",
+      "mcp__claude-in-chrome__computer",
+      "mcp__claude-in-chrome__browser_batch",
+      "Bash(node kd-indexing-temp.mjs)",
+      "Bash(gh issue *)",
+      "mcp__eb179240-a327-4553-8a6a-04f57f7ea545__list_projects",
+      "Bash(node sales-summary.mjs)",
+      "Bash(echo \"---exit:$?---\")",
+      "Bash(awk '/^## /{n++} n>=1{print}' /Users/mbrew/Documents/Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/scoreboard.md)",
+      "Bash(grep -nA3 \"staleness\\\\|ISSUE-036\\\\|heartbeat\" docs/project-log/recurring-issues.md)",
+      "Bash(gh workflow *)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' -L --max-time 20 https://carnivoreweekly.com/blog/__TRACKED_VAR__.html)",
+      "Bash(node ga4-mobile-split.mjs)"
     ]
   },
   "disabledMcpjsonServers": [
