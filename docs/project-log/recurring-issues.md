@@ -372,3 +372,10 @@ Pattern: the `automation-staleness` job (added Jul 4, sprint 4.2) had inline Pyt
 Attempts:
 - 2026-07-05 — unwrap first: `data=json.load(...); posts = data['blog_posts'] if isinstance(data,dict) else data`. Verified locally (newest post 0d old, check passes) + fresh workflow_dispatch run green.
 If recurs: any new inline script reading blog_posts.json must unwrap `["blog_posts"]` — grep `.github/workflows/` for `json.load(open('data/blog_posts.json'))` when adding one.
+
+## ISSUE-038 — Chloe's weekly roundup cross-linked an unrendered KD post
+🟢 FIXED | Last: 2026-07-05
+Pattern: the AI-generated "This Week's Roundup" text (data/analyzed_content.json → weekly_summary) referenced a post by title/author knowledge and hardcoded a /blog/... markdown link, but the post (2026-07-05-keto-meal-prep-couples) was site:"kd" in blog_posts.json and had never been rendered to HTML on either site. Blocked an unrelated push as a CRITICAL broken-link error in validate_before_commit.py.
+Attempts:
+- 2026-07-05 — stripped the dead hyperlink from analyzed_content.json (kept the plain-text mention), regenerated public/index.html via generate.py --type pages → validator green
+If recurs: the roundup generator needs the same rule as content agents (CLAUDE.md Content rule #2/#3) — never cross-link to a slug unless it's confirmed rendered on the SAME site's public/blog/ (or ketodial/public/blog/ for kd). Consider a pre-generation check against blog_posts.json's `site` field before emitting any /blog/ link in roundup text.
