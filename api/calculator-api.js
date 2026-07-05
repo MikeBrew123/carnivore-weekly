@@ -5182,6 +5182,9 @@ async function handleFeedback(request, env) {
   try {
     const { request_text, email } = await request.json();
 
+    if (!email || !isValidEmail(email)) {
+      return createErrorResponse('INVALID_EMAIL', 'A valid email is required', 400);
+    }
     if (!request_text || request_text.trim().length < 10) {
       return createErrorResponse('INVALID_FEEDBACK', 'Feedback must be at least 10 characters', 400);
     }
@@ -5209,6 +5212,32 @@ async function handleFeedback(request, env) {
     );
 
     if (response.ok || response.status === 201) {
+      // Notify Brew via Resend so feedback doesn't just sit in the DB unseen
+      if (env.RESEND_API_KEY) {
+        try {
+          await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+            },
+            body: JSON.stringify({
+              from: 'Carnivore Weekly <newsletter@carnivoreweekly.com>',
+              to: ['iambrew@gmail.com'],
+              ...(email ? { reply_to: email } : {}),
+              subject: 'New site feedback',
+              html: `
+                <h2>New feedback submission</h2>
+                <p><strong>From:</strong> ${email || '(no email provided)'}</p>
+                <p><strong>Message:</strong><br>${request_text.trim().replace(/\n/g, '<br>')}</p>
+              `,
+            }),
+          });
+        } catch (notifyErr) {
+          console.error('[Feedback] Resend notification failed:', notifyErr);
+        }
+      }
+
       return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -5220,6 +5249,136 @@ async function handleFeedback(request, env) {
     return createErrorResponse('FEEDBACK_FAILED', 'Failed to save feedback', 500);
   } catch (err) {
     return createErrorResponse('FEEDBACK_ERROR', String(err), 500);
+  }
+}
+
+// ===== REFUND REQUEST =====
+const REFUND_SECTION_RATINGS = ['helpful', 'not_helpful', 'didnt_use'];
+const REFUND_SECTION_LABELS = {
+  helpful: 'Helpful',
+  not_helpful: 'Not helpful',
+  didnt_use: "Didn't use it",
+};
+
+async function handleRefundRequest(request, env) {
+  try {
+    const {
+      email, product, reason_category, reason_text,
+      overall_rating, meal_plan_feedback, doctor_script_feedback, adaptation_guide_feedback,
+      technical_notes, additional_notes,
+    } = await request.json();
+
+    if (!email || !isValidEmail(email)) {
+      return createErrorResponse('INVALID_EMAIL', 'A valid email is required', 400);
+    }
+
+    const VALID_CATEGORIES = ['not_as_described', 'technical_issue', 'no_longer_needed', 'duplicate_charge', 'other'];
+    if (!VALID_CATEGORIES.includes(reason_category)) {
+      return createErrorResponse('INVALID_CATEGORY', 'Invalid reason category', 400);
+    }
+
+    if (!reason_text || reason_text.trim().length < 10) {
+      return createErrorResponse('INVALID_REASON', 'Please tell us a bit more (10 characters minimum)', 400);
+    }
+    if (reason_text.length > 1000) {
+      return createErrorResponse('REASON_TOO_LONG', 'Reason must be under 1000 characters', 400);
+    }
+
+    const rating = parseInt(overall_rating, 10);
+    if (!rating || rating < 1 || rating > 5) {
+      return createErrorResponse('INVALID_RATING', 'Please rate the overall quality 1-5', 400);
+    }
+
+    for (const [field, value] of [
+      ['meal_plan_feedback', meal_plan_feedback],
+      ['doctor_script_feedback', doctor_script_feedback],
+      ['adaptation_guide_feedback', adaptation_guide_feedback],
+    ]) {
+      if (!REFUND_SECTION_RATINGS.includes(value)) {
+        return createErrorResponse('INVALID_SECTION_FEEDBACK', `Missing or invalid ${field}`, 400);
+      }
+    }
+
+    if (technical_notes && technical_notes.length > 1000) {
+      return createErrorResponse('TECHNICAL_NOTES_TOO_LONG', 'Technical notes must be under 1000 characters', 400);
+    }
+    if (additional_notes && additional_notes.length > 1000) {
+      return createErrorResponse('ADDITIONAL_NOTES_TOO_LONG', 'Additional notes must be under 1000 characters', 400);
+    }
+
+    const insertResponse = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/refund_requests`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          product: product || 'calculator_report',
+          reason_category,
+          reason_text: reason_text.trim(),
+          overall_rating: rating,
+          meal_plan_feedback,
+          doctor_script_feedback,
+          adaptation_guide_feedback,
+          technical_notes: technical_notes ? technical_notes.trim() : null,
+          additional_notes: additional_notes ? additional_notes.trim() : null,
+          fingerprint: null,
+          ip_address: request.headers.get('CF-Connecting-IP') || null,
+        }),
+      }
+    );
+
+    if (!insertResponse.ok && insertResponse.status !== 201) {
+      const errorText = await insertResponse.text();
+      console.error('Supabase refund_requests error:', insertResponse.status, errorText);
+      return createErrorResponse('REFUND_REQUEST_FAILED', 'Failed to save refund request', 500);
+    }
+
+    // Notify Brew via Resend so requests don't just sit in the DB
+    if (env.RESEND_API_KEY) {
+      try {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          },
+          body: JSON.stringify({
+            from: 'Carnivore Weekly <newsletter@carnivoreweekly.com>',
+            to: ['iambrew@gmail.com'],
+            reply_to: email.trim(),
+            subject: `Refund request (${rating}/5): ${reason_category.replace(/_/g, ' ')}`,
+            html: `
+              <h2>New refund request</h2>
+              <p><strong>Product:</strong> ${product || 'calculator_report'}</p>
+              <p><strong>Buyer email:</strong> ${email.trim()}</p>
+              <p><strong>Reason category:</strong> ${reason_category.replace(/_/g, ' ')}</p>
+              <p><strong>Overall quality rating:</strong> ${rating}/5</p>
+              <ul>
+                <li><strong>30-day meal plan:</strong> ${REFUND_SECTION_LABELS[meal_plan_feedback]}</li>
+                <li><strong>Doctor conversation script:</strong> ${REFUND_SECTION_LABELS[doctor_script_feedback]}</li>
+                <li><strong>Adaptation/plateau guide:</strong> ${REFUND_SECTION_LABELS[adaptation_guide_feedback]}</li>
+              </ul>
+              <p><strong>What would have made it worth keeping:</strong><br>${reason_text.trim().replace(/\n/g, '<br>')}</p>
+              ${technical_notes ? `<p><strong>Technical issues:</strong><br>${technical_notes.trim().replace(/\n/g, '<br>')}</p>` : ''}
+              ${additional_notes ? `<p><strong>Anything else:</strong><br>${additional_notes.trim().replace(/\n/g, '<br>')}</p>` : ''}
+              <p style="color:#777;font-size:13px;">Reply-to is set to the buyer's email. Refund manually via the Stripe dashboard.</p>
+            `,
+          }),
+        });
+      } catch (notifyErr) {
+        console.error('[Refund Request] Resend notification failed:', notifyErr);
+      }
+    }
+
+    return createSuccessResponse({ success: true });
+  } catch (err) {
+    return createErrorResponse('REFUND_REQUEST_ERROR', String(err), 500);
   }
 }
 
@@ -5630,6 +5789,11 @@ export default {
     // ===== FEEDBACK PROXY =====
     if (path === '/api/v1/feedback' && method === 'POST') {
       return sendWithCors(await handleFeedback(request, env));
+    }
+
+    // ===== REFUND REQUEST =====
+    if (path === '/api/v1/refund-request' && method === 'POST') {
+      return sendWithCors(await handleRefundRequest(request, env));
     }
 
     // ===== STRIPE WEBHOOK (server-to-server, no CORS) =====
