@@ -381,3 +381,5 @@ Attempts:
 If recurs: the roundup generator needs the same rule as content agents (CLAUDE.md Content rule #2/#3) — never cross-link to a slug unless it's confirmed rendered on the SAME site's public/blog/ (or ketodial/public/blog/ for kd). Consider a pre-generation check against blog_posts.json's `site` field before emitting any /blog/ link in roundup text.
 
 - 2026-07-05 — Recurred on commit f2e986f5 (beads-metadata-only, no site change). "Deployment failed, try again later" — Pages backend blip, not a build error. Self-healed: next commit (b6fa9be8) deployed green, both sites 200. No rerun-failed used. Confirms the pattern: a beads/docs commit that trips the blip gets superseded by the next real push for free.
+
+- 2026-07-06 — Submodule (ketodial) Pages build stuck in "building" ~12 min on commit cc97699 (105-file mobile-nav change). Not a code error — the file was in the remote tree, prior/next builds were fine. Fix: POST /repos/MikeBrew123/ketodial/pages/builds (request fresh build) → superseded the stuck one, built in <60s. Note: ketodial.com uses legacy "Deploy from branch" Pages (not Actions), so the nudge is the pages/builds API, not a workflow rerun.
