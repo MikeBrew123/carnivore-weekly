@@ -17,9 +17,10 @@ Run weekly via crontab (Mondays). Manual: python3 scripts/scoreboard_truth_pass.
 
 import json
 import re
+import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -60,14 +61,24 @@ def pull_stripe():
     key = SECRETS["stripe"]["secret_key_live"]
     h = {"Authorization": f"Bearer {key}"}
     import time as _t
-    since = int(_t.time()) - 30 * 86400
+    now = int(_t.time())
+    since = now - 30 * 86400
+    month_start = int(datetime.now(timezone.utc).replace(
+        day=1, hour=0, minute=0, second=0, microsecond=0).timestamp())
     charges = requests.get(f"https://api.stripe.com/v1/charges?created[gte]={since}&limit=100", headers=h).json()["data"]
     ok = [c for c in charges if c["status"] == "succeeded" and not c["refunded"]]
     subs = requests.get("https://api.stripe.com/v1/subscriptions?status=all&limit=100", headers=h).json()["data"]
+    # Checkout starts = Checkout Sessions created (regardless of completion).
+    sessions = requests.get(
+        f"https://api.stripe.com/v1/checkout/sessions?created[gte]={now - 7 * 86400}&limit=100",
+        headers=h).json()["data"]
     return {
         "charges_30d": len(ok),
         "revenue_30d_usd": sum(c["amount"] for c in ok) / 100,
+        "charges_month_to_date": len([c for c in ok if c["created"] >= month_start]),
         "subscriptions_all_time": len(subs),
+        "checkout_starts_7d": len(sessions),
+        "checkout_completed_7d": len([s for s in sessions if s.get("status") == "complete"]),
     }
 
 
@@ -101,11 +112,52 @@ def pull_supabase():
         "drip_opens_7d": sb_count("drip_events", {"event_type": "eq.opened", "created_at": f"gt.{week_ago}"}),
         "drip_clicks_7d": sb_count("drip_events", {"event_type": "eq.clicked", "created_at": f"gt.{week_ago}"}),
         "drip_sent_7d": sb_count("drip_events", {"event_type": "eq.sent", "created_at": f"gt.{week_ago}"}),
+        "bounced_7d": sb_count("drip_events", {"event_type": "eq.bounced", "created_at": f"gt.{week_ago}"}),
+        "complained_7d": sb_count("drip_events", {"event_type": "eq.complained", "created_at": f"gt.{week_ago}"}),
     }
 
 
+def pull_gsc_kd():
+    """KD organic search clicks, this week vs last week, from Search Console."""
+    from google.oauth2 import service_account
+    import googleapiclient.discovery
+    creds = service_account.Credentials.from_service_account_file(
+        str(PROJECT_ROOT / "dashboard" / "ga4-credentials.json"),
+        scopes=["https://www.googleapis.com/auth/webmasters.readonly"])
+    svc = googleapiclient.discovery.build("searchconsole", "v1", credentials=creds)
+    today = datetime.now(timezone.utc).date()
+
+    def clicks(start, end):
+        r = svc.searchanalytics().query(
+            siteUrl="sc-domain:ketodial.com",
+            body={"startDate": str(start), "endDate": str(end)}).execute()
+        rows = r.get("rows", [])
+        return int(rows[0]["clicks"]) if rows else 0
+
+    return {
+        "clicks_this_week": clicks(today - timedelta(days=7), today),
+        "clicks_prior_week": clicks(today - timedelta(days=14), today - timedelta(days=8)),
+    }
+
+
+def pull_heartbeat():
+    """Silent-failure count from the last heartbeat run's summary line."""
+    last = (PROJECT_ROOT / "logs" / "heartbeat.log").read_text().strip().splitlines()[-1]
+    m = re.search(r"HEARTBEAT: (\d+) PROBLEM", last)
+    return {"problems": int(m.group(1)) if m else (0 if "OK" in last.upper() else None),
+            "last_line": last}
+
+
+def find_node():
+    # cron runs with PATH=/usr/bin:/bin, so shutil.which alone fails there.
+    for candidate in [shutil.which("node"), "/opt/homebrew/bin/node", "/usr/local/bin/node"]:
+        if candidate and Path(candidate).exists():
+            return candidate
+    raise FileNotFoundError("node not found in PATH, /opt/homebrew/bin, or /usr/local/bin")
+
+
 def pull_etsy():
-    out = subprocess.run(["node", "sales-summary.mjs"], cwd=PROJECT_ROOT / "etsy",
+    out = subprocess.run([find_node(), "sales-summary.mjs"], cwd=PROJECT_ROOT / "etsy",
                          capture_output=True, text=True, timeout=120).stdout
     aov = re.search(r"Avg order value:\s*([\d.]+)", out)
     months = re.findall(r"(\d{4}-\d{2}):\s*(\d+)", out)
@@ -160,13 +212,150 @@ def pull_affiliate_clicks():
     return out
 
 
+GREEN, YELLOW, RED, GREY = "🟢", "🟡", "🔴", "⚪"
+
+
+def operating_metrics(snap):
+    """The 10 operating metrics from the July operating packet (2026-07-06).
+    Each row: (metric, value, source, status, decision triggered, owner).
+    Rows without instrumentation say so explicitly and name the task — never guess."""
+    s, d, e = (snap.get(k) or {} for k in ("stripe", "supabase", "etsy"))
+    gsc, hb = snap.get("gsc_kd"), snap.get("heartbeat")
+    rows = []
+
+    day = datetime.now(timezone.utc).day
+    mtd = s.get("charges_month_to_date")
+    if mtd is None:
+        rows.append(("Calculator paid sales (July cumulative)", "pull failed", "Stripe", GREY,
+                     "R2 keep/test path", "Hermes"))
+    else:
+        weeks_elapsed = max(1, (day + 6) // 7)
+        st = GREEN if mtd >= weeks_elapsed else (YELLOW if mtd >= 1 or day < 14 else RED)
+        rows.append((f"Calculator paid sales (July cumulative)", str(mtd), "Stripe live API", st,
+                     "R2: keep if on pace ≥1/wk; 0 by wk4 = upstream traffic problem, not price", "Hermes"))
+
+    cs = s.get("checkout_starts_7d")
+    if cs is None:
+        rows.append(("Calculator checkout starts /wk", "pull failed", "Stripe Checkout Sessions", GREY,
+                     "traffic-vs-conversion diagnosis", "Sonnet"))
+    else:
+        st = GREEN if cs >= 10 else (YELLOW if cs >= 3 else RED)
+        rows.append((f"Calculator checkout starts /wk",
+                     f"{cs} started / {s.get('checkout_completed_7d', '?')} completed",
+                     "Stripe Checkout Sessions API", st,
+                     "<3 = traffic problem: fix internal links to calculator, not price", "Sonnet"))
+
+    rows.append(("Etsy views→order conversion (30d)",
+                 "NOT INSTRUMENTED — sales-summary.mjs has lifetime views only",
+                 "needs Etsy Stats 30d views per listing", GREY,
+                 "R1 ad gate (ads need ≥2% conv AND ≥$300 CAD/90d)",
+                 "Sonnet — task: add 30d views to etsy/sales-summary.mjs"))
+
+    rev = e.get("revenue_90d_cad")
+    if rev is None:
+        rows.append(("Etsy 90-day rolling revenue", "pull failed", "Etsy API", GREY,
+                     "R1 ad gate", "Hermes"))
+    else:
+        st = GREEN if rev >= 300 else (YELLOW if rev >= 150 else RED)
+        rows.append(("Etsy 90-day rolling revenue", f"${rev} CAD", "Etsy API (sales-summary.mjs)", st,
+                     "R1: no ads below $300 CAD/90d regardless of anything else", "Hermes"))
+
+    if gsc is None:
+        rows.append(("KD organic search clicks /wk", "pull failed (GSC property or access issue)",
+                     "GSC sc-domain:ketodial.com", GREY,
+                     "feeds Aug KD keep/kill", "Hermes"))
+    else:
+        tw, pw = gsc["clicks_this_week"], gsc["clicks_prior_week"]
+        st = GREEN if tw > pw > 0 else (YELLOW if tw >= pw else RED)
+        rows.append(("KD organic search clicks /wk", f"{tw} (prior wk {pw})",
+                     "GSC API sc-domain:ketodial.com", st,
+                     "needs 2+ wks of growth before KD traffic counts as 'proven'", "Hermes"))
+
+    paid = d.get("coach_active_paid")
+    st = GREY if paid is None else (GREEN if paid >= 1 else RED)
+    rows.append(("Coach paid customers", "pull failed" if paid is None else str(paid),
+                 "Supabase coach_members (stripe_subscription_id set)", st,
+                 "R3: 0 = Coach frozen, zero build hours; 1st payment unlocks 4h budget", "Hermes (daily)"))
+
+    rows.append(("Drip Step-1 completion + drip→Kit clicks",
+                 f"NOT INSTRUMENTED — total drip clicks 7d: {d.get('drip_clicks_7d', '?')}, "
+                 "but no Step-1 funnel event and no Kit-link attribution",
+                 "needs GA4 step event + tagged Kit link in drip emails", GREY,
+                 "F3 email-gate verdict + F7 drip→Kit attribution",
+                 "Sonnet — task: GA4 step_1_complete event; UTM-tag Kit links in drip"))
+
+    sent, bounced, complained = d.get("drip_sent_7d"), d.get("bounced_7d"), d.get("complained_7d")
+    if sent:
+        rate = (bounced + complained) / sent * 100
+        comp_rate = complained / sent * 100
+        st = RED if (rate > 5 or comp_rate > 0.3) else (YELLOW if rate >= 2 else GREEN)
+        rows.append(("Newsletter/drip bounce+complaint (7d)",
+                     f"{rate:.1f}% ({bounced} bounced, {complained} complained / {sent} sent)",
+                     "Supabase drip_events", st,
+                     "R4: red = pause sends, list-hygiene pass first", "Hermes"))
+    else:
+        rows.append(("Newsletter/drip bounce+complaint (7d)", "no sends in window or pull failed",
+                     "Supabase drip_events", GREY, "R4 send health", "Hermes"))
+
+    if hb and hb.get("problems") is not None:
+        n = hb["problems"]
+        st = GREEN if n == 0 else (YELLOW if n <= 2 else RED)
+        rows.append(("Silent-failure count (last heartbeat)", str(n),
+                     "logs/heartbeat.log", st,
+                     "any problem jumps all queues; 3+ = stop feature work", "Hermes"))
+    else:
+        rows.append(("Silent-failure count", "heartbeat log unreadable", "logs/heartbeat.log", GREY,
+                     "fix the heartbeat itself first", "Hermes"))
+
+    rows.append(("Items stalled >7d awaiting Brew",
+                 "NOT INSTRUMENTED — no approval-queue log exists yet",
+                 "needs reports/approval-queue.md maintained by Hermes Sunday batch", GREY,
+                 ">0 = fix the queue design, not the item",
+                 "Hermes — task: create approval-queue.md, one dated line per pending ask"))
+    return rows
+
+
+def write_html(snap, rows, path):
+    dot = {"🟢": "#22a06b", "🟡": "#d9a514", "🔴": "#d64545", "⚪": "#999"}
+    tr = "".join(
+        f"<tr><td class='m'>{m}</td><td>{v}</td>"
+        f"<td><span class='dot' style='background:{dot.get(st, '#999')}'></span>{st}</td>"
+        f"<td class='s'>{src}</td><td class='dec'>{dec}</td><td>{own}</td></tr>"
+        for m, v, src, st, dec, own in rows)
+    path.write_text(f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CW/KD/Etsy Operating Scoreboard — {snap['date']}</title><style>
+body{{font:15px/1.5 -apple-system,system-ui,sans-serif;margin:2rem auto;max-width:1100px;padding:0 1rem;color:#1a1a1a}}
+h1{{font-size:1.3rem}} .sub{{color:#666;margin-bottom:1.5rem}}
+table{{border-collapse:collapse;width:100%}} th,td{{text-align:left;padding:.5rem .6rem;border-bottom:1px solid #e5e5e5;vertical-align:top}}
+th{{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#888}}
+.m{{font-weight:600;min-width:12rem}} .s,.dec{{font-size:.85rem;color:#555}}
+.dot{{display:inline-block;width:.7rem;height:.7rem;border-radius:50%;margin-right:.4rem;vertical-align:baseline}}
+.rules{{background:#f7f6f3;border-radius:8px;padding:1rem 1.4rem;margin-top:2rem;font-size:.9rem}}
+@media(prefers-color-scheme:dark){{body{{background:#111;color:#eee}} th{{color:#999}} td{{border-color:#333}} .s,.dec{{color:#aaa}} .rules{{background:#1c1c1c}}}}
+</style></head><body>
+<h1>CW / KD / Etsy — Operating Scoreboard</h1>
+<div class="sub">Truth pass {snap['date']} · primary sources only · auto-generated by scoreboard_truth_pass.py</div>
+<table><thead><tr><th>Metric</th><th>Value</th><th>Status</th><th>Source of truth</th><th>Decision triggered</th><th>Owner</th></tr></thead>
+<tbody>{tr}</tbody></table>
+<div class="rules"><strong>Operating rules (July packet, 2026-07-06)</strong><ul>
+<li>No Etsy ads unless conversion ≥2% <em>and</em> 90-day revenue ≥$300 CAD.</li>
+<li>Do not kill Starter Kit in July — verdict is an August 1 decision.</li>
+<li>No KD Coach work until the first paid customer (Stripe, not signups).</li>
+<li>KD newsletter may send at any list size if bounce/complaint health is green.</li>
+<li>Amazon Associates waits for 1,500 combined CW+KD organic sessions/week, 3 consecutive weeks.</li>
+<li>No new products or niches without Brew approval.</li>
+</ul></div></body></html>""")
+
+
 def main():
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     snap = {"date": today}
     errors = []
     for name, fn in [("ga4", pull_ga4), ("stripe", pull_stripe), ("supabase", pull_supabase),
                      ("etsy", pull_etsy), ("pinterest", pull_pinterest), ("funnel", pull_funnel),
-                     ("affiliate", pull_affiliate_clicks)]:
+                     ("affiliate", pull_affiliate_clicks), ("gsc_kd", pull_gsc_kd),
+                     ("heartbeat", pull_heartbeat)]:
         try:
             snap[name] = fn()
         except Exception as e:
@@ -207,11 +396,21 @@ def main():
                 f"| {row['in_drip']} | {row['opened_email']} | {row['clicked_email']} |"
             )
 
+    op_rows = operating_metrics(snap)
+    lines += [
+        f"\n### Operating scoreboard — the 10 metrics that trigger decisions\n",
+        "| Metric | Value | Status | Source of truth | Decision triggered | Owner |",
+        "|--------|-------|--------|-----------------|--------------------|-------|",
+    ]
+    lines += [f"| {m} | {v} | {st} | {src} | {dec} | {own} |" for m, v, src, st, dec, own in op_rows]
+
     if errors:
         lines.append(f"\n⚠️ Pull errors: {'; '.join(errors)}")
 
     with SCOREBOARD_MD.open("a") as f:
         f.write("\n".join(lines) + "\n")
+
+    write_html(snap, op_rows, SCOREBOARD_MD.parent / "scoreboard.html")
 
     print(f"Scoreboard appended for {today}. Errors: {errors or 'none'}")
     sys.exit(1 if errors else 0)
