@@ -110,7 +110,8 @@ export async function POST(request: NextRequest) {
 <!-- Footer -->
 <tr><td style="background:#f8fafc;padding:20px 32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 14px 14px">
   <p style="font-size:12px;line-height:1.5;color:#94a3b8;margin:0">KetoDial provides educational information, accountability tools, and nutrition-related content. KetoDial does not provide medical advice, diagnosis, or treatment.</p>
-  <p style="font-size:11px;color:#cbd5e1;margin:8px 0 0">&copy; 2026 KetoDial &middot; <a href="https://ketodial.com" style="color:#94a3b8">ketodial.com</a></p>
+  <p style="font-size:11px;color:#94a3b8;margin:8px 0 0">KetoDial Coach &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
+  <p style="font-size:11px;color:#cbd5e1;margin:4px 0 0">&copy; 2026 KetoDial &middot; <a href="https://ketodial.com" style="color:#94a3b8">ketodial.com</a></p>
 </td></tr>
 
 </table>
