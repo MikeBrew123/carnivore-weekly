@@ -390,3 +390,10 @@ Pattern: `scripts/scoreboard_truth_pass.py` runs `node etsy/sales-summary.mjs`, 
 Attempts:
 - 2026-07-06 — confirmed root cause during weekly ops review; data is re-derivable by hand (`PATH=/opt/homebrew/bin:$PATH node etsy/sales-summary.mjs`). Filed bead carnivore-weekly-7m2 to fix (absolute node path or PATH prepend in the subprocess/crontab).
 If recurs: don't re-diagnose — apply bead 7m2 (hardcode /opt/homebrew/bin/node or set PATH in the subprocess call).
+
+## ISSUE-040 — QA test signups pollute production email lists (6% bounce red)
+🟢 FIXED — Last: 2026-07-06
+Pattern: mobile-checkout/webhook QA used fake emails (test@example.com etc); Resend bounces them, scoreboard flags red bounce health on noise, nearly triggered a full send pause.
+Attempts:
+- 2026-07-06 — suppressed all 7 bounced QA addresses in Supabase (1 drip, 5 newsletter rows); sends kept live → bounce source removed
+If recurs: QA signup tests must delete/unsubscribe their rows in teardown; consider blocking example.com at the /api/v1/subscribe endpoint.
