@@ -7,6 +7,7 @@ Uses writer memory from Supabase and local context for cross-referencing.
 
 import json
 import os
+import re
 import sys
 from collections import Counter
 from datetime import datetime, timedelta
@@ -224,6 +225,77 @@ def load_youtube_data():
         return json.load(f)
 
 
+# Function words that are strong signals of a non-English (but Latin-script)
+# language — Portuguese, Spanish, French, German, Italian. We only drop a video
+# when several of these appear, so an English title with one loanword survives.
+_NON_ENGLISH_MARKERS = {
+    "que", "não", "nao", "para", "com", "você", "voce", "só", "muito", "isso",
+    "está", "esta", "também", "tambem", "dos", "das", "uma", "seu", "sua",
+    "el", "los", "las", "una", "por", "más", "mas", "este", "cómo", "qué",
+    "pour", "avec", "être", "dans", "très", "vous", "cette", "sans", "leur",
+    "und", "ich", "nicht", "für", "fur", "mit", "über", "uber", "auch", "sehr",
+    "che", "per", "sono", "questo", "come", "anche", "della", "sono",
+}
+
+# Unicode ranges that never appear in English — any hit means non-English.
+_NON_LATIN_RANGES = (
+    (0x0400, 0x04FF),  # Cyrillic
+    (0x0600, 0x06FF),  # Arabic
+    (0x0590, 0x05FF),  # Hebrew
+    (0x0E00, 0x0E7F),  # Thai
+    (0x0900, 0x097F),  # Devanagari
+    (0x3040, 0x30FF),  # Hiragana + Katakana
+    (0x4E00, 0x9FFF),  # CJK
+    (0xAC00, 0xD7AF),  # Hangul
+)
+
+
+def _is_english(text):
+    """Conservative English check on a video's title + description.
+
+    Returns False only when we're fairly confident the content is non-English:
+    any non-Latin script, OR two-plus non-English function words, OR a heavy
+    accent load paired with at least one foreign marker. This keeps the
+    homepage English-only without dropping legitimate English titles that
+    happen to include an accented name or a single loanword.
+    """
+    if not text:
+        return True  # nothing to judge — don't discard on absence of signal
+
+    for ch in text:
+        code = ord(ch)
+        for lo, hi in _NON_LATIN_RANGES:
+            if lo <= code <= hi:
+                return False
+
+    lowered = text.lower()
+
+    # These characters effectively never appear in English — one is enough.
+    # (ã/õ Portuguese, ñ Spanish, ¿¡ Spanish punctuation.)
+    if any(c in "ãõñ¿¡" for c in lowered):
+        return False
+
+    words = re.findall(r"[a-zà-öø-ÿ]+", lowered)
+    marker_hits = sum(1 for w in words if w in _NON_ENGLISH_MARKERS)
+    if marker_hits >= 2:
+        return False
+
+    # Softer accents (á é í ó ú ê ç …) do show up in English loanwords and
+    # names, so a couple alone shouldn't disqualify. But two-plus accents
+    # alongside a foreign function word, or an accent-saturated string, is
+    # non-English. "Café" / "naïve" (accents, no marker) stay English.
+    letters = [c for c in lowered if c.isalpha()]
+    if letters:
+        accented = sum(1 for c in letters if c in "àáâäåçèéêëìíîïòóôöùúûüýÿ")
+        ratio = accented / len(letters)
+        if accented >= 2 and marker_hits >= 1:
+            return False
+        if ratio > 0.12:
+            return False
+
+    return True
+
+
 def _select_diverse(qualified, target=6):
     """Pick `target` videos from engagement-ranked `qualified` while spreading
     them across creators.
@@ -340,6 +412,15 @@ def get_top_6_videos(data):
     all_videos = [v for v in all_videos if not _is_short(v)]
     if len(all_videos) < pre_dur:
         print(f"   ✗ Filtered {pre_dur - len(all_videos)} shorts/short-form videos (< 5 min)")
+
+    # Filter non-English videos — the homepage and blogs are English-only
+    pre_lang = len(all_videos)
+    all_videos = [
+        v for v in all_videos
+        if _is_english(f"{v.get('title', '')} {v.get('description', '')}")
+    ]
+    if len(all_videos) < pre_lang:
+        print(f"   ✗ Filtered {pre_lang - len(all_videos)} non-English videos")
 
     # Split by comment threshold
     qualified = [v for v in all_videos if v["comment_count"] >= MIN_COMMENTS_FOR_SELECTION]
