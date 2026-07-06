@@ -379,3 +379,5 @@ Pattern: the AI-generated "This Week's Roundup" text (data/analyzed_content.json
 Attempts:
 - 2026-07-05 — stripped the dead hyperlink from analyzed_content.json (kept the plain-text mention), regenerated public/index.html via generate.py --type pages → validator green
 If recurs: the roundup generator needs the same rule as content agents (CLAUDE.md Content rule #2/#3) — never cross-link to a slug unless it's confirmed rendered on the SAME site's public/blog/ (or ketodial/public/blog/ for kd). Consider a pre-generation check against blog_posts.json's `site` field before emitting any /blog/ link in roundup text.
+
+- 2026-07-05 — Recurred on commit f2e986f5 (beads-metadata-only, no site change). "Deployment failed, try again later" — Pages backend blip, not a build error. Self-healed: next commit (b6fa9be8) deployed green, both sites 200. No rerun-failed used. Confirms the pattern: a beads/docs commit that trips the blip gets superseded by the next real push for free.
