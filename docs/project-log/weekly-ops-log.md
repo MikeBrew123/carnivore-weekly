@@ -12,3 +12,14 @@ Dated entries from the Monday weekly-operator-review scheduled task. Plain facts
 - **Drip health 7d:** 69 sent / 40 delivered / 31 opened / 1 click / 2 bounced / **0 complained**.
 - **Beads filed:** carnivore-weekly-0s0 (P1) — 13 live-mode 100%-off test coupons still valid in production Stripe (guessable names, TestingOnGoing redeemed 18×); revenue leak, Brew-only fix (never-do: sessions don't touch coupons).
 - **Recurring-issues:** none added.
+
+## 2026-07-06 — Weekly Ops Review
+
+- **GH issues:** none open (health-check, automated).
+- **Heartbeat:** 1 problem this week — weekly-report LaunchAgent still failing (known Brew-only macOS Full Disk Access fix). vaultsync cleared since last week. Not new.
+- **Scoreboard:** Monday truth pass wrote today (`logs/scoreboard_truth_pass.log` + vault scoreboard.md). Etsy row blank — cron lacks node on PATH (see ISSUE-039 / bead 7m2). Pulled Etsy manually instead.
+- **Leading indicators:** CW 485 sess/352 users 30d; KD 60/32. Stripe 30d: 2 live full-price $29 calc sales ($58), 1 landed this week (Jul 5) — drought-broken signal continues. **Drip list 18 total, +13 this week** (vs +2 prior 3 wks combined — email-capture launch converting, ~1.9/day at target); 1 unsub. Coupons: 0 DRIP50/WELCOME5 redemptions (both sales full-price). Etsy 90d: 30 orders/$156 CAD/AOV $5.20, monthly trend Apr 4 → May 10 → Jun 15 (growing), Jul 1 so far; Starter Bundle 3 sales (below 5-sale ads gate, no review). Calc GSC cluster holding: "carnivore macro calculator" pos 5.9, cluster 6-9. KD GSC 0 imp 14d (backlinks pending Brew outreach); newsletter 5 (<50 gate).
+- **Queue depths:** pin queue 35 unposted (>20 ok); blog ready CW 12 (through Jul 18) / KD 4 — both ok.
+- **Drip health 7d:** 117 sent / 59 delivered / 39 opened / 2 clicks / 7 bounced / **0 complained**.
+- **Beads filed:** carnivore-weekly-7m2 (P3) — scoreboard cron can't run Etsy summary (no node on PATH), Etsy row blank weekly.
+- **Recurring-issues:** added ISSUE-039 (scoreboard Etsy/node PATH).
