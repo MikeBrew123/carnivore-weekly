@@ -24,6 +24,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["http-server", "ketodial/public", "-p", "8767", "-c-1"],
       "port": 8767
+    },
+    {
+      "name": "coach-app",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "ketodial/coach-app", "run", "dev", "--", "-p", "3100"],
+      "port": 3100
     }
   ]
 }
