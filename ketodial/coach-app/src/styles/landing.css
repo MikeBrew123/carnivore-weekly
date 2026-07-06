@@ -159,3 +159,7 @@ footer{background:var(--panel);color:#9fb8c9;padding:54px 0 34px;margin-top:20px
   .wl-row{flex-direction:column}
   .wl-inline{flex-direction:column}.wl-inline .wl-input{width:100%}
 }
+
+/* Mobile nav (hamburger via /js/mobile-nav.js): hide the nav's inline waitlist
+   form on phones so the header is just logo + hamburger. The hero keeps its form. */
+@media(max-width:860px){header.nav .wl-inline{display:none}}

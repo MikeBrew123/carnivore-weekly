@@ -1,3 +1,4 @@
+import Script from 'next/script'
 import { KdLogo, CheckIcon } from '@/components/landing/KdBrand'
 import WaitlistForm from '@/components/landing/WaitlistForm'
 import '@/styles/coach.css'
@@ -6,6 +7,8 @@ import '@/styles/landing.css'
 export default function LandingPage() {
   return (
     <>
+      {/* Mobile hamburger nav — self-injecting, reuses the .nav/.nav-links markup */}
+      <Script src="/js/mobile-nav.js" />
       {/* NAV */}
       <header className="nav">
         <div className="wrap nav-inner">
