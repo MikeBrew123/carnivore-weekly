@@ -304,6 +304,7 @@ Manual edits allowed when instructed, but:
 | "validate site" or "visual check" | Run /visual-validator on all pages |
 | "show reports" or "analytics" | Run `dashboard/generate-all-reports.sh` |
 | "run the week" or "weekly ops" | Read `Brew-Vault/04-Systems/Projects/Carnivore-Weekly/Operator-Handbook.md`, run the weekly loop |
+| "scoreboard" | Read `Brew-Vault/.../Carnivore-Weekly/reports/scoreboard.md` — Operating Rules at top are canonical; latest dated section has the 10-metric operating table. Act on reds, don't just report them |
 
 ---
 
