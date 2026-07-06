@@ -383,3 +383,10 @@ If recurs: the roundup generator needs the same rule as content agents (CLAUDE.m
 - 2026-07-05 — Recurred on commit f2e986f5 (beads-metadata-only, no site change). "Deployment failed, try again later" — Pages backend blip, not a build error. Self-healed: next commit (b6fa9be8) deployed green, both sites 200. No rerun-failed used. Confirms the pattern: a beads/docs commit that trips the blip gets superseded by the next real push for free.
 
 - 2026-07-06 — Submodule (ketodial) Pages build stuck in "building" ~12 min on commit cc97699 (105-file mobile-nav change). Not a code error — the file was in the remote tree, prior/next builds were fine. Fix: POST /repos/MikeBrew123/ketodial/pages/builds (request fresh build) → superseded the stuck one, built in <60s. Note: ketodial.com uses legacy "Deploy from branch" Pages (not Actions), so the nudge is the pages/builds API, not a workflow rerun.
+
+## ISSUE-039 — Weekly scoreboard Etsy row blank (cron has no node on PATH)
+🟡 RECURRING | Last: 2026-07-06
+Pattern: `scripts/scoreboard_truth_pass.py` runs `node etsy/sales-summary.mjs`, but the Mon 10:30 UTC cron env lacks node on PATH (node lives at /opt/homebrew/bin/node). Every weekly pass logs `etsy: [Errno 2] No such file or directory: 'node'` and the scoreboard Etsy row is blank.
+Attempts:
+- 2026-07-06 — confirmed root cause during weekly ops review; data is re-derivable by hand (`PATH=/opt/homebrew/bin:$PATH node etsy/sales-summary.mjs`). Filed bead carnivore-weekly-7m2 to fix (absolute node path or PATH prepend in the subprocess/crontab).
+If recurs: don't re-diagnose — apply bead 7m2 (hardcode /opt/homebrew/bin/node or set PATH in the subprocess call).
