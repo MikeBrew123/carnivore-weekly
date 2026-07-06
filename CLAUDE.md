@@ -134,9 +134,9 @@ Process ONE AT A TIME through Steps 1-3. Then run Steps 4-7 once after all conte
 
 ## Weekly Content Workflow
 
-- **Cadence:** 9 posts/week (3 per writer), published one/day by GitHub Action
-- **How:** Paste contents of `scripts/weekly_content_prompt.md` into Claude Code. Approve Chloe's topic assignments. Wait for generation. Daily cron handles publishing.
-- **Mid-week top-up:** Run the prompt again. New posts get dates after last queued date.
+- **Cadence:** CW 9 posts/week (3 per writer) + KD 6 posts/week, published one/day by GitHub Action
+- **How:** AUTOMATED — Claude scheduled tasks generate content unattended: `weekly-blog-content-generation` (CW, Sun+Wed 4:33am) and `kd-blog-content-generation` (KD, Tue+Fri 4:33am). The blog-queue watchdog opens a GH issue if queues drain.
+- **Manual fallback / mid-week top-up:** Paste `scripts/weekly_content_prompt.md` into Claude Code. New posts get dates after last queued date.
 - **Status values:** `draft` (not ready) → `ready` (waiting for publish_date) → `published` (live)
 - **Daily publish:** GitHub Action at 9 AM EST runs `scripts/daily_publish.py` — publishes all posts where `status=ready AND publish_date<=today`
 - **ALWAYS run BOTH** `generate_blog_pages.py` AND `generate.py --type pages` before commit. First generates blog pages, second regenerates homepage bento.
@@ -202,11 +202,11 @@ Manual edits allowed when instructed, but:
 - **Reply-to:** `iambrew@gmail.com`
 - **API key:** `secrets/api-keys.json` → `resend.key`
 
-### Drip Sequence (7-Day Carnivore Starter)
+### Drip Sequence (30-Day Carnivore Starter)
 - **Script:** `scripts/send_drip.py` — runs daily via `daily-publish.yml` GitHub Action
-- **Templates:** `data/drip-emails/day-1.html` through `day-7.html`
+- **Templates:** `data/drip-emails/` — 11 emails: day-1 through day-7 daily, then day-10, 14, 21, 28
 - **Subscribers table:** `drip_subscribers` (Supabase) — tracks `current_day`, `last_sent_at`, `completed`
-- **Flow:** signup → Supabase insert → daily cron bumps day + sends next email → after Day 7 graduates to `newsletter_subscribers`
+- **Flow:** signup → Supabase insert → daily cron advances to next scheduled day → after day 28 graduates to `newsletter_subscribers`
 - **Unsubscribe:** `/api/v1/unsubscribe` on Cloudflare Worker
 
 ### Newsletter (Weekly)
