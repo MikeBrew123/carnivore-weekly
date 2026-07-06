@@ -27,6 +27,7 @@ export async function sendCheckinReminder(
           <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Your weekly check-in is ready. It takes about 2 minutes, and Coach Remy will have your response within a day.</p>
           <a href="https://coach.ketodial.com/app/checkin" style="display: inline-block; background: #0ea5e9; color: #fff; font-weight: 700; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-size: 16px; margin: 16px 0;">Submit check-in</a>
           <p style="font-size: 14px; color: #64748b; margin-top: 24px;">KetoDial Coach is a check-in tool, not medical advice.</p>
+          <p style="font-size: 12px; color: #94a3b8; margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 14px;">KetoDial Coach &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
         </div>
       `,
     })
@@ -60,6 +61,7 @@ export async function sendCoachRepliedNotification(
           <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Coach Remy reviewed your check-in and has a response for you.</p>
           <a href="https://coach.ketodial.com/app/thread" style="display: inline-block; background: #0ea5e9; color: #fff; font-weight: 700; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-size: 16px; margin: 16px 0;">Read response</a>
           <p style="font-size: 14px; color: #64748b; margin-top: 24px;">KetoDial Coach is a check-in tool, not medical advice.</p>
+          <p style="font-size: 12px; color: #94a3b8; margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 14px;">KetoDial Coach &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
         </div>
       `,
     })
