@@ -237,6 +237,19 @@ Manual edits allowed when instructed, but:
 
 ## Database Access
 
+### One Supabase Project, Two Sites — Deliberate, Don't Cross the Streams
+
+CW and KD share ONE Supabase project (`kwtdpvnjewtahuxjyltn`). This is intentional, not legacy debt: the writer team (Sarah/Marcus/Chloe) works both sites from shared `writers` / `writer_content` / `writer_memory_log` tables, and the audience flows both ways (keto → carnivore, ex-carnivore → keto), so cross-referencing lives in one database.
+
+**The separation rules (a shared project is NOT shared data):**
+- Site-scoped tables carry a `site` column (`cw`/`kd`): `blog_posts`, `newsletter_subscribers`, `coach_members`, `content_signals`. **Every query, send, or export against these MUST filter by site.** Never SELECT/UPDATE across both sites unless the task is explicitly cross-site.
+- `drip_subscribers` / `drip_events` are **CW-only** (the 30-day Carnivore Starter). If KD ever gets a drip, add a `site` column first — don't reuse the CW rows.
+- Coach tables (`coach_*`) are the KD Coach app. Don't join them into CW reporting except via `coach_members.site`.
+- Any NEW table holding per-site data gets a `site` column from day one, and scripts touching it take a `--site` flag (same convention as `send_newsletter.py --site cw|kd`).
+- Shared-on-purpose (no site filter needed): `writers`, `writer_content`, `writer_memory_log`, `agent_memories`.
+
+### MCP Access
+
 - **Supabase MCP** is configured. Main session executes directly: `mcp__supabase__execute_sql({ query: "SQL" })`
 - **Leo** (`leo-database-architect`) designs SQL, schema, migrations — but CANNOT execute MCP tools
 - **Workflow:** Leo prepares SQL → main session executes via MCP
@@ -409,6 +422,6 @@ After creating recipe HTML files with images:
 - ❌ Index cards without `<img>` tags (cards render blank without images)
 
 ### KetoDial Supabase
-- Project ID: `kwtdpvnjewtahuxjyltn` (NOT the old `wnwkbbfuatdcfragrrpw`)
+- KD shares the ONE project with CW: `kwtdpvnjewtahuxjyltn` (NOT the old `wnwkbbfuatdcfragrrpw`) — see "One Supabase Project, Two Sites" under Database Access for the separation rules
 - Same MCP tool: `mcp__eb179240-a327-4553-8a6a-04f57f7ea545__execute_sql`
-- Writer memory, waitlist, coach data all in this project
+- Writer memory, waitlist, coach data all in this project; KD rows in shared tables are `site = 'kd'`
