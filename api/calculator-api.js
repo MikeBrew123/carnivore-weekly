@@ -5003,7 +5003,11 @@ function getCorsOrigin(request, env) {
   const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
+    'http://localhost:8766',
+    'http://localhost:8767',
     'https://carnivoreweekly.com',
+    'https://ketodial.com',       // KD pages call this worker for the shared refund endpoint
+    'https://www.ketodial.com',
     env.FRONTEND_URL
   ].filter(Boolean);
 
@@ -5260,6 +5264,27 @@ const REFUND_SECTION_LABELS = {
   didnt_use: "Didn't use it",
 };
 
+// Per-product refund config so both sites share one endpoint. Sections map to the
+// meal_plan_feedback / doctor_script_feedback / adaptation_guide_feedback columns;
+// a product that uses fewer sections leaves the rest null.
+const REFUND_PRODUCTS = {
+  calculator_report: {
+    from: 'Carnivore Weekly <newsletter@carnivoreweekly.com>',
+    sections: [
+      { field: 'meal_plan_feedback', label: '30-day meal plan' },
+      { field: 'doctor_script_feedback', label: 'Doctor conversation script' },
+      { field: 'adaptation_guide_feedback', label: 'Adaptation/plateau guide' },
+    ],
+  },
+  ketodial_report: {
+    from: 'KetoDial <ketodial@carnivoreweekly.com>',
+    sections: [
+      { field: 'meal_plan_feedback', label: '7-day meal plan' },
+      { field: 'doctor_script_feedback', label: "Doctor's report" },
+    ],
+  },
+};
+
 async function handleRefundRequest(request, env) {
   try {
     const {
@@ -5289,12 +5314,10 @@ async function handleRefundRequest(request, env) {
       return createErrorResponse('INVALID_RATING', 'Please rate the overall quality 1-5', 400);
     }
 
-    for (const [field, value] of [
-      ['meal_plan_feedback', meal_plan_feedback],
-      ['doctor_script_feedback', doctor_script_feedback],
-      ['adaptation_guide_feedback', adaptation_guide_feedback],
-    ]) {
-      if (!REFUND_SECTION_RATINGS.includes(value)) {
+    const productConfig = REFUND_PRODUCTS[product] || REFUND_PRODUCTS.calculator_report;
+    const sectionValues = { meal_plan_feedback, doctor_script_feedback, adaptation_guide_feedback };
+    for (const { field } of productConfig.sections) {
+      if (!REFUND_SECTION_RATINGS.includes(sectionValues[field])) {
         return createErrorResponse('INVALID_SECTION_FEEDBACK', `Missing or invalid ${field}`, 400);
       }
     }
@@ -5322,9 +5345,9 @@ async function handleRefundRequest(request, env) {
           reason_category,
           reason_text: reason_text.trim(),
           overall_rating: rating,
-          meal_plan_feedback,
-          doctor_script_feedback,
-          adaptation_guide_feedback,
+          meal_plan_feedback: meal_plan_feedback || null,
+          doctor_script_feedback: doctor_script_feedback || null,
+          adaptation_guide_feedback: adaptation_guide_feedback || null,
           technical_notes: technical_notes ? technical_notes.trim() : null,
           additional_notes: additional_notes ? additional_notes.trim() : null,
           fingerprint: null,
@@ -5349,7 +5372,7 @@ async function handleRefundRequest(request, env) {
             'Authorization': `Bearer ${env.RESEND_API_KEY}`,
           },
           body: JSON.stringify({
-            from: 'Carnivore Weekly <newsletter@carnivoreweekly.com>',
+            from: productConfig.from,
             to: ['iambrew@gmail.com'],
             reply_to: email.trim(),
             subject: `Refund request (${rating}/5): ${reason_category.replace(/_/g, ' ')}`,
@@ -5360,9 +5383,7 @@ async function handleRefundRequest(request, env) {
               <p><strong>Reason category:</strong> ${reason_category.replace(/_/g, ' ')}</p>
               <p><strong>Overall quality rating:</strong> ${rating}/5</p>
               <ul>
-                <li><strong>30-day meal plan:</strong> ${REFUND_SECTION_LABELS[meal_plan_feedback]}</li>
-                <li><strong>Doctor conversation script:</strong> ${REFUND_SECTION_LABELS[doctor_script_feedback]}</li>
-                <li><strong>Adaptation/plateau guide:</strong> ${REFUND_SECTION_LABELS[adaptation_guide_feedback]}</li>
+                ${productConfig.sections.map(s => `<li><strong>${s.label}:</strong> ${REFUND_SECTION_LABELS[sectionValues[s.field]]}</li>`).join('\n                ')}
               </ul>
               <p><strong>What would have made it worth keeping:</strong><br>${reason_text.trim().replace(/\n/g, '<br>')}</p>
               ${technical_notes ? `<p><strong>Technical issues:</strong><br>${technical_notes.trim().replace(/\n/g, '<br>')}</p>` : ''}
