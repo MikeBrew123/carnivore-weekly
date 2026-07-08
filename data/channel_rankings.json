@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-07-05",
+  "last_updated": "2026-07-08",
   "leaderboard": [
     {
       "name": "Steak and Butter Gal",
       "rank": 1,
-      "appearances": 1,
+      "appearances": 2,
       "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
     },
     {
       "name": "HomeSteadHow",
       "rank": 2,
-      "appearances": 1,
+      "appearances": 2,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Shawn Baker MD",
+      "name": "Keto Twins",
       "rank": 3,
       "appearances": 1,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
     },
     {
-      "name": "Max German",
+      "name": "Rudy's Corner of Alaska",
       "rank": 4,
       "appearances": 1,
-      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
-    },
-    {
-      "name": "Kent Carnivore",
-      "rank": 5,
-      "appearances": 3,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
-    },
-    {
-      "name": "Emmathecarnivore",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
-    },
-    {
-      "name": "Jenny Mitich",
-      "rank": 7,
-      "appearances": 1,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+      "channel_id": "UC6pJn6lFlHSB2yl49nwGI8w"
     },
     {
       "name": "Dr. Eric Westman - Adapt Your Life",
-      "rank": 8,
-      "appearances": 1,
+      "rank": 5,
+      "appearances": 2,
       "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
     },
     {
-      "name": "Anthony Chaffee MD",
-      "rank": 9,
-      "appearances": 2,
-      "channel_id": "UCzoRyR_nlesKZuOlEjWRXQQ"
+      "name": "Nutricionista Patricia Leite",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UCJCIbrvEJyRJnHGvh7z0-bQ"
     },
     {
-      "name": "Patricia Delicious Nutrition",
+      "name": "Kent Carnivore",
+      "rank": 7,
+      "appearances": 4,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+    },
+    {
+      "name": "Haircafe",
+      "rank": 8,
+      "appearances": 1,
+      "channel_id": "UCcaWKkWjPre0HyNwVZW5kLA"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+    },
+    {
+      "name": "No Carb Life",
       "rank": 10,
-      "appearances": 2,
-      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
+      "appearances": 1,
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
     }
   ]
 }
