@@ -93,7 +93,34 @@ def get_subscribers(secrets, site):
         },
     )
     resp.raise_for_status()
-    return [row["email"] for row in resp.json()]
+    emails = [row["email"] for row in resp.json()]
+
+    # CW only: suppress anyone still working through the 30-day drip. The signup
+    # endpoint adds calculator/homepage signups to BOTH lists immediately, but the
+    # weekly newsletter must not stack on top of drip emails — send_drip.py
+    # graduates them (completed=true) at day 28, after which they receive the
+    # weekly automatically.
+    if site == "cw":
+        drip_resp = requests.get(
+            f"{url}/rest/v1/drip_subscribers",
+            headers={
+                "apikey": key,
+                "Authorization": f"Bearer {key}",
+            },
+            params={
+                "select": "email",
+                "completed": "eq.false",
+                "or": "(unsubscribed.is.null,unsubscribed.eq.false)",
+            },
+        )
+        drip_resp.raise_for_status()
+        in_drip = {row["email"].lower() for row in drip_resp.json()}
+        suppressed = [e for e in emails if e.lower() in in_drip]
+        if suppressed:
+            emails = [e for e in emails if e.lower() not in in_drip]
+            print(f"Suppressed {len(suppressed)} subscriber(s) still in the 30-day drip")
+
+    return emails
 
 
 def load_newsletter_html(site_config, date=None):

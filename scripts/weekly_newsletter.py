@@ -233,36 +233,67 @@ CRITICAL RULES:
     content = json.loads(raw)
     content["date"] = TODAY
 
-    # Resolve bare slugs to actual date-prefixed slugs from blog_posts.json
+    # Resolve slugs against published CW posts only (blog_posts.json holds both
+    # sites and future-dated 'ready' posts — neither may appear in a CW send).
+    # The model sometimes hallucinates a real post's slug with the wrong date
+    # prefix (ISSUE-041), so unmatched slugs get a strip-the-date retry, and
+    # supporting items that still don't resolve are dropped rather than left in
+    # to 404 and abort the send.
     bp_path = PROJECT_ROOT / "data" / "blog_posts.json"
     if bp_path.exists():
         data = json.loads(bp_path.read_text())
         all_posts = data.get("blog_posts", data if isinstance(data, list) else [])
+        cw_published = [p for p in all_posts
+                        if p.get("site", "cw") == "cw" and p.get("status") == "published"]
         slug_map = {}
-        for p in all_posts:
+        for p in cw_published:
             full = p["slug"]
             slug_map[full] = full
             bare = re.sub(r"^\d{4}-\d{2}-\d{2}-", "", full)
             if bare != full:
                 slug_map[bare] = full
-        # Resolve hero slug
+        title_map = {p["slug"]: p["title"] for p in cw_published}
+
+        def resolve_slug(slug):
+            """Exact match, then retry with the date prefix stripped."""
+            if slug in slug_map:
+                return slug_map[slug]
+            bare = re.sub(r"^\d{4}-\d{2}-\d{2}-", "", slug)
+            return slug_map.get(bare)
+
+        # Hero: resolve; if unresolvable, leave for the link validator to catch
+        # (a missing hero should block the send, not silently degrade).
         if "hero" in content:
-            bare = content["hero"].get("slug", "")
-            if bare in slug_map:
-                content["hero"]["slug"] = slug_map[bare]
-        # Resolve supporting slugs and backfill missing titles
-        title_map = {p["slug"]: p["title"] for p in all_posts}
+            resolved = resolve_slug(content["hero"].get("slug", ""))
+            if resolved:
+                content["hero"]["slug"] = resolved
+            else:
+                print(f"  WARNING: hero slug '{content['hero'].get('slug')}' does not match "
+                      f"any published CW post — link validation will fail")
+
+        # Supporting: resolve, backfill titles, drop anything unresolvable.
+        kept = []
         for item in content.get("supporting", []):
-            bare = item.get("slug", "")
-            if bare in slug_map:
-                item["slug"] = slug_map[bare]
-            if not item.get("title") and item.get("slug") in title_map:
-                item["title"] = title_map[item["slug"]]
-        # Legacy: resolve blog_teasers if present
-        for teaser in content.get("blog_teasers", []):
-            bare = teaser.get("slug", "")
-            if bare in slug_map:
-                teaser["slug"] = slug_map[bare]
+            resolved = resolve_slug(item.get("slug", ""))
+            if resolved:
+                item["slug"] = resolved
+                if not item.get("title"):
+                    item["title"] = title_map.get(resolved, "")
+                kept.append(item)
+            else:
+                print(f"  WARNING: dropping supporting item with unresolvable slug "
+                      f"'{item.get('slug')}' (not a published CW post)")
+        content["supporting"] = kept
+
+        # Legacy: resolve blog_teasers if present, dropping unresolvable ones
+        if content.get("blog_teasers"):
+            kept_teasers = []
+            for teaser in content["blog_teasers"]:
+                resolved = resolve_slug(teaser.get("slug", ""))
+                if resolved:
+                    teaser["slug"] = resolved
+                    kept_teasers.append(teaser)
+            content["blog_teasers"] = kept_teasers
 
     return content
 
