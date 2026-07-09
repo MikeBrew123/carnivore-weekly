@@ -392,12 +392,13 @@ Attempts:
 - 2026-07-06 — confirmed root cause during weekly ops review; data is re-derivable by hand (`PATH=/opt/homebrew/bin:$PATH node etsy/sales-summary.mjs`). Filed bead carnivore-weekly-7m2 to fix (absolute node path or PATH prepend in the subprocess/crontab).
 If recurs: don't re-diagnose — apply bead 7m2 (hardcode /opt/homebrew/bin/node or set PATH in the subprocess call).
 
-## ISSUE-040 — QA test signups pollute production email lists (6% bounce red)
-🟢 FIXED — Last: 2026-07-06
-Pattern: mobile-checkout/webhook QA used fake emails (test@example.com etc); Resend bounces them, scoreboard flags red bounce health on noise, nearly triggered a full send pause.
+## ISSUE-040 — QA test signups pollute production email lists and analytics
+🟡 RECURRING — Last: 2026-07-09
+Pattern: dev/QA runs (fake emails, iambrew variants, smoke tests, localhost sessions) accumulate in production tables; they skewed bounce stats (07-06), caused 4x newsletter delivery (07-09), and inflated a calculator user-profile analysis — 149 of 155 cw_assessment_sessions rows were test data.
 Attempts:
-- 2026-07-06 — suppressed all 7 bounced QA addresses in Supabase (1 drip, 5 newsletter rows); sends kept live → bounce source removed
-If recurs: QA signup tests must delete/unsubscribe their rows in teardown; consider blocking example.com at the /api/v1/subscribe endpoint.
+- 2026-07-06 — suppressed 7 bounced QA addresses (1 drip, 5 newsletter rows); sends kept live
+- 2026-07-09 — recurred twice (4x delivery; polluted analysis). Full purge of 504 rows: generated_reports 33 (all), calculator_reports 41, drip_events 238, drip/newsletter subs 14, calculator_sessions_v2 25 (QA emails + 17 empty shells + localhost cluster), cw_assessment_sessions 149, calculator2_sessions 4. Clean baseline: 142 real calc sessions, 6 real assessments (2 paid: ***REDACTED***, ***REDACTED***), 31 CW / 1 KD active newsletter, 30 drip. Detection pattern that works: no stripe_payment_intent_id, localhost referrers, null ga_client_id + landing '/', identical weight/age/sex bursts.
+If recurs: stop cleaning up after the fact — add endpoint-level guard (reject example.com/test.com/known QA tags at /api/v1/subscribe + assessment intake) and/or an is_test column set by a QA header. Never flag on '+' alone (real users use plus-addressing).
 
 ## ISSUE-041 — CW weekly newsletter silently failed to send for 11 days
 🟢 FIXED — Last: 2026-07-09
