@@ -1,0 +1,26 @@
+# Carnivore Weekly
+
+> Carnivore Weekly (carnivoreweekly.com) is a weekly intelligence site for the carnivore diet community: a free macro calculator, evidence-based articles from three staff writers, curated YouTube channel coverage, and a weekly newsletter. Content targets adults (most readers are 45+) using carnivore, keto, or low-carb eating for weight loss, energy, and inflammation.
+
+Key facts:
+- The Carnivore Macro Calculator is free and computes daily protein, fat, and calorie targets from age, sex, height, weight, activity, and goal. It supports carnivore, keto, and low-carb diet types.
+- Protein targets are goal-based (higher floors for weight loss to preserve muscle); fat supplies remaining calories. Methodology is explained on the calculator page.
+- Editorial voice: practical, research-first, no influencer hype. Writers: Sarah (health science), Marcus (performance), Chloe (community).
+
+## Core Pages
+
+- [Carnivore Macro Calculator](https://carnivoreweekly.com/calculator.html): Free personalized protein/fat/calorie targets with on-page methodology and FAQ
+- [7-Day Carnivore Starter Plan](https://carnivoreweekly.com/starter-plan.html): Free beginner plan
+- [Blog / Insights](https://carnivoreweekly.com/blog/): Full article archive, updated several times weekly
+- [Carnivore Wiki](https://carnivoreweekly.com/wiki/): Reference entries on carnivore topics
+- [Featured Channels](https://carnivoreweekly.com/channels.html): Curated carnivore YouTube creators, updated weekly
+- [About](https://carnivoreweekly.com/about/): Who runs Carnivore Weekly and editorial standards
+
+## Popular Articles
+
+- [The Carnivore Diet and ADHD](https://carnivoreweekly.com/blog/2025-12-23-adhd-connection.html): Reader gold-standard post
+- [Best Macro Calculator for Carnivore, Keto & Low-Carb](https://carnivoreweekly.com/blog/2026-02-26-best-macro-calculator-carnivore-keto-low-carb.html): Calculator methodology deep-dive
+
+## Sister Site
+
+- [KetoDial](https://ketodial.com/): Keto-focused sister site with its own macro calculator, recipes, and guides
