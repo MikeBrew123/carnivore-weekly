@@ -398,3 +398,10 @@ Pattern: mobile-checkout/webhook QA used fake emails (test@example.com etc); Res
 Attempts:
 - 2026-07-06 — suppressed all 7 bounced QA addresses in Supabase (1 drip, 5 newsletter rows); sends kept live → bounce source removed
 If recurs: QA signup tests must delete/unsubscribe their rows in teardown; consider blocking example.com at the /api/v1/subscribe endpoint.
+
+## ISSUE-041 — CW weekly newsletter silently failed to send for 11 days
+🟢 FIXED — Last: 2026-07-09
+Pattern: Sunday 07-05 weekly-update.yml ran `weekly_newsletter.py`, which aborted the send because `send_newsletter.py`'s link validator found broken blog links — but the abort message (stdout, not stderr) didn't match `weekly_newsletter.py`'s log keyword filter, so CI showed only a blank "Error sending cw:" with no reason. Nobody saw why it failed. Newsletter only runs on the Sunday cron leg, so it silently stayed broken until 07-09. Three stacked root causes: (1) `get_recent_cw_posts()` had no `site` filter, so a `site:"kd"` post leaked into the CW candidate pool — same class of bug as [[ISSUE-038]] but in a different script; (2) Claude hallucinated a real post's slug with the wrong date (`07-08` instead of `07-07`); (3) `daily_publish.py` flips `status:published` in blog_posts.json same-day, but the HTML page isn't rendered until the next Sun/Wed `generate_blog_pages.py` run, so same-day posts 404 until then.
+Attempts:
+- 2026-07-09 — added `p.get("site","cw")=="cw"` filter to `get_recent_cw_posts()`; expanded the CI log keyword filter to surface `ABORT`/`broken`/`404`/`⚠` lines instead of swallowing them; manually corrected the bad slug in `newsletter_content.json`; ran `generate_blog_pages.py --site cw` to render the backlog; re-validated 0 broken links; sent live to 37 active CW subscribers.
+If recurs: the underlying pattern (site-unfiltered reads of blog_posts.json) has now bitten 2 scripts (content_analyzer_optimized.py roundup, weekly_newsletter.py). Next occurrence should get a shared helper (e.g. `get_posts(site, days)` in a common module) instead of a third copy-pasted fix.
