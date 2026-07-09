@@ -374,11 +374,12 @@ Attempts:
 If recurs: any new inline script reading blog_posts.json must unwrap `["blog_posts"]` — grep `.github/workflows/` for `json.load(open('data/blog_posts.json'))` when adding one.
 
 ## ISSUE-038 — Chloe's weekly roundup cross-linked an unrendered KD post
-🟢 FIXED | Last: 2026-07-05
-Pattern: the AI-generated "This Week's Roundup" text (data/analyzed_content.json → weekly_summary) referenced a post by title/author knowledge and hardcoded a /blog/... markdown link, but the post (2026-07-05-keto-meal-prep-couples) was site:"kd" in blog_posts.json and had never been rendered to HTML on either site. Blocked an unrelated push as a CRITICAL broken-link error in validate_before_commit.py.
+🟡 RECURRING | Last: 2026-07-08
+Pattern: the AI-generated "This Week's Roundup" text (data/analyzed_content.json → weekly_summary) referenced a post by title/author knowledge and hardcoded a /blog/... markdown link, but the post was site:"kd" in blog_posts.json and had never been rendered to HTML on either site. Blocked the Daily Blog Publisher as a CRITICAL broken-link error in validate_before_commit.py.
 Attempts:
 - 2026-07-05 — stripped the dead hyperlink from analyzed_content.json (kept the plain-text mention), regenerated public/index.html via generate.py --type pages → validator green
-If recurs: the roundup generator needs the same rule as content agents (CLAUDE.md Content rule #2/#3) — never cross-link to a slug unless it's confirmed rendered on the SAME site's public/blog/ (or ketodial/public/blog/ for kd). Consider a pre-generation check against blog_posts.json's `site` field before emitting any /blog/ link in roundup text.
+- 2026-07-08 — recurred verbatim: new slug (2026-07-07-keto-family-reunion-survival, site:kd, author chloe), same failure mode. Blocked the 16:04 UTC Daily Blog Publisher run (28957157722). Stripped the link again (commit 141957d5), regenerated homepage, validator 0 critical. The "if recurs" prevention from 07-05 (pre-generation site-field check) was never implemented — this is the 2nd occurrence with no code guard added.
+If recurs: STOP just patching the symptom. Implement the actual guard: content_analyzer_optimized.py (or wherever the roundup summary is generated) must strip/reject any /blog/ markdown link whose slug isn't found in blog_posts.json with site:"cw" AND a corresponding file in public/blog/. This is a repeat offender — the manual fix takes 5 min but keeps costing a full publisher-workflow failure cycle each time it happens.
 
 - 2026-07-05 — Recurred on commit f2e986f5 (beads-metadata-only, no site change). "Deployment failed, try again later" — Pages backend blip, not a build error. Self-healed: next commit (b6fa9be8) deployed green, both sites 200. No rerun-failed used. Confirms the pattern: a beads/docs commit that trips the blip gets superseded by the next real push for free.
 
