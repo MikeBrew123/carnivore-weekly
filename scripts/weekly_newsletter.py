@@ -80,7 +80,7 @@ def get_recent_cw_posts(days=7):
     recent = []
     for p in posts:
         pub_date = p.get("publish_date") or p.get("date", "")
-        if p.get("status") == "published" and pub_date >= cutoff:
+        if p.get("status") == "published" and pub_date >= cutoff and p.get("site", "cw") == "cw":
             recent.append(p)
 
     recent.sort(key=lambda x: x.get("publish_date", ""), reverse=True)
@@ -702,11 +702,12 @@ def send_newsletter(site, test=False, dry_run=False):
     if result.stdout:
         # Print key lines only
         for line in result.stdout.strip().split("\n"):
-            if any(kw in line for kw in ["sent", "failed", "DRY RUN", "Results", "TEST", "Error", "Subject", "recipient"]):
+            if any(kw in line for kw in ["sent", "failed", "DRY RUN", "Results", "TEST", "Error", "Subject",
+                                          "recipient", "ABORT", "broken", "404", "⚠"]):
                 print(f"    {line.strip()}")
 
     if result.returncode != 0:
-        print(f"  Error sending {site}: {result.stderr[:200]}")
+        print(f"  Error sending {site}: {result.stderr[:200] or '(see stdout above for reason — send_newsletter.py aborts via sys.exit with no traceback)'}")
         return False
     return True
 
