@@ -61,3 +61,12 @@
 - **weekly-update.yml push race (ISSUE-036): rebase-retry with `-X theirs`.** Generated files should always win a rebase replay; 3 attempts. Rejected: dedicated output branch (bigger change, deploy reads main).
 - **Beehiiv/MailerLite purge done in code, one live consumer left deliberately:** `generate_site_report.py` still reads the MailerLite key (called by weekly-update) — filed as a bead to port to Supabase counts rather than hand-edit a 300-line report script at sprint end.
 - **Operator Handbook is the weekly entry point** (`Brew-Vault/04-Systems/Projects/Carnivore-Weekly/Operator-Handbook.md`, CLAUDE.md trigger "run the week"). Standing decision rules live there; weekly sessions don't re-litigate pricing/ads/gates.
+
+## 2026-07-09 — Coach program shape, shop, currency, email identity
+- **Carnivore Coach = 12-week cohort program, not open subscription.** Audience's #1 stated failure is consistency; the finish line is the selling point. $79 one-time. Alumni maintenance tier later. $10 = single extra check-in à la carte (NOT a monthly add-on — Brew explicit). Keren (dietitian, on carnivore) as % -paid human layer if busy. Waitlist gate pre-agreed: 5+ signups → build; 0 → drop.
+- **Sell direct on-site, keep Etsy as discovery.** Site margin ~97% vs Etsy ~90%, and buyer emails land in our funnel. CW carnivore products / KD keto products, never crossed.
+- **Fulfillment = email the PDF; the thank-you email carries ONE soft upsell personalized to the purchase.** Delivery tracked via existing Resend webhook; paid-but-undelivered alerts immediately.
+- **All selling prices in USD** (calculator parity), stated once per page in fine print (Canadian business → ambiguity risk under Competition Act).
+- **Customer replies never go to iambrew@gmail.com.** Branded addresses only (newsletter@/sarah@ etc.), now that Resend receiving is enabled. System notifications to Brew's Gmail are fine.
+- **KD stays on free Resend plan** (1 domain); KD uses CW-domain addresses until KD revenue justifies $20/mo Pro.
+- **Tracker spreadsheet bead closed as superseded** — July 4 roadmap kill-list forbids generic trackers; High-Protein Food List is the sanctioned next SKU.

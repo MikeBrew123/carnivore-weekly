@@ -307,3 +307,19 @@ Key correction vs older notes in this log: the "amount-capture bug" and "ISSUE-0
 ## 2026-07-05 — LCP fix plan ready (calculator.html + homepage hero)
 
 Full execution plan: `docs/plans/lcp-calculator-plan-2026-07-05.md` (Sonnet-tier, escalate only if the carousel or payment flow breaks). Key facts: the 7.3s measurement PREDATES the Jul 4 evening fixes (gtag defer, font swap, lazy bundle loader are all already live — do not redo). The remaining bug: mobile hides the hero pyramid carousel at <=480px but still downloads CarnivorFP.webp (113KB) at fetchpriority=high; all four pyramid images ship 2816px wide with no srcset; and the Jul 4 image-compression pass missed /images/ (three PNGs at 1.2-1.7MB). Plan = measure first (local Lighthouse, PSI quota is 429'd), responsive media-gated sources + 1px placeholder for mobile, compress the missed PNGs same-filename, verify payment flow + SEO tags unchanged before push.
+
+## 2026-07-09 — Email infra + on-site shop shipped (evening session)
+
+**Newsletter fixed:** ISSUE-041 — Sunday send had silently failed since 07-05 (KD post leaked into CW pool via missing site filter + CI log filter swallowed the abort). `get_recent_cw_posts()` now site-filters; slug resolver auto-corrects wrong-date hallucinations against published-CW-only; mid-drip subscribers suppressed from weekly sends (send_newsletter.py). July 9 issue sent to 37.
+
+**Inbound email LIVE:** @carnivoreweekly.com receives mail (Resend receiving toggle was off — enabled via API). Webhook now includes email.received + email.failed → drip_events. Writer addresses (sarah@/marcus@/chloe@) published on both About pages + CW footer. Daily 8AM scheduled task `writer-inbox-daily-check` drafts replies for approval. All customer-facing reply-tos flipped to newsletter@carnivoreweekly.com. Memory: reference-resend-inbound.md.
+
+**Data purge:** 504 QA/test rows deleted across 8 tables (ISSUE-040 3rd strike; bead v9j filed for endpoint guard). Clean baselines: 142 calc sessions, 2 paying customers ever, 31 CW / 1 KD newsletter.
+
+**Recovery play:** Sarah emails to 4 abandoned checkouts with single-use 75% codes SARAH75BW/IG/SA/CW (expire 2026-07-16, Stripe coupon kSl0AsLw). Watch redemptions + replies.
+
+**Carnivore Coach waitlist:** /coach.html live ($79 USD, 12-week program, Sept cohort). Day-7 drip PS pitches it. Endpoint /api/v1/coach-waitlist → coach_waitlist (site='cw', notifies Brew). GATE (pre-agreed): 5+ signups in ~2 weeks = build on KD Coach chassis; 0 = drop. Design: memory project-carnivore-coach.md.
+
+**On-site shop:** /shop.html live — 4 carnivore PDFs via Stripe Payment Links (USD: 4.49/4.99/4.99/9.99, Etsy parity). Webhook fulfillment (fulfillShopOrder in calculator-api.js) emails PDFs from tokenized public/downloads/dl-c8596006aead02d8/ (robots-blocked, gitignore exception) with per-product soft upsell, paid-but-undelivered alert, GA4 purchase events. E2E verified with $0 promo checkout. report access_count now increments (was never wired). KD duplication checklist in bead s5w (target 07-10). New-page checklist: ISSUE-042 (canonical + meta description required by validators).
+
+**Content queued:** 2 Sarah landing posts (07-19 women-over-45 macros, 07-20 starting after 60) + scheduled task adds reciprocal backlink 07-19. llms.txt live; GSC sitemap resubmitted.
