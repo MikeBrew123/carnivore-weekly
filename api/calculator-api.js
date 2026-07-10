@@ -5062,7 +5062,7 @@ async function sendKetoDialWelcome(email, env) {
       body: JSON.stringify({
         from: 'KetoDial <ketodial@carnivoreweekly.com>',
         to: [email],
-        reply_to: 'iambrew@gmail.com',
+        reply_to: 'newsletter@carnivoreweekly.com',
         subject: 'You found the keto side of the family',
         html,
         tags: [
