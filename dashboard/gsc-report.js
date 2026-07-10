@@ -110,7 +110,9 @@ async function inspectUrls(sc, siteUrl) {
 
   const blogData = JSON.parse(fs.readFileSync(blogPostsPath, 'utf-8'))
   const published = blogData.blog_posts
-    .filter(p => p.status === 'published' || p.published)
+    // CW-only: blog_posts.json is shared with KD (site='kd'). Without this filter,
+    // KD posts get inspected/submitted as carnivoreweekly.com URLs that 404. (carnivore-weekly-qed)
+    .filter(p => (p.status === 'published' || p.published) && (p.site === 'cw' || !p.site))
     .sort((a, b) => (b.publish_date || b.date || '').localeCompare(a.publish_date || a.date || ''))
     .slice(0, 20)
 
