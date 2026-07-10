@@ -5589,7 +5589,7 @@ ${product.upsell}
           params: {
             transaction_id: obj.id,
             value: (obj.amount_total || 0) / 100,
-            currency: obj.currency?.toUpperCase() || 'CAD',
+            currency: obj.currency?.toUpperCase() || 'USD',
             items: [{ item_id: shopSlug, item_name: product.name, price: (obj.amount_total || 0) / 100, quantity: 1 }],
             source: 'shop_webhook',
           },
