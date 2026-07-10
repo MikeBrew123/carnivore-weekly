@@ -5,44 +5,54 @@
 User-agent: OAI-SearchBot
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 
 User-agent: ChatGPT-User
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 
 User-agent: GPTBot
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 
 User-agent: PerplexityBot
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 
 User-agent: Claude-Web
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 
 User-agent: Applebot-Extended
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 
 User-agent: Google-Extended
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 
 # Traditional Search Engines
 User-agent: Googlebot
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 
 User-agent: Bingbot
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 
 # Default for all other bots
 User-agent: *
 Allow: /
 Disallow: /data/
+Disallow: /downloads/
 Disallow: /html/
 Disallow: /creators/
 Disallow: /*test*.html

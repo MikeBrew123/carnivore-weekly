@@ -8,6 +8,9 @@ build/
 develop-eggs/
 dist/
 downloads/
+# exception: shop product delivery files (Resend fetches these as attachments)
+!public/downloads/
+!public/downloads/**
 eggs/
 .eggs/
 lib/
