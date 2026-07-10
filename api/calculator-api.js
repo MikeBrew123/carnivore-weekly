@@ -5099,6 +5099,67 @@ async function sendKetoDialWelcome(email, env) {
   }
 }
 
+// ===== CARNIVORE COACH WAITLIST HANDLER =====
+async function handleCoachWaitlist(request, env) {
+  try {
+    const { email, first_name, source } = await request.json();
+    if (!email || !isValidEmail(email)) {
+      return createErrorResponse('INVALID_EMAIL', 'A valid email is required', 400);
+    }
+    const cleanEmail = email.trim().toLowerCase();
+
+    const response = await fetch(`${env.SUPABASE_URL}/rest/v1/coach_waitlist`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        email: cleanEmail,
+        first_name: (first_name || '').trim() || null,
+        source: source || 'coach-page',
+        status: 'waiting',
+        site: 'cw',
+      }),
+    });
+
+    // 409 = duplicate signup; treat as success so the user sees "you're on the list"
+    if (!response.ok && response.status !== 409) {
+      const errorText = await response.text();
+      console.error('coach_waitlist insert error:', response.status, errorText);
+      return createErrorResponse('WAITLIST_ERROR', 'Could not join the waitlist, please try again', 500);
+    }
+
+    // Notify Brew (best-effort, never blocks the signup)
+    if (env.RESEND_API_KEY && response.ok) {
+      try {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          },
+          body: JSON.stringify({
+            from: 'Carnivore Weekly <newsletter@carnivoreweekly.com>',
+            to: ['iambrew@gmail.com'],
+            subject: `Coach waitlist signup: ${cleanEmail}`,
+            html: `<p>New Carnivore Coach founding-cohort reservation: <strong>${cleanEmail}</strong> (source: ${source || 'coach-page'})</p>`,
+          }),
+        });
+      } catch (e) {
+        console.error('coach waitlist notify failed:', e);
+      }
+    }
+
+    return createSuccessResponse({ message: 'You are on the list' });
+  } catch (err) {
+    console.error('handleCoachWaitlist error:', err);
+    return createErrorResponse('INTERNAL_ERROR', String(err), 500);
+  }
+}
+
 // ===== NEWSLETTER SUBSCRIBE HANDLER (in-house: Supabase + Resend) =====
 async function handleSubscribe(request, env) {
   try {
@@ -5832,6 +5893,11 @@ export default {
     // ===== FEEDBACK PROXY =====
     if (path === '/api/v1/feedback' && method === 'POST') {
       return sendWithCors(await handleFeedback(request, env));
+    }
+
+    // ===== CARNIVORE COACH WAITLIST =====
+    if (path === '/api/v1/coach-waitlist' && method === 'POST') {
+      return sendWithCors(await handleCoachWaitlist(request, env));
     }
 
     // ===== REFUND REQUEST =====
