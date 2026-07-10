@@ -1192,9 +1192,9 @@
                             <li style="margin-bottom: 8px;">Week-by-week adaptation guide + plateau protocol</li>
                         </ul>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px;">
-                            <img src="/images/report-mockups/physician-guide.jpg" alt="Printed physician consultation guide from the Complete Carnivore Protocol, with opening script and advanced bloodwork markers" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; display: block;">
-                            <img src="/images/report-mockups/stall-breaker-protocol.jpg" alt="Stall breaker protocol pages from the Complete Carnivore Protocol report" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; display: block;">
-                            <img src="/images/report-mockups/kryptonite-kitchen.jpg" alt="Personalized meal plan pages from the Complete Carnivore Protocol on a kitchen counter" loading="lazy" style="width: 100%; height: auto; border-radius: 8px; display: block;">
+                            <img src="/images/report-mockups/physician-guide.jpg" alt="Printed physician consultation guide from the Complete Carnivore Protocol, with opening script and advanced bloodwork markers" loading="lazy" width="800" height="597" style="width: 100%; height: auto; border-radius: 8px; display: block;">
+                            <img src="/images/report-mockups/stall-breaker-protocol.jpg" alt="Stall breaker protocol pages from the Complete Carnivore Protocol report" loading="lazy" width="800" height="597" style="width: 100%; height: auto; border-radius: 8px; display: block;">
+                            <img src="/images/report-mockups/kryptonite-kitchen.jpg" alt="Personalized meal plan pages from the Complete Carnivore Protocol on a kitchen counter" loading="lazy" width="800" height="597" style="width: 100%; height: auto; border-radius: 8px; display: block;">
                         </div>
                         <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; color: #ffd700; font-weight: 700; margin-bottom: 4px;">$29 USD one-time — yours forever. Unlocks at the end of the calculator below.</p>
                         <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 13px; color: #a89080; margin: 0;">30-day money-back guarantee.</p>
@@ -1420,7 +1420,7 @@
          in CalculatorApp.tsx). Keep the src in sync with the Vite bundle hash above. -->
     <script>
         (function () {
-            var SRC = '/assets/calculator2/assets/index-8wSGxR53.js';
+            var SRC = '/assets/calculator2/assets/index--x1CB8ZB.js';
             var CSS = '/assets/calculator2/assets/index-BGR8GvWk.css';
             var loaded = false;
             function loadCalc() {
@@ -1470,6 +1470,42 @@
             if (el) { clearInterval(poll); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
             if (++attempts > 20) clearInterval(poll);
         }, 250);
+    })();
+    </script>
+
+    <!-- "Skip to Calculator" anchor clicks: the jump used to land, then the lazy
+         calculator bundle + images finished loading and shifted the target away.
+         Re-snap to the anchor until layout settles, but stop the moment the user
+         scrolls on their own. -->
+    <script>
+    (function() {
+        document.addEventListener('click', function (e) {
+            var a = e.target.closest && e.target.closest('a[href="#calculator-start"]');
+            if (!a) return;
+            var target = document.getElementById('calculator-start');
+            if (!target) return;
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Let the smooth glide finish (~1s), then snap instantly until layout
+            // settles. Re-issuing smooth scrolls would restart the animation each
+            // time and never land on long pages.
+            var until = Date.now() + 3200;
+            var timer = setInterval(function () {
+                if (Date.now() > until) { stop(); return; }
+                if (Math.abs(target.getBoundingClientRect().top) > 8) {
+                    target.scrollIntoView({ behavior: 'auto', block: 'start' });
+                }
+            }, 1000);
+            function stop() {
+                clearInterval(timer);
+                ['wheel', 'touchstart', 'keydown'].forEach(function (ev) {
+                    window.removeEventListener(ev, stop);
+                });
+            }
+            ['wheel', 'touchstart', 'keydown'].forEach(function (ev) {
+                window.addEventListener(ev, stop, { passive: true });
+            });
+        });
     })();
     </script>
 

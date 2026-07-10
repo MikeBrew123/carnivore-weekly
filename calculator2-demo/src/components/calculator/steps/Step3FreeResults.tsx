@@ -564,6 +564,14 @@ export default function Step3FreeResults({
               'event_label': 'start_over_clicked'
             })
             resetForm()
+            // The results page is tall; after reset the page shrinks and the
+            // viewport is left stranded below the calculator. The anchor lives
+            // in static HTML (calculator.html), so it always exists — but the
+            // scroll must wait out the reset re-render, which cancels any
+            // smooth scroll started synchronously in this handler.
+            setTimeout(() => {
+              document.getElementById('calculator-start')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }, 150)
           }
         }}
         style={{
