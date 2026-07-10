@@ -34,7 +34,7 @@ SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
 DRIP_DIR = PROJECT_ROOT / "data" / "drip-emails"
 
 FROM_EMAIL = "Carnivore Weekly <newsletter@carnivoreweekly.com>"
-REPLY_TO = "iambrew@gmail.com"
+REPLY_TO = "newsletter@carnivoreweekly.com"
 TEST_EMAIL = "iambrew@gmail.com"
 WEBHOOK_URL = os.environ.get("RESEND_WEBHOOK_URL", "")
 FINAL_DAY = 28  # Graduate to the weekly newsletter after this day's email
