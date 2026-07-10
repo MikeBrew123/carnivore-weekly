@@ -137,8 +137,11 @@ export default function Step1PhysicalStats({
     if (data.heightCm && (data.heightCm < 90 || data.heightCm > 250)) {
       newErrors.heightCm = 'Height must be between 90 and 250 cm'
     }
-    // Weight validation - depends on unit system
-    if (data.heightCm) {
+    // Weight validation - depends on unit system. Metric mode is
+    // heightCm !== undefined (the toggle's 0 sentinel and a cleared field are
+    // both falsy but still metric — a truthiness check here used to show
+    // "lbs" errors under the kg field).
+    if (data.heightCm !== undefined) {
       // Metric mode - validate kg
       if (!data.weightKg || data.weightKg < 36 || data.weightKg > 227) newErrors.weightKg = 'Weight must be between 36 and 227 kg'
     } else {
@@ -323,20 +326,26 @@ export default function Step1PhysicalStats({
               label="Centimeters"
               value={data.heightCm || ''}
               onChange={(e) => {
+                // Build ONE update per keystroke. Multiple handleInputChange
+                // calls each spread the same stale `data` prop, so the later
+                // calls clobber the cm value just typed (users could never
+                // enter metric height).
                 const cm = parseInt(e.target.value)
-                handleInputChange('heightCm', cm || '')
-                // Auto-convert to imperial for internal use if needed
+                // 0 is the metric-mode-but-empty sentinel (same as the unit toggle)
+                const updated = { ...data, heightCm: cm || 0 }
                 if (cm) {
-                  const { feet, inches } = (() => {
-                    const totalInches = cm / 2.54
-                    return {
-                      feet: Math.floor(totalInches / 12),
-                      inches: Math.round(totalInches % 12)
-                    }
-                  })()
-                  handleInputChange('heightFeet', feet)
-                  handleInputChange('heightInches', inches)
+                  // Auto-convert to imperial for internal use
+                  const totalInches = cm / 2.54
+                  updated.heightFeet = Math.floor(totalInches / 12)
+                  updated.heightInches = Math.round(totalInches % 12)
+                } else {
+                  // cm cleared — drop the derived imperial values too so
+                  // validation can't pass on stale height
+                  updated.heightFeet = undefined
+                  updated.heightInches = undefined
                 }
+                onDataChange(updated)
+                if (cm) onFieldChange?.('heightCm')
               }}
               onBlur={validateHeightCm}
               error={errors.heightCm}
@@ -378,12 +387,16 @@ export default function Step1PhysicalStats({
             label="Weight (kg)"
             value={data.weightKg || ''}
             onChange={(e) => {
-              const kg = parseInt(e.target.value) || ''
-              handleInputChange('weightKg', kg)
-              // Auto-convert to lbs for internal calculations
-              if (kg) {
-                handleInputChange('weight', Math.round(Number(kg) * 2.205))
-              }
+              // ONE update per keystroke — a second handleInputChange call
+              // spreads stale `data` and clobbers the kg value just typed
+              const kg = parseInt(e.target.value) || undefined
+              onDataChange({
+                ...data,
+                weightKg: kg,
+                // Auto-convert to lbs for internal calculations
+                weight: kg ? Math.round(kg * 2.205) : undefined,
+              })
+              if (kg) onFieldChange?.('weightKg')
             }}
             error={errors.weightKg}
             isValid={isWeightKgValid()}
