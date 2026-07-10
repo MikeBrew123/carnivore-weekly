@@ -5487,6 +5487,121 @@ async function handleRefundRequest(request, env) {
 }
 
 // ===== STRIPE WEBHOOK HANDLER =====
+// ===== ON-SITE SHOP (sell Etsy PDFs direct via Stripe Payment Links) =====
+// Files live under an unguessable tokenized path; Resend fetches them as
+// attachments at send time. Upsell map: one soft suggestion per product.
+const SHOP_DL_BASE = 'https://carnivoreweekly.com/downloads/dl-c8596006aead02d8';
+const SHOP_PRODUCTS = {
+  'carnivore-cheatsheet': {
+    name: 'Carnivore Food Cheat Sheet',
+    files: [{ filename: 'Carnivore-Food-Cheat-Sheet.pdf', path: `${SHOP_DL_BASE}/cheatsheet-carnivore-v1.pdf` }],
+    upsell: `<p>One thing readers often pair with the cheat sheet: the <a href="https://carnivoreweekly.com/shop.html?utm_source=delivery&utm_medium=email&utm_campaign=post-purchase&utm_content=carnivore-cheatsheet">How To Carnivore Guide with the 14-Day Tracker</a>. The cheat sheet tells you what to eat, the tracker keeps you honest for the first two weeks.</p>`,
+  },
+  'howto-carnivore': {
+    name: 'How To Carnivore Guide + 14-Day Tracker',
+    files: [{ filename: 'How-To-Carnivore-Guide-and-Tracker.pdf', path: `${SHOP_DL_BASE}/howto-carnivore-v1.pdf` }],
+    upsell: `<p>Since you're starting a structured run at this: we're opening <a href="https://carnivoreweekly.com/coach.html?utm_source=delivery&utm_medium=email&utm_campaign=post-purchase&utm_content=howto-carnivore">Carnivore Coach</a> this fall, a 12-week guided program with weekly check-ins. Reserving a founding spot is free if you want first access.</p>`,
+  },
+  'howto-lion': {
+    name: 'How To Lion Diet Guide + 14-Day Tracker',
+    files: [{ filename: 'How-To-Lion-Diet-Guide-and-Tracker.pdf', path: `${SHOP_DL_BASE}/howto-lion-v1.pdf` }],
+    upsell: `<p>Elimination runs go better with support: we're opening <a href="https://carnivoreweekly.com/coach.html?utm_source=delivery&utm_medium=email&utm_campaign=post-purchase&utm_content=howto-lion">Carnivore Coach</a> this fall, a 12-week guided program with weekly check-ins. Reserving a founding spot is free.</p>`,
+  },
+  'anti-inflammatory-set': {
+    name: 'Anti-Inflammatory Starter Set',
+    files: [
+      { filename: 'Anti-Inflammatory-Food-Guide.pdf', path: `${SHOP_DL_BASE}/anti-inflammatory-food-guide.pdf` },
+      { filename: 'Anti-Inflammatory-Grocery-List.pdf', path: `${SHOP_DL_BASE}/anti-inflammatory-grocery-list.pdf` },
+      { filename: 'Anti-Inflammatory-Getting-Started.pdf', path: `${SHOP_DL_BASE}/anti-inflammatory-getting-started.pdf` },
+    ],
+    upsell: `<p>If inflammation is the reason you're here, you might like <a href="https://carnivoreweekly.com/coach.html?utm_source=delivery&utm_medium=email&utm_campaign=post-purchase&utm_content=anti-inflammatory-set">Carnivore Coach</a>, our 12-week guided program opening this fall. Weekly check-ins track joint pain and energy, not just weight. Founding spots are free to reserve.</p>`,
+  },
+};
+
+async function fulfillShopOrder(env, obj, shopSlug) {
+  const product = SHOP_PRODUCTS[shopSlug];
+  const buyerEmail = obj.customer_details?.email || obj.customer_email;
+  if (!buyerEmail) {
+    console.error(`Shop order ${obj.id} (${shopSlug}) has no buyer email`);
+    return createSuccessResponse({ received: true, error: 'no_email' });
+  }
+
+  const html = `<div style="font-family: Georgia, serif; font-size: 16px; color: #2c1810; line-height: 1.6; max-width: 560px;">
+<p>Thanks for your order! Your <strong>${product.name}</strong> is attached to this email, ready to save or print.</p>
+<p>A tip from Sarah, our health coach: print it and put it where the decisions happen. The fridge beats a folder every time.</p>
+${product.upsell}
+<p>If anything's wrong with your order, just reply to this email and a real person will sort it out.</p>
+<p>Enjoy,<br>The Carnivore Weekly Team</p>
+</div>`;
+
+  let delivered = false;
+  let sendError = '';
+  try {
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: 'Carnivore Weekly <newsletter@carnivoreweekly.com>',
+        to: [buyerEmail],
+        reply_to: 'newsletter@carnivoreweekly.com',
+        subject: `Your ${product.name} is here`,
+        html,
+        attachments: product.files,
+        tags: [
+          { name: 'email_type', value: 'shop_delivery' },
+          { name: 'product', value: shopSlug },
+        ],
+      }),
+    });
+    delivered = emailRes.ok;
+    if (!emailRes.ok) sendError = await emailRes.text();
+  } catch (e) {
+    sendError = String(e);
+  }
+
+  // Paid-but-undelivered is the one unacceptable state — alert Brew immediately.
+  if (!delivered && env.RESEND_API_KEY) {
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.RESEND_API_KEY}` },
+        body: JSON.stringify({
+          from: 'Carnivore Weekly <newsletter@carnivoreweekly.com>',
+          to: ['iambrew@gmail.com'],
+          subject: `🚨 PAID BUT UNDELIVERED: ${shopSlug} for ${buyerEmail}`,
+          html: `<p>Stripe checkout ${obj.id} completed (${(obj.amount_total || 0) / 100} ${(obj.currency || '').toUpperCase()}) but the delivery email failed:</p><pre>${sendError.slice(0, 300)}</pre><p>Send the PDF manually to ${buyerEmail}.</p>`,
+        }),
+      });
+    } catch (_) { /* alert is best-effort */ }
+  }
+
+  // GA4 purchase event (fire-and-forget)
+  if (env.GA4_API_SECRET && env.GA4_MEASUREMENT_ID) {
+    fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${env.GA4_MEASUREMENT_ID}&api_secret=${env.GA4_API_SECRET}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        client_id: obj.id,
+        events: [{
+          name: 'purchase',
+          params: {
+            transaction_id: obj.id,
+            value: (obj.amount_total || 0) / 100,
+            currency: obj.currency?.toUpperCase() || 'CAD',
+            items: [{ item_id: shopSlug, item_name: product.name, price: (obj.amount_total || 0) / 100, quantity: 1 }],
+            source: 'shop_webhook',
+          },
+        }],
+      }),
+    }).catch(() => {});
+  }
+
+  console.log(`Shop order fulfilled: ${shopSlug} -> ${buyerEmail} (delivered: ${delivered})`);
+  return createSuccessResponse({ received: true, shop_product: shopSlug, delivered });
+}
+
 async function handleStripeWebhook(request, env) {
   const signature = request.headers.get('stripe-signature');
   if (!signature) {
@@ -5579,6 +5694,11 @@ async function handleStripeWebhook(request, env) {
     const amountTotal = obj.amount_total;
 
     if (!sessionUUID) {
+      // Shop purchase? Payment Links carry metadata.shop_product.
+      const shopSlug = obj.metadata?.shop_product;
+      if (shopSlug && SHOP_PRODUCTS[shopSlug]) {
+        return await fulfillShopOrder(env, obj, shopSlug);
+      }
       // Product filter: this Stripe account also receives KD report and coach
       // subscription checkouts, which never carry a CW session reference.
       // Not ours — acknowledge so Stripe doesn't retry.
