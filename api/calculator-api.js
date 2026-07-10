@@ -4179,6 +4179,28 @@ async function handleReportContent(request, env, accessToken) {
       return createErrorResponse('REPORT_EXPIRED', 'Report access has expired', 410);
     }
 
+    // Count the view (metric only — a failure here must never block the report)
+    try {
+      await fetch(
+        `${env.SUPABASE_URL}/rest/v1/calculator_reports?access_token=eq.${accessToken}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify({
+            access_count: (report.access_count || 0) + 1,
+            last_accessed_at: new Date().toISOString(),
+          }),
+        }
+      );
+    } catch (e) {
+      console.error('access_count update failed:', e);
+    }
+
     // Return HTML content with appropriate headers
     return new Response(report.report_html, {
       status: 200,
