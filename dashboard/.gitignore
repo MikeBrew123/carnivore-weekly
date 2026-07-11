@@ -34,3 +34,19 @@ logs/
 # Temporary files
 tmp/
 temp/
+
+# Command Center outputs — contain subscriber emails/revenue; repo is public, never commit
+command-center.html
+command-center-data.json
+
+# Generated report artifacts — business data + subscriber PII; repo is public, never track
+weekly-report.html
+executive-report.html
+analytics-report.html
+calculator-funnel-report.html
+site-overview-report.html
+wiki-search-report.html
+engagement-tracking-report.html
+gsc-report-data.json
+seo-audit-results.json
+simple-comprehensive-report.txt
