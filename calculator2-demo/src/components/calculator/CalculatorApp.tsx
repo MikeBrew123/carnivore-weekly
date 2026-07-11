@@ -137,6 +137,9 @@ export default function CalculatorApp({
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [email, setEmail] = useState('')
   const [reportHtml, setReportHtml] = useState<string | null>(null)
+  // Error shown on the payment-success screen if resuming the session fails —
+  // the user has PAID at that point, so failures must never be silent
+  const [successScreenError, setSuccessScreenError] = useState<string | null>(null)
   const [isEmailingSent, setIsEmailingSent] = useState(false)
   const [isEmailingReport, setIsEmailingReport] = useState(false)
 
@@ -442,41 +445,55 @@ export default function CalculatorApp({
         }
       )
 
+      // The generating screen is a pure animation with no polling — every path
+      // out of here MUST end in either report HTML or a visible, retryable
+      // error. Falling through used to strand paying customers at "98%… 1s
+      // remaining" forever.
       if (!reportInitResponse.ok) {
-        const reportError = await reportInitResponse.json()
-        console.warn('[Step4] Report init warning:', reportError)
-        // Don't fail - let user see generating screen anyway
-      } else {
-        const reportData = await reportInitResponse.json()
-        console.log('[Step4] Report generation successful:', reportData)
+        const reportError = await reportInitResponse.json().catch(() => ({} as any))
+        console.error('[Step4] Report init failed:', reportError)
+        throw new Error(reportError.message || `Report generation failed (${reportInitResponse.status})`)
+      }
 
-        // If report HTML is included, store it for "View Report" button
-        if (reportData.report_html) {
-          console.log('[Step4] Report HTML received, storing for view button...')
-          try {
-            // Store report HTML in state for "View Report" button
-            setReportHtml(reportData.report_html)
-            if (window.gtag) {
-              window.gtag('event', 'calculator_report_generated', {
-                'event_category': 'calculator',
-                'event_label': 'report_generated'
-              })
-            }
-            setIsGenerating(false)
-            return
-          } catch (e) {
-            console.error('[Step4] Report display error:', e)
-            // Fall through to generating screen
-          }
+      const reportData = await reportInitResponse.json()
+      console.log('[Step4] Report init response status:', reportData.status)
+
+      let html: string | null = reportData.report_html || null
+
+      // 'already_generated' returns an access_token but no HTML (e.g. the user
+      // retried after a hiccup) — fetch the stored report instead of stalling
+      if (!html && reportData.access_token) {
+        console.log('[Step4] Report already generated, fetching stored copy...')
+        const contentResponse = await fetch(
+          `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/calculator/report/${reportData.access_token}/content`
+        )
+        if (contentResponse.ok) {
+          html = await contentResponse.text()
         }
       }
 
-      // Show generating screen - report is generating or being processed
-      // User will see progress animation while Claude API generates the report
+      if (!html) {
+        throw new Error('The report did not come back from the server')
+      }
+
+      setReportHtml(html)
+      if (window.gtag) {
+        window.gtag('event', 'calculator_report_generated', {
+          'event_category': 'calculator',
+          'event_label': 'report_generated'
+        })
+      }
+      setIsGenerating(false)
     } catch (error) {
       console.error('[Step4] Submission error:', error)
       setIsGenerating(false)
-      setErrors({ submit: `Failed to submit: ${error instanceof Error ? error.message : 'Unknown error'}` })
+      setErrors({
+        submit: `We hit a problem generating your report (${error instanceof Error ? error.message : 'unknown error'}). ` +
+          `Your payment is safe and your answers are saved — click "Generate My Protocol" to try again. ` +
+          `A copy will also be emailed to you; if it doesn't arrive, reply to that email thread or use the site's feedback button.`,
+      })
+      // Bring the error into view — the generating screen scrolled to the top
+      scrollToAnchor('step4-submit-error', 200)
     }
   }
 
@@ -573,18 +590,37 @@ export default function CalculatorApp({
             onClick={async () => {
               console.log('[Success Page] Continue to Health Profile clicked')
               console.log('[Success Page] stripeSessionId:', stripeSessionId)
+              setSuccessScreenError(null)
 
-              if (!stripeSessionId) {
-                console.error('[Success Page] No stripe session ID')
-                return
+              // Advance to Step 4 and only THEN clear the payment flag. Clearing
+              // it on a failure path used to evaporate this screen and drop the
+              // paid user back on Step 3 with two more "$29" buy buttons.
+              const advanceToStep4 = () => {
+                markClean()
+                setCurrentStep(4)
+                scrollToAnchor('health-profile-start', 200)
+                paymentActions.clearPaymentState()
               }
 
               try {
                 // GUARD: If form is dirty (user edited), don't overwrite with Supabase data
                 if (isDirty) {
-                  markClean()
-                  setCurrentStep(4)
-                  scrollToAnchor('health-profile-start', 200)
+                  advanceToStep4()
+                  return
+                }
+
+                if (!stripeSessionId) {
+                  // No session id to restore from — if the answers are still in
+                  // this browser, keep going with those rather than dead-ending
+                  console.error('[Success Page] No stripe session ID')
+                  if (formData.email) {
+                    advanceToStep4()
+                  } else {
+                    setSuccessScreenError(
+                      'We could not find your session in this browser. Your payment went through and your report will be emailed to you. ' +
+                      'If it does not arrive within a few minutes, use the feedback button or reply to your receipt email.'
+                    )
+                  }
                   return
                 }
 
@@ -601,7 +637,7 @@ export default function CalculatorApp({
                 const sessionData = await fetchResponse.json()
                 console.log('[Success Page] Session data:', sessionData)
 
-                if (sessionData && sessionData.form_data && !isDirty) {
+                if (sessionData && sessionData.form_data) {
                   // Load the saved form data into the form, including email from session
                   const mergedFormData = {
                     ...sessionData.form_data,
@@ -609,18 +645,24 @@ export default function CalculatorApp({
                     firstName: sessionData.first_name || sessionData.form_data.firstName,
                   }
                   setFormData(mergedFormData)
-                  markClean()
-                  setCurrentStep(4)
-                  scrollToAnchor('health-profile-start', 200)
+                  advanceToStep4()
+                } else if (formData.email) {
+                  // Session row came back empty — the locally saved answers are
+                  // still good enough to continue
+                  console.warn('[Success Page] No form data in session, using local answers')
+                  advanceToStep4()
                 } else {
-                  console.error('[Success Page] No form data in session')
+                  throw new Error('No form data in session')
                 }
               } catch (error) {
+                // Do NOT clear payment state here — keep the paid screen alive
+                // so the user can retry instead of seeing buy buttons again
                 console.error('[Success Page] Error fetching session:', error)
+                setSuccessScreenError(
+                  'We hit a snag loading your saved answers. Your payment is safe — click the button to try again. ' +
+                  'Your report will also be emailed to you within a few minutes either way.'
+                )
               }
-
-              // Clear payment status from localStorage using the hook
-              paymentActions.clearPaymentState()
             }}
             style={{
               backgroundColor: '#ffd700',
@@ -645,6 +687,26 @@ export default function CalculatorApp({
           >
             Continue to Health Profile
           </button>
+
+          {successScreenError && (
+            <div
+              role="alert"
+              style={{
+                marginTop: '20px',
+                backgroundColor: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid #ef4444',
+                borderRadius: '8px',
+                padding: '14px 16px',
+                color: '#ef8a8a',
+                fontSize: '14px',
+                lineHeight: 1.6,
+                textAlign: 'left',
+                fontFamily: "'Merriweather', Georgia, serif",
+              }}
+            >
+              {successScreenError}
+            </div>
+          )}
         </div>
       </div>
     )

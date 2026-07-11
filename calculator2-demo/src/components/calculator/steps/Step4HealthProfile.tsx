@@ -414,6 +414,28 @@ export default function Step4HealthProfile({
           Your information is secure and will be used only to generate your personalized nutrition protocol.
         </p>
 
+        {/* Submission errors (e.g. report generation failed) must be visible —
+            they used to be set in state but never rendered, leaving paying
+            users with a button that silently did nothing */}
+        {errors.submit && (
+          <div
+            id="step4-submit-error"
+            role="alert"
+            style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid #ef4444',
+              borderRadius: '8px',
+              padding: '14px 16px',
+              color: '#b91c1c',
+              fontSize: '14px',
+              lineHeight: 1.6,
+              fontFamily: "'Merriweather', Georgia, serif",
+            }}
+          >
+            {errors.submit}
+          </div>
+        )}
+
         <button
             type="button"
             onClick={handleSubmit}
