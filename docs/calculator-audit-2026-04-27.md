@@ -160,7 +160,7 @@ That's **32+ data points the user could give to personalize the protocol** — a
 You said: *"we should have some real life mentions of how great the report is."* You're right. Until you have 3 real testimonials with first names + outcomes, conversion will stay where it is.
 
 **How to get them this week (no fake reviews):**
-- **Email the Dec 30 customer** (***REDACTED*** — your only paying customer). Ask: "How'd the protocol work? Mind if I share your story?" Offer them a free updated copy in exchange.
+- **Email the Dec 30 customer** (***REDACTED*** — your only paying customer; email is in Stripe/Supabase). Ask: "How'd the protocol work? Mind if I share your story?" Offer them a free updated copy in exchange.
 - **Email anyone who started the calculator** (you have their addresses from form submissions). Offer the $29 protocol free in exchange for a real review after they use it.
 - **Sarah's existing reader stories** — convert blog post stories into one-line testimonials with permission.
 
