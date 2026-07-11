@@ -227,14 +227,43 @@ def fetch_gsc(site_url):
 
 # ── Bing Webmaster Tools ─────────────────────────────────────────────
 
-def fetch_bing(site_url):
+def ga4_bing_sessions(property_id):
+    """Bing organic sessions from GA4 — fallback when no Bing Webmaster API key."""
+    from google.analytics.data_v1beta.types import (
+        DateRange, Filter, FilterExpression, Metric, RunReportRequest)
+    resp = ga4_client().run_report(RunReportRequest(
+        property=property_id,
+        date_ranges=[DateRange(start_date='7daysAgo', end_date='today'),
+                     DateRange(start_date='14daysAgo', end_date='8daysAgo')],
+        metrics=[Metric(name='sessions')],
+        dimension_filter=FilterExpression(filter=Filter(
+            field_name='sessionSource',
+            string_filter=Filter.StringFilter(
+                value='bing', match_type=Filter.StringFilter.MatchType.CONTAINS))),
+    ))
+    cur = int(float(resp.rows[0].metric_values[0].value)) if resp.rows else 0
+    prev = int(float(resp.rows[1].metric_values[0].value)) if len(resp.rows) > 1 else 0
+    return cur, prev
+
+
+def fetch_bing(site_url, ga4_property=None):
     """Bing Webmaster JSON API. Needs bing.api_key in secrets/api-keys.json
     (Bing Webmaster Tools → gear icon → API access → generate key; both sites
-    must be verified in BWT first)."""
+    must be verified in BWT first). Without a key, falls back to Bing organic
+    sessions measured by GA4."""
     api_key = (SECRETS.get('bing') or {}).get('api_key', '')
     if not api_key:
-        return {'configured': False,
-                'note': 'Add bing.api_key to secrets/api-keys.json (Bing Webmaster Tools → Settings → API access)'}
+        out = {'configured': False,
+               'note': 'Bing sessions below come from GA4. For impressions/queries/position, '
+                       'add bing.api_key to secrets/api-keys.json (Bing Webmaster Tools → Settings → API access).'}
+        if ga4_property:
+            try:
+                cur, prev = ga4_bing_sessions(ga4_property)
+                out['ga4_sessions_7d'] = cur
+                out['ga4_sessions_prev_7d'] = prev
+            except Exception as e:
+                out['error'] = str(e)[:200]
+        return out
     base = 'https://ssl.bing.com/webmaster/api.svc/json'
     out = {'configured': True}
     stats = http_json(f'{base}/GetRankAndTrafficStats?siteUrl={urllib.request.quote(site_url)}&apikey={api_key}')
@@ -562,8 +591,12 @@ def build_insights(d):
 
     bing = d['search'].get('bing_cw', {})
     if not bing.get('configured'):
-        add('info', 'Bing data is not wired up yet — needs an API key from Bing Webmaster Tools '
-                    '(Settings → API access), saved as bing.api_key in secrets/api-keys.json.')
+        ga4_b = bing.get('ga4_sessions_7d')
+        suffix = (f' Meanwhile GA4 shows {ga4_b} Bing session(s) on CW this week.'
+                  if ga4_b is not None else '')
+        add('info', 'Bing Webmaster API not connected — no key exists on this machine; Brew must '
+                    'generate one (Bing Webmaster Tools → Settings → API access) and save it as '
+                    f'bing.api_key in secrets/api-keys.json.{suffix}')
 
     f = d.get('funnels', {})
     calc = f.get('calculator_cw', {})
@@ -720,8 +753,8 @@ def collect(use_model=True):
     print('  Search Console...')
     data['search'] = {'cw': guarded('GSC CW', fetch_gsc, GSC_CW),
                       'kd': guarded('GSC KD', fetch_gsc, GSC_KD),
-                      'bing_cw': guarded('Bing CW', fetch_bing, BING_CW),
-                      'bing_kd': guarded('Bing KD', fetch_bing, BING_KD)}
+                      'bing_cw': guarded('Bing CW', fetch_bing, BING_CW, CW_GA4),
+                      'bing_kd': guarded('Bing KD', fetch_bing, BING_KD, KD_GA4)}
     print('  Funnels...')
     data['funnels'] = guarded('Funnels', fetch_funnels)
     print('  Demographics...')
@@ -878,8 +911,14 @@ def bing_card(label, b):
     if not b:
         return ''
     if not b.get('configured'):
-        return (f'<div class="card dim"><h3>{esc(label)}</h3><p class="muted">Not connected. '
-                f'{esc(b.get("note", ""))}</p></div>')
+        stats = ''
+        if b.get('ga4_sessions_7d') is not None:
+            stats = (f'<div class="statrow"><div class="stat"><b>{b["ga4_sessions_7d"]}</b>'
+                     f'<span>sessions 7d (GA4)</span>'
+                     f'{trend_html(pct_change(b["ga4_sessions_7d"], b.get("ga4_sessions_prev_7d", 0)))}'
+                     f'</div></div>')
+        return (f'<div class="card"><h3>{esc(label)}</h3>{stats}'
+                f'<p class="muted small">{esc(b.get("note", ""))}</p></div>')
     if b.get('error'):
         return f'<div class="card"><h3>{esc(label)}</h3>{err_note(b, "Bing")}</div>'
     return f'''<div class="card"><h3>{esc(label)}</h3>
