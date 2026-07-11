@@ -181,7 +181,20 @@ export default function CalculatorApp({
     const attempt = () => {
       const element = document.getElementById(anchorId)
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        // Scroll the WINDOW explicitly (immune to ancestors becoming scroll
+        // containers), then verify the smooth animation actually ran — some
+        // webviews/emulators silently drop smooth programmatic scrolls. If
+        // nothing moved after 700ms and the user hasn't scrolled, snap.
+        const y = element.getBoundingClientRect().top + window.scrollY
+        window.scrollTo({ top: y, behavior: 'smooth' })
+        const startY = window.scrollY
+        setTimeout(() => {
+          const stillFar = Math.abs(element.getBoundingClientRect().top) > 8
+          const neverMoved = Math.abs(window.scrollY - startY) < 4
+          if (stillFar && neverMoved) {
+            window.scrollTo({ top: element.getBoundingClientRect().top + window.scrollY, behavior: 'auto' })
+          }
+        }, 700)
         scrollRetryTimer.current = null
       } else if (Date.now() < deadline) {
         scrollRetryTimer.current = setTimeout(attempt, 100)
