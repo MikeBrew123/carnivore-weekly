@@ -597,6 +597,18 @@ def build_insights(d):
         add('info', 'Bing Webmaster API not connected — no key exists on this machine; Brew must '
                     'generate one (Bing Webmaster Tools → Settings → API access) and save it as '
                     f'bing.api_key in secrets/api-keys.json.{suffix}')
+    elif not bing.get('error'):
+        b_cur, b_prev = bing.get('clicks_7d', 0), bing.get('clicks_prev_7d', 0)
+        chg = pct_change(b_cur, b_prev)
+        g_clicks = (d['search'].get('cw') or {}).get('current', {}).get('clicks', 0)
+        if g_clicks and b_cur >= g_clicks * 0.8:
+            add('info', f'Bing is a real channel for CW: {b_cur} clicks this week vs {g_clicks} '
+                        f'from Google. Keep Bing Webmaster sitemaps/indexing healthy — do not '
+                        f'optimize for Google alone.')
+        if chg is not None and chg <= -30:
+            add('watch', f'CW Bing clicks dropped {abs(chg):.0f}% ({b_prev} → {b_cur}).')
+        elif chg is not None and chg >= 30 and b_cur >= 20:
+            add('good', f'CW Bing clicks up {chg:.0f}% week-over-week ({b_prev} → {b_cur}).')
 
     f = d.get('funnels', {})
     calc = f.get('calculator_cw', {})
