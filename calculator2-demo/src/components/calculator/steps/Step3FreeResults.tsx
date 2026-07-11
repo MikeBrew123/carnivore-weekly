@@ -570,7 +570,18 @@ export default function Step3FreeResults({
             // scroll must wait out the reset re-render, which cancels any
             // smooth scroll started synchronously in this handler.
             setTimeout(() => {
-              document.getElementById('calculator-start')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              // Scroll the WINDOW explicitly, with an instant-snap fallback for
+              // environments that silently drop smooth programmatic scrolls
+              // (same pattern as CalculatorApp's scrollToAnchor)
+              const el = document.getElementById('calculator-start')
+              if (!el) return
+              window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' })
+              const startY = window.scrollY
+              setTimeout(() => {
+                if (Math.abs(el.getBoundingClientRect().top) > 8 && Math.abs(window.scrollY - startY) < 4) {
+                  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'auto' })
+                }
+              }, 700)
             }, 150)
           }
         }}
