@@ -51,7 +51,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.gate.outputs.ready == 'true'
-        run: pip install google-analytics-data google-api-python-client google-auth
+        run: pip install google-analytics-data google-api-python-client google-auth requests
 
       - name: Write credential files
         if: steps.gate.outputs.ready == 'true'
@@ -65,3 +65,9 @@ jobs:
       - name: Update dashboard sheet
         if: steps.gate.outputs.ready == 'true'
         run: python3 scripts/update_dashboard_sheet.py
+
+      # Repo is PUBLIC — the Command Center contains subscriber emails and revenue,
+      # so it is emailed to Brew instead of being committed (outputs are gitignored).
+      - name: Generate and email Command Center
+        if: steps.gate.outputs.ready == 'true'
+        run: python3 dashboard/generate_command_center.py --email

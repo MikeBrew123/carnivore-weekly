@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "command-center",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "dashboard", "-p", "8768", "-c-1"],
+      "port": 8768
+    },
+    {
       "name": "carnivore-site",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["http-server", "public", "-p", "8766", "-c-1"],
