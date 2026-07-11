@@ -422,3 +422,11 @@ Pattern: `send_drip.py` hard-caps at MAX_SENDS_PER_RUN=20 and exits 1 when pendi
 Attempts:
 - 2026-07-11 — Diagnosed: last real drip send 07-08 16:05 UTC; 29 pending all verified real subscribers (10 at day 0, never emailed). Fixed: cap now dynamic (3x busiest send day of past week, floor 50, env-overridable); workflow opens/comments a GH issue when the drip step fails (continue-on-error kept so blog publish still runs). Backlog cleared same day: 27 sent (one email each, sequence resumed where it left off — no multi-day catch-up), 2 quiet-day advances, verified in drip_subscribers.
 If recurs: check `gh run view <id> --log | grep -A5 send_drip` first — green runs don't mean the drip step ran. Any step with continue-on-error needs its own failure alert.
+
+## ISSUE-044 — Subscriber emails exposed in public repo; first fix left files tracked
+🟡 RECURRING — Last: 2026-07-11
+Pattern: generated dashboard reports with real subscriber emails were committed to the public repo; the first fix (4e276973) added .gitignore rules but skipped `git rm --cached`, so gitignore silently did nothing — files stayed tracked and live at HEAD for 2 more hours.
+Attempts:
+- 2026-07-11 — 4e276973 gitignored report artifacts → INCOMPLETE, files still tracked (gitignore never untracks existing files).
+- 2026-07-11 — 58db8ac9 `git rm --cached` all 7 report artifacts; 1738696b redacted 3 customer emails from docs; full 12,284-blob history audit → HEAD verified clean. History rewrite pending Brew approval (beads carnivore-weekly-8j4d, runbook in secrets/).
+If recurs: untracking = .gitignore rule AND `git rm --cached` AND verify with `git ls-files <path>`. Never write real user emails into docs/ or dashboard outputs — repo is public; use ***REDACTED***.
