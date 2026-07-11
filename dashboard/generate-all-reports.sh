@@ -46,9 +46,15 @@ echo "   ✅ engagement-tracking-report.html"
 echo ""
 
 # Report 5: Weekly Report (all-in-one: GA4 + Calculator + Newsletters + Drip + Coach + KD)
-echo "5/5 📋 Weekly Report (all-in-one dashboard)..."
+echo "5/6 📋 Weekly Report (all-in-one dashboard)..."
 node weekly-report.js
 echo "   ✅ weekly-report.html"
+echo ""
+
+# Report 6: Command Center (GA4 + GSC + Bing + funnels + demographics + mail + feedback + AI review)
+echo "6/6 🎛️  Command Center (the one to open daily)..."
+python3 generate_command_center.py
+echo "   ✅ command-center.html"
 echo ""
 
 echo "======================================================================"
@@ -58,7 +64,8 @@ echo ""
 echo "📁 Reports saved to dashboard/"
 echo ""
 echo "View reports:"
-echo "  • open dashboard/weekly-report.html          ← START HERE (all-in-one)"
+echo "  • open dashboard/command-center.html         ← START HERE (everything + AI review)"
+echo "  • open dashboard/weekly-report.html"
 echo "  • open dashboard/site-overview-report.html"
 echo "  • open dashboard/calculator-funnel-report.html"
 echo "  • open dashboard/wiki-search-report.html"
