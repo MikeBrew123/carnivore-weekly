@@ -24,7 +24,7 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -166,7 +166,28 @@ def log_drip_event(secrets, to, subject, email_id, tags):
         pass  # Non-critical, don't break sends
 
 
-MAX_SENDS_PER_RUN = 20  # Hard cap — if more than this, something is wrong
+MIN_SEND_CAP = 50  # Floor for the dynamic cap so the list can always grow into it
+
+
+def dynamic_send_cap(secrets):
+    """Safety cap that grows with the list: 3x the busiest send day of the
+    past week, never below MIN_SEND_CAP. Catches a bad-data signup flood
+    (ISSUE-040) without strangling organic growth (ISSUE-043 deadlock)."""
+    try:
+        since = datetime.now(timezone.utc) - timedelta(days=7)
+        rows = supabase_query(secrets, "drip_events", {
+            "select": "created_at",
+            "event_type": "eq.sent",
+            "created_at": f"gte.{since.isoformat()}",
+        })
+        by_day = {}
+        for r in rows:
+            day = (r.get("created_at") or "")[:10]
+            by_day[day] = by_day.get(day, 0) + 1
+        busiest = max(by_day.values(), default=0)
+        return max(MIN_SEND_CAP, busiest * 3)
+    except Exception:
+        return MIN_SEND_CAP  # Fail safe but recoverable
 
 
 def already_sent_today(secrets, email):
@@ -224,13 +245,12 @@ def main():
         print("No pending drip subscribers")
         return
 
-    if len(pending) > MAX_SENDS_PER_RUN:
-        print(f"🚨 SAFETY STOP: {len(pending)} subscribers exceeds cap of {MAX_SENDS_PER_RUN}.")
-        print("   This is unexpected. Check for bad data before proceeding.")
-        print("   Override with MAX_SENDS_PER_RUN env var if intentional.")
-        cap = int(os.environ.get("MAX_SENDS_PER_RUN", MAX_SENDS_PER_RUN))
-        if len(pending) > cap:
-            sys.exit(1)
+    cap = int(os.environ.get("MAX_SENDS_PER_RUN", 0)) or dynamic_send_cap(secrets)
+    if len(pending) > cap:
+        print(f"🚨 SAFETY STOP: {len(pending)} subscribers exceeds cap of {cap}.")
+        print("   This looks like a bad-data signup flood. Check drip_subscribers before proceeding.")
+        print("   Override with MAX_SENDS_PER_RUN env var if the volume is legitimate.")
+        sys.exit(1)
 
     print(f"Found {len(pending)} pending subscriber(s)\n")
     now = datetime.now(timezone.utc).isoformat()

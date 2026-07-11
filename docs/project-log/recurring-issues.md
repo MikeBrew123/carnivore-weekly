@@ -415,3 +415,10 @@ Pattern: deploy.yml's validate_canonicals.py requires <link rel="canonical"> on 
 Attempts:
 - 2026-07-09 — added canonical to shop-thanks.html → deploy green. Also validate_before_commit requires meta description on every page (caught pre-push).
 If recurs: every new standalone page needs BOTH meta description AND canonical link before commit. Checklist for hand-built pages: title, meta description, canonical, GA tag, skip-nav, viewport.
+
+## ISSUE-043 — Drip stalled 3 days: safety cap deadlock, masked by continue-on-error
+🟢 FIXED — Last: 2026-07-11
+Pattern: `send_drip.py` hard-caps at MAX_SENDS_PER_RUN=20 and exits 1 when pending exceeds it. Post-email-capture signup growth pushed pending to 29 on 07-09; every skipped day grows the backlog, so it can never self-recover. `continue-on-error: true` on the drip step (same masking as ISSUE-009/041) made all three runs report success.
+Attempts:
+- 2026-07-11 — Diagnosed: last real drip send 07-08 16:05 UTC; 29 pending all verified real subscribers (10 at day 0, never emailed). Fixed: cap now dynamic (3x busiest send day of past week, floor 50, env-overridable); workflow opens/comments a GH issue when the drip step fails (continue-on-error kept so blog publish still runs). Backlog cleared same day: 27 sent (one email each, sequence resumed where it left off — no multi-day catch-up), 2 quiet-day advances, verified in drip_subscribers.
+If recurs: check `gh run view <id> --log | grep -A5 send_drip` first — green runs don't mean the drip step ran. Any step with continue-on-error needs its own failure alert.
