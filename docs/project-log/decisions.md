@@ -70,3 +70,7 @@
 - **Customer replies never go to iambrew@gmail.com.** Branded addresses only (newsletter@/sarah@ etc.), now that Resend receiving is enabled. System notifications to Brew's Gmail are fine.
 - **KD stays on free Resend plan** (1 domain); KD uses CW-domain addresses until KD revenue justifies $20/mo Pro.
 - **Tracker spreadsheet bead closed as superseded** — July 4 roadmap kill-list forbids generic trackers; High-Protein Food List is the sanctioned next SKU.
+
+## 2026-07-11 — Email-leak remediation closed out
+- **No breach notification to affected subscribers.** ~21 real addresses (19 subscribers + paying customers) sat in the public repo's dashboard reports/docs for days-to-weeks; addresses only, no payment or health data; repo had 0 stars/forks/watchers, so realistic exposure ≈ nil. Brew decided notification is not warranted. Remediation done instead: HEAD scrubbed, full filter-repo history rewrite force-pushed same day (ISSUE-044, beads carnivore-weekly-8j4d), all clones reset.
+- **Remaining open item:** Brew files GitHub Support ticket to purge server-side cached objects + old PR refs (#1, #45) — last place one customer email is still fetchable.
