@@ -689,8 +689,10 @@ def model_narrative(data, model='claude-haiku-4-5-20251001'):
         return None
     digest = {
         'traffic_week': {s: data['traffic'].get(s, {}).get('week') for s in ('cw', 'kd')},
-        'search': {s: {'current': data['search'].get(s, {}).get('current'),
-                       'previous': data['search'].get(s, {}).get('previous')} for s in ('cw', 'kd')},
+        'search_google': {s: {'current': data['search'].get(s, {}).get('current'),
+                              'previous': data['search'].get(s, {}).get('previous')} for s in ('cw', 'kd')},
+        'search_bing': {s: {k: v for k, v in (data['search'].get(f'bing_{s}') or {}).items()
+                            if k != 'top_queries'} for s in ('cw', 'kd')},
         'funnels': data.get('funnels'),
         'demographics_cw': {k: v for k, v in (data.get('demographics', {}).get('cw') or {}).items()
                             if k in ('sessions', 'share_45_plus', 'email_capture_pct', 'sex', 'goal')},
