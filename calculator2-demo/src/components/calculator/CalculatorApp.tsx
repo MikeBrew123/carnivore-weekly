@@ -351,7 +351,12 @@ export default function CalculatorApp({
 
   const handleUpgradeClick = () => {
     console.log('[CalculatorApp] Upgrade button clicked')
-    console.log('[CalculatorApp] Setting showPaymentModal to true')
+    // Prefill checkout with the email already captured in Step 1 — retyping it
+    // is pure friction, and a typo here would split the report and the drip
+    // subscription across two different addresses. Still editable in the modal.
+    if (!email && formData.email) {
+      setEmail(formData.email)
+    }
     setShowPaymentModal(true)
   }
 
