@@ -56,13 +56,22 @@ CW_DEMO_BASELINE = {'45_plus_share': 66, 'female_share': 53, 'weight_loss_share'
 TODAY = date.today()
 NOW_STR = datetime.now().strftime('%Y-%m-%d %H:%M')
 
-# Internal / test accounts filtered out of people-level data
-TEST_EMAIL_MARKERS = ('iambrew@gmail.com', '@test.ketodial.com', '@example.com')
+# Internal / test accounts filtered out of people-level data.
+# NOTE: never filter on '+' alone — real readers use plus-addressing
+# (see memory feedback-plus-addressing-not-junk).
+TEST_EMAIL_MARKERS = ('iambrew@gmail.com', '@test.ketodial.com', '@example.com',
+                      'mbrew@telus.net', 'shoptest@', 'qa+hermes@', 'm@e.com')
+TEST_TEXT_MARKERS = ('please ignore', 'this is only a test', 'test feedback')
 
 
 def is_test_email(email):
     e = (email or '').lower()
     return any(m in e for m in TEST_EMAIL_MARKERS)
+
+
+def is_test_feedback(row):
+    text = (row.get('request_text') or '').lower()
+    return is_test_email(row.get('email')) or any(m in text for m in TEST_TEXT_MARKERS)
 
 
 def load_secrets():
@@ -436,19 +445,23 @@ def fetch_demographics():
 
 
 def fetch_feedback():
+    """Counts computed in Python (not supa_count) so test entries can be excluded."""
     rows = supa_fetch('content_feedback',
                       select='request_text,email,submitted_at,status',
-                      order='submitted_at.desc', limit=20)
+                      order='submitted_at.desc', limit=200)
+    real = [r for r in rows if not is_test_feedback(r)]
+    hidden = len(rows) - len(real)
     d7, d30 = iso_days_ago(7), iso_days_ago(30)
     return {
-        'total': supa_count('content_feedback', ''),
-        'new_7d': supa_count('content_feedback', f'submitted_at=gte.{d7}'),
-        'new_30d': supa_count('content_feedback', f'submitted_at=gte.{d30}'),
-        'unreviewed': supa_count('content_feedback', 'status=eq.new'),
+        'total': len(real),
+        'new_7d': sum(1 for r in real if (r.get('submitted_at') or '') >= d7),
+        'new_30d': sum(1 for r in real if (r.get('submitted_at') or '') >= d30),
+        'unreviewed': sum(1 for r in real if r.get('status') == 'new'),
+        'hidden_test': hidden,
         'recent': [{'text': (r.get('request_text') or '')[:280],
                     'email': r.get('email') or '(anonymous)',
                     'date': (r.get('submitted_at') or '')[:16],
-                    'status': r.get('status')} for r in rows],
+                    'status': r.get('status')} for r in real[:20]],
     }
 
 
@@ -486,7 +499,11 @@ def fetch_mail():
         return ('dmarc' in blob or 'report domain' in blob or 'postmaster' in blob
                 or 'mailer-daemon' in blob)
 
-    out['human'] = [m for m in out['inbound'] if not is_report(m)]
+    def is_internal(m):
+        return is_test_email(m.get('from')) or is_test_email(m.get('to'))
+
+    out['human'] = [m for m in out['inbound'] if not is_report(m) and not is_internal(m)]
+    out['internal'] = [m for m in out['inbound'] if not is_report(m) and is_internal(m)]
     out['reports'] = [m for m in out['inbound'] if is_report(m)]
     d7 = iso_days_ago(7)
     out['inbound_7d'] = supa_count('drip_events', f'event_type=eq.email.received&created_at=gte.{d7}')
@@ -991,8 +1008,13 @@ def render_html(d):
                   for m in mail.get('human', [])]
     report_rows = [[esc(m['date']), esc(m['from']), esc(m['subject'])]
                    for m in mail.get('reports', [])]
+    internal_rows = [[esc(m['date']), esc(m['from']), esc(m['to']), esc(m['subject'])]
+                     for m in mail.get('internal', [])]
     mail_html = (table(['Date', 'From', 'To', 'Subject'], human_rows) if human_rows
-                 else '<p class="muted">No human mail — inbox is clear.</p>')
+                 else '<p class="muted">No reader mail — inbox is clear.</p>')
+    if internal_rows:
+        mail_html += (f'<details><summary>{len(internal_rows)} internal / test email(s)</summary>'
+                      f'{table(["Date", "From", "To", "Subject"], internal_rows)}</details>')
     if report_rows:
         mail_html += (f'<details><summary>{len(report_rows)} automated report(s) '
                       f'(DMARC / postmaster)</summary>'
@@ -1169,7 +1191,7 @@ def render_html(d):
 <div class="card"><h3>Inbound Mail <span class="muted small">(@carnivoreweekly.com · {mail.get('inbound_7d', 0)} total this week)</span></h3>
 {mail_html}
 </div>
-<div class="card"><h3>Site Feedback <span class="muted small">({fb.get('new_7d', 0)} new this week · {fb.get('unreviewed', 0)} unreviewed)</span></h3>
+<div class="card"><h3>Site Feedback <span class="muted small">({fb.get('new_7d', 0)} new this week · {fb.get('unreviewed', 0)} unreviewed · {fb.get('hidden_test', 0)} test entries hidden)</span></h3>
 {table(['Date', 'From', 'Message', 'Status'], fb_rows) if fb_rows else (err_note(fb, 'Feedback') or '<p class="muted">No feedback yet.</p>')}
 </div>
 <div class="card"><h3>Email Engagement <span class="muted small">(drip + newsletter, 7d)</span></h3>
