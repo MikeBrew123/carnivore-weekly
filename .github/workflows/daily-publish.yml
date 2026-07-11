@@ -34,12 +34,27 @@ jobs:
         run: pip install beautifulsoup4 lxml html5lib markdown jinja2 supabase python-dotenv requests
 
       - name: Send drip emails (7-Day Starter)
+        id: drip
         continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: python3 scripts/send_drip.py
+
+      - name: Alert on drip failure
+        if: steps.drip.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="🚨 Drip send failed in daily-publish"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$EXISTING" ]; then
+            gh issue create --title "$TITLE" --body "send_drip.py exited non-zero on $(date -u +%F). Subscribers are NOT receiving drip emails until this is fixed — the backlog grows daily (see ISSUE-043 in docs/project-log/recurring-issues.md). Run: $RUN_URL"
+          else
+            gh issue comment "$EXISTING" --body "Failed again on $(date -u +%F): $RUN_URL"
+          fi
 
       - name: Publish CW scheduled posts
         id: publish_cw
