@@ -131,6 +131,26 @@ export default function CalculatorApp({
   }, [formData.diet, isHydrated])
 
 
+  // Funnel events must count unique progress, not navigation churn — Back +
+  // forward used to refire calculator_completed (inflating completions) and
+  // Steps 1-2 had no events at all, leaving the mandatory-email-gate
+  // drop-off (live since 2026-06-29) invisible in GA4.
+  const firedFunnelEvents = useRef<Set<string>>(new Set())
+  const trackFunnelOnce = (eventName: string, params: Record<string, string | undefined> = {}) => {
+    if (firedFunnelEvents.current.has(eventName)) return
+    firedFunnelEvents.current.add(eventName)
+    trackCalculatorEvent(eventName, params)
+  }
+  // Drip subscribe fires once per distinct email, not on every pass through Step 1
+  const lastSubscribedEmail = useRef<string | null>(null)
+
+  // Funnel: Step 1 seen (fires once per page load, incl. after Start Over)
+  useEffect(() => {
+    if (isHydrated && currentStep === 1) {
+      trackFunnelOnce('calculator_step1_viewed')
+    }
+  }, [isHydrated, currentStep])
+
   // UI state (non-persisted, transient)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -306,28 +326,42 @@ export default function CalculatorApp({
     }
   }
 
-  // Step navigation
+  // Step navigation — both forward (Continue) and backward (Back) land here,
+  // so completion side effects are gated on FORWARD moves only. They used to
+  // fire on any entry: Back from Step 4 counted as another calculator_completed
+  // and Back to Step 1 re-POSTed the drip subscribe.
   const handleStepContinue = (step: number) => {
-    console.log('[CalculatorApp] Advancing to step:', step)
-    if (step === 3) {
-      trackCalculatorEvent('calculator_diet_selected', {
-        diet_type: formData.diet || 'unknown',
-      })
-      trackCalculatorEvent('calculator_completed', {
-        diet_type: formData.diet || 'unknown',
-        goal: formData.goal || 'unknown',
-      })
-    }
-    // Save completed step data (step param is the NEXT step, so completed = step - 1)
-    saveStepToBackend(step - 1)
+    const isForward = step > currentStep
+    console.log('[CalculatorApp] Moving to step:', step, isForward ? '(forward)' : '(back)')
 
-    // Auto-subscribe to drip sequence when completing Step 1 (email captured)
-    if (step === 2 && formData.email) {
-      fetch(`${API_BASE}/api/v1/subscribe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email, source: 'calculator' }),
-      }).catch(() => {})
+    if (isForward) {
+      if (step === 2) {
+        trackFunnelOnce('calculator_step1_completed')
+      }
+      if (step === 3) {
+        trackFunnelOnce('calculator_step2_completed', {
+          diet_type: formData.diet || 'unknown',
+          goal: formData.goal || 'unknown',
+        })
+        trackFunnelOnce('calculator_completed', {
+          diet_type: formData.diet || 'unknown',
+          goal: formData.goal || 'unknown',
+        })
+      }
+
+      // Save completed step data (step param is the NEXT step, so completed = step - 1)
+      saveStepToBackend(step - 1)
+
+      // Auto-subscribe to drip sequence when completing Step 1 (email captured);
+      // once per distinct email so re-passes don't re-POST
+      if (step === 2 && formData.email && lastSubscribedEmail.current !== formData.email) {
+        lastSubscribedEmail.current = formData.email
+        fetch(`${API_BASE}/api/v1/subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: formData.email, source: 'calculator' }),
+        }).catch(() => {})
+      }
     }
 
     setCurrentStep(step)
