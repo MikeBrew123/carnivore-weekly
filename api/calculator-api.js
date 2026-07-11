@@ -137,6 +137,7 @@ const stripeCouponMap = {
   'WELCOME5': 'WELCOME5',     // $5 off once ($24) — drip Day 3 welcome offer
   'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($23.20)
   'CARNIVORE50': '0yWiiOLv',  // 25% off once ($21.75) — name says 50 but it's actually 25% off 😏
+  'THANKYOU25': 'ks9WVZAP',   // 25% off once ($21.75) — thank-you code for readers who report site issues
   'ETSY50': '52fYA51M',       // 50% off forever ($14.50) — Etsy cross-sell coupon
   'DRIP50': '52fYA51M',       // 50% off ($14.50) — Day 7 drip graduation reward
   // TEST99 removed - $0.10 below Stripe's 50 cent minimum
