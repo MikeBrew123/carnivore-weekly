@@ -4415,8 +4415,24 @@ async function handleCreateCheckout(request, env) {
 
     // ===== CHECK FOR 100% DISCOUNT - BYPASS STRIPE =====
 
-    if (discount_percent === 100 || amount === 0) {
-      console.log('[handleCreateCheckout] 100% discount detected - bypassing Stripe');
+    // SECURITY (bead u6ty): amount and discount_percent arrive from the
+    // client and must never be trusted — the free bypass requires a coupon
+    // code that Stripe itself confirms is 100% off. Anything else falls
+    // through to real Stripe checkout at the server-side price ID.
+    let validatedFreeCoupon = null;
+    if (coupon_code && (discount_percent === 100 || amount === 0)) {
+      const freeCheck = await validateCoupon(coupon_code, env);
+      if (freeCheck.valid && freeCheck.percent === 100) {
+        validatedFreeCoupon = freeCheck;
+      } else {
+        console.warn(`[handleCreateCheckout] Free-checkout attempt rejected: coupon=${coupon_code} valid=${freeCheck.valid} percent=${freeCheck.percent ?? 'n/a'}`);
+      }
+    } else if (discount_percent === 100 || amount === 0) {
+      console.warn('[handleCreateCheckout] Free-checkout attempt rejected: no coupon code supplied');
+    }
+
+    if (validatedFreeCoupon) {
+      console.log('[handleCreateCheckout] Stripe-verified 100% coupon - bypassing Stripe');
 
       // Update database to mark as completed (free checkout)
       const updateResponse = await fetch(
