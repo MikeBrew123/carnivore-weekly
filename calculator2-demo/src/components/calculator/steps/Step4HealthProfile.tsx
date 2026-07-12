@@ -3,11 +3,13 @@ import FormField from '../shared/FormField'
 import TextArea from '../shared/TextArea'
 import CheckboxGroup from '../shared/CheckboxGroup'
 import SelectField from '../shared/SelectField'
+import { useFormStore } from '../../../stores/formStore'
 
 interface Step4HealthProfileProps {
   data: FormData
   onDataChange: (data: FormData) => void
   onSubmit: () => void
+  onBack: () => void
   onFieldChange?: (fieldName: string) => void
   onSetErrors?: (errors: Record<string, string>) => void
   errors: Record<string, string>
@@ -17,10 +19,12 @@ export default function Step4HealthProfile({
   data,
   onDataChange,
   onSubmit,
+  onBack,
   onFieldChange,
   onSetErrors,
   errors,
 }: Step4HealthProfileProps) {
+  const { resetForm } = useFormStore()
   const handleInputChange = (field: string, value: any) => {
     onDataChange({ ...data, [field]: value })
     // Clear error for this field if it has a value
@@ -436,11 +440,43 @@ export default function Step4HealthProfile({
           </div>
         )}
 
-        <button
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            type="button"
+            onClick={() => {
+              window.gtag?.('event', 'calculator_step4_back_click', {
+                'event_category': 'calculator',
+                'event_label': 'step4_back_clicked'
+              })
+              onBack()
+            }}
+            style={{
+              flex: '0 0 30%',
+              backgroundColor: 'transparent',
+              border: '2px solid #ffd700',
+              color: '#ffd700',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '16px',
+              fontWeight: '600',
+              padding: '14px 16px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 215, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
+          >
+            Back
+          </button>
+          <button
             type="button"
             onClick={handleSubmit}
             style={{
-              width: '100%',
+              flex: 1,
               background: 'linear-gradient(135deg, #ffd700 0%, #e6c200 100%)',
               color: '#1a120b',
               fontWeight: 'bold',
@@ -463,6 +499,44 @@ export default function Step4HealthProfile({
           >
             Generate My Protocol
           </button>
+        </div>
+
+        {/* Start Over — paid users keep their purchase (isPremium + assessmentId
+            survive resetForm); the server still allows only one generated
+            report per purchase */}
+        <div style={{ textAlign: 'center' }}>
+          <button
+            type="button"
+            onClick={() => {
+              const confirmed = window.confirm("Are you sure? This clears your answers and returns to Step 1. Your purchase stays attached to this browser.")
+              if (confirmed) {
+                window.gtag?.('event', 'calculator_start_over_click', {
+                  'event_category': 'calculator',
+                  'event_label': 'start_over_step4'
+                })
+                resetForm()
+                setTimeout(() => {
+                  const el = document.getElementById('calculator-start')
+                  if (!el) return
+                  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' })
+                  const startY = window.scrollY
+                  setTimeout(() => {
+                    if (Math.abs(el.getBoundingClientRect().top) > 8 && Math.abs(window.scrollY - startY) < 4) {
+                      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'auto' })
+                    }
+                  }, 700)
+                }, 150)
+              }
+            }}
+            style={{
+              background: 'none', border: 'none', color: '#8b7355', fontSize: '14px',
+              textDecoration: 'underline', cursor: 'pointer', padding: '8px', marginTop: '4px',
+              fontFamily: "'Playfair Display', Georgia, serif"
+            }}
+          >
+            ↺ Start Over (wrong diet type or details?)
+          </button>
+        </div>
       </section>
     </div>
   )

@@ -102,7 +102,17 @@ export const useFormStore = create<FormStore>()(
       markDirty: () => set({ isDirty: true }),
       markClean: () => set({ isDirty: false }),
 
-      resetForm: () => set({ form: defaultForm, currentStep: 1, macros: null, assessmentId: null, isDirty: false }),
+      resetForm: () =>
+        set((state) => ({
+          form: defaultForm,
+          currentStep: 1,
+          macros: null,
+          // A paid user's assessment is their one purchased report — keep it
+          // (along with isPremium, which reset never touched) so Start Over
+          // can't orphan a payment. Free users get a clean slate.
+          assessmentId: state.isPremium ? state.assessmentId : null,
+          isDirty: false,
+        })),
     }),
     {
       name: 'carnivore-calculator-form',
