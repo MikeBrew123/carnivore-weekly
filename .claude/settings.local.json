@@ -88,7 +88,23 @@
       "Bash(grep -nA3 \"staleness\\\\|ISSUE-036\\\\|heartbeat\" docs/project-log/recurring-issues.md)",
       "Bash(gh workflow *)",
       "Bash(curl -s -o /dev/null -w '%{http_code}' -L --max-time 20 https://carnivoreweekly.com/blog/__TRACKED_VAR__.html)",
-      "Bash(node ga4-mobile-split.mjs)"
+      "Bash(node ga4-mobile-split.mjs)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(command -v /usr/local/bin/node /opt/homebrew/bin/node)",
+      "Bash(cd /Users/mbrew/Developer/carnivore-weekly *)",
+      "Bash(xargs cat)",
+      "Bash(awk '/2026-07-06/{f=1} f{print}' scoreboard.md)",
+      "Bash(sort -t- -k2 -n)",
+      "Bash(bd ready *)",
+      "Bash(wait)",
+      "Bash(node /private/tmp/claude-501/-Users-mbrew-Developer-carnivore-weekly/b7c79126-6ad9-47ea-8db7-639bb73f6a2c/scratchpad/kd-indexing.mjs)",
+      "Bash(pkill -f \"kd-indexing.mjs\")",
+      "Bash(awk '{print $5, $9}')",
+      "Bash(cat > *)",
+      "Bash(bd show *)",
+      "mcp__Google_Workspace_MCP__get_gmail_message_content",
+      "Bash(bd close *)",
+      "mcp__scheduled-tasks__list_scheduled_tasks"
     ]
   },
   "disabledMcpjsonServers": [
