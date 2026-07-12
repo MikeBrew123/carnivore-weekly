@@ -173,7 +173,54 @@ export default function Step3FreeResults({
         <h2 className="text-2xl md:text-3xl lg:text-4xl" style={{ ...goldHeading, fontWeight: '700', marginBottom: '8px' }}>
           Your Personalized {config.label} Macros
         </h2>
-        <p style={{ ...bodyFont, fontSize: '16px', color: '#a0a0a0' }}>Based on your profile and goals</p>
+        <p style={{ ...bodyFont, fontSize: '16px', color: '#a0a0a0', marginBottom: '10px' }}>Based on your profile and goals</p>
+        {/* Restart affordances must be findable WITHOUT scrolling past the
+            upsell — returning users land here and the bottom link alone was
+            repeatedly missed (Nancy, ISSUE-046 follow-up) */}
+        <p style={{ ...bodyFont, fontSize: '14px', color: '#a0a0a0', margin: 0 }}>
+          Wrong diet type or details?{' '}
+          <button
+            onClick={() => {
+              const confirmed = window.confirm("Are you sure? This will clear your calculations and reset the form to Step 1.")
+              if (confirmed) {
+                window.gtag?.('event', 'calculator_start_over_click', {
+                  'event_category': 'calculator',
+                  'event_label': 'start_over_top_link'
+                })
+                resetForm()
+                setTimeout(() => {
+                  const el = document.getElementById('calculator-start')
+                  if (!el) return
+                  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' })
+                  const startY = window.scrollY
+                  setTimeout(() => {
+                    if (Math.abs(el.getBoundingClientRect().top) > 8 && Math.abs(window.scrollY - startY) < 4) {
+                      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'auto' })
+                    }
+                  }, 700)
+                }, 150)
+              }
+            }}
+            style={{
+              background: 'none', border: 'none', color: '#ffd700', fontSize: '14px',
+              textDecoration: 'underline', cursor: 'pointer', padding: 0,
+              fontFamily: "'Merriweather', Georgia, serif"
+            }}
+          >
+            ↺ Start over
+          </button>
+          {' '}or{' '}
+          <button
+            onClick={onBack}
+            style={{
+              background: 'none', border: 'none', color: '#ffd700', fontSize: '14px',
+              textDecoration: 'underline', cursor: 'pointer', padding: 0,
+              fontFamily: "'Merriweather', Georgia, serif"
+            }}
+          >
+            go back and edit
+          </button>
+        </p>
       </div>
 
       {/* ════════════════════════════════════════════
