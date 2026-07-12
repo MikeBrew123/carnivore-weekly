@@ -4318,7 +4318,7 @@ async function handleCreateCheckout(request, env) {
       );
     }
 
-    const { email, first_name, form_data, formData, success_url, cancel_url, tier_id, amount, discount_percent, coupon_code } = body;
+    const { email, first_name, form_data, formData, success_url, cancel_url, tier_id, amount, discount_percent, coupon_code, session_token } = body;
     const finalFormData = form_data || formData;
 
     // Map tier_id to Stripe price_id
@@ -4440,6 +4440,36 @@ async function handleCreateCheckout(request, env) {
         console.error('Failed to update free checkout session:', updateError);
       }
 
+      // Free checkouts never hit the Stripe webhook, so sync the funnel row
+      // (calculator_sessions_v2) here or it stays 'pending' forever
+      if (session_token && typeof session_token === 'string') {
+        const freeSyncRes = await fetch(
+          `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(session_token)}&payment_status=eq.pending`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+              'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+            },
+            body: JSON.stringify({
+              // payment_integrity constraint: 'completed' requires a non-null
+              // payment intent, and free checkouts have none — record a
+              // synthetic marker. is_premium omitted (needs tier_id, see
+              // premium_requires_payment; payment_status is the paid signal).
+              payment_status: 'completed',
+              amount_paid_cents: 0,
+              stripe_payment_intent_id: `free_coupon_${(coupon_code || '100pct').toString().slice(0, 40)}`,
+              paid_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }),
+          }
+        );
+        if (!freeSyncRes.ok) {
+          console.warn('Free checkout: calculator_sessions_v2 sync failed:', await freeSyncRes.text());
+        }
+      }
+
       // Return success response with direct redirect (no Stripe)
       return createSuccessResponse({
         success: true,
@@ -4527,6 +4557,12 @@ async function handleCreateCheckout(request, env) {
     formBody.append('metadata[assessment_session_id]', sessionUUID);
     formBody.append('metadata[email]', email);
     formBody.append('metadata[first_name]', sanitizedFirstName);
+    // Funnel-row link: calculator_sessions_v2 has its own UUID keyed by
+    // session_token, so the webhook needs this token to mark the right
+    // funnel row paid (ISSUE bead carnivore-weekly-bryy)
+    if (session_token && typeof session_token === 'string') {
+      formBody.append('metadata[calc_session_token]', session_token);
+    }
 
     console.log('=== STRIPE REQUEST DEBUG ===');
     console.log('URL:', 'https://api.stripe.com/v1/checkout/sessions');
@@ -5707,35 +5743,60 @@ async function handleStripeWebhook(request, env) {
       return createSuccessResponse({ received: true, skipped: true });
     }
 
+    // The funnel row in calculator_sessions_v2 has its OWN uuid — sessionUUID
+    // here is the ASSESSMENT id, and patching v2 by it silently matched zero
+    // rows for months (PostgREST returns 200 on empty PATCHes). Join on the
+    // funnel session_token carried through checkout metadata; fall back to
+    // the buyer's email for checkouts created before the token was added.
+    const calcToken = obj.metadata?.calc_session_token;
+    const buyerEmail = obj.customer_email || obj.metadata?.email;
+    const calcFilter = calcToken
+      ? `session_token=eq.${encodeURIComponent(calcToken)}`
+      : (buyerEmail ? `email=eq.${encodeURIComponent(buyerEmail)}` : null);
+
     const [assessmentRes, calcRes] = await Promise.all([
       fetch(`${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}&payment_status=eq.pending`, {
         method: 'PATCH',
         headers: patchHeaders,
         body: JSON.stringify({ payment_status: 'completed', updated_at: new Date().toISOString() }),
       }),
-      fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}&payment_status=eq.pending`, {
-        method: 'PATCH',
-        headers: patchHeaders,
-        body: JSON.stringify({ payment_status: 'completed', paid_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
-      }),
+      calcFilter
+        ? fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?${calcFilter}&payment_status=eq.pending`, {
+            method: 'PATCH',
+            headers: { ...patchHeaders, 'Prefer': 'return=representation' },
+            body: JSON.stringify({
+              // NOTE: is_premium deliberately NOT set — the premium_requires_payment
+              // check constraint demands a tier_id and payment_tiers is empty;
+              // payment_status='completed' is the source of truth for "paid"
+              payment_status: 'completed',
+              amount_paid_cents: amountTotal ?? null,
+              stripe_payment_intent_id: typeof obj.payment_intent === 'string' ? obj.payment_intent : null,
+              paid_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }),
+          })
+        : Promise.resolve(null),
     ]);
 
     if (!assessmentRes.ok) console.warn('Webhook: cw_assessment_sessions PATCH failed:', await assessmentRes.text());
-    if (!calcRes.ok) console.warn('Webhook: calculator_sessions_v2 PATCH failed:', await calcRes.text());
+    let patchedCalcRows = [];
+    if (!calcRes) {
+      console.warn('Webhook: no session_token or email on checkout — calculator_sessions_v2 not synced');
+    } else if (!calcRes.ok) {
+      console.warn('Webhook: calculator_sessions_v2 PATCH failed:', await calcRes.text());
+    } else {
+      patchedCalcRows = await calcRes.json().catch(() => []);
+      if (!Array.isArray(patchedCalcRows)) patchedCalcRows = [];
+      if (patchedCalcRows.length === 0) {
+        console.warn(`Webhook: calculator_sessions_v2 PATCH matched 0 rows (${calcFilter}) — payment recorded on assessment only`);
+      }
+    }
 
     // Server-side GA4 purchase event via Measurement Protocol (fire-and-forget)
     if (env.GA4_API_SECRET && env.GA4_MEASUREMENT_ID) {
-      let clientId = sessionUUID;
-      try {
-        const sessionLookup = await fetch(
-          `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}&select=ga_client_id`,
-          { headers: patchHeaders }
-        );
-        const sessionData = await sessionLookup.json();
-        if (Array.isArray(sessionData) && sessionData[0]?.ga_client_id) {
-          clientId = sessionData[0].ga_client_id;
-        }
-      } catch (_) { /* fallback to sessionUUID */ }
+      // ga_client_id lives on the funnel row we just patched (the old lookup
+      // by assessment id could never find it)
+      const clientId = patchedCalcRows[0]?.ga_client_id || sessionUUID;
       fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${env.GA4_MEASUREMENT_ID}&api_secret=${env.GA4_API_SECRET}`, {
         method: 'POST',
         body: JSON.stringify({
@@ -5780,17 +5841,28 @@ async function handleStripeWebhook(request, env) {
       const sessionUUID = checkoutSession?.client_reference_id;
 
       if (sessionUUID) {
+        // Same join fix as checkout.session.completed: the v2 funnel row is
+        // keyed by session_token (from checkout metadata) or email — never by
+        // the assessment UUID
+        const refundToken = checkoutSession?.metadata?.calc_session_token;
+        const refundEmail = checkoutSession?.customer_email || checkoutSession?.metadata?.email;
+        const refundFilter = refundToken
+          ? `session_token=eq.${encodeURIComponent(refundToken)}`
+          : (refundEmail ? `email=eq.${encodeURIComponent(refundEmail)}&payment_status=eq.completed` : null);
+
         await Promise.all([
           fetch(`${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}`, {
             method: 'PATCH',
             headers: patchHeaders,
             body: JSON.stringify({ payment_status: 'refunded', updated_at: new Date().toISOString() }),
           }),
-          fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?id=eq.${sessionUUID}`, {
-            method: 'PATCH',
-            headers: patchHeaders,
-            body: JSON.stringify({ payment_status: 'refunded', is_premium: false, updated_at: new Date().toISOString() }),
-          }),
+          refundFilter
+            ? fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?${refundFilter}`, {
+                method: 'PATCH',
+                headers: patchHeaders,
+                body: JSON.stringify({ payment_status: 'refunded', is_premium: false, updated_at: new Date().toISOString() }),
+              })
+            : Promise.resolve(null),
         ]);
         console.log(`Webhook: refund processed for session ${sessionUUID}`);
 
