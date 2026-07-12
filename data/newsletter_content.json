@@ -1,31 +1,31 @@
 {
-  "date": "2026-07-09",
-  "subject_line": "You finished the lion diet. Now what?",
-  "opening": "<p style='margin:0;'>Hey, happy Thursday! This week we've got something for the people who did the hard thing and now aren't sure what comes next. Plus a community debate that absolutely refuses to die, and a framework that'll settle your seasoning guilt for good.</p>",
+  "date": "2026-07-12",
+  "subject_line": "Extra butter might be why you've stalled",
+  "opening": "<p style='margin:0;'>Happy Sunday, friends. This week we got into some spicy territory: fat stalls, second-attempt keto misery, and a Reddit coffee thread that apparently broke the internet. Grab your ribeye and let's get into it.</p>",
   "hero": {
-    "slug": "2026-07-09-lion-diet-transition",
-    "title": "Transitioning Off the Lion Diet: A Practical Guide",
-    "writer": "Chloe",
-    "teaser": "You stripped your diet down to almost nothing, it worked, and now you're staring at a plate wondering what you're actually allowed to eat again. Most people get this transition wrong in the same two ways, and the consequences aren't pretty. Chloe mapped out the exact reintroduction order the community keeps coming back to, and it's not what most people guess. If you've earned your way off the lion diet, this is the roadmap you need before you touch anything new.",
-    "cta": "Read before your next meal"
+    "slug": "2026-07-11-too-much-fat-keto",
+    "title": "Can You Really Eat Too Much Fat on Keto?",
+    "writer": "Sarah",
+    "teaser": "Most of us started keto after hearing 'fat is your friend.' So it's genuinely shocking when adding more butter to everything turns out to be the exact thing slowing you down. The difference between dietary fat and body fat is where this gets interesting, and it's not what the usual keto advice will tell you. Sarah breaks down the actual science, and the answer depends on one factor most people aren't tracking. You'll want to read this before your next grocery run.",
+    "cta": "Read before Friday"
   },
   "supporting": [
     {
-      "slug": "2026-07-05-carnivore-summer-cut",
-      "title": "The Carnivore Summer Cut: How to Lean Out Without Losing Muscle",
-      "teaser": "Marcus built a 6-week protocol with specific numbers, and the protein floor he recommends will probably surprise you."
+      "slug": "2026-07-10-second-attempt-keto-harder",
+      "title": "Why Your Second Attempt at Keto Feels Harder",
+      "teaser": "Sarah found the biological reason round two hits so much rougher, and it has nothing to do with willpower."
     },
     {
-      "slug": "2026-07-06-carnivore-seasonings-condiments",
-      "title": "Seasonings and Condiments on Carnivore: Where to Draw the Line",
-      "teaser": "Marcus laid out a three-tier framework for seasonings, and one of the tiers is probably giving you a result you haven't blamed it for yet."
+      "slug": "2026-07-09-lion-diet-transition",
+      "title": "Transitioning Off the Lion Diet: A Practical Guide",
+      "teaser": "Chloe maps out the reintroduction order most people get wrong, plus the two mistakes that erase your progress fast."
     },
     {
       "slug": "2026-07-08-quitting-coffee-carnivore",
       "title": "Quitting Coffee on Carnivore: The Thread That Won't Die",
-      "teaser": "A 68-comment Reddit thread on carnivore and coffee reveals that the fight isn't really about caffeine at all."
+      "teaser": "A 68-comment Reddit thread revealed it's not really about the coffee, and Chloe explains what it's actually about."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Pick your seasoning tier and stick to it for 7 days.</strong> Marcus breaks it down into three clear options in this week's condiments post, so there's no guessing involved. Choose one, write it down, and don't negotiate with yourself mid-week. Consistency over a short window tells you more than months of winging it.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something the community has strong opinions about, and the data behind it is a lot messier than the loudest voices will admit. Stay tuned.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Track your added fat separately for three days.</strong> Don't change what you eat yet. Just log butter, tallow, and cream as their own line item so you can see the actual number. Most people are surprised, and that number is the first thing to look at if your scale hasn't moved in two weeks.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something the community has been asking about for months, and the answer is going to make a lot of people rethink their morning routine.</p>"
 }
