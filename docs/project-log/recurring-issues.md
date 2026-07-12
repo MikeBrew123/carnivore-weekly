@@ -452,3 +452,10 @@ Pattern: webhook PATCHed calculator_sessions_v2 by the ASSESSMENT UUID, but v2 r
 Attempts:
 - 2026-07-12 — Worker: create-checkout now forwards session_token into Stripe metadata[calc_session_token]; webhook + refund handler join v2 by token (email fallback for in-flight checkouts), log zero-match warnings, sync amount/intent/paid_at, and reuse the patched row for the GA4 client_id (old lookup was also by wrong id). Free-checkout path syncs v2 with a free_coupon_* marker. Migration payment_integrity_allow_refunded adds the 'refunded' branch. is_premium deliberately NOT set (needs tier_id). Backfilled Nancy's row; other paid customer (Jun 28) has no v2 row to fix. Verified live via QA free-checkout round-trip, QA rows deleted. Deployed e724466f.
 If recurs: PostgREST zero-match PATCH = silent no-op — always request return=representation and check row count. Check metadata[calc_session_token] present on new checkout sessions in Stripe.
+
+## ISSUE-048 — create-checkout trusted client-supplied amount (free protocols for anyone)
+🟢 FIXED — Last: 2026-07-12
+Pattern: handleCreateCheckout bypassed Stripe and marked the assessment paid whenever the CLIENT posted discount_percent=100 or amount=0 — no server-side validation. Anyone reading the page source could POST amount:0 for a full paid protocol. Never exploited (only 2 real purchases, both paid).
+Attempts:
+- 2026-07-12 — Free bypass now requires a coupon code that validateCoupon confirms with Stripe as literally 100% off (percent_off===100). All other requests fall through to real Stripe checkout priced by the server-side price ID (client amount was never used for pricing there). Rejected attempts log a warning. Verified live: amount:0 alone and amount:0+WELCOME10 both got real Stripe checkouts; TEST999 still bypasses free. QA rows deleted. Deployed e06fc634.
+If recurs: any 'free' or discount branch must derive its facts from Stripe/server state, never the request body. Check worker logs for 'Free-checkout attempt rejected'.
