@@ -379,6 +379,7 @@ Pattern: the AI-generated "This Week's Roundup" text (data/analyzed_content.json
 Attempts:
 - 2026-07-05 — stripped the dead hyperlink from analyzed_content.json (kept the plain-text mention), regenerated public/index.html via generate.py --type pages → validator green
 - 2026-07-08 — recurred verbatim: new slug (2026-07-07-keto-family-reunion-survival, site:kd, author chloe), same failure mode. Blocked the 16:04 UTC Daily Blog Publisher run (28957157722). Stripped the link again (commit 141957d5), regenerated homepage, validator 0 critical. The "if recurs" prevention from 07-05 (pre-generation site-field check) was never implemented — this is the 2nd occurrence with no code guard added.
+- 2026-07-11 — 3rd occurrence (2026-07-09-keto-influencer-red-flags, site:kd), blocked a push. Twist: the KD post WAS marked published in blog_posts.json but never rendered (see ISSUE-045 — 9 KD posts published-without-HTML). Fixed root cause first (`generate_kd_blog.py --only-new` rendered the backlog, verified live), then converted the link to the full cross-domain URL per rule 2a — note KD filenames drop the date prefix (/blog/keto-influencer-red-flags.html) — in BOTH public/index.html and data/analyzed_content.json. Guard STILL unimplemented; filed as bead.
 If recurs: STOP just patching the symptom. Implement the actual guard: content_analyzer_optimized.py (or wherever the roundup summary is generated) must strip/reject any /blog/ markdown link whose slug isn't found in blog_posts.json with site:"cw" AND a corresponding file in public/blog/. This is a repeat offender — the manual fix takes 5 min but keeps costing a full publisher-workflow failure cycle each time it happens.
 
 - 2026-07-05 — Recurred on commit f2e986f5 (beads-metadata-only, no site change). "Deployment failed, try again later" — Pages backend blip, not a build error. Self-healed: next commit (b6fa9be8) deployed green, both sites 200. No rerun-failed used. Confirms the pattern: a beads/docs commit that trips the blip gets superseded by the next real push for free.
@@ -430,3 +431,10 @@ Attempts:
 - 2026-07-11 — 4e276973 gitignored report artifacts → INCOMPLETE, files still tracked (gitignore never untracks existing files).
 - 2026-07-11 — 58db8ac9 `git rm --cached` all 7 report artifacts; 1738696b redacted 3 customer emails from docs; full 12,284-blob history audit → HEAD verified clean. History rewrite pending Brew approval (beads carnivore-weekly-8j4d, runbook in secrets/).
 If recurs: untracking = .gitignore rule AND `git rm --cached` AND verify with `git ls-files <path>`. Never write real user emails into docs/ or dashboard outputs — repo is public; use ***REDACTED***.
+
+## ISSUE-045 — KD daily publish marks posts published without rendering HTML
+🔴 OPEN — Last: 2026-07-11
+Pattern: 9 KD posts (Jul 2–11) had status published in blog_posts.json but no HTML in ketodial/public/blog/ — every one 404'd live. daily_publish.py --site kd (or its workflow leg) is not running generate_kd_blog.py --only-new after flipping status.
+Attempts:
+- 2026-07-11 — rendered the backlog via generate_kd_blog.py --only-new (9 posts + index cards + sitemap), pushed, verified live 200. Root cause in the publish pipeline NOT yet found/fixed — new posts will 404 again tomorrow if the KD leg stays broken.
+If recurs: inspect daily-publish.yml KD steps + daily_publish.py --site kd; the render step must run (and fail loudly) in the same job that flips status. Add a health check: any blog_posts.json entry site=kd status=published must have a matching HTML file.
