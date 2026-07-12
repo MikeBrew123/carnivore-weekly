@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-07-08",
+  "last_updated": "2026-07-12",
   "leaderboard": [
     {
-      "name": "Steak and Butter Gal",
-      "rank": 1,
-      "appearances": 2,
-      "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
-    },
-    {
-      "name": "HomeSteadHow",
-      "rank": 2,
-      "appearances": 2,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
-      "name": "Keto Twins",
-      "rank": 3,
-      "appearances": 1,
-      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
-    },
-    {
-      "name": "Rudy's Corner of Alaska",
-      "rank": 4,
-      "appearances": 1,
-      "channel_id": "UC6pJn6lFlHSB2yl49nwGI8w"
-    },
-    {
       "name": "Dr. Eric Westman - Adapt Your Life",
-      "rank": 5,
-      "appearances": 2,
+      "rank": 1,
+      "appearances": 3,
       "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
     },
     {
-      "name": "Nutricionista Patricia Leite",
+      "name": "Vicki's Retirement Journey",
+      "rank": 2,
+      "appearances": 1,
+      "channel_id": "UC37miW2zOTs5hOBbrTrqbUw"
+    },
+    {
+      "name": "Jenny Mitich",
+      "rank": 3,
+      "appearances": 1,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+    },
+    {
+      "name": "Patricia Delicious Nutrition",
+      "rank": 4,
+      "appearances": 1,
+      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
+    },
+    {
+      "name": "DeeDee.Monroe",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCTinQgxZHQlGxzSSglYAi2g"
+    },
+    {
+      "name": "Chris Cooking Nashville",
       "rank": 6,
       "appearances": 1,
-      "channel_id": "UCJCIbrvEJyRJnHGvh7z0-bQ"
+      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
     },
     {
-      "name": "Kent Carnivore",
+      "name": "Carnivore Quest",
       "rank": 7,
-      "appearances": 4,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+      "appearances": 1,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "Haircafe",
+      "name": "Eat Like It's 1965",
       "rank": 8,
       "appearances": 1,
-      "channel_id": "UCcaWKkWjPre0HyNwVZW5kLA"
+      "channel_id": "UCvXwXe_sxwtlMvyCGWFIghQ"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "HomeSteadHow",
       "rank": 9,
-      "appearances": 1,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "appearances": 3,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "No Carb Life",
+      "name": "Keto Upgrade",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
+      "channel_id": "UCKSmYPlXBvWFBAam_5G_THw"
     }
   ]
 }
