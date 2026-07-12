@@ -438,3 +438,10 @@ Pattern: 9 KD posts (Jul 2–11) had status published in blog_posts.json but no 
 Attempts:
 - 2026-07-11 — rendered the backlog via generate_kd_blog.py --only-new (9 posts + index cards + sitemap), pushed, verified live 200. Root cause in the publish pipeline NOT yet found/fixed — new posts will 404 again tomorrow if the KD leg stays broken.
 If recurs: inspect daily-publish.yml KD steps + daily_publish.py --site kd; the render step must run (and fail loudly) in the same job that flips status. Add a health check: any blog_posts.json entry site=kd status=published must have a matching HTML file.
+
+## ISSUE-046 — Paid calculator users had no restart path (Step 4 dead-end)
+🟢 FIXED — Last: 2026-07-12
+Pattern: zustand persists currentStep+isPremium, so returning paid users land on Step 4 with a single button (Generate My Protocol) — no Back, no Start Over, no diet change. Resubmitting hits report/init's already_generated guard and returns the same stored report forever. Surfaced via Nancy's support email (she turned out to be a FREE user — her case is separate, see beads).
+Attempts:
+- 2026-07-12 — Rendered Back on Step 4 (onBack prop was passed but never rendered), added Start Over to Step 4, resetForm now preserves assessmentId+isPremium for paid users (purchase can't be orphaned), Step 3 CTAs bypass the payment modal and relabel to "Continue to Your Health Profile" when already paid. One-report-per-purchase stays server-enforced (already_generated). Policy per Brew: no free re-runs; refund requests get one manual free retry (delete calculator_reports row) before money back. → verified locally on built bundle, deployed
+If recurs: check zustand persist partialize keys (formStore.ts) and the already_generated guard in api/calculator-api.js.

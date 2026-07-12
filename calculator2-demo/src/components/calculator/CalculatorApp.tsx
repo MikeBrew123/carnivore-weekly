@@ -398,6 +398,14 @@ export default function CalculatorApp({
 
   const handleUpgradeClick = () => {
     console.log('[CalculatorApp] Upgrade button clicked')
+    // Already-paid users (arriving via Back from Step 4 or Start Over) must
+    // never see the payment modal again — $29 buys exactly one report, and
+    // the server enforces that via the already_generated check on report/init
+    if (isPremium && stripeSessionId) {
+      setCurrentStep(4)
+      scrollToAnchor('health-profile-start')
+      return
+    }
     // Prefill checkout with the email already captured in Step 1 — retyping it
     // is pure friction, and a typo here would split the report and the drip
     // subscription across two different addresses. Still editable in the modal.
@@ -1011,6 +1019,7 @@ export default function CalculatorApp({
             macros={macros}
             onUpgrade={handleUpgradeClick}
             onBack={() => handleStepContinue(2)}
+            alreadyPaid={isPremium && !!stripeSessionId}
           />
         )
       case 4:

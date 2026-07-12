@@ -14,6 +14,9 @@ interface Step3FreeResultsProps {
   macros: MacroResults | null
   onUpgrade: () => void
   onBack: () => void
+  // True when the user already paid — CTAs continue to Step 4 instead of
+  // opening the payment modal (CalculatorApp handles the routing)
+  alreadyPaid?: boolean
 }
 
 // Map raw activity values to readable labels
@@ -113,6 +116,7 @@ export default function Step3FreeResults({
   macros,
   onUpgrade,
   onBack,
+  alreadyPaid = false,
 }: Step3FreeResultsProps) {
   const { resetForm } = useFormStore()
   const mealLockRef = useRef<HTMLDivElement>(null)
@@ -275,10 +279,10 @@ export default function Step3FreeResults({
             marginBottom: '10px',
           }}
         >
-          Get My 30-Day Plan — $29
+          {alreadyPaid ? 'Continue to Your Health Profile →' : 'Get My 30-Day Plan — $29'}
         </button>
         <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0 }}>
-          One-time purchase. No subscription. 30-day money-back guarantee.
+          {alreadyPaid ? 'Already unlocked — no additional charge.' : 'One-time purchase. No subscription. 30-day money-back guarantee.'}
         </p>
       </div>
 
@@ -450,7 +454,7 @@ export default function Step3FreeResults({
             <span style={{ fontSize: '28px', marginBottom: '8px' }}>🔒</span>
             <p style={{ color: '#ffd700', fontWeight: 600, fontSize: '16px', margin: 0 }}>Your full 30-day meal plan is ready</p>
             <p style={{ color: '#a3a3a3', fontSize: '13px', marginTop: '6px' }}>4 more {config.label.toLowerCase()} meals + snack timing + grocery lists — included in your plan</p>
-            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}>$29 — Yours forever</p>
+            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}>{alreadyPaid ? 'Already unlocked — tap to continue' : '$29 — Yours forever'}</p>
           </div>
         </div>
       </div>
@@ -511,8 +515,8 @@ export default function Step3FreeResults({
 
           {/* Price + CTA */}
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>$29 — Yours forever</p>
-            <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, ...bodyFont }}>One-time · No subscription · 30-day money-back guarantee</p>
+            <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>{alreadyPaid ? 'Already unlocked' : '$29 — Yours forever'}</p>
+            <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, ...bodyFont }}>{alreadyPaid ? 'Your purchase covers this — continue below.' : 'One-time · No subscription · 30-day money-back guarantee'}</p>
           </div>
 
           <button
@@ -542,7 +546,7 @@ export default function Step3FreeResults({
               boxShadow: '0 4px 20px rgba(255,215,0,0.2), inset 0 1px 0 rgba(255,255,255,0.12)'
             }}
           >
-            Get My 30-Day Plan — $29
+            {alreadyPaid ? 'Continue to Your Health Profile →' : 'Get My 30-Day Plan — $29'}
           </button>
 
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '8px' }}>
