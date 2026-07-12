@@ -326,6 +326,7 @@ CW and KD share ONE Supabase project (`kwtdpvnjewtahuxjyltn`). This is intention
 ### Content
 1. Content agents must NOT include template HTML in content fields. Content = article body only.
 2. Content agents must NOT generate cross-links to unpublished posts. Check `public/blog/` first.
+2a. Cross-site mentions (CW writer referencing a KD post or vice versa) are ENCOURAGED but must be explicit and use the full cross-domain URL: "I wrote a piece over at KetoDial about X" + `https://ketodial.com/blog/...`. NEVER a same-site-relative link (`/blog/...`) pointing at a post that actually lives on the other site — that renders as a same-domain link, 404s, and fails the pre-commit validator (ISSUE-038, recurred 2026-07-05 and 2026-07-08). Verify the target is actually live on that domain (not just `status: published` in `blog_posts.json`) before referencing it.
 3. Never set future dates on blog posts. Google penalizes content dated ahead of crawl time.
 4. Amazon book links wrap only the title, not the full citation sentence.
 5. Template variables must match generator output. Check both sides.
