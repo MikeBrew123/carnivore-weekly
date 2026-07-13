@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { FormData, MacroResults } from '../../../types/form'
 import MacroPreview from '../../ui/MacroPreview'
+import MicroSurvey from '../../ui/MicroSurvey'
 import { useFormStore } from '../../../stores/formStore'
 
 declare global {
@@ -604,6 +605,9 @@ export default function Step3FreeResults({
           </div>
         </div>
       </div>
+
+      {/* EXP-004 micro-survey — below the paid card so the $29 CTA never moves */}
+      {!alreadyPaid && <MicroSurvey />}
 
       {/* Start Over */}
       <button

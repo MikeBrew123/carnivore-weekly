@@ -338,6 +338,49 @@ async function handleValidateSession(request, env) {
 }
 
 /**
+ * POST /api/v1/calculator/survey
+ * EXP-004 micro-survey: record what the user says they want next after the free
+ * results (offer-message fit signal for the $29 report). Body: { session_token, next_step }.
+ */
+async function handleSaveSurvey(request, env) {
+  try {
+    if (!validateContentType(request)) {
+      return createErrorResponse('INVALID_CONTENT_TYPE', 'Expected application/json', 400);
+    }
+    const body = await parseJsonBody(request);
+    const { session_token, next_step } = body || {};
+    if (!session_token || !next_step) {
+      return createErrorResponse('MISSING_FIELDS', 'session_token and next_step required', 400);
+    }
+    // Whitelist the options so the column stays clean and can't be written arbitrarily.
+    const ALLOWED = ['eat_this_week', 'fat_protein_target', 'lose_without_stalling', 'meal_plan_grocery', 'starting_from_zero', 'not_sure'];
+    if (!ALLOWED.includes(next_step)) {
+      return createErrorResponse('INVALID_VALUE', 'next_step not recognized', 400);
+    }
+    const res = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(session_token)}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+        body: JSON.stringify({ survey_next_step: next_step, updated_at: new Date().toISOString() }),
+      }
+    );
+    if (!res.ok) {
+      console.warn('[handleSaveSurvey] PATCH failed:', res.status, await res.text());
+      return createErrorResponse('DB_UPDATE_FAILED', `Failed to save survey: ${res.status}`, 500);
+    }
+    return createSuccessResponse({ saved: true });
+  } catch (err) {
+    console.error('handleSaveSurvey error:', err);
+    return createErrorResponse('INTERNAL_ERROR', String(err), 500);
+  }
+}
+
+/**
  * POST /api/v1/calculator/step/1
  */
 async function handleSaveStep1(request, env) {
@@ -5985,6 +6028,11 @@ export default {
 
     if (path === '/api/v1/calculator/step/4' && method === 'POST') {
       return await handleStep4Submission(request, env);
+    }
+
+    // EXP-004 micro-survey (offer-message fit)
+    if (path === '/api/v1/calculator/survey' && method === 'POST') {
+      return sendWithCors(await handleSaveSurvey(request, env));
     }
 
     // Payment flow
