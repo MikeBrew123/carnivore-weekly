@@ -129,7 +129,7 @@ def pull_gsc_kd():
 
     def clicks(start, end):
         r = svc.searchanalytics().query(
-            siteUrl="sc-domain:ketodial.com",
+            siteUrl="https://ketodial.com/",
             body={"startDate": str(start), "endDate": str(end)}).execute()
         rows = r.get("rows", [])
         return int(rows[0]["clicks"]) if rows else 0
@@ -262,13 +262,13 @@ def operating_metrics(snap):
 
     if gsc is None:
         rows.append(("KD organic search clicks /wk", "pull failed (GSC property or access issue)",
-                     "GSC sc-domain:ketodial.com", GREY,
+                     "GSC https://ketodial.com/", GREY,
                      "feeds Aug KD keep/kill", "Hermes"))
     else:
         tw, pw = gsc["clicks_this_week"], gsc["clicks_prior_week"]
         st = GREEN if tw > pw > 0 else (YELLOW if tw >= pw else RED)
         rows.append(("KD organic search clicks /wk", f"{tw} (prior wk {pw})",
-                     "GSC API sc-domain:ketodial.com", st,
+                     "GSC API https://ketodial.com/", st,
                      "needs 2+ wks of growth before KD traffic counts as 'proven'", "Hermes"))
 
     paid = d.get("coach_active_paid")
