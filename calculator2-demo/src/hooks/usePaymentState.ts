@@ -58,9 +58,11 @@ export function usePaymentState({
         setPaymentStatus(urlPayment)
         setStripeSessionId(urlSessionId)
 
-        // Persist to localStorage
+        // Persist to localStorage, stamped with the time so a stale success
+        // state from an earlier visit expires instead of showing forever.
         if (urlPayment) localStorage.setItem('paymentStatus', urlPayment)
         if (urlSessionId) localStorage.setItem('stripeSessionId', urlSessionId)
+        localStorage.setItem('paymentStateSavedAt', String(Date.now()))
 
         // Mark as premium if payment succeeded
         if (urlPayment === 'success' || urlPayment === 'free') {
@@ -99,11 +101,21 @@ export function usePaymentState({
         return
       }
 
-      // 3. Check localStorage (fallback for page refreshes)
+      // 3. Check localStorage (fallback for page refreshes), but only honor it
+      // for a short window. Without this, any browser that ever completed a
+      // payment booted straight into the "Payment Successful" screen on every
+      // future visit (and hit the "snag loading your saved answers" error once
+      // the session row was gone) — the calculator became unusable for repeat
+      // visitors. 6h is long enough to finish the health profile after paying,
+      // short enough that a later visit starts a fresh run.
       const storedPaymentStatus = localStorage.getItem('paymentStatus')
       const storedSessionId = localStorage.getItem('stripeSessionId')
+      const savedAtRaw = localStorage.getItem('paymentStateSavedAt')
+      const savedAt = savedAtRaw ? parseInt(savedAtRaw, 10) : 0
+      const PAYMENT_STATE_TTL_MS = 6 * 60 * 60 * 1000
+      const isFresh = savedAt > 0 && (Date.now() - savedAt) < PAYMENT_STATE_TTL_MS
 
-      if (storedPaymentStatus) {
+      if (storedPaymentStatus && isFresh) {
         console.log('[usePaymentState] Restored from localStorage:', { storedPaymentStatus, storedSessionId })
         setPaymentStatus(storedPaymentStatus)
         setStripeSessionId(storedSessionId)
@@ -111,6 +123,15 @@ export function usePaymentState({
         if (storedPaymentStatus === 'success' || storedPaymentStatus === 'free') {
           setIsPremium(true)
         }
+      } else if (storedPaymentStatus) {
+        // Stale (or un-stamped pre-fix) payment state — clear it plus the
+        // persisted calculator progress so the visitor gets a clean Step 1
+        // next load instead of being stranded.
+        console.log('[usePaymentState] Stale payment state expired — clearing for a fresh start')
+        localStorage.removeItem('paymentStatus')
+        localStorage.removeItem('stripeSessionId')
+        localStorage.removeItem('paymentStateSavedAt')
+        localStorage.removeItem('carnivore-calculator-form')
       }
 
       setIsLoading(false)
@@ -132,6 +153,7 @@ export function usePaymentState({
     console.log('[usePaymentState] Clearing payment state')
     localStorage.removeItem('paymentStatus')
     localStorage.removeItem('stripeSessionId')
+    localStorage.removeItem('paymentStateSavedAt')
     setPaymentStatus(null)
     setStripeSessionId(null)
     // Note: isPremium stays true - user paid, they keep premium access
