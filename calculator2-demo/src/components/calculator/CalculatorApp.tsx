@@ -271,67 +271,78 @@ export default function CalculatorApp({
     }
   }, [formData.sex, formData.age, formData.weight, formData.heightFeet, formData.heightInches, formData.heightCm, formData.lifestyle, formData.exercise, formData.goal, formData.deficit, formData.diet])
 
-  // Persist step data to backend (fire-and-forget, don't block UI)
+  // Persist step data to backend. Navigation is never blocked on this (the
+  // caller does not await), but each write now retries once so a transient
+  // failure does not silently drop the email — the main cause of emailless
+  // session rows (post-gate capture was ~74%, not the ~100% the gate implies).
   const saveStepToBackend = async (completedStep: number) => {
+    const postWithRetry = async (url: string, body: unknown): Promise<Response | null> => {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          })
+          if (res.ok) return res
+        } catch (err) {
+          console.warn(`[CalculatorApp] POST ${url} attempt ${attempt + 1} failed:`, err)
+        }
+      }
+      return null
+    }
+
     try {
       let token = storedSessionToken
       if (!token) {
         const params = new URLSearchParams(window.location.search)
         const gaCookie = document.cookie.split(';').find(c => c.trim().startsWith('_ga='))
         const gaClientId = gaCookie ? gaCookie.split('.').slice(-2).join('.') : undefined
-        const res = await fetch(`${API_BASE}/api/v1/calculator/session`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ga_client_id: gaClientId,
-            utm_source: params.get('utm_source') || undefined,
-            utm_medium: params.get('utm_medium') || undefined,
-            utm_campaign: params.get('utm_campaign') || undefined,
-            utm_content: params.get('utm_content') || undefined,
-            utm_term: params.get('utm_term') || undefined,
-            referrer: document.referrer || undefined,
-            landing_page: window.location.pathname + window.location.search,
-            device_type: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop',
-          }),
+        const res = await postWithRetry(`${API_BASE}/api/v1/calculator/session`, {
+          ga_client_id: gaClientId,
+          utm_source: params.get('utm_source') || undefined,
+          utm_medium: params.get('utm_medium') || undefined,
+          utm_campaign: params.get('utm_campaign') || undefined,
+          utm_content: params.get('utm_content') || undefined,
+          utm_term: params.get('utm_term') || undefined,
+          referrer: document.referrer || undefined,
+          landing_page: window.location.pathname + window.location.search,
+          device_type: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop',
+          // Include email at creation so the row is never stored emailless if the
+          // step/1 write below fails. NOTE: the worker's /session handler must
+          // persist this field for the belt-and-suspenders path to take effect.
+          email: formData.email || null,
         })
-        if (!res.ok) return
+        if (!res) return
         const data = await res.json()
         token = data.session_token
         setSessionToken(token)
       }
 
       if (completedStep === 1) {
-        await fetch(`${API_BASE}/api/v1/calculator/step/1`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_token: token,
-            data: {
-              sex: formData.sex,
-              age: formData.age,
-              height_feet: formData.heightFeet || null,
-              height_inches: formData.heightInches || null,
-              height_cm: formData.heightCm || null,
-              weight_value: formData.weight,
-              weight_unit: 'lbs',
-              email: formData.email || null,
-            },
-          }),
+        await postWithRetry(`${API_BASE}/api/v1/calculator/step/1`, {
+          session_token: token,
+          data: {
+            sex: formData.sex,
+            age: formData.age,
+            height_feet: formData.heightFeet || null,
+            height_inches: formData.heightInches || null,
+            height_cm: formData.heightCm || null,
+            weight_value: formData.weight,
+            weight_unit: 'lbs',
+            email: formData.email || null,
+          },
         })
       } else if (completedStep === 2) {
-        await fetch(`${API_BASE}/api/v1/calculator/step/2`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_token: token,
-            data: {
-              lifestyle_activity: formData.lifestyle,
-              exercise_frequency: formData.exercise,
-              goal: formData.goal,
-              deficit_percentage: formData.deficit || null,
-              diet_type: formData.diet,
-            },
-          }),
+        await postWithRetry(`${API_BASE}/api/v1/calculator/step/2`, {
+          session_token: token,
+          data: {
+            lifestyle_activity: formData.lifestyle,
+            exercise_frequency: formData.exercise,
+            goal: formData.goal,
+            deficit_percentage: formData.deficit || null,
+            diet_type: formData.diet,
+          },
         })
       }
     } catch (err) {
