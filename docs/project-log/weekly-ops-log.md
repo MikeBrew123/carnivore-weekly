@@ -13,6 +13,16 @@ Dated entries from the Monday weekly-operator-review scheduled task. Plain facts
 - **Beads filed:** carnivore-weekly-0s0 (P1) — 13 live-mode 100%-off test coupons still valid in production Stripe (guessable names, TestingOnGoing redeemed 18×); revenue leak, Brew-only fix (never-do: sessions don't touch coupons).
 - **Recurring-issues:** none added.
 
+## 2026-07-13 — Weekly Ops Review
+
+- **GH issues:** #51 (daily-publish failure, Jul 8) was still open but stale — pipeline recovered via workflow_dispatch Jul 9 and succeeded on schedule every day since (Jul 9-12). Closed with note. No health-check/automated issues open.
+- **Monday crons:** scoreboard (10:30 UTC) + heartbeat (10:45 UTC) did NOT fire today — Mac asleep at 3:30/3:45am PT (expected sleep-gap, fix is always-on Mac mini fall 2026). Ran `scoreboard_truth_pass.py` manually with `PATH=/opt/homebrew/bin` → wrote scoreboard 2026-07-13 with Etsy row populated. Heartbeat not re-run (email-only, reporting).
+- **Leading indicators:** CW 553 sess/383 users 30d; KD 52/23. Stripe: last sale Jul 5 ($29 full price); **0 charges in last 7d**; July cumulative paid = 1; 2 charges/$58 in 30d. No DRIP50/WELCOME5 redemptions (sales are full price). Drip list 38 total (30 active), **+24 this week (~3.4/day, well above 2/day target)** — email-gate is filling the funnel even though conversion hasn't re-fired. Etsy 90d $160.95 CAD / 31 orders / AOV $5.19; orders/mo Apr 2 / May 10 / Jun 15 / Jul 4-MTD (June was peak, July softening). Bundle listing 4532542805 = **1 lifetime view, 0 sales** — not being discovered on Etsy search. KD GSC still 403 (service account not on property → bead ame). CW calc GSC cluster not separately pulled this week (CW GSC access healthy; scoreboard captures the decision-driving calc sales/checkout metrics).
+- **Queue depths:** CW blog 8 ready (Jul 13-20), KD blog 4 ready (Jul 13-16, KD regens Tue). **Pinterest queue DRAINED: 0/95 remaining, last posted Jul 11** — no recurring replenisher exists → filed bead xtna (P2).
+- **Drip health 7d:** 247 sent / 152 delivered / 114 opened / 37 clicked / 2 bounced / **0 complained**. Bounce 0.8% 🟢 — recovered from 6.0% 🔴 on Jul 6.
+- **Beads filed:** carnivore-weekly-xtna (P2) — KD Pinterest queue drained, no auto-replenisher. Existing open: ame (P1, Brew: add service acct to KD GSC property), f49/7m2 (Etsy metrics/cron node PATH).
+- **Recurring-issues:** none added (GSC KD 403 = bead ame; Etsy node PATH = ISSUE-039/bead 7m2, cron didn't run today so didn't manifest).
+
 ## 2026-07-06 — Weekly Ops Review
 
 - **GH issues:** none open (health-check, automated).
