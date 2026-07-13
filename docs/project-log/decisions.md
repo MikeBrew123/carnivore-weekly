@@ -2,6 +2,11 @@
 
 | Date | Decision | Why | Alternatives |
 |------|----------|-----|--------------|
+| 2026-07-13 | Calculator Growth Team = lean (4 role agents + main-session director, reuse Sam for analytics) | Runs inside the subscription; avoids a 6-agent committee's overhead for a solo operator | Full 6-agent build per the GPT prompt (rejected — process theater) |
+| 2026-07-13 | Baseline before targets: verify funnel from Supabase census + Stripe before committing to conversion goals | Caught that the brief's "email leak" was false (74% capture); real constraint is free→paid | Accept the prompt's targets as-is (rejected — would have chased a phantom) |
+| 2026-07-13 | At current volume (~30 free-results/mo) make directional fixes vs census data, not A/B tests | Sample size too small for valid split tests; A/B would manufacture false confidence | Run A/B tests now (rejected — underpowered) |
+| 2026-07-13 | $29 calculator report stays priced in USD, not CAD | Round $29 USD reads better to a mostly-US audience than the post-exchange CAD figure | Convert to CAD (rejected by Brew) |
+| 2026-07-13 | Hold the free→paid offer rewrite (EXP-001) until the micro-survey collects ~1 week of answers | Learn what buyers actually want (offer-message fit) before guessing at sales copy (Hermes rec) | Rewrite offer copy now (rejected — guessing) |
 | 2026-05-19 | CLAUDE.md = prescriptive rules only; facts go to memory files | Reduces context window waste, makes rules findable, prevents bloat | Keep everything in CLAUDE.md (rejected — 1012 lines was unmanageable) |
 | 2026-05-19 | Root CLAUDE.md is global (all projects); project CLAUDE.md is CW-specific with zero overlap | Prevents contradictions, root serves 7+ projects | Single CLAUDE.md (rejected — CW rules don't apply to FireSmart/MyBudget) |
 | 2026-05-19 | Casey, Jordan, Alex, Eric, Sam agents deprecated and deleted | Functionality covered by built-in skills; agents hadn't been used in months | Keep agents (rejected by Brew) |
