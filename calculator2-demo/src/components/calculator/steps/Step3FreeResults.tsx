@@ -203,8 +203,8 @@ export default function Step3FreeResults({
               }
             }}
             style={{
-              background: 'none', border: 'none', color: '#ffd700', fontSize: '14px',
-              textDecoration: 'underline', cursor: 'pointer', padding: 0,
+              background: 'none', border: 'none', color: '#ffd700', fontSize: '14px', fontWeight: 600,
+              textDecoration: 'underline', textUnderlineOffset: '3px', cursor: 'pointer', padding: 0,
               fontFamily: "'Merriweather', Georgia, serif"
             }}
           >
@@ -214,8 +214,8 @@ export default function Step3FreeResults({
           <button
             onClick={onBack}
             style={{
-              background: 'none', border: 'none', color: '#ffd700', fontSize: '14px',
-              textDecoration: 'underline', cursor: 'pointer', padding: 0,
+              background: 'none', border: 'none', color: '#ffd700', fontSize: '14px', fontWeight: 600,
+              textDecoration: 'underline', textUnderlineOffset: '3px', cursor: 'pointer', padding: 0,
               fontFamily: "'Merriweather', Georgia, serif"
             }}
           >
@@ -640,13 +640,23 @@ export default function Step3FreeResults({
             }, 150)
           }
         }}
+        onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#555'; e.currentTarget.style.color = 'rgba(244,228,212,0.9)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.color = 'rgba(244,228,212,0.6)' }}
         style={{
-          background: 'none', border: 'none', color: 'rgba(244,228,212,0.75)', fontSize: '15px',
-          textDecoration: 'underline', cursor: 'pointer', padding: '8px', marginTop: '16px',
-          fontFamily: "'Playfair Display', Georgia, serif"
+          display: 'block',
+          margin: '24px auto 0',
+          background: 'transparent',
+          border: '1px solid #333',
+          color: 'rgba(244,228,212,0.6)',
+          fontSize: '13.5px',
+          padding: '10px 22px',
+          borderRadius: '999px',
+          cursor: 'pointer',
+          fontFamily: "'Merriweather', Georgia, serif",
+          transition: 'all 0.15s ease',
         }}
       >
-        ↺ Start Over (wrong diet type or details?)
+        ↺ Start over
       </button>
     </div>
   )
