@@ -190,8 +190,8 @@ export default function Step1PhysicalStats({
         name="sex"
         label="Biological Sex"
         options={[
-          { value: 'male', label: 'Male', description: 'Uses male metabolic equations' },
-          { value: 'female', label: 'Female', description: 'Uses female metabolic equations' },
+          { value: 'male', label: 'Male' },
+          { value: 'female', label: 'Female' },
         ]}
         value={data.sex || ''}
         onChange={(value) => handleInputChange('sex', value)}
