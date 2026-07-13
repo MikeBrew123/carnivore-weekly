@@ -62,3 +62,24 @@ First run of the new Calculator Growth Team (Director = main session; leads: gro
 - Groundwork (no approval needed, engineering): the email-persistence + payment-writeback fixes.
 
 Full lead findings: task transcripts this session. Experiment specs: `growth/Experiment-Log.md`. Customer segments: `growth/Customer-Insights.md`. Brew decisions: `reports/approval-queue.md`.
+
+## 2026-07-13 — Calculator Growth Team, Cycle 1 (KetoDial)
+
+Ran the growth loop on the **KD calculator** (ketodial.com/#calc). Fanned out all 4 leads in parallel against verified KD ground truth; Director owned analytics/instrumentation.
+
+**Verified KD census (calculator_sessions_v2, source='ketodial'):**
+- **6 sessions all-time** since Jun 6; ~4 are test/QA → **~2 genuinely organic sessions ever** (both from keto-vs-carnivore.html + a ChatGPT referral).
+- **0 paid, $0 revenue, ever.** 5/6 female, all weight-loss, keto. KD newsletter list (site=kd) ≈ 1 real subscriber.
+- KD offer = à-la-carte PDFs $3.99–$10.99 (not CW's $29). `calculator2_sessions` is a dead empty table; real data is in the shared CW table keyed by source='ketodial'.
+
+**Diagnosis — the constraint is ACQUISITION, overwhelmingly.** At ~1 start/week there is essentially nothing to convert. Conversion/offer/lifecycle work is groundwork, not this cycle's lever.
+
+**Convergent lead findings:**
+1. Acquisition: nothing points at the calculator. CW's 177-post sitewide footer link lands on ketodial.com ROOT, not #calc; all 95 Pinterest pins (now drained) point at recipes; the `#calc` anchor id doesn't even exist (works by accident). Proven doorways = comparison content + LLM referral.
+2. Measurement (Conversion): KD purchases never write back — webhook doesn't PATCH the session and checkout metadata omits session_token → revenue structurally invisible. Backend-only, ~15 lines. Step 1→3 IS instrumented; census drop-off is real.
+3. Customer intel: real users mirror the CW audience (weight-loss women); no KD testimonials/consented pool exist yet (0 buyers). Highest-intent KD blog clusters map 1:1 to the paid PDFs (LDL/bloodwork→Doctor's Report, first-week→Meal Plan, keto flu→Starter Kit).
+4. Lifecycle: every new lead gets ONE welcome that ships a month-old newsletter, then nothing; earlier captured emails leaked entirely. Cheapest fix = evergreen welcome w/ CTA to the $3.99 plan.
+
+**Selected experiments:** PRIMARY = KD-EXP-001 (point existing distribution at the calculator — #calc anchor fix + CW footer/in-prose repoint + calculator Pinterest pins + FAQ schema; target ~10 starts/wk in 21d). GROUNDWORK = KD-EXP-000 (purchase writeback, no-approval to code / deploy needs Brew). SUPPORTING = KD-EXP-002 (evergreen welcome-email leak-stop now; full drip spec-ready, holds for volume + Brew).
+
+Beads filed (carnivore-weekly): 5ggf (cycle), + writeback, #calc anchor, distribution repoint, Pinterest calc pins, flow reorder [Brew], welcome-email swap [Brew], FAQ schema. Brew asks → approval-queue.md. Specs → growth/Experiment-Log.md.
