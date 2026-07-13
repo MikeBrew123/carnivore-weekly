@@ -233,6 +233,11 @@ async function handleCreateSession(request, env) {
           referrer: body.referrer || null,
           landing_page: body.landing_page || null,
           device_type: body.device_type || null,
+          // Persist email at creation when the client sends it (the calculator now
+          // includes it in the create payload). This stops emailless funnel rows,
+          // which also let the Stripe webhook's email-fallback match the row and
+          // mark it paid — the cause of revenue under-counting in the v2 funnel.
+          ...(body.email ? { email: body.email } : {}),
         };
       }
     } catch (_) { /* no body is fine */ }
