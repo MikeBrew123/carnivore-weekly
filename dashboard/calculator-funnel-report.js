@@ -49,7 +49,14 @@ async function getCalculatorFunnelData() {
       dimensionFilter: {
         orGroup: {
           expressions: [
-            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_step' } } },
+            // Top-of-funnel step events the calculator app actually fires
+            // (CalculatorApp.tsx). The old code queried 'calculator_step',
+            // which is never emitted, so the funnel top was always empty.
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_step1_viewed' } } },
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_step1_completed' } } },
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_step2_completed' } } },
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_completed' } } },
+            { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_free_results' } } },
             { filter: { fieldName: 'eventName', stringFilter: { value: 'calculator_payment_modal_opened' } } },
             { filter: { fieldName: 'eventName', stringFilter: { value: 'begin_checkout' } } },
             { filter: { fieldName: 'eventName', stringFilter: { value: 'purchase' } } },
@@ -212,8 +219,11 @@ function generateHTMLReport(data) {
   const dates = Object.keys(data.pageViews).sort()
   const eventTotals = data.events.totals
 
-  // Calculate funnel metrics using events the calculator app actually fires
-  const stepEvents = eventTotals['calculator_step'] || 0
+  // Calculate funnel metrics using events the calculator app actually fires.
+  // step1Viewed is the true top of funnel (calculator started).
+  const step1Viewed = eventTotals['calculator_step1_viewed'] || 0
+  const step2Completed = eventTotals['calculator_step2_completed'] || 0
+  const freeResults = eventTotals['calculator_free_results'] || eventTotals['calculator_completed'] || 0
   const paymentModals = eventTotals['calculator_payment_modal_opened'] || 0
   const checkouts = eventTotals['begin_checkout'] || 0
   const purchases = eventTotals['purchase'] || 0
@@ -223,11 +233,16 @@ function generateHTMLReport(data) {
   const totalViews = Object.values(data.pageViews).reduce((sum, d) => sum + d.views, 0)
   const totalUsers = Object.values(data.pageViews).reduce((sum, d) => sum + d.users, 0)
 
-  // Calculate conversion rates (each step relative to the previous one)
-  const usersToModal = totalUsers > 0 ? ((paymentModals / totalUsers) * 100).toFixed(1) : 0
+  // Started = step1Viewed when present, else fall back to unique users.
+  const started = step1Viewed > 0 ? step1Viewed : totalUsers
+
+  // Conversion rates (each step relative to the previous meaningful one)
+  const startToFree = started > 0 ? ((freeResults / started) * 100).toFixed(1) : 0
+  const freeToModal = freeResults > 0 ? ((paymentModals / freeResults) * 100).toFixed(1) : 0
+  const usersToModal = started > 0 ? ((paymentModals / started) * 100).toFixed(1) : 0
   const modalToCheckout = paymentModals > 0 ? ((checkouts / paymentModals) * 100).toFixed(1) : 0
   const checkoutToPurchase = checkouts > 0 ? ((purchases / checkouts) * 100).toFixed(1) : 0
-  const overallConversion = totalUsers > 0 ? ((purchases / totalUsers) * 100).toFixed(2) : 0
+  const overallConversion = started > 0 ? ((purchases / started) * 100).toFixed(2) : 0
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -332,6 +347,7 @@ function generateHTMLReport(data) {
       opacity: 0.1;
     }
     .funnel-step.step-1::before { width: 100%; }
+    .funnel-step.free::before { width: var(--width-free); }
     .funnel-step.step-2::before { width: var(--width-2); }
     .funnel-step.step-3::before { width: var(--width-3); }
     .funnel-step.upgrade::before { width: var(--width-upgrade); }
@@ -412,9 +428,9 @@ function generateHTMLReport(data) {
         <div class="metric-subtitle">Started calculator</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Step Progressions</div>
-        <div class="metric-value">${stepEvents.toLocaleString()}</div>
-        <div class="metric-subtitle">calculator_step events</div>
+        <div class="metric-label">Reached Free Results</div>
+        <div class="metric-value">${freeResults.toLocaleString()}</div>
+        <div class="metric-subtitle">${startToFree}% of starts</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">Purchases</div>
@@ -426,19 +442,31 @@ function generateHTMLReport(data) {
     <div class="section">
       <h2>📊 Conversion Funnel</h2>
       <div class="funnel" style="
-        --width-2: ${totalUsers > 0 ? (paymentModals/totalUsers*100) : 0}%;
-        --width-3: ${totalUsers > 0 ? (checkouts/totalUsers*100) : 0}%;
-        --width-upgrade: ${totalUsers > 0 ? (purchases/totalUsers*100) : 0}%;
-        --width-payment: ${totalUsers > 0 ? (reports/totalUsers*100) : 0}%;
+        --width-free: ${started > 0 ? (freeResults/started*100) : 0}%;
+        --width-2: ${started > 0 ? (paymentModals/started*100) : 0}%;
+        --width-3: ${started > 0 ? (checkouts/started*100) : 0}%;
+        --width-upgrade: ${started > 0 ? (purchases/started*100) : 0}%;
+        --width-payment: ${started > 0 ? (reports/started*100) : 0}%;
       ">
         <div class="funnel-step step-1">
           <div class="funnel-info">
-            <div class="funnel-label">👥 Unique Visitors</div>
-            <div class="funnel-count">${totalUsers.toLocaleString()}</div>
+            <div class="funnel-label">🧮 Calculator Started</div>
+            <div class="funnel-count">${started.toLocaleString()}</div>
           </div>
           <div class="funnel-conversion">
             <div class="conversion-rate">100%</div>
             <div class="conversion-label">baseline</div>
+          </div>
+        </div>
+
+        <div class="funnel-step free" style="--width-free: var(--width-free);">
+          <div class="funnel-info">
+            <div class="funnel-label">📋 Reached Free Results</div>
+            <div class="funnel-count">${freeResults.toLocaleString()}</div>
+          </div>
+          <div class="funnel-conversion">
+            <div class="conversion-rate">${startToFree}%</div>
+            <div class="conversion-label">of starts</div>
           </div>
         </div>
 
@@ -688,19 +716,24 @@ function printSummary(data) {
   console.log('-'.repeat(60))
 
   const events = data.events.totals
+  const step1Viewed = events['calculator_step1_viewed'] || 0
+  const freeResults = events['calculator_free_results'] || events['calculator_completed'] || 0
   const paymentModals = events['calculator_payment_modal_opened'] || 0
   const checkouts = events['begin_checkout'] || 0
   const purchases = events['purchase'] || 0
   const cancelled = events['calculator_payment_cancelled'] || 0
   const reports = events['calculator_report_generated'] || 0
 
-  const usersToModal = totalUsers > 0 ? ((paymentModals/totalUsers)*100).toFixed(1) : 0
+  const started = step1Viewed > 0 ? step1Viewed : totalUsers
+  const startToFree = started > 0 ? ((freeResults/started)*100).toFixed(1) : 0
+  const usersToModal = started > 0 ? ((paymentModals/started)*100).toFixed(1) : 0
   const modalToCheckout = paymentModals > 0 ? ((checkouts/paymentModals)*100).toFixed(1) : 0
   const checkoutToPurchase = checkouts > 0 ? ((purchases/checkouts)*100).toFixed(1) : 0
-  const overallConversion = totalUsers > 0 ? ((purchases/totalUsers)*100).toFixed(2) : 0
+  const overallConversion = started > 0 ? ((purchases/started)*100).toFixed(2) : 0
 
-  console.log(`👥 Unique Visitors: ${totalUsers}`)
-  console.log(`💳 Payment Modals: ${paymentModals} (${usersToModal}% of visitors)`)
+  console.log(`🧮 Calculator Started: ${started}`)
+  console.log(`📋 Reached Free Results: ${freeResults} (${startToFree}% of starts)`)
+  console.log(`💳 Payment Modals: ${paymentModals} (${usersToModal}% of starts)`)
   console.log(`🛒 Checkouts Started: ${checkouts} (${modalToCheckout}% of modal opens)`)
   console.log(`💰 Purchases: ${purchases} (${checkoutToPurchase}% of checkouts)${cancelled > 0 ? ` — ${cancelled} cancelled` : ''}`)
   console.log(`📄 Reports Delivered: ${reports}`)
