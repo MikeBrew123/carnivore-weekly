@@ -365,14 +365,16 @@ export default function CalculatorApp({
       // Save completed step data (step param is the NEXT step, so completed = step - 1)
       saveStepToBackend(step - 1)
 
-      // Auto-subscribe to drip sequence when completing Step 1 (email captured);
-      // once per distinct email so re-passes don't re-POST
-      if (step === 2 && formData.email && lastSubscribedEmail.current !== formData.email) {
+      // Auto-subscribe when completing Step 2 — diet is chosen there, and the worker
+      // routes by diet_type (keto/low-carb → KD newsletter, carnivore → CW drip).
+      // Subscribing on the Step 1→2 transition sent no diet and mis-filed keto users
+      // into the CW drip. Once per distinct email so re-passes don't re-POST.
+      if (step === 3 && formData.email && lastSubscribedEmail.current !== formData.email) {
         lastSubscribedEmail.current = formData.email
         fetch(`${API_BASE}/api/v1/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: formData.email, source: 'calculator' }),
+          body: JSON.stringify({ email: formData.email, source: 'calculator', diet_type: formData.diet || '' }),
         }).catch(() => {})
       }
     }
