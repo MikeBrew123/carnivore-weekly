@@ -33,3 +33,32 @@ Dated entries from the Monday weekly-operator-review scheduled task. Plain facts
 - **Drip health 7d:** 117 sent / 59 delivered / 39 opened / 2 clicks / 7 bounced / **0 complained**.
 - **Beads filed:** carnivore-weekly-7m2 (P3) — scoreboard cron can't run Etsy summary (no node on PATH), Etsy row blank weekly.
 - **Recurring-issues:** added ISSUE-039 (scoreboard Etsy/node PATH).
+
+## 2026-07-13 — Calculator Growth Team Kickoff (Cycle 1)
+
+First run of the new Calculator Growth Team (Director = main session; leads: growth-conversion/acquisition/lifecycle/customer-intel + sam-analytics reused). Charter at vault `Carnivore-Weekly/growth/`. Focus: CW calculator (more traffic + purchase data than KD).
+
+**Verified baseline (primary sources, 2026-07-13):**
+- Revenue: **~$58 / 30d, 2 full-price $29 sales, ~1-2/mo base rate** (Stripe, per today's weekly entry). Target $250/mo ≈ 9 sales/mo → ~4-5x gap.
+- Email capture (post-June-29 gate): **74.2%** of free-results reachers (23/31). ABOVE the 65% target — the brief's "email leak" is a false alarm. The low DB email count is a **persistence bug**, not a user leak (session row created without email; email written in a separate fire-and-forget, error-swallowed, un-awaited POST — CalculatorApp.tsx:282-320, 366).
+- Free→paid: **~3% (1/31 post-gate, all committed diet+goal)** vs 10% target. THE constraint.
+- Volume: ~31 free-results reachers post-gate (~2 weeks); low. Drip list 38 (+24/wk) filling but not converting.
+- Data integrity: `calculator_sessions_v2.payment_status` unreliable (June 107 sessions, 0 marked paid) — Stripe is the only revenue truth. GA4 `calculator_step1_viewed` under-fires vs `calculator_free_results` (>100% in 3d window) — reconcile.
+- Audience: 45+ / weight-loss / female-skewed carnivore = beachhead. **No customer testimonials/social proof exist anywhere on file** (grep confirmed) — likely paywall suppressor.
+
+**Top 3 revenue constraints:**
+1. **Measurement is broken** — can't trust DB revenue or DB email; GA4 step1 under-fires. Every experiment is hard to read until fixed.
+2. **Free→paid ~3%** — free results page over-delivers (all 4 macros + Meal 1 visible; Step3FreeResults.tsx:261,446), checkout adds friction (re-asks email, foregrounds coupon, off-site redirect; StripePaymentModal.tsx:397-485,182), and zero social proof/guarantee at the pay moment.
+3. **Low qualified volume** — ~30 free-results/mo means even 10% conversion ≈ 3 sales/mo, and A/B testing is statistically impossible at this volume.
+
+**Top 3 opportunities:**
+1. **Data-integrity fixes** (small, reversible): write email into the session-create POST + await it; write payment status back to the DB; confirm step1 event fires. Makes the funnel measurable.
+2. **Free→paid conversion package** (reversible, no price change): reframe the $29 offer around one sharp weight-loss outcome + concrete deliverable list + surface the 30-day guarantee AT the pay button; make checkout email read-only + collapse the coupon field; tighten the free reveal (blur exact protein/fat grams). Add the first real testimonial once obtained.
+3. **Acquisition to grow the denominator**: add TDEE + fat-to-protein to calculator title/meta + one FAQ (page is otherwise well-optimized); 7 in-prose blog links from high-intent posts (beginners-blueprint, first-30-days, 2-month timeline, metabolic-stall, protein-priority); Bing IndexNow + query baseline (Bing under-reviewed); one calculator Pinterest pin. Plus a lifecycle non-buyer drip (unique-coupon attribution) now that the list is filling.
+
+**Recommended first experiment (Director):** Two-track, because sample size forbids honest A/B testing.
+- **PRIMARY (EXP-002 Acquisition denominator growth):** TDEE/fat-to-protein title-meta + 7 in-prose calculator links + Bing submission + 1 Pinterest pin. Measurable (qualified calculator starts by source), low-risk, grows the base so everything else becomes readable.
+- **SUPPORTING (EXP-001 Free→paid package):** ship the reversible conversion bundle + the data-integrity fixes; measure directionally against census over 30d (not a split test).
+- Groundwork (no approval needed, engineering): the email-persistence + payment-writeback fixes.
+
+Full lead findings: task transcripts this session. Experiment specs: `growth/Experiment-Log.md`. Customer segments: `growth/Customer-Insights.md`. Brew decisions: `reports/approval-queue.md`.
