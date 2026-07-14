@@ -119,3 +119,8 @@ api/.wrangler/tmp/
 # Blocked by .git/hooks/pre-commit secret scanner as a backstop.
 n8n-workflows/
 .next/
+
+# Paid product masters — never commit to this PUBLIC repo (cleanup 2026-07-14).
+# Etsy deliverables live here as the product warehouse; masters kept in private backup.
+# NOTE: public/downloads/** is deliberately force-included above (on-site shop fulfillment) — do not undo.
+etsy/products/**/*.pdf
