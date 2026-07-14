@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-// Phase A / A2 — Weekly Etsy snapshot.
-// Read-only Etsy API pull. Appends one dated JSON line to reports/etsy-weekly/snapshots.jsonl,
-// building the time series that makes flatten-vs-recover measurable and that A1's 30-day
-// view trend derives from (Etsy's API only exposes LIFETIME views, so trend = snapshot delta).
+// Phase A / A2 — Daily Etsy snapshot.
+// Read-only Etsy API pull (~3-4 requests/run — negligible vs Etsy's 10k/day limit).
+// Appends one dated JSON line to reports/etsy-snapshots/snapshots.jsonl, building the time
+// series that makes flatten-vs-recover measurable and that sales-summary.mjs uses for TRUE
+// windowed conversion (Etsy's API only exposes LIFETIME views, so windowed views = snapshot
+// delta; daily cadence gives tight ~30d and ~90d window matches).
 // Output dir is gitignored — shop performance data must not land in the PUBLIC repo.
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync } from 'fs';
 import path from 'path';
@@ -11,7 +13,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(__dirname, '..');
 const SECRETS = path.join(REPO, 'secrets', 'api-keys.json');
-const OUT_DIR = path.join(REPO, 'reports', 'etsy-weekly');
+const OUT_DIR = path.join(REPO, 'reports', 'etsy-snapshots');
 const OUT = path.join(OUT_DIR, 'snapshots.jsonl');
 const SHOP_ID = 63916912;
 
@@ -80,5 +82,5 @@ const snap = {
 mkdirSync(OUT_DIR, { recursive: true });
 appendFileSync(OUT, JSON.stringify(snap) + '\n');
 const totalViews = snap.listings.reduce((s, l) => s + l.views, 0);
-console.log(`✅ snapshot ${snap.date} appended → reports/etsy-weekly/snapshots.jsonl`);
+console.log(`✅ snapshot ${snap.date} appended → reports/etsy-snapshots/snapshots.jsonl`);
 console.log(`   ${snap.listings.length} listings · ${snap.shop.sales_lifetime} lifetime sales · ${snap.shop.reviews} reviews (${snap.shop.review_avg}) · ${totalViews} total lifetime views`);
