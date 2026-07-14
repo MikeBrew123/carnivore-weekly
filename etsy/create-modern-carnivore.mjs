@@ -67,7 +67,7 @@ const createRes = await fetch(`https://openapi.etsy.com/v3/application/shops/${S
     quantity: '999',
     price: String(listing.price),
     who_made: 'i_did',
-    when_made: 'made_to_order',
+    when_made: '2020_2026',
     taxonomy_id: '69',
     type: 'download',
     is_digital: 'true',
