@@ -123,31 +123,55 @@ if (receipts.length) {
   console.log('  (no receipts in window)');
 }
 
-// === A1: CONVERSION TABLE — per-listing 90d units vs views, + 30d view trend ===
-// Etsy's API only exposes LIFETIME views, so the 30d view delta is computed against the
-// weekly snapshot log (reports/etsy-weekly/snapshots.jsonl, written by etsy-weekly-snapshot.mjs).
-console.log('\n=== CONVERSION TABLE (A1) ===');
-const SNAP = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'reports', 'etsy-weekly', 'snapshots.jsonl');
-let base = null, baseAge = null;
-if (existsSync(SNAP)) {
-  const snaps = readFileSync(SNAP, 'utf8').trim().split('\n').filter(Boolean).map(JSON.parse);
-  const nowTs = Math.floor(Date.now() / 1000);
-  const withAge = snaps.map(s => ({ s, age: (nowTs - s.ts) / 86400 })).filter(x => x.age >= 1);
-  const win = withAge.filter(x => x.age >= 25);
-  const pick = win.length ? win.sort((a, b) => Math.abs(a.age - 30) - Math.abs(b.age - 30))[0]
-                          : withAge.sort((a, b) => b.age - a.age)[0];
-  if (pick) { base = {}; for (const l of pick.s.listings) base[l.id] = l.views; baseAge = Math.round(pick.age); }
+// === A1: PER-LISTING METRICS — proxy now; TRUE conversion once snapshot history spans the window ===
+// Etsy's API exposes only LIFETIME views, so windowed views come from the daily snapshot log
+// (reports/etsy-snapshots/snapshots.jsonl, written by etsy-snapshot.mjs).
+console.log('\n=== PER-LISTING METRICS (A1) ===');
+console.log('proxy% = units(90d) ÷ LIFETIME views — a coarse SELL-THROUGH PROXY, NOT a conversion rate.');
+console.log('  ⚠ denominator mismatch: a 90-day numerator over all-time views. It understates mature');
+console.log('    high-view listings and flatters brand-new ones. Use only for rough ranking.');
+console.log('convNd = units(Nd) ÷ views-gained(Nd) over the SAME N-day window (numerator window is set to');
+console.log('  the matched snapshot age, so denominators align). Shown only when a snapshot that old exists.');
+
+const SNAP = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'reports', 'etsy-snapshots', 'snapshots.jsonl');
+let snaps = [];
+if (existsSync(SNAP)) snaps = readFileSync(SNAP, 'utf8').trim().split('\n').filter(Boolean).map(JSON.parse);
+const nowTs = Math.floor(Date.now() / 1000);
+const withAge = snaps.map(s => ({ s, age: (nowTs - s.ts) / 86400 })).filter(x => x.age >= 1);
+
+// closest snapshot to `target` days old within [min,max]; null if none qualifies
+function pickWindow(target, min, max) {
+  const cand = withAge.filter(x => x.age >= min && x.age <= max);
+  if (!cand.length) return null;
+  const p = cand.sort((a, b) => Math.abs(a.age - target) - Math.abs(b.age - target))[0];
+  const viewsAt = {}; for (const l of p.s.listings) viewsAt[l.id] = l.views;
+  return { ageDays: Math.round(p.age), ts: p.s.ts, viewsAt };
 }
-console.log(base
-  ? `(views(${baseAge}d) = lifetime views minus snapshot from ~${baseAge}d ago · conv% = 90d units ÷ lifetime views)`
-  : '(30d view trend: baseline being established — needs a snapshot ≥~28d old; conv% = 90d units ÷ lifetime views)');
-console.log('  units90  viewsLife  views' + String((baseAge || 30) + 'd').padStart(6) + '   conv%   title');
-const convRows = [...listings].sort((a, b) =>
-  (units90[b.listing_id] || 0) - (units90[a.listing_id] || 0) || (b.views || 0) - (a.views || 0));
-for (const l of convRows) {
-  const u = units90[l.listing_id] || 0;
-  const v = l.views || 0;
-  const d30 = base && base[l.listing_id] != null ? (v - base[l.listing_id]) : null;
-  const conv = v ? (u / v * 100) : 0;
-  console.log(`  ${String(u).padStart(6)}   ${String(v).padStart(7)}   ${String(d30 == null ? '—' : d30).padStart(6)}   ${conv.toFixed(2).padStart(5)}%  ${(l.title || '').slice(0, 46)}`);
+// units per listing since a timestamp — aligns the numerator window to the snapshot
+function unitsSince(ts) {
+  const m = {};
+  for (const r of receipts) if (r.create_timestamp >= ts) for (const tx of (r.transactions || [])) m[tx.listing_id] = (m[tx.listing_id] || 0) + (tx.quantity || 0);
+  return m;
+}
+const w30 = pickWindow(30, 20, 45);
+const w90 = pickWindow(90, 70, 110);
+const u30 = w30 ? unitsSince(w30.ts) : null;
+const u90w = w90 ? unitsSince(w90.ts) : null;
+const oldestAge = withAge.length ? Math.round(Math.max(...withAge.map(x => x.age))) : 0;
+const firstSnap = snaps.length ? snaps[0].date : '(none yet)';
+console.log(`\n30d conversion: ${w30 ? 'LIVE — matched ' + w30.ageDays + 'd snapshot' : `pending (need a snapshot ~20-45d old; history started ${firstSnap}, oldest ${oldestAge}d)`}`);
+console.log(`90d conversion: ${w90 ? 'LIVE — matched ' + w90.ageDays + 'd snapshot' : `pending (need a snapshot ~70-110d old; oldest ${oldestAge}d)`}`);
+
+const h30 = w30 ? `conv${w30.ageDays}d` : 'conv30d', h90 = w90 ? `conv${w90.ageDays}d` : 'conv90d';
+console.log(`\n  units90  viewsLife   proxy%  ${h30.padStart(7)}  ${h90.padStart(7)}   title`);
+const rows = [...listings].sort((a, b) => (units90[b.listing_id] || 0) - (units90[a.listing_id] || 0) || (b.views || 0) - (a.views || 0));
+for (const l of rows) {
+  const id = l.listing_id, u = units90[id] || 0, v = l.views || 0;
+  const proxy = v ? (u / v * 100).toFixed(2) + '%' : '—';
+  const winConv = (w, uw) => {
+    if (!w) return '—';
+    const vd = v - (w.viewsAt[id] ?? v);
+    return vd > 0 ? ((uw[id] || 0) / vd * 100).toFixed(1) + '%' : (vd === 0 ? '0v' : '—');
+  };
+  console.log(`  ${String(u).padStart(6)}   ${String(v).padStart(7)}   ${proxy.padStart(6)}  ${winConv(w30, u30).padStart(7)}  ${winConv(w90, u90w).padStart(7)}   ${(l.title || '').slice(0, 40)}`);
 }
