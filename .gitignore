@@ -124,3 +124,7 @@ n8n-workflows/
 # Etsy deliverables live here as the product warehouse; masters kept in private backup.
 # NOTE: public/downloads/** is deliberately force-included above (on-site shop fulfillment) — do not undo.
 etsy/products/**/*.pdf
+
+# Etsy weekly snapshot data (Phase A2) — business metrics, keep OUT of this public repo.
+# The snapshot SCRIPT (etsy/etsy-weekly-snapshot.mjs) is committed; the DATA is not.
+reports/etsy-weekly/
