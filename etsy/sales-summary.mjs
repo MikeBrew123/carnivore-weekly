@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Pull a sales + listing snapshot for CarnivoreWeekly Etsy shop.
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const secrets = JSON.parse(readFileSync('../secrets/api-keys.json', 'utf8'));
 const CLIENT_ID = secrets.etsy.api_key;
@@ -49,6 +51,10 @@ const listings = await fetchAll(`https://openapi.etsy.com/v3/application/shops/$
 // 3. Receipts (orders) — last 90 days
 const since = Math.floor((Date.now() - 90 * 86400 * 1000) / 1000);
 const receipts = await fetchAll(`https://openapi.etsy.com/v3/application/shops/${SHOP_ID}/receipts?min_created=${since}`);
+
+// A1: per-listing 90-day units (map receipt transactions to listing_id) for the conversion table
+const units90 = {};
+for (const r of receipts) for (const tx of (r.transactions || [])) units90[tx.listing_id] = (units90[tx.listing_id] || 0) + (tx.quantity || 0);
 
 // === Output ===
 console.log('\n=== SHOP ===');
@@ -115,4 +121,33 @@ if (receipts.length) {
   }
 } else {
   console.log('  (no receipts in window)');
+}
+
+// === A1: CONVERSION TABLE — per-listing 90d units vs views, + 30d view trend ===
+// Etsy's API only exposes LIFETIME views, so the 30d view delta is computed against the
+// weekly snapshot log (reports/etsy-weekly/snapshots.jsonl, written by etsy-weekly-snapshot.mjs).
+console.log('\n=== CONVERSION TABLE (A1) ===');
+const SNAP = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'reports', 'etsy-weekly', 'snapshots.jsonl');
+let base = null, baseAge = null;
+if (existsSync(SNAP)) {
+  const snaps = readFileSync(SNAP, 'utf8').trim().split('\n').filter(Boolean).map(JSON.parse);
+  const nowTs = Math.floor(Date.now() / 1000);
+  const withAge = snaps.map(s => ({ s, age: (nowTs - s.ts) / 86400 })).filter(x => x.age >= 1);
+  const win = withAge.filter(x => x.age >= 25);
+  const pick = win.length ? win.sort((a, b) => Math.abs(a.age - 30) - Math.abs(b.age - 30))[0]
+                          : withAge.sort((a, b) => b.age - a.age)[0];
+  if (pick) { base = {}; for (const l of pick.s.listings) base[l.id] = l.views; baseAge = Math.round(pick.age); }
+}
+console.log(base
+  ? `(views(${baseAge}d) = lifetime views minus snapshot from ~${baseAge}d ago · conv% = 90d units ÷ lifetime views)`
+  : '(30d view trend: baseline being established — needs a snapshot ≥~28d old; conv% = 90d units ÷ lifetime views)');
+console.log('  units90  viewsLife  views' + String((baseAge || 30) + 'd').padStart(6) + '   conv%   title');
+const convRows = [...listings].sort((a, b) =>
+  (units90[b.listing_id] || 0) - (units90[a.listing_id] || 0) || (b.views || 0) - (a.views || 0));
+for (const l of convRows) {
+  const u = units90[l.listing_id] || 0;
+  const v = l.views || 0;
+  const d30 = base && base[l.listing_id] != null ? (v - base[l.listing_id]) : null;
+  const conv = v ? (u / v * 100) : 0;
+  console.log(`  ${String(u).padStart(6)}   ${String(v).padStart(7)}   ${String(d30 == null ? '—' : d30).padStart(6)}   ${conv.toFixed(2).padStart(5)}%  ${(l.title || '').slice(0, 46)}`);
 }
