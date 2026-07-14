@@ -134,32 +134,60 @@ async function handleSession(request, env) {
         if (!nlRes.ok) console.log('newsletter upsert failed:', await nlRes.text());
       } catch (e) { console.log('newsletter upsert error:', e.message); }
 
-      // Send latest newsletter immediately
+      // Send an evergreen welcome (was: the latest past newsletter issue, which
+      // meant new leads got a month-old email). This one welcomes them, confirms
+      // their macros are theirs to keep, and points to the optional 7-Day Meal Plan.
       if (env.RESEND_API_KEY) {
-        fetch('https://ketodial.com/newsletter/latest.html')
-          .then(r => r.ok ? r.text() : null)
-          .then(html => {
-            if (!html) return;
-            const unsubUrl = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(cleanEmail)}&site=kd`;
-            const personalized = html.replace('{{unsubscribe_url}}', unsubUrl);
-            return fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                from: 'KetoDial — The Weekly Dial-In <ketodial@carnivoreweekly.com>',
-                to: [cleanEmail],
-                reply_to: 'iambrew@gmail.com',
-                subject: 'Welcome to The Weekly Dial-In — here\'s your first issue',
-                html: personalized,
-              }),
-            });
-          }).catch(() => {});
+        const unsubUrl = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(cleanEmail)}&site=kd`;
+        fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'The Weekly Dial-In by KetoDial <ketodial@carnivoreweekly.com>',
+            to: [cleanEmail],
+            reply_to: 'iambrew@gmail.com',
+            subject: 'Your keto macros are ready, and yours to keep',
+            html: welcomeEmailHtml(unsubUrl),
+          }),
+        }).catch(() => {});
       }
     }
     return jsonResponse(200, { ok: true, token });
   } catch (e) {
     return jsonResponse(500, { error: e.message });
   }
+}
+
+// ──────────────────────────────────────────────
+// WELCOME EMAIL (evergreen) — sent on calculator email capture
+// ──────────────────────────────────────────────
+function welcomeEmailHtml(unsubUrl) {
+  const cta = 'https://ketodial.com/?utm_source=kd_welcome&utm_medium=email&utm_campaign=welcome#calc';
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#eef4f8;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1a2b38">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef4f8;padding:24px 0">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #d7e6f0">
+        <tr><td style="padding:26px 32px 6px">
+          <span style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0891b2">KetoDial</span>
+          <h1 style="margin:10px 0 0;font-size:24px;line-height:1.25;color:#0f172a">Welcome to the Weekly Dial-In</h1>
+        </td></tr>
+        <tr><td style="padding:14px 32px 4px;font-size:16px;line-height:1.6;color:#334155">
+          <p style="margin:0 0 16px">You made it. Your personalized keto macros, your protein, fat, and net carbs, are calculated and ready. They're yours to keep, free, no strings. Save them somewhere handy so you can check them when you're planning meals or reading a food label.</p>
+          <p style="margin:0 0 16px">You're also signed up for The Weekly Dial-In, our weekly keto email. It's practical stuff you can actually use, one simple idea at a time, no hype and no fluff. Look for it in your inbox each week, and hit reply anytime if something clicks or a question comes up.</p>
+          <p style="margin:0 0 22px">If you'd like your numbers turned into a real week of eating, some folks grab the optional 7-Day Meal Plan. For $5.99 it builds a full week around your exact macros and hands you a grocery list to match. It's totally optional, and you can add it back at the calculator whenever you're ready.</p>
+        </td></tr>
+        <tr><td style="padding:0 32px 30px">
+          <a href="${cta}" style="display:inline-block;background:#0891b2;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 28px;border-radius:10px">Build My Week</a>
+        </td></tr>
+        <tr><td style="padding:18px 32px 26px;border-top:1px solid #e6eef4;font-size:12px;line-height:1.5;color:#7b93a6">
+          <p style="margin:0 0 6px">KetoDial provides general nutrition estimates for informational purposes only and is not medical advice.</p>
+          <p style="margin:0"><a href="${unsubUrl}" style="color:#7b93a6;text-decoration:underline">Unsubscribe</a></p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
 }
 
 // ──────────────────────────────────────────────
@@ -328,7 +356,7 @@ async function handleEmailPlan(request, env) {
 async function handleCheckout(request, env) {
   try {
     const body = await request.json();
-    const { items, email, name, formData } = body;
+    const { items, email, name, formData, token } = body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return jsonResponse(400, { error: 'No items selected' });
@@ -354,6 +382,7 @@ async function handleCheckout(request, env) {
 
     sessionParams.append('metadata[customer_name]', name || '');
     sessionParams.append('metadata[items]', items.join(','));
+    if (token) sessionParams.append('metadata[session_token]', token);
     if (formData) {
       sessionParams.append('metadata[form_data]', JSON.stringify(formData).slice(0, 490));
     }
@@ -396,6 +425,45 @@ async function handleWebhook(request, env) {
     const name = session.metadata?.customer_name || 'there';
     const items = (session.metadata?.items || '').split(',').filter(Boolean);
     const formData = safeParseJSON(session.metadata?.form_data);
+
+    // Write the purchase back to the calculator session so revenue + paid
+    // conversion are queryable in calculator_sessions_v2 (Stripe was the only
+    // source of truth before this). Keyed by the session_token we stamp into
+    // metadata at checkout. Runs regardless of the email/report path below.
+    const sessionToken = session.metadata?.session_token;
+    if (sessionToken) {
+      try {
+        const nowIso = new Date().toISOString();
+        const wb = await fetch(
+          `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${sessionToken}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+              'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'Prefer': 'return=minimal',
+            },
+            body: JSON.stringify({
+              payment_status: 'paid',
+              amount_paid_cents: session.amount_total ?? null,
+              paid_at: nowIso,
+              payment_verified_at: nowIso,
+              stripe_payment_intent_id: session.payment_intent || null,
+              is_premium: true,
+              step_completed: 4,
+              updated_at: nowIso,
+            }),
+          }
+        );
+        if (!wb.ok) console.error('Payment writeback failed:', await wb.text());
+        else console.log(`Payment written back for ${sessionToken}: ${session.amount_total} cents`);
+      } catch (e) {
+        console.error('Payment writeback error:', e.message);
+      }
+    } else {
+      console.log('No session_token in metadata; payment not linked to session:', session.id);
+    }
 
     if (!email || items.length === 0) {
       console.error('Missing email or items in session:', session.id);
