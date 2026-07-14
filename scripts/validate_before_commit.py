@@ -867,6 +867,32 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
                     'Blog filenames must start with YYYY-MM-DD-. Remove or rename this file.'
                 )
 
+    # Gate 9: No `when_made: 'made_to_order'` in Etsy listing scripts.
+    # A digital download with when_made=made_to_order renders as "Made-to-order
+    # download" on the buyer page ("files available after the seller completes
+    # your order") instead of "Instant Download" — a silent conversion killer.
+    # Finished printables must use a date range (e.g. '2020_2026'). See recurring-issues.
+    etsy_dir = project_root / 'etsy'
+    if etsy_dir.exists():
+        made_to_order_re = re.compile(r"""when_made\s*[:=]\s*['"]made_to_order['"]""")
+        for ext in ('*.mjs', '*.js', '*.ts'):
+            for sf in etsy_dir.rglob(ext):
+                if any(ex in sf.parts for ex in ('node_modules', '.git', 'worktrees')):
+                    continue
+                try:
+                    src = sf.read_text(encoding='utf-8', errors='ignore')
+                except (OSError, IOError):
+                    continue
+                for lineno, line in enumerate(src.splitlines(), 1):
+                    if made_to_order_re.search(line):
+                        rel = str(sf).replace(str(project_root) + '/', '')
+                        results.add_critical(
+                            rel, lineno,
+                            "Digital listing sets when_made='made_to_order' — renders as "
+                            '"Made-to-order download" instead of "Instant Download".',
+                            "Use a finished-product date range, e.g. when_made: '2020_2026'."
+                        )
+
     return results
 
 

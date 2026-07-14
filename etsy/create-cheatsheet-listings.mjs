@@ -128,7 +128,7 @@ for (const l of listings) {
       quantity: '999',
       price: String(l.price),
       who_made: 'i_did',
-      when_made: 'made_to_order',
+      when_made: '2020_2026',
       taxonomy_id: '69', // Art & Collectibles > Prints > Digital Prints
       type: 'download',
       is_digital: 'true',
