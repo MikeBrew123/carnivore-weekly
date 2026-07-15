@@ -566,6 +566,53 @@ def fetch_revenue():
 
 # ── Insights (rule-based; always runs) ───────────────────────────────
 
+def fetch_etsy():
+    """Read the local Etsy daily-snapshot log (reports/etsy-snapshots/snapshots.jsonl,
+    written by the etsy-daily-snapshot task). Intentionally NO live Etsy call — reading
+    the file avoids sharing/rotating the Etsy OAuth token with the snapshot task."""
+    path = os.path.join(PROJECT_ROOT, 'reports', 'etsy-snapshots', 'snapshots.jsonl')
+    if not os.path.exists(path):
+        return {'absent': True}
+    snaps = []
+    try:
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    snaps.append(json.loads(line))
+    except Exception as ex:
+        return {'error': str(ex)}
+    if not snaps:
+        return {'absent': True}
+    latest = snaps[-1]
+    lt = latest.get('ts', 0)
+    older = [s for s in snaps[:-1] if lt - s.get('ts', 0) >= 6 * 86400]
+    prior = older[-1] if older else (snaps[0] if len(snaps) > 1 else None)
+    shop = latest.get('shop', {})
+    listings = latest.get('listings', [])
+
+    def delta(key):
+        if not prior:
+            return None
+        pv, cv = prior.get('shop', {}).get(key), shop.get(key)
+        return (cv - pv) if (pv is not None and cv is not None) else None
+
+    ranked = sorted(listings, key=lambda l: (l.get('units_90d', 0), l.get('views', 0)), reverse=True)
+    top = [{'title': l.get('title', '')[:40], 'units': l.get('units_90d', 0),
+            'views': l.get('views', 0),
+            'proxy': (l.get('units_90d', 0) / l['views'] * 100) if l.get('views') else 0}
+           for l in ranked[:6]]
+    return {
+        'date': latest.get('date'),
+        'reviews': shop.get('reviews'), 'review_avg': shop.get('review_avg'),
+        'sales_lifetime': shop.get('sales_lifetime'), 'active_listings': shop.get('active_listings'),
+        'total_views': sum(l.get('views', 0) for l in listings),
+        'reviews_delta': delta('reviews'), 'sales_delta': delta('sales_lifetime'),
+        'snapshots': len(snaps), 'baseline_date': (prior or latest).get('date'),
+        'top': top,
+    }
+
+
 def _wow(block, key='sessions'):
     w = (block or {}).get('week', {}).get(key, {})
     return w.get('current', 0), w.get('previous', 0), w.get('change_pct')
@@ -798,6 +845,8 @@ def collect(use_model=True):
     data['email_engagement'] = guarded('Engagement', fetch_email_engagement)
     print('  Revenue...')
     data['revenue'] = guarded('Revenue', fetch_revenue)
+    print('  Etsy snapshot...')
+    data['etsy'] = guarded('Etsy', fetch_etsy)
 
     data['insights'] = build_insights(data)
     data['analysis'] = {'narrative': None, 'generated_by': 'rules'}
@@ -980,6 +1029,35 @@ SEV_META = {'alert': ('🔴', 'Act on this'), 'watch': ('🟡', 'Keep an eye on'
             'good': ('🟢', 'Going well'), 'info': ('🔵', 'Worth knowing')}
 
 
+def etsy_delta(n):
+    if n is None or n == 0:
+        return ''
+    cls = 'up' if n > 0 else 'down'
+    return f' <span class="trend {cls}">{"+" if n > 0 else ""}{n}</span>'
+
+
+def etsy_card(e):
+    if not e or e.get('absent'):
+        return ('<div class="card"><h3>Etsy — CarnivoreWeekly</h3>'
+                '<p class="muted">No snapshot data on this run. The <code>etsy-daily-snapshot</code> task '
+                'writes reports/etsy-snapshots/ on the Mac; this panel fills in where that log lives.</p></div>')
+    if e.get('error'):
+        return f'<div class="card"><h3>Etsy — CarnivoreWeekly</h3>{err_note(e, "Etsy") or ""}</div>'
+    top_rows = [[esc(t['title']), t['units'], f"{t['views']:,}", f"{t['proxy']:.2f}%"] for t in e['top']]
+    return f'''<div class="card"><h3 style="border-color:var(--green)">Etsy — CarnivoreWeekly <span class="muted small">(snapshot {esc(e['date'])})</span></h3>
+      <div class="statrow wrap">
+        <div class="stat"><b>{esc(e['reviews'])}</b><span>reviews</span>{etsy_delta(e['reviews_delta'])}</div>
+        <div class="stat"><b>{esc(e['review_avg'])}</b><span>avg rating</span></div>
+        <div class="stat"><b>{esc(e['sales_lifetime'])}</b><span>lifetime sales</span>{etsy_delta(e['sales_delta'])}</div>
+        <div class="stat"><b>{esc(e['active_listings'])}</b><span>active listings</span></div>
+        <div class="stat"><b>{e['total_views']:,}</b><span>total views</span></div>
+      </div>
+      <p class="muted small">B2 target: 10+ reviews by Sept 15 · {e['snapshots']} snapshot(s) since {esc(e['baseline_date'])}</p>
+      <p class="muted small" style="margin-top:8px">Top listings by 90-day units. <b>proxy%</b> = units / lifetime views (a sell-through proxy, not true conversion):</p>
+      {table(['Listing', 'units 90d', 'views', 'proxy%'], top_rows)}
+    </div>'''
+
+
 def render_html(d):
     ins_html = ''
     for i in d.get('insights', []):
@@ -1147,7 +1225,7 @@ def render_html(d):
 <header><h1>🎛️ Command Center</h1><span class="upd">Updated {esc(d["meta"]["generated_at"])} PT</span>
 <nav><a href="#review">Review</a><a href="#traffic">Traffic</a><a href="#search">Search</a>
 <a href="#funnels">Funnels</a><a href="#demographics">Demographics</a>
-<a href="#mail">Mail & Feedback</a><a href="#revenue">Revenue</a></nav></header>
+<a href="#mail">Mail & Feedback</a><a href="#revenue">Revenue</a><a href="#etsy">Etsy</a></nav></header>
 <main>
 
 <section id="review"><h2>Plain-English Review</h2>
@@ -1200,6 +1278,9 @@ def render_html(d):
 
 <section id="revenue"><h2>Revenue</h2>
 <div class="card">{rev_html}</div></section>
+
+<section id="etsy"><h2>Etsy Shop <span class="small">(daily snapshot · reviews + conversion)</span></h2>
+<div class="grid">{etsy_card(d.get('etsy'))}</div></section>
 
 <p class="muted small">Generated by dashboard/generate_command_center.py · data in command-center-data.json ·
 auto-updates daily via GitHub Actions (dashboard-update.yml) · run manually any time:
