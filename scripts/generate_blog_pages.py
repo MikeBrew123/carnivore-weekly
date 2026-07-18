@@ -12,6 +12,12 @@ from pathlib import Path
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+try:
+    from PIL import Image as PILImage
+    HAS_PILLOW = True
+except ImportError:
+    HAS_PILLOW = False
+
 # Auto-linking for wiki keywords
 from auto_link_wiki_keywords import insert_wiki_links
 
@@ -26,6 +32,28 @@ BLOG_DIR = PUBLIC_DIR / "blog"
 
 # Ensure blog directory exists
 BLOG_DIR.mkdir(parents=True, exist_ok=True)
+
+# Default OG-style ratio, used only when the real file can't be read
+DEFAULT_POST_IMAGE_DIMS = (1200, 630)
+
+
+def get_post_image_dims(image_url):
+    """Read the actual pixel dimensions of a post's hero image so the
+    HTML width/height attributes match reality (prevents CLS — the CSS
+    already fixes on-page display size, this only fixes the browser's
+    pre-load space reservation)."""
+    if not image_url or not HAS_PILLOW:
+        return DEFAULT_POST_IMAGE_DIMS
+    if not image_url.startswith("/"):
+        return DEFAULT_POST_IMAGE_DIMS
+    img_path = PUBLIC_DIR / image_url.lstrip("/")
+    if not img_path.exists():
+        return DEFAULT_POST_IMAGE_DIMS
+    try:
+        with PILImage.open(img_path) as im:
+            return im.size
+    except Exception:
+        return DEFAULT_POST_IMAGE_DIMS
 
 
 SITE_FILTER = None  # Set by --site flag; None means all posts (backwards compat)
@@ -225,6 +253,7 @@ def generate_blog_posts(env, posts, validator=None):
         author_name = author_full_names.get(author_slug, author_slug.title())
 
         # Render the template with post data
+        post_image_width, post_image_height = get_post_image_dims(post.get("image"))
         rendered = template.render(
             title=post.get("title"),
             author=post.get("author"),
@@ -235,6 +264,8 @@ def generate_blog_posts(env, posts, validator=None):
             slug=post.get("slug"),
             content=content,
             post_image=post.get("image"),
+            post_image_width=post_image_width,
+            post_image_height=post_image_height,
             tags=post.get("tags", []),
             keywords=keywords,
             meta_description=meta_description,

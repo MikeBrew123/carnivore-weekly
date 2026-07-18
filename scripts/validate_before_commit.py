@@ -566,6 +566,12 @@ def validate_sitemap_sync(sitemap_path: Path, public_dir: Path, results: Validat
             rel = str(html_file.relative_to(public_dir))
             expected_url = f'https://carnivoreweekly.com/{rel}'
             if expected_url not in sitemap_urls:
+                try:
+                    head = html_file.read_text(encoding='utf-8', errors='ignore')[:2000]
+                    if 'http-equiv="refresh"' in head or "http-equiv='refresh'" in head:
+                        continue  # Redirect stub — correctly excluded from sitemap
+                except Exception:
+                    pass
                 results.add_warning(
                     str(html_file), 1,
                     f'Blog post not in sitemap: {rel}',
