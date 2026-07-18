@@ -980,6 +980,9 @@ class UnifiedGenerator:
             except Exception as e:
                 print(f"  Warning: Could not load blog posts: {e}")
 
+        roundup_image = _get_roundup_image()
+        roundup_image_width, roundup_image_height = _get_image_dims(roundup_image)
+
         template_vars = {
             "analysis_date": data.get(
                 "analysis_date", data.get("timestamp", datetime.now().isoformat())
@@ -1000,7 +1003,9 @@ class UnifiedGenerator:
             "newest_blog_posts": newest_blog_posts,  # 5 posts from last 7 days
             "popular_blog_posts": popular_blog_posts,  # 3 most popular blog posts (older/established)
             "more_blog_posts": more_blog_posts,  # Up to 60 additional posts for Load More section
-            "roundup_image": _get_roundup_image(),
+            "roundup_image": roundup_image,
+            "roundup_image_width": roundup_image_width,
+            "roundup_image_height": roundup_image_height,
         }
 
         # Render template
@@ -1764,6 +1769,29 @@ def _get_roundup_image():
     except Exception:
         pass
     return "/images/lifestyle-cooking-1200w.webp"
+
+
+# Fallback dims for the roundup image's <img> width/height attributes,
+# used only if the real file can't be read (CSS already fixes on-page
+# display size, so this only affects pre-load layout-shift reservation).
+DEFAULT_ROUNDUP_IMAGE_DIMS = (360, 240)
+
+
+def _get_image_dims(image_url):
+    try:
+        from PIL import Image as PILImage
+    except ImportError:
+        return DEFAULT_ROUNDUP_IMAGE_DIMS
+    if not image_url or not image_url.startswith("/"):
+        return DEFAULT_ROUNDUP_IMAGE_DIMS
+    img_path = Path(__file__).parent.parent / "public" / image_url.lstrip("/")
+    if not img_path.exists():
+        return DEFAULT_ROUNDUP_IMAGE_DIMS
+    try:
+        with PILImage.open(img_path) as im:
+            return im.size
+    except Exception:
+        return DEFAULT_ROUNDUP_IMAGE_DIMS
 
 
 def main():
