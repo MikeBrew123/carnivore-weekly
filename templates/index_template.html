@@ -139,7 +139,7 @@
                 </div>
 
                 <div class="roundup-content">
-                    <img class="roundup-image" src="{{ roundup_image|default('/images/lifestyle-cooking-1200w.webp') }}" alt="This week's carnivore community roundup" loading="lazy" width="360" height="240">
+                    <img class="roundup-image" src="{{ roundup_image|default('/images/lifestyle-cooking-1200w.webp') }}" alt="This week's carnivore community roundup" loading="lazy" width="{{ roundup_image_width|default(360) }}" height="{{ roundup_image_height|default(240) }}">
                     {{ weekly_summary|markdown }}
                     <p class="starter-plan-rec"><strong>New to carnivore?</strong> Our health coach Sarah put together a free <a href="/starter-plan.html">7-day starter plan</a> — one email a day covering what to eat, what to expect, and how to make it stick. <a href="/starter-plan.html">Get it here →</a></p>
                 </div>
