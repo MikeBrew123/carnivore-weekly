@@ -6260,6 +6260,16 @@ async function handleResendWebhook(request, env) {
     };
     const simpleType = typeMap[eventType] || eventType;
 
+    // send_drip.py already logs 'sent' synchronously right after the Resend API
+    // call returns — this webhook firing 'email.sent' too was double-logging every
+    // send and dragging down the computed delivery rate (ISSUE tracked 2026-07-18).
+    if (simpleType === 'sent') {
+      return new Response(JSON.stringify({ ok: true, skipped: 'sent-logged-at-send-time' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const payload = {
       email: (data.to && data.to[0]) || data.email || '',
       resend_id: data.email_id || '',
