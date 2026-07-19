@@ -31,6 +31,7 @@ from datetime import datetime
 
 # Auto-linking for wiki keywords
 from auto_link_wiki_keywords import insert_wiki_links
+from blog_link_guard import sanitize_cw_blog_links
 from dotenv import load_dotenv
 import os
 
@@ -427,6 +428,14 @@ class UnifiedGenerator:
 
         # Support both flat structure (from new analyzer) and nested structure
         weekly_summary = analysis.get("weekly_summary", data.get("weekly_summary", ""))
+
+        # ISSUE-038 guard: strip any /blog/ link the editorial cites that isn't a
+        # live CW post on disk (KD posts / hallucinated slugs 404 and block publish).
+        weekly_summary, _dead_links = sanitize_cw_blog_links(
+            weekly_summary, str(self.project_root / "public")
+        )
+        if _dead_links:
+            print(f"  ⚠️  ISSUE-038 guard stripped dead CW /blog/ links from weekly_summary: {_dead_links}")
 
         # Handle trending_topics - parse markdown string to structured array
         trending_topics_raw = analysis.get("trending_topics", data.get("trending_topics", []))
