@@ -17,6 +17,16 @@ Keep entries under 15 lines. No bloat. No decision trees — just enough to reco
 
 ---
 
+## ISSUE-054 — Writer memory load fails on NULL Supabase columns
+🟢 FIXED — Last: 2026-07-19
+
+Pattern: `generate_commentary.py` logs "Could not load {writer} memory from Supabase: 'NoneType' object is not subscriptable" and falls back to local-only context. Hit Sarah (2 `writer_content` rows have `published_at = NULL`); Marcus/Chloe unaffected.
+Attempts:
+- 2026-07-19 — Root cause: `fetch_writer_context.py` used `.get(key, default)`, which only fills the default when the key is MISSING. Supabase returns NULL columns as `None`, so `article.get('published_at','N/A')` returned `None`, and `None[:10]` in `format_context_for_prompt` threw. Fixed by coalescing all sliced/joined fields to `.get(key) or default` (preferred_topics, voice_formula, tags, key_themes, published_at, word_count, relevance_score, impact_category). Verified Sarah now loads 10 memories + 10 past articles, no crash.
+If recurs: check for a NEW NULL column being sliced/joined that isn't yet coalesced.
+
+---
+
 ## ISSUE-001 — Blog queue empty, no new posts publishing
 🟢 FIXED — Last: 2026-07-04
 
