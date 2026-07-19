@@ -952,6 +952,10 @@ def main():
     log_dir.mkdir(exist_ok=True)
     log_file = log_dir / 'commit_validation.log'
 
+    # Rotate once past 2MB so the log can't grow unbounded (keeps one .1 backup)
+    if log_file.exists() and log_file.stat().st_size > 2 * 1024 * 1024:
+        log_file.replace(log_file.with_suffix('.log.1'))
+
     with open(log_file, 'a') as f:
         timestamp = datetime.now().isoformat()
         f.write(f"\n--- Validation run at {timestamp} ---\n")
