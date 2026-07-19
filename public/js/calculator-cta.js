@@ -93,7 +93,7 @@
           font-family: 'Source Sans 3', sans-serif;
         ">${subtext}</p>
 
-        <a href="/calculator.html?utm_source=blog&utm_medium=cta&utm_campaign=${encodeURIComponent(window.location.pathname.split('/').pop().replace('.html',''))}" style="
+        <a href="/calculator.html?src=blog-${encodeURIComponent(window.location.pathname.split('/').pop().replace('.html',''))}" style="
           display: inline-block;
           background: linear-gradient(135deg, #ffd700 0%, #e6ac00 100%);
           color: #1a1a1a !important;

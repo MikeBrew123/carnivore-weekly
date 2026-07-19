@@ -17,6 +17,13 @@ Keep entries under 15 lines. No bloat. No decision trees — just enough to reco
 
 ---
 
+## ISSUE-056 — KD post leaked into CW homepage bento → broken link → daily publish blocked
+🟡 RECURRING (ISSUE-035/038 family) — Last: 2026-07-19
+Pattern: morning daily-publish regenerated CW index.html with a card linking `/blog/2026-07-18-keto-for-bipolar-and-depression.html` (a KD post, not on CW disk) → validator critical → publish job failed, GH issue #52. Self-healed when 16:51 weekly refresh regenerated the homepage without it; drip still sent (continue-on-error), no posts stuck.
+Attempts:
+- 2026-07-19 — No code fix; transient state unreproducible after weekly refresh. Closed #52.
+If recurs: audit the bento query in generate.py for a missing `site == 'cw'` filter on recently-published posts; the leak likely happens only in the daily_publish→generate path, not the weekly refresh path.
+
 ## ISSUE-055 — New static page fails CI canonical validator (local pre-commit doesn't check canonicals)
 🟢 FIXED — Last: 2026-07-19
 Pattern: `validate_before_commit.py` passes locally but `deploy.yml` fails on `validate_canonicals.py` — CI requires `<link rel="canonical">` on EVERY public/*.html page, including noindex utility pages. Hit journey-checkin.html on first deploy.
@@ -521,3 +528,18 @@ Attempts:
 - 2026-07-18 — Rewrote `dashboard/gsc-request-indexing.js` to call `sc.sitemaps.submit()` + `sc.sitemaps.get()` instead of the Indexing API (needs `webmasters` scope, not `indexing` scope). Updated the inline KD script in `~/.claude/scheduled-tasks/weekly-gsc-indexing/SKILL.md` Step 2 the same way. Live-tested `node gsc-request-indexing.js` against the real CW property — sitemap resubmission succeeds.
 Caveat found while testing: `sc.sitemaps.get().contents[].indexed` read back as `0` immediately after resubmission, even though a same-day URL Inspection sweep of the full CW sitemap (see this session) showed 165/201 pages actually `Submitted and indexed`. The field does not update in real time after a fresh `sitemaps.submit()` call — don't treat a post-submission `indexed=0` as a regression. For a trustworthy indexed count, check it a day+ after submission, not immediately, or cross-check with a URL Inspection sample.
 If recurs: grep both files for `urlNotifications.publish` — if either has reappeared, someone reverted or re-copied the old pattern.
+
+## ISSUE-057 — Hermes offline: OpenAI Codex OAuth token invalidated (401 token_invalidated)
+🟢 FIXED — Last: 2026-07-19
+Pattern: Hermes goes silent on Telegram while VPS + hermes-gateway/hermes-api services stay green. Cause: `chatgpt.com/backend-api/codex` returns HTTP 401 `token_invalidated` — the pooled openai-codex OAuth credential was revoked server-side, so every model call fails and Telegram replies never send. Error hint + `hermes auth remove` output both point at the recurrence trigger: another Codex client (Codex CLI / VS Code, `~/.codex/auth.json`) refreshing the same ChatGPT account rotates the token out from under Hermes.
+Attempts:
+- 2026-07-19 — Diagnosed via `journalctl -u hermes-gateway` (401 token_invalidated). Ran `hermes auth add openai-codex --type oauth --no-browser` in background with `PYTHONUNBUFFERED=1` (output is invisible without it), Brew completed device-code sign-in at auth.openai.com/codex/device, removed dead credential #1, restarted both services. Verified: ask-hermes round-trip OK, Hermes confirmed Telegram send and recovered Brew's missed 20:24 UTC message.
+Gotchas: `hermes auth status openai-codex` can flicker "logged in" while the device-code flow is still pending — trust the auth-add process exit + `hermes auth list`, not status. Removing a credential prints "device_code source suppressed — will not be re-seeded"; the fresh credential must already exist before removing the dead one.
+If recurs: same fix (device-code re-auth), but the real fix is a dedicated ChatGPT account for Hermes, or stop using Codex CLI/VS Code locally on the account Hermes shares. Also consider a cron health probe that alerts Brew on 401s instead of silent Telegram death.
+
+## ISSUE-058 — CW GA4 key events pointed at event names the site never fires
+🟢 FIXED — Last: 2026-07-19
+Pattern: GA4 key events were `calculator_complete` / `calculator_start` / `calculator_payment` / `report_generated` / `report_accessed` / `blog_share` / `affiliate_click`, but the site actually fires `calculator_completed`, `calculator_free_results`, `calculator_report_generated`, `outbound_click`, etc. Result: GA4 conversion/key-event reports showed ~nothing for months (only `purchase` + `newsletter_signup` fired). Separately, internal links carried `utm_source=` params (homepage hero/CTA, blog calculator-cta.js, desserts sidebar), which reset session attribution mid-visit and inflated Unassigned.
+Attempts:
+- 2026-07-19 — Via Admin API: created key events for the 4 real event names, deleted the 7 dead ones. Replaced internal `utm_*` links with neutral `?src=` params in index_template.html, public/index.html, calculator-cta.js, desserts.html.
+If recurs: whenever renaming a gtag event, grep GA4 key events + audiences for the old name (dashboard service account has edit scope; see scratchpad ga4_audit.py pattern). Never put utm_ params on same-site links — use `?src=` or event params.
