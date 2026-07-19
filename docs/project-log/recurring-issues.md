@@ -17,6 +17,13 @@ Keep entries under 15 lines. No bloat. No decision trees — just enough to reco
 
 ---
 
+## ISSUE-055 — New static page fails CI canonical validator (local pre-commit doesn't check canonicals)
+🟢 FIXED — Last: 2026-07-19
+Pattern: `validate_before_commit.py` passes locally but `deploy.yml` fails on `validate_canonicals.py` — CI requires `<link rel="canonical">` on EVERY public/*.html page, including noindex utility pages. Hit journey-checkin.html on first deploy.
+Attempts:
+- 2026-07-19 — Added self-referencing canonical tag → deploy green
+If recurs: new pages need canonical + meta description + skip-nav from day one; consider adding canonical check to validate_before_commit.py so local matches CI.
+
 ## ISSUE-054 — Writer memory load fails on NULL Supabase columns
 🟢 FIXED — Last: 2026-07-19
 
