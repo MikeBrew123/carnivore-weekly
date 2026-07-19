@@ -128,3 +128,7 @@ etsy/products/**/*.pdf
 # Etsy daily snapshot data (Phase A2) — business metrics, keep OUT of this public repo.
 # The snapshot SCRIPT (etsy/etsy-snapshot.mjs) is committed; the DATA is not.
 reports/etsy-snapshots/
+
+# Wrangler local dev secrets (never commit)
+.dev.vars
+api/.dev.vars

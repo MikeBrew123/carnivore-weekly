@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="A 30-second anonymous check-in for people on the 30-day carnivore starter. Answer one question and see what brought everyone else here.">
+    <title>Journey Check-In | Carnivore Weekly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NR4JVKW2JV"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-NR4JVKW2JV');
+    </script>
+    <style>
+        :root {
+            --oxblood: #4a0404;
+            --charcoal: #1a1a1a;
+            --cream: #f5f5f0;
+            --amber: #ffbf00;
+            --text-secondary: #4a4a4a;
+            --border: #e0e0e0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--cream);
+            color: var(--charcoal);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .site-header {
+            background: var(--oxblood);
+            padding: 18px 20px;
+            text-align: center;
+        }
+        .site-header a {
+            color: var(--cream);
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 900;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            text-decoration: none;
+        }
+        .wrap { max-width: 560px; margin: 0 auto; padding: 32px 20px 60px; }
+        .badge {
+            display: inline-block;
+            background: var(--amber);
+            color: var(--charcoal);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+        }
+        h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.7rem;
+            margin-bottom: 12px;
+            color: var(--oxblood);
+        }
+        .intro { color: var(--text-secondary); margin-bottom: 26px; font-size: 0.98rem; }
+        .card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(26,26,26,0.05);
+        }
+        .q-text { font-weight: 700; font-size: 1.12rem; margin-bottom: 4px; }
+        .q-sub { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; }
+        .opt {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+            font-size: 0.97rem;
+        }
+        .opt:hover { border-color: var(--oxblood); }
+        .opt input { accent-color: var(--oxblood); width: 18px; height: 18px; flex-shrink: 0; }
+        .opt.checked { border-color: var(--oxblood); background: #faf5f5; }
+        .submit-btn {
+            display: block;
+            width: 100%;
+            background: var(--oxblood);
+            color: var(--cream);
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: opacity .15s;
+        }
+        .submit-btn:hover { opacity: 0.9; }
+        .submit-btn:disabled { opacity: 0.45; cursor: default; }
+        .skip-link {
+            display: block;
+            text-align: center;
+            margin-top: 14px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+        .skip-link a { color: var(--oxblood); }
+        /* Results */
+        .results-header {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.25rem;
+            color: var(--oxblood);
+            margin-bottom: 16px;
+        }
+        .bar-row { margin-bottom: 14px; }
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .bar-label .pct { font-weight: 700; color: var(--oxblood); }
+        .bar-track {
+            background: #ece9e2;
+            border-radius: 999px;
+            height: 12px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            background: var(--oxblood);
+            height: 100%;
+            border-radius: 999px;
+            width: 0;
+            transition: width .7s ease;
+        }
+        .bar-row.mine .bar-fill { background: var(--amber); }
+        .bar-row.mine .bar-label .txt::after { content: " (you)"; font-weight: 600; color: var(--text-secondary); font-size: 0.8rem; }
+        .early-note {
+            background: #fff8e6;
+            border-left: 4px solid var(--amber);
+            border-radius: 0 8px 8px 0;
+            padding: 14px 16px;
+            font-size: 0.93rem;
+            margin-bottom: 16px;
+        }
+        .bridge-stat {
+            border-top: 1px solid var(--border);
+            margin-top: 18px;
+            padding-top: 16px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .bridge-stat strong { color: var(--oxblood); font-size: 1.05rem; }
+        .thanks { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 18px; }
+        .respondents { font-size: 0.82rem; color: var(--text-secondary); text-align: center; margin-top: 6px; }
+        .hidden { display: none; }
+        .error-note { color: #a33; font-size: 0.9rem; margin-top: 10px; text-align: center; }
+        /* Honeypot: visually gone, present in DOM for bots */
+        .hp-field { position: absolute; left: -9999px; opacity: 0; height: 0; overflow: hidden; }
+        @media (prefers-color-scheme: dark) {
+            body { background: #171310; color: #f0ebe4; }
+            .card { background: #221c17; border-color: #3a322b; }
+            .opt { border-color: #3a322b; }
+            .opt.checked { background: #2b2016; }
+            .intro, .q-sub, .skip-link, .bridge-stat, .thanks, .respondents, .bar-label { color: #c9c0b6; }
+            .q-text { color: #f0ebe4; }
+            h1, .results-header { color: #e8b8b8; }
+            .bar-label .pct, .skip-link a { color: #e8b8b8; }
+            .bar-track { background: #3a322b; }
+            .early-note { background: #2b2418; color: #f0ebe4; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-nav" style="position:absolute;left:-9999px">Skip to main content</a>
+    <header class="site-header"><a href="https://carnivoreweekly.com">🥩 CARNIVORE WEEKLY</a></header>
+    <main class="wrap" id="main-content">
+        <span class="badge">New Feature</span>
+        <h1>Quick check-in</h1>
+        <p class="intro" id="intro-text">One question, and it's anonymous. No name, no email, nothing tied to you. Answer if you want to (you don't have to), and you'll see why everyone before you started. Your answer becomes part of the picture for the next person standing where you are right now.</p>
+
+        <div id="loading" class="card"><p>Loading today's question…</p></div>
+
+        <form id="question-form" class="hidden">
+            <div id="questions"></div>
+            <!-- Honeypot: humans never see or fill this -->
+            <div class="hp-field" aria-hidden="true">
+                <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+            </div>
+            <button type="submit" class="submit-btn" id="submit-btn" disabled>Count me in</button>
+            <p class="skip-link">Rather not answer? <a href="#results" id="skip-link">Just show me the results</a></p>
+            <p class="error-note hidden" id="form-error"></p>
+        </form>
+
+        <section id="results" class="hidden">
+            <div class="card">
+                <p class="thanks hidden" id="thanks-line">Thanks. Your answer just became part of the map.</p>
+                <h2 class="results-header">You're not doing this alone. Here's what brought everyone else here.</h2>
+                <div id="results-bars"></div>
+                <div class="early-note hidden" id="early-note">This check-in is brand new, so you're one of the very first people to answer. There's no big chart to show you yet, but your answer is literally building it. The people who sign up next week will see what you just added.</div>
+                <p class="respondents" id="respondents-line"></p>
+                <!-- Bridge stat: REAL data from calculator_sessions_v2, verified 2026-07-19.
+                     109 of 124 calculator users who set a goal chose weight loss (88%).
+                     Refresh quarterly; never show a number we haven't verified. -->
+                <div class="bridge-stat" id="bridge-stat">
+                    While the chart grows, here's a real number we already have: of the people who set a goal in our <a href="https://carnivoreweekly.com/calculator.html" style="color:inherit">carnivore calculator</a>, <strong>88% wanted to lose weight</strong>. You're in good company.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+    (function () {
+        var API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+            ? 'http://localhost:8787/api/v1/drip-survey'
+            : 'https://carnivore-report-api-production.iambrew.workers.dev/api/v1/drip-survey';
+        var EARLY_THRESHOLD = 25;
+        var params = new URLSearchParams(location.search);
+        var day = parseInt(params.get('day') || '1', 10);
+        if (!(day >= 1 && day <= 28)) day = 1;
+        var site = params.get('site') === 'kd' ? 'kd' : 'cw';
+        var source = ['drip', 'calculator', 'blog'].indexOf(params.get('source')) >= 0 ? params.get('source') : 'drip';
+
+        // Anonymous fingerprint: random UUID in localStorage. Dedup only, never identity.
+        var fp;
+        try {
+            fp = localStorage.getItem('cw_checkin_fp');
+            if (!fp) {
+                fp = (crypto.randomUUID && crypto.randomUUID()) || String(Math.random()).slice(2) + Date.now();
+                localStorage.setItem('cw_checkin_fp', fp);
+            }
+        } catch (e) {
+            fp = (crypto.randomUUID && crypto.randomUUID()) || String(Math.random()).slice(2) + Date.now();
+        }
+
+        var $ = function (id) { return document.getElementById(id); };
+        var state = { questions: [], picked: {} };
+
+        function show(el) { el.classList.remove('hidden'); }
+        function hide(el) { el.classList.add('hidden'); }
+
+        function renderQuestions(data) {
+            if (data.intro) $('intro-text').textContent = data.intro;
+            var host = $('questions');
+            host.innerHTML = '';
+            state.questions = data.questions;
+            data.questions.forEach(function (q) {
+                var card = document.createElement('div');
+                card.className = 'card';
+                var inputType = q.type === 'single' ? 'radio' : 'checkbox';
+                var sub = q.type === 'single' ? 'Pick one.' : 'Check everything that applies.';
+                var html = '<p class="q-text">' + esc(q.text) + '</p><p class="q-sub">' + sub + '</p>';
+                q.options.forEach(function (o) {
+                    html += '<label class="opt"><input type="' + inputType + '" name="q_' + esc(q.key) + '" value="' + esc(o.id) + '"><span>' + esc(o.text) + '</span></label>';
+                });
+                card.innerHTML = html;
+                host.appendChild(card);
+            });
+            host.addEventListener('change', function () {
+                host.querySelectorAll('.opt').forEach(function (l) {
+                    l.classList.toggle('checked', l.querySelector('input').checked);
+                });
+                $('submit-btn').disabled = host.querySelectorAll('input:checked').length === 0;
+            });
+            hide($('loading'));
+            show($('question-form'));
+        }
+
+        function renderResults(data, mine, answered) {
+            var bars = $('results-bars');
+            bars.innerHTML = '';
+            var early = data.total_respondents < EARLY_THRESHOLD;
+            if (answered) show($('thanks-line'));
+            if (early) {
+                show($('early-note'));
+            } else {
+                hide($('early-note'));
+                data.questions.forEach(function (q) {
+                    q.options.forEach(function (o) {
+                        var row = document.createElement('div');
+                        row.className = 'bar-row' + (mine.indexOf(o.id) >= 0 ? ' mine' : '');
+                        row.innerHTML = '<div class="bar-label"><span class="txt">' + esc(o.text) + '</span><span class="pct">' + o.pct + '%</span></div><div class="bar-track"><div class="bar-fill"></div></div>';
+                        bars.appendChild(row);
+                        requestAnimationFrame(function () {
+                            row.querySelector('.bar-fill').style.width = o.pct + '%';
+                        });
+                    });
+                });
+                $('respondents-line').textContent = data.total_respondents + ' people have answered so far';
+            }
+            hide($('question-form'));
+            hide($('loading'));
+            show($('results'));
+        }
+
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        fetch(API + '?day=' + day + '&site=' + site)
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+            .then(renderQuestions)
+            .catch(function () {
+                $('loading').innerHTML = '<p>Couldn\'t load today\'s question. <a href="' + location.href.split('?')[0] + '?day=' + day + '">Try again</a> or come back later.</p>';
+            });
+
+        $('question-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var picked = Array.prototype.map.call(
+                document.querySelectorAll('#questions input:checked'),
+                function (i) { return i.value; }
+            );
+            if (!picked.length) return;
+            $('submit-btn').disabled = true;
+            $('submit-btn').textContent = 'Saving…';
+            fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    site: site, day: day, option_ids: picked,
+                    fingerprint: fp, source: source,
+                    website: document.querySelector('input[name="website"]').value
+                })
+            })
+                .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+                .then(function (data) {
+                    if (window.gtag) gtag('event', 'checkin_submit', { day: day, site: site });
+                    renderResults(data, picked, true);
+                })
+                .catch(function () {
+                    $('submit-btn').disabled = false;
+                    $('submit-btn').textContent = 'Count me in';
+                    var err = $('form-error');
+                    err.textContent = "That didn't save. Give it another try in a minute.";
+                    show(err);
+                });
+        });
+
+        $('skip-link').addEventListener('click', function (e) {
+            e.preventDefault();
+            fetch(API + '?day=' + day + '&site=' + site)
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (window.gtag) gtag('event', 'checkin_view_results', { day: day, site: site });
+                    renderResults(data, [], false);
+                });
+        });
+    })();
+    </script>
+</body>
+</html>
