@@ -1,31 +1,31 @@
 {
-  "date": "2026-07-12",
-  "subject_line": "Extra butter might be why you've stalled",
-  "opening": "<p style='margin:0;'>Happy Sunday, friends. This week we got into some spicy territory: fat stalls, second-attempt keto misery, and a Reddit coffee thread that apparently broke the internet. Grab your ribeye and let's get into it.</p>",
+  "date": "2026-07-19",
+  "subject_line": "Your ketone number might be lying to you",
+  "opening": "<p style='margin:0;'>Happy Sunday, friend. This week the community had a lot to say about blood meters, nosy strangers, and whether your carnivore plate is anyone else's business. We pulled the best of it together so you don't miss a thing.</p>",
   "hero": {
-    "slug": "2026-07-11-too-much-fat-keto",
-    "title": "Can You Really Eat Too Much Fat on Keto?",
-    "writer": "Sarah",
-    "teaser": "Most of us started keto after hearing 'fat is your friend.' So it's genuinely shocking when adding more butter to everything turns out to be the exact thing slowing you down. The difference between dietary fat and body fat is where this gets interesting, and it's not what the usual keto advice will tell you. Sarah breaks down the actual science, and the answer depends on one factor most people aren't tracking. You'll want to read this before your next grocery run.",
-    "cta": "Read before Friday"
+    "slug": "2026-07-18-ketone-numbers-obsession",
+    "title": "Why Everyone's Obsessing Over Their Ketone Numbers",
+    "writer": "Chloe",
+    "teaser": "Blood meters are everywhere right now, and people are posting their ketone readings like a badge of honor. But here's the thing nobody's saying out loud: a high number doesn't automatically mean you're doing better. Chloe digs into what the community is actually seeing, and why chasing a specific number might be sending people in the wrong direction. The answer will probably change how you look at your next reading.",
+    "cta": "Read before your next finger prick"
   },
   "supporting": [
     {
-      "slug": "2026-07-10-second-attempt-keto-harder",
-      "title": "Why Your Second Attempt at Keto Feels Harder",
-      "teaser": "Sarah found the biological reason round two hits so much rougher, and it has nothing to do with willpower."
+      "slug": "2026-07-15-keto-without-exercise",
+      "title": "Keto Without Exercise: What Actually Happens",
+      "teaser": "Marcus gives you the honest answer on what skipping the gym really costs you, and it's not what most people expect."
     },
     {
-      "slug": "2026-07-09-lion-diet-transition",
-      "title": "Transitioning Off the Lion Diet: A Practical Guide",
-      "teaser": "Chloe maps out the reintroduction order most people get wrong, plus the two mistakes that erase your progress fast."
+      "slug": "2026-07-17-strangers-comment-on-plate",
+      "title": "When Strangers Comment on Your Plate",
+      "teaser": "Community members shared exactly what they say back, and a few of those responses are genuinely brilliant."
     },
     {
-      "slug": "2026-07-08-quitting-coffee-carnivore",
-      "title": "Quitting Coffee on Carnivore: The Thread That Won't Die",
-      "teaser": "A 68-comment Reddit thread revealed it's not really about the coffee, and Chloe explains what it's actually about."
+      "slug": "2026-07-14-omad-marathon-training",
+      "title": "OMAD and Marathon Training: Can You Do Both?",
+      "teaser": "Marcus found a way to structure it, but there's one condition that most OMAD fans won't like hearing."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Track your added fat separately for three days.</strong> Don't change what you eat yet. Just log butter, tallow, and cream as their own line item so you can see the actual number. Most people are surprised, and that number is the first thing to look at if your scale hasn't moved in two weeks.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something the community has been asking about for months, and the answer is going to make a lot of people rethink their morning routine.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Track how you feel, not just what your meter says.</strong> This week, log one note next to each ketone reading: energy level, sleep quality, or mood. By Friday, you'll have actual data on whether your number matches your performance, and that context is worth more than any single reading on its own.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something a lot of you have been asking about: what happens to your hormones after six months on carnivore, and whether the answer should make you nervous or excited.</p>"
 }
