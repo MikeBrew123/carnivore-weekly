@@ -2,6 +2,12 @@
 
 | Date | Decision | Why | Alternatives |
 |------|----------|-----|--------------|
+| 2026-07-19 | Drip check-in answers are anonymous-only (fingerprint dedup, never identity) | Aggregate data drives content/product decisions; symptom data + identity would be health data with real privacy obligations | Linked-journey tokens (rejected by Brew — privacy first) |
+| 2026-07-19 | No fabricated seed data in check-in results, ever | Standing no-fabricated-data rule; fake social proof shown to real subscribers kills the original-data flywheel if discovered | Brew floated fake seed rows deleted at n=100 (withdrawn after pushback); real bridge stats + founder framing instead |
+| 2026-07-19 | Full 30-day rollout same day, pilot gate waived | Deliverability risk of one own-domain link doesn't scale with template count; 45 mid-journey subscribers' data unrecoverable if delayed to mid-Aug | Day-1-only pilot for 3-4 wks (original plan, superseded by Brew) |
+| 2026-07-19 | Check-in grid wording FROZEN across days; changes need a new question_key | Identical wording is what makes cross-day trends valid | Editing question text in place (breaks all trend data silently) |
+| 2026-07-19 | Calculator embed of check-in parked (bead rh19) | Don't clutter the revenue funnel; free→paid is the constraint | Embed for faster n (rejected by Brew until data proves the loop + mock approved) |
+| 2026-07-19 | journey-checkin.html: noindex + 200 + out of sitemap | Correct GSC hygiene for a utility page; sitemap inclusion would create "submitted but noindex" warnings | Indexing it (no search value, thin-content risk) |
 | 2026-07-13 | Calculator Growth Team = lean (4 role agents + main-session director, reuse Sam for analytics) | Runs inside the subscription; avoids a 6-agent committee's overhead for a solo operator | Full 6-agent build per the GPT prompt (rejected — process theater) |
 | 2026-07-13 | Baseline before targets: verify funnel from Supabase census + Stripe before committing to conversion goals | Caught that the brief's "email leak" was false (74% capture); real constraint is free→paid | Accept the prompt's targets as-is (rejected — would have chased a phantom) |
 | 2026-07-13 | At current volume (~30 free-results/mo) make directional fixes vs census data, not A/B tests | Sample size too small for valid split tests; A/B would manufacture false confidence | Run A/B tests now (rejected — underpowered) |
