@@ -23,6 +23,10 @@ from typing import Dict, Optional
 from dotenv import load_dotenv
 from anthropic import Anthropic
 
+import sys as _sys
+_sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from blog_link_guard import sanitize_cw_blog_links
+
 # Load environment variables from project root
 PROJECT_ROOT = Path(__file__).parent.parent
 load_dotenv(PROJECT_ROOT / ".env", override=True)
@@ -220,6 +224,9 @@ class OptimizedContentAnalyzer:
                         {"title": p["title"], "author": p.get("author",""), "slug": p["slug"]}
                         for p in all_posts
                         if p.get("publish_date","") >= cutoff and p.get("status") == "published"
+                        # ISSUE-038: never offer KD posts to the CW editorial — a
+                        # site:"kd" post cited with a CW-relative /blog/ link 404s.
+                        and p.get("site", "cw") == "cw"
                     ][-5:]
                 except Exception:
                     pass
@@ -347,6 +354,13 @@ Focus on actionable insights and specific examples."""
             "analysis_date": analysis_date,
             "timestamp": now.isoformat(),
         }
+
+        # ISSUE-038 guard: strip any dead CW /blog/ link the LLM cited before it
+        # gets persisted to analyzed_content.json and rendered onto the homepage.
+        _pub = str(Path(__file__).parent.parent / "public")
+        analyses["weekly_summary"], _dead = sanitize_cw_blog_links(analyses["weekly_summary"], _pub)
+        if _dead:
+            print(f"  ⚠️  ISSUE-038 guard stripped dead CW /blog/ links: {_dead}")
 
         print(f"\n✓ Analysis complete")
         print(f"  💾 Total tokens saved this run: {self.token_stats['total_tokens_saved']}")
