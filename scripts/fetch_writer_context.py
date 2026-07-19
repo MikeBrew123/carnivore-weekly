@@ -74,8 +74,8 @@ def fetch_writer_context(writer_slug):
             "tagline": writer['tagline'],
             "tone_style": writer['tone_style'],
             "specialty": writer['specialty'],
-            "preferred_topics": writer.get('preferred_topics', []),
-            "voice_formula": writer.get('voice_formula', {})
+            "preferred_topics": writer.get('preferred_topics') or [],
+            "voice_formula": writer.get('voice_formula') or {}
         },
         "memories": [],
         "past_articles": [],
@@ -89,26 +89,26 @@ def fetch_writer_context(writer_slug):
             "type": memory['memory_type'],
             "title": memory['title'],
             "description": memory['description'],
-            "tags": memory.get('tags', []),
-            "relevance": memory.get('relevance_score', 0),
-            "impact": memory.get('impact_category', 'N/A')
+            "tags": memory.get('tags') or [],
+            "relevance": memory.get('relevance_score') or 0,
+            "impact": memory.get('impact_category') or 'N/A'
         })
 
     # Format past articles
     for article in content_result.data:
         context["past_articles"].append({
             "title": article['title'],
-            "themes": article.get('key_themes', []),
-            "published": article.get('published_at', 'N/A'),
-            "words": article.get('word_count', 0)
+            "themes": article.get('key_themes') or [],
+            "published": article.get('published_at') or 'N/A',
+            "words": article.get('word_count') or 0
         })
 
     # Format team articles (for cross-reference)
     for article in all_content_result.data:
         context["team_recent_articles"].append({
             "title": article['title'],
-            "themes": article.get('key_themes', []),
-            "published": article.get('published_at', 'N/A')
+            "themes": article.get('key_themes') or [],
+            "published": article.get('published_at') or 'N/A'
         })
 
     return context
