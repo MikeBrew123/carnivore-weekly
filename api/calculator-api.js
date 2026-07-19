@@ -5526,6 +5526,38 @@ async function handleDripSurveyGet(url, env) {
   }
 }
 
+// Lightweight page-view ping so the click→view→submit funnel lives in one store.
+// Fired by journey-checkin.html after the question loads (JS-gated, so most bots skip it).
+async function handleDripSurveyView(request, env) {
+  try {
+    const body = await request.json();
+    const site = String(body.site || 'cw').toLowerCase();
+    const day = parseDripSurveyDay(body.day);
+    const fingerprint = typeof body.fingerprint === 'string' ? body.fingerprint.slice(0, 128) : '';
+    const source = ['drip', 'calculator', 'blog'].includes(body.source) ? body.source : 'drip';
+    if (!DRIP_SURVEY_SITES.includes(site) || !day || !fingerprint) {
+      return createErrorResponse('INVALID_VIEW', 'Bad view ping', 400);
+    }
+    const ip = request.headers.get('CF-Connecting-IP') || '';
+    if (!checkRateLimit(`drip-survey-view:${ip || fingerprint}`, 60)) {
+      return createErrorResponse('RATE_LIMIT', 'Too many requests', 429);
+    }
+    await fetch(`${env.SUPABASE_URL}/rest/v1/drip_survey_views`, {
+      method: 'POST',
+      headers: dripSurveyHeaders(env, true),
+      body: JSON.stringify({ site, day, source, fingerprint }),
+    });
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200, headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    // Views are best-effort; never let a ping failure surface to the page.
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200, headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
+
 async function handleDripSurveySubmit(request, env) {
   try {
     const body = await request.json();
@@ -6344,6 +6376,9 @@ export default {
     }
     if (path === '/api/v1/drip-survey' && method === 'POST') {
       return sendWithCors(await handleDripSurveySubmit(request, env));
+    }
+    if (path === '/api/v1/drip-survey/view' && method === 'POST') {
+      return sendWithCors(await handleDripSurveyView(request, env));
     }
 
     // ===== CARNIVORE COACH WAITLIST =====
