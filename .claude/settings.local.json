@@ -104,7 +104,25 @@
       "Bash(bd show *)",
       "mcp__Google_Workspace_MCP__get_gmail_message_content",
       "Bash(bd close *)",
-      "mcp__scheduled-tasks__list_scheduled_tasks"
+      "mcp__scheduled-tasks__list_scheduled_tasks",
+      "Bash(grep -iA3 \"lmnt\" config/affiliates.js)",
+      "Bash(echo \"=== scoreboard log full ===\" && cat logs/scoreboard_truth_pass.log 2>&1 | tail -10; echo \"=== which node ===\" && which node 2>&1; echo \"=== node via nvm? ===\" && ls ~/.nvm/versions/node/ 2>&1 | tail -3)",
+      "Bash(PATH=/opt/homebrew/bin:__TRACKED_VAR__ python3 scripts/scoreboard_truth_pass.py)",
+      "Bash(PATH=/opt/homebrew/bin:__TRACKED_VAR__ node sales-summary.mjs)",
+      "Bash(find /Users/mbrew/Documents/Brew-Vault -path \"*Carnivore-Weekly/reports/scoreboard.md\" 2>/dev/null)",
+      "Bash(awk '/^## 2026-07-13/{f=1} f' scoreboard.md)",
+      "mcp__eb179240-a327-4553-8a6a-04f57f7ea545__apply_migration",
+      "Bash(node etsy-snapshot.mjs)",
+      "Bash(node _kd_indexing_tmp.mjs)",
+      "Bash(curl -s https://ketodial.com/robots.txt)",
+      "Bash(curl -s https://carnivoreweekly.com/robots.txt)",
+      "Bash(curl -sI https://ketodial.com/blog/keto-vs-carnivore.html)",
+      "Bash(curl -sI https://carnivoreweekly.com/blog/2026-07-13-tallow-extra-fuel.html)",
+      "Bash(curl -s https://ketodial.com/blog/keto-vs-carnivore.html)",
+      "Bash(curl -s https://carnivoreweekly.com/blog/2026-07-13-tallow-extra-fuel.html)",
+      "Bash(node _gsc_deep_inspect_tmp.mjs)",
+      "Bash(node _gsc_sitemap_status_tmp.mjs)",
+      "Bash(whois ketodial.com)"
     ]
   },
   "disabledMcpjsonServers": [

@@ -63,13 +63,15 @@ check('dashboard-cron', os.path.join(LOGS, 'dashboard_update.log'), 30 * HOURS)
 if date.today() >= date(2026, 7, 8) or age_of(os.path.join(LOGS, 'scoreboard_truth_pass.log')) is not None:
     check('scoreboard-truth-pass', os.path.join(LOGS, 'scoreboard_truth_pass.log'), 8 * DAYS)
 
-# 3. LaunchAgents: weekly/monthly report. Known failure mode (found Jul 4 2026):
+# 3. LaunchAgents: monthly report. Known failure mode (found Jul 4 2026):
 #    process runs with exit code 0 but PermissionError lands in the error log,
-#    so "error log newer than stdout log" = silently dead.
-for label in ('weekly-report', 'monthly-report'):
+#    so "error log newer than stdout log" = silently dead. The max_stale guard
+#    stops a disabled/retired job from alarming forever off ancient logs
+#    (weekly-report retired 2026-07-13). A genuine silent failure is RECENT.
+for label, max_stale in (('monthly-report', 40 * DAYS),):
     out_age = age_of(f'{HOME}/Library/Logs/{label}.log')
     err_age = age_of(f'{HOME}/Library/Logs/{label}-error.log')
-    if err_age is not None and (out_age is None or err_age < out_age):
+    if err_age is not None and err_age < max_stale and (out_age is None or err_age < out_age):
         problems.append(
             f"launchagent {label}: error log is newer than stdout log — "
             f"still failing (likely macOS Full Disk Access for launchd python3)")
