@@ -1053,7 +1053,10 @@
                     <div class="featured-card-image">
                         <span class="featured-badge">{% if featured_post.featured %}Featured{% else %}Latest{% endif %}</span>
                         {% if featured_post.category == 'product' %}
-                        <img src="/images/GirlReadingReport.png" alt="{{ featured_post.title }}" width="2048" height="2048">
+                        <picture>
+                            <source type="image/webp" srcset="/images/GirlReadingReport.webp">
+                            <img src="/images/GirlReadingReport.png" alt="{{ featured_post.title }}" width="800" height="800">
+                        </picture>
                         {% else %}
                         <img src="/images/hero-steak-800w.jpg" alt="{{ featured_post.title }}" width="800" height="452">
                         {% endif %}
