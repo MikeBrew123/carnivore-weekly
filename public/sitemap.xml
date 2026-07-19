@@ -224,7 +224,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/archive.html</loc>
-        <lastmod>2026-07-12</lastmod>
+        <lastmod>2026-07-19</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
     </url>
@@ -848,7 +848,7 @@
     </url>
     <url>
         <loc>https://carnivoreweekly.com/desserts.html</loc>
-        <lastmod>2026-07-18</lastmod>
+        <lastmod>2026-07-19</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
     </url>
@@ -1217,5 +1217,11 @@
         <lastmod>2026-07-18</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://carnivoreweekly.com/journey-checkin.html</loc>
+        <lastmod>2026-07-19</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
     </url>
 </urlset>
