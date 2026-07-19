@@ -67,6 +67,11 @@ def build_pin(slug, title, desc, image):
         "https://ketodial.com/blog/%s.html"
         "?utm_source=pinterest&utm_medium=social&utm_campaign=%s" % (slug, slug)
     )
+    # Prefer the 2:3 vertical pin (scripts/generate_pinterest_pins.py) over the
+    # landscape og:image — vertical is the single biggest Pinterest ranking lever.
+    pin_img = os.path.join(ROOT, "ketodial/public/images/blog/pins/%s-pin.jpg" % slug)
+    media = ("https://ketodial.com/images/blog/pins/%s-pin.jpg" % slug
+             if os.path.exists(pin_img) else (image or FALLBACK_IMG))
     d = _clean(desc)
     if "ketodial.com" not in d.lower():
         d = (d + " Read more at ketodial.com").strip()
@@ -75,7 +80,7 @@ def build_pin(slug, title, desc, image):
         "https://www.pinterest.com/pin/create/button/?url="
         + urllib.parse.quote(dest, safe="")
         + "&media="
-        + urllib.parse.quote(image or FALLBACK_IMG, safe="")
+        + urllib.parse.quote(media, safe="")
         + "&description="
         + urllib.parse.quote(d, safe="")
     )
