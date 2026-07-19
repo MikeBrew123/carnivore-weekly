@@ -5440,6 +5440,187 @@ async function handleFeedback(request, env) {
   }
 }
 
+// ===== DRIP SURVEY (anonymous journey check-ins) =====
+// Questions are config rows in drip_survey_questions; responses are anonymous
+// (fingerprint + IP for dedup only, never identity). See journey-checkin.html.
+
+const DRIP_SURVEY_SITES = ['cw', 'kd'];
+
+function dripSurveyHeaders(env, minimal = false) {
+  return {
+    'Content-Type': 'application/json',
+    'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+    'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+    ...(minimal ? { 'Prefer': 'return=minimal' } : {}),
+  };
+}
+
+// Shared aggregate builder: all active questions for (site, day) with vote counts.
+async function buildDripSurveyPayload(env, site, day) {
+  const base = `${env.SUPABASE_URL}/rest/v1`;
+  const filter = `site=eq.${site}&day=eq.${day}`;
+
+  const rowsRes = await fetch(
+    `${base}/v_drip_survey_results?${filter}&order=q_order.asc,display_order.asc`,
+    { headers: dripSurveyHeaders(env) }
+  );
+  if (!rowsRes.ok) throw new Error(`survey results query failed: ${rowsRes.status}`);
+  const rows = await rowsRes.json();
+  if (!rows.length) return null;
+
+  // Respondents = distinct fingerprints for the day (small table; fine to count in JS).
+  const fpRes = await fetch(
+    `${base}/drip_survey_responses?${filter}&select=fingerprint&limit=10000`,
+    { headers: dripSurveyHeaders(env) }
+  );
+  const fps = fpRes.ok ? await fpRes.json() : [];
+  const totalRespondents = new Set(fps.map((r) => r.fingerprint)).size;
+
+  const questionRes = await fetch(
+    `${base}/drip_survey_questions?${filter}&active=eq.true&select=question_key,intro_text&order=display_order.asc`,
+    { headers: dripSurveyHeaders(env) }
+  );
+  const questionMeta = questionRes.ok ? await questionRes.json() : [];
+  const activeKeys = new Set(questionMeta.map((q) => q.question_key));
+  const intro = (questionMeta.find((q) => q.intro_text) || {}).intro_text || null;
+
+  const questions = [];
+  for (const row of rows) {
+    if (!activeKeys.has(row.question_key)) continue;
+    let q = questions.find((x) => x.key === row.question_key);
+    if (!q) {
+      q = { key: row.question_key, text: row.question_text, type: row.question_type, options: [] };
+      questions.push(q);
+    }
+    q.options.push({ id: row.option_id, text: row.option_text, votes: Number(row.votes) });
+  }
+  for (const q of questions) {
+    const total = q.options.reduce((s, o) => s + o.votes, 0);
+    for (const o of q.options) o.pct = total ? Math.round((o.votes / total) * 100) : 0;
+  }
+
+  return { intro, total_respondents: totalRespondents, questions };
+}
+
+function parseDripSurveyDay(raw) {
+  const day = parseInt(raw, 10);
+  return Number.isInteger(day) && day >= 1 && day <= 28 ? day : null;
+}
+
+async function handleDripSurveyGet(url, env) {
+  try {
+    const day = parseDripSurveyDay(url.searchParams.get('day') || '1');
+    const site = (url.searchParams.get('site') || 'cw').toLowerCase();
+    if (!day) return createErrorResponse('INVALID_DAY', 'day must be 1-28', 400);
+    if (!DRIP_SURVEY_SITES.includes(site)) return createErrorResponse('INVALID_SITE', 'Unknown site', 400);
+
+    const payload = await buildDripSurveyPayload(env, site, day);
+    if (!payload) return createErrorResponse('NO_QUESTION', 'No question for this day', 404);
+    return new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    console.error('[DripSurvey] GET failed:', err);
+    return createErrorResponse('SURVEY_ERROR', 'Failed to load question', 500);
+  }
+}
+
+async function handleDripSurveySubmit(request, env) {
+  try {
+    const body = await request.json();
+    const site = String(body.site || 'cw').toLowerCase();
+    const day = parseDripSurveyDay(body.day);
+    const optionIds = Array.isArray(body.option_ids) ? body.option_ids : [];
+    const fingerprint = typeof body.fingerprint === 'string' ? body.fingerprint.slice(0, 128) : '';
+    const source = ['drip', 'calculator', 'blog'].includes(body.source) ? body.source : 'drip';
+
+    // Honeypot: bots fill the hidden "website" field. Pretend success, store nothing.
+    if (body.website) {
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200, headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!DRIP_SURVEY_SITES.includes(site)) return createErrorResponse('INVALID_SITE', 'Unknown site', 400);
+    if (!day) return createErrorResponse('INVALID_DAY', 'day must be 1-28', 400);
+    if (!fingerprint) return createErrorResponse('INVALID_FINGERPRINT', 'fingerprint required', 400);
+    if (!optionIds.length || optionIds.length > 30 || optionIds.some((id) => typeof id !== 'string')) {
+      return createErrorResponse('INVALID_OPTIONS', 'Select at least one answer', 400);
+    }
+
+    const ip = request.headers.get('CF-Connecting-IP') || '';
+    if (!checkRateLimit(`drip-survey:${ip || fingerprint}`, 20)) {
+      return createErrorResponse('RATE_LIMIT', 'Too many submissions, try again later', 429);
+    }
+
+    const base = `${env.SUPABASE_URL}/rest/v1`;
+    const filter = `site=eq.${site}&day=eq.${day}`;
+
+    // Validate every option belongs to an ACTIVE question on this (site, day),
+    // and enforce max one selection for single-choice questions.
+    const qRes = await fetch(
+      `${base}/drip_survey_questions?${filter}&active=eq.true&select=id,question_type`,
+      { headers: dripSurveyHeaders(env) }
+    );
+    if (!qRes.ok) throw new Error(`questions query failed: ${qRes.status}`);
+    const activeQuestions = await qRes.json();
+    if (!activeQuestions.length) return createErrorResponse('NO_QUESTION', 'No question for this day', 404);
+
+    const qIds = activeQuestions.map((q) => q.id);
+    const oRes = await fetch(
+      `${base}/drip_survey_options?question_id=in.(${qIds.join(',')})&select=id,question_id`,
+      { headers: dripSurveyHeaders(env) }
+    );
+    if (!oRes.ok) throw new Error(`options query failed: ${oRes.status}`);
+    const validOptions = new Map((await oRes.json()).map((o) => [o.id, o.question_id]));
+    const typeByQuestion = new Map(activeQuestions.map((q) => [q.id, q.question_type]));
+
+    const picksPerQuestion = new Map();
+    for (const id of optionIds) {
+      const questionId = validOptions.get(id);
+      if (!questionId) return createErrorResponse('INVALID_OPTIONS', 'Unknown answer option', 400);
+      picksPerQuestion.set(questionId, (picksPerQuestion.get(questionId) || 0) + 1);
+    }
+    for (const [questionId, count] of picksPerQuestion) {
+      if (typeByQuestion.get(questionId) === 'single' && count > 1) {
+        return createErrorResponse('INVALID_OPTIONS', 'Pick one answer for that question', 400);
+      }
+    }
+
+    // Re-answer replaces: clear this fingerprint's rows for the day, then insert.
+    await fetch(
+      `${base}/drip_survey_responses?${filter}&fingerprint=eq.${encodeURIComponent(fingerprint)}`,
+      { method: 'DELETE', headers: dripSurveyHeaders(env, true) }
+    );
+
+    const rows = optionIds.map((id) => ({
+      question_id: validOptions.get(id),
+      option_id: id,
+      site, day, source, fingerprint,
+      ip_address: ip || null,
+    }));
+    const insRes = await fetch(`${base}/drip_survey_responses`, {
+      method: 'POST',
+      headers: dripSurveyHeaders(env, true),
+      body: JSON.stringify(rows),
+    });
+    if (!insRes.ok && insRes.status !== 201) {
+      const errText = await insRes.text();
+      console.error('[DripSurvey] insert failed:', insRes.status, errText);
+      return createErrorResponse('SURVEY_FAILED', 'Failed to save answer', 500);
+    }
+
+    const payload = await buildDripSurveyPayload(env, site, day);
+    return new Response(JSON.stringify({ success: true, ...payload }), {
+      status: 200, headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    console.error('[DripSurvey] POST failed:', err);
+    return createErrorResponse('SURVEY_ERROR', 'Failed to save answer', 500);
+  }
+}
+
 // ===== REFUND REQUEST =====
 const REFUND_SECTION_RATINGS = ['helpful', 'not_helpful', 'didnt_use'];
 const REFUND_SECTION_LABELS = {
@@ -6155,6 +6336,14 @@ export default {
     // ===== FEEDBACK PROXY =====
     if (path === '/api/v1/feedback' && method === 'POST') {
       return sendWithCors(await handleFeedback(request, env));
+    }
+
+    // ===== DRIP SURVEY (anonymous journey check-ins) =====
+    if (path === '/api/v1/drip-survey' && method === 'GET') {
+      return sendWithCors(await handleDripSurveyGet(url, env));
+    }
+    if (path === '/api/v1/drip-survey' && method === 'POST') {
+      return sendWithCors(await handleDripSurveySubmit(request, env));
     }
 
     // ===== CARNIVORE COACH WAITLIST =====
