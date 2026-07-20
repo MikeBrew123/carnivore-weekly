@@ -6559,11 +6559,20 @@ async function handleResendWebhook(request, env) {
       });
     }
 
+    // Attribute the event to a site so CW/KD engagement stats stay separate.
+    // KD emails send from ketodial@carnivoreweekly.com and tag sequence=kd-*.
+    const evFrom = String(data.from || '').toLowerCase();
+    const evTags = data.tags || {};
+    const evSite = (evFrom.includes('ketodial@')
+      || String(evTags.sequence || '').startsWith('kd')
+      || evTags.site === 'kd') ? 'kd' : 'cw';
+
     const payload = {
       email: (data.to && data.to[0]) || data.email || '',
       resend_id: data.email_id || '',
       event_type: simpleType,
       subject: data.subject || '',
+      site: evSite,
       metadata: JSON.stringify({
         click_url: data.click?.url || null,
         user_agent: data.user_agent || null,

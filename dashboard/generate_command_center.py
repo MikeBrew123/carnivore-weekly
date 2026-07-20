@@ -351,18 +351,20 @@ def fetch_funnels():
             'week': {'current': wk, 'previous': wk_prev, 'change_pct': pct_change(wk, wk_prev)},
         }
 
-    # Drip funnel (CW-only 30-day starter)
-    active = supa_count('drip_subscribers', 'unsubscribed=eq.false&completed=eq.false')
-    done = supa_count('drip_subscribers', 'completed=eq.true')
-    unsub = supa_count('drip_subscribers', 'unsubscribed=eq.true')
-    new7 = supa_count('drip_subscribers', f'subscribed_at=gte.{d7}')
-    total = supa_count('drip_subscribers', '')
-    last_sent = supa_fetch('drip_subscribers', select='last_sent_at',
-                           filters='unsubscribed=eq.false&completed=eq.false&last_sent_at=not.is.null',
-                           order='last_sent_at.desc', limit=1)
-    out['drip'] = {'total': total, 'active': active, 'completed': done, 'unsubscribed': unsub,
-                   'new_7d': new7,
-                   'last_send': last_sent[0]['last_sent_at'] if last_sent else None}
+    # Drip funnels, one per site (CW 30-day Carnivore Starter, KD 30-day Keto Starter)
+    for site in ['cw', 'kd']:
+        s = f'site=eq.{site}'
+        last_sent = supa_fetch('drip_subscribers', select='last_sent_at',
+                               filters=f'{s}&unsubscribed=eq.false&completed=eq.false&last_sent_at=not.is.null',
+                               order='last_sent_at.desc', limit=1)
+        out[f'drip_{site}'] = {
+            'total': supa_count('drip_subscribers', s),
+            'active': supa_count('drip_subscribers', f'{s}&unsubscribed=eq.false&completed=eq.false'),
+            'completed': supa_count('drip_subscribers', f'{s}&completed=eq.true'),
+            'unsubscribed': supa_count('drip_subscribers', f'{s}&unsubscribed=eq.true'),
+            'new_7d': supa_count('drip_subscribers', f'{s}&subscribed_at=gte.{d7}'),
+            'last_send': last_sent[0]['last_sent_at'] if last_sent else None,
+        }
 
     # Newsletter per site
     for site in ['cw', 'kd']:
@@ -514,16 +516,19 @@ def fetch_mail():
 def fetch_email_engagement():
     d7, d8, d14 = iso_days_ago(7), iso_days_ago(8), iso_days_ago(14)
     out = {}
-    for ev in ['sent', 'delivered', 'opened', 'clicked', 'bounced', 'complained']:
-        cur = supa_count('drip_events', f'event_type=eq.{ev}&created_at=gte.{d7}')
-        prev = supa_count('drip_events',
-                          f'event_type=eq.{ev}&created_at=gte.{d14}&created_at=lt.{d8}')
-        out[ev] = {'current_7d': cur, 'previous_7d': prev}
-    sent = out['sent']['current_7d'] or 0
-    delivered = out['delivered']['current_7d'] or 0
-    out['open_rate_pct'] = round(out['opened']['current_7d'] * 100 / delivered, 1) if delivered else None
-    out['click_rate_pct'] = round(out['clicked']['current_7d'] * 100 / delivered, 1) if delivered else None
-    out['delivery_rate_pct'] = round(delivered * 100 / sent, 1) if sent else None
+    for site in ['cw', 'kd']:
+        s = {}
+        for ev in ['sent', 'delivered', 'opened', 'clicked', 'bounced', 'complained']:
+            cur = supa_count('drip_events', f'site=eq.{site}&event_type=eq.{ev}&created_at=gte.{d7}')
+            prev = supa_count('drip_events',
+                              f'site=eq.{site}&event_type=eq.{ev}&created_at=gte.{d14}&created_at=lt.{d8}')
+            s[ev] = {'current_7d': cur, 'previous_7d': prev}
+        sent = s['sent']['current_7d'] or 0
+        delivered = s['delivered']['current_7d'] or 0
+        s['open_rate_pct'] = round(s['opened']['current_7d'] * 100 / delivered, 1) if delivered else None
+        s['click_rate_pct'] = round(s['clicked']['current_7d'] * 100 / delivered, 1) if delivered else None
+        s['delivery_rate_pct'] = round(delivered * 100 / sent, 1) if sent else None
+        out[site] = s
     return out
 
 
@@ -689,16 +694,18 @@ def build_insights(d):
             add('watch', f'CW calculator sessions fell {abs(wk["change_pct"]):.0f}% this week '
                          f'({wk["previous"]} → {wk["current"]}).')
 
-    drip = f.get('drip', {})
-    if drip and not drip.get('error') and drip.get('active', 0) > 0 and drip.get('last_send'):
-        try:
-            last = datetime.fromisoformat(drip['last_send'].replace('Z', '+00:00'))
-            hours = (datetime.now(timezone.utc) - last).total_seconds() / 3600
-            if hours > 48:
-                add('alert', f'Drip pipeline looks stalled — {drip["active"]} active subscribers but '
-                             f'no send in {hours / 24:.1f} days. Check daily-publish.yml / send_drip.py.')
-        except Exception:
-            pass
+    for dsite, dlabel in [('cw', 'CW'), ('kd', 'KD')]:
+        drip = f.get(f'drip_{dsite}', {})
+        if drip and not drip.get('error') and drip.get('active', 0) > 0 and drip.get('last_send'):
+            try:
+                last = datetime.fromisoformat(drip['last_send'].replace('Z', '+00:00'))
+                hours = (datetime.now(timezone.utc) - last).total_seconds() / 3600
+                if hours > 48:
+                    add('alert', f'{dlabel} drip pipeline looks stalled — {drip["active"]} active '
+                                 f'subscribers but no send in {hours / 24:.1f} days. '
+                                 f'Check daily-publish.yml / send_drip.py --site {dsite}.')
+            except Exception:
+                pass
 
     for site, label in [('cw', 'CW'), ('kd', 'KD')]:
         nl = f.get(f'newsletter_{site}', {})
@@ -1073,7 +1080,8 @@ def render_html(d):
 
     f = d.get('funnels', {})
     coach = f.get('coach', {}) if not f.get('error') else {}
-    drip = f.get('drip', {}) if not f.get('error') else {}
+    drip_cw = f.get('drip_cw', {}) if not f.get('error') else {}
+    drip_kd = f.get('drip_kd', {}) if not f.get('error') else {}
     nl_cw = f.get('newsletter_cw', {})
     nl_kd = f.get('newsletter_kd', {})
 
@@ -1101,15 +1109,19 @@ def render_html(d):
     eng = d.get('email_engagement', {})
     eng_html = ''
     if eng and not eng.get('error'):
-        cells = ''
-        for ev, name in [('sent', 'Sent'), ('delivered', 'Delivered'), ('opened', 'Opened'),
-                         ('clicked', 'Clicked'), ('bounced', 'Bounced'), ('complained', 'Complaints')]:
-            e = eng.get(ev, {})
-            cells += (f'<div class="stat"><b>{e.get("current_7d", 0)}</b><span>{name} 7d</span>'
-                      f'{trend_html(pct_change(e.get("current_7d", 0), e.get("previous_7d", 0)))}</div>')
-        rates = (f'<p class="small muted">Delivery {eng.get("delivery_rate_pct", "—")}% · '
-                 f'Open {eng.get("open_rate_pct", "—")}% · Click {eng.get("click_rate_pct", "—")}%</p>')
-        eng_html = f'<div class="statrow wrap">{cells}</div>{rates}'
+        for esite, elabel in [('cw', 'CW'), ('kd', 'KD')]:
+            se = eng.get(esite, {})
+            if not se:
+                continue
+            cells = ''
+            for ev, name in [('sent', 'Sent'), ('delivered', 'Delivered'), ('opened', 'Opened'),
+                             ('clicked', 'Clicked'), ('bounced', 'Bounced'), ('complained', 'Complaints')]:
+                e = se.get(ev, {})
+                cells += (f'<div class="stat"><b>{e.get("current_7d", 0)}</b><span>{name} 7d</span>'
+                          f'{trend_html(pct_change(e.get("current_7d", 0), e.get("previous_7d", 0)))}</div>')
+            rates = (f'<p class="small muted">{elabel}: Delivery {se.get("delivery_rate_pct", "—")}% · '
+                     f'Open {se.get("open_rate_pct", "—")}% · Click {se.get("click_rate_pct", "—")}%</p>')
+            eng_html += f'<p class="small muted"><b>{elabel}</b></p><div class="statrow wrap">{cells}</div>{rates}'
 
     rev = d.get('revenue', {})
     rev_html = '<p class="muted">Stripe not configured.</p>'
@@ -1137,13 +1149,17 @@ def render_html(d):
                       f'<div class="stat"><b>{coach.get("waitlist_7d", 0)}</b><span>waitlist 7d</span></div>'
                       f'<div class="stat"><b>{coach.get("members_active", 0)}</b><span>active members</span></div></div>')
 
-    drip_html = ''
-    if drip:
-        drip_html = (f'<div class="statrow"><div class="stat"><b>{drip.get("active", 0)}</b><span>active</span></div>'
-                     f'<div class="stat"><b>{drip.get("new_7d", 0)}</b><span>new 7d</span></div>'
-                     f'<div class="stat"><b>{drip.get("completed", 0)}</b><span>completed</span></div>'
-                     f'<div class="stat"><b>{drip.get("unsubscribed", 0)}</b><span>unsubbed</span></div></div>'
-                     f'<p class="muted small">Last drip send: {esc(drip.get("last_send") or "never")[:16]}</p>')
+    def drip_block(drip):
+        if not drip:
+            return ''
+        return (f'<div class="statrow"><div class="stat"><b>{drip.get("active", 0)}</b><span>active</span></div>'
+                f'<div class="stat"><b>{drip.get("new_7d", 0)}</b><span>new 7d</span></div>'
+                f'<div class="stat"><b>{drip.get("completed", 0)}</b><span>completed</span></div>'
+                f'<div class="stat"><b>{drip.get("unsubscribed", 0)}</b><span>unsubbed</span></div></div>'
+                f'<p class="muted small">Last drip send: {esc(drip.get("last_send") or "never")[:16]}</p>')
+
+    drip_cw_html = drip_block(drip_cw)
+    drip_kd_html = drip_block(drip_kd)
 
     def nl_block(label, nl):
         if not nl:
@@ -1253,7 +1269,8 @@ def render_html(d):
 {funnel_html(f.get('calculator_cw'), 'var(--green)')}</div>
 <div class="card"><h3 style="border-color:var(--blue)">KD Calculator → Paid <span class="muted small">(30d)</span></h3>
 {funnel_html(f.get('calculator_kd'), 'var(--blue)')}</div>
-<div class="card"><h3>30-Day Drip (CW)</h3>{drip_html or err_note(f, 'Funnels') or ''}</div>
+<div class="card"><h3 style="border-color:var(--green)">30-Day Drip (CW)</h3>{drip_cw_html or err_note(f, 'Funnels') or ''}</div>
+<div class="card"><h3 style="border-color:var(--blue)">30-Day Drip (KD)</h3>{drip_kd_html or err_note(f, 'Funnels') or ''}</div>
 <div class="card"><h3>Newsletters</h3><div class="statrow wrap">{nl_block('CW', nl_cw)}{nl_block('KD', nl_kd)}</div></div>
 <div class="card"><h3>Coach (KD)</h3>{coach_html}</div>
 </div></section>
