@@ -2,7 +2,7 @@
   "git": {
     "submodules": false
   },
-  "ignoreCommand": "case \"$VERCEL_GIT_COMMIT_REF\" in archive/*|backup/*) exit 0 ;; *) exit 1 ;; esac",
+  "ignoreCommand": "case \"$VERCEL_GIT_COMMIT_REF\" in archive/*|backup/*) exit 0 ;; esac; if git diff --quiet HEAD^ HEAD -- :/ketodial/coach-app; then exit 0; else exit 1; fi",
   "crons": [
     {
       "path": "/api/cron/reminders",
