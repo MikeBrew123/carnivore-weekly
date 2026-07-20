@@ -54,6 +54,8 @@ OUTPUT_FILE = DATA_DIR / "youtube_data.json"
 # Search parameters
 SEARCH_QUERIES = ["carnivore diet", "animal-based diet", "meat only diet", "zero carb diet"]
 DAYS_BACK = 7  # How many days back to search (7 = fresh content only, avoids repeats across 2x/week runs)
+CACHE_RETENTION_DAYS = 14  # Supabase cache window: covers current + prior week as API-failure failsafe
+REJECTED_RETENTION_DAYS = 30  # Prune rejected_videos log entries older than this
 TOP_CREATORS_COUNT = 12  # How many top creators to analyze (increased for diversity)
 
 MAX_VIDEOS_PER_CREATOR = 3  # Max videos per creator (3 gives more chances to find long-form)
@@ -319,7 +321,15 @@ class YouTubeCollector:
             print(f"   ✓ Found recent data (updated: {updated_at})")
             print("   Loading full dataset from cache...")
 
-            all_videos_response = self.supabase.table("youtube_videos").select("*").execute()
+            cache_cutoff = (
+                datetime.utcnow() - timedelta(days=CACHE_RETENTION_DAYS)
+            ).strftime("%Y-%m-%dT%H:%M:%SZ")
+            all_videos_response = (
+                self.supabase.table("youtube_videos")
+                .select("*")
+                .gte("added_at", cache_cutoff)
+                .execute()
+            )
 
             if not all_videos_response.data:
                 return {}
@@ -1186,9 +1196,31 @@ class YouTubeCollector:
             if videos_inserted > 0:
                 print(f"   ✓ Synced {videos_inserted} videos to Supabase")
 
+            self._prune_old_cache()
+
         except Exception as e:
             print(f"   ⚠ Warning: Could not sync to Supabase: {e}")
             print("   Data saved to JSON only")
+
+    def _prune_old_cache(self):
+        """Delete cache rows outside the retention windows so the tables stay flat"""
+        try:
+            video_cutoff = (
+                datetime.utcnow() - timedelta(days=CACHE_RETENTION_DAYS)
+            ).strftime("%Y-%m-%dT%H:%M:%SZ")
+            self.supabase.table("youtube_videos").delete().lt(
+                "added_at", video_cutoff
+            ).execute()
+
+            rejected_cutoff = (
+                datetime.utcnow() - timedelta(days=REJECTED_RETENTION_DAYS)
+            ).strftime("%Y-%m-%dT%H:%M:%SZ")
+            self.supabase.table("rejected_videos").delete().lt(
+                "rejected_at", rejected_cutoff
+            ).execute()
+        except Exception:
+            # Pruning is housekeeping - never fail a collection run over it
+            pass
 
 
 # ============================================================================
