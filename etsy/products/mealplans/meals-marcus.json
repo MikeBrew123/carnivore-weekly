@@ -1,0 +1,2058 @@
+{
+ "keto": [
+  {
+   "id": "keto-b1",
+   "slot": "breakfast",
+   "name": "Classic Bacon and Eggs",
+   "method": "Fry the bacon first, then cook the eggs in the leftover fat and salt everything at the end.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "bacon",
+     "g": 40
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-b2",
+   "slot": "breakfast",
+   "name": "Cheddar Scramble",
+   "method": "Scramble the eggs low and slow in butter, then fold in the cheddar right before they set.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "cheddar",
+     "g": 30
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-b3",
+   "slot": "breakfast",
+   "name": "Avocado Egg Plate",
+   "method": "Fry the eggs and bacon, slice the avocado, salt it all, done in eight minutes.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 2
+    },
+    {
+     "id": "avocado",
+     "g": 100
+    },
+    {
+     "id": "bacon",
+     "g": 20
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-b4",
+   "slot": "breakfast",
+   "name": "Smoked Salmon Cream Cheese Scramble",
+   "method": "Soft-scramble the eggs, then stir in cream cheese and torn smoked salmon off the heat.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "smoked_salmon",
+     "g": 60
+    },
+    {
+     "id": "cream_cheese",
+     "g": 30
+    }
+   ]
+  },
+  {
+   "id": "keto-b5",
+   "slot": "breakfast",
+   "name": "Ham and Egg Cups",
+   "method": "Line a muffin tin with ham slices, crack an egg into each, top with cheddar, bake at 375F for 15 minutes.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "ham",
+     "g": 60
+    },
+    {
+     "id": "cheddar",
+     "g": 25
+    }
+   ]
+  },
+  {
+   "id": "keto-b6",
+   "slot": "breakfast",
+   "name": "Yogurt Crunch Bowl",
+   "method": "Stir chia into the yogurt the night before, top with walnuts in the morning and eat cold.",
+   "ingredients": [
+    {
+     "id": "greek_yogurt",
+     "g": 150
+    },
+    {
+     "id": "walnuts",
+     "g": 30
+    },
+    {
+     "id": "chia",
+     "g": 15
+    }
+   ]
+  },
+  {
+   "id": "keto-b7",
+   "slot": "breakfast",
+   "name": "Steak and Eggs",
+   "method": "Sear the strip steak hard in butter, rest it, and fry the eggs in the same pan.",
+   "ingredients": [
+    {
+     "id": "ny_strip",
+     "g": 100
+    },
+    {
+     "id": "egg",
+     "qty": 2
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-b8",
+   "slot": "breakfast",
+   "name": "Mushroom Spinach Omelet",
+   "method": "Cook the mushrooms in butter first, add spinach until it wilts, then pour the eggs over and finish with cheddar.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "butter",
+     "g": 15
+    },
+    {
+     "id": "mushrooms",
+     "g": 50
+    },
+    {
+     "id": "spinach",
+     "g": 30
+    },
+    {
+     "id": "cheddar",
+     "g": 20
+    }
+   ]
+  },
+  {
+   "id": "keto-l1",
+   "slot": "lunch",
+   "name": "Tuna Avocado Salad",
+   "method": "Mash the tuna with mayo and diced avocado, salt it, and pile it on romaine leaves.",
+   "ingredients": [
+    {
+     "id": "tuna_canned",
+     "g": 100
+    },
+    {
+     "id": "mayo",
+     "g": 25
+    },
+    {
+     "id": "avocado",
+     "g": 75
+    },
+    {
+     "id": "romaine",
+     "g": 50
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-l2",
+   "slot": "lunch",
+   "name": "Crispy Chicken Thighs with Broccoli",
+   "method": "Roast the thighs skin-side up at 425F for 35 minutes and toss the broccoli in butter for the last 15.",
+   "ingredients": [
+    {
+     "id": "chicken_thigh",
+     "g": 150
+    },
+    {
+     "id": "broccoli",
+     "g": 100
+    },
+    {
+     "id": "butter",
+     "g": 15
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-l3",
+   "slot": "lunch",
+   "name": "Cheeseburger Bowl",
+   "method": "Brown the beef, salt it hard, and serve it over chopped romaine with cheddar and diced tomato.",
+   "ingredients": [
+    {
+     "id": "ground_beef_80",
+     "g": 150
+    },
+    {
+     "id": "cheddar",
+     "g": 25
+    },
+    {
+     "id": "romaine",
+     "g": 60
+    },
+    {
+     "id": "tomato",
+     "g": 40
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-l4",
+   "slot": "lunch",
+   "name": "Chicken Bacon Cobb",
+   "method": "Slice grilled chicken and crumbled bacon over romaine, add a boiled egg, and dress with mayo.",
+   "ingredients": [
+    {
+     "id": "chicken_breast",
+     "g": 120
+    },
+    {
+     "id": "bacon",
+     "g": 20
+    },
+    {
+     "id": "egg",
+     "qty": 1
+    },
+    {
+     "id": "romaine",
+     "g": 60
+    },
+    {
+     "id": "mayo",
+     "g": 15
+    }
+   ]
+  },
+  {
+   "id": "keto-l5",
+   "slot": "lunch",
+   "name": "Salmon Spinach Salad",
+   "method": "Flake leftover baked salmon over spinach and cucumber, then dress with olive oil and salt.",
+   "ingredients": [
+    {
+     "id": "salmon",
+     "g": 130
+    },
+    {
+     "id": "cucumber",
+     "g": 80
+    },
+    {
+     "id": "olive_oil",
+     "g": 15
+    },
+    {
+     "id": "spinach",
+     "g": 40
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-l6",
+   "slot": "lunch",
+   "name": "Ham and Cheddar Roll-Ups",
+   "method": "Roll cheddar sticks inside ham slices and eat with cucumber spears dipped in mayo.",
+   "ingredients": [
+    {
+     "id": "ham",
+     "g": 100
+    },
+    {
+     "id": "cheddar",
+     "g": 50
+    },
+    {
+     "id": "cucumber",
+     "g": 100
+    },
+    {
+     "id": "mayo",
+     "g": 15
+    }
+   ]
+  },
+  {
+   "id": "keto-l7",
+   "slot": "lunch",
+   "name": "Shrimp Avocado Bowl",
+   "method": "Sear the shrimp two minutes per side, then serve over romaine with sliced avocado and an olive oil drizzle.",
+   "ingredients": [
+    {
+     "id": "shrimp",
+     "g": 150
+    },
+    {
+     "id": "avocado",
+     "g": 100
+    },
+    {
+     "id": "olive_oil",
+     "g": 12
+    },
+    {
+     "id": "romaine",
+     "g": 50
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-l8",
+   "slot": "lunch",
+   "name": "Egg Salad Lettuce Wraps",
+   "method": "Chop the boiled eggs, mix with mayo and dijon, salt it, and spoon into romaine leaves.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "mayo",
+     "g": 30
+    },
+    {
+     "id": "dijon",
+     "g": 5
+    },
+    {
+     "id": "romaine",
+     "g": 60
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-d1",
+   "slot": "dinner",
+   "name": "Butter-Basted Ribeye with Asparagus",
+   "method": "Sear the ribeye three minutes per side, baste with butter, and roast the asparagus in the pan drippings.",
+   "ingredients": [
+    {
+     "id": "ribeye",
+     "g": 160
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "asparagus",
+     "g": 100
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-d2",
+   "slot": "dinner",
+   "name": "Beef and Cabbage Skillet",
+   "method": "Brown the beef with garlic, add shredded cabbage and butter, and cook until the cabbage softens.",
+   "ingredients": [
+    {
+     "id": "ground_beef_80",
+     "g": 160
+    },
+    {
+     "id": "cabbage",
+     "g": 150
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "garlic",
+     "g": 5
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-d3",
+   "slot": "dinner",
+   "name": "Baked Salmon with Buttered Broccoli",
+   "method": "Bake the salmon at 400F for 12 minutes and toss the steamed broccoli in melted butter and salt.",
+   "ingredients": [
+    {
+     "id": "salmon",
+     "g": 170
+    },
+    {
+     "id": "broccoli",
+     "g": 150
+    },
+    {
+     "id": "butter",
+     "g": 20
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-d4",
+   "slot": "dinner",
+   "name": "Chicken Thighs with Cauliflower Mash",
+   "method": "Roast the thighs until crispy, then blend steamed cauliflower with cream, butter, and salt for the mash.",
+   "ingredients": [
+    {
+     "id": "chicken_thigh",
+     "g": 180
+    },
+    {
+     "id": "cauliflower",
+     "g": 150
+    },
+    {
+     "id": "heavy_cream",
+     "g": 20
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-d5",
+   "slot": "dinner",
+   "name": "Pan-Seared Pork Chops with Green Beans",
+   "method": "Sear the chops four minutes per side, rest them, and saut\u00e9 the green beans in the butter left behind.",
+   "ingredients": [
+    {
+     "id": "pork_chop",
+     "g": 180
+    },
+    {
+     "id": "green_beans",
+     "g": 120
+    },
+    {
+     "id": "butter",
+     "g": 15
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-d6",
+   "slot": "dinner",
+   "name": "Bunless Bacon Cheeseburgers",
+   "method": "Grill the patties, top with cheddar and bacon, and wrap in romaine leaves instead of a bun.",
+   "ingredients": [
+    {
+     "id": "ground_beef_80",
+     "g": 130
+    },
+    {
+     "id": "bacon",
+     "g": 25
+    },
+    {
+     "id": "cheddar",
+     "g": 30
+    },
+    {
+     "id": "romaine",
+     "g": 40
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-d7",
+   "slot": "dinner",
+   "name": "Roast Lamb with Zucchini",
+   "method": "Roast the lamb shoulder low and slow, then finish sliced zucchini in olive oil over high heat.",
+   "ingredients": [
+    {
+     "id": "lamb_shoulder",
+     "g": 180
+    },
+    {
+     "id": "zucchini",
+     "g": 150
+    },
+    {
+     "id": "olive_oil",
+     "g": 12
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-d8",
+   "slot": "dinner",
+   "name": "Braised Chuck Roast with Mushrooms",
+   "method": "Braise the chuck in bone broth for three hours, then stir in butter and mushrooms for the last twenty minutes.",
+   "ingredients": [
+    {
+     "id": "chuck_roast",
+     "g": 180
+    },
+    {
+     "id": "mushrooms",
+     "g": 100
+    },
+    {
+     "id": "butter",
+     "g": 12
+    },
+    {
+     "id": "bone_broth",
+     "g": 100
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-d9",
+   "slot": "dinner",
+   "name": "Shrimp Alfredo Zoodles",
+   "method": "Simmer cream and parmesan into a quick sauce, add seared shrimp, and toss with spiralized zucchini.",
+   "ingredients": [
+    {
+     "id": "shrimp",
+     "g": 170
+    },
+    {
+     "id": "zucchini",
+     "g": 150
+    },
+    {
+     "id": "heavy_cream",
+     "g": 60
+    },
+    {
+     "id": "parmesan",
+     "g": 30
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-s1",
+   "slot": "snack",
+   "name": "Cheddar and Almonds",
+   "method": "Cube the cheddar, count out the almonds, portion it once so you don't eat the whole bag.",
+   "ingredients": [
+    {
+     "id": "cheddar",
+     "g": 30
+    },
+    {
+     "id": "almonds",
+     "g": 15
+    }
+   ]
+  },
+  {
+   "id": "keto-s2",
+   "slot": "snack",
+   "name": "Pork Rinds with Smashed Avocado",
+   "method": "Mash the avocado with salt and use pork rinds as your chips.",
+   "ingredients": [
+    {
+     "id": "pork_rinds",
+     "g": 20
+    },
+    {
+     "id": "avocado",
+     "g": 60
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-s3",
+   "slot": "snack",
+   "name": "Quick Deviled Eggs",
+   "method": "Halve two boiled eggs, mash the yolks with mayo and salt, and spoon it back in.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 2
+    },
+    {
+     "id": "mayo",
+     "g": 10
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "keto-s4",
+   "slot": "snack",
+   "name": "Cottage Cheese Walnut Cup",
+   "method": "Scoop the cottage cheese into a jar, top with walnuts, and it travels anywhere.",
+   "ingredients": [
+    {
+     "id": "cottage_cheese",
+     "g": 120
+    },
+    {
+     "id": "walnuts",
+     "g": 10
+    }
+   ]
+  }
+ ],
+ "lowcarb": [
+  {
+   "id": "lc-b1",
+   "slot": "breakfast",
+   "name": "Greek Yogurt Berry Bowl",
+   "method": "Stir chia into the yogurt, top with berries and almonds, and eat it cold straight from the fridge.",
+   "ingredients": [
+    {
+     "id": "greek_yogurt",
+     "g": 200
+    },
+    {
+     "id": "berries_mixed",
+     "g": 100
+    },
+    {
+     "id": "almonds",
+     "g": 20
+    },
+    {
+     "id": "chia",
+     "g": 10
+    }
+   ]
+  },
+  {
+   "id": "lc-b2",
+   "slot": "breakfast",
+   "name": "Blueberry Cottage Cheese Plate",
+   "method": "Plate the cottage cheese, pile on blueberries and walnuts, done in ninety seconds.",
+   "ingredients": [
+    {
+     "id": "cottage_cheese",
+     "g": 200
+    },
+    {
+     "id": "blueberries",
+     "g": 80
+    },
+    {
+     "id": "walnuts",
+     "g": 20
+    }
+   ]
+  },
+  {
+   "id": "lc-l1",
+   "slot": "lunch",
+   "name": "Chicken Quinoa Power Bowl",
+   "method": "Slice grilled chicken over warm quinoa and spinach, then dress with olive oil and salt.",
+   "ingredients": [
+    {
+     "id": "chicken_breast",
+     "g": 130
+    },
+    {
+     "id": "quinoa",
+     "g": 80
+    },
+    {
+     "id": "spinach",
+     "g": 50
+    },
+    {
+     "id": "olive_oil",
+     "g": 12
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "lc-l2",
+   "slot": "lunch",
+   "name": "Lentil Tuna Salad",
+   "method": "Toss cooked lentils with tuna, diced tomato, lemon, and olive oil, and let it sit ten minutes before eating.",
+   "ingredients": [
+    {
+     "id": "tuna_canned",
+     "g": 100
+    },
+    {
+     "id": "lentils",
+     "g": 100
+    },
+    {
+     "id": "olive_oil",
+     "g": 18
+    },
+    {
+     "id": "tomato",
+     "g": 60
+    },
+    {
+     "id": "lemon",
+     "g": 10
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "lc-d1",
+   "slot": "dinner",
+   "name": "Salmon with Quinoa and Asparagus",
+   "method": "Bake the salmon at 400F for 12 minutes and serve over buttered quinoa with roasted asparagus.",
+   "ingredients": [
+    {
+     "id": "salmon",
+     "g": 150
+    },
+    {
+     "id": "quinoa",
+     "g": 100
+    },
+    {
+     "id": "asparagus",
+     "g": 100
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "lc-d2",
+   "slot": "dinner",
+   "name": "Beef and Lentil Skillet",
+   "method": "Brown the beef with garlic, stir in cooked lentils and kale, and simmer five minutes until the kale wilts.",
+   "ingredients": [
+    {
+     "id": "ground_beef_80",
+     "g": 150
+    },
+    {
+     "id": "lentils",
+     "g": 100
+    },
+    {
+     "id": "kale",
+     "g": 60
+    },
+    {
+     "id": "garlic",
+     "g": 5
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  }
+ ],
+ "pescatarian": [
+  {
+   "id": "pesc-b1",
+   "slot": "breakfast",
+   "name": "Smoked Salmon Scramble",
+   "method": "Soft-scramble the eggs in butter, wilt in the spinach, and fold in torn smoked salmon off the heat.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "smoked_salmon",
+     "g": 60
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "spinach",
+     "g": 30
+    }
+   ]
+  },
+  {
+   "id": "pesc-b2",
+   "slot": "breakfast",
+   "name": "Berry Chia Yogurt Bowl",
+   "method": "Mix chia into the yogurt the night before and top with berries and almonds in the morning.",
+   "ingredients": [
+    {
+     "id": "greek_yogurt",
+     "g": 150
+    },
+    {
+     "id": "berries_mixed",
+     "g": 50
+    },
+    {
+     "id": "chia",
+     "g": 15
+    },
+    {
+     "id": "almonds",
+     "g": 25
+    }
+   ]
+  },
+  {
+   "id": "pesc-b3",
+   "slot": "breakfast",
+   "name": "Sardine and Egg Plate",
+   "method": "Fry the eggs in olive oil and plate with sardines and sliced tomato, salt everything.",
+   "ingredients": [
+    {
+     "id": "sardines",
+     "g": 80
+    },
+    {
+     "id": "egg",
+     "qty": 2
+    },
+    {
+     "id": "tomato",
+     "g": 60
+    },
+    {
+     "id": "olive_oil",
+     "g": 8
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-b4",
+   "slot": "breakfast",
+   "name": "Cheddar Mushroom Omelet",
+   "method": "Saut\u00e9 the mushrooms in butter first, then pour the eggs over and fold in cheddar when they set.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "cheddar",
+     "g": 30
+    },
+    {
+     "id": "mushrooms",
+     "g": 60
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-b5",
+   "slot": "breakfast",
+   "name": "Blueberry Cottage Cheese Bowl",
+   "method": "Scoop the cottage cheese, add blueberries and walnuts, no cooking required.",
+   "ingredients": [
+    {
+     "id": "cottage_cheese",
+     "g": 200
+    },
+    {
+     "id": "blueberries",
+     "g": 50
+    },
+    {
+     "id": "walnuts",
+     "g": 20
+    }
+   ]
+  },
+  {
+   "id": "pesc-b6",
+   "slot": "breakfast",
+   "name": "Trout and Eggs",
+   "method": "Pan-fry the trout in butter, then cook the eggs in the same pan and finish with wilted spinach.",
+   "ingredients": [
+    {
+     "id": "trout",
+     "g": 80
+    },
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "butter",
+     "g": 10
+    },
+    {
+     "id": "spinach",
+     "g": 30
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-b7",
+   "slot": "breakfast",
+   "name": "Avocado Baked Eggs with Feta",
+   "method": "Halve the avocado, crack an egg into each half, top with feta, and bake at 400F for 15 minutes.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 2
+    },
+    {
+     "id": "avocado",
+     "g": 100
+    },
+    {
+     "id": "feta",
+     "g": 30
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-l1",
+   "slot": "lunch",
+   "name": "Tuna Avocado Smash",
+   "method": "Mash the tuna with mayo and avocado, salt it, and scoop with cucumber slices.",
+   "ingredients": [
+    {
+     "id": "tuna_canned",
+     "g": 100
+    },
+    {
+     "id": "mayo",
+     "g": 25
+    },
+    {
+     "id": "avocado",
+     "g": 80
+    },
+    {
+     "id": "cucumber",
+     "g": 80
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-l2",
+   "slot": "lunch",
+   "name": "Shrimp Cobb Salad",
+   "method": "Sear the shrimp two minutes per side and serve over romaine with boiled egg, avocado, and an olive oil drizzle.",
+   "ingredients": [
+    {
+     "id": "shrimp",
+     "g": 140
+    },
+    {
+     "id": "egg",
+     "qty": 1
+    },
+    {
+     "id": "avocado",
+     "g": 80
+    },
+    {
+     "id": "romaine",
+     "g": 60
+    },
+    {
+     "id": "olive_oil",
+     "g": 12
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-l3",
+   "slot": "lunch",
+   "name": "Mediterranean Sardine Plate",
+   "method": "Plate the sardines with tomatoes, olives, cucumber, and feta, then drizzle with olive oil.",
+   "ingredients": [
+    {
+     "id": "sardines",
+     "g": 100
+    },
+    {
+     "id": "cherry_tomatoes",
+     "g": 100
+    },
+    {
+     "id": "olives",
+     "g": 40
+    },
+    {
+     "id": "olive_oil",
+     "g": 10
+    },
+    {
+     "id": "cucumber",
+     "g": 80
+    },
+    {
+     "id": "feta",
+     "g": 30
+    }
+   ]
+  },
+  {
+   "id": "pesc-l4",
+   "slot": "lunch",
+   "name": "Smoked Salmon Salad",
+   "method": "Layer smoked salmon and cream cheese dollops over romaine and cucumber, dress with olive oil.",
+   "ingredients": [
+    {
+     "id": "smoked_salmon",
+     "g": 100
+    },
+    {
+     "id": "cream_cheese",
+     "g": 40
+    },
+    {
+     "id": "cucumber",
+     "g": 100
+    },
+    {
+     "id": "romaine",
+     "g": 50
+    },
+    {
+     "id": "olive_oil",
+     "g": 15
+    }
+   ]
+  },
+  {
+   "id": "pesc-l5",
+   "slot": "lunch",
+   "name": "Lemon Butter Cod with Cauliflower Rice",
+   "method": "Pan-fry the cod in butter with lemon and serve over riced cauliflower cooked in the same pan.",
+   "ingredients": [
+    {
+     "id": "cod",
+     "g": 200
+    },
+    {
+     "id": "butter",
+     "g": 30
+    },
+    {
+     "id": "cauliflower",
+     "g": 150
+    },
+    {
+     "id": "lemon",
+     "g": 15
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-l6",
+   "slot": "lunch",
+   "name": "Mackerel Dijon Salad Bowl",
+   "method": "Flake the mackerel over romaine and tomato, then whisk olive oil with dijon for the dressing.",
+   "ingredients": [
+    {
+     "id": "mackerel",
+     "g": 140
+    },
+    {
+     "id": "romaine",
+     "g": 60
+    },
+    {
+     "id": "tomato",
+     "g": 60
+    },
+    {
+     "id": "olive_oil",
+     "g": 10
+    },
+    {
+     "id": "dijon",
+     "g": 8
+    }
+   ]
+  },
+  {
+   "id": "pesc-l7",
+   "slot": "lunch",
+   "name": "Shrimp Scampi Zoodles",
+   "method": "Sear the shrimp in butter with garlic, add lemon, and toss with spiralized zucchini for one minute.",
+   "ingredients": [
+    {
+     "id": "shrimp",
+     "g": 160
+    },
+    {
+     "id": "zucchini",
+     "g": 150
+    },
+    {
+     "id": "butter",
+     "g": 30
+    },
+    {
+     "id": "garlic",
+     "g": 5
+    },
+    {
+     "id": "lemon",
+     "g": 10
+    }
+   ]
+  },
+  {
+   "id": "pesc-l8",
+   "slot": "lunch",
+   "name": "Tuna Egg Salad Wraps",
+   "method": "Mix tuna, chopped boiled eggs, and mayo, salt it, and spoon into romaine leaves.",
+   "ingredients": [
+    {
+     "id": "tuna_canned",
+     "g": 100
+    },
+    {
+     "id": "egg",
+     "qty": 2
+    },
+    {
+     "id": "mayo",
+     "g": 25
+    },
+    {
+     "id": "romaine",
+     "g": 60
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-d1",
+   "slot": "dinner",
+   "name": "Lemon Butter Salmon with Asparagus",
+   "method": "Bake the salmon at 400F for 12 minutes and roast the asparagus alongside, then finish both with lemon butter.",
+   "ingredients": [
+    {
+     "id": "salmon",
+     "g": 170
+    },
+    {
+     "id": "asparagus",
+     "g": 120
+    },
+    {
+     "id": "butter",
+     "g": 20
+    },
+    {
+     "id": "lemon",
+     "g": 10
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-d2",
+   "slot": "dinner",
+   "name": "Garlic Butter Halibut with Green Beans",
+   "method": "Sear the halibut in garlic butter four minutes per side and saut\u00e9 the green beans in the same pan.",
+   "ingredients": [
+    {
+     "id": "halibut",
+     "g": 220
+    },
+    {
+     "id": "butter",
+     "g": 30
+    },
+    {
+     "id": "green_beans",
+     "g": 120
+    },
+    {
+     "id": "garlic",
+     "g": 5
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-d3",
+   "slot": "dinner",
+   "name": "Coconut Shrimp Curry Bowl",
+   "method": "Simmer coconut milk with garlic, add shrimp and cauliflower for eight minutes, and stir in spinach at the end.",
+   "ingredients": [
+    {
+     "id": "shrimp",
+     "g": 180
+    },
+    {
+     "id": "coconut_milk",
+     "g": 140
+    },
+    {
+     "id": "cauliflower",
+     "g": 150
+    },
+    {
+     "id": "spinach",
+     "g": 50
+    },
+    {
+     "id": "garlic",
+     "g": 5
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-d4",
+   "slot": "dinner",
+   "name": "Trout Almondine with Green Beans",
+   "method": "Pan-fry the trout in butter, toast the almonds in the drippings, and pour it all over steamed green beans.",
+   "ingredients": [
+    {
+     "id": "trout",
+     "g": 200
+    },
+    {
+     "id": "butter",
+     "g": 20
+    },
+    {
+     "id": "almonds",
+     "g": 20
+    },
+    {
+     "id": "green_beans",
+     "g": 100
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-d5",
+   "slot": "dinner",
+   "name": "Cod in Tomato Olive Skillet",
+   "method": "Simmer tomatoes, olives, and garlic in olive oil, then nestle the cod in and cook covered for ten minutes.",
+   "ingredients": [
+    {
+     "id": "cod",
+     "g": 250
+    },
+    {
+     "id": "olive_oil",
+     "g": 25
+    },
+    {
+     "id": "tomato",
+     "g": 120
+    },
+    {
+     "id": "olives",
+     "g": 40
+    },
+    {
+     "id": "garlic",
+     "g": 5
+    }
+   ]
+  },
+  {
+   "id": "pesc-d6",
+   "slot": "dinner",
+   "name": "Mussels in Garlic Cream Broth",
+   "method": "Steam the mussels in butter and garlic until they open, then stir in the cream and serve straight from the pot.",
+   "ingredients": [
+    {
+     "id": "mussels",
+     "g": 250
+    },
+    {
+     "id": "heavy_cream",
+     "g": 60
+    },
+    {
+     "id": "butter",
+     "g": 15
+    },
+    {
+     "id": "garlic",
+     "g": 8
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-d7",
+   "slot": "dinner",
+   "name": "Seared Scallops with Cauliflower Mash",
+   "method": "Sear the scallops ninety seconds per side in butter and serve over cauliflower blended with cream and salt.",
+   "ingredients": [
+    {
+     "id": "scallops",
+     "g": 200
+    },
+    {
+     "id": "butter",
+     "g": 30
+    },
+    {
+     "id": "cauliflower",
+     "g": 200
+    },
+    {
+     "id": "heavy_cream",
+     "g": 30
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-d8",
+   "slot": "dinner",
+   "name": "Baked Mackerel with Brussels Sprouts",
+   "method": "Roast the mackerel and halved brussels sprouts on one sheet pan at 425F for 20 minutes with olive oil and salt.",
+   "ingredients": [
+    {
+     "id": "mackerel",
+     "g": 160
+    },
+    {
+     "id": "brussels",
+     "g": 150
+    },
+    {
+     "id": "olive_oil",
+     "g": 15
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "pesc-d9",
+   "slot": "dinner",
+   "name": "Creamy Parmesan Salmon Skillet",
+   "method": "Sear the salmon, then simmer cream and parmesan in the pan and wilt in the spinach before spooning it over.",
+   "ingredients": [
+    {
+     "id": "salmon",
+     "g": 150
+    },
+    {
+     "id": "heavy_cream",
+     "g": 50
+    },
+    {
+     "id": "spinach",
+     "g": 80
+    },
+    {
+     "id": "parmesan",
+     "g": 20
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  }
+ ],
+ "mediterranean": [
+  {
+   "id": "med-b1",
+   "slot": "breakfast",
+   "name": "Honey Walnut Yogurt Bowl",
+   "method": "Top the yogurt with blueberries and walnuts and finish with a honey drizzle.",
+   "ingredients": [
+    {
+     "id": "greek_yogurt",
+     "g": 200
+    },
+    {
+     "id": "honey",
+     "g": 15
+    },
+    {
+     "id": "walnuts",
+     "g": 20
+    },
+    {
+     "id": "blueberries",
+     "g": 60
+    }
+   ]
+  },
+  {
+   "id": "med-b2",
+   "slot": "breakfast",
+   "name": "Feta Veggie Omelet",
+   "method": "Saut\u00e9 tomato and spinach in olive oil, pour the eggs over, and crumble feta on top before folding.",
+   "ingredients": [
+    {
+     "id": "egg",
+     "qty": 3
+    },
+    {
+     "id": "feta",
+     "g": 30
+    },
+    {
+     "id": "spinach",
+     "g": 40
+    },
+    {
+     "id": "tomato",
+     "g": 60
+    },
+    {
+     "id": "olive_oil",
+     "g": 10
+    }
+   ]
+  },
+  {
+   "id": "med-b3",
+   "slot": "breakfast",
+   "name": "Berry Chia Oatmeal",
+   "method": "Cook the oats with chia, stir in honey, and top with berries and a spoonful of yogurt.",
+   "ingredients": [
+    {
+     "id": "oats",
+     "g": 50
+    },
+    {
+     "id": "berries_mixed",
+     "g": 80
+    },
+    {
+     "id": "chia",
+     "g": 10
+    },
+    {
+     "id": "honey",
+     "g": 10
+    },
+    {
+     "id": "greek_yogurt",
+     "g": 80
+    }
+   ]
+  },
+  {
+   "id": "med-b4",
+   "slot": "breakfast",
+   "name": "Smoked Salmon Pita Plate",
+   "method": "Spread cream cheese on warm pita and top with smoked salmon and cucumber slices.",
+   "ingredients": [
+    {
+     "id": "smoked_salmon",
+     "g": 80
+    },
+    {
+     "id": "whole_wheat_pita",
+     "g": 60
+    },
+    {
+     "id": "cream_cheese",
+     "g": 40
+    },
+    {
+     "id": "cucumber",
+     "g": 60
+    }
+   ]
+  },
+  {
+   "id": "med-b5",
+   "slot": "breakfast",
+   "name": "Cottage Cheese with Orange and Almonds",
+   "method": "Plate the cottage cheese with orange segments and almonds, done before your coffee finishes brewing.",
+   "ingredients": [
+    {
+     "id": "cottage_cheese",
+     "g": 200
+    },
+    {
+     "id": "orange",
+     "g": 120
+    },
+    {
+     "id": "almonds",
+     "g": 25
+    }
+   ]
+  },
+  {
+   "id": "med-l1",
+   "slot": "lunch",
+   "name": "Chickpea Tuna Salad",
+   "method": "Toss chickpeas and tuna with olive oil, diced tomato, and red onion, then let it marinate ten minutes.",
+   "ingredients": [
+    {
+     "id": "tuna_canned",
+     "g": 100
+    },
+    {
+     "id": "chickpeas",
+     "g": 120
+    },
+    {
+     "id": "olive_oil",
+     "g": 12
+    },
+    {
+     "id": "tomato",
+     "g": 60
+    },
+    {
+     "id": "red_onion",
+     "g": 20
+    }
+   ]
+  },
+  {
+   "id": "med-l2",
+   "slot": "lunch",
+   "name": "Greek Chicken Salad",
+   "method": "Slice grilled chicken over cucumber, tomato, olives, and feta, then dress with olive oil.",
+   "ingredients": [
+    {
+     "id": "chicken_breast",
+     "g": 120
+    },
+    {
+     "id": "feta",
+     "g": 40
+    },
+    {
+     "id": "cucumber",
+     "g": 80
+    },
+    {
+     "id": "tomato",
+     "g": 80
+    },
+    {
+     "id": "olives",
+     "g": 30
+    },
+    {
+     "id": "olive_oil",
+     "g": 12
+    }
+   ]
+  },
+  {
+   "id": "med-l3",
+   "slot": "lunch",
+   "name": "Hummus Pita Mezze Plate",
+   "method": "Warm the pita, plate the hummus and olives, and load up on cucumber and bell pepper for dipping.",
+   "ingredients": [
+    {
+     "id": "hummus",
+     "g": 100
+    },
+    {
+     "id": "whole_wheat_pita",
+     "g": 70
+    },
+    {
+     "id": "cucumber",
+     "g": 80
+    },
+    {
+     "id": "bell_pepper",
+     "g": 80
+    },
+    {
+     "id": "olives",
+     "g": 30
+    }
+   ]
+  },
+  {
+   "id": "med-l4",
+   "slot": "lunch",
+   "name": "Hearty Lentil Soup",
+   "method": "Simmer the lentils in bone broth with garlic and olive oil, then stir in spinach right before serving.",
+   "ingredients": [
+    {
+     "id": "lentils",
+     "g": 200
+    },
+    {
+     "id": "olive_oil",
+     "g": 12
+    },
+    {
+     "id": "spinach",
+     "g": 60
+    },
+    {
+     "id": "garlic",
+     "g": 8
+    },
+    {
+     "id": "bone_broth",
+     "g": 200
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "med-l5",
+   "slot": "lunch",
+   "name": "Sardine Tomato Pita Plate",
+   "method": "Pile sardines and sliced tomato onto warm pita and finish with olive oil and salt.",
+   "ingredients": [
+    {
+     "id": "sardines",
+     "g": 90
+    },
+    {
+     "id": "whole_wheat_pita",
+     "g": 50
+    },
+    {
+     "id": "tomato",
+     "g": 80
+    },
+    {
+     "id": "olive_oil",
+     "g": 8
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "med-l6",
+   "slot": "lunch",
+   "name": "Lemon Shrimp Quinoa Bowl",
+   "method": "Sear the shrimp, toss with warm quinoa and saut\u00e9ed zucchini, and finish with olive oil and lemon.",
+   "ingredients": [
+    {
+     "id": "shrimp",
+     "g": 130
+    },
+    {
+     "id": "quinoa",
+     "g": 120
+    },
+    {
+     "id": "zucchini",
+     "g": 100
+    },
+    {
+     "id": "olive_oil",
+     "g": 15
+    },
+    {
+     "id": "lemon",
+     "g": 10
+    }
+   ]
+  },
+  {
+   "id": "med-d1",
+   "slot": "dinner",
+   "name": "Baked Salmon with Quinoa and Broccoli",
+   "method": "Bake the salmon at 400F for 12 minutes and serve over quinoa with roasted broccoli and an olive oil drizzle.",
+   "ingredients": [
+    {
+     "id": "salmon",
+     "g": 150
+    },
+    {
+     "id": "quinoa",
+     "g": 100
+    },
+    {
+     "id": "broccoli",
+     "g": 120
+    },
+    {
+     "id": "olive_oil",
+     "g": 10
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "med-d2",
+   "slot": "dinner",
+   "name": "Chicken Thighs with Chickpeas and Kale",
+   "method": "Roast the thighs, then saut\u00e9 chickpeas and kale in olive oil and serve everything in one bowl.",
+   "ingredients": [
+    {
+     "id": "chicken_thigh",
+     "g": 140
+    },
+    {
+     "id": "chickpeas",
+     "g": 100
+    },
+    {
+     "id": "kale",
+     "g": 60
+    },
+    {
+     "id": "olive_oil",
+     "g": 8
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "med-d3",
+   "slot": "dinner",
+   "name": "Cod Puttanesca with Brown Rice",
+   "method": "Simmer tomatoes and olives in olive oil, cook the cod in the sauce for ten minutes, and serve over brown rice.",
+   "ingredients": [
+    {
+     "id": "cod",
+     "g": 200
+    },
+    {
+     "id": "brown_rice",
+     "g": 150
+    },
+    {
+     "id": "tomato",
+     "g": 120
+    },
+    {
+     "id": "olives",
+     "g": 40
+    },
+    {
+     "id": "olive_oil",
+     "g": 12
+    }
+   ]
+  },
+  {
+   "id": "med-d4",
+   "slot": "dinner",
+   "name": "Braised Lamb with Lentils",
+   "method": "Braise the lamb until tender, then fold in cooked lentils and spinach with a drizzle of olive oil.",
+   "ingredients": [
+    {
+     "id": "lamb_shoulder",
+     "g": 130
+    },
+    {
+     "id": "lentils",
+     "g": 120
+    },
+    {
+     "id": "spinach",
+     "g": 60
+    },
+    {
+     "id": "olive_oil",
+     "g": 8
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "med-d5",
+   "slot": "dinner",
+   "name": "Shrimp and Veggie Quinoa Skillet",
+   "method": "Saut\u00e9 bell pepper and zucchini in olive oil, add the shrimp for the last four minutes, and serve over quinoa.",
+   "ingredients": [
+    {
+     "id": "shrimp",
+     "g": 160
+    },
+    {
+     "id": "quinoa",
+     "g": 120
+    },
+    {
+     "id": "bell_pepper",
+     "g": 100
+    },
+    {
+     "id": "zucchini",
+     "g": 100
+    },
+    {
+     "id": "olive_oil",
+     "g": 18
+    }
+   ]
+  },
+  {
+   "id": "med-d6",
+   "slot": "dinner",
+   "name": "Trout with Brown Rice and Asparagus",
+   "method": "Pan-sear the trout in olive oil and plate with brown rice and roasted asparagus.",
+   "ingredients": [
+    {
+     "id": "trout",
+     "g": 170
+    },
+    {
+     "id": "brown_rice",
+     "g": 130
+    },
+    {
+     "id": "asparagus",
+     "g": 100
+    },
+    {
+     "id": "olive_oil",
+     "g": 12
+    },
+    {
+     "id": "salt",
+     "g": 2
+    }
+   ]
+  },
+  {
+   "id": "med-s1",
+   "slot": "snack",
+   "name": "Hummus and Veggie Dippers",
+   "method": "Portion the hummus and cut the cucumber and bell pepper into sticks the night before.",
+   "ingredients": [
+    {
+     "id": "hummus",
+     "g": 80
+    },
+    {
+     "id": "cucumber",
+     "g": 80
+    },
+    {
+     "id": "bell_pepper",
+     "g": 80
+    }
+   ]
+  },
+  {
+   "id": "med-s2",
+   "slot": "snack",
+   "name": "Honey Greek Yogurt Cup",
+   "method": "Drizzle honey over the yogurt and you have dessert that works for you.",
+   "ingredients": [
+    {
+     "id": "greek_yogurt",
+     "g": 150
+    },
+    {
+     "id": "honey",
+     "g": 12
+    }
+   ]
+  },
+  {
+   "id": "med-s3",
+   "slot": "snack",
+   "name": "Apple with Almonds",
+   "method": "Slice the apple, count out the almonds, and pack it for the afternoon slump.",
+   "ingredients": [
+    {
+     "id": "apple",
+     "g": 150
+    },
+    {
+     "id": "almonds",
+     "g": 20
+    }
+   ]
+  }
+ ]
+}

@@ -63,6 +63,35 @@ VARIANTS = {
             ("Notes", ""),
         ],
     },
+
+    "lion": {
+        "out": "lion-30-day-symptom-journal.pdf",
+        "BRAND": "Carnivore Weekly",
+        "TITLE": "Lion Diet 30-Day Symptom Journal",
+        "TAGLINE": "Beef, salt, water. Write down what your body says.",
+        "HOWTO": (
+            "Fill in one column every evening, same time each day. 0&ndash;10 scores; "
+            "honest beats optimistic."
+        ),
+        "MOTTO": "Thirty days of quiet, then careful answers.",
+        "URL": "carnivoreweekly.com",
+        "FOOTNOTE": "Part of the Lion Diet 30-Day Protocol &bull; CarnivoreWeekly shop",
+        "BODY_FONT": "'Source Sans 3', Helvetica, Arial, sans-serif",
+        "HEAD_FONT": "'Libre Baskerville', Georgia, serif",
+        "BG": "#faf5ec", "INK": "#2c1810", "SOFT": "#7a5c44",
+        "ACCENT": "#a8341f", "LINE": "#c9ab8c", "HEADBG": "#2c1810",
+        "HEADINK": "#f4e4d4", "LBLBG": "#f1e6d4",
+        "rows": [
+            ("Meals eaten", "beef / salt / water only?"),
+            ("Energy", "0-10 scale"),
+            ("Digestion", "0-10 scale"),
+            ("Sleep quality", "0-10 scale"),
+            ("Skin", "0-10 scale"),
+            ("Joints / pain", "0-10 scale"),
+            ("Mood", "0-10 scale"),
+            ("Notes", "symptoms, timing, anything odd"),
+        ],
+    },
     "keto": {
         "out": "keto-30-day-tracker.pdf",
         "BRAND": "KetoDial",

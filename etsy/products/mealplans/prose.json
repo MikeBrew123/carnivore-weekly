@@ -1,0 +1,99 @@
+{
+  "carnivore": {
+    "tagline": "Thirty days of meat, macros done for you, zero calorie counting.",
+    "intro": "Here's what I've seen work: people don't fail carnivore because it's hard. They fail because at 5 PM they're staring into the fridge with no plan. This guide removes that moment for thirty straight days. Every day has a breakfast, lunch, and dinner mapped out, with the macros already computed so you can see your protein and fat at a glance. You'll notice there's no calorie target anywhere. That's on purpose. On carnivore, we set a protein floor and eat to satiety, because hunger regulation is the whole point of this way of eating. Your grocery lists are built week by week, and your free 30-day tracker is included so you can watch your own data, not just mine.",
+    "howto": "Shop once a week using the grocery list for that week only. Buying thirty days of meat at once is how freezers get scary. Cook with a prep-once-eat-twice mindset: tonight's roast is tomorrow's lunch, and the plan is built around that. The swap rule is simple: any lunch can trade places with any lunch in the same week, same for dinners, and your macros stay close enough not to matter. The macro line under each day shows protein, fat, and calories. Watch protein first. The rest tends to sort itself out.",
+    "tips": [
+      "Salt your food more than feels normal for the first two weeks, because most early carnivore misery is just an electrolyte problem wearing a costume.",
+      "If you're not hungry for a meal, skip it and don't make it up later, since eating to satiety means trusting the off switch too.",
+      "Buy the cheap fatty cuts (chuck, 80/20 ground, pork shoulder) because they're not the compromise option, they're the plan."
+    ],
+    "inside": [
+      "30 daily menus (breakfast, lunch, dinner) built for real kitchens",
+      "Computed macros for every single day: protein, fat, and calories",
+      "4 weekly grocery lists so you shop once a week and you're done",
+      "Our free 30-day tracker PDF included, so you can log what changes"
+    ]
+  },
+  "keto": {
+    "tagline": "Four weeks of keto, 1500 calories a day, already planned.",
+    "intro": "This is a full month of keto with the thinking done in advance. Every day lands around 1500 calories with net carbs under 25 grams, and each week comes with its own grocery list. It's built for people who do best with a clear structure: you know what breakfast is before you're hungry, and you know what to buy before you're standing in the store. That matters more than most people realize, because the research on diet adherence keeps pointing to the same thing: plans fail at decision points, not at the dinner table. Fewer decisions, better month. If you've tried keto before and drifted by week two, this is the guardrail version.",
+    "howto": "Shop weekly from the list for that week and nothing else. The menus use a prep-once-eat-twice pattern, so several dinners intentionally become the next day's lunch. Cook the full portion even when it feels like too much. The swap rule: any lunch can swap with any lunch from the same week, and any dinner with any dinner, without breaking your numbers. The macro line under each day shows calories, net carbs, protein, and fat. If you only check one number, make it net carbs, and keep it under 25.",
+    "tips": [
+      "Front-load your protein at breakfast, because a 30-gram protein morning is the quietest appetite suppressant I know.",
+      "Keep salt, magnesium, and potassium honest in week one, since keto flu is mostly an electrolyte shortage with good branding.",
+      "If the scale stalls in week three, hold steady instead of cutting more food, because water shifts mask fat loss constantly."
+    ],
+    "inside": [
+      "28 daily menus, each day built around 1500 calories",
+      "Net carbs under 25g every single day, already counted",
+      "Macros listed per day: calories, carbs, protein, and fat",
+      "4 weekly grocery lists, one shop per week and you're covered"
+    ]
+  },
+  "lowcarb": {
+    "tagline": "Lower carb, more variety, four weeks planned around 1500 calories.",
+    "intro": "Not everyone needs strict keto, and honestly, not everyone does better on it. This plan is the middle path: four weeks of daily menus around 1500 calories with a gentler carb ceiling, which means berries, yogurt, and even some quinoa and lentils are back on the table. It's for people who want blood sugar steadier and portions handled, without giving up every carb they enjoy. Here's what I've seen work: the plan you can live with beats the stricter plan you quit, every time. Each week has its own grocery list, every day has its macros computed, and nothing in here requires willpower at 6 PM.",
+    "howto": "Shop weekly using that week's list, and don't buy ahead. Meals follow a prep-once-eat-twice rhythm, so dinners regularly reappear as next-day lunches on purpose. The swap rule keeps it flexible: trade any lunch for any lunch in the same week, any dinner for any dinner, and your day still lands where it should. The macro line under each day shows calories, carbs, protein, and fat. Carbs will vary a bit day to day. That's by design, not a mistake.",
+    "tips": [
+      "Pair every carb with a protein (berries with Greek yogurt, lentils with chicken), because the blood sugar curve is completely different that way.",
+      "Cook your quinoa and lentils once on Sunday, since they hold all week and turn three future dinners into ten-minute jobs.",
+      "Eat your protein and vegetables first at each meal, a small ordering trick that research suggests blunts the glucose spike from the carbs that follow."
+    ],
+    "inside": [
+      "28 daily menus built around 1500 calories a day",
+      "A gentler carb ceiling than keto: berries, yogurt, quinoa, lentils included",
+      "Computed macros for every day: calories, carbs, protein, fat",
+      "4 weekly grocery lists so shopping takes one trip a week"
+    ]
+  },
+  "lion": {
+    "tagline": "A structured elimination protocol, and a careful road back.",
+    "intro": "If you're picking this up, you're probably not here for weight loss. You're here because something in your body isn't right and you're running out of ideas. I want to be straight with you: the lion diet (beef, salt, water for thirty days) is an elimination protocol, not a lifestyle. Its job is to strip your inputs down to almost nothing so that when you reintroduce foods one at a time, your symptoms can finally tell you something useful. This guide gives you the full 30-day structure, the reintroduction schedule, and symptom journal pages, because the journal is where the answers actually live. Please do this with your doctor's knowledge, especially if you take medications or have a diagnosed condition. An elimination this strict deserves medical oversight.",
+    "howto": "Shop weekly and keep it boring: beef, salt, water, that's the protocol. Cook in batches, because prep-once-eat-twice matters even more when every meal is the same ingredient and decision fatigue is your enemy. Fill in the symptom journal every day, even on days when nothing seems to change, because nothing changed is data too. The daily pages track energy, digestion, sleep, skin, joints, and mood. Don't start the reintroduction section early. Thirty days is the minimum for a stable baseline, and a wobbly baseline makes every result unreadable.",
+    "tips": [
+      "Salt more aggressively than feels reasonable, because on beef-only your electrolyte needs go up right when your appetite for experimentation should go down.",
+      "Rotate your cuts (chuck, ribeye, ground, roasts) so the fat-to-protein ratio varies a little, which most people find keeps digestion steadier.",
+      "Write your symptoms down the same time every evening, since memory smooths over exactly the patterns you're doing this to find."
+    ],
+    "inside": [
+      "The complete 30-day beef, salt, and water protocol, day by day",
+      "A structured reintroduction schedule with 3-day observation windows",
+      "Daily symptom journal structure: digestion, skin, joints, sleep, energy, mood",
+      "Practical guidance on cuts, salting, and batch cooking"
+    ],
+    "reintro": "The thirty days were the easy part, strangely enough. Reintroduction is where the real information shows up, and rushing it wastes the whole month, so here's the structure. You'll bring back one food at a time, each with a 3-day observation window. Day one, eat a normal portion of the test food alongside your baseline beef. Days two and three, go back to baseline only and watch. Journal everything: digestion, skin, joints, sleep, mood, energy. A reaction inside the window means you shelve that food and let symptoms fully settle before testing anything else. If a food passes, it stays in while you test the next one. Two honest notes. First, no reaction in three days isn't a lifetime guarantee, so keep journaling as foods stack up. Second, this framework is education, not treatment. If you're troubleshooting real symptoms, a doctor or dietitian who knows your history should be walking this road with you."
+  },
+  "pescatarian": {
+    "tagline": "A month of seafood-forward, low-carb meals, planned and shopped for.",
+    "intro": "This plan is for people who want the benefits of low-carb eating built around fish and seafood instead of a freezer full of beef. Thirty days of daily menus, seafood-forward but not seafood-only, with weekly grocery lists so you're never improvising at the fish counter. There's a real case for eating this way: fatty fish like salmon, sardines, and mackerel bring omega-3s and quality protein that most low-carb plans quietly under-deliver. It's a good fit if red meat doesn't sit well with you, if you're pescatarian already and tired of carb-heavy defaults, or if you just feel better when the ocean does most of the cooking. Every day's macros are computed and printed right on the page.",
+    "howto": "Shop weekly, and buy your fish for days one through three fresh, then lean on frozen and canned for the back half of the week, because that's how the plan is built. Prep-once-eat-twice shows up here as tonight's baked salmon becoming tomorrow's salmon salad. Swap rule: any lunch trades with any lunch from the same week, dinners likewise, and your macros hold. The macro line shows protein, fat, net carbs, and calories per day. Canned sardines, tuna, and salmon are your emergency meals, so keep the pantry stocked.",
+    "tips": [
+      "Frozen fish is nutritionally on par with fresh and about half the stress, so let the freezer carry your weeknights without guilt.",
+      "Two sardine or fatty-fish days a week is where the omega-3 math really starts working for you, so don't skip them just because they're humble.",
+      "A hot pan and a dry fillet solve ninety percent of I-can't-cook-fish, so pat it dry every single time."
+    ],
+    "inside": [
+      "30 daily menus, seafood-forward and low carb throughout",
+      "Computed macros for every day: protein, fat, net carbs, calories",
+      "Weekly grocery lists organized so the fish counter takes five minutes",
+      "A realistic mix of fresh, frozen, and canned fish"
+    ]
+  },
+  "mediterranean": {
+    "tagline": "One week of Mediterranean meals, one grocery list, zero guesswork.",
+    "intro": "This is one clean week of whole-food Mediterranean eating: fish, olive oil, vegetables, legumes, yogurt, and enough flavor that nobody at your table asks what happened. The Mediterranean pattern has some of the deepest research behind it of any way of eating, and this plan turns that pattern into seven actual days of breakfast, lunch, and dinner. One week is the right size to start with. It's long enough to feel the difference in your energy and short enough that the grocery list fits on a single page. Whether you're testing the waters or just want a week of dinners decided in advance, this does the deciding for you.",
+    "howto": "Shop once from the single grocery list, and you're set for the week. The menus use a prep-once-eat-twice pattern: a few dinners are portioned to become the next day's lunch, so cook the full amount. Swap rule applies here too: any lunch for any lunch, any dinner for any dinner, all within the week. Each day lists its meals with a simple nutrition line so you can see the shape of the day. Olive oil measurements are honest ones. Don't be shy with it.",
+    "tips": [
+      "Make the grain and legume portions on day one, because cooked grains and lentils in the fridge turn every later meal into assembly instead of cooking.",
+      "Buy the good olive oil and treat it like a main ingredient, since it's doing more work in this pattern than almost anything else on the list.",
+      "Add a handful of greens or a chopped tomato to any meal that looks lonely, because in Mediterranean eating more vegetables is never the wrong answer."
+    ],
+    "inside": [
+      "7 daily menus: breakfast, lunch, and dinner for a full week",
+      "One consolidated grocery list, organized by store section",
+      "Whole foods only: fish, olive oil, vegetables, legumes, yogurt, grains",
+      "Prep notes that turn a few dinners into next-day lunches"
+    ]
+  }
+}
