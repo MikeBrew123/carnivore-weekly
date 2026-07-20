@@ -202,9 +202,11 @@ Manual edits allowed when instructed, but:
 - **Reply-to:** `iambrew@gmail.com`
 - **API key:** `secrets/api-keys.json` → `resend.key`
 
-### Drip Sequence (30-Day Carnivore Starter)
-- **Script:** `scripts/send_drip.py` — runs daily via `daily-publish.yml` GitHub Action
-- **Templates:** `data/drip-emails/` — 11 emails: day-1 through day-7 daily, then day-10, 14, 21, 28
+### Drip Sequences (CW 30-Day Carnivore Starter + KD 30-Day Keto Starter)
+- **Script:** `scripts/send_drip.py --site cw|kd` (default cw) — runs daily via `daily-publish.yml` GitHub Action. KD step is gated by the `KD_DRIP_ENABLED` repo variable.
+- **Templates:** `data/drip-emails/` (CW) and `data/drip-emails/kd/` (KD) — 11 emails each: day-1 through day-7 daily, then day-10, 14, 21, 28
+- **Check-ins:** every email links an anonymous survey — CW `carnivoreweekly.com/journey-checkin.html?day=N`, KD `ketodial.com/journey-checkin.html?day=N`. Questions live in `drip_survey_questions`/`drip_survey_options` (site-scoped, config-driven: new days = inserts, not deploys).
+- **KD from-address:** `KetoDial <ketodial@carnivoreweekly.com>`, reply-to `iambrew@gmail.com`. KD promo codes reuse coupon `52fYA51M` (same Stripe account); the KD embedded checkout takes codes via its promo field — KD copy must say "enter code at checkout", never "auto-applies".
 - **Expiring offers (honest urgency):** day-7/day-28 sends mint a per-subscriber single-use Stripe promo code (`WEEK1-XXXXX`/`GRAD-XXXXX`, real 48h expiry, coupon `52fYA51M`) via `mint_promo_code()` in `send_drip.py`; the checkout worker validates them via `validatePromotionCode()` (pinned Stripe-Version 2024-06-20 — account default breaks the shape). Mint failure falls back to static `DRIP50` with copy that makes NO expiry claim. NEVER write drip copy claiming a deadline that isn't Stripe-enforced.
 - **Subscribers table:** `drip_subscribers` (Supabase) — tracks `current_day`, `last_sent_at`, `completed`
 - **Flow:** signup → Supabase insert → daily cron advances to next scheduled day → after day 28 graduates to `newsletter_subscribers`
@@ -243,8 +245,8 @@ Manual edits allowed when instructed, but:
 CW and KD share ONE Supabase project (`kwtdpvnjewtahuxjyltn`). This is intentional, not legacy debt: the writer team (Sarah/Marcus/Chloe) works both sites from shared `writers` / `writer_content` / `writer_memory_log` tables, and the audience flows both ways (keto → carnivore, ex-carnivore → keto), so cross-referencing lives in one database.
 
 **The separation rules (a shared project is NOT shared data):**
-- Site-scoped tables carry a `site` column (`cw`/`kd`): `blog_posts`, `newsletter_subscribers`, `coach_members`, `content_signals`. **Every query, send, or export against these MUST filter by site.** Never SELECT/UPDATE across both sites unless the task is explicitly cross-site.
-- `drip_subscribers` / `drip_events` are **CW-only** (the 30-day Carnivore Starter). If KD ever gets a drip, add a `site` column first — don't reuse the CW rows.
+- Site-scoped tables carry a `site` column (`cw`/`kd`): `blog_posts`, `newsletter_subscribers`, `coach_members`, `content_signals`, `drip_subscribers`, `drip_events`, `drip_survey_*`. **Every query, send, or export against these MUST filter by site.** Never SELECT/UPDATE across both sites unless the task is explicitly cross-site.
+- `drip_subscribers` / `drip_events` gained a `site` column 2026-07-20 (unique is now `(email, site)` — the same person can be on both drips). CW rows = 30-day Carnivore Starter, KD rows = 30-day Keto Starter.
 - Coach tables (`coach_*`) are the KD Coach app. Don't join them into CW reporting except via `coach_members.site`.
 - Any NEW table holding per-site data gets a `site` column from day one, and scripts touching it take a `--site` flag (same convention as `send_newsletter.py --site cw|kd`).
 - Shared-on-purpose (no site filter needed): `writers`, `writer_content`, `writer_memory_log`, `agent_memories`.

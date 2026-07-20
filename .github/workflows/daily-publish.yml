@@ -59,6 +59,33 @@ jobs:
             gh issue comment "$EXISTING" --body "Failed again on $(date -u +%F): $RUN_URL"
           fi
 
+      # KD drip is gated behind the KD_DRIP_ENABLED repo variable until Brew
+      # signs off on the copy. Enable with: gh variable set KD_DRIP_ENABLED -b true
+      - name: Send KD drip emails (30-Day Keto Starter)
+        id: kd_drip
+        if: vars.KD_DRIP_ENABLED == 'true'
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+        run: python3 scripts/send_drip.py --site kd
+
+      - name: Alert on KD drip failure
+        if: steps.kd_drip.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="🚨 KD drip send failed in daily-publish"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$EXISTING" ]; then
+            gh issue create --title "$TITLE" --body "send_drip.py --site kd exited non-zero on $(date -u +%F). KD subscribers are NOT receiving drip emails until this is fixed. Run: $RUN_URL"
+          else
+            gh issue comment "$EXISTING" --body "Failed again on $(date -u +%F): $RUN_URL"
+          fi
+
       - name: Publish CW scheduled posts
         id: publish_cw
         env:
