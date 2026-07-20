@@ -13,11 +13,13 @@ export const metadata: Metadata = {
     siteName: 'KetoDial Coach',
     type: 'website',
     locale: 'en_US',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 675, alt: 'KetoDial Coach — accountability that actually checks in' }],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'KetoDial Coach — The low-carb coach that checks on you',
     description: 'Weekly text-based coaching for keto and carnivore. $49/month, cancel anytime.',
+    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
