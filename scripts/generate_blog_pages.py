@@ -273,6 +273,11 @@ def generate_blog_posts(env, posts, validator=None):
             sponsor_callout=post.get("sponsor_callout"),
             comments_enabled=post.get("comments_enabled", True),
             seo=seo,
+            # Optional per-post SEO extras: date_modified bumps the Article
+            # schema on content updates; faq ([{q, a}, ...]) must mirror a
+            # visible FAQ section in the post body (Google requirement)
+            date_modified=post.get("date_modified"),
+            faq=post.get("faq"),
         )
 
         # Validate content (warn-only — template output is source of truth)

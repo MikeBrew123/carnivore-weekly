@@ -53,7 +53,7 @@
         }
       },
       "datePublished": "{{ publish_date }}",
-      "dateModified": "{{ publish_date }}",
+      "dateModified": "{{ date_modified or publish_date }}",
       "image": "https://carnivoreweekly.com/images/hero-steak-1200w.webp",
       "mainEntityOfPage": {
         "@type": "WebPage",
@@ -61,6 +61,28 @@
       }
     }
     </script>
+
+    {% if faq %}
+    <!-- FAQPage Schema (mirrors the post's visible FAQ section) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {% for item in faq %}
+        {
+          "@type": "Question",
+          "name": {{ item.q | tojson }},
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": {{ item.a | tojson }}
+          }
+        }{{ "," if not loop.last }}
+        {% endfor %}
+      ]
+    }
+    </script>
+    {% endif %}
 
     <!-- Organization Schema with Mentions for GEO -->
     <script type="application/ld+json">
