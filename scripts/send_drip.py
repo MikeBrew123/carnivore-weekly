@@ -1,22 +1,29 @@
 #!/usr/bin/env python3
 """
-Daily drip email sender for the 30-Day Carnivore Starter sequence.
+Daily drip email sender for the 30-day starter sequences.
 
-Queries drip_subscribers for anyone not completed/unsubscribed,
+Runs one site per invocation (CW by default, KetoDial with --site kd).
+Queries drip_subscribers for anyone on that site not completed/unsubscribed,
 sends the next day's email via Resend, bumps the counter.
-The sequence is sparse past day 7 (days 10, 14, 21, 28); days with no
+Both sequences are sparse past day 7 (days 10, 14, 21, 28); days with no
 day-N.html advance the counter silently without sending.
-Only carnivore-diet signups enter this drip; keto/low-carb/other diets are
-deflected to a newsletter at calculator Step 2 (see handleSaveStep2 in the
-worker), so every subscriber here is a carnivore selector.
-After day 28, marks completed and auto-subscribes to the CW weekly newsletter.
 
-Run daily (Hermes cron or GitHub Action).
+CW: only carnivore-diet signups enter (keto/low-carb are deflected to the KD
+side at calculator Step 2 — see handleSubscribe in the worker).
+KD: keto/low-carb calculator selectors and KD homepage signups.
+After day 28, marks completed and auto-subscribes to that site's weekly newsletter.
+
+Run daily (GitHub Action daily-publish.yml).
 
 Usage:
-    python3 scripts/send_drip.py              # Send pending drip emails
-    python3 scripts/send_drip.py --dry-run    # Show what would be sent
-    python3 scripts/send_drip.py --test       # Reset and send day 1 to iambrew@gmail.com
+    python3 scripts/send_drip.py                     # Send pending CW drip emails
+    python3 scripts/send_drip.py --site kd           # Send pending KD drip emails
+    python3 scripts/send_drip.py --dry-run           # Show what would be sent
+    python3 scripts/send_drip.py --test              # Print day 1 info, never sends
+    python3 scripts/send_drip.py --site kd --preview-to iambrew@gmail.com
+                                                     # Send EVERY day's email to one
+                                                     # address for copy review (uses
+                                                     # fallback promo, no minting)
 """
 
 import argparse
@@ -31,10 +38,7 @@ import requests
 
 PROJECT_ROOT = Path(__file__).parent.parent
 SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
-DRIP_DIR = PROJECT_ROOT / "data" / "drip-emails"
 
-FROM_EMAIL = "Carnivore Weekly <newsletter@carnivoreweekly.com>"
-REPLY_TO = "newsletter@carnivoreweekly.com"
 TEST_EMAIL = "iambrew@gmail.com"
 WEBHOOK_URL = os.environ.get("RESEND_WEBHOOK_URL", "")
 FINAL_DAY = 28  # Graduate to the weekly newsletter after this day's email
@@ -43,9 +47,12 @@ UNSUB_URL = "https://carnivore-report-api-production.iambrew.workers.dev/api/v1/
 # ===== Expiring per-subscriber promo codes (days 7 & 28) =====
 # Each day-7/day-28 send mints a unique single-use Stripe promotion code with
 # a REAL 48h expiry, so the email's urgency claim is true and Stripe-enforced.
-# The checkout worker validates unknown codes via validatePromotionCode()
-# (api/calculator-api.js). If minting fails, the send falls back to the static
-# DRIP50 code with copy that makes no expiry claim.
+# The CW checkout worker validates unknown codes via validatePromotionCode()
+# (api/calculator-api.js); the KD embedded checkout accepts them through its
+# promo-code field (allow_promotion_codes, ketodial/worker/index.js). Both
+# sites bill the same Stripe account, so one coupon backs both sequences.
+# If minting fails, the send falls back to the static DRIP50 code with copy
+# that makes no expiry claim.
 STRIPE_VERSION = "2024-06-20"  # newer account-default versions changed the promotion_codes shape
 DRIP_COUPON_ID = "52fYA51M"    # 50% off — same Stripe coupon behind DRIP50/ETSY50
 PROMO_EXPIRY_HOURS = 48
@@ -53,18 +60,61 @@ PROMO_FALLBACK_CODE = "DRIP50"
 PROMO_DAYS = {7: "WEEK1", 28: "GRAD"}
 PROMO_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"  # no 0/O/1/I/L lookalikes
 
-# Copy by Sarah (2026-07-19). "real" may claim the 48h window because Stripe
-# enforces it on minted codes; "fallback" must NEVER claim expiry.
+# Per-site promo copy. "real" may claim the 48h window because Stripe enforces
+# it on minted codes; "fallback" must NEVER claim expiry.
+# CW copy by Sarah (2026-07-19). KD copy by Sarah/Chloe (2026-07-20).
 PROMO_COPY = {
-    7: {
-        "real": "Your code {code} was made just for you: it works once, and it stops working 48 hours after this email went out. That's a real window Stripe enforces, not a marketing countdown, so if life gets in the way and it lapses, no hard feelings, the plan's still here at $29 whenever you're ready.",
-        "fallback": "This is my one-week milestone reward, and $14.50 is the best price I'll ever put on it. Your code {code} has no countdown clock. It's here when you're ready.",
+    "cw": {
+        7: {
+            "real": "Your code {code} was made just for you: it works once, and it stops working 48 hours after this email went out. That's a real window Stripe enforces, not a marketing countdown, so if life gets in the way and it lapses, no hard feelings, the plan's still here at $29 whenever you're ready.",
+            "fallback": "This is my one-week milestone reward, and $14.50 is the best price I'll ever put on it. Your code {code} has no countdown clock. It's here when you're ready.",
+        },
+        28: {
+            "real": "It's $29, but you finished all 30 days, so I made you a graduation code: {code} brings it down to $14.50. It's yours alone, it works once, and it expires 48 hours after this email went out. That's a real window, not pressure, so if the timing's wrong, let it go and know the plan's still here at full price whenever you want it.",
+            "fallback": "It's $29, but the code {code} brings it down to $14.50, the same deal I gave you at the one-week mark. There's no countdown clock on this one. It's here whenever you're ready.",
+        },
     },
-    28: {
-        "real": "It's $29, but you finished all 30 days, so I made you a graduation code: {code} brings it down to $14.50. It's yours alone, it works once, and it expires 48 hours after this email went out. That's a real window, not pressure, so if the timing's wrong, let it go and know the plan's still here at full price whenever you want it.",
-        "fallback": "It's $29, but the code {code} brings it down to $14.50, the same deal I gave you at the one-week mark. There's no countdown clock on this one. It's here whenever you're ready.",
+    "kd": {
+        7: {
+            "real": "Your code {code} was made just for you. It works once, on any report in the calculator, and it stops working 48 hours after this email went out. That's a real window Stripe enforces, not a countdown gimmick. If it lapses, no stress, the reports are still there at full price whenever you want them.",
+            "fallback": "This is my one-week reward for you: code {code} takes half off any report in the calculator. No countdown clock on this one. It's here when you're ready.",
+        },
+        28: {
+            "real": "You finished the month, so I made you a graduation code: {code} takes half off any report in the calculator. It's yours alone, it works once, and it expires 48 hours after this email went out. That's a real deadline, not pressure. If the timing's wrong, let it go and grab the reports at full price whenever it suits you.",
+            "fallback": "Code {code} takes half off any report in the calculator, the same deal I gave you at the one-week mark. There's no countdown on this one. It's here whenever you're ready.",
+        },
     },
 }
+
+# ===== Per-site sending config =====
+SITES = {
+    "cw": {
+        "name": "Carnivore Weekly",
+        "from_email": "Carnivore Weekly <newsletter@carnivoreweekly.com>",
+        "reply_to": "newsletter@carnivoreweekly.com",
+        "drip_dir": PROJECT_ROOT / "data" / "drip-emails",
+        "sequence": "30day-starter",
+        "newsletter_site": "cw",
+        # Legacy CW links carry no site param; the unsubscribe handler defaults to cw.
+        "unsub_extra": "",
+        "default_subject": "Day {day} — Your Carnivore Starter",
+    },
+    "kd": {
+        "name": "KetoDial",
+        "from_email": "KetoDial <ketodial@carnivoreweekly.com>",
+        # KD day-1 asks people to hit reply with their goal; replies should land
+        # where Brew actually reads them (CLAUDE.md standing reply-to).
+        "reply_to": "iambrew@gmail.com",
+        "drip_dir": PROJECT_ROOT / "data" / "drip-emails" / "kd",
+        "sequence": "kd-30day-starter",
+        "newsletter_site": "kd",
+        "unsub_extra": "&site=kd",
+        "default_subject": "Day {day} — Your Keto Starter",
+    },
+}
+
+SITE = "cw"          # set from --site in main()
+CFG = SITES["cw"]    # set from --site in main()
 
 
 def mint_promo_code(stripe_key, day, email):
@@ -86,6 +136,7 @@ def mint_promo_code(stripe_key, day, email):
                     "expires_at": str(int(datetime.now(timezone.utc).timestamp()) + PROMO_EXPIRY_HOURS * 3600),
                     "metadata[drip_day]": str(day),
                     "metadata[email]": email,
+                    "metadata[site]": SITE,
                 },
                 timeout=15,
             )
@@ -109,7 +160,7 @@ def apply_promo(html, day, email, stripe_key):
     if not code:
         code = PROMO_FALLBACK_CODE
         print(f"  ⚠️  no minted code — using {code} with no-expiry copy")
-    line = PROMO_COPY[day][variant].replace("{code}", code)
+    line = PROMO_COPY[SITE][day][variant].replace("{code}", code)
     return (
         html.replace("{$promo_code}", code)
             .replace("{$promo_urgency}", line)
@@ -178,34 +229,36 @@ def supabase_insert(secrets, table, data):
 
 
 def load_drip_email(day, variant=None):
-    path = DRIP_DIR / (f"day-{day}-{variant}.html" if variant else f"day-{day}.html")
+    drip_dir = CFG["drip_dir"]
+    path = drip_dir / (f"day-{day}-{variant}.html" if variant else f"day-{day}.html")
     if variant and not path.exists():
-        path = DRIP_DIR / f"day-{day}.html"  # fall back to the default email
+        path = drip_dir / f"day-{day}.html"  # fall back to the default email
     if not path.exists():
         return None, None
     html = path.read_text(encoding="utf-8")
     subject_match = re.search(r'Subject:\s*(.+?)(?:\s*-->)', html)
-    subject = subject_match.group(1).strip() if subject_match else f"Day {day} — Your Carnivore Starter"
+    subject = subject_match.group(1).strip() if subject_match else CFG["default_subject"].format(day=day)
     return subject, html
 
 
 def personalize(html, email):
     """Substitute merge tags. {$unsubscribe} was previously sent literally (dead link)."""
     from urllib.parse import quote
-    return html.replace("{$unsubscribe}", f"{UNSUB_URL}?email={quote(email)}")
+    unsub = f"{UNSUB_URL}?email={quote(email)}{CFG['unsub_extra']}"
+    return html.replace("{$unsubscribe}", unsub)
 
 
-def send_email(resend_key, to, subject, html, tags=None):
+def send_email(resend_key, to, subject, html, tags=None, log=True):
     from urllib.parse import quote
     payload = {
-        "from": FROM_EMAIL,
+        "from": CFG["from_email"],
         "to": [to],
-        "reply_to": REPLY_TO,
+        "reply_to": CFG["reply_to"],
         "subject": subject,
         "html": html,
         "headers": {
             "X-Entity-Ref-ID": f"drip-{to}-{subject[:30]}",
-            "List-Unsubscribe": f"<{UNSUB_URL}?email={quote(to)}>",
+            "List-Unsubscribe": f"<{UNSUB_URL}?email={quote(to)}{CFG['unsub_extra']}>",
         },
     }
     if tags:
@@ -219,7 +272,7 @@ def send_email(resend_key, to, subject, html, tags=None):
         json=payload,
     )
     result = resp.json() if resp.status_code == 200 else resp.text
-    if resp.status_code == 200:
+    if resp.status_code == 200 and log:
         email_id = result.get("id", "")
         log_drip_event(secrets_cache, to, subject, email_id, tags)
     return resp.status_code == 200, result
@@ -239,6 +292,7 @@ def log_drip_event(secrets, to, subject, email_id, tags):
             "resend_id": email_id,
             "event_type": "sent",
             "subject": subject,
+            "site": SITE,
             "tags": json.dumps(tags) if tags else None,
         })
     except Exception:
@@ -250,13 +304,14 @@ MIN_SEND_CAP = 50  # Floor for the dynamic cap so the list can always grow into 
 
 def dynamic_send_cap(secrets):
     """Safety cap that grows with the list: 3x the busiest send day of the
-    past week, never below MIN_SEND_CAP. Catches a bad-data signup flood
-    (ISSUE-040) without strangling organic growth (ISSUE-043 deadlock)."""
+    past week ON THIS SITE, never below MIN_SEND_CAP. Catches a bad-data
+    signup flood (ISSUE-040) without strangling organic growth (ISSUE-043)."""
     try:
         since = datetime.now(timezone.utc) - timedelta(days=7)
         rows = supabase_query(secrets, "drip_events", {
             "select": "created_at",
             "event_type": "eq.sent",
+            "site": f"eq.{SITE}",
             "created_at": f"gte.{since.isoformat()}",
         })
         by_day = {}
@@ -270,7 +325,7 @@ def dynamic_send_cap(secrets):
 
 
 def already_sent_today(secrets, email):
-    """Check if this email already received a drip today. Prevents duplicates."""
+    """Check if this email already received this site's drip today. Prevents duplicates."""
     sb = secrets["supabase"]
     key = sb["service_role_key"]
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -281,6 +336,7 @@ def already_sent_today(secrets, email):
             params={
                 "select": "last_sent_at",
                 "email": f"eq.{email}",
+                "site": f"eq.{SITE}",
             },
         )
         if resp.status_code == 200 and resp.json():
@@ -292,12 +348,40 @@ def already_sent_today(secrets, email):
     return False
 
 
+def preview_all(resend_key, to):
+    """Send every existing day's email for this site to one address for copy
+    review. Uses the fallback promo path (no Stripe minting) and does NOT log
+    to drip_events or touch subscriber state."""
+    days = sorted(
+        int(m.group(1)) for f in CFG["drip_dir"].glob("day-*.html")
+        if (m := re.match(r"day-(\d+)\.html$", f.name))
+    )
+    if not days:
+        print(f"No templates found in {CFG['drip_dir']}")
+        sys.exit(1)
+    print(f"📬 Preview: sending {len(days)} {CFG['name']} drip emails to {to}\n")
+    for day in days:
+        subject, html = load_drip_email(day)
+        html = apply_promo(html, day, to, stripe_key="")  # fallback path, no minting
+        ok, detail = send_email(resend_key, to, f"[PREVIEW d{day}] {subject}",
+                                personalize(html, to), log=False)
+        print(f"  {'✅' if ok else '❌'} day {day}: {subject}" + ("" if ok else f" — {str(detail)[:80]}"))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Send daily drip emails")
+    parser.add_argument("--site", choices=list(SITES), default="cw",
+                        help="Which site's drip to send (default: cw)")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--test", action="store_true",
                         help="Dry-run Day 1 to test email (prints what WOULD send, never actually sends)")
+    parser.add_argument("--preview-to", metavar="EMAIL",
+                        help="Send every existing day's email to this address for copy review")
     args = parser.parse_args()
+
+    global SITE, CFG
+    SITE = args.site
+    CFG = SITES[SITE]
 
     secrets = load_secrets()
     global secrets_cache
@@ -307,21 +391,26 @@ def main():
     if args.test:
         subject, html = load_drip_email(1)
         if not html:
-            print("Error: day-1.html not found")
+            print(f"Error: day-1.html not found in {CFG['drip_dir']}")
             sys.exit(1)
-        print(f"🧪 TEST MODE — would send to {TEST_EMAIL}: {subject}")
+        print(f"🧪 TEST MODE ({SITE}) — would send to {TEST_EMAIL}: {subject}")
         print(f"   HTML size: {len(html):,} bytes")
         print(f"   ⚠️  No email sent. Use normal run to send.")
         return
 
+    if args.preview_to:
+        preview_all(resend_key, args.preview_to)
+        return
+
     pending = supabase_query(secrets, "drip_subscribers", {
         "select": "id,email,current_day",
+        "site": f"eq.{SITE}",
         "completed": "eq.false",
         "unsubscribed": "eq.false",
     })
 
     if not pending:
-        print("No pending drip subscribers")
+        print(f"No pending {SITE} drip subscribers")
         return
 
     cap = int(os.environ.get("MAX_SENDS_PER_RUN", 0)) or dynamic_send_cap(secrets)
@@ -331,7 +420,7 @@ def main():
         print("   Override with MAX_SENDS_PER_RUN env var if the volume is legitimate.")
         sys.exit(1)
 
-    print(f"Found {len(pending)} pending subscriber(s)\n")
+    print(f"Found {len(pending)} pending {SITE} subscriber(s)\n")
     now = datetime.now(timezone.utc).isoformat()
 
     sent = 0
@@ -345,12 +434,12 @@ def main():
             })
             supabase_insert(secrets, "newsletter_subscribers", {
                 "email": sub["email"],
-                "site": "cw",
+                "site": CFG["newsletter_site"],
                 "status": "active",
                 "signup_source": "direct",
             })
             graduated += 1
-            print(f"  🎓 {sub['email']} — completed drip, added to CW weekly")
+            print(f"  🎓 {sub['email']} — completed drip, added to {CFG['name']} weekly")
             continue
 
         subject, html = load_drip_email(next_day)
@@ -377,7 +466,7 @@ def main():
 
         tags = [
             {"name": "drip_day", "value": str(next_day)},
-            {"name": "sequence", "value": "30day-starter"},
+            {"name": "sequence", "value": CFG["sequence"]},
         ]
         stripe_key = (secrets.get("stripe") or {}).get("secret_key_live", "")
         html_merged = apply_promo(html, next_day, sub["email"], stripe_key)

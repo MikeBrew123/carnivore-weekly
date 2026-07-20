@@ -5334,12 +5334,12 @@ async function handleSubscribe(request, env) {
     const cleanEmail = email.trim().toLowerCase();
     const sourceValue = source || 'homepage';
 
-    // Route by diet_type when the calculator provides it. Only carnivore selectors
-    // enter the CW 30-day drip. Keto and low-carb go to the KetoDial newsletter with a
-    // KD welcome email. Pescatarian (no home yet) is held on the CW newsletter, no drip.
-    // Unknown/absent diet falls back to the carnivore drip, the safe default on a
-    // carnivore site. Homepage/newsletter forms pass an explicit `site` and keep their
-    // original behavior (cw → newsletter + drip, kd → newsletter only).
+    // Route by diet_type when the calculator provides it. Carnivore selectors enter
+    // the CW 30-day drip; keto and low-carb enter the KD 30-day drip (its day-1
+    // replaces the old one-off KD welcome email — never send both). Pescatarian
+    // (no home yet) is held on the CW newsletter, no drip. Unknown/absent diet falls
+    // back to the carnivore drip, the safe default on a carnivore site. Homepage
+    // forms pass an explicit `site`: each enrolls its own site's newsletter + drip.
     let newsletterSite = 'cw';
     let enrollDrip = true;
     let sendKdWelcome = false;
@@ -5347,8 +5347,7 @@ async function handleSubscribe(request, env) {
     if (diet_type) {
       if (diet === 'keto' || diet === 'lowcarb') {
         newsletterSite = 'kd';
-        enrollDrip = false;
-        sendKdWelcome = true;
+        enrollDrip = true;
       } else if (diet === 'pescatarian') {
         newsletterSite = 'cw';
         enrollDrip = false;
@@ -5358,8 +5357,9 @@ async function handleSubscribe(request, env) {
       }
     } else {
       newsletterSite = (site === 'kd') ? 'kd' : 'cw';
-      enrollDrip = (newsletterSite === 'cw');
+      enrollDrip = true;
     }
+    const dripSite = newsletterSite;
 
     // Upsert into newsletter_subscribers (re-activates unsubscribed users)
     const nlRes = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/upsert_newsletter_subscriber`, {
@@ -5377,12 +5377,13 @@ async function handleSubscribe(request, env) {
     });
     if (!nlRes.ok) console.error('Newsletter upsert error:', await nlRes.text());
 
-    // Introduce KetoDial to keto/low-carb selectors (best-effort, never blocks signup)
+    // Legacy path: sendKetoDialWelcome() is retained for any future non-drip KD
+    // signup flow, but drip enrollees get the KD drip day-1 instead (never both).
     if (sendKdWelcome) {
       await sendKetoDialWelcome(cleanEmail, env);
     }
 
-    // Enroll carnivore selectors (and legacy cw signups) into the 30-day drip
+    // Enroll into the matching site's 30-day drip
     if (enrollDrip) {
       const dripRes = await fetch(`${env.SUPABASE_URL}/rest/v1/drip_subscribers`, {
         method: 'POST',
@@ -5395,6 +5396,7 @@ async function handleSubscribe(request, env) {
         body: JSON.stringify({
           email: cleanEmail,
           source: sourceValue,
+          site: dripSite,
         }),
       });
 
@@ -6500,9 +6502,9 @@ async function handleUnsubscribe(url, env) {
     }
   );
 
-  // Also check drip_subscribers
+  // Also check drip_subscribers (scoped to this site's drip)
   await fetch(
-    `${env.SUPABASE_URL}/rest/v1/drip_subscribers?email=eq.${encodeURIComponent(cleanEmail)}`,
+    `${env.SUPABASE_URL}/rest/v1/drip_subscribers?email=eq.${encodeURIComponent(cleanEmail)}&site=eq.${site}`,
     {
       method: 'PATCH',
       headers: {
