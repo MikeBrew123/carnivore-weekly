@@ -102,9 +102,9 @@ SITES = {
     "kd": {
         "name": "KetoDial",
         "from_email": "KetoDial <ketodial@carnivoreweekly.com>",
-        # KD day-1 asks people to hit reply with their goal; replies should land
-        # where Brew actually reads them (CLAUDE.md standing reply-to).
-        "reply_to": "iambrew@gmail.com",
+        # Replies ride the @carnivoreweekly.com inbound catch-all: the inbox is
+        # scanned daily and Brew gets one digest with proposed drafts from Sarah.
+        "reply_to": "ketodial@carnivoreweekly.com",
         "drip_dir": PROJECT_ROOT / "data" / "drip-emails" / "kd",
         "sequence": "kd-30day-starter",
         "newsletter_site": "kd",
