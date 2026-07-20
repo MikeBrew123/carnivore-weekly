@@ -1,0 +1,34 @@
+{
+  "carnivore": [
+    {"id":"cv-b1","slot":"breakfast","name":"Bacon and Eggs, the Classic","method":"Fry the bacon, then cook the eggs in the bacon fat until the whites are set.","ingredients":[{"id":"egg","qty":3},{"id":"bacon","g":40},{"id":"salt","g":2}]},
+    {"id":"cv-b2","slot":"breakfast","name":"Butter-Basted Scramble","method":"Scramble the eggs low and slow in plenty of butter, salt at the end.","ingredients":[{"id":"egg","qty":4},{"id":"butter","g":20},{"id":"salt","g":2}]},
+    {"id":"cv-b3","slot":"breakfast","name":"Steak and Eggs","method":"Sear the strip steak 3 minutes a side, fry two eggs in the pan juices.","ingredients":[{"id":"ny_strip","g":170},{"id":"egg","qty":2},{"id":"butter","g":10},{"id":"salt","g":2}]},
+    {"id":"cv-b4","slot":"breakfast","name":"Ground Beef Breakfast Bowl","method":"Brown the beef with salt, crack the eggs in for the last two minutes and stir.","ingredients":[{"id":"ground_beef_80","g":150},{"id":"egg","qty":2},{"id":"salt","g":2}]},
+    {"id":"cv-b5","slot":"breakfast","name":"Liver and Eggs Power Start","method":"Dust the liver with salt, sear fast in butter, serve with fried eggs.","ingredients":[{"id":"beef_liver","g":100},{"id":"egg","qty":2},{"id":"butter","g":15},{"id":"salt","g":2}]},
+    {"id":"cv-b6","slot":"breakfast","name":"Cheesy Egg Plate","method":"Fry the eggs in butter and melt the cheddar over the top before serving.","ingredients":[{"id":"egg","qty":3},{"id":"cheddar","g":40},{"id":"butter","g":10},{"id":"salt","g":2}]},
+    {"id":"cv-l1","slot":"lunch","name":"Double Burger Patties with Cheese","method":"Form two patties, salt well, sear hard, and melt the cheddar on top.","ingredients":[{"id":"ground_beef_80","g":225},{"id":"cheddar","g":30},{"id":"salt","g":2}]},
+    {"id":"cv-l2","slot":"lunch","name":"Leftover Roast and Butter","method":"Reheat last night's roast in a pan with butter until the edges crisp.","ingredients":[{"id":"chuck_roast","g":200},{"id":"butter","g":15},{"id":"salt","g":2}]},
+    {"id":"cv-l3","slot":"lunch","name":"Tuna and Egg Salad Bowl","method":"Flake the tuna, chop the boiled eggs, bind with soft butter and salt.","ingredients":[{"id":"tuna_canned","g":120},{"id":"egg","qty":2},{"id":"butter","g":15},{"id":"salt","g":2}]},
+    {"id":"cv-l4","slot":"lunch","name":"Sardine Protein Plate","method":"Sardines straight from the tin with boiled eggs and a good pinch of salt.","ingredients":[{"id":"sardines","g":106},{"id":"egg","qty":2},{"id":"salt","g":2}]},
+    {"id":"cv-l5","slot":"lunch","name":"Bone Broth Beef Cup","method":"Simmer the cooked ground beef in hot bone broth, salt to taste, eat like stew.","ingredients":[{"id":"ground_beef_80","g":175},{"id":"bone_broth","g":250},{"id":"salt","g":2}]},
+    {"id":"cv-l6","slot":"lunch","name":"Chicken Thighs, Crispy Skin","method":"Roast the thighs skin-side up at 425F until the skin crackles, about 35 minutes.","ingredients":[{"id":"chicken_thigh","g":250},{"id":"salt","g":2}]},
+    {"id":"cv-d1","slot":"dinner","name":"The Ribeye Night","method":"Salt the ribeye an hour ahead, sear in tallow 4 minutes a side, rest 5.","ingredients":[{"id":"ribeye","g":300},{"id":"tallow","g":10},{"id":"salt","g":3}]},
+    {"id":"cv-d2","slot":"dinner","name":"Slow Cooker Chuck Roast","method":"Salt the roast, 8 hours on low, shred and pour the juices back over.","ingredients":[{"id":"chuck_roast","g":300},{"id":"salt","g":3}]},
+    {"id":"cv-d3","slot":"dinner","name":"Crispy Pork Shoulder","method":"Roast low and slow until pull-apart, then broil 5 minutes for crackling.","ingredients":[{"id":"pork_shoulder","g":300},{"id":"salt","g":3}]},
+    {"id":"cv-d4","slot":"dinner","name":"Butter Salmon Fillet","method":"Pan-sear skin-side down in butter, baste the top, done in 8 minutes.","ingredients":[{"id":"salmon","g":250},{"id":"butter","g":20},{"id":"salt","g":2}]},
+    {"id":"cv-d5","slot":"dinner","name":"Lamb Shoulder Chops","method":"Sear the chops hard in tallow, finish with a butter baste and flaky salt.","ingredients":[{"id":"lamb_shoulder","g":300},{"id":"tallow","g":10},{"id":"salt","g":3}]},
+    {"id":"cv-d6","slot":"dinner","name":"Beef Short Ribs, Oven Style","method":"Salt heavily, cover and roast at 300F for 3 hours until the bones slide out.","ingredients":[{"id":"beef_ribs","g":350},{"id":"salt","g":3}]},
+    {"id":"cv-d7","slot":"dinner","name":"Brisket Plate","method":"Reheat sliced brisket in its own fat, stack it high, salt to finish.","ingredients":[{"id":"brisket","g":300},{"id":"salt","g":3}]},
+    {"id":"cv-d8","slot":"dinner","name":"Burger Steak with Fried Eggs","method":"One giant salted patty seared in tallow, topped with two fried eggs.","ingredients":[{"id":"ground_beef_80","g":250},{"id":"egg","qty":2},{"id":"tallow","g":10},{"id":"salt","g":3}]}
+  ],
+  "lion": [
+    {"id":"ln-m1","slot":"meal","name":"Ribeye, Salted Well","method":"Salt an hour ahead, sear in tallow 4 minutes a side, rest 5 minutes.","ingredients":[{"id":"ribeye","g":350},{"id":"tallow","g":10},{"id":"salt","g":3}]},
+    {"id":"ln-m2","slot":"meal","name":"Ground Beef Bowl","method":"Brown the beef in tallow with salt, eat it hot from the bowl.","ingredients":[{"id":"ground_beef_80","g":300},{"id":"tallow","g":10},{"id":"salt","g":3}]},
+    {"id":"ln-m3","slot":"meal","name":"Slow Chuck Roast","method":"Salt, slow-cook 8 hours, shred, and pour the tallow-rich juices back over.","ingredients":[{"id":"chuck_roast","g":350},{"id":"salt","g":3}]},
+    {"id":"ln-m4","slot":"meal","name":"NY Strip and Broth","method":"Sear the strip in tallow and sip hot salted beef bone broth alongside.","ingredients":[{"id":"ny_strip","g":300},{"id":"bone_broth","g":250},{"id":"tallow","g":10},{"id":"salt","g":3}]},
+    {"id":"ln-m5","slot":"meal","name":"Short Ribs, Fall-Apart","method":"Covered roast at 300F for 3 hours; the fat is the point, eat it.","ingredients":[{"id":"beef_ribs","g":400},{"id":"salt","g":3}]},
+    {"id":"ln-m6","slot":"meal","name":"Brisket and Tallow","method":"Slices reheated in tallow until the edges crisp, salted twice.","ingredients":[{"id":"brisket","g":350},{"id":"tallow","g":15},{"id":"salt","g":3}]},
+    {"id":"ln-m7","slot":"meal","name":"Double Burger Steaks","method":"Two thick salted patties seared hard in tallow, rested a few minutes.","ingredients":[{"id":"ground_beef_80","g":350},{"id":"tallow","g":10},{"id":"salt","g":3}]},
+    {"id":"ln-m8","slot":"meal","name":"Lamb Shoulder Night","method":"Lamb is a ruminant and it counts: sear the shoulder chops in tallow, salt well.","ingredients":[{"id":"lamb_shoulder","g":350},{"id":"tallow","g":10},{"id":"salt","g":3}]}
+  ]
+}
