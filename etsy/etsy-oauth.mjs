@@ -15,7 +15,7 @@ const SECRETS_PATH = path.join(__dirname, '../secrets/api-keys.json');
 
 const CLIENT_ID = 'h0w3wf9q335ap0j3zkabfzxw';
 const REDIRECT_URI = 'http://localhost:3456/callback';
-const SCOPES = 'listings_r listings_w shops_r transactions_r';
+const SCOPES = 'listings_r listings_w shops_r shops_w transactions_r';
 
 // Generate PKCE challenge
 function generatePKCE() {
