@@ -157,10 +157,11 @@ async function validateCoupon(code, env) {
   const stripeCouponId = stripeCouponMap[upperCode];
 
   if (!stripeCouponId) {
-    return {
-      valid: false,
-      error: 'Coupon code not found or expired'
-    };
+    // Not in the static map — check Stripe promotion codes. The drip
+    // sequence mints per-subscriber codes (WEEK1-XXXX / GRAD-XXXX) with a
+    // real expires_at; Stripe flips active=false at expiry, so the
+    // active=true filter is the expiry enforcement.
+    return await validatePromotionCode(upperCode, env);
   }
 
   try {
@@ -205,6 +206,61 @@ async function validateCoupon(code, env) {
       valid: false,
       error: 'Unable to validate coupon'
     };
+  }
+}
+
+/**
+ * Validate a Stripe promotion code (minted per-subscriber by the drip
+ * sender) by looking it up via the Stripe API. Expired or fully-redeemed
+ * codes come back active=false, so filtering active=true rejects them.
+ * @param {string} upperCode - Uppercased user-entered code
+ * @param {object} env - Environment variables (contains STRIPE_SECRET_KEY)
+ * @returns {Promise<object>} - Same shape as validateCoupon, plus
+ *   stripe_promotion_code_id when valid
+ */
+async function validatePromotionCode(upperCode, env) {
+  if (!upperCode || !/^[A-Z0-9-]{4,40}$/.test(upperCode)) {
+    return { valid: false, error: 'Coupon code not found or expired' };
+  }
+
+  try {
+    const params = new URLSearchParams({ code: upperCode, active: 'true', limit: '1' });
+    // Stripe-Version pinned: newer account-default versions changed the
+    // promotion_code shape (no embedded coupon). The drip minter
+    // (scripts/send_drip.py) pins the same version.
+    const resp = await fetch(`https://api.stripe.com/v1/promotion_codes?${params}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+        'Stripe-Version': '2024-06-20',
+      },
+    });
+
+    if (!resp.ok) {
+      console.error('Stripe promotion code lookup failed:', await resp.text());
+      return { valid: false, error: 'Coupon code not found or expired' };
+    }
+
+    const { data } = await resp.json();
+    const promo = data && data[0];
+    if (!promo || !promo.active || !promo.coupon || !promo.coupon.valid) {
+      return { valid: false, error: 'Coupon code not found or expired' };
+    }
+
+    return {
+      valid: true,
+      code: upperCode,
+      stripe_promotion_code_id: promo.id,
+      stripe_coupon_id: promo.coupon.id,
+      percent: promo.coupon.percent_off || 0,
+      amount_off: promo.coupon.amount_off || 0,
+      currency: promo.coupon.currency,
+      description: promo.coupon.name || upperCode,
+      expires_at: promo.expires_at || null
+    };
+  } catch (error) {
+    console.error('Error validating promotion code:', error);
+    return { valid: false, error: 'Unable to validate coupon' };
   }
 }
 
@@ -4597,9 +4653,16 @@ async function handleCreateCheckout(request, env) {
       const couponResult = await validateCoupon(coupon_code, env);
 
       if (couponResult.valid) {
-        console.log(`[Coupon] Valid! Applying ${couponResult.stripe_coupon_id} to checkout`);
-        // Apply discount to Stripe checkout session
-        formBody.append('discounts[0][coupon]', couponResult.stripe_coupon_id);
+        // Minted per-subscriber codes apply as promotion codes (so Stripe
+        // enforces expires_at/max_redemptions); static map codes apply as
+        // raw coupons, same as before.
+        if (couponResult.stripe_promotion_code_id) {
+          console.log(`[Coupon] Valid promotion code! Applying ${couponResult.stripe_promotion_code_id} to checkout`);
+          formBody.append('discounts[0][promotion_code]', couponResult.stripe_promotion_code_id);
+        } else {
+          console.log(`[Coupon] Valid! Applying ${couponResult.stripe_coupon_id} to checkout`);
+          formBody.append('discounts[0][coupon]', couponResult.stripe_coupon_id);
+        }
         couponApplied = true;
       } else {
         console.log(`[Coupon] Invalid: ${couponResult.error}`);

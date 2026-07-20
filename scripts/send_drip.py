@@ -40,6 +40,82 @@ WEBHOOK_URL = os.environ.get("RESEND_WEBHOOK_URL", "")
 FINAL_DAY = 28  # Graduate to the weekly newsletter after this day's email
 UNSUB_URL = "https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe"
 
+# ===== Expiring per-subscriber promo codes (days 7 & 28) =====
+# Each day-7/day-28 send mints a unique single-use Stripe promotion code with
+# a REAL 48h expiry, so the email's urgency claim is true and Stripe-enforced.
+# The checkout worker validates unknown codes via validatePromotionCode()
+# (api/calculator-api.js). If minting fails, the send falls back to the static
+# DRIP50 code with copy that makes no expiry claim.
+STRIPE_VERSION = "2024-06-20"  # newer account-default versions changed the promotion_codes shape
+DRIP_COUPON_ID = "52fYA51M"    # 50% off — same Stripe coupon behind DRIP50/ETSY50
+PROMO_EXPIRY_HOURS = 48
+PROMO_FALLBACK_CODE = "DRIP50"
+PROMO_DAYS = {7: "WEEK1", 28: "GRAD"}
+PROMO_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"  # no 0/O/1/I/L lookalikes
+
+# Copy by Sarah (2026-07-19). "real" may claim the 48h window because Stripe
+# enforces it on minted codes; "fallback" must NEVER claim expiry.
+PROMO_COPY = {
+    7: {
+        "real": "Your code {code} was made just for you: it works once, and it stops working 48 hours after this email went out. That's a real window Stripe enforces, not a marketing countdown, so if life gets in the way and it lapses, no hard feelings, the plan's still here at $29 whenever you're ready.",
+        "fallback": "This is my one-week milestone reward, and $14.50 is the best price I'll ever put on it. Your code {code} has no countdown clock. It's here when you're ready.",
+    },
+    28: {
+        "real": "It's $29, but you finished all 30 days, so I made you a graduation code: {code} brings it down to $14.50. It's yours alone, it works once, and it expires 48 hours after this email went out. That's a real window, not pressure, so if the timing's wrong, let it go and know the plan's still here at full price whenever you want it.",
+        "fallback": "It's $29, but the code {code} brings it down to $14.50, the same deal I gave you at the one-week mark. There's no countdown clock on this one. It's here whenever you're ready.",
+    },
+}
+
+
+def mint_promo_code(stripe_key, day, email):
+    """Create a unique single-use Stripe promotion code expiring in 48h.
+    Returns the code string, or None on any failure (caller falls back)."""
+    import secrets as pysecrets
+    prefix = PROMO_DAYS[day]
+    for attempt in range(2):
+        code = prefix + "-" + "".join(pysecrets.choice(PROMO_CODE_ALPHABET) for _ in range(5))
+        try:
+            resp = requests.post(
+                "https://api.stripe.com/v1/promotion_codes",
+                auth=(stripe_key, ""),
+                headers={"Stripe-Version": STRIPE_VERSION},
+                data={
+                    "coupon": DRIP_COUPON_ID,
+                    "code": code,
+                    "max_redemptions": "1",
+                    "expires_at": str(int(datetime.now(timezone.utc).timestamp()) + PROMO_EXPIRY_HOURS * 3600),
+                    "metadata[drip_day]": str(day),
+                    "metadata[email]": email,
+                },
+                timeout=15,
+            )
+            body = resp.json()
+            # livemode check: a test-mode key would mint codes live checkout rejects
+            if resp.status_code == 200 and body.get("livemode") and body.get("active"):
+                return code
+            print(f"  ⚠️  promo mint attempt {attempt + 1} failed: {str(body.get('error', body))[:120]}")
+        except Exception as e:
+            print(f"  ⚠️  promo mint attempt {attempt + 1} error: {e}")
+    return None
+
+
+def apply_promo(html, day, email, stripe_key):
+    """Merge the per-subscriber promo code and matching urgency copy into
+    day-7/day-28 emails. Any other day passes through untouched."""
+    if day not in PROMO_DAYS:
+        return html
+    code = mint_promo_code(stripe_key, day, email) if stripe_key else None
+    variant = "real" if code else "fallback"
+    if not code:
+        code = PROMO_FALLBACK_CODE
+        print(f"  ⚠️  no minted code — using {code} with no-expiry copy")
+    line = PROMO_COPY[day][variant].replace("{code}", code)
+    return (
+        html.replace("{$promo_code}", code)
+            .replace("{$promo_urgency}", line)
+            .replace("{$promo_pitch}", line)
+    )
+
 
 def load_secrets():
     sb_url = os.environ.get("SUPABASE_URL")
@@ -49,6 +125,9 @@ def load_secrets():
         return {
             "supabase": {"url": sb_url, "service_role_key": sb_key},
             "resend": {"key": resend_key},
+            # Optional: enables per-subscriber expiring promo codes on days 7/28.
+            # Missing key just means those sends fall back to the static DRIP50.
+            "stripe": {"secret_key_live": os.environ.get("STRIPE_SECRET_KEY", "")},
         }
     secrets = json.loads(SECRETS_PATH.read_text())
     return secrets
@@ -300,7 +379,9 @@ def main():
             {"name": "drip_day", "value": str(next_day)},
             {"name": "sequence", "value": "30day-starter"},
         ]
-        ok, detail = send_email(resend_key, sub["email"], subject, personalize(html, sub["email"]), tags=tags)
+        stripe_key = (secrets.get("stripe") or {}).get("secret_key_live", "")
+        html_merged = apply_promo(html, next_day, sub["email"], stripe_key)
+        ok, detail = send_email(resend_key, sub["email"], subject, personalize(html_merged, sub["email"]), tags=tags)
         if ok:
             supabase_update(secrets, "drip_subscribers", sub["id"], {
                 "current_day": next_day,

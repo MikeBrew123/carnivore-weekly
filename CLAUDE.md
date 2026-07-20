@@ -205,6 +205,7 @@ Manual edits allowed when instructed, but:
 ### Drip Sequence (30-Day Carnivore Starter)
 - **Script:** `scripts/send_drip.py` — runs daily via `daily-publish.yml` GitHub Action
 - **Templates:** `data/drip-emails/` — 11 emails: day-1 through day-7 daily, then day-10, 14, 21, 28
+- **Expiring offers (honest urgency):** day-7/day-28 sends mint a per-subscriber single-use Stripe promo code (`WEEK1-XXXXX`/`GRAD-XXXXX`, real 48h expiry, coupon `52fYA51M`) via `mint_promo_code()` in `send_drip.py`; the checkout worker validates them via `validatePromotionCode()` (pinned Stripe-Version 2024-06-20 — account default breaks the shape). Mint failure falls back to static `DRIP50` with copy that makes NO expiry claim. NEVER write drip copy claiming a deadline that isn't Stripe-enforced.
 - **Subscribers table:** `drip_subscribers` (Supabase) — tracks `current_day`, `last_sent_at`, `completed`
 - **Flow:** signup → Supabase insert → daily cron advances to next scheduled day → after day 28 graduates to `newsletter_subscribers`
 - **Unsubscribe:** `/api/v1/unsubscribe` on Cloudflare Worker

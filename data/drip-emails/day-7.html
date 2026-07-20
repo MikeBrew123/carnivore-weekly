@@ -67,15 +67,15 @@
 
             <div style="background:#1a120b; border:2px solid #ffd700; border-radius:8px; padding:20px; margin:25px 0; text-align:center" align="center">
                 <p style="margin:0 0 5px 0; font-size:14px; color:#d4a574">Your one-week reward code:</p>
-                <p style="margin:0 0 10px 0; font-size:32px; font-weight:900; color:#ffd700; letter-spacing:4px">DRIP50</p>
+                <p style="margin:0 0 10px 0; font-size:32px; font-weight:900; color:#ffd700; letter-spacing:4px">{$promo_code}</p>
                 <p style="margin:0 0 0 0; font-size:16px; color:#f4e4d4"><s style="color:#d4a574">$29</s> &rarr; <strong style="color:#ffd700; font-size:20px">$14.50</strong></p>
             </div>
 
-            <a href="https://carnivoreweekly.com/calculator.html?utm_source=drip&amp;utm_medium=email&amp;utm_campaign=day7-milestone&amp;utm_content=50off&amp;coupon=DRIP50" class="cta-button" style="display:block; background:linear-gradient(135deg, #ffd700 0%, #e6c200 100%); color:#2c1810; text-decoration:none; padding:18px 30px; border-radius:8px; font-weight:bold; font-size:18px; text-align:center; margin:25px 0" align="center">Get Your 30-Day Plan for $14.50</a>
-            <p class="cta-description" style="text-align:center; font-size:13px; color:#d4a574; margin:0 0 20px 0" align="center">Code DRIP50 auto-applies at checkout. Takes 3 minutes.</p>
+            <a href="https://carnivoreweekly.com/calculator.html?utm_source=drip&amp;utm_medium=email&amp;utm_campaign=day7-milestone&amp;utm_content=50off&amp;coupon={$promo_code}" class="cta-button" style="display:block; background:linear-gradient(135deg, #ffd700 0%, #e6c200 100%); color:#2c1810; text-decoration:none; padding:18px 30px; border-radius:8px; font-weight:bold; font-size:18px; text-align:center; margin:25px 0" align="center">Get Your 30-Day Plan for $14.50</a>
+            <p class="cta-description" style="text-align:center; font-size:13px; color:#d4a574; margin:0 0 20px 0" align="center">Your code {$promo_code} auto-applies at checkout. Takes 3 minutes.</p>
 
             <div style="background:#1a120b; border:1px solid #8b4513; border-radius:6px; padding:12px 16px; margin:20px 0; text-align:center" align="center">
-                <p style="margin:0; font-size:14px; color:#d4a574">This is my one-week milestone reward, and <strong style="color:#ffd700">$14.50 is the best price I'll ever put on it</strong>. No countdown clock. It's here when you're ready.</p>
+                <p style="margin:0; font-size:14px; color:#d4a574">{$promo_urgency}</p>
             </div>
 
             <h3 style="color:#d4a574; font-size:18px; margin-top:25px; margin-bottom:10px">Even if you don't grab the plan</h3>

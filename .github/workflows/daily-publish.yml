@@ -40,6 +40,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          # Mints per-subscriber expiring promo codes for day-7/day-28 sends;
+          # if absent the sends fall back to static DRIP50 (no expiry claim)
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         run: python3 scripts/send_drip.py
 
       - name: Alert on drip failure
