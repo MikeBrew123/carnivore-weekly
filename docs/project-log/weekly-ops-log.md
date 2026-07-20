@@ -83,3 +83,16 @@ Ran the growth loop on the **KD calculator** (ketodial.com/#calc). Fanned out al
 **Selected experiments:** PRIMARY = KD-EXP-001 (point existing distribution at the calculator — #calc anchor fix + CW footer/in-prose repoint + calculator Pinterest pins + FAQ schema; target ~10 starts/wk in 21d). GROUNDWORK = KD-EXP-000 (purchase writeback, no-approval to code / deploy needs Brew). SUPPORTING = KD-EXP-002 (evergreen welcome-email leak-stop now; full drip spec-ready, holds for volume + Brew).
 
 Beads filed (carnivore-weekly): 5ggf (cycle), + writeback, #calc anchor, distribution repoint, Pinterest calc pins, flow reorder [Brew], welcome-email swap [Brew], FAQ schema. Brew asks → approval-queue.md. Specs → growth/Experiment-Log.md.
+
+## 2026-07-20 — Weekly Ops Review
+
+- **GH issues:** none open (health-check, automated).
+- **Monday crons:** scoreboard (10:30 UTC) + heartbeat (10:45 UTC) did NOT fire — Mac asleep at 3:30/3:45am PT (known sleep-gap, fix = always-on Mac mini fall 2026). Ran `scoreboard_truth_pass.py` manually → wrote scoreboard 2026-07-20, errors none. Heartbeat email-only, not re-run. Last week's `commit_validation.log` 21MB flag self-resolved (now 1.5MB — rotated).
+- **Leading indicators (primary sources):**
+  - **Etsy (good):** July orders **8** (Apr 2 / May 10 / Jun 15 / Jul 8 MTD — strongest month-to-date pace); 90d rolling rev **$190.40 CAD** (↑ from $160.95 last wk), AOV $5.44. Still below the $300/90d ad gate → ads stay OFF (correct).
+  - **Calculator (mixed-positive):** checkout starts **jumped 6→17/wk** 🟢 (acquisition up), but completions still 1/wk. July cumulative paid = 2. Stripe: 1 charge this week ($14.50 USD, Jul 16 — half of $29, discounted report), 3 in 30d ($72.50).
+  - **Drip list:** 50 total, 40 active, **+12 this week — down from +24 prior** (~1.7/day, just under the 2/day target). No DRIP50/WELCOME5/WEEK1/GRAD redemptions this week (only old test codes in Stripe). etsy-bonus signups = **0** (pipeline live Jul 19; insert cards need buyer scans — expected zero this early).
+- **Queue depths:** Pinterest KD **95 unposted / 240 total** — healthy (replenished from 0 last week). Blog CW **2 ready** (Jul 19-20, thin ~1-2d; next gen Wed Jul 22 + watchdog cover). Blog KD **4 ready** (through Jul 22; next gen Tue Jul 21).
+- **Drip health 7d:** 182 sent / 176 delivered / 154 opened / 14 clicked / 1 bounced / **0 complained** — green.
+- **Beads filed:** none — nothing broke; watch items (drip growth dip, calc completion lag, etsy-bonus attribution) already covered by open growth beads (mpup/EXP-001, edxc, 871i) and pshn (Jul-26 meal-plan check).
+- **Recurring-issues:** none added.
