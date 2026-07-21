@@ -84,25 +84,34 @@ def main():
 
     data = json.load(open(QUEUE, encoding="utf-8"))
     pins = data["pins"]
-    # slugs that already have an UNPOSTED vertical entry (idempotency)
-    have_vertical = {p["slug"] for p in pins
-                     if p.get("posted") is None and "/pins/" in p.get("pin_url", "")}
+    # Every (slug, board) combo already in the queue -- POSTED OR UNPOSTED.
+    # Guarding on the combo (not just an unposted-slug set) is what keeps this
+    # idempotent across posting: once the poster marks an entry posted, a
+    # slug-only guard would drop it and re-seed a fresh posted=null duplicate of
+    # an already-posted combo (this is what left 68 junk rows in the queue).
+    def combo(p):
+        return (p["slug"], p.get("board", "Keto Recipes"))
+    have_combo = {combo(p) for p in pins}
+
+    def maybe_add(slug, kind, media_url):
+        if not os.path.exists(os.path.join(
+                RECIPE_DIR if kind == "recipe" else BLOG_DIR, slug + ".html")):
+            return
+        e = entry(slug, kind, media_url)
+        if combo(e) in have_combo:
+            return
+        added.append(e)
+        have_combo.add(combo(e))
 
     added = []
     for f in sorted(glob.glob(os.path.join(RECIPE_PIN_DIR, "recipe-*-pin.jpg"))):
         slug = os.path.basename(f)[len("recipe-"):-len("-pin.jpg")]
-        if slug in have_vertical or not os.path.exists(os.path.join(RECIPE_DIR, slug + ".html")):
-            continue
-        added.append(entry(slug, "recipe",
-                     "https://ketodial.com/images/recipes/pins/recipe-%s-pin.jpg" % slug))
-        have_vertical.add(slug)
+        maybe_add(slug, "recipe",
+                  "https://ketodial.com/images/recipes/pins/recipe-%s-pin.jpg" % slug)
     for f in sorted(glob.glob(os.path.join(BLOG_PIN_DIR, "*-pin.jpg"))):
         slug = os.path.basename(f)[:-len("-pin.jpg")]
-        if slug in have_vertical or not os.path.exists(os.path.join(BLOG_DIR, slug + ".html")):
-            continue
-        added.append(entry(slug, "blog",
-                     "https://ketodial.com/images/blog/pins/%s-pin.jpg" % slug))
-        have_vertical.add(slug)
+        maybe_add(slug, "blog",
+                  "https://ketodial.com/images/blog/pins/%s-pin.jpg" % slug)
 
     if args.dry_run:
         print("[dry-run] would add %d vertical-pin entries" % len(added))
