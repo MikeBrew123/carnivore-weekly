@@ -8,6 +8,7 @@ python-dotenv>=1.0.0       # Environment variables
 pandas>=2.0.0              # Data manipulation
 beautifulsoup4>=4.12.0     # HTML parsing
 lxml>=4.9.0                # XML/HTML parser
+pillow>=10.0.0             # Image dims (generate_blog_pages.py, generate.py, validate_before_commit.py) — ISSUE-050(d)
 
 # Template Engine
 jinja2>=3.1.0              # HTML template rendering
@@ -19,7 +20,6 @@ python-dateutil>=2.8.0     # Date parsing
 # Video Generation (optional)
 # Uncomment if using local video generation
 # moviepy>=1.0.3           # Video editing
-# pillow>=10.0.0           # Image processing
 
 # Testing
 pytest>=7.4.0              # Testing framework
