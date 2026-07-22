@@ -1,5 +1,5 @@
 {
-  "_readme": "Pinterest pin queue for KetoDial recipes. Account: Brew Brew (iambrew). To post: open pin_url in logged-in Chrome, then save to the pin's `board` field (default 'Keto Recipes' if absent) via the picker search box. Boards in use: Keto Recipes, Low Carb Desserts, Keto Snacks, Keto Dinner Ideas, Keto Breakfast Recipes, Keto Meal Prep. Post max 10/day to stay under Pinterest spam thresholds. Mark posted with date. MANDATORY (added 2026-07-11): every destination url= inside pin_url MUST carry ?utm_source=pinterest&utm_medium=social&utm_campaign={slug} — Pinterest's app strips referrers, so untagged clicks show up as 'direct' in GA4 and the channel can't be judged. New queue entries must follow the same pattern.",
+  "_readme": "Pinterest pin queue for KetoDial recipes. Account: Brew Brew (iambrew). To post: open pin_url in logged-in Chrome, then save to the pin's `board` field (default 'Keto Recipes' if absent) via the picker search box. Boards in use: Keto Recipes, Low Carb Desserts, Keto Snacks, Keto Dinner Ideas, Keto Breakfast Recipes, Keto Meal Prep. Post max 10/day to stay under Pinterest spam thresholds. Mark posted with date. MANDATORY (added 2026-07-11): every destination url= inside pin_url MUST carry ?utm_source=pinterest&utm_medium=social&utm_campaign={slug} \u2014 Pinterest's app strips referrers, so untagged clicks show up as 'direct' in GA4 and the channel can't be judged. New queue entries must follow the same pattern.",
   "pins": [
     {
       "slug": "90-second-keto-bread",
@@ -1168,7 +1168,7 @@
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Frecipes%2Flow-carb-zucchini-pasta.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dlow-carb-zucchini-pasta&media=https%3A%2F%2Fketodial.com%2Fimages%2Frecipes%2Fpins%2Frecipe-low-carb-zucchini-pasta-pin.jpg&description=Low-carb%20zucchini%20pasta%20noodles.%20157%20kcal%2C%203g%20protein%2C%205g%20net%20carbs.%20Four%20ingredients%2C%2020%20minutes.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
       "variant": "vertical-2x3",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "rebekahs-keto-egg-casserole",
@@ -1176,7 +1176,7 @@
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Frecipes%2Frebekahs-keto-egg-casserole.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Drebekahs-keto-egg-casserole&media=https%3A%2F%2Fketodial.com%2Fimages%2Frecipes%2Fpins%2Frecipe-rebekahs-keto-egg-casserole-pin.jpg&description=Keto%20egg%20and%20sausage%20breakfast%20casserole.%20374%20kcal%2C%2021g%20protein%2C%202g%20net%20carbs.%20Perfect%20for%20meal%20prep.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Dinner Ideas",
       "variant": "vertical-2x3",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "roasted-buffalo-cauliflower",
@@ -1184,7 +1184,7 @@
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Frecipes%2Froasted-buffalo-cauliflower.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Droasted-buffalo-cauliflower&media=https%3A%2F%2Fketodial.com%2Fimages%2Frecipes%2Fpins%2Frecipe-roasted-buffalo-cauliflower-pin.jpg&description=Roasted%20Buffalo%20Cauliflower.%20164%20kcal%2C%206g%20protein%2C%207g%20net%20carbs%20per%20serving.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
       "variant": "vertical-2x3",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "dirty-keto-vs-clean-keto",
@@ -1192,7 +1192,7 @@
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fdirty-keto-vs-clean-keto.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Ddirty-keto-vs-clean-keto&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fpins%2Fdirty-keto-vs-clean-keto-pin.jpg&description=Dirty%20keto%20or%20clean%20keto%3F%20The%20community%20can%26%23x27%3Bt%20agree.%20Here%26%23x27%3Bs%20what%20both%20sides%20actually%20say%2C%20what%20works%2C%20and%20how%20to%20pick%20your%20lane.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
       "variant": "vertical-2x3",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "high-protein-keto-macros",
@@ -1200,7 +1200,7 @@
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fhigh-protein-keto-macros.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dhigh-protein-keto-macros&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fpins%2Fhigh-protein-keto-macros-pin.jpg&description=Learn%20how%20to%20eat%20high-protein%20keto%20without%20losing%20ketosis.%20Practical%20macros%2C%20meal%20timing%2C%20and%20food%20picks%20to%20build%20muscle%20and%20stay%20in%20the%20zone.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
       "variant": "vertical-2x3",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "keto-blood-sugar-first-30-days",
@@ -1208,7 +1208,7 @@
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fketo-blood-sugar-first-30-days.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dketo-blood-sugar-first-30-days&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fpins%2Fketo-blood-sugar-first-30-days-pin.jpg&description=Your%20blood%20sugar%20does%20weird%20things%20in%20the%20first%20month%20of%20keto.%20Here%26%23x27%3Bs%20what%26%23x27%3Bs%20actually%20happening%2C%20what%26%23x27%3Bs%20normal%2C%20and%20when%20to%20talk%20to%20your%20doctor.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
       "variant": "vertical-2x3",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "keto-cholesterol-bloodwork-guide",
@@ -1216,28 +1216,28 @@
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fketo-cholesterol-bloodwork-guide.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dketo-cholesterol-bloodwork-guide&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fpins%2Fketo-cholesterol-bloodwork-guide-pin.jpg&description=What%20actually%20changes%20on%20your%20blood%20panel%20when%20you%20eat%20keto%2C%20which%20numbers%20matter%2C%20and%20how%20to%20talk%20to%20your%20doctor%20about%20it%20without%20things%20going%20sideways.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
       "variant": "vertical-2x3",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "which-fruits-fit-keto-carb-budget",
       "title": "Which Fruits Fit Your Keto Carb Budget",
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fwhich-fruits-fit-keto-carb-budget.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dwhich-fruits-fit-keto-carb-budget&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fwhich-fruits-fit-keto-carb-budget.jpg&description=Can%20you%20eat%20fruit%20on%20keto%3F%20Berries%20and%20melon%20can%20fit%20if%20you%20run%20the%20carb%20math.%20Here%26%23x27%3Bs%20every%20fruit%20ranked%20by%20net%20carbs%20per%20serving.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "still-exhausted-after-keto-adaptation",
       "title": "Still Exhausted After Keto Adaptation? Here&#x27;s Why",
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fstill-exhausted-after-keto-adaptation.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dstill-exhausted-after-keto-adaptation&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fstill-exhausted-after-keto-adaptation.jpg&description=Still%20tired%20weeks%20into%20keto%3F%20Fatigue%20past%20adaptation%20usually%20points%20to%20electrolytes%2C%20under-eating%2C%20or%20thyroid.%20Here%26%23x27%3Bs%20how%20to%20fix%20it.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "keto-pasta-pizza-swaps-ranked",
       "title": "Keto Pasta and Pizza Swaps, Ranked by Letdown",
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fketo-pasta-pizza-swaps-ranked.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dketo-pasta-pizza-swaps-ranked&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fketo-pasta-pizza-swaps-ranked.jpg&description=An%20honest%20community-sourced%20ranking%20of%20keto%20pasta%20and%20pizza%20substitutes%2C%20from%20genuinely%20good%20to%20just%20eat%20the%20vegetable.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
-      "posted": null
+      "posted": "2026-07-22"
     },
     {
       "slug": "keto-for-bipolar-and-depression",
