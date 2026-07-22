@@ -1,5 +1,13 @@
--- !!! NOT APPLIED YET -- DEPLOY GATE !!!
--- Critical fix (2026-07-22 Leo security review, Finding 1)
+-- APPLIED 2026-07-22 ~15:10 PDT (was deploy-gated; gate cleared same day)
+-- Deploy sequence actually followed: Brew's first `wrangler deploy` hit the top-level
+-- (development) worker; Claude re-deployed with --env production (carnivore-report-api-production,
+-- version f1e355a2 -- the env the site actually calls), verified a real unexpired report
+-- returned HTTP 200 on /status + /content, applied this migration via MCP apply_migration
+-- (name: lock_calculator_reports_anon_read), then re-verified: report link still 200,
+-- anon REST dump of calculator_reports now 401 permission-denied, has_table_privilege
+-- false for anon and authenticated, old policy gone.
+--
+-- Original rationale (Critical fix, 2026-07-22 Leo security review, Finding 1):
 --
 -- calculator_reports is readable by the anon (publishable) key via the policy
 -- public_calculator_reports_read (SELECT, USING is_expired=false AND expires_at>now()).
