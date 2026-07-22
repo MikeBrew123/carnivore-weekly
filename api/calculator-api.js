@@ -1022,12 +1022,17 @@ async function handleReportStatus(request, env, accessToken) {
       return createErrorResponse('INVALID_TOKEN', 'Invalid access token format', 400);
     }
 
+    // Security (2026-07-22, Leo review Finding 1): this token-gated read runs
+    // server-side, so it uses the service role key rather than the anon key. This
+    // lets us drop the public anon SELECT policy on calculator_reports (which
+    // otherwise let anyone with the publishable key dump every report's email,
+    // access_token and content) without breaking customer report links.
     const response = await fetch(
       `${env.SUPABASE_URL}/rest/v1/calculator_reports?access_token=eq.${accessToken}`,
       {
         headers: {
-          'apikey': env.SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
         },
       }
     );
@@ -4258,12 +4263,17 @@ async function handleReportContent(request, env, accessToken) {
       return createErrorResponse('INVALID_TOKEN', 'Invalid access token format', 400);
     }
 
+    // Security (2026-07-22, Leo review Finding 1): this token-gated read runs
+    // server-side, so it uses the service role key rather than the anon key. This
+    // lets us drop the public anon SELECT policy on calculator_reports (which
+    // otherwise let anyone with the publishable key dump every report's email,
+    // access_token and content) without breaking customer report links.
     const response = await fetch(
       `${env.SUPABASE_URL}/rest/v1/calculator_reports?access_token=eq.${accessToken}`,
       {
         headers: {
-          'apikey': env.SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
         },
       }
     );
