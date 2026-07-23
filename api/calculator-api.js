@@ -6570,10 +6570,15 @@ async function handleResendWebhook(request, env) {
     }
 
     // Attribute the event to a site so CW/KD engagement stats stay separate.
-    // KD emails send from ketodial@carnivoreweekly.com and tag sequence=kd-*.
+    // KD emails send from ketodial@/coach@carnivoreweekly.com and tag sequence=kd-*.
+    // Resend delivers tags as an array of {name, value}; normalize to an object
+    // (older payload shapes were a plain object, so handle both).
     const evFrom = String(data.from || '').toLowerCase();
-    const evTags = data.tags || {};
-    const evSite = (evFrom.includes('ketodial@')
+    const rawTags = data.tags || {};
+    const evTags = Array.isArray(rawTags)
+      ? Object.fromEntries(rawTags.map(t => [t.name, t.value]))
+      : rawTags;
+    const evSite = (evFrom.includes('ketodial@') || evFrom.includes('coach@')
       || String(evTags.sequence || '').startsWith('kd')
       || evTags.site === 'kd') ? 'kd' : 'cw';
 
