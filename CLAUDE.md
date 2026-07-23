@@ -220,7 +220,7 @@ Manual edits allowed when instructed, but:
 - **KetoDial:** `scripts/send_newsletter.py --site kd`
 
 ### Open/Click Tracking
-- **Webhook:** Resend → `https://carnivore-report-api.iambrew.workers.dev/webhook/resend`
+- **Webhook:** Resend → `https://carnivore-report-api-production.iambrew.workers.dev/webhook/resend`
 - **Events tracked:** sent, delivered, opened, clicked, bounced, complained
 - **Storage:** `drip_events` table (Supabase) — `email`, `resend_id`, `event_type`, `subject`, `metadata`
 - **Signing secret:** `secrets/api-keys.json` → `resend.webhook_signing_secret`
