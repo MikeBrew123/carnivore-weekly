@@ -1,13 +1,22 @@
 #!/usr/bin/env node
 // Pull a sales + listing snapshot for CarnivoreWeekly Etsy shop.
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const secrets = JSON.parse(readFileSync('../secrets/api-keys.json', 'utf8'));
+// Resolve the secrets path from this file's location, never the cwd — a cwd-relative
+// path silently drops the rotated token when the script is run from the repo root.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const SECRETS = path.join(__dirname, '..', 'secrets', 'api-keys.json');
+const secrets = JSON.parse(readFileSync(SECRETS, 'utf8'));
 const CLIENT_ID = secrets.etsy.api_key;
 
 async function getToken() {
+  // Etsy access tokens live ~1h. Reuse a still-valid one (60s safety margin) so we don't
+  // refresh needlessly — every refresh rotates the refresh_token and invalidates the old one.
+  if (secrets.etsy.access_token && secrets.etsy.expires_at && Date.now() < secrets.etsy.expires_at - 60_000) {
+    return secrets.etsy.access_token;
+  }
   const res = await fetch('https://api.etsy.com/v3/public/oauth/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -19,6 +28,13 @@ async function getToken() {
   });
   const j = await res.json();
   if (j.error) throw new Error('token: ' + JSON.stringify(j));
+  // Persist the ROTATED credentials. Etsy returns a new refresh_token on every refresh and
+  // invalidates the old one, so a run that drops it forces a manual re-auth next time.
+  secrets.etsy.access_token = j.access_token;
+  if (j.refresh_token) secrets.etsy.refresh_token = j.refresh_token;
+  if (j.expires_in) secrets.etsy.expires_at = Date.now() + j.expires_in * 1000;
+  secrets.etsy.last_rotated = new Date().toISOString().slice(0, 10);
+  writeFileSync(SECRETS, JSON.stringify(secrets, null, 2));
   return j.access_token;
 }
 
@@ -133,7 +149,7 @@ console.log('    high-view listings and flatters brand-new ones. Use only for ro
 console.log('convNd = units(Nd) ÷ views-gained(Nd) over the SAME N-day window (numerator window is set to');
 console.log('  the matched snapshot age, so denominators align). Shown only when a snapshot that old exists.');
 
-const SNAP = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'reports', 'etsy-snapshots', 'snapshots.jsonl');
+const SNAP = path.join(__dirname, '..', 'reports', 'etsy-snapshots', 'snapshots.jsonl');
 let snaps = [];
 if (existsSync(SNAP)) snaps = readFileSync(SNAP, 'utf8').trim().split('\n').filter(Boolean).map(JSON.parse);
 const nowTs = Math.floor(Date.now() / 1000);
