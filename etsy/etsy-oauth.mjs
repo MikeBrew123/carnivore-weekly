@@ -7,13 +7,9 @@
 import http from 'http';
 import crypto from 'crypto';
 import { URL } from 'url';
-import { readFileSync, writeFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import path from 'path';
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SECRETS_PATH = path.join(__dirname, '../secrets/api-keys.json');
+import { ETSY_CLIENT_ID, seedEtsyTokens } from './token.mjs';
 
-const CLIENT_ID = 'h0w3wf9q335ap0j3zkabfzxw';
+const CLIENT_ID = ETSY_CLIENT_ID;
 const REDIRECT_URI = 'http://localhost:3456/callback';
 const SCOPES = 'listings_r listings_w shops_r shops_w transactions_r';
 
@@ -88,17 +84,18 @@ const server = http.createServer(async (req, res) => {
         console.log('Refresh Token:', tokens.refresh_token?.substring(0, 20) + '...');
         console.log('Expires In:', tokens.expires_in, 'seconds');
 
-        // Auto-save tokens to secrets file
+        // Persist tokens to the single source of truth — the Supabase
+        // etsy_tokens row (id=primary), the same store the production Worker and
+        // every local script share. No competing local token store.
         try {
-          const secrets = JSON.parse(readFileSync(SECRETS_PATH, 'utf8'));
-          secrets.etsy.access_token = tokens.access_token;
-          secrets.etsy.refresh_token = tokens.refresh_token;
-          secrets.etsy.last_rotated = new Date().toISOString().split('T')[0];
-          writeFileSync(SECRETS_PATH, JSON.stringify(secrets, null, 2));
-          console.log('\n✅ Tokens auto-saved to secrets/api-keys.json');
+          await seedEtsyTokens({
+            access_token: tokens.access_token,
+            refresh_token: tokens.refresh_token,
+            expires_in: tokens.expires_in,
+          });
+          console.log('\n✅ Tokens saved to Supabase etsy_tokens (id=primary)');
         } catch (e) {
-          console.log('\n⚠️  Could not auto-save tokens:', e.message);
-          console.log('📋 Manually add refresh_token to secrets/api-keys.json');
+          console.log('\n⚠️  Could not save tokens to Supabase:', e.message);
         }
 
         res.writeHead(200, { 'Content-Type': 'text/html' });
