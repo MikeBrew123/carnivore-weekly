@@ -1,30 +1,13 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from 'fs';
+import { getEtsyToken, ETSY_CLIENT_ID, ETSY_SHARED_SECRET } from './token.mjs';
 
-const secrets = JSON.parse(readFileSync('../secrets/api-keys.json', 'utf8'));
-const CLIENT_ID = secrets.etsy.api_key;
-const REFRESH_TOKEN = secrets.etsy.refresh_token;
+const CLIENT_ID = ETSY_CLIENT_ID;
 
-const tokenRes = await fetch('https://api.etsy.com/v3/public/oauth/token', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: new URLSearchParams({
-    grant_type: 'refresh_token',
-    client_id: CLIENT_ID,
-    refresh_token: REFRESH_TOKEN
-  })
-});
-const tokens = await tokenRes.json();
-if (tokens.error) { console.error('Token error:', tokens); process.exit(1); }
-if (tokens.refresh_token !== REFRESH_TOKEN) {
-  secrets.etsy.refresh_token = tokens.refresh_token;
-  writeFileSync('../secrets/api-keys.json', JSON.stringify(secrets, null, 2));
-  console.log('Token rotated');
-}
+const token = await getEtsyToken();
 
 const headers = {
-  'x-api-key': CLIENT_ID + ':' + secrets.etsy.shared_secret,
-  'Authorization': 'Bearer ' + tokens.access_token
+  'x-api-key': CLIENT_ID + ':' + ETSY_SHARED_SECRET,
+  'Authorization': 'Bearer ' + token
 };
 
 const meRes = await fetch('https://openapi.etsy.com/v3/application/users/me', { headers });

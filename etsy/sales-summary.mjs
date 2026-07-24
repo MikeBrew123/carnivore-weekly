@@ -1,46 +1,18 @@
 #!/usr/bin/env node
 // Pull a sales + listing snapshot for CarnivoreWeekly Etsy shop.
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getEtsyToken, ETSY_CLIENT_ID, ETSY_SHARED_SECRET } from './token.mjs';
 
-// Resolve the secrets path from this file's location, never the cwd — a cwd-relative
-// path silently drops the rotated token when the script is run from the repo root.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SECRETS = path.join(__dirname, '..', 'secrets', 'api-keys.json');
-const secrets = JSON.parse(readFileSync(SECRETS, 'utf8'));
-const CLIENT_ID = secrets.etsy.api_key;
+const CLIENT_ID = ETSY_CLIENT_ID;
 
-async function getToken() {
-  // Etsy access tokens live ~1h. Reuse a still-valid one (60s safety margin) so we don't
-  // refresh needlessly — every refresh rotates the refresh_token and invalidates the old one.
-  if (secrets.etsy.access_token && secrets.etsy.expires_at && Date.now() < secrets.etsy.expires_at - 60_000) {
-    return secrets.etsy.access_token;
-  }
-  const res = await fetch('https://api.etsy.com/v3/public/oauth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      client_id: CLIENT_ID,
-      refresh_token: secrets.etsy.refresh_token,
-    }),
-  });
-  const j = await res.json();
-  if (j.error) throw new Error('token: ' + JSON.stringify(j));
-  // Persist the ROTATED credentials. Etsy returns a new refresh_token on every refresh and
-  // invalidates the old one, so a run that drops it forces a manual re-auth next time.
-  secrets.etsy.access_token = j.access_token;
-  if (j.refresh_token) secrets.etsy.refresh_token = j.refresh_token;
-  if (j.expires_in) secrets.etsy.expires_at = Date.now() + j.expires_in * 1000;
-  secrets.etsy.last_rotated = new Date().toISOString().slice(0, 10);
-  writeFileSync(SECRETS, JSON.stringify(secrets, null, 2));
-  return j.access_token;
-}
-
-const token = await getToken();
+// Valid Etsy access token from the shared Supabase store (single source of truth).
+// Reuse and rotation are handled centrally in etsy/token.mjs.
+const token = await getEtsyToken();
 const headers = {
-  'x-api-key': CLIENT_ID + ':' + secrets.etsy.shared_secret,
+  'x-api-key': CLIENT_ID + ':' + ETSY_SHARED_SECRET,
   Authorization: 'Bearer ' + token,
 };
 

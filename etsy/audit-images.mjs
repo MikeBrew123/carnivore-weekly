@@ -1,31 +1,16 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from 'fs';
+import { getEtsyToken, ETSY_CLIENT_ID, ETSY_SHARED_SECRET } from './token.mjs';
 
-const secrets = JSON.parse(readFileSync('../secrets/api-keys.json', 'utf8'));
-const CLIENT_ID = secrets.etsy.api_key;
-const SHARED_SECRET = secrets.etsy.shared_secret;
+const CLIENT_ID = ETSY_CLIENT_ID;
+const SHARED_SECRET = ETSY_SHARED_SECRET;
 const SHOP_ID = 63916912;
 
 async function run() {
-  const tokenRes = await fetch('https://api.etsy.com/v3/public/oauth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      client_id: CLIENT_ID,
-      refresh_token: secrets.etsy.refresh_token
-    })
-  });
-  const tokens = await tokenRes.json();
-  if (tokens.error) { console.error('Token error:', tokens); return; }
-  if (tokens.refresh_token !== secrets.etsy.refresh_token) {
-    secrets.etsy.refresh_token = tokens.refresh_token;
-    writeFileSync('../secrets/api-keys.json', JSON.stringify(secrets, null, 2));
-  }
+  const token = await getEtsyToken();
 
   const hdrs = {
     'x-api-key': `${CLIENT_ID}:${SHARED_SECRET}`,
-    'Authorization': `Bearer ${tokens.access_token}`
+    'Authorization': `Bearer ${token}`
   };
 
   // Get all listings

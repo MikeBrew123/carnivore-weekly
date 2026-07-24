@@ -4,33 +4,18 @@
  * Same product, different titles/tags targeting different search audiences
  * Price: $1.49 CAD (volume test)
  */
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import path from 'path';
+import { getEtsyToken, ETSY_CLIENT_ID, ETSY_SHARED_SECRET } from './token.mjs';
 
-const secrets = JSON.parse(readFileSync('../secrets/api-keys.json', 'utf8'));
-const CLIENT_ID = secrets.etsy.api_key;
+const CLIENT_ID = ETSY_CLIENT_ID;
 const SHOP = 63916912;
 
-// Auth
-const tokenRes = await fetch('https://api.etsy.com/v3/public/oauth/token', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: new URLSearchParams({
-    grant_type: 'refresh_token',
-    client_id: CLIENT_ID,
-    refresh_token: secrets.etsy.refresh_token
-  })
-});
-const tokens = await tokenRes.json();
-if (tokens.error) { console.error('Token error:', tokens); process.exit(1); }
-if (tokens.refresh_token !== secrets.etsy.refresh_token) {
-  secrets.etsy.refresh_token = tokens.refresh_token;
-  writeFileSync('../secrets/api-keys.json', JSON.stringify(secrets, null, 2));
-  console.log('Token rotated');
-}
+// Auth — valid token from the shared Supabase store (single source of truth).
+const token = await getEtsyToken();
 const headers = {
-  'x-api-key': CLIENT_ID + ':' + secrets.etsy.shared_secret,
-  'Authorization': 'Bearer ' + tokens.access_token
+  'x-api-key': CLIENT_ID + ':' + ETSY_SHARED_SECRET,
+  'Authorization': 'Bearer ' + token
 };
 console.log('Authenticated\n');
 

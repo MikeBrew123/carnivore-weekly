@@ -4,11 +4,10 @@
  * Fixes: pricing, tags (13 each), descriptions, titles
  * Deactivates duplicate listing
  */
-import { readFileSync, writeFileSync } from 'fs';
+import { getEtsyToken, ETSY_CLIENT_ID, ETSY_SHARED_SECRET } from './token.mjs';
 
-const secrets = JSON.parse(readFileSync('../secrets/api-keys.json', 'utf8'));
-const CLIENT_ID = secrets.etsy.api_key;
-const SHARED_SECRET = secrets.etsy.shared_secret;
+const CLIENT_ID = ETSY_CLIENT_ID;
+const SHARED_SECRET = ETSY_SHARED_SECRET;
 const SHOP_ID = 63916912;
 
 // ─── LISTING DATA ────────────────────────────────────────────
@@ -474,24 +473,8 @@ Educational content based on research and experience — not medical advice. If 
 // ─── API HELPERS ─────────────────────────────────────────────
 
 async function getToken() {
-  const res = await fetch('https://api.etsy.com/v3/public/oauth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      client_id: CLIENT_ID,
-      refresh_token: secrets.etsy.refresh_token
-    })
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(`Token error: ${JSON.stringify(data)}`);
-
-  // Save rotated refresh token
-  if (data.refresh_token && data.refresh_token !== secrets.etsy.refresh_token) {
-    secrets.etsy.refresh_token = data.refresh_token;
-    writeFileSync('../secrets/api-keys.json', JSON.stringify(secrets, null, 2));
-  }
-  return data.access_token;
+  // Delegates to the shared Supabase-backed token store (single source of truth).
+  return getEtsyToken();
 }
 
 function headers(token) {

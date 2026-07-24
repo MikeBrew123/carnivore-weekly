@@ -6,36 +6,22 @@
 // windowed conversion (Etsy's API only exposes LIFETIME views, so windowed views = snapshot
 // delta; daily cadence gives tight ~30d and ~90d window matches).
 // Output dir is gitignored — shop performance data must not land in the PUBLIC repo.
-import { readFileSync, writeFileSync, appendFileSync, mkdirSync } from 'fs';
+import { appendFileSync, mkdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getEtsyToken, ETSY_CLIENT_ID, ETSY_SHARED_SECRET } from './token.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(__dirname, '..');
-const SECRETS = path.join(REPO, 'secrets', 'api-keys.json');
 const OUT_DIR = path.join(REPO, 'reports', 'etsy-snapshots');
 const OUT = path.join(OUT_DIR, 'snapshots.jsonl');
 const SHOP_ID = 63916912;
 
-const secrets = JSON.parse(readFileSync(SECRETS, 'utf8'));
-const CLIENT_ID = secrets.etsy.api_key;
+const CLIENT_ID = ETSY_CLIENT_ID;
 
-async function getToken() {
-  const r = await fetch('https://api.etsy.com/v3/public/oauth/token', {
-    method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ grant_type: 'refresh_token', client_id: CLIENT_ID, refresh_token: secrets.etsy.refresh_token }),
-  });
-  const j = await r.json();
-  if (j.error) throw new Error('token: ' + JSON.stringify(j));
-  if (j.refresh_token && j.refresh_token !== secrets.etsy.refresh_token) {
-    secrets.etsy.refresh_token = j.refresh_token;
-    writeFileSync(SECRETS, JSON.stringify(secrets, null, 2));
-  }
-  return j.access_token;
-}
-
-const token = await getToken();
-const headers = { 'x-api-key': CLIENT_ID + ':' + secrets.etsy.shared_secret, Authorization: 'Bearer ' + token };
+// Valid Etsy access token from the shared Supabase store (single source of truth).
+const token = await getEtsyToken();
+const headers = { 'x-api-key': CLIENT_ID + ':' + ETSY_SHARED_SECRET, Authorization: 'Bearer ' + token };
 
 async function fetchAll(url) {
   let out = [], offset = 0, limit = 100;
