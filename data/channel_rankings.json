@@ -2,64 +2,64 @@
   "last_updated": "2026-07-26",
   "leaderboard": [
     {
-      "name": "HomeSteadHow",
-      "rank": 1,
-      "appearances": 3,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 2,
-      "appearances": 1,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
-    },
-    {
       "name": "Keto Twins",
-      "rank": 3,
-      "appearances": 2,
+      "rank": 1,
+      "appearances": 4,
       "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
     },
     {
-      "name": "Doctor Alex ",
-      "rank": 4,
-      "appearances": 2,
-      "channel_id": "UCGLAPJjQh7ege-N08u_GZrg"
+      "name": "HomeSteadHow",
+      "rank": 2,
+      "appearances": 5,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Laura Spath",
+      "name": "StevenSteph",
+      "rank": 3,
+      "appearances": 4,
+      "channel_id": "UC9HogCphFdf-Ykerc1Wsl_g"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 4,
+      "appearances": 3,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+    },
+    {
+      "name": "Doctor Alex ",
       "rank": 5,
-      "appearances": 1,
-      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
+      "appearances": 4,
+      "channel_id": "UCGLAPJjQh7ege-N08u_GZrg"
     },
     {
       "name": "FaceIQ",
       "rank": 6,
-      "appearances": 1,
+      "appearances": 3,
       "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
     },
     {
-      "name": "StevenSteph",
+      "name": "Laura Spath",
       "rank": 7,
-      "appearances": 2,
-      "channel_id": "UC9HogCphFdf-Ykerc1Wsl_g"
+      "appearances": 3,
+      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
     },
     {
-      "name": "Meet Carnivore",
+      "name": "No Carb Life",
       "rank": 8,
-      "appearances": 1,
-      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+      "appearances": 2,
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
     },
     {
-      "name": "Alison Johnson",
+      "name": "Patricia Delicious Nutrition",
       "rank": 9,
       "appearances": 1,
-      "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg"
+      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
     },
     {
-      "name": "FoodFitness&Fun",
+      "name": "Jenny Mitich",
       "rank": 10,
-      "appearances": 1,
-      "channel_id": "UC1n9asjArhhGERn6FxSPAGA"
+      "appearances": 2,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     }
   ]
 }

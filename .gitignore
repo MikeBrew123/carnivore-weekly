@@ -133,3 +133,6 @@ reports/etsy-snapshots/
 # Wrangler local dev secrets (never commit)
 .dev.vars
 api/.dev.vars
+.env.bak*
+.env.backup*
+etsy/products/pdfs/
