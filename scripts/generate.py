@@ -65,6 +65,12 @@ except ImportError:
 
 # Note: load_dotenv already called at top of file with project root path
 
+# Channels page: creators accumulate across weeks in creator_history.json, so the
+# page reflects everyone we've featured rather than whatever is in the video cache
+# right now. MAX_CHANNEL_CARDS caps what gets rendered, ranked by appearances.
+MAX_CHANNEL_CARDS = 60
+PLACEHOLDER_THUMBNAIL = "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel"
+
 
 class UnifiedGenerator:
     """Unified generation system for all content types"""
@@ -1280,6 +1286,106 @@ class UnifiedGenerator:
 
         return channel_images
 
+    def _update_creator_history(self, week_channels: list, run_date: str) -> list:
+        """Merge this week's creators into the all-time roster and return it.
+
+        The channels page used to render whatever creators happened to be sitting
+        in the 14-day video cache, so it swung between 60 and 270 cards depending
+        on how full that cache was. The roster is the durable record instead:
+        every creator we've ever featured, with how many weeks they've shown up
+        and how many videos of theirs we've featured in total.
+
+        Appearances increment once per run_date, so re-running the generator on
+        the same day doesn't inflate the counts.
+
+        Args:
+            week_channels: creators featured this week (from youtube_data.json)
+            run_date: YYYY-MM-DD for this run
+
+        Returns:
+            All-time roster, ranked by appearances then total videos featured
+        """
+        data_dir = self.project_root / self.config["paths"]["data_dir"]
+        history_file = os.path.join(data_dir, "creator_history.json")
+
+        history = {}
+        try:
+            if os.path.exists(history_file):
+                with open(history_file) as f:
+                    history = json.load(f).get("creators", {})
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"   ⚠ Could not read creator history ({e}) — starting fresh")
+            history = {}
+
+        def creator_key(channel):
+            # channel_id is stable across renames; fall back to name when absent
+            return channel.get("channel_id") or f"name:{channel.get('name', '')}"
+
+        for channel in week_channels:
+            key = creator_key(channel)
+            is_new_creator = key not in history
+            entry = history.get(key, {})
+
+            # Count only videos we haven't already credited to this creator.
+            # The video cache holds 14 days, so consecutive runs re-surface the
+            # same uploads — without this, appearances and totals would inflate
+            # every run instead of tracking real new content.
+            known_ids = set(entry.get("video_ids", []))
+            new_ids = [vid for vid in channel.get("video_ids", []) if vid not in known_ids]
+
+            # is_new_creator covers the case where a first-time creator's videos
+            # arrive without usable ids — they still count as one appearance
+            if (new_ids or is_new_creator) and entry.get("last_counted") != run_date:
+                entry["appearances"] = entry.get("appearances", 0) + 1
+                entry["last_counted"] = run_date
+            if new_ids:
+                entry["video_ids"] = sorted(known_ids | set(new_ids))
+                entry["total_videos"] = len(entry["video_ids"])
+            else:
+                entry.setdefault("video_ids", sorted(known_ids))
+                entry.setdefault("total_videos", len(known_ids))
+
+            entry["name"] = channel.get("name", entry.get("name", "Unknown"))
+            entry["channel_id"] = channel.get("channel_id", entry.get("channel_id", ""))
+            entry.setdefault("first_seen", run_date)
+            entry["last_seen"] = run_date
+            entry["top_videos"] = channel.get("top_videos", [])
+            entry["engagement_score"] = channel.get("engagement_score", 0)
+
+            # Don't let a placeholder overwrite a real thumbnail we already have
+            new_thumb = channel.get("thumbnail_url", "")
+            if new_thumb and new_thumb != PLACEHOLDER_THUMBNAIL:
+                entry["thumbnail_url"] = new_thumb
+            entry.setdefault("thumbnail_url", PLACEHOLDER_THUMBNAIL)
+
+            history[key] = entry
+
+        try:
+            with open(history_file, "w") as f:
+                json.dump(
+                    {"last_updated": run_date, "creators": history}, f, indent=2
+                )
+        except IOError as e:
+            print(f"   ⚠ Could not write creator history: {e}")
+
+        roster = []
+        for entry in history.values():
+            channel = dict(entry)
+            channel["active_this_week"] = entry.get("last_seen") == run_date
+            # Template renders this under a "Last seen" label
+            channel["latest_date"] = entry.get("last_seen", "")
+            roster.append(channel)
+
+        roster.sort(
+            key=lambda c: (
+                c.get("appearances", 0),
+                c.get("total_videos", 0),
+                c.get("last_seen", ""),
+            ),
+            reverse=True,
+        )
+        return roster
+
     def _generate_channels(self) -> bool:
         """Generate channels page"""
         mapping = self.config["generation"]["template_mappings"]["channels"]
@@ -1334,8 +1440,16 @@ class UnifiedGenerator:
                                 channel_id,
                                 "https://via.placeholder.com/150x150/8b4513/f4e4d4?text=Channel",
                             ),
-                            "appearances": 1,  # Only have data for 1 week currently
-                            "total_videos": len(videos_list),  # Count of videos this week
+                            # Cumulative appearances/totals come from the roster
+                            # in _update_creator_history; these are this week only
+                            "appearances": 1,
+                            "total_videos": len(videos_list),
+                            # Full id list so the roster can dedupe: the cache
+                            # window is 14 days, so back-to-back runs see the
+                            # same videos and must not double-count them
+                            "video_ids": [
+                                v.get("video_id", "") for v in videos_list if v.get("video_id")
+                            ],
                             "latest_date": (
                                 videos_list[0].get("published_at", "") if videos_list else ""
                             ),
@@ -1424,53 +1538,54 @@ class UnifiedGenerator:
                 except (json.JSONDecodeError, IOError):
                     pass
 
-                # Inject bios into channels_list
-                for ch in channels_list:
+                # Merge this week into the all-time roster — this is what the
+                # cards render from, so the page no longer shrinks when the
+                # video cache window empties out.
+                run_date = datetime.now().strftime("%Y-%m-%d")
+                roster = self._update_creator_history(channels_list, run_date)
+
+                # Inject bios into the roster
+                for ch in roster:
                     bio_data = creator_bios.get(ch["name"], {})
                     ch["bio"] = bio_data.get("bio", "")
                     ch["tagline"] = bio_data.get("tagline", "")
                     ch["specialty"] = bio_data.get("specialty", "")
 
-                # Save current rankings with cumulative appearances
+                # Roster is the single source of truth for appearances so the
+                # leaderboard and the cards can't drift apart
+                roster_appearances = {
+                    ch.get("channel_id") or f"name:{ch['name']}": ch.get("appearances", 0)
+                    for ch in roster
+                }
+                for ch in leaderboard:
+                    key = ch.get("channel_id") or f"name:{ch['name']}"
+                    ch["appearances"] = roster_appearances.get(key, 1)
+
                 try:
-                    # Load previous to carry forward appearances
-                    prev_appearances = {}
-                    try:
-                        if os.path.exists(leaderboard_file):
-                            with open(leaderboard_file) as f:
-                                prev_data = json.load(f)
-                                prev_appearances = {
-                                    ch["name"]: ch.get("appearances", 0)
-                                    for ch in prev_data.get("leaderboard", [])
-                                }
-                    except (json.JSONDecodeError, IOError):
-                        pass
-
-                    # Increment appearances for channels active this week
-                    active_names = {ch["name"] for ch in leaderboard}
-                    updated_leaderboard = []
-                    for ch in leaderboard:
-                        prev = prev_appearances.get(ch["name"], 0)
-                        ch["appearances"] = prev + 1 if ch["name"] in active_names else prev
-                        updated_leaderboard.append({
-                            "name": ch["name"],
-                            "rank": ch["rank"],
-                            "appearances": ch["appearances"],
-                            "channel_id": ch.get("channel_id", ""),
-                        })
-
                     with open(leaderboard_file, "w") as f:
                         json.dump({
-                            "last_updated": datetime.now().strftime("%Y-%m-%d"),
-                            "leaderboard": updated_leaderboard,
+                            "last_updated": run_date,
+                            "leaderboard": [{
+                                "name": ch["name"],
+                                "rank": ch["rank"],
+                                "appearances": ch["appearances"],
+                                "channel_id": ch.get("channel_id", ""),
+                            } for ch in leaderboard],
                         }, f, indent=2)
                 except IOError:
                     pass
 
+                rendered = roster[:MAX_CHANNEL_CARDS]
+                print(
+                    f"   Roster: {len(roster)} creators all-time, "
+                    f"{sum(1 for c in roster if c['active_this_week'])} active this week, "
+                    f"rendering {len(rendered)}"
+                )
+
                 template_vars = {
-                    "channels": channels_list,
-                    "total_channels": len(channels_list),
-                    "total_weeks": max((ch.get("appearances", 1) for ch in leaderboard), default=1),
+                    "channels": rendered,
+                    "total_channels": len(roster),
+                    "total_weeks": max((ch.get("appearances", 1) for ch in roster), default=1),
                     "top_videos": top_videos[:10],
                     "leaderboard": leaderboard,
                     "creator_bios": creator_bios,
