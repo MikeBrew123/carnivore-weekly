@@ -272,7 +272,12 @@ Focus on peer-reviewed research. If no direct studies exist, cite related resear
             try:
                 topics_raw = data["trending_topics"]
                 if isinstance(topics_raw, str):
-                    topics = json.loads(topics_raw)
+                    # Analyzer may wrap the array in a ```json fence
+                    start = topics_raw.find("[")
+                    end = topics_raw.rfind("]") + 1
+                    if start == -1 or end <= start:
+                        raise json.JSONDecodeError("no JSON array found", topics_raw, 0)
+                    topics = json.loads(topics_raw[start:end])
                 else:
                     topics = topics_raw
                 # Convert trending topics into questions

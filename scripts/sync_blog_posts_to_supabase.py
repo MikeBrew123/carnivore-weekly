@@ -6,7 +6,9 @@ Ensures Supabase always has correct slugs and dates for all blog posts.
 Run this after any changes to blog_posts.json or as part of weekly automation.
 
 Usage:
-    python3 scripts/sync_blog_posts_to_supabase.py
+    python3 scripts/sync_blog_posts_to_supabase.py [--dry-run]
+
+--dry-run reports what would change without writing to Supabase.
 """
 
 import json
@@ -15,28 +17,42 @@ from pathlib import Path
 from supabase import create_client
 
 
-def sync_blog_posts():
+def _differs(current, desired):
+    """Compare a Supabase column value against the desired JSON value.
+
+    Treats DB NULL as the JSON default ("" for strings, [] for lists) so a
+    NULL column doesn't register as a change against an empty JSON field.
+    """
+    if current is None:
+        current = [] if isinstance(desired, list) else ""
+    return current != desired
+
+
+def sync_blog_posts(dry_run=False):
     """Sync blog_posts.json to Supabase."""
 
     # Category mapping: JSON categories → Supabase categories
-    # Valid Supabase categories: health, protocol, community, strategy, news, featured
+    # Live valid_category constraint (migration 20260210): health, protocol,
+    # community, lifestyle, performance, nutrition, getting-started, meal-plan
+    # (strategy/news/featured were removed — never send those.)
     category_map = {
-        "lifestyle": "community",
         "fitness": "protocol",
         "science": "health",
-        "nutrition": "health",
-        "getting-started": "protocol",
         "protocols": "protocol",
         "research": "health",
         "guides": "protocol",
-        # Already valid categories
+        # Already valid categories (identity mappings)
         "health": "health",
         "protocol": "protocol",
         "community": "community",
-        "strategy": "strategy",
-        "news": "news",
-        "featured": "featured",
+        "lifestyle": "lifestyle",
+        "performance": "performance",
+        "nutrition": "nutrition",
+        "getting-started": "getting-started",
+        "meal-plan": "meal-plan",
     }
+    # Anything unmapped (one-off labels like "gear", "sunburn") falls back to
+    # "community" — same fallback the insert path has always used.
 
     # Setup paths
     project_root = Path(__file__).parent.parent
@@ -69,9 +85,18 @@ def sync_blog_posts():
         print(f"❌ Could not connect to Supabase: {e}")
         return False
 
-    # Get all existing posts from Supabase
+    # Get all existing posts from Supabase — every synced column, so we can
+    # detect content-only edits (previously only slug/date were compared and
+    # content changes were skipped as "already correct")
     try:
-        response = client.table("blog_posts").select("id, slug, title, published_date").execute()
+        response = (
+            client.table("blog_posts")
+            .select(
+                "id, slug, title, published_date, excerpt, category, tags, "
+                "is_published, content, site"
+            )
+            .execute()
+        )
         supabase_posts_by_title = {post["title"]: post for post in response.data}
         supabase_posts_by_slug = {post["slug"]: post for post in response.data}
     except Exception as e:
@@ -117,33 +142,59 @@ def sync_blog_posts():
         else:
             published_date = json_post.get("date", "2025-01-01")
 
+        # Map category to a value the valid_category constraint accepts
+        # (case-normalized: JSON has "Health"/"Community" variants)
+        json_category = str(json_post.get("category", "community")).strip().lower()
+        mapped_category = category_map.get(json_category, "community")
+
+        # Get content from JSON (if exists)
+        content = json_post.get("content") or ""
+
+        # GUARD: Never publish posts with empty content
+        is_published = json_post.get("published", True)
+        if content.strip() == "" and is_published:
+            print(
+                f"  ⚠️  WARNING: {title[:50]}... has empty content - forcing is_published=False"
+            )
+            is_published = False
+
+        # Every synced column and its desired value — JSON is source of truth.
+        # NOTE: author_id excluded — writers.id type (BIGSERIAL vs UUID) varies
+        # between migration versions. Author info lives in blog_posts.json and
+        # is used by the static site generator, not Supabase.
+        desired = {
+            "slug": correct_slug,
+            "title": title,
+            "published_date": published_date,
+            "excerpt": json_post.get("excerpt", ""),
+            "category": mapped_category,
+            "tags": json_post.get("tags", []),
+            "is_published": is_published,
+            "content": content,
+            "site": json_post.get("site", "cw"),
+        }
+
         # Check if post exists (by title or slug)
         existing_post = supabase_posts_by_title.get(title) or supabase_posts_by_slug.get(
             correct_slug
         )
 
         if existing_post:
-            # Update if slug or date changed
-            # NOTE: author_id sync disabled — writers.id type (BIGSERIAL vs UUID)
-            # varies between migration versions. Author info lives in blog_posts.json
-            # and is used by the static site generator, not Supabase.
-            current_slug = existing_post["slug"]
-            current_date = existing_post["published_date"]
-
-            post_site = json_post.get("site", "cw")
-            if current_slug != correct_slug or current_date != published_date:
+            # Update if ANY synced field changed — including content, so
+            # content-only edits (e.g. added affiliate links) propagate
+            changed = {
+                col: value
+                for col, value in desired.items()
+                if _differs(existing_post.get(col), value)
+            }
+            if changed:
                 try:
-                    update_data = {
-                        "slug": correct_slug,
-                        "published_date": published_date,
-                        "site": post_site,
-                    }
-
-                    client.table("blog_posts").update(update_data).eq(
-                        "id", existing_post["id"]
-                    ).execute()
-
-                    print(f"  ✓ Updated: {title[:50]}...")
+                    if not dry_run:
+                        client.table("blog_posts").update(changed).eq(
+                            "id", existing_post["id"]
+                        ).execute()
+                    prefix = "would update" if dry_run else "Updated"
+                    print(f"  ✓ {prefix} ({', '.join(sorted(changed))}): {title[:50]}...")
                     updated_count += 1
                 except Exception as e:
                     print(f"  ❌ Error updating {title[:50]}: {e}")
@@ -154,39 +205,11 @@ def sync_blog_posts():
         else:
             # Insert new post
             try:
-                # Map category to valid Supabase category
-                json_category = json_post.get("category", "community")
-                mapped_category = category_map.get(json_category, "community")
-
-                # Get content from JSON (if exists)
-                content = json_post.get("content", "")
-
-                # GUARD: Never publish posts with empty content
-                is_published = json_post.get("published", True)
-                if (not content or content.strip() == "") and is_published:
-                    print(
-                        f"  ⚠️  WARNING: {title[:50]}... has empty content - forcing is_published=False"
-                    )
-                    is_published = False
-
-                # Prepare minimal insert data
-                # NOTE: author_id excluded — schema type mismatch between
-                # BIGSERIAL (migration 007) and UUID (content_tables migration)
-                insert_data = {
-                    "slug": correct_slug,
-                    "title": title,
-                    "published_date": published_date,
-                    "excerpt": json_post.get("excerpt", ""),
-                    "category": mapped_category,
-                    "tags": json_post.get("tags", []),
-                    "is_published": is_published,
-                    "content": content if content else "",
-                    "site": json_post.get("site", "cw"),
-                }
-
-                # Use upsert to handle duplicates gracefully
-                client.table("blog_posts").upsert(insert_data, on_conflict="slug").execute()
-                print(f"  ✓ Inserted: {title[:50]}...")
+                if not dry_run:
+                    # Use upsert to handle duplicates gracefully
+                    client.table("blog_posts").upsert(desired, on_conflict="slug").execute()
+                prefix = "would insert" if dry_run else "Inserted"
+                print(f"  ✓ {prefix}: {title[:50]}...")
                 inserted_count += 1
             except Exception as e:
                 print(f"  ❌ Error upserting {title[:50]}: {e}")
@@ -195,7 +218,7 @@ def sync_blog_posts():
     # Summary
     print("")
     print("=" * 70)
-    print("✅ BLOG POST SYNC COMPLETE")
+    print("✅ BLOG POST SYNC COMPLETE" + (" (DRY RUN — nothing written)" if dry_run else ""))
     print("=" * 70)
     print(f"  Updated: {updated_count}")
     print(f"  Inserted: {inserted_count}")
@@ -213,5 +236,5 @@ def sync_blog_posts():
 
 
 if __name__ == "__main__":
-    success = sync_blog_posts()
+    success = sync_blog_posts(dry_run="--dry-run" in sys.argv)
     sys.exit(0 if success else 1)
