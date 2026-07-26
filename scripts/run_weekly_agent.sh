@@ -47,11 +47,8 @@ python3 scripts/generate.py --type channels --site cw
 python3 scripts/generate.py --type wiki --site cw
 python3 scripts/generate.py --type newsletter --site cw
 
-# Copy to root for GitHub Pages
-cp public/index.html index.html
-cp public/archive.html archive.html 2>/dev/null || true
-cp public/channels.html channels.html 2>/dev/null || true
-cp -r public/blog blog/ 2>/dev/null || true
+# No root copy step: GitHub Pages publishes ./public, so root copies were
+# never served (see deploy.yml).
 
 # ── Deploy ────────────────────────────────────────────────────────────────
 echo ""
