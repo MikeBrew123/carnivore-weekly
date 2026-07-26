@@ -346,7 +346,7 @@ Full execution plan: `docs/plans/lcp-calculator-plan-2026-07-05.md` (Sonnet-tier
 
 **Recovery play:** Sarah emails to 4 abandoned checkouts with single-use 75% codes SARAH75BW/IG/SA/CW (expire 2026-07-16, Stripe coupon kSl0AsLw). Watch redemptions + replies.
 
-**Carnivore Coach waitlist:** /coach.html live ($79 USD, 12-week program, Sept cohort). Day-7 drip PS pitches it. Endpoint /api/v1/coach-waitlist → coach_waitlist (site='cw', notifies Brew). GATE (pre-agreed): 5+ signups in ~2 weeks = build on KD Coach chassis; 0 = drop. Design: memory project-carnivore-coach.md.
+**Carnivore Coach waitlist:** /coach.html live ($79 USD, 12-week program, Sept cohort). Day-7 drip PS pitches it. Endpoint /api/v1/coach-waitlist → coach_waitlist (site='cw', notifies Brew). GATE (pre-agreed): 5+ signups in ~2 weeks = build on KD Coach chassis; 0 = drop. **EXTENDED 2026-07-23 by Brew: the gate review date moves out to 2026-08-31, signups stay open, do not drop or close the waitlist before then** (see decisions.md 2026-07-23). Design: memory project-carnivore-coach.md.
 
 **On-site shop:** /shop.html live — 4 carnivore PDFs via Stripe Payment Links (USD: 4.49/4.99/4.99/9.99, Etsy parity). Webhook fulfillment (fulfillShopOrder in calculator-api.js) emails PDFs from tokenized public/downloads/dl-c8596006aead02d8/ (robots-blocked, gitignore exception) with per-product soft upsell, paid-but-undelivered alert, GA4 purchase events. E2E verified with $0 promo checkout. report access_count now increments (was never wired). KD duplication checklist in bead s5w (target 07-10). New-page checklist: ISSUE-042 (canonical + meta description required by validators).
 
