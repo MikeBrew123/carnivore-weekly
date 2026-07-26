@@ -259,15 +259,10 @@ fi
 echo "   ✓ Generated pages validation passed"
 echo ""
 
-# Copy to root for GitHub Pages
-cp public/index.html index.html
-cp public/archive.html archive.html 2>/dev/null || true
-cp public/channels.html channels.html 2>/dev/null || true
-cp -r public/images images/ 2>/dev/null || true
-cp -r public/archive archive/ 2>/dev/null || true
-cp -r public/blog blog/ 2>/dev/null || true
-cp public/favicon.ico favicon.ico 2>/dev/null || true
-echo "✓ Copied to root directory"
+# No root copy step: GitHub Pages publishes ./public (see deploy.yml and
+# daily-publish.yml, both upload path './public'). The old copies were never
+# served, and `cp -r public/blog blog/` copied into the existing dir each run,
+# growing a duplicate blog/blog/ tree.
 echo ""
 
 echo "======================================================================"
