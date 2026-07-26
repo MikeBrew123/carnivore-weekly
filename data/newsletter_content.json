@@ -1,31 +1,31 @@
 {
-  "date": "2026-07-19",
-  "subject_line": "Your ketone number might be lying to you",
-  "opening": "<p style='margin:0;'>Happy Sunday, friend. This week the community had a lot to say about blood meters, nosy strangers, and whether your carnivore plate is anyone else's business. We pulled the best of it together so you don't miss a thing.</p>",
+  "date": "2026-07-26",
+  "subject_line": "Your LDL hit 300. Now what?",
+  "opening": "<p style='margin:0;'>Happy Sunday, friend. This week we've got a question that's lighting up the community inbox, a survival guide for your next family dinner, and something Sarah found in the sleep research that honestly surprised us. Grab your coffee and let's get into it.</p>",
   "hero": {
-    "slug": "2026-07-18-ketone-numbers-obsession",
-    "title": "Why Everyone's Obsessing Over Their Ketone Numbers",
-    "writer": "Chloe",
-    "teaser": "Blood meters are everywhere right now, and people are posting their ketone readings like a badge of honor. But here's the thing nobody's saying out loud: a high number doesn't automatically mean you're doing better. Chloe digs into what the community is actually seeing, and why chasing a specific number might be sending people in the wrong direction. The answer will probably change how you look at your next reading.",
-    "cta": "Read before your next finger prick"
+    "slug": "2026-07-24-carnivore-ldl-arteries",
+    "title": "Does Sky-High LDL on Carnivore Clog Arteries?",
+    "writer": "Sarah",
+    "teaser": "Your LDL spikes on carnivore and suddenly everyone from your doctor to your aunt has an opinion. Sarah digs into the actual trial data, including one study that got retracted after the headlines ran. The science is messier than either side wants to admit, and the answer isn't what you're expecting from either camp.",
+    "cta": "Read before your next doctor visit"
   },
   "supporting": [
     {
-      "slug": "2026-07-15-keto-without-exercise",
-      "title": "Keto Without Exercise: What Actually Happens",
-      "teaser": "Marcus gives you the honest answer on what skipping the gym really costs you, and it's not what most people expect."
+      "slug": "2026-07-25-carnivore-nutrient-gaps",
+      "title": "The Nutrients Muscle-Meat-Only Carnivore Misses",
+      "teaser": "Sarah names the specific nutrients that steak alone won't cover, and the one food that quietly fixes most of the list."
     },
     {
-      "slug": "2026-07-17-strangers-comment-on-plate",
-      "title": "When Strangers Comment on Your Plate",
-      "teaser": "Community members shared exactly what they say back, and a few of those responses are genuinely brilliant."
+      "slug": "2026-07-22-week-2-strength-dip-carnivore",
+      "title": "Carnivore Week 2 Strength Dip: Why It Happens and the Fix",
+      "teaser": "Marcus explains the exact week-2 wall that's tanking your lifts, and why pushing through it the wrong way makes it worse."
     },
     {
-      "slug": "2026-07-14-omad-marathon-training",
-      "title": "OMAD and Marathon Training: Can You Do Both?",
-      "teaser": "Marcus found a way to structure it, but there's one condition that most OMAD fans won't like hearing."
+      "slug": "2026-07-23-only-carnivore-at-family-dinner",
+      "title": "Being the Only Carnivore at Family Dinner: A Survival Guide",
+      "teaser": "Chloe's got the word-for-word scripts for the relative who wants to debate your arteries before the salad's even passed."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Track how you feel, not just what your meter says.</strong> This week, log one note next to each ketone reading: energy level, sleep quality, or mood. By Friday, you'll have actual data on whether your number matches your performance, and that context is worth more than any single reading on its own.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something a lot of you have been asking about: what happens to your hormones after six months on carnivore, and whether the answer should make you nervous or excited.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Add one organ meat this week.</strong> You don't have to go all-in. A single beef liver serving, even just 3 to 4 ounces mixed into ground beef, covers the gaps Sarah outlines in this week's nutrient post. Cook it tonight and you've done something most carnivores skip entirely.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're looking at something community members keep asking about: whether your meal timing on carnivore actually matters, or if that's just an old bodybuilding rule dressed up in new clothes.</p>"
 }
