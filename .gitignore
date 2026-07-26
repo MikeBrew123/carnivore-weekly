@@ -57,6 +57,9 @@ data/*.csv
 !data/newsletter_content.json
 !data/newsletter_affiliates.json
 !data/scoreboard.json
+# Persistent creator roster for the channels page — must be committed or
+# appearance counts reset to zero on every fresh checkout
+!data/creator_history.json
 
 # Generated content
 public/weekly/*.html
