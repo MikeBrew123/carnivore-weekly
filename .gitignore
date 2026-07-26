@@ -60,6 +60,9 @@ data/*.csv
 # Persistent creator roster for the channels page — must be committed or
 # appearance counts reset to zero on every fresh checkout
 !data/creator_history.json
+# Writer persona definitions read by answer_questions.py. Untracked meant CI
+# generated every Q&A answer with an empty persona context and only a warning.
+!data/personas.json
 
 # Generated content
 public/weekly/*.html
