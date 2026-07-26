@@ -1,43 +1,6 @@
 {
   "last_updated": "2026-07-26",
   "creators": {
-    "UCUU-glcsz57qVD8_xhriglg": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "5YD6vaENHYw",
-        "EJK-LNEL9lo",
-        "gBfG8ul_kf8",
-        "znqmxeb0RrQ"
-      ],
-      "total_videos": 4,
-      "name": "Patricia Delicious Nutrition",
-      "channel_id": "UCUU-glcsz57qVD8_xhriglg",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "EJK-LNEL9lo",
-          "title": "ZERO FLOUR and almost ZERO CARBS - Light &amp; Quick Dinner! High Protein and Low Calorie (Keto)",
-          "view_count": 3044,
-          "published_at": "2026-07-14T18:00:18+00:00"
-        },
-        {
-          "video_id": "gBfG8ul_kf8",
-          "title": "3 INGREDIENT Breakfast - LOW CARB &amp; ANTI-INFLAMMATORY! Quick, Easy, Healthy and Delicious",
-          "view_count": 7686,
-          "published_at": "2026-07-23T19:34:37+00:00"
-        },
-        {
-          "video_id": "znqmxeb0RrQ",
-          "title": "Only 4 INGREDIENTS, NO SUGAR, ZERO FAT! Low Calorie, Low Carb, Creamy, Easy, Quick &amp; Delicious",
-          "view_count": 2017,
-          "published_at": "2026-07-19T16:30:17+00:00"
-        }
-      ],
-      "engagement_score": 33352,
-      "thumbnail_url": "https://yt3.ggpht.com/T9otmk4AGVxkzbUCtC4__Yjg7-yccMNCDHjtKITuX9qO3C-bnAajp-jfBHLcgPAOkkBFWr1T=s800-c-k-c0x00ffffff-no-rj"
-    },
     "UCzcoPGdDRiPiWZYV4_EkzPQ": {
       "appearances": 1,
       "last_counted": "2026-07-26",
@@ -60,56 +23,20 @@
           "published_at": "2026-07-19T20:00:00+00:00"
         },
         {
-          "video_id": "S4YFh9SAhUc",
-          "title": "That&#39;s All They Told Me...",
-          "view_count": 3142,
-          "published_at": "2026-07-17T19:00:23+00:00"
-        },
-        {
           "video_id": "G56x5bx9-00",
           "title": "I Thought Nobody Would Ever Notice...",
           "view_count": 3098,
           "published_at": "2026-07-25T20:00:24+00:00"
+        },
+        {
+          "video_id": "JLDlzVuNzGU",
+          "title": "Doctor Left Speechless\u2026",
+          "view_count": 5072,
+          "published_at": "2026-07-14T20:00:02+00:00"
         }
       ],
       "engagement_score": 34903,
       "thumbnail_url": "https://yt3.ggpht.com/WmS4ZXTghKbXOaOSNoapz2EEQ0mzxMXHmz69RjvH7kSt_CDyrzwGO9MurXzbVPNc1L2vgzbzVtU=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCVh3LI2S_lk8_TkD96zBKsg": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "kz6lNBb-zNE",
-        "yKnagwQIZOs",
-        "yM2Cn4l2m9Q"
-      ],
-      "total_videos": 3,
-      "name": "Keto Twins",
-      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "yKnagwQIZOs",
-          "title": "Lose Weight Fast With These Viral Recipes!",
-          "view_count": 12253,
-          "published_at": "2026-07-23T15:00:18+00:00"
-        },
-        {
-          "video_id": "yM2Cn4l2m9Q",
-          "title": "We Made Weight Loss Tortillas With Only 3 Ingredients!",
-          "view_count": 16833,
-          "published_at": "2026-07-20T15:00:37+00:00"
-        },
-        {
-          "video_id": "kz6lNBb-zNE",
-          "title": "This Viral Keto Dinner Was Too Easy!",
-          "view_count": 29198,
-          "published_at": "2026-07-13T15:00:30+00:00"
-        }
-      ],
-      "engagement_score": 141554,
-      "thumbnail_url": "https://yt3.ggpht.com/ytc/AIdro_lHi_5Ct_oblAjOq2H6JiuDMPb5CPCmKZVDgtRkfV8exOI=s800-c-k-c0x00ffffff-no-rj"
     },
     "UC9HogCphFdf-Ykerc1Wsl_g": {
       "appearances": 1,
@@ -126,16 +53,16 @@
       "last_seen": "2026-07-26",
       "top_videos": [
         {
-          "video_id": "scnbtI9OFcQ",
-          "title": "Three Years On Carnivore Changed My Life... Now I&#39;m Testing Something New",
-          "view_count": 4998,
-          "published_at": "2026-07-18T20:00:22+00:00"
-        },
-        {
           "video_id": "7_zRxWDN--o",
           "title": "This Carnivore Pizza Actually Tastes Like Pizza",
           "view_count": 18352,
           "published_at": "2026-07-22T21:00:01+00:00"
+        },
+        {
+          "video_id": "scnbtI9OFcQ",
+          "title": "Three Years On Carnivore Changed My Life... Now I&#39;m Testing Something New",
+          "view_count": 4998,
+          "published_at": "2026-07-18T20:00:22+00:00"
         },
         {
           "video_id": "bSwWWRKURaA",
@@ -248,35 +175,6 @@
       "engagement_score": 99967,
       "thumbnail_url": "https://yt3.ggpht.com/hvQLOMbWz-eWJvLVMLEmNMlsWgSV8nHkGrRWlm2i8V0iAB14kD36gplPctXjsv7NvoSJdDF6uqY=s800-c-k-c0x00ffffff-no-rj"
     },
-    "UC3ymdZTdzHvpDEFhEXqQqpQ": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "JdiFP6s7hRc",
-        "ld0wQhoAJtE"
-      ],
-      "total_videos": 2,
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "ld0wQhoAJtE",
-          "title": "Why Carnivore Seems to Stop Working for Women After 40",
-          "view_count": 15153,
-          "published_at": "2026-07-22T12:00:25+00:00"
-        },
-        {
-          "video_id": "JdiFP6s7hRc",
-          "title": "The Biggest Keto Study of the Year? Here&#39;s What They Found",
-          "view_count": 22441,
-          "published_at": "2026-07-21T12:03:14+00:00"
-        }
-      ],
-      "engagement_score": 75784,
-      "thumbnail_url": "https://yt3.ggpht.com/UkyK-myXSUDGqITxWZk7uKobyFj3ak7oy8J65vBkrOq0ZsODSN46EMFEw63pUIfMN7FcZGdq=s800-c-k-c0x00ffffff-no-rj"
-    },
     "UC1ev_bT3u-m6b6BoN39h1Ow": {
       "appearances": 1,
       "last_counted": "2026-07-26",
@@ -320,20 +218,42 @@
       "last_seen": "2026-07-26",
       "top_videos": [
         {
-          "video_id": "7VXb_tg1ZyI",
-          "title": "What I Buy at Costco for a Carnivore Diet",
-          "view_count": 4390,
-          "published_at": "2026-07-13T20:00:04+00:00"
-        },
-        {
           "video_id": "MXWs0ZPwxwI",
           "title": "What I Eat in a Day Carnivore | How I make it Work in Real Life",
           "view_count": 542,
           "published_at": "2026-07-20T20:00:23+00:00"
+        },
+        {
+          "video_id": "7VXb_tg1ZyI",
+          "title": "What I Buy at Costco for a Carnivore Diet",
+          "view_count": 4390,
+          "published_at": "2026-07-13T20:00:04+00:00"
         }
       ],
       "engagement_score": 8142,
       "thumbnail_url": "https://yt3.ggpht.com/xnT5_NX7vJ79yMzatEU_P8jkSDiKalz5m43j6VIive2ZBxm-GOcTi5K2GldXB1oxr93eZrSJFg=s800-c-k-c0x00ffffff-no-rj"
+    },
+    "UC3ymdZTdzHvpDEFhEXqQqpQ": {
+      "appearances": 1,
+      "last_counted": "2026-07-26",
+      "video_ids": [
+        "ld0wQhoAJtE"
+      ],
+      "total_videos": 1,
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ",
+      "first_seen": "2026-07-26",
+      "last_seen": "2026-07-26",
+      "top_videos": [
+        {
+          "video_id": "ld0wQhoAJtE",
+          "title": "Why Carnivore Seems to Stop Working for Women After 40",
+          "view_count": 15153,
+          "published_at": "2026-07-22T12:00:25+00:00"
+        }
+      ],
+      "engagement_score": 32993,
+      "thumbnail_url": "https://yt3.ggpht.com/UkyK-myXSUDGqITxWZk7uKobyFj3ak7oy8J65vBkrOq0ZsODSN46EMFEw63pUIfMN7FcZGdq=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCIO1xKFtrqOC4-rZg1pFxiw": {
       "appearances": 1,
@@ -423,28 +343,6 @@
       "engagement_score": 29746,
       "thumbnail_url": "https://yt3.ggpht.com/yXFnFJ4L_Dq79PA9doDZYaOAc0Tn42IQwrOyg3-MBrRm_7l_q7C6P108a0hGB6UPv_mVyFM-=s800-c-k-c0x00ffffff-no-rj"
     },
-    "UC1n9asjArhhGERn6FxSPAGA": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "Kb2XYMOSyT0"
-      ],
-      "total_videos": 1,
-      "name": "FoodFitness&Fun",
-      "channel_id": "UC1n9asjArhhGERn6FxSPAGA",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "Kb2XYMOSyT0",
-          "title": "7 High Protein Low Carb Veg Dinners for Fat Loss | Monday to Friday Healthy Weight Loss Dinner Plan",
-          "view_count": 17739,
-          "published_at": "2026-07-20T11:27:30+00:00"
-        }
-      ],
-      "engagement_score": 23369,
-      "thumbnail_url": "https://yt3.ggpht.com/ytc/AIdro_kRk1Njzy9dwnfd6sYbbJcpMK5b-2mnIHOiZNmZqabN3HA=s800-c-k-c0x00ffffff-no-rj"
-    },
     "UCYyYDEO8jSlpnJ2omzHXlGA": {
       "appearances": 1,
       "last_counted": "2026-07-26",
@@ -488,72 +386,6 @@
       ],
       "engagement_score": 25688,
       "thumbnail_url": "https://yt3.ggpht.com/swM7XshyEH4mLcrnkQ07P14d9P5HkMpeJ5AcsDcY3YajtmYQlpUgR3bsMcFno2Dm8qdV_Bfx=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCJCIbrvEJyRJnHGvh7z0-bQ": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "13EEthXT_fA"
-      ],
-      "total_videos": 1,
-      "name": "Nutricionista Patricia Leite",
-      "channel_id": "UCJCIbrvEJyRJnHGvh7z0-bQ",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "13EEthXT_fA",
-          "title": "S\u00f3 3 INGREDIENTES, Muita PROTE\u00cdNA e Poucos Carboidratos! SEM A\u00c7\u00daCAR, Saud\u00e1vel e Cremosa (Low Carb) ",
-          "view_count": 7789,
-          "published_at": "2026-07-23T17:30:17+00:00"
-        }
-      ],
-      "engagement_score": 23619,
-      "thumbnail_url": "https://yt3.ggpht.com/ytc/AIdro_koOzMgDkZLqpeequ68Aatw1pavcjcPFPT92127m_32RWw=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCKBlg_heFbwW_TBcgipPbRQ": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "JleUaMIRBto"
-      ],
-      "total_videos": 1,
-      "name": "Chris Cooking Nashville",
-      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "JleUaMIRBto",
-          "title": "Make This High-Protein Dessert Once and You&#39;ll Eat It Every Week",
-          "view_count": 9493,
-          "published_at": "2026-07-22T19:00:34+00:00"
-        }
-      ],
-      "engagement_score": 17593,
-      "thumbnail_url": "https://yt3.ggpht.com/IBMzhOllEEsdb6Qs-awYJngPjToZnjU9vTiRW5W1aYgiFT-9Ffgto29oociwCwH8nESoEmXU2w=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCFcZhTEqmhaPJTWvhwTChhA": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "gBNIxCLzGpI"
-      ],
-      "total_videos": 1,
-      "name": "Souper at 60\u2019s Farmhouse in the Forest. ",
-      "channel_id": "UCFcZhTEqmhaPJTWvhwTChhA",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "gBNIxCLzGpI",
-          "title": "Overweight? Unhealthy? Eat My Low Carb Good Fat Simple Suppers!",
-          "view_count": 8396,
-          "published_at": "2026-07-23T21:23:18+00:00"
-        }
-      ],
-      "engagement_score": 18546,
-      "thumbnail_url": "https://yt3.ggpht.com/hllWy8Ol4KhNtFZrPQoYTz6sGkvNQa6FGo3LxcDb4uNJDhP8ijNCTULuXVp78Nnl5T8fHCrJ8w=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCMXFshWv04QJPsjKMgtreFQ": {
       "appearances": 1,
@@ -665,50 +497,6 @@
       "engagement_score": 10584,
       "thumbnail_url": "https://yt3.ggpht.com/-kQvzWH3aZwrVpswAuYNYfxKR5x5wjO3mCtJy2Jtk74ISTOBqP2oIanOFEVBODQ_Dw5qixzWLg=s800-c-k-c0x00ffffff-no-rj"
     },
-    "UClNAYwE8u000SN--jpTvebQ": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "kean8UunqqE"
-      ],
-      "total_videos": 1,
-      "name": "Dr. Vito Zennaro",
-      "channel_id": "UClNAYwE8u000SN--jpTvebQ",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "kean8UunqqE",
-          "title": "SALUTE DENTALE per chi segue una dieta low carb - chetogenica - carnivora!",
-          "view_count": 4243,
-          "published_at": "2026-07-20T12:58:11+00:00"
-        }
-      ],
-      "engagement_score": 8443,
-      "thumbnail_url": "https://yt3.ggpht.com/KiFXIue594MOOAnut7dBnUmV2QKybdQcCIfQjay8EnJoPt66oW8-vLvlIK9l0-9tZ6CDA2X10TY=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCMhxDl-EOqsJrMoosvAShmQ": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "UK4k0-hL5lc"
-      ],
-      "total_videos": 1,
-      "name": "T\u0142uste Gary | Przepisy bez cukru | LOW CARB ",
-      "channel_id": "UCMhxDl-EOqsJrMoosvAShmQ",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "UK4k0-hL5lc",
-          "title": "5 szybkich przepis\u00f3w keto i low carb z Air Fryera",
-          "view_count": 3846,
-          "published_at": "2026-07-19T05:15:24+00:00"
-        }
-      ],
-      "engagement_score": 7166,
-      "thumbnail_url": "https://yt3.ggpht.com/TzAuqq19rkBE7FKTaKgV2X4T8zGyPYFQEPRP_LOoDxMSrFwGfLmrF-ckbtPoDbwvGcVDfqik=s800-c-k-c0x00ffffff-no-rj"
-    },
     "UCoLOzrRmjuhKDwYFB_BiK1A": {
       "appearances": 1,
       "last_counted": "2026-07-26",
@@ -730,28 +518,6 @@
       ],
       "engagement_score": 6525,
       "thumbnail_url": "https://yt3.ggpht.com/7GFW50clAwsnfcdPZkc7lcGUSW6AP3Nbg4qMDYVLrO_lRSUNFMK0mDmgkmM-zj0BJyy0lrrUGg=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UC6DRi14pM7rUumYWaisXcHw": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "rrNyfmdBbjA"
-      ],
-      "total_videos": 1,
-      "name": "ShePrepsSmart",
-      "channel_id": "UC6DRi14pM7rUumYWaisXcHw",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "rrNyfmdBbjA",
-          "title": "The Ultimate High Protein Egg Salad Formula",
-          "view_count": 3037,
-          "published_at": "2026-07-23T20:00:11+00:00"
-        }
-      ],
-      "engagement_score": 5847,
-      "thumbnail_url": "https://yt3.ggpht.com/CnHyJt1_Wqc5HEJsCBYHQSTwjmVu0FeZNC8LrqtWYdQZrvjxBLRL7RWu52dlifDX1ouoiKMHcZo=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCVxyFso2QQ5-W6WhynYKENw": {
       "appearances": 1,
@@ -797,28 +563,6 @@
       "engagement_score": 6042,
       "thumbnail_url": "https://yt3.ggpht.com/CRA5sLyVqB5r2Po8UWWHiqkYKzMVGTPRMCxkbbdnIdmZQSYEAzTt0MWfL3GF4lQPo_TbvVjx=s800-c-k-c0x00ffffff-no-rj"
     },
-    "UC5zZ4Xbd_qGhjSab8UIhbBA": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "n6xCd6ophIU"
-      ],
-      "total_videos": 1,
-      "name": "The Keto Baking Mechanic\u2122",
-      "channel_id": "UC5zZ4Xbd_qGhjSab8UIhbBA",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "n6xCd6ophIU",
-          "title": "I Can&#39;t Believe These KETO BROWNIES Only Take 90 SECONDS",
-          "view_count": 2567,
-          "published_at": "2026-07-19T13:00:37+00:00"
-        }
-      ],
-      "engagement_score": 4867,
-      "thumbnail_url": "https://yt3.ggpht.com/ilTaHDtIdbOhFGnIxinaVvLTGkWTiYz0nRGFHkKQ8Erlj2DcCApX-P1vVlNsfuYYEYivsBnE=s800-c-k-c0x00ffffff-no-rj"
-    },
     "UCwOl62ThH4xyfDj5plL1BNg": {
       "appearances": 1,
       "last_counted": "2026-07-26",
@@ -840,72 +584,6 @@
       ],
       "engagement_score": 6975,
       "thumbnail_url": "https://yt3.ggpht.com/yYUD81bUYNENwv8aPy8Yx-cAwctlmefA8kD-9TAkbYNBcG1ewZUC0YSX63rG8eGomnbKo5ipLw=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCmMJ2ioWma0SpD9N21OiuXA": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "3K14GgV-bnU"
-      ],
-      "total_videos": 1,
-      "name": "stephanie Keto person",
-      "channel_id": "UCmMJ2ioWma0SpD9N21OiuXA",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "3K14GgV-bnU",
-          "title": "The Ulitmate Diet: Which One Gives You The Best Results",
-          "view_count": 2389,
-          "published_at": "2026-07-19T05:58:28+00:00"
-        }
-      ],
-      "engagement_score": 5499,
-      "thumbnail_url": "https://yt3.ggpht.com/ytc/AIdro_lxuvVwUXpSP2rkz5nSgYtH2RnXFWar5vrno7U1ObEYbiE=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCJA7FdN-MZGNbwzAsG9sfDQ": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "_jLaxn2f6Rs"
-      ],
-      "total_videos": 1,
-      "name": "Nati Freitas ",
-      "channel_id": "UCJA7FdN-MZGNbwzAsG9sfDQ",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "_jLaxn2f6Rs",
-          "title": "\ud83d\udd25 ELIMINEI 2,9 KG EM 1 SEMANA NA LOW CARB! \ud83d\ude31 | NOVA ESTRAT\u00c9GIA: BICHO E PLANTA \ud83e\udd69\ud83c\udf31",
-          "view_count": 2306,
-          "published_at": "2026-07-20T20:40:28+00:00"
-        }
-      ],
-      "engagement_score": 6896,
-      "thumbnail_url": "https://yt3.ggpht.com/Y7YStC-8XkTjbmdu3ZdpKHAknV3QJmUVs2O1wYvpsrQqoPHKOJuUdrxbT6OxM2ZGNrwACbBFeSI=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCO4l1bnJVRBM3d5rrdUGKxw": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "rJRrmq2LWUc"
-      ],
-      "total_videos": 1,
-      "name": "HBK Explains",
-      "channel_id": "UCO4l1bnJVRBM3d5rrdUGKxw",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "rJRrmq2LWUc",
-          "title": "VEG vs NON VEG | \u0baf\u0bbe\u0bb0\u0bc1 Stronger &amp; will Live more?",
-          "view_count": 2303,
-          "published_at": "2026-07-17T10:45:48+00:00"
-        }
-      ],
-      "engagement_score": 4503,
-      "thumbnail_url": "https://yt3.ggpht.com/2jfDFwJJNBLlSQJiJaYaPqQL2wmXbgocPnaunPgVLQPEOhtkS0AI6F4_wg4w3MaEIB_Ot2OT=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCvXwXe_sxwtlMvyCGWFIghQ": {
       "appearances": 1,
@@ -951,28 +629,6 @@
       "engagement_score": 4053,
       "thumbnail_url": "https://yt3.ggpht.com/h7fk04rDS5N_SuVOAsAvSaGFazFMDaFec-CcHrp4F0NjFOaVCnpkbSBfUr-EvkDvbO-4MtexDQ=s800-c-k-c0x00ffffff-no-rj"
     },
-    "UCgiChWWG9TbZ5N4MNGaUOHw": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "C2ixuAfpD1I"
-      ],
-      "total_videos": 1,
-      "name": "Phil DeLuca",
-      "channel_id": "UCgiChWWG9TbZ5N4MNGaUOHw",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "C2ixuAfpD1I",
-          "title": "Der Keto-Denkfehler, den fast jeder macht (metabolische Flexibilit\u00e4t)",
-          "view_count": 1974,
-          "published_at": "2026-07-16T12:00:19+00:00"
-        }
-      ],
-      "engagement_score": 4024,
-      "thumbnail_url": "https://yt3.ggpht.com/n50mpDHq9BD6WP56hkxiSkgEc7lN4A2LPrrLy2ATwW5snjEyQ-OtXIMV3muQw3kLk79AIMX7=s800-c-k-c0x00ffffff-no-rj"
-    },
     "UCx6ZL_FDn0fVYt0Rdn-SJyA": {
       "appearances": 1,
       "last_counted": "2026-07-26",
@@ -994,28 +650,6 @@
       ],
       "engagement_score": 2970,
       "thumbnail_url": "https://yt3.ggpht.com/dLYnxepZP-jWHCQEU5qphSdsxaHUEScrGFBEKbHR1SPpzUHJv56VNnlJEtpHjIiKq0PLTOJlLQ=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCq7wm2E67AKJugamznBOpkg": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "aIxBV9L6x_0"
-      ],
-      "total_videos": 1,
-      "name": "pranav kumbhare",
-      "channel_id": "UCq7wm2E67AKJugamznBOpkg",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "aIxBV9L6x_0",
-          "title": "65 DAYS OUT | Shoulder Day &amp; Low Carb Day | Natural Bodybuilding Prep",
-          "view_count": 1936,
-          "published_at": "2026-07-17T07:48:24+00:00"
-        }
-      ],
-      "engagement_score": 3076,
-      "thumbnail_url": "https://yt3.ggpht.com/_IFqiwzBhZRXYM3VImuskrpyEzJw2Obcm0aLg4gYnFBvNPLp1w5WuZedtoJ4Hgi94l2BgNhPJPc=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCClJzJW631ZJY9fxVq9vIbA": {
       "appearances": 1,
@@ -1060,72 +694,6 @@
       ],
       "engagement_score": 3499,
       "thumbnail_url": "https://yt3.ggpht.com/jPZSSDDBbO_36MhOHTliW8ZY86Fw7MtrQXHp1kqwjbgxr3DteEKaeOPeIlEdGNibrQlEXGNbrg=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UC8v5f6v1HeyIPIoMCsmRTrQ": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "CYrhOKHX7Yg"
-      ],
-      "total_videos": 1,
-      "name": "The Salted Pepper",
-      "channel_id": "UC8v5f6v1HeyIPIoMCsmRTrQ",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "CYrhOKHX7Yg",
-          "title": "Low Carb Burger Buns: Finally Solving the Cloud Bread Problem",
-          "view_count": 1767,
-          "published_at": "2026-07-19T15:00:06+00:00"
-        }
-      ],
-      "engagement_score": 3757,
-      "thumbnail_url": "https://yt3.ggpht.com/0CoQgmqfArjMmk1CjqMJSZ5PVvW50jkKO0J4N0ZEOHpD0pPaxxjC5EcEkSUt8OiOJRwZ6P-Yqg=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UC4hVTN20m5D9UH4I7skqnyg": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "zzpWJZCdu9I"
-      ],
-      "total_videos": 1,
-      "name": "CJsKetoKitchen",
-      "channel_id": "UC4hVTN20m5D9UH4I7skqnyg",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "zzpWJZCdu9I",
-          "title": "What We Eat Travel Vlog: Low Carb Reset &amp; Perimenopause Weight Loss Secrets",
-          "view_count": 1699,
-          "published_at": "2026-07-19T20:34:08+00:00"
-        }
-      ],
-      "engagement_score": 4279,
-      "thumbnail_url": "https://yt3.ggpht.com/cs11bIv0DNROkL1ZC1rRKiWhD3d6wnqXzKkl4TKNNd4l58v-hK3IwopiBe9t8TL5VfLodzTzEtc=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UC8Kruzu5RooRBcsqNw4dTXg": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "jYIFsbbyrsU"
-      ],
-      "total_videos": 1,
-      "name": "Live Savage",
-      "channel_id": "UC8Kruzu5RooRBcsqNw4dTXg",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "jYIFsbbyrsU",
-          "title": "Keto Is BETTER For Bodybuilding",
-          "view_count": 1654,
-          "published_at": "2026-07-16T13:00:37+00:00"
-        }
-      ],
-      "engagement_score": 2984,
-      "thumbnail_url": "https://yt3.ggpht.com/ytc/AIdro_kK2LFn14acOjEsEAg7_XXbsiz1E5Rvv3pXoFPm_6DFQ0Y=s800-c-k-c0x00ffffff-no-rj"
     },
     "UColv9pvTCGNFpZl0HDPh9Mw": {
       "appearances": 1,
@@ -1193,28 +761,6 @@
       "engagement_score": 1323,
       "thumbnail_url": "https://yt3.ggpht.com/ytc/AIdro_kx7EYa0XuDAATibAbPOWUykN7LXXdJ9_vZWDVs0BGtqHY=s800-c-k-c0x00ffffff-no-rj"
     },
-    "UCvyw8rygwrlSicqxM_1tiVA": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "85cLTH45y3Y"
-      ],
-      "total_videos": 1,
-      "name": "Manu Echeverri",
-      "channel_id": "UCvyw8rygwrlSicqxM_1tiVA",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "85cLTH45y3Y",
-          "title": "\ud83c\uddfa\ud83c\uddf8QUE COMO ANTES DE CORRER 24KM? | TARGETED CARBS EN KETO RUNNING | VLOG 2101 | Manu Echeverri",
-          "view_count": 947,
-          "published_at": "2026-07-16T20:00:17+00:00"
-        }
-      ],
-      "engagement_score": 1887,
-      "thumbnail_url": "https://yt3.ggpht.com/Tz9S4a0_Q_4sspEUW1FBzZ-YGONnoYXrxz155V_tt-D71-AseDSJViDnSonJcgSQZiPhZMeK9w=s800-c-k-c0x00ffffff-no-rj"
-    },
     "UCaIVlAuCOEPX3p5SLiUnshg": {
       "appearances": 1,
       "last_counted": "2026-07-26",
@@ -1236,28 +782,6 @@
       ],
       "engagement_score": 3593,
       "thumbnail_url": "https://yt3.ggpht.com/1rqlXhtesdiNQrTpRxFGSrICOkwSfZhugdpB4ugfIiwz79wUQufhijiUCd1PTDtNa5s8KVXeCA=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCHeG-WcpS91CVyT5sLpOt3A": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "zb_gh7h_J9g"
-      ],
-      "total_videos": 1,
-      "name": "Dietitian NEENA SSETH",
-      "channel_id": "UCHeG-WcpS91CVyT5sLpOt3A",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "zb_gh7h_J9g",
-          "title": "Monsoon Weight Loss Diet Plan | Low Carb High Protein Diet | Lose 10 Kgs Naturally",
-          "view_count": 714,
-          "published_at": "2026-07-20T06:41:06+00:00"
-        }
-      ],
-      "engagement_score": 1504,
-      "thumbnail_url": "https://yt3.ggpht.com/BKv-bLFOat6Y1f4T2otDOvgIrA1giuzDF9KnV1KgmQ2IqiMr6Za-4FzjsacWSA_g5duDeBrNtg=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCZQG7nULt-KUf290DnSiYqA": {
       "appearances": 1,
@@ -1302,28 +826,6 @@
       ],
       "engagement_score": 1292,
       "thumbnail_url": "https://yt3.ggpht.com/wLTx3KAX-iBAStsvbgbRr7n0DSGX1gEKzG9zYt_5vpqRI1ULOUs1YKuuGp1-08_0DFot_lmOuA=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UC1NwE19JnZk-oS51R0faVSA": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "2WFbrKF6Llg"
-      ],
-      "total_videos": 1,
-      "name": "Tanvi Parikh",
-      "channel_id": "UC1NwE19JnZk-oS51R0faVSA",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "2WFbrKF6Llg",
-          "title": "Why Low Carb Diets Backfire for PCOS Explained Fully",
-          "view_count": 155,
-          "published_at": "2026-07-21T02:24:09+00:00"
-        }
-      ],
-      "engagement_score": 235,
-      "thumbnail_url": "https://yt3.ggpht.com/XsF3wWhqJyxpP9Eg26lNxiRnb4zixM7zOliBRDU4h175n_EZibg1U46trvUyN3af9oOmzAU_uXo=s800-c-k-c0x00ffffff-no-rj"
     },
     "UCGKXfm9zkYx8LBAi0lbmgnA": {
       "appearances": 1,
@@ -1434,28 +936,6 @@
       ],
       "engagement_score": 1,
       "thumbnail_url": "https://yt3.ggpht.com/BAKFmQtQqIaybjB_X7DabxF5o5l2SV0U2CFq-ytchDsPX4UNZaViijbSHTVAhm2SMZ81PrZcpA=s800-c-k-c0x00ffffff-no-rj"
-    },
-    "UCKP1__MKvi9yPzJKf26winA": {
-      "appearances": 1,
-      "last_counted": "2026-07-26",
-      "video_ids": [
-        "CFaxM4EwYXE"
-      ],
-      "total_videos": 1,
-      "name": "Mommy Dorie Sarong Vlogs",
-      "channel_id": "UCKP1__MKvi9yPzJKf26winA",
-      "first_seen": "2026-07-26",
-      "last_seen": "2026-07-26",
-      "top_videos": [
-        {
-          "video_id": "CFaxM4EwYXE",
-          "title": "Yummy food , 77 Low Carb diet @mommydorievlogs0322 ",
-          "view_count": 0,
-          "published_at": "2026-07-16T22:13:23+00:00"
-        }
-      ],
-      "engagement_score": 10,
-      "thumbnail_url": "https://yt3.ggpht.com/NUcrGByYAAPt1sVbdcn7r6XLflMCNCpxQRA1Qz8os_4o59mHu7Pjyivw9rwMML53gLa2rB5Frl4=s800-c-k-c0x00ffffff-no-rj"
     }
   }
 }

@@ -12,6 +12,7 @@ Date: 2024-12-25
 
 import os
 import json
+import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List
@@ -85,8 +86,14 @@ BLOCKED_CHANNELS = {
 # Title keyword blocklist — videos whose titles contain these are dropped
 # regardless of channel. Catches off-topic uploads from legit creators.
 BLOCKED_TITLE_KEYWORDS = [
-    "vegan", "plant-based", "plant based",   # anti-carnivore stance
+    "vegan", "plant-based", "plant based",          # anti-carnivore stance
+    "vegetarian", "veggie", "veg", "meatless",      # not carnivore content
 ]
+
+# Bumping this re-scores videos already sitting in the Supabase cache. Without
+# it, tightening the keyword rules below would only affect newly collected
+# videos and stale keto/low-carb entries would keep their old passing scores.
+SCORING_VERSION = 2
 
 
 def is_non_english_title(title: str) -> bool:
@@ -99,9 +106,13 @@ def is_non_english_title(title: str) -> bool:
 
 
 def is_blocked_title(title: str) -> bool:
-    """Return True if the video title contains a blocked keyword."""
+    """Return True if the video title contains a blocked keyword.
+
+    Matched on word boundaries so short tokens like "veg" catch "Veg Dinners"
+    without firing on unrelated words.
+    """
     t = title.lower()
-    return any(kw in t for kw in BLOCKED_TITLE_KEYWORDS)
+    return any(re.search(rf"\b{re.escape(kw)}\b", t) for kw in BLOCKED_TITLE_KEYWORDS)
 
 
 def is_blocked_channel(channel_name):
@@ -400,15 +411,48 @@ class YouTubeCollector:
         Claude scoring removed — all AI analysis handled by the weekly agent.
         """
         text = (title + " " + description).lower()
+
+        # Unambiguously carnivore / lion diet
         strong_keywords = [
-            "carnivore diet", "carnivore", "animal-based", "zero carb",
-            "meat diet", "beef only", "lion diet", "nose to tail",
+            "carnivore diet", "carnivore", "animal-based", "animal based",
+            "zero carb", "no carb", "meat diet", "meat only", "beef only",
+            "lion diet", "nose to tail",
+            # Natural phrasings creators actually use in titles
+            "only meat", "all meat", "meat and salt", "beef and salt",
         ]
-        weak_keywords = ["keto", "low carb", "steak", "ribeye", "organ meat"]
+        # Carnivore-adjacent foods — enough on their own to keep a video
+        meat_keywords = [
+            "steak", "ribeye", "organ meat", "beef tallow", "brisket",
+            "beef liver", "bone broth", "ground beef",
+        ]
+
+        # Low-carb baking markers. Carnivore food doesn't involve flour or baked
+        # goods, so these mean a keto/low-carb recipe channel — unless the title
+        # explicitly says carnivore, since "Carnivore Bread" is a real thing.
+        # Catches titles like "ZERO FLOUR and almost ZERO CARBS", which otherwise
+        # score as carnivore off the substring "zero carb".
+        lowcarb_baking = [
+            "flour", "bread", "tortilla", "brownie", "muffin", "pancake",
+            "cookie", "bun", "buns", "dessert", "sweetener", "sugar-free",
+        ]
+        explicit_carnivore = [
+            "carnivore", "lion diet", "animal-based", "animal based", "nose to tail",
+        ]
+
+        if is_blocked_title(title):
+            return (0, "Title contains blocked keyword")
+        title_l = title.lower()
+        if not any(kw in title_l for kw in explicit_carnivore) and any(
+            re.search(rf"\b{kw}\b", title_l) for kw in lowcarb_baking
+        ):
+            return (3, "Low-carb baking content, not carnivore")
         if any(kw in text for kw in strong_keywords):
             return (9, "Contains carnivore keywords")
-        if any(kw in text for kw in weak_keywords):
-            return (7, "Contains keto/meat keywords")
+        if any(kw in text for kw in meat_keywords):
+            return (7, "Contains carnivore-adjacent meat keywords")
+        # "keto" and "low carb" on their own are competing diets, not carnivore.
+        # These used to score 7 — exactly the pass threshold — which is how
+        # low-carb recipe videos reached the homepage.
         return (4, "No carnivore keywords found")
 
     def enforce_creator_diversity(self, videos: List[Dict]) -> List[Dict]:
@@ -932,14 +976,26 @@ class YouTubeCollector:
                         print(f"   ✗ Filtered (non-English): {title[:50]}...")
                         continue
 
-                    # Check if video already has a score
-                    if "relevance_score" not in video or video.get("relevance_score") == "N/A":
-                        # Score it with Claude
+                    # The fresh-API path blocks these titles, but this cached
+                    # path never did — so vegan/vegetarian uploads from
+                    # otherwise-good channels sailed through on cache hits.
+                    if is_blocked_title(title):
+                        total_filtered += 1
+                        print(f"   ✗ Filtered (blocked title): {title[:50]}...")
+                        continue
+
+                    # Re-score whenever the stored score predates the current
+                    # keyword rules, otherwise cached videos keep stale scores
+                    if (
+                        video.get("relevance_score") in (None, "N/A")
+                        or video.get("relevance_version") != SCORING_VERSION
+                    ):
                         score, reason = self.score_video_relevance(
                             video.get("title", ""), video.get("description", "")
                         )
                         video["relevance_score"] = score
                         video["relevance_reason"] = reason
+                        video["relevance_version"] = SCORING_VERSION
                     else:
                         score = video["relevance_score"]
 
