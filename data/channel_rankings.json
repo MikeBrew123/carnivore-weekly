@@ -2,64 +2,64 @@
   "last_updated": "2026-07-26",
   "leaderboard": [
     {
-      "name": "Keto Twins",
-      "rank": 1,
-      "appearances": 1,
-      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
-    },
-    {
       "name": "HomeSteadHow",
-      "rank": 2,
+      "rank": 1,
       "appearances": 1,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
       "name": "StevenSteph",
-      "rank": 3,
+      "rank": 2,
       "appearances": 1,
       "channel_id": "UC9HogCphFdf-Ykerc1Wsl_g"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 4,
-      "appearances": 1,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
-    },
-    {
       "name": "Doctor Alex ",
-      "rank": 5,
+      "rank": 3,
       "appearances": 1,
       "channel_id": "UCGLAPJjQh7ege-N08u_GZrg"
     },
     {
       "name": "FaceIQ",
-      "rank": 6,
+      "rank": 4,
       "appearances": 1,
       "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
     },
     {
       "name": "Laura Spath",
-      "rank": 7,
+      "rank": 5,
       "appearances": 1,
       "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
     },
     {
       "name": "No Carb Life",
-      "rank": 8,
+      "rank": 6,
       "appearances": 1,
       "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
     },
     {
-      "name": "Patricia Delicious Nutrition",
-      "rank": 9,
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 7,
       "appearances": 1,
-      "channel_id": "UCUU-glcsz57qVD8_xhriglg"
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
       "name": "Jenny Mitich",
-      "rank": 10,
+      "rank": 8,
       "appearances": 1,
       "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+    },
+    {
+      "name": "Meet Carnivore",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+    },
+    {
+      "name": "Alison Johnson",
+      "rank": 10,
+      "appearances": 1,
+      "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg"
     }
   ]
 }
