@@ -177,7 +177,7 @@ def page_css(t):
   * {{ margin:0; padding:0; box-sizing:border-box; }}
   body {{ -webkit-print-color-adjust:exact; print-color-adjust:exact;
     font-family:{t['BODY_FONT']}; background:{t['BG']}; color:{t['INK']}; }}
-  .page {{ width:8.5in; height:11in; padding:0.55in 0.6in; page-break-after:always; position:relative; }}
+  .page {{ width:8.5in; height:11in; padding:0.55in 0.6in; page-break-after:always; position:relative; overflow:hidden; }}
   .page:last-child {{ page-break-after:auto; }}
   .kicker {{ color:{t['ACCENT']}; font-weight:700; letter-spacing:2.5px; font-size:10pt; text-transform:uppercase; }}
   h1 {{ font-family:{t['HEAD_FONT']}; font-size:30pt; line-height:1.12; margin:14px 0 10px; }}
@@ -193,7 +193,8 @@ def page_css(t):
   td.macros {{ width:1.02in; font-size:7.8pt; color:{t['SOFT']}; }}
   .gcat {{ font-weight:700; color:{t['ACCENT']}; text-transform:uppercase; font-size:8.5pt; letter-spacing:1px; margin:10px 0 4px; }}
   .gitem {{ font-size:9.5pt; padding:1.5px 0; border-bottom:1px dotted {t['LINE']}; display:flex; justify-content:space-between; }}
-  .cols {{ column-count:2; column-gap:28px; }}
+  .colwrap {{ display:flex; gap:28px; align-items:flex-start; }}
+  .col {{ flex:1; min-width:0; }}
   .dir {{ break-inside:avoid; margin-bottom:9px; padding-bottom:7px; border-bottom:1px dotted {t['LINE']}; }}
   .dir .dn {{ font-weight:700; font-size:9.5pt; }}
   .dir .dm {{ font-size:8.2pt; color:{t['ACCENT']}; margin:1px 0; }}
@@ -211,7 +212,75 @@ def footer(t, extra=""):
     return f'<div class="foot"><b>{t["URL"]}</b><span>{extra or "Free 30-day tracker + starter emails at " + t["BONUS"]}</span></div>'
 
 
-def render_html(cfg, days, groceries, pool):
+# ---------- overflow-safe column packing ----------
+# The grocery lists and meal directory used to be one balanced-CSS-column page
+# each. Anything taller than 11in silently overprinted the next page (shipped
+# broken in the keto/lowcarb/pescatarian/mediterranean PDFs, Jul 2026). Blocks
+# are now measured in the real browser at column width and packed into explicit
+# flex columns, spilling onto as many pages as they need.
+
+COL_W_PX = (7.3 * 96 - 28) / 2  # content width minus flex gap, two columns
+
+
+def measure_heights(page, t, blocks):
+    """Render blocks at column width in the probe browser, return px heights."""
+    html = (f'<!DOCTYPE html><html><head><meta charset="UTF-8">'
+            f'<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700'
+            f'&family=Source+Sans+3:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">'
+            f'<style>{page_css(t)} body{{background:#fff;}} '
+            f'#probe{{width:{COL_W_PX:.1f}px;}}</style></head>'
+            f'<body><div id="probe">{"".join(b["html"] for b in blocks)}</div></body></html>')
+    page.set_content(html, wait_until="networkidle")
+    return page.evaluate(
+        "Array.from(document.getElementById('probe').children).map(e => e.getBoundingClientRect().height)")
+
+
+def pack_columns(blocks, cap):
+    """Greedy-pack measured blocks into columns of height <= cap.
+
+    Header-ish blocks (kind h2/gcat) are never stranded at the bottom of a
+    column; they carry over to the top of the next one.
+    """
+    cols, cur, h = [], [], 0.0
+    for b in blocks:
+        if cur and h + b["h"] > cap:
+            carry = []
+            while cur and cur[-1]["kind"] in ("h2", "gcat"):
+                carry.insert(0, cur.pop())
+            cols.append(cur)
+            cur, h = carry, sum(x["h"] for x in carry)
+        cur.append(b)
+        h += b["h"]
+    if cur:
+        cols.append(cur)
+    return cols
+
+
+def columns_to_pages(cols, per_page=2):
+    return [cols[i:i + per_page] for i in range(0, len(cols), per_page)]
+
+
+def render_packed_pages(cfg, t, title, cols_pages, cont_header):
+    """Emit one .page per group of packed columns. cont_header(first_block)
+    returns an optional continuation h2 for pages that start mid-run."""
+    out = []
+    for pi, page_cols in enumerate(cols_pages):
+        col_html = ""
+        for ci, col in enumerate(page_cols):
+            inner = ""
+            if pi > 0 and ci == 0 and col and col[0]["kind"] not in ("h2",):
+                ch = cont_header(col[0])
+                if ch:
+                    inner += ch
+            inner += "".join(b["html"] for b in col)
+            col_html += f'<div class="col">{inner}</div>'
+        out.append(f"""<div class="page">
+          <div class="kicker">{esc(cfg['title'])}</div><h1 style="font-size:20pt;">{title}</h1>
+          <div class="rule"></div><div class="colwrap">{col_html}</div>{footer(t)}</div>""")
+    return out
+
+
+def render_html(cfg, days, groceries, pool, probe_page):
     t = cfg["theme"]
     pr = PROSE.get(cfg["key"], {})
     sub = f' <span style="font-weight:400; font-size:20pt; color:{t["SOFT"]}">({cfg["subtitle_kcal"]})</span>' if cfg.get("subtitle_kcal") else ""
@@ -265,26 +334,24 @@ def render_html(cfg, days, groceries, pool):
           <p class="soft" style="margin-top:10px; font-size:8.5pt;">Macros are computed from the exact ingredient amounts in the Meal Directory. Swap any meal for another in the same column, same week, and you'll stay close.</p>
           {footer(t)}</div>""")
 
-    # grocery pages (2 weeks per page)
-    for gp in range(0, weeks, 2):
-        cols = ""
-        for w in range(gp, min(gp + 2, weeks)):
-            items = ""
-            last_cat = None
-            for r in groceries[w]:
-                if r["cat"] != last_cat:
-                    cat_label = {"meat": "Meat", "seafood": "Seafood", "eggs_dairy": "Eggs & Dairy",
-                                 "produce": "Produce", "pantry": "Pantry"}[r["cat"]]
-                    items += f'<div class="gcat">{cat_label}</div>'
-                    last_cat = r["cat"]
-                items += f'<div class="gitem"><span>{esc(r["name"])}</span><b>{r["disp"]}</b></div>'
-            cols += f'<div style="break-inside:avoid;"><h2>Week {w+1} grocery list</h2>{items}</div>'
-        pages.append(f"""<div class="page">
-          <div class="kicker">{esc(cfg['title'])}</div><h1 style="font-size:20pt;">Grocery lists</h1>
-          <div class="rule"></div><div class="cols">{cols}</div>{footer(t)}</div>""")
+    # grocery pages — measured blocks packed into explicit columns
+    cat_labels = {"meat": "Meat", "seafood": "Seafood", "eggs_dairy": "Eggs & Dairy",
+                  "produce": "Produce", "pantry": "Pantry"}
+    gblocks = []
+    for w in range(weeks):
+        gblocks.append({"kind": "h2", "week": w + 1,
+                        "html": f'<h2 style="margin-top:6px;">Week {w+1} grocery list</h2>'})
+        last_cat = None
+        for r in groceries[w]:
+            if r["cat"] != last_cat:
+                gblocks.append({"kind": "gcat", "week": w + 1,
+                                "html": f'<div class="gcat">{cat_labels[r["cat"]]}</div>'})
+                last_cat = r["cat"]
+            gblocks.append({"kind": "gitem", "week": w + 1,
+                            "html": f'<div class="gitem"><span>{esc(r["name"])}</span><b>{r["disp"]}</b></div>'})
 
-    # meal directory
-    seen, dirs = set(), ""
+    # directory blocks
+    seen, dblocks = set(), []
     for m in pool:
         if m["id"] in seen or m["slot"] == "meal2":
             continue
@@ -293,12 +360,29 @@ def render_html(cfg, days, groceries, pool):
         ings = ", ".join(
             (f'{it["qty"]} {ING[it["id"]]["name"].lower()}' if "qty" in it else f'{it["g"]}g {ING[it["id"]]["name"].lower()}')
             for it in m["ingredients"] if it["id"] != "salt")
-        dirs += (f'<div class="dir"><div class="dn">{esc(m["name"])}</div>'
-                 f'<div class="dm">{mm["kcal"]} kcal · P {mm["p"]}g · F {mm["f"]}g · NC {mm["c"]}g</div>'
-                 f'<div class="dd">{esc(ings)}, salt. {esc(m["method"])}</div></div>')
-    pages.append(f"""<div class="page">
-      <div class="kicker">{esc(cfg['title'])}</div><h1 style="font-size:20pt;">Meal directory</h1>
-      <div class="rule"></div><div class="cols">{dirs}</div>{footer(t)}</div>""")
+        dblocks.append({"kind": "dir", "week": None,
+                        "html": (f'<div class="dir"><div class="dn">{esc(m["name"])}</div>'
+                                 f'<div class="dm">{mm["kcal"]} kcal · P {mm["p"]}g · F {mm["f"]}g · NC {mm["c"]}g</div>'
+                                 f'<div class="dd">{esc(ings)}, salt. {esc(m["method"])}</div></div>')})
+
+    # measure everything in one probe pass, then pack against the real budget:
+    # 11in page minus 0.55in top/bottom padding, header block, footer zone, safety
+    for blocks in (gblocks, dblocks):
+        heights = measure_heights(probe_page, t, blocks)
+        for b, h in zip(blocks, heights):
+            b["h"] = h
+    header_h = measure_heights(probe_page, t, [{"html":
+        f'<div><div class="kicker">{esc(cfg["title"])}</div>'
+        f'<h1 style="font-size:20pt;">Grocery lists</h1><div class="rule"></div></div>'}])[0]
+    cap = 9.9 * 96 - header_h - 40
+
+    def grocery_cont(first_block):
+        return f'<h2 style="margin-top:6px;">Week {first_block["week"]} grocery list (cont.)</h2>'
+
+    pages += render_packed_pages(cfg, t, "Grocery lists",
+                                 columns_to_pages(pack_columns(gblocks, cap)), grocery_cont)
+    pages += render_packed_pages(cfg, t, "Meal directory",
+                                 columns_to_pages(pack_columns(dblocks, cap)), lambda b: None)
 
     # lion extra: reintroduction + journal
     if cfg.get("lion_extra") and pr.get("reintro"):
@@ -326,12 +410,13 @@ def build(keys):
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page()
+        probe = browser.new_page()
         for key in keys:
             cfg = CONFIGS[key]
             pool = load_pool(cfg)
             days = compose(cfg, pool)
             groceries = grocery_by_week(cfg, days)
-            html = render_html(cfg, days, groceries, pool)
+            html = render_html(cfg, days, groceries, pool, probe)
             page.set_content(html, wait_until="networkidle")
             page.emulate_media(media="print")
             out = OUT_DIR / cfg["out"]
