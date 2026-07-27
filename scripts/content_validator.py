@@ -5,12 +5,22 @@ Comprehensive HTML validator with auto-fix capabilities.
 Prevents common issues BEFORE files are written to disk.
 """
 
+import html
 import re
 import json
 from pathlib import Path
 from datetime import datetime
 from html.parser import HTMLParser
 from typing import List, Tuple, Optional
+
+# Meta description length gate (ISSUE-059). Site-wide SEO cap enforced at
+# write time so the generator can't reintroduce over-cap descriptions.
+# Authoring target is 130-165, but the hard block floor is 120 to match
+# validate_before_commit.py — 11 legacy published posts sit at 122-129 and
+# must keep regenerating (do not batch-rewrite them without research).
+META_DESC_MIN = 130
+META_DESC_MAX = 165
+META_DESC_BLOCK_MIN = 120
 
 
 class HTMLStructureParser(HTMLParser):
@@ -192,6 +202,36 @@ class ContentValidator:
 
         return True
 
+    def validate_meta_description(self, content: str, filename: str) -> bool:
+        """
+        Block posts whose meta description is missing or outside 130-165 chars.
+        ISSUE-059: the backlog was hand-fixed to 0 warnings, but nothing gated
+        the generator, so every content run could reintroduce over-cap
+        descriptions. This fails generation instead of warning.
+        """
+        match = re.search(r'<meta name="description" content="([^"]*)"', content)
+        desc = html.unescape(match.group(1)).strip() if match else ""
+
+        if not desc:
+            self.log(
+                "BLOCKED",
+                filename,
+                f"Meta description missing or empty (required, target {META_DESC_MIN}-{META_DESC_MAX} chars)",
+            )
+            return False
+
+        desc_len = len(desc)
+        if desc_len < META_DESC_BLOCK_MIN or desc_len > META_DESC_MAX:
+            self.log(
+                "BLOCKED",
+                filename,
+                f"Meta description is {desc_len} chars, hard limits {META_DESC_BLOCK_MIN}-{META_DESC_MAX} "
+                f"(target {META_DESC_MIN}-{META_DESC_MAX}): '{desc[:60]}...'",
+            )
+            return False
+
+        return True
+
     def fix_meta_tags(self, content: str, filename: str) -> str:
         """Auto-generate missing meta tags."""
         parser = HTMLStructureParser()
@@ -229,21 +269,21 @@ class ContentValidator:
                     )
                 fixes.append("description")
 
-        # Check meta description length (should be 150-160 chars)
+        # Check meta description length (should be 130-165 chars, matching
+        # the META_DESC_MIN/MAX blocking gate and validate_before_commit.py)
         if "description" in parser.meta_tags and parser.meta_tags["description"]:
             current_desc = parser.meta_tags["description"]
             desc_len = len(current_desc)
 
-            if desc_len < 150 or desc_len > 160:
+            if desc_len < META_DESC_MIN or desc_len > META_DESC_MAX:
                 # Try to adjust length
-                if desc_len < 150:
+                if desc_len < META_DESC_MIN:
                     # Too short - try to extract more from first paragraph
                     p_match = re.search(r"<p[^>]*>(.*?)</p>", content, re.DOTALL)
                     if p_match:
                         full_text = re.sub(r"<[^>]+>", "", p_match.group(1)).strip()
-                        # Take first 155 chars for optimal length
-                        new_desc = full_text[:155].strip()
-                        if len(new_desc) >= 150:
+                        new_desc = full_text[:META_DESC_MAX].strip()
+                        if len(new_desc) >= META_DESC_MIN:
                             content = re.sub(
                                 r'<meta name="description" content="[^"]*"',
                                 f'<meta name="description" content="{new_desc}"',
@@ -252,9 +292,9 @@ class ContentValidator:
                             fixes.append(
                                 f"meta description length ({desc_len} → {len(new_desc)} chars)"
                             )
-                elif desc_len > 160:
-                    # Too long - truncate to 160
-                    new_desc = current_desc[:160].strip()
+                elif desc_len > META_DESC_MAX:
+                    # Too long - truncate to the cap
+                    new_desc = current_desc[:META_DESC_MAX].strip()
                     content = re.sub(
                         r'<meta name="description" content="[^"]*"',
                         f'<meta name="description" content="{new_desc}"',
@@ -618,6 +658,9 @@ class ContentValidator:
             return False, self.log_messages, corrected_filename
 
         if not self.validate_minimum_content(content, filename):
+            return False, self.log_messages, corrected_filename
+
+        if not self.validate_meta_description(content, filename):
             return False, self.log_messages, corrected_filename
 
         # Stage 2: Run fix methods on a THROWAWAY COPY to detect issues
