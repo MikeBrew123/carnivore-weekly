@@ -393,7 +393,12 @@ def validate_html_file(file_path: Path, results: ValidationResults):
                         )
 
         # Check 14: JSON-LD missing on full pages (WARNING)
-        if soup.find('html'):
+        # Noindex pages are exempt: they're deliberately out of the sitemap and
+        # invisible to search, so missing schema is not an SEO problem
+        # (e.g. journey-checkin.html — permanent false positive otherwise).
+        robots_meta = soup.find('meta', attrs={'name': 'robots'})
+        is_noindex = bool(robots_meta and 'noindex' in (robots_meta.get('content') or ''))
+        if soup.find('html') and not is_noindex:
             if not scripts:
                 results.add_warning(
                     rel_path, 1,

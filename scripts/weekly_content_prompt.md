@@ -53,6 +53,7 @@ For each of the 9 posts, follow the CLAUDE.md blog pipeline:
    - `status: "ready"` (NOT "published" — the daily cron handles that)
    - `publish_date`: space across next 7+ days starting tomorrow
    - One post per day, no gaps, no doubles
+   - `meta_description` AND `seo.meta_description`: **130-165 characters, count them before storing** (ISSUE-059). `generate_blog_pages.py` hard-blocks any post outside that range — the post will not render until you shorten or lengthen the description.
 
 Process ONE post at a time. Report progress after each:
 `"Post X/9 done — {writer} — {title} — {word_count} words — publishes {date}"`
