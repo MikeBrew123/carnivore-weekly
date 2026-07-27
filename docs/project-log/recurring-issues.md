@@ -546,3 +546,11 @@ Pattern: GA4 key events were `calculator_complete` / `calculator_start` / `calcu
 Attempts:
 - 2026-07-19 — Via Admin API: created key events for the 4 real event names, deleted the 7 dead ones. Replaced internal `utm_*` links with neutral `?src=` params in index_template.html, public/index.html, calculator-cta.js, desserts.html.
 If recurs: whenever renaming a gtag event, grep GA4 key events + audiences for the old name (dashboard service account has edit scope; see scratchpad ga4_audit.py pattern). Never put utm_ params on same-site links — use `?src=` or event params.
+
+## ISSUE-059 — Content generator emits meta descriptions over the 165-char cap
+🟡 RECURRING — Last: 2026-07-27
+Pattern: ISSUE-050/051/052 hand-fixed the whole backlog to 0 validator warnings on 2026-07-18. Nine days later 3 of the 9 auto-published CW posts (Jul 24, 25, 26) are back over 165 chars (170-175). The backlog fix corrected the *posts*; nothing gates the *generator*, so every content-generation run can reintroduce them. Warnings only, never critical, so the pre-push hook lets them through and they accumulate silently until someone reads the output.
+Attempts:
+- 2026-07-27 — identified during weekly ops review; not fixed (ops review files, does not fix). Bead filed.
+If recurs: fix at write time, not after — enforce the 130-165 char range in the meta_description field inside the content-generation path (scripts/generate_commentary.py / the weekly content prompt schema), and have content_validator.py fail generation rather than warn. Do NOT batch-trim published posts by hand again (memory feedback-title-rewrites-need-research.md).
+Also noted 2026-07-27 (do not "fix"): `public/journey-checkin.html` warns "No JSON-LD" but is deliberately noindex and out of the sitemap — the validator has no noindex exemption, so this warning is a permanent false positive.
