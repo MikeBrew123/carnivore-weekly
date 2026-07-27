@@ -2,6 +2,7 @@
 
 | Date | Decision | Why | Alternatives |
 |------|----------|-----|--------------|
+| 2026-07-27 | Raw Stripe "checkout sessions started" is not a funnel-health signal; the paid-funnel KPI is non-QA `calculator_payment_modal_opened` | Session counts are dominated by shop-button bot bursts and QA tests (the 17→4 "drop" was entirely noise; real organic starts ~0/wk all along) | Keep watching raw session counts (produced this false alarm); alert on completions only (misses upstream breaks) |
 | 2026-07-19 | Drip urgency must be Stripe-enforced or absent: per-subscriber minted codes w/ real 48h expiry; fallback copy makes no time claim | Sarah was claiming a 48h expiry on a code that never expired; honest urgency converts without lying | Fake countdown copy (removed); no urgency at all (loses conversion) |
 | 2026-07-19 | Calculator head terms belong to the BLOG POST; calculator.html owns the animal-based cluster; anchors follow | Google already chose the post (pos 5.7-7.6 vs page's 28-35); fighting the split loses both | 301 the post into the page (risks losing earned rankings) |
 | 2026-07-19 | Etsy sellers frozen by receipt-verified listing-ID allowlist during optimization; additive file changes only with explicit approval | "Don't touch the ones selling" — enforcement in code, not judgment calls | Title-matching (receipts vs titles drift) |
