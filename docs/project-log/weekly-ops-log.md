@@ -96,3 +96,16 @@ Beads filed (carnivore-weekly): 5ggf (cycle), + writeback, #calc anchor, distrib
 - **Drip health 7d:** 182 sent / 176 delivered / 154 opened / 14 clicked / 1 bounced / **0 complained** — green.
 - **Beads filed:** none — nothing broke; watch items (drip growth dip, calc completion lag, etsy-bonus attribution) already covered by open growth beads (mpup/EXP-001, edxc, 871i) and pshn (Jul-26 meal-plan check).
 - **Recurring-issues:** none added.
+
+## 2026-07-27 — Weekly Ops Review
+
+- **GH issues:** none open (health-check, automated). **Monday crons:** scoreboard + heartbeat did NOT fire again (Mac asleep at 3:30/3:45am PT — known gap, always-on Mac mini is the fix). Ran `scoreboard_truth_pass.py` manually → wrote 2026-07-27, errors none. Last heartbeat (Jul 20) flagged vaultsync LaunchAgent dead (Brew-only Full Disk Access fix).
+- **Traffic:** CW GA4 657 sessions/471 users 30d; GSC 321 clicks / 16,368 impr / pos 15.9 (28d). KD GA4 115 sessions; **GSC 1 impression, 0 clicks in 28d** — KD organic still flat at zero, week 3.
+- **Calculator cluster (GSC 28d):** holding pos 6.5–10 across the family — "carnivore macro calculator" 13 clicks/122 impr/pos 8.4, "carnivore tdee calculator" pos 7.5, "paul saladino calculator" pos 6.5. calculator.html itself now **pos 11.0 / 1,206 impr / 18 clicks** — up from the 28–35 suppression noted Jul 19, so the Jul-13/19 SEO work moved it. Blog post 2026-02-26-best-macro-calculator still out-earns it (59 clicks, pos 8.7).
+- **Stripe:** 3 charges/30d, $72.50 USD (Jul 16 $14.50, Jul 5 $29, Jun 28 $29) — **no sale in 11 days**. Checkout starts collapsed **17/wk → 4/wk, 0 completed** (all 4 expired). Coupon 52fYA51M lifetime redemptions = 1. **16 WEEK1- + 1 GRAD- expiring codes minted since Jul 20, 0 redeemed.**
+- **Drip list:** +21 this week (cw 14, kd 7) = 3/day, above the 2/day target and up from +12 last week. 71 total / 59 active. KD drip has its first 7 subscribers.
+- **Drip health 7d:** 169 sent / 187 delivered / 166 opened / 28 clicked / **0 bounced, 0 complained** — green.
+- **Etsy:** July orders 9 MTD (Apr 1 / May 10 / Jun 15 / Jul 9) — pace slowed, +1 in a week. 90d rolling $190.40 CAD, unchanged → ads stay OFF (gate $300). AOV $5.44.
+- **Queue depths:** Pinterest KD **0 unposted** (drained Jul 23, task self-disabled — bead filed). Blog CW **12 ready** through Aug 7 (healthy). Blog KD **2 ready** through Jul 28 (thin; next gen Tue Jul 28 covers it).
+- **Beads filed:** Pinterest queue replenish (P2); day-7 WEEK1 offer 0-redemption review (P3). **Updated `pshn` → P1** with Jul-27 data: all 6 meal-plan listings from Jul 19 have **0–2 views and 0 sales after 8 days**; zero *views* = Etsy discoverability/tags problem, so the Aug-15 sale question is premature.
+- **Recurring-issues:** none added — nothing broke that wasn't already tracked.

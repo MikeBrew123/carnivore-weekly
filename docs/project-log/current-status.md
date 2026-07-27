@@ -59,7 +59,7 @@ Executing the Jul 4-7 revenue sprint (`Brew-Vault/00-Core/Fable-Sprint-2026-07.m
 - **Author bio/photo block in template** — Only byline + schema updated; no visible bio on posts
 - **PubMed citation links** — PMIDs exist in posts but aren't hyperlinked
 - **Calculator CTA conversion tracking** — ✅ DONE (May 24) — diet_selected, completed, email_cta, product_cta events live
-- **Internal linking** — Indexed posts don't link to calculator
+- **Internal linking** — ✅ DONE (Jul 13 EXP-002 added 6 in-prose calculator links to high-intent legacy posts; Jul 19 consolidated 15 anchors across the cluster)
 - **Starter plan page traffic** — Only 3 views/30 days (down from 18/week)
 - **Newsletter migrated to Beehiiv** — superseded: Beehiiv deprecated, all email in-house via Resend as of late June 2026
 - **Backfill E-E-A-T signals** — 75+ existing posts still lack new writer identity signals
