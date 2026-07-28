@@ -1,0 +1,83 @@
+{
+  "tagline": "Fresh Food, Good Fats, Long Life",
+  "healthy_fats": [
+    "Extra Virgin Olive Oil",
+    "Olives",
+    "Avocados",
+    "Walnuts",
+    "Almonds",
+    "Pistachios",
+    "Pine Nuts",
+    "Flaxseeds",
+    "Tahini"
+  ],
+  "proteins": [
+    "Salmon",
+    "Sardines",
+    "Tuna",
+    "Eggs",
+    "Greek Yogurt",
+    "Chickpeas",
+    "Lentils",
+    "White Beans",
+    "Chicken"
+  ],
+  "vegetables": [
+    "Tomatoes",
+    "Spinach",
+    "Zucchini",
+    "Eggplant",
+    "Bell Peppers",
+    "Cucumbers",
+    "Artichokes",
+    "Broccoli",
+    "Onions",
+    "Kale"
+  ],
+  "fruits": [
+    "Figs",
+    "Pomegranates",
+    "Lemons",
+    "Oranges",
+    "Grapes",
+    "Dates",
+    "Peaches",
+    "Melon",
+    "Berries",
+    "Apricots"
+  ],
+  "whole_grains": [
+    "Quinoa",
+    "Farro",
+    "Brown Rice",
+    "Couscous",
+    "Oats",
+    "Whole Grain Bread",
+    "Bulgur",
+    "Barley"
+  ],
+  "herbs_spices": [
+    "Basil",
+    "Oregano",
+    "Rosemary",
+    "Garlic",
+    "Cumin",
+    "Turmeric",
+    "Mint",
+    "Balsamic Vinegar"
+  ],
+  "beverages": [
+    "Water",
+    "Red Wine (In Moderation)",
+    "Coffee",
+    "Herbal Tea"
+  ],
+  "foods_to_avoid": [
+    "Refined Sugar",
+    "Processed Meats",
+    "White Bread",
+    "Deep Fried Foods",
+    "Margarine",
+    "Sugary Drinks"
+  ]
+}

@@ -569,3 +569,12 @@ Pattern: GSC emailed "new reasons prevent pages in a sitemap from being indexed"
 Attempts:
 - 2026-07-27 — Root cause: top-level auto-discovery in generate_blog_pages.py update_sitemap() added any HTML with <head>; redirect-stub stripping only covered /blog/ URLs and noindex was never checked. Fixed both: discovery now skips meta-refresh + robots-noindex files, and the purge pass covers ALL site URLs. Sitemap 214→206 URLs, resubmitted via GSC API → fixed
 If recurs: check whether a new page type bypasses the first-2000-chars head scan (e.g. noindex meta placed late in <head>).
+
+## ISSUE-062 — Four food-list listings shipped AI-generated charts with text glitches
+🟡 RECURRING — Last: 2026-07-28
+Pattern: The May "recraft" fridge-card PNGs were AI-image-generated; every one contains garbled labels baked into the PAID file — lion ("Blark Steak", "Round Maast", "Belf", duplicate items), mediterranean ("Avocados Ais", "Zucchoini", bell pepper labeled "Oranges", dates labeled "Berries"), carnivore ("Flank Mignon", duplicated pork items), pescatarian ("Trotine"). Found 2026-07-27 while adding gallery close-ups (bead qii) — zooming exposed the text.
+Attempts:
+- 2026-07-28 — lion 4513518762 + pescatarian 4513518746: swapped delivered file to the clean typeset April PDFs, deleted recraft PNGs, replaced glitched gallery images with clean chart renders.
+- 2026-07-28 — mediterranean 4513518786: no clean asset existed; rebuilt chart as typeset HTML→PDF (build_med_foodlist.py, content verified by Sarah in med-foodlist-content.json), swapped file, rebuilt rank-1 card + gallery.
+- OPEN: carnivore 4513517597 still ships fridge-card-carnivore-recraft.png ("Flank Mignon"); the April PDF alternative has its own caption glitches ("Pork cheps", "Beef of tallow") so no clean swap exists. Bead filed.
+If recurs: never ship AI-image text products; charts must be HTML→PDF typeset with writer-verified content. Zoom-audit every product image at full res before listing.
