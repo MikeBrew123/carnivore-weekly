@@ -7,36 +7,48 @@ Renders one-page US Letter via Playwright, same approach as build_mealplans.py.
 
 Usage: python3 build_med_foodlist.py
 """
+import base64
 import json
 from pathlib import Path
 
 HERE = Path(__file__).parent
 OUT = HERE.parent / "pdfs" / "fridge-card-mediterranean.pdf"
 CONTENT = json.loads((HERE / "med-foodlist-content.json").read_text())
+ILL_DIR = HERE / "med-illustrations"  # AI-generated ILLUSTRATION-ONLY spot art
+# (no text in the images — all chart text is typeset below, ISSUE-062 rule)
+
+
+def ill(name):
+    p = ILL_DIR / f"{name}.png"
+    if not p.exists():
+        return ""
+    b64 = base64.b64encode(p.read_bytes()).decode()
+    return f'<img class="spot" src="data:image/png;base64,{b64}">'
 
 # MED theme (matches build_mealplans.py)
 BG, INK, ACCENT, HEADBG, HEADINK = "#faf5ec", "#2c1810", "#5a7d2a", "#2f3d1c", "#f2f0e4"
 LINE, LBLBG = "#b8c49a", "#eef0e2"
 
 SECTIONS = [
-    ("healthy_fats", "Healthy Fats"), ("proteins", "Proteins"),
-    ("vegetables", "Vegetables"), ("fruits", "Fruits"),
-    ("whole_grains", "Whole Grains"), ("herbs_spices", "Herbs & Spices"),
-    ("beverages", "Beverages"), ("foods_to_avoid", "Foods to Avoid"),
+    ("healthy_fats", "Healthy Fats", "fats"), ("proteins", "Proteins", "proteins"),
+    ("vegetables", "Vegetables", "vegetables"), ("fruits", "Fruits", "fruits"),
+    ("whole_grains", "Whole Grains", "grains"), ("herbs_spices", "Herbs & Spices", "herbs"),
+    ("beverages", "Beverages", "beverages"), ("foods_to_avoid", "Foods to Avoid", None),
 ]
 
 
-def box(key, label):
+def box(key, label, art):
     avoid = key == "foods_to_avoid"
     items = "".join(
         f'<li{" class=avoid" if avoid else ""}>{i}</li>' for i in CONTENT[key])
     head_style = "background:#8c2f1f;" if avoid else ""
+    spot = ill(art) if art else ""
     return f'''<div class="box{" avoidbox" if avoid else ""}">
       <div class="bhead" style="{head_style}">{label}</div>
-      <ul class="items">{items}</ul></div>'''
+      <div class="brow"><ul class="items{" solo" if not spot else ""}">{items}</ul>{spot}</div></div>'''
 
 
-boxes = "".join(box(k, l) for k, l in SECTIONS)
+boxes = "".join(box(k, l, a) for k, l, a in SECTIONS)
 
 html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
@@ -54,12 +66,15 @@ html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8">
   .tagline {{ text-align:center; color:{ACCENT}; font-weight:700; letter-spacing:2px;
     font-size:11pt; text-transform:uppercase; margin:8px 0 12px; }}
   .grid {{ display:grid; grid-template-columns:1fr 1fr; gap:10px; flex:1; }}
-  .box {{ border:1.5px dashed {ACCENT}; border-radius:6px; background:{LBLBG};
-    padding:0 0 6px; overflow:hidden; }}
+  .box {{ border:1.5px dashed {ACCENT}; border-radius:6px; background:{BG};
+    padding:0 0 6px; overflow:hidden; display:flex; flex-direction:column; }}
   .bhead {{ background:{ACCENT}; color:#fff; font-weight:700; text-align:center;
     font-size:11.5pt; letter-spacing:1.5px; padding:5px 0; margin-bottom:6px; }}
-  ul.items {{ list-style:none; column-count:2; column-gap:8px; padding:0 12px; }}
-  ul.items li {{ font-size:9.6pt; line-height:1.55; padding-left:12px; position:relative;
+  .brow {{ display:flex; align-items:center; gap:6px; flex:1; padding-right:8px; }}
+  .brow .spot {{ width:1.5in; max-height:1.85in; object-fit:contain; flex:0 0 auto; }}
+  ul.items {{ list-style:none; padding:0 0 0 12px; flex:1; }}
+  ul.items.solo {{ column-count:2; column-gap:8px; padding:0 12px; }}
+  ul.items li {{ font-size:9.6pt; line-height:1.5; padding-left:12px; position:relative;
     break-inside:avoid; }}
   ul.items li::before {{ content:"•"; position:absolute; left:0; color:{ACCENT}; font-weight:700; }}
   .avoidbox {{ border-color:#8c2f1f; background:#f5e8e4; }}
