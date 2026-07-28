@@ -109,7 +109,11 @@ jobs:
         run: |
           git config user.email "bot@carnivoreweekly.com"
           git config user.name "Carnivore Weekly Bot"
-          git add data/ public/ index.html archive.html channels.html images/ blog/ templates/ newsletters/ ketodial/ 2>/dev/null || true
+          # Legacy root copies (index.html, archive.html, channels.html, blog/)
+          # were removed in ed69de3e — the site publishes from ./public only.
+          # Keep them out of the staged list so the blog/blog/ mirror can't
+          # silently come back if a script recreates them.
+          git add data/ public/ images/ templates/ newsletters/ ketodial/ 2>/dev/null || true
           git diff --staged --quiet || (
             git commit -m "auto: weekly site refresh ($(date -u +'%Y-%m-%d'))"
             # Push race guard (Jul 5 2026 run lost its commit to a rejected push):

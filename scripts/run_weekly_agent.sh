@@ -53,7 +53,9 @@ python3 scripts/generate.py --type newsletter --site cw
 # ── Deploy ────────────────────────────────────────────────────────────────
 echo ""
 echo "🚀 Deploying to carnivoreweekly.com..."
-git add .
+# Scoped add: staging the whole tree used to sweep in unrelated local
+# changes (legacy mirrors, stray edits) that had to be unstaged by hand.
+git add data/ public/ images/ templates/ newsletters/ ketodial/ 2>/dev/null || true
 git commit -m "Weekly update - $(date +%Y-%m-%d)"
 git push
 

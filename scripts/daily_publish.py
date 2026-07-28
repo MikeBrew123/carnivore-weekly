@@ -79,6 +79,25 @@ def publish_posts(posts_to_publish):
         print(f"  Publishing: {post['slug']} (scheduled: {post.get('publish_date', 'N/A')})")
 
 
+def split_missing_images(posts_to_publish):
+    """
+    Enforce image-before-post ordering: a post whose image field points at a
+    file that is not on disk yet gets deferred (stays "ready"). The <= today
+    date check picks it up on the next run once the image lands, so nothing
+    is lost — but we never render a page referencing a missing image, which
+    previously failed validation and broke the deploy.
+    """
+    base = ROOT / "ketodial" / "public" if SITE == "kd" else ROOT / "public"
+    ok, deferred = [], []
+    for post in posts_to_publish:
+        img = post.get("image", "")
+        if img.startswith("/") and not (base / img.lstrip("/")).exists():
+            deferred.append(post)
+        else:
+            ok.append(post)
+    return ok, deferred
+
+
 def run_generator():
     """Render HTML for the site being published.
 
@@ -212,6 +231,17 @@ def main():
         for p in untagged[:5]:
             print(f"   - {p.get('slug', 'unknown')}")
         sys.exit(1)
+
+    # Defer posts whose image hasn't been generated/committed yet
+    to_publish, deferred = split_missing_images(to_publish)
+    if deferred:
+        print(f"⏸️  Deferring {len(deferred)} post(s) — image file not on disk yet (will retry next run):")
+        for p in deferred:
+            print(f"   - {p.get('slug', 'unknown')}: {p.get('image')}")
+    if not to_publish:
+        print(f"No publishable posts today ({TODAY}) after image check")
+        print(f"Total published: {already_published}")
+        sys.exit(0)
 
     # Publish them
     print(f"📰 Publishing {len(to_publish)} post(s) for {TODAY} [site={SITE}]:")
