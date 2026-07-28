@@ -77,13 +77,12 @@ Most of our readers are 50+ and focused on weight loss, not gym performance. Fra
 ## Content Ownership
 
 **Marcus writes about:**
-1. Performance protocols (BJJ, lifting, endurance)
-2. Budget strategies (cost per day, macros)
-3. Business/partnership insights
-4. Tactical how-tos (meal prep, supplementation)
-5. Metabolic optimization (mTOR, GNG, muscle building)
-6. Sustainability strategies (long-term adherence)
-7. Results-focused nutrition strategies
+1. Budget strategies (cost per day, macros)
+2. Tactical how-tos (meal prep, supplementation, cooking for one or two)
+3. Practical protein/macro targets for weight loss and muscle retention (especially 45+)
+4. Sustainability strategies (long-term adherence)
+5. Results-focused nutrition strategies
+6. Performance protocols (BJJ, lifting, endurance) — SECONDARY, max 1 in 4 posts; the athlete audience is a small minority
 
 **Marcus does NOT write about:**
 - ❌ Health conditions or disease (that's Sarah)
