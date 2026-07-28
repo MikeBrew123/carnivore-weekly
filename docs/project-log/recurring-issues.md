@@ -562,3 +562,10 @@ Pattern: build_mealplans.py used fixed-height `.page` divs + balanced CSS column
 Attempts:
 - 2026-07-27 — rewrote grocery/directory rendering: blocks are measured in the probe browser at real column width, greedy-packed into explicit flex columns with header carry-over and "(cont.)" continuation headers, spilling onto extra pages as needed. `.page` also gets overflow:hidden so any future overflow truncates visibly instead of overprinting. All 6 PDFs rebuilt + verified page-by-page (text structure + visual). Fixed files re-uploaded to the 6 Etsy listings (old files deleted).
 If recurs: check pdftotext per page — no page should contain both "grocery list" and "Meal directory" text; verify cap math in render_html (9.9in content box minus measured header minus 40px safety).
+
+## ISSUE-061 — Sitemap listed redirect stubs and noindex pages (GSC "new reasons" email)
+🟢 FIXED — Last: 2026-07-27
+Pattern: GSC emailed "new reasons prevent pages in a sitemap from being indexed" — 5 redirect stubs (about, subscribe, newsletter, tools, recipes .html) + 3 noindex pages (newsletter-preview, shop-thanks, journey-checkin) were in sitemap.xml.
+Attempts:
+- 2026-07-27 — Root cause: top-level auto-discovery in generate_blog_pages.py update_sitemap() added any HTML with <head>; redirect-stub stripping only covered /blog/ URLs and noindex was never checked. Fixed both: discovery now skips meta-refresh + robots-noindex files, and the purge pass covers ALL site URLs. Sitemap 214→206 URLs, resubmitted via GSC API → fixed
+If recurs: check whether a new page type bypasses the first-2000-chars head scan (e.g. noindex meta placed late in <head>).

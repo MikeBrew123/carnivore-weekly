@@ -414,6 +414,10 @@ def update_sitemap(posts):
             content = html_file.read_text(encoding="utf-8", errors="ignore")[:2000]
             if "<head" not in content:
                 continue
+            if 'http-equiv="refresh"' in content or "http-equiv='refresh'" in content:
+                continue  # Redirect stub — GSC flags "Page with redirect"
+            if 'name="robots"' in content and "noindex" in content:
+                continue  # GSC flags "Excluded by 'noindex' tag"
         except Exception:
             continue
         candidate_url = f"https://carnivoreweekly.com/{html_file.name}"
@@ -468,23 +472,27 @@ def update_sitemap(posts):
                 url_data[candidate_url] = {"lastmod": lastmod, "changefreq": "monthly", "priority": "0.8"}
                 print(f"  ℹ️  Orphan blog post added to sitemap: {html_file.name}")
 
-    # Remove blog URLs whose on-disk files are redirect stubs
-    blog_urls_to_remove = []
+    # Remove any URL whose on-disk file is a redirect stub or noindex page
+    # (covers top-level pages AND blog posts — GSC flags both as sitemap errors)
+    urls_to_remove = []
+    site_prefix = "https://carnivoreweekly.com/"
     for url in url_data:
-        if "/blog/" in url and url.endswith(".html"):
-            filename = url.split("/blog/")[-1]
-            filepath = PUBLIC_DIR / "blog" / filename
-            if filepath.exists():
-                try:
-                    snippet = filepath.read_text(encoding="utf-8", errors="ignore")[:2000]
-                    if 'http-equiv="refresh"' in snippet or "http-equiv='refresh'" in snippet:
-                        blog_urls_to_remove.append(url)
-                except Exception:
-                    pass
-    for url in blog_urls_to_remove:
+        if not url.startswith(site_prefix) or not url.endswith(".html"):
+            continue
+        filepath = PUBLIC_DIR / url[len(site_prefix):]
+        if filepath.exists():
+            try:
+                snippet = filepath.read_text(encoding="utf-8", errors="ignore")[:2000]
+                if 'http-equiv="refresh"' in snippet or "http-equiv='refresh'" in snippet:
+                    urls_to_remove.append(url)
+                elif 'name="robots"' in snippet and "noindex" in snippet:
+                    urls_to_remove.append(url)
+            except Exception:
+                pass
+    for url in urls_to_remove:
         del url_data[url]
-    if blog_urls_to_remove:
-        print(f"  ℹ️  Removed {len(blog_urls_to_remove)} redirect stubs from sitemap")
+    if urls_to_remove:
+        print(f"  ℹ️  Removed {len(urls_to_remove)} redirect/noindex pages from sitemap")
 
     # Create new sitemap XML with deduplicated URLs
     new_root = ET.Element("urlset", xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
