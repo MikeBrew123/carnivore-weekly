@@ -968,7 +968,15 @@ class UnifiedGenerator:
 
                     newest_slugs = {p["slug"] for p in newest_blog_posts}
                     remaining = [p for p in published_posts if p["slug"] not in newest_slugs]
-                    popular_blog_posts = sorted(remaining, key=pub_date, reverse=True)[:3]
+                    # "Most Popular" slots hold proven performers (featured_bento
+                    # flag in blog_posts.json, set from GA4/GSC + buyer-referrer
+                    # data), topped up with recent posts if fewer than 3 flagged.
+                    pinned = [p for p in remaining if p.get("featured_bento")]
+                    unpinned = [p for p in remaining if not p.get("featured_bento")]
+                    popular_blog_posts = (
+                        sorted(pinned, key=pub_date, reverse=True)
+                        + sorted(unpinned, key=pub_date, reverse=True)
+                    )[:3]
 
                     # Map author slugs to display names
                     author_map = {

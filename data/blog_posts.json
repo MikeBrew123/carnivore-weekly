@@ -96,7 +96,8 @@
           "a": "The free calculator takes about 90 seconds. You answer questions about your body stats, activity level, diet type, and goals. Results are instant. If you purchase the full protocol, it's generated and delivered immediately after payment. No waiting, no email drip. You get the complete PDF right away."
         }
       ],
-      "date_modified": "2026-07-19"
+      "date_modified": "2026-07-19",
+      "featured_bento": true
     },
     {
       "slug": "2026-02-25-best-air-fryer-carnivore-ninja-foodi",
@@ -600,7 +601,8 @@
       "status": "published",
       "publish_date": "2026-02-09",
       "image": "/images/blog/2026-02-09-carnivore-food-list-complete.jpg",
-      "site": "cw"
+      "site": "cw",
+      "featured_bento": true
     },
     {
       "slug": "2026-02-09-carnivore-meal-plan-complete-guide",
@@ -644,7 +646,8 @@
       "publish_date": "2026-02-09",
       "image": "/images/blog/2026-02-09-carnivore-meal-plan-complete-guide.jpg",
       "site": "cw",
-      "meta_description": "A complete 7-day carnivore diet meal plan with real portions, 1,200 to 2,000 calorie versions, shopping lists, and a 30-day framework to start."
+      "meta_description": "A complete 7-day carnivore diet meal plan with real portions, 1,200 to 2,000 calorie versions, shopping lists, and a 30-day framework to start.",
+      "featured_bento": true
     },
     {
       "id": "2026-02-07-thyroid-reversal",
