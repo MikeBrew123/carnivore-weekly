@@ -157,7 +157,9 @@
       "Bash(ssh root@100.92.115.43 \"sudo -u hermes bash -lc '/home/hermes/.local/bin/hermes chat --help 2>&1' | grep -iE 'model|stream|provider|source|query|-q ' | head -25\")",
       "WebFetch(domain:www.reddit.com)",
       "Bash(curl -s -m 20 -A \"carnivore-weekly-research/1.0\" \"https://www.reddit.com/r/carnivore/top.json?t=week&limit=5\")",
-      "Bash(curl -s -m 20 \"https://redlib.catsarch.com/r/carnivore/top?t=week\")"
+      "Bash(curl -s -m 20 \"https://redlib.catsarch.com/r/carnivore/top?t=week\")",
+      "Bash(sed -n '1,120p' \"/Users/mbrew/Documents/Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/scoreboard.md\" | head -0; awk '/^## 2026-07-27/,0' \"/Users/mbrew/Documents/Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/scoreboard.md\" | head -90)",
+      "Bash(awk '/^## 2026-07-27/{f=1} f' scoreboard.md)"
     ]
   },
   "disabledMcpjsonServers": [
