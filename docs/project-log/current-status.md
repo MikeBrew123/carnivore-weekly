@@ -355,3 +355,13 @@ Full execution plan: `docs/plans/lcp-calculator-plan-2026-07-05.md` (Sonnet-tier
 **On-site shop:** /shop.html live — 4 carnivore PDFs via Stripe Payment Links (USD: 4.49/4.99/4.99/9.99, Etsy parity). Webhook fulfillment (fulfillShopOrder in calculator-api.js) emails PDFs from tokenized public/downloads/dl-c8596006aead02d8/ (robots-blocked, gitignore exception) with per-product soft upsell, paid-but-undelivered alert, GA4 purchase events. E2E verified with $0 promo checkout. report access_count now increments (was never wired). KD duplication checklist in bead s5w (target 07-10). New-page checklist: ISSUE-042 (canonical + meta description required by validators).
 
 **Content queued:** 2 Sarah landing posts (07-19 women-over-45 macros, 07-20 starting after 60) + scheduled task adds reciprocal backlink 07-19. llms.txt live; GSC sitemap resubmitted.
+
+## 2026-07-28 — W31 digest blockers cleared (pipeline hygiene, commit d03e207b)
+
+All three blockers from the W31 cowork digest fixed and pushed:
+
+**Image-before-post ordering race enforced.** `daily_publish.py` now defers any "ready" post whose `image` path is not on disk (CW: `public/`, KD: `ketodial/public/`) instead of flipping it to published. Deferred posts stay "ready" and the existing `<= today` backlog logic retries next run — no more rendering pages with missing-image refs that fail validation and break the deploy (the Jul self-healed incident class). Guard: `split_missing_images()`.
+
+**Whole-tree staging eliminated.** `run_weekly_agent.sh` `git add .` → scoped list (`data/ public/ images/ templates/ newsletters/ ketodial/`); `run_weekly_update.sh` printed deploy instructions likewise. `weekly-update.yml` staged list drops the legacy roots (`blog/`, root `index.html`/`archive.html`/`channels.html`, removed in ed69de3e) so the `blog/blog/` mirror cannot be re-committed by CI even if a script recreates it. The `cp -r public/blog blog/` root cause was already gone (Jul 26 cleanup); this closes the staging half.
+
+**Stale scheduler tasks deleted.** `cw-pipeline-dry-run` (one-time, fired 2026-04-06) and `backlink-women-over-45-cluster` (one-time, fired 2026-07-19) removed from the local Claude scheduler; SKILL.md files left on disk for prompt recovery.
