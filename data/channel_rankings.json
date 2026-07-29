@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-26",
+  "last_updated": "2026-07-29",
   "leaderboard": [
     {
       "name": "HomeSteadHow",
@@ -8,34 +8,34 @@
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "StevenSteph",
+      "name": "Keto Twins",
       "rank": 2,
       "appearances": 1,
-      "channel_id": "UC9HogCphFdf-Ykerc1Wsl_g"
-    },
-    {
-      "name": "Doctor Alex ",
-      "rank": 3,
-      "appearances": 1,
-      "channel_id": "UCGLAPJjQh7ege-N08u_GZrg"
+      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
     },
     {
       "name": "FaceIQ",
-      "rank": 4,
+      "rank": 3,
       "appearances": 1,
       "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
     },
     {
       "name": "Laura Spath",
-      "rank": 5,
+      "rank": 4,
       "appearances": 1,
       "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
     },
     {
-      "name": "No Carb Life",
+      "name": "Shawn Baker MD",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+    },
+    {
+      "name": "StevenSteph",
       "rank": 6,
       "appearances": 1,
-      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
+      "channel_id": "UC9HogCphFdf-Ykerc1Wsl_g"
     },
     {
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
@@ -44,22 +44,22 @@
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "Jenny Mitich",
+      "name": "Kent Carnivore",
       "rank": 8,
       "appearances": 1,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     },
     {
-      "name": "Meet Carnivore",
+      "name": "Haircafe",
       "rank": 9,
       "appearances": 1,
-      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+      "channel_id": "UCcaWKkWjPre0HyNwVZW5kLA"
     },
     {
-      "name": "Alison Johnson",
+      "name": "No Carb Life",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCC0t5RvSq30NmeCVxVgMtWg"
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
     }
   ]
 }
