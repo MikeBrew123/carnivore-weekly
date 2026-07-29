@@ -5905,6 +5905,16 @@ const SHOP_PRODUCTS = {
     ],
     upsell: `<p>If inflammation is the reason you're here, you might like <a href="https://carnivoreweekly.com/coach.html?utm_source=delivery&utm_medium=email&utm_campaign=post-purchase&utm_content=anti-inflammatory-set">Carnivore Coach</a>, our 12-week guided program opening this fall. Weekly check-ins track joint pain and energy, not just weight. Founding spots are free to reserve.</p>`,
   },
+  'doctor-prep-kit': {
+    name: 'Doctor Visit Prep Kit (Low-Carb Edition)',
+    files: [{ filename: 'Doctor-Visit-Prep-Kit.pdf', path: `${SHOP_DL_BASE}/doctor-prep-kit-v1.pdf` }],
+    upsell: `<p>If your doctor asks you to monitor at home, the <a href="https://carnivoreweekly.com/shop.html?utm_source=delivery&utm_medium=email&utm_campaign=post-purchase&utm_content=doctor-prep-kit">Share-With-Your-Doctor BP &amp; Glucose Log</a> pairs with this kit. It condenses four weeks of readings into the one page they'll actually read.</p>`,
+  },
+  'bp-glucose-log': {
+    name: 'Share-With-Your-Doctor BP & Glucose Log',
+    files: [{ filename: 'BP-Glucose-Doctor-Log.pdf', path: `${SHOP_DL_BASE}/bp-glucose-log-v1.pdf` }],
+    upsell: `<p>Some people pair this log with the <a href="https://carnivoreweekly.com/shop.html?utm_source=delivery&utm_medium=email&utm_campaign=post-purchase&utm_content=bp-glucose-log">Doctor Visit Prep Kit</a>. The log collects your numbers, the kit gets the whole appointment organized around them.</p>`,
+  },
 };
 
 async function fulfillShopOrder(env, obj, shopSlug) {
