@@ -185,6 +185,18 @@ def fetch_traffic(property_id):
     resp = ga4_run(property_id, ['deviceCategory'], ['sessions'], [('7daysAgo', 'today')], limit=5)
     out['devices_7d'] = [{'device': r.dimension_values[0].value, 'sessions': int(r.metric_values[0].value)}
                          for r in resp.rows]
+
+    # Country mix over 90d, not 7d: this is a slow-moving structural fact used for
+    # pricing and shipping calls (USD pricing, ButcherBox not shipping to Canada), and
+    # a single week of ~100 sessions is far too noisy to decide either on.
+    # users is kept alongside sessions so crawler traffic stays visible: real readers
+    # come back, so ~1 session per user at volume is the bot signature.
+    resp = ga4_run(property_id, ['country'], ['sessions', 'totalUsers'],
+                   [('90daysAgo', 'today')], limit=12)
+    out['geo_90d'] = [{'country': r.dimension_values[0].value,
+                       'sessions': int(r.metric_values[0].value),
+                       'users': int(r.metric_values[1].value)}
+                      for r in resp.rows]
     return out
 
 
@@ -645,6 +657,29 @@ def build_insights(d):
             elif chg >= 15:
                 add('good', f'{label} sessions up {chg:.0f}% week-over-week ({prev:.0f} → {cur:.0f}).')
 
+    # Where readers actually are. Drives the USD-pricing and affiliate-shipping calls,
+    # and separates real audience from crawler traffic inflating the totals.
+    for site, label in [('cw', 'Carnivore Weekly'), ('kd', 'KetoDial')]:
+        t = d['traffic'].get(site)
+        if not t or t.get('error'):
+            continue
+        geo = t.get('geo_90d') or []
+        geo_total = sum(g['sessions'] for g in geo)
+        if geo_total < 100:
+            continue  # too little data over 90d for a country split to mean anything
+        ca_pct = sum(g['sessions'] for g in geo if g['country'] == 'Canada') / geo_total * 100
+        if ca_pct >= 15:
+            add('info', f'{label}: Canada is {ca_pct:.0f}% of sessions over 90d. Affiliate offers '
+                        f'that do not ship to Canada (ButcherBox) dead-end that share of readers.')
+        for g in geo:
+            if g['country'] in ('United States', 'Canada') or g['users'] < 50:
+                continue
+            share = g['sessions'] / geo_total * 100
+            if share >= 10 and g['sessions'] <= g['users'] * 1.1:
+                add('watch', f'{label}: {g["country"]} is {share:.0f}% of 90d sessions '
+                             f'({g["sessions"]} sessions from {g["users"]} users, about one visit each). '
+                             f'That is the crawler signature, not readers, so treat totals as inflated.')
+
     for site, label in [('cw', 'CW'), ('kd', 'KD')]:
         g = d['search'].get(site)
         if not g or g.get('error'):
@@ -964,14 +999,29 @@ def traffic_card(label, t, accent):
                   for s in t['sources_7d'][:5])
     pages = ''.join(f'<div class="kv"><span>{esc(p["page"])}</span><b>{p["views"]}</b></div>'
                     for p in t['top_pages_7d'][:5])
+
+    geo = t.get('geo_90d') or []
+    geo_total = sum(g['sessions'] for g in geo)
+    geo_line = ''
+    if geo_total:
+        def _share(name):
+            return sum(g['sessions'] for g in geo if g['country'] == name) / geo_total * 100
+        geo_line = (f'<p class="muted small">Last 90d: US {_share("United States"):.0f}% · '
+                    f'Canada {_share("Canada"):.0f}% of {geo_total} sessions</p>')
+    geo_rows = ''.join(
+        f'<div class="kv"><span>{esc(g["country"])}</span>'
+        f'<b>{g["sessions"]} <span class="muted">/ {g["users"]}u</span></b></div>'
+        for g in geo[:10])
+    geo_block = (f'<h4>Countries (90d, sessions / users)</h4>{geo_rows}' if geo_rows else '')
     return f'''<div class="card">
       <h3 style="border-color:{accent}">{esc(label)} {active_html}</h3>
       <div class="bignum">{sess["current"]:.0f} <span class="muted small">sessions / 7d</span> {trend_html(sess["change_pct"])}</div>
       {sparkline(t.get('daily', []), accent)}
       <p class="muted small">Today so far: {today["sessions"]} sessions · {today["users"]} users · {today["pageviews"]} pageviews</p>
+      {geo_line}
       <table><thead><tr><th>Metric</th><th>7d</th><th>Prior</th><th></th></tr></thead><tbody>{rows}</tbody></table>
-      <details><summary>Top sources & pages (7d)</summary>
-        <h4>Sources</h4>{src}<h4>Pages</h4>{pages}</details>
+      <details><summary>Top sources, pages & countries</summary>
+        <h4>Sources (7d)</h4>{src}<h4>Pages (7d)</h4>{pages}{geo_block}</details>
     </div>'''
 
 
