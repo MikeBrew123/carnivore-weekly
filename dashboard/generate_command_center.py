@@ -178,10 +178,29 @@ def fetch_traffic(property_id):
 
     resp = ga4_run(property_id, ['date'], ['sessions', 'totalUsers'],
                    [('28daysAgo', 'today')], limit=40, order_desc_metric=False)
-    out['daily'] = [
+    out['daily'] = sorted([
         {'date': f"{r.dimension_values[0].value[:4]}-{r.dimension_values[0].value[4:6]}-{r.dimension_values[0].value[6:]}",
          'sessions': int(r.metric_values[0].value), 'users': int(r.metric_values[1].value)}
-        for r in resp.rows]
+        for r in resp.rows], key=lambda x: x['date'])
+
+    # Bot-burst guard (bead yb7q): a single day >3x the 28d median is almost
+    # always the direct/desktop/NY crawler burst (2026-08-01 verdict: Jul 14 hit
+    # 71 sessions and Jul 28 hit 56 vs a ~15 median), not readers. Flag those
+    # days and compute a week-over-week with them excluded, so one burst can't
+    # fake a surge — or, by landing in the comparison week, fake a crash.
+    daily = out['daily']
+    med = sorted(x['sessions'] for x in daily)[len(daily) // 2] if daily else 0
+    out['daily_median_28d'] = med
+    out['spike_days'] = [x for x in daily if med >= 5 and x['sessions'] > 3 * med]
+    spike_dates = {x['date'] for x in out['spike_days']}
+    if len(daily) >= 14:
+        cur_days = [x for x in daily[-7:] if x['date'] not in spike_dates]
+        prev_days = [x for x in daily[-14:-7] if x['date'] not in spike_dates]
+        cur_s = sum(x['sessions'] for x in cur_days)
+        prev_s = sum(x['sessions'] for x in prev_days)
+        out['week_ex_spike'] = {
+            'current': cur_s, 'previous': prev_s, 'change_pct': pct_change(cur_s, prev_s),
+            'excluded': sorted(spike_dates & {x['date'] for x in daily[-14:]})}
 
     resp = ga4_run(property_id, ['sessionSourceMedium'], ['sessions'], [('7daysAgo', 'today')], limit=10)
     out['sources_7d'] = [{'source': r.dimension_values[0].value, 'sessions': int(r.metric_values[0].value)}
@@ -656,15 +675,60 @@ def build_insights(d):
         if not t or t.get('error'):
             add('watch', f'{label} traffic data unavailable this run — GA4 fetch failed.')
             continue
+
+        # Bot-resistant trend read (bead yb7q). Raw GA4 sessions produced both the
+        # phantom "checkout surge" and the phantom "43% crash" of Jul 2026 (bot
+        # burst + utm session-splitting). Trend numbers exclude flagged spike
+        # days, and a GA4-only drop can no longer escalate past 'watch' unless
+        # Google clicks or calculator sessions corroborate it.
+        med = t.get('daily_median_28d', 0)
+        for sd in t.get('spike_days', []):
+            add('watch', f'{label}: {sd["date"]} spiked to {sd["sessions"]} sessions '
+                         f'({sd["users"]} users) vs a {med}/day 28d median — matches the '
+                         f'direct/desktop crawler burst; excluded from trend numbers below.')
+
         cur, prev, chg = _wow(t)
-        if chg is not None:
-            if chg <= -30:
-                add('alert', f'{label} sessions dropped {abs(chg):.0f}% week-over-week '
-                             f'({prev:.0f} → {cur:.0f}). Check GSC indexing and recent deploys.')
-            elif chg <= -15:
-                add('watch', f'{label} sessions down {abs(chg):.0f}% vs last week ({prev:.0f} → {cur:.0f}).')
-            elif chg >= 15:
-                add('good', f'{label} sessions up {chg:.0f}% week-over-week ({prev:.0f} → {cur:.0f}).')
+        ex = t.get('week_ex_spike') or {}
+        use_chg = ex.get('change_pct', chg)
+        use_cur = ex.get('current', cur)
+        use_prev = ex.get('previous', prev)
+        excluded = ex.get('excluded') or []
+        suffix = f' (excluding {len(excluded)} spike day(s))' if excluded else ''
+
+        gsc_wk = d['search'].get(site) or {}
+        gsc_chg = pct_change(gsc_wk.get('current', {}).get('clicks', 0),
+                             gsc_wk.get('previous', {}).get('clicks', 0)) if gsc_wk.get('current') else None
+        calc_chg = ((d.get('funnels') or {}).get(f'calculator_{site}') or {}).get('week', {}).get('change_pct')
+        corroborated = (gsc_chg is not None and gsc_chg <= -25) or (calc_chg is not None and calc_chg <= -30)
+
+        if use_chg is not None:
+            if use_chg <= -30 and corroborated:
+                add('alert', f'{label} sessions dropped {abs(use_chg):.0f}% week-over-week '
+                             f'({use_prev:.0f} → {use_cur:.0f}){suffix}, corroborated by '
+                             f'Google clicks/calculator sessions. Check GSC indexing and recent deploys.')
+            elif use_chg <= -30:
+                add('watch', f'{label} GA4 sessions down {abs(use_chg):.0f}% WoW '
+                             f'({use_prev:.0f} → {use_cur:.0f}){suffix}, but Google clicks and '
+                             f'calculator sessions are steady — likely measurement noise, not lost readers.')
+            elif use_chg <= -15:
+                add('watch', f'{label} sessions down {abs(use_chg):.0f}% vs last week '
+                             f'({use_prev:.0f} → {use_cur:.0f}){suffix}.')
+            elif use_chg >= 15:
+                add('good', f'{label} sessions up {use_chg:.0f}% week-over-week '
+                            f'({use_prev:.0f} → {use_cur:.0f}){suffix}.')
+
+    # Calculator sessions are the bot-resistant demand metric (server-side rows,
+    # test accounts excluded) — they get their own alert tier.
+    for site, label in [('cw', 'CW'), ('kd', 'KD')]:
+        wk = ((d.get('funnels') or {}).get(f'calculator_{site}') or {}).get('week') or {}
+        c, p, chg = wk.get('current', 0), wk.get('previous', 0), wk.get('change_pct')
+        if chg is None or (c + p) < 10:
+            continue  # too few sessions for a percentage to mean anything
+        if chg <= -40:
+            add('alert', f'{label} calculator sessions dropped {abs(chg):.0f}% WoW ({p} → {c}) — '
+                         f'this metric is bot-resistant, so treat as a real demand drop.')
+        elif chg >= 40:
+            add('good', f'{label} calculator sessions up {chg:.0f}% WoW ({p} → {c}).')
 
     # Where readers actually are. Drives the USD-pricing and affiliate-shipping calls,
     # and separates real audience from crawler traffic inflating the totals.
@@ -695,7 +759,12 @@ def build_insights(d):
             continue
         c, p = g['current'], g['previous']
         chg = pct_change(c['clicks'], p['clicks'])
-        if chg is not None and chg <= -25:
+        # Clicks are bot-resistant, so a big drop here is a real alert (window
+        # already lags 2 days for GSC's late-arriving data).
+        if chg is not None and chg <= -40 and p['clicks'] >= 25:
+            add('alert', f'{label} Google clicks down {abs(chg):.0f}% ({p["clicks"]} → {c["clicks"]}) — '
+                         f'bot-resistant metric, treat as real. Check GSC indexing and recent deploys.')
+        elif chg is not None and chg <= -25:
             add('watch', f'{label} Google clicks down {abs(chg):.0f}% ({p["clicks"]} → {c["clicks"]}).')
         elif chg is not None and chg >= 25:
             add('good', f'{label} Google clicks up {chg:.0f}% ({p["clicks"]} → {c["clicks"]}).')

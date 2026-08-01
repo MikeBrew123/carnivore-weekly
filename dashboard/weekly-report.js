@@ -191,7 +191,22 @@ async function fetchGA4() {
     }
   })
 
-  return { thisWeek, lastWeek, topPages, sources, daily, devices }
+  // Bot-burst guard (bead yb7q): flag days >3x the trailing median — the
+  // recurring direct/desktop/NY crawler burst (Jul 14 and Jul 28, 2026 hit
+  // 71 and 56 sessions vs a ~15 median) — and compute a spike-excluded WoW
+  // so one burst day can't fake a surge or a crash in the headline numbers.
+  const sortedSessions = daily.map(d => d.sessions).sort((a, b) => a - b)
+  const median = sortedSessions.length ? sortedSessions[Math.floor(sortedSessions.length / 2)] : 0
+  const spikeDays = median >= 5 ? daily.filter(d => d.sessions > 3 * median) : []
+  const spikeDates = new Set(spikeDays.map(d => d.date))
+  let weekExSpike = null
+  const last14 = daily.slice(-14)
+  if (last14.length === 14 && spikeDates.size > 0) {
+    const sum = rows => rows.filter(d => !spikeDates.has(d.date)).reduce((s, d) => s + d.sessions, 0)
+    weekExSpike = { current: sum(last14.slice(7)), previous: sum(last14.slice(0, 7)) }
+  }
+
+  return { thisWeek, lastWeek, topPages, sources, daily, devices, median21d: median, spikeDays, weekExSpike }
 }
 
 // --------------- Test / internal account filtering ---------------
@@ -320,6 +335,21 @@ function generateHTML(ga4, sb) {
   // --- GA4 section ---
   const tw = ga4.thisWeek || {}
   const lw = ga4.lastWeek || {}
+
+  // Spike-day callout: raw WoW arrows above are unreliable when a crawler
+  // burst lands in either week, so say so right under them.
+  let spikeBanner = ''
+  if ((ga4.spikeDays || []).length > 0) {
+    const dayList = ga4.spikeDays.map(d => `${d.date} (${d.sessions} sessions)`).join(', ')
+    const ex = ga4.weekExSpike
+    const exLine = ex
+      ? ` Excluding spike days, sessions were ${fmt(ex.previous)} last week → ${fmt(ex.current)} this week.`
+      : ''
+    spikeBanner = `<div style="margin-top:12px;padding:10px 14px;background:#2a2216;border:1px solid #7c5e10;border-radius:8px;font-size:0.85rem;color:#fbbf24">
+      ⚠️ Crawler-burst day(s) detected (&gt;3× the ${ga4.median21d}/day median): ${dayList}.
+      These match the direct/desktop bot signature, not readers — the raw arrows above include them.${exLine}
+    </div>`
+  }
 
   const maxPageViews = Math.max(...ga4.daily.map(d => d.pageViews), 1)
 
@@ -818,6 +848,7 @@ function generateHTML(ga4, sb) {
       ${metricCard('Bounce Rate', pct(tw.bounceRate), '', tw.bounceRate < 60 ? '#4ade80' : '#f87171')}
       ${metricCard('Avg Session', (tw.avgSessionDuration / 60).toFixed(1) + ' min')}
     </div>
+    ${spikeBanner}
 
     <div class="two-col">
       <div>
