@@ -579,3 +579,11 @@ Attempts:
 - 2026-07-28 — mediterranean 4513518786: no clean asset existed; rebuilt chart as typeset HTML→PDF (build_med_foodlist.py, content verified by Sarah in med-foodlist-content.json), swapped file, rebuilt rank-1 card + gallery.
 - OPEN: carnivore 4513517597 still ships fridge-card-carnivore-recraft.png ("Flank Mignon"); the April PDF alternative has its own caption glitches ("Pork cheps", "Beef of tallow") so no clean swap exists. Bead filed.
 If recurs: never ship AI-image text products; charts must be HTML→PDF typeset with writer-verified content. Zoom-audit every product image at full res before listing.
+
+## ISSUE-063 — KD auto-publish never deploys HTML (submodule-blind change detection)
+🟢 FIXED — Last: 2026-08-01
+Pattern: daily-publish.yml detected new KD posts via parent-repo `git diff --staged` paths, but ketodial/public is a submodule — only the pointer ever shows, never blog/*.html → has_changes always false → the "Deploy KD to ketodial repo" step NEVER fired (zero auto-commits in the ketodial repo, ever). daily_publish.py still flipped statuses, committed via the CW path, so blog_posts.json said published while ketodial.com 404'd and the sitemap listed dead URLs (feeds ISSUE aj28 KD indexing).
+Attempts:
+- 2026-07-19 — hand-rendered 7 missing posts (submodule a188a0a) without finding the cause → re-accumulated daily from the next day
+- 2026-08-01 — root cause found (bead lamv): NEW_POSTS detection moved inside the submodule (`git -C ketodial/public status --porcelain -- blog`); 14 missing posts + index cards + sitemap backfilled and pushed
+If recurs: confirm the "Publish KD scheduled posts" step still detects inside the submodule, then check the ketodial repo for an auto-commit on the last publish day — absence means the deploy step was skipped again.
