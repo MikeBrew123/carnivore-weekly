@@ -437,6 +437,46 @@ async function handleSaveSurvey(request, env) {
 }
 
 /**
+ * POST /api/v1/calculator/results-viewed
+ * Record the first render of the free-results screen. Body: { session_token }.
+ * Sets free_results_viewed_at once (never overwritten) so the funnel can
+ * distinguish "saw free results and left" from "abandoned mid-form" —
+ * step_completed=3 alone cannot (2026-08-01 root-cause verdict).
+ */
+async function handleResultsViewed(request, env) {
+  try {
+    if (!validateContentType(request)) {
+      return createErrorResponse('INVALID_CONTENT_TYPE', 'Expected application/json', 400);
+    }
+    const body = await parseJsonBody(request);
+    const { session_token } = body || {};
+    if (!session_token) {
+      return createErrorResponse('MISSING_FIELDS', 'session_token required', 400);
+    }
+    const res = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(session_token)}&free_results_viewed_at=is.null`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+        body: JSON.stringify({ free_results_viewed_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
+      }
+    );
+    if (!res.ok) {
+      console.warn('[handleResultsViewed] PATCH failed:', res.status, await res.text());
+      return createErrorResponse('DB_UPDATE_FAILED', `Failed to record results view: ${res.status}`, 500);
+    }
+    return createSuccessResponse({ saved: true });
+  } catch (err) {
+    console.error('handleResultsViewed error:', err);
+    return createErrorResponse('INTERNAL_ERROR', String(err), 500);
+  }
+}
+
+/**
  * POST /api/v1/calculator/step/1
  */
 async function handleSaveStep1(request, env) {
@@ -6331,6 +6371,11 @@ export default {
     // EXP-004 micro-survey (offer-message fit)
     if (path === '/api/v1/calculator/survey' && method === 'POST') {
       return sendWithCors(await handleSaveSurvey(request, env));
+    }
+
+    // Free-results view marker (funnel truth between step 3 and payment)
+    if (path === '/api/v1/calculator/results-viewed' && method === 'POST') {
+      return sendWithCors(await handleResultsViewed(request, env));
     }
 
     // Payment flow
