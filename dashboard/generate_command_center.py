@@ -59,8 +59,17 @@ NOW_STR = datetime.now().strftime('%Y-%m-%d %H:%M')
 # Internal / test accounts filtered out of people-level data.
 # NOTE: never filter on '+' alone — real readers use plus-addressing
 # (see memory feedback-plus-addressing-not-junk).
-TEST_EMAIL_MARKERS = ('iambrew@gmail.com', '@test.ketodial.com', '@example.com',
+TEST_EMAIL_MARKERS = ('iambrew@gmail.com', 'iambrew+', '@test.ketodial.com', '@example.com',
                       'mbrew@telus.net', 'shoptest@', 'qa+hermes@', 'm@e.com')
+
+# Server-side equivalents for supa_count()/PostgREST, since those counts never
+# pass through is_test_email(). '+' must be %2B in the URL or PostgREST reads a
+# space. CALC variant keeps email-less rows (started-but-no-email is real data).
+CALC_TEST_FILTER = ('or=(email.is.null,and(email.neq.iambrew@gmail.com,'
+                    'email.not.ilike.iambrew%2B*,email.not.ilike.*@test.ketodial.com,'
+                    'email.not.ilike.*@example.com))')
+SUBSCRIBER_TEST_FILTER = ('email=neq.iambrew@gmail.com&email=not.ilike.iambrew%2B*'
+                          '&email=not.ilike.*@test.ketodial.com&email=not.ilike.*@example.com')
 TEST_TEXT_MARKERS = ('please ignore', 'this is only a test', 'test feedback')
 
 
@@ -341,16 +350,16 @@ def fetch_funnels():
 
     # Calculator funnel per site (30d): started → email captured → completed → premium → paid
     for label, src in [('cw', 'cw'), ('kd', 'ketodial')]:
-        base = f'source=eq.{src}&created_at=gte.{d30}'
+        base = f'source=eq.{src}&created_at=gte.{d30}&{CALC_TEST_FILTER}'
         started = supa_count('calculator_sessions_v2', base)
         email = supa_count('calculator_sessions_v2', f'{base}&email=not.is.null')
         # completed_at is never written by the flow; step 3 is the final step
         completed = supa_count('calculator_sessions_v2', f'{base}&step_completed=gte.3')
         premium = supa_count('calculator_sessions_v2', f'{base}&is_premium=eq.true')
         paid = supa_count('calculator_sessions_v2', f'{base}&amount_paid_cents=gt.0')
-        wk = supa_count('calculator_sessions_v2', f'source=eq.{src}&created_at=gte.{d7}')
+        wk = supa_count('calculator_sessions_v2', f'source=eq.{src}&created_at=gte.{d7}&{CALC_TEST_FILTER}')
         wk_prev = supa_count('calculator_sessions_v2',
-                             f'source=eq.{src}&created_at=gte.{d14}&created_at=lt.{d8}')
+                             f'source=eq.{src}&created_at=gte.{d14}&created_at=lt.{d8}&{CALC_TEST_FILTER}')
         out[f'calculator_{label}'] = {
             'window': 'last 30 days',
             'stages': [
@@ -365,7 +374,7 @@ def fetch_funnels():
 
     # Drip funnels, one per site (CW 30-day Carnivore Starter, KD 30-day Keto Starter)
     for site in ['cw', 'kd']:
-        s = f'site=eq.{site}'
+        s = f'site=eq.{site}&{SUBSCRIBER_TEST_FILTER}'
         last_sent = supa_fetch('drip_subscribers', select='last_sent_at',
                                filters=f'{s}&unsubscribed=eq.false&completed=eq.false&last_sent_at=not.is.null',
                                order='last_sent_at.desc', limit=1)
@@ -380,14 +389,14 @@ def fetch_funnels():
 
     # Newsletter per site
     for site in ['cw', 'kd']:
+        ns = f'site=eq.{site}&{SUBSCRIBER_TEST_FILTER}'
         out[f'newsletter_{site}'] = {
-            'active': supa_count('newsletter_subscribers',
-                                 f'site=eq.{site}&unsubscribed_at=is.null'),
-            'new_7d': supa_count('newsletter_subscribers', f'site=eq.{site}&created_at=gte.{d7}'),
+            'active': supa_count('newsletter_subscribers', f'{ns}&unsubscribed_at=is.null'),
+            'new_7d': supa_count('newsletter_subscribers', f'{ns}&created_at=gte.{d7}'),
             'new_prev_7d': supa_count('newsletter_subscribers',
-                                      f'site=eq.{site}&created_at=gte.{d14}&created_at=lt.{d8}'),
+                                      f'{ns}&created_at=gte.{d14}&created_at=lt.{d8}'),
             'unsub_7d': supa_count('newsletter_subscribers',
-                                   f'site=eq.{site}&unsubscribed_at=gte.{d7}'),
+                                   f'{ns}&unsubscribed_at=gte.{d7}'),
         }
 
     # Coach (KD Coach app + waitlist)

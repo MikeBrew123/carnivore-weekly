@@ -569,13 +569,14 @@ async function handleSaveStep2(request, env) {
     }
 
     const response = await fetch(
-      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${session_token}`,
+      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${session_token}&select=email`,
       {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
           'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          'Prefer': 'return=representation',
         },
         body: JSON.stringify({
           lifestyle_activity: data.lifestyle_activity,
@@ -591,6 +592,17 @@ async function handleSaveStep2(request, env) {
 
     if (!response.ok) {
       return createErrorResponse('DB_UPDATE_FAILED', 'Failed to save step 2', 500);
+    }
+
+    // Server-side drip enrollment — see subscribeCore. Never fails the step save.
+    try {
+      const rows = await response.json();
+      const email = rows && rows[0] && rows[0].email;
+      if (email && email.includes('@')) {
+        await subscribeCore(env, email.trim().toLowerCase(), 'calculator', data.diet_type, null);
+      }
+    } catch (err) {
+      console.warn('[handleSaveStep2] enrollment hook failed (non-fatal):', String(err));
     }
 
     return createSuccessResponse({
@@ -5381,8 +5393,19 @@ async function handleSubscribe(request, env) {
     if (!email || !email.includes('@')) {
       return createErrorResponse('INVALID_EMAIL', 'Valid email required', 400);
     }
-    const cleanEmail = email.trim().toLowerCase();
-    const sourceValue = source || 'homepage';
+    return await subscribeCore(env, email.trim().toLowerCase(), source || 'homepage', diet_type, site);
+  } catch (err) {
+    return createErrorResponse('SUBSCRIBE_ERROR', String(err), 500);
+  }
+}
+
+// Core enrollment shared by POST /api/v1/subscribe and the server-side hook in
+// handleSaveStep2. The client-side subscribe fetch is silently dropped by ad
+// blockers ("subscribe" paths are on common blocklists) — ~30% of step-3 users
+// were missing from every drip before the worker enrolled authoritatively
+// (bead 39ow, 2026-08-01). Duplicate enrollments resolve as success, so the
+// client call and this path can both fire.
+async function subscribeCore(env, cleanEmail, sourceValue, diet_type, site) {
 
     // Route by diet_type when the calculator provides it. Carnivore selectors enter
     // the CW 30-day drip; keto and low-carb enter the KD 30-day drip (its day-1
@@ -5475,9 +5498,6 @@ async function handleSubscribe(request, env) {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (err) {
-    return createErrorResponse('SUBSCRIBE_ERROR', String(err), 500);
-  }
 }
 
 // ===== FEEDBACK HANDLER =====
