@@ -195,13 +195,16 @@ async function fetchGA4() {
 }
 
 // --------------- Test / internal account filtering ---------------
-const EXCLUDED_EMAILS = ['iambrew@gmail.com']
-const EXCLUDED_DOMAINS = ['@test.ketodial.com']
+const EXCLUDED_EMAILS = ['iambrew@gmail.com', 'mbrew@telus.net']
+const EXCLUDED_DOMAINS = ['@test.ketodial.com', '@example.com']
 
 function isTestEmail(email) {
   if (!email) return false
   const lower = email.toLowerCase()
   if (EXCLUDED_EMAILS.includes(lower)) return true
+  // Brew's own plus-addressed test accounts (iambrew+funneltest0720@ etc.).
+  // Never filter on '+' alone — real readers use plus-addressing.
+  if (lower.startsWith('iambrew+')) return true
   return EXCLUDED_DOMAINS.some(d => lower.includes(d))
 }
 
@@ -219,8 +222,9 @@ async function fetchSupabaseData() {
   const monthAgo = new Date(now - 30 * 24 * 3600 * 1000).toISOString()
   const sixWeeksAgo = new Date(now - 42 * 24 * 3600 * 1000).toISOString()
 
-  // --- Calculator sessions (no email filtering needed — all real) ---
-  const calcAll = await sbFrom('calculator_sessions_v2', { select: 'id,gender,age,goal,diet_type,device_type,created_at,paid,amount_paid' })
+  // --- Calculator sessions (exclude test/internal — funnel tests land here too) ---
+  const calcAllRaw = await sbFrom('calculator_sessions_v2', { select: 'id,email,gender,age,goal,diet_type,device_type,created_at,paid,amount_paid' })
+  const calcAll = { ...calcAllRaw, data: filterTestRows(calcAllRaw.data) }
   const calcWeek = calcAll.data.filter(r => r.created_at >= weekAgo)
 
   // --- CW Newsletter (exclude test/internal) ---
@@ -854,7 +858,7 @@ function generateHTML(ga4, sb) {
   <div id="health">${healthSection}</div>
 
   <div style="margin-top:32px;padding:16px 20px;background:#16213e;border-radius:10px;border:1px solid #1f3460;font-size:0.8rem;color:#666;text-align:center">
-    Test accounts (@test.ketodial.com) and internal accounts (iambrew@gmail.com) are excluded from all counts.
+    Test accounts (@test.ketodial.com, iambrew+*) and internal accounts (iambrew@gmail.com) are excluded from all counts.
   </div>
 
 </div>
