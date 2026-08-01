@@ -354,6 +354,9 @@ CW and KD share ONE Supabase project (`kwtdpvnjewtahuxjyltn`). This is intention
 18. New validators: always run against full codebase, not just new files.
 19. Health checks must cover blog-to-blog cross-links.
 
+### Analytics
+19a. **Never trend a GA4 event across its own instrumentation date.** Before any week-over-week claim about an event, run `python3 dashboard/ga4_event_history.py <event_name>` — it prints first-fired date and flags the partial launch week. The 2026-08-01 "checkout starts tripled 6→17" scare was a 3-day-old event's launch week used as a baseline. Raw GA4 sessions are bot-inflatable; trend calls use GSC clicks + calculator sessions (see command-center spike guard).
+
 ### KetoDial (ISSUE-026 — burned us hard)
 20. **NEVER bulk-regenerate KD blog HTML files.** KD posts are standalone HTML with inline content (no data store). A "regeneration" script wiped all 26 posts' article bodies on June 12. Edits must be surgical (sed/python targeting specific tags only).
 
