@@ -112,6 +112,35 @@ const bodyFont = {
   fontFamily: "'Merriweather', Georgia, serif",
 }
 
+const API_BASE = 'https://carnivore-report-api-production.iambrew.workers.dev'
+
+// Observe an offer surface and fire a one-time impression event when half of it
+// becomes visible — payment_modal_opened only means something against "how many
+// people actually saw an offer", which was untracked until 2026-08-01.
+function useOfferImpression(ref: React.RefObject<HTMLDivElement>, surface: string) {
+  const tracked = useRef(false)
+  useEffect(() => {
+    if (!ref.current || tracked.current) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !tracked.current) {
+            window.gtag?.('event', 'calculator_offer_impression', {
+              'event_category': 'calculator',
+              'event_label': surface
+            })
+            tracked.current = true
+            observer.disconnect()
+          }
+        })
+      },
+      { threshold: 0.5 }
+    )
+    observer.observe(ref.current)
+    return () => { observer.disconnect() }
+  }, [ref, surface])
+}
+
 export default function Step3FreeResults({
   data,
   macros,
@@ -120,16 +149,38 @@ export default function Step3FreeResults({
   alreadyPaid = false,
 }: Step3FreeResultsProps) {
   const { resetForm } = useFormStore()
+  const sessionToken = useFormStore((s) => s.sessionToken)
   const mealLockRef = useRef<HTMLDivElement>(null)
   const hasTrackedMealLock = useRef(false)
+  const bridgeCardRef = useRef<HTMLDivElement>(null)
+  const finalCardRef = useRef<HTMLDivElement>(null)
 
-  // Track free results view
+  // Track free results view — once per session, not per mount. The raw
+  // per-mount event inflated the funnel denominator ~2x (47 events vs 22
+  // sessions in the down week of the 2026-08-01 verdict).
   useEffect(() => {
+    const guardKey = `cw_free_results_tracked_${sessionToken || 'anon'}`
+    try {
+      if (sessionStorage.getItem(guardKey)) return
+      sessionStorage.setItem(guardKey, '1')
+    } catch { /* storage unavailable — fall through and track anyway */ }
     window.gtag?.('event', 'calculator_free_results', {
       'event_category': 'calculator',
       'event_label': 'free_results_viewed'
     })
-  }, [])
+    // Persist to the funnel row, best-effort and non-blocking (the endpoint
+    // only sets free_results_viewed_at when it is still null)
+    if (sessionToken) {
+      fetch(`${API_BASE}/api/v1/calculator/results-viewed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_token: sessionToken }),
+      }).catch(() => {})
+    }
+  }, [sessionToken])
+
+  useOfferImpression(bridgeCardRef, 'offer_bridge')
+  useOfferImpression(finalCardRef, 'offer_final_card')
 
   // Track meal lock visibility
   useEffect(() => {
@@ -265,7 +316,7 @@ export default function Step3FreeResults({
           SECTION 4: Value Bridge — right after macros
           "Your macros are ready. Now get your 30-day plan."
           ════════════════════════════════════════════ */}
-      <div style={{
+      <div ref={bridgeCardRef} style={{
         background: 'linear-gradient(160deg, #1e1008 0%, #120a02 100%)',
         borderRadius: '12px',
         border: '1px solid rgba(255,215,0,0.2)',
@@ -275,23 +326,23 @@ export default function Step3FreeResults({
         <div style={{ height: '2px', background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.35) 30%, rgba(255,215,0,0.35) 70%, transparent)', marginBottom: '24px', marginTop: '-12px' }} />
 
         <p style={{ ...bodyFont, color: '#f59e0b', fontSize: '13px', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' as const, margin: '0 0 8px 0' }}>
-          Built From Your Results
+          Your Next 30 Days
         </p>
         <h3 style={{ ...goldHeading, fontSize: '22px', fontWeight: '700', margin: '0 0 10px 0', lineHeight: '1.3' }}>
-          Your 30-day meal plan is ready.
+          Knowing your numbers is the easy part.
         </h3>
         <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.6)', fontSize: '14px', lineHeight: '1.7', margin: '0 0 22px 0' }}>
-          We built a personalized {config.label.toLowerCase()} plan from your calculator results — exactly what to eat, when to shop, and what to expect your first month.
+          You have your targets now: {macros.calories} calories, {macros.protein}g of protein. What usually ends a diet comes later, in week two or three, when the scale stops moving and there's no plan for what to do next. Your {config.label.toLowerCase()} plan covers that part too.
         </p>
 
-        {/* Value bullets — meal plan and grocery list lead */}
+        {/* Value bullets — stall troubleshooting leads (EXP-004 signal) */}
         <div style={{ textAlign: 'left', marginBottom: '24px' }}>
           {[
-            { icon: '🍽️', text: '30-day meal plan with portions matched to your macro targets' },
+            { icon: '⚖️', text: 'A stall troubleshooting guide: what to check first when the scale stops moving, before you cut calories again' },
+            { icon: '🍽️', text: `30 days of ${config.label.toLowerCase()} meals portioned to your ${macros.calories}-calorie, ${macros.protein}g protein targets. No counting, no guesswork` },
+            { icon: '📅', text: 'A week-by-week guide to your first month, including the rough patches: energy dips, cravings, sleep changes' },
             { icon: '🛒', text: 'Weekly grocery lists you can take to the store this weekend' },
-            { icon: '⚡', text: 'Week-by-week guide for your first 30 days (including the tough parts)' },
-            { icon: '🔧', text: 'What to do when weight loss stalls, energy drops, or cravings hit' },
-            { icon: '🩺', text: 'Doctor-conversation guide if your clinician has questions about your diet' },
+            { icon: '🩺', text: 'A doctor conversation guide, plus which labs to ask for at 30, 60, and 90 days' },
           ].map((item, i) => (
             <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: i < 4 ? '12px' : 0 }}>
               <span style={{ fontSize: '15px', flexShrink: 0, marginTop: '1px' }}>{item.icon}</span>
@@ -327,10 +378,10 @@ export default function Step3FreeResults({
             marginBottom: '10px',
           }}
         >
-          {alreadyPaid ? 'Continue to Your Health Profile →' : 'Get My 30-Day Plan — $29'}
+          {alreadyPaid ? 'Continue to Your Health Profile →' : 'Get My 30-Day Plan for $29'}
         </button>
         <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0 }}>
-          {alreadyPaid ? 'Already unlocked — no additional charge.' : 'One-time purchase. No subscription. 30-day money-back guarantee.'}
+          {alreadyPaid ? 'Already unlocked — no additional charge.' : "One-time purchase, no subscription. If it doesn't help, email us within 30 days for a full refund."}
         </p>
       </div>
 
@@ -521,6 +572,7 @@ export default function Step3FreeResults({
         .cw-upgrade-btn:hover { background: linear-gradient(135deg,#ffe84d,#ffd700,#e8b800) !important; transform: translateY(-2px) !important; box-shadow: 0 8px 32px rgba(255,215,0,0.35) !important; }
       `}</style>
       <div
+        ref={finalCardRef}
         className="cw-upgrade-card"
         style={{ background: 'linear-gradient(160deg,#1e1008 0%,#120a02 55%,#0c0701 100%)', borderRadius: '16px', padding: '0', border: '1px solid rgba(255,215,0,0.28)', overflow: 'hidden', position: 'relative' }}
       >
@@ -531,10 +583,10 @@ export default function Step3FreeResults({
             Built From Your Results
           </p>
           <p style={{ color: '#ffd700', fontFamily: "'Playfair Display', Georgia, serif", fontSize: '24px', fontWeight: '700', margin: '0 0 8px 0', textAlign: 'center', lineHeight: '1.25', letterSpacing: '-0.02em' }}>
-            Your 30-day {config.label.toLowerCase()} meal plan
+            A plan for all 30 days, including the stall.
           </p>
           <p style={{ color: 'rgba(244,228,212,0.6)', fontSize: '13.5px', textAlign: 'center', margin: '0 0 22px 0', ...bodyFont, lineHeight: '1.6' }}>
-            Meals, grocery lists, and guidance built from your calculator results.
+            Most diets don't fall apart in week one. They fall apart when progress slows and nothing tells you what to do next. This plan is built from your numbers, and it includes that part.
           </p>
 
           <div style={{ height: '1px', background: 'linear-gradient(90deg,transparent,rgba(255,215,0,0.3) 20%,rgba(255,215,0,0.3) 80%,transparent)', margin: '0 0 22px 0' }} />
@@ -544,27 +596,27 @@ export default function Step3FreeResults({
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', ...bodyFont }}>
-                <strong style={{ color: '#f4e4d4' }}>30-day meal plan</strong> — portions, timing, and simple meals built around your {macros.calories}-calorie, {macros.protein}g-protein targets.
+                <strong style={{ color: '#f4e4d4' }}>Eat to your numbers.</strong> 30 days of {config.label.toLowerCase()} meals matched to your {macros.calories} calories and {macros.protein}g protein, with weekly grocery lists included.
               </p>
             </div>
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', ...bodyFont }}>
-                <strong style={{ color: '#f4e4d4' }}>Weekly grocery lists</strong> — take them to the store this weekend. Budget-friendly options included.
+                <strong style={{ color: '#f4e4d4' }}>Get through the stall.</strong> A troubleshooting guide for when weight loss slows, energy dips, or cravings come back, so one bad week doesn't undo the whole month.
               </p>
             </div>
             <div className="cw-upgrade-item" style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <span style={{ color: '#ffd700', fontSize: '9px', marginTop: '6px', flexShrink: 0 }}>✦</span>
               <p style={{ color: 'rgba(244,228,212,0.82)', fontSize: '14px', margin: 0, lineHeight: '1.65', ...bodyFont }}>
-                <strong style={{ color: '#f4e4d4' }}>First-month guide + doctor script</strong> — what to expect, what to do when progress stalls, and what to tell your clinician.
+                <strong style={{ color: '#f4e4d4' }}>Keep your doctor in the loop.</strong> A plain-language conversation guide, plus which labs to request at 30, 60, and 90 days.
               </p>
             </div>
           </div>
 
           {/* Price + CTA */}
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>{alreadyPaid ? 'Already unlocked' : '$29 — Yours forever'}</p>
-            <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, ...bodyFont }}>{alreadyPaid ? 'Your purchase covers this — continue below.' : 'One-time · No subscription · 30-day money-back guarantee'}</p>
+            <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>{alreadyPaid ? 'Already unlocked' : '$29, one time'}</p>
+            <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, ...bodyFont }}>{alreadyPaid ? 'Your purchase covers this — continue below.' : 'No subscription · 30-day money-back guarantee'}</p>
           </div>
 
           <button
@@ -594,13 +646,13 @@ export default function Step3FreeResults({
               boxShadow: '0 4px 20px rgba(255,215,0,0.2), inset 0 1px 0 rgba(255,255,255,0.12)'
             }}
           >
-            {alreadyPaid ? 'Continue to Your Health Profile →' : 'Get My 30-Day Plan — $29'}
+            {alreadyPaid ? 'Continue to Your Health Profile →' : 'Get My 30-Day Plan for $29'}
           </button>
 
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '8px' }}>
             <span style={{ fontSize: '15px', flexShrink: 0, marginTop: '1px' }}>🛡️</span>
             <p style={{ color: 'rgba(244,228,212,0.5)', fontSize: '12.5px', margin: 0, lineHeight: '1.55', ...bodyFont }}>
-              30 days to try it. If it doesn't feel useful, email us for a same-day refund.
+              Take a full 30 days to use it. If it doesn't help, one email gets you a complete refund, same day.
             </p>
           </div>
         </div>
