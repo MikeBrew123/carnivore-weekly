@@ -124,9 +124,14 @@ jobs:
           python3 scripts/daily_publish.py --site kd
           python3 ketodial/scripts/generate_kd_blog.py --only-new
           git add -A
-          NEW_POSTS=$(git diff --staged --name-only | grep "^ketodial/public/blog/.*\.html$" | grep -v "index.html" || true)
+          # ketodial/public is a SUBMODULE: a parent-repo staged diff only ever
+          # shows the pointer, never blog/*.html paths, so this grep matched
+          # nothing and the KD deploy step below NEVER fired — posts were marked
+          # published daily with no HTML deployed (ISSUE-063). Detect inside
+          # the submodule instead.
+          NEW_POSTS=$(git -C ketodial/public status --porcelain -- blog | awk '{print $2}' | grep "\.html$" | grep -v "index.html" || true)
           if [ -n "$NEW_POSTS" ]; then
-            KD_URLS=$(echo "$NEW_POSTS" | sed 's|ketodial/public/blog/|https://ketodial.com/blog/|')
+            KD_URLS=$(echo "$NEW_POSTS" | sed 's|^blog/|https://ketodial.com/blog/|')
             echo "new_post_urls<<EOF" >> $GITHUB_OUTPUT
             echo "$KD_URLS" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
