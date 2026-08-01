@@ -372,7 +372,8 @@ def fetch_funnels():
         base = f'source=eq.{src}&created_at=gte.{d30}&{CALC_TEST_FILTER}'
         started = supa_count('calculator_sessions_v2', base)
         email = supa_count('calculator_sessions_v2', f'{base}&email=not.is.null')
-        # completed_at is never written by the flow; step 3 is the final step
+        # step 3 is the final form step (the dead completed_at column was
+        # dropped 2026-08-01; free_results_viewed_at now marks results views)
         completed = supa_count('calculator_sessions_v2', f'{base}&step_completed=gte.3')
         premium = supa_count('calculator_sessions_v2', f'{base}&is_premium=eq.true')
         paid = supa_count('calculator_sessions_v2', f'{base}&amount_paid_cents=gt.0')
@@ -595,6 +596,40 @@ def fetch_revenue():
                      - date(TODAY.year, TODAY.month, 1)).days
     mtd_net = window(mtd)['net']
     pace = round(mtd_net / days_elapsed * days_in_month, 2) if days_elapsed else 0
+
+    # Attribute charges to products via their Checkout Session metadata. Charge
+    # descriptions are empty for Checkout payments, which is how a KD protocol
+    # sale (2026-07-31, $10.99) sat invisible in every report (bead d0r2):
+    # assessment_session_id = CW calculator report, items / kd_ session token =
+    # KD protocol, shop_product = shop item.
+    pi_label = {}
+    try:
+        sessions = http_json(
+            f'https://api.stripe.com/v1/checkout/sessions?limit=100&created[gte]={now_ts - 30 * 86400}',
+            headers={'Authorization': f'Bearer {stripe_key}'}).get('data', [])
+        for s in sessions:
+            md = s.get('metadata') or {}
+            if md.get('assessment_session_id'):
+                label = 'CW calculator report'
+            elif md.get('items') or str(md.get('session_token', '')).startswith('kd_'):
+                label = f"KD {md.get('items') or 'protocol'}"
+            elif md.get('shop_product'):
+                label = f"{(md.get('site') or 'cw').upper()} shop: {md['shop_product']}"
+            else:
+                label = None
+            if s.get('payment_intent') and label:
+                pi_label[s['payment_intent']] = label
+    except Exception as e:
+        print(f'  (checkout-session attribution unavailable: {e})')
+
+    def charge_label(c):
+        return pi_label.get(c.get('payment_intent')) or (c.get('description') or c['id'])[:60]
+
+    by_product = {}
+    for c in ok:
+        lbl = pi_label.get(c.get('payment_intent')) or c.get('description') or 'unattributed'
+        by_product[lbl] = round(by_product.get(lbl, 0) + (c['amount'] - c.get('amount_refunded', 0)) / 100, 2)
+
     return {
         'configured': True,
         'last_7d': window([c for c in ok if c['created'] >= now_ts - 7 * 86400]),
@@ -602,7 +637,8 @@ def fetch_revenue():
         'mtd': window(mtd),
         'month_pace': pace,
         'target': NET_TARGET_MONTHLY,
-        'recent': [{'desc': (c.get('description') or c['id'])[:60],
+        'by_product_30d': by_product,
+        'recent': [{'desc': charge_label(c),
                     'amount': round(c['amount'] / 100, 2),
                     'date': datetime.fromtimestamp(c['created']).strftime('%Y-%m-%d'),
                     'refunded': bool(c.get('refunded'))} for c in ok[:10]],
@@ -1266,6 +1302,7 @@ def render_html(d):
         </div>
         <div class="target"><div class="tbar"><i style="width:{pace_pct:.0f}%"></i></div>
         <span class="small muted">pace vs $1k/mo net-profit target (gross shown; costs not subtracted)</span></div>
+        {'<p class="small">By product (30d net): ' + ' · '.join(f'{esc(k)} <b>${v:.2f}</b>' for k, v in sorted(rev.get('by_product_30d', {}).items(), key=lambda kv: -kv[1])) + '</p>' if rev.get('by_product_30d') else ''}
         <details><summary>Recent charges</summary>{table(['Charge', 'Amount', 'Date', 'Status'], rev_rows)}</details>'''
     elif rev.get('error'):
         rev_html = err_note(rev, 'Stripe')

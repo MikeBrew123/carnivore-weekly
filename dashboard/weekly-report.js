@@ -490,7 +490,7 @@ function generateHTML(ga4, sb) {
         ${metricCard('Total Sessions', fmt(all.length))}
         ${metricCard('This Week', fmt(week.length), '', '#4ade80')}
         ${metricCard('Average Age', avgAge)}
-        ${metricCard('Paid Conversions', fmt(paidSessions.length), '$' + totalRevenue.toFixed(2) + ' revenue', '#fbbf24')}
+        ${metricCard('Paid Conversions', fmt(paidSessions.length), '$' + totalRevenue.toFixed(2) + ' calculator only — full Stripe revenue incl. KD protocol is in the command center', '#fbbf24')}
       </div>
       <div class="two-col">
         <div><h3>Gender Split</h3>${genderBars}</div>
