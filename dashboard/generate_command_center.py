@@ -60,7 +60,14 @@ NOW_STR = datetime.now().strftime('%Y-%m-%d %H:%M')
 # NOTE: never filter on '+' alone — real readers use plus-addressing
 # (see memory feedback-plus-addressing-not-junk).
 TEST_EMAIL_MARKERS = ('iambrew@gmail.com', 'iambrew+', '@test.ketodial.com', '@example.com',
-                      'mbrew@telus.net', 'shoptest@', 'qa+hermes@', 'm@e.com')
+                      'mbrew@telus.net', 'shoptest@', 'qa+hermes@', 'm@e.com',
+                      'brew+calctest@')
+
+# Our own sending addresses. Mail FROM these is our own send looping back
+# through the inbound catch-all (e.g. newsletter to a subscriber address on
+# this domain) — never reader mail.
+OWN_SENDER_MARKERS = ('newsletter@carnivoreweekly.com', 'ketodial@carnivoreweekly.com',
+                      'coach@carnivoreweekly.com')
 
 # Server-side equivalents for supa_count()/PostgREST, since those counts never
 # pass through is_test_email(). '+' must be %2B in the URL or PostgREST reads a
@@ -543,7 +550,9 @@ def fetch_mail():
                 or 'mailer-daemon' in blob)
 
     def is_internal(m):
-        return is_test_email(m.get('from')) or is_test_email(m.get('to'))
+        frm = (m.get('from') or '').lower()
+        return (is_test_email(m.get('from')) or is_test_email(m.get('to'))
+                or any(a in frm for a in OWN_SENDER_MARKERS))
 
     out['human'] = [m for m in out['inbound'] if not is_report(m) and not is_internal(m)]
     out['internal'] = [m for m in out['inbound'] if not is_report(m) and is_internal(m)]
@@ -1052,12 +1061,15 @@ def funnel_html(f, accent):
     if not f or f.get('error'):
         return err_note(f, 'Funnel') or '<p class="muted">No data.</p>'
     stages = f['stages']
-    top = stages[0]['count'] or 1
+    # scale bars to the largest stage — stages aren't always monotonic
+    # (email is captured at step 1, so it can exceed "Reached step 3")
+    top = max(s['count'] for s in stages) or 1
+    first = stages[0]['count'] or 1
     rows = []
     prev_count = None
     for s in stages:
         width = max(s['count'] * 100 / top, 1.5)
-        of_top = s['count'] * 100 / top
+        of_top = s['count'] * 100 / first
         conv = f'{s["count"] * 100 / prev_count:.0f}% of prev' if prev_count else '100%'
         rows.append(
             f'<div class="fstage"><div class="frow"><span class="fname">{esc(s["name"])}</span>'
@@ -1075,7 +1087,8 @@ def funnel_html(f, accent):
 def bar_list(items, key='value', accent='#4ade80', max_items=6):
     if not items:
         return '<p class="muted">No data.</p>'
-    top = items[0]['count'] or 1
+    # scale to the largest shown item — age buckets arrive in age order, not count order
+    top = max(it['count'] for it in items[:max_items]) or 1
     out = []
     for it in items[:max_items]:
         w = max(it['count'] * 100 / top, 2)
@@ -1250,8 +1263,16 @@ def render_html(d):
     nl_kd = f.get('newsletter_kd', {})
 
     fb = d.get('feedback', {})
-    fb_rows = [[esc(r['date']), esc(r['email']), esc(r['text']), esc(r['status'])]
-               for r in fb.get('recent', [])] if not fb.get('error') else []
+    fb_recent = fb.get('recent', []) if not fb.get('error') else []
+    # Open items get the table; completed/closed collapse so they stop
+    # resurfacing every day after they've been handled.
+    _fb_done = ('completed', 'done', 'closed', 'resolved')
+    def _fb_row(r):
+        return [esc(r['date']), esc(r['email']), esc(r['text']), esc(r['status'])]
+    fb_open_rows = [_fb_row(r) for r in fb_recent
+                    if (r.get('status') or '').lower() not in _fb_done]
+    fb_done_rows = [_fb_row(r) for r in fb_recent
+                    if (r.get('status') or '').lower() in _fb_done]
 
     mail = d.get('mail', {})
     human_rows = [[esc(m['date']), esc(m['from']), esc(m['to']), esc(m['subject'])]
@@ -1452,7 +1473,8 @@ def render_html(d):
 {mail_html}
 </div>
 <div class="card"><h3>Site Feedback <span class="muted small">({fb.get('new_7d', 0)} new this week · {fb.get('unreviewed', 0)} unreviewed · {fb.get('hidden_test', 0)} test entries hidden)</span></h3>
-{table(['Date', 'From', 'Message', 'Status'], fb_rows) if fb_rows else (err_note(fb, 'Feedback') or '<p class="muted">No feedback yet.</p>')}
+{table(['Date', 'From', 'Message', 'Status'], fb_open_rows) if fb_open_rows else (err_note(fb, 'Feedback') or '<p class="muted">No open feedback — all caught up.</p>')}
+{f'<details><summary>{len(fb_done_rows)} completed item(s)</summary>{table(["Date", "From", "Message", "Status"], fb_done_rows)}</details>' if fb_done_rows else ''}
 </div>
 <div class="card"><h3>Email Engagement <span class="muted small">(drip + newsletter, 7d)</span></h3>
 {eng_html or err_note(eng, 'Engagement') or ''}</div>
