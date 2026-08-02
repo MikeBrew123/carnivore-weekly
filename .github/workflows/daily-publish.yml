@@ -197,8 +197,7 @@ jobs:
         run: |
           echo "$GA4_SERVICE_ACCOUNT_JSON" > dashboard/ga4-credentials.json
           cd dashboard && npm install --silent
-          URLS="${{ steps.publish_kd.outputs.new_post_urls }}"
-          node gsc-request-indexing.js $URLS
+          node gsc-request-indexing.js --site kd
 
       - name: Submit KD posts to Bing via IndexNow
         if: steps.publish_kd.outputs.has_changes == 'true' && steps.publish_kd.outputs.new_post_urls != ''
