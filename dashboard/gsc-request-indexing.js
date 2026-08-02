@@ -9,9 +9,12 @@
  * Run at most weekly — repeated resubmission doesn't speed things up further.
  *
  * Usage:
- *   node gsc-request-indexing.js
+ *   node gsc-request-indexing.js               # CW (default)
+ *   node gsc-request-indexing.js --site kd     # KetoDial
  *
  * Requires: Service account with Owner access on the GSC property.
+ * (KD uses the URL-prefix property — the service account is not authorized
+ * on sc-domain:ketodial.com, only on https://ketodial.com/.)
  */
 
 import { google } from 'googleapis'
@@ -20,8 +23,19 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const CREDENTIALS_PATH = path.join(__dirname, 'ga4-credentials.json')
-const SITE_URL = 'sc-domain:carnivoreweekly.com'
-const FEEDPATH = 'https://carnivoreweekly.com/sitemap.xml'
+
+const SITES = {
+  cw: { siteUrl: 'sc-domain:carnivoreweekly.com', feedpath: 'https://carnivoreweekly.com/sitemap.xml' },
+  kd: { siteUrl: 'https://ketodial.com/', feedpath: 'https://ketodial.com/sitemap.xml' }
+}
+const siteArg = process.argv.includes('--site')
+  ? process.argv[process.argv.indexOf('--site') + 1]
+  : 'cw'
+if (!SITES[siteArg]) {
+  console.error(`Unknown --site '${siteArg}' (expected cw or kd)`)
+  process.exit(1)
+}
+const { siteUrl: SITE_URL, feedpath: FEEDPATH } = SITES[siteArg]
 
 async function main() {
   const auth = new google.auth.GoogleAuth({
