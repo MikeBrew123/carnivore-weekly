@@ -587,3 +587,10 @@ Attempts:
 - 2026-07-19 — hand-rendered 7 missing posts (submodule a188a0a) without finding the cause → re-accumulated daily from the next day
 - 2026-08-01 — root cause found (bead lamv): NEW_POSTS detection moved inside the submodule (`git -C ketodial/public status --porcelain -- blog`); 14 missing posts + index cards + sitemap backfilled and pushed
 If recurs: confirm the "Publish KD scheduled posts" step still detects inside the submodule, then check the ketodial repo for an auto-commit on the last publish day — absence means the deploy step was skipped again.
+
+## ISSUE-064 — Shop-wide thumbnail swap (Jul 16) coincided with all non-keto-food-list sales stopping
+🟢 FIXED — Last: 2026-08-02
+Pattern: Jul 16 replaced rank-1 thumbnails on ~every listing EXCEPT keto food list 4464219356 with branded mockups (product shrunk to ~40% of frame on beige bg + marketing copy) — unreadable at Etsy search-grid size. Post-swap the shop sold ONLY the untouched keto food list (+1 dessert cards, also swapped — weak counterexample). Carn food list sold 7/13 and pesc 7/9, both silent immediately after swap. Found 2026-08-02 investigating "one sale this week" — NOT caused by the Jul 27-28 image/file/title work (those listings had ~0 traffic) and NOT by the Jul 15-16 price doubling (50%-off sale keeps effective prices unchanged, verified live).
+Attempts:
+- 2026-08-02 — restored original product-first heroes to rank 1 on all 10 receipt-verified sellers via image re-rank API (mockups demoted, nothing deleted; verified 10/10). Left alone: keto food list (control), dessert cards, zero-history listings.
+If recurs: never swap a proven seller's thumbnail without an A/B or staggered rollout; thumbnails must show the product edge-to-edge, readable at 570px. Watch sales ~Aug 9; revert-of-revert is the same re-rank call.
