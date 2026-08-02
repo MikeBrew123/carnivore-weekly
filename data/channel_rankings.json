@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-07-29",
+  "last_updated": "2026-08-02",
   "leaderboard": [
     {
-      "name": "HomeSteadHow",
-      "rank": 1,
-      "appearances": 1,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
-      "name": "Keto Twins",
-      "rank": 2,
-      "appearances": 1,
-      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
-    },
-    {
-      "name": "FaceIQ",
-      "rank": 3,
-      "appearances": 1,
-      "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
-    },
-    {
-      "name": "Laura Spath",
-      "rank": 4,
-      "appearances": 1,
-      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
-    },
-    {
       "name": "Shawn Baker MD",
-      "rank": 5,
+      "rank": 1,
       "appearances": 1,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "StevenSteph",
-      "rank": 6,
+      "name": "KenDBerryMD",
+      "rank": 2,
       "appearances": 1,
-      "channel_id": "UC9HogCphFdf-Ykerc1Wsl_g"
+      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 7,
+      "name": "Keto Twins",
+      "rank": 3,
       "appearances": 1,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
     },
     {
       "name": "Kent Carnivore",
-      "rank": 8,
+      "rank": 4,
       "appearances": 1,
       "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
     },
     {
-      "name": "Haircafe",
-      "rank": 9,
+      "name": "pigmie",
+      "rank": 5,
       "appearances": 1,
-      "channel_id": "UCcaWKkWjPre0HyNwVZW5kLA"
+      "channel_id": "UCTBjtACFlDmd-g6Gtva9biQ"
     },
     {
-      "name": "No Carb Life",
+      "name": "Emmathecarnivore",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
+      "name": "Dr. Eric Westman - Adapt Your Life",
+      "rank": 7,
+      "appearances": 2,
+      "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
+    },
+    {
+      "name": "Carnivore Quest",
+      "rank": 8,
+      "appearances": 2,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+    },
+    {
+      "name": "Bill and Daisy Alaska",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UCrbUnn2d4aBmdULbsrgLNXw"
+    },
+    {
+      "name": "Bart Kay - Health Science",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
+      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
     }
   ]
 }

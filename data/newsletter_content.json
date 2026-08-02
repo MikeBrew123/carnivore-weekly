@@ -1,31 +1,31 @@
 {
-  "date": "2026-07-26",
-  "subject_line": "Your LDL hit 300. Now what?",
-  "opening": "<p style='margin:0;'>Happy Sunday, friend. This week we've got a question that's lighting up the community inbox, a survival guide for your next family dinner, and something Sarah found in the sleep research that honestly surprised us. Grab your coffee and let's get into it.</p>",
+  "date": "2026-08-02",
+  "subject_line": "A Tick Bite Could End Your Carnivore Diet",
+  "opening": "<p style='margin:0;'>Happy Sunday, friends. This week's lineup hit differently, and there's one story in particular that I think every carnivore needs to read before the weekend's out. We've also got a DIY trend taking over the forum and a quiet controversy brewing in the influencer space. Let's get into it.</p>",
   "hero": {
-    "slug": "2026-07-24-carnivore-ldl-arteries",
-    "title": "Does Sky-High LDL on Carnivore Clog Arteries?",
+    "slug": "2026-07-30-alpha-gal-syndrome",
+    "title": "Alpha-Gal Syndrome: When a Tick Bite Ends Carnivore",
     "writer": "Sarah",
-    "teaser": "Your LDL spikes on carnivore and suddenly everyone from your doctor to your aunt has an opinion. Sarah digs into the actual trial data, including one study that got retracted after the headlines ran. The science is messier than either side wants to admit, and the answer isn't what you're expecting from either camp.",
-    "cta": "Read before your next doctor visit"
+    "teaser": "Imagine doing everything right on carnivore and then suddenly red meat starts making you sick. Not a little off, genuinely ill. That's exactly what's happening to people with alpha-gal syndrome, and the scary part is the tick bite that causes it can happen months before you notice a single symptom. Sarah breaks down how this immune response works, who's most at risk, and the specific signs that separate alpha-gal from a bad batch of beef. If you've had any unexplained reactions lately, you'll want to know this.",
+    "cta": "Read before your next cookout"
   },
   "supporting": [
     {
-      "slug": "2026-07-25-carnivore-nutrient-gaps",
-      "title": "The Nutrients Muscle-Meat-Only Carnivore Misses",
-      "teaser": "Sarah names the specific nutrients that steak alone won't cover, and the one food that quietly fixes most of the list."
+      "slug": "2026-08-01-home-curing-bacon-biltong",
+      "title": "Everyone's Curing Their Own Bacon Now",
+      "teaser": "Chloe found out why the DIY curing trend exploded in the forum this month, and there's one thing almost everyone getting started gets completely wrong."
     },
     {
-      "slug": "2026-07-22-week-2-strength-dip-carnivore",
-      "title": "Carnivore Week 2 Strength Dip: Why It Happens and the Fix",
-      "teaser": "Marcus explains the exact week-2 wall that's tanking your lifts, and why pushing through it the wrong way makes it worse."
+      "slug": "2026-07-31-glycogen-without-carbs",
+      "title": "Refilling Muscle Glycogen Without a Single Carb",
+      "teaser": "Marcus says you can absolutely restock muscle glycogen on carnivore, but the timing piece most people skip is what makes or breaks the whole thing."
     },
     {
-      "slug": "2026-07-23-only-carnivore-at-family-dinner",
-      "title": "Being the Only Carnivore at Family Dinner: A Survival Guide",
-      "teaser": "Chloe's got the word-for-word scripts for the relative who wants to debate your arteries before the salad's even passed."
+      "slug": "2026-07-28-carnivore-influencers-plants",
+      "title": "Why Carnivore Influencers Are Quietly Adding Plants",
+      "teaser": "Some of the biggest names in the carnivore space are adding plants back in without making a big announcement, and the community's reaction is more complicated than you'd expect."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Add one organ meat this week.</strong> You don't have to go all-in. A single beef liver serving, even just 3 to 4 ounces mixed into ground beef, covers the gaps Sarah outlines in this week's nutrient post. Cook it tonight and you've done something most carnivores skip entirely.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're looking at something community members keep asking about: whether your meal timing on carnivore actually matters, or if that's just an old bodybuilding rule dressed up in new clothes.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Do a quick tick exposure check.</strong> If you spend any time outdoors, think back over the last six months and look for any unexplained skin reactions, hives, or digestive flare-ups that showed up a few hours after eating red meat. If anything lines up, Sarah's article on alpha-gal gives you a clear list of symptoms to bring to your doctor. It takes five minutes and could save you a lot of confusion.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something the community has strong opinions about, and the answer isn't as simple as either side wants it to be. Don't miss it.</p>"
 }
