@@ -6657,18 +6657,26 @@ async function handleResendWebhook(request, env) {
       || String(evTags.sequence || '').startsWith('kd')
       || evTags.site === 'kd') ? 'kd' : 'cw';
 
+    // Resend nests click details under data.click and uses `link`/`userAgent`/`ipAddress`.
+    // We were reading data.click.url / data.user_agent / data.ip, which don't exist in the
+    // payload, so every clicked event logged click_url: null and we couldn't tell a
+    // check-in click from any other link in the email. Read the real keys, keep the old
+    // ones as fallbacks in case the payload shape changes again.
+    const click = data.click || {};
     const payload = {
       email: (data.to && data.to[0]) || data.email || '',
       resend_id: data.email_id || '',
       event_type: simpleType,
       subject: data.subject || '',
       site: evSite,
-      metadata: JSON.stringify({
-        click_url: data.click?.url || null,
-        user_agent: data.user_agent || null,
-        ip: data.ip || null,
+      // metadata is jsonb. Passing a JSON *string* stored it as a jsonb scalar string,
+      // which made metadata->>'click_url' return nothing. Pass the object itself.
+      metadata: {
+        click_url: click.link || click.url || data.link || null,
+        user_agent: click.userAgent || data.user_agent || null,
+        ip: click.ipAddress || data.ip || null,
         timestamp: body.created_at || new Date().toISOString(),
-      }),
+      },
     };
 
     await fetch(`${env.SUPABASE_URL}/rest/v1/drip_events`, {

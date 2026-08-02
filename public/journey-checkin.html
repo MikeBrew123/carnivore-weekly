@@ -67,7 +67,23 @@
             margin-bottom: 12px;
             color: var(--oxblood);
         }
-        .intro { color: var(--text-secondary); margin-bottom: 26px; font-size: 0.98rem; }
+        .intro { color: var(--text-secondary); margin-bottom: 16px; font-size: 0.98rem; }
+        /* Trust row: static, never overwritten by the DB intro text. The click, not the
+           page, is where people drop off, so say plainly what this is and isn't. */
+        .trust-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 14px;
+            margin-bottom: 26px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .trust-row span { display: inline-flex; align-items: center; gap: 6px; }
+        .trust-row span::before {
+            content: "✓";
+            color: var(--oxblood);
+            font-weight: 700;
+        }
         .card {
             background: #fff;
             border: 1px solid var(--border);
@@ -175,7 +191,8 @@
             .card { background: #221c17; border-color: #3a322b; }
             .opt { border-color: #3a322b; }
             .opt.checked { background: #2b2016; }
-            .intro, .q-sub, .skip-link, .bridge-stat, .thanks, .respondents, .bar-label { color: #c9c0b6; }
+            .intro, .q-sub, .skip-link, .bridge-stat, .thanks, .respondents, .bar-label, .trust-row { color: #c9c0b6; }
+            .trust-row span::before { color: #e8b8b8; }
             .q-text { color: #f0ebe4; }
             h1, .results-header { color: #e8b8b8; }
             .bar-label .pct, .skip-link a { color: #e8b8b8; }
@@ -188,9 +205,15 @@
     <a href="#main-content" class="skip-nav" style="position:absolute;left:-9999px">Skip to main content</a>
     <header class="site-header"><a href="https://carnivoreweekly.com">🥩 CARNIVORE WEEKLY</a></header>
     <main class="wrap" id="main-content">
-        <span class="badge">New Feature</span>
+        <span class="badge">Anonymous</span>
         <h1>Quick check-in</h1>
-        <p class="intro" id="intro-text">One question, and it's anonymous. No name, no email, nothing tied to you. Answer if you want to (you don't have to), and you'll see why everyone before you started. Your answer becomes part of the picture for the next person standing where you are right now.</p>
+        <p class="intro" id="intro-text">One question, and it's anonymous. No name, no email, nothing tied to you. Answer if you want to, or don't. Your answer becomes part of the picture for the next person standing where you are right now.</p>
+        <div class="trust-row">
+            <span>No sales pitch</span>
+            <span>No popup</span>
+            <span>Nothing to sign up for</span>
+            <span>You can leave anytime</span>
+        </div>
 
         <div id="loading" class="card"><p>Loading today's question…</p></div>
 
