@@ -594,3 +594,18 @@ Pattern: Jul 16 replaced rank-1 thumbnails on ~every listing EXCEPT keto food li
 Attempts:
 - 2026-08-02 — restored original product-first heroes to rank 1 on all 10 receipt-verified sellers via image re-rank API (mockups demoted, nothing deleted; verified 10/10). Left alone: keto food list (control), dessert cards, zero-history listings.
 If recurs: never swap a proven seller's thumbnail without an A/B or staggered rollout; thumbnails must show the product edge-to-edge, readable at 570px. Watch sales ~Aug 9; revert-of-revert is the same re-rank call.
+
+## ISSUE-065 — Resend webhook logged click_url: null on every clicked event
+🟢 FIXED — Last: 2026-08-02
+Pattern: We read `data.click.url` / `data.user_agent` / `data.ip`, but Resend nests click
+details under `data.click` as `link` / `userAgent` / `ipAddress`. Every clicked event stored
+nulls, so we could not tell a check-in click from any other link in a drip email. Compounding
+it, `metadata` was `JSON.stringify`'d into a jsonb column, landing as a jsonb *scalar string*,
+so `metadata->>'click_url'` returned nothing even with the right keys.
+Attempts:
+- 2026-08-02 — read click.link/userAgent/ipAddress with old keys as fallbacks, and pass
+  metadata as an object instead of a string → verified in production, click_url populated,
+  jsonb_typeof(metadata) = 'object'. Test rows deleted after verification.
+If recurs: check the live payload shape first (POST a sample to /webhook/resend and read the
+row back) before editing key names. Deploy propagation lags a few seconds — a test fired
+immediately after `wrangler deploy` can still hit the old version and look like a failed fix.
