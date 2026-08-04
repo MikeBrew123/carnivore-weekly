@@ -1770,6 +1770,7 @@ blockquote.pull-quote {
     margin: var(--space-10) 0;
     text-align: center;
 }
+.cta-box--ketodial h3,
 .cta-box--ketodial h4 {
     font-size: var(--text-xl);
     margin: 0 0 var(--space-3) 0;
@@ -1783,8 +1784,10 @@ blockquote.pull-quote {
 .cta-box--ketodial .btn--ketodial {
     display: inline-block;
     padding: 10px 24px;
-    background: #0ea5e9;
-    color: #fff;
+    background: #0369a1;
+    /* Blog posts set `a { color: #d4a574 !important }` inline, which otherwise
+       leaves this button with tan text on blue and almost no contrast. */
+    color: #fff !important;
     font-weight: 600;
     font-size: 0.95rem;
     border-radius: 6px;
@@ -1792,7 +1795,7 @@ blockquote.pull-quote {
     transition: background 0.2s;
 }
 .cta-box--ketodial .btn--ketodial:hover {
-    background: #0284c7;
+    background: #075985;
 }
 .cta-box--ketodial .sister-label {
     display: inline-block;
