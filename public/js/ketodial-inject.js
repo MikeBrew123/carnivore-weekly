@@ -28,7 +28,7 @@
   box.className = 'cta-box--ketodial';
   box.innerHTML =
     '<span class="sister-label">From our sister site</span>' +
-    '<h4>Still deciding between keto and carnivore?</h4>' +
+    '<h3>Still deciding between keto and carnivore?</h3>' +
     '<p>KetoDial gives you advanced macro planning for keto, low-carb, and carnivore approaches. Compare your targets and pick the path that fits.</p>' +
     '<a href="https://ketodial.com' + utm + '" class="btn--ketodial" target="_blank" rel="noopener" ' +
     'onclick="try{gtag(\'event\',\'ketodial_banner_click\',{event_category:\'cross_site\',content_id:\'' + slug + '\'})}catch(e){}">' +
