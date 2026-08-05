@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-08-02",
+  "last_updated": "2026-08-05",
   "leaderboard": [
     {
-      "name": "Shawn Baker MD",
-      "rank": 1,
-      "appearances": 1,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
-    },
-    {
       "name": "KenDBerryMD",
-      "rank": 2,
+      "rank": 1,
       "appearances": 1,
       "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
     },
     {
-      "name": "Keto Twins",
-      "rank": 3,
-      "appearances": 1,
-      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
-    },
-    {
-      "name": "Kent Carnivore",
-      "rank": 4,
-      "appearances": 1,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+      "name": "Emmathecarnivore",
+      "rank": 2,
+      "appearances": 2,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
       "name": "pigmie",
-      "rank": 5,
+      "rank": 3,
       "appearances": 1,
       "channel_id": "UCTBjtACFlDmd-g6Gtva9biQ"
     },
     {
-      "name": "Emmathecarnivore",
-      "rank": 6,
+      "name": "Bart Kay - Health Science",
+      "rank": 4,
       "appearances": 1,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
+    },
+    {
+      "name": "Steak and Butter Gal",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
     },
     {
       "name": "Dr. Eric Westman - Adapt Your Life",
-      "rank": 7,
+      "rank": 6,
       "appearances": 2,
       "channel_id": "UCni9TCw0YPwTdu7BYF3j0Eg"
     },
     {
-      "name": "Carnivore Quest",
+      "name": "No Carb Life",
+      "rank": 7,
+      "appearances": 3,
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
+    },
+    {
+      "name": "HomeSteadHow",
       "rank": 8,
       "appearances": 2,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+    },
+    {
+      "name": "Courtney Luna",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UCzgj3pQycdp7SUUbz56wNCw"
     },
     {
       "name": "Bill and Daisy Alaska",
-      "rank": 9,
-      "appearances": 1,
-      "channel_id": "UCrbUnn2d4aBmdULbsrgLNXw"
-    },
-    {
-      "name": "Bart Kay - Health Science",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
+      "channel_id": "UCrbUnn2d4aBmdULbsrgLNXw"
     }
   ]
 }
