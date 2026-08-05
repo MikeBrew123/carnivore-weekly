@@ -924,6 +924,28 @@ def build_insights(d):
 
 # ── Optional model narrative (small model keeps this fresh) ──────────
 
+# The weekly data moves too slowly for a full review to read differently each
+# morning, so each weekday deep-dives one area; Sunday keeps the week-in-review.
+DAILY_FOCUS = {
+    0: ('Search & rankings',
+        'Google and Bing — positions, clicks, impressions, which queries moved and why'),
+    1: ('Traffic quality',
+        'bounce rate, engaged sessions, pages per session — are the new readers the right readers'),
+    2: ('Email & newsletter',
+        'opens, clicks, bounces, inbound mail — is the list getting healthier or tired'),
+    3: ('Funnels & conversion',
+        'calculator -> email capture -> completion -> paid, plus drip and coach — where readers drop off'),
+    4: ('Revenue & the $1k target',
+        'Stripe and Etsy against the $1k/month net goal — what is actually selling'),
+    5: ('Audience & feedback',
+        'calculator demographics vs baseline and reader feedback — who is showing up and what they say'),
+}
+
+
+def daily_focus():
+    return DAILY_FOCUS.get(TODAY.weekday(), ('Week in review', None))
+
+
 def model_narrative(data, model='claude-haiku-4-5-20251001'):
     api_key = os.environ.get('ANTHROPIC_API_KEY') or (SECRETS.get('anthropic') or {}).get('key', '')
     if not api_key:
@@ -945,6 +967,21 @@ def model_narrative(data, model='claude-haiku-4-5-20251001'):
         'revenue': {k: v for k, v in (data.get('revenue') or {}).items() if k != 'recent'},
         'rule_based_flags': data.get('insights'),
     }
+    focus_name, focus_scope = daily_focus()
+    if focus_scope:
+        angle = (
+            f"Today's focus is {focus_name}: {focus_scope}.\n"
+            "Open with ONE sentence on how the week is going overall, then spend everything "
+            "else on today's focus area only: what its numbers say, the most likely reason, "
+            "and 1-2 concrete things worth doing or watching there. Do not tour the other "
+            "areas — each gets its own day this week."
+        )
+    else:
+        angle = (
+            "It's the weekly review day. Write 2-3 short paragraphs: (1) how the week went "
+            "overall, (2) what changed or stands out, (3) the 1-3 things worth watching or "
+            "acting on."
+        )
     prompt = (
         "You are writing the morning plain-English review for Brew, the solo operator of "
         "Carnivore Weekly (CW) and KetoDial (KD). He hates fluff and wants to know what's "
@@ -952,8 +989,7 @@ def model_narrative(data, model='claude-haiku-4-5-20251001'):
         "profit; CW calculator audience baseline is ~66% aged 45+, ~53% female, ~84% weight loss.\n\n"
         f"Today's data (JSON):\n{json.dumps(digest, default=str)}\n\n"
         "Note: in search data, LOWER average position is better (position 1 = top of Google).\n"
-        "Write 2-3 short paragraphs in plain conversational language: (1) how the week is going "
-        "overall, (2) what changed or stands out, (3) the 1-3 things worth watching or acting on. "
+        f"{angle}\n"
         "Plain prose only — no markdown, no headers, no bullet lists, no hype, no restating raw "
         "numbers he can see in the tables — interpret them. Under 220 words."
     )
@@ -1014,12 +1050,13 @@ def collect(use_model=True):
     data['etsy'] = guarded('Etsy', fetch_etsy)
 
     data['insights'] = build_insights(data)
-    data['analysis'] = {'narrative': None, 'generated_by': 'rules'}
+    data['analysis'] = {'narrative': None, 'generated_by': 'rules', 'focus': daily_focus()[0]}
     if use_model:
         print('  Plain-language review (model)...')
         text = model_narrative(data)
         if text:
-            data['analysis'] = {'narrative': text, 'generated_by': 'claude-haiku-4-5'}
+            data['analysis'] = {'narrative': text, 'generated_by': 'claude-haiku-4-5',
+                                'focus': daily_focus()[0]}
     return data
 
 
@@ -1250,10 +1287,12 @@ def render_html(d):
 
     narrative = (d.get('analysis') or {}).get('narrative')
     gen_by = (d.get('analysis') or {}).get('generated_by', 'rules')
+    focus = (d.get('analysis') or {}).get('focus')
     narrative_html = ''
     if narrative:
+        focus_tag = f'<p class="focus-label">Daily focus · {esc(focus)}</p>' if focus else ''
         paras = ''.join(f'<p>{esc(p.strip())}</p>' for p in narrative.split('\n') if p.strip())
-        narrative_html = f'<div class="narrative">{paras}<p class="muted small">— written by {esc(gen_by)}</p></div>'
+        narrative_html = f'<div class="narrative">{focus_tag}{paras}<p class="muted small">— written by {esc(gen_by)}</p></div>'
 
     f = d.get('funnels', {})
     coach = f.get('coach', {}) if not f.get('error') else {}
@@ -1413,6 +1452,8 @@ def render_html(d):
     .narrative{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--green);
       border-radius:10px;padding:16px 18px;margin-bottom:16px}
     .narrative p{margin-bottom:10px}
+    .narrative .focus-label{color:var(--green);font-size:11px;font-weight:700;
+      text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
     .target{margin:10px 0}
     .tbar{background:var(--card2);height:14px;border-radius:7px;overflow:hidden;margin-bottom:4px}
     .tbar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#22c55e);border-radius:7px}
@@ -1509,13 +1550,16 @@ def email_report(data, html):
         f'{sev_color.get(i["severity"], "#999")};border-radius:4px">{esc(i["text"])}</li>'
         for i in data.get('insights', []))
     narrative = (data.get('analysis') or {}).get('narrative') or ''
+    focus = (data.get('analysis') or {}).get('focus') or ''
+    focus_tag = (f'<p style="color:#16a34a;font-size:11px;font-weight:700;text-transform:uppercase;'
+                 f'letter-spacing:.8px;margin:0 0 8px">Daily focus · {esc(focus)}</p>') if focus else ''
     paras = ''.join(f'<p style="margin:0 0 12px">{esc(p.strip())}</p>'
                     for p in narrative.split('\n') if p.strip())
     body = f'''<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;
       margin:0 auto;color:#1a1a1a;font-size:15px;line-height:1.5">
       <h2 style="margin:0 0 4px">🎛️ Command Center — {esc(data['meta']['generated_date'])}</h2>
       <p style="color:#667;margin:0 0 16px">Full interactive dashboard attached (open in a browser).</p>
-      {paras}
+      {focus_tag}{paras}
       <ul style="list-style:none;padding:0;margin:16px 0">{items}</ul>
       <p style="color:#889;font-size:12px">Generated {esc(data['meta']['generated_at'])} PT ·
       dashboard/generate_command_center.py</p></div>'''
@@ -1524,7 +1568,8 @@ def email_report(data, html):
         headers={'Authorization': f'Bearer {resend_key}', 'Content-Type': 'application/json'},
         json={'from': 'Command Center <newsletter@carnivoreweekly.com>',
               'to': ['iambrew@gmail.com'],
-              'subject': f'🎛️ Command Center — {data["meta"]["generated_date"]}',
+              'subject': f'🎛️ Command Center — {data["meta"]["generated_date"]}'
+                         + (f' · {focus}' if focus else ''),
               'html': body,
               'attachments': [{'filename': f'command-center-{data["meta"]["generated_date"]}.html',
                                'content': base64.b64encode(html.encode()).decode()}]},
