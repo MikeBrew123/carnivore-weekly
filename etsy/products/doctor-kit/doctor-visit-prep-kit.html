@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Doctor Visit Prep Kit (Low-Carb Edition)</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   Doctor Visit Prep Kit v2 (design-forward rebuild, 2026-08-05)
+   Clinical register: near-white base, soft clinical blue, trust green,
+   ONE clean sans, zero script fonts. Medical guide, not cute planner.
+   ========================================================================== */
+:root {
+  --bg: #FAFAF8;
+  --ink: #1F2933;
+  --soft: #52606D;
+  --blue: #2C5F8A;
+  --blue-mid: #5B8AA6;
+  --blue-lt: #7FA8C9;
+  --blue-pale: #E9F0F6;
+  --green: #2E7D5B;
+  --green-lt: #6B9B7A;
+  --green-pale: #EAF3EE;
+  --line: #D5DDE5;
+}
+@page { size: Letter; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Source Sans 3', 'Segoe UI', Helvetica, Arial, sans-serif;
+       color: var(--ink); background: var(--bg); }
+
+.page { width: 8.5in; height: 11in; padding: 0.6in 0.68in 0.82in;
+        page-break-after: always; position: relative; background: var(--bg);
+        display: flex; flex-direction: column; overflow: hidden; }
+.page:last-child { page-break-after: avoid; }
+
+/* ---------- page header ---------- */
+.ph { display: flex; align-items: center; gap: 12px; padding-bottom: 9px;
+      border-bottom: 1px solid var(--line); margin-bottom: 13px; position: relative; }
+.ph::after { content: ''; position: absolute; bottom: -2px; left: 0;
+             width: 64px; height: 3px; background: var(--green); }
+.chip { width: 40px; height: 40px; border-radius: 10px; background: var(--blue-pale);
+        display: flex; align-items: center; justify-content: center; flex: none; }
+.chip svg { width: 24px; height: 24px; }
+.ht { flex: 1; min-width: 0; }
+.kicker { font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase;
+          color: var(--soft); font-weight: 600; }
+.ht h2 { font-size: 20px; color: var(--blue); font-weight: 700; line-height: 1.15; margin-top: 1px; }
+.stage { font-size: 9px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+         padding: 4px 10px; border-radius: 20px; flex: none; }
+.st-start  { background: var(--blue-pale);  color: var(--blue); }
+.st-before { background: var(--blue-pale);  color: var(--blue); }
+.st-during { background: var(--green-pale); color: var(--green); }
+.st-after  { background: var(--green-pale); color: var(--green); }
+
+.body { flex: 1 1 auto; min-height: 0; }
+.lede { font-size: 12px; line-height: 1.5; color: var(--soft); margin-bottom: 10px; }
+p { font-size: 12.5px; line-height: 1.52; margin-bottom: 8px; }
+h3 { font-size: 13px; color: var(--green); margin: 11px 0 6px; text-transform: none;
+     display: flex; align-items: center; gap: 7px; }
+h3::before { content: ''; width: 8px; height: 8px; border-radius: 2px;
+             background: var(--green); flex: none; }
+.note { font-size: 11px; color: var(--soft); line-height: 1.45; margin: -2px 0 6px; }
+
+/* ---------- form primitives ---------- */
+.field { display: flex; align-items: baseline; gap: 8px; margin: 11px 0; }
+.field .lbl { font-size: 11.5px; font-weight: 600; color: var(--soft); white-space: nowrap; }
+.field .line { flex: 1; border-bottom: 1px solid var(--blue-mid); height: 19px; }
+.fieldgrid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px; }
+.multi { margin: 9px 0; }
+.multi .lbl { font-size: 11.5px; font-weight: 600; color: var(--soft); display: block; margin-bottom: 1px; }
+.multi .rule { border-bottom: 1px solid var(--line); height: 26px; }
+.cb { display: flex; align-items: flex-start; gap: 9px; margin: 8px 0; font-size: 12.5px; line-height: 1.4; }
+.cb .box { width: 14px; height: 14px; border: 1.6px solid var(--blue); border-radius: 3px;
+           flex: none; margin-top: 2px; background: #fff; }
+table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; }
+th { background: var(--blue); color: #fff; font-size: 9px; text-transform: uppercase;
+     letter-spacing: 0.6px; padding: 5px 7px; text-align: left; font-weight: 600; }
+td { border: 1px solid var(--line); height: 31px; padding: 2px 7px; font-size: 12px; background: #fff; }
+tr:nth-child(odd) td { background: #F4F7FA; }
+.callout { background: var(--blue-pale); border-left: 3px solid var(--green);
+           border-radius: 0 6px 6px 0; padding: 9px 12px; margin: 9px 0;
+           font-size: 11.5px; line-height: 1.5; display: flex; gap: 9px; align-items: flex-start; }
+.callout svg { width: 15px; height: 15px; flex: none; margin-top: 1px; }
+
+/* ---------- footer ---------- */
+.pfoot { position: absolute; bottom: 0.3in; left: 0.68in; right: 0.68in;
+         display: flex; justify-content: space-between; align-items: center;
+         font-size: 8.5px; color: var(--soft);
+         border-top: 1px solid var(--line); padding-top: 6px; }
+.pn { font-weight: 700; color: var(--blue); background: var(--blue-pale);
+      border-radius: 10px; padding: 2px 9px; font-size: 8.5px; letter-spacing: 0.5px; flex: none; margin-left: 12px; }
+
+/* ==========================================================================
+   COVER
+   ========================================================================== */
+.cover { padding: 0; }
+.cover-inner { flex: 1; display: flex; flex-direction: column; align-items: center;
+               text-align: center; padding: 0.55in 0.7in 0.95in; position: relative; z-index: 1; }
+.cover-bg { position: absolute; inset: 0; z-index: 0; }
+.cover .brandline { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.cover .brandline .bar { width: 46px; height: 1.5px; background: var(--blue-lt); }
+.cover .brand { font-size: 12px; letter-spacing: 4.5px; text-transform: uppercase;
+                color: var(--soft); font-weight: 600; }
+.cover h1 { font-size: 47px; line-height: 1.06; color: var(--blue); font-weight: 700;
+            margin: 16px 0 13px; max-width: 6.4in; }
+.cover h1 .thin { font-weight: 400; color: var(--ink); font-size: 24px; display: block;
+                  letter-spacing: 5px; text-transform: uppercase; margin-bottom: 8px; }
+.edition { display: inline-flex; align-items: center; gap: 7px; background: var(--green);
+           color: #fff; font-size: 11.5px; font-weight: 700; letter-spacing: 2.5px;
+           text-transform: uppercase; padding: 6px 18px; border-radius: 20px; }
+.tagline { font-size: 16.5px; color: var(--soft); margin-top: 15px; }
+.tagline strong { color: var(--ink); font-weight: 600; }
+.cover-art { margin: 26px 0 24px; position: relative; }
+.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%;
+            max-width: 6.7in; margin-top: 2px; }
+.feat { background: #fff; border: 1px solid var(--line); border-radius: 10px;
+        padding: 11px 10px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.feat svg { width: 22px; height: 22px; }
+.feat span { font-size: 10.5px; line-height: 1.35; color: var(--ink); font-weight: 600; }
+.byline { margin-top: 20px; font-size: 11.5px; color: var(--soft); }
+.byline strong { color: var(--ink); font-weight: 700; }
+
+/* ---------- how-to stage cards (page 2) ---------- */
+.stages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 11px; }
+.scard { border: 1px solid var(--line); border-top: 3px solid var(--blue);
+         border-radius: 8px; background: #fff; padding: 10px 11px; }
+.scard.g { border-top-color: var(--green); }
+.scard .shead { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+.scard .shead svg { width: 16px; height: 16px; }
+.scard .shead b { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); }
+.scard.g .shead b { color: var(--green); }
+.scard p { font-size: 11px; line-height: 1.45; margin: 0; }
+
+/* ---------- lab definition cards (page 7) ---------- */
+.labgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 8px 0 10px; }
+.lab { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; }
+.lab b.abbr { display: inline-block; font-size: 12px; color: #fff; background: var(--blue-mid);
+              border-radius: 4px; padding: 1px 8px; margin-bottom: 4px; }
+.lab p { font-size: 10.8px; line-height: 1.42; margin: 0; }
+
+/* ---------- numbered question list (page 8) ---------- */
+.q { display: flex; gap: 9px; margin: 8.5px 0; align-items: flex-start; }
+.q .num { width: 19px; height: 19px; border-radius: 50%; background: var(--blue-pale);
+          color: var(--blue); font-size: 10.5px; font-weight: 700; display: flex;
+          align-items: center; justify-content: center; flex: none; margin-top: 1px; }
+.q .box { width: 13px; height: 13px; border: 1.6px solid var(--blue); border-radius: 3px;
+          flex: none; margin-top: 3px; background: #fff; }
+.q span.txt { font-size: 12px; line-height: 1.4; }
+
+/* ---------- resources cards (page 12) ---------- */
+.rescard { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--green);
+           border-radius: 8px; padding: 10px 13px; margin: 8px 0; }
+.rescard b { color: var(--blue); font-size: 12.5px; }
+.rescard p { font-size: 11.5px; margin: 3px 0 0; }
+
+.handoff { display: inline-flex; align-items: center; gap: 7px; background: var(--green-pale);
+           border: 1px solid var(--green-lt); color: var(--green); font-weight: 700;
+           font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase;
+           border-radius: 20px; padding: 4px 12px; margin-bottom: 8px; }
+.handoff svg { width: 13px; height: 13px; }
+
+.twocol { display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px; }
+.toc { display: flex; align-items: center; gap: 10px; margin: 7px 0; font-size: 12.5px; }
+.toc .tpn { width: 24px; height: 24px; border-radius: 6px; background: var(--blue-pale);
+            color: var(--blue); font-size: 11px; font-weight: 700; display: flex;
+            align-items: center; justify-content: center; flex: none; }
+.sig { margin-top: 10px; font-size: 12.5px; }
+.sig b { color: var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- ======================= PAGE 1 : COVER ======================= -->
+<div class="page cover">
+  <svg class="cover-bg" viewBox="0 0 816 1056" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- soft dot grid -->
+    <defs>
+      <pattern id="dots" x="0" y="0" width="34" height="34" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1.6" fill="#DCE6EE"/>
+      </pattern>
+    </defs>
+    <rect width="816" height="1056" fill="#FAFAF8"/>
+    <rect width="816" height="1056" fill="url(#dots)"/>
+    <!-- large soft shapes -->
+    <circle cx="700" cy="120" r="210" fill="#E9F0F6"/>
+    <circle cx="80" cy="950" r="240" fill="#EAF3EE"/>
+    <circle cx="770" cy="880" r="120" fill="#E9F0F6"/>
+    <circle cx="60" cy="150" r="90" fill="#EAF3EE"/>
+    <!-- top and bottom brand bands -->
+    <rect x="0" y="0" width="816" height="10" fill="#2C5F8A"/>
+    <rect x="0" y="10" width="816" height="4" fill="#6B9B7A"/>
+  </svg>
+
+  <div class="cover-inner">
+    <div class="brandline">
+      <span class="bar"></span>
+      <span class="brand">Carnivore Weekly</span>
+      <span class="bar"></span>
+    </div>
+
+    <h1><span class="thin">The</span>Doctor Visit<br>Prep Kit</h1>
+    <span class="edition">
+      Low-Carb Edition
+    </span>
+
+    <!-- Clipboard illustration -->
+    <div class="cover-art">
+      <svg width="300" height="330" viewBox="0 0 300 330" xmlns="http://www.w3.org/2000/svg">
+        <!-- shadow -->
+        <ellipse cx="150" cy="316" rx="118" ry="12" fill="#1F2933" opacity="0.10"/>
+        <!-- back page peeking -->
+        <rect x="52" y="34" width="196" height="266" rx="12" fill="#DCE6EE" transform="rotate(-3 150 167)"/>
+        <!-- clipboard board -->
+        <rect x="44" y="26" width="212" height="282" rx="14" fill="#2C5F8A"/>
+        <rect x="58" y="46" width="184" height="248" rx="6" fill="#FFFFFF"/>
+        <!-- clip -->
+        <rect x="118" y="10" width="64" height="30" rx="8" fill="#1F4666"/>
+        <rect x="130" y="2" width="40" height="18" rx="9" fill="#52606D"/>
+        <circle cx="150" cy="11" r="5" fill="#FAFAF8"/>
+        <!-- paper heading -->
+        <rect x="74" y="64" width="90" height="9" rx="4.5" fill="#2C5F8A"/>
+        <rect x="74" y="80" width="128" height="5" rx="2.5" fill="#D5DDE5"/>
+        <!-- checked row 1 -->
+        <circle cx="86" cy="112" r="11" fill="#2E7D5B"/>
+        <path d="M80.5 112 l4 4.2 7-8" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="106" y="104" width="112" height="6" rx="3" fill="#9FB3C8"/>
+        <rect x="106" y="115" width="78" height="5" rx="2.5" fill="#D5DDE5"/>
+        <!-- checked row 2 -->
+        <circle cx="86" cy="150" r="11" fill="#2E7D5B"/>
+        <path d="M80.5 150 l4 4.2 7-8" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="106" y="142" width="120" height="6" rx="3" fill="#9FB3C8"/>
+        <rect x="106" y="153" width="64" height="5" rx="2.5" fill="#D5DDE5"/>
+        <!-- checked row 3 -->
+        <circle cx="86" cy="188" r="11" fill="#2E7D5B"/>
+        <path d="M80.5 188 l4 4.2 7-8" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="106" y="180" width="98" height="6" rx="3" fill="#9FB3C8"/>
+        <rect x="106" y="191" width="86" height="5" rx="2.5" fill="#D5DDE5"/>
+        <!-- open row -->
+        <rect x="76" y="216" width="20" height="20" rx="5" fill="none" stroke="#2C5F8A" stroke-width="2.4"/>
+        <rect x="106" y="220" width="106" height="6" rx="3" fill="#D5DDE5"/>
+        <!-- writing line + pen -->
+        <rect x="74" y="258" width="152" height="2.5" rx="1.25" fill="#D5DDE5"/>
+        <g transform="rotate(38 246 246)">
+          <rect x="236" y="176" width="15" height="96" rx="4" fill="#2E7D5B"/>
+          <rect x="236" y="176" width="15" height="14" rx="4" fill="#6B9B7A"/>
+          <path d="M236 272 h15 l-7.5 16 z" fill="#F4C978"/>
+          <path d="M241.5 283 l2 5 2-5 z" fill="#1F2933"/>
+        </g>
+        <!-- pulse accent under clipboard -->
+        <path d="M64 322 h44 l8-14 10 24 9-16 6 6 h95" stroke="#6B9B7A" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+      </svg>
+    </div>
+
+    <p class="tagline"><strong>Walk in organized. Walk out with answers.</strong><br>
+    The appointment-preparation kit for anyone changing how they eat<br>while under a doctor's care.</p>
+
+    <div class="features" style="margin-top:20px;">
+      <div class="feat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="5" rx="1.5"/><path d="M6 8 h12 v12 a1.5 1.5 0 0 1 -1.5 1.5 h-9 A1.5 1.5 0 0 1 6 20 Z"/><path d="M9 13 h6 M12 10.5 v5" stroke="#2E7D5B"/></svg>
+        <span>Medication &amp; supplement worksheets</span>
+      </div>
+      <div class="feat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.5 h10 a1.5 1.5 0 0 1 1.5 1.5 v16 a1.5 1.5 0 0 1 -1.5 1.5 H7 A1.5 1.5 0 0 1 5.5 20 V4 A1.5 1.5 0 0 1 7 2.5 Z"/><path d="M8.5 7 h7 M8.5 10.5 h7 M8.5 14 h4.5"/><path d="M14 18.5 l1.6 1.6 3-3.4" stroke="#2E7D5B"/></svg>
+        <span>A one-page summary your doctor reads in 30 seconds</span>
+      </div>
+      <div class="feat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5 A2.5 2.5 0 0 1 6.5 3 h11 A2.5 2.5 0 0 1 20 5.5 v8 a2.5 2.5 0 0 1 -2.5 2.5 H10 l-4.5 4 v-4 H6.5 A2.5 2.5 0 0 1 4 13.5 Z"/><path d="M10 8 a2 2 0 1 1 3.4 1.4 c-.7.7-1.4 1-1.4 2" stroke="#2E7D5B"/><circle cx="12" cy="13.4" r="0.5" fill="#2E7D5B" stroke="none"/></svg>
+        <span>12 questions worth asking, ready to go</span>
+      </div>
+    </div>
+
+    <p class="byline">By <strong>Sarah Whitfield</strong>, Health Coach &bull; Carnivore Weekly &bull; carnivoreweekly.com</p>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 1 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 2 : HOW TO USE ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5.5 C10 3.8 7.2 3.5 4.5 4.2 V18.2 C7.2 17.5 10 17.8 12 19.5 C14 17.8 16.8 17.5 19.5 18.2 V4.2 C16.8 3.5 14 3.8 12 5.5 Z"/><path d="M12 5.5 V19.5"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>How to Use This Kit</h2></div>
+    <span class="stage st-start">Start here</span>
+  </header>
+  <div class="body">
+    <p>You changed how you eat, and you have a doctor's appointment coming up. Maybe you're a little nervous about that conversation. That's normal, and it's exactly why this kit exists.</p>
+    <p>Here's the truth I've seen over and over: doctors respond well to organized patients. When you walk in with your medications listed, your changes summarized on one page, and your questions written down, the whole visit changes. You're not defending a diet. You're two people looking at the same information together.</p>
+    <p>This kit isn't a tracker and there's nothing to fill in daily. You'll use it once per appointment, in three stages:</p>
+
+    <div class="stages">
+      <div class="scard">
+        <div class="shead"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3 v4 M16 3 v4 M4 10 h16"/></svg><b>Before</b></div>
+        <p>Work through pages 3 to 9. Give yourself 20 to 30 minutes a few days ahead, not the night before. Fill in your medication list straight from your pill bottles, complete your one-page diet summary, and pick the questions you actually want answered.</p>
+      </div>
+      <div class="scard">
+        <div class="shead"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3 v5 a4 4 0 0 0 8 0 V3"/><path d="M10 12 v3 a5 5 0 0 0 10 0 v-2"/><circle cx="20" cy="10" r="2.4"/></svg><b>During</b></div>
+        <p>Hand your doctor page 6 (your one-page summary) at the start. It takes them 30 seconds to read and it sets the tone. Use page 8 for your questions and page 10 to write down what they say. You won't remember it all later. Nobody does.</p>
+      </div>
+      <div class="scard g">
+        <div class="shead"><svg viewBox="0 0 24 24" fill="none" stroke="#2E7D5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9 v4 l3 2 M9 2.5 h6"/></svg><b>After</b></div>
+        <p>Keep page 11 somewhere handy. Questions always come up two days after the appointment. Write them down there so they're ready for next time.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#2E7D5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 l8 3.5 v5 c0 5-3.4 8.3-8 9.5 -4.6-1.2-8-4.5-8-9.5 v-5 Z"/><path d="M8.8 12 l2.2 2.3 4.2-4.8"/></svg>
+      <span>One important thing before you start. This kit helps you organize information and ask better questions. It never replaces your doctor's judgment, and nothing in it is medical advice. You'll see that reminder again at the end, because it matters.</span>
+    </div>
+
+    <p>Let's get you ready.</p>
+    <p class="sig"><b>Sarah Whitfield</b><br>Health Coach, Carnivore Weekly</p>
+
+    <h3 style="margin-top:18px;">What's inside</h3>
+    <div class="twocol" style="margin-top:2px;">
+      <div>
+        <div class="toc"><span class="tpn">3</span><span>Before Your Visit Checklist</span></div>
+        <div class="toc"><span class="tpn">4</span><span>Current Medications Worksheet</span></div>
+        <div class="toc"><span class="tpn">5</span><span>Supplements, Allergies &amp; Pharmacies</span></div>
+        <div class="toc"><span class="tpn">6</span><span>My Diet Change, In One Page</span></div>
+        <div class="toc"><span class="tpn">7</span><span>Baseline Labs Request Sheet</span></div>
+      </div>
+      <div>
+        <div class="toc"><span class="tpn">8</span><span>12 Questions Worth Asking</span></div>
+        <div class="toc"><span class="tpn">9</span><span>Symptoms &amp; Changes to Mention</span></div>
+        <div class="toc"><span class="tpn">10</span><span>Visit Notes</span></div>
+        <div class="toc"><span class="tpn">11</span><span>Between-Visits Parking Lot</span></div>
+        <div class="toc"><span class="tpn">12</span><span>The Fine Print + Free Resources</span></div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:16px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#2E7D5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5 h9 a3 3 0 0 1 3 3 v11 a3 3 0 0 1 -3 3 H6 Z"/><path d="M6 3.5 v17 M18 8 h2 v7 h-2"/></svg>
+      <span><strong>Printing tip:</strong> this kit prints beautifully in plain black and white. Print a fresh copy for every appointment, and reuse it as often as you like.</span>
+    </div>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 2 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 3 : BEFORE-VISIT CHECKLIST ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1.5"/><path d="M8.5 11 l1.8 1.8 3-3.4" stroke="#2E7D5B"/><path d="M8.5 16.5 h7"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>Before Your Visit Checklist</h2></div>
+    <span class="stage st-before">Before your visit</span>
+  </header>
+  <div class="body">
+    <p class="lede">A good appointment starts a few days early. Here's what to gather and what to do. Check things off as you finish them, and don't worry if a few don't apply to you. Skip what doesn't fit.</p>
+    <div class="twocol">
+      <div>
+        <h3>What to gather</h3>
+        <div class="cb"><span class="box"></span><span>My completed medication and supplement list (pages 4 and 5 of this kit)</span></div>
+        <div class="cb"><span class="box"></span><span>My one-page diet change summary (page 6, filled in)</span></div>
+        <div class="cb"><span class="box"></span><span>My questions list (page 8, with my top 3 marked)</span></div>
+        <div class="cb"><span class="box"></span><span>Any home readings I've been keeping (blood pressure, glucose, weight), printed or in a log</span></div>
+        <div class="cb"><span class="box"></span><span>Copies of recent lab results, if I have them from another provider or an old portal</span></div>
+        <div class="cb"><span class="box"></span><span>My insurance or health card</span></div>
+        <div class="cb"><span class="box"></span><span>Photo ID</span></div>
+        <div class="cb"><span class="box"></span><span>Reading glasses, if I need them</span></div>
+        <div class="cb"><span class="box"></span><span>A pen (the office pen is never where you need it)</span></div>
+        <div class="cb"><span class="box"></span><span>List of every pharmacy I use, including mail order</span></div>
+      </div>
+      <div>
+        <h3>What to do before the day</h3>
+        <div class="cb"><span class="box"></span><span>Confirm the appointment date and time</span></div>
+        <div class="cb"><span class="box"></span><span>Ask the office if this visit includes lab work, and if so, whether I need to fast beforehand</span></div>
+        <div class="cb"><span class="box"></span><span>Ask how early to arrive for paperwork</span></div>
+        <div class="cb"><span class="box"></span><span>Arrange a ride or parking plan if I need one</span></div>
+        <div class="cb"><span class="box"></span><span>Fill in pages 4 through 9 of this kit</span></div>
+        <div class="cb"><span class="box"></span><span>Mark my top 3 questions on page 8, in case time runs short</span></div>
+        <div class="cb"><span class="box"></span><span>Note anything new since my last visit on page 9 (symptoms, changes, things I've noticed)</span></div>
+        <h3>Day-of quick check</h3>
+        <div class="cb"><span class="box"></span><span>This kit, filled in</span></div>
+        <div class="cb"><span class="box"></span><span>Medications question: do I need to bring the actual bottles? (Some offices prefer this. Call and ask.)</span></div>
+        <div class="cb"><span class="box"></span><span>Water and a snack for after, especially if the visit includes fasting lab work</span></div>
+      </div>
+    </div>
+    <h3>My appointment</h3>
+    <div class="field"><span class="lbl">Appointment date and time</span><span class="line"></span></div>
+    <div class="field"><span class="lbl">Doctor or clinic name</span><span class="line"></span></div>
+    <div class="field"><span class="lbl">Address and phone number</span><span class="line"></span></div>
+    <div class="multi"><span class="lbl">Notes to myself before the day</span><div class="rule"></div><div class="rule"></div><div class="rule"></div></div>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 3 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 4 : MEDICATIONS ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="4.5" rx="1.5"/><path d="M6 7.5 h12 v11.5 a2 2 0 0 1 -2 2 H8 a2 2 0 0 1 -2 -2 Z"/><path d="M9 13.5 h6 M12 10.5 v6" stroke="#2E7D5B"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>Current Medications Worksheet</h2></div>
+    <span class="stage st-before">Before your visit</span>
+  </header>
+  <div class="body">
+    <p class="lede">Fill this in straight from your pill bottles and packages, not from memory. Copy the name and dose exactly as they appear on the label. If your doctor prescribed it, write their name in the last column. This page is for recording only. It doesn't tell you what to take or change, because that conversation belongs to you and your doctor.</p>
+    <h3>Prescription medications</h3>
+    <table>
+      <tr><th style="width:34%">Medication name (from the label)</th><th style="width:22%">Dose as prescribed</th><th style="width:22%">How often I take it</th><th style="width:22%">Prescribed by</th></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+    </table>
+    <h3>Over-the-counter medicines I take regularly</h3>
+    <p class="note">Things like pain relievers, antacids, allergy pills, sleep aids.</p>
+    <table>
+      <tr><th style="width:34%">Medicine name</th><th style="width:22%">Amount I take</th><th style="width:22%">How often</th><th style="width:22%">Why I take it</th></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+    </table>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 4 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 5 : SUPPLEMENTS, ALLERGIES & PHARMACIES ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="9.2" width="17.6" height="7.6" rx="3.8" transform="rotate(-35 12 13)"/><path d="M8.6 15.4 l6.4-4.5" /><path d="M17.5 4 l.9 1.8 2 .3 -1.5 1.4 .4 2 -1.8-1 -1.8 1 .4-2 -1.5-1.4 2-.3 Z" stroke="#2E7D5B" stroke-width="1.4"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>Supplements, Allergies &amp; Pharmacies</h2></div>
+    <span class="stage st-before">Before your visit</span>
+  </header>
+  <div class="body">
+    <h3>Supplements, vitamins, and minerals</h3>
+    <p class="note">Include electrolytes, magnesium, fish oil, anything you take on purpose. Doctors need the full picture, and supplements count.</p>
+    <table>
+      <tr><th style="width:34%">Supplement name</th><th style="width:22%">Amount I take</th><th style="width:20%">How often</th><th style="width:24%">Why I take it</th></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+    </table>
+    <h3>Allergies and reactions</h3>
+    <div class="multi"><span class="lbl">Medications or substances I'm allergic to, and what happens</span><div class="rule"></div><div class="rule"></div><div class="rule"></div><div class="rule"></div></div>
+    <h3>My pharmacies</h3>
+    <div class="field"><span class="lbl">Main pharmacy name and phone</span><span class="line"></span></div>
+    <div class="field"><span class="lbl">Second pharmacy or mail-order service, if any</span><span class="line"></span></div>
+    <div class="field"><span class="lbl">Date I completed this page</span><span class="line"></span></div>
+    <div class="callout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#2E7D5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2.5"/><path d="M9 7 l1.4-2.6 h3.2 L15 7"/><circle cx="12" cy="13.5" r="3.4"/></svg>
+      <span><strong>Tip:</strong> take a photo of this page once it's filled in. Then it's on your phone at every appointment, not just this one.</span>
+    </div>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 5 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 6 : DIET CHANGE ONE-PAGER ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.5 h10 a1.5 1.5 0 0 1 1.5 1.5 v16 a1.5 1.5 0 0 1 -1.5 1.5 H7 A1.5 1.5 0 0 1 5.5 20 V4 A1.5 1.5 0 0 1 7 2.5 Z"/><path d="M8.5 7 h7 M8.5 10.5 h7 M8.5 14 h4.5"/><path d="M14 18.5 l1.6 1.6 3-3.4" stroke="#2E7D5B"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>My Diet Change, In One Page</h2></div>
+    <span class="stage st-before">Before your visit</span>
+  </header>
+  <div class="body">
+    <span class="handoff"><svg viewBox="0 0 24 24" fill="none" stroke="#2E7D5B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 h13 M13 6 l6 6 -6 6"/></svg>Hand this page to your doctor at the start of your visit</span>
+    <p class="lede" style="margin-bottom:6px;">This is the most important page in the kit. Doctors are pressed for time, and a clear one-page summary beats ten minutes of explaining. Fill it in honestly, hand it over at the start of your visit, and let it do the talking. Plain facts, no defending, no convincing.</p>
+    <div class="fieldgrid">
+      <div class="field"><span class="lbl">My name</span><span class="line"></span></div>
+      <div class="field"><span class="lbl">Today's date</span><span class="line"></span></div>
+    </div>
+    <div class="field"><span class="lbl">Date I started eating this way</span><span class="line"></span></div>
+    <div class="multi"><span class="lbl">What I eat now, in one or two sentences <em>(Example: "Mostly meat, eggs, and fish, with butter and some cheese. I drink water, coffee, and tea.")</em></span><div class="rule"></div><div class="rule"></div></div>
+    <div class="multi"><span class="lbl">What I stopped eating or cut way back on</span><div class="rule"></div><div class="rule"></div></div>
+    <div class="multi"><span class="lbl">What I eat most days (my typical day of eating)</span><div class="rule"></div><div class="rule"></div><div class="rule"></div></div>
+    <h3 style="margin-top:8px;">What I've noticed since starting</h3>
+    <p class="note">Just what you've observed. Your doctor decides what it means.</p>
+    <div class="fieldgrid">
+      <div class="field"><span class="lbl">Energy</span><span class="line"></span></div>
+      <div class="field"><span class="lbl">Sleep</span><span class="line"></span></div>
+      <div class="field"><span class="lbl">Digestion</span><span class="line"></span></div>
+      <div class="field"><span class="lbl">Weight change, if any</span><span class="line"></span></div>
+    </div>
+    <div class="multi"><span class="lbl">Anything else I've noticed</span><div class="rule"></div></div>
+    <div class="multi"><span class="lbl">Why I'm doing this <em>(One honest sentence. "I want to lose weight and feel better" is a perfectly good answer.)</em></span><div class="rule"></div></div>
+    <div class="multi"><span class="lbl">What I'd like from you today, doctor <em>(Example: "I'd like baseline labs, and I'd like to know what you want to monitor.")</em></span><div class="rule"></div><div class="rule"></div></div>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 6 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 7 : BASELINE LABS ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 h6 M10 3 v5.5 L5.5 17 a2.4 2.4 0 0 0 2.2 3.5 h8.6 a2.4 2.4 0 0 0 2.2-3.5 L14 8.5 V3"/><path d="M7.5 14.5 h9" stroke="#2E7D5B"/><circle cx="11" cy="17.5" r="1" fill="#2E7D5B" stroke="none"/><circle cx="14" cy="16.5" r="0.8" fill="#2E7D5B" stroke="none"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>Baseline Labs Request Sheet</h2></div>
+    <span class="stage st-before">Before your visit</span>
+  </header>
+  <div class="body">
+    <p class="lede" style="margin-bottom:7px;">When you change how you eat, many doctors like to get a starting snapshot, then compare it against later results. That starting snapshot is what people mean by "baseline labs." Trends over time usually tell your doctor more than any single number can. Here's what the commonly discussed panels actually are, in plain language. This is education about what the tests measure, not advice about what you need. Your doctor decides which tests make sense for you, and your doctor interprets the results. Reference ranges also vary from lab to lab, so the printout from one lab won't always match another. That's normal, and it's another reason interpretation belongs to your doctor.</p>
+    <div class="labgrid">
+      <div class="lab"><b class="abbr">CMP</b><p><strong>Comprehensive Metabolic Panel.</strong> A standard blood panel that looks at things like blood sugar at the time of the draw, electrolytes such as sodium and potassium, kidney function markers, and liver function markers. A broad snapshot of how several body systems are running.</p></div>
+      <div class="lab"><b class="abbr">Lipid panel</b><p>Measures fats in your blood: total cholesterol, LDL, HDL, and triglycerides. If you've read about cholesterol and low-carb eating, this is the panel those conversations are about. What your results mean for you is a conversation for your doctor, because context matters a lot here.</p></div>
+      <div class="lab"><b class="abbr">A1c</b><p><strong>Hemoglobin A1c.</strong> An estimate of your average blood sugar over roughly the past three months. Unlike a single glucose reading, it reflects a longer stretch of time.</p></div>
+      <div class="lab"><b class="abbr">Thyroid panel</b><p>Usually starts with TSH, sometimes with added tests like T4 or T3. The thyroid helps regulate metabolism, and doctors sometimes like a baseline when eating habits change significantly.</p></div>
+    </div>
+    <div class="twocol">
+      <div>
+        <h3>Panels to ask my doctor about</h3>
+        <p class="note">These checkboxes mean "I want to discuss whether this makes sense for me," nothing more.</p>
+        <div class="cb"><span class="box"></span><span>CMP (Comprehensive Metabolic Panel)</span></div>
+        <div class="cb"><span class="box"></span><span>Lipid panel</span></div>
+        <div class="cb"><span class="box"></span><span>A1c</span></div>
+        <div class="cb"><span class="box"></span><span>Thyroid panel</span></div>
+        <div class="cb"><span class="box"></span><span>Anything else my doctor recommends</span></div>
+        <div class="field"><span class="lbl">Other tests my doctor mentioned</span><span class="line"></span></div>
+      </div>
+      <div>
+        <h3>Practical questions to ask</h3>
+        <div class="cb"><span class="box"></span><span>Do I need to fast before the blood draw, and for how long?</span></div>
+        <div class="cb"><span class="box"></span><span>Will my insurance or provincial plan cover these, or is there a cost?</span></div>
+        <div class="cb"><span class="box"></span><span>When and how will I get the results?</span></div>
+        <div class="cb"><span class="box"></span><span>When would you want to recheck?</span></div>
+        <div class="field"><span class="lbl">Date labs were requested</span><span class="line"></span></div>
+        <div class="field"><span class="lbl">Date of blood draw</span><span class="line"></span></div>
+        <div class="field"><span class="lbl">Recheck date my doctor suggested</span><span class="line"></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 7 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 8 : 12 QUESTIONS ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5 A2.5 2.5 0 0 1 6.5 3 h11 A2.5 2.5 0 0 1 20 5.5 v8 a2.5 2.5 0 0 1 -2.5 2.5 H10 l-4.5 4 v-4 H6.5 A2.5 2.5 0 0 1 4 13.5 Z"/><path d="M10 8 a2 2 0 1 1 3.4 1.4 c-.7.7-1.4 1-1.4 2" stroke="#2E7D5B"/><circle cx="12" cy="13.4" r="0.5" fill="#2E7D5B" stroke="none"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>12 Questions Worth Asking</h2></div>
+    <span class="stage st-before">Before your visit</span>
+  </header>
+  <div class="body">
+    <p class="lede">Appointments go fast. If you only get time for three questions, you want them to be your three. Read through this list, check the ones that matter to you, then circle or star your top three. There's space at the bottom for your own. These are the questions I've seen open up the best conversations between patients and doctors during a diet change.</p>
+    <div class="q"><span class="num">1</span><span class="box"></span><span class="txt">Given my health history and my medications, is there anything you want to watch more closely while I change how I eat?</span></div>
+    <div class="q"><span class="num">2</span><span class="box"></span><span class="txt">Would baseline labs make sense for me? Which ones would you order?</span></div>
+    <div class="q"><span class="num">3</span><span class="box"></span><span class="txt">How soon would you want to recheck labs after I start?</span></div>
+    <div class="q"><span class="num">4</span><span class="box"></span><span class="txt">I've read that some medications may need adjusting when eating habits change. Are any of mine in that category, and how will we handle that together?</span></div>
+    <div class="q"><span class="num">5</span><span class="box"></span><span class="txt">Are there symptoms that should make me call your office right away?</span></div>
+    <div class="q"><span class="num">6</span><span class="box"></span><span class="txt">Should I monitor anything at home, like blood pressure, glucose, or weight? How often?</span></div>
+    <div class="q"><span class="num">7</span><span class="box"></span><span class="txt">How would you like me to share home readings with you: portal, printout, or phone call?</span></div>
+    <div class="q"><span class="num">8</span><span class="box"></span><span class="txt">What results would tell you this way of eating is working for me? What would concern you?</span></div>
+    <div class="q"><span class="num">9</span><span class="box"></span><span class="txt">If my labs change, how will we sort out what's from the diet versus something else?</span></div>
+    <div class="q"><span class="num">10</span><span class="box"></span><span class="txt">Is there anything in my personal or family history that makes this way of eating riskier for me?</span></div>
+    <div class="q"><span class="num">11</span><span class="box"></span><span class="txt">If I have a question between visits, who do I contact and what's the best way to reach them?</span></div>
+    <div class="q"><span class="num">12</span><span class="box"></span><span class="txt">When should I book my next appointment, and what should we plan to review then?</span></div>
+    <h3>My own questions</h3>
+    <div class="multi"><span class="lbl">Question 13</span><div class="rule"></div><div class="rule"></div></div>
+    <div class="multi"><span class="lbl">Question 14</span><div class="rule"></div><div class="rule"></div></div>
+    <div class="field" style="max-width:4.6in;"><span class="lbl">My top three question numbers</span><span class="line"></span></div>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 8 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 9 : SYMPTOMS & CHANGES ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5 C7 16.5 3.5 13.2 3.5 9.3 A4.8 4.8 0 0 1 12 6.4 a4.8 4.8 0 0 1 8.5 2.9 c0 3.9-3.5 7.2-8.5 11.2 Z"/><path d="M5.5 12 h4 l1.2-2.4 1.8 4.4 1.3-2 h4.7" stroke="#2E7D5B" stroke-width="1.6"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>Symptoms &amp; Changes to Mention</h2></div>
+    <span class="stage st-before">Before your visit</span>
+  </header>
+  <div class="body">
+    <p class="lede">Here's something funny about appointments: the moment the doctor asks "any changes since last time?", your mind goes blank. Everyone's does. So write it down now, while you remember. List anything new or different since your last visit, good or bad. Better sleep counts. A weird headache counts. You're not deciding what's important here, you're just reporting. Let your doctor decide what matters, because sometimes the thing you almost didn't mention turns out to be the useful one.</p>
+    <table>
+      <tr><th style="width:32%">Symptom or change</th><th style="width:20%">When it started</th><th style="width:22%">How often it happens</th><th style="width:26%">Better, worse, or about the same</th></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+    </table>
+    <h3>More detail on the big ones</h3>
+    <p class="note">Pick the one or two things from the table that concern you most, and give them a few sentences each. When did it start, what does it feel like, what makes it better or worse?</p>
+    <div class="multi"><span class="lbl">The change I most want to discuss</span><div class="rule"></div><div class="rule"></div></div>
+    <div class="multi"><span class="lbl">Second thing I want to discuss</span><div class="rule"></div><div class="rule"></div></div>
+    <h3>Positive changes I want on the record</h3>
+    <p class="note">These belong in your chart too. If your energy is up or your joints ache less, say so. It's part of your medical picture.</p>
+    <div class="multi"><span class="lbl">Improvements I've noticed</span><div class="rule"></div><div class="rule"></div></div>
+    <h3>Life context my doctor should know</h3>
+    <p class="note">Stress, sleep changes, a new job, a loss, travel. Doctors read numbers better when they know the story around them.</p>
+    <div class="multi"><span class="lbl">What else is going on in my life right now</span><div class="rule"></div><div class="rule"></div></div>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 9 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 10 : VISIT NOTES ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5 A1.5 1.5 0 0 1 6.5 3 h8 L19 7.5 v13 a1.5 1.5 0 0 1 -1.5 1.5 h-11 A1.5 1.5 0 0 1 5 20.5 Z"/><path d="M14.5 3 v4.5 H19"/><path d="M15.8 11.2 l2 2 -5.2 5.2 -2.6.6 .6-2.6 Z" stroke="#2E7D5B" stroke-width="1.6"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>Visit Notes</h2></div>
+    <span class="stage st-during">During your visit</span>
+  </header>
+  <div class="body">
+    <p class="lede">Studies on patient recall agree on one thing: we forget a lot of what's said in the exam room, and quickly. Use this page during the visit or in the parking lot right after. Write what your doctor actually said, in their words where you can. If anything about your medications or care plan changes, copy it down exactly as your doctor stated it, and ask them to repeat it if you're not sure. Never work from memory on that part.</p>
+    <div class="fieldgrid">
+      <div class="field"><span class="lbl">Visit date</span><span class="line"></span></div>
+      <div class="field"><span class="lbl">Doctor or provider I saw</span><span class="line"></span></div>
+    </div>
+    <div class="field"><span class="lbl">Reason for this visit</span><span class="line"></span></div>
+    <h3>What the doctor said</h3>
+    <div class="multi"><span class="lbl">Main points from the conversation</span><div class="rule"></div><div class="rule"></div><div class="rule"></div></div>
+    <h3>Labs or tests ordered</h3>
+    <div class="multi"><span class="lbl">Tests ordered, and any fasting or prep instructions</span><div class="rule"></div><div class="rule"></div></div>
+    <h3>Changes to my care plan</h3>
+    <p class="note">Copy exactly what the doctor said. If you're unsure, ask them to write it down or repeat it before you leave.</p>
+    <div class="multi"><span class="lbl">Changes, in the doctor's words</span><div class="rule"></div><div class="rule"></div></div>
+    <h3>Home monitoring my doctor asked for</h3>
+    <div class="multi"><span class="lbl">What to measure, how often, and how to share it</span><div class="rule"></div><div class="rule"></div></div>
+    <h3>Follow-up</h3>
+    <div class="fieldgrid">
+      <div class="field"><span class="lbl">Recheck or follow-up date</span><span class="line"></span></div>
+      <div class="field"><span class="lbl">Next appointment booked for</span><span class="line"></span></div>
+    </div>
+    <div class="field"><span class="lbl">Who to call with questions, and the number</span><span class="line"></span></div>
+    <div class="multi"><span class="lbl">Things I didn't get to ask (move these to page 11 so they're ready for next time)</span><div class="rule"></div></div>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 10 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 11 : PARKING LOT ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7 v5 l3.5 2.5" stroke="#2E7D5B"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>Between-Visits Parking Lot</h2></div>
+    <span class="stage st-after">After your visit</span>
+  </header>
+  <div class="body">
+    <p class="lede">The best questions never arrive during the appointment. They show up in the shower, in the car, or at 9 pm three days later. That's what this page is for. When a question comes up, park it here instead of losing it. Then bring this page to your next visit, or call the office if it can't wait.</p>
+    <div class="callout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#2E7D5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 h10 M9 4 c0 8-4 8-4 13 a3 3 0 0 0 3 3 h8 a3 3 0 0 0 3-3 c0-5-4-5-4-13" transform="scale(0.9) translate(1.4 1)"/><path d="M8 15.5 h8" /></svg>
+      <span>One rule of thumb from my hub guide: if a question feels urgent, don't save it for the parking lot. Call your doctor's office and ask. That's what they're there for, and no printable should ever talk you out of making that call.</span>
+    </div>
+    <table>
+      <tr><th style="width:18%">Date it came up</th><th style="width:42%">My question</th><th style="width:10%">Asked?</th><th style="width:30%">Answer or follow-up</th></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+    </table>
+    <h3>Things I want to remember to report next visit</h3>
+    <p class="note">Not questions, just updates: readings, changes, wins, worries.</p>
+    <div class="multi"><span class="lbl">Updates for next time</span><div class="rule"></div><div class="rule"></div><div class="rule"></div></div>
+    <div class="fieldgrid">
+      <div class="field"><span class="lbl">My next appointment date</span><span class="line"></span></div>
+      <div class="field"><span class="lbl">Office phone number</span><span class="line"></span></div>
+    </div>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 11 of 12</span></div>
+</div>
+
+<!-- ======================= PAGE 12 : FINE PRINT + RESOURCES ======================= -->
+<div class="page">
+  <header class="ph">
+    <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="#2C5F8A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 l8 3.5 v5 c0 5-3.4 8.3-8 9.5 -4.6-1.2-8-4.5-8-9.5 v-5 Z"/><path d="M8.8 12 l2.2 2.3 4.2-4.8" stroke="#2E7D5B"/></svg></div>
+    <div class="ht"><div class="kicker">Carnivore Weekly &bull; Doctor Visit Prep Kit</div><h2>The Fine Print That Isn't Fine Print</h2></div>
+    <span class="stage st-after">Please read</span>
+  </header>
+  <div class="body">
+    <p><strong>Please read this part. I mean it.</strong></p>
+    <p>I'm not a doctor. I've researched this deeply and worked with many people, but I'm not your doctor. If you have health conditions, take medications, or need specific guidance, talk to someone who knows your full medical picture. Everything in this kit is educational, built from research and what I've seen work. Your situation might be different.</p>
+    <p>And one thing I want to say as plainly as I can: if you're taking medications or have been diagnosed with any medical condition, you need individualized medical oversight. Don't make changes without consulting your doctor. This kit exists to make those conversations better, never to replace them.</p>
+    <p>Nothing in these pages tells you what to take, what to stop, or what your results mean. The worksheets hold your information. The education pages explain what things are. Every decision stays where it belongs: with you and your doctor, together.</p>
+    <h3>If you'd like more support</h3>
+    <div class="rescard">
+      <b>Carnivore With Health Conditions and Medications</b>
+      <p>This kit pairs with my free guide over at Carnivore Weekly. It walks through doctor coordination in much more depth, including the full question bank that page 8 came from. You'll find it at carnivoreweekly.com.</p>
+    </div>
+    <div class="rescard">
+      <b>The free Carnivore Weekly calculator</b>
+      <p>Some people also find our free calculator helpful for estimating protein and energy needs as a starting point for the food conversation. It's at carnivoreweekly.com too. No account needed for either.</p>
+    </div>
+    <p style="margin-top:12px;">Thanks for taking your health, and your doctor's role in it, seriously. That combination is exactly what works.</p>
+    <p class="sig"><b>Sarah Whitfield</b><br>Health Coach, Carnivore Weekly</p>
+    <p class="note" style="margin-top:14px;">&copy; Carnivore Weekly. For personal use. Educational content only, not medical advice. Not intended to diagnose or treat any condition.</p>
+  </div>
+  <div class="pfoot"><span>Educational paperwork only, never medical advice. Your doctor interprets, you decide together. &bull; carnivoreweekly.com</span><span class="pn">Page 12 of 12</span></div>
+</div>
+
+</body>
+</html>
