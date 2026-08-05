@@ -57,11 +57,16 @@ def check(name, path, max_age, missing_is_dead=True):
 # 1. Dashboard cron (daily 10:00 UTC) — stale after 30h
 check('dashboard-cron', os.path.join(LOGS, 'dashboard_update.log'), 30 * HOURS)
 
-# 2. Scoreboard truth pass (Mondays 10:30 UTC) — stale after 8d.
-#    Cron installed 2026-07-04; first run 2026-07-06, so tolerate a missing
-#    log until 2026-07-08 to avoid a false alarm before the first fire.
-if date.today() >= date(2026, 7, 8) or age_of(os.path.join(LOGS, 'scoreboard_truth_pass.log')) is not None:
-    check('scoreboard-truth-pass', os.path.join(LOGS, 'scoreboard_truth_pass.log'), 8 * DAYS)
+# 2. Scoreboard truth pass (Mondays) — stale after 8d. Judged by the newest
+#    snapshot file, not the cron log: since 2026-08 the pass is often run by a
+#    Claude scheduled task instead of the 3:30am cron (Mac asleep), and those
+#    runs never touch the cron log. The snapshot is the actual product.
+_snapdir = f'{HOME}/Documents/Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/scoreboard-snapshots'
+try:
+    _newest = max(os.path.join(_snapdir, p) for p in os.listdir(_snapdir) if p.endswith('.json'))
+    check('scoreboard-truth-pass', _newest, 8 * DAYS)
+except (OSError, ValueError):
+    problems.append(f'scoreboard-truth-pass: no snapshots found in {_snapdir}')
 
 # 3. LaunchAgents: monthly report. Known failure mode (found Jul 4 2026):
 #    process runs with exit code 0 but PermissionError lands in the error log,
@@ -76,13 +81,19 @@ for label, max_stale in (('monthly-report', 40 * DAYS),):
             f"launchagent {label}: error log is newer than stdout log — "
             f"still failing (likely macOS Full Disk Access for launchd python3)")
 
-# 4. Vault sync (fires every 10 min; known dead Jul 4 2026 with git 'fatal:' spam)
+# 4. Vault sync (fires every 10 min). Judge by the newest DATED line: the
+#    script logs FAIL on errors and (since 2026-08-05) OK on success, while
+#    raw git stderr ('fatal: ...') lands undated between them. The old
+#    check flagged any 'fatal:' in the tail, which kept alarming forever
+#    after recovery because successes were silent.
 try:
     with open('/tmp/vault-sync.log') as f:
-        tail = f.readlines()[-3:]
-    if tail and any(line.startswith('fatal:') for line in tail):
-        problems.append("launchagent vaultsync: last log lines are git 'fatal:' errors — sync dead "
-                        "(sessions have been pushing the vault manually)")
+        dated = [l.strip() for l in f.readlines()[-50:] if l[:2] == '20']
+    last = dated[-1] if dated else ''
+    if 'FAIL' in last:
+        problems.append(f'launchagent vaultsync: latest run failed — {last}')
+    elif last:
+        notes.append('vault-sync ok')
 except OSError:
     notes.append('vault-sync log missing (agent may be unloaded)')
 
