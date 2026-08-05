@@ -1113,7 +1113,18 @@
 
                 <!-- BOMBPROOF CALCULATOR SLOT - Structurally independent from intro text -->
                 <div id="calculator-slot" class="calculator-slot">
-                    <!-- How It Works Section - Inside calculator slot for visual continuity -->
+                    <!-- Medical Disclaimer (YMYL compliance) -->
+                    <div style="background: rgba(139, 69, 19, 0.06); border: 1px solid #d4a574; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.6; color: #666;">
+                        <strong style="color: #8b4513;">Disclaimer:</strong> This calculator and its reports are AI-assisted tools for education and entertainment only — not medical advice. We are not doctors or dietitians. Results are estimates, not personalized medical recommendations. If you take medication, have a medical condition, are pregnant, or have a history of disordered eating, consult a qualified healthcare provider before making dietary changes.
+                    </div>
+
+                    <!-- Calculator React App Mount Point -->
+                    <div id="calculator-start"></div>
+                    <div id="root"></div>
+                </div>
+
+                <!-- TEACHING BLOCKS — moved below the calculator 2026-08-05 (R1 reorder, docs/calculator-page-analysis-2026-08-03.md). Content unchanged. -->
+                <!-- How It Works Section -->
                     <div class="how-it-works" style="background: rgba(139, 69, 19, 0.05); border-left: 4px solid #8b4513; padding: 30px; margin: 0 0 40px 0; border-radius: 4px; overflow: auto;">
                         <picture>
                             <source type="image/webp" srcset="/images/GirlReadingReport.webp">
@@ -1212,19 +1223,9 @@
                             <img src="/images/report-mockups/stall-breaker-protocol.jpg" alt="Stall breaker protocol pages from the Complete Carnivore Protocol report" loading="lazy" width="800" height="597" style="width: 100%; height: auto; border-radius: 8px; display: block;">
                             <img src="/images/report-mockups/kryptonite-kitchen.jpg" alt="Personalized meal plan pages from the Complete Carnivore Protocol on a kitchen counter" loading="lazy" width="800" height="597" style="width: 100%; height: auto; border-radius: 8px; display: block;">
                         </div>
-                        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; color: #ffd700; font-weight: 700; margin-bottom: 4px;">$29 USD one-time — yours forever. Unlocks at the end of the calculator below.</p>
+                        <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 15px; color: #ffd700; font-weight: 700; margin-bottom: 4px;">$29 USD one-time — yours forever. Unlocks at the end of the calculator above.</p>
                         <p style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 13px; color: #a89080; margin: 0;">30-day money-back guarantee.</p>
                     </section>
-
-                    <!-- Medical Disclaimer (YMYL compliance) -->
-                    <div style="background: rgba(139, 69, 19, 0.06); border: 1px solid #d4a574; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.6; color: #666;">
-                        <strong style="color: #8b4513;">Disclaimer:</strong> This calculator and its reports are AI-assisted tools for education and entertainment only — not medical advice. We are not doctors or dietitians. Results are estimates, not personalized medical recommendations. If you take medication, have a medical condition, are pregnant, or have a history of disordered eating, consult a qualified healthcare provider before making dietary changes.
-                    </div>
-
-                    <!-- Calculator React App Mount Point -->
-                    <div id="calculator-start"></div>
-                    <div id="root"></div>
-                </div>
 
                 <!-- FAQ Section -->
                 <section id="faq-section" class="calculator-faq" style="background: rgba(212, 165, 116, 0.08); border-radius: 8px; padding: 40px; margin-top: 60px;">
