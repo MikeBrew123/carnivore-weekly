@@ -159,7 +159,11 @@
       "Bash(curl -s -m 20 -A \"carnivore-weekly-research/1.0\" \"https://www.reddit.com/r/carnivore/top.json?t=week&limit=5\")",
       "Bash(curl -s -m 20 \"https://redlib.catsarch.com/r/carnivore/top?t=week\")",
       "Bash(sed -n '1,120p' \"/Users/mbrew/Documents/Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/scoreboard.md\" | head -0; awk '/^## 2026-07-27/,0' \"/Users/mbrew/Documents/Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/scoreboard.md\" | head -90)",
-      "Bash(awk '/^## 2026-07-27/{f=1} f' scoreboard.md)"
+      "Bash(awk '/^## 2026-07-27/{f=1} f' scoreboard.md)",
+      "Bash(node _tmp-kd-sitemap.mjs)",
+      "Bash(node gsc-kd-report.js)",
+      "Bash(git check-ignore *)",
+      "Bash(node -e \"let s='';process.stdin.on\\('data',d=>s+=d\\).on\\('end',\\(\\)=>{const j=JSON.parse\\(s\\);j.filter\\(x=>/KD \\(blog not indexed|posts marked published\\)/.test\\(x.title\\)\\).forEach\\(x=>console.log\\(x.id+'  P'+x.priority+'  '+x.title\\)\\)}\\)\")"
     ]
   },
   "disabledMcpjsonServers": [
