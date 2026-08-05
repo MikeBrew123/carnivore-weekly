@@ -151,7 +151,11 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git diff --staged --quiet || git commit -m "auto: publish KD blog posts for $(date +%Y-%m-%d)"
-          git push origin main
+          # The submodule checkout is a detached HEAD, so "git push origin main"
+          # pushes the stale local main ref and reports "Everything up-to-date"
+          # while the new commit never leaves the runner — which orphaned the
+          # 2026-08-03 pointer and broke the next day's checkout. Push HEAD.
+          git push origin HEAD:main
 
       - name: Commit and push if changes
         if: steps.publish_cw.outputs.has_changes == 'true' || steps.publish_kd.outputs.has_changes == 'true'
