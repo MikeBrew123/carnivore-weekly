@@ -131,8 +131,8 @@ function checkRateLimit(sessionToken, limit = 10) {
 // Map user-facing promotion codes to Stripe coupon IDs
 // To add new codes: Create coupon in Stripe Dashboard, then add mapping here
 const stripeCouponMap = {
-  'TEST999': 'DjCf14wH',      // 100% off forever (testing - FREE)
-  'TEST95': 'ZnZXGHka',       // 95% off forever (testing - $0.50 minimum)
+  // TEST999/TEST95 removed 2026-08-05 (Brew's Jul 17 retire-test-coupons decision;
+  // their Stripe coupons DjCf14wH/ZnZXGHka no longer exist in live mode)
   'WELCOME10': 'kFK8x4SZ',    // 10% off once ($26.10)
   'WELCOME5': 'WELCOME5',     // $5 off once ($24) — drip Day 3 welcome offer
   'CARNIVORE20': 'R0cRj1NP',  // 20% off once ($23.20)
