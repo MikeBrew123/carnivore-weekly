@@ -639,11 +639,15 @@ def fetch_revenue():
         lbl = pi_label.get(c.get('payment_intent')) or c.get('description') or 'unattributed'
         by_product[lbl] = round(by_product.get(lbl, 0) + (c['amount'] - c.get('amount_refunded', 0)) / 100, 2)
 
+    today_start = datetime(TODAY.year, TODAY.month, TODAY.day, tzinfo=timezone.utc).timestamp()
     return {
         'configured': True,
+        'yesterday': window([c for c in ok
+                             if today_start - 86400 <= c['created'] < today_start]),
         'last_7d': window([c for c in ok if c['created'] >= now_ts - 7 * 86400]),
         'last_30d': window(ok),
         'mtd': window(mtd),
+        'days_left_in_month': days_in_month - days_elapsed,
         'month_pace': pace,
         'target': NET_TARGET_MONTHLY,
         'by_product_30d': by_product,
@@ -687,6 +691,17 @@ def fetch_etsy():
         pv, cv = prior.get('shop', {}).get(key), shop.get(key)
         return (cv - pv) if (pv is not None and cv is not None) else None
 
+    # Day-over-day: latest snapshot vs the one before it (snapshots are daily).
+    prev = snaps[-2] if len(snaps) > 1 else None
+    yesterday = None
+    if prev:
+        pv = sum(l.get('views', 0) for l in prev.get('listings', []))
+        cv = sum(l.get('views', 0) for l in listings)
+        ps = prev.get('shop', {}).get('sales_lifetime')
+        cs = shop.get('sales_lifetime')
+        yesterday = {'since': prev.get('date'), 'views_delta': cv - pv,
+                     'sales_delta': (cs - ps) if (ps is not None and cs is not None) else None}
+
     ranked = sorted(listings, key=lambda l: (l.get('units_90d', 0), l.get('views', 0)), reverse=True)
     top = [{'title': l.get('title', '')[:40], 'units': l.get('units_90d', 0),
             'views': l.get('views', 0),
@@ -699,8 +714,116 @@ def fetch_etsy():
         'total_views': sum(l.get('views', 0) for l in listings),
         'reviews_delta': delta('reviews'), 'sales_delta': delta('sales_lifetime'),
         'snapshots': len(snaps), 'baseline_date': (prior or latest).get('date'),
+        'yesterday': yesterday,
         'top': top,
     }
+
+
+GITHUB_REPO = 'MikeBrew123/carnivore-weekly'
+# workflow file -> (label, max age in days before it counts as stale; None = event-driven)
+HEALTH_WORKFLOWS = {
+    'daily-publish.yml': ('Daily publish', 2),
+    'weekly-update.yml': ('Weekly update + newsletter', 8),
+    'dashboard-update.yml': ('Dashboard report', 2),
+    'deploy.yml': ('Site deploy', None),
+}
+
+
+def fetch_automation_health():
+    """Latest completed run per key GitHub workflow. The repo is public so
+    unauthenticated API calls work in CI; GITHUB_TOKEN is used when present.
+    Catches the silent-failure class (poster stops, publish stalls) that has
+    bitten before without any visible alarm."""
+    headers = {'Accept': 'application/vnd.github+json', 'User-Agent': 'command-center'}
+    tok = os.environ.get('GITHUB_TOKEN', '')
+    if tok:
+        headers['Authorization'] = f'Bearer {tok}'
+    out = {'workflows': []}
+    for wf, (label, max_age) in HEALTH_WORKFLOWS.items():
+        try:
+            runs = http_json(
+                f'https://api.github.com/repos/{GITHUB_REPO}/actions/workflows/{wf}/runs'
+                f'?per_page=1&status=completed', headers=headers).get('workflow_runs', [])
+            if not runs:
+                out['workflows'].append({'label': label, 'state': 'never-ran'})
+                continue
+            r = runs[0]
+            ran = (r.get('run_started_at') or r.get('updated_at') or '')
+            days = (TODAY - date.fromisoformat(ran[:10])).days if ran else None
+            state = r.get('conclusion') or 'unknown'
+            if state == 'success' and max_age is not None and days is not None and days > max_age:
+                state = 'stale'
+            out['workflows'].append({'label': label, 'state': state,
+                                     'ran': ran[:16].replace('T', ' '), 'days_ago': days})
+        except Exception as e:
+            out['workflows'].append({'label': label, 'state': 'api-error', 'error': str(e)[:80]})
+    return out
+
+
+def fetch_queues():
+    """Content queue depths from repo files — a drained queue is the classic
+    silent failure here (the Pinterest queue once sat at 0 for days unnoticed)."""
+    out = {}
+    try:
+        with open(os.path.join(PROJECT_ROOT, 'data', 'blog_posts.json')) as fh:
+            bp = json.load(fh)
+        posts = bp.get('blog_posts', bp) if isinstance(bp, dict) else bp
+        for site in ('cw', 'kd'):
+            sp = [p for p in posts if p.get('site', 'cw') == site]
+            pub = sorted(p.get('publish_date', '') for p in sp
+                         if (p.get('status') == 'published' or p.get('published'))
+                         and p.get('publish_date', '') <= TODAY.isoformat())
+            out[site] = {'ready': sum(1 for p in sp if p.get('status') == 'ready'),
+                         'last_published': pub[-1] if pub else None}
+    except Exception as e:
+        out['error'] = str(e)[:200]
+    try:
+        with open(os.path.join(PROJECT_ROOT, 'ketodial', 'marketing',
+                               'pinterest-pin-queue.json')) as fh:
+            pins = json.load(fh).get('pins', [])
+        out['pinterest'] = {'unposted': sum(1 for p in pins if not p.get('posted')),
+                            'total': len(pins)}
+    except Exception as e:
+        out['pinterest'] = {'error': str(e)[:200]}
+    return out
+
+
+def fetch_yesterday():
+    """Small counts that genuinely change day to day, unlike the week-over-week
+    blocks — these keep the daily email different every morning."""
+    y, t = iso_days_ago(1), TODAY.isoformat()
+    day = f'created_at=gte.{y}&created_at=lt.{t}'
+    out = {'date': y}
+    for label, src in [('cw', 'cw'), ('kd', 'ketodial')]:
+        base = f'source=eq.{src}&{day}&{CALC_TEST_FILTER}'
+        out[f'calc_sessions_{label}'] = supa_count('calculator_sessions_v2', base)
+        out[f'calc_emails_{label}'] = supa_count('calculator_sessions_v2',
+                                                 f'{base}&email=not.is.null')
+    for site in ('cw', 'kd'):
+        s = f'site=eq.{site}&{SUBSCRIBER_TEST_FILTER}'
+        out[f'newsletter_signups_{site}'] = supa_count('newsletter_subscribers', f'{s}&{day}')
+        out[f'drip_signups_{site}'] = supa_count(
+            'drip_subscribers', f'{s}&subscribed_at=gte.{y}&subscribed_at=lt.{t}')
+    return out
+
+
+def load_open_decisions():
+    """dashboard/open-decisions.json — decisions waiting on Brew. Sessions add
+    {title, opened} when one is raised and delete it when decided; the email
+    nudges once a week (Monday) with the oldest."""
+    try:
+        with open(os.path.join(SCRIPT_DIR, 'open-decisions.json')) as fh:
+            decisions = json.load(fh).get('decisions', [])
+    except Exception:
+        return {'decisions': [], 'oldest': None}
+    for item in decisions:
+        try:
+            item['age_days'] = (TODAY - date.fromisoformat(item['opened'])).days
+        except Exception:
+            item['age_days'] = None
+    aged = [i for i in decisions if i.get('age_days') is not None]
+    oldest = max(aged, key=lambda i: i['age_days']) if aged else None
+    return {'decisions': decisions, 'oldest': oldest}
 
 
 def _wow(block, key='sessions'):
@@ -917,6 +1040,25 @@ def build_insights(d):
             add('info', f'Revenue pacing ${pace:.0f} gross for the month vs the $1k/mo net target. '
                         f'MTD net so far: ${rev["mtd"]["net"]:.2f}.')
 
+    q = d.get('queues') or {}
+    for site, label in [('cw', 'CW'), ('kd', 'KD')]:
+        s = q.get(site) or {}
+        if s and s.get('ready') == 0:
+            add('alert', f'{label} blog queue is EMPTY — publishing stalls unless the next '
+                         f'generation run refills it.')
+        elif s and s.get('ready', 99) <= 2:
+            add('watch', f'{label} blog queue is down to {s["ready"]} ready post(s).')
+    pin = q.get('pinterest') or {}
+    if pin.get('unposted') == 0 and 'error' not in pin:
+        add('watch', 'Pinterest pin queue is empty — the daily poster has nothing to post.')
+
+    for w in (d.get('automation') or {}).get('workflows', []):
+        if w.get('state') == 'failure':
+            add('alert', f'GitHub workflow "{w["label"]}" FAILED its last run ({w.get("ran", "?")}).')
+        elif w.get('state') == 'stale':
+            add('alert', f'GitHub workflow "{w["label"]}" hasn\'t run in {w.get("days_ago", "?")} '
+                         f'days — silent stall, check the Actions tab.')
+
     order = {'alert': 0, 'watch': 1, 'good': 2, 'info': 3}
     ins.sort(key=lambda i: order.get(i['severity'], 9))
     return ins
@@ -965,6 +1107,9 @@ def model_narrative(data, model='claude-haiku-4-5-20251001'):
         'inbound_mail_7d': (data.get('mail') or {}).get('inbound_7d'),
         'email_engagement': data.get('email_engagement'),
         'revenue': {k: v for k, v in (data.get('revenue') or {}).items() if k != 'recent'},
+        'yesterday': data.get('yesterday'),
+        'content_queues': data.get('queues'),
+        'automation_health': data.get('automation'),
         'rule_based_flags': data.get('insights'),
     }
     focus_name, focus_scope = daily_focus()
@@ -1048,6 +1193,13 @@ def collect(use_model=True):
     data['revenue'] = guarded('Revenue', fetch_revenue)
     print('  Etsy snapshot...')
     data['etsy'] = guarded('Etsy', fetch_etsy)
+    print('  Queues...')
+    data['queues'] = guarded('Queues', fetch_queues)
+    print('  Automation health...')
+    data['automation'] = guarded('Automation', fetch_automation_health)
+    print('  Yesterday...')
+    data['yesterday'] = guarded('Yesterday', fetch_yesterday)
+    data['decisions'] = load_open_decisions()
 
     data['insights'] = build_insights(data)
     data['analysis'] = {'narrative': None, 'generated_by': 'rules', 'focus': daily_focus()[0]}
@@ -1285,6 +1437,60 @@ def render_html(d):
         icon, _ = SEV_META.get(i['severity'], ('•', ''))
         ins_html += f'<li class="ins {i["severity"]}">{icon} {esc(i["text"])}</li>'
 
+    # Daily Pulse — the strip of things that actually change every day
+    STATE_DOT = {'success': ('var(--green)', 'ok'), 'failure': ('var(--red)', 'FAILED'),
+                 'stale': ('var(--red)', 'stale'), 'never-ran': ('var(--muted)', 'never ran'),
+                 'api-error': ('var(--amber)', 'api error'), 'unknown': ('var(--amber)', '?')}
+    auto_html = ''
+    for w in (d.get('automation') or {}).get('workflows', []):
+        color, word = STATE_DOT.get(w.get('state'), ('var(--amber)', w.get('state', '?')))
+        age = f' · {w["days_ago"]}d ago' if w.get('days_ago') is not None else ''
+        auto_html += (f'<span class="pulse-item"><i style="background:{color}"></i>'
+                      f'{esc(w["label"])} <span class="muted">({word}{age})</span></span>')
+
+    q = d.get('queues') or {}
+    queue_html = ''
+    if q and not q.get('error'):
+        parts = []
+        for site, label in [('cw', 'CW posts'), ('kd', 'KD posts')]:
+            s = q.get(site) or {}
+            if s:
+                warn = ' style="color:var(--red)"' if s.get('ready', 0) == 0 else ''
+                parts.append(f'<span{warn}><b>{s.get("ready", "?")}</b> {label} ready'
+                             f' <span class="muted">(last pub {esc(s.get("last_published") or "—")})</span></span>')
+        pin = q.get('pinterest') or {}
+        if 'unposted' in pin:
+            warn = ' style="color:var(--red)"' if pin['unposted'] == 0 else ''
+            parts.append(f'<span{warn}><b>{pin["unposted"]}</b> Pinterest pins queued</span>')
+        queue_html = ' · '.join(parts)
+
+    ydata = d.get('yesterday') or {}
+    y_html = ''
+    if ydata and not ydata.get('error'):
+        rev_y = (d.get('revenue') or {}).get('yesterday') or {}
+        etsy_y = (d.get('etsy') or {}).get('yesterday') or {}
+        ystats = [
+            (ydata.get('calc_sessions_cw', 0), 'CW calc sessions'),
+            (ydata.get('calc_sessions_kd', 0), 'KD calc sessions'),
+            (ydata.get('calc_emails_cw', 0) + ydata.get('calc_emails_kd', 0), 'emails captured'),
+            (ydata.get('newsletter_signups_cw', 0) + ydata.get('newsletter_signups_kd', 0),
+             'newsletter signups'),
+            (ydata.get('drip_signups_cw', 0) + ydata.get('drip_signups_kd', 0), 'drip signups'),
+        ]
+        if rev_y:
+            ystats.append((f'${rev_y.get("net", 0):.2f}', 'revenue'))
+        if etsy_y and etsy_y.get('views_delta') is not None:
+            ystats.append((f'{etsy_y["views_delta"]:+d}', 'Etsy views'))
+        y_html = '<div class="statrow wrap">' + ''.join(
+            f'<div class="stat"><b>{v}</b><span>{lbl}</span></div>' for v, lbl in ystats) + '</div>'
+
+    dec = d.get('decisions') or {}
+    dec_html = ''
+    if dec.get('oldest'):
+        o = dec['oldest']
+        dec_html = (f'<p class="small muted">Oldest open decision: <b>{esc(o["title"])}</b> '
+                    f'— waiting {o["age_days"]} days ({len(dec["decisions"])} open total)</p>')
+
     narrative = (d.get('analysis') or {}).get('narrative')
     gen_by = (d.get('analysis') or {}).get('generated_by', 'rules')
     focus = (d.get('analysis') or {}).get('focus')
@@ -1454,6 +1660,9 @@ def render_html(d):
     .narrative p{margin-bottom:10px}
     .narrative .focus-label{color:var(--green);font-size:11px;font-weight:700;
       text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+    .pulse-row{display:flex;gap:18px;flex-wrap:wrap}
+    .pulse-item{white-space:nowrap}
+    .pulse-item i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
     .target{margin:10px 0}
     .tbar{background:var(--card2);height:14px;border-radius:7px;overflow:hidden;margin-bottom:4px}
     .tbar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#22c55e);border-radius:7px}
@@ -1466,7 +1675,7 @@ def render_html(d):
 <title>Command Center — CW + KD</title><style>{css}</style></head>
 <body>
 <header><h1>🎛️ Command Center</h1><span class="upd">Updated {esc(d["meta"]["generated_at"])} PT</span>
-<nav><a href="#review">Review</a><a href="#traffic">Traffic</a><a href="#search">Search</a>
+<nav><a href="#review">Review</a><a href="#pulse">Pulse</a><a href="#traffic">Traffic</a><a href="#search">Search</a>
 <a href="#funnels">Funnels</a><a href="#demographics">Demographics</a>
 <a href="#mail">Mail & Feedback</a><a href="#revenue">Revenue</a><a href="#etsy">Etsy</a></nav></header>
 <main>
@@ -1474,6 +1683,18 @@ def render_html(d):
 <section id="review"><h2>Plain-English Review</h2>
 {narrative_html}
 <ul class="insights">{ins_html or '<li class="ins info">No flags today — quiet week.</li>'}</ul>
+</section>
+
+<section id="pulse"><h2>Daily Pulse <span class="small">(yesterday · queues · automations)</span></h2>
+<div class="card">
+<h4>Yesterday ({esc(ydata.get('date') or '—')})</h4>
+{y_html or '<p class="muted small">Yesterday counts unavailable.</p>'}
+<h4>Content queues</h4>
+<p class="small">{queue_html or '<span class="muted">Queue files unreadable.</span>'}</p>
+<h4>Automation health</h4>
+<p class="small pulse-row">{auto_html or '<span class="muted">GitHub Actions status unavailable.</span>'}</p>
+{dec_html}
+</div>
 </section>
 
 <section id="traffic"><h2>Traffic <span class="small">(GA4, week vs prior week)</span></h2>
@@ -1555,11 +1776,78 @@ def email_report(data, html):
                  f'letter-spacing:.8px;margin:0 0 8px">Daily focus · {esc(focus)}</p>') if focus else ''
     paras = ''.join(f'<p style="margin:0 0 12px">{esc(p.strip())}</p>'
                     for p in narrative.split('\n') if p.strip())
+
+    # $1k pace line
+    rev = data.get('revenue') or {}
+    pace_html = ''
+    if rev.get('configured') and not rev.get('error'):
+        pace_html = (f'<p style="margin:0 0 12px;padding:8px 12px;background:#f0fdf4;'
+                     f'border-left:4px solid #16a34a;border-radius:4px;font-size:14px">'
+                     f'💰 MTD net <b>${rev["mtd"]["net"]:.2f}</b> · pace <b>${rev["month_pace"]:.0f}</b> '
+                     f'vs $1k target · {rev.get("days_left_in_month", "?")} days left</p>')
+
+    # Yesterday strip
+    y = data.get('yesterday') or {}
+    y_html = ''
+    if y and not y.get('error'):
+        rev_y = rev.get('yesterday') or {}
+        etsy_y = (data.get('etsy') or {}).get('yesterday') or {}
+        cells = [
+            f'{y.get("calc_sessions_cw", 0)}/{y.get("calc_sessions_kd", 0)} calc sessions (CW/KD)',
+            f'{y.get("calc_emails_cw", 0) + y.get("calc_emails_kd", 0)} emails captured',
+            f'{y.get("newsletter_signups_cw", 0) + y.get("newsletter_signups_kd", 0)} newsletter + '
+            f'{y.get("drip_signups_cw", 0) + y.get("drip_signups_kd", 0)} drip signups',
+        ]
+        if rev_y:
+            cells.append(f'${rev_y.get("net", 0):.2f} revenue')
+        if etsy_y and etsy_y.get('views_delta') is not None:
+            cells.append(f'{etsy_y["views_delta"]:+d} Etsy views')
+        y_html = (f'<p style="margin:0 0 12px;font-size:13px;color:#444">'
+                  f'<b>Yesterday:</b> {esc(" · ".join(cells))}</p>')
+
+    # Automation health dots + queue depths
+    dot_color = {'success': '#16a34a', 'failure': '#dc2626', 'stale': '#dc2626',
+                 'never-ran': '#999', 'api-error': '#d97706', 'unknown': '#d97706'}
+    auto_bits = ''.join(
+        f'<span style="white-space:nowrap;margin-right:14px">'
+        f'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;'
+        f'background:{dot_color.get(w.get("state"), "#d97706")};margin-right:4px"></span>'
+        f'{esc(w["label"])}</span>'
+        for w in (data.get('automation') or {}).get('workflows', []))
+    qd = data.get('queues') or {}
+    q_bits = []
+    if qd and not qd.get('error'):
+        for site, label in [('cw', 'CW'), ('kd', 'KD')]:
+            s = qd.get(site) or {}
+            if s:
+                n = s.get('ready', '?')
+                style = 'color:#dc2626;font-weight:700' if n == 0 else ''
+                q_bits.append(f'<span style="{style}">{label} posts: {n}</span>')
+        pin = qd.get('pinterest') or {}
+        if 'unposted' in pin:
+            style = 'color:#dc2626;font-weight:700' if pin['unposted'] == 0 else ''
+            q_bits.append(f'<span style="{style}">Pinterest: {pin["unposted"]}</span>')
+    pulse_html = ''
+    if auto_bits or q_bits:
+        pulse_html = (f'<p style="margin:0 0 4px;font-size:13px;color:#444">{auto_bits}</p>'
+                      f'<p style="margin:0 0 12px;font-size:13px;color:#444">'
+                      f'<b>Queues:</b> {" · ".join(q_bits)}</p>')
+
+    # Weekly decision nudge (Mondays only, so it doesn't nag daily)
+    dec_html = ''
+    oldest = (data.get('decisions') or {}).get('oldest')
+    if oldest and TODAY.weekday() == 0:
+        dec_html = (f'<p style="margin:0 0 12px;padding:8px 12px;background:#fefce8;'
+                    f'border-left:4px solid #d97706;border-radius:4px;font-size:13px">'
+                    f'🧭 Oldest open decision: <b>{esc(oldest["title"])}</b> — waiting '
+                    f'{oldest["age_days"]} days</p>')
+
     body = f'''<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;
       margin:0 auto;color:#1a1a1a;font-size:15px;line-height:1.5">
       <h2 style="margin:0 0 4px">🎛️ Command Center — {esc(data['meta']['generated_date'])}</h2>
       <p style="color:#667;margin:0 0 16px">Full interactive dashboard attached (open in a browser).</p>
       {focus_tag}{paras}
+      {pace_html}{y_html}{pulse_html}{dec_html}
       <ul style="list-style:none;padding:0;margin:16px 0">{items}</ul>
       <p style="color:#889;font-size:12px">Generated {esc(data['meta']['generated_at'])} PT ·
       dashboard/generate_command_center.py</p></div>'''

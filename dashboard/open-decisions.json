@@ -1,0 +1,13 @@
+{
+  "_readme": "Decisions waiting on Brew. Any session may add {title, opened} when a decision is raised and MUST delete the entry once it's decided. The Command Center email nudges with the oldest one on Mondays only. Opened dates are approximate where the exact raise date wasn't recorded.",
+  "decisions": [
+    {
+      "title": "KetoDial: keep investing vs pause until CW proves the model",
+      "opened": "2026-07-20"
+    },
+    {
+      "title": "Health: book GP + lab panel (lipids, ApoB, Lp(a), A1C) and drop a fresh Apple Health export",
+      "opened": "2026-07-12"
+    }
+  ]
+}
