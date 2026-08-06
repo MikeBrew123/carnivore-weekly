@@ -609,3 +609,10 @@ Attempts:
 If recurs: check the live payload shape first (POST a sample to /webhook/resend and read the
 row back) before editing key names. Deploy propagation lags a few seconds — a test fired
 immediately after `wrangler deploy` can still hit the old version and look like a failed fix.
+
+## ISSUE-066 — Resend attachment CDN (cdn.resend.app) unreachable from local sandbox
+🔴 OPEN — Last: 2026-08-06
+Pattern: writer-inbox-daily-check can list attachment metadata via api.resend.com but every download from the signed `download_url` on cdn.resend.app times out at connect, so DMARC aggregate XML can't be parsed. Only affects the DMARC spoof-check branch; digest logic is unaffected.
+Attempts:
+- 2026-08-06 — 60s then 15s connect timeouts, 4 reports, all ConnectTimeout → failed; api.resend.com calls on the same run succeeded, so it's host-specific, not auth
+If recurs: test `curl -I https://cdn.resend.app` outside the sandbox to confirm it's a sandbox network block vs a Resend CDN issue; if sandbox, run the DMARC fetch with dangerouslyDisableSandbox or move the parse to the Cloudflare worker.
