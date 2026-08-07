@@ -611,8 +611,9 @@ row back) before editing key names. Deploy propagation lags a few seconds — a 
 immediately after `wrangler deploy` can still hit the old version and look like a failed fix.
 
 ## ISSUE-066 — Resend attachment CDN (cdn.resend.app) unreachable from local sandbox
-🔴 OPEN — Last: 2026-08-06
-Pattern: writer-inbox-daily-check can list attachment metadata via api.resend.com but every download from the signed `download_url` on cdn.resend.app times out at connect, so DMARC aggregate XML can't be parsed. Only affects the DMARC spoof-check branch; digest logic is unaffected.
+🟢 FIXED — Last: 2026-08-07
+Pattern: writer-inbox-daily-check can list attachment metadata via api.resend.com but downloads from the signed `download_url` on cdn.resend.app time out at connect, so DMARC aggregate XML can't be parsed. Only affects the DMARC spoof-check branch; digest logic is unaffected.
 Attempts:
 - 2026-08-06 — 60s then 15s connect timeouts, 4 reports, all ConnectTimeout → failed; api.resend.com calls on the same run succeeded, so it's host-specific, not auth
-If recurs: test `curl -I https://cdn.resend.app` outside the sandbox to confirm it's a sandbox network block vs a Resend CDN issue; if sandbox, run the DMARC fetch with dangerouslyDisableSandbox or move the parse to the Cloudflare worker.
+- 2026-08-07 — same timeout with sandbox disabled, so not a sandbox block. Root cause: cdn.resend.app round-robins between AWS Global Accelerator anycast IPs (99.83.x / 75.2.x — unroutable from this network) and CloudFront edge IPs behind CNAME `dcdmr7iqo0b77.cloudfront.net` (108.138.94.x — reachable). Whichever IP the resolver hands back decides success. Fix: resolve the CloudFront CNAME and pin with `curl --resolve cdn.resend.app:443:<cf-ip>`, trying each IP in turn → both reports downloaded and parsed
+If recurs: re-resolve `dcdmr7iqo0b77.cloudfront.net` (the CNAME target can change); if all CloudFront IPs also fail, move the DMARC fetch to the Cloudflare worker.
