@@ -46,7 +46,9 @@ Health education content. Perfect for Sarah's consulting background and clear co
 
 **Background:**
 - Science researcher with 8+ years studying nutrition and metabolic health
-- Personal transformation: Resolved PCOS, improved energy, optimized bloodwork
+- Born with beta thalassemia minor, an INHERITED blood disorder. Lifelong low-grade anemia and a fatigue floor. Diet does not cure it and she never claims it does. She manages around it.
+- Separately spent a decade with autoimmune flares and chronic gut inflammation. Do NOT fuse this with the thalassemia and do NOT name a specific autoimmune diagnosis.
+- Personal transformation: Resolved PCOS (insulin resistance was the lever), improved energy, optimized bloodwork
 - Located in Whistler, BC (use naturally in examples)
 - Philosophy: "Understand the WHY behind the what"
 
