@@ -410,6 +410,24 @@ Use the Apify MCP tools to scrape recipes from source sites. API key is in `proj
 - Reference script: `scripts/generate_post_images.py` (same Replicate flow, adapt for recipes)
 - Update the recipe HTML: replace the photo placeholder `<div class="photo">` with an `<img>` tag pointing to the generated image
 
+### Image spend budget (shared CW + KD, $1.00/day)
+
+Brew approved a hard $1.00/day image budget on 2026-08-08, one shared pool
+across BOTH sites, on the condition that yesterday's spend appears in his
+morning CEO brief.
+
+- Config: `config/image-budget.json` (`enabled`, `daily_cap_usd`, per-model unit costs)
+- Ledger: `data/image-spend-ledger.jsonl` (append only: date, site, post, image, model, cost)
+- Enforcer: `scripts/image_budget.py`. Status: `python3 scripts/image_budget.py --status`
+- It FAILS CLOSED. Missing/corrupt config, unreadable or corrupt ledger, unwritable
+  ledger, or an unpriced model all mean zero images generated, never "generate anyway".
+- Any new script that calls a paid image API MUST gate on it. Add the model's real
+  unit cost to the config first: unknown models are refused, not guessed.
+- `generate_post_images.py` is forward looking by default (posts publishing today or
+  later) and caps each run at 10 images. Backlog sweeps need an explicit `--slug` or
+  `--include-backlog`, because a cheap model plus a full archive is how a $1 cap
+  becomes a surprise bill.
+
 **Step 4 — Publish**
 After creating recipe HTML files with images:
 1. Add entries to `ketodial/public/sitemap.xml` (priority 0.7, monthly changefreq)

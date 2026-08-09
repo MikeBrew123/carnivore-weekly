@@ -86,6 +86,20 @@ jobs:
             gh issue comment "$EXISTING" --body "Failed again on $(date -u +%F): $RUN_URL"
           fi
 
+      # Images must exist BEFORE daily_publish.py renders the HTML, or the post
+      # ships imageless. CW was never wired up here (ISSUE-010); KD was. Both
+      # draw on the same $1.00/day cap in config/image-budget.json, and the
+      # script is forward looking only, so this never sweeps the archive.
+      - name: Generate CW post images
+        id: cw_images
+        continue-on-error: true
+        env:
+          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 scripts/generate_post_images.py --site cw --max-images 5
+          python3 scripts/image_budget.py --status || true
+
       - name: Publish CW scheduled posts
         id: publish_cw
         env:
@@ -108,11 +122,26 @@ jobs:
           fi
 
       - name: Generate KD post images
+        id: kd_images
         continue-on-error: true
         env:
           REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python3 scripts/generate_post_images.py --site kd
+        run: |
+          python3 scripts/generate_post_images.py --site kd --max-images 5
+          python3 scripts/image_budget.py --status || true
+
+      # The ledger is the only record of what was spent, and the CEO brief reads
+      # it. If it changed but no post published, the commit step below would skip
+      # and the day's spend would vanish, resetting the cap. Flag it explicitly.
+      - name: Check if spend ledger changed
+        id: ledger
+        run: |
+          if [ -n "$(git status --porcelain -- data/image-spend-ledger.jsonl)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Publish KD scheduled posts
         id: publish_kd
@@ -158,7 +187,7 @@ jobs:
           git push origin HEAD:main
 
       - name: Commit and push if changes
-        if: steps.publish_cw.outputs.has_changes == 'true' || steps.publish_kd.outputs.has_changes == 'true'
+        if: steps.publish_cw.outputs.has_changes == 'true' || steps.publish_kd.outputs.has_changes == 'true' || steps.ledger.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

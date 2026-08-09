@@ -20,8 +20,14 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from image_budget import BudgetBlocked, ImageBudget  # noqa: E402
+
 BASE_DIR = Path(__file__).parent.parent
 SECRETS_FILE = BASE_DIR / "secrets" / "api-keys.json"
+
+PROMPT_MODEL = "claude-haiku-4-5-20251001"
+IMAGE_MODEL = "google/nano-banana-pro"
 ANALYZED_CONTENT = BASE_DIR / "data" / "analyzed_content.json"
 IMAGES_DIR = BASE_DIR / "public" / "images"
 
@@ -70,7 +76,7 @@ Weekly summary:
 Output format: one sentence describing the scene, ending with a comma."""
 
     payload = json.dumps({
-        "model": "claude-haiku-4-5-20251001",
+        "model": PROMPT_MODEL,
         "max_tokens": 120,
         "messages": [{"role": "user", "content": user_prompt}]
     }).encode()
@@ -93,7 +99,7 @@ Output format: one sentence describing the scene, ending with a comma."""
 
 def generate_image_replicate(api_token, prompt):
     """Submit prediction to Replicate and poll until complete."""
-    model = "google/nano-banana-pro"
+    model = IMAGE_MODEL
 
     # Create prediction
     payload = json.dumps({
@@ -147,8 +153,35 @@ def download_image(url, dest_path):
         dest_path.write_bytes(resp.read())
 
 
+FALLBACK_IMAGE = "/images/lifestyle-cooking-1200w.webp"
+
+
 def main():
     dry_run = "--dry-run" in sys.argv
+
+    budget = ImageBudget(dry_run=dry_run)
+    date_str = budget.today if budget.available else datetime.now().strftime("%Y-%m-%d")
+    dest = IMAGES_DIR / f"roundup-{date_str}.jpg"
+
+    # This script used to call Claude and Replicate unconditionally on every
+    # invocation, so an incidental `generate.py --type pages` bought a new hero
+    # image nobody asked for. If today's already exists, reuse it for free.
+    if dest.exists() and not dry_run:
+        print(f"   Roundup image for {date_str} already exists, reusing", file=sys.stderr)
+        print(f"/images/roundup-{date_str}.jpg")
+        return
+
+    if not budget.available:
+        print(f"   IMAGE BUDGET UNAVAILABLE: {budget.blocked_reason}", file=sys.stderr)
+        print("   Skipping generation (fail closed), using fallback image", file=sys.stderr)
+        print(FALLBACK_IMAGE)
+        return
+
+    ok, why = budget.check_pair(PROMPT_MODEL, IMAGE_MODEL)
+    if not ok:
+        print(f"   SKIPPED (budget): {why}", file=sys.stderr)
+        print(FALLBACK_IMAGE)
+        return
 
     secrets = load_secrets()
     anthropic_key = secrets.get("anthropic", {}).get("key", "")
@@ -164,24 +197,50 @@ def main():
     summary = get_weekly_summary()
     print(f"   Summary: {summary[:80]}...", file=sys.stderr)
 
+    if dry_run:
+        # Bail before the Claude call: a dry run must not cost anything.
+        cost = budget.unit_cost(PROMPT_MODEL) + budget.unit_cost(IMAGE_MODEL)
+        print(f"   [DRY RUN] would generate {dest.name} for ~${cost:.4f}", file=sys.stderr)
+        print(FALLBACK_IMAGE)
+        return
+
     prompt = build_image_prompt_via_claude(anthropic_key, summary)
+    try:
+        budget.record(
+            site="cw", post="weekly-roundup", image="", model=PROMPT_MODEL,
+            note="roundup scene prompt",
+        )
+    except BudgetBlocked as e:
+        print(f"   LEDGER WRITE FAILED: {e}", file=sys.stderr)
+        print("   Skipping generation (fail closed)", file=sys.stderr)
+        print(FALLBACK_IMAGE)
+        return
     print(f"   Prompt: {prompt[:100]}...", file=sys.stderr)
 
-    if dry_run:
-        print("   [DRY RUN] Would call Replicate", file=sys.stderr)
-        print("/images/lifestyle-cooking-1200w.webp")
+    ok, why = budget.check(IMAGE_MODEL)
+    if not ok:
+        print(f"   SKIPPED (budget): {why}", file=sys.stderr)
+        print(FALLBACK_IMAGE)
         return
 
     image_url = generate_image_replicate(replicate_token, prompt)
     print(f"   Generated: {image_url}", file=sys.stderr)
 
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    dest = IMAGES_DIR / f"roundup-{date_str}.jpg"
     download_image(image_url, dest)
-    print(f"   Saved: {dest}", file=sys.stderr)
+    budget.record(
+        site="cw", post="weekly-roundup",
+        image=f"/images/roundup-{date_str}.jpg", model=IMAGE_MODEL,
+    )
+    print(
+        f"   Saved: {dest}  (${budget.spent_today:.4f} of ${budget.cap:.2f} today)",
+        file=sys.stderr,
+    )
 
     subprocess.run(["git", "add", str(dest)], cwd=str(BASE_DIR), capture_output=True)
-    print(f"   Staged for git: {dest.name}", file=sys.stderr)
+    subprocess.run(
+        ["git", "add", str(budget.ledger_file)], cwd=str(BASE_DIR), capture_output=True
+    )
+    print(f"   Staged for git: {dest.name} + spend ledger", file=sys.stderr)
 
     # Print relative path for caller to capture
     print(f"/images/roundup-{date_str}.jpg")

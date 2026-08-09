@@ -14,9 +14,14 @@ import time
 import urllib.request
 from pathlib import Path
 
+CW_REPO = Path("/Users/mbrew/Developer/carnivore-weekly")
+sys.path.insert(0, str(CW_REPO / "scripts"))
+from image_budget import BudgetBlocked, ImageBudget  # noqa: E402
+
 ROOT = Path(__file__).parent.parent / "public"
 IMG_DIR = ROOT / "images" / "recipes"
-SECRETS = Path("/Users/mbrew/Developer/carnivore-weekly/secrets/api-keys.json")
+SECRETS = CW_REPO / "secrets" / "api-keys.json"
+IMAGE_MODEL = "black-forest-labs/flux-schnell"
 BRAND_SUFFIX = ("warm natural light, rich earthy tones, shallow depth of field, "
                 "high detail, photorealistic, no text, no people")
 
@@ -46,6 +51,14 @@ def generate(api_token, prompt):
 
 
 def main():
+    # Same $1.00/day pool as CW and KD post images. Recipes are not a separate
+    # allowance.
+    budget = ImageBudget()
+    if not budget.available:
+        print(f"IMAGE BUDGET UNAVAILABLE: {budget.blocked_reason}")
+        print("Generated nothing (fail closed).")
+        return
+
     token = json.load(open(SECRETS))["replicate"]["api_token"]
     recipes = json.load(open(sys.argv[1]))
     for r in recipes:
@@ -53,10 +66,24 @@ def main():
         if dest.exists():
             print(f"SKIP {dest.name} — exists")
             continue
+        ok, why = budget.check(IMAGE_MODEL)
+        if not ok:
+            print(f"STOP budget: {why}")
+            break
         url = generate(token, f"{r['image_prompt']} {BRAND_SUFFIX}")
         with urllib.request.urlopen(url, timeout=60) as resp:
             dest.write_bytes(resp.read())
+        try:
+            budget.record(
+                site="kd", post=r["slug"], image=f"/images/recipes/{dest.name}",
+                model=IMAGE_MODEL, note="recipe hero",
+            )
+        except BudgetBlocked as e:
+            print(f"STOP ledger write failed: {e}")
+            break
         print(f"OK   {dest.name} ({dest.stat().st_size // 1024} KB)")
+
+    print(f"Image spend today: ${budget.spent_today:.4f} of ${budget.cap:.2f}")
 
 
 if __name__ == "__main__":
