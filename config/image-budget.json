@@ -1,0 +1,12 @@
+{
+  "_comment": "Shared daily image-generation spend cap for Carnivore Weekly AND KetoDial. ONE pool, not one per site. Approved by Brew 2026-08-08. Enforced by scripts/image_budget.py; every image-generating script must gate on it. Fail closed: if this file is missing, unreadable, or invalid, no images are generated.",
+  "enabled": true,
+  "daily_cap_usd": 1.0,
+  "timezone": "America/Vancouver",
+  "unit_costs_usd": {
+    "black-forest-labs/flux-schnell": 0.003,
+    "google/nano-banana-pro": 0.139,
+    "claude-haiku-4-5-20251001": 0.0006
+  },
+  "_unit_costs_note": "Replicate per-image list prices as of 2026-08-09. The Claude entry covers the Haiku call that writes the scene prompt (~1.2k in / 150 out tokens, rounded up). Unknown model keys are refused, not guessed."
+}
