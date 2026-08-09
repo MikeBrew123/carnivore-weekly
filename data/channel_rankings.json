@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-08-04",
+  "last_updated": "2026-08-09",
   "leaderboard": [
     {
-      "name": "KenDBerryMD",
-      "rank": 1,
-      "appearances": 1,
-      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
-    },
-    {
-      "name": "Shawn Baker MD",
-      "rank": 2,
-      "appearances": 1,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
-    },
-    {
       "name": "HomeSteadHow",
-      "rank": 3,
-      "appearances": 2,
+      "rank": 1,
+      "appearances": 3,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Keto Twins",
-      "rank": 4,
+      "name": "Steak and Butter Gal",
+      "rank": 2,
       "appearances": 1,
-      "channel_id": "UCVh3LI2S_lk8_TkD96zBKsg"
+      "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
     },
     {
-      "name": "FaceIQ",
-      "rank": 5,
-      "appearances": 1,
-      "channel_id": "UCIO1xKFtrqOC4-rZg1pFxiw"
-    },
-    {
-      "name": "Laura Spath",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
+      "name": "No Carb Life",
+      "rank": 3,
+      "appearances": 4,
+      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
     },
     {
       "name": "Emmathecarnivore",
-      "rank": 7,
-      "appearances": 2,
+      "rank": 4,
+      "appearances": 3,
       "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 8,
+      "name": "Shawn Baker MD",
+      "rank": 5,
       "appearances": 2,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+    },
+    {
+      "name": "Victor Prince",
+      "rank": 6,
+      "appearances": 1,
+      "channel_id": "UCDP1Mtsfq0XGJgO8QiMNDtQ"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 7,
+      "appearances": 3,
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "Kent Carnivore",
-      "rank": 9,
-      "appearances": 1,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+      "name": "Ketogenic Woman",
+      "rank": 8,
+      "appearances": 2,
+      "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
     },
     {
-      "name": "StevenSteph",
-      "rank": 10,
+      "name": "Chris Cooking Nashville",
+      "rank": 9,
       "appearances": 1,
-      "channel_id": "UC9HogCphFdf-Ykerc1Wsl_g"
+      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
+    },
+    {
+      "name": "Meet Carnivore",
+      "rank": 10,
+      "appearances": 2,
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     }
   ]
 }
