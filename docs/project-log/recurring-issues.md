@@ -617,3 +617,11 @@ Attempts:
 - 2026-08-06 — 60s then 15s connect timeouts, 4 reports, all ConnectTimeout → failed; api.resend.com calls on the same run succeeded, so it's host-specific, not auth
 - 2026-08-07 — same timeout with sandbox disabled, so not a sandbox block. Root cause: cdn.resend.app round-robins between AWS Global Accelerator anycast IPs (99.83.x / 75.2.x — unroutable from this network) and CloudFront edge IPs behind CNAME `dcdmr7iqo0b77.cloudfront.net` (108.138.94.x — reachable). Whichever IP the resolver hands back decides success. Fix: resolve the CloudFront CNAME and pin with `curl --resolve cdn.resend.app:443:<cf-ip>`, trying each IP in turn → both reports downloaded and parsed
 If recurs: re-resolve `dcdmr7iqo0b77.cloudfront.net` (the CNAME target can change); if all CloudFront IPs also fail, move the DMARC fetch to the Cloudflare worker.
+
+## ISSUE-067 — Bounced addresses never suppressed, cron re-sends forever
+🟢 FIXED — Last: 2026-08-09
+Pattern: Resend webhook logged `bounced` to drip_events but nothing stopped the sends, so a dead address kept getting the daily drip for the rest of the 30-day sequence. 13 bounces in one week from 4 addresses against 61 delivered KD messages.
+Attempts:
+- 2026-08-09 — Suppress on `bounce.type === 'Permanent'` only → WRONG. Checked real payloads: SES tags nonexistent domains (yagoo.com, gmail.vom) as **Transient/General** after retrying 840 min, diagnostic "Could not find a mail server". Permanent-only would have caught 0 of 13.
+- 2026-08-09 — Added repeat-bounce rule: count bounces since last delivered/opened/clicked, suppress at 3 consecutive. Plus Permanent on first hit, complaints on first hit. Migration added `bounced_at`/`bounce_reason` to drip_subscribers + newsletter_subscribers; `send_drip.py` filters `bounced_at=is.null`; newsletter excluded via `status='bounced'`. 31 assertions pass against the real handler.
+If recurs: check whether SES changed classification, or raise/lower REPEAT_BOUNCE_LIMIT in handleResendWebhook. Upstream prevention is beads carnivore-weekly-l208 (typo validation at signup).

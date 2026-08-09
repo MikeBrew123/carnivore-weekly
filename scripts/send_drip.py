@@ -407,6 +407,10 @@ def main():
         "site": f"eq.{SITE}",
         "completed": "eq.false",
         "unsubscribed": "eq.false",
+        # Set by the Resend webhook on a permanent bounce or spam complaint.
+        # Without this the cron re-sends to dead addresses every day for the
+        # rest of the sequence, which is what tanked KD's bounce rate in Aug.
+        "bounced_at": "is.null",
     })
 
     if not pending:
