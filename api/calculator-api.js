@@ -6690,6 +6690,116 @@ async function handleResendWebhook(request, env) {
       body: JSON.stringify(payload),
     });
 
+    // Suppress dead addresses so we stop mailing them.
+    // Logging the bounce was never enough: the address stayed active and the
+    // daily cron kept sending for the rest of the 30-day sequence. One typo'd
+    // domain produced 5 bounces in a week against 61 delivered KD messages,
+    // and providers score bounce rate against real volume.
+    //
+    // Two independent triggers, because one is not enough:
+    //
+    //  (a) bounce.type === 'Permanent' — the clean signal, suppress on first hit.
+    //
+    //  (b) REPEAT BOUNCES — the signal that actually matters here. Verified
+    //      against real payloads 2026-08-09: SES tagged 'redacted-subscriber-09@example.invalid'
+    //      as *Transient/General* even though the diagnostic read "Could not
+    //      find a mail server for yagoo.com". A nonexistent domain is as
+    //      permanent as it gets, but SES retries for 840 minutes, expires, and
+    //      calls that transient. A Permanent-only rule would have suppressed
+    //      NONE of the 13 bounces that caused this bug.
+    //
+    // So: count bounces since the last sign of successful delivery. Three in a
+    // row means dead regardless of what the provider labels it, and a genuinely
+    // transient problem (full mailbox, outage) clears well before three
+    // consecutive daily sends. Complaints always suppress on the first hit,
+    // since someone hitting "spam" hurts reputation more than any bounce.
+    const bounceType = String(data.bounce?.type || '').toLowerCase();
+    const isComplaint = simpleType === 'complained';
+    const isPermanent = simpleType === 'bounced' && bounceType === 'permanent';
+    let repeatBounces = 0;
+
+    if (simpleType === 'bounced' && !isPermanent && payload.email) {
+      // Walk this address's recent history newest-first and count the bounce
+      // run. Any delivered/opened/clicked breaks the run: the address worked
+      // at that point, so older bounces are stale and must not accumulate
+      // toward suppression months later.
+      try {
+        const histUrl = `${env.SUPABASE_URL}/rest/v1/drip_events`
+          + `?email=eq.${encodeURIComponent(payload.email)}&site=eq.${evSite}`
+          + `&select=event_type,created_at&order=created_at.desc&limit=25`;
+        const histRes = await fetch(histUrl, {
+          headers: {
+            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+        });
+        if (histRes.ok) {
+          for (const ev of await histRes.json()) {
+            if (ev.event_type === 'bounced') repeatBounces++;
+            else if (['delivered', 'opened', 'clicked'].includes(ev.event_type)) break;
+          }
+        }
+      } catch (e) {
+        console.error('bounce-history lookup failed:', e);
+      }
+    }
+
+    const REPEAT_BOUNCE_LIMIT = 3;
+    const isHardBounce = isPermanent || repeatBounces >= REPEAT_BOUNCE_LIMIT;
+
+    if (simpleType === 'bounced' && !isHardBounce) {
+      console.log(`Bounce for ${payload.email} (${evSite}): ${bounceType || 'unknown'}, `
+        + `${repeatBounces}/${REPEAT_BOUNCE_LIMIT} consecutive - not suppressing yet`);
+    }
+
+    if ((isHardBounce || isComplaint) && payload.email) {
+      const detail = `${data.bounce?.subType || 'bounce'}: ${data.bounce?.message || ''}`.trim();
+      const reason = (isComplaint
+        ? 'spam complaint'
+        : isPermanent
+          ? `permanent - ${detail}`
+          : `${repeatBounces} consecutive bounces - ${detail}`).slice(0, 500);
+      const stampedAt = payload.metadata.timestamp;
+
+      // Site-scoped: the same person can legitimately be on both the CW and KD
+      // lists, and a KD bounce says nothing about their CW address.
+      const scope = `email=eq.${encodeURIComponent(payload.email)}&site=eq.${evSite}`;
+      const writeHeaders = {
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      };
+
+      await Promise.all([
+        // send_drip.py skips rows with bounced_at set. Kept separate from
+        // `completed` (which means graduated, and inserts into the weekly list)
+        // and from `unsubscribed` (which is a deliberate user action).
+        fetch(`${env.SUPABASE_URL}/rest/v1/drip_subscribers?${scope}`, {
+          method: 'PATCH',
+          headers: writeHeaders,
+          body: JSON.stringify({ bounced_at: stampedAt, bounce_reason: reason }),
+        }),
+        // send_newsletter.py selects status=active, so this drops them from the
+        // weekly too. bounced_at is required by chk_unsub_timestamp.
+        fetch(`${env.SUPABASE_URL}/rest/v1/newsletter_subscribers?${scope}&status=eq.active`, {
+          method: 'PATCH',
+          headers: writeHeaders,
+          body: JSON.stringify({
+            status: isComplaint ? 'complained' : 'bounced',
+            bounced_at: stampedAt,
+            bounce_reason: reason,
+          }),
+        }),
+      ]);
+
+      console.log(`Suppressed ${payload.email} (${evSite}): ${reason}`);
+    } else if (simpleType === 'bounced' && !data.bounce) {
+      // Fails safe (no suppression), but stay loud: a payload-shape change here
+      // would silently switch the Permanent trigger off and nobody would notice.
+      console.warn(`Bounce payload had no bounce object for ${payload.email} - check Resend payload shape`);
+    }
+
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
