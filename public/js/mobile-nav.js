@@ -109,6 +109,24 @@
 
         // Keyboard navigation
         document.addEventListener('keydown', handleKeyboard);
+
+        // Hide the floating button while scrolling down so it doesn't cover
+        // content; restore it on any upward scroll or near the top
+        window.addEventListener('scroll', handleScroll, { passive: true });
+    }
+
+    let lastScrollY = window.scrollY;
+
+    function handleScroll() {
+        const y = window.scrollY;
+        if (hamburgerBtn && !isMenuOpen) {
+            if (y > lastScrollY && y > 120) {
+                hamburgerBtn.classList.add('nav-btn-hidden');
+            } else {
+                hamburgerBtn.classList.remove('nav-btn-hidden');
+            }
+        }
+        lastScrollY = y;
     }
 
     /**
@@ -130,6 +148,7 @@
     function openMenu() {
         isMenuOpen = true;
         navElement.classList.add(config.activeClass);
+        hamburgerBtn.classList.remove('nav-btn-hidden');
         hamburgerBtn.classList.add('active');
         hamburgerBtn.setAttribute('aria-expanded', 'true');
 
@@ -236,6 +255,7 @@
         document.removeEventListener('click', handleOutsideClick);
         document.removeEventListener('keydown', handleKeyboard);
         window.removeEventListener('resize', handleResize);
+        window.removeEventListener('scroll', handleScroll);
     }
 
     // Initialize when DOM is ready
