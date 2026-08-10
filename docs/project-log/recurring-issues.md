@@ -640,3 +640,10 @@ Attempts:
 - 2026-08-09 — Brew approved cutting KD to 2 posts/week (Tue+Fri), commit 4b344f7c, decisions.md. Volume treated as the liability.
 - 2026-08-10 (weekly ops) — Independently re-verified the crawl path is clean: sitemap.xml 200 with 142 locs including every new slug, each post URL 200, /blog/ index links them, robots.txt permissive. Recorded as the pre-remedy baseline: 0/20 indexed, 0 clicks, 5th consecutive zero-click week.
 If recurs: earned backlinks are the lever, not cadence alone — the 10-target KD outreach plan (Jul 3, drafts written) is still gated on Brew sending. Re-inspect the same 20 URLs monthly against this baseline. Do NOT retry Indexing API — Lesson #13, it only works for JobPosting/BroadcastEvent.
+
+## ISSUE-069 — Paid report macros wrong: deficit skipped + activity inflated (customer complaint)
+🟢 FIXED — Last: 2026-08-10
+Pattern: Worker calculateMacros checked goal==='loss' but frontend sends 'lose' (deficit never applied), and exercise:"none" wasn't in activityMap (fell back to 1.55 moderate). All 4 paid reports ever generated were inflated; worst case +1,352 cal/day (Brian Huizenga, 2026-08-10). Also 2g/kg protein used TOTAL weight → 283g for a 312 lb customer.
+Attempts:
+- 2026-08-10 — Fixed calculateMacros in api/calculator-api.js: accepts lose/loss, honors form's deficit %, lifestyle-first activity map incl. none/very/extreme with 1.2 fallback, protein basis capped at BMI-25 reference weight for BMI≥30 → matches frontend free results. Verified against all 4 historical form_data sets. Related: "Pescatarian (add fish & seafood)" dropdown label read as carnivore+fish; reworded to "fish & seafood only" (source + live bundle).
+If recurs: frontend free-results calc still uses 2g/kg total weight (calculator2 bundle) — divergence for BMI≥30 users until calculator2 is rebuilt from source.

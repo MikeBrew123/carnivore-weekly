@@ -1634,12 +1634,15 @@ function calculateMacros(formData) {
   const heightCm = formData.heightCm;
   const age = formData.age || 30;
   const sex = (formData.sex || 'male').toLowerCase();
-  const goal = formData.goal || 'maintain';
+  // Normalize goal - frontend sends 'lose'/'gain'/'maintain' (ISSUE: 'loss' check never matched)
+  const goal = String(formData.goal || 'maintain').toLowerCase().trim();
+  const isLose = goal === 'lose' || goal === 'loss';
+  const isGain = goal === 'gain';
   // Normalize diet - check both 'diet' and 'selectedProtocol' fields, case-insensitive
   const rawDiet = formData.diet || formData.selectedProtocol || 'carnivore';
   const diet = rawDiet.toLowerCase().trim();
-  // Try both 'exercise' and 'lifestyle' field names
-  const exercise = formData.exercise || formData.lifestyle || 'moderate';
+  // lifestyle is what the frontend free-results calc keys off; exercise is a fallback
+  const activityKey = String(formData.lifestyle || formData.exercise || 'moderate').toLowerCase().trim();
 
   console.log('[calculateMacros] Input diet:', rawDiet, '-> normalized:', diet);
 
@@ -1655,25 +1658,29 @@ function calculateMacros(formData) {
     bmr = 10 * weightKg + 6.25 * heightCmVal - 5 * age - 161;
   }
 
-  // Activity multiplier
+  // Activity multiplier - covers both lifestyle values (sedentary/light/moderate/very/extreme)
+  // and exercise values (none/1-2/3-4/5+). Unknown values fall back to the LOWEST
+  // multiplier, never moderate: overestimating burn for a weight-loss customer is the
+  // failure mode that produced ISSUE reports (exercise:"none" used to resolve to 1.55).
   const activityMap = {
+    none: 1.2,
     sedentary: 1.2,
     light: 1.375,
     moderate: 1.55,
+    very: 1.725,
     active: 1.725,
+    extreme: 1.9,
     veryactive: 1.9,
   };
-  const multiplier = activityMap[exercise] || 1.55;
+  const multiplier = activityMap[activityKey] || 1.2;
   const tdee = bmr * multiplier;
 
-  // Calculate macros based on diet type and goal
+  // Percent-based goal adjustment, mirroring the frontend free-results calc:
+  // use the user's chosen deficit %, else 20% for loss / 10% for gain.
+  const deficitPct = parseFloat(formData.deficit) || (isLose ? 20 : isGain ? 10 : 0);
   let calories = tdee;
-  let deficit = 0;
-
-  if (goal === 'loss') deficit = 500;
-  if (goal === 'gain') deficit = -500;
-
-  calories -= deficit;
+  if (isLose) calories = tdee * (1 - deficitPct / 100);
+  if (isGain) calories = tdee * (1 + deficitPct / 100);
 
   let protein, fat, carbs;
 
@@ -1682,7 +1689,12 @@ function calculateMacros(formData) {
   const isLowCarbDiet = ['carnivore', 'lion', 'pescatarian', 'keto', 'strict carnivore', 'lowcarb', 'low-carb', 'low carb'].includes(diet);
 
   if (isLowCarbDiet) {
-    protein = Math.round(weightKg * 2); // 2g/kg for adequate protein
+    // 2g/kg, but for BMI >= 30 base it on reference weight at BMI 25 instead of
+    // total weight - 2g/kg of total weight told a 312 lb customer to eat 283g/day.
+    const heightM = heightCmVal / 100;
+    const bmi = weightKg / (heightM * heightM);
+    const proteinBasisKg = bmi >= 30 ? 25 * heightM * heightM : weightKg;
+    protein = Math.round(proteinBasisKg * 2);
     const proteinCals = protein * 4;
 
     // For keto, allow small amount of carbs (20g), rest from fat
@@ -1718,7 +1730,7 @@ function calculateMacros(formData) {
   };
 
   console.log('[calculateMacros] Result:', {
-    input: { weight, heightFeet, heightInches, age, sex, goal, diet, exercise },
+    input: { weight, heightFeet, heightInches, age, sex, goal, diet, activityKey },
     output: result,
   });
 
