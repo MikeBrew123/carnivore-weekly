@@ -2197,11 +2197,20 @@ function generateFullMealPlan(data) {
     };
   }
 
+  // Rotation pool: very lean proteins (cod, tuna, shellfish) can't reach the per-meal
+  // calorie target within the 500g portion cap, because portions are protein-anchored -
+  // a cod-based day came out ~1,000 cal under target (ISSUE-069 follow-up). Keep them
+  // out of the automatic rotation; the substitution guide still offers them as swaps.
+  const MIN_ROTATION_CAL_DENSITY = 150; // calories per 100g
+  const rotationProteins = availableProteins.filter(p => p.calories >= MIN_ROTATION_CAL_DENSITY);
+  if (rotationProteins.length === 0) rotationProteins.push(...availableProteins);
+
   // Get macro targets for portion calculations
   const dailyCalories = data.macros?.calories || 2000;
   const dailyProtein = data.macros?.protein_grams || 150; // grams
   const dailyFat = data.macros?.fat_grams || 130; // grams
   const mealsPerDay = data.mealsPerDay || 2; // Default to 2 meals (common for carnivore)
+  const calPerMeal = Math.round(dailyCalories / mealsPerDay);
 
   console.log(`[generateFullMealPlan] Daily macros: ${dailyProtein}g protein, ${dailyFat}g fat, ${mealsPerDay} meals/day`);
 
@@ -2229,9 +2238,9 @@ function generateFullMealPlan(data) {
     }
 
       // Rotate through proteins for variety
-      const proteinIndex = dayNum % availableProteins.length;
-      const mainProtein = availableProteins[proteinIndex];
-      const altProtein = availableProteins[(proteinIndex + 1) % availableProteins.length];
+      const proteinIndex = dayNum % rotationProteins.length;
+      const mainProtein = rotationProteins[proteinIndex];
+      const altProtein = rotationProteins[(proteinIndex + 1) % rotationProteins.length];
 
       // Generate meals based on diet type
       // Check if eggs are allowed (not in allergies or restrictions)
@@ -2262,7 +2271,15 @@ function generateFullMealPlan(data) {
       const calculateMeatPortion = (food, targetProteinGrams, includeEggs) => {
         const proteinFromEggs = includeEggs ? eggProtein : 0;
         const proteinNeededFromMeat = targetProteinGrams - proteinFromEggs;
-        const meatGrams = Math.round((proteinNeededFromMeat * 100) / food.protein);
+        let meatGrams = Math.round((proteinNeededFromMeat * 100) / food.protein);
+
+        // Calorie ceiling: portions are protein-anchored, so dense cuts (duck, bacon,
+        // fatty fish) can land a meal ~25% past its calorie budget. Cap the portion to
+        // the meal's calorie budget (eggs + base butter accounted for), floor 150g so
+        // meals stay real. Lean meals get topped back up by butterizeExtras below.
+        const eggCals = includeEggs ? (eggProtein * 4 + eggFat * 9) : 0;
+        const calCapGrams = Math.floor((calPerMeal - eggCals - 102) * 100 / food.calories);
+        meatGrams = Math.max(150, Math.min(meatGrams, calCapGrams));
 
         // Return portion and actual macros delivered
         const actualProtein = (meatGrams / 100) * food.protein + proteinFromEggs;
@@ -2282,6 +2299,17 @@ function generateFullMealPlan(data) {
       // to improve palatability. Max single protein portion is 500g.
       const MAX_SINGLE_PROTEIN_GRAMS = 500;
 
+      // Portions are protein-anchored, so meals built on leaner cuts land under the
+      // calorie target. Close the gap with the cooking fat: scale the butter from the
+      // fixed "1 tbsp" up to at most 4 tbsp (each ~102 cal / 11g fat).
+      const BUTTER_CAL_PER_TBSP = 102;
+      const butterizeExtras = (extras, mealProteinG, mealFatG) => {
+        if (!extras.includes('1 tbsp Butter')) return extras;
+        const mealCals = mealProteinG * 4 + mealFatG * 9;
+        const tbsp = Math.min(4, Math.max(1, Math.round((calPerMeal - mealCals) / BUTTER_CAL_PER_TBSP)));
+        return extras.replace('1 tbsp Butter', `${tbsp} tbsp Butter`);
+      };
+
       // Helper: Generate meal description, splitting if portion > 500g
       // STRICT ENFORCEMENT: Never exceed 500g per protein source
       const generateMealDescription = (protein1, protein2, targetProtein, includeEggs, extras = '') => {
@@ -2295,17 +2323,21 @@ function generateFullMealPlan(data) {
             const portion1 = calculateMeatPortion(protein1, halfProtein, false);
             const portion2 = calculateMeatPortion(protein2, halfProtein, false);
             const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
-            return `${eggPart}${portion1.grams}g ${protein1.name}, ${portion2.grams}g ${protein2.name}${extras}`;
+            const splitProtein = portion1.protein + portion2.protein + (includeEggs ? eggProtein : 0);
+            const splitFat = portion1.fat + portion2.fat + (includeEggs ? eggFat : 0);
+            const splitExtras = butterizeExtras(extras, splitProtein, splitFat);
+            return `${eggPart}${portion1.grams}g ${protein1.name}, ${portion2.grams}g ${protein2.name}${splitExtras}`;
           } else {
             // Only one protein available - HARD CAP at 500g, add note about multiple servings
             const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
             const cappedGrams = MAX_SINGLE_PROTEIN_GRAMS;
             const servings = Math.ceil(portion.grams / MAX_SINGLE_PROTEIN_GRAMS);
-            return `${eggPart}${cappedGrams}g ${protein1.name} (x${servings} servings throughout day)${extras}`;
+            const cappedExtras = butterizeExtras(extras, portion.protein, portion.fat);
+            return `${eggPart}${cappedGrams}g ${protein1.name} (x${servings} servings throughout day)${cappedExtras}`;
           }
         } else {
           const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
-          return `${eggPart}${portion.grams}g ${protein1.name}${extras}`;
+          return `${eggPart}${portion.grams}g ${protein1.name}${butterizeExtras(extras, portion.protein, portion.fat)}`;
         }
       };
 
@@ -2352,7 +2384,7 @@ function generateFullMealPlan(data) {
         // Meal 2 (Evening): Alternate protein without eggs
         const extras2 = isKeto ? ', 1 cup Broccoli, 1 tbsp Butter' : ', 1 tbsp Butter';
         // Use a third protein if available for more variety
-        const thirdProtein = availableProteins[(proteinIndex + 2) % availableProteins.length];
+        const thirdProtein = rotationProteins[(proteinIndex + 2) % rotationProteins.length];
         const meal2Desc = generateMealDescription(altProtein, thirdProtein, proteinPerMeal, false, extras2);
         meals.push({
           name: 'Meal 2',
@@ -2362,7 +2394,7 @@ function generateFullMealPlan(data) {
       } else {
         // Three meals per day - use generateMealDescription for variety on high-calorie plans
         const isKeto = diet.toLowerCase().includes('keto');
-        const thirdProtein = availableProteins[(proteinIndex + 2) % availableProteins.length];
+        const thirdProtein = rotationProteins[(proteinIndex + 2) % rotationProteins.length];
 
         // Breakfast: Include eggs if allowed
         const breakfastExtras = isKeto ? ', 1/2 Avocado' : ', 1 tbsp Butter';
