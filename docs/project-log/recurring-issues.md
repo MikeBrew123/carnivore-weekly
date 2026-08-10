@@ -630,10 +630,12 @@ If recurs: check whether SES changed classification, or raise/lower REPEAT_BOUNC
 
 ---
 
-## ISSUE-068 — KetoDial new posts never discovered by Google ("URL is unknown")
-🔴 OPEN — Last: 2026-08-10
-Pattern: GSC URL Inspection returns "URL is unknown to Google" for all 20 newest KD blog posts (2026-07-21 → 08-08), and `gsc_kd.clicks_this_week` has been 0 in every scoreboard snapshot since tracking began 2026-07-13. Six posts a week are shipping into a search void.
+## ISSUE-068 — KetoDial algorithmic trust suppression: Googlebot stopped crawling
+🔴 OPEN (diagnosed, remedy in flight) — Last: 2026-08-10
+Pattern: Googlebot last crawled ketodial.com on 2026-06-04 while still downloading the sitemap daily. GSC URL Inspection returns "URL is unknown to Google" for all 20 newest posts (2026-07-21 → 08-08), and `gsc_kd.clicks_this_week` has been 0 in every scoreboard snapshot since tracking began 2026-07-13. Cause per the 2026-08-08 diagnosis: dropped-and-re-registered domain (created 2026-05-30) that grew to 140+ AI-assisted pages in 9 weeks with zero earned backlinks. No manual actions in GSC, so this is algorithmic, and publishing volume reinforces the scaled-content pattern rather than helping.
 Attempts:
-- 2026-07-27 (bead 19d) — Ruled out technical blockers; diagnosed as new-domain trust gap. Older cohort was "Crawled - currently not indexed" — Google at least knew those URLs.
-- 2026-08-10 — Re-verified the crawl path is clean: sitemap.xml 200 with 142 locs including every new slug, each post URL 200, /blog/ index links them, robots.txt permissive. So this is not a serving or sitemap defect — the newest cohort regressed from "crawled" to "unknown", meaning Googlebot stopped fetching KD entirely.
-If recurs: the untried lever is external links. Send the 10-target KD backlink outreach from the Jul 3 plan (drafts written, gated on Brew). Also confirm the GSC property type matches the canonical host (`https://ketodial.com/` prefix vs domain property) before assuming the data is complete. Do NOT retry Indexing API — Lesson #13, it only works for JobPosting/BroadcastEvent.
+- 2026-07-27 (bead 19d) — Ruled out technical blockers; called it a new-domain trust gap. Older cohort was "Crawled - currently not indexed"; the newer cohort has since regressed to "unknown".
+- 2026-08-08 — Full crawl diagnosis ruled out every technical cause (`Brew-Vault/.../reports/ketodial-crawl-diagnosis-2026-08-08.md`).
+- 2026-08-09 — Brew approved cutting KD to 2 posts/week (Tue+Fri), commit 4b344f7c, decisions.md. Volume treated as the liability.
+- 2026-08-10 (weekly ops) — Independently re-verified the crawl path is clean: sitemap.xml 200 with 142 locs including every new slug, each post URL 200, /blog/ index links them, robots.txt permissive. Recorded as the pre-remedy baseline: 0/20 indexed, 0 clicks, 5th consecutive zero-click week.
+If recurs: earned backlinks are the lever, not cadence alone — the 10-target KD outreach plan (Jul 3, drafts written) is still gated on Brew sending. Re-inspect the same 20 URLs monthly against this baseline. Do NOT retry Indexing API — Lesson #13, it only works for JobPosting/BroadcastEvent.
