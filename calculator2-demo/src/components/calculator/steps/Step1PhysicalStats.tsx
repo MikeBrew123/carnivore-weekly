@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { FormData } from '../../../types/form'
 import FormField from '../shared/FormField'
 import RadioGroup from '../shared/RadioGroup'
 import { imperialToCm } from '../../../lib/calculations'
+import { suggestEmailFix } from '../../../lib/emailSuggest'
 
 interface Step1PhysicalStatsProps {
   data: FormData
@@ -20,7 +22,14 @@ export default function Step1PhysicalStats({
   onSetErrors,
   errors,
 }: Step1PhysicalStatsProps) {
+  // Offered when the typed domain is one character off a common provider.
+  // Advisory only: the user can ignore it and continue.
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null)
+
   const handleInputChange = (field: string, value: any) => {
+    // Any edit invalidates a standing suggestion, otherwise a stale
+    // "did you mean" hangs around after the address is already fixed.
+    if (field === 'email') setEmailSuggestion(null)
     const updated = { ...data, [field]: value }
     // Auto-default inches to 0 when feet is set
     if (field === 'heightFeet' && typeof updated.heightInches !== 'number') {
@@ -178,11 +187,40 @@ export default function Step1PhysicalStats({
           label="Email"
           value={data.email || ''}
           onChange={(e) => handleInputChange('email', e.target.value)}
+          // Read the event target, not data.email: the prop lags a tick behind
+          // the keystroke, so a fast type-then-tab would check a stale value.
+          onBlur={(e) => setEmailSuggestion(suggestEmailFix(e.target.value))}
           error={errors.email}
           placeholder="you@email.com"
           required
           helpText="We'll send your results here and add you to the free weekly Carnivore Weekly email. Unsubscribe anytime."
         />
+        {emailSuggestion && (
+          <div
+            role="status"
+            style={{
+              marginTop: '8px', fontFamily: "'Merriweather', Georgia, serif",
+              fontSize: '14px', color: '#ffd700',
+            }}
+          >
+            Did you mean{' '}
+            <button
+              type="button"
+              onClick={() => {
+                handleInputChange('email', emailSuggestion)
+                setEmailSuggestion(null)
+              }}
+              style={{
+                background: 'none', border: 'none', padding: 0,
+                color: '#ffd700', font: 'inherit', textDecoration: 'underline',
+                cursor: 'pointer',
+              }}
+            >
+              {emailSuggestion}
+            </button>
+            ?
+          </div>
+        )}
       </div>
 
       {/* Sex */}

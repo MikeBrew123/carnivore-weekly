@@ -1868,11 +1868,16 @@
                         });
                     }
                 } else {
-                    throw new Error(data.message || 'Subscription failed');
+                    const e = new Error(data.message || 'Subscription failed');
+                    e.fromServer = true;
+                    throw e;
                 }
             } catch (err) {
                 console.error('Newsletter signup error:', err);
-                alert('Oops! Something went wrong. Please try again.');
+                // Show the server's text when it has one: it may be a fixable
+                // typo ("Did you mean you@gmail.com?"), which a generic
+                // failure message would hide.
+                alert(err.fromServer ? err.message : 'Oops! Something went wrong. Please try again.');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalBtnText;

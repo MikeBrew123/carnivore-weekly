@@ -1377,11 +1377,15 @@
                     if (typeof gtag === 'function') {
                         gtag('event', 'starter_plan_signup', { source: 'calculator', diet_type: dietType });
                     }
-                } else { throw new Error(); }
+                } else {
+                    const e = new Error(data.message || 'Signup failed');
+                    e.fromServer = true;
+                    throw e;
+                }
             } catch (err) {
                 btn.disabled = false;
                 btn.textContent = 'Start Free';
-                alert('Something went wrong. Please try again.');
+                alert(err.fromServer ? err.message : 'Something went wrong. Please try again.');
             }
         });
     })();
@@ -1460,7 +1464,7 @@
          in CalculatorApp.tsx). Keep the src in sync with the Vite bundle hash above. -->
     <script>
         (function () {
-            var SRC = '/assets/calculator2/assets/index-BTnvg6tj.js';
+            var SRC = '/assets/calculator2/assets/index-cmylDscU.js';
             var CSS = '/assets/calculator2/assets/index-BGLKv82j.css';
             var loaded = false;
             function loadCalc() {

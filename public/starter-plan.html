@@ -616,12 +616,14 @@
                     btnText.style.display = 'inline';
                     btnLoad.style.display = 'none';
                 } else {
-                    throw new Error(data.error || 'Signup failed');
+                    const e = new Error(data.message || data.error || 'Signup failed');
+                    e.fromServer = true;
+                    throw e;
                 }
 
             } catch (err) {
                 console.error('Starter plan signup error:', err);
-                showError(wrap, 'Something went wrong. Please try again.');
+                showError(wrap, err.fromServer ? err.message : 'Something went wrong. Please try again.');
                 btn.disabled = false;
                 btnText.style.display = 'inline';
                 btnLoad.style.display = 'none';

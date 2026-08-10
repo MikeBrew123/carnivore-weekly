@@ -106,6 +106,110 @@ function isValidEmail(email) {
   return emailRegex.test(email) && email.length <= 255;
 }
 
+// ===== SIGNUP EMAIL DELIVERABILITY =====
+// A syntactically valid address can still be undeliverable forever. Real
+// signups lost to this: 'redacted-subscriber-04@example.invalid' and 'redacted-subscriber-09@example.invalid'
+// both passed every check we had, then bounced for weeks while the user
+// assumed they had subscribed (ISSUE-067).
+//
+// Domains sorted by real subscriber counts, so the near-miss check is weighted
+// toward what people here actually type.
+const COMMON_EMAIL_DOMAINS = [
+  'gmail.com', 'yahoo.com', 'aol.com', 'hotmail.com', 'outlook.com',
+  'icloud.com', 'proton.me', 'protonmail.com', 'duck.com', 'comcast.net',
+  'bellsouth.net', 'sbcglobal.net', 'msn.com', 'live.com', 'me.com',
+  'yahoo.ca', 'shaw.ca', 'rogers.com', 'telus.net', 'verizon.net',
+];
+
+function levenshtein(a, b) {
+  if (a === b) return 0;
+  if (Math.abs(a.length - b.length) > 2) return 99; // cheap bail, we only care about <=2
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(
+        prev[j] + 1,
+        cur[j - 1] + 1,
+        prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      );
+    }
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+// Returns the corrected address, or null when nothing is obviously close.
+function suggestEmailFix(email) {
+  const at = email.lastIndexOf('@');
+  if (at < 1) return null;
+  const local = email.slice(0, at);
+  const domain = email.slice(at + 1).toLowerCase();
+  if (COMMON_EMAIL_DOMAINS.includes(domain)) return null;
+
+  let best = null;
+  let bestDist = 99;
+  for (const candidate of COMMON_EMAIL_DOMAINS) {
+    const d = levenshtein(domain, candidate);
+    // Distance 1 is a confident single-character slip (gmail.vom, yagoo.com).
+    // Allow 2 only on longer domains, where two edits still read unambiguously
+    // and a short domain like "duck.com" can't be dragged to something else.
+    if (d < bestDist && (d === 1 || (d === 2 && candidate.length >= 10))) {
+      best = candidate;
+      bestDist = d;
+    }
+  }
+  return best ? `${local}@${best}` : null;
+}
+
+// True = domain can plausibly receive mail (or we could not find out).
+// FAILS OPEN on any DNS trouble: a signup must never be lost to our own
+// resolver having a bad minute. Accepts an A record with no MX because RFC 5321
+// still allows delivery there, and all four addresses that triggered this had
+// neither.
+async function domainHasMailRecords(domain) {
+  const ask = async (type) => {
+    const res = await fetch(
+      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${type}`,
+      { headers: { Accept: 'application/dns-json' } },
+    );
+    if (!res.ok) throw new Error(`DoH ${type} ${res.status}`);
+    const body = await res.json();
+    // Status 3 = NXDOMAIN, the domain itself does not exist.
+    return { nx: body.Status === 3, hits: (body.Answer || []).filter(a => a.type === (type === 'MX' ? 15 : 1)) };
+  };
+  try {
+    const mx = await ask('MX');
+    if (mx.hits.length > 0) return true;
+    if (mx.nx) return false;
+    const a = await ask('A');
+    return a.hits.length > 0;
+  } catch (err) {
+    console.warn(`DNS check failed for ${domain}, allowing signup:`, String(err));
+    return true;
+  }
+}
+
+// Single gate for anything that enrolls an address. Returns null when the
+// address is fine, or an error response describing the problem.
+// Blocking is decided ONLY by DNS, never by the near-miss guess: a real domain
+// that happens to sit one character from gmail.com still resolves, so it passes.
+// The guess only makes the message actionable.
+async function checkEmailDeliverable(email) {
+  const domain = email.slice(email.lastIndexOf('@') + 1).toLowerCase();
+  if (await domainHasMailRecords(domain)) return null;
+
+  const suggestion = suggestEmailFix(email);
+  return createErrorResponse(
+    'UNDELIVERABLE_EMAIL',
+    suggestion
+      ? `Did you mean ${suggestion}? We can't deliver to ${domain}.`
+      : `We can't deliver mail to ${domain}. Please check the spelling.`,
+    400,
+    suggestion ? { suggestion } : undefined,
+  );
+}
+
 // Rate limiter (in-memory for Workers)
 const rateLimitStore = new Map();
 
@@ -598,8 +702,18 @@ async function handleSaveStep2(request, env) {
     try {
       const rows = await response.json();
       const email = rows && rows[0] && rows[0].email;
-      if (email && email.includes('@')) {
-        await subscribeCore(env, email.trim().toLowerCase(), 'calculator', data.diet_type, null);
+      if (email && isValidEmail(email.trim())) {
+        const clean = email.trim().toLowerCase();
+        // The step save already succeeded and must not be undone. We just
+        // decline to enroll a dead address into the drip. The client-side
+        // check in Step 1 should have caught this already; this is the
+        // backstop for anything that bypasses it.
+        const domain = clean.slice(clean.lastIndexOf('@') + 1);
+        if (await domainHasMailRecords(domain)) {
+          await subscribeCore(env, clean, 'calculator', data.diet_type, null);
+        } else {
+          console.warn(`[handleSaveStep2] skipped drip enrollment, undeliverable domain: ${domain}`);
+        }
       }
     } catch (err) {
       console.warn('[handleSaveStep2] enrollment hook failed (non-fatal):', String(err));
@@ -5390,10 +5504,15 @@ async function handleCoachWaitlist(request, env) {
 async function handleSubscribe(request, env) {
   try {
     const { email, site, source, diet_type } = await request.json();
-    if (!email || !email.includes('@')) {
+    if (!email || !isValidEmail(email.trim())) {
       return createErrorResponse('INVALID_EMAIL', 'Valid email required', 400);
     }
-    return await subscribeCore(env, email.trim().toLowerCase(), source || 'homepage', diet_type, site);
+    const cleanEmail = email.trim().toLowerCase();
+    // Catch dead domains at the door, so a typo gets fixed while the person is
+    // still on the form instead of silently bouncing for 30 days.
+    const undeliverable = await checkEmailDeliverable(cleanEmail);
+    if (undeliverable) return undeliverable;
+    return await subscribeCore(env, cleanEmail, source || 'homepage', diet_type, site);
   } catch (err) {
     return createErrorResponse('SUBSCRIBE_ERROR', String(err), 500);
   }
