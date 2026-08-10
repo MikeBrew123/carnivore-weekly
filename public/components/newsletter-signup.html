@@ -436,11 +436,13 @@
             } else if (data.existing) {
                 showError(container, "You're already subscribed!");
             } else {
-                throw new Error(data.message || 'Subscription failed');
+                const e = new Error(data.message || 'Subscription failed');
+                e.fromServer = true;
+                throw e;
             }
         } catch (error) {
             console.error('Newsletter signup error:', error);
-            showError(container, 'Something went wrong. Please try again later.');
+            showError(container, error.fromServer ? error.message : 'Something went wrong. Please try again later.');
             button.disabled = false;
             buttonText.style.display = 'inline';
             buttonLoading.style.display = 'none';

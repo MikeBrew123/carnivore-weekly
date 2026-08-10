@@ -14,6 +14,16 @@ downloads/
 eggs/
 .eggs/
 lib/
+# exception: calculator TypeScript source. The Python `lib/` rule above was
+# silently swallowing calculator2-demo/src/lib/, so calculations.ts,
+# session.ts, supabase.ts and emailSuggest.ts were never committed and the
+# calculator could not be rebuilt from a fresh clone (found 2026-08-10).
+!calculator2-demo/src/lib/
+!calculator2-demo/src/lib/**
+# ...except this one: it is dead code (imported by nothing, absent from the
+# shipped bundle) and hardcodes a Supabase publishable key. No reason to
+# publish it in a public repo. Delete it or wire it to env vars before tracking.
+calculator2-demo/src/lib/supabase.ts
 lib64/
 parts/
 sdist/
