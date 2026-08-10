@@ -624,4 +624,16 @@ Pattern: Resend webhook logged `bounced` to drip_events but nothing stopped the 
 Attempts:
 - 2026-08-09 — Suppress on `bounce.type === 'Permanent'` only → WRONG. Checked real payloads: SES tags nonexistent domains (yagoo.com, gmail.vom) as **Transient/General** after retrying 840 min, diagnostic "Could not find a mail server". Permanent-only would have caught 0 of 13.
 - 2026-08-09 — Added repeat-bounce rule: count bounces since last delivered/opened/clicked, suppress at 3 consecutive. Plus Permanent on first hit, complaints on first hit. Migration added `bounced_at`/`bounce_reason` to drip_subscribers + newsletter_subscribers; `send_drip.py` filters `bounced_at=is.null`; newsletter excluded via `status='bounced'`. 31 assertions pass against the real handler.
-If recurs: check whether SES changed classification, or raise/lower REPEAT_BOUNCE_LIMIT in handleResendWebhook. Upstream prevention is beads carnivore-weekly-l208 (typo validation at signup).
+- 2026-08-09 — Upstream prevention WRITTEN, not shipped: signup blocks domains with no MX and no A record (DNS-over-HTTPS via cloudflare-dns.com, fails OPEN on resolver trouble). All 4 bad domains had neither record; every real subscriber domain has both, so zero false positives. Blocking is DNS-only; the near-miss guess just makes the message actionable ("Did you mean x@gmail.com?"). Calculator Step 1 also shows a clickable client-side suggestion on blur.
+- 2026-08-10 (weekly ops) — Status correction: that third attempt is UNCOMMITTED in the working tree (api/calculator-api.js +127, Step1PhysicalStats.tsx +38, new Vite bundle untracked) and therefore undeployed. Confirming evidence: gmail.vom and yagoo.com still bounced Aug 8-9, and both subscriber tables show 0 rows with `bounced_at` set against 12 bounced events in 7 days. Bead filed for a session that can commit + rebuild + `wrangler deploy --env production`.
+If recurs: check whether SES changed classification, or raise/lower REPEAT_BOUNCE_LIMIT in handleResendWebhook. Domain list for near-miss lives in BOTH api/calculator-api.js and calculator2-demo/src/lib/emailSuggest.ts — update together.
+
+---
+
+## ISSUE-068 — KetoDial new posts never discovered by Google ("URL is unknown")
+🔴 OPEN — Last: 2026-08-10
+Pattern: GSC URL Inspection returns "URL is unknown to Google" for all 20 newest KD blog posts (2026-07-21 → 08-08), and `gsc_kd.clicks_this_week` has been 0 in every scoreboard snapshot since tracking began 2026-07-13. Six posts a week are shipping into a search void.
+Attempts:
+- 2026-07-27 (bead 19d) — Ruled out technical blockers; diagnosed as new-domain trust gap. Older cohort was "Crawled - currently not indexed" — Google at least knew those URLs.
+- 2026-08-10 — Re-verified the crawl path is clean: sitemap.xml 200 with 142 locs including every new slug, each post URL 200, /blog/ index links them, robots.txt permissive. So this is not a serving or sitemap defect — the newest cohort regressed from "crawled" to "unknown", meaning Googlebot stopped fetching KD entirely.
+If recurs: the untried lever is external links. Send the 10-target KD backlink outreach from the Jul 3 plan (drafts written, gated on Brew). Also confirm the GSC property type matches the canonical host (`https://ketodial.com/` prefix vs domain property) before assuming the data is complete. Do NOT retry Indexing API — Lesson #13, it only works for JobPosting/BroadcastEvent.
