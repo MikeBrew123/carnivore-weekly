@@ -146,7 +146,7 @@ export default function Step2FitnessDiet({
         options={[
           { value: '', label: 'Select diet type', disabled: true },
           { value: 'carnivore', label: '🥩 Carnivore (beef, lamb, organs only)' },
-          { value: 'pescatarian', label: '🐟 Pescatarian (add fish & seafood)' },
+          { value: 'pescatarian', label: '🐟 Pescatarian (fish & seafood only)' },
           { value: 'keto', label: '⚡ Keto (low-carb, fat-focused)' },
           { value: 'lowcarb', label: '🥕 Low-Carb (moderate carbs)' },
         ]}
