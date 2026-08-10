@@ -2028,6 +2028,14 @@ blockquote.pull-quote {
   transform: rotate(-45deg) translate(7px, -7px);
 }
 
+/* mobile-nav.js adds this while the user scrolls down, so the fixed button
+   doesn't sit on top of content; removed on upward scroll or near the top */
+.hamburger-menu-btn.nav-btn-hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
 /* Mobile Navigation Responsive Styles */
 @media (max-width: 768px) {
   /* Show hamburger button on mobile */

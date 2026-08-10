@@ -792,6 +792,14 @@
             .protein-table td:first-child { background: #8b4513; color: #f4e4d4; font-weight: 700; padding-left: 16px; font-size: 18px; }
             .protein-table td:first-child::before { display: none; }
         }
+        /* Mobile: two fixed bottom elements share this page — the Start Calculator
+           pill (bottom:20px, centered) and the feedback FAB (bottom:2rem, right).
+           At <=360px wide they collide; lift the FAB above the pill's row.
+           !important because the FAB's styles are injected after this block. */
+        @media (max-width: 768px) {
+            .feedback-fab { bottom: 92px !important; }
+            .site-footer { padding-bottom: 110px; }
+        }
     </style>
 
     <!-- Schema Markup: WebApplication -->
