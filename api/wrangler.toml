@@ -36,10 +36,29 @@ vars = { ENVIRONMENT = "development", SUPABASE_URL = "https://kwtdpvnjewtahuxjyl
 binding = "ETSY_AUTH_KV"
 id = "022b2eba60cb4e39bec97759109e7acf"
 
+# NOTE: in Wrangler, named environments do NOT inherit top-level `vars` or
+# `kv_namespaces`. Every binding an environment needs has to be repeated below,
+# or that environment's Worker simply will not have it at runtime.
+
 # Staging environment variables
 [env.staging]
-vars = { ENVIRONMENT = "staging", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co" }
+vars = { ENVIRONMENT = "staging", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", GA4_MEASUREMENT_ID = "G-NR4JVKW2JV" }
+
+# Etsy PKCE state storage for staging.
+# Same namespace as dev/production: PKCE state is short-lived, keyed by a random
+# `state` value, and deleted on use, so there is no cross-environment collision.
+[[env.staging.kv_namespaces]]
+binding = "ETSY_AUTH_KV"
+id = "022b2eba60cb4e39bec97759109e7acf"
 
 # Production environment variables
 [env.production]
 vars = { ENVIRONMENT = "production", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", FRONTEND_URL = "https://carnivoreweekly.com", GA4_MEASUREMENT_ID = "G-NR4JVKW2JV" }
+
+# Etsy PKCE state storage for production.
+# Without this the production Worker has no ETSY_AUTH_KV binding, and because
+# calculator-api.js uses optional chaining (env.ETSY_AUTH_KV?.put/get) the Etsy
+# OAuth flow fails SILENTLY rather than erroring.
+[[env.production.kv_namespaces]]
+binding = "ETSY_AUTH_KV"
+id = "022b2eba60cb4e39bec97759109e7acf"
