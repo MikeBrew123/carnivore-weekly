@@ -6778,11 +6778,89 @@ async function handleUnsubscribe(url, env) {
 }
 
 // ===== RESEND WEBHOOK HANDLER =====
+// Verifies a Svix-signed webhook (the scheme Resend uses).
+//
+// Deliberately NOT the same shape as the Stripe verifier above: Svix base64-decodes
+// the secret to get the key bytes, emits a base64 signature (not hex), and may send
+// several space-separated `v1,<sig>` pairs during a secret rotation, any one of which
+// may match. Reusing the Stripe code here would reject every real delivery.
+//
+// Header names: Svix sends svix-*, the standard-webhooks spec renamed them webhook-*.
+// Accept both so a Resend-side migration doesn't silently break tracking.
+async function verifyResendSignature(request, rawBody, env) {
+  const secret = env.RESEND_WEBHOOK_SECRET;
+  // Fail CLOSED. An unset secret is a deployment mistake, and the whole point of
+  // this function is that an unauthenticated POST can suppress any subscriber.
+  if (!secret) {
+    console.error('RESEND_WEBHOOK_SECRET is not set - rejecting webhook');
+    return { ok: false, reason: 'secret-not-configured' };
+  }
+
+  const h = (a, b) => request.headers.get(a) || request.headers.get(b);
+  const id = h('svix-id', 'webhook-id');
+  const timestamp = h('svix-timestamp', 'webhook-timestamp');
+  const sigHeader = h('svix-signature', 'webhook-signature');
+  if (!id || !timestamp || !sigHeader) {
+    return { ok: false, reason: 'missing-signature-headers' };
+  }
+
+  // Reject replays. Svix's own tolerance is 5 minutes.
+  const ts = parseInt(timestamp, 10);
+  if (!Number.isFinite(ts) || Math.abs(Math.floor(Date.now() / 1000) - ts) > 300) {
+    return { ok: false, reason: 'stale-timestamp' };
+  }
+
+  // whsec_ prefix is not part of the key material.
+  const b64Secret = secret.startsWith('whsec_') ? secret.slice(6) : secret;
+  let keyBytes;
+  try {
+    keyBytes = Uint8Array.from(atob(b64Secret), c => c.charCodeAt(0));
+  } catch {
+    console.error('RESEND_WEBHOOK_SECRET is not valid base64 - rejecting webhook');
+    return { ok: false, reason: 'malformed-secret' };
+  }
+
+  const key = await crypto.subtle.importKey(
+    'raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const signed = `${id}.${timestamp}.${rawBody}`;
+  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signed));
+  const expected = btoa(String.fromCharCode(...new Uint8Array(mac)));
+
+  // Compare every offered v1 signature in constant time, and never short-circuit on
+  // the first match: an early return would leak timing about which one matched.
+  let matched = false;
+  for (const part of sigHeader.split(' ')) {
+    const [version, value] = part.split(',');
+    if (version !== 'v1' || !value || value.length !== expected.length) continue;
+    let diff = 0;
+    for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ value.charCodeAt(i);
+    if (diff === 0) matched = true;
+  }
+  return matched ? { ok: true } : { ok: false, reason: 'signature-mismatch' };
+}
+
 // Receives email.opened, email.clicked, email.delivered, email.bounced events
 // Docs: https://resend.com/docs/dashboard/webhooks/introduction
 async function handleResendWebhook(request, env) {
   try {
-    const body = await request.json();
+    // Read the body as text: HMAC is over the exact bytes Resend signed, so
+    // re-serializing a parsed object would change the payload and never match.
+    const rawBody = await request.text();
+
+    // Verify BEFORE parsing or touching the database. This endpoint can suppress
+    // delivery to any address (one Permanent bounce is enough), so an unsigned
+    // POST used to be a remote kill switch for the whole list.
+    const verified = await verifyResendSignature(request, rawBody, env);
+    if (!verified.ok) {
+      console.warn(`Rejected Resend webhook: ${verified.reason}`);
+      return new Response(JSON.stringify({ error: 'invalid signature' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const body = JSON.parse(rawBody);
     const eventType = body.type; // email.delivered, email.opened, email.clicked, email.bounced
     const data = body.data || {};
 
@@ -6934,7 +7012,7 @@ async function handleResendWebhook(request, env) {
         'Prefer': 'return=minimal',
       };
 
-      await Promise.all([
+      const [dripRes, newsRes] = await Promise.all([
         // send_drip.py skips rows with bounced_at set. Kept separate from
         // `completed` (which means graduated, and inserts into the weekly list)
         // and from `unsubscribed` (which is a deliberate user action).
@@ -6956,7 +7034,18 @@ async function handleResendWebhook(request, env) {
         }),
       ]);
 
-      console.log(`Suppressed ${payload.email} (${evSite}): ${reason}`);
+      // These run with Prefer: return=minimal, so a failed PATCH still resolves.
+      // Without this check a dropped column or a constraint change would leave
+      // the address sending forever while the log below claimed it was handled.
+      const failures = [];
+      if (!dripRes.ok) failures.push(`drip_subscribers ${dripRes.status}: ${await dripRes.text()}`);
+      if (!newsRes.ok) failures.push(`newsletter_subscribers ${newsRes.status}: ${await newsRes.text()}`);
+      if (failures.length) {
+        console.error(`SUPPRESSION FAILED for ${payload.email} (${evSite}) - `
+          + `address is still active and will keep bouncing: ${failures.join(' | ')}`);
+      } else {
+        console.log(`Suppressed ${payload.email} (${evSite}): ${reason}`);
+      }
     } else if (simpleType === 'bounced' && !data.bounce) {
       // Fails safe (no suppression), but stay loud: a payload-shape change here
       // would silently switch the Permanent trigger off and nobody would notice.
