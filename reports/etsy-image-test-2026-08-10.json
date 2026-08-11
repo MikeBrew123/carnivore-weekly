@@ -1,0 +1,195 @@
+{
+  "test": "Etsy Test 1 - food list image build-out, 2 images to 8",
+  "source_plan": "reports/etsy-deep-dive-2026-08-09.md section 5",
+  "approved_by": "Brew, 2026-08-10 05:35 PDT",
+  "change_made_at": "2026-08-10 ~05:25 PDT",
+  "change_made_by": "a concurrent session (etsy/build-foodlist-listing-images.py, artifacts in etsy/_build/)",
+  "marker_written_by": "this session, 2026-08-10 05:45 PDT",
+  "what_changed": "6 new images appended at ranks 3-8 on each treated listing. Ranks 1-2 are the original hero + second image, re-uploaded (verified pixel-identical to etsy/_build/restore/, mean diff 0.03).",
+  "state_capture": "reports/etsy-image-test-2026-08-10-before.json (captured 05:37, image state is POST-change; metric values are still valid as day 0 because the change was 12 minutes earlier)",
+
+  "corrections": [
+    {
+      "date": "2026-08-11",
+      "made_by": "instrumentation fix session, internal only, nothing touched on Etsy",
+      "what_was_wrong": "baseline_pre_change was a 14-day mean over 2026-07-26 to 2026-08-09. For the Carnivore listing that mean was 35.2 views/day while the listing's actual run rate in the days right before the edit was 100-146/day, because the first week of the window was near zero. Two consequences: the REVERT trigger sat at 26.4 views/day and could not fire even if the listing lost 80% of its traffic, and a surge that began 2026-08-06, four days BEFORE anything was touched, would have been read as the test working.",
+      "what_changed": "baseline recomputed over the last five fully pre-change daily intervals (2026-08-05 to 2026-08-09) for all five listings, same window and same method for each. Median is now the baseline of record; mean is kept alongside it. Decision rules rewritten so the guardrail can actually fire, including removing the near-zero-traffic control from the veto condition.",
+      "recompute_script": "etsy/image-test-readout.py (read-only; run it again on 2026-08-17 with the read window to get a like-for-like number)"
+    }
+  ],
+
+  "baseline_pre_change": {
+    "window": "2026-08-05 to 2026-08-09, five daily intervals, from reports/etsy-snapshots/snapshots.jsonl",
+    "method": "snapshots carry a lifetime view counter and are taken once a day around 08:05 PDT. One day = the delta between consecutive snapshots, labelled with the later snapshot's date. Median is the baseline of record; mean is reported for reference.",
+    "why_this_window": "the edit landed 2026-08-10 05:25 PDT, which is before that morning's 08:06 snapshot, so the interval labelled 2026-08-10 is already ~11% post-change and is excluded. This window is the last five intervals that are entirely pre-change.",
+    "why_median": "the Carnivore listing's window contains a regime change (2026-08-05 is a pre-surge day at 14 views, the following four run 100-146). A mean straddling that step lands at 97.0, below every day of the run rate it is meant to describe. The median is not dragged by it. The same rule is applied to every listing so the comparison stays fair.",
+    "superseded": {
+      "window": "2026-07-26 to 2026-08-09, 14-day mean",
+      "views_per_day": {
+        "4464217679": 35.2,
+        "4464217699": 9.2,
+        "4495055944": 0.7,
+        "4495049647": 16.1,
+        "4464219356": 74.4
+      }
+    },
+    "listings": {
+      "4464217679": {
+        "group": "treated",
+        "label": "Carnivore Food List",
+        "baseline_views_per_day": 112.0,
+        "mean_views_per_day": 97.0,
+        "daily_series": [14, 113, 112, 100, 146],
+        "favers": 5,
+        "units_90d": 1,
+        "note": "in a steep pre-existing upswing that started 2026-08-06, four days before the edit. See surge_assessment. Trend, not the images, will dominate any fixed-baseline comparison here."
+      },
+      "4464217699": {
+        "group": "treated",
+        "label": "Pescatarian Food List",
+        "baseline_views_per_day": 15.0,
+        "mean_views_per_day": 16.6,
+        "daily_series": [8, 15, 23, 12, 25],
+        "favers": 3,
+        "units_90d": 2,
+        "note": "spread is 8 to 25 on a median of 15, so a 25% move on this listing is indistinguishable from an ordinary day. Its guardrail is set wider and is advisory only."
+      },
+      "4495055944": {
+        "group": "control",
+        "label": "Carnivore Cheat Sheet",
+        "baseline_views_per_day": 1.0,
+        "mean_views_per_day": 1.2,
+        "daily_series": [0, 0, 4, 1, 1],
+        "favers": 5,
+        "units_90d": 3,
+        "note": "reported only. At ~1 view/day this listing is noise and CANNOT gate a revert decision; a single quiet day reads as -100%."
+      },
+      "4495049647": {
+        "group": "control",
+        "label": "Keto Food Cheat Sheet",
+        "baseline_views_per_day": 34.0,
+        "mean_views_per_day": 34.2,
+        "daily_series": [10, 57, 39, 31, 34],
+        "favers": 1,
+        "units_90d": 2,
+        "note": "the only control with enough traffic to gate anything. It also caught the 2026-08-06 surge and is now decaying, which makes it the best available read on how much of the treated listings' movement is shop-wide rather than ours."
+      },
+      "4464219356": {
+        "group": "frozen",
+        "label": "Keto Diet Food List (bestseller)",
+        "baseline_views_per_day": 60.0,
+        "mean_views_per_day": 62.6,
+        "daily_series": [72, 73, 55, 60, 53],
+        "favers": 6,
+        "units_90d": 16,
+        "note": "reference only. Already in a separate unexplained 47% decline per the deep dive; do not attribute its movement to this test. It did NOT catch the 2026-08-06 surge, which is itself evidence about the surge's cause."
+      }
+    }
+  },
+
+  "surge_assessment": {
+    "question": "the Carnivore listing went from ~1 view/day to 113/day on 2026-08-06, before anything was touched. Real demand or the bot traffic the deep dive warned about?",
+    "verdict": "most likely real, and almost certainly NOT the bot traffic on record. Moderate confidence on the cause, high confidence on the exclusion. Not provable from this data.",
+    "confidence": "moderate (~2 in 3) that it is the 2026-08-02 thumbnail revert working; high (~9 in 10) that it is not the documented bot problem",
+    "evidence_for_real": [
+      "A documented deliberate cause exists with the right lag. On 2026-08-02 (ISSUE-064, bead ykn7) the original product-first hero images were restored to rank 1 on 10 receipt-verified sellers, undoing a 2026-07-16 swap to branded mockups that were unreadable at Etsy's 570px search-grid size. Search-grid thumbnail legibility is a direct click-through lever. Views lift on 08-04 (5), 08-05 (14), then step to 113 on 08-06: a 2 to 4 day lag, which is what Etsy re-scoring an edited listing looks like in this shop.",
+      "The lift is selective in exactly the shape of that revert, not uniform across the shop. Carnivore Food List ~100x, Keto Food Cheat Sheet ~6x, Pescatarian ~2x, Carnivore Cheat Sheet nil, and the bestseller 4464219356 nil. The bestseller is the one listing that was deliberately EXCLUDED from the July thumbnail swap and therefore from the August revert, and it is the one listing that did not move. A crawler does not skip the highest-traffic listing in the shop.",
+      "It ramps and sustains: 5, 14, 113, 112, 100, 146, 179 over seven days and still climbing. The shop's own bot signature, encoded in the spike guard shipped as bead yb7q, is a single day above 3x the 28-day median. This is a sustained regime change, not a burst.",
+      "The bot traffic the deep dive cites (bead yb7q, 2026-07-14 and 2026-07-28) is GA4 sessions on carnivoreweekly.com, a different property with a different counter. Nothing in the record documents an Etsy-side bot problem, and Etsy view counts are Etsy's own server-side numbers."
+    ],
+    "evidence_against_or_unresolved": [
+      "~1 view/day to 113/day is a very large step for a thumbnail re-rank on an already-indexed listing. The magnitude is not fully explained.",
+      "Roughly 650 surge views produced 1 favourite and 0 sales on the Carnivore listing. This is weak evidence either way: the bestseller gained 0 favourites in 28 days at 55-100 views/day, so this shop's favourite rate is near zero regardless.",
+      "Three new listings went live on 2026-08-06, the same day the surge starts. They opened at 0 views so they cannot account for views on old listings, but the coincidence is unexplained.",
+      "DECISIVE DATUM UNAVAILABLE: Etsy API v3 exposes no stats or traffic-source endpoint (deep dive section 6). Whether these are Etsy search views, direct hits, or off-site referrals is visible only in the Etsy Stats UI, behind a click only Brew can make. Until then this stays a judgement, not a finding."
+    ],
+    "consequence_for_the_test": "either way, the Carnivore listing was on a steep upward trend before the treatment, so a treated-vs-own-baseline reading of views/day is confounded in both directions. The full read on 2026-08-31 must be treated-vs-control, using 4495049647 as the control. The own-baseline number below is retained for the revert guardrail only, where its job is to catch a collapse, not to measure a lift."
+  },
+
+  "metric_reality_check": {
+    "primary": "views per day, treated vs control, off snapshots.jsonl via etsy/image-test-readout.py",
+    "why_not_favourites": "the deep dive proposed favourites per 100 views. The data says that cannot work here: the treated listings gained 1 and 0 favourites respectively over the 14 days before the change. Over a 21-day window this metric produces 0-2 events per listing, which cannot separate a real effect from noise.",
+    "secondary": "favers and units_90d, reported but explicitly underpowered",
+    "honest_limit": "Pescatarian at ~15 views/day yields ~315 views in 21 days with a day-to-day spread of 8 to 25. Only the Carnivore listing has enough traffic for even a rough read, and only for large effects.",
+    "new_limit_2026_08_11": "the Carnivore listing's pre-change trend is steeper than any plausible image effect. A null or positive result on that listing is not attributable to the images without the control moving differently."
+  },
+
+  "read_dates": {
+    "guardrail_check": "2026-08-17",
+    "full_read": "2026-08-31",
+    "fallback_reread": "2026-09-21"
+  },
+
+  "decision_rules": {
+    "evaluation_method": "at each read, run etsy/image-test-readout.py with the post-change window (guardrail read: 2026-08-11 to 2026-08-17) and compare the MEDIAN views/day against baseline_views_per_day above. Same script, same statistic, both sides. Never judge on a single day.",
+    "REVERT": "either treated listing's median views/day over the read window falls below its revert_threshold_views_per_day AND the gating control has not fallen by more than 25% itself. This is the real risk: a gallery edit on 2026-07-27 is the leading suspect for the bestseller's 47% traffic collapse, so Etsy re-scoring an edited listing is a known failure mode here.",
+    "REVERT_HARD_FLOOR": "if either treated listing's median falls below hard_floor_views_per_day, revert regardless of what any control did. A collapse that deep needs no corroboration.",
+    "KEEP": "treated median flat or up against baseline, and no negative movement in favers or units.",
+    "INCONCLUSIVE": "anything else. Default action is keep and re-read at 2026-09-21, because removing images would itself be a second edit on the same listing.",
+    "thresholds": {
+      "4464217679": {
+        "baseline_views_per_day": 112.0,
+        "revert_threshold_views_per_day": 84.0,
+        "revert_threshold_basis": "-25% of baseline",
+        "hard_floor_views_per_day": 28.0,
+        "hard_floor_basis": "-75% of baseline"
+      },
+      "4464217699": {
+        "baseline_views_per_day": 15.0,
+        "revert_threshold_views_per_day": 7.5,
+        "revert_threshold_basis": "-50% of baseline, deliberately wider than the Carnivore rule. At a median of 15 with a range of 8 to 25, a 25% threshold (11.25) sits inside the listing's ordinary day-to-day spread and would fire on noise.",
+        "hard_floor_views_per_day": 3.75,
+        "hard_floor_basis": "-75% of baseline",
+        "status": "ADVISORY. This listing does not carry enough traffic for its guardrail to be trusted on its own. It should not trigger a revert of the Carnivore listing, and a trigger here needs the Carnivore listing or the control to agree."
+      }
+    },
+    "control_gate": {
+      "gating_control": "4495049647 Keto Food Cheat Sheet",
+      "gate_condition": "the revert trigger is vetoed only if this control has ALSO fallen more than 25% below its own baseline of 34.0 views/day (i.e. below 25.5), which would indicate a shop-wide or seasonal fall rather than something we did to the treated listings.",
+      "excluded_control": "4495055944 Carnivore Cheat Sheet",
+      "why_excluded": "at a baseline of 1.0 views/day its week-to-week swings are pure noise, and any ordinary quiet stretch reads as a large percentage fall. Under the original 'both controls flat or up' wording it would have vetoed almost every revert. It stays in the record as a reported number and has no vote.",
+      "note": "the original rule required BOTH controls flat or up. That, together with the low baseline, was the second reason the guardrail could not fire."
+    }
+  },
+
+  "revert": {
+    "method": "delete the 6 added images per listing; ranks 1-2 are untouched originals and stay",
+    "script": "etsy/image-test-revert.mjs (dry-run by default, pass --confirm to execute)",
+    "fallback_originals": "etsy/_build/restore/*.jpg if ranks 1-2 are ever lost",
+    "delete_image_ids": {
+      "4464217679": [
+        8411054987,
+        8363172950,
+        8363173052,
+        8363173194,
+        8411031795,
+        8363138894
+      ],
+      "4464217699": [
+        8411056243,
+        8411056371,
+        8363174342,
+        8363174436,
+        8363174536,
+        8411022211
+      ]
+    },
+    "keep_image_ids": {
+      "4464217679": [
+        8411037645,
+        8363172716
+      ],
+      "4464217699": [
+        8411055725,
+        8363173838
+      ]
+    }
+  },
+
+  "open_issues": [
+    "Pescatarian rank 2 (8363173838) was byte-identical to its rank 1 before the change. Confirm whether that duplicate is still live and decide whether to drop it.",
+    "Pescatarian listing ships bonus-insert-keto.pdf, a keto-branded bonus page on a pescatarian product. Brew's call.",
+    "Two sessions independently built this same change on 2026-08-10. Only one set is live.",
+    "The 2026-08-06 surge cannot be attributed from API data alone. Etsy Stats -> traffic sources for 4464217679 over 2026-08-04 to 2026-08-10 would settle it in one click, and only Brew can make that click. If it reads as Etsy search, the thumbnail revert is confirmed and the surge is real demand."
+  ]
+}
