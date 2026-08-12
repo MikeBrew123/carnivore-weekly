@@ -19,11 +19,21 @@ python3 scripts/validate_before_commit.py
 
 ## Cloudflare Workers (API)
 
+`api/wrangler.toml` defines multiple environments, and Wrangler does NOT pick one
+for you. A bare `wrangler deploy` ships to the top-level (development) Worker,
+while the live site calls `carnivore-report-api-production.iambrew.workers.dev`,
+so it looks like it worked and changes nothing customers see. This already
+happened once, on 2026-07-22. The bare `deploy` script has been removed; use the
+named scripts below.
+
 ```bash
 cd api
 
-# Deploy
-wrangler deploy
+# Deploy to PRODUCTION (this is the live customer-facing API)
+npm run deploy:production        # wrangler deploy --env production
+
+# Deploy to the dev Worker (not customer-facing)
+npm run deploy:dev               # wrangler deploy --env=""
 
 # Check secrets
 wrangler secret list
@@ -35,6 +45,10 @@ wrangler tail
 wrangler deployments list
 wrangler deployments rollback VERSION_ID
 ```
+
+The `secret`, `tail`, and `deployments` commands default to the dev Worker too.
+Add `--env production` when you mean the live one (for example
+`wrangler tail --env production`).
 
 ## Calculator Deployment
 

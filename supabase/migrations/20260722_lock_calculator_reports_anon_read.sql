@@ -23,7 +23,9 @@
 --
 -- GitHub Actions deploys only the static site (GitHub Pages), NOT the Worker, so this is
 -- a manual step:
---   1. cd api && npx wrangler deploy        # deploy the service-role read change
+--   1. cd api && npm run deploy:production  # deploy the service-role read change
+--      (this line originally read `npx wrangler deploy`, which is what hit the
+--      wrong Worker above; the bare script was removed 2026-08-12)
 --   2. verify one unexpired report link loads via /api/v1/calculator/report/<token>/content
 --   3. THEN apply this migration.
 --
