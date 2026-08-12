@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<!--
+  Carnivore Diet food list, red-and-white design, rebuilt for 8.5 x 11 in.
+
+  Why this exists: Etsy listing 4464217679 shows eight photos of this red chart,
+  but the file buyers download is the old cream-and-sepia 8-section design with
+  live typos ("Pork cheps", "Beef of tallow"). See the vault report
+  reports/carnivore-chart-mismatch-2026-08-11.md.
+
+  The red chart had no source file anywhere. It survived only as a 2000x3000
+  JPEG lifted off the live listing, which is a 2:3 poster shape and prints just
+  6.67x10in at 300 DPI. So this is a retypeset, not a conversion: every word
+  below is real text set at true letter size, and only the eight watercolour
+  illustrations are reused from the original artwork (extracted by
+  build_carnivore_red_chart_art.py).
+
+  Food lists were transcribed off the listing photos and proofread word by word.
+  Render with: node build-carnivore-red-chart.mjs (from etsy/)
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Carnivore Diet Food List</title>
+<style>
+  /* The original chart is set in a heavy condensed grotesque. macOS ships one
+     inside HelveticaNeue.ttc, but it is a Condensed Black *face* of the
+     "Helvetica Neue" family, so a plain font-family lookup silently falls back
+     to regular Bold. Binding it by PostScript name is what actually gets it. */
+  @font-face {
+    font-family: "HN Condensed Black";
+    src: local("HelveticaNeue-CondensedBlack");
+    font-weight: 900;
+  }
+
+  /* --- tokens sampled off the original artwork ------------------------- */
+  :root {
+    --red: #900106;        /* header band, median of the live chart */
+    --red-foot: #8d0005;   /* footer band runs a hair darker */
+    --ink: #17171c;        /* heading black */
+    --body: #1f1f24;       /* list text */
+    --rule: #9a9a9a;       /* panel hairlines */
+    --paper: #ffffff;
+    --display: "HN Condensed Black", "Helvetica Neue", Impact, sans-serif;
+    --text: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  @page { size: 8.5in 11in; margin: 0; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 8.5in;
+    height: 11in;
+    background: var(--paper);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 8.5in;
+    height: 11in;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* --- header ---------------------------------------------------------- */
+  .band {
+    background: var(--red);
+    color: #fff;
+    text-align: center;
+    flex: 0 0 auto;
+  }
+  .band-top { padding: 0.20in 0.18in 0.17in; }
+  h1 {
+    font-family: var(--display);
+    /* sized so "CARNIVORE DIET" fills ~7.8in of the 8.5in page on one line */
+    font-size: 76pt;
+    line-height: 0.88;
+    letter-spacing: 0.004em;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+  .subtitle {
+    font-family: var(--text);
+    font-weight: 700;
+    font-size: 14.5pt;
+    letter-spacing: 0.005em;
+    margin-top: 0.09in;
+    white-space: nowrap;
+  }
+  .subtitle .dot { padding: 0 0.05in; }
+
+  /* --- grid ------------------------------------------------------------ */
+  .grid {
+    flex: 1 1 auto;
+    min-height: 0;   /* without this the grid outgrows the page and spills */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Letter is a wider, shorter shape than the 2:3 original, so rows cannot
+       simply inherit the original pixel heights. Each weight is instead
+       (panel overhead + lines * line-height) for that row, with line counts
+       6,6,5,5,6. That way every list gets exactly the room it needs and no
+       row has to clip a descender. */
+    grid-template-rows: minmax(0, 1.79fr) minmax(0, 1.79fr) minmax(0, 1.576fr) minmax(0, 1.576fr) minmax(0, 1.79fr);
+  }
+  .panel {
+    border-right: 1.1px solid var(--rule);
+    border-bottom: 1.1px solid var(--rule);
+    padding: 0.10in 0.14in 0.05in 0.19in;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .panel:nth-child(2n) { border-right: none; padding-left: 0.21in; }
+  .panel:nth-last-child(-n+2) { border-bottom: none; }
+
+  h2 {
+    font-family: var(--display);
+    font-size: 22pt;
+    line-height: 1;
+    color: var(--ink);
+    font-weight: 900;
+    letter-spacing: 0.002em;
+    white-space: nowrap;
+    margin-bottom: 0.02in;
+  }
+  h2 .qualifier { font-size: 15.5pt; }
+
+  .body {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.06in;
+    min-height: 0;
+  }
+  figure {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  figure img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  ul {
+    list-style: none;
+    flex: 1 1 auto;
+  }
+  li {
+    font-family: var(--text);
+    font-size: 12pt;
+    line-height: 1.4;
+    color: var(--body);
+    padding-left: 0.17in;
+    position: relative;
+    white-space: nowrap;
+  }
+  li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: -0.004in;
+    font-size: 11pt;
+  }
+
+  /* panels with art: the list sits to the right, art takes the left */
+  .with-art figure { width: 47%; }
+  .with-art ul     { padding-left: 0.02in; }
+
+  /* text-only panels indent instead */
+  .text-only .body { align-items: center; }
+  .text-only ul { padding-left: 0.22in; }
+
+  /* the rules panel is set bold, same as the original */
+  .rules li { font-weight: 700; font-size: 12.5pt; }
+
+  /* --- footer ---------------------------------------------------------- */
+  .band-foot {
+    background: var(--red-foot);
+    padding: 0.075in 0 0.085in;
+    font-family: var(--text);
+    font-weight: 700;
+    font-size: 14.5pt;
+    letter-spacing: 0.012em;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="band band-top">
+    <h1>CARNIVORE DIET</h1>
+    <div class="subtitle">Animal Foods Only<span class="dot">&bull;</span>Zero Carbs<span class="dot">&bull;</span>Zero Plants</div>
+  </header>
+
+  <main class="grid">
+
+    <section class="panel with-art">
+      <h2>BEEF</h2>
+      <div class="body">
+        <figure><img src="../product-images/carnivore-red-chart-art/beef.png" alt="Ribeye steak"></figure>
+        <ul>
+          <li>Ribeye</li>
+          <li>Sirloin</li>
+          <li>Ground Beef</li>
+          <li>Brisket</li>
+          <li>T-Bone</li>
+          <li>Short Ribs</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel with-art">
+      <h2>EGGS &amp; DAIRY</h2>
+      <div class="body">
+        <figure><img src="../product-images/carnivore-red-chart-art/eggs-dairy.png" alt="Three brown eggs"></figure>
+        <ul>
+          <li>Eggs</li>
+          <li>Butter</li>
+          <li>Hard Cheese</li>
+          <li>Heavy Cream</li>
+          <li>Ghee</li>
+          <li>Sour Cream</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel with-art">
+      <h2>FISH &amp; SEAFOOD</h2>
+      <div class="body">
+        <figure><img src="../product-images/carnivore-red-chart-art/fish-seafood.png" alt="Salmon fillet"></figure>
+        <ul>
+          <li>Salmon</li>
+          <li>Tuna</li>
+          <li>Shrimp</li>
+          <li>Scallops</li>
+          <li>Cod</li>
+          <li>Sardines</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel with-art">
+      <h2>POULTRY</h2>
+      <div class="body">
+        <figure><img src="../product-images/carnivore-red-chart-art/poultry.png" alt="Roast chicken"></figure>
+        <ul>
+          <li>Chicken</li>
+          <li>Turkey</li>
+          <li>Duck</li>
+          <li>Cornish Hen</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel with-art">
+      <h2>PORK</h2>
+      <div class="body">
+        <figure><img src="../product-images/carnivore-red-chart-art/pork.png" alt="Strips of bacon"></figure>
+        <ul>
+          <li>Bacon</li>
+          <li>Pork Chops</li>
+          <li>Pork Belly</li>
+          <li>Sausage</li>
+          <li>Ribs</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel with-art">
+      <h2>ANIMAL FATS</h2>
+      <div class="body">
+        <figure><img src="../product-images/carnivore-red-chart-art/animal-fats.png" alt="Jar of tallow"></figure>
+        <ul>
+          <li>Tallow</li>
+          <li>Lard</li>
+          <li>Butter</li>
+          <li>Ghee</li>
+          <li>Duck Fat</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel text-only">
+      <h2>ORGAN MEATS <span class="qualifier">&mdash; NOSE TO TAIL</span></h2>
+      <div class="body">
+        <ul>
+          <li>Liver</li>
+          <li>Heart</li>
+          <li>Kidney</li>
+          <li>Tongue</li>
+          <li>Bone Marrow</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel with-art">
+      <h2>BEVERAGES</h2>
+      <div class="body">
+        <figure><img src="../product-images/carnivore-red-chart-art/beverages.png" alt="Cup of bone broth"></figure>
+        <ul>
+          <li>Water</li>
+          <li>Bone Broth</li>
+          <li>Beef Broth</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel with-art">
+      <h2>SEASONINGS &amp; SALT</h2>
+      <div class="body">
+        <figure><img src="../product-images/carnivore-red-chart-art/seasonings-salt.png" alt="Wooden bowl of salt"></figure>
+        <ul>
+          <li>Salt</li>
+          <li>Black Pepper</li>
+          <li>Garlic Powder</li>
+          <li>Paprika</li>
+          <li>Dried Herbs</li>
+          <li>Onion Powder</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel text-only rules">
+      <h2>HOW TO EAT</h2>
+      <div class="body">
+        <ul>
+          <li>Eat until full</li>
+          <li>Salt every meal</li>
+          <li>No counting</li>
+          <li>Water or bone broth only</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="band band-foot">CarnivoreWeekly.com</footer>
+
+</div>
+</body>
+</html>
