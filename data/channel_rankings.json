@@ -1,41 +1,41 @@
 {
-  "last_updated": "2026-08-09",
+  "last_updated": "2026-08-12",
   "leaderboard": [
     {
-      "name": "HomeSteadHow",
+      "name": "Lillie Kane",
       "rank": 1,
-      "appearances": 3,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+      "appearances": 1,
+      "channel_id": "UCwQZjOOTYwzl4QFseBH_9wg"
     },
     {
-      "name": "Steak and Butter Gal",
+      "name": "Victor Prince",
       "rank": 2,
       "appearances": 1,
-      "channel_id": "UCvasvPW5q8Wwblqb_-6CkPw"
+      "channel_id": "UCDP1Mtsfq0XGJgO8QiMNDtQ"
     },
     {
-      "name": "No Carb Life",
+      "name": "Chris Cooking Nashville",
       "rank": 3,
-      "appearances": 4,
-      "channel_id": "UCzcoPGdDRiPiWZYV4_EkzPQ"
-    },
-    {
-      "name": "Emmathecarnivore",
-      "rank": 4,
-      "appearances": 3,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "appearances": 1,
+      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
     },
     {
       "name": "Shawn Baker MD",
-      "rank": 5,
+      "rank": 4,
       "appearances": 2,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "Victor Prince",
+      "name": "HomeSteadHow",
+      "rank": 5,
+      "appearances": 4,
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+    },
+    {
+      "name": "Emmathecarnivore",
       "rank": 6,
-      "appearances": 1,
-      "channel_id": "UCDP1Mtsfq0XGJgO8QiMNDtQ"
+      "appearances": 3,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
@@ -46,20 +46,20 @@
     {
       "name": "Ketogenic Woman",
       "rank": 8,
-      "appearances": 2,
+      "appearances": 3,
       "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
     },
     {
-      "name": "Chris Cooking Nashville",
+      "name": "Eddie Abbew",
       "rank": 9,
       "appearances": 1,
-      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
+      "channel_id": "UCbyLaRbhy4PeUgjDsZwoT6Q"
     },
     {
-      "name": "Meet Carnivore",
+      "name": "Laura Spath",
       "rank": 10,
       "appearances": 2,
-      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
     }
   ]
 }
