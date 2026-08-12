@@ -33,7 +33,9 @@
  * - ETSY_CLIENT_SECRET: Etsy shared secret
  * - ETSY_REDIRECT_URI: OAuth callback URL
  *
- * Deploy with: wrangler deploy --name calculator-api calculator-api.js
+ * Deploy with: cd api && npm run deploy:production   (wrangler deploy --env production)
+ * A bare `wrangler deploy` targets the top-level (development) Worker, not the
+ * production one the live site calls. Use npm run deploy:dev for that on purpose.
  */
 
 // Version marker for deployment verification

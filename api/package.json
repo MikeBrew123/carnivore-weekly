@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy:production": "wrangler deploy --env production",
+    "deploy:dev": "wrangler deploy --env=\"\"",
     "lint": "eslint *.js --max-warnings=10",
     "lint:fix": "eslint *.js --fix"
   },
