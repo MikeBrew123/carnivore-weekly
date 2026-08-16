@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-08-12",
+  "last_updated": "2026-08-16",
   "leaderboard": [
     {
-      "name": "Lillie Kane",
-      "rank": 1,
-      "appearances": 1,
-      "channel_id": "UCwQZjOOTYwzl4QFseBH_9wg"
-    },
-    {
-      "name": "Victor Prince",
-      "rank": 2,
-      "appearances": 1,
-      "channel_id": "UCDP1Mtsfq0XGJgO8QiMNDtQ"
-    },
-    {
-      "name": "Chris Cooking Nashville",
-      "rank": 3,
-      "appearances": 1,
-      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
-    },
-    {
-      "name": "Shawn Baker MD",
-      "rank": 4,
-      "appearances": 2,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
-    },
-    {
       "name": "HomeSteadHow",
-      "rank": 5,
+      "rank": 1,
       "appearances": 4,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Emmathecarnivore",
-      "rank": 6,
+      "name": "Carnivore Quest",
+      "rank": 2,
       "appearances": 3,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
-    },
-    {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 7,
-      "appearances": 3,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
-    },
-    {
-      "name": "Ketogenic Woman",
-      "rank": 8,
-      "appearances": 3,
-      "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
-    },
-    {
-      "name": "Eddie Abbew",
-      "rank": 9,
-      "appearances": 1,
-      "channel_id": "UCbyLaRbhy4PeUgjDsZwoT6Q"
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
       "name": "Laura Spath",
+      "rank": 3,
+      "appearances": 3,
+      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 4,
+      "appearances": 4,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
+      "name": "Low Carb Love",
+      "rank": 5,
+      "appearances": 1,
+      "channel_id": "UCFVmPjPhx-XT6-ZVa9Tkuuw"
+    },
+    {
+      "name": "Eat Like It's 1965",
+      "rank": 6,
+      "appearances": 2,
+      "channel_id": "UCvXwXe_sxwtlMvyCGWFIghQ"
+    },
+    {
+      "name": "Shawn Baker MD",
+      "rank": 7,
+      "appearances": 3,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+    },
+    {
+      "name": "Southern Country Living",
+      "rank": 8,
+      "appearances": 1,
+      "channel_id": "UCbM-Cio0L1Yg_Pl4SsmMFhA"
+    },
+    {
+      "name": "Maria Emmerich",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UCyZia0TtezGqjGcXwXJhDoQ"
+    },
+    {
+      "name": "Jenny Mitich",
       "rank": 10,
       "appearances": 2,
-      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     }
   ]
 }
