@@ -163,7 +163,15 @@
       "Bash(node _tmp-kd-sitemap.mjs)",
       "Bash(node gsc-kd-report.js)",
       "Bash(git check-ignore *)",
-      "Bash(node -e \"let s='';process.stdin.on\\('data',d=>s+=d\\).on\\('end',\\(\\)=>{const j=JSON.parse\\(s\\);j.filter\\(x=>/KD \\(blog not indexed|posts marked published\\)/.test\\(x.title\\)\\).forEach\\(x=>console.log\\(x.id+'  P'+x.priority+'  '+x.title\\)\\)}\\)\")"
+      "Bash(node -e \"let s='';process.stdin.on\\('data',d=>s+=d\\).on\\('end',\\(\\)=>{const j=JSON.parse\\(s\\);j.filter\\(x=>/KD \\(blog not indexed|posts marked published\\)/.test\\(x.title\\)\\).forEach\\(x=>console.log\\(x.id+'  P'+x.priority+'  '+x.title\\)\\)}\\)\")",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(echo \"exit=$?\")",
+      "Bash(echo \"Scoreboard appended for 2026-08-10. Errors: none \\(manual run, weekly-ops-review\\)\" >> logs/scoreboard_truth_pass.log *)",
+      "Bash(cd /Users/mbrew/Developer/carnivore-weekly/etsy && which node >/dev/null 2>&1 && node sales-summary.mjs 2>&1 | tail -40 || echo \"NODE MISSING: $\\(ls /opt/homebrew/bin/node 2>&1\\)\")",
+      "Bash(node etsy/sales-summary.mjs)",
+      "Bash(cp /private/tmp/claude-501/-Users-mbrew-Developer-carnivore-weekly/1eef81d5-a591-4779-b7a3-25ca09b78b42/scratchpad/kd-key.mjs /Users/mbrew/Developer/carnivore-weekly/dashboard/.kd-key-tmp.mjs)",
+      "Bash(node .kd-key-tmp.mjs)",
+      "Bash(rm -f /Users/mbrew/Developer/carnivore-weekly/dashboard/.kd-key-tmp.mjs)"
     ]
   },
   "disabledMcpjsonServers": [

@@ -113,3 +113,32 @@
 - **Carnivore Weekly is untouched.** CW cadence lives in the separate `weekly-blog-content-generation` task (Sun+Wed, 9 posts) and no CW post, workflow, schedule, or queue entry was modified.
 - **`blog-queue-watchdog.yml` deliberately left at its 5-day staleness threshold.** Under a steady Tue/Fri cadence the largest gap seen from a Mon/Thu check day is 3 days, so 5 stays correct and still catches a real stall fast. It will raise one expected false alarm on Mon 2026-08-17, because the transition leaves a one-time 7-day hole between the last daily-cadence post (08-11) and the first new-cadence post (08-18). Close that issue rather than loosening the threshold.
 - **Revisit trigger is evidence, not a date:** raise cadence only once `lastCrawlTime` for ketodial.com starts moving again. The weekly `weekly-gsc-indexing` task already reports it.
+
+## 2026-08-10
+
+- **Brew granted standing permission for changes to his own Etsy shop and his own websites**, in
+  chat at 05:07. This scopes his 2026-08-04 "never for anything public" rule down to third
+  parties. Condition: every live change is logged in `Brew-Vault/00-Core/Live-Changes-Log.md`
+  with what, why and how to undo, TLDR only. Third-party contact, public posting elsewhere, and
+  anything that spends money still require his explicit go each time. This unblocked four items
+  that had been approved between three and five times each and had never shipped.
+- **KetoDial cadence cut 7 posts a week to 2, Tue and Fri.** Approved by voice 2026-08-09. The
+  control point is the `kd-blog-content-generation` scheduled task, NOT `daily_publish.py` or
+  `daily-publish.yml`, which are shared with Carnivore Weekly and have no per-site cap. Never
+  change one site's cadence at the publisher.
+- **Saladino attribution shipped**, commit `ffd791af`. The credit links to `paulsaladinomd.com`,
+  his personal site, deliberately not to `heartandsoil.co`. Heart & Soil is a planned CW
+  affiliate, so crediting him through a monetized link would contradict his own "fans, not
+  thieves" condition. The existing Heart & Soil link elsewhere on the page was left alone.
+- **Inherited domain toxicity is off the table for KetoDial.** ketodial.com was a typo-catcher
+  for a CBD shop's "Ketodiol" product line, never a real site, four archive captures with no
+  content, no spam history to be punished for. External links are now the only remaining lever
+  on crawl demand. Corrects the 2026-08-08 diagnosis, which called the Dec 2021 parking lander
+  "a live site".
+
+### Etsy API lesson, cost ten minutes of live damage
+`updateListing` with an `image_ids` array **deletes images**. Etsy's form encoding keeps only the
+last value, which wiped 7 of 8 images on listings 4464217679 and 4464217699 before recovery from
+local full-resolution copies. Etsy also ignores image order unless an explicit `rank` is passed
+on upload. To reorder, POST to the images endpoint with `listing_image_id` plus `rank`, and
+resend `alt_text` because it gets cleared. Always download originals before touching images.

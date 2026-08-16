@@ -152,3 +152,6 @@ api/.dev.vars
 .env.bak*
 .env.backup*
 etsy/products/pdfs/
+
+# Etsy image build scratch — intermediate composites, regenerable from the scripts.
+etsy/_build/
