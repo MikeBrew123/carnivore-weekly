@@ -369,3 +369,29 @@ All three blockers from the W31 cowork digest fixed and pushed:
 **Whole-tree staging eliminated.** `run_weekly_agent.sh` `git add .` → scoped list (`data/ public/ images/ templates/ newsletters/ ketodial/`); `run_weekly_update.sh` printed deploy instructions likewise. `weekly-update.yml` staged list drops the legacy roots (`blog/`, root `index.html`/`archive.html`/`channels.html`, removed in ed69de3e) so the `blog/blog/` mirror cannot be re-committed by CI even if a script recreates it. The `cp -r public/blog blog/` root cause was already gone (Jul 26 cleanup); this closes the staging half.
 
 **Stale scheduler tasks deleted.** `cw-pipeline-dry-run` (one-time, fired 2026-04-06) and `backlink-women-over-45-cluster` (one-time, fired 2026-07-19) removed from the local Claude scheduler; SKILL.md files left on disk for prompt recovery.
+
+---
+
+## 2026-08-10 status
+
+**Shipped today, all live and verified:**
+- Saladino title tag + credit block on `public/calculator.html`, commit `ffd791af`, Pages deploy confirmed.
+- Duplicate Doctor Prep Kit 4545904719 deactivated (reversible). Shop 43 to 42 active. 4550536874 untouched.
+- Listings 4464217679 and 4464217699 built from 2 images to 8. Controls held: 4495055944 and 4495049647. Bestseller 4464219356 not touched.
+- Bonus card coverage finished: 4540695544 and 4540678283 got `bonus-insert-carnivore.pdf` (diet matches the tracker), and 4540695558, 4540695566, 4540695590, 4540695604, 4550536874, 4495089980, 4545921306 got `bonus-insert-carnivore-weekly.pdf`. Applied by `etsy/add-bonus-insert-remaining.mjs`, appended last. Shop is now 42/42 active listings with a card: 16 CW-generic, 15 carnivore, 11 KetoDial. Verified by full sweep.
+- Audit lesson: the first `bonus-insert` sweep was read through `tail -120`, which silently hid the head of the output and made 4545921306 (Blood Pressure Log) look covered when it had no card. Pipe the sweep to a file and count programmatically, never eyeball a truncated tail.
+- Keto is now split the same way low carb is: the 11 pre-existing keto listings still point at ketodial.com, while the new keto meal plan card (4540695558) points at carnivoreweekly.com. Same rule both times, adding a new outbound pointer to another brand needs Brew, leaving an old one alone does not. Resolve when Brew rules on the KetoDial question.
+- Bonus insert added to the 8 active listings that had none: 4482132169, 4513518786, 4513518746, 4516511462, 4516511480, 4513508150, 4495083342, 4495083454. Applied by `etsy/add-bonus-insert-to-8.mjs`, appended last so the paid product stays rank 1. Brew approved. Etsy dedupes by content, so all 9 listings carrying `bonus-insert-carnivore-weekly.pdf` share listing_file_id 1506104322436; remove per listing in Shop Manager, not by API delete. Nothing left uncovered after the second pass below.
+- Listing 4464217699 (pescatarian) bonus insert swapped from the KetoDial card to new `bonus-insert-carnivore-weekly.pdf` (diet-neutral, CW-branded, carnivoreweekly.com/bonus). Built via `etsy/products/templates/build_bonus_inserts.py`, applied by `etsy/swap-pescatarian-bonus-insert.mjs`. New file id 1506104322436, old 1500921514076. Brew approved, pescatarian only.
+- KetoDial cadence 7/week to 2/week via the `kd-blog-content-generation` task. Next generation run 2026-08-15, first slots 08-18 and 08-21.
+
+**Open, needs Brew:**
+- 50%-off sale expires 2026-08-15. Manual, Shop Manager only.
+- Etsy Stats "How shoppers found you" screenshot for 4464219356 (bestseller down 47% on views).
+- Which carnivore chart buyers actually receive: `etsy/products/pdfs/fridge-card-carnivore.pdf` is a sepia design, the live hero is the modern red one.
+- 9 genuinely-keto CW listings still ship `bonus-insert-keto.pdf` pointing at ketodial.com (4464219356, 4513433391, 4532542805, 4495077633, 4516511490, 4514204763, 4513508098, 4495077741, 4489982664). Brew flagged for later 2026-08-10, not a bug until he decides. Separately, `4495056564` (Low Carb Cheat Sheet) keeps its KetoDial card, declined for now. Note the 2 low carb listings that gained a card on 2026-08-10 got the CW one, so low carb is now split between brands: 4495056564 points at ketodial.com, 4495083342 and 4495083454 point at carnivoreweekly.com.
+
+**Known and expected, do not treat as regressions:**
+- `blog-queue-watchdog.yml` will raise one false staleness alarm Mon 2026-08-17 from the one-time 7-day cadence transition gap. Close the issue, the 5-day threshold is correctly tuned.
+- 3 pytest failures in `test_layout_integration.py` (missing `analysis` field) and the jest/playwright suites failing to load are both pre-existing, confirmed by stashing and re-running.
+- Uncommitted: `etsy/build-foodlist-listing-images.py`, `etsy/_build/`, and `etsy/products/listing-images/food-list-buildout-2026-08-10/` (local only, nothing from it went live).

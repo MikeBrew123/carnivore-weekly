@@ -56,6 +56,21 @@ VARIANTS = {
         BODY_FONT="'Source Sans 3', Helvetica, sans-serif",
         HEAD_FONT="'Libre Baskerville', Georgia, serif",
     ),
+    # Diet-neutral CW card for shop listings that are neither carnivore nor keto
+    # (pescatarian, mediterranean, low carb, anti-inflammatory). Same brand and
+    # layout as the carnivore card; copy avoids meat-specific language and is
+    # upfront that the tracker's food column says meat.
+    "bonus-insert-carnivore-weekly.pdf": dict(
+        KICKER="Carnivore Weekly — thank you!",
+        TITLE="Your order comes with a free 30-Day Tracker",
+        BODY1="Thanks for buying from our little shop. As a thank-you, we made you a bonus: a <strong>printable 30-day tracker</strong>. One fridge sheet for food, water, salt, energy, and mood, so you watch the trend instead of the day.",
+        BODY2="It was built for the carnivore side of the shop, so the food column says meat, but the sheet works for any low carb plan. It comes with our free starter emails and the weekly newsletter, and you can unsubscribe anytime.",
+        URL="carnivoreweekly.com/bonus",
+        FOOT="Keep it simple. Stay consistent. Become unstoppable.",
+        BG="#faf5ec", INK="#2c1810", SOFT="#7a5c44", ACCENT="#a8341f", BOXBG="#f1e6d4",
+        BODY_FONT="'Source Sans 3', Helvetica, sans-serif",
+        HEAD_FONT="'Libre Baskerville', Georgia, serif",
+    ),
     "bonus-insert-keto.pdf": dict(
         KICKER="KetoDial — thank you!",
         TITLE="Your order comes with a free 30-Day Keto Tracker",
@@ -69,10 +84,17 @@ VARIANTS = {
     ),
 }
 
+# Optional filename args build only those cards, so regenerating a new variant
+# never rewrites the live carnivore/keto PDFs.
+import sys
+only = set(sys.argv[1:])
+
 with sync_playwright() as pw:
     browser = pw.chromium.launch()
     page = browser.new_page()
     for out, v in VARIANTS.items():
+        if only and out not in only:
+            continue
         page.set_content(PAGE.format(**v), wait_until="networkidle")
         page.emulate_media(media="print")
         page.pdf(path=str(OUT_DIR / out), width="8.5in", height="11in",
