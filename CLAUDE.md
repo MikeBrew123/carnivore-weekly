@@ -23,6 +23,55 @@
 
 ---
 
+## Etsy Shop Edits: HARD CAP (approved by Brew 2026-08-18, deck `07de35c8`, in force 2026-08-19)
+
+**Read this before ANY write to the Etsy API. It binds scheduled runs and live sessions equally.**
+
+Standing authority (deck `82e7694e`, approved 2026-08-10) lets any session change Brew's own Etsy
+shop and his own sites same-day without asking first, on one condition: every change gets a row in
+`/Users/mbrew/Documents/Brew-Vault/00-Core/Live-Changes-Log.md`. **The cap below is a limit ON that
+authority, not a contradiction of it.** The rest of `82e7694e` still stands: third-party contact,
+public posting anywhere else, and anything that spends money still go to Brew first, every time.
+
+**Two rules, both binding:**
+
+1. **At most 3 DISTINCT listings edited in any rolling 7 day window.** Distinct listing ids, not
+   API calls: two edits to one listing is one listing. A 4th listing inside the same window needs
+   Brew's word, or you wait for the window to roll.
+2. **The Live Changes Log row is written BEFORE the call to Etsy, never after.** The row is the
+   counter, so an edit made without a row is invisible to the cap and breaks it by definition. If
+   the call then fails or is abandoned, go back and edit the row to say so. A row for a change that
+   did not happen is a far smaller problem than a change nobody can find.
+
+**Why it exists:** in six days in July the shop took 25 price changes and roughly 30 thumbnail
+swaps, none of them recorded. Three weeks later nobody can tell which half did the damage. The cap
+plus write-first makes that impossible to repeat.
+
+**Preflight, run it before any write:**
+
+```bash
+cd /Users/mbrew/Developer/carnivore-weekly && node etsy/edit-cap.mjs <listing-id> [more ids...]
+```
+
+Read only, makes no Etsy call. It counts the distinct listing ids in the trailing 7 days of the log
+and exits 1 if your edit would break the cap. `assertEditCap(ids)` is exported for scripts to import.
+Self-test: `node etsy/edit-cap.test.mjs`. If the log cannot be read, it fails closed: do not edit.
+
+**One exemption, and it is the only one.** The shop-wide $3.99 price reset Brew approved 2026-08-17
+(deck `d50fae88`, scope confirmed 2026-08-18 as deck `12f2599a`: 26 doubled listings, 24 eligible
+once the 2 image-test controls are excluded) does NOT count against the cap. It is his own prior
+decision, it predates the cap, and it is one batch job rather than incremental edits. It is still hard blocked on Brew ending the 50% sale in Shop Manager. When it
+runs, tag its log row `[cap-exempt 12f2599a]` so the counter skips it and prints the exemption.
+
+**The dangerous call is `updateListing`** (`etsy/update-listings.mjs:487`, PATCH on the listing).
+On 2026-08-10 an image reorder through this path wiped 7 of 8 images on listings 4464217679 and
+4464217699. Send only the fields you actually mean to change, the way
+`etsy/starter-kit-keyword-apply.mjs` does with its two-field payload and its assert, and never a
+full-object replace. Listings inside the live image A/B test (4464217679, 4464217699, 4495049647,
+4495055944) are off limits until the 2026-08-31 read.
+
+---
+
 ## Content Quality — Writer Agents Required
 
 **NEVER publish ANY user-facing content without using writer agents (Sarah, Marcus, Chloe).**
