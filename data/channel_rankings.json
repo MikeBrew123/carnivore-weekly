@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-08-19",
+  "last_updated": "2026-08-23",
   "leaderboard": [
     {
-      "name": "Laura Spath",
+      "name": "HomeSteadHow",
       "rank": 1,
-      "appearances": 3,
-      "channel_id": "UCBT6FNxVkQFgudbJXomqveA"
-    },
-    {
-      "name": "Low Carb Love",
-      "rank": 2,
-      "appearances": 1,
-      "channel_id": "UCFVmPjPhx-XT6-ZVa9Tkuuw"
-    },
-    {
-      "name": "Emmathecarnivore",
-      "rank": 3,
       "appearances": 5,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
       "name": "Shawn Baker MD",
-      "rank": 4,
+      "rank": 2,
       "appearances": 4,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "Ketogenic Woman",
-      "rank": 5,
-      "appearances": 5,
-      "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
-    },
-    {
-      "name": "DJ's Food Channel",
-      "rank": 6,
-      "appearances": 2,
-      "channel_id": "UCm4RRgaboCRavsEdgyJZZzQ"
-    },
-    {
-      "name": "Carnivore Quest",
-      "rank": 7,
+      "name": "Meet Carnivore",
+      "rank": 3,
       "appearances": 3,
-      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
       "name": "Jenny Mitich",
-      "rank": 8,
+      "rank": 4,
       "appearances": 3,
       "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
+      "name": "Ketogenic Woman",
+      "rank": 5,
+      "appearances": 6,
+      "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 6,
+      "appearances": 6,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
       "name": "Maria Emmerich",
-      "rank": 9,
+      "rank": 7,
       "appearances": 2,
       "channel_id": "UCyZia0TtezGqjGcXwXJhDoQ"
     },
     {
-      "name": "Southern Country Living",
+      "name": "DJ's Food Channel",
+      "rank": 8,
+      "appearances": 2,
+      "channel_id": "UCm4RRgaboCRavsEdgyJZZzQ"
+    },
+    {
+      "name": "Carnivore Teacher Alpha",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UCLoe46vokIWT50lOoqcr5kg"
+    },
+    {
+      "name": "Receitas Low Carb para Diab\u00e9ticos  ",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCbM-Cio0L1Yg_Pl4SsmMFhA"
+      "channel_id": "UCzin6W2TYySPvCnwgOi6eww"
     }
   ]
 }

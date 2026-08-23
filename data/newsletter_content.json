@@ -1,31 +1,31 @@
 {
-  "date": "2026-08-16",
-  "subject_line": "The one food stalling your weight loss right now",
-  "opening": "<p style='margin:0;'>Happy Sunday, friends! This week we're talking about something that's quietly tripping up a lot of carnivore women over 50, and honestly, the answer might surprise you. Grab your coffee and keep reading because there's a lot worth digging into this week.</p>",
+  "date": "2026-08-23",
+  "subject_line": "Your labs look worse before they look better",
+  "opening": "<p style='margin:0;'>Happy Sunday, friends. We've got a big one this week, and honestly the timing couldn't be better. Whether you're three weeks in or three months deep, something in this issue is going to make you feel a lot less alone.</p>",
   "hero": {
-    "slug": "2026-08-11-is-cheese-stalling-weight-loss",
-    "title": "Is Cheese Stalling Your Weight Loss After 50?",
+    "slug": "2026-08-22-carnivore-a1c-90-days",
+    "title": "What Carnivore Does to Your A1c in 90 Days",
     "writer": "Sarah",
-    "teaser": "You're eating carnivore, you're staying consistent, but the scale hasn't moved in weeks. Here's the thing most people don't consider: one totally carnivore-legal food might be the reason. Sarah walks through exactly why cheese behaves differently in women over 50, and she's got a simple test you can run this week to find out if it's yours. You don't have to cut it forever, but you do need to know the answer.",
-    "cta": "Run the test this week"
+    "teaser": "You switched to carnivore, you feel better than you have in years, and then your lab results come back looking somehow worse. Fasting glucose up, A1c not where you expected it. Before you panic and call it a failed experiment, there's a specific reason this happens on a low-carb diet, and it's not what your doctor is probably telling you. Sarah breaks down exactly what's going on inside your blood work at the 30, 60, and 90-day marks. You'll want to read this before your next appointment.",
+    "cta": "Read before your next lab draw"
   },
   "supporting": [
     {
-      "slug": "2026-08-13-hot-flashes-on-carnivore",
-      "title": "Hot Flashes on Carnivore: What Actually Changes",
-      "teaser": "Sarah maps out what's actually happening week by week when night sweats start fading on carnivore, and the reason isn't what most people guess."
+      "slug": "2026-08-21-hair-shedding-carnivore-month-three",
+      "title": "Hair Shedding on Carnivore: Why Month Three Is Worst",
+      "teaser": "Sarah says it's almost always about one specific thing, and fixing it is simpler than you'd expect."
     },
     {
-      "slug": "2026-08-15-80-20-or-93-7-ground-beef",
-      "title": "80/20 or 93/7 Beef: Which Fits Your Macros",
-      "teaser": "Marcus shows how one number on a package can shift your entire day's calories without you realizing it."
+      "slug": "2026-08-19-stalled-at-month-three",
+      "title": "Stalled at Month Three? Here's What to Change",
+      "teaser": "The pattern behind month-three stalls is real, and apparently so is the fix."
     },
     {
-      "slug": "2026-08-12-knee-pain-arthritis-after-60",
-      "title": "Knee Pain After 60: Carnivore and Arthritis",
-      "teaser": "Sarah explains what carnivore actually can and can't do for your knees, and why month two tends to feel so different from month one."
+      "slug": "2026-08-20-hypothyroid-carnivore-scale-wont-move",
+      "title": "Hypothyroid on Carnivore: Why the Scale Won't Move",
+      "teaser": "If your thyroid is underactive, Sarah says the standard advice might actually be working against you."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Pull the cheese out for five days.</strong> Just five days. Keep everything else exactly the same and track how you feel on day three versus day one. Community members who've tried this often report a noticeable shift in bloating and energy before the week is even up.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something Marcus has been testing quietly for months, and it changes how you think about meal timing on carnivore entirely.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Pull out your most recent blood work and write down your fasting glucose and A1c.</strong> If you don't have labs yet, schedule them this week. Knowing your baseline before you change anything else is the only way to know if the diet is actually moving the needle for you.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something the community has been asking about for months, and the answer is going to surprise people who think they're already doing carnivore right.</p>"
 }
