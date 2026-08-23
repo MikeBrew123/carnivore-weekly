@@ -97,7 +97,7 @@ SITES = {
         "newsletter_site": "cw",
         # Legacy CW links carry no site param; the unsubscribe handler defaults to cw.
         "unsub_extra": "",
-        "default_subject": "Day {day} — Your Carnivore Starter",
+        "default_subject": "Your First Weeks on Carnivore",
     },
     "kd": {
         "name": "KetoDial",

@@ -18,7 +18,7 @@
     'display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">' +
     '<div>' +
     '<strong style="color:#1a1a1a;font-size:1.05rem;">New to carnivore?</strong>' +
-    '<span style="color:#4a4a4a;font-size:0.95rem;margin-left:0.5rem;">Get our free 7-day starter plan — one email per day.</span>' +
+    '<span style="color:#4a4a4a;font-size:0.95rem;margin-left:0.5rem;">Get Your First Weeks on Carnivore, our free email series.</span>' +
     '</div>' +
     '<a href="/starter-plan.html" style="' +
     'background:#4a0404;color:#f5f5f0;text-decoration:none;padding:0.6rem 1.25rem;' +
