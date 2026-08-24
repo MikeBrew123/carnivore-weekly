@@ -640,6 +640,7 @@ Attempts:
 - 2026-08-08 — Full crawl diagnosis ruled out every technical cause (`Brew-Vault/.../reports/ketodial-crawl-diagnosis-2026-08-08.md`).
 - 2026-08-09 — Brew approved cutting KD to 2 posts/week (Tue+Fri), commit 4b344f7c, decisions.md. Volume treated as the liability.
 - 2026-08-10 (weekly ops) — Independently re-verified the crawl path is clean: sitemap.xml 200 with 142 locs including every new slug, each post URL 200, /blog/ index links them, robots.txt permissive. Recorded as the pre-remedy baseline: 0/20 indexed, 0 clicks, 5th consecutive zero-click week.
+- 2026-08-24 (weekly ops) — Re-inspected against the 08-10 baseline: still 0 of 20 newest indexed, all 20 "URL is unknown to Google", GSC clicks 0 this week and 0 prior week (7th consecutive zero-click week). Sitemap still fetched daily (last download 2026-08-23), 146 URLs submitted, 0 errors. Two weeks of the 2-posts/week cadence have changed nothing, as expected — no backlinks have landed.
 If recurs: earned backlinks are the lever, not cadence alone — the 10-target KD outreach plan (Jul 3, drafts written) is still gated on Brew sending. Re-inspect the same 20 URLs monthly against this baseline. Do NOT retry Indexing API — Lesson #13, it only works for JobPosting/BroadcastEvent.
 
 ## ISSUE-069 — Paid report macros wrong: deficit skipped + activity inflated (customer complaint)
