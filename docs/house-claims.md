@@ -97,6 +97,22 @@ Positions below default to the site's post-July-2026 editorial standard
 - Arithmetic gets checked: calories and $/g protein claims must survive their own
   math (5 lb of 80/20 ≈ 5,700 kcal, not 9,500).
 
+## Writing mechanics and linking
+
+- Reading level: grade 8-10 (Flesch-Kincaid). No em-dashes, no AI-tell words
+  (delve, landscape, robust, utilize, leverage, facilitate, crucial, realm,
+  tapestry, moreover, furthermore; "protein leverage" as a named scientific
+  concept is the one exception). Contractions used naturally.
+- Internal links: every post links to at least 1 (ideally 2-3) existing
+  same-site posts with descriptive anchors. Writers build on each other's
+  published work instead of re-explaining it.
+- Cross-site links: when a CW topic is keto-adjacent (macros, ketosis,
+  electrolytes, women's keto), link the relevant ketodial.com post; KD links
+  back to CW for carnivore-specific depth. This matters beyond UX: KD's
+  Google problem is crawl demand, and internal links from the indexed CW
+  domain are the documented fix (see weekly-gsc-indexing task, 2026-08-21).
+  Natural placement only; never forced.
+
 ## Commercial integrity
 
 - We recommend only products we'd endorse consistently. If we've published a
