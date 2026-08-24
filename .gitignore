@@ -158,3 +158,4 @@ etsy/_build/
 
 # Reddit trend snapshots — refreshed by each blog-gen run, no need to track
 data/reddit-trends-*.json
+data/reddit-trends-history.jsonl
