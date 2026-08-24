@@ -179,6 +179,67 @@ NEWSLETTER STRUCTURE RULES:
 Return ONLY valid JSON. No markdown fences, no explanation."""
 
 
+def enforce_style(content, api_key, system_prompt, label):
+    """Self-check generated newsletter copy against house style before sending.
+
+    Uses content_review.check_text (em-dashes, AI-tell words, reading grade)
+    on every string in the content dict. On violations, makes ONE repair call
+    asking the model to fix only the flagged issues, then re-checks. Never
+    blocks the send: worst case it sends with a printed warning. Added
+    2026-08-24 (Brew: newsletter and drips must meet the same bar as posts).
+    """
+    sys.path.insert(0, str(Path(__file__).parent))
+    try:
+        from content_review import check_text
+    except ImportError as e:
+        print(f"  style check unavailable ({e}) — sending unchecked")
+        return content
+
+    def violations(d):
+        probs = []
+        def walk(v, path):
+            if isinstance(v, str):
+                probs.extend(check_text(v, path))
+            elif isinstance(v, dict):
+                for k, vv in v.items():
+                    walk(vv, f"{path}.{k}")
+            elif isinstance(v, list):
+                for i, vv in enumerate(v):
+                    walk(vv, f"{path}[{i}]")
+        walk(d, label)
+        return probs
+
+    probs = violations(content)
+    if not probs:
+        print(f"  [{label}] style check clean")
+        return content
+    print(f"  [{label}] style violations, requesting repair: {probs}")
+    repair_prompt = (
+        "The newsletter content below violates house style. Fix ONLY the listed "
+        "violations (replace em-dashes with commas/periods, swap AI-tell words for "
+        "plain ones, simplify over-complex sentences to grade 8-10). Change nothing "
+        "else — same keys, same structure, same meaning.\n\n"
+        f"Violations:\n" + "\n".join(f"- {p}" for p in probs) +
+        f"\n\nContent JSON:\n{json.dumps(content, ensure_ascii=False)}\n\n"
+        "Return ONLY the corrected JSON object."
+    )
+    try:
+        raw = call_anthropic(system_prompt, repair_prompt, api_key).strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```(?:json)?\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        fixed = json.loads(raw)
+        remaining = violations(fixed)
+        if remaining:
+            print(f"  [{label}] still flagged after repair (sending anyway): {remaining}")
+        else:
+            print(f"  [{label}] repaired clean")
+        return fixed
+    except Exception as e:
+        print(f"  [{label}] repair failed ({e}) — sending original with violations")
+        return content
+
+
 def load_fresh_trends(site, max_age_days=8, limit=8):
     """This week's real community posts from data/reddit-trends-{site}.json.
 
@@ -854,6 +915,7 @@ def main():
                 # Step 1: Generate content
                 print("[CW] Step 1: Generating content...")
                 content = generate_cw_content(cw_posts, api_key)
+                content = enforce_style(content, api_key, CW_SYSTEM_PROMPT, "cw-newsletter")
                 content_path = PROJECT_ROOT / "data" / "newsletter_content.json"
                 content_path.write_text(json.dumps(content, indent=2, ensure_ascii=False), encoding="utf-8")
                 print(f"  Saved {content_path}")
@@ -893,6 +955,7 @@ def main():
                 # Step 3: Generate KD content + HTML
                 print("[KD] Step 1: Generating content...")
                 kd_content = generate_kd_content(kd_posts, issue_num, api_key)
+                kd_content = enforce_style(kd_content, api_key, KD_SYSTEM_PROMPT, "kd-newsletter")
 
                 print("[KD] Step 2: Building newsletter HTML...")
                 kd_html = build_kd_newsletter_html(kd_content)

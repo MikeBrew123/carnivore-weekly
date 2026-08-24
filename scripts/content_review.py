@@ -115,12 +115,57 @@ def review_post(p):
             'cross_site_links': len(cross), 'critical': critical, 'warnings': warn}
 
 
+def check_text(text, label='text'):
+    """Reusable style check for arbitrary copy (newsletter sections, drip emails).
+
+    Returns a list of violation strings; empty list = clean. Used by
+    weekly_newsletter.py to self-check generated content before sending.
+    """
+    plain = strip_html(text)
+    low = plain.lower()
+    problems = []
+    emdash = text.count('—') + text.count('&mdash;')
+    if emdash:
+        problems.append(f'{label}: {emdash} em-dash(es)')
+    for t in AI_TELLS:
+        c = low.count(t)
+        if c:
+            problems.append(f'{label}: AI tell "{t}" x{c}')
+    lev = len(re.findall(r'\bleverag\w*\b', low)) - len(LEVERAGE_OK.findall(plain))
+    if lev > 0:
+        problems.append(f'{label}: AI tell "leverage" x{lev}')
+    words = re.findall(r"[A-Za-z']+", plain)
+    if len(words) > 120:
+        g = fk_grade(plain)
+        if g > 12:
+            problems.append(f'{label}: reading grade {g} (target 8-10)')
+    return problems
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--slugs', nargs='*')
     ap.add_argument('--all-ready', action='store_true')
+    ap.add_argument('--files', nargs='*', help='Score arbitrary HTML files (e.g. drip emails)')
     ap.add_argument('--json', action='store_true')
     args = ap.parse_args()
+
+    if args.files:
+        bad = 0
+        for path in args.files:
+            html = open(path).read()
+            text = strip_html(html)
+            words = re.findall(r"[A-Za-z']+", text)
+            problems = check_text(html, path.split('/')[-1])
+            contr = sum(text.lower().count(c) for c in CONTRACTIONS)
+            cpk = round(contr / len(words) * 1000, 1) if words else 0
+            flag = 'CRIT' if problems else 'ok  '
+            bad += bool(problems)
+            print(f'[{flag}] {path.split("/")[-1]:22s} gr{fk_grade(text):>5} | {len(words)}w | contr {cpk}/1k')
+            for pr in problems:
+                print(f'        {pr}')
+        print(f'\n{len(args.files)} files, {bad} with critical issues')
+        return 2 if bad else 0
 
     d = json.load(open(BLOG_JSON))
     posts = d if isinstance(d, list) else d.get('blog_posts', [])
