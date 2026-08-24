@@ -1088,7 +1088,41 @@ def daily_focus():
     return DAILY_FOCUS.get(TODAY.weekday(), ('Week in review', None))
 
 
-def model_narrative(data, model='claude-haiku-4-5-20251001'):
+NARRATIVE_MODEL = 'claude-sonnet-5'
+NARRATIVE_TABLE = 'command_center_narratives'
+
+
+def fetch_narrative_history(limit=21):
+    """Past Daily Focus narratives (Supabase), newest first. [] on any failure."""
+    try:
+        # Exclude today's own row so a same-day re-run reads like the first run.
+        return supa_fetch(NARRATIVE_TABLE, select='run_date,focus,narrative',
+                          filters=f'run_date=lt.{TODAY.isoformat()}',
+                          limit=limit, order='run_date.desc') or []
+    except Exception as e:
+        print(f'  narrative history unavailable: {e}')
+        return []
+
+
+def save_narrative(narrative, focus, model):
+    """Upsert today's narrative so future runs remember what was already said."""
+    try:
+        import requests
+        headers = dict(supa_headers())
+        headers['Prefer'] = 'resolution=merge-duplicates'
+        resp = requests.post(
+            f'https://{SUPABASE_PROJECT_ID}.supabase.co/rest/v1/{NARRATIVE_TABLE}'
+            '?on_conflict=run_date',
+            headers=headers,
+            json={'run_date': TODAY.isoformat(), 'focus': daily_focus()[0],
+                  'narrative': narrative, 'model': model},
+            timeout=15)
+        resp.raise_for_status()
+    except Exception as e:
+        print(f'  narrative history save failed: {e}')
+
+
+def model_narrative(data, model=NARRATIVE_MODEL):
     api_key = os.environ.get('ANTHROPIC_API_KEY') or (SECRETS.get('anthropic') or {}).get('key', '')
     if not api_key:
         return None
@@ -1127,16 +1161,52 @@ def model_narrative(data, model='claude-haiku-4-5-20251001'):
             "overall, (2) what changed or stands out, (3) the 1-3 things worth watching or "
             "acting on."
         )
+
+    # Memory: what past runs already told him. Without this the same slow-moving
+    # data produces the same review every week (the exact problem Brew flagged
+    # 2026-08-24) — the model must know what's already been said to say only
+    # what's new.
+    history = fetch_narrative_history()
+    history_block = ''
+    if history:
+        parts = []
+        for h in history:
+            tag = f"[{h.get('run_date')} · {h.get('focus') or 'general'}]"
+            parts.append(f"{tag}\n{(h.get('narrative') or '').strip()}")
+        history_block = (
+            "\n\nYOUR PREVIOUS REVIEWS (newest first — Brew has read all of these):\n"
+            + "\n---\n".join(parts) + "\n\n"
+            "MEMORY RULES (these outrank everything below):\n"
+            "1. Say only what is NEW since the last review of today's focus area. Compare "
+            "today's numbers against what that review described and lead with what changed.\n"
+            "2. If nothing in the focus area materially changed since it was last covered, say "
+            "so in 2-3 sentences and stop. A short honest 'no real change since last "
+            f"{focus_name} review' is a SUCCESS, not a failure — never pad it.\n"
+            "3. Never repeat a recommendation that appears in any review above unless you name "
+            "what changed since it was given (e.g. 'suggested X on the 17th; clicks still flat, "
+            "so either do it or drop it'). If a repeated suggestion was clearly never acted on "
+            "twice, say that once and let it go.\n"
+            "4. Standing facts he already knows (Bing rivals Google on CW, China crawler "
+            "inflation, revenue far below the $1k pace, KD is tiny) get at most a clause, and "
+            "only if today's point depends on them. Never re-explain them.\n"
+            "5. If a previous review said 'watch X this week', today is the day to close that "
+            "loop: report what X did.\n"
+        )
+
     prompt = (
         "You are writing the morning plain-English review for Brew, the solo operator of "
         "Carnivore Weekly (CW) and KetoDial (KD). He hates fluff and wants to know what's "
         "actually happening and what to look out for. Business context: goal is $1k/month NET "
-        "profit; CW calculator audience baseline is ~66% aged 45+, ~53% female, ~84% weight loss.\n\n"
+        "profit; CW calculator audience baseline is ~66% aged 45+, ~53% female, ~84% weight loss."
+        f"{history_block}\n"
         f"Today's data (JSON):\n{json.dumps(digest, default=str)}\n\n"
-        "Note: in search data, LOWER average position is better (position 1 = top of Google).\n"
+        "Note: in search data, LOWER average position is better (position 1 = top of Google). "
+        "Sanity-check metrics before citing them: an open rate over 100% means multiple opens "
+        "per send, not a healthy list signal — flag oddities instead of quoting them straight.\n"
         f"{angle}\n"
         "Plain prose only — no markdown, no headers, no bullet lists, no hype, no restating raw "
-        "numbers he can see in the tables — interpret them. Under 220 words."
+        "numbers he can see in the tables — interpret them. Under 220 words, shorter when "
+        "little changed."
     )
     try:
         import requests
@@ -1144,9 +1214,9 @@ def model_narrative(data, model='claude-haiku-4-5-20251001'):
             'https://api.anthropic.com/v1/messages',
             headers={'x-api-key': api_key, 'anthropic-version': '2023-06-01',
                      'content-type': 'application/json'},
-            json={'model': model, 'max_tokens': 600,
+            json={'model': model, 'max_tokens': 700,
                   'messages': [{'role': 'user', 'content': prompt}]},
-            timeout=60)
+            timeout=120)
         resp.raise_for_status()
         parts = resp.json().get('content', [])
         text = ' '.join(p.get('text', '') for p in parts if p.get('type') == 'text').strip()
@@ -1207,8 +1277,9 @@ def collect(use_model=True):
         print('  Plain-language review (model)...')
         text = model_narrative(data)
         if text:
-            data['analysis'] = {'narrative': text, 'generated_by': 'claude-haiku-4-5',
+            data['analysis'] = {'narrative': text, 'generated_by': NARRATIVE_MODEL,
                                 'focus': daily_focus()[0]}
+            save_narrative(text, daily_focus()[0], NARRATIVE_MODEL)
     return data
 
 
