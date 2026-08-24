@@ -157,6 +157,35 @@
     </tr>
 
     <!-- ============================================ -->
+    <!-- COMMUNITY PULSE - real questions this week    -->
+    <!-- ============================================ -->
+    {% if community_pulse %}
+    <tr>
+        <td style="padding:24px 32px 4px 32px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td style="font-family:Georgia,'Times New Roman',serif;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:#9B8574;padding-bottom:12px;">
+                        What the Community Is Asking This Week
+                    </td>
+                </tr>
+                {% for item in community_pulse %}
+                <tr>
+                    <td style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-weight:bold;color:#1C1210;line-height:1.5;padding-bottom:6px;">
+                        &ldquo;{{ item.question }}&rdquo;
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-family:Verdana,Geneva,sans-serif;font-size:14px;line-height:1.65;color:#2A2018;padding-bottom:16px;">
+                        {{ item.answer }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </td>
+    </tr>
+    {% endif %}
+
+    <!-- ============================================ -->
     <!-- TRY THIS WEEK - One practical win             -->
     <!-- ============================================ -->
     {% if try_this_week %}

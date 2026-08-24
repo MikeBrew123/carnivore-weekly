@@ -179,6 +179,32 @@ NEWSLETTER STRUCTURE RULES:
 Return ONLY valid JSON. No markdown fences, no explanation."""
 
 
+def load_fresh_trends(site, max_age_days=8, limit=8):
+    """This week's real community posts from data/reddit-trends-{site}.json.
+
+    Written by scripts/fetch_reddit_trends.py (Apify, refreshed by the
+    blog-gen scheduled tasks and committed, so the Sunday Actions run has
+    it). Returns [] when the file is missing or stale — the newsletter
+    section is skipped rather than built on old threads (Brew's rule,
+    2026-08-24: stale community data defeats the purpose).
+    """
+    path = PROJECT_ROOT / "data" / f"reddit-trends-{site}.json"
+    try:
+        data = json.loads(path.read_text())
+        fetched = datetime.fromisoformat(data["fetched_at"].replace("Z", "+00:00"))
+        age = (datetime.now(fetched.tzinfo) - fetched).days
+        if age > max_age_days:
+            print(f"  reddit-trends-{site}.json is {age} days old — skipping community section")
+            return []
+        posts = [p for p in data.get("posts", []) if p.get("title")]
+        # Questions and discussed pain points first: comment-heavy > score-heavy
+        posts.sort(key=lambda p: -((p.get("num_comments") or 0) * 2 + (p.get("score") or 0) / 10))
+        return posts[:limit]
+    except (OSError, ValueError, KeyError) as e:
+        print(f"  reddit-trends-{site}.json unavailable ({e}) — skipping community section")
+        return []
+
+
 def generate_cw_content(recent_posts, api_key):
     """Generate CW newsletter content JSON via Anthropic API."""
     post_summaries = []
@@ -189,11 +215,29 @@ def generate_cw_content(recent_posts, api_key):
 
     posts_text = "\n".join(post_summaries) if post_summaries else "No posts this week."
 
+    trends = load_fresh_trends("cw")
+    trends_text = "\n".join(
+        f"- [{t.get('created','')[:10]}] r/{t.get('subreddit')}: \"{t['title']}\" "
+        f"({t.get('score',0)} upvotes, {t.get('num_comments',0)} comments) — {t.get('body_preview','')[:150]}"
+        for t in trends) if trends else ""
+    community_block = ""
+    community_key = ""
+    if trends:
+        community_block = f"""
+
+Real community posts from THIS WEEK (r/carnivorediet, r/carnivore, r/keto, r/xxketo — fetched fresh, with dates):
+{trends_text}
+"""
+        community_key = """
+  "community_pulse": [
+    {"question": "A real question or struggle from the posts above, paraphrased in plain words a 55-year-old would say. Never quote usernames, never mention Reddit.", "answer": "2-3 sentence answer, Sarah or Chloe voice. Warm, practical, qualified claims only ('many people find...'). If a recent CW post covers it, you may reference it by title, no links needed."}
+  ],"""
+
     user_prompt = f"""Generate the Carnivore Weekly newsletter content for {TODAY_DISPLAY}.
 
 Recent blog posts published this week:
 {posts_text}
-
+{community_block}
 Return a JSON object with these exact keys:
 {{
   "date": "{TODAY}",
@@ -208,13 +252,14 @@ Return a JSON object with these exact keys:
   }},
   "supporting": [
     {{"slug": "EXACT-slug-with-date-prefix", "title": "Exact Post Title", "teaser": "ONE sentence, curiosity only. Example: 'Marcus gives the 12-week version, protein target first, nonsense last.'"}}
-  ],
+  ],{community_key}
   "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>One practical action.</strong> Marcus or Sarah voice. Something specific the reader can do this week. 2-3 sentences max. No em-dashes.</p>",
   "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>One sentence curiosity hook for next week. Make them want to open next week's email.</p>"
 }}
 
 CRITICAL RULES:
 - Pick the MOST compelling post as the hero. The other posts (max 3) go in supporting.
+- community_pulse (only when community posts were provided): exactly 2-3 items, drawn ONLY from the real posts listed, favoring questions and struggles our readers (mostly women 45-70 losing weight) would recognize. Paraphrase; never quote usernames, never say Reddit, never invent a question.
 - Use the EXACT slug from the posts above (including date prefix like 2026-06-15-topic-name). Do NOT strip the date prefix.
 - Supporting teasers are ONE sentence each, maximum. Create curiosity, not summaries.
 - ZERO em-dashes in any content. Use commas, periods, or colons instead.
@@ -388,11 +433,20 @@ def generate_kd_content(recent_posts, issue_number, api_key):
     quick_links_json = json.dumps(
         [{"title": p["title"], "slug": p["slug"]} for p in all_kd_posts[:20]], indent=2
     )
+    kd_trends = load_fresh_trends("kd")
+    kd_trends_text = "\n".join(
+        f"- [{t.get('created','')[:10]}] r/{t.get('subreddit')}: \"{t['title']}\" "
+        f"({t.get('score',0)} upvotes, {t.get('num_comments',0)} comments) — {t.get('body_preview','')[:150]}"
+        for t in kd_trends) if kd_trends else ""
+    kd_community_block = (f"\nReal keto community posts from THIS WEEK (r/keto, r/lowcarb, "
+                          f"r/ketorecipes, r/xxketo — fetched fresh, with dates):\n{kd_trends_text}\n"
+                          if kd_trends else "")
+
     user_prompt = f"""Generate content for KetoDial newsletter issue #{issue_number}, dated {TODAY_DISPLAY}.
 
 Recent KD blog posts this week:
 {posts_text}
-
+{kd_community_block}
 All available KD blog posts (for quick-links):
 {quick_links_json}
 
@@ -416,7 +470,7 @@ Return a JSON object with these keys:
   "recipe_steps": "Numbered steps as <ol> HTML",
   "recipe_why": "One paragraph on why this works for keto",
   "tiny_win": "One specific, actionable tip for this week. Example: 'Before you buy any keto snack, check the sweetener line. If it leans on maltitol, put it back and pick real food instead.' 2-3 sentences, Marcus or Sarah voice.",
-  "community_body": "Chloe voice, 2-3 community observations with bold headers. Link to relevant KD blog posts using full URLs with UTM params: ?utm_source=kd_newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}",
+  "community_body": "Chloe voice, 2-3 community observations with bold headers. If real community posts from this week were provided above, EVERY observation must be grounded in one of them (paraphrase the actual question or struggle; never quote usernames, never say Reddit, never invent a trend). Link to relevant KD blog posts using full URLs with UTM params: ?utm_source=kd_newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}",
   "next_week_hook": "One sentence teasing next week's issue. Create curiosity so they look forward to opening it.",
   "quick_links": [
     {{"title": "Article title", "url": "https://ketodial.com/blog/slug.html?utm_source=kd_newsletter&utm_medium=email&utm_campaign=weekly_dialin_{issue_number:02d}", "read_time": "5 min"}}

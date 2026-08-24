@@ -125,7 +125,7 @@ def main():
             'score': it.get('score') or 0,
             'num_comments': it.get('commentsCount') or 0,
             'created': it.get('createdAt', ''),
-            'url': it.get('url', ''),
+            'url': it.get('postUrl') or it.get('url', ''),
             'body_preview': (it.get('body') or '')[:280],
         })
     posts.sort(key=lambda p: -(p['score'] or 0))

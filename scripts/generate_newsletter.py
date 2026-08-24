@@ -219,6 +219,7 @@ def generate_newsletter(date_str=None):
         **editorial_sections,
         "hero": hero,
         "supporting": supporting,
+        "community_pulse": content.get("community_pulse", []),
         "affiliate": affiliate,
         "product_feature": product_feature,
     }

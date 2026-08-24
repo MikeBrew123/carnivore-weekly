@@ -156,6 +156,9 @@ etsy/products/pdfs/
 # Etsy image build scratch — intermediate composites, regenerable from the scripts.
 etsy/_build/
 
-# Reddit trend snapshots — refreshed by each blog-gen run, no need to track
-data/reddit-trends-*.json
+# Reddit trend data: snapshots ARE tracked (the Sunday newsletter Actions run
+# reads them); the local-only history archive and comment dumps are not.
 data/reddit-trends-history.jsonl
+data/reddit-comments-*.json
+!data/reddit-trends-cw.json
+!data/reddit-trends-kd.json
