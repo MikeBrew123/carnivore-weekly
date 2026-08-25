@@ -88,20 +88,36 @@ export async function GET(request: NextRequest) {
     .limit(1)
     .maybeSingle()
 
-  // Extract focus from latest response (last paragraph or explicit marker)
+  // Extract focus from latest response (explicit marker, else last real paragraph).
+  // The fallback used to take the final line outright, which is almost always the
+  // sign-off, so the card rendered "Your current focus: - Coach Remy". Sign-offs
+  // and stubs are excluded, and if nothing substantive is found the card is not
+  // rendered at all rather than shown empty.
   let focus = null
   if (latestResponse?.content) {
-    const lines = latestResponse.content.split('\n').filter((l: string) => l.trim())
-    // Look for focus-like content (last substantive paragraph)
-    const lastLine = lines[lines.length - 1] || ''
-    const focusLine = lines.find((l: string) =>
+    const isSignOff = (l: string) => {
+      const t = l.trim()
+      return (
+        /^[-\u2013\u2014*_\s]*$/.test(t) ||                       // rules / dashes only
+        /^[-\u2013\u2014]\s*coach\b/i.test(t) ||                  // "- Coach Remy"
+        /^(coach\s+\w+|remy|thanks|cheers|talk soon)[.!,]?$/i.test(t) ||
+        t.length < 25                                             // too short to be a focus
+      )
+    }
+    const lines = latestResponse.content
+      .split('\n')
+      .map((l: string) => l.trim())
+      .filter((l: string) => l.length > 0)
+
+    const substantive = lines.filter((l: string) => !isSignOff(l))
+    const focusLine = substantive.find((l: string) =>
       l.toLowerCase().includes('focus') ||
       l.toLowerCase().includes('this week') ||
       l.toLowerCase().includes('try this')
     )
-    focus = {
-      body: focusLine || lastLine,
-      source: 'coach_response' as const,
+    const body = (focusLine || substantive[substantive.length - 1] || '').trim()
+    if (body) {
+      focus = { body, source: 'coach_response' as const }
     }
   }
 
