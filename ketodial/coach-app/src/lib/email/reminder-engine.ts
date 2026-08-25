@@ -23,6 +23,7 @@ export type ReminderType = 'checkin_due' | 'coach_replied'
 export interface ReminderDecision {
   member_id: string
   email: string
+  site?: string | null
   display_name: string
   type: ReminderType
   reason: string
@@ -39,7 +40,7 @@ export async function computeCheckinReminders(
   // Get all active members
   const { data: members } = await serviceClient
     .from('coach_members')
-    .select('id, email, display_name, tier, status, subscription_status')
+    .select('id, email, display_name, tier, status, subscription_status, site')
     .in('status', ['active', 'test'])
 
   if (!members || members.length === 0) return decisions
@@ -52,6 +53,7 @@ export async function computeCheckinReminders(
       decisions.push({
         member_id: member.id,
         email: member.email,
+        site: member.site,
         display_name: member.display_name,
         type: 'checkin_due',
         reason: 'Test fixture address',
@@ -67,6 +69,7 @@ export async function computeCheckinReminders(
       decisions.push({
         member_id: member.id,
         email: member.email,
+        site: member.site,
         display_name: member.display_name,
         type: 'checkin_due',
         reason: `Subscription ${member.subscription_status}`,
@@ -81,6 +84,7 @@ export async function computeCheckinReminders(
       decisions.push({
         member_id: member.id,
         email: member.email,
+        site: member.site,
         display_name: member.display_name,
         type: 'checkin_due',
         reason: 'Not Sunday',
@@ -96,6 +100,7 @@ export async function computeCheckinReminders(
       decisions.push({
         member_id: member.id,
         email: member.email,
+        site: member.site,
         display_name: member.display_name,
         type: 'checkin_due',
         reason: 'Already checked in',
@@ -111,6 +116,7 @@ export async function computeCheckinReminders(
       decisions.push({
         member_id: member.id,
         email: member.email,
+        site: member.site,
         display_name: member.display_name,
         type: 'checkin_due',
         reason: 'Reminder already sent today',
@@ -124,6 +130,7 @@ export async function computeCheckinReminders(
     decisions.push({
       member_id: member.id,
       email: member.email,
+        site: member.site,
       display_name: member.display_name,
       type: 'checkin_due',
       reason: `${member.tier} check-in due`,
@@ -147,7 +154,7 @@ export async function computeReplyNotifications(
     .from('coach_messages')
     .select(`
       id, member_id, sent_at,
-      coach_members!inner(email, display_name, status)
+      coach_members!inner(email, display_name, status, site)
     `)
     .eq('direction', 'coach')
     .gte('sent_at', `${today}T00:00:00`)
@@ -162,6 +169,7 @@ export async function computeReplyNotifications(
       decisions.push({
         member_id: reply.member_id,
         email: member?.email,
+        site: member?.site,
         display_name: member?.display_name,
         type: 'coach_replied',
         reason: 'Test fixture address',
@@ -176,6 +184,7 @@ export async function computeReplyNotifications(
       decisions.push({
         member_id: reply.member_id,
         email: member.email,
+        site: member?.site,
         display_name: member.display_name,
         type: 'coach_replied',
         reason: 'Notification already sent',
@@ -188,6 +197,7 @@ export async function computeReplyNotifications(
     decisions.push({
       member_id: reply.member_id,
       email: member.email,
+        site: member?.site,
       display_name: member.display_name,
       type: 'coach_replied',
       reason: 'New coach response',

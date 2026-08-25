@@ -103,12 +103,12 @@ export async function POST(request: NextRequest) {
   // Notify member
   const { data: memberInfo } = await serviceClient
     .from('coach_members')
-    .select('email, display_name')
+    .select('email, display_name, site')
     .eq('id', member_id)
     .single()
 
   if (memberInfo) {
-    sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name).catch(err =>
+    sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name, memberInfo.site).catch(err =>
       console.error('Nudge notification failed:', err)
     )
   }

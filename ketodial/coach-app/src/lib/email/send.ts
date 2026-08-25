@@ -8,26 +8,60 @@ function getResend() {
   return _resend
 }
 
-const FROM = 'KetoDial Coach <coach@carnivoreweekly.com>'
+// Members bought one of two products and the notification must say the one they
+// bought. coach_members.site is the source of truth: 'carnivoreweekly' for the
+// Carnivore cohort, 'ketodial' for KetoDial members. Both run on the same
+// platform and the same sending domain; only the naming differs.
+//
+// coachName deliberately matches what the AI actually signs its replies with
+// (see lib/claude/system-prompt.ts). If the persona is ever split per site,
+// change it in BOTH places or the email will contradict the reply it announces.
+export type CoachSite = 'ketodial' | 'carnivoreweekly'
+
+const BRAND: Record<CoachSite, {
+  product: string; from: string; replyTo: string; coachName: string; accent: string
+}> = {
+  ketodial: {
+    product: 'KetoDial Coach',
+    from: 'KetoDial Coach <coach@carnivoreweekly.com>',
+    replyTo: 'coach@carnivoreweekly.com',
+    coachName: 'Coach Remy',
+    accent: '#0ea5e9',
+  },
+  carnivoreweekly: {
+    product: 'Carnivore Coach',
+    from: 'Carnivore Coach <coach@carnivoreweekly.com>',
+    replyTo: 'sarah@carnivoreweekly.com',
+    coachName: 'Coach Remy',
+    accent: '#b8860b',
+  },
+}
+
+function brandFor(site?: string | null) {
+  return BRAND[(site as CoachSite) in BRAND ? (site as CoachSite) : 'ketodial']
+}
 
 export async function sendCheckinReminder(
   email: string,
-  displayName: string
+  displayName: string,
+  site?: string | null
 ): Promise<{ success: boolean; messageId?: string }> {
   const firstName = displayName.split(' ')[0]
+  const b = brandFor(site)
 
   try {
     const { data, error } = await getResend().emails.send({
-      from: FROM,
+      from: b.from,
+      replyTo: b.replyTo,
       to: email,
       subject: `${firstName}, your weekly check-in is ready`,
       html: `
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 20px;">
           <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Hey ${firstName},</p>
-          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Your weekly check-in is ready. It takes about 2 minutes, and Coach Remy will have your response within a day.</p>
-          <a href="https://coach.ketodial.com/app/checkin" style="display: inline-block; background: #0ea5e9; color: #fff; font-weight: 700; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-size: 16px; margin: 16px 0;">Submit check-in</a>
-          <p style="font-size: 14px; color: #64748b; margin-top: 24px;">KetoDial Coach is a check-in tool, not medical advice.</p>
-          <p style="font-size: 12px; color: #94a3b8; margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 14px;">KetoDial Coach &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Your weekly check-in is ready. It takes about 2 minutes, and ${b.coachName} will have your response within a day.</p>
+          <a href="https://coach.ketodial.com/app/checkin" style="display: inline-block; background: ${b.accent}; color: #fff; font-weight: 700; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-size: 16px; margin: 16px 0;">Submit check-in</a>
+          <p style="font-size: 14px; color: #64748b; margin-top: 24px;">${b.product} is a check-in tool, not medical advice.</p>
+          <p style="font-size: 12px; color: #94a3b8; margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 14px;">${b.product} &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
         </div>
       `,
     })
@@ -46,22 +80,25 @@ export async function sendCheckinReminder(
 
 export async function sendCoachRepliedNotification(
   email: string,
-  displayName: string
+  displayName: string,
+  site?: string | null
 ): Promise<{ success: boolean; messageId?: string }> {
   const firstName = displayName.split(' ')[0]
+  const b = brandFor(site)
 
   try {
     const { data, error } = await getResend().emails.send({
-      from: FROM,
+      from: b.from,
+      replyTo: b.replyTo,
       to: email,
-      subject: `Coach Remy responded to your check-in`,
+      subject: `${b.coachName} responded to your check-in`,
       html: `
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 20px;">
           <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Hey ${firstName},</p>
-          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">Coach Remy reviewed your check-in and has a response for you.</p>
-          <a href="https://coach.ketodial.com/app/thread" style="display: inline-block; background: #0ea5e9; color: #fff; font-weight: 700; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-size: 16px; margin: 16px 0;">Read response</a>
-          <p style="font-size: 14px; color: #64748b; margin-top: 24px;">KetoDial Coach is a check-in tool, not medical advice.</p>
-          <p style="font-size: 12px; color: #94a3b8; margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 14px;">KetoDial Coach &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
+          <p style="font-size: 16px; line-height: 1.6; color: #1e293b;">${b.coachName} reviewed your check-in and has a response for you.</p>
+          <a href="https://coach.ketodial.com/app/thread" style="display: inline-block; background: ${b.accent}; color: #fff; font-weight: 700; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-size: 16px; margin: 16px 0;">Read response</a>
+          <p style="font-size: 14px; color: #64748b; margin-top: 24px;">${b.product} is a check-in tool, not medical advice.</p>
+          <p style="font-size: 12px; color: #94a3b8; margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 14px;">${b.product} &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
         </div>
       `,
     })

@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       continue
     }
 
-    const sent = await sendCheckinReminder(d.email, d.display_name)
+    const sent = await sendCheckinReminder(d.email, d.display_name, d.site)
     if (sent.success) {
       results.checkin_reminders.sent++
       results.checkin_reminders.decisions.push({ ...d, action: 'sent', messageId: sent.messageId })
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       continue
     }
 
-    const sent = await sendCoachRepliedNotification(d.email, d.display_name)
+    const sent = await sendCoachRepliedNotification(d.email, d.display_name, d.site)
     if (sent.success) {
       results.reply_notifications.sent++
       results.reply_notifications.decisions.push({ ...d, action: 'sent', messageId: sent.messageId })

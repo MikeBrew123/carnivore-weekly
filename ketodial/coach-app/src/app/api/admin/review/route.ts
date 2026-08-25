@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
   // Get member info for notifications
   const { data: memberInfo } = await serviceClient
     .from('coach_members')
-    .select('email, display_name')
+    .select('email, display_name, site')
     .eq('id', message.member_id)
     .single()
 
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 
       // Notify member (non-blocking)
       if (memberInfo) {
-        sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name).catch(err =>
+        sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name, memberInfo.site).catch(err =>
           console.error('Reply notification failed:', err)
         )
       }
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
 
       // Notify member (non-blocking)
       if (memberInfo) {
-        sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name).catch(err =>
+        sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name, memberInfo.site).catch(err =>
           console.error('Reply notification failed:', err)
         )
       }
@@ -260,7 +260,7 @@ export async function POST(request: NextRequest) {
 
       // Notify member that response was updated (non-blocking)
       if (memberInfo) {
-        sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name).catch(err =>
+        sendCoachRepliedNotification(memberInfo.email, memberInfo.display_name, memberInfo.site).catch(err =>
           console.error('Update notification failed:', err)
         )
       }
