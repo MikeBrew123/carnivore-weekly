@@ -104,6 +104,13 @@ htmlcov/
 # Node modules (if using Node.js)
 node_modules/
 package-lock.json
+# EXCEPTION: the coach app is built by Vercel from a fresh clone. Without a
+# committed lockfile Vercel runs `npm install`, resolves caret ranges to newer
+# releases than the ones developed against, and the build breaks on drift
+# (2026-08-25: stripe ^22.2.0 resolved to 22.5.0, whose types require a newer
+# pinned apiVersion, failing every production deploy). Commit this one lockfile
+# so Vercel can run `npm ci` and builds are reproducible.
+!ketodial/coach-app/package-lock.json
 
 # API Keys and secrets
 # CRITICAL: Never commit the secrets/ folder with actual credentials
