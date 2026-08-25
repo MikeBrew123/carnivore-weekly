@@ -28,6 +28,7 @@ interface CheckIn {
 
 export default function ThreadPage() {
   const [messages, setMessages] = useState<Message[]>([])
+  const [loadState, setLoadState] = useState<'loading' | 'ok' | 'no_access' | 'error'>('loading')
   const [checkins, setCheckins] = useState<Record<string, CheckIn>>({})
   const [noteText, setNoteText] = useState('')
   const [sending, setSending] = useState(false)
@@ -45,11 +46,24 @@ export default function ThreadPage() {
   }, [messages])
 
   async function loadThread() {
-    const res = await fetch('/api/member/thread')
-    if (res.ok) {
-      const data = await res.json()
-      setMessages(data.messages)
-      setCheckins(data.checkins)
+    // A failed load used to fall through silently, leaving the page rendering
+    // its chrome around an empty thread. That is what an admin account or a
+    // lapsed member saw: a page that looks broken rather than one that explains
+    // itself.
+    try {
+      const res = await fetch('/api/member/thread')
+      if (res.ok) {
+        const data = await res.json()
+        setMessages(data.messages)
+        setCheckins(data.checkins)
+        setLoadState('ok')
+      } else if (res.status === 401 || res.status === 403) {
+        setLoadState('no_access')
+      } else {
+        setLoadState('error')
+      }
+    } catch {
+      setLoadState('error')
     }
   }
 
@@ -102,6 +116,30 @@ export default function ThreadPage() {
       {/* Thread */}
       <div className="thread-scroll" ref={scrollRef}>
         <div className="thread">
+          {loadState === 'loading' && (
+            <p style={{ padding: '28px 18px', color: 'var(--muted, #64748b)', textAlign: 'center' }}>Loading your responses...</p>
+          )}
+          {loadState === 'no_access' && (
+            <div style={{ padding: '28px 18px', textAlign: 'center' }}>
+              <p style={{ fontWeight: 700, marginBottom: '6px' }}>This account has no active membership.</p>
+              <p style={{ color: 'var(--muted, #64748b)', fontSize: '15px' }}>
+                If you are signed in as an admin, your coaching thread lives on your member account, not this one.
+                If you are a member and think this is wrong, reply to any coaching email and we will sort it out.
+              </p>
+            </div>
+          )}
+          {loadState === 'error' && (
+            <div style={{ padding: '28px 18px', textAlign: 'center' }}>
+              <p style={{ fontWeight: 700, marginBottom: '6px' }}>We could not load your responses.</p>
+              <p style={{ color: 'var(--muted, #64748b)', fontSize: '15px' }}>Refresh the page, and if it keeps happening reply to any coaching email.</p>
+            </div>
+          )}
+          {loadState === 'ok' && messages.length === 0 && (
+            <div style={{ padding: '28px 18px', textAlign: 'center' }}>
+              <p style={{ fontWeight: 700, marginBottom: '6px' }}>Nothing here yet.</p>
+              <p style={{ color: 'var(--muted, #64748b)', fontSize: '15px' }}>Once you send your first check-in, your coach's response will appear here.</p>
+            </div>
+          )}
           {messages.map((msg) => {
             const msgDate = new Date(msg.sent_at).toLocaleDateString()
             const showDate = msgDate !== lastDate
