@@ -13,7 +13,7 @@ interface CheckInState {
 }
 
 export function getCurrentCheckInState(
-  member: { tier: string; status: string; bonus_credit_balance: number; timezone: string },
+  member: { tier: string; status: string; bonus_credit_balance: number; timezone: string; onboarded_at?: string | null },
   latestCheckin: { submitted_at: string; period_start: string; period_end: string } | null,
   now: Date = new Date()
 ): CheckInState {
@@ -59,8 +59,16 @@ export function getCurrentCheckInState(
   // Is it past Sunday? (Monday-Saturday without a check-in = overdue)
   const isPastSunday = dayOfWeek > 0
 
+  // A member cannot be overdue for a week that started before they joined.
+  // Someone who signs up on a Tuesday has never had a chance to check in, and
+  // greeting them with "CHECK-IN OVERDUE" on day one is both wrong and a poor
+  // first impression on a page that promises no guilt. They are simply due.
+  const joinedThisPeriod = member.onboarded_at
+    ? member.onboarded_at.split('T')[0] >= periodStart
+    : false
+
   // Previous week check: if we're past Sunday and no check-in exists for current period
-  if (isPastSunday) {
+  if (isPastSunday && !joinedThisPeriod) {
     return {
       status: 'overdue',
       can_submit: true,

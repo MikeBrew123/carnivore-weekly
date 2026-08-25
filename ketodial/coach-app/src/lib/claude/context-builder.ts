@@ -27,6 +27,7 @@ interface MemberProfile {
   medications: string | null
   biggest_challenge: string | null
   success_vision: string | null
+  goal_target?: string | null
   tier: string
   weeks_active: number
   member_summary: string | null
@@ -73,7 +74,7 @@ export async function buildMemberContext(
   const [memberResult, checkinsResult, exchangesResult, safetyResult] = await Promise.all([
     serviceClient
       .from('coach_members')
-      .select('display_name, age, sex, diet_type, diet_duration, start_weight, current_weight, goal_weight, activity_level, health_conditions, medications, biggest_challenge, success_vision, tier, onboarded_at, coach_notes, member_summary, primary_goal, personal_why, keto_experience, food_allergies, dietary_restrictions, feedback_tone, feedback_format, pregnant_or_nursing, eating_disorder_history, working_with_doctor, confidence_level, biggest_obstacle, typical_eating')
+      .select('display_name, age, sex, diet_type, diet_duration, start_weight, current_weight, goal_weight, activity_level, health_conditions, medications, biggest_challenge, success_vision, goal_target, tier, onboarded_at, coach_notes, member_summary, primary_goal, personal_why, keto_experience, food_allergies, dietary_restrictions, feedback_tone, feedback_format, pregnant_or_nursing, eating_disorder_history, working_with_doctor, confidence_level, biggest_obstacle, typical_eating')
       .eq('id', memberId)
       .single(),
 
@@ -138,7 +139,10 @@ export async function buildMemberContext(
       health_conditions: member.health_conditions,
       medications: member.medications,
       biggest_challenge: member.biggest_challenge,
-      success_vision: member.success_vision,
+      // Onboarding writes "What does success look like?" to goal_target;
+      // success_vision is a separate legacy column the form never fills. Read
+      // both so the member's own answer actually reaches the coach.
+      success_vision: member.success_vision ?? member.goal_target ?? null,
       tier: member.tier,
       weeks_active: weeksActive,
       member_summary: member.member_summary,

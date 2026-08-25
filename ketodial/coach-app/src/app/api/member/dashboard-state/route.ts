@@ -72,6 +72,7 @@ export async function GET(request: NextRequest) {
       status: member.status,
       bonus_credit_balance: member.bonus_credit_balance || 0,
       timezone: member.timezone || 'America/New_York',
+      onboarded_at: member.onboarded_at,
     },
     latestCheckin,
   )
