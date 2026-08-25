@@ -3,6 +3,21 @@
 
 import { SupabaseClient } from '@supabase/supabase-js'
 
+// Seeded demo rows live on @test.ketodial.com, a domain that accepts no mail.
+// Emailing them produces hard bounces, and hard bounces damage the sending
+// reputation of the domain the real coaching emails go out from. Never send to
+// a fixture, whatever its subscription status says.
+function isUndeliverableFixture(email: string | null | undefined): boolean {
+  if (!email) return true
+  const e = email.toLowerCase()
+  return (
+    e.endsWith('@test.ketodial.com') ||
+    e.endsWith('@example.com') ||
+    e.endsWith('.invalid') ||
+    e.startsWith('qa-')
+  )
+}
+
 export type ReminderType = 'checkin_due' | 'coach_replied'
 
 export interface ReminderDecision {
@@ -33,6 +48,19 @@ export async function computeCheckinReminders(
   const dayOfWeek = now.getDay() // 0 = Sunday
 
   for (const member of members) {
+    if (isUndeliverableFixture(member.email)) {
+      decisions.push({
+        member_id: member.id,
+        email: member.email,
+        display_name: member.display_name,
+        type: 'checkin_due',
+        reason: 'Test fixture address',
+        skip: true,
+        skip_reason: 'undeliverable_fixture',
+      })
+      continue
+    }
+
     // Skip inactive subscriptions
     const activeSubs = ['active', 'trialing', 'past_due']
     if (member.subscription_status && !activeSubs.includes(member.subscription_status)) {
@@ -129,6 +157,19 @@ export async function computeReplyNotifications(
 
   for (const reply of newReplies) {
     const member = reply.coach_members as any
+
+    if (isUndeliverableFixture(member?.email)) {
+      decisions.push({
+        member_id: reply.member_id,
+        email: member?.email,
+        display_name: member?.display_name,
+        type: 'coach_replied',
+        reason: 'Test fixture address',
+        skip: true,
+        skip_reason: 'undeliverable_fixture',
+      })
+      continue
+    }
 
     const alreadySent = await reminderSentToday(serviceClient, reply.member_id, 'coach_replied', today)
     if (alreadySent) {
