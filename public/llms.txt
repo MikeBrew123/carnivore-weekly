@@ -10,7 +10,7 @@ Key facts:
 ## Core Pages
 
 - [Carnivore Macro Calculator](https://carnivoreweekly.com/calculator.html): Free personalized protein/fat/calorie targets with on-page methodology and FAQ
-- [7-Day Carnivore Starter Plan](https://carnivoreweekly.com/starter-plan.html): Free beginner plan
+- [Your First Weeks on Carnivore](https://carnivoreweekly.com/starter-plan.html): Free welcome email series for beginners
 - [Blog / Insights](https://carnivoreweekly.com/blog/): Full article archive, updated several times weekly
 - [Carnivore Wiki](https://carnivoreweekly.com/wiki/): Reference entries on carnivore topics
 - [Featured Channels](https://carnivoreweekly.com/channels.html): Curated carnivore YouTube creators, updated weekly
