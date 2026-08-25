@@ -57,15 +57,40 @@ export async function POST(request: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session
 
         // Product filter: this Stripe account also receives CW calculator and KD
-        // report checkouts (payment mode, no tier). A coach checkout is always
-        // mode=subscription with metadata.tier set by /api/stripe/checkout.
-        if (session.mode !== 'subscription' || !session.metadata?.tier) {
+        // report checkouts (payment mode, no tier). Two shapes count as a coach
+        // signup:
+        //   1. mode=subscription with metadata.tier, from /api/stripe/checkout
+        //   2. mode=payment with metadata.program, from a one-off Stripe Payment
+        //      Link (the 2026-09-15 Carnivore six-week cohort is sold this way:
+        //      $49 once, not a subscription, so mode is payment and there is no
+        //      tier on the session).
+        const ONE_OFF_PROGRAMS: Record<string, { tier: string; site: string }> = {
+          'carnivore-coach-6wk': { tier: 'carnivore-6wk', site: 'cw' },
+        }
+        // Payment Link metadata is not reliably copied onto the Checkout Session,
+        // so match on the link id too. session.payment_link is always set when a
+        // session originates from a Payment Link.
+        const ONE_OFF_LINKS: Record<string, string> = {
+          plink_1U8QKBEVDfkpGz8wAfPsfaMF: 'carnivore-coach-6wk',
+        }
+        const programKey =
+          session.metadata?.program ??
+          (typeof session.payment_link === 'string'
+            ? ONE_OFF_LINKS[session.payment_link]
+            : undefined)
+        const oneOff = session.mode === 'payment' && programKey
+          ? ONE_OFF_PROGRAMS[programKey]
+          : undefined
+
+        if (!oneOff && (session.mode !== 'subscription' || !session.metadata?.tier)) {
           console.log('Skipping non-coach checkout.session.completed:', session.id)
           break
         }
 
-        const tier = session.metadata.tier
-        const founding = session.metadata?.founding_member === 'true'
+        const tier = oneOff ? oneOff.tier : session.metadata!.tier!
+        const site = oneOff ? oneOff.site : 'ketodial'
+        // One-off cohort buyers are founding members by definition.
+        const founding = oneOff ? true : session.metadata?.founding_member === 'true'
 
         // Create Supabase auth user if not exists
         const { data: authUser } = await supabase.auth.admin.createUser({
@@ -81,9 +106,9 @@ export async function POST(request: NextRequest) {
             console.error('Failed to create or find user for', session.customer_email)
             break
           }
-          await createMemberRow(supabase, existing.id, session, tier, founding)
+          await createMemberRow(supabase, existing.id, session, tier, founding, site)
         } else {
-          await createMemberRow(supabase, authUser.user.id, session, tier, founding)
+          await createMemberRow(supabase, authUser.user.id, session, tier, founding, site)
         }
         break
       }
@@ -136,7 +161,8 @@ async function createMemberRow(
   userId: string,
   session: Stripe.Checkout.Session,
   tier: string,
-  founding: boolean
+  founding: boolean,
+  site: string = 'ketodial'
 ) {
   // Check if member already exists (idempotency for checkout retries)
   const { data: existingMember } = await supabase
@@ -165,9 +191,11 @@ async function createMemberRow(
       display_name: session.customer_email!.split('@')[0],
       email: session.customer_email!,
       tier,
+      site,
       founding_member: founding,
       stripe_customer_id: session.customer as string,
-      stripe_subscription_id: session.subscription as string,
+      // null for one-off cohort purchases; only subscription checkouts set this
+      stripe_subscription_id: (session.subscription as string) ?? null,
       status: 'onboarding',
     })
 
