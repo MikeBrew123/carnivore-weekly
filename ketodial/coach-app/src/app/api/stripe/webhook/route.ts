@@ -92,23 +92,33 @@ export async function POST(request: NextRequest) {
         // One-off cohort buyers are founding members by definition.
         const founding = oneOff ? true : session.metadata?.founding_member === 'true'
 
+        // /api/stripe/checkout pre-fills customer_email, so subscription
+        // sessions carry it. A Payment Link does not: the buyer types their
+        // address at checkout and it lands in customer_details.email, leaving
+        // customer_email null. Read both or one-off buyers get no account.
+        const buyerEmail = session.customer_details?.email ?? session.customer_email
+        if (!buyerEmail) {
+          console.error('No email on checkout session, cannot create member:', session.id)
+          break
+        }
+
         // Create Supabase auth user if not exists
         const { data: authUser } = await supabase.auth.admin.createUser({
-          email: session.customer_email!,
+          email: buyerEmail,
           email_confirm: true,
         })
 
         if (!authUser?.user) {
           // User may already exist — look them up
           const { data: { users } } = await supabase.auth.admin.listUsers()
-          const existing = users?.find(u => u.email === session.customer_email)
+          const existing = users?.find(u => u.email === buyerEmail)
           if (!existing) {
-            console.error('Failed to create or find user for', session.customer_email)
+            console.error('Failed to create or find user for', buyerEmail)
             break
           }
-          await createMemberRow(supabase, existing.id, session, tier, founding, site)
+          await createMemberRow(supabase, existing.id, session, tier, founding, site, buyerEmail)
         } else {
-          await createMemberRow(supabase, authUser.user.id, session, tier, founding, site)
+          await createMemberRow(supabase, authUser.user.id, session, tier, founding, site, buyerEmail)
         }
         break
       }
@@ -162,7 +172,8 @@ async function createMemberRow(
   session: Stripe.Checkout.Session,
   tier: string,
   founding: boolean,
-  site: string = 'ketodial'
+  site: string = 'ketodial',
+  buyerEmail?: string
 ) {
   // Check if member already exists (idempotency for checkout retries)
   const { data: existingMember } = await supabase
@@ -188,8 +199,8 @@ async function createMemberRow(
     .from('coach_members')
     .insert({
       id: userId,
-      display_name: session.customer_email!.split('@')[0],
-      email: session.customer_email!,
+      display_name: (buyerEmail ?? session.customer_email!).split('@')[0],
+      email: buyerEmail ?? session.customer_email!,
       tier,
       site,
       founding_member: founding,
