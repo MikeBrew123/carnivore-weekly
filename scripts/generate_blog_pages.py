@@ -431,7 +431,11 @@ def update_sitemap(posts):
             mtime = os.path.getmtime(full_path)
             lastmod = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
             if url in url_data:
-                url_data[url]["lastmod"] = lastmod
+                # Never roll lastmod backward. Local mtime is unreliable — a fresh
+                # clone, a checkout, or a page last edited on another machine all
+                # give an mtime older than the date already committed in the
+                # sitemap, and regenerating must not undo that.
+                url_data[url]["lastmod"] = max(url_data[url]["lastmod"], lastmod)
             else:
                 # Page exists on disk but missing from sitemap — ADD IT
                 priority = "1.0" if url == "https://carnivoreweekly.com/" else "0.7"
@@ -446,8 +450,17 @@ def update_sitemap(posts):
         date_match = re.match(r"(\d{4}-\d{2}-\d{2})", slug)
         lastmod = date_match.group(1) if date_match else post.get("date", "2026-01-01")
 
-        # Add or update blog post URL
-        url_data[url] = {"lastmod": lastmod, "changefreq": "monthly", "priority": "0.8"}
+        # Add or update blog post URL. The slug date is the publish date, so it
+        # is a floor, not the truth: a post edited after publication already has
+        # a newer lastmod in the sitemap and keeps it.
+        if url in url_data:
+            url_data[url] = {
+                "lastmod": max(url_data[url]["lastmod"], lastmod),
+                "changefreq": "monthly",
+                "priority": "0.8",
+            }
+        else:
+            url_data[url] = {"lastmod": lastmod, "changefreq": "monthly", "priority": "0.8"}
 
     # Auto-discover orphan blog posts — HTML files on disk not in blog_posts.json
     # This prevents sitemap gaps when HTML files exist outside the normal pipeline
