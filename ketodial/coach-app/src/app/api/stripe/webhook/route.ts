@@ -64,8 +64,13 @@ export async function POST(request: NextRequest) {
         //      Link (the 2026-09-15 Carnivore six-week cohort is sold this way:
         //      $49 once, not a subscription, so mode is payment and there is no
         //      tier on the session).
-        const ONE_OFF_PROGRAMS: Record<string, { tier: string; site: string }> = {
-          'carnivore-coach-6wk': { tier: 'carnivore-6wk', site: 'cw' },
+        // Values MUST satisfy the coach_members check constraints:
+        //   site  IN ('ketodial','carnivoreweekly')
+        //   tier  IN ('weekly','daily')
+        //   diet_type IN ('keto','carnivore','lowcarb')
+        // The six-week cohort runs a weekly cadence, so tier is 'weekly'.
+        const ONE_OFF_PROGRAMS: Record<string, { tier: string; site: string; dietType: string }> = {
+          'carnivore-coach-6wk': { tier: 'weekly', site: 'carnivoreweekly', dietType: 'carnivore' },
         }
         // Payment Link metadata is not reliably copied onto the Checkout Session,
         // so match on the link id too. session.payment_link is always set when a
@@ -89,6 +94,7 @@ export async function POST(request: NextRequest) {
 
         const tier = oneOff ? oneOff.tier : session.metadata!.tier!
         const site = oneOff ? oneOff.site : 'ketodial'
+        const dietType = oneOff ? oneOff.dietType : undefined
         // One-off cohort buyers are founding members by definition.
         const founding = oneOff ? true : session.metadata?.founding_member === 'true'
 
@@ -116,9 +122,9 @@ export async function POST(request: NextRequest) {
             console.error('Failed to create or find user for', buyerEmail)
             break
           }
-          await createMemberRow(supabase, existing.id, session, tier, founding, site, buyerEmail)
+          await createMemberRow(supabase, existing.id, session, tier, founding, site, buyerEmail, dietType)
         } else {
-          await createMemberRow(supabase, authUser.user.id, session, tier, founding, site, buyerEmail)
+          await createMemberRow(supabase, authUser.user.id, session, tier, founding, site, buyerEmail, dietType)
         }
         break
       }
@@ -173,7 +179,8 @@ async function createMemberRow(
   tier: string,
   founding: boolean,
   site: string = 'ketodial',
-  buyerEmail?: string
+  buyerEmail?: string,
+  dietType?: string
 ) {
   // Check if member already exists (idempotency for checkout retries)
   const { data: existingMember } = await supabase
@@ -203,6 +210,7 @@ async function createMemberRow(
       email: buyerEmail ?? session.customer_email!,
       tier,
       site,
+      ...(dietType ? { diet_type: dietType } : {}),
       founding_member: founding,
       stripe_customer_id: session.customer as string,
       // null for one-off cohort purchases; only subscription checkouts set this
