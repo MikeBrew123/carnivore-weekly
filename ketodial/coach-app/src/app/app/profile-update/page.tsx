@@ -52,7 +52,7 @@ export default function ProfileUpdatePage() {
     <div className="ob-page">
       <div className="ob" style={{ textAlign: 'center', padding: '60px 20px' }}>
         <h2>Thanks for sharing</h2>
-        <p className="lead">Coach Remy now has a fuller picture. This will make your coaching more personal.</p>
+        <p className="lead">Your coach now has a fuller picture. This will make your coaching more personal.</p>
         <a href="/app/dashboard" className="btn btn-coach" style={{ marginTop: 16 }}>Back to dashboard</a>
       </div>
     </div>

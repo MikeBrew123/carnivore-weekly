@@ -247,7 +247,7 @@ export async function POST(request: NextRequest) {
         .insert({
           member_id: user.id,
           direction: 'coach',
-          content: `Welcome aboard, ${memberName} — I'm Coach Remy.\n\nI've read through your intake. Your ${diet} goals are clear, and the fact that you're here means you're serious about staying consistent.${riskNote}\n\nNo homework yet. Just settle in, eat to your plan, and I'll see you at your first Sunday check-in. That's where the real work starts.\n\nOne thing to remember: you can add notes anytime during the week. I'll read everything when I review your check-in.\n\n— Coach Remy`,
+          content: `Welcome aboard, ${memberName}. I'm your coach.\n\nI've read through your intake. Your ${diet} goals are clear, and the fact that you're here means you're serious about staying consistent.${riskNote}\n\nNo homework yet. Just settle in, eat to your plan, and I'll see you at your first Sunday check-in. That's where the real work starts.\n\nOne thing to remember: you can add notes anytime during the week. I'll read everything when I review your check-in.\n\n— Your coach`,
           review_status: 'approved',
           reviewed_at: now,
           sent_at: now,

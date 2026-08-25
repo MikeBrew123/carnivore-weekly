@@ -134,7 +134,7 @@ export default function DashboardPage() {
                 <div className="sc-title">Your weekly check-in is ready</div>
               </div>
             </div>
-            <p className="sc-snip">Coach Remy is expecting your update. Takes about two minutes.</p>
+            <p className="sc-snip">Your coach is expecting your update. Takes about two minutes.</p>
             <a className="btn btn-accent btn-block" href="/app/checkin">Start check-in</a>
           </div>
         )}
@@ -145,14 +145,14 @@ export default function DashboardPage() {
               <span className="coach-av sm">R</span>
               <div>
                 <div className="sc-k">Check-in received</div>
-                <div className="sc-title">{coach.has_unread_response ? 'New response from Coach Remy' : 'Check-in submitted'}</div>
+                <div className="sc-title">{coach.has_unread_response ? 'New response from your coach' : 'Check-in submitted'}</div>
               </div>
               {coach.has_unread_response && <span className="sc-dot"></span>}
             </div>
             <p className="sc-snip">
               {coach.has_unread_response && coach.latest_response_preview
                 ? coach.latest_response_preview
-                : 'Coach Remy will review and respond within 24 hours.'}
+                : 'Your coach will review and respond within 24 hours.'}
             </p>
             {coach.has_unread_response && (
               <a className="btn btn-primary btn-block" href="/app/thread">View response</a>
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                 <div className="sc-title">Your check-in is waiting</div>
               </div>
             </div>
-            <p className="sc-snip">No guilt — just pick it back up. Coach Remy is expecting your update.</p>
+            <p className="sc-snip">No guilt — just pick it back up. Your coach is expecting your update.</p>
             <a className="btn btn-accent btn-block" href="/app/checkin">Pick it back up</a>
           </div>
         )}
@@ -184,7 +184,7 @@ export default function DashboardPage() {
             <a className="thread-prev" href="/app/thread">
               <span className="coach-av sm">R</span>
               <div className="tp-body">
-                <div className="tp-name">Coach Remy</div>
+                <div className="tp-name">Your coach</div>
                 <div className="tp-snip">{coach.latest_response_preview}</div>
               </div>
               <span className="tp-go">
@@ -211,7 +211,7 @@ export default function DashboardPage() {
           )}
         </div>
         {noteError && <p style={{ fontSize: '12px', color: 'var(--bad)', marginTop: '6px' }}>{noteError}</p>}
-        {noteSent && <p style={{ fontSize: '12px', color: 'var(--good)', marginTop: '6px' }}>Note sent to Coach Remy</p>}
+        {noteSent && <p style={{ fontSize: '12px', color: 'var(--good)', marginTop: '6px' }}>Note sent to your coach</p>}
 
         {/* Focus card */}
         {data.focus?.body && (

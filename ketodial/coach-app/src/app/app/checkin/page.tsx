@@ -68,7 +68,7 @@ export default function CheckInPage() {
           <div className="coach-av lg" style={{ margin: '0 auto 16px', width: '72px', height: '72px', fontSize: '30px' }}>R</div>
           <h2 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '10px' }}>Got it!</h2>
           <p style={{ color: 'var(--ink-soft)', lineHeight: 1.5, maxWidth: '320px', margin: '0 auto 24px' }}>
-            Coach Remy will review your check-in and send your coached response within 24 hours.
+            Your coach will review your check-in and send your response within 24 hours.
           </p>
           <a className="btn btn-accent btn-lg" href="/app/dashboard">Back to dashboard</a>
         </div>
@@ -184,7 +184,7 @@ export default function CheckInPage() {
         </button>
         {error && <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--bad)', marginTop: '11px' }}>{error}</p>}
         <p style={{ textAlign: 'center', fontSize: '11.5px', color: 'var(--ink-faint)', marginTop: '11px' }}>
-          Coach Remy reviews this and sends your response within a day.
+          Your coach reviews this and sends your response within a day.
         </p>
       </div>
     </div>

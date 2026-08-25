@@ -232,7 +232,7 @@ export function formatContextForPrompt(ctx: MemberContext): string {
     lines.push(`\n## Recent Exchanges (last ${ctx.recentExchanges.length})`)
     for (const e of ctx.recentExchanges) {
       const date = new Date(e.sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-      const speaker = e.direction === 'coach' ? 'Coach Remy' : p.display_name
+      const speaker = e.direction === 'coach' ? 'Your coach' : p.display_name
       lines.push(`\n**${speaker}** (${date}):\n${e.content}`)
     }
   }

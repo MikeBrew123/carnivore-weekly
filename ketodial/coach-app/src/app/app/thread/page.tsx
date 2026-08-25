@@ -101,7 +101,7 @@ export default function ThreadPage() {
         <a href="/app/dashboard" className="ic-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </a>
-        <div style={{ fontWeight: 800, fontSize: '17px' }}>Coach Remy</div>
+        <div style={{ fontWeight: 800, fontSize: '17px' }}>Your coach</div>
         <div style={{ width: 38 }}></div>
       </div>
 
@@ -110,7 +110,7 @@ export default function ThreadPage() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 13, height: 13, color: 'var(--coach-deep)' }}>
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
-        Coach Remy responds within 1 business day
+        Your coach responds within 1 business day
       </div>
 
       {/* Thread */}

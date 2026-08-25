@@ -417,7 +417,7 @@ export default function OnboardingPage() {
               confidence_level: goals.confidence_level,
               sleep_hours: goals.sleep_hours ? parseFloat(goals.sleep_hours) : null,
             })} style={{ marginTop: 6 }}>
-              {saving ? 'Setting up...' : 'Meet Coach Remy →'}
+              {saving ? 'Setting up...' : 'Start coaching →'}
             </button>
           </div>
         )}

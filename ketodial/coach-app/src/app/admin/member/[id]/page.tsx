@@ -240,7 +240,7 @@ export default function MemberProfilePage() {
             {[...messages].reverse().map((m: any) => (
               <div key={m.id} className={`thread-msg ${m.direction} ${!m.sent_at && m.direction === 'coach' ? 'pending' : ''}`}>
                 <div className="tm-head">
-                  <span className="tm-who">{m.direction === 'coach' ? 'Coach Remy' : member.display_name}</span>
+                  <span className="tm-who">{m.direction === 'coach' ? 'Your coach' : member.display_name}</span>
                   <span className="tm-date">{m.sent_at ? fmtDate(m.sent_at) : fmtDate(m.created_at)}</span>
                   {!m.sent_at && m.direction === 'coach' && <span className="tm-badge pending-badge">Pending review</span>}
                   {m.was_edited && <span className="tm-badge edited">Edited</span>}

@@ -27,7 +27,7 @@ export const COACH_DRAFT_TOOL = {
     properties: {
       member_message: {
         type: 'string',
-        description: 'The full coaching response the member will see after review approval. Write in Coach Remy voice.',
+        description: 'The full coaching response the member will see after review approval. Write in the coaching voice: warm, plain, and never signed with a personal name.',
       },
       metadata: {
         type: 'object',

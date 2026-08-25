@@ -49,8 +49,8 @@ export default function SignupPage() {
         <h1 className="auth-title">Join KetoDial Coach</h1>
         <p className="auth-lead">
           {tier === 'daily'
-            ? 'Daily check-ins with Coach Remy. $129/month.'
-            : 'Weekly check-ins with Coach Remy. $49/month.'}
+            ? 'Daily check-ins with your coach. $129/month.'
+            : 'Weekly check-ins with your coach. $49/month.'}
         </p>
 
         <div className="auth-field">

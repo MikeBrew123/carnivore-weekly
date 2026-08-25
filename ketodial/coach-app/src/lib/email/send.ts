@@ -25,14 +25,14 @@ const BRAND: Record<CoachSite, {
     product: 'KetoDial Coach',
     from: 'KetoDial Coach <coach@carnivoreweekly.com>',
     replyTo: 'coach@carnivoreweekly.com',
-    coachName: 'Coach Remy',
+    coachName: 'Your coach',
     accent: '#0ea5e9',
   },
   carnivoreweekly: {
     product: 'Carnivore Coach',
     from: 'Carnivore Coach <coach@carnivoreweekly.com>',
     replyTo: 'sarah@carnivoreweekly.com',
-    coachName: 'Coach Remy',
+    coachName: 'Your coach',
     accent: '#b8860b',
   },
 }

@@ -295,7 +295,7 @@ export default function AdminQueuePage() {
             <div className="tb-l">
               <div className="who">
                 <span className="coach-av sm">R</span>
-                <b>Remy</b> <span style={{ color: 'var(--ink-faint)' }}>&middot; reviewing</span>
+                <b>Coach</b> <span style={{ color: 'var(--ink-faint)' }}>&middot; reviewing</span>
               </div>
               <div className="qstats">
                 <span className="qstat"><b>{stats.pending}</b> pending</span>

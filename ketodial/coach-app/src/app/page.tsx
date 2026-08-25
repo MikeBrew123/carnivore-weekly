@@ -57,7 +57,7 @@ export default function LandingPage() {
               <div className="mock-top">
                 <span className="coach-av">R</span>
                 <div>
-                  <div className="who">Coach Remy</div>
+                  <div className="who">Your coach</div>
                   <div className="st">Responded in 6 hours</div>
                 </div>
               </div>
@@ -150,7 +150,7 @@ export default function LandingPage() {
           <div className="sec-head">
             <span className="eyebrow">Membership</span>
             <h2>Weekly accountability, one coached response.</h2>
-            <p>Check in every Sunday. Get one clear, personalized response from Coach Remy. Add notes anytime. No setup fees, no contracts, cancel anytime.</p>
+            <p>Check in every Sunday. Get one clear, personalized response from your coach. Add notes anytime. No setup fees, no contracts, cancel anytime.</p>
           </div>
           <div className="price-grid" style={{ gridTemplateColumns: '1fr', maxWidth: '440px', margin: '0 auto' }}>
             <div className="price feat">
@@ -177,7 +177,7 @@ export default function LandingPage() {
         <div className="wrap">
           <div className="proof">
             <p className="proof-quote">
-              &ldquo;The check-in is the thing. Knowing Remy&apos;s going to ask how my week went is exactly the nudge I needed — I stopped quietly falling off.&rdquo;
+              &ldquo;The check-in is the thing. Knowing someone&apos;s going to ask how my week went is exactly the nudge I needed — I stopped quietly falling off.&rdquo;
             </p>
             <div className="proof-stats">
               <div className="proof-stat"><div className="v">By text</div><div className="l">No calls, no food logging</div></div>
