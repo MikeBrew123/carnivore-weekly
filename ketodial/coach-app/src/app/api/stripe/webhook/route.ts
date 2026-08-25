@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
+import { sendCohortWelcome, sendSaleAlert } from '@/lib/email/send'
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
@@ -125,6 +126,44 @@ export async function POST(request: NextRequest) {
           await createMemberRow(supabase, existing.id, session, tier, founding, site, buyerEmail, dietType)
         } else {
           await createMemberRow(supabase, authUser.user.id, session, tier, founding, site, buyerEmail, dietType)
+        }
+
+        // One-off cohort buyers get a welcome with a working sign-in link, and
+        // Brew gets told a sale landed. Both are best-effort: an email failure
+        // must never make the webhook non-2xx, or Stripe retries and we create
+        // the member twice.
+        if (oneOff) {
+          try {
+            const { data: link } = await supabase.auth.admin.generateLink({
+              type: 'recovery',
+              email: buyerEmail,
+              options: { redirectTo: 'https://coach.ketodial.com/auth/callback' },
+            })
+            const loginUrl = link?.properties?.action_link
+            if (loginUrl) {
+              await sendCohortWelcome(buyerEmail, loginUrl, {
+                startDate: '15 September',
+                discountCode: 'COACH50',
+              })
+            } else {
+              console.error('No sign-in link generated for', buyerEmail)
+            }
+
+            const { count } = await supabase
+              .from('coach_members')
+              .select('id', { count: 'exact', head: true })
+              .eq('tier', oneOff.tier)
+              .eq('site', oneOff.site)
+
+            await sendSaleAlert(
+              buyerEmail,
+              `$${((session.amount_total ?? 0) / 100).toFixed(2)} ${(session.currency ?? 'usd').toUpperCase()}`,
+              programKey ?? 'coach',
+              count ?? null,
+            )
+          } catch (mailErr) {
+            console.error('Post-purchase email failed (member still created):', mailErr)
+          }
         }
         break
       }
