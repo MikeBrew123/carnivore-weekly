@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-08-23",
+  "last_updated": "2026-08-26",
   "leaderboard": [
     {
       "name": "HomeSteadHow",
       "rank": 1,
-      "appearances": 5,
+      "appearances": 6,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Shawn Baker MD",
+      "name": "Ben Guiles",
       "rank": 2,
       "appearances": 4,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+      "channel_id": "UCl6fmp49U7zd-8ozbvzLQKg"
     },
     {
-      "name": "Meet Carnivore",
+      "name": "Bart Kay - Health Science",
       "rank": 3,
       "appearances": 3,
-      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
-    },
-    {
-      "name": "Jenny Mitich",
-      "rank": 4,
-      "appearances": 3,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
-    },
-    {
-      "name": "Ketogenic Woman",
-      "rank": 5,
-      "appearances": 6,
-      "channel_id": "UCFunJX1wNIoqrfb-1CSa9aw"
+      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
     },
     {
       "name": "Emmathecarnivore",
-      "rank": 6,
-      "appearances": 6,
+      "rank": 4,
+      "appearances": 7,
       "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
     },
     {
-      "name": "Maria Emmerich",
-      "rank": 7,
-      "appearances": 2,
-      "channel_id": "UCyZia0TtezGqjGcXwXJhDoQ"
+      "name": "Jenny Mitich",
+      "rank": 5,
+      "appearances": 4,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "DJ's Food Channel",
-      "rank": 8,
-      "appearances": 2,
-      "channel_id": "UCm4RRgaboCRavsEdgyJZZzQ"
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 6,
+      "appearances": 4,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+    },
+    {
+      "name": "Carnivore Quest",
+      "rank": 7,
+      "appearances": 4,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
       "name": "Carnivore Teacher Alpha",
-      "rank": 9,
-      "appearances": 1,
+      "rank": 8,
+      "appearances": 2,
       "channel_id": "UCLoe46vokIWT50lOoqcr5kg"
     },
     {
-      "name": "Receitas Low Carb para Diab\u00e9ticos  ",
-      "rank": 10,
+      "name": "Richard Smith ",
+      "rank": 9,
       "appearances": 1,
-      "channel_id": "UCzin6W2TYySPvCnwgOi6eww"
+      "channel_id": "UCD0szaevd4EkDx1A31kUfCQ"
+    },
+    {
+      "name": "Mitch Weiss, OGC, Healthy Aging",
+      "rank": 10,
+      "appearances": 2,
+      "channel_id": "UCoLOzrRmjuhKDwYFB_BiK1A"
     }
   ]
 }
