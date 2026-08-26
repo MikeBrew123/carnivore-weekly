@@ -34,6 +34,7 @@ def audience(s):
     nl.raise_for_status()
     dr = requests.get(f"{url}/rest/v1/drip_subscribers", headers=h,
                       params={"select": "email", "site": "eq.cw",
+                              "bounced_at": "is.null",
                               "or": "(unsubscribed.is.null,unsubscribed.eq.false)"})
     dr.raise_for_status()
     emails = {r["email"].strip().lower() for r in nl.json() if r.get("email")}
