@@ -15,9 +15,9 @@ import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 HTML = ROOT / "emails" / "2026-08-27-coach-launch.html"
-SUBJECT = "A small group I'm putting together"
-FROM = "Sarah at Carnivore Weekly <newsletter@carnivoreweekly.com>"
-REPLY_TO = "sarah@carnivoreweekly.com"
+SUBJECT = "I paid for this once. It worked."
+FROM = "Mike at Carnivore Weekly <newsletter@carnivoreweekly.com>"
+REPLY_TO = "iambrew@gmail.com"
 UNSUB = "https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe"
 TEST_EMAILS = ["iambrew@gmail.com"]
 
