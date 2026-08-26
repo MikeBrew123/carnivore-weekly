@@ -443,7 +443,7 @@
             <h3 style="font-family: 'Libre Baskerville', serif; font-size: 1.25rem; color: #1a1a1a; margin: 0 0 8px 0;">What should we cover next?</h3>
             <p style="font-size: 0.95rem; color: #4a4a4a; margin: 0 0 20px 0; line-height: 1.5;">Help us choose future guides. Pick a topic or tell us what you're working on.</p>
             <div style="display: flex; flex-direction: column; gap: 12px; max-width: 340px; margin: 0 auto;">
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSdSmdwjDjLOVyJv5M81PZEkuVn_fmbmzuoRwWqNzNSpQvMa-w/viewform" target="_blank" rel="noopener" class="interaction-btn interaction-btn--vote" style="display: inline-block; padding: 12px 24px; background: #2d5016; color: #fff; font-weight: 600; font-size: 0.95rem; border-radius: 6px; text-decoration: none; transition: background 0.2s;" onclick="try{gtag('event','interaction_topic_vote',{event_category:'engagement',content_id:'2026-02-17-rfk-carnivore-diet-movement'})}catch(e){}">Vote on Next Topic</a>
+                <button type="button" class="interaction-btn interaction-btn--vote" style="display: inline-block; padding: 12px 24px; background: #2d5016; color: #fff; font-weight: 600; font-size: 0.95rem; border-radius: 6px; border: none; cursor: pointer; text-decoration: none; transition: background 0.2s;" onclick="try{gtag('event','interaction_topic_vote',{event_category:'engagement',content_id:'2026-02-17-rfk-carnivore-diet-movement'})}catch(e){};var b=document.getElementById('feedback-button');if(b){b.click()}else{window.location='/#feedback'}">Tell Us What to Cover</button>
                 <a href="/calculator.html#calculator-start" class="interaction-btn interaction-btn--calc" style="display: inline-block; padding: 12px 24px; background: #fff; color: #2d5016; font-weight: 600; font-size: 0.95rem; border-radius: 6px; text-decoration: none; border: 2px solid #2d5016; transition: all 0.2s;" onclick="try{gtag('event','interaction_calculator_cta',{event_category:'engagement',content_id:'2026-02-17-rfk-carnivore-diet-movement'})}catch(e){}">Run the Free Calculator</a>
             </div>
         </div>
@@ -561,6 +561,7 @@
     <script src="/js/newsletter-inject.js" defer></script>
     <script src="/js/starter-plan-inject.js" defer></script>
     <script src="/js/ketodial-inject.js" defer></script>
+    <!-- Feedback Modal Component (replaces the retired Google Form) -->
     <script>
         fetch('/components/feedback-modal.html')
             .then(response => response.text())
@@ -568,6 +569,9 @@
                 const div = document.createElement('div');
                 div.innerHTML = html;
                 document.body.appendChild(div);
+                const script = document.createElement('script');
+                script.src = '/js/feedback-modal.js';
+                document.body.appendChild(script);
             });
     </script>
 </body>
