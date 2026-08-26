@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: pip install beautifulsoup4 lxml html5lib markdown jinja2 supabase python-dotenv requests "pillow>=10.0.0"
 
-      - name: Send drip emails (7-Day Starter)
+      - name: Send drip emails (Your First Weeks on Carnivore)
         id: drip
         continue-on-error: true
         env:
