@@ -153,6 +153,10 @@ etsy/products/**/*.zip
 # The snapshot SCRIPT (etsy/etsy-snapshot.mjs) is committed; the DATA is not.
 reports/etsy-snapshots/
 
+# Coach launch send ledger — subscriber addresses, keep OUT of this public repo.
+# The SCRIPT (scripts/send_coach_launch.py) is committed; the ledger DATA is not.
+reports/coach-launch-send-ledger*.jsonl
+
 # Wrangler local dev secrets (never commit)
 .dev.vars
 api/.dev.vars
