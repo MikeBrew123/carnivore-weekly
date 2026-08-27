@@ -31,7 +31,11 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Public routes — no auth required
-  const publicPaths = ['/', '/login', '/signup', '/auth/callback', '/api/stripe/webhook']
+  // /api/auth/link is listed explicitly even though the /api/ branch below would
+  // let it through anyway: a signed-out person asking for a sign-in link is the
+  // most ordinary thing that happens on this app and it should not depend on a
+  // catch-all.
+  const publicPaths = ['/', '/login', '/signup', '/auth/callback', '/api/auth/link', '/api/stripe/webhook']
   if (publicPaths.some(p => pathname === p || pathname.startsWith(p + '/'))) {
     return supabaseResponse
   }
@@ -41,13 +45,31 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse
   }
 
-  // /app/* routes — require authenticated user
+  // /app/* routes — require an authenticated user who is actually a member.
+  //
+  // Authentication alone is not enough. Supabase signup is open on this project
+  // and OAuth creates a brand new user whenever the provider's email does not
+  // match an existing one, so "has a session" and "bought the thing" are two
+  // different questions. Same shape as the coach_admins check below: the query
+  // runs with the anon key under RLS (members_read_own), and a missing row or a
+  // failed query both mean no entry.
   if (pathname === '/app' || pathname.startsWith('/app/')) {
     if (!user) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(loginUrl)
     }
+
+    const { data: member } = await supabase
+      .from('coach_members')
+      .select('id')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (!member) {
+      return NextResponse.redirect(new URL('/login?error=nomatch', request.url))
+    }
+
     return supabaseResponse
   }
 

@@ -3,6 +3,8 @@ import { stripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
 import { sendCohortWelcome, sendSaleAlert } from '@/lib/email/send'
+import { signInUrlFrom, COACH_ORIGIN } from '@/lib/auth/links'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
@@ -32,25 +34,38 @@ export async function POST(request: NextRequest) {
 
   const supabase = await createServiceClient()
 
-  // Idempotency: skip already-processed events
+  // Idempotency, with room for a retry.
+  //
+  // The row is still written before processing so a replay cannot double-charge
+  // anyone, but "we have seen this event" and "we finished this event" are now
+  // different facts. Previously they were the same fact, so a single transient
+  // failure — one Supabase blip mid-handler — permanently swallowed a purchase:
+  // Stripe retried, the retry saw the row the failed attempt had written, and
+  // returned success without ever creating the member.
+  //
+  // processed_at is read defensively. If the column has not been added yet
+  // (schema/005_coach_stripe_events_processed_at.sql), it reads as undefined and
+  // the behaviour falls back to exactly what it was before: any existing row
+  // means skip.
   const { data: existing } = await supabase
     .from('coach_stripe_events')
-    .select('id')
+    .select('*')
     .eq('id', event.id)
-    .single()
+    .maybeSingle()
 
-  if (existing) {
+  if (existing && (existing as { processed_at?: string | null }).processed_at !== null) {
     return NextResponse.json({ received: true, skipped: true })
   }
 
-  // Record event before processing (prevents replay on retry)
-  await supabase
-    .from('coach_stripe_events')
-    .insert({
-      id: event.id,
-      type: event.type,
-      payload: event.data.object as any,
-    })
+  if (!existing) {
+    await supabase
+      .from('coach_stripe_events')
+      .insert({
+        id: event.id,
+        type: event.type,
+        payload: event.data.object as any,
+      })
+  }
 
   try {
     switch (event.type) {
@@ -109,21 +124,26 @@ export async function POST(request: NextRequest) {
           break
         }
 
-        // Create Supabase auth user if not exists
+        // Create Supabase auth user if not exists.
+        //
+        // email_confirm: true is load-bearing, not a convenience. Supabase only
+        // auto-links a Google identity into an existing user when that user's
+        // email is already confirmed; an unconfirmed one gets a brand new user
+        // id instead, which would orphan the purchase and break every RLS policy
+        // that reads auth.uid() = coach_members.id. Leave it on.
         const { data: authUser } = await supabase.auth.admin.createUser({
           email: buyerEmail,
           email_confirm: true,
         })
 
         if (!authUser?.user) {
-          // User may already exist — look them up
-          const { data: { users } } = await supabase.auth.admin.listUsers()
-          const existing = users?.find(u => u.email === buyerEmail)
-          if (!existing) {
+          // User may already exist — look them up.
+          const existingUser = await findAuthUserByEmail(supabase, buyerEmail)
+          if (!existingUser) {
             console.error('Failed to create or find user for', buyerEmail)
             break
           }
-          await createMemberRow(supabase, existing.id, session, tier, founding, site, buyerEmail, dietType)
+          await createMemberRow(supabase, existingUser.id, session, tier, founding, site, buyerEmail, dietType)
         } else {
           await createMemberRow(supabase, authUser.user.id, session, tier, founding, site, buyerEmail, dietType)
         }
@@ -133,22 +153,11 @@ export async function POST(request: NextRequest) {
         // must never make the webhook non-2xx, or Stripe retries and we create
         // the member twice.
         if (oneOff) {
+          // The owner alert goes FIRST and in its own try. It used to sit after
+          // generateLink inside the same try, so the one mechanism that tells
+          // Brew a sale landed and something broke was the mechanism that got
+          // skipped when something broke.
           try {
-            const { data: link } = await supabase.auth.admin.generateLink({
-              type: 'recovery',
-              email: buyerEmail,
-              options: { redirectTo: 'https://coach.ketodial.com/auth/callback' },
-            })
-            const loginUrl = link?.properties?.action_link
-            if (loginUrl) {
-              await sendCohortWelcome(buyerEmail, loginUrl, {
-                startDate: '15 September',
-                discountCode: 'COACH50',
-              })
-            } else {
-              console.error('No sign-in link generated for', buyerEmail)
-            }
-
             const { count } = await supabase
               .from('coach_members')
               .select('id', { count: 'exact', head: true })
@@ -161,8 +170,32 @@ export async function POST(request: NextRequest) {
               programKey ?? 'coach',
               count ?? null,
             )
+          } catch (alertErr) {
+            console.error('Sale alert failed (member still created):', alertErr)
+          }
+
+          try {
+            // magiclink, not recovery. Recovery means "reset your password", and
+            // this product no longer has passwords to reset.
+            const { data: link } = await supabase.auth.admin.generateLink({
+              type: 'magiclink',
+              email: buyerEmail,
+              options: { redirectTo: `${COACH_ORIGIN}/auth/callback` },
+            })
+            // Our own callback with the token hash, so the session lands in
+            // server-set HttpOnly cookies rather than a URL fragment. Falls back
+            // to Supabase's action_link. See lib/auth/links.ts.
+            const loginUrl = signInUrlFrom(link?.properties, 'magiclink')
+            if (loginUrl) {
+              await sendCohortWelcome(buyerEmail, loginUrl, {
+                startDate: '15 September',
+                discountCode: 'COACH50',
+              })
+            } else {
+              console.error('No sign-in link generated for', buyerEmail)
+            }
           } catch (mailErr) {
-            console.error('Post-purchase email failed (member still created):', mailErr)
+            console.error('Welcome email failed (member still created):', mailErr)
           }
         }
         break
@@ -204,11 +237,44 @@ export async function POST(request: NextRequest) {
     }
   } catch (err) {
     console.error(`Webhook processing error for ${event.type}:`, err)
-    // Return 500 so Stripe retries the event
+    // Return 500 so Stripe retries the event. The ledger row stays unprocessed,
+    // so the retry is allowed to finish the job instead of short-circuiting.
     return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
   }
 
+  // Finished. Only now is the event closed to retries. A missing processed_at
+  // column just logs; the old behaviour still applies in that case.
+  const { error: markError } = await supabase
+    .from('coach_stripe_events')
+    .update({ processed_at: new Date().toISOString() })
+    .eq('id', event.id)
+  if (markError) console.error('Could not mark stripe event processed:', markError)
+
   return NextResponse.json({ received: true })
+}
+
+// supabase.auth.admin.listUsers() paginates and defaults to 50 per page. The
+// previous code called it with no arguments and searched only that first page,
+// so once the project passes 50 auth users a repeat buyer or a retried webhook
+// would silently fail to find the existing account, log "Failed to create or
+// find user" and create no member row. Ten existing users plus a 40-seat cohort
+// crosses that line during this launch.
+async function findAuthUserByEmail(supabase: SupabaseClient, email: string) {
+  const target = email.toLowerCase()
+  const perPage = 1000
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage })
+    if (error) {
+      console.error('listUsers failed while looking up', email, error)
+      return null
+    }
+    const users = data?.users ?? []
+    const match = users.find(u => u.email?.toLowerCase() === target)
+    if (match) return match
+    if (users.length < perPage) return null
+  }
+  console.error('listUsers exhausted 50 pages without finding', email)
+  return null
 }
 
 async function createMemberRow(
