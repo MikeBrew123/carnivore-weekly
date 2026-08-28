@@ -442,6 +442,9 @@ jobs:
           check_workflow weekly-update.yml 192
           check_workflow supabase-keepalive.yml 96
           check_workflow blog-queue-watchdog.yml 120
+          # Added 2026-08-28: the Command Center email silently missed Aug 27 (10h late)
+          # and Aug 28 (dropped) with nothing watching it. 30h = one missed daily run.
+          check_workflow dashboard-update.yml 30
 
           # weekly-update's LATEST run failing matters even if an older one succeeded
           # (Jul 5 2026: final git push lost a race and the refresh commit was orphaned)
