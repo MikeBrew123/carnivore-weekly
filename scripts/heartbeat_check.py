@@ -57,6 +57,11 @@ def check(name, path, max_age, missing_is_dead=True):
 # 1. Dashboard cron (daily 10:00 UTC) — stale after 30h
 check('dashboard-cron', os.path.join(LOGS, 'dashboard_update.log'), 30 * HOURS)
 
+# 1b. Command Center (daily 3:40 PT, moved off Actions 2026-08-28) — stale after 30h.
+#     Nothing watched this job when it lived in Actions; Aug 27 ran 10h late and Aug 28
+#     was dropped, both unnoticed. Never let it go unmonitored again.
+check('command-center', os.path.join(LOGS, 'command_center.log'), 30 * HOURS)
+
 # 2. Scoreboard truth pass (Mondays) — stale after 8d. Judged by the newest
 #    snapshot file, not the cron log: since 2026-08 the pass is often run by a
 #    Claude scheduled task instead of the 3:30am cron (Mac asleep), and those

@@ -31,7 +31,9 @@ Maintenance notes for future (small-model) sessions:
 import argparse
 import json
 import os
+import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
@@ -42,6 +44,12 @@ CREDS_PATH = os.path.join(SCRIPT_DIR, 'ga4-credentials.json')
 SECRETS_PATH = os.path.join(PROJECT_ROOT, 'secrets', 'api-keys.json')
 DATA_OUT = os.path.join(SCRIPT_DIR, 'command-center-data.json')
 HTML_OUT = os.path.join(SCRIPT_DIR, 'command-center.html')
+
+# NAS deck (BobLoblaw). Tailscale IP so the link works off the LAN too; the
+# report holds subscriber emails and revenue, so it never leaves Brew's network.
+NAS_HOST = 'mbrew@100.117.74.5'
+NAS_ROOT = '/volume1/docker/artifacts-site'
+NAS_BASE_URL = 'http://100.117.74.5:8087'
 
 SUPABASE_PROJECT_ID = 'kwtdpvnjewtahuxjyltn'
 CW_GA4 = 'properties/517632328'
@@ -1826,7 +1834,39 @@ auto-updates daily via GitHub Actions (dashboard-update.yml) · run manually any
     return html
 
 
-def email_report(data, html):
+def push_to_nas(html, data):
+    """Publish to the NAS deck: a stable /live/ URL plus a dated archive copy.
+
+    Called BEFORE the email so the link is already live when the mail lands.
+    Only the two files written here go in the tar — index.html, artifacts/,
+    data/ and server.py on the NAS are never touched.
+    """
+    dated = f'command-center-{data["meta"]["generated_date"]}.html'
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            live = os.path.join(tmp, 'public', 'live')
+            reports = os.path.join(tmp, 'public', 'reports')
+            os.makedirs(live)
+            os.makedirs(reports)
+            for path in (os.path.join(live, 'command-center.html'),
+                         os.path.join(reports, dated)):
+                with open(path, 'w') as fh:
+                    fh.write(html)
+            subprocess.run(
+                ['sh', '-c',
+                 f'tar czf - -C "{tmp}" public | '
+                 f'ssh -o ConnectTimeout=15 -o BatchMode=yes {NAS_HOST} '
+                 f'"cd {NAS_ROOT} && tar xzf -"'],
+                check=True, capture_output=True, timeout=180)
+        print(f'  NAS updated -> {NAS_BASE_URL}/live/command-center.html')
+        return True
+    except Exception as e:
+        detail = getattr(e, 'stderr', b'') or str(e).encode()
+        print(f'  NAS push FAILED: {detail.decode(errors="replace")[:300]}')
+        return False
+
+
+def email_report(data, html, nas_ok=False):
     """Email the dashboard to Brew (body = review + flags, full HTML attached).
     Used by the daily GitHub Action — the repo is PUBLIC, so the report is
     delivered by email instead of being committed."""
@@ -1913,10 +1953,20 @@ def email_report(data, html):
                     f'🧭 Oldest open decision: <b>{esc(oldest["title"])}</b> — waiting '
                     f'{oldest["age_days"]} days</p>')
 
+    # Link first, attachment second. Apple Mail drops attachments into its own
+    # sandboxed container, and macOS blocks file:// reads there — the link is the
+    # copy that actually opens (2026-08-28).
+    if nas_ok:
+        nas_html = (f'<p style="margin:0 0 16px"><a href="{NAS_BASE_URL}/live/command-center.html" '
+                    f'style="color:#0b57d0;font-weight:600">Open the full dashboard</a> '
+                    f'<span style="color:#889">(on the NAS deck, also attached below)</span></p>')
+    else:
+        nas_html = ('<p style="color:#667;margin:0 0 16px">Full interactive dashboard attached '
+                    '(open in a browser). NAS copy unavailable this run.</p>')
     body = f'''<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;
       margin:0 auto;color:#1a1a1a;font-size:15px;line-height:1.5">
       <h2 style="margin:0 0 4px">🎛️ Command Center — {esc(data['meta']['generated_date'])}</h2>
-      <p style="color:#667;margin:0 0 16px">Full interactive dashboard attached (open in a browser).</p>
+      {nas_html}
       {focus_tag}{paras}
       {pace_html}{y_html}{pulse_html}{dec_html}
       <ul style="list-style:none;padding:0;margin:16px 0">{items}</ul>
@@ -1942,7 +1992,9 @@ def main():
     ap.add_argument('--no-model', action='store_true',
                     help='Skip the AI narrative (rule-based insights only)')
     ap.add_argument('--email', action='store_true',
-                    help='Also email the report to Brew via Resend (used by CI)')
+                    help='Also email the report to Brew via Resend')
+    ap.add_argument('--nas', action='store_true',
+                    help='Publish to the NAS deck before emailing (Mac cron only)')
     args = ap.parse_args()
 
     if not get_service_role_key():
@@ -1955,8 +2007,9 @@ def main():
         json.dump(data, fh, indent=1, default=str)
     with open(HTML_OUT, 'w') as fh:
         fh.write(html)
+    nas_ok = push_to_nas(html, data) if args.nas else False
     if args.email:
-        email_report(data, html)
+        email_report(data, html, nas_ok=nas_ok)
     print(f'Done → {HTML_OUT}')
 
 
