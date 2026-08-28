@@ -14,7 +14,9 @@ name: Dashboard Update
 
 on:
   schedule:
-    - cron: '30 10 * * *'   # 10:30 UTC daily (Mac cron runs 10:00; overlap is harmless)
+    - cron: '17 10 * * *'   # 10:17 UTC daily. Moved off :30 on 2026-08-28 — GitHub defers
+                            # scheduled runs on congested :00/:30 slots; Aug 27 fired 10h late
+                            # and Aug 28 was dropped entirely. Odd minutes queue faster.
   workflow_dispatch:
 
 permissions:
