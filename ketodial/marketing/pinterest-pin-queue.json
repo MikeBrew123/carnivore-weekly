@@ -1,5 +1,5 @@
 {
-  "_readme": "Pinterest pin queue for KetoDial recipes. Account: Brew Brew (iambrew). To post: open pin_url in logged-in Chrome, then save to the pin's `board` field (default 'Keto Recipes' if absent) via the picker search box. Boards in use: Keto Recipes, Low Carb Desserts, Keto Snacks, Keto Dinner Ideas, Keto Breakfast Recipes, Keto Meal Prep. Post max 10/day to stay under Pinterest spam thresholds. Mark posted with date. MANDATORY (added 2026-07-11): every destination url= inside pin_url MUST carry ?utm_source=pinterest&utm_medium=social&utm_campaign={slug} \u2014 Pinterest's app strips referrers, so untagged clicks show up as 'direct' in GA4 and the channel can't be judged. New queue entries must follow the same pattern.",
+  "_readme": "Pinterest pin queue for KetoDial recipes. Account: Brew Brew (iambrew). To post: open pin_url in logged-in Chrome, then save to the pin's `board` field (default 'Keto Recipes' if absent) via the picker search box. Boards in use: Keto Recipes, Low Carb Desserts, Keto Snacks, Keto Dinner Ideas, Keto Breakfast Recipes, Keto Meal Prep. Post max 10/day to stay under Pinterest spam thresholds. Mark posted with date. MANDATORY (added 2026-07-11): every destination url= inside pin_url MUST carry ?utm_source=pinterest&utm_medium=social&utm_campaign={slug} — Pinterest's app strips referrers, so untagged clicks show up as 'direct' in GA4 and the channel can't be judged. New queue entries must follow the same pattern.",
   "pins": [
     {
       "slug": "90-second-keto-bread",
@@ -1434,6 +1434,20 @@
       "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fketo-muscle-loss-scans.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dketo-muscle-loss-scans&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fketo-muscle-loss-scans.jpg&description=Early%20keto%20DEXA%20scans%20show%20lean%20mass%20dropping%2C%20but%20most%20of%20it%20is%20glycogen%20and%20water.%20Learn%20what%20real%20muscle%20loss%20looks%20like%20and%20how%20to%20prevent%20it.%20Read%20more%20at%20ketodial.com",
       "board": "Keto Meal Prep",
       "posted": "2026-08-24"
+    },
+    {
+      "slug": "keto-pcos-meta-analysis",
+      "title": "Keto and PCOS: What the New Meta-Analysis Shows",
+      "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fketo-pcos-meta-analysis.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dketo-pcos-meta-analysis&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fketo-pcos-meta-analysis.jpg&description=New%20meta-analyses%20on%20keto%20and%20PCOS%20show%20lower%20testosterone%20and%20better%20insulin%20markers.%20Here%20is%20what%20the%20research%20supports%2C%20what%20it%20doesn%26%23x27%3Bt%2C%20and%20how%20to%20set%20your%20macros.%20Read%20more%20at%20ketodial.com",
+      "board": "Keto Meal Prep",
+      "posted": null
+    },
+    {
+      "slug": "keto-maintenance-adding-carbs-back",
+      "title": "Keto Maintenance: Adding Carbs Back Without Regain",
+      "pin_url": "https://www.pinterest.com/pin/create/button/?url=https%3A%2F%2Fketodial.com%2Fblog%2Fketo-maintenance-adding-carbs-back.html%3Futm_source%3Dpinterest%26utm_medium%3Dsocial%26utm_campaign%3Dketo-maintenance-adding-carbs-back&media=https%3A%2F%2Fketodial.com%2Fimages%2Fblog%2Fketo-maintenance-adding-carbs-back.jpg&description=A%20step%20by%20step%20keto%20maintenance%20protocol%3A%20recalculate%20macros%20at%20goal%20weight%2C%20add%20calories%20slowly%2C%20handle%20the%20water%20weight%20bump%2C%20and%20hold%20a%20weight%20range%20instead%20of%20a%20number.%20Read%20more%20at%20ketodial.com",
+      "board": "Keto Meal Prep",
+      "posted": null
     }
   ]
 }
