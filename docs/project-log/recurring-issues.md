@@ -659,3 +659,17 @@ Attempts:
 - 2026-08-11 — Added `verifyResendSignature()` (Svix scheme, NOT a copy of the Stripe verifier: Svix base64-decodes the secret, emits base64 not hex, and sends space-separated `v1,<sig>` pairs during rotation). Verify runs before any parse or DB write; body read via `request.text()` since HMAC covers exact bytes. Accepts `svix-*` and `webhook-*` headers, 5-min replay window, constant-time compare with no early return, fails CLOSED when the secret is unset. Also fixed the suppression PATCHes: they ran with `return=minimal` inside `Promise.all` and never checked `res.ok`, so schema drift would fail silently while logging "Suppressed".
 - 2026-08-11 — Secret set via `wrangler secret put RESEND_WEBHOOK_SECRET --env production`, then deployed (version 9c24a106). 9 local tests pass incl. Svix's published test vector; 5 production smoke tests pass (unsigned/tampered/stale/forged-suppression-of-a-real-subscriber all 401, valid 200). Confirmed genuine traffic unaffected: real `opened` events landed 43s after deploy and were accepted.
 If recurs: set the secret BEFORE deploying, or every webhook 401s and tracking dies silently. If Resend rotates the signing secret, update `secrets/api-keys.json` AND re-run `wrangler secret put`. Watch for 401s in `wrangler tail --env production` as the first symptom.
+
+## ISSUE-071 — Etsy reviews 403 in inbox digest was a bad call, not a rotated token
+🟢 FIXED — Last: 2026-08-29
+Pattern: `etsyHeaders()` called with no argument sends `Bearer undefined`, and Etsy answers
+`403 Invalid access token: not a Bearer token or token format is incorrect` — which looks exactly
+like the rotation/invalid_grant failures ISSUE-0xx trained us to expect, so the instinct is to go
+re-auth OAuth. The token was fine the whole time.
+Attempts:
+- 2026-08-29 — writer-inbox daily digest hit 403 on shop reviews → read `etsy/token.mjs:139`,
+  `etsyHeaders(token)` takes the token as a parameter. Passing it returned 200 immediately.
+  Fixed the scheduled-task file `~/.claude/scheduled-tasks/writer-inbox-daily-check/SKILL.md`
+  to spell out the two-step call and to name this exact 403 as a false rotation signal.
+If recurs: on ANY Etsy 403, check the call passes a token BEFORE touching OAuth. Only chase
+rotation when the token is present and the row in `etsy_tokens` is genuinely stale.
