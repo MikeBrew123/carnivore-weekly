@@ -1,31 +1,45 @@
 {
-  "date": "2026-08-23",
-  "subject_line": "Your labs look worse before they look better",
-  "opening": "<p style='margin:0;'>Happy Sunday, friends. We've got a big one this week, and honestly the timing couldn't be better. Whether you're three weeks in or three months deep, something in this issue is going to make you feel a lot less alone.</p>",
+  "date": "2026-08-30",
+  "subject_line": "Your heart fluttered at 2am. Now what?",
+  "opening": "<p style='margin:0;'>Happy Sunday, friends. This week's issue covers the stuff nobody warned you about before you started, and the stuff that keeps people up at night, sometimes literally. Grab your coffee and let's get into it.</p>",
   "hero": {
-    "slug": "2026-08-22-carnivore-a1c-90-days",
-    "title": "What Carnivore Does to Your A1c in 90 Days",
+    "slug": "2026-08-28-heart-palpitations-carnivore",
+    "title": "Heart Palpitations on Carnivore: When to Worry",
     "writer": "Sarah",
-    "teaser": "You switched to carnivore, you feel better than you have in years, and then your lab results come back looking somehow worse. Fasting glucose up, A1c not where you expected it. Before you panic and call it a failed experiment, there's a specific reason this happens on a low-carb diet, and it's not what your doctor is probably telling you. Sarah breaks down exactly what's going on inside your blood work at the 30, 60, and 90-day marks. You'll want to read this before your next appointment.",
-    "cta": "Read before your next lab draw"
+    "teaser": "You wake up at 2 a.m. and your heart is doing something weird, and suddenly you're running through every scary scenario in your head. Sarah has seen this question in her inbox more times than she can count. The good news is there's a clear, logical reason this happens on carnivore, and most of the time it's completely fixable. But she's also honest about the cases where you really do need to pick up the phone.",
+    "cta": "Read before your next late night"
   },
   "supporting": [
     {
-      "slug": "2026-08-21-hair-shedding-carnivore-month-three",
-      "title": "Hair Shedding on Carnivore: Why Month Three Is Worst",
-      "teaser": "Sarah says it's almost always about one specific thing, and fixing it is simpler than you'd expect."
+      "slug": "2026-08-29-sick-of-beef-month-two",
+      "title": "Sick of Beef at Month Two? You're Not Alone",
+      "teaser": "Chloe found the real reason people quit carnivore, and it has nothing to do with willpower or results."
     },
     {
-      "slug": "2026-08-19-stalled-at-month-three",
-      "title": "Stalled at Month Three? Here's What to Change",
-      "teaser": "The pattern behind month-three stalls is real, and apparently so is the fix."
+      "slug": "2026-08-27-calories-needed-after-50",
+      "title": "How Many Calories You Actually Need After 50",
+      "teaser": "Marcus says every standard calorie chart is making the same assumption about you, and it's almost certainly wrong."
     },
     {
-      "slug": "2026-08-20-hypothyroid-carnivore-scale-wont-move",
-      "title": "Hypothyroid on Carnivore: Why the Scale Won't Move",
-      "teaser": "If your thyroid is underactive, Sarah says the standard advice might actually be working against you."
+      "slug": "2026-08-26-spouse-thinks-diet-will-hurt-you",
+      "title": "When Your Spouse Thinks This Diet Will Hurt You",
+      "teaser": "Chloe found a way to handle the dinner-table standoff that doesn't involve a single argument about cholesterol."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Pull out your most recent blood work and write down your fasting glucose and A1c.</strong> If you don't have labs yet, schedule them this week. Knowing your baseline before you change anything else is the only way to know if the diet is actually moving the needle for you.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something the community has been asking about for months, and the answer is going to surprise people who think they're already doing carnivore right.</p>"
+  "community_pulse": [
+    {
+      "question": "I've been strict carnivore for almost two years and now I'm getting muscle twitches. Is that normal or is something off?",
+      "answer": "Many people find that muscle twitching after extended carnivore eating points straight to electrolytes, magnesium and potassium especially. Sarah's article this week on heart palpitations covers a lot of the same ground, so it's worth a read. If the twitching is persistent or getting worse, a quick check-in with your doctor to look at your labs is always a smart move."
+    },
+    {
+      "question": "How much beef liver should I actually be eating each week? Can I just do liver, or do I have to mix it with heart?",
+      "answer": "Community members generally report that a few ounces of liver two or three times a week hits the sweet spot without overdoing vitamin A. You don't have to eat heart, but many people find mixing organs adds variety and keeps them from getting bored with the same texture. If you're just starting out with liver, smaller amounts more often tends to be easier on the stomach than a big portion all at once."
+    },
+    {
+      "question": "I competed in my first ever fitness competition eating fully carnivore. Is that actually possible at a high level?",
+      "answer": "It's not only possible, community members are doing it and reporting they felt their best going into competition day. The carnivore approach gives a lot of people very consistent energy without the carb-loading guesswork that comes with other prep strategies. If you've been wondering whether this way of eating can hold up under real athletic pressure, that's a pretty encouraging answer from someone who just tested it."
+    }
+  ],
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Add a pinch of salt to your water, every glass, for the next seven days.</strong> If you've had any heart flutters, muscle cramps, or afternoon headaches this week, low sodium is almost always the first place to look on carnivore. It's a small change that many people say makes a noticeable difference within two or three days.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're pulling back the curtain on something Sarah built for the people who know exactly what to do but just can't seem to keep doing it. You won't want to miss that one.</p>"
 }

@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-08-26",
+  "last_updated": "2026-08-30",
   "leaderboard": [
     {
-      "name": "HomeSteadHow",
+      "name": "Max German",
       "rank": 1,
-      "appearances": 6,
+      "appearances": 1,
+      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
+    },
+    {
+      "name": "Mitch Weiss, OGC, Healthy Aging",
+      "rank": 2,
+      "appearances": 2,
+      "channel_id": "UCoLOzrRmjuhKDwYFB_BiK1A"
+    },
+    {
+      "name": "HomeSteadHow",
+      "rank": 3,
+      "appearances": 7,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
     },
     {
-      "name": "Ben Guiles",
-      "rank": 2,
-      "appearances": 4,
-      "channel_id": "UCl6fmp49U7zd-8ozbvzLQKg"
-    },
-    {
-      "name": "Bart Kay - Health Science",
-      "rank": 3,
-      "appearances": 3,
-      "channel_id": "UChi5M3k_K4yuRpWAp00xBQA"
-    },
-    {
-      "name": "Emmathecarnivore",
-      "rank": 4,
-      "appearances": 7,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
-    },
-    {
       "name": "Jenny Mitich",
-      "rank": 5,
-      "appearances": 4,
+      "rank": 4,
+      "appearances": 5,
       "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 6,
-      "appearances": 4,
+      "rank": 5,
+      "appearances": 5,
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "Carnivore Quest",
+      "name": "Kent Carnivore",
+      "rank": 6,
+      "appearances": 3,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+    },
+    {
+      "name": "Bill and Daisy Alaska",
       "rank": 7,
-      "appearances": 4,
+      "appearances": 2,
+      "channel_id": "UCrbUnn2d4aBmdULbsrgLNXw"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 8,
+      "appearances": 8,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
+      "name": "Carnivore Quest",
+      "rank": 9,
+      "appearances": 5,
       "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "Carnivore Teacher Alpha",
-      "rank": 8,
-      "appearances": 2,
-      "channel_id": "UCLoe46vokIWT50lOoqcr5kg"
-    },
-    {
-      "name": "Richard Smith ",
-      "rank": 9,
-      "appearances": 1,
-      "channel_id": "UCD0szaevd4EkDx1A31kUfCQ"
-    },
-    {
-      "name": "Mitch Weiss, OGC, Healthy Aging",
+      "name": "Chris Cooking Nashville",
       "rank": 10,
-      "appearances": 2,
-      "channel_id": "UCoLOzrRmjuhKDwYFB_BiK1A"
+      "appearances": 3,
+      "channel_id": "UCKBlg_heFbwW_TBcgipPbRQ"
     }
   ]
 }
