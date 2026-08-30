@@ -673,3 +673,16 @@ Attempts:
   to spell out the two-step call and to name this exact 403 as a false rotation signal.
 If recurs: on ANY Etsy 403, check the call passes a token BEFORE touching OAuth. Only chase
 rotation when the token is present and the row in `etsy_tokens` is genuinely stale.
+
+## ISSUE-072 — Pinterest scheduled run blocked: Chrome extension not connected
+🔴 OPEN — Last: 2026-08-30
+Pattern: `pinterest-kd-daily-pins` needs Brew's logged-in Chrome via the claude-in-chrome
+extension. In an unattended run the extension can be unreachable (Chrome closed, machine
+asleep, or side panel signed out), so `tabs_context_mcp` fails before any pin is attempted.
+Attempts:
+- 2026-08-30 — Called tabs_context_mcp twice, both returned "Claude in Chrome is not
+  connected" → posted 0 pins, queue left untouched (2 still queued). No Pinterest call made,
+  so no duplicate-post risk. Related: same class as the Mac-mini sleep gaps in
+  memory `project-mac-mini-scheduler`.
+If recurs: this task cannot self-heal — it needs a browser session. Either move KD pinning to
+the Pinterest API (app credentials, no browser) or accept it only runs when Brew's Chrome is up.
