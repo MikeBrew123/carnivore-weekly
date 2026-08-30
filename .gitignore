@@ -173,3 +173,7 @@ data/reddit-trends-history.jsonl
 data/reddit-comments-*.json
 !data/reddit-trends-cw.json
 !data/reddit-trends-kd.json
+
+# calculator2-demo lockfile IS committed: it pins the dependency set that
+# reproduces the live bundle byte-for-byte (verified 2026-08-30). CI needs it.
+!calculator2-demo/package-lock.json
