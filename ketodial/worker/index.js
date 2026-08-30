@@ -134,60 +134,16 @@ async function handleSession(request, env) {
         if (!nlRes.ok) console.log('newsletter upsert failed:', await nlRes.text());
       } catch (e) { console.log('newsletter upsert error:', e.message); }
 
-      // Send an evergreen welcome (was: the latest past newsletter issue, which
-      // meant new leads got a month-old email). This one welcomes them, confirms
-      // their macros are theirs to keep, and points to the optional 7-Day Meal Plan.
-      if (env.RESEND_API_KEY) {
-        const unsubUrl = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(cleanEmail)}&site=kd`;
-        fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            from: 'The Weekly Dial-In by KetoDial <ketodial@carnivoreweekly.com>',
-            to: [cleanEmail],
-            reply_to: 'iambrew@gmail.com',
-            subject: 'Your keto macros are ready, and yours to keep',
-            html: welcomeEmailHtml(unsubUrl),
-          }),
-        }).catch(() => {});
-      }
+      // No welcome email here anymore (Brew, 2026-08-30). The plan email
+      // auto-sends seconds after this call, so the standalone welcome meant two
+      // emails in the same minute — and drip day-1 made three inside 24h. The
+      // welcome content (newsletter confirmation + unsubscribe link) now rides
+      // inside the plan email; drip day-1 waits 48h via send_drip.py.
     }
     return jsonResponse(200, { ok: true, token });
   } catch (e) {
     return jsonResponse(500, { error: e.message });
   }
-}
-
-// ──────────────────────────────────────────────
-// WELCOME EMAIL (evergreen) — sent on calculator email capture
-// ──────────────────────────────────────────────
-function welcomeEmailHtml(unsubUrl) {
-  const cta = 'https://ketodial.com/?utm_source=kd_welcome&utm_medium=email&utm_campaign=welcome#calc';
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#eef4f8;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1a2b38">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef4f8;padding:24px 0">
-    <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #d7e6f0">
-        <tr><td style="padding:26px 32px 6px">
-          <span style="font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0891b2">KetoDial</span>
-          <h1 style="margin:10px 0 0;font-size:24px;line-height:1.25;color:#0f172a">Welcome to the Weekly Dial-In</h1>
-        </td></tr>
-        <tr><td style="padding:14px 32px 4px;font-size:16px;line-height:1.6;color:#334155">
-          <p style="margin:0 0 16px">You made it. Your personalized keto macros, your protein, fat, and net carbs, are calculated and ready. They're yours to keep, free, no strings. Save them somewhere handy so you can check them when you're planning meals or reading a food label.</p>
-          <p style="margin:0 0 16px">You're also signed up for The Weekly Dial-In, our weekly keto email. It's practical stuff you can actually use, one simple idea at a time, no hype and no fluff. Look for it in your inbox each week, and hit reply anytime if something clicks or a question comes up.</p>
-          <p style="margin:0 0 22px">If you'd like your numbers turned into a real week of eating, some folks grab the optional 7-Day Meal Plan. For $5.99 it builds a full week around your exact macros and hands you a grocery list to match. It's totally optional, and you can add it back at the calculator whenever you're ready.</p>
-        </td></tr>
-        <tr><td style="padding:0 32px 30px">
-          <a href="${cta}" style="display:inline-block;background:#0891b2;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 28px;border-radius:10px">Build My Week</a>
-        </td></tr>
-        <tr><td style="padding:18px 32px 26px;border-top:1px solid #e6eef4;font-size:12px;line-height:1.5;color:#7b93a6">
-          <p style="margin:0 0 6px">KetoDial provides general nutrition estimates for informational purposes only and is not medical advice.</p>
-          <p style="margin:0"><a href="${unsubUrl}" style="color:#7b93a6;text-decoration:underline">Unsubscribe</a></p>
-        </td></tr>
-      </table>
-    </td></tr>
-  </table>
-</body></html>`;
 }
 
 // ──────────────────────────────────────────────
@@ -241,8 +197,40 @@ async function handleSessionUpdate(request, env) {
 // ──────────────────────────────────────────────
 // EMAIL PLAN — send free macro results by email
 // ──────────────────────────────────────────────
-function buildPlanEmail(m, goal) {
+function buildPlanEmail(m, goal, p) {
+  // p: optional personalization {age, sex, activity, newsletterOptIn, unsubUrl}.
+  // Every line is derived only from inputs the user actually gave us — the
+  // "you told us X, so Y" framing is the point (Brew, 2026-08-30): make
+  // answering questions feel worthwhile without asking any new ones for free.
+  p = p || {};
   const goalLabel = { lose: 'fat loss', gain: 'muscle gain', maintain: 'maintenance' }[goal] || 'your goal';
+  const valueLines = [];
+  if (goal === 'lose') {
+    valueLines.push(`You told us you want to lose weight, so we set your protein high on purpose. It protects your muscle while your calories run under your TDEE, so more of what comes off is fat.`);
+  } else if (goal === 'gain') {
+    valueLines.push(`You told us you want to gain, so we paired a high protein target with a small calorie surplus over your TDEE. That's enough to build muscle without turning into a bulk you'll have to diet off later.`);
+  } else if (goal === 'maintain') {
+    valueLines.push(`You told us you want to maintain, so your calories sit right at your TDEE. Carbs stay the lever: keep them under your target and your weight holds steady while your body runs on fat.`);
+  }
+  if (Number(p.age) >= 50) {
+    valueLines.push(`You told us your age, and past 50 the body needs more protein to hold onto muscle, so your target runs higher than the generic keto advice you'll see online.`);
+  }
+  if (Number(p.activity) && Number(p.activity) <= 1.3) {
+    valueLines.push(`You told us your days are mostly low-activity right now, so we set your calorie line from your real routine, not an optimistic one, and that's exactly why it'll work.`);
+  } else if (Number(p.activity) >= 1.7) {
+    valueLines.push(`You told us you train hard, so your fat intake is set to carry those sessions while your carbs stay low enough to keep you in ketosis, even on heavy days.`);
+  }
+  const valueBlock = valueLines.length
+    ? `<div style="margin:0 28px 4px;padding:14px 18px;background:rgba(56,189,248,.05);border-left:3px solid #38bdf8;border-radius:0 10px 10px 0">` +
+      valueLines.map((l, i) => `<p style="margin:${i === valueLines.length - 1 ? '0' : '0 0 10px'};color:#bcd4e3;font-size:13.5px;line-height:1.6">${l}</p>`).join('') +
+      `</div>`
+    : '';
+  const newsletterLine = p.newsletterOptIn
+    ? `<p style="margin:16px 0 0;color:#9fb8c9;font-size:12.5px;line-height:1.6">You're also on The Weekly Dial-In, one practical keto email a week, no hype, and you can leave anytime.</p>`
+    : '';
+  const unsubLink = p.unsubUrl
+    ? ` <a href="${p.unsubUrl}" style="color:#94a3b8;text-decoration:underline">Unsubscribe</a>`
+    : '';
   const row = (k, v, color) =>
     `<tr><td style="padding:10px 14px;border-bottom:1px solid #1e3a52;color:#9fb8c9;font-size:13px">${k}</td>` +
     `<td style="padding:10px 14px;border-bottom:1px solid #1e3a52;color:${color || '#e2eef7'};font-size:15px;font-weight:700;text-align:right">${v}</td></tr>`;
@@ -254,7 +242,7 @@ function buildPlanEmail(m, goal) {
       <p style="margin:10px 0 0;color:#6da6c9;font-size:11px;letter-spacing:.14em;text-transform:uppercase">Your personalized keto plan</p>
     </div>
     <div style="padding:22px 28px 8px">
-      <p style="margin:0 0 6px;color:#e2eef7;font-size:15px;line-height:1.55">Here are your daily targets, tuned for ${goalLabel}. We used the Mifflin-St Jeor equation for your metabolism, then applied a keto-safe ratio.</p>
+      <p style="margin:0 0 6px;color:#e2eef7;font-size:15px;line-height:1.55">These targets came from your own stats, not averages, and they're tuned for ${goalLabel}.</p>
     </div>
     <table style="width:100%;border-collapse:collapse;padding:0 28px" cellpadding="0" cellspacing="0">
       ${row('Daily calories', `${Number(m.calories).toLocaleString()} kcal`, '#38bdf8')}
@@ -263,18 +251,21 @@ function buildPlanEmail(m, goal) {
       ${row('Net carbs', `${m.carbG} g`)}
       ${row('Your TDEE (maintenance)', `${Number(m.tdee).toLocaleString()} kcal`)}
     </table>
+    ${valueBlock}
     <div style="padding:20px 28px 26px">
       <p style="margin:0 0 16px;color:#9fb8c9;font-size:13px;line-height:1.6">Hit the protein number first, use fat to stay full, and keep net carbs (total carbs minus fiber) under target. Give it two weeks before you judge anything.</p>
-      <a href="https://ketodial.com/recipes/?utm_source=plan_email&utm_medium=email&utm_campaign=plan_delivery" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 20px;border-radius:10px;text-decoration:none">Browse keto recipes with these macros</a>
-      <p style="margin:16px 0 0"><a href="https://ketodial.com/blog/?utm_source=plan_email&utm_medium=email&utm_campaign=plan_delivery" style="color:#38bdf8;font-size:13px;text-decoration:none">Read the guides &rsaquo;</a></p>
+      <a href="https://ketodial.com/recipes/?utm_source=plan_email&utm_medium=email&utm_campaign=plan_delivery" style="display:inline-block;background:transparent;border:1px solid #38bdf8;color:#38bdf8;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;text-decoration:none">Browse keto recipes with these macros</a>
     </div>
-    <div style="margin:0 28px 26px;padding:16px 18px;background:rgba(56,189,248,.07);border:1px solid #1e3a52;border-radius:12px">
-      <p style="margin:0 0 8px;color:#6da6c9;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">If you want it dialed in further</p>
-      <p style="margin:0 0 12px;color:#bcd4e3;font-size:13px;line-height:1.6">These numbers are generic to your stats. The full protocol accounts for your health conditions, budget, and cooking style: a 7-day meal plan, a keto starter kit, and a doctor-ready report you can bring to your next appointment. One-time purchase from $3.99, all three for $10.99. No subscription.</p>
-      <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=protocol_upsell#calc" style="color:#38bdf8;font-size:13px;font-weight:700;text-decoration:none">See the full protocol &rsaquo;</a>
+    <div style="margin:0 28px 26px;padding:18px 20px;background:rgba(56,189,248,.07);border:1px solid #1e3a52;border-radius:12px">
+      <p style="margin:0 0 8px;color:#6da6c9;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">Turn these numbers into a plan</p>
+      <p style="margin:0 0 10px;color:#bcd4e3;font-size:13px;line-height:1.6">These free numbers are the floor. The optional Step 3 details, your budget, how you like to cook, whether dairy agrees with you, are what turn the paid reports into a plan built for your actual kitchen.</p>
+      <p style="margin:0 0 14px;color:#bcd4e3;font-size:13px;line-height:1.6">The Full Protocol is all three reports for $10.99: a 7-day meal plan built around your exact macros, a starter kit that walks you through the first 14 days, and a doctor-ready report you can hand over at your next appointment. One-time payment, no subscription, yours to keep.</p>
+      <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=protocol_upsell#calc" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 22px;border-radius:10px;text-decoration:none">Get the Full Protocol</a>
+      <p style="margin:12px 0 0;color:#6da6c9;font-size:12px;line-height:1.5">Only want one piece? <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=protocol_upsell#calc" style="color:#6da6c9;text-decoration:underline">Single reports start at $3.99.</a></p>
     </div>
   </div>
-  <p style="margin:16px 8px 0;color:#94a3b8;font-size:11px;line-height:1.6">Estimates are for general nutrition information only, not medical advice. Consult a qualified healthcare provider before starting any diet. You received this one-time email because you asked for your results at ketodial.com. We won't email you again unless you subscribed to the newsletter.</p>
+  ${newsletterLine}
+  <p style="margin:16px 8px 0;color:#94a3b8;font-size:11px;line-height:1.6">Estimates are for general nutrition information only, not medical advice. Consult a qualified healthcare provider before starting any diet. You received this email because you asked for your results at ketodial.com.${unsubLink}</p>
 </div>
 </body></html>`;
 }
@@ -328,6 +319,7 @@ async function handleEmailPlan(request, env) {
       }).catch(() => {});
     }
 
+    const unsubUrl = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(email)}&site=kd`;
     const sendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
@@ -336,7 +328,19 @@ async function handleEmailPlan(request, env) {
         to: [email],
         reply_to: 'iambrew@gmail.com',
         subject: `Your keto plan: ${Number(m.calories).toLocaleString()} kcal · ${m.proteinG}g protein · ${m.carbG}g net carbs`,
-        html: buildPlanEmail(m, b.goal),
+        html: buildPlanEmail(m, b.goal, {
+          age: b.age,
+          sex: b.sex,
+          activity: b.activity,
+          newsletterOptIn: !!b.newsletter_opt_in,
+          unsubUrl,
+        }),
+        // Same tag shape as the CW welcome sender so the /webhook/resend
+        // open/click tracking can segment plan emails in drip_events.
+        tags: [
+          { name: 'email_type', value: 'plan' },
+          { name: 'site', value: 'kd' },
+        ],
       }),
     });
     if (!sendRes.ok) {

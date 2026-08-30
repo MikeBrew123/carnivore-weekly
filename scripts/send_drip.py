@@ -403,7 +403,7 @@ def main():
         return
 
     pending = supabase_query(secrets, "drip_subscribers", {
-        "select": "id,email,current_day",
+        "select": "id,email,current_day,subscribed_at",
         "site": f"eq.{SITE}",
         "completed": "eq.false",
         "unsubscribed": "eq.false",
@@ -429,9 +429,24 @@ def main():
 
     sent = 0
     skipped_dup = 0
+    skipped_new = 0
     graduated = 0
     for sub in pending:
         next_day = sub["current_day"] + 1
+        # 48h buffer before day-1 (Brew, 2026-08-30): signup already triggers an
+        # instant results/welcome email, so day-1 landing on the next cron run
+        # meant two emails in under 24h. Only day-0 rows are gated; anyone
+        # mid-sequence is untouched. With a daily cron this works out to a
+        # 48-72h wait depending on signup time.
+        if sub["current_day"] == 0 and sub.get("subscribed_at"):
+            try:
+                sub_at = datetime.fromisoformat(sub["subscribed_at"].replace("Z", "+00:00"))
+                if datetime.now(timezone.utc) - sub_at < timedelta(hours=48):
+                    print(f"  ⏳ {sub['email']}: subscribed {sub['subscribed_at'][:16]}, day-1 waits for the 48h buffer")
+                    skipped_new += 1
+                    continue
+            except ValueError:
+                pass  # unparseable timestamp: fail open, send rather than strand
         if next_day > FINAL_DAY:
             supabase_update(secrets, "drip_subscribers", sub["id"], {
                 "completed": True,
@@ -488,6 +503,8 @@ def main():
     summary = f"\nDone: {sent} sent, {graduated} graduated to weekly"
     if skipped_dup:
         summary += f", {skipped_dup} skipped (already sent today)"
+    if skipped_new:
+        summary += f", {skipped_new} waiting on the 48h day-1 buffer"
     print(summary)
 
 

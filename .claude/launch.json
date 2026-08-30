@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "cw-static",
+      "name": "kd-static",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "public"],
-      "port": 8766
+      "runtimeArgs": ["-m", "http.server", "8901", "--directory", "ketodial/public"],
+      "port": 8901
     }
   ]
 }

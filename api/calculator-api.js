@@ -5802,16 +5802,19 @@ async function buildDripSurveyPayload(env, site, day) {
   return { intro, total_respondents: totalRespondents, questions };
 }
 
+// Day 0 is the unsubscribe exit survey (added 2026-08-30); real drip check-ins
+// are days 1-28. Note day 0 is falsy, so callers must test `day === null`,
+// never `!day`.
 function parseDripSurveyDay(raw) {
   const day = parseInt(raw, 10);
-  return Number.isInteger(day) && day >= 1 && day <= 28 ? day : null;
+  return Number.isInteger(day) && day >= 0 && day <= 28 ? day : null;
 }
 
 async function handleDripSurveyGet(url, env) {
   try {
     const day = parseDripSurveyDay(url.searchParams.get('day') || '1');
     const site = (url.searchParams.get('site') || 'cw').toLowerCase();
-    if (!day) return createErrorResponse('INVALID_DAY', 'day must be 1-28', 400);
+    if (day === null) return createErrorResponse('INVALID_DAY', 'day must be 0-28', 400);
     if (!DRIP_SURVEY_SITES.includes(site)) return createErrorResponse('INVALID_SITE', 'Unknown site', 400);
 
     const payload = await buildDripSurveyPayload(env, site, day);
@@ -5834,8 +5837,8 @@ async function handleDripSurveyView(request, env) {
     const site = String(body.site || 'cw').toLowerCase();
     const day = parseDripSurveyDay(body.day);
     const fingerprint = typeof body.fingerprint === 'string' ? body.fingerprint.slice(0, 128) : '';
-    const source = ['drip', 'calculator', 'blog'].includes(body.source) ? body.source : 'drip';
-    if (!DRIP_SURVEY_SITES.includes(site) || !day || !fingerprint) {
+    const source = ['drip', 'calculator', 'blog', 'unsubscribe'].includes(body.source) ? body.source : 'drip';
+    if (!DRIP_SURVEY_SITES.includes(site) || day === null || !fingerprint) {
       return createErrorResponse('INVALID_VIEW', 'Bad view ping', 400);
     }
     const ip = request.headers.get('CF-Connecting-IP') || '';
@@ -5865,7 +5868,7 @@ async function handleDripSurveySubmit(request, env) {
     const day = parseDripSurveyDay(body.day);
     const optionIds = Array.isArray(body.option_ids) ? body.option_ids : [];
     const fingerprint = typeof body.fingerprint === 'string' ? body.fingerprint.slice(0, 128) : '';
-    const source = ['drip', 'calculator', 'blog'].includes(body.source) ? body.source : 'drip';
+    const source = ['drip', 'calculator', 'blog', 'unsubscribe'].includes(body.source) ? body.source : 'drip';
 
     // Honeypot: bots fill the hidden "website" field. Pretend success, store nothing.
     if (body.website) {
@@ -5875,7 +5878,7 @@ async function handleDripSurveySubmit(request, env) {
     }
 
     if (!DRIP_SURVEY_SITES.includes(site)) return createErrorResponse('INVALID_SITE', 'Unknown site', 400);
-    if (!day) return createErrorResponse('INVALID_DAY', 'day must be 1-28', 400);
+    if (day === null) return createErrorResponse('INVALID_DAY', 'day must be 0-28', 400);
     if (!fingerprint) return createErrorResponse('INVALID_FINGERPRINT', 'fingerprint required', 400);
     if (!optionIds.length || optionIds.length > 30 || optionIds.some((id) => typeof id !== 'string')) {
       return createErrorResponse('INVALID_OPTIONS', 'Select at least one answer', 400);
@@ -6724,7 +6727,8 @@ export default {
 // ===== UNSUBSCRIBE HANDLER =====
 async function handleUnsubscribe(url, env) {
   const email = url.searchParams.get('email');
-  const site = url.searchParams.get('site') || 'cw';
+  const rawSite = (url.searchParams.get('site') || 'cw').toLowerCase();
+  const site = DRIP_SURVEY_SITES.includes(rawSite) ? rawSite : 'cw';
 
   if (!email) {
     return new Response('<html><body style="font-family:sans-serif;text-align:center;padding:60px;"><h2>Invalid unsubscribe link</h2><p>No email address provided.</p></body></html>', {
@@ -6768,12 +6772,50 @@ async function handleUnsubscribe(url, env) {
   ).catch(() => {});
 
   const siteName = site === 'kd' ? 'KetoDial' : 'Carnivore Weekly';
-  return new Response(`<html><body style="font-family:sans-serif;text-align:center;padding:60px;background:#f7f7f7;">
-    <div style="max-width:400px;margin:0 auto;background:#fff;padding:40px;border-radius:12px;">
+  // Exit survey (Brew, 2026-08-30). The unsubscribe is already committed above,
+  // so answering (or ignoring) this can never affect it. Answers land in the
+  // drip survey tables at day=0 / source=unsubscribe — day 0 is reserved for
+  // this, real check-ins are days 1-28.
+  return new Response(`<html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+  <body style="font-family:sans-serif;text-align:center;padding:60px 16px;background:#f7f7f7;">
+    <div style="max-width:400px;margin:0 auto;background:#fff;padding:40px 32px;border-radius:12px;">
       <h2 style="margin:0 0 12px;">You've been unsubscribed</h2>
       <p style="color:#666;">You won't receive any more emails from ${siteName}.</p>
       <p style="color:#999;font-size:13px;">If this was a mistake, just sign up again at the site.</p>
+      <div id="exitSurvey" style="margin-top:28px;padding-top:22px;border-top:1px solid #eee;">
+        <p style="color:#444;font-size:14px;margin:0 0 14px;">One tap before you go, what made you leave?</p>
+        <div id="exitOpts" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
     </div>
+    <script>
+    (function(){
+      var site=${JSON.stringify(site)};
+      var box=document.getElementById('exitOpts');
+      var wrap=document.getElementById('exitSurvey');
+      fetch('/api/v1/drip-survey?day=0&site='+site)
+        .then(function(r){return r.ok?r.json():null})
+        .then(function(data){
+          if(!data||!data.questions||!data.questions.length){wrap.style.display='none';return;}
+          var q=data.questions[0];
+          q.options.forEach(function(o){
+            var b=document.createElement('button');
+            b.type='button';
+            b.textContent=o.text;
+            b.style.cssText='padding:11px 14px;border:1px solid #ddd;border-radius:8px;background:#fafafa;color:#333;font-size:14px;cursor:pointer;';
+            b.onclick=function(){
+              var fp;
+              try{fp=crypto.randomUUID();}catch(e){fp='fp-'+Math.random().toString(36).slice(2)+Date.now();}
+              fetch('/api/v1/drip-survey',{method:'POST',headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({site:site,day:0,option_ids:[o.id],fingerprint:fp,source:'unsubscribe'})
+              }).catch(function(){});
+              wrap.innerHTML='<p style="color:#15803d;font-size:14px;margin:22px 0 0;">Thanks, that helps.</p>';
+            };
+            box.appendChild(b);
+          });
+        })
+        .catch(function(){wrap.style.display='none';});
+    })();
+    </script>
   </body></html>`, {
     status: 200, headers: { 'Content-Type': 'text/html' }
   });
