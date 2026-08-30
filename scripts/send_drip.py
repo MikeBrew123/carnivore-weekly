@@ -433,12 +433,14 @@ def main():
     graduated = 0
     for sub in pending:
         next_day = sub["current_day"] + 1
-        # 48h buffer before day-1 (Brew, 2026-08-30): signup already triggers an
-        # instant results/welcome email, so day-1 landing on the next cron run
-        # meant two emails in under 24h. Only day-0 rows are gated; anyone
-        # mid-sequence is untouched. With a daily cron this works out to a
-        # 48-72h wait depending on signup time.
-        if sub["current_day"] == 0 and sub.get("subscribed_at"):
+        # 48h buffer before day-1 (Brew, 2026-08-30): KD signup triggers an
+        # instant plan email, so day-1 landing on the next cron run meant two
+        # emails in under 24h. KD ONLY for now — CW sends nothing at signup
+        # yet, so gating CW here left new subscribers in 2-3 days of silence
+        # (red-team finding, same day). Widen to both sites only when the CW
+        # day-0 results/welcome email actually ships. Only day-0 rows are
+        # gated; anyone mid-sequence is untouched.
+        if SITE == "kd" and sub["current_day"] == 0 and sub.get("subscribed_at"):
             try:
                 sub_at = datetime.fromisoformat(sub["subscribed_at"].replace("Z", "+00:00"))
                 if datetime.now(timezone.utc) - sub_at < timedelta(hours=48):
