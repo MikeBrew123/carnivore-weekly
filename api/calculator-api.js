@@ -1699,8 +1699,11 @@ function calculateMacros(formData) {
     protein = Math.round(proteinBasisKg * 2);
     const proteinCals = protein * 4;
 
-    // For keto, allow small amount of carbs (20g), rest from fat
-    if (diet === 'keto') {
+    // Keto and Low-Carb allow a small carb budget (20g), rest from fat.
+    // Carnivore/Lion/Pescatarian are the zero-carb diets (Brew, 2026-08-30:
+    // "it is only low if they choose Low Carb or Keto"). lowcarb previously
+    // fell into the zero branch, contradicting its own "moderate carbs" label.
+    if (diet === 'keto' || diet === 'lowcarb' || diet === 'low-carb' || diet === 'low carb') {
       carbs = 20;
       const carbCals = carbs * 4;
       const fatCals = calories - proteinCals - carbCals;

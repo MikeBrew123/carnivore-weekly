@@ -50,5 +50,7 @@ jobs:
         run: |
           npm ci
           npx vite build --outDir /tmp/calc2-ci-build --emptyOutDir
+      - name: Client-vs-worker macro parity
+        run: node tests/macro_parity/parity_test.mjs
       - name: Report bundle hash
         run: ls -la /tmp/calc2-ci-build/assets/

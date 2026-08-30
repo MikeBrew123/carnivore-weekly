@@ -47,7 +47,7 @@ function extractWorkerFn() {
 // --- the input grid ---------------------------------------------------------
 // Covers every branch the red-team flagged: BMI>=30 protein basis, activity
 // aliases + unknown-key 1.2 fallback, lifestyle||exercise precedence,
-// 'lose'/'loss', deficit 0/10/undefined defaults, keto 20g carbs vs lowcarb 0g,
+// 'lose'/'loss', deficit 0/10/undefined defaults, keto+lowcarb 20g carbs vs 0g,
 // diet||selectedProtocol, heightCm||ft/in, and the all-defaults path.
 export function grid() {
   const cases = [];
@@ -82,7 +82,10 @@ export function grid() {
           for (const t of diets) {
             // Full cross-product is ~7k cases; sample deterministically to keep
             // the golden file reviewable while still hitting every branch pair.
-            if (n++ % 7 === 0) cases.push({ ...b, ...a, ...g, ...d, ...t });
+            // Stride must be coprime to EVERY loop length (diets has 7 entries;
+            // a stride of 7 aliased to always picking the same diet — caught
+            // 2026-08-30 when a lowcarb math change produced a zero-case diff).
+            if (n++ % 5 === 0) cases.push({ ...b, ...a, ...g, ...d, ...t });
           }
   // Branch-critical cases that must never be sampled out:
   cases.push(
@@ -94,7 +97,15 @@ export function grid() {
   return cases;
 }
 
-// --- run --------------------------------------------------------------------
+// --- run (only when executed directly, not when imported for grid()) --------
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (!isMain) {
+  // imported (e.g. by parity_test.mjs) — expose grid() only, no side effects
+} else {
+  runGoldenCheck();
+}
+
+function runGoldenCheck() {
 const fn = extractWorkerFn();
 const results = grid().map((input) => ({ input, output: fn(input) }));
 
@@ -133,3 +144,4 @@ if (failures) {
   process.exit(1);
 }
 console.log(`macro golden test: ${golden.length}/${golden.length} cases match`);
+}

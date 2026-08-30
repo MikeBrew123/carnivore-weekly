@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { FormData, MacroResults } from '../../types/form'
-import { calculateBMR, calculateMacros } from '../../lib/calculations'
+import { calculateMacrosCanonical } from '../../lib/calculations'
 import { useFormStore } from '../../stores/formStore'
 import { usePaymentState } from '../../hooks/usePaymentState'
 import ProgressIndicator from './ProgressIndicator'
@@ -232,39 +232,10 @@ export default function CalculatorApp({
   useEffect(() => {
     if (formData.sex && formData.age && formData.weight && (formData.heightFeet || formData.heightCm) && formData.lifestyle && formData.goal && formData.diet) {
       try {
-        const heightCm = formData.heightCm || (formData.heightFeet * 12 + (formData.heightInches || 0)) * 2.54
-        const bmr = calculateBMR(formData.sex, formData.age, formData.weight, heightCm)
-
-        // Standard Mifflin-St Jeor activity multipliers
-        const activityMultipliers: Record<string, number> = {
-          sedentary: 1.2,
-          light: 1.375,
-          moderate: 1.55,
-          very: 1.725,
-          extreme: 1.9,
-        }
-
-        const activityMultiplier = activityMultipliers[formData.lifestyle] || 1.55
-        const tdee = bmr * activityMultiplier
-
-        console.log('[CalculatorApp] BMR:', bmr, 'Activity multiplier:', activityMultiplier, 'TDEE:', tdee)
-        console.log('[CalculatorApp] Form goal:', formData.goal, 'Form deficit:', formData.deficit)
-
-        const deficit = formData.deficit || (formData.goal === 'lose' ? 20 : formData.goal === 'gain' ? 10 : 0)
-
-        const weightKg = formData.weight * 0.453592
-        const calculatedMacros = calculateMacros(
-          tdee,
-          formData.goal,
-          deficit,
-          formData.diet,
-          formData.ratio,
-          formData.proteinMin,
-          formData.netCarbs,
-          weightKg
-        )
-
-        setMacros(calculatedMacros)
+        // Single source of truth: the same math that generates the paid
+        // report (see calculateMacrosCanonical). CI enforces parity with the
+        // worker, so what this screen shows is what the report will say.
+        setMacros(calculateMacrosCanonical(formData as unknown as Record<string, unknown>))
       } catch (error) {
         console.error('Macro calculation error:', error)
       }
