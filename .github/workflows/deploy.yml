@@ -79,7 +79,13 @@ jobs:
           missing = []
           for f in Path('public').rglob('*.html'):
               content = f.read_text()
-              for ref in re.findall(r'<link[^>]*href="([^"]+\.css)"', content) + re.findall(r'<script[^>]*src="([^"]+\.js)"', content):
+              refs = re.findall(r'<link[^>]*href="([^"]+\.css)"', content) + re.findall(r'<script[^>]*src="([^"]+\.js)"', content)
+              # calculator.html loads its bundle via JS string constants
+              # (var SRC = '/assets/...js'), invisible to the tag regexes above.
+              # A stale hash here shipped green and 404'd the calculator (red-team
+              # 2026-08-30) - so parse quoted asset paths out of script bodies too.
+              refs += re.findall(r'''['"](/assets/[^'"]+\.(?:js|css))['"]''', content)
+              for ref in refs:
                   if ref.startswith('http'): continue
                   rp = Path('public') / ref.lstrip('/') if ref.startswith('/') else (f.parent / ref).resolve()
                   if not rp.exists(): missing.append(f"{f}: {ref}")

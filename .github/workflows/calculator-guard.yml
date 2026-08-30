@@ -1,0 +1,54 @@
+# Calculator guard (red-team step 2, 2026-08-30)
+#
+# Two protections for the revenue path:
+#  1. Golden macro test — freezes the worker's calculateMacros behavior over
+#     1,054 input cases. Any refactor that changes paid-report numbers fails
+#     here instead of shipping. Intentional math changes regenerate
+#     tests/macro_parity/golden.json with --update and the diff gets reviewed.
+#  2. Bundle build check — the calculator2 bundle only ever built on one
+#     laptop before this. This proves a clean clone still builds, so the page
+#     is never one dead node_modules away from being unshippable.
+name: calculator-guard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/calculator-api.js'
+      - 'calculator2-demo/**'
+      - 'tests/macro_parity/**'
+      - '.github/workflows/calculator-guard.yml'
+  pull_request:
+    paths:
+      - 'api/calculator-api.js'
+      - 'calculator2-demo/**'
+      - 'tests/macro_parity/**'
+  workflow_dispatch:
+
+jobs:
+  golden-macros:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Golden macro regression test
+        run: node tests/macro_parity/golden_test.mjs
+
+  bundle-builds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: calculator2-demo/package-lock.json
+      - name: Clean-clone build
+        working-directory: calculator2-demo
+        run: |
+          npm ci
+          npx vite build --outDir /tmp/calc2-ci-build --emptyOutDir
+      - name: Report bundle hash
+        run: ls -la /tmp/calc2-ci-build/assets/
