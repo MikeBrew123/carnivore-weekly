@@ -1,7 +1,7 @@
 {
   "note": "Redirect rules. GitHub Pages ignores .htaccess so these are served as HTML meta-refresh files in public/.",
   "created": "2026-02-12",
-  "updated": "2026-06-10",
+  "updated": "2026-08-31",
   "redirects": [
     {
       "from": "blog/wiki.html",
@@ -92,9 +92,9 @@
     },
     {
       "from": "blog/thyroid-tsh.html",
-      "to": "/blog/2026-01-25-thyroid-tsh.html",
+      "to": "/blog/2026-08-20-hypothyroid-carnivore-scale-wont-move.html",
       "added": "2026-06-10",
-      "reason": "Pre-date-prefix slug → updated to final URL"
+      "reason": "Pre-date-prefix slug → updated to final URL | 2026-08-31: retargeted, original post was unpublished in the medical-risk sweep (commit f0e31058) leaving this redirect on a 404"
     },
     {
       "from": "blog/dating-carnivore.html",
@@ -104,9 +104,9 @@
     },
     {
       "from": "blog/2026-02-10-cholesterol-truth.html",
-      "to": "/blog/2026-01-17-cholesterol-truth.html",
+      "to": "/blog/2026-07-24-carnivore-ldl-arteries.html",
       "added": "2026-06-10",
-      "reason": "GSC 404 — date changed from 02-10 to 02-08 → updated to final URL"
+      "reason": "GSC 404 — date changed from 02-10 to 02-08 → updated to final URL | 2026-08-31: retargeted, original post was unpublished in the medical-risk sweep (commit f0e31058) leaving this redirect on a 404"
     },
     {
       "from": "blog/2026-02-12-strength-gains.html",
@@ -122,15 +122,15 @@
     },
     {
       "from": "blog/2026-02-15-bloodwork-guide.html",
-      "to": "/blog/2026-01-10-bloodwork-guide.html",
+      "to": "/blog/2026-07-24-carnivore-ldl-arteries.html",
       "added": "2026-06-10",
-      "reason": "GSC 404 — date changed from 02-15 to 02-08 → updated to final URL"
+      "reason": "GSC 404 — date changed from 02-15 to 02-08 → updated to final URL | 2026-08-31: retargeted, original post was unpublished in the medical-risk sweep (commit f0e31058) leaving this redirect on a 404"
     },
     {
       "from": "blog/2026-02-15-thyroid-tsh.html",
-      "to": "/blog/2026-01-25-thyroid-tsh.html",
+      "to": "/blog/2026-08-20-hypothyroid-carnivore-scale-wont-move.html",
       "added": "2026-06-10",
-      "reason": "GSC 404 — date changed from 02-15 to 02-08 → updated to final URL"
+      "reason": "GSC 404 — date changed from 02-15 to 02-08 → updated to final URL | 2026-08-31: retargeted, original post was unpublished in the medical-risk sweep (commit f0e31058) leaving this redirect on a 404"
     },
     {
       "from": "blog/2026-02-17-purists-vs-pragmatists.html",
@@ -164,9 +164,9 @@
     },
     {
       "from": "blog/2026-02-08-bloodwork-guide.html",
-      "to": "/blog/2026-01-10-bloodwork-guide.html",
+      "to": "/blog/2026-07-24-carnivore-ldl-arteries.html",
       "added": "2026-06-10",
-      "reason": "Date redistribution — indexing fix (ISSUE-022)"
+      "reason": "Date redistribution — indexing fix (ISSUE-022) | 2026-08-31: retargeted, original post was unpublished in the medical-risk sweep (commit f0e31058) leaving this redirect on a 404"
     },
     {
       "from": "blog/2026-02-08-carnivore-family-dinner.html",
@@ -182,9 +182,9 @@
     },
     {
       "from": "blog/2026-02-08-cholesterol-truth.html",
-      "to": "/blog/2026-01-17-cholesterol-truth.html",
+      "to": "/blog/2026-07-24-carnivore-ldl-arteries.html",
       "added": "2026-06-10",
-      "reason": "Date redistribution — indexing fix (ISSUE-022)"
+      "reason": "Date redistribution — indexing fix (ISSUE-022) | 2026-08-31: retargeted, original post was unpublished in the medical-risk sweep (commit f0e31058) leaving this redirect on a 404"
     },
     {
       "from": "blog/2026-02-08-crossfit-high-intensity.html",
@@ -206,9 +206,9 @@
     },
     {
       "from": "blog/2026-02-08-thyroid-tsh.html",
-      "to": "/blog/2026-01-25-thyroid-tsh.html",
+      "to": "/blog/2026-08-20-hypothyroid-carnivore-scale-wont-move.html",
       "added": "2026-06-10",
-      "reason": "Date redistribution — indexing fix (ISSUE-022)"
+      "reason": "Date redistribution — indexing fix (ISSUE-022) | 2026-08-31: retargeted, original post was unpublished in the medical-risk sweep (commit f0e31058) leaving this redirect on a 404"
     },
     {
       "from": "blog/2026-02-08-women-over-40.html",

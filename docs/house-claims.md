@@ -30,8 +30,11 @@ Positions below default to the site's post-July-2026 editorial standard
 
 - Protein target: 0.8-1.0 g per pound of GOAL body weight for most readers.
   Hard training: up to 1.2 g/lb goal weight. The denominator is always goal body
-  weight, on both sites. (VERIFY: this must match what the calculator actually
-  outputs; if the calculator uses a different formula, reconcile before enforcing.)
+  weight, on both sites. **RESOLVED 2026-08-31, the VERIFY flag is closed: the
+  denominator stays goal body weight and the calculator is the side that is out of
+  sync.** See the changelog entry below for the reasoning and for what the live
+  calculator actually does today. Editorial content follows this file. Do not
+  restate the calculator's current formula as a house position in a post.
 - Per-meal distribution: 30-40 g protein per meal beats one giant dose, especially 50+.
 - Fat: protein is the anchor, fat is the lever. Satiety baseline ≈ 1:1 fat to
   protein by grams; when cutting, trim ADDED fat first (butter, tallow), never the
@@ -125,3 +128,46 @@ Positions below default to the site's post-July-2026 editorial standard
 - 2026-08-24: file created from the content-quality review. Open items needing
   Brew's decision: (1) confirm the protein formula matches the calculator's
   actual output; (2) sign off the LDL stance wording above.
+
+- 2026-08-31: **PROTEIN DENOMINATOR RESOLVED. No value in this file changed.**
+  The denominator stays GOAL body weight and the rates stay 0.8-1.0 g/lb
+  (up to 1.2 g/lb hard training).
+
+  *What the live calculator actually does, verified in code on 2026-08-31:*
+  `calculator2-demo/src/lib/calculations.ts:147` computes
+  `protein = Math.round(bodyweightKg * 2.0)`, which is 0.91 g per pound of
+  CURRENT body weight, and no `goalWeight` field exists anywhere in
+  `calculator2-demo/src/`. The rate sits inside the house range; the denominator
+  does not. Error is zero for a reader already at goal weight and grows with the
+  weight they want to lose: a 220 lb reader aiming for 170 lb is told 200 g where
+  this file gives 136-170 g. One partial guard already exists in the other code
+  path (`calculations.ts:73`): at BMI 30 or above, protein is based on the
+  reference weight at BMI 25 rather than total weight, which is a goal-weight
+  proxy for the heaviest readers only. Keto and low-carb use 25% of calories,
+  a third formula unrelated to bodyweight.
+
+  *Why goal weight wins rather than the calculator.* Asked to choose between the
+  two on 2026-08-27, Brew did not pick "change the house standard to current
+  bodyweight". He answered with his own counter-proposal: add a goal weight field
+  to the calculator. The one sub-question left open after that was whether the
+  calculator should also ask how fast the reader wants to get there. He ruled on
+  it by voice on 2026-08-31 at 07:09 PDT, deck `ae2f286d`: KEEP the how-fast
+  dropdown. His words: "If people want to be aggressive or moderate, let's keep
+  it, because some people are gonna really want to have a goal date." A goal date
+  is a goal weight plus a rate, so the ruling moves the calculator toward
+  collecting a goal weight, not away from it. Both of his answers point the same
+  way, and neither one asks this file to change.
+
+  *What is NOT done here.* Adding the goal-weight input is a product change to
+  the live paid funnel, not a copy fix, and it is tracked as its own item in
+  `Brew-Vault/04-Systems/Projects/Carnivore-Weekly/todos.md`. Until it ships, the
+  calculator and this file disagree for any reader with weight to lose, and that
+  gap is known rather than accidental.
+
+  *Also settled by the same ruling:* the deficit tiers behind the how-fast
+  dropdown (10% conservative, 15% moderate, 20% aggressive, 25% very aggressive,
+  `Step2FitnessDiet.tsx:120-125`) stand as they are, so the calorie positions in
+  this file were not rewritten on the assumption the dropdown was going away.
+
+  *Still open from the 2026-08-24 entry:* the LDL stance wording, item (2). Not
+  touched by this entry.
