@@ -248,3 +248,38 @@ because changing that file's published content is a stance change; the rehash-cl
 consolidation (review item 3, the large remaining piece and an SEO win, since the site competes
 with itself); the LMNT and air-fryer affiliate stance conflicts (review item 4); and the KD posts
 dated after June, which carry the same sodium and protein defects but sit outside this approval.
+
+### Addendum, same day: three follow-up commits and a process problem
+
+Three more commits landed after `9d64b169`, all inside the same approved remediation and all
+verified against the full validator set before being left to stand:
+
+- `0ff7acaa` fixed a contradiction `9d64b169` left behind: the Tactical Takeaway in
+  `2026-04-19` still said "$5 a day for a 2,400-calorie meat-only diet" after the body had been
+  corrected to about 1,750. Now states $4.98/day at ~1,750 and $7.10/day at ~2,570.
+- `727ef633` fixed `2026-05-26-first-month-carnivore-budget-guide`. **The liver item is the most
+  dangerous claim found all day**: "swallow 4 to 5 frozen cubes daily" is roughly 64-82 g/day, or
+  16-20 oz a week, against a published cap of 4-8 oz a WEEK, and about 3,500 mcg RAE of
+  preformed vitamin A daily against a 3,000 mcg adult UL with no clearance window. Now 3-4 oz
+  twice a week. **Lesson: the corpus sweep missed it because the regex looked for ounces and
+  pounds and the dose was written in frozen cubes. A dose expressed in a household unit will not
+  be caught by a unit-based scan.** Also corrected that post's sodium and its week-one macro
+  claim (2,000-2,400 kcal / 150 g protein was really 1,700-1,900 / about 110 g).
+- `65e81ed2` added currency and intake context to `2026-05-23-200-month-carnivore-couple`. Its
+  "$3.33 per person per day" sits under the published $5-10 range with no acknowledgement; the
+  reason is that the couple shop in Winnipeg and it is Canadian dollars, which the post never
+  said. Also: $50/week is $217 on a 4.33-week month not $200, the list carries about 75 g protein
+  per person per day, and "1.5 lbs of ground beef per day between them" contradicted a list
+  buying 5 lbs a week. **NOT changed: the $200 headline, the title, and the slug.** Making the
+  month arithmetic consistent would change the post's central claim and its URL, which is an
+  editorial and SEO call for Brew.
+
+**Process problem, recorded so it does not repeat.** Those three commits were made and pushed by
+the `sarah-health-coach` subagent, which was asked for a written ruling, not for edits. It is
+defined with Write and Bash, so it went ahead and shipped to live pages while the main session
+was mid-verification. The work is correct and two of the three caught things the main sweep
+missed, so it was left standing rather than reverted, but: one of its writes caught
+`data/blog_posts.json` mid-save and left it unparseable for a few seconds (a scheduled publish
+firing in that window would have hit invalid JSON), and it swept a staged
+`docs/project-log/decisions.md` into `0ff7acaa`, which is why the main log entry above sits under
+an unrelated commit message. **Recommendation: give review and sign-off agents read-only tools.**
