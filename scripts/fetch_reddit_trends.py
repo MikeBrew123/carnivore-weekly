@@ -82,11 +82,11 @@ def main():
             'fastMode': True,
         }
         url = (f'https://api.apify.com/v2/acts/{ACTOR}/run-sync-get-dataset-items'
-               f'?token={token}&timeout=240')
+               f'?token={token}&timeout=120')
         req = urllib.request.Request(
             url, data=json.dumps(run_input).encode(),
             headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(req, timeout=300) as resp:
+        with urllib.request.urlopen(req, timeout=150) as resp:
             return json.loads(resp.read())
 
     items = []
@@ -119,16 +119,27 @@ def main():
         body = (it.get('body') or '').strip()
         if len(body) < 80 and '?' not in title:
             continue
+        score = it.get('score') or 0
+        ncom = it.get('commentsCount') or 0
         posts.append({
             'title': title,
             'subreddit': (it.get('communityName') or '').removeprefix('r/'),
-            'score': it.get('score') or 0,
-            'num_comments': it.get('commentsCount') or 0,
+            'score': score,
+            'num_comments': ncom,
+            # Comments per upvote. A photo post collects upvotes and no
+            # questions (ratio ~0.1); an unresolved problem collects far
+            # more comments than upvotes. Surfaced so topic research can
+            # see WHY a thread ranked, not just that it did.
+            'comment_to_score_ratio': round(ncom / max(score, 1), 2),
             'created': it.get('createdAt', ''),
             'url': it.get('postUrl') or it.get('url', ''),
             'body_preview': (it.get('body') or '')[:280],
         })
-    posts.sort(key=lambda p: -(p['score'] or 0))
+    # Rank by discussion volume, not upvotes. The blog-gen brief states
+    # that high comment counts on modest scores are the best topic signal
+    # (an active pain point); sorting by score buried exactly those threads
+    # under before/after photo posts. Fixed 2026-08-31.
+    posts.sort(key=lambda p: (-p['num_comments'], -p['comment_to_score_ratio']))
 
     out = {
         'site': args.site,
