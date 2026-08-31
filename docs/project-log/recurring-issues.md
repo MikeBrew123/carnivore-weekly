@@ -641,6 +641,7 @@ Attempts:
 - 2026-08-09 — Brew approved cutting KD to 2 posts/week (Tue+Fri), commit 4b344f7c, decisions.md. Volume treated as the liability.
 - 2026-08-10 (weekly ops) — Independently re-verified the crawl path is clean: sitemap.xml 200 with 142 locs including every new slug, each post URL 200, /blog/ index links them, robots.txt permissive. Recorded as the pre-remedy baseline: 0/20 indexed, 0 clicks, 5th consecutive zero-click week.
 - 2026-08-24 (weekly ops) — Re-inspected against the 08-10 baseline: still 0 of 20 newest indexed, all 20 "URL is unknown to Google", GSC clicks 0 this week and 0 prior week (7th consecutive zero-click week). Sitemap still fetched daily (last download 2026-08-23), 146 URLs submitted, 0 errors. Two weeks of the 2-posts/week cadence have changed nothing, as expected — no backlinks have landed.
+- 2026-08-31 (weekly ops) — Unchanged, 8th consecutive zero-click week. 0 of 20 newest indexed, all 20 still "URL is unknown to Google" (newest inspected: 2026-08-28 keto-maintenance-adding-carbs-back). Sitemap resubmitted, 147 URLs, 0 errors. Three weeks on the reduced cadence, still no backlinks sent — the gated lever has not been pulled, so the null result carries no information about the remedy.
 If recurs: earned backlinks are the lever, not cadence alone — the 10-target KD outreach plan (Jul 3, drafts written) is still gated on Brew sending. Re-inspect the same 20 URLs monthly against this baseline. Do NOT retry Indexing API — Lesson #13, it only works for JobPosting/BroadcastEvent.
 
 ## ISSUE-069 — Paid report macros wrong: deficit skipped + activity inflated (customer complaint)
@@ -684,5 +685,39 @@ Attempts:
   connected" → posted 0 pins, queue left untouched (2 still queued). No Pinterest call made,
   so no duplicate-post risk. Related: same class as the Mac-mini sleep gaps in
   memory `project-mac-mini-scheduler`.
+- 2026-08-31 (weekly ops) — Still blocked, and now the queue is the binding constraint: 2 of 205 pins
+  remain unposted, against a replenish-below-20 rule. The 08-30 replenish commit (bc9c1d16) added only
+  2. So even with Chrome up the task has ~1 day of work left.
 If recurs: this task cannot self-heal — it needs a browser session. Either move KD pinning to
 the Pinterest API (app credentials, no browser) or accept it only runs when Brew's Chrome is up.
+
+## ISSUE-073 — Bounce suppression cut off an ENGAGED subscriber (ContentRejected false positive)
+🔴 OPEN — Last: 2026-08-31
+Pattern: ISSUE-067's repeat-bounce rule fired on a live reader. `redacted-subscriber-32@example.invalid` (cw, day 6
+of 30) was suppressed 2026-08-30, reason "3 consecutive bounces - ContentRejected". The address is
+alive: opened 08-26, clicked 3x 08-26, opened 08-27, opened 08-28 — interleaved *between* the bounces
+of 08-27/28/29/30. ContentRejected is Optus's content filter refusing that message, not a dead mailbox.
+Attempts:
+- 2026-08-31 (weekly ops) — Found while auditing 14 bounces in 7d. Two defects: (a) the counter is
+  supposed to reset on delivered/opened/clicked, and opens sat between the bounces, so the reset does
+  not consider `opened` or the window is wrong; (b) ContentRejected should not count toward suppression
+  at all — SES is saying change the content, not stop mailing. Bead filed (P1). Only 2 subscribers
+  have EVER been suppressed, so blast radius is small today, and nothing alerts on a false positive.
+If recurs: handler is `handleResendWebhook` in `api/calculator-api.js` (REPEAT_BOUNCE_LIMIT). Exclude
+ContentRejected/Suppressed subtypes before counting, and verify the reset actually reads `opened`.
+Second thread worth its own dig: 5 of ~6 CW drip sends to this address were content-rejected, so some
+drip templates are tripping provider content filters — that is a deliverability problem, not a list one.
+
+## ISSUE-074 — Coach reminder cron still emails @test.ketodial.com members
+🔴 OPEN — Last: 2026-08-31
+Pattern: The coach notification path mails the 8 seeded test members. On 2026-08-26 five hard-bounced:
+tom@/dave@/mike@ ("Coach Remy responded to your check-in", 11:45 UTC) and jordan@/priya@ ("Your coach
+responded to your check-in", 18:38 UTC), all `@test.ketodial.com`. current-status.md (2026-08-25) says
+these were "now guarded" after CRON_SECRET was set; the guard did not hold.
+Attempts:
+- 2026-08-31 (weekly ops) — Confirmed `coach_members` holds 8 rows, ALL test data, all `status=active`
+  (memory `project-coach-test-members`). These 5 bounces alone are why 7d bounces read 14 instead of 7.
+  Bead filed (P2). Side finding: the "Coach Remy" retirement went live mid-day 08-26, between the two
+  batches — the subject line changed but the recipient filter never did.
+If recurs: filter test domains in the notification sender, or deactivate the 8 test rows now that the
+product is real. Do not delete them without confirming each — see memory `feedback-never-delete-app-data`.
