@@ -147,3 +147,104 @@ last value, which wiped 7 of 8 images on listings 4464217679 and 4464217699 befo
 local full-resolution copies. Etsy also ignores image order unless an explicit `rank` is passed
 on upload. To reorder, POST to the images endpoint with `listing_image_id` plus `rank`, and
 resend `alt_text` because it gets cleared. Always download originals before touching images.
+
+## 2026-08-31 - Pre-July archive remediation shipped (commit 9d64b169)
+
+Executes the 2026-08-25 board approval, acting on
+`Brew-Vault/04-Systems/Projects/Carnivore-Weekly/reports/content-quality-review-2026-08-24.md`.
+Full write-up: `Brew-Vault/.../reports/archive-remediation-2026-08-31.md`.
+Commits: `9d64b169` here, `40df6f7` in the `ketodial/public` submodule (both pushed).
+32 posts changed, 28 CW and 4 KD, 100 individual claim corrections.
+
+**PROTEIN DENOMINATOR RESOLVED. The house standard did not move.** The self-flagged VERIFY in
+`docs/house-claims.md` is closed: the denominator stays GOAL body weight and the CALCULATOR is
+the side out of sync. Verified in code, not assumed: `calculations.ts:147` computes
+`protein = Math.round(bodyweightKg * 2.0)`, which is 0.91 g/lb of CURRENT weight, and no
+`goalWeight` field exists anywhere in `calculator2-demo/src/`. One partial guard already exists
+at `calculations.ts:73` (BMI 30+ bases protein on the reference weight at BMI 25). Keto and
+low-carb use 25% of calories, a third formula. Reasoning is written into the house-claims
+changelog so the next writer sees it there rather than only in the vault.
+
+**The how-fast ruling and the denominator were never technically coupled, and the report says
+so.** Deck `ae2f286d` governs the deficit selector at `Step2FitnessDiet.tsx:120-125`, which
+feeds CALORIES only; protein never sees the deficit value. What actually blocked this task was
+the decision-ledger instruction of 2026-08-28, "do not re-raise it in a new form while the
+sharper question is live". Closing `ae2f286d` lifted that. The directional half is real too: a
+goal date is a goal weight plus a rate, so keeping the dropdown points the calculator toward
+collecting goal weight. Brew has still NOT ruled on the denominator itself and this was not
+treated as if he had.
+
+**ADDING THE GOAL-WEIGHT INPUT IS STILL NOT DONE and is deliberately not done here.** It is a
+product change to the live paid funnel, outside the copy carve-out. It stays on todos.md. Until
+it ships the calculator and house-claims.md disagree for any reader with weight to lose.
+
+**Signed off by the `sarah-health-coach` agent before anything shipped**, with three conditions,
+all met. She amended five of six groups. Her substantive catches: the liver copper limit binds
+PER SERVING not per week (a single 4 oz serving is ~11 mg against a 10 mg adult ceiling), so the
+2026-05-01 portions line had to change as well as its protocol line; the "70-80% fat keeps
+testosterone high" claim is not defensible and was struck rather than reworded; and
+`2026-02-09-how-much-protein-carnivore` MISATTRIBUTED its 1.2-1.6 g/lb lean mass figure to
+Dr. Layman, who did not publish it, so the number was removed from his name rather than
+re-anchored. Dr. Lyon was corrected to ideal body weight, which is what she actually publishes.
+
+**What shipped, by class:** sodium 5-7 g (6-8 g athletes) brought to the house 3-5 g / 6 g cap
+across 20 posts with the teaspoon conversions fixed to 1 tsp = 2.3 g; bulk KCl dosing removed
+from 4 posts; the protein denominator moved off current weight and lean body mass in 16 posts;
+the 70-80% fat target removed from 2; the liver cap enforced in 2 meal plans that each also
+contradicted themselves; and the budget post's calorie math corrected, which is the item Brew
+named by hand.
+
+**The budget post was worse than reported.** "5 lb of 80/20 = 9,500 calories" (real: 5,750)
+appeared twice, and the whole-list total was 16,800 against a real 12,200, so "2,400 per day,
+more than most people need" was actually ~1,750 per day, a deficit. Sarah was explicit that
+shipping corrected calories under an uncorrected conclusion would be worse than leaving the post
+alone, so the conclusion went with it. Beef fat 380 g to 450 g, fat share 60% to 63%, and the
+meal plan needed 28 eggs against 24 bought, so breakfast dropped to 3.
+
+**Three safety defects found during the sweep that nobody had flagged, fixed with the batch.**
+`2026-02-08-adaptation-timeline` told a reader with orthostatic dizziness that they "need more
+salt immediately"; for a medicated 45-70 reader that delays the call that fixes it. Magnesium ran
+400-600 mg in four posts against a house 300-400. `2026-01-07-fasting-protocols` published 4-8
+week alternate-day runs (house bans that class), a 2-3 lb/week rate (house ceiling 1.5), and a
+"2,000-2,500 calorie" sample OMAD meal that actually totals ~4,000.
+
+**Nine posts, not one, shipped with a literal ```html fence** rendering on the live page. All
+from the 2026-03-02 to 03-07 run. Stripped. A corpus regex now finds zero fences and zero of the
+other production artifacts the review named.
+
+**The 2026-08-24 medical-risk unpublish left seven live 404s.** Commit `f0e31058` removed the
+HTML for the five flagged posts but left 7 redirect stubs and 7 `data/redirects.json` entries
+pointing at them, on URLs Google had indexed. All retargeted to the live post-July replacements
+(`2026-07-24-carnivore-ldl-arteries`, `2026-08-20-hypothyroid-carnivore-scale-wont-move`) and
+two-hop chains collapsed. **Lesson: unpublishing a post is not done until you check what
+redirects at it.**
+
+Review item 1 (rewrite or unpublish the five medical-risk posts) was ALREADY DONE on 2026-08-24;
+the sweep confirmed all five are `unpublished` with HTML removed. Remaining
+`doctor-as-adversary` hits are lifestyle posts quoting that phrasing to argue against it.
+
+**Verified, not asserted:** validate_before_commit 0 critical; validate_canonicals PASSED over
+245 files; check_baselines PASSED; blog_link_guard exit 0; macro parity 1474/1474 on both the
+golden and the client-vs-worker test, confirming the calculator was not touched; a 59-pattern
+stale-value regex over the JSON and every CW and KD HTML file returns 0; and every new string was
+confirmed present in BOTH `data/blog_posts.json` and the rendered HTML. NOT verified:
+`tests/content-validation.test.js` and the other three Jest suites, which are Playwright specs
+misfiled in the Jest directory and refuse to run there (pre-existing, unrelated, not fixed);
+pytest is not installed on this machine.
+
+**Editing both `data/blog_posts.json` and the rendered HTML by hand was deliberate**, rather than
+regenerating with `generate_blog_pages.py`, which rewrites all 250+ CW pages and would have
+buried a 40-file content change in a 250-file diff. Both sides carry the same text, so the next
+regeneration is a no-op on these posts. Two gotchas for whoever does this next: match the
+existing `json.dump` encoding (`indent=2, ensure_ascii=False`, and the file has no trailing
+newline) or the diff explodes to hundreds of spurious lines, and the HTML has auto-inserted wiki
+links and `<strong>` tags mid-sentence, so replacement strings must not span them.
+
+**Still open after this:** the goal-weight calculator input; the LDL stance wording (item 2 of
+the house-claims changelog, still needs Brew); three ADDITIONS Sarah wants to house-claims.md
+(per-serving liver cap, a "missing 4,700 mg is not a deficiency, overshooting is the higher-risk
+error" line under Potassium, and the clinician-set exceptions under Protein) which were not made
+because changing that file's published content is a stance change; the rehash-cluster
+consolidation (review item 3, the large remaining piece and an SEO win, since the site competes
+with itself); the LMNT and air-fryer affiliate stance conflicts (review item 4); and the KD posts
+dated after June, which carry the same sodium and protein defects but sit outside this approval.
