@@ -721,3 +721,34 @@ Attempts:
   batches — the subject line changed but the recipient filter never did.
 If recurs: filter test domains in the notification sender, or deactivate the 8 test rows now that the
 product is real. Do not delete them without confirming each — see memory `feedback-never-delete-app-data`.
+
+## ISSUE-075 — Apify run-sync hangs, blog-gen stalls ~22 min then dies
+🟢 FIXED — Last: 2026-08-31
+Pattern: `fetch_reddit_trends.py` makes one run-sync-get-dataset-items call per
+subreddit. On 2026-08-30 the first (r/carnivorediet) SUCCEEDED in 33s; calls 2-4
+never created an Apify run at all and sat on the 300s urlopen timeout. With the
+<5-fresh retry branch that is up to 40 min of silent stall. Looks like the actor
+hanging. It isn't: check the Apify run list before blaming the actor.
+Attempts:
+- 2026-08-30 — killed the run, assumed actor hang, session ended → wrong diagnosis
+- 2026-08-31 — checked /v2/actor-runs: 1 SUCCEEDED run, 33s. Retried a single
+  subreddit by hand: 10.8s. Transient Apify-side stall → confirmed not our bug
+- 2026-08-31 — cut timeouts 240s/300s -> 120s/150s so a stall fails fast, and
+  merged the two same-day partial pulls instead of re-spending → fixed
+If recurs: check the run list FIRST (`/v2/actor-runs?limit=10&desc=1`). A pull that
+returns some subreddits is salvageable: merge partial pulls, dedupe by url. If runs
+are not being created at all, it's Apify-side, not the actor.
+
+## ISSUE-076 — Topic research ranked by upvotes, buried the real pain points
+🟢 FIXED — Last: 2026-08-31
+Pattern: `fetch_reddit_trends.py` sorted `-score` while the blog-gen brief says
+high comment counts on modest scores are the best topic signal. Score-ranking put
+before/after photo posts on top (570⬆/63💬, ratio 0.11) and buried a 40⬆/170💬
+help request at rank 10. Comment mining then ran on the top-2-by-score, so the
+2026-08-24 batch mined a bodybuilding thread and a mod-recruitment thread, and 7
+of 9 posts were written with no reader voice at all.
+Attempts:
+- 2026-08-31 — sort by (num_comments, comment_to_score_ratio), expose the ratio to
+  topic research, widen mining from 2 threads to all 9 → 146 comments vs 38 → fixed
+If recurs: check that the sort key and the task brief still agree. They disagreed
+for a week without anyone noticing because the output still looked plausible.
