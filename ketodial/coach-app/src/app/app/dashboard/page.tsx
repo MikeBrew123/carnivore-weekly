@@ -39,10 +39,6 @@ export default function DashboardPage() {
   const [noteSent, setNoteSent] = useState(false)
 
   useEffect(() => {
-    document.title = brand.product
-  }, [brand.product])
-
-  useEffect(() => {
     fetch('/api/member/dashboard-state')
       .then(r => r.json())
       .then(d => {
@@ -116,7 +112,9 @@ export default function DashboardPage() {
       <div className="appbar">
         <span className="kd-brand" style={{ gap: '8px' }}>
           <KdLogo />
-          <span className="word" style={{ fontSize: '17px' }}>{brand.wordLead}<b>{brand.wordTail}</b></span>
+          <span className="word" style={{ fontSize: '17px' }}>
+            {brand.wordLead}{brand.wordJoin}<b style={{ color: brand.accent }}>{brand.wordTail}</b>
+          </span>
           {brand.sub && <span className="sub">{brand.sub}</span>}
         </span>
         <a href="/app/settings" className="ic-btn">

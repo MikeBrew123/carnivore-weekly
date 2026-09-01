@@ -22,6 +22,12 @@ export type CoachBrand = {
   /** Wordmark halves: `lead` renders plain, `tail` renders in the accent. */
   wordLead: string
   wordTail: string
+  /** What sits between the halves. 'KetoDial' is one closed word; 'Carnivore
+   *  Coach' is two, and rendering it closed gave us "CarnivoreCoach". */
+  wordJoin: string
+  /** Wordmark accent. Matches the accent in BRAND (lib/email/send.ts) so the
+   *  email and the page a buyer opens from it are the same colour. */
+  accent: string
   /** Small caps label beside the wordmark. Empty means render nothing. */
   sub: string
   /** How the product describes its own scope in the waiver. */
@@ -38,6 +44,8 @@ const BRANDS: Record<CoachSite, CoachBrand> = {
     product: 'KetoDial Coach',
     wordLead: 'Keto',
     wordTail: 'Dial',
+    wordJoin: '',
+    accent: '#0ea5e9',
     sub: 'COACH',
     discipline: 'low-carb accountability coaching',
     parent: 'KetoDial',
@@ -47,6 +55,8 @@ const BRANDS: Record<CoachSite, CoachBrand> = {
     product: 'Carnivore Coach',
     wordLead: 'Carnivore',
     wordTail: 'Coach',
+    wordJoin: ' ',
+    accent: '#b8860b',
     sub: '',
     discipline: 'carnivore accountability coaching',
     parent: 'Carnivore Weekly',
