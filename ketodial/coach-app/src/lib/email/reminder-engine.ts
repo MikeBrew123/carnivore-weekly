@@ -37,11 +37,15 @@ export async function computeCheckinReminders(
 ): Promise<ReminderDecision[]> {
   const decisions: ReminderDecision[] = []
 
-  // Get all active members
+  // Get all active members. 'test' is deliberately excluded: it is the status the
+  // seeded fixture rows carry, and selecting it here meant a fixture could still be
+  // mailed if its address happened not to match isUndeliverableFixture above — which
+  // is exactly the case for iambrew+coachtest@gmail.com, a real deliverable inbox.
+  // The address guard stays as the second line of defence, not the only one.
   const { data: members } = await serviceClient
     .from('coach_members')
     .select('id, email, display_name, tier, status, subscription_status, site')
-    .in('status', ['active', 'test'])
+    .in('status', ['active'])
 
   if (!members || members.length === 0) return decisions
 
