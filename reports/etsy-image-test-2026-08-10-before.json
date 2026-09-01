@@ -1,0 +1,261 @@
+{
+  "captured_at": "2026-08-10 05:37 PDT",
+  "phase": "before",
+  "listings": {
+    "4464217679": {
+      "group": "treated",
+      "label": "Carnivore Diet Food List",
+      "views": 4215,
+      "num_favorers": 5,
+      "price": "4.49 CAD",
+      "images": [
+        {
+          "listing_image_id": 8411037645,
+          "rank": 1,
+          "w": 2000,
+          "h": 3000,
+          "url": "https://i.etsystatic.com/63916912/r/il/117572/8411037645/il_fullxfull.8411037645_r63q.jpg"
+        },
+        {
+          "listing_image_id": 8363172716,
+          "rank": 2,
+          "w": 1536,
+          "h": 1024,
+          "url": "https://i.etsystatic.com/63916912/r/il/9ad50c/8363172716/il_fullxfull.8363172716_tgoa.jpg"
+        },
+        {
+          "listing_image_id": 8411054987,
+          "rank": 3,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/d7a4e4/8411054987/il_fullxfull.8411054987_kqh5.jpg"
+        },
+        {
+          "listing_image_id": 8363172950,
+          "rank": 4,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/395c96/8363172950/il_fullxfull.8363172950_t2q9.jpg"
+        },
+        {
+          "listing_image_id": 8363173052,
+          "rank": 5,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/aca425/8363173052/il_fullxfull.8363173052_92ol.jpg"
+        },
+        {
+          "listing_image_id": 8363173194,
+          "rank": 6,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/b9d6e7/8363173194/il_fullxfull.8363173194_abd9.jpg"
+        },
+        {
+          "listing_image_id": 8411031795,
+          "rank": 7,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/782168/8411031795/il_fullxfull.8411031795_4vln.jpg"
+        },
+        {
+          "listing_image_id": 8363138894,
+          "rank": 8,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/a00af3/8363138894/il_fullxfull.8363138894_t439.jpg"
+        }
+      ]
+    },
+    "4464217699": {
+      "group": "treated",
+      "label": "Pescatarian Diet Food List",
+      "views": 3898,
+      "num_favorers": 3,
+      "price": "4.49 CAD",
+      "images": [
+        {
+          "listing_image_id": 8411055725,
+          "rank": 1,
+          "w": 2550,
+          "h": 3300,
+          "url": "https://i.etsystatic.com/63916912/r/il/63aab8/8411055725/il_fullxfull.8411055725_g8z8.jpg"
+        },
+        {
+          "listing_image_id": 8363173838,
+          "rank": 2,
+          "w": 2550,
+          "h": 3300,
+          "url": "https://i.etsystatic.com/63916912/r/il/3587a4/8363173838/il_fullxfull.8363173838_e6uk.jpg"
+        },
+        {
+          "listing_image_id": 8411056243,
+          "rank": 3,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/6178d1/8411056243/il_fullxfull.8411056243_chvw.jpg"
+        },
+        {
+          "listing_image_id": 8411056371,
+          "rank": 4,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/59cbfe/8411056371/il_fullxfull.8411056371_of1b.jpg"
+        },
+        {
+          "listing_image_id": 8363174342,
+          "rank": 5,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/5ffd00/8363174342/il_fullxfull.8363174342_zbzi.jpg"
+        },
+        {
+          "listing_image_id": 8363174436,
+          "rank": 6,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/46e6fd/8363174436/il_fullxfull.8363174436_ghyz.jpg"
+        },
+        {
+          "listing_image_id": 8363174536,
+          "rank": 7,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/cf6d90/8363174536/il_fullxfull.8363174536_llmp.jpg"
+        },
+        {
+          "listing_image_id": 8411022211,
+          "rank": 8,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/0a03ee/8411022211/il_fullxfull.8411022211_t9vx.jpg"
+        }
+      ]
+    },
+    "4495055944": {
+      "group": "control",
+      "label": "Carnivore Diet Food Cheat Sheet",
+      "views": 6257,
+      "num_favorers": 5,
+      "price": "8.98 CAD",
+      "images": [
+        {
+          "listing_image_id": 8002941501,
+          "rank": 1,
+          "w": 1024,
+          "h": 1536,
+          "url": "https://i.etsystatic.com/63916912/r/il/18d447/8002941501/il_fullxfull.8002941501_poxh.jpg"
+        },
+        {
+          "listing_image_id": 8245154797,
+          "rank": 2,
+          "w": 1684,
+          "h": 2528,
+          "url": "https://i.etsystatic.com/63916912/r/il/5e89c2/8245154797/il_fullxfull.8245154797_a5mh.jpg"
+        },
+        {
+          "listing_image_id": 8197217508,
+          "rank": 3,
+          "w": 1684,
+          "h": 2528,
+          "url": "https://i.etsystatic.com/63916912/r/il/3cf120/8197217508/il_fullxfull.8197217508_hsvy.jpg"
+        },
+        {
+          "listing_image_id": 8003117129,
+          "rank": 5,
+          "w": 1536,
+          "h": 1024,
+          "url": "https://i.etsystatic.com/63916912/r/il/829db0/8003117129/il_fullxfull.8003117129_jh0e.jpg"
+        }
+      ]
+    },
+    "4495049647": {
+      "group": "control",
+      "label": "Keto Food Cheat Sheet",
+      "views": 2435,
+      "num_favorers": 1,
+      "price": "8.98 CAD",
+      "images": [
+        {
+          "listing_image_id": 7954984632,
+          "rank": 1,
+          "w": 1024,
+          "h": 1536,
+          "url": "https://i.etsystatic.com/63916912/r/il/3d6c86/7954984632/il_fullxfull.7954984632_77gh.jpg"
+        },
+        {
+          "listing_image_id": 8197013814,
+          "rank": 2,
+          "w": 1684,
+          "h": 2528,
+          "url": "https://i.etsystatic.com/63916912/r/il/3ff16f/8197013814/il_fullxfull.8197013814_d54a.jpg"
+        },
+        {
+          "listing_image_id": 8196959834,
+          "rank": 3,
+          "w": 1684,
+          "h": 2528,
+          "url": "https://i.etsystatic.com/63916912/r/il/325451/8196959834/il_fullxfull.8196959834_hffa.jpg"
+        },
+        {
+          "listing_image_id": 8244865533,
+          "rank": 4,
+          "w": 1684,
+          "h": 2528,
+          "url": "https://i.etsystatic.com/63916912/r/il/43d66b/8244865533/il_fullxfull.8244865533_o5sm.jpg"
+        },
+        {
+          "listing_image_id": 8244850009,
+          "rank": 5,
+          "w": 1684,
+          "h": 2528,
+          "url": "https://i.etsystatic.com/63916912/r/il/cb6dfc/8244850009/il_fullxfull.8244850009_qn15.jpg"
+        },
+        {
+          "listing_image_id": 8003117193,
+          "rank": 7,
+          "w": 1536,
+          "h": 1024,
+          "url": "https://i.etsystatic.com/63916912/r/il/6c4665/8003117193/il_fullxfull.8003117193_g67o.jpg"
+        }
+      ]
+    },
+    "4464219356": {
+      "group": "frozen",
+      "label": "Keto Diet Food List (bestseller, do not touch)",
+      "views": 14174,
+      "num_favorers": 6,
+      "price": "4.49 CAD",
+      "images": [
+        {
+          "listing_image_id": 7802381669,
+          "rank": 1,
+          "w": 2550,
+          "h": 3300,
+          "url": "https://i.etsystatic.com/63916912/r/il/f0d18e/7802381669/il_fullxfull.7802381669_beyj.jpg"
+        },
+        {
+          "listing_image_id": 8306621976,
+          "rank": 2,
+          "w": 2304,
+          "h": 1792,
+          "url": "https://i.etsystatic.com/63916912/r/il/cd02e8/8306621976/il_fullxfull.8306621976_26za.jpg"
+        },
+        {
+          "listing_image_id": 8354520419,
+          "rank": 3,
+          "w": 2000,
+          "h": 1378,
+          "url": "https://i.etsystatic.com/63916912/r/il/629e70/8354520419/il_fullxfull.8354520419_cuv2.jpg"
+        },
+        {
+          "listing_image_id": 8306622110,
+          "rank": 4,
+          "w": 2000,
+          "h": 2000,
+          "url": "https://i.etsystatic.com/63916912/r/il/1675c1/8306622110/il_fullxfull.8306622110_4zoc.jpg"
+        }
+      ]
+    }
+  }
+}

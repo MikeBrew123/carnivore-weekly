@@ -1,0 +1,19 @@
+{
+  "captured": "2026-09-01T14:18 PDT",
+  "why": "Before reshaping this seeded row into a CW 55+ carnivore persona for the pre-launch end-to-end test. Restore these exact values when the test finishes.",
+  "row": {
+    "id": "6bf3a3a3-ab2c-48a8-aa6e-f593280225d3",
+    "email": "iambrew+coachtest@gmail.com",
+    "display_name": "Tom Nguyen",
+    "status": "test",
+    "tier": "weekly",
+    "site": "ketodial",
+    "diet_type": "keto",
+    "risk_level": "caution",
+    "onboarding_step": 1,
+    "founding_member": true,
+    "subscription_status": "cancelled",
+    "medications": "metformin 1000mg, levothyroxine 50mcg",
+    "health_conditions": ["type_2_diabetes", "thyroid"]
+  }
+}
