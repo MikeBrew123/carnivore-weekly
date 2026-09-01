@@ -192,7 +192,7 @@ export async function sendSignInLink(
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 20px; color:#1e293b;">
           <p style="font-size:16px;line-height:1.6;">Here is your way in. Tap the button and you are signed in.</p>
           <a href="${loginUrl}" style="display:inline-block;background:${b.accent};color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:16px;margin:14px 0;">Sign me in</a>
-          <p style="font-size:14px;line-height:1.6;color:#475569;">The link works once, and only for a while. If it has gone stale, ask for a fresh one at <a href="https://coach.ketodial.com/login" style="color:#0369a1;">coach.ketodial.com</a>. There is no password to remember.</p>
+          <p style="font-size:14px;line-height:1.6;color:#475569;">The link works once, and only for a while. If it has gone stale, ask for a fresh one at <a href="https://coach.ketodial.com/login${site ? `?site=${encodeURIComponent(site)}` : ''}" style="color:#0369a1;">coach.ketodial.com</a>. There is no password to remember.</p>
           <p style="font-size:14px;line-height:1.6;color:#475569;">If you did not ask for this, ignore it. Nothing happens until the button is tapped.</p>
           <p style="font-size:12px;color:#94a3b8;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:14px;">${b.product} &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
         </div>
