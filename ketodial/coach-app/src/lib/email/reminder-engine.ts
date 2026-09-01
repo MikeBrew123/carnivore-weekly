@@ -18,6 +18,21 @@ function isUndeliverableFixture(email: string | null | undefined): boolean {
   )
 }
 
+// Only these two statuses should ever receive coach mail. Everything else —
+// 'test' fixtures, and members who paused, cancelled, offboarded or refunded —
+// has either never been a customer or has stopped being one, and mailing them
+// is at best noise and at worst a message to somebody who never asked for it.
+//
+// computeCheckinReminders enforces this in its query. computeReplyNotifications
+// could not: it starts from coach_messages and joins the member, so the filter
+// has to happen here. It read status and never checked it, which meant a single
+// coach message against a non-customer row would have mailed them regardless.
+const MAILABLE_STATUSES = ['active', 'onboarding']
+
+function isMailableStatus(status: string | null | undefined): boolean {
+  return MAILABLE_STATUSES.includes(String(status ?? ''))
+}
+
 export type ReminderType = 'checkin_due' | 'coach_replied'
 
 export interface ReminderDecision {
@@ -179,6 +194,20 @@ export async function computeReplyNotifications(
         reason: 'Test fixture address',
         skip: true,
         skip_reason: 'undeliverable_fixture',
+      })
+      continue
+    }
+
+    if (!isMailableStatus(member?.status)) {
+      decisions.push({
+        member_id: reply.member_id,
+        email: member?.email,
+        site: member?.site,
+        display_name: member?.display_name,
+        type: 'coach_replied',
+        reason: `Member status is ${member?.status ?? 'unknown'}`,
+        skip: true,
+        skip_reason: 'not_a_mailable_status',
       })
       continue
     }
