@@ -1,0 +1,14 @@
+{
+  "captured": "2026-09-01T13:58 PDT",
+  "why": "Before flipping the 8 seeded test rows off status=active (bead carnivore-weekly-fpqj). All 8 confirmed test data per memory project-coach-test-members. Revert = set status back to 'active' for these ids.",
+  "rows": [
+    {"id":"b669d43d-1b07-4926-b999-b5f94c15db42","email":"dave@test.ketodial.com","status":"active","subscription_status":"active"},
+    {"id":"80e0da0e-2634-4d92-95fa-2c7504138941","email":"mike@test.ketodial.com","status":"active","subscription_status":"active"},
+    {"id":"4337e236-2764-4a5a-b34e-f22e27e5bd0c","email":"alex@test.ketodial.com","status":"active","subscription_status":"active"},
+    {"id":"9e4ddb87-e514-4e9c-9b85-80291908d17f","email":"priya@test.ketodial.com","status":"active","subscription_status":"active"},
+    {"id":"6bf3a3a3-ab2c-48a8-aa6e-f593280225d3","email":"iambrew+coachtest@gmail.com","status":"active","subscription_status":"active"},
+    {"id":"055aa95f-c59d-4ff0-95bb-47d4dc1ba034","email":"sarah@test.ketodial.com","status":"active","subscription_status":"active"},
+    {"id":"b347785d-17a4-4a88-b6fd-db9535384f53","email":"lisa@test.ketodial.com","status":"active","subscription_status":"active"},
+    {"id":"39fc0dc1-2d1e-4c7a-87f1-64daee06a488","email":"jordan@test.ketodial.com","status":"active","subscription_status":"active"}
+  ]
+}
