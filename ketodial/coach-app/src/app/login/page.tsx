@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { brandFor, normaliseSite, DEFAULT_SITE, type CoachSite } from '@/lib/brand'
 import { createClient } from '@/lib/supabase/client'
 import { resolvePostAuthDestination } from '@/lib/auth/destination'
 import '@/styles/coach.css'
@@ -32,6 +33,8 @@ const ERROR_COPY: Record<string, string> = {
 }
 
 export default function LoginPage() {
+  const [site, setSite] = useState<CoachSite>(DEFAULT_SITE)
+  const brand = brandFor(site)
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false)
@@ -42,13 +45,23 @@ export default function LoginPage() {
   // Read from window rather than useSearchParams so /login stays statically
   // rendered and needs no Suspense boundary.
   useEffect(() => {
-    const code = new URLSearchParams(window.location.search).get('error')
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('error')
+    const siteParam = params.get('site')
     // Reading the URL on mount is the legitimate "synchronise from an external
     // system" case the rule is written around; there is no server render of
-    // window.location to read it from instead.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // window.location to read it from instead. Pre-auth there is no member row
+    // either, so the product can only come from the link that brought them
+    // here: ours carry ?site=, a bare /login falls back to KetoDial.
+    /* eslint-disable react-hooks/set-state-in-effect */
+    if (siteParam) setSite(normaliseSite(siteParam))
     if (code && ERROR_COPY[code]) setError(ERROR_COPY[code])
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [])
+
+  useEffect(() => {
+    document.title = brand.product
+  }, [brand.product])
 
   // Older email links (anything generated before this change, and anything
   // Supabase sends through its own mailer) come back on the implicit flow: the
@@ -151,8 +164,8 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-logo">
-          <span className="kd-word">Keto<b>Dial</b></span>
-          <span className="auth-sub">Coach</span>
+          <span className="kd-word">{brand.wordLead}<b>{brand.wordTail}</b></span>
+          {brand.sub && <span className="auth-sub">Coach</span>}
         </div>
 
         <h1 className="auth-title">Sign in</h1>
@@ -161,6 +174,10 @@ export default function LoginPage() {
             ? 'No password. Either tap Google, or we email you a link.'
             : 'No password needed. Give us the address you bought with and we will email you a sign-in link.'}
         </p>
+
+        {brand.platformNote && (
+          <p className="auth-platform-note">{brand.platformNote}</p>
+        )}
 
         {GOOGLE_ENABLED && (
           <>

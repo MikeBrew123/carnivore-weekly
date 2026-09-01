@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   // Fetch member row
   const { data: member } = await serviceClient
     .from('coach_members')
-    .select('id, display_name, status, tier, founding_member, subscription_status, onboarding_step, onboarded_at, current_weight, start_weight, goal_weight, diet_type, bonus_credit_balance, timezone, cancel_at_period_end, current_period_end')
+    .select('id, display_name, status, tier, site, founding_member, subscription_status, onboarding_step, onboarded_at, current_weight, start_weight, goal_weight, diet_type, bonus_credit_balance, timezone, cancel_at_period_end, current_period_end')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -126,6 +126,9 @@ export async function GET(request: NextRequest) {
     member: {
       display_name: member.display_name,
       tier: member.tier,
+      // Which product they bought. The UI brands from this; without it every
+      // member saw KetoDial regardless of what they paid for.
+      site: member.site,
       founding_member: member.founding_member,
       diet_type: member.diet_type,
       current_weight: member.current_weight,

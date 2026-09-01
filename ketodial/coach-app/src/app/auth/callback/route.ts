@@ -15,6 +15,24 @@ import { resolvePostAuthDestination, safeRelativePath } from '@/lib/auth/destina
 // closing the browser signs the member out. It had never run in production, so
 // nobody had seen it. It runs now.
 
+// How long a signed-in session survives on the device.
+//
+// @supabase/ssr asks for roughly 400 days, which is the browser's own ceiling.
+// On a six-week program that is not convenience, it is a health-data session
+// left open on a device for over a year, and members in this cohort share
+// laptops and tablets with family. Ninety days still means essentially nobody
+// is logged out mid-program, while a lost or shared device stops being an
+// open door indefinitely.
+//
+// This is a CLAMP, not an assignment: sign-out and token-rotation removals
+// arrive as maxAge 0 and must stay 0.
+const SESSION_MAX_AGE_SECONDS = 90 * 24 * 60 * 60
+
+function clampSessionLifetime<T extends { maxAge?: number }>(options: T): T {
+  if (typeof options?.maxAge !== 'number' || options.maxAge <= 0) return options
+  return { ...options, maxAge: Math.min(options.maxAge, SESSION_MAX_AGE_SECONDS) }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl
   const code = searchParams.get('code')
@@ -64,7 +82,7 @@ export async function GET(request: NextRequest) {
   function redirectTo(path: string) {
     const response = NextResponse.redirect(new URL(path, origin))
     pendingCookies.forEach(({ name, value, options }) =>
-      response.cookies.set(name, value, options)
+      response.cookies.set(name, value, clampSessionLifetime(options))
     )
     Object.entries(pendingHeaders).forEach(([key, value]) =>
       response.headers.set(key, value)

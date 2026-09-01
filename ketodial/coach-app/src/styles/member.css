@@ -113,3 +113,18 @@ select.form-input{appearance:none;cursor:pointer}
 .auth-note{font-size:14px;line-height:1.55;color:var(--ink-soft)}
 .auth-note p{margin:0 0 10px}
 .auth-linkish{background:none;border:none;padding:0;font:inherit;color:var(--accent-deep);font-weight:600;cursor:pointer;text-decoration:underline}
+
+/* Shown to Carnivore Weekly members only. They bought from carnivoreweekly.com
+   and the address bar says ketodial.com; saying so plainly, before they have to
+   wonder, is the difference between a shared platform and a redirect they did
+   not consent to. */
+.auth-platform-note{
+  margin:0 0 14px;
+  padding:10px 12px;
+  background:#faf7f0;
+  border:1px solid #e6dcc4;
+  border-radius:8px;
+  font-size:13.5px;
+  line-height:1.5;
+  color:#5c5344;
+}

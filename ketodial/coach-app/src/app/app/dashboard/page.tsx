@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { KdLogo, CheckIcon } from '@/components/landing/KdBrand'
+import { brandFor } from '@/lib/brand'
 import '@/styles/coach.css'
 import '@/styles/member.css'
 import '@/styles/dashboard.css'
@@ -9,6 +10,7 @@ import '@/styles/dashboard.css'
 interface DashboardState {
   state: string
   member?: {
+    site?: string | null
     display_name: string
     tier: string
     founding_member: boolean
@@ -28,10 +30,17 @@ interface DashboardState {
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardState | null>(null)
+  // Brands from the product the member actually bought. Defaults to KetoDial
+  // while data is still loading, and for every pre-existing member row.
+  const brand = brandFor(data?.member?.site)
   const [noteText, setNoteText] = useState('')
   const [sendingNote, setSendingNote] = useState(false)
   const [noteError, setNoteError] = useState('')
   const [noteSent, setNoteSent] = useState(false)
+
+  useEffect(() => {
+    document.title = brand.product
+  }, [brand.product])
 
   useEffect(() => {
     fetch('/api/member/dashboard-state')
@@ -107,7 +116,8 @@ export default function DashboardPage() {
       <div className="appbar">
         <span className="kd-brand" style={{ gap: '8px' }}>
           <KdLogo />
-          <span className="word" style={{ fontSize: '17px' }}>Keto<b>Dial</b></span>
+          <span className="word" style={{ fontSize: '17px' }}>{brand.wordLead}<b>{brand.wordTail}</b></span>
+          {brand.sub && <span className="sub">{brand.sub}</span>}
         </span>
         <a href="/app/settings" className="ic-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.77 1.05 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>

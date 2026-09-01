@@ -23,12 +23,18 @@ export type EmailOtpLinkType = 'magiclink' | 'recovery' | 'invite' | 'signup'
 export function buildCallbackUrl(
   hashedToken: string | null | undefined,
   type: EmailOtpLinkType,
-  origin: string = COACH_ORIGIN
+  origin: string = COACH_ORIGIN,
+  site?: string | null
 ): string | null {
   if (!hashedToken) return null
   const url = new URL('/auth/callback', origin)
   url.searchParams.set('token_hash', hashedToken)
   url.searchParams.set('type', type)
+  // Carried so that if this link fails — used twice, gone stale — the /login
+  // page it lands on still shows the product the person actually bought, and
+  // the note explaining why the address says ketodial.com. Omitted entirely
+  // when unknown, so links without it are byte-identical to before.
+  if (site) url.searchParams.set('site', site)
   return url.toString()
 }
 
@@ -36,7 +42,9 @@ export function buildCallbackUrl(
 export function signInUrlFrom(
   properties: { hashed_token?: string | null; action_link?: string | null } | null | undefined,
   type: EmailOtpLinkType,
-  origin: string = COACH_ORIGIN
+  origin: string = COACH_ORIGIN,
+  site?: string | null
 ): string | null {
-  return buildCallbackUrl(properties?.hashed_token, type, origin) ?? properties?.action_link ?? null
+  return buildCallbackUrl(properties?.hashed_token, type, origin, site)
+    ?? properties?.action_link ?? null
 }

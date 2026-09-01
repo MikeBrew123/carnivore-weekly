@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
             // Our own callback with the token hash, so the session lands in
             // server-set HttpOnly cookies rather than a URL fragment. Falls back
             // to Supabase's action_link. See lib/auth/links.ts.
-            const loginUrl = signInUrlFrom(link?.properties, 'magiclink')
+            const loginUrl = signInUrlFrom(link?.properties, 'magiclink', COACH_ORIGIN, site)
             if (loginUrl) {
               await sendCohortWelcome(buyerEmail, loginUrl, {
                 startDate: '15 September',

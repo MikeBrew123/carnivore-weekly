@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     // Prefer our own /auth/callback with the token hash: the session then lands
     // in server-set HttpOnly cookies instead of a URL fragment. See lib/auth/links.ts.
-    const url = signInUrlFrom(link.properties, 'magiclink')
+    const url = signInUrlFrom(link.properties, 'magiclink', COACH_ORIGIN, member.site)
     if (!url) {
       console.error('No sign-in URL could be built for a member')
       return generic()

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { brandFor } from '@/lib/brand'
 import { createClient } from '@/lib/supabase/client'
 import '@/styles/coach.css'
 import '@/styles/member.css'
@@ -38,6 +39,8 @@ const OBSTACLES = [
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1)
+  const [site, setSite] = useState<string | null>(null)
+  const brand = brandFor(site)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -93,12 +96,13 @@ export default function OnboardingPage() {
       if (!user) { window.location.href = '/login'; return }
       const { data: member } = await supabase
         .from('coach_members')
-        .select('onboarding_step, display_name, status')
+        .select('onboarding_step, display_name, status, site')
         .eq('id', user.id)
         .single()
       if (member?.status === 'active') { window.location.href = '/app/dashboard'; return }
       if (member?.onboarding_step) setStep(member.onboarding_step)
       if (member?.display_name) setProfile(p => ({ ...p, display_name: member.display_name }))
+      if (member?.site) setSite(member.site)
       setLoading(false)
     }
     loadProgress()
@@ -151,10 +155,10 @@ export default function OnboardingPage() {
         {/* STEP 1: Waiver */}
         {step === 1 && (
           <div className="ob-step on">
-            <div className="ob-eyebrow">Welcome to KetoDial Coach</div>
+            <div className="ob-eyebrow">Welcome to {brand.product}</div>
             <h2>Before we start, a quick note.</h2>
             <div className="waiver">
-              KetoDial Coach is <b>low-carb accountability coaching, not medical care</b>.
+              {brand.product} is <b>{brand.discipline}, not medical care</b>.
               We help you stay consistent and spot patterns. For medications, symptoms,
               diagnoses, or a medical condition, we&apos;ll always point you to your
               healthcare provider.<br /><br />
