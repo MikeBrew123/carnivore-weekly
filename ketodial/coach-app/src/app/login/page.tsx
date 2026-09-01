@@ -156,7 +156,11 @@ export default function LoginPage() {
         </div>
 
         <h1 className="auth-title">Sign in</h1>
-        <p className="auth-lead">No password. Either tap Google, or we email you a link.</p>
+        <p className="auth-lead">
+          {GOOGLE_ENABLED
+            ? 'No password. Either tap Google, or we email you a link.'
+            : 'No password needed. Give us the address you bought with and we will email you a sign-in link.'}
+        </p>
 
         {GOOGLE_ENABLED && (
           <>
