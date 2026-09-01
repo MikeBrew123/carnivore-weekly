@@ -165,6 +165,47 @@ export async function sendCohortWelcome(
   }
 }
 
+// The "email me a sign-in link" mail, sent from POST /api/auth/link.
+//
+// It goes through Resend rather than Supabase's own mailer for a blunt reason:
+// this project has no custom SMTP configured, and Supabase refuses to deliver
+// auth mail to any address outside the project team. signInWithOtp and
+// resetPasswordForEmail therefore reach nobody who bought. The link itself is
+// generated with the admin API and delivered from the same domain the buyer
+// already gets mail from, which is exactly what the welcome email does.
+//
+// Deliberately short. Somebody asked to be let in; they do not want to read.
+export async function sendSignInLink(
+  email: string,
+  loginUrl: string,
+  site?: string | null
+): Promise<{ success: boolean; messageId?: string }> {
+  const b = brandFor(site)
+
+  try {
+    const { data, error } = await getResend().emails.send({
+      from: b.from,
+      replyTo: b.replyTo,
+      to: email,
+      subject: `Your ${b.product} sign-in link`,
+      html: `
+        <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 20px; color:#1e293b;">
+          <p style="font-size:16px;line-height:1.6;">Here is your way in. Tap the button and you are signed in.</p>
+          <a href="${loginUrl}" style="display:inline-block;background:${b.accent};color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:16px;margin:14px 0;">Sign me in</a>
+          <p style="font-size:14px;line-height:1.6;color:#475569;">The link works once, and only for a while. If it has gone stale, ask for a fresh one at <a href="https://coach.ketodial.com/login" style="color:#0369a1;">coach.ketodial.com</a>. There is no password to remember.</p>
+          <p style="font-size:14px;line-height:1.6;color:#475569;">If you did not ask for this, ignore it. Nothing happens until the button is tapped.</p>
+          <p style="font-size:12px;color:#94a3b8;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:14px;">${b.product} &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
+        </div>
+      `,
+    })
+    if (error) { console.error('Resend error (sign-in link):', error); return { success: false } }
+    return { success: true, messageId: data?.id }
+  } catch (err) {
+    console.error('Sign-in link send failed:', err)
+    return { success: false }
+  }
+}
+
 // Owner alert on every sale. Brew asked for this explicitly: he wants to know a
 // sale landed without going to look for it.
 export async function sendSaleAlert(
