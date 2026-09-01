@@ -6889,6 +6889,15 @@ async function verifyResendSignature(request, rawBody, env) {
 
 // Receives email.opened, email.clicked, email.delivered, email.bounced events
 // Docs: https://resend.com/docs/dashboard/webhooks/introduction
+// A provider refusing a message on content is not a dead address. SES and
+// Resend both surface this as bounce.subType 'ContentRejected'; some providers
+// spell it differently, so match loosely rather than on one exact literal.
+// Kept deliberately narrow: 'Suppressed', 'General', 'NoEmail' and the rest
+// still count, because those DO speak to the address.
+function isContentRejectedSubtype(subType) {
+  return String(subType || '').toLowerCase().replace(/[^a-z]/g, '') === 'contentrejected';
+}
+
 async function handleResendWebhook(request, env) {
   try {
     // Read the body as text: HMAC is over the exact bytes Resend signed, so
@@ -6964,6 +6973,12 @@ async function handleResendWebhook(request, env) {
         user_agent: click.userAgent || data.user_agent || null,
         ip: click.ipAddress || data.ip || null,
         timestamp: body.created_at || new Date().toISOString(),
+        // Bounce classification, recorded so the repeat-bounce walk below can
+        // tell a dead mailbox from a content-filter refusal. Without this the
+        // history rows are just event_type='bounced' and every refusal looks
+        // identical to a nonexistent address. Null on non-bounce events.
+        bounce_type: data.bounce?.type || null,
+        bounce_subtype: data.bounce?.subType || null,
       },
     };
 
@@ -7003,10 +7018,19 @@ async function handleResendWebhook(request, env) {
     // since someone hitting "spam" hurts reputation more than any bounce.
     const bounceType = String(data.bounce?.type || '').toLowerCase();
     const isComplaint = simpleType === 'complained';
-    const isPermanent = simpleType === 'bounced' && bounceType === 'permanent';
+    // ContentRejected means the receiving provider refused this particular
+    // message, usually on a content filter. It is not a statement about the
+    // mailbox, which may be wide awake and reading everything else we send.
+    // Suppressing on it cuts off a live reader and, worse, does it silently.
+    // Verified 2026-08-30: redacted-subscriber-32@example.invalid was suppressed on three
+    // ContentRejected verdicts while opening and clicking throughout.
+    const isContentRejected = simpleType === 'bounced'
+      && isContentRejectedSubtype(data.bounce?.subType);
+    const isPermanent = simpleType === 'bounced' && bounceType === 'permanent'
+      && !isContentRejected;
     let repeatBounces = 0;
 
-    if (simpleType === 'bounced' && !isPermanent && payload.email) {
+    if (simpleType === 'bounced' && !isPermanent && !isContentRejected && payload.email) {
       // Walk this address's recent history newest-first and count the bounce
       // run. Any delivered/opened/clicked breaks the run: the address worked
       // at that point, so older bounces are stale and must not accumulate
@@ -7014,7 +7038,7 @@ async function handleResendWebhook(request, env) {
       try {
         const histUrl = `${env.SUPABASE_URL}/rest/v1/drip_events`
           + `?email=eq.${encodeURIComponent(payload.email)}&site=eq.${evSite}`
-          + `&select=event_type,created_at&order=created_at.desc&limit=25`;
+          + `&select=event_type,created_at,metadata&order=created_at.desc&limit=25`;
         const histRes = await fetch(histUrl, {
           headers: {
             'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
@@ -7023,8 +7047,16 @@ async function handleResendWebhook(request, env) {
         });
         if (histRes.ok) {
           for (const ev of await histRes.json()) {
-            if (ev.event_type === 'bounced') repeatBounces++;
-            else if (['delivered', 'opened', 'clicked'].includes(ev.event_type)) break;
+            if (ev.event_type === 'bounced') {
+              // A ContentRejected bounce is neutral evidence: it says the
+              // provider refused THIS message, not that the mailbox is gone.
+              // It must not count toward the run, and it must not break the
+              // run either, since it proves nothing about deliverability.
+              // Rows written before 2026-09-01 carry no bounce_subtype and
+              // keep the old counting behaviour.
+              if (isContentRejectedSubtype(ev.metadata?.bounce_subtype)) continue;
+              repeatBounces++;
+            } else if (['delivered', 'opened', 'clicked'].includes(ev.event_type)) break;
           }
         }
       } catch (e) {
@@ -7033,9 +7065,16 @@ async function handleResendWebhook(request, env) {
     }
 
     const REPEAT_BOUNCE_LIMIT = 3;
-    const isHardBounce = isPermanent || repeatBounces >= REPEAT_BOUNCE_LIMIT;
+    const isHardBounce = !isContentRejected
+      && (isPermanent || repeatBounces >= REPEAT_BOUNCE_LIMIT);
 
-    if (simpleType === 'bounced' && !isHardBounce) {
+    if (isContentRejected) {
+      console.log(`ContentRejected for ${payload.email} (${evSite}): provider refused `
+        + `the message, not the address - not counted, not suppressing. `
+        + `subType=${data.bounce?.subType || 'unknown'}`);
+    }
+
+    if (simpleType === 'bounced' && !isHardBounce && !isContentRejected) {
       console.log(`Bounce for ${payload.email} (${evSite}): ${bounceType || 'unknown'}, `
         + `${repeatBounces}/${REPEAT_BOUNCE_LIMIT} consecutive - not suppressing yet`);
     }

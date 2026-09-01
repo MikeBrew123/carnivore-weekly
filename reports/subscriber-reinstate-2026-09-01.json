@@ -1,0 +1,11 @@
+{
+  "captured": "2026-09-01T14:10 PDT",
+  "subscriber": "redacted-subscriber-32@example.invalid",
+  "why": "Wrongly suppressed 2026-08-30 on 3 ContentRejected verdicts (bead carnivore-weekly-xo13). SES diagnostic itself said the content was refused, not the address. Reinstated after the webhook fix.",
+  "before": {
+    "newsletter_subscribers": {"status": "bounced", "bounced_at": "2026-08-30 18:01:33.386+00", "unsubscribed_at": null, "subscribed_at": "2026-07-17 07:12:37.688012+00"},
+    "drip_subscribers": {"site": "cw", "current_day": 6, "last_sent_at": "2026-08-30 18:01:02.418571+00", "completed": false, "bounced_at": "2026-08-30 18:01:33.386+00", "unsubscribed": false,
+      "bounce_reason": "3 consecutive bounces - ContentRejected: The recipient's email provider sent a bounce message because the message you sent contains content that the provider doesn't allow. You might be able to send a message to the same recipient if you change the content of the message."}
+  },
+  "revert": "Set newsletter_subscribers.status='bounced' + bounced_at back, and drip_subscribers.bounced_at + bounce_reason back, for this email."
+}
