@@ -18,10 +18,14 @@ Positions below default to the site's post-July-2026 editorial standard
 - Sodium: 3-5 g/day of sodium (not salt) for most adults; up to 6 g when training
   hard or in heat. Conversion we always state: 1 tsp salt ≈ 2.3 g sodium.
 - Magnesium: 300-400 mg magnesium glycinate in the evening. Avoid oxide (poor absorption).
-- Potassium: 3,000-4,700 mg/day, food-first (meat covers most of it). We do not
-  give bulk KCl dosing instructions; OTC 99 mg capsules and cream of tartar are the
-  only supplement routes we describe, with the reminder that mega-dosing potassium
-  is dangerous.
+- Potassium: 2,600 mg/day for adult women, 3,400 mg/day for adult men (the 2019
+  NASEM Adequate Intake figures). These are Adequate Intakes, not upper limits and
+  not a bar readers have to clear; falling a little short is not a deficiency.
+  Food-first (meat covers most of it). Do not publish the old 3,000-4,700 range or
+  a bare 4,700 "target": 4,700 mg came from the 2005 guideline that 2019 replaced,
+  and it was never intended as a target. We do not give bulk KCl dosing
+  instructions; OTC 99 mg capsules and cream of tartar are the only supplement
+  routes we describe, with the reminder that mega-dosing potassium is dangerous.
 - Timing: spread sodium through the day. A small salty drink before bed is a fine
   fix for night cramps and 3am waking; we do not simultaneously warn against
   evening sodium.
@@ -171,3 +175,47 @@ Positions below default to the site's post-July-2026 editorial standard
 
   *Still open from the 2026-08-24 entry:* the LDL stance wording, item (2). Not
   touched by this entry.
+
+- 2026-09-02: **POTASSIUM RANGE CORRECTED. 3,000-4,700 mg/day is retired.**
+  The published position is now 2,600 mg/day for adult women and 3,400 mg/day for
+  adult men, both Adequate Intake figures, both food-first.
+
+  *Why.* The old range traced to the 2005 US National Academies potassium
+  guideline, where 4,700 mg was the single adult figure. The 2019 NASEM revision
+  (Dietary Reference Intakes for Sodium and Potassium) replaced it with
+  sex-specific Adequate Intakes of 2,600 mg for women and 3,400 mg for men, and
+  set no UL for healthy adults. So our old floor of 3,000 mg sat ABOVE current AI
+  guidance for most of our readers, who skew female and 45-70, and our ceiling of
+  4,700 mg read as a target when it had never been one. The practical harm is the
+  one Sarah named: an inflated target pushes exactly that reader toward the
+  supplement aisle that the same posts spend their length steering her away from.
+
+  *Who raised it.* Sarah, in the 2026-08-31 writer-objections batch, against her
+  own then-unpublished post "Potassium on Carnivore: Why Pills Won't Cut It"
+  (2026-09-09). Logged in docs/project-log/writer-objections-2026-08-31.md as
+  needing Brew's call plus a fact-check of the NASEM figures. The figures check
+  out and the call was made.
+
+  *Approval.* Brew, by dictation on 2026-09-02 at 05:55 PDT, Otter recording
+  "Website Content Strategy Meeting" (IxRtJ42QZYNfJyAyJA4bLJSzY28). His words:
+  "Potassium numbers, great that Sarah caught it. Go ahead and fix it," and
+  "Let's update all those potassium things. Why? Why keep old information? Yeah,
+  I agree that if there's new information, we should update those documents to
+  reflect it."
+
+  *What changed with it.* Four published CW posts (2026-03-31 electrolyte dosing
+  protocol, 2026-05-17 electrolyte problem, 2026-06-10 morning routine, 2026-07-06
+  seasonings), the scheduled CW post 2026-09-09, and the scheduled KD post
+  2026-09-04, in both data/blog_posts.json and the rendered HTML.
+
+  *What did NOT change and why.* Published KD posts that carry their own older
+  potassium ranges (keto-flu-electrolyte-fix, keto-electrolytes-doses,
+  psmf-days-fat-loss-lever) live in the ketodial/public submodule and need the
+  two-step submodule commit; the KD day-2 drip email is a live send surface. Both
+  are left for a KD-scoped pass. The Etsy keto bundle template still prints
+  3,500-4,700 mg, but its live artifact is an uploaded PDF, so a repo edit alone
+  would change nothing.
+
+  *Still open from earlier entries:* the LDL stance wording (2026-08-24 item 2),
+  and the three additions Sarah proposed on 2026-08-31, one of which (the
+  "overshooting is the higher-risk error" line) is now partly covered above.
