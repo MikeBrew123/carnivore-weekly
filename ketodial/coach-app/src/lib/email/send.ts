@@ -1,6 +1,7 @@
 // Email send via Resend — thin wrapper for coach notifications
 
 import { Resend } from 'resend'
+import { coachSignOff } from '@/lib/coach-identity'
 
 let _resend: Resend | null = null
 function getResend() {
@@ -125,34 +126,38 @@ export async function sendCohortWelcome(
 ): Promise<{ success: boolean; messageId?: string }> {
   try {
     const { data, error } = await getResend().emails.send({
-      from: 'Sarah at Carnivore Weekly <coach@carnivoreweekly.com>',
+      // Signs as the role, so the From line must not promise a person. See
+      // lib/coach-identity.ts: fronting the coach with a writer's name is the
+      // thing that was retired on 2026-08-25. Reply-to stays sarah@ so the two
+      // questions below still reach a human.
+      from: 'Carnivore Coach <coach@carnivoreweekly.com>',
       to: email,
       replyTo: 'sarah@carnivoreweekly.com',
       subject: `You're in. We start ${opts.startDate}.`,
       html: `
         <div style="font-family: -apple-system, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 20px; color:#1e293b;">
-          <p style="font-size:16px;line-height:1.6;">You're in, and I'm glad you are.</p>
-          <p style="font-size:16px;line-height:1.6;">We start <strong>${opts.startDate}</strong>. Your account is already set up with this email address, so the only thing you need to do today is set a password.</p>
-          <a href="${loginUrl}" style="display:inline-block;background:#0ea5e9;color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:16px;margin:14px 0;">Set my password</a>
-          <p style="font-size:14px;line-height:1.6;color:#475569;">That link signs you in and takes you straight to your settings. It expires in 24 hours, and you can always ask for a new one by replying to this email.</p>
+          <p style="font-size:16px;line-height:1.6;">Welcome in, and congratulations. I'm glad you're here.</p>
+          <p style="font-size:16px;line-height:1.6;">We start on <strong>${opts.startDate}</strong>. Your account is already set up under this email address, so there's nothing to fill in and no password to pick. One tap on the button below signs you in.</p>
+          <a href="${loginUrl}" style="display:inline-block;background:#b8860b;color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:16px;margin:14px 0;">Sign me in</a>
+          <p style="font-size:14px;line-height:1.6;color:#475569;">That link signs you in on its own, so there's nothing to remember. It doesn't last forever, but a fresh one is one click away, or reply here and I'll send you another.</p>
 
-          <p style="font-size:16px;line-height:1.6;margin-top:26px;"><strong>One thing that will look odd, so I'll say it first.</strong> The coaching runs on our own platform, and that platform still carries our sister site's name, KetoDial. Same team, same people. We built it there first and haven't finished renaming it. Your programme is the carnivore one.</p>
+          <p style="font-size:16px;line-height:1.6;margin-top:26px;"><strong>One thing before you tap it.</strong> The web address says coach.ketodial.com, which looks odd until you know why. KetoDial is our sister site and the coaching runs on the same platform. Everything you'll see once you're in says Carnivore Coach, because that's what you bought.</p>
 
           <p style="font-size:16px;line-height:1.6;margin-top:26px;"><strong>Two questions, if you have a minute.</strong> Just hit reply, a sentence each is plenty:</p>
-          <p style="font-size:16px;line-height:1.6;margin:0 0 6px;">1. What has gone wrong for you before?</p>
+          <p style="font-size:16px;line-height:1.6;margin:0 0 6px;">1. What's gone wrong for you before?</p>
           <p style="font-size:16px;line-height:1.6;margin:0;">2. What would make these six weeks worth it?</p>
           <p style="font-size:14px;line-height:1.6;color:#475569;">I read every one of these myself, and they shape what I write in week one.</p>
 
           <div style="background:#f1f5f9;border-radius:10px;padding:18px;margin-top:26px;">
             <p style="font-size:16px;line-height:1.6;margin:0 0 8px;"><strong>Start with your actual numbers, half price.</strong></p>
-            <p style="font-size:15px;line-height:1.6;margin:0 0 10px;color:#334155;">Most people begin a diet and work out six weeks later what their targets should have been. The Complete Protocol turns your calculator results into the specific version for you. Use <strong>${opts.discountCode}</strong> for 50% off.</p>
+            <p style="font-size:15px;line-height:1.6;margin:0 0 10px;color:#334155;">The Complete Protocol turns your own numbers into the targets for week one, instead of guessing and working it out six weeks later. Use code <strong>${opts.discountCode}</strong> at checkout.</p>
             <a href="https://carnivoreweekly.com/calculator.html?utm_source=coach-welcome-email" style="font-size:15px;color:#0369a1;font-weight:600;">Run my numbers &rarr;</a>
             <p style="font-size:13px;color:#64748b;margin:10px 0 0;">Optional. Six weeks of check-ins gets you there either way.</p>
           </div>
 
-          <p style="font-size:16px;line-height:1.6;margin-top:26px;"><strong>If you take medication</strong>, particularly for blood pressure or blood sugar, tell your doctor you're changing how you eat before we start. Cutting carbs can change how those behave within days. That's a condition of joining, not fine print.</p>
+          <p style="font-size:16px;line-height:1.6;margin-top:26px;"><strong>If you take medication</strong>, especially for blood pressure or blood sugar, please tell your doctor you're changing how you eat before we start. Cutting carbs can change how those medicines behave within days, sometimes faster than people expect. It's worth a phone call this week. This is the one thing I ask of everyone before day one, and I'd much rather you were looked after than surprised.</p>
 
-          <p style="font-size:16px;line-height:1.6;margin-top:24px;">See you on the ${opts.startDate.replace(/^(\d+)/, '$1th').split(' ')[0]}.<br>Sarah</p>
+          <p style="font-size:16px;line-height:1.6;margin-top:24px;">See you on the ${opts.startDate.replace(/^(\d+)/, '$1th').split(' ')[0]}.<br>${coachSignOff('carnivoreweekly')}</p>
           <p style="font-size:12px;color:#94a3b8;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:14px;">Carnivore Weekly &middot; 1505 Spring Creek, Whistler, BC, Canada<br>Coaching, not medical care.</p>
         </div>
       `,
@@ -190,10 +195,10 @@ export async function sendSignInLink(
       subject: `Your ${b.product} sign-in link`,
       html: `
         <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 20px; color:#1e293b;">
-          <p style="font-size:16px;line-height:1.6;">Here is your way in. Tap the button and you are signed in.</p>
+          <p style="font-size:16px;line-height:1.6;">Good to see you back. Tap the button and you're in.</p>
           <a href="${loginUrl}" style="display:inline-block;background:${b.accent};color:#fff;font-weight:700;padding:14px 28px;border-radius:10px;text-decoration:none;font-size:16px;margin:14px 0;">Sign me in</a>
-          <p style="font-size:14px;line-height:1.6;color:#475569;">The link works once, and only for a while. If it has gone stale, ask for a fresh one at <a href="https://coach.ketodial.com/login${site ? `?site=${encodeURIComponent(site)}` : ''}" style="color:#0369a1;">coach.ketodial.com</a>. There is no password to remember.</p>
-          <p style="font-size:14px;line-height:1.6;color:#475569;">If you did not ask for this, ignore it. Nothing happens until the button is tapped.</p>
+          <p style="font-size:14px;line-height:1.6;color:#475569;">The link works once, and it doesn't last forever. If it's gone stale, ask for a fresh one at <a href="https://coach.ketodial.com/login${site ? `?site=${encodeURIComponent(site)}` : ''}" style="color:#0369a1;">coach.ketodial.com</a>. There's no password to remember.</p>
+          <p style="font-size:14px;line-height:1.6;color:#475569;">If you didn't ask for this, just ignore it. Nothing happens until someone taps the button.</p>
           <p style="font-size:12px;color:#94a3b8;margin-top:20px;border-top:1px solid #e2e8f0;padding-top:14px;">${b.product} &middot; 1505 Spring Creek, Whistler, BC, Canada</p>
         </div>
       `,
