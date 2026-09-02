@@ -1,7 +1,7 @@
 {
   "note": "Redirect rules. GitHub Pages ignores .htaccess so these are served as HTML meta-refresh files in public/.",
   "created": "2026-02-12",
-  "updated": "2026-08-31",
+  "updated": "2026-09-02",
   "redirects": [
     {
       "from": "blog/wiki.html",
@@ -221,6 +221,12 @@
       "to": "/blog/2026-05-30-90-day-bridal-carnivore-protocol.html",
       "added": "2026-07-04",
       "reason": "Post retired — promoted a removed Etsy bridal listing; redirect to the bridal protocol content"
+    },
+    {
+      "from": "blog/2026-05-23-200-month-carnivore-couple.html",
+      "to": "/blog/2026-05-23-217-month-carnivore-couple.html",
+      "added": "2026-09-02",
+      "reason": "Headline corrected from $200 to $217 (the $200 math assumed a four-week month); slug changed to match"
     }
   ]
 }

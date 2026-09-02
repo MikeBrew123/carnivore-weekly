@@ -283,3 +283,47 @@ missed, so it was left standing rather than reverted, but: one of its writes cau
 firing in that window would have hit invalid JSON), and it swept a staged
 `docs/project-log/decisions.md` into `0ff7acaa`, which is why the main log entry above sits under
 an unrelated commit message. **Recommendation: give review and sign-off agents read-only tools.**
+
+### 2026-09-02: the $200 couple post is now the $217 couple post, slug included
+
+The editorial and SEO call the 2026-08-31 entry left open ("NOT changed: the $200 headline, the
+title, and the slug") was made by Brew by dictation on 2026-09-02 at 05:55 PDT, Otter recording
+"Website Content Strategy Meeting". His words: "Talked about the $200 couple post. Fix it. I don't
+even care for lifetime visitors. Delete it if you want, but fix it."
+
+**What the $200 actually was.** $50 a week times four. A calendar month is 4.33 weeks, so the
+grocery figure is about $217, and per person per day is $3.57 rather than $3.33. The
+2026-08-31 pass added an in-body note explaining this but left the headline, the title, the
+summary metadata, and the URL all still saying $200, which is the half a reader actually sees.
+
+**The URL question that was holding it.** Changing $200 to $217 changes the slug, which normally
+throws away accumulated ranking and inbound links. GA4 (property 517632328, all time) shows the
+page has 4 pageviews from 4 users since it published on 2026-05-23, against 9,068 site-wide.
+There is no ranking and there are no links to protect, so the usual reason not to rename did not
+apply here. Brew was given that number and answered as quoted above.
+
+**Done:** title, h1, `<title>`, og/twitter titles and descriptions, JSON-LD headline and
+description, excerpt, meta description, every in-body dollar figure, and the slug
+(`2026-05-23-200-month-carnivore-couple` to `2026-05-23-217-month-carnivore-couple`), in both
+`data/blog_posts.json` and the rendered HTML, plus `public/blog/index.html`, `public/sitemap.xml`,
+and `public/feed.xml`. A meta-refresh stub sits at the old path with a matching
+`data/redirects.json` entry, per the existing GitHub Pages redirect convention.
+
+**The before/after table was rebuilt on a calendar month** so it survives its own arithmetic:
+meat and eggs $191, butter $26, takeout $10, total $227. The $217 headline is groceries only, and
+the post now says so directly under the table. Monthly savings fell from "$450" to "more than
+$420" as a result.
+
+**The post states the correction in its own body**, at the top, with the date. It is a factual
+correction rather than a stance change, but the same rule applies: we would rather say we were
+wrong than quietly restate the number.
+
+**Two gotchas for the next person doing a slug rename.** The rendered HTML carries auto-inserted
+wiki links (`Dairy`, `budget`) mid-sentence, so replacement strings copied out of
+`data/blog_posts.json` will silently miss in the HTML; diff the two sides rather than trusting a
+replacement count. And the image asset keeps the OLD slug
+(`/images/blog/2026-05-23-200-month-carnivore-couple.jpg`), deliberately, because the deploy job
+verifies asset references resolve.
+
+**Not changed:** the stale root-level `blog/` mirror, which is not deployed (GitHub Pages serves
+`./public` only) and was last touched 2026-08-16. It still carries the old slug and headline.
