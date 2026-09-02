@@ -1,41 +1,41 @@
 {
-  "last_updated": "2026-08-30",
+  "last_updated": "2026-09-02",
   "leaderboard": [
     {
-      "name": "Max German",
-      "rank": 1,
-      "appearances": 1,
-      "channel_id": "UCsOkHWfiPFN3Pt7f9DwMSww"
-    },
-    {
-      "name": "Mitch Weiss, OGC, Healthy Aging",
-      "rank": 2,
-      "appearances": 2,
-      "channel_id": "UCoLOzrRmjuhKDwYFB_BiK1A"
-    },
-    {
       "name": "HomeSteadHow",
-      "rank": 3,
-      "appearances": 7,
+      "rank": 1,
+      "appearances": 8,
       "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+    },
+    {
+      "name": "Kent Carnivore",
+      "rank": 2,
+      "appearances": 4,
+      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 3,
+      "appearances": 6,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
       "name": "Jenny Mitich",
       "rank": 4,
-      "appearances": 5,
+      "appearances": 6,
       "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "name": "Meet Carnivore",
       "rank": 5,
       "appearances": 5,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
     },
     {
-      "name": "Kent Carnivore",
+      "name": "Shawn Baker MD",
       "rank": 6,
-      "appearances": 3,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
+      "appearances": 5,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
       "name": "Bill and Daisy Alaska",
@@ -44,16 +44,16 @@
       "channel_id": "UCrbUnn2d4aBmdULbsrgLNXw"
     },
     {
-      "name": "Emmathecarnivore",
-      "rank": 8,
-      "appearances": 8,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
-    },
-    {
       "name": "Carnivore Quest",
-      "rank": 9,
+      "rank": 8,
       "appearances": 5,
       "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+    },
+    {
+      "name": "Robert Kiltz, MD",
+      "rank": 9,
+      "appearances": 1,
+      "channel_id": "UCogDXio0z4rbQP9vTh2i8qg"
     },
     {
       "name": "Chris Cooking Nashville",
