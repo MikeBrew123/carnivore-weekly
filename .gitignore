@@ -157,6 +157,10 @@ reports/etsy-snapshots/
 # The SCRIPT (scripts/send_coach_launch.py) is committed; the ledger DATA is not.
 reports/coach-launch-send-ledger*.jsonl
 
+# Subscriber list backups — full dumps of newsletter_subscribers + drip_subscribers.
+# The SCRIPT (scripts/backup_subscribers.py) is committed; the subscriber DATA never is.
+reports/subscriber-backups/
+
 # Wrangler local dev secrets (never commit)
 .dev.vars
 api/.dev.vars
