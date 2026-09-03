@@ -216,6 +216,29 @@ Positions below default to the site's post-July-2026 editorial standard
   3,500-4,700 mg, but its live artifact is an uploaded PDF, so a repo edit alone
   would change nothing.
 
+  **KD SWEEP COMPLETED 2026-09-03 (same approval, same figures).** The submodule
+  half of the entry above is now done, plus two the first pass had not found. In
+  ketodial/public: keto-flu-electrolyte-fix (3,500-4,700), keto-electrolytes-doses
+  (3,000-4,000 in the body plus four meta/JSON-LD description strings),
+  psmf-days-fat-loss-lever (3,000-4,000), and keto-insomnia-3am (3,000-4,000, not
+  on the original list). On CW: 2026-02-09-carnivore-meal-plan-complete-guide
+  (3,000-4,500, also not on the original list). The four JSON-pipeline posts were
+  corrected in data/blog_posts.json as well as the rendered HTML;
+  keto-flu-electrolyte-fix is legacy hand-authored and exists only as HTML.
+
+  *Still not changed, deliberately.* The KD day-2 drip email
+  (data/drip-emails/kd/day-2.html) still prints 3,500 to 4,700 mg. It is a live
+  send surface that real subscribers receive, and the standing rule bars unattended
+  edits to anything a running send depends on, so it needs Brew's word or a live
+  session. The Etsy keto bundle template is unchanged for the PDF reason above.
+  Also left alone: 2026-04-30-72-hour-fast-protocol-carnivore, whose "3,000-4,000mg"
+  is SODIUM; its potassium figure is 600-900 mg of supplementation during a fast,
+  which is a different claim and not a member of this retired family.
+
+  *Verified.* Zero remaining hits for the retired ranges in a potassium context
+  across ketodial/public, public/, and data/, apart from the two deliberate
+  exclusions named above.
+
   *Still open from earlier entries:* the LDL stance wording (2026-08-24 item 2),
   and the three additions Sarah proposed on 2026-08-31, one of which (the
   "overshooting is the higher-risk error" line) is now partly covered above.
