@@ -82,3 +82,6 @@ holds per-listing AI titles: read them, bring them to Brew, accept selectively. 
 - Daily snapshots: reports/etsy-snapshots/snapshots.jsonl (8:09am task) + etsy-watchdog (8:42am).
 - Audit of record: Brew-Vault/.../reports/etsy-listing-audit-2026-08-22.md (+ data json in repo).
 - Change log: Brew-Vault/00-Core/Live-Changes-Log.md. Ledger: decision-ledger.md.
+
+## Thumbnail rule (ISSUE-064 verdict, 2026-08-02)
+The rank-1 image of any proven seller shows the product edge-to-edge, readable at search-grid size. Lifestyle mockups are gallery depth (rank 2+) only. Swapping a seller's thumbnail for a mockup silenced sales within days in July 2026; never repeat it. Every image change goes through the edit cap and a Live Changes Log row first.
