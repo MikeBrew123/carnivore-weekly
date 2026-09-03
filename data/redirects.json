@@ -227,6 +227,12 @@
       "to": "/blog/2026-05-23-217-month-carnivore-couple.html",
       "added": "2026-09-02",
       "reason": "Headline corrected from $200 to $217 (the $200 math assumed a four-week month); slug changed to match"
+    },
+    {
+      "from": "low-carb-food-list.html",
+      "to": "https://ketodial.com/low-carb-food-list.html",
+      "added": "2026-09-03",
+      "reason": "Page moved to KetoDial by Brew's ruling 2026-09-03: a low carb food list belongs on KD, not on Carnivore Weekly"
     }
   ]
 }
