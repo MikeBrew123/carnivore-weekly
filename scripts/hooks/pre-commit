@@ -1,0 +1,112 @@
+#!/bin/sh
+#
+# pre-commit: secret scan -> (optional) prior hook -> bd flush
+#
+# Order of operations:
+#   1. Block commits containing API keys / tokens (scripts/check-secrets.sh)
+#   2. Run any prior hook saved as pre-commit.old
+#   3. Run bd (beads) flush  <-- this STAGES .beads/issues.jsonl
+#   4. Block commits containing subscriber PII (scripts/check-pii.sh)
+#
+# ORDER MATTERS, and step 4 must stay LAST. Learned the hard way on 2026-09-03:
+# the PII check originally ran at step 1b, before the bd flush. `bd sync
+# --flush-only` regenerates .beads/issues.jsonl from the local beads.db and
+# `git add`s it, so it can introduce content the scanner never saw. It did
+# exactly that, re-injecting a subscriber's address into commit 6ff9f20e — the
+# very commit that installed the scanner. Any step that stages files must run
+# BEFORE the scanner, never after.
+
+# Step 1: secret scanner — hard block, runs first.
+SECRET_CHECK="/Users/mbrew/Developer/carnivore-weekly/scripts/check-secrets.sh"
+if [ -x "$SECRET_CHECK" ]; then
+    "$SECRET_CHECK" || exit 1
+fi
+
+# Step 4 (defined here, CALLED LAST at every exit path below): subscriber-PII
+# scanner. Must run after the bd flush, which stages .beads/issues.jsonl.
+run_pii_check() {
+    PII_CHECK="/Users/mbrew/Developer/carnivore-weekly/scripts/check-pii.sh"
+    if [ -x "$PII_CHECK" ]; then
+        "$PII_CHECK" || exit 1
+    fi
+}
+
+# Step 2: run existing hook if present
+if [ -x "/Users/mbrew/Developer/carnivore-weekly/.git/hooks/pre-commit.old" ]; then
+    "/Users/mbrew/Developer/carnivore-weekly/.git/hooks/pre-commit.old" "$@"
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -ne 0 ]; then
+        exit $EXIT_CODE
+    fi
+fi
+
+# Check if bd is available
+if ! command -v bd >/dev/null 2>&1; then
+    echo "Warning: bd command not found, skipping pre-commit flush" >&2
+    run_pii_check
+    exit 0
+fi
+
+# Check if we're in a bd workspace
+# For worktrees, .beads is in the main repository root, not the worktree
+BEADS_DIR=""
+if git rev-parse --git-dir >/dev/null 2>&1; then
+    # Check if we're in a worktree
+    if [ "$(git rev-parse --git-dir)" != "$(git rev-parse --git-common-dir)" ]; then
+        # Worktree: .beads is in main repo root
+        MAIN_REPO_ROOT="$(git rev-parse --git-common-dir)"
+        MAIN_REPO_ROOT="$(dirname "$MAIN_REPO_ROOT")"
+        if [ -d "$MAIN_REPO_ROOT/.beads" ]; then
+            BEADS_DIR="$MAIN_REPO_ROOT/.beads"
+        fi
+    else
+        # Regular repo: check current directory
+        if [ -d .beads ]; then
+            BEADS_DIR=".beads"
+        fi
+    fi
+fi
+
+if [ -z "$BEADS_DIR" ]; then
+    run_pii_check
+    exit 0
+fi
+
+# Skip for Dolt backend (uses its own sync mechanism, not JSONL)
+if [ -f "$BEADS_DIR/metadata.json" ]; then
+    if grep -q '"backend"[[:space:]]*:[[:space:]]*"dolt"' "$BEADS_DIR/metadata.json" 2>/dev/null; then
+        run_pii_check
+        exit 0
+    fi
+fi
+
+# Flush pending changes to JSONL
+if ! bd sync --flush-only >/dev/null 2>&1; then
+    echo "Error: Failed to flush bd changes to storage" >&2
+    echo "Run 'bd sync --flush-only' manually to diagnose" >&2
+    exit 1
+fi
+
+# If the JSONL file was modified, stage it
+# For worktrees, the JSONL is in the main repo's working tree, not the worktree,
+# so we can't use git add. Skip this step for worktrees.
+if [ -f "$BEADS_DIR/issues.jsonl" ]; then
+    if [ "$(git rev-parse --git-dir)" = "$(git rev-parse --git-common-dir)" ]; then
+        # Regular repo: file is in the working tree, safe to add
+        git add "$BEADS_DIR/issues.jsonl" 2>/dev/null || true
+    fi
+    # For worktrees: .beads is in the main repo's working tree, not this worktree
+    # Git rejects adding files outside the worktree, so we skip it.
+    # The main repo will see the changes on the next pull/sync.
+fi
+
+run_pii_check
+
+exit 0
+
+# ---------------------------------------------------------------------------
+# CANONICAL COPY. .git/hooks/ is not versioned, so this is the reviewable
+# reference. To install in a fresh clone:
+#     cp scripts/hooks/pre-commit .git/hooks/pre-commit && chmod +x $_
+# (Adjust the absolute paths above if the repo lives elsewhere.)
+# ---------------------------------------------------------------------------
