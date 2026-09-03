@@ -161,6 +161,16 @@ reports/coach-launch-send-ledger*.jsonl
 # The SCRIPT (scripts/backup_subscribers.py) is committed; the subscriber DATA never is.
 reports/subscriber-backups/
 
+# Report outputs that captured live subscriber addresses and ended up in this
+# PUBLIC repo (found and purged from history 2026-09-03). The generator scripts
+# stay tracked; their OUTPUT never is. Do not force-add these back.
+dashboard/weekly-report.html
+dashboard/executive-report.html
+dashboard/command-center.html
+reports/subscriber-reinstate-*.json
+reports/coach-e2e-member-*.json
+reports/coach-members-test-rows-*.json
+
 # Wrangler local dev secrets (never commit)
 .dev.vars
 api/.dev.vars

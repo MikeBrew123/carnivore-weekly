@@ -2,9 +2,11 @@
 // api/calculator-api.js so the user gets an instant hint before the worker's
 // authoritative DNS check runs.
 //
-// Why this exists: 'redacted-subscriber-04@example.invalid' and 'redacted-subscriber-09@example.invalid' both
-// passed every validation we had, then bounced for weeks while the people who
-// typed them believed they had signed up (ISSUE-067).
+// Why this exists: two real signups, one typed at 'gmail.vom' and one at
+// 'yagoo.com', both passed every validation we had, then bounced for weeks
+// while the people who typed them believed they had signed up (ISSUE-067).
+// The addresses were removed from this repo on 2026-09-03; the near-miss
+// domains are the part worth keeping.
 //
 // This only SUGGESTS. It must never block a submit: the domain list can go
 // stale, and a real address that happens to sit one character from gmail.com

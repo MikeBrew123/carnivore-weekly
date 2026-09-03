@@ -109,10 +109,11 @@ function isValidEmail(email) {
 }
 
 // ===== SIGNUP EMAIL DELIVERABILITY =====
-// A syntactically valid address can still be undeliverable forever. Real
-// signups lost to this: 'redacted-subscriber-04@example.invalid' and 'redacted-subscriber-09@example.invalid'
-// both passed every check we had, then bounced for weeks while the user
-// assumed they had subscribed (ISSUE-067).
+// A syntactically valid address can still be undeliverable forever. Two real
+// signups were lost to this, one at 'gmail.vom' and one at 'yagoo.com': both
+// passed every check we had, then bounced for weeks while the user assumed
+// they had subscribed (ISSUE-067). The addresses themselves were removed from
+// this repo on 2026-09-03; the domains are the part that matters here.
 //
 // Domains sorted by real subscriber counts, so the near-miss check is weighted
 // toward what people here actually type.
