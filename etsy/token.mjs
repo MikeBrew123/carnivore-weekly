@@ -15,6 +15,11 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { installEtsyGuard } from './etsy-guard.mjs';
+
+// Every listing-write script imports this module, so installing the guard here
+// covers all of them: no Etsy write without a same-day Live Changes Log row and cap headroom.
+installEtsyGuard();
 
 // Resolve secrets from THIS file's location, never the caller's cwd.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

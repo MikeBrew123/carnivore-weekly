@@ -587,6 +587,36 @@ def validate_sitemap_sync(sitemap_path: Path, public_dir: Path, results: Validat
         pass  # Already caught by validate_sitemap()
 
 
+def validate_blog_posts_dates(json_path: Path, results: ValidationResults):
+    """Check 11: publish_date, date and scheduled_date must all be present and equal
+    on every post the pipeline will still act on (status ready or draft).
+    daily_publish.py reads publish_date, the blog index sorts by date, the homepage
+    bento sorts by scheduled_date; a mismatch publishes on one day and sorts on
+    another. Published posts are history and are not checked."""
+    try:
+        with open(json_path, 'r', encoding='utf-8') as fh:
+            data = json.load(fh)
+    except Exception as e:
+        results.add_warning(str(json_path), 0, f'Could not parse blog_posts.json: {e}', 'Fix the JSON')
+        return
+    posts = data.get('blog_posts', data) if isinstance(data, dict) else data
+    if not isinstance(posts, list):
+        return
+    for p in posts:
+        if not isinstance(p, dict) or p.get('status') not in ('ready', 'draft'):
+            continue
+        vals = {k: p.get(k) for k in ('publish_date', 'date', 'scheduled_date')}
+        missing = [k for k, v in vals.items() if not v]
+        if missing:
+            results.add_critical(str(json_path), 0,
+                f"Post '{p.get('slug')}' (status {p.get('status')}) is missing {', '.join(missing)}",
+                'Set publish_date, date and scheduled_date to the same YYYY-MM-DD')
+        elif len(set(vals.values())) > 1:
+            results.add_critical(str(json_path), 0,
+                f"Post '{p.get('slug')}' (status {p.get('status')}) has mismatched dates: {vals}",
+                'publish_date, date and scheduled_date must be identical')
+
+
 def validate_python_file(file_path: Path, results: ValidationResults):
     """Validate Python file syntax"""
     try:
@@ -743,6 +773,10 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
     sitemap_path = project_root / 'public' / 'sitemap.xml'
     if sitemap_path.exists() or not staged_only:
         validate_sitemap(sitemap_path, results)
+
+    blog_json = Path.cwd() / 'data' / 'blog_posts.json'
+    if blog_json.exists():
+        validate_blog_posts_dates(blog_json, results)
     validate_sitemap_sync(sitemap_path, project_root / 'public', results)
 
     # Python formatting check (warn-only — catches issues before weekly pipeline)

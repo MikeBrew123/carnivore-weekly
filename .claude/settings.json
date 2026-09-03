@@ -1,0 +1,54 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ccd_session_mgmt__list_events",
+      "mcp__ccd_session_mgmt__search_session_transcripts",
+      "mcp__ccd_session_mgmt__list_sessions",
+      "mcp__283a3d61-3bef-4f69-92a8-c32d6e8b16df__otter_search",
+      "mcp__283a3d61-3bef-4f69-92a8-c32d6e8b16df__otter_fetch",
+      "mcp__283a3d61-3bef-4f69-92a8-c32d6e8b16df__otter_get_user_info",
+      "mcp__0d9c57e1-d333-42da-b7fd-c24c3f412226__get_message",
+      "mcp__Google_Workspace_MCP__search_gmail_messages",
+      "mcp__claude-in-chrome__get_page_text"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bd prime"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bd prime"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/etsy-write-first-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/hooks/kd-regen-guard.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
