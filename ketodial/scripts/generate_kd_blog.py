@@ -31,6 +31,26 @@ POSTS_JSON = os.path.join(REPO_ROOT, "data", "blog_posts.json")
 BLOG_DIR = os.path.join(REPO_ROOT, "ketodial", "public", "blog")
 INDEX_HTML = os.path.join(BLOG_DIR, "index.html")
 SITEMAP_XML = os.path.join(REPO_ROOT, "ketodial", "public", "sitemap.xml")
+PUBLIC_DIR = os.path.join(REPO_ROOT, "ketodial", "public")
+
+
+def image_dimensions(src: str) -> str:
+    """Return ' width="W" height="H"' for a site-relative image, or ''.
+
+    The attributes let the browser reserve the right space before the file
+    arrives, so the article does not jump as images load. Returns an empty
+    string for remote or unreadable images rather than guessing.
+    """
+    if not src.startswith("/"):
+        return ""
+    path = os.path.join(PUBLIC_DIR, src.lstrip("/"))
+    try:
+        from PIL import Image
+        with Image.open(path) as im:
+            return f' width="{im.width}" height="{im.height}"'
+    except Exception:
+        return ""
+
 
 # ---------------------------------------------------------------------------
 # Author config
@@ -330,7 +350,8 @@ def generate_post_html(post: dict) -> str:
 
     image = post.get("image", "")
     if image:
-        article_image = f'<img src="{escape(image)}" alt="{escape(post["title"])}" style="float:right;max-width:260px;margin:0 0 18px 24px;border-radius:12px" loading="lazy">'
+        dims = image_dimensions(image)
+        article_image = f'<img{dims} src="{escape(image)}" alt="{escape(post["title"])}" style="float:right;max-width:260px;margin:0 0 18px 24px;border-radius:12px" loading="lazy">'
     else:
         article_image = ""
 

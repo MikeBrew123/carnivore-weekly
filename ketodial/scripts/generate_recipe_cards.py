@@ -24,6 +24,20 @@ CAT_LABEL = {"breakfast": "Breakfast", "lunch": "Lunch", "dinner": "Dinner",
              "snack": "Snack", "dessert": "Dessert", "side": "Side"}
 
 
+def dims(src):
+    """' width="W" height="H"' for a site-relative image, else ''.
+
+    Lets the browser reserve space before the file arrives so the card does
+    not jump as photos load. Silent on a missing or unreadable file.
+    """
+    try:
+        from PIL import Image
+        with Image.open(ROOT / src.lstrip("/")) as im:
+            return f' width="{im.width}" height="{im.height}"'
+    except Exception:
+        return ""
+
+
 def esc(s):
     return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
@@ -128,7 +142,8 @@ def build_page(tpl, r, pool):
     )
     html = re.sub(r'<div class="macro-row">.*?</div>', lambda m: macro, html, flags=re.S)
 
-    img_tag = (f'<img src="/images/recipes/recipe-{slug}.jpg" alt="{esc(r["alt_text"])}" '
+    hero_src = f"/images/recipes/recipe-{slug}.jpg"
+    img_tag = (f'<img{dims(hero_src)} src="{hero_src}" alt="{esc(r["alt_text"])}" '
                'style="width:100%;border-radius:14px;object-fit:cover;max-height:340px" loading="lazy" />')
     html = re.sub(r'<img src="/images/recipes/[^"]*"[^>]*/>', lambda m: img_tag, html, count=1)
 
@@ -151,7 +166,7 @@ def build_page(tpl, r, pool):
     picks = (same_cat + others)[:3]
     rel = "".join(
         f'      <a class="rel-card" href="/recipes/{s}.html">\n'
-        f'        <img src="/images/recipes/recipe-{s}.jpg" alt="{esc(d["title"])}" loading="lazy" />\n'
+        f'        <img{dims(f"/images/recipes/recipe-{s}.jpg")} src="/images/recipes/recipe-{s}.jpg" alt="{esc(d["title"])}" loading="lazy" />\n'
         '        <div class="rb">\n'
         f'          <span class="rk">{CAT_LABEL[d["meal"]]}</span>\n'
         f'          <h3>{d["title"]}</h3>\n'
