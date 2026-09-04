@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * KetoDial GSC weekly routine: resubmit sitemap + inspect the 20 most recent live blog URLs.
+ * KetoDial GSC weekly routine: READ ONLY. Reports sitemap state + inspects the 20 most
+ * recent live blog URLs. This script must never write to Google Search Console.
  *
  * Mirrors what gsc-report.js + gsc-request-indexing.js do for carnivoreweekly.com.
  *
@@ -33,24 +34,40 @@ function getAuth() {
   const creds = JSON.parse(fs.readFileSync(path.join(__dirname, 'ga4-credentials.json'), 'utf8'))
   return new google.auth.GoogleAuth({
     credentials: creds,
-    scopes: ['https://www.googleapis.com/auth/webmasters']
+    // readonly on purpose: makes a sitemap submit call mechanically impossible here.
+    scopes: ['https://www.googleapis.com/auth/webmasters.readonly']
   })
 }
 
-async function resubmitSitemap(sc) {
-  await sc.sitemaps.submit({ siteUrl: SITE_URL, feedpath: SITEMAP })
-  console.log(`✅ Resubmitted KD sitemap: ${SITEMAP}`)
-
+/**
+ * READ ONLY. Do NOT add a sitemap submit call here.
+ *
+ * KD sitemap resubmission was dropped 2026-08-21 (Brew's call) and the write was finally
+ * removed 2026-09-04. It was the Indexing API trap again: a weekly write that felt like
+ * progress and moved nothing. Google downloads the KD sitemap within the hour every time
+ * and still crawls nothing — the blocker is crawl demand (inbound + internal links), not
+ * discovery. lastDownloaded is the field that separates "Google can't find it" from
+ * "Google reads it and declines to crawl", so report that instead of resubmitting.
+ */
+async function readSitemapState(sc) {
   const { data } = await sc.sitemaps.get({ siteUrl: SITE_URL, feedpath: SITEMAP })
+  console.log(`\u{1F4C4} KD sitemap (read only, not resubmitted): ${SITEMAP}`)
+  console.log(`   lastSubmitted:  ${data.lastSubmitted ?? 'never'}`)
+  console.log(`   lastDownloaded: ${data.lastDownloaded ?? 'never'}`)
+
   const contents = data.contents || []
   if (contents.length === 0) {
-    console.log('   (no content breakdown yet — Google has not processed this submission)')
+    console.log('   (no content breakdown yet — Google has not processed this sitemap)')
   }
   for (const c of contents) {
     console.log(`   ${c.type}: submitted=${c.submitted}  (indexed field is deprecated, always 0)`)
   }
   console.log(`   errors=${data.errors ?? 0}  warnings=${data.warnings ?? 0}`)
-  return contents[0]?.submitted ?? null
+  return {
+    submitted: contents[0]?.submitted ?? null,
+    lastSubmitted: data.lastSubmitted ?? null,
+    lastDownloaded: data.lastDownloaded ?? null
+  }
 }
 
 /** Live KD blog pages, newest first. Date comes from blog_posts.json when known, else file mtime. */
@@ -154,7 +171,7 @@ async function main() {
   const client = await auth.getClient()
   const sc = google.searchconsole({ version: 'v1', auth: client })
 
-  const submitted = await resubmitSitemap(sc)
+  const sitemap = await readSitemapState(sc)
 
   const candidates = candidateUrls()
   const sample = candidates.slice(0, INSPECT_LIMIT)
@@ -164,7 +181,10 @@ async function main() {
 
   const out = path.join(__dirname, 'gsc-kd-report-data.json')
   fs.writeFileSync(out, JSON.stringify({
-    site: 'kd', siteUrl: SITE_URL, sitemapSubmitted: submitted,
+    site: 'kd', siteUrl: SITE_URL, sitemapResubmitted: false,
+    sitemapSubmitted: sitemap.submitted,
+    sitemapLastSubmitted: sitemap.lastSubmitted,
+    sitemapLastDownloaded: sitemap.lastDownloaded,
     inspections, totalCandidates: candidates.length, generatedAt: new Date().toISOString()
   }, null, 2))
   console.log(`\n  Saved: ${path.basename(out)}`)
