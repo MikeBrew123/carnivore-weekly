@@ -60,6 +60,52 @@ tried, use Thinkst's AWS key token — AWS CloudTrail does the detection.
 It does **not** detect someone merely scanning the network. That needs a
 listener, and a listener is a process.
 
+## Is it us, or somebody else?
+
+Every alert leads with a verdict, so the subject line alone is usually enough to
+triage from a phone:
+
+    CANARY [INTERNAL] macenv - 208.181.70.230 (TELUS)      calm
+    CANARY [EXTERNAL] macenv - 185.220.101.5 (LeaseWeb)    the alarm
+    CANARY [EXPECTED] ghpub - 3.101.22.9 (Amazon)          data, not an incident
+
+The useful question is not "what user agent is this" — our own scripts and an
+attacker's script both look like `curl` or `python-requests`. It is **could this
+request have come from where the token was planted**. A key that only ever
+existed on the Mac cannot legitimately be used from a datacenter in Amsterdam.
+
+| verdict | what triggers it | what to do |
+|---|---|---|
+| `INTERNAL` | from a known address of yours (`CANARY_TRUSTED_IPS`) | almost certainly your own tooling; glance and move on |
+| `PROBABLY INTERNAL` | your ISP (`CANARY_HOME_ASNS`, AS852 TELUS) on a new IP | check the IP looks like yours, e.g. after a router reboot |
+| `EXTERNAL` | a local-only token used from anywhere else, or a hosting network, or a scanner signature | **the file left the machine.** Rotate anything real that sat beside it |
+| `EXPECTED` | a token planted somewhere public | measurement, not an incident. Note the ASN to see who is harvesting |
+| `UNCLEAR` | unrecognised origin, nothing obviously hostile | judge it on the details in the mail |
+
+Placement prefixes decide the policy: `mac*`, `vault*`, `env*` and `laptop*` are
+local-only, so any off-network use is `EXTERNAL`. `ghpub*` is public by design.
+Anything unrecognised is treated as local-only, which errs toward alarming.
+
+Tune without a redeploy:
+
+```bash
+cd api
+echo "1.2.3.4,5.6.7.8" | npx wrangler secret put CANARY_TRUSTED_IPS --env production
+echo "852,6327"        | npx wrangler secret put CANARY_HOME_ASNS  --env production
+```
+
+### The blind spot, stated plainly
+
+`INTERNAL` means *the request came from your network*. It does not mean *safe*.
+Malware running on the Mac, or anyone on your LAN, uses the key from your own IP
+and will be labelled `INTERNAL`. What the verdict genuinely rules out is a
+credential being used from somewhere you are not.
+
+So the signal to trust most is the inverse: an `EXTERNAL` on a local-only token
+is close to conclusive, because there is no innocent way for that key to be
+called from a datacenter. A calm `INTERNAL` is weaker evidence than a loud
+`EXTERNAL`.
+
 ## Rules
 
 - **Never rotate, "fix", or remove a canary.** It is inert by design and grants

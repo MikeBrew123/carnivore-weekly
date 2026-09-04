@@ -84,6 +84,88 @@ function canaryPlacement(token) {
   return label || 'unknown';
 }
 
+// --- Is this us being helpful, or somebody else? ---
+//
+// The useful question is not "what user agent is this" but "could this request
+// have come from where we planted the token". A key planted on the Mac can only
+// legitimately be used from the Mac. The same key arriving from a datacenter in
+// another country means the file left the machine, which is the whole point of
+// planting it.
+//
+// Tunable without a redeploy via wrangler secret/vars:
+//   CANARY_TRUSTED_IPS   comma-separated exact IPs (home, VPS)
+//   CANARY_HOME_ASNS     comma-separated ASNs we consider "our own line"
+
+const CANARY_DEFAULT_HOME_ASNS = ['852'];        // TELUS (Brew's ISP)
+const CANARY_LOCAL_ONLY = ['mac', 'vault', 'env', 'laptop'];  // placement prefixes that must never travel
+const CANARY_PUBLIC = ['ghpub'];                 // planted somewhere public on purpose
+
+// Hosting/cloud networks. A bait file on a laptop has no business calling from
+// one of these, so it is a strong signal on its own.
+const CANARY_HOSTING = /amazon|aws|google|azure|microsoft|digitalocean|linode|akamai|hetzner|ovh|scaleway|vultr|contabo|alibaba|tencent|oracle|choopa|leaseweb|m247|datacamp|cogent|hostinger|namecheap|godaddy|cloudflare|fastly|censys|shodan|internet-measurement|driftnet|palo alto|recyber|binaryedge/i;
+
+// Runtimes that scripts and agents use. Not incriminating by itself: our own
+// tooling looks exactly like this. It only matters next to the origin.
+const CANARY_TOOL_UA = /curl|wget|python|node|undici|axios|got\/|okhttp|java|go-http|libwww|powershell|httpie|insomnia|postman|claude|anthropic/i;
+const CANARY_SCANNER_UA = /zgrab|masscan|nmap|nuclei|sqlmap|dirbuster|gobuster|feroxbuster|censys|shodan|internet-?measurement|expanse|paloalto|bot\b|spider|crawler/i;
+
+function classifyCaller(request, cf, env, placement) {
+  const ip = request.headers.get('CF-Connecting-IP') || '';
+  const ua = request.headers.get('User-Agent') || '';
+  const asn = String(cf.asn || '');
+  const org = cf.asOrganization || '';
+  const country = cf.country || '';
+
+  const trustedIps = String(env.CANARY_TRUSTED_IPS || '').split(',').map(s => s.trim()).filter(Boolean);
+  const homeAsns = String(env.CANARY_HOME_ASNS || '').split(',').map(s => s.trim()).filter(Boolean);
+  const homeAsnList = homeAsns.length ? homeAsns : CANARY_DEFAULT_HOME_ASNS;
+
+  const p = (placement || '').toLowerCase();
+  const isLocalOnly = CANARY_LOCAL_ONLY.some(x => p.startsWith(x));
+  const isPublic = CANARY_PUBLIC.some(x => p.startsWith(x));
+
+  const onTrustedIp = trustedIps.includes(ip);
+  const onHomeAsn = homeAsnList.includes(asn);
+  const fromHosting = CANARY_HOSTING.test(org);
+  const scannerUa = CANARY_SCANNER_UA.test(ua);
+  const toolUa = CANARY_TOOL_UA.test(ua);
+
+  const why = [];
+  let verdict;
+
+  if (isPublic) {
+    // Planted in the open. A hit is a measurement, not an incident.
+    verdict = 'EXPECTED';
+    why.push('this token was planted somewhere public on purpose, so anyone can find it');
+    if (fromHosting) why.push(`fetched from hosting infrastructure (${org}) — consistent with an automated harvester`);
+    if (scannerUa) why.push(`scanner user agent (${ua.slice(0, 60)})`);
+  } else if (onTrustedIp) {
+    verdict = 'INTERNAL';
+    why.push(`came from a known address of yours (${ip})`);
+    why.push(toolUa ? 'tool or agent user agent, which is what your own scripts look like'
+                    : 'user agent is not a known tool, worth a glance');
+  } else if (onHomeAsn && !fromHosting) {
+    verdict = 'PROBABLY INTERNAL';
+    why.push(`came from your own ISP (AS${asn} ${org}), so most likely your machine on a new address`);
+    why.push('confirm the IP looks like yours before dismissing it');
+  } else if (isLocalOnly) {
+    verdict = 'EXTERNAL';
+    why.push('this token was only ever readable on your own machine, and this request did not come from it');
+    why.push(`origin: ${ip} · ${org || 'unknown network'} · ${country}`);
+    if (fromHosting) why.push('hosting network, so the file is being used from a server, not a laptop');
+    why.push('treat as the file having left the machine');
+  } else if (fromHosting || scannerUa) {
+    verdict = 'EXTERNAL';
+    why.push(`hosting network or scanner signature (${org || ua.slice(0, 40)})`);
+  } else {
+    verdict = 'UNCLEAR';
+    why.push(`unrecognised origin: ${ip} · ${org || 'unknown network'} · ${country}`);
+    why.push('not one of your known addresses, but not obviously hostile either');
+  }
+
+  return { verdict, why, onTrustedIp, onHomeAsn, fromHosting, scannerUa, toolUa };
+}
+
 async function alertCanary(env, ctx, detail) {
   try {
     if (!env.RESEND_API_KEY) return;
@@ -110,11 +192,12 @@ async function alertCanary(env, ctx, detail) {
       body: JSON.stringify({
         from: 'Canary <canary@carnivoreweekly.com>',
         to: ['iambrew@gmail.com'],
-        subject: `CANARY TRIPPED - ${detail.placement} (${detail.ip})`,
+        subject: `CANARY [${detail.verdict}] ${detail.placement} - ${detail.ip} ${detail.asn_org ? '(' + detail.asn_org + ')' : ''}`.trim(),
         html:
           `<div style="font-family:system-ui,sans-serif;max-width:640px">` +
-          `<h2 style="color:#b91c1c;margin:0 0 6px">Canary token used</h2>` +
-          `<p style="color:#475569;line-height:1.5;margin:0 0 18px">Someone used a planted credential. Nothing legitimate ever sends one, so this is a real signal: the token below was found where it was planted and tried against the API.</p>` +
+          `<h2 style="color:${detail.verdict === 'EXTERNAL' ? '#b91c1c' : detail.verdict === 'INTERNAL' ? '#0f766e' : '#b45309'};margin:0 0 6px">Canary tripped &mdash; ${detail.verdict}</h2>` +
+          `<p style="color:#475569;line-height:1.6;margin:0 0 14px">${detail.reasoning}</p>` +
+          `<p style="color:#475569;line-height:1.5;margin:0 0 18px;font-size:13px">A planted credential was used. The token grants nothing, so no data was exposed by this request.</p>` +
           `<table style="border-collapse:collapse;width:100%">${rows}</table>` +
           `<p style="color:#94a3b8;font-size:12px;margin-top:20px;line-height:1.5">The token grants nothing and no data was exposed by this request. Placement map: secrets/canary-tokens.json. Runbook: docs/guides/canary-tokens.md</p>` +
           `</div>`,
@@ -137,13 +220,18 @@ function canaryTripped(request, url, env, ctx) {
     if (!token.startsWith(CANARY_KEY_PREFIX) && !token.startsWith(CANARY_URL_PREFIX)) return null;
 
     const cf = request.cf || {};
+    const placement = canaryPlacement(token);
+    const call = classifyCaller(request, cf, env, placement);
     const detail = {
-      placement: canaryPlacement(token),
+      verdict: call.verdict,
+      reasoning: call.why.join('; '),
+      placement,
       token: token.slice(0, 48),
       kind: isHook ? 'url fetched' : 'key used',
       ip: request.headers.get('CF-Connecting-IP') || 'unknown',
       country: cf.country || 'unknown',
       asn: cf.asOrganization ? `${cf.asOrganization} (AS${cf.asn})` : 'unknown',
+      asn_org: cf.asOrganization || '',
       method: request.method,
       url: url.toString(),
       user_agent: request.headers.get('User-Agent') || 'none',
