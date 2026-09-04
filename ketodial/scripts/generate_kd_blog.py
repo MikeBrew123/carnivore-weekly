@@ -228,8 +228,14 @@ header.nav{{position:sticky;top:0;z-index:40;background:rgba(241,245,249,.82);ba
 footer{{background:#0b1620;color:#9fb8c9;padding:40px 0 24px}}
 .foot-inner{{max-width:1180px;margin:0 auto;padding:0 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}}
 .foot-inner .disclaimer{{font-size:12px;color:#6b8aa0;max-width:640px;line-height:1.5}}
-.foot-inner .copy{{font-family:var(--mono);font-size:11.5px;color:#5f8198}}
+.foot-inner .copy{{font-family:var(--mono);font-size:11.5px;color:#6b8fa8}}
 .skip-nav{{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:100}}.skip-nav:focus{{position:fixed;top:8px;left:8px;width:auto;height:auto;padding:12px 20px;background:var(--ink,#0f172a);color:#fff;font-weight:700;font-size:14px;border-radius:8px;text-decoration:none;z-index:9999}}
+
+/* Every image carries its intrinsic width/height attributes so the browser can
+   reserve the right space before the file arrives. height:auto keeps those
+   attributes from stretching an image wherever CSS constrains only the width,
+   which is exactly what the floated article image does on desktop. */
+img{{height:auto}}
 
 @media(max-width:640px){{
 /* The article image is floated right at a fixed 260px. On a phone that leaves
