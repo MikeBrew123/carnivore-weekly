@@ -37,7 +37,7 @@
 
 .summary-text{font-size:13.5px;color:var(--ink-soft);line-height:1.6}
 
-.notes-edit{width:100%;border:1.5px solid var(--line);border-radius:10px;background:var(--surface-2);padding:12px;font-size:13px;line-height:1.5;resize:vertical;min-height:80px;outline:none;font-family:var(--sans);margin-bottom:10px}
+.notes-edit{width:100%;border:1.5px solid var(--line);border-radius:10px;background:var(--surface-2);padding:12px;font-size:16px;line-height:1.5;resize:vertical;min-height:80px;outline:none;font-family:var(--sans);margin-bottom:10px}
 .notes-edit:focus{border-color:var(--accent-deep);box-shadow:0 0 0 3px var(--accent-wash)}
 .btn-sm{font-size:12px;padding:7px 14px}
 
@@ -89,6 +89,11 @@
 }
 @media(max-width:480px){
   .metric-row{grid-template-columns:repeat(2,1fr)}
+  /* Four tabs did not fit across a 320px screen and dragged the page
+     sideways. Let the strip scroll on its own instead. */
+  .profile-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .profile-tabs::-webkit-scrollbar{display:none}
+  .ptab{padding:10px 12px;white-space:nowrap;flex:none}
 }
 
 /* Thread enhancements */
@@ -98,5 +103,5 @@
 .tm-edit-btn{font-family:var(--mono);font-size:10px;color:var(--accent-deep);background:none;border:1px solid var(--accent-deep);border-radius:5px;padding:2px 8px;cursor:pointer;margin-left:auto}
 .tm-edit-btn:hover{background:var(--accent-wash)}
 .tm-edit-wrap{margin-top:8px}
-.tm-edit-area{width:100%;border:1.5px solid var(--accent-deep);border-radius:10px;background:var(--surface);padding:12px;font-size:13.5px;line-height:1.6;resize:vertical;min-height:120px;outline:none;font-family:var(--sans)}
+.tm-edit-area{width:100%;border:1.5px solid var(--accent-deep);border-radius:10px;background:var(--surface);padding:12px;font-size:16px;line-height:1.6;resize:vertical;min-height:120px;outline:none;font-family:var(--sans)}
 .tm-edit-actions{display:flex;gap:8px;margin-top:8px}

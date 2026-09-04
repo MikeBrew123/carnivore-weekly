@@ -76,7 +76,7 @@
 .flag-banner{display:flex;gap:11px;align-items:flex-start;background:var(--flag-wash);border:1px solid var(--flag);border-radius:11px;padding:13px 15px;margin-bottom:13px;color:var(--flag);font-size:12.5px;line-height:1.5}
 .flag-banner b{font-weight:700}
 
-.draft-area{width:100%;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:15px 16px;font-size:14px;color:var(--ink);line-height:1.6;resize:vertical;min-height:200px;outline:none;font-family:var(--sans)}
+.draft-area{width:100%;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:15px 16px;font-size:16px;color:var(--ink);line-height:1.6;resize:vertical;min-height:200px;outline:none;font-family:var(--sans)}
 .draft-area:focus{border-color:var(--accent-deep);box-shadow:0 0 0 4px var(--accent-wash)}
 .action-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
 .btn-escalate{background:var(--flag-wash);color:var(--flag);border:1.5px solid var(--flag)}
@@ -172,7 +172,7 @@
 .nc-send-btn{font-family:var(--sans);font-size:11px;font-weight:700;color:var(--coach-deep);background:none;border:1px solid var(--coach-deep);border-radius:7px;padding:5px 12px;cursor:pointer;white-space:nowrap}
 .nc-send-btn:hover{background:var(--coach-wash)}
 .nc-edit{margin-top:6px}
-.nc-textarea{width:100%;border:1.5px solid var(--coach);border-radius:10px;background:var(--surface);padding:10px 12px;font-size:13px;line-height:1.5;resize:vertical;min-height:80px;outline:none;font-family:var(--sans)}
+.nc-textarea{width:100%;border:1.5px solid var(--coach);border-radius:10px;background:var(--surface);padding:10px 12px;font-size:16px;line-height:1.5;resize:vertical;min-height:80px;outline:none;font-family:var(--sans)}
 .nc-actions{display:flex;gap:8px;margin-top:8px}
 
 /* Responsive */
@@ -188,6 +188,30 @@
   .kbd{display:none}
   .members-table{overflow-x:auto}
   .metric-row{grid-template-columns:repeat(3,1fr)}
+
+  /* The traffic lights and URL bar are a desktop flourish: they frame the tool
+     nicely on a wide screen and cost 48px of a phone screen for nothing. */
+  .browser-bar{display:none}
+  .browser{border:none;border-radius:0;box-shadow:none}
+
+  /* The queue was a 280px porthole with its own scrollbar sitting inside a
+     page that already scrolls. Let it run and scroll the page once. */
+  .queue-pane{max-height:none;overflow-y:visible;border-bottom:1px solid var(--line)}
+}
+
+@media(max-width:560px){
+  .admin-page{padding:12px 10px 40px}
+  /* Brand and tabs shared one row and did not fit: put the tabs on their own
+     line and split the width evenly so both are a real tap target. */
+  .admin-head .lead{flex-direction:column;align-items:stretch;gap:10px;width:100%;min-width:0}
+  .admin-tabs{width:100%}
+  .atab{flex:1;white-space:nowrap;padding:10px 8px;font-size:13px}
+  /* "Coach · reviewing" was breaking after the middot. Keep the label itself
+     intact but let the row wrap, so 320px screens do not push it out. */
+  .topbar .who > span{white-space:nowrap}
+  .topbar .tb-l{flex-wrap:wrap;gap:8px 12px;min-width:0}
+  /* Four stat cells could not fit their own content at 320px. */
+  .ctx-stats{grid-template-columns:1fr 1fr}
 }
 
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-weight:600;font-size:14px;padding:13px 22px;border-radius:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:all .25s;z-index:100}
