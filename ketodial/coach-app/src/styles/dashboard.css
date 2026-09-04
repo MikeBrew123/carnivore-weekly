@@ -34,7 +34,7 @@
 
 /* quick reply */
 .quick-reply{display:flex;gap:8px;margin-top:9px;align-items:center}
-.qr-inp-real{flex:1;height:42px;border:1.5px solid var(--line);border-radius:11px;padding:0 13px;font-size:13.5px;color:var(--ink);background:var(--surface);outline:none;font-family:var(--sans)}
+.qr-inp-real{flex:1;height:46px;border:1.5px solid var(--line);border-radius:11px;padding:0 13px;font-size:16px;color:var(--ink);background:var(--surface);outline:none;font-family:var(--sans)}
 .qr-inp-real:focus{border-color:var(--accent-deep)}
 .qr-inp-real::placeholder{color:var(--ink-faint)}
 
@@ -56,3 +56,35 @@
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink-faint);font-size:10px;font-weight:600;font-family:var(--mono);letter-spacing:.04em;text-decoration:none}
 .tab-btn svg{width:23px;height:23px}
 .tab-btn.on{color:var(--accent-deep)}
+
+/* Coach thread: banner, scroll area and composer.
+   These three classes were used by /app/thread but never had rules, so the
+   banner and the message composer rendered unstyled and flush to the screen
+   edge, with the send button sitting on top of the input text. */
+.coach-banner{display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 18px;background:var(--coach-wash);color:var(--coach-deep);
+  font-size:12.5px;font-weight:600;text-align:center;
+  border-bottom:1px solid var(--line);flex:none}
+
+.thread-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:16px 16px 8px;background:var(--bg)}
+
+.thread-input{flex:none;display:flex;align-items:center;gap:10px;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background:var(--surface);border-top:1px solid var(--line)}
+.thread-input input{flex:1;min-width:0;height:46px;padding:0 15px;
+  border:1.5px solid var(--line);border-radius:23px;background:var(--bg);
+  font-family:var(--sans);font-size:16px;color:var(--ink);outline:none;
+  transition:border-color .15s,box-shadow .15s}
+.thread-input input:focus{border-color:var(--accent-deep);
+  box-shadow:0 0 0 3px var(--accent-wash)}
+.thread-input input::placeholder{color:var(--ink-faint)}
+.thread-input .send{flex:none;width:46px;height:46px;border-radius:50%;border:none;
+  background:var(--accent);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:opacity .15s,transform .12s}
+.thread-input .send:disabled{opacity:.4;cursor:default}
+.thread-input .send:not(:disabled):active{transform:scale(.94)}
+
+/* The thread page is a full-height column: app bar, banner, scrolling thread,
+   composer pinned to the bottom. */
+.dash-page:has(.thread-input){display:flex;flex-direction:column;height:100dvh}

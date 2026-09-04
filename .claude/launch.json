@@ -4,8 +4,28 @@
     {
       "name": "kd-static",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8901", "--directory", "ketodial/public"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8901",
+        "--directory",
+        "ketodial/public"
+      ],
       "port": 8901
+    },
+    {
+      "name": "coach-app",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "ketodial/coach-app",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3210"
+      ],
+      "port": 3210
     }
   ]
 }

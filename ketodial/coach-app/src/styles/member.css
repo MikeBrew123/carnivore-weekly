@@ -29,11 +29,11 @@
 .inp input{border:none;outline:none;background:none;font-size:16px;color:var(--ink);width:100%;min-width:0}
 .inp input::placeholder{color:var(--ink-faint)}
 .inp .suffix{font-family:var(--mono);font-size:13px;color:var(--ink-faint);white-space:nowrap}
-textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:var(--r-btn);background:var(--surface);font-size:15px;color:var(--ink);padding:12px 14px;outline:none;resize:vertical;min-height:84px;line-height:1.5;transition:border-color .15s,box-shadow .15s;font-family:var(--sans)}
+textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:var(--r-btn);background:var(--surface);font-size:16px;color:var(--ink);padding:12px 14px;outline:none;resize:vertical;min-height:84px;line-height:1.5;transition:border-color .15s,box-shadow .15s;font-family:var(--sans)}
 textarea.ta:focus{border-color:var(--accent-deep);box-shadow:0 0 0 4px var(--accent-wash)}
 textarea.ta::placeholder{color:var(--ink-faint)}
 .sel{position:relative}
-.sel select{width:100%;height:48px;border:1.5px solid var(--line);border-radius:var(--r-btn);background:var(--surface);font-size:15px;color:var(--ink);padding:0 38px 0 14px;appearance:none;outline:none;cursor:pointer;font-family:var(--sans)}
+.sel select{width:100%;height:48px;border:1.5px solid var(--line);border-radius:var(--r-btn);background:var(--surface);font-size:16px;color:var(--ink);padding:0 38px 0 14px;appearance:none;outline:none;cursor:pointer;font-family:var(--sans)}
 .sel select:focus{border-color:var(--accent-deep);box-shadow:0 0 0 4px var(--accent-wash)}
 .sel::after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid var(--ink-faint);border-bottom:2px solid var(--ink-faint);transform:translateY(-65%) rotate(45deg);pointer-events:none}
 
@@ -57,7 +57,7 @@ textarea.ta::placeholder{color:var(--ink-faint)}
 .sub-v.status-cancelled{color:var(--ink-faint)}
 .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .form-label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
-.form-input{height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;color:var(--ink);padding:0 14px;outline:none;font-family:var(--sans)}
+.form-input{height:46px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:16px;color:var(--ink);padding:0 14px;outline:none;font-family:var(--sans)}
 .form-input:focus{border-color:var(--accent-deep);box-shadow:0 0 0 3px var(--accent-wash)}
 select.form-input{appearance:none;cursor:pointer}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -97,7 +97,7 @@ select.form-input{appearance:none;cursor:pointer}
 .auth-form{display:flex;flex-direction:column;gap:14px}
 .auth-field{display:flex;flex-direction:column;gap:6px}
 .auth-field label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
-.auth-field input{height:46px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;color:var(--ink);padding:0 14px;outline:none;font-family:var(--sans)}
+.auth-field input{height:48px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);font-size:16px;color:var(--ink);padding:0 14px;outline:none;font-family:var(--sans)}
 .auth-field input:focus{border-color:var(--accent-deep);box-shadow:0 0 0 3px var(--accent-wash)}
 .auth-error{font-size:13px;color:var(--flag);background:var(--flag-wash);padding:10px 14px;border-radius:10px;line-height:1.4}
 .auth-btn{width:100%;height:48px;font-size:15px;margin-top:4px}
@@ -127,4 +127,15 @@ select.form-input{appearance:none;cursor:pointer}
   font-size:13.5px;
   line-height:1.5;
   color:#5c5344;
+}
+
+/* PHONE. Half-width fields read as cramped on a 375px screen: the goal-weight
+   row was landing at 198px and 125px. Give every field the full width and
+   keep the tap targets generous. */
+@media(max-width:560px){
+  .form-row,.ob-2col{grid-template-columns:1fr}
+  /* auto-fit gave three tiles then a lone fourth on its own row. */
+  .prog-stats{grid-template-columns:1fr 1fr}
+  .auth-card{padding:28px 22px}
+  .settings-page,.progress-page{padding-left:18px;padding-right:18px}
 }

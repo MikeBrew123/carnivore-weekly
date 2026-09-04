@@ -91,6 +91,16 @@ export default function ThreadPage() {
     return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
   }
 
+  // The day separator wants the date on its own. Splitting formatDate on the
+  // first space used to leave a bare "Tue," sitting above the messages.
+  function formatDaySep(dateStr: string) {
+    const d = new Date(dateStr)
+    const diffDays = Math.floor((new Date().getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Yesterday'
+    return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
+  }
+
   // Group messages by day
   let lastDate = ''
 
@@ -137,7 +147,7 @@ export default function ThreadPage() {
           {loadState === 'ok' && messages.length === 0 && (
             <div style={{ padding: '28px 18px', textAlign: 'center' }}>
               <p style={{ fontWeight: 700, marginBottom: '6px' }}>Nothing here yet.</p>
-              <p style={{ color: 'var(--muted, #64748b)', fontSize: '15px' }}>Once you send your first check-in, your coach's response will appear here.</p>
+              <p style={{ color: 'var(--muted, #64748b)', fontSize: '15px' }}>Once you send your first check-in, your coach&apos;s response will appear here.</p>
             </div>
           )}
           {messages.map((msg) => {
@@ -150,7 +160,7 @@ export default function ThreadPage() {
               const ci = checkins[msg.checkin_id]
               return (
                 <div key={msg.id}>
-                  {showDate && <div className="daysep">{formatDate(msg.sent_at).split(' ')[0]}</div>}
+                  {showDate && <div className="daysep">{formatDaySep(msg.sent_at)}</div>}
                   <CheckInCard checkin={ci} />
                 </div>
               )
@@ -158,7 +168,7 @@ export default function ThreadPage() {
 
             return (
               <div key={msg.id}>
-                {showDate && <div className="daysep">{formatDate(msg.sent_at).split(' ')[0]}</div>}
+                {showDate && <div className="daysep">{formatDaySep(msg.sent_at)}</div>}
                 <div className={`msg ${msg.direction === 'coach' ? 'coach' : 'me'}`}>
                   {msg.direction === 'coach' && <span className="coach-av sm">R</span>}
                   <div>
