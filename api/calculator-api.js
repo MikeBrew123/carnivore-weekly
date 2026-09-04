@@ -41,6 +41,132 @@
 // Version marker for deployment verification
 const DEPLOY_VERSION = "v2026-06-07-resend-webhook";
 
+// ===== CANARY TOKENS (honeytokens) =====
+//
+// A canary token is a credential with no power that exists only to be stolen.
+// Nothing legitimate ever sends one, so a single hit means someone found a
+// planted key or URL and tried it. Placements are minted by
+// scripts/canary_mint.py and recorded in secrets/canary-tokens.json (gitignored).
+//
+// DO NOT "fix", rotate, or remove these. They are inert by design and grant
+// nothing. See docs/guides/canary-tokens.md.
+//
+// Two shapes, both matched on prefix so planting a new one needs no redeploy:
+//   cw_live_sk_<placement>_<random>   a fake API key   -> fires when USED
+//   /api/v1/hooks/cwc_<placement>_..  a fake webhook   -> fires when FETCHED
+//
+// Everything here is wrapped so a canary can never break a real request.
+
+const CANARY_KEY_PREFIX = 'cw_live_sk_';
+const CANARY_URL_PREFIX = 'cwc_';
+
+function findCanaryToken(request, url) {
+  // Header and query string only. Bodies are deliberately not read: consuming
+  // the stream here would break every downstream handler.
+  const probes = [
+    request.headers.get('Authorization') || '',
+    request.headers.get('X-Api-Key') || '',
+    url.searchParams.get('key') || '',
+    url.searchParams.get('api_key') || '',
+    url.searchParams.get('token') || '',
+  ];
+  for (const p of probes) {
+    const i = p.indexOf(CANARY_KEY_PREFIX);
+    if (i !== -1) return p.slice(i).split(/[^A-Za-z0-9_]/)[0];
+  }
+  return null;
+}
+
+function canaryPlacement(token) {
+  // cw_live_sk_ghpub_a1b2c3  ->  ghpub        (where we planted it)
+  const rest = token.replace(CANARY_KEY_PREFIX, '').replace(CANARY_URL_PREFIX, '');
+  const label = rest.split('_')[0];
+  return label || 'unknown';
+}
+
+async function alertCanary(env, ctx, detail) {
+  try {
+    if (!env.RESEND_API_KEY) return;
+
+    // One alert per token+IP per hour, so a scanner hammering the endpoint
+    // cannot turn into a thousand emails.
+    const bucket = `canary:alert:${detail.token}:${detail.ip}`;
+    if (env.ETSY_AUTH_KV) {
+      const seen = await env.ETSY_AUTH_KV.get(bucket);
+      if (seen) return;
+      await env.ETSY_AUTH_KV.put(bucket, '1', { expirationTtl: 3600 });
+    }
+
+    const rows = Object.entries(detail)
+      .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#64748b;font-family:monospace;font-size:12px;vertical-align:top">${k}</td><td style="padding:4px 0;font-family:monospace;font-size:12px">${String(v ?? '').slice(0, 400).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</td></tr>`)
+      .join('');
+
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Canary <canary@carnivoreweekly.com>',
+        to: ['iambrew@gmail.com'],
+        subject: `CANARY TRIPPED - ${detail.placement} (${detail.ip})`,
+        html:
+          `<div style="font-family:system-ui,sans-serif;max-width:640px">` +
+          `<h2 style="color:#b91c1c;margin:0 0 6px">Canary token used</h2>` +
+          `<p style="color:#475569;line-height:1.5;margin:0 0 18px">Someone used a planted credential. Nothing legitimate ever sends one, so this is a real signal: the token below was found where it was planted and tried against the API.</p>` +
+          `<table style="border-collapse:collapse;width:100%">${rows}</table>` +
+          `<p style="color:#94a3b8;font-size:12px;margin-top:20px;line-height:1.5">The token grants nothing and no data was exposed by this request. Placement map: secrets/canary-tokens.json. Runbook: docs/guides/canary-tokens.md</p>` +
+          `</div>`,
+      }),
+    });
+  } catch (e) {
+    // A canary must never take the API down with it.
+    console.error('[canary] alert failed:', e && e.message);
+  }
+}
+
+function canaryTripped(request, url, env, ctx) {
+  try {
+    const isHook = url.pathname.startsWith('/api/v1/hooks/');
+    const token = isHook
+      ? url.pathname.split('/api/v1/hooks/')[1].split('/')[0]
+      : findCanaryToken(request, url);
+
+    if (!token) return null;
+    if (!token.startsWith(CANARY_KEY_PREFIX) && !token.startsWith(CANARY_URL_PREFIX)) return null;
+
+    const cf = request.cf || {};
+    const detail = {
+      placement: canaryPlacement(token),
+      token: token.slice(0, 48),
+      kind: isHook ? 'url fetched' : 'key used',
+      ip: request.headers.get('CF-Connecting-IP') || 'unknown',
+      country: cf.country || 'unknown',
+      asn: cf.asOrganization ? `${cf.asOrganization} (AS${cf.asn})` : 'unknown',
+      method: request.method,
+      url: url.toString(),
+      user_agent: request.headers.get('User-Agent') || 'none',
+      referer: request.headers.get('Referer') || 'none',
+      at: new Date().toISOString(),
+    };
+
+    console.log('[canary]', JSON.stringify(detail));
+    const send = alertCanary(env, ctx, detail);
+    if (ctx && ctx.waitUntil) ctx.waitUntil(send);
+
+    // Answer exactly like the real thing would to an unauthorised caller, so a
+    // prober learns nothing and has no reason to think they were seen.
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (e) {
+    console.error('[canary] check failed:', e && e.message);
+    return null;
+  }
+}
+
 // ===== UTILITY FUNCTIONS =====
 
 function generateUUID() {
@@ -6496,7 +6622,7 @@ async function handleStripeWebhook(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
     const method = request.method;
@@ -6512,6 +6638,11 @@ export default {
         },
       });
     }
+
+    // Canary check runs before any route: nothing legitimate carries a canary
+    // token, and it must be seen even on paths that do not exist.
+    const canary = canaryTripped(request, url, env, ctx);
+    if (canary) return canary;
 
     // Wrapper to add CORS to all responses
     const sendWithCors = (response) => {
