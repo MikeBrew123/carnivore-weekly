@@ -6,7 +6,8 @@ set -e
 
 PROJECT_ID="kwtdpvnjewtahuxjyltn"
 SUPABASE_URL="https://${PROJECT_ID}.supabase.co"
-SERVICE_ROLE_KEY="sb_secret_-DJISSDQQD7oWqS87RBJ8Q_0sKdDWVz"
+# Read from secrets/api-keys.json. Never inline a key here.
+SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-***REDACTED***}"
 MIGRATION_FILE="./supabase/migrations/014_create_calculator2_sessions.sql"
 
 echo "========================================"

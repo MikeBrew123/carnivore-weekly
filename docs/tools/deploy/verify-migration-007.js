@@ -19,7 +19,8 @@ import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 
 const SUPABASE_URL = 'https://kwtdpvnjewtahuxjyltn.supabase.co';
-const SERVICE_ROLE_KEY = 'sb_secret_-DJISSDQQD7oWqS87RBJ8Q_0sKdDWVz';
+// Read from secrets/api-keys.json or a wrangler secret. Never inline a key here.
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '***REDACTED***';
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 

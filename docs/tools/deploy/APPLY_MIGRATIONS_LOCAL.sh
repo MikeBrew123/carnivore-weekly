@@ -22,7 +22,8 @@ MIGRATION_2="$PROJECT_DIR/SUPABASE_SEED_PAYMENT_TIERS.sql"
 # Supabase credentials
 SUPABASE_URL="https://kwtdpvnjewtahuxjyltn.supabase.co"
 PROJECT_ID="kwtdpvnjewtahuxjyltn"
-SERVICE_ROLE_KEY="sb_secret_-DJISSDQQD7oWqS87RBJ8Q_0sKdDWVz"
+# Read from secrets/api-keys.json. Never inline a key here.
+SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-***REDACTED***}"
 
 echo "========================================"
 echo "Carnivore Weekly: Database Migration"
