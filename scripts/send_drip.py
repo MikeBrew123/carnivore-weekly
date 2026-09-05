@@ -39,6 +39,9 @@ import requests
 PROJECT_ROOT = Path(__file__).parent.parent
 SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from subscriber_hygiene import is_undeliverable_fixture  # noqa: E402
+
 TEST_EMAIL = "iambrew@gmail.com"
 WEBHOOK_URL = os.environ.get("RESEND_WEBHOOK_URL", "")
 FINAL_DAY = 28  # Graduate to the weekly newsletter after this day's email
@@ -412,6 +415,19 @@ def main():
         # rest of the sequence, which is what tanked KD's bounce rate in Aug.
         "bounced_at": "is.null",
     })
+
+    # Fixture guard (Brew, 2026-08-31, bounce review rule 2). Reserved and
+    # fixture domains cannot belong to a real person, so a live send to one is
+    # always a mistake: it burns sending reputation and, for anything on a
+    # deliverable domain that merely looks seeded, mails somebody who never
+    # asked. The coach reminder path has had this guard since 2026-09-01; the
+    # drip had nothing, so a reseeded fixture would have been mailed daily.
+    # Skipped rows are left completely untouched, not advanced and not marked.
+    blocked = [s for s in pending if is_undeliverable_fixture(s.get("email"))]
+    if blocked:
+        pending = [s for s in pending if not is_undeliverable_fixture(s.get("email"))]
+        for sub in blocked:
+            print(f"  🚫 {sub.get('email')} — test fixture address, never mailed live")
 
     if not pending:
         print(f"No pending {SITE} drip subscribers")

@@ -26,6 +26,9 @@ import requests
 PROJECT_ROOT = Path(__file__).parent.parent
 SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from subscriber_hygiene import filter_mailable  # noqa: E402
+
 SITES = {
     "cw": {
         "name": "Carnivore Weekly",
@@ -94,6 +97,14 @@ def get_subscribers(secrets, site):
     )
     resp.raise_for_status()
     emails = [row["email"] for row in resp.json()]
+
+    # Fixture guard (Brew, 2026-08-31, bounce review rule 2). Reserved and
+    # fixture domains cannot belong to a real person, so mailing one is always
+    # a mistake. Runs before every other filter so a fixture cannot slip
+    # through a later branch.
+    emails, blocked = filter_mailable(emails)
+    if blocked:
+        print(f"Blocked {len(blocked)} test fixture address(es) from the live send")
 
     # CW only: suppress anyone still working through the 30-day drip. The signup
     # endpoint adds calculator/homepage signups to BOTH lists immediately, but the

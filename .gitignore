@@ -161,6 +161,10 @@ reports/coach-launch-send-ledger*.jsonl
 # The SCRIPT (scripts/backup_subscribers.py) is committed; the subscriber DATA never is.
 reports/subscriber-backups/
 
+# Before-state ledgers written by scripts/clean_subscribers.py. Same rule: the
+# SCRIPT is committed, the addresses it retired never are.
+reports/subscriber-cleans/
+
 # Report outputs that captured live subscriber addresses and ended up in this
 # PUBLIC repo (found and purged from history 2026-09-03). The generator scripts
 # stay tracked; their OUTPUT never is. Do not force-add these back.

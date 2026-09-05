@@ -24,6 +24,9 @@ from pathlib import Path
 import requests
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from subscriber_hygiene import filter_mailable  # noqa: E402
+
 HTML = ROOT / "emails" / "2026-08-27-coach-launch.html"
 LEDGER = ROOT / "reports" / "coach-launch-send-ledger.jsonl"
 SUBJECT = "Nobody was expecting to hear from him on Sunday"
@@ -50,9 +53,11 @@ def audience(s):
     dr.raise_for_status()
     emails = {r["email"].strip().lower() for r in nl.json() if r.get("email")}
     emails |= {r["email"].strip().lower() for r in dr.json() if r.get("email")}
-    # never mail the seeded fixtures
-    return sorted(e for e in emails
-                  if not e.endswith("@test.ketodial.com") and not e.startswith("qa-"))
+    # Never mail the seeded fixtures. This used to be an inline two-domain
+    # check; it now shares one rule with send_drip.py, send_newsletter.py and
+    # the coach reminder engine, so widening the rule widens it everywhere.
+    mailable, _blocked = filter_mailable(sorted(emails))
+    return mailable
 
 
 def read_ledger(path):
