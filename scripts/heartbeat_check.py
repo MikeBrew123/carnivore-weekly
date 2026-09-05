@@ -112,6 +112,21 @@ try:
 except Exception as e:
     notes.append(f'vault git check skipped: {e}')
 
+# 5b. Subscriber list backup (1st of each month, 3:20 PT). Judged by the newest
+#     backup FILE, not the cron log, because clean_subscribers.py also writes
+#     one on every clean and those runs never touch the cron log. Stale after
+#     40 days: the floor Brew ruled on 2026-09-01 is monthly, and this must not
+#     cry wolf over a couple of late days on a job whose whole point is that a
+#     bad clean cannot wipe the list out.
+_bakdir = os.path.join(PROJECT_ROOT, 'reports', 'subscriber-backups')
+try:
+    _newest_bak = max(os.path.join(_bakdir, p) for p in os.listdir(_bakdir)
+                      if p.startswith('subscribers-') and p.endswith('.json'))
+    check('subscriber-backup', _newest_bak, 40 * DAYS)
+except (OSError, ValueError):
+    problems.append(f'subscriber-backup: no backup file in {_bakdir} — the list '
+                    f'has no backup at all')
+
 # 6. Unbounded log growth
 cv = os.path.join(LOGS, 'commit_validation.log')
 if os.path.exists(cv) and os.path.getsize(cv) > 20 * 1024 * 1024:
