@@ -31,9 +31,14 @@ def fetch_writer_context(writer_slug):
     writer = writer_result.data[0]
 
     # 2. Fetch writer memories (top 10 by relevance)
+    # nullsfirst=False matters: Postgres sorts NULLs FIRST on DESC, so rows written
+    # without a relevance_score (e.g. inbox drafts from writer-inbox-daily-check)
+    # were occupying the whole top 10 and crowding out real writing lessons.
     memories_result = supabase.table("writer_memory_log").select("*").eq(
         "writer_id", writer['id']
-    ).order("relevance_score", desc=True).order("created_at", desc=True).limit(10).execute()
+    ).order(
+        "relevance_score", desc=True, nullsfirst=False
+    ).order("created_at", desc=True).limit(10).execute()
 
     # 3. Fetch writer's past articles (last 10)
     content_result = supabase.table("writer_content").select(
