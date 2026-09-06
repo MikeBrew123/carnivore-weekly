@@ -40,6 +40,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import send_guard  # noqa: E402
 from subscriber_hygiene import is_undeliverable_fixture  # noqa: E402
 
 TEST_EMAIL = "iambrew@gmail.com"
@@ -124,6 +125,10 @@ def mint_promo_code(stripe_key, day, email):
     """Create a unique single-use Stripe promotion code expiring in 48h.
     Returns the code string, or None on any failure (caller falls back)."""
     import secrets as pysecrets
+    # Choke point: minting creates a real Stripe object, so a dry run must not.
+    # Returning None puts the caller on its existing no-expiry fallback copy.
+    if not send_guard.allow(f"mint a day-{day} Stripe promo code for {email}"):
+        return None
     prefix = PROMO_DAYS[day]
     for attempt in range(2):
         code = prefix + "-" + "".join(pysecrets.choice(PROMO_CODE_ALPHABET) for _ in range(5))
@@ -200,6 +205,10 @@ def supabase_query(secrets, table, params):
 
 
 def supabase_update(secrets, table, row_id, data):
+    # Choke point: a dry run must never reach the database, whatever branch
+    # called this. See scripts/send_guard.py for why.
+    if not send_guard.allow(f"update {table} row {row_id} with {data}"):
+        return
     sb = secrets["supabase"]
     key = sb["service_role_key"]
     resp = requests.patch(
@@ -216,6 +225,9 @@ def supabase_update(secrets, table, row_id, data):
 
 
 def supabase_insert(secrets, table, data):
+    # Choke point, same reason as supabase_update above.
+    if not send_guard.allow(f"insert into {table}: {data}"):
+        return None
     sb = secrets["supabase"]
     key = sb["service_role_key"]
     resp = requests.post(
@@ -252,6 +264,9 @@ def personalize(html, email):
 
 
 def send_email(resend_key, to, subject, html, tags=None, log=True):
+    # Choke point: no Resend call in a dry run, from any caller.
+    if not send_guard.allow(f'send "{subject}" to {to}'):
+        return False, "blocked by dry-run"
     from urllib.parse import quote
     payload = {
         "from": CFG["from_email"],
@@ -381,6 +396,8 @@ def main():
     parser.add_argument("--preview-to", metavar="EMAIL",
                         help="Send every existing day's email to this address for copy review")
     args = parser.parse_args()
+    # Arm the shared guard before anything can touch Supabase, Resend or Stripe.
+    send_guard.set_dry_run(args.dry_run)
 
     global SITE, CFG
     SITE = args.site
@@ -466,6 +483,13 @@ def main():
             except ValueError:
                 pass  # unparseable timestamp: fail open, send rather than strand
         if next_day > FINAL_DAY:
+            # Graduation writes twice, so it needs the same dry-run check the
+            # send path has. Without it (bug found 2026-09-06) a dry run
+            # against anyone sitting on the final day really did mark them
+            # completed and really did insert them into the weekly list.
+            if args.dry_run:
+                print(f"  Would graduate {sub['email']}: mark drip completed and add to {CFG['name']} weekly")
+                continue
             supabase_update(secrets, "drip_subscribers", sub["id"], {
                 "completed": True,
             })

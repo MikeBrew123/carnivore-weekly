@@ -27,6 +27,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import send_guard  # noqa: E402
 from subscriber_hygiene import filter_mailable  # noqa: E402
 
 SITES = {
@@ -191,6 +192,12 @@ def validate_newsletter_links(html):
 def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subject, html, site):
     results = []
     for email in to_emails:
+        # Choke point (scripts/send_guard.py). The dry-run path returns long
+        # before this loop, so in a live run this changes nothing. It is here
+        # so a future edit that reorders main() cannot mail anyone in a dry run.
+        if not send_guard.allow(f"send \"{subject}\" to {email}"):
+            results.append((email, "blocked", "dry-run"))
+            continue
         personalized = personalize_html(html, email, site)
         resp = requests.post(
             "https://api.resend.com/emails",
@@ -220,6 +227,7 @@ def main():
     parser.add_argument("--test", action="store_true", help="Send only to test email")
     parser.add_argument("--dry-run", action="store_true", help="Show what would be sent")
     args = parser.parse_args()
+    send_guard.set_dry_run(args.dry_run)
 
     site = SITES[args.site]
     secrets = None

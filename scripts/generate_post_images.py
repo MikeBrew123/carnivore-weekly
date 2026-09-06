@@ -250,6 +250,13 @@ def main():
         image_ready = dest.exists()
         if image_ready:
             print("  Image already exists, skipping generation")
+            if dry_run:
+                # This branch used to write blog_posts.json during a dry run
+                # (found in the 2026-09-06 dry-run audit). Costs nothing and
+                # harms nobody, but a dry run that edits a tracked file is
+                # exactly the surprise the flag is supposed to remove.
+                print(f"  [DRY RUN] would point {slug} at the existing {dest.name}")
+                continue
             post["image"] = f"/images/blog/{file_slug}.jpg"
             changed = True
             POSTS_FILE.write_text(json.dumps(data, indent=2))

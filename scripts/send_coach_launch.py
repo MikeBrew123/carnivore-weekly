@@ -25,6 +25,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import send_guard  # noqa: E402
 from subscriber_hygiene import filter_mailable  # noqa: E402
 
 HTML = ROOT / "emails" / "2026-08-27-coach-launch.html"
@@ -131,6 +132,7 @@ def main():
     a = ap.parse_args()
     if not (a.dry_run or a.test or a.send):
         ap.error("pick one of --dry-run, --test, --send")
+    send_guard.set_dry_run(a.dry_run)
 
     s = secrets()
     html = HTML.read_text(encoding="utf-8")
@@ -193,6 +195,11 @@ def main():
         fh = ledger_path.open("a", encoding="utf-8")
     try:
         for i, e in enumerate(to, 1):
+            # Choke point (scripts/send_guard.py). --dry-run returns above, so
+            # a live run is unchanged. This keeps that true if main() is ever
+            # reordered, and keeps blocked recipients out of the ledger.
+            if not send_guard.allow(f"send the coach launch email to {e}"):
+                continue
             try:
                 r = requests.post("https://api.resend.com/emails",
                                   headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
