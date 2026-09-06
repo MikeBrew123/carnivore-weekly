@@ -4,6 +4,7 @@
 #
 # Order of operations:
 #   1. Block commits containing API keys / tokens (scripts/check-secrets.sh)
+#   1b. If a send script changed, prove --dry-run still writes nothing
 #   2. Run any prior hook saved as pre-commit.old
 #   3. Run bd (beads) flush  <-- this STAGES .beads/issues.jsonl
 #   4. Block commits containing subscriber PII (scripts/check-pii.sh)
@@ -20,6 +21,30 @@
 SECRET_CHECK="/Users/mbrew/Developer/carnivore-weekly/scripts/check-secrets.sh"
 if [ -x "$SECRET_CHECK" ]; then
     "$SECRET_CHECK" || exit 1
+fi
+
+# Step 1b: dry-run guard. On 2026-09-06 send_drip.py's graduation branch was
+# found writing to Supabase during --dry-run, so a "safe" run really did
+# graduate a live subscriber. This replays that scenario against stubbed
+# network calls and blocks the commit if any --dry-run path can cause a real
+# side effect again. Only runs when a send script is staged; no network, so it
+# is fast. Reads only, stages nothing, which is why it can sit before the PII
+# scanner.
+GUARD_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+GUARD_TEST="$GUARD_ROOT/tests/test_dry_run_blocks_writes.py"
+if [ -f "$GUARD_TEST" ] && command -v python3 >/dev/null 2>&1; then
+    if git diff --cached --name-only | grep -qE '^(scripts/send_[a-z_]*\.py|scripts/generate_post_images\.py|tests/test_dry_run_blocks_writes\.py)$'; then
+        echo "Send path changed: checking that --dry-run still writes nothing..."
+        GUARD_LOG=$(mktemp)
+        if ! python3 "$GUARD_TEST" >"$GUARD_LOG" 2>&1; then
+            cat "$GUARD_LOG"
+            rm -f "$GUARD_LOG"
+            echo "BLOCKED: a --dry-run path can now cause a real side effect."
+            echo "See tests/test_dry_run_blocks_writes.py and scripts/send_guard.py."
+            exit 1
+        fi
+        rm -f "$GUARD_LOG"
+    fi
 fi
 
 # Step 4 (defined here, CALLED LAST at every exit path below): subscriber-PII
