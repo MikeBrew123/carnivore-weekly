@@ -633,7 +633,7 @@ If recurs: check whether SES changed classification, or raise/lower REPEAT_BOUNC
 ---
 
 ## ISSUE-068 — KetoDial algorithmic trust suppression: Googlebot stopped crawling
-🔴 OPEN (diagnosed, remedy in flight) — Last: 2026-08-10
+🔴 OPEN (diagnosed, remedy never tested) — Last: 2026-09-07
 Pattern: Googlebot last crawled ketodial.com on 2026-06-04 while still downloading the sitemap daily. GSC URL Inspection returns "URL is unknown to Google" for all 20 newest posts (2026-07-21 → 08-08), and `gsc_kd.clicks_this_week` has been 0 in every scoreboard snapshot since tracking began 2026-07-13. Cause per the 2026-08-08 diagnosis: dropped-and-re-registered domain (created 2026-05-30) that grew to 140+ AI-assisted pages in 9 weeks with zero earned backlinks. No manual actions in GSC, so this is algorithmic, and publishing volume reinforces the scaled-content pattern rather than helping.
 Attempts:
 - 2026-07-27 (bead 19d) — Ruled out technical blockers; called it a new-domain trust gap. Older cohort was "Crawled - currently not indexed"; the newer cohort has since regressed to "unknown".
@@ -642,6 +642,7 @@ Attempts:
 - 2026-08-10 (weekly ops) — Independently re-verified the crawl path is clean: sitemap.xml 200 with 142 locs including every new slug, each post URL 200, /blog/ index links them, robots.txt permissive. Recorded as the pre-remedy baseline: 0/20 indexed, 0 clicks, 5th consecutive zero-click week.
 - 2026-08-24 (weekly ops) — Re-inspected against the 08-10 baseline: still 0 of 20 newest indexed, all 20 "URL is unknown to Google", GSC clicks 0 this week and 0 prior week (7th consecutive zero-click week). Sitemap still fetched daily (last download 2026-08-23), 146 URLs submitted, 0 errors. Two weeks of the 2-posts/week cadence have changed nothing, as expected — no backlinks have landed.
 - 2026-08-31 (weekly ops) — Unchanged, 8th consecutive zero-click week. 0 of 20 newest indexed, all 20 still "URL is unknown to Google" (newest inspected: 2026-08-28 keto-maintenance-adding-carbs-back). Sitemap resubmitted, 147 URLs, 0 errors. Three weeks on the reduced cadence, still no backlinks sent — the gated lever has not been pulled, so the null result carries no information about the remedy.
+- 2026-09-07 (weekly ops) — 9th consecutive zero-click week: 0 clicks / 15 impressions across the WHOLE 180-day window (2026-03-08 to 2026-09-04), and only 5 URLs have ever earned an impression (/, /recipes/, /blog/, keto-vs-carnivore, why-we-built-ketodial). Spot-inspected 5 URLs: homepage PASS but last crawled 2026-06-04, /recipes/ and keto-vs-carnivore "Crawled - currently not indexed", two sitemap URLs "unknown to Google, never crawled". Sitemap healthy (151 locs, downloaded 09-07, 0 errors) so discovery is not the blocker. Four weeks on the reduced cadence. **Backlink outreach still not sent — 9 weeks gated on Brew (approved as decision 73c42b6d on 2026-08-18), so the remedy has still never been tested.**
 If recurs: earned backlinks are the lever, not cadence alone — the 10-target KD outreach plan (Jul 3, drafts written) is still gated on Brew sending. Re-inspect the same 20 URLs monthly against this baseline. Do NOT retry Indexing API — Lesson #13, it only works for JobPosting/BroadcastEvent.
 
 ## ISSUE-069 — Paid report macros wrong: deficit skipped + activity inflated (customer complaint)
