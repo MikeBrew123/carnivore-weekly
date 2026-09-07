@@ -31,6 +31,7 @@ import json
 import os
 import re
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -263,6 +264,10 @@ def personalize(html, email):
     return html.replace("{$unsubscribe}", unsub)
 
 
+RESEND_SLEEP = 0.6        # stay under Resend's ~2 req/sec rate limit
+RESEND_MAX_RETRIES = 4
+
+
 def send_email(resend_key, to, subject, html, tags=None, log=True):
     # Choke point: no Resend call in a dry run, from any caller.
     if not send_guard.allow(f'send "{subject}" to {to}'):
@@ -281,18 +286,33 @@ def send_email(resend_key, to, subject, html, tags=None, log=True):
     }
     if tags:
         payload["tags"] = tags
-    resp = requests.post(
-        "https://api.resend.com/emails",
-        headers={
-            "Authorization": f"Bearer {resend_key}",
-            "Content-Type": "application/json",
-        },
-        json=payload,
-    )
+    # Resend allows ~2 requests/second. This loop used to fire with no throttle
+    # and no retry, so a 429 came back as a plain failure. current_day is not
+    # advanced on failure, so the subscriber is retried on the next run rather
+    # than lost, but their sequence slips a day and the summary never said so.
+    # The 2026-09-06 drip run pushed 78 sends in 16s (4.8/sec) on the old path.
+    for attempt in range(RESEND_MAX_RETRIES):
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {resend_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+        )
+        if resp.status_code == 429:
+            backoff = RESEND_SLEEP * (2 ** attempt) + 1.0
+            print(f"  429 rate limited on {to}, retrying in {backoff:.1f}s")
+            time.sleep(backoff)
+            continue
+        break
     result = resp.json() if resp.status_code == 200 else resp.text
     if resp.status_code == 200 and log:
         email_id = result.get("id", "")
         log_drip_event(secrets_cache, to, subject, email_id, tags)
+    elif resp.status_code == 429:
+        result = f"429 rate limited after {RESEND_MAX_RETRIES} attempts (not sent, not requeued)"
+    time.sleep(RESEND_SLEEP)
     return resp.status_code == 200, result
 
 
@@ -461,6 +481,7 @@ def main():
     now = datetime.now(timezone.utc).isoformat()
 
     sent = 0
+    failed = []
     skipped_dup = 0
     skipped_new = 0
     graduated = 0
@@ -540,14 +561,28 @@ def main():
             sent += 1
             print(f"  ✅ Day {next_day} → {sub['email']}: {subject}")
         else:
+            failed.append((sub["email"], next_day, str(detail)[:90]))
             print(f"  ❌ Day {next_day} → {sub['email']}: {str(detail)[:80]}")
 
     summary = f"\nDone: {sent} sent, {graduated} graduated to weekly"
+    if failed:
+        summary += f", {len(failed)} FAILED"
     if skipped_dup:
         summary += f", {skipped_dup} skipped (already sent today)"
     if skipped_new:
         summary += f", {skipped_new} waiting on the 48h day-1 buffer"
     print(summary)
+
+    if failed:
+        print("")
+        print("=" * 62)
+        print(f"  {len(failed)} DRIP EMAIL(S) DID NOT SEND")
+        print("  current_day was not advanced, so these retry on the next run,")
+        print("  but each subscriber's sequence slips by a day.")
+        print("=" * 62)
+        for email, day, detail in failed:
+            print(f"  MISSED: day {day} -> {email} — {detail[:70]}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

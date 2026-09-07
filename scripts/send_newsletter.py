@@ -17,6 +17,7 @@ import argparse
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 import re
@@ -189,6 +190,10 @@ def validate_newsletter_links(html):
     return broken
 
 
+RESEND_SLEEP = 0.6        # stay under Resend's ~2 req/sec rate limit
+RESEND_MAX_RETRIES = 4
+
+
 def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subject, html, site):
     results = []
     for email in to_emails:
@@ -199,24 +204,39 @@ def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subj
             results.append((email, "blocked", "dry-run"))
             continue
         personalized = personalize_html(html, email, site)
-        resp = requests.post(
-            "https://api.resend.com/emails",
-            headers={
-                "Authorization": f"Bearer {resend_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "from": f"{from_name} <{from_email}>",
-                "to": [email],
-                "reply_to": reply_to,
-                "subject": subject,
-                "html": personalized,
-            },
-        )
+        payload = {
+            "from": f"{from_name} <{from_email}>",
+            "to": [email],
+            "reply_to": reply_to,
+            "subject": subject,
+            "html": personalized,
+        }
+        # Resend allows ~2 requests/second. Without the throttle below this loop
+        # blew straight through it and every 429 was filed as "failed" and the
+        # subscriber silently dropped: 2026-09-06 lost 113 of 225 that way.
+        # send_coach_launch.py has had the same sleep since it was written.
+        for attempt in range(RESEND_MAX_RETRIES):
+            resp = requests.post(
+                "https://api.resend.com/emails",
+                headers={
+                    "Authorization": f"Bearer {resend_key}",
+                    "Content-Type": "application/json",
+                },
+                json=payload,
+            )
+            if resp.status_code == 429:
+                backoff = RESEND_SLEEP * (2 ** attempt) + 1.0
+                print(f"  429 rate limited on {email}, retrying in {backoff:.1f}s")
+                time.sleep(backoff)
+                continue
+            break
         if resp.status_code == 200:
             results.append((email, "sent", resp.json().get("id", "")))
+        elif resp.status_code == 429:
+            results.append((email, "failed", f"429 rate limited after {RESEND_MAX_RETRIES} attempts"))
         else:
-            results.append((email, "failed", resp.text[:100]))
+            results.append((email, "failed", f"{resp.status_code} {resp.text[:90]}"))
+        time.sleep(RESEND_SLEEP)
     return results
 
 
@@ -287,6 +307,18 @@ def main():
     for email, status, detail in results:
         icon = "✅" if status == "sent" else "❌"
         print(f"  {icon} {email} — {detail[:60]}")
+
+    if failed:
+        pct = failed * 100 // max(len(results), 1)
+        print("")
+        print("=" * 62)
+        print(f"  {failed} of {len(results)} SUBSCRIBERS DID NOT RECEIVE THIS ({pct}%)")
+        print("  These addresses were skipped, not queued. Nothing retries them.")
+        print("=" * 62)
+        for email, status, detail in results:
+            if status == "failed":
+                print(f"  MISSED: {email} — {detail[:70]}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
