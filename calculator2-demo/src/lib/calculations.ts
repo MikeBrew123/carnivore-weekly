@@ -70,7 +70,24 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
   if (isLowCarbDiet) {
     const heightM = heightCmVal / 100
     const bmi = weightKg / (heightM * heightM)
-    const proteinBasisKg = bmi >= 30 ? 25 * heightM * heightM : weightKg
+    // Goal weight, when the reader gives one, is the protein basis. That is the
+    // house standard (0.8-1.0 g per lb of GOAL weight) and it replaces the
+    // BMI>=30 proxy below, which only ever existed as a stand-in for the goal
+    // weight we never asked for. Two guards on it: floored at BMI 18.5 so an
+    // unrealistically low goal cannot cut the protein target (under-eating
+    // protein while losing weight is the failure mode we write against), and
+    // the same BMI>=30 proxy still caps a goal set that high. No goal weight
+    // means the old path, unchanged, so existing sessions price identically.
+    const goalLb = Number(fd.goalWeight) || 0
+    const goalKg = goalLb > 0 ? goalLb * 0.453592 : 0
+    let proteinBasisKg: number
+    if (goalKg > 0) {
+      const goalBmi = goalKg / (heightM * heightM)
+      const floorKg = 18.5 * heightM * heightM
+      proteinBasisKg = goalBmi >= 30 ? 25 * heightM * heightM : Math.max(goalKg, floorKg)
+    } else {
+      proteinBasisKg = bmi >= 30 ? 25 * heightM * heightM : weightKg
+    }
     protein = Math.round(proteinBasisKg * 2)
     const proteinCals = protein * 4
     // Keto and Low-Carb get a 20g carb budget; carnivore/lion/pescatarian are
@@ -166,6 +183,27 @@ export function calculateMacros(
 
   console.log('[calculateMacros] Output - Calories:', calories, 'Protein:', protein, 'Fat:', fat, 'Carbs:', carbs)
   return { calories: Math.round(calories), protein, fat, carbs, tdee: Math.round(tdee) }
+}
+
+/**
+ * Suggested goal-weight range for a height, in lbs (BMI 20-25).
+ * Shown as a hint next to the goal weight field so a reader has a sane
+ * anchor before they type. It is a suggestion, never a limit: the field
+ * accepts whatever they enter, and the protein floor in
+ * calculateMacrosCanonical is what actually protects the number.
+ */
+export function suggestedGoalWeightLb(heightCm: number): { low: number; high: number } | null {
+  if (!heightCm || heightCm < 90 || heightCm > 250) return null
+  const heightM = heightCm / 100
+  const toLb = (bmi: number) => Math.round((bmi * heightM * heightM) / 0.453592 / 5) * 5
+  return { low: toLb(20), high: toLb(25) }
+}
+
+/** True when a goal weight sits below the healthy-range floor (BMI 18.5). */
+export function isGoalWeightBelowRange(goalLb: number, heightCm: number): boolean {
+  if (!goalLb || !heightCm) return false
+  const heightM = heightCm / 100
+  return goalLb * 0.453592 < 18.5 * heightM * heightM
 }
 
 export function imperialToCm(feet: number, inches: number): number {

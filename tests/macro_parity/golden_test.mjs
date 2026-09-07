@@ -87,6 +87,7 @@ export function grid() {
             // 2026-08-30 when a lowcarb math change produced a zero-case diff).
             if (n++ % 5 === 0) cases.push({ ...b, ...a, ...g, ...d, ...t });
           }
+
   // Branch-critical cases that must never be sampled out:
   cases.push(
     {},                                                       // all defaults
@@ -94,6 +95,32 @@ export function grid() {
     { weight: 200, heightCm: 0, sex: 'male', age: 30, diet: 'carnivore' }, // heightCm 0 sentinel -> ft/in default
     { weight: 168, sex: 'female', age: 57, lifestyle: 'sedentary', goal: 'lose', deficit: 0, diet: 'keto' }, // falsy-0 deficit
   );
+
+  // Goal weight (2026-09-06): protein basis when present. Every case below is
+  // NEW - no existing case carries goalWeight, so the pre-existing golden
+  // entries must not move at all when this ships.
+  const goalWeights = [
+    // 5'4" female, 168 lb: realistic goal, goal above current, BMI-30 goal, and
+    // a fantasy goal that must clamp to the BMI 18.5 floor rather than cut protein.
+    { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'carnivore', goalWeight: 140 },
+    { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'keto', goalWeight: 140 },
+    { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'carnivore', goalWeight: 95 },  // below floor
+    { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'carnivore', goalWeight: 60 },  // far below floor
+    { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'carnivore', goalWeight: 175 }, // goal above current
+    // 312 lb male: goal weight must override the BMI>=30 proxy (ISSUE-069 path)
+    { sex: 'male', age: 64, heightFeet: 5, heightInches: 10, weight: 312, goal: 'lose', diet: 'carnivore', goalWeight: 200 },
+    { sex: 'male', age: 64, heightFeet: 5, heightInches: 10, weight: 312, goal: 'lose', diet: 'carnivore', goalWeight: 230 }, // goal still BMI>=30 -> proxy caps it
+    // metric height, and a gain goal
+    { sex: 'female', age: 45, heightCm: 165, weight: 240, goal: 'lose', diet: 'lowcarb', goalWeight: 160 },
+    { sex: 'male', age: 22, heightCm: 183, weight: 160, goal: 'gain', deficit: 10, diet: 'carnivore', goalWeight: 185 },
+    // non-low-carb diet: goal weight must NOT touch the 1.6g/kg branch
+    { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'vegan', goalWeight: 140 },
+    // junk values must fall back to current weight, not crash or zero out
+    { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'carnivore', goalWeight: 0 },
+    { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'carnivore', goalWeight: '' },
+    { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'carnivore', goalWeight: 'abc' },
+  ];
+  cases.push(...goalWeights);
   return cases;
 }
 

@@ -34,6 +34,8 @@ const defaultForm: FormData = {
   heightCm: undefined,
   weight: undefined,
   weightKg: undefined,
+  goalWeight: undefined,
+  goalWeightKg: undefined,
 
   // Step 2: Activity
   lifestyle: undefined,
