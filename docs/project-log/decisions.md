@@ -336,3 +336,85 @@ verifies asset references resolve.
 
 **Not changed:** the stale root-level `blog/` mirror, which is not deployed (GitHub Pages serves
 `./public` only) and was last touched 2026-08-16. It still carries the old slug and headline.
+
+### 2026-09-07: the February carnivore food list post was upgraded in place, slug untouched
+
+**Approval.** Brew, by dictation on 2026-09-07 at 07:42 PDT, Otter recording "Website Strategy and
+Updates", responding to the suggested move in that morning's CEO brief: "Let's see your suggestion
+about upgrade the February carnivore weekly food list. That's a good idea. I say go for it. If it's
+already tracking on Google and it's already what we're looking for, weird that nobody's clicking on
+it. So yeah, let's let's upgrade that and get it moving."
+
+**The carnivore-vs-keto fork was checked first.** In the same dictation Brew also said that keto
+content on Carnivore Weekly should move to KetoDial. The February post
+(`2026-02-09-carnivore-food-list-complete`) is unambiguously carnivore: meat, fish, eggs, organ
+meats, animal fats, and an explicit avoid-list covering grains, vegetables, fruit, legumes, nuts,
+and all sweeteners. No net-carb framing anywhere. So it was upgraded in place rather than moved.
+The separate `public/low-carb-food-list.html` page, which really was keto content, was already
+moved to ketodial.com on 09-03/04 and is a meta-refresh stub; it was left alone.
+
+**Performance data that shaped the rewrite.** Search Console, `sc-domain:carnivoreweekly.com`,
+90 days to 2026-09-06: 871 impressions, 1 click, average position 71.5 across 168 queries. Last
+28 days is better than the 90-day average (29 impressions, position 34.1) but still zero clicks.
+The query set showed four gaps the old post did not answer:
+
+- **The vocabulary people actually search.** "dirty carnivore food list", "strict carnivore diet
+  food list", "modified carnivore diet food list", "relaxed carnivore diet food list", "carnivore
+  diet types", "carnivore diet variations". The post used its own Tier 1/2/3 language and never
+  said any of those words.
+- **"Can I eat X" long tail.** lettuce, corn, peanut butter, cottage cheese. Roughly 15 queries
+  with no on-page answer at all.
+- **Grocery and printable intent**, which held the page's best positions: "carnivore diet food
+  list pdf" (45), "carnivore grocery list" (48), "grocery list for carnivore diet" (53).
+- **Dairy detail.** "carnivore diet cheese list" sat at position 38, the strongest position on the
+  page, against a nine-line bullet list.
+
+**What changed.** Content grew from 17.7k to 36k characters, HTML from 46KB to 68KB, 8 H2s to 15.
+New sections: a 60-second answer block at the top, a types-of-carnivore table naming lion, strict,
+standard, relaxed/modified, dirty, and animal-based; separate H2s for eggs and for dairy with a
+nine-row cheese table including cottage cheese; a fats and oils section; an explicit "are vegetables
+ever allowed" subsection; a 14-row "can I eat this" quick-answer table; a carnivore staples section;
+and a visible 8-question FAQ mirrored into FAQPage schema. Internal links went from 3 to 15, all
+verified to resolve on disk, pointing at the calculator plus lion diet, ground beef budget, eggs,
+cheese stall, organ dosing, nose-to-tail, tallow, seasonings, coffee, electrolytes, protein, and
+budget guide posts. Title changed to "Carnivore Diet Food List: What to Eat, Avoid, and Buy",
+meta description rewritten to 143 chars, `date_modified` set to 2026-09-07 so Article schema
+reflects the update, sitemap lastmod bumped by hand from 2026-02-09 to 2026-09-07.
+
+**Four corrections shipped with it.**
+
+1. Beef liver was listed as "Vitamin A (53,000 IU per lb), B12 (1,200% DV)". USDA FoodData Central
+   puts raw beef liver near 16,900 IU of vitamin A per 100g, which is roughly 76,700 IU per pound,
+   so the old figure understated it badly and per-pound is a unit nobody eats in. Restated per
+   4 ounce serving: roughly 19,000 IU vitamin A and well over 1,000 percent DV for B12.
+2. Canned tuna was capped at "2-3 cans/week" for all tuna. FDA and EPA 2021 advice puts canned
+   light skipjack in Best Choices at 2 to 3 servings a week and albacore and yellowfin in Good
+   Choices at 1 serving a week. Split into two rows and stated in the body. FDA advice page added
+   to the references.
+3. Beef heart was called the "Highest natural source of CoQ10". Softened to one of the richest.
+4. A stray `</div>` in the stored content closed the post-content container early, leaving the page
+   unbalanced at 33 open to 34 close and orphaning the closing beef tallow paragraph outside the
+   article body. Removed. The rendered page now balances at 34/34.
+
+**Presentation.** The site has no table CSS anywhere, in `global.css`, `blog-post.css`, or the
+template, so this post's seven tables were rendering as bare browser defaults. A scoped `<style>`
+block for `.food-table`, `.tier-label`, `.table-scroll`, and `.quick-answer` now ships inside this
+post's content only, so no other page is touched. Verified in a browser at 375px: the tables sit in
+a 311px scroll container around a 520px table, and `document.documentElement.scrollWidth` stays at
+375, so the page body does not scroll sideways.
+
+**Verification.** `npm test` runs zero tests: all 28 suites are Playwright specs failing to load
+under Jest, which is pre-existing and unrelated. `validate_before_commit.py` returns 0 critical and
+6 warnings, all pre-existing and on other pages. `validate_canonicals.py` passes on 252 files. All
+three JSON-LD blocks parse, sitemap.xml and feed.xml parse. The rendered HTML was diffed against the
+JSON rather than trusted, per the 2026-09-02 note about auto-inserted wiki links: the generator
+inserted none into this post.
+
+**Not changed, deliberately.** The slug and URL, because the page is already tracking and a rename
+would force a redirect and a re-index. The Etsy printable card block, including its $4.49 price,
+because pricing is out of scope. The `blog_post_template_2026.html` affiliate disclaimer, which
+carries the site's only em-dash on every one of 289 pages: a one-character template fix, but it
+regenerates every page and was not part of this approval. Flagged for a separate pass.
+
+**Branch.** Work landed on `calculator-goal-weight`, which was already checked out with unpushed
+work. Not merged to main.
