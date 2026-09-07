@@ -26363,5 +26363,238 @@
    "fat_grams": 79,
    "carbs_grams": 20
   }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 57,
+   "heightFeet": 5,
+   "heightInches": 4,
+   "weight": 168,
+   "goal": "lose",
+   "diet": "carnivore",
+   "goalWeight": 140
+  },
+  "output": {
+   "calories": 1652,
+   "protein_grams": 127,
+   "fat_grams": 127,
+   "carbs_grams": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 57,
+   "heightFeet": 5,
+   "heightInches": 4,
+   "weight": 168,
+   "goal": "lose",
+   "diet": "keto",
+   "goalWeight": 140
+  },
+  "output": {
+   "calories": 1652,
+   "protein_grams": 127,
+   "fat_grams": 118,
+   "carbs_grams": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 57,
+   "heightFeet": 5,
+   "heightInches": 4,
+   "weight": 168,
+   "goal": "lose",
+   "diet": "carnivore",
+   "goalWeight": 95
+  },
+  "output": {
+   "calories": 1652,
+   "protein_grams": 98,
+   "fat_grams": 140,
+   "carbs_grams": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 57,
+   "heightFeet": 5,
+   "heightInches": 4,
+   "weight": 168,
+   "goal": "lose",
+   "diet": "carnivore",
+   "goalWeight": 60
+  },
+  "output": {
+   "calories": 1652,
+   "protein_grams": 98,
+   "fat_grams": 140,
+   "carbs_grams": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 57,
+   "heightFeet": 5,
+   "heightInches": 4,
+   "weight": 168,
+   "goal": "lose",
+   "diet": "carnivore",
+   "goalWeight": 175
+  },
+  "output": {
+   "calories": 1652,
+   "protein_grams": 132,
+   "fat_grams": 125,
+   "carbs_grams": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "male",
+   "age": 64,
+   "heightFeet": 5,
+   "heightInches": 10,
+   "weight": 312,
+   "goal": "lose",
+   "diet": "carnivore",
+   "goalWeight": 200
+  },
+  "output": {
+   "calories": 2742,
+   "protein_grams": 181,
+   "fat_grams": 224,
+   "carbs_grams": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "male",
+   "age": 64,
+   "heightFeet": 5,
+   "heightInches": 10,
+   "weight": 312,
+   "goal": "lose",
+   "diet": "carnivore",
+   "goalWeight": 230
+  },
+  "output": {
+   "calories": 2742,
+   "protein_grams": 158,
+   "fat_grams": 234,
+   "carbs_grams": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 45,
+   "heightCm": 165,
+   "weight": 240,
+   "goal": "lose",
+   "diet": "lowcarb",
+   "goalWeight": 160
+  },
+  "output": {
+   "calories": 2150,
+   "protein_grams": 145,
+   "fat_grams": 166,
+   "carbs_grams": 20
+  }
+ },
+ {
+  "input": {
+   "sex": "male",
+   "age": 22,
+   "heightCm": 183,
+   "weight": 160,
+   "goal": "gain",
+   "deficit": 10,
+   "diet": "carnivore",
+   "goalWeight": 185
+  },
+  "output": {
+   "calories": 3008,
+   "protein_grams": 168,
+   "fat_grams": 260,
+   "carbs_grams": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 57,
+   "heightFeet": 5,
+   "heightInches": 4,
+   "weight": 168,
+   "goal": "lose",
+   "diet": "vegan",
+   "goalWeight": 140
+  },
+  "output": {
+   "calories": 1652,
+   "protein_grams": 122,
+   "fat_grams": 55,
+   "carbs_grams": 167
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 57,
+   "heightFeet": 5,
+   "heightInches": 4,
+   "weight": 168,
+   "goal": "lose",
+   "diet": "carnivore",
+   "goalWeight": 0
+  },
+  "output": {
+   "calories": 1652,
+   "protein_grams": 152,
+   "fat_grams": 116,
+   "carbs_grams": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 57,
+   "heightFeet": 5,
+   "heightInches": 4,
+   "weight": 168,
+   "goal": "lose",
+   "diet": "carnivore",
+   "goalWeight": ""
+  },
+  "output": {
+   "calories": 1652,
+   "protein_grams": 152,
+   "fat_grams": 116,
+   "carbs_grams": 0
+  }
+ },
+ {
+  "input": {
+   "sex": "female",
+   "age": 57,
+   "heightFeet": 5,
+   "heightInches": 4,
+   "weight": 168,
+   "goal": "lose",
+   "diet": "carnivore",
+   "goalWeight": "abc"
+  },
+  "output": {
+   "calories": 1652,
+   "protein_grams": 152,
+   "fat_grams": 116,
+   "carbs_grams": 0
+  }
  }
 ]

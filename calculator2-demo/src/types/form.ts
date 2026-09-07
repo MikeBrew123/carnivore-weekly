@@ -8,6 +8,11 @@ export interface FormData {
   weight: number
   weightKg?: number
 
+  // Goal weight (optional). Protein is calculated off this when present.
+  // goalWeight is always lbs; goalWeightKg is the metric display value.
+  goalWeight?: number
+  goalWeightKg?: number
+
   // Step 2: Fitness & Diet
   lifestyle: string
   exercise: string

@@ -1910,7 +1910,24 @@ function calculateMacros(formData) {
     // total weight - 2g/kg of total weight told a 312 lb customer to eat 283g/day.
     const heightM = heightCmVal / 100;
     const bmi = weightKg / (heightM * heightM);
-    const proteinBasisKg = bmi >= 30 ? 25 * heightM * heightM : weightKg;
+    // Goal weight, when the reader gives one, is the protein basis. That is the
+    // house standard (0.8-1.0 g per lb of GOAL weight) and it replaces the
+    // BMI>=30 proxy below, which only ever existed as a stand-in for the goal
+    // weight we never asked for. Two guards on it: floored at BMI 18.5 so an
+    // unrealistically low goal cannot cut the protein target (under-eating
+    // protein while losing weight is the failure mode we write against), and
+    // the same BMI>=30 proxy still caps a goal set that high. No goal weight
+    // means the old path, unchanged, so existing sessions price identically.
+    const goalLb = Number(formData.goalWeight) || 0;
+    const goalKg = goalLb > 0 ? goalLb * 0.453592 : 0;
+    let proteinBasisKg;
+    if (goalKg > 0) {
+      const goalBmi = goalKg / (heightM * heightM);
+      const floorKg = 18.5 * heightM * heightM;
+      proteinBasisKg = goalBmi >= 30 ? 25 * heightM * heightM : Math.max(goalKg, floorKg);
+    } else {
+      proteinBasisKg = bmi >= 30 ? 25 * heightM * heightM : weightKg;
+    }
     protein = Math.round(proteinBasisKg * 2);
     const proteinCals = protein * 4;
 

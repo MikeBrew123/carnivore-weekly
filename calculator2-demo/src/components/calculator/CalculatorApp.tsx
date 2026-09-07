@@ -240,7 +240,7 @@ export default function CalculatorApp({
         console.error('Macro calculation error:', error)
       }
     }
-  }, [formData.sex, formData.age, formData.weight, formData.heightFeet, formData.heightInches, formData.heightCm, formData.lifestyle, formData.exercise, formData.goal, formData.deficit, formData.diet])
+  }, [formData.sex, formData.age, formData.weight, formData.goalWeight, formData.heightFeet, formData.heightInches, formData.heightCm, formData.lifestyle, formData.exercise, formData.goal, formData.deficit, formData.diet])
 
   // Persist step data to backend. Navigation is never blocked on this (the
   // caller does not await), but each write now retries once so a transient

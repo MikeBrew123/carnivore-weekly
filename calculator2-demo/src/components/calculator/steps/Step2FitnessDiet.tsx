@@ -1,6 +1,8 @@
 import { FormData } from '../../../types/form'
 import SelectField from '../shared/SelectField'
 import RadioGroup from '../shared/RadioGroup'
+import FormField from '../shared/FormField'
+import { imperialToCm, suggestedGoalWeightLb, isGoalWeightBelowRange } from '../../../lib/calculations'
 
 interface Step2FitnessDietProps {
   data: FormData
@@ -21,6 +23,13 @@ export default function Step2FitnessDiet({
   onSetErrors,
   errors,
 }: Step2FitnessDietProps) {
+  // Goal weight is optional, but when it is given it becomes the protein basis,
+  // so the reader gets a suggested range to anchor on first.
+  const isMetric = data.heightCm !== undefined
+  const heightCm = data.heightCm || imperialToCm(data.heightFeet || 0, data.heightInches || 0)
+  const suggested = suggestedGoalWeightLb(heightCm)
+  const goalBelowRange = isGoalWeightBelowRange(Number(data.goalWeight) || 0, heightCm)
+
   const handleInputChange = (field: string, value: any) => {
     onDataChange({ ...data, [field]: value })
     // Clear error for this field if it has a value
@@ -128,6 +137,58 @@ export default function Step2FitnessDiet({
           error={errors.deficit}
           required
         />
+      )}
+
+      {/* Goal Weight (optional) - the protein basis when provided */}
+      {(data.goal === 'lose' || data.goal === 'gain') && (
+        <div style={{ maxWidth: '280px' }}>
+          {isMetric ? (
+            <FormField
+              id="goalWeightKg"
+              name="goalWeightKg"
+              type="number"
+              label="Goal Weight (kg, optional)"
+              value={data.goalWeightKg || ''}
+              onChange={(e) => {
+                const kg = parseInt(e.target.value) || undefined
+                onDataChange({
+                  ...data,
+                  goalWeightKg: kg,
+                  goalWeight: kg ? Math.round(kg * 2.205) : undefined,
+                })
+              }}
+              placeholder="e.g., 70"
+              min={30}
+              max={250}
+            />
+          ) : (
+            <FormField
+              id="goalWeight"
+              name="goalWeight"
+              type="number"
+              label="Goal Weight (lbs, optional)"
+              value={data.goalWeight || ''}
+              onChange={(e) => handleInputChange('goalWeight', parseInt(e.target.value) || '')}
+              placeholder={suggested ? `e.g., ${suggested.low}` : 'e.g., 165'}
+              min={60}
+              max={500}
+            />
+          )}
+
+          <p style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px', color: '#a3a3a3', marginTop: '8px', lineHeight: '1.5' }}>
+            {suggested
+              ? `We set your protein off this number, not your current weight. Most people your height land somewhere between ${suggested.low} and ${suggested.high} lbs. Leave it blank and we will use your current weight.`
+              : 'We set your protein off this number, not your current weight. Leave it blank and we will use your current weight.'}
+          </p>
+
+          {goalBelowRange && (
+            <div style={{ backgroundColor: '#0f0f0f', border: '1px solid #665500', borderRadius: '8px', padding: '12px', marginTop: '10px' }}>
+              <p style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '14px', color: '#f5f5f5', margin: 0, lineHeight: '1.5' }}>
+                That is below the healthy range for your height. We will keep your protein at the floor for that range so you are not under-eating it, and this is worth a conversation with your doctor.
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
       {data.goal === 'maintain' && (
