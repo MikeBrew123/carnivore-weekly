@@ -63,6 +63,113 @@
  * that reached step 2 as LOST, not as empty. Fail closed.
  */
 
+// ---------------------------------------------------------------------------
+// THE VOCABULARY BRIDGE
+// ---------------------------------------------------------------------------
+// `calculator_sessions_v2` is shared with Carnivore Weekly and carries CHECK
+// constraints written for CW's answer vocabulary. KetoDial's step-2 selects have no
+// `value` attributes, so the browser submits the OPTION TEXT — "A little bothers me",
+// "Basic — I can follow a recipe", "About 30 min/day", "Just me", "mod".
+//
+// Every one of those violates a constraint, and one of them also exceeds
+// varchar(20). PostgREST rejects the whole PATCH, `handleSessionUpdate` returns 500,
+// and `updateSession()` in ketodial.js is fire-and-forget with `.catch(warn)`.
+//
+// So KetoDial's medical screen has NEVER been persisted. Verified against the real
+// table on 2026-09-08: every live KD row shows step_completed=3 with medications,
+// symptoms, dairy_tolerance, cooking_skill, budget and biggest_challenge all NULL —
+// because they died with the same rejected write.
+//
+// That was survivable while nothing read the row. It stops being survivable the
+// moment the row becomes authoritative: validateIntake would refuse every customer,
+// so the checkout guard would have declined 100% of KetoDial purchases.
+//
+// These tables are the fix, and they are deliberately a TRANSLATION, not a
+// relaxation. CW's constraints stay exactly as strict as they were.
+//
+// The read side matters as much as the write side: reports.js decides dairy handling
+// by substring ("free", "strict", "little", "bother"), so storing the bare enum and
+// handing it straight to the generator would silently change which meals a customer
+// gets. Each enum maps back to a phrase that reproduces today's behaviour exactly.
+
+/** KetoDial's option text -> the vocabulary the shared table accepts. */
+const KD_TO_DB = {
+  dairy_tolerance: {
+    'i love dairy': 'full',
+    'i tolerate it fine': 'full',
+    'a little bothers me': 'some',
+    'strict dairy-free': 'none',
+  },
+  cooking_skill: {
+    'microwave only': 'beginner',
+    'basic — i can follow a recipe': 'beginner',
+    'basic - i can follow a recipe': 'beginner',
+    'confident in the kitchen': 'intermediate',
+    'chef-level': 'advanced',
+  },
+  meal_prep_time: {
+    'under 15 min/day': 'minimal',
+    'about 30 min/day': 'some',
+    'i batch on weekends': 'lots',
+    'i love cooking': 'lots',
+  },
+  family_situation: {
+    'just me': 'solo',
+    'me + my partner': 'partner',
+    'a family with kids': 'family-with-kids',
+    'i cook for others / caregiver': 'large-household',
+  },
+  budget: { tight: 'tight', mod: 'moderate', flex: 'flexible' },
+};
+
+/** The stored enum -> a phrase reports.js interprets the way it always has. */
+const DB_TO_REPORT = {
+  dairy_tolerance: {
+    none: 'strict dairy-free',
+    // "free" keeps shouldFilterOutFood's dairy handling on, which is the intent.
+    'butter-only': 'butter only, otherwise dairy-free',
+    some: 'a little bothers me',
+    full: 'fine with dairy',
+  },
+  cooking_skill: { beginner: 'Basic', intermediate: 'Confident in the kitchen', advanced: 'Chef-level' },
+  meal_prep_time: { minimal: 'Under 15 min/day', some: 'About 30 min/day', lots: 'I batch on weekends' },
+  family_situation: {
+    solo: 'Just me', partner: 'Me + my partner',
+    'family-with-kids': 'A family with kids', 'large-household': 'I cook for others',
+  },
+  // reports.js compares against 'tight' and 'generous'; anything else reads as
+  // moderate. Mapping back preserves that exactly.
+  budget: { tight: 'tight', moderate: 'mod', flexible: 'flex' },
+};
+
+/**
+ * Translate one KetoDial answer for storage.
+ *
+ * Returns `undefined` when the value does not map. The caller OMITS the field rather
+ * than failing the write: these five are personalization preferences, none of them is
+ * a required fact, and losing one costs a slightly less tailored meal plan. Failing
+ * the write costs the customer's medications, conditions and symptoms, which is what
+ * has actually been happening.
+ */
+export function toStoredVocabulary(field, value) {
+  const table = KD_TO_DB[field];
+  if (!table) return value;
+  if (value === undefined || value === null) return undefined;
+  const key = String(value).trim().toLowerCase();
+  if (key === '') return undefined;
+  // Already in the stored vocabulary (a replayed row, or a value CW wrote).
+  if (Object.values(table).includes(key)) return key;
+  return table[key];
+}
+
+/** Translate a stored value back into what the report generators expect. */
+function fromStoredVocabulary(field, value) {
+  if (value === undefined || value === null) return undefined;
+  const table = DB_TO_REPORT[field];
+  if (!table) return String(value);
+  return table[String(value).trim().toLowerCase()] ?? String(value);
+}
+
 /** Thrown whenever a report cannot be honestly generated. Never caught into a default. */
 export class IntakeError extends Error {
   /**
@@ -212,11 +319,14 @@ export function normalizeIntake(row) {
     // Preferences. Absence degrades personalisation; it does not make the
     // document dishonest, so these are not required facts.
     diets: listOrLost(row.previous_diets) ?? [],
-    dairy: textOrLost(row.dairy_tolerance) ?? '',
-    cooking: textOrLost(row.cooking_skill) ?? '',
-    prepTime: textOrLost(row.meal_prep_time) ?? '',
-    cookingFor: textOrLost(row.family_situation) ?? '',
-    budget: textOrLost(row.budget) ?? '',
+    // Translated back out of the shared table's vocabulary. See THE VOCABULARY
+    // BRIDGE above: handing reports.js the bare enum would quietly change which
+    // meals a dairy-sensitive customer is given.
+    dairy: fromStoredVocabulary('dairy_tolerance', row.dairy_tolerance) ?? '',
+    cooking: fromStoredVocabulary('cooking_skill', row.cooking_skill) ?? '',
+    prepTime: fromStoredVocabulary('meal_prep_time', row.meal_prep_time) ?? '',
+    cookingFor: fromStoredVocabulary('family_situation', row.family_situation) ?? '',
+    budget: fromStoredVocabulary('budget', row.budget) ?? '',
     challenge: textOrLost(row.biggest_challenge) ?? '',
   };
 }

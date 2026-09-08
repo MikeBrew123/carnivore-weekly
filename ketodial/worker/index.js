@@ -42,16 +42,33 @@ import {
   generateMealPlan,
   generateStarterKit,
 } from './reports.js';
-import { IntakeError, loadAuthoritativeIntake } from './intake.js';
+import { IntakeError, loadAuthoritativeIntake, toStoredVocabulary } from './intake.js';
 import { deriveKdMedicalContext, allowedProducts } from './reports.js';
 
-const PRICE_MAP = {
+const PRICE_MAP_LIVE = {
   doctor: 'price_1TcvcxEVDfkpGz8w3XZgaWjN',
   meal: 'price_1TcvcyEVDfkpGz8wIVkjBfBA',
   starter: 'price_1TcvczEVDfkpGz8wNMsXPD4d',
   essentials: 'price_1Tcvd0EVDfkpGz8wft66SJ6g',
   protocol: 'price_1Tcvd0EVDfkpGz8wCtiZSJT6',
 };
+
+/**
+ * Price IDs, overridable per environment.
+ *
+ * The live IDs above are the default, so production behaviour is unchanged when
+ * PRICE_MAP_JSON is unset — which it is in production. The override exists so an
+ * integration test can drive the REAL handleCheckout against Stripe TEST mode
+ * instead of asserting against a stub: live price IDs do not resolve in test mode,
+ * and a checkout test that never reaches Stripe proves nothing about the metadata
+ * shape, which is the thing this product got wrong.
+ */
+function priceMap(env) {
+  if (env && env.PRICE_MAP_JSON) {
+    try { return JSON.parse(env.PRICE_MAP_JSON); } catch { /* fall through to live */ }
+  }
+  return PRICE_MAP_LIVE;
+}
 
 // Bundle → individual items mapping
 const BUNDLE_EXPAND = {
@@ -213,13 +230,21 @@ async function handleSessionUpdate(request, env) {
     setIfSent('conditions', b.conditions);
     setIfSent('symptoms', b.symptoms);
     setIfSent('medications', b.medications);
-    setIfSent('cooking_skill', b.cooking_skill);
-    setIfSent('meal_prep_time', b.meal_prep_time);
-    setIfSent('budget', b.budget);
-    setIfSent('family_situation', b.family_situation);
+    // TRANSLATED, NOT PASSED THROUGH. These five columns carry CHECK constraints
+    // written for Carnivore Weekly's vocabulary, and KetoDial's selects submit their
+    // option TEXT. Every KD value violates one, so this PATCH has been returning 500
+    // in production and taking conditions, medications, symptoms and
+    // step_completed=2 down with it. See THE VOCABULARY BRIDGE in intake.js.
+    // An unmappable preference is OMITTED, never allowed to fail the whole write:
+    // losing a preference costs personalization, losing the write costs the
+    // customer's medications.
+    setIfSent('cooking_skill', toStoredVocabulary('cooking_skill', b.cooking_skill));
+    setIfSent('meal_prep_time', toStoredVocabulary('meal_prep_time', b.meal_prep_time));
+    setIfSent('budget', toStoredVocabulary('budget', b.budget));
+    setIfSent('family_situation', toStoredVocabulary('family_situation', b.family_situation));
     setIfSent('biggest_challenge', b.biggest_challenge);
     setIfSent('previous_diets', b.previous_diets);
-    setIfSent('dairy_tolerance', b.dairy_tolerance);
+    setIfSent('dairy_tolerance', toStoredVocabulary('dairy_tolerance', b.dairy_tolerance));
     setIfSent('lifestyle_activity', b.lifestyle_activity);
     // A customer may go back and change this. Only the three real answers are
     // accepted; anything else leaves the stored value alone rather than clearing it.
@@ -241,6 +266,9 @@ async function handleSessionUpdate(request, env) {
     );
     if (!res.ok) {
       const err = await res.text();
+      // Loud on purpose. This write silently 500ed in production for months because
+      // the only caller swallows failures; the log line is what makes it findable.
+      console.error(`Session update REJECTED for ${b.token}: ${err}`);
       return jsonResponse(500, { error: err });
     }
     return jsonResponse(200, { ok: true });
@@ -472,6 +500,7 @@ async function handleCheckout(request, env) {
       });
     }
 
+    const PRICE_MAP = priceMap(env);
     const line_items = items.map(key => ({
       price: PRICE_MAP[key],
       quantity: 1,

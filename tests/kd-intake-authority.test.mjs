@@ -67,6 +67,7 @@ const KD_PUBLIC_JS = path.join(REPO, 'ketodial', 'public', 'ketodial.js');
 
 const {
   IntakeError, normalizeIntake, validateIntake, requireFacts, loadAuthoritativeIntake,
+  toStoredVocabulary,
 } = await import('file://' + INTAKE_JS);
 const { generateDoctorReport, generateMealPlan, generateStarterKit,
         deriveKdMedicalContext, allowedProducts } = await import('file://' + REPORTS_JS);
@@ -257,6 +258,16 @@ const ENV = { SUPABASE_URL: 'https://stub.invalid', SUPABASE_SERVICE_ROLE_KEY: '
 
   check('B', 'the browser persists lifestyle_activity, which the Doctor\'s Report prints',
     /lifestyle_activity:/.test(clientCode), '');
+
+  // The vocabulary bridge, guarded at the source level too: without it the write
+  // that carries conditions and medications is rejected by the shared table.
+  check('B', "KetoDial's option text is translated before it reaches the shared table",
+    /toStoredVocabulary\('dairy_tolerance'/.test(worker) &&
+    /toStoredVocabulary\('cooking_skill'/.test(worker) &&
+    /toStoredVocabulary\('budget'/.test(worker),
+    'a raw KD select value is being written into a CW-constrained column again');
+  check('B', 'a rejected session update is logged, not swallowed',
+    /Session update REJECTED/.test(worker), '');
 
   check('B', 'session updates record an answer by PRESENCE, not truthiness',
     /setIfSent\(/.test(workerCode) && !/if \(b\.medications\) updates\.medications/.test(workerCode),
@@ -608,6 +619,66 @@ for (const c of MALFORMED_CASES) {
 }
 
 // ===========================================================================
+// GROUP J — THE VOCABULARY BRIDGE.
+// ---------------------------------------------------------------------------
+// calculator_sessions_v2 is shared with Carnivore Weekly and its CHECK constraints
+// encode CW's vocabulary. KetoDial's step-2 selects have no `value` attributes, so
+// the browser submits the option TEXT. Verified against the real table on
+// 2026-09-08: every KD value violates a constraint, PostgREST rejects the whole
+// PATCH, and conditions + medications + symptoms + step_completed=2 die with it.
+// Every live KD row shows exactly that damage.
+//
+// The translation must be lossless in BOTH directions: reports.js decides dairy
+// handling by substring, so storing the bare enum and handing it to the generator
+// would quietly change which meals a dairy-sensitive customer receives.
+// ===========================================================================
+{
+  const cases = [
+    ['dairy_tolerance', 'A little bothers me', 'some', 'a little bothers me'],
+    ['dairy_tolerance', 'Strict dairy-free', 'none', 'strict dairy-free'],
+    ['dairy_tolerance', 'I love dairy', 'full', 'fine with dairy'],
+    ['cooking_skill', 'Basic — I can follow a recipe', 'beginner', 'Basic'],
+    ['cooking_skill', 'Chef-level', 'advanced', 'Chef-level'],
+    ['meal_prep_time', 'About 30 min/day', 'some', 'About 30 min/day'],
+    ['family_situation', 'Just me', 'solo', 'Just me'],
+    ['budget', 'mod', 'moderate', 'mod'],
+    ['budget', 'flex', 'flexible', 'flex'],
+    ['budget', 'tight', 'tight', 'tight'],
+  ];
+  const COLUMN_TO_INTAKE = {
+    dairy_tolerance: 'dairy', cooking_skill: 'cooking',
+    meal_prep_time: 'prepTime', family_situation: 'cookingFor', budget: 'budget',
+  };
+  for (const [field, kdValue, stored, backOut] of cases) {
+    check('J', `"${kdValue}" is stored as "${stored}"`,
+      toStoredVocabulary(field, kdValue) === stored,
+      `got ${toStoredVocabulary(field, kdValue)}`);
+    const intake = normalizeIntake({ ...ROW, [field]: stored });
+    check('J', `  ...and reads back as "${backOut}" for the generators`,
+      intake[COLUMN_TO_INTAKE[field]] === backOut,
+      `got ${intake[COLUMN_TO_INTAKE[field]]}`);
+  }
+
+  // Behaviour preservation is the point, not the strings.
+  const dairyCase = (stored) => normalizeIntake({ ...ROW, dairy_tolerance: stored }).dairy.toLowerCase();
+  check('J', 'a dairy-free customer still reads as dairy-free to the meal builder',
+    /free|none|strict/.test(dairyCase('none')), '');
+  check('J', 'a dairy-sensitive customer still reads as dairy-light',
+    /light|little|bother/.test(dairyCase('some')), '');
+  check('J', 'a dairy-fine customer reads as neither',
+    !/free|none|strict|light|little|bother/.test(dairyCase('full')), '');
+
+  // An unmappable preference is omitted, never allowed to fail the write that
+  // carries the medical answers.
+  check('J', 'an unrecognised preference yields undefined, so the caller can omit it',
+    toStoredVocabulary('budget', 'lavish') === undefined, '');
+  check('J', 'an already-stored value passes through unchanged (replay safety)',
+    toStoredVocabulary('budget', 'moderate') === 'moderate', '');
+  check('J', 'an empty answer is omitted rather than written as an invalid value',
+    toStoredVocabulary('cooking_skill', '') === undefined, '');
+}
+
+// ===========================================================================
 // GROUP G — MUTATION TESTING.
 // ---------------------------------------------------------------------------
 // A passing suite is not evidence. Each protection is broken on purpose against a
@@ -814,6 +885,7 @@ const GROUPS = {
   F: 'requireFacts backstop',
   H: 'early renal gate: what we show and what we sell',
   I: 'persistence: one source of truth',
+  J: 'vocabulary bridge to the shared table',
   G: 'mutation testing',
 };
 for (const [g, title] of Object.entries(GROUPS)) {

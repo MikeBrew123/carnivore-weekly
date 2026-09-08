@@ -966,3 +966,65 @@ normal-flow rule. The **paid** report has no such leak: the whole macro panel is
 
 ### Not done
 Production NOT deployed. The migration IS applied to Supabase (additive, nullable, no backfill).
+
+---
+
+## 2026-09-08 — AUDIT 2B #4c: real-interface proof, and the bug it found
+
+### The finding that justified the whole exercise
+**KetoDial's step-2 medical intake has NEVER been persisted.** Verified against the real table.
+
+`calculator_sessions_v2` is shared with Carnivore Weekly and carries CHECK constraints written for
+CW's answer vocabulary. KetoDial's step-2 `<select>` elements have **no `value` attributes**, so the
+browser submits the option TEXT. Every one violates a constraint, and one also exceeds varchar(20):
+
+| Field | KD sends | Shared table allows | Result |
+|---|---|---|---|
+| `dairy_tolerance` | "A little bothers me" | none / butter-only / some / full | 23514 |
+| `cooking_skill` | "Basic — I can follow a recipe" | beginner / intermediate / advanced | 22001 + 23514 |
+| `meal_prep_time` | "About 30 min/day" | minimal / some / lots | 23514 |
+| `family_situation` | "Just me" | solo / partner / family-with-kids / large-household | 23514 |
+| `budget` | "mod" / "flex" | tight / moderate / flexible | 23514 |
+
+PostgREST rejects the **whole PATCH**, so `conditions`, `medications`, `symptoms` and
+`step_completed = 2` die with it. `updateSession()` is fire-and-forget with `.catch(warn)`, so nobody
+saw it. Every live KD row shows exactly that damage: `step_completed=3` with the medical columns NULL.
+
+Survivable while nothing read the row. **Fatal the moment the row became authoritative:**
+`validateIntake` would have refused every customer and the checkout guard would have declined 100% of
+KetoDial purchases. Stubbed tests could not have found this — they stub the thing that was broken.
+
+### The fix: a vocabulary bridge, not a relaxation
+`toStoredVocabulary()` translates KD's option text into the shared table's vocabulary on write;
+`fromStoredVocabulary()` translates back on read. **CW's constraints are untouched.**
+
+The read half matters as much as the write half: `reports.js` decides dairy handling by substring
+("free", "strict", "little", "bother"), so storing the bare enum and handing it to the generator would
+silently change which meals a dairy-sensitive customer receives. Each enum maps back to a phrase that
+reproduces today's behaviour exactly, and the suite asserts the behaviour, not the strings.
+
+An unmappable preference is **omitted**, never allowed to fail the write. Losing a preference costs
+personalization; losing the write costs the customer's medications.
+
+Also: a rejected session update now logs `Session update REJECTED`. Silence is what let this run for months.
+
+### Which Supabase environment — stated plainly
+The 2026-09-08 `kidney_status` migration was applied to **`kwtdpvnjewtahuxjyltn` ("CarnivoreWeekly"),
+which is the PRODUCTION database.** It is the only Supabase project on the account; there is no
+staging. Saying "production was not deployed" in the same report was true of the workers and Pages and
+**misleading about the database**. The schema change is additive and nullable with no backfill, so it
+is not being reverted, but the audit history should record it accurately.
+
+A preview branch costs $0.01344/hour. That is spend, and spend is Brew's call, so the integration run
+used production with rows tagged `source='kd-audit2b-test'`, emails at the reserved `@audit2b.invalid`
+TLD, and cleanup that fails the run if anything survives. Verified afterwards: 0 tagged rows, 0 test
+emails, 0 probe rows, 20 real KD rows untouched.
+
+### Stripe
+**No Stripe object was created.** The only test key in the vault (`stripe.secret_key_test`, last
+rotated 2026-01-06) is EXPIRED — `/v1/balance` returns "Expired API Key provided" — and the Stripe MCP
+server is not authorized in this session. Using the LIVE key was rejected: a live-mode Checkout Session
+is a production artifact. The Stripe leg is proven at the HTTP boundary instead, asserting the exact
+bytes `handleCheckout` serializes. **Rotating the test key upgrades this to a true end-to-end with no
+code change.** `PRICE_MAP` is now env-overridable (`PRICE_MAP_JSON`) so test-mode prices can be used;
+production behaviour is unchanged when it is unset.
