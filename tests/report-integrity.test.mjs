@@ -76,14 +76,18 @@ const BASE_FORM = {
 };
 
 const PERSONAS = [
-  // The real one. Reproduces the 2026-09-07 report that produced the complaint:
-  // lowercase diet, no mealsPerDay key, goal 'gain' alongside a weightloss goal.
-  { id: 'JUDITH', name: 'Reported case: 67F, carnivore, no mealsPerDay, goal=gain',
+  // The shape of the 2026-09-07 report that produced the complaint, reconstructed from
+  // its INPUT STRUCTURE only. Deliberately carries no customer identity, free text, or
+  // health detail: this repo is public, and the properties that reproduce the bugs are
+  // structural. Those properties are: a lowercase diet string, no mealsPerDay key at
+  // all, an authoritative goal of 'gain' sitting alongside 'weightloss' in the
+  // motivations multi-select, and a low bodyweight that keeps portions near the 150g
+  // floor so the Eggs food-database entry enters the rotation in grams.
+  { id: 'REPORTED', name: 'Reported case shape: 67F, carnivore, no mealsPerDay, goal=gain',
     form: { ...BASE_FORM, age: 67, weight: 120, heightFeet: 5, heightInches: 4,
             lifestyle: 'light', diet: 'carnivore', goal: 'gain', deficit: 10,
             goals: ['mental', 'weightloss', 'energy'], budget: 'moderate',
-            avoidFoods: 'I can tolerate full fat dairy, I think, but not whole milk, yogurt, etc.',
-            otherSymptoms: 'pelvic floor prolapse', familySituation: 'partner' } },
+            avoidFoods: '', otherSymptoms: '', familySituation: 'partner' } },
 
   { id: 'M1', name: 'OMAD: 1 meal/day',
     form: { ...BASE_FORM, mealsPerDay: 1 } },
@@ -124,6 +128,24 @@ const PERSONAS = [
 
   { id: 'AVOID', name: 'Avoids pork and lamb: neither may appear in either document',
     form: { ...BASE_FORM, avoidFoods: 'pork, lamb', mealsPerDay: 3 } },
+
+  // Goal controls. GAIN is the positive control: it exists so that "delete the word
+  // gain everywhere" cannot pass this suite. LOSE and MAINT are the negative controls.
+  { id: 'GAIN', name: 'Positive control: muscle-gain persona must still read as gain',
+    form: { ...BASE_FORM, goal: 'gain', deficit: 10, mealsPerDay: 2 } },
+
+  { id: 'LOSE', name: 'Negative control: fat-loss persona, zero gain language',
+    form: { ...BASE_FORM, goal: 'lose', deficit: 20, mealsPerDay: 2 } },
+
+  { id: 'MAINT', name: 'Negative control: maintenance persona',
+    form: { ...BASE_FORM, goal: 'maintain', mealsPerDay: 2 } },
+
+  // Forces the Eggs food-database entry into the rotation as a gram-denominated
+  // protein ("423g Eggs") alongside the counted "2 Eggs" extra, which is the exact
+  // collision that produced "Eggs - 660 (55 dozen)".
+  { id: 'EGGMIX', name: 'Counted eggs AND gram-denominated eggs in the same week',
+    form: { ...BASE_FORM, age: 67, weight: 118, heightFeet: 5, heightInches: 4,
+            lifestyle: 'light', diet: 'carnivore', goal: 'gain', deficit: 10 } },
 ];
 
 // ---------------------------------------------------------------------------
@@ -148,11 +170,14 @@ const {
   __test_generateAllReports: generateAllReports,
   __test_generateFullMealPlan: generateFullMealPlan,
   __test_generateGroceryListByWeek: generateGroceryListByWeek,
+  __test_resolveGoal: resolveGoal,
+  __test_convertQuantity: convertQuantity,
+  __test_GRAMS_PER_EGG: GRAMS_PER_EGG,
 } = api;
 
 for (const [name, fn] of Object.entries({
   buildReportData, calculateMacros, generateAllReports,
-  generateFullMealPlan, generateGroceryListByWeek,
+  generateFullMealPlan, generateGroceryListByWeek, resolveGoal, convertQuantity,
 })) {
   if (typeof fn !== 'function') {
     console.error(`FATAL: api/calculator-api.js no longer exports ${name}.`);
@@ -327,12 +352,159 @@ for (const p of PERSONAS) {
   // calories "support fat loss". The header was the honest one. Whatever the reader
   // picked, the sections must not contradict each other about it.
   // -----------------------------------------------------------------------
-  const focus = calendar.match(/Focus:\s*([a-z]+)/i);
+  const canonical = resolveGoal(data);
+  const wholeReport = Object.keys(rendered[p.id].sections)
+    .sort((a, b) => a - b).map(k => rendered[p.id].sections[k]).filter(Boolean).join('\n\n');
+
+  const focus = calendar.match(/Focus:\s*([^*|\n]+)/i);
   check(p.id, 'C', 'calendar names a focus', !!focus, 'no "Focus:" line in report #3');
   if (focus) {
-    check(p.id, 'C', `calendar focus "${focus[1]}" matches data.goal "${data.goal}"`,
-      String(focus[1]).toLowerCase() === String(data.goal).toLowerCase(),
-      `header says ${focus[1]}, the macros were computed for ${data.goal}`);
+    check(p.id, 'C', `calendar focus reads "${canonical.label}"`,
+      focus[1].trim() === canonical.label,
+      `header says "${focus[1].trim()}", canonical goal is "${canonical.label}" (raw: ${data.goal})`);
+  }
+
+  // The raw enum must never reach the reader. "Focus: gain" and "results for gain"
+  // were both the {{goal}} placeholder printing an internal token.
+  for (const token of ['lose', 'gain', 'maintain']) {
+    const leaked = new RegExp(`(Focus|results for|Goal):\\s*${token}\\b`, 'i').test(wholeReport);
+    check(p.id, 'C', `raw enum "${token}" does not leak into customer-facing prose`,
+      !leaked, `an internal goal token is being printed to the reader`);
+  }
+
+  // Directional language must match the arithmetic. This is the assertion that would
+  // have caught a surplus being described as fat loss.
+  const OPPOSITE = {
+    lose:     [/\bcalorie surplus\b/i, /\bmuscle gain\b/i],
+    gain:     [/\bcalorie deficit\b/i, /\bsupports fat loss\b/i],
+    maintain: [/\bcalorie surplus\b/i, /\bcalorie deficit\b/i],
+  }[canonical.key];
+  for (const re of OPPOSITE) {
+    const m = wholeReport.match(re);
+    check(p.id, 'C', `no "${re.source}" in a ${canonical.label} report`, !m,
+      m ? `found "${m[0]}" in a report whose macros are ${canonical.direction}` : '');
+  }
+
+  // Positive control. A gain reader must still be told it is gain: a blanket removal
+  // of the word would pass every negative assertion above and fail here.
+  if (canonical.key === 'gain') {
+    check(p.id, 'C', 'a gain persona still reads as Muscle Gain',
+      /Muscle Gain/.test(wholeReport),
+      'the gain label vanished; a blanket string replacement would do exactly this');
+  }
+
+  // The label and the arithmetic come from the same field, by construction.
+  const macroCal = data.macros.calories;
+  check(p.id, 'C', 'the goal label and the calorie target agree in direction',
+    canonical.key === 'maintain' || macroCal > 0,
+    `calories ${macroCal} for ${canonical.label}`);
+
+  // -----------------------------------------------------------------------
+  // GROUP F — egg units. "Eggs" arrives two ways in one week: counted ("2 Eggs")
+  // and gram-denominated ("423g Eggs", the food database has an Eggs protein entry).
+  // Summing those without conversion shipped "Eggs - 660 (55 dozen)" to a customer.
+  // -----------------------------------------------------------------------
+  for (let week = 1; week <= 4; week++) {
+    const secs = shoppingSections(shopping, week);
+    const eggLine = Object.values(secs).flat().find(l => /^Eggs\b/.test(l));
+    const rows = calendarRows(calendar, week);
+    const cells = rows.flatMap(r => r.slice(1));
+
+    // What the meals actually schedule, computed independently of the aggregator.
+    let expected = 0;
+    for (const cell of cells) {
+      for (const m of cell.matchAll(/(\d+)\s+Eggs\b/g)) expected += parseInt(m[1], 10);
+      for (const m of cell.matchAll(/(\d+)\s*g\s+Eggs\b/g)) expected += parseInt(m[1], 10) / GRAMS_PER_EGG;
+    }
+
+    if (expected === 0) {
+      check(p.id, 'F', `week ${week}: no eggs scheduled, none listed`,
+        !eggLine, `list says "${eggLine}" but no meal this week contains eggs`);
+      continue;
+    }
+
+    check(p.id, 'F', `week ${week}: eggs are on the list`, !!eggLine,
+      `${Math.ceil(expected)} eggs are scheduled but the list has no egg line`);
+    if (!eggLine) continue;
+
+    const count = parseInt((eggLine.match(/-\s*(\d+)/) || [])[1], 10);
+
+    // The actual conversion path, not just a sanity range.
+    check(p.id, 'F', `week ${week}: egg count is derived, not summed across units`,
+      count === Math.ceil(expected),
+      `list says ${count}, meals schedule ${expected.toFixed(2)} (-> ${Math.ceil(expected)}). ` +
+      `A blind sum of counts and grams would give ` +
+      `${cells.join(' ').match(/\d+(?=\s*g?\s+Eggs)/g)?.reduce((a, b) => a + +b, 0)}`);
+
+    // Independent upper bound, so an absurd figure fails even if the maths above is
+    // ever weakened. 7 days of eggs for one person cannot plausibly exceed this.
+    const MAX_EGGS_PER_WEEK = 60;
+    check(p.id, 'F', `week ${week}: egg count is physically plausible`,
+      count > 0 && count <= MAX_EGGS_PER_WEEK,
+      `list says ${count} eggs for one week (the shipped bug said 660)`);
+
+    // Grams must never be printed as a count.
+    const gramsThisWeek = cells.join(' ').match(/(\d+)\s*g\s+Eggs\b/g) || [];
+    if (gramsThisWeek.length) {
+      const rawGrams = gramsThisWeek.reduce((a, t) => a + parseInt(t, 10), 0);
+      check(p.id, 'F', `week ${week}: gram-denominated eggs were converted`,
+        count < rawGrams,
+        `list count ${count} is not below the raw gram total ${rawGrams}; grams are being counted as eggs`);
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // GROUP G — meal columns reflect the actual meal structure.
+  // -----------------------------------------------------------------------
+  {
+    const declared = p.form.mealsPerDay;
+    const header = (calendar.match(/\|\s*Day\s*\|([^\n]*)\|/) || [])[1];
+    const cols = header ? header.split('|').map(c => c.trim()).filter(Boolean) : [];
+    const expectCols = declared || 2;   // production default when never collected
+
+    check(p.id, 'G', `calendar renders exactly ${expectCols} meal column(s)`,
+      cols.length === expectCols,
+      `header columns = [${cols.join(', ')}] for a ${expectCols}-meal plan`);
+
+    if (expectCols === 2) {
+      check(p.id, 'G', 'a 2-meal plan renders Meal 1 / Meal 2, not Breakfast/Lunch/Dinner',
+        cols.join('|') === 'Meal 1|Meal 2',
+        `columns are [${cols.join(', ')}]`);
+      check(p.id, 'G', 'a 2-meal plan has no Lunch column at all',
+        !cols.includes('Lunch'), 'an empty Lunch column is being rendered');
+    }
+    if (expectCols === 3) {
+      check(p.id, 'G', 'a 3-meal plan renders Breakfast / Lunch / Dinner',
+        cols.join('|') === 'Breakfast|Lunch|Dinner',
+        `columns are [${cols.join(', ')}]`);
+    }
+    if (expectCols === 1) {
+      check(p.id, 'G', 'a 1-meal plan renders a single meal column',
+        cols.length === 1, `columns are [${cols.join(', ')}]`);
+    }
+
+    // No fabricated meals: the number of populated cells must equal the column count.
+    for (let week = 1; week <= 4; week++) {
+      for (const row of calendarRows(calendar, week)) {
+        check(p.id, 'G', `week ${week} ${row[0]}: ${expectCols} populated meal(s)`,
+          row.slice(1).filter(c => c && c !== '-').length === expectCols,
+          `row: ${row.join(' | ')}`);
+      }
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // GROUP H — no placeholder or malformed value reached the reader.
+  // -----------------------------------------------------------------------
+  {
+    const body = [calendar, shopping].join('\n');
+    for (const bad of ['undefined', 'null', '[object Object]', 'NaN', '{{']) {
+      check(p.id, 'H', `no "${bad}" in the calendar or shopping list`,
+        !body.includes(bad),
+        `found: ${body.split('\n').find(l => l.includes(bad))?.slice(0, 120)}`);
+    }
+    check(p.id, 'H', 'no zero or negative quantities on the shopping list',
+      !/-\s*(0|-\d)(\s|$)/.test(shopping), 'a quantity rounded to zero or below');
   }
 
   // -----------------------------------------------------------------------
@@ -448,6 +620,41 @@ for (const p of PERSONAS) {
     'the grocery builder is choosing food again instead of aggregating meals');
 }
 
+// D6. Unit conversion is explicit and fails loudly. Nothing may infer a unit from a
+// bare number, and an unknown pair must throw rather than fall through to a sum.
+{
+  check('-', 'D', 'grams of egg convert to a count via GRAMS_PER_EGG',
+    convertQuantity(GRAMS_PER_EGG * 3, 'g', 'each', 'Eggs') === 3,
+    'the gram-to-egg conversion is not using the named constant');
+  check('-', 'D', 'identity conversion is a no-op',
+    convertQuantity(7, 'each', 'each', 'Eggs') === 7, '');
+
+  let threw = false;
+  try { convertQuantity(5, 'cup', 'g', 'Mystery Ingredient'); } catch { threw = true; }
+  check('-', 'D', 'an unknown unit pair throws instead of guessing', threw,
+    'convertQuantity silently accepted a conversion it has no rule for');
+
+  // An ingredient emitted without a unit must stop aggregation, not be assumed.
+  let threwNoUnit = false;
+  try {
+    generateGroceryListByWeek({}, { weeks: [{ weekNumber: 1, days: [
+      { dayNumber: 1, items: [{ name: 'Mystery', category: 'Beef', qty: 100 }] }] }] });
+  } catch { threwNoUnit = true; }
+  check('-', 'D', 'an item with no unit is rejected', threwNoUnit,
+    'a unitless ingredient was aggregated as if the number meant something');
+
+  // The exact shipped bug, as a unit test: counted and gram eggs in one week.
+  const eggWeek = { weeks: [{ weekNumber: 1, days: [
+    { dayNumber: 1, items: [{ name: 'Eggs', category: 'Eggs', unit: 'each', qty: 2 }] },
+    { dayNumber: 2, items: [{ name: 'Eggs', category: 'Eggs', unit: 'g', qty: 423 }] },
+  ] }] };
+  const eggs = generateGroceryListByWeek({}, eggWeek).week1.eggs[0];
+  const expected = Math.ceil(2 + 423 / GRAMS_PER_EGG);
+  check('-', 'D', `counted + gram eggs aggregate to ${expected}, not 425`,
+    eggs && eggs.qty === expected,
+    `got ${eggs ? eggs.qty : 'nothing'}; a blind sum gives 425`);
+}
+
 // D5. No OTHER file in api/ may grow a grocery generator that picks its own food.
 // api/generate-report.js is a dormant copy of the pre-2026-09-08 worker: it is not
 // deployed (api/wrangler.toml points at calculator-api.js) but it still contains the
@@ -469,6 +676,24 @@ for (const p of PERSONAS) {
   check('-', 'D', 'no second grocery generator has appeared in api/',
     offenders.length === 0,
     `these files build a shopping list by picking food instead of aggregating meals: ${offenders.join(', ')}`);
+
+  // Same sweep for the goal: no file may print the raw enum at the customer.
+  const goalOffenders = [];
+  for (const f of fs.readdirSync(apiDir)) {
+    if (!f.endsWith('.js') || KNOWN_DORMANT.has(f)) continue;
+    const src = fs.readFileSync(path.join(apiDir, f), 'utf8');
+    if (/\{\\\{goal\\\}\\\}\/g,\s*data\.goal/.test(src)) goalOffenders.push(f);
+  }
+  check('-', 'D', 'no file renders the raw goal enum to the customer',
+    goalOffenders.length === 0,
+    `these files print an internal goal token at the reader: ${goalOffenders.join(', ')}. ` +
+    `Render resolveGoal(data).label instead.`);
+
+  // The live worker must resolve the goal through the single canonical function.
+  const live = fs.readFileSync(API, 'utf8');
+  check('-', 'D', 'the deployed worker renders the goal through resolveGoal()',
+    /\{\\\{goal\\\}\\\}\/g,\s*resolveGoal\(data\)\.label/.test(live),
+    'the {{goal}} placeholder is no longer going through the canonical resolver');
 }
 
 // ---------------------------------------------------------------------------

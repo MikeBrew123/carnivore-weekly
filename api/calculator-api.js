@@ -1832,6 +1832,37 @@ async function handleEmailReport(request, env) {
  * Calculate macros from form data (mirrors frontend calculation)
  */
 /**
+ * THE canonical goal for a reader. Every customer-facing mention of the goal, and the
+ * calorie direction, must come from here.
+ *
+ * Why this exists: the report used to render {{goal}} as the raw enum, so a reader saw
+ * "Focus: gain" in report #3 and "promising results for gain" in report #8. Separately,
+ * buildProfile() handed the model TWO fields one screen apart: `goal` (the single
+ * radio: Fat Loss / Maintenance / Muscle Gain) and `goals` (a multi-select of
+ * motivations that can include "weightloss"). A reader whose macros were computed as a
+ * 10% surplus received a Mission Brief describing her calories as supporting fat loss,
+ * because the model resolved the contradiction the other way.
+ *
+ * `goal` is authoritative: it is the field calculateMacros() consumes, so it is the one
+ * the arithmetic in the report already reflects. `goals` is motivation, not direction.
+ * This function does not decide between them; it names which is which.
+ */
+function resolveGoal(source) {
+  const raw = String(source?.goal ?? 'maintain').toLowerCase().trim();
+  // 'loss' is accepted because older sessions stored it; calculateMacros accepts it too.
+  const key = (raw === 'lose' || raw === 'loss') ? 'lose'
+            : raw === 'gain' ? 'gain'
+            : 'maintain';
+  const LABELS = { lose: 'Fat Loss', maintain: 'Maintenance', gain: 'Muscle Gain' };
+  const DIRECTIONS = {
+    lose: 'a calorie deficit',
+    maintain: 'calorie maintenance',
+    gain: 'a calorie surplus',
+  };
+  return { key, label: LABELS[key], direction: DIRECTIONS[key] };
+}
+
+/**
  * Assemble the object every report section is rendered from.
  *
  * Extracted out of handleReportInit() on 2026-09-07 so that the adversarial
@@ -2583,6 +2614,58 @@ const NON_MEAT_EXTRAS = [
   ['Salt',                 { name: 'Salt',              category: 'Pantry',  unit: 'each', qty: 1 }],
 ];
 
+/**
+ * UNIT NORMALIZATION
+ * ------------------
+ * Every aggregated ingredient carries an explicit unit. Nothing infers a unit from a
+ * bare number. This exists because "Eggs" legitimately arrives two ways in the same
+ * week: as a counted extra ("2 Eggs") and as a gram-portioned rotation protein
+ * ("423g Eggs", the food database has an Eggs entry with protein per 100g). Summing
+ * those without conversion produced a real shopping list that read
+ * "Eggs - 660 (55 dozen)". Grams were being counted as eggs.
+ */
+
+/** One large egg, edible portion. The single place grams of egg become a count. */
+const GRAMS_PER_EGG = 50;
+/** One tablespoon of butter. The single place grams of butter become tablespoons. */
+const GRAMS_PER_TBSP_BUTTER = 14;
+
+/**
+ * The unit an ingredient is aggregated and shopped in, decided by category so that the
+ * same ingredient always lands in the same unit no matter which meal branch produced it.
+ */
+function canonicalUnitFor(item) {
+  if (item.category === 'Eggs') return 'each';   // you buy eggs by the egg
+  if (item.category === 'Dairy') return 'tbsp';  // butter accumulates per meal in tbsp
+  if (item.category === 'Produce') return item.unit; // avocado halves, cups of greens
+  return 'g';                                    // meat and fish
+}
+
+/**
+ * Convert one item's quantity into `to`. Every accepted pair is listed explicitly.
+ * An unlisted pair throws rather than guessing: a silent wrong conversion is exactly
+ * the failure this table exists to prevent.
+ */
+function convertQuantity(qty, from, to, itemName) {
+  if (from === to) return qty;
+  const key = `${from}->${to}`;
+  const conversions = {
+    'g->each': g => g / GRAMS_PER_EGG,              // eggs only; see canonicalUnitFor
+    'each->g': n => n * GRAMS_PER_EGG,
+    'g->tbsp': g => g / GRAMS_PER_TBSP_BUTTER,      // butter only
+    'tbsp->g': t => t * GRAMS_PER_TBSP_BUTTER,
+  };
+  const fn = conversions[key];
+  if (!fn) {
+    throw new Error(
+      `grocery aggregation: no conversion from "${from}" to "${to}" for "${itemName}". ` +
+      `Add one to convertQuantity() with a named constant, or give the ingredient a ` +
+      `unit it can actually be shopped in. Do not let this fall through to a bare sum.`
+    );
+  }
+  return fn(qty);
+}
+
 // ============================================================================
 // 4. GROCERY LIST GENERATOR
 // ============================================================================
@@ -2630,34 +2713,51 @@ function generateGroceryListByWeek(data, mealPlan) {
 
     for (const day of (week.days || [])) {
       for (const item of (day.items || [])) {
+        if (!item.unit) {
+          throw new Error(`grocery aggregation: "${item.name}" has no unit. Every item a ` +
+            `meal emits must declare one; see canonicalUnitFor().`);
+        }
         const key = item.name;
+        const unit = canonicalUnitFor(item);
+        const qty = convertQuantity(item.qty, item.unit, unit, item.name);
         const seen = totals.get(key);
-        if (seen) seen.qty += item.qty;
-        else totals.set(key, { ...item });
+        if (seen) {
+          // Two entries for one ingredient must already agree on the canonical unit.
+          // If they do not, the category is inconsistent and the sum would be nonsense.
+          if (seen.unit !== unit) {
+            throw new Error(`grocery aggregation: "${item.name}" resolved to both ` +
+              `"${seen.unit}" and "${unit}". One ingredient, one canonical unit.`);
+          }
+          seen.qty += qty;
+        } else {
+          totals.set(key, { ...item, unit, qty });
+        }
       }
     }
 
     const all = [...totals.values()];
     const fmtEach = n => (n === 1 ? '1' : String(n));
 
-    // Meats: everything measured in grams that is not an egg.
+    // Meats and fish: aggregated in grams, shopped in pounds.
     const proteins = all
       .filter(i => i.unit === 'g' && i.category !== 'Eggs')
       .map(i => ({ ...i, quantity: lbs(roundUpHalfLb(i.qty)) }));
 
-    // Eggs are counted, not weighed, and are sold by the dozen.
+    // Eggs: aggregated as a count (grams already converted via GRAMS_PER_EGG), sold
+    // by the dozen. Round up once, here, rather than per item.
     const eggs = all
       .filter(i => i.category === 'Eggs')
-      .map(i => ({ ...i, quantity: `${i.qty} (${Math.ceil(i.qty / 12)} dozen)` }));
+      .map(i => {
+        const count = Math.ceil(i.qty);
+        return { ...i, qty: count, quantity: `${count} (${Math.ceil(count / 12)} dozen)` };
+      });
 
-    // Fats: butter arrives as tbsp across the week.
+    // Fats: butter aggregated in tbsp, shopped in pounds.
     const fats = all
       .filter(i => i.category === 'Dairy')
       .map(i => ({
         ...i,
-        quantity: i.unit === 'tbsp'
-          ? lbs(Math.max(0.5, Math.ceil((i.qty / BUTTER_TBSP_PER_LB) * 2) / 2))
-          : '1 lb'
+        quantity: lbs(Math.max(0.5, Math.ceil((i.qty / BUTTER_TBSP_PER_LB) * 2) / 2))
       }));
 
     const produce = all
@@ -3646,7 +3746,9 @@ function replacePlaceholders(template, data) {
   result = result.replace(/\{\{lastName\}\}/g, data.lastName || '');
   result = result.replace(/\{\{diet\}\}/g, data.selectedProtocol || 'Carnivore');
   result = result.replace(/\{\{selectedProtocol\}\}/g, data.selectedProtocol || 'Carnivore');
-  result = result.replace(/\{\{goal\}\}/g, data.goal || 'Health Optimization');
+  // Human label, never the raw enum. "Focus: gain" and "promising results for gain"
+  // were both this line printing an internal token at the customer.
+  result = result.replace(/\{\{goal\}\}/g, resolveGoal(data).label);
   result = result.replace(/\{\{budget\}\}/g, data.budget || 'Moderate');
   result = result.replace(/\{\{mealPrepTime\}\}/g, data.mealPrepTime || 'Some');
   result = result.replace(/\{\{weight\}\}/g, data.weight || '');
@@ -4339,7 +4441,11 @@ function buildProfile(data) {
     // calculateMacros() does not return activityLevel/goal; these come off the form.
     // They previously rendered the literal string "undefined" into every prompt.
     if (data.lifestyle || data.activityLevel) profile.push(`- Activity Level: ${data.activityLevel || data.lifestyle}`);
-    if (data.goal) profile.push(`- Goal: ${data.goal}`);
+    // Stated with its direction so the live-written sections cannot describe these
+    // calories as doing the opposite of what the arithmetic above actually does.
+    const goalInfo = resolveGoal(data);
+    profile.push(`- Goal (authoritative, drives the calorie target above): ${goalInfo.label}`);
+    profile.push(`- The calorie figure above is ${goalInfo.direction}. Do not describe it as anything else.`);
   }
 
   // Allergies & restrictions
@@ -4395,7 +4501,10 @@ function buildProfile(data) {
     profile.push(`\nGOALS & CHALLENGES:`);
     if (data.goals) {
       const goalsList = Array.isArray(data.goals) ? data.goals.join(', ') : data.goals;
-      profile.push(`- Goals: ${goalsList}`);
+      // Motivations, not direction. This multi-select can contain "weightloss" for a
+      // reader whose authoritative goal is Muscle Gain; when they disagree, the Goal
+      // line in MACRO TARGETS wins, because that is the field the macros were built on.
+      profile.push(`- What they want out of this (motivations, NOT the calorie direction): ${goalsList}`);
     }
     if (data.biggestChallenge) profile.push(`- Biggest challenge: ${data.biggestChallenge}`);
     if (data.anythingElse) profile.push(`- Additional info: ${data.anythingElse}`);
@@ -7170,5 +7279,8 @@ export {
   // not just its rendered output: the grocery list must be a pure function of the
   // meal plan. See that file's GROUP D.
   generateFullMealPlan as __test_generateFullMealPlan,
-  generateGroceryListByWeek as __test_generateGroceryListByWeek
+  generateGroceryListByWeek as __test_generateGroceryListByWeek,
+  resolveGoal as __test_resolveGoal,
+  convertQuantity as __test_convertQuantity,
+  GRAMS_PER_EGG as __test_GRAMS_PER_EGG
 };
