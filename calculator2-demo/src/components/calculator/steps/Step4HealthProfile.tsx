@@ -1,3 +1,4 @@
+import GoalConflictResolver from '../GoalConflictResolver'
 import { FormData } from '../../../types/form'
 import FormField from '../shared/FormField'
 import TextArea from '../shared/TextArea'
@@ -386,7 +387,25 @@ export default function Step4HealthProfile({
                 { value: 'hormones', label: 'Hormone balance' },
               ]}
               values={data.goals || []}
-              onChange={(values) => handleInputChange('goals', values)}
+              onChange={(values) => {
+                handleInputChange('goals', values)
+                // Changing the motivations can create a brand new contradiction, or
+                // remove the one that was already answered. Either way the previous
+                // answer no longer describes the current selection, so it is cleared
+                // and asked again rather than carried forward stale.
+                handleInputChange('primaryGoalConfirmed', undefined)
+              }}
+            />
+            <GoalConflictResolver
+              data={data}
+              onResolve={(primaryGoal) => {
+                // The customer's explicit choice becomes the authoritative goal. The
+                // motivations they ticked are kept exactly as they are: they are still
+                // true things the customer wants, they just do not set the calories.
+                handleInputChange('goal', primaryGoal)
+                handleInputChange('primaryGoalConfirmed', true)
+                handleInputChange('primaryGoalConfirmedAt', new Date().toISOString())
+              }}
             />
           </div>
 

@@ -43,6 +43,7 @@ const defaultForm: FormData = {
 
   // Step 3: Goals & Diet
   goal: undefined,
+  primaryGoalConfirmed: undefined,
   deficit: undefined,
   diet: undefined,
   ratio: undefined,

@@ -25,6 +25,8 @@ on:
       - 'tests/report-safety.test.mjs'
       - 'tests/report-integrity.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
+      - 'tests/goal-conflict-flow.test.mjs'
+      - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
       - '.github/workflows/calculator-guard.yml'
@@ -37,6 +39,8 @@ on:
       - 'tests/report-safety.test.mjs'
       - 'tests/report-integrity.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
+      - 'tests/goal-conflict-flow.test.mjs'
+      - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
   workflow_dispatch:
@@ -74,6 +78,10 @@ jobs:
       # if either is ever promoted.
       - name: Deployment tripwire for dormant generators
         run: node tests/deploy-tripwire.test.mjs
+      # The purchase flow: one shared conflict rule, and no path that can take
+      # money while the customer's goal answers contradict each other.
+      - name: Goal-conflict purchase-flow regression
+        run: node tests/goal-conflict-flow.test.mjs
 
   bundle-builds:
     runs-on: ubuntu-latest

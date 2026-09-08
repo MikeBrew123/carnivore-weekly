@@ -48,6 +48,7 @@ import {
   withMedicalFoodExclusions,
   humanizeList
 } from './medical-context.js';
+import { resolveGoal, detectGoalConflict } from './goal-semantics.js';
 
 // Version marker for deployment verification
 const DEPLOY_VERSION = "v2026-06-07-resend-webhook";
@@ -1132,6 +1133,51 @@ async function handleInitiatePayment(request, env) {
     const tier = tiers[0];
 
     // Create payment intent
+    // ===== PAYMENT BOUNDARY (second route) =====
+    // This legacy endpoint records a payment intent rather than charging, and the live
+    // calculator does not call it. It is guarded anyway: it is named a payment
+    // initiation path, calculator_sessions_v2 carries `goal` and `goals` directly, and
+    // an unguarded second door is how the first fix stops applying.
+    // `select=*` on purpose: naming a column that does not exist makes PostgREST
+    // return 400, and a guard that skips itself on a failed read is not a guard.
+    const initiateSessionRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${session_token}&select=*`,
+      { headers: {
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      } }
+    );
+    if (!initiateSessionRes.ok) {
+      console.error('[handleInitiatePayment] cannot read session to validate goals');
+      return createErrorResponse('SESSION_LOOKUP_FAILED', 'Could not validate this session', 500);
+    }
+    const initiateRows = await initiateSessionRes.json();
+    const initiateRow = Array.isArray(initiateRows) ? initiateRows[0] : initiateRows;
+    if (!initiateRow) {
+      return createErrorResponse('SESSION_NOT_FOUND', 'Session not found', 404);
+    }
+    {
+      // primary_goal_confirmed does not exist on this legacy table today, so it reads
+      // as undefined and an unresolved contradiction blocks. That is the correct
+      // default: absence of a recorded decision is not a decision.
+      const conflict = detectGoalConflict({
+        goal: initiateRow.goal,
+        goals: initiateRow.goals,
+        primaryGoalConfirmed: initiateRow.primary_goal_confirmed === true,
+      });
+      if (conflict.blocking) {
+        console.warn('[handleInitiatePayment] refusing payment initiation:', conflict.message);
+        return createErrorResponse('GOAL_CONFLICT_UNRESOLVED', conflict.message, 422, {
+          field: 'goal',
+          primaryGoal: conflict.primary,
+          primaryGoalLabel: conflict.primaryLabel,
+          conflictingMotivations: conflict.conflicting,
+          resolution: 'CONFIRM_PRIMARY_GOAL',
+          charged: false,
+        });
+      }
+    }
+
     const paymentIntentId = `pi_${Math.random().toString(36).substring(2, 26)}`;
 
     // Update session
@@ -1843,99 +1889,11 @@ async function handleEmailReport(request, env) {
  * Calculate macros from form data (mirrors frontend calculation)
  */
 /**
- * THE canonical goal for a reader. Every customer-facing mention of the goal, and the
- * calorie direction, must come from here.
- *
- * Why this exists: the report used to render {{goal}} as the raw enum, so a reader saw
- * "Focus: gain" in report #3 and "promising results for gain" in report #8. Separately,
- * buildProfile() handed the model TWO fields one screen apart: `goal` (the single
- * radio: Fat Loss / Maintenance / Muscle Gain) and `goals` (a multi-select of
- * motivations that can include "weightloss"). A reader whose macros were computed as a
- * 10% surplus received a Mission Brief describing her calories as supporting fat loss,
- * because the model resolved the contradiction the other way.
- *
- * `goal` is authoritative: it is the field calculateMacros() consumes, so it is the one
- * the arithmetic in the report already reflects. `goals` is motivation, not direction.
- * This function does not decide between them; it names which is which.
+ * Goal semantics live in api/goal-semantics.js so the questionnaire and this worker
+ * apply the SAME rule. The customer is asked to resolve a contradiction before
+ * payment; handleCreateCheckout blocks an unresolved one before a charge exists; and
+ * generateAllReports blocks it again as a final backstop. One definition, three gates.
  */
-/**
- * GOAL CONFLICT DETECTION
- * -----------------------
- * The questionnaire asks two different things and stores them in two fields:
- *
- *   goal   a single radio: Fat Loss / Maintenance / Muscle Gain. This is the field
- *          calculateMacros() consumes, so it alone sets the calorie direction.
- *   goals  a multi-select of motivations, which can include "weightloss".
- *
- * Nothing reconciled them. A reader whose `goal` was Muscle Gain, and whose macros
- * were therefore a 10% surplus, also had "weightloss" ticked in `goals`. The live
- * sections then described her surplus as supporting fat loss, because the model was
- * handed both fields and picked the wrong one.
- *
- * Making the prompt clearer is necessary but not sufficient: the right answer to
- * "which of these two contradictory things did you mean" is to ask the reader, not to
- * ask a language model to guess. So generation FAILS CLOSED on an unresolved material
- * contradiction rather than shipping a report that argues with itself.
- *
- * `primaryGoalConfirmed` is how the frontend records that the reader was shown the
- * contradiction and chose. Historical sessions do not have it and are never rewritten;
- * they surface as unresolved, which is accurate.
- */
-const MOTIVATIONS_CONTRADICTING = {
-  // normalized motivation tokens that pull against each primary goal
-  gain:     ['weightloss', 'weight-loss', 'fatloss', 'fat-loss', 'loseweight', 'lose-weight', 'slimdown'],
-  lose:     ['musclegain', 'muscle-gain', 'gainmuscle', 'gain-muscle', 'bulk', 'bulking', 'weightgain', 'weight-gain'],
-  maintain: ['weightloss', 'weight-loss', 'fatloss', 'fat-loss', 'loseweight', 'lose-weight',
-             'musclegain', 'muscle-gain', 'gainmuscle', 'gain-muscle', 'bulk', 'weightgain', 'weight-gain'],
-};
-
-const normalizeMotivation = m => String(m).toLowerCase().trim().replace(/[\s_]+/g, '');
-
-/**
- * @returns {{conflict:boolean, resolved:boolean, blocking:boolean, primary:string,
- *            primaryLabel:string, conflicting:string[], message:string}}
- */
-function detectGoalConflict(data) {
-  const primary = resolveGoal(data);
-  const raw = data?.goals;
-  const motivations = (Array.isArray(raw) ? raw : String(raw ?? '').split(','))
-    .map(normalizeMotivation).filter(Boolean);
-
-  const against = (MOTIVATIONS_CONTRADICTING[primary.key] || []).map(normalizeMotivation);
-  const conflicting = motivations.filter(m => against.includes(m));
-  const conflict = conflicting.length > 0;
-  const resolved = data?.primaryGoalConfirmed === true;
-
-  return {
-    conflict,
-    resolved,
-    blocking: conflict && !resolved,
-    primary: primary.key,
-    primaryLabel: primary.label,
-    conflicting,
-    message: conflict
-      ? `The primary goal is "${primary.label}", which sets the calorie target to ` +
-        `${primary.direction}, but the motivations include ${conflicting.map(c => `"${c}"`).join(', ')}. ` +
-        `These point in opposite directions and the reader has not been asked which should drive ` +
-        `the calorie target.`
-      : '',
-  };
-}
-
-function resolveGoal(source) {
-  const raw = String(source?.goal ?? 'maintain').toLowerCase().trim();
-  // 'loss' is accepted because older sessions stored it; calculateMacros accepts it too.
-  const key = (raw === 'lose' || raw === 'loss') ? 'lose'
-            : raw === 'gain' ? 'gain'
-            : 'maintain';
-  const LABELS = { lose: 'Fat Loss', maintain: 'Maintenance', gain: 'Muscle Gain' };
-  const DIRECTIONS = {
-    lose: 'a calorie deficit',
-    maintain: 'calorie maintenance',
-    gain: 'a calorie surplus',
-  };
-  return { key, label: LABELS[key], direction: DIRECTIONS[key] };
-}
 
 /**
  * Assemble the object every report section is rendered from.
@@ -4993,6 +4951,35 @@ async function handleCreateCheckout(request, env) {
         'MISSING_FORM_DATA',
         'form_data is required and must be an object',
         400
+      );
+    }
+
+    // ===== PAYMENT BOUNDARY =====
+    // The earliest point in the purchase where the server sees the customer's answers
+    // and money has not yet moved: no row inserted, no Stripe session created.
+    //
+    // The questionnaire asks the customer to resolve a contradictory goal before it
+    // ever gets here, but that is a UI affordance and a UI affordance is not
+    // enforcement. A crafted POST straight at this endpoint reaches the same check.
+    //
+    // Failing here means no charge and no half-finished purchase to unwind, which is
+    // the whole reason this moved upstream of the report generator.
+    const checkoutGoalConflict = detectGoalConflict(finalFormData);
+    if (checkoutGoalConflict.blocking) {
+      console.warn('[handleCreateCheckout] refusing checkout:', checkoutGoalConflict.message);
+      return createErrorResponse(
+        'GOAL_CONFLICT_UNRESOLVED',
+        checkoutGoalConflict.message,
+        422,
+        {
+          field: 'goal',
+          primaryGoal: checkoutGoalConflict.primary,
+          primaryGoalLabel: checkoutGoalConflict.primaryLabel,
+          conflictingMotivations: checkoutGoalConflict.conflicting,
+          resolution: 'CONFIRM_PRIMARY_GOAL',
+          // No customer has been charged and no session row exists at this point.
+          charged: false,
+        }
       );
     }
 

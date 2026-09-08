@@ -17,6 +17,10 @@ export interface FormData {
   lifestyle: string
   exercise: string
   goal: 'lose' | 'maintain' | 'gain'
+  // Set ONLY when the customer has been shown a contradiction between `goal` and
+  // `goals` and has explicitly chosen which should set their calorie target.
+  // The worker accepts the literal boolean true and nothing else.
+  primaryGoalConfirmed?: boolean
   deficit: number
   diet: 'carnivore' | 'pescatarian' | 'keto' | 'lowcarb'
   ratio?: string

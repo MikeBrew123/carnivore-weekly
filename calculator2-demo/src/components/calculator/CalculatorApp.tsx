@@ -16,6 +16,7 @@ declare global {
   }
 }
 import StripePaymentModal from '../ui/StripePaymentModal'
+import { detectGoalConflict } from '../../../../api/goal-semantics.js'
 import { AnimatePresence } from 'framer-motion'
 import ReportGeneratingScreen from '../ui/ReportGeneratingScreen'
 
@@ -425,6 +426,20 @@ export default function CalculatorApp({
   }
 
   const handleStep4Submit = async () => {
+    // An unresolved contradiction between the goal radio and the motivations
+    // checklist stops here. This is the customer-facing gate: the same rule runs
+    // server side at /create-checkout and again at report generation, so this is a
+    // courtesy, not the enforcement. Clicking Continue is not an answer to the
+    // question, which is why it is checked rather than assumed.
+    const goalConflict = detectGoalConflict(formData)
+    if (goalConflict.blocking) {
+      setErrors({
+        goals: 'Please tell us which goal your calorie target should be built around.',
+      })
+      document.getElementById('goal-conflict-heading')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+
 
     // Validate email
     if (!formData.email) {
