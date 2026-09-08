@@ -1345,8 +1345,178 @@ for (const c of MALFORMED_CASES) {
 
   check('R', 'the Stripe return URL is no longer hardcoded at the call site',
     !/append\('return_url', 'https:\/\/ketodial\.com/.test(worker), '');
+
+  // The browser leg of the harness rewrites two constants in a COPY of the shipped
+  // calculator. If either moves or changes shape, the harness silently serves a page
+  // pointing at production with the LIVE publishable key — a "test" run that is not
+  // one. Cheap to pin here, and impossible to notice otherwise.
+  {
+    const client = fs.readFileSync(KD_PUBLIC_JS, 'utf8');
+    const apiRe = /var API_BASE='[^']*'/;
+    const pkRe = /var STRIPE_PK='[^']*'/;
+    check('R', 'the harness can still rewrite API_BASE', apiRe.test(client),
+      'the constant moved; the harness would serve the production API base');
+    check('R', 'the harness can still rewrite STRIPE_PK', pkRe.test(client),
+      'the constant moved; the harness would serve the LIVE publishable key');
+    const patched = client.replace(apiRe, "var API_BASE='http://localhost:8797/api'")
+                          .replace(pkRe, "var STRIPE_PK='pk_test_harness'");
+    check('R', 'and the rewrite removes every production surface from the served copy',
+      !/ketodial-api\.iambrew\.workers\.dev/.test(patched.match(apiRe) || [''][0] || '') &&
+      patched.includes("var API_BASE='http://localhost:8797/api'") &&
+      patched.includes("var STRIPE_PK='pk_test_harness'") &&
+      !/var STRIPE_PK='pk_live/.test(patched), '');
+    check('R', 'the shipped file itself still carries the production values',
+      /var API_BASE='https:\/\/ketodial-api\.iambrew\.workers\.dev'/.test(client) &&
+      /var STRIPE_PK='pk_live_/.test(client),
+      'the shipped calculator has been pointed at a test surface');
+  }
   check('R', 'and PRICE_MAP_JSON still defaults to the live price map',
     /return PRICE_MAP_LIVE;/.test(worker), '');
+}
+
+// ===========================================================================
+// GROUP S — THE WEBHOOK BOUNDARY: SIGNATURE, AND PAID-VS-COMPLETED.
+// ---------------------------------------------------------------------------
+// Two production defects, both found in the fifth review of the harness.
+//
+// 1. Verification was `if (env.STRIPE_WEBHOOK_SECRET && sig) { ...verify... }`, so a
+//    request that OMITTED the stripe-signature header skipped it entirely. Anyone
+//    able to POST here could forge a checkout.session.completed carrying any
+//    session_token, write payment_status onto that customer's row, and trigger a
+//    report email to an address of their choosing. Unauthenticated write and send.
+//
+// 2. `checkout.session.completed` was treated as "paid". Stripe's delayed and
+//    asynchronous payment methods complete a Session before the money arrives and
+//    report settlement later via checkout.session.async_payment_succeeded. Treating
+//    the two as one delivers paid reports for a payment that may never settle.
+//
+// Driven through the worker's real fetch handler with genuinely signed requests.
+// ===========================================================================
+{
+  const worker = (await import('file://' + WORKER_JS + '?groupS=' + Date.now())).default;
+  const SECRET = 'whsec_group_s_harness_secret_not_a_real_key';
+
+  // Build a real Stripe-style signature: HMAC-SHA256 over `${t}.${payload}`.
+  const { createHmac } = await import('node:crypto');
+  const sign = (payload, secret = SECRET, t = Math.floor(Date.now() / 1000)) =>
+    `t=${t},v1=${createHmac('sha256', secret).update(`${t}.${payload}`).digest('hex')}`;
+
+  // Supabase and Stripe are stubbed here; this group is about the boundary itself.
+  const realFetch = globalThis.fetch;
+  const sideEffects = { supabaseWrites: 0, emails: 0 };
+  globalThis.fetch = async (url, opts = {}) => {
+    const u = String(url);
+    if (u.includes('calculator_sessions_v2')) {
+      if ((opts.method || 'GET') !== 'GET') sideEffects.supabaseWrites++;
+      return { ok: true, json: async () => [] };
+    }
+    if (u.includes('api.resend.com')) { sideEffects.emails++; return { ok: true, json: async () => ({}) }; }
+    if (u.includes('api.stripe.com')) return { ok: true, json: async () => ({ error: { message: 'stubbed' } }) };
+    throw new Error('GROUP S: unexpected call to ' + u);
+  };
+
+  const ENV_S = { STRIPE_WEBHOOK_SECRET: SECRET, SUPABASE_URL: 'https://stub.invalid',
+                  SUPABASE_SERVICE_ROLE_KEY: 'stub', RESEND_API_KEY: 'stub' };
+
+  const post = async (payload, headers = {}, env = ENV_S) => {
+    const res = await worker.fetch(new Request('https://kd.test/webhook', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: payload,
+    }), env);
+    return { status: res.status, json: await res.json().catch(() => null) };
+  };
+
+  const evt = (type, payment_status) => JSON.stringify({
+    type, data: { object: {
+      id: 'cs_test_group_s', payment_status,
+      customer_email: 'group-s@example.invalid',   // RFC 2606 reserved; cannot receive mail
+      metadata: { items: 'doctor', customer_name: 'S', session_token: 'kd_group_s_token_000000000000' },
+      amount_total: 599, payment_intent: 'pi_group_s',
+    } },
+  });
+
+  // --- signature ---
+  {
+    const body = evt('checkout.session.completed', 'paid');
+    sideEffects.supabaseWrites = 0; sideEffects.emails = 0;
+
+    const noSig = await post(body);
+    check('S', 'a webhook with NO signature header is REJECTED', noSig.status === 400,
+      `status ${noSig.status} — verification is skipped when the header is absent`);
+
+    for (const junk of ['', 'garbage', 't=,v1=', 'v1=only', 't=1']) {
+      const r = await post(body, { 'stripe-signature': junk });
+      check('S', `a malformed signature header is rejected cleanly: ${JSON.stringify(junk)}`,
+        r.status === 400, `status ${r.status} — verification must reject, not throw`);
+    }
+
+    const badSig = await post(body, { 'stripe-signature': 't=1,v1=deadbeef' });
+    check('S', 'a webhook with an INVALID signature is rejected', badSig.status === 400,
+      `status ${badSig.status}`);
+
+    const wrongSecret = await post(body, { 'stripe-signature': sign(body, 'whsec_someone_elses_secret') });
+    check('S', 'a signature from a different secret is rejected', wrongSecret.status === 400, '');
+
+    const tampered = await post(body.replace('599', '1'), { 'stripe-signature': sign(body) });
+    check('S', 'a signature that does not cover the body is rejected', tampered.status === 400, '');
+
+    check('S', 'none of those rejected requests wrote or emailed anything',
+      sideEffects.supabaseWrites === 0 && sideEffects.emails === 0,
+      `${sideEffects.supabaseWrites} writes, ${sideEffects.emails} emails`);
+
+    const noSecret = await post(body, { 'stripe-signature': sign(body) },
+      { ...ENV_S, STRIPE_WEBHOOK_SECRET: '' });
+    check('S', 'a misconfigured secret refuses to process, rather than trusting the event',
+      noSecret.status === 500, `status ${noSecret.status}`);
+
+    const good = await post(body, { 'stripe-signature': sign(body) });
+    check('S', 'a VALID signature is accepted', good.status === 200 || good.status === 500,
+      `status ${good.status} (200 processed, 500 = downstream stub, both mean it got past the gate)`);
+  }
+
+  // --- completed is not paid ---
+  {
+    for (const status of ['unpaid', 'no_payment_required', undefined]) {
+      const body = evt('checkout.session.completed', status);
+      sideEffects.supabaseWrites = 0; sideEffects.emails = 0;
+      const res = await post(body, { 'stripe-signature': sign(body) });
+      check('S', `completed with payment_status=${status} is acknowledged but NOT fulfilled`,
+        res.status === 200 && res.json?.awaiting_payment === true,
+        `status ${res.status} ${JSON.stringify(res.json)}`);
+      check('S', `  ...and writes nothing to the database`,
+        sideEffects.supabaseWrites === 0,
+        `${sideEffects.supabaseWrites} writes for an unsettled payment`);
+      check('S', `  ...and sends no email`, sideEffects.emails === 0, `${sideEffects.emails}`);
+    }
+
+    // OBSERVE THE SIDE EFFECT, not just the status code. Asserting only "not 400 and
+    // not awaiting_payment" was satisfied by the event being ignored entirely and
+    // falling through to the generic {received:true} — so removing async handling
+    // left this green. The paid path writes the payment back; that write is the
+    // evidence that the event was actually processed.
+    const asyncOk = evt('checkout.session.async_payment_succeeded', 'paid');
+    sideEffects.supabaseWrites = 0;
+    const res = await post(asyncOk, { 'stripe-signature': sign(asyncOk) });
+    check('S', 'async_payment_succeeded goes through the SAME paid path',
+      res.status !== 400 && res.json?.awaiting_payment !== true && sideEffects.supabaseWrites > 0,
+      `status ${res.status} writes=${sideEffects.supabaseWrites} — a settled async payment was ignored`);
+
+    const failed = JSON.stringify({ type: 'checkout.session.async_payment_failed',
+      data: { object: { id: 'cs_test_failed' } } });
+    sideEffects.supabaseWrites = 0; sideEffects.emails = 0;
+    const f = await post(failed, { 'stripe-signature': sign(failed) });
+    check('S', 'async_payment_failed is acknowledged and delivers nothing',
+      f.status === 200 && f.json?.payment_failed === true &&
+      sideEffects.supabaseWrites === 0 && sideEffects.emails === 0,
+      `${f.status} ${JSON.stringify(f.json)}`);
+  }
+
+  globalThis.fetch = realFetch;
+
+  // Source-level: the writeback must be unreachable for a non-paid session.
+  const src = fs.readFileSync(WORKER_JS, 'utf8');
+  check('S', "the DB is never told 'completed' before Stripe says paid",
+    /payment_status !== 'paid'[\s\S]{0,400}?awaiting_payment[\s\S]{0,4000}?payment_status: 'completed'/.test(src),
+    'the payment writeback is reachable without a settled payment');
 }
 
 // ===========================================================================
@@ -1565,6 +1735,7 @@ const GROUPS = {
   P: 'delivery truthfulness, idempotency, DB vocabulary, schema in git',
   Q: 'the free plan email is inside the gate',
   R: 'test-harness overrides default to production',
+  S: 'webhook signature, and completed-is-not-paid',
   G: 'mutation testing',
 };
 for (const [g, title] of Object.entries(GROUPS)) {

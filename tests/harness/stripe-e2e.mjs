@@ -230,11 +230,14 @@ if (!fs.existsSync(PRICE_FILE)) {
 }
 const PRICE_MAP = JSON.parse(fs.readFileSync(PRICE_FILE, 'utf8'));
 const HARNESS_PORT = Number(process.env.KD_HARNESS_PORT || 8797);
+// A harness-specific signing secret. The production webhook secret is deliberately
+// NOT used: this process must not hold it, and the events below are ours, not Stripe's.
+const HARNESS_WEBHOOK_SECRET = 'whsec_kd_audit2b_harness_only_not_production';
 
 const ENV = {
   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: SUPABASE_KEY,
   STRIPE_SECRET_KEY: SK,
-  STRIPE_WEBHOOK_SECRET: creds.stripe?.webhook_secret || '',
+  STRIPE_WEBHOOK_SECRET: HARNESS_WEBHOOK_SECRET,
   RESEND_API_KEY: creds.resend?.key || 'intercepted',
   PRICE_MAP_JSON: JSON.stringify(PRICE_MAP),
   // Both default to production when unset — see GROUP R.
@@ -272,24 +275,129 @@ const step2 = (token) => ({
 });
 
 /**
- * Move a real TEST Checkout Session to paid.
+ * Wait for a Checkout Session to be completed BY STRIPE.
  *
- * Embedded checkout is an iframe on js.stripe.com and cannot be driven from our
- * page, so the documented test card is confirmed through Stripe's own API instead.
- * The Checkout Session, the PaymentIntent and the resulting `payment_status` are all
- * genuine test-mode objects — only the card ENTRY is API-driven. Stated in the
- * README rather than papered over.
+ * There is no API shortcut here, and the previous version of this file was wrong to
+ * try one. It retrieved the Session's PaymentIntent and confirmed it directly —
+ * Stripe's Checkout API explicitly states that a PaymentIntent belonging to a
+ * Checkout Session cannot be confirmed or cancelled that way. Any other API trick
+ * that merely makes `payment_status` LOOK paid would be worse: it would prove
+ * nothing about the path a real customer takes.
+ *
+ * So the session is completed the way Stripe intends — in the embedded Checkout UI,
+ * with a test card — and this polls until Stripe says so. That single card entry is
+ * the one manual action in the whole run; everything after it is automated.
  */
-async function payTestSession(sessionId) {
-  const session = await stripe(`checkout/sessions/${sessionId}`, null, 'GET');
-  const pm = await stripe('payment_methods', {
-    type: 'card', 'card[token]': 'tok_visa',        // Stripe's documented test token
-  });
-  await stripe(`payment_intents/${session.payment_intent}/confirm`, {
-    payment_method: pm.id, return_url: `http://localhost:${HARNESS_PORT}/done`,
-  });
-  return stripe(`checkout/sessions/${sessionId}`, null, 'GET');
+async function awaitCheckoutCompletion(sessionId, { timeoutMs = 300000 } = {}) {
+  const started = Date.now();
+  let lastStatus = null;
+  console.log(`\n  Complete this Checkout Session in the browser (test card 4242 4242 4242 4242,`);
+  console.log(`  any future expiry, any CVC, any postcode):`);
+  console.log(`     http://localhost:${HARNESS_PORT}/?cs=${sessionId}\n`);
+  while (Date.now() - started < timeoutMs) {
+    const s = await stripe(`checkout/sessions/${sessionId}`, null, 'GET');
+    if (s.status !== lastStatus || s.payment_status !== lastStatus) {
+      process.stdout.write(`\r  waiting… status=${s.status} payment_status=${s.payment_status}   `);
+      lastStatus = s.payment_status;
+    }
+    if (s.status === 'complete' && s.payment_status === 'paid') { console.log('\n  completed.'); return s; }
+    if (s.status === 'expired') throw new Error(`Checkout Session ${sessionId} expired before completion.`);
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  throw new Error(`Timed out waiting for ${sessionId}. Was the card entered?`);
 }
+
+/**
+ * Replay Stripe's event to OUR webhook, signed with the harness secret.
+ *
+ * The harness must exercise `/webhook`, not skip it by calling `/fulfill` directly —
+ * the webhook is where the payment writeback and the immediate-vs-finish-profile
+ * decision live, and it was the least-tested code in the product. The event body is
+ * the real Checkout Session Stripe just produced; the signature is ours, because a
+ * local harness cannot possess Stripe's production signing secret and must not try.
+ *
+ * With Stripe CLI available, `stripe listen --forward-to localhost:PORT/webhook`
+ * delivers genuinely Stripe-signed events instead; see the README.
+ */
+async function deliverWebhook(session, type = 'checkout.session.completed') {
+  const body = JSON.stringify({ type, data: { object: session } });
+  const t = Math.floor(Date.now() / 1000);
+  const { createHmac } = await import('node:crypto');
+  const v1 = createHmac('sha256', HARNESS_WEBHOOK_SECRET).update(`${t}.${body}`).digest('hex');
+  const res = await worker.fetch(new Request('https://ketodial-api.test/webhook', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'stripe-signature': `t=${t},v1=${v1}` },
+    body,
+  }), ENV);
+  const text = await res.text();
+  let json = null; try { json = JSON.parse(text); } catch { /* */ }
+  return { status: res.status, json, text };
+}
+
+// ---------------------------------------------------------------------------
+// THE BROWSER LEG — a real server, a patched calculator, the TEST publishable key
+// ---------------------------------------------------------------------------
+// The README used to promise this and the script did not do it: nothing listened on
+// the port, the calculator was never served, Stripe.js was never initialised with
+// pk_test, and RETURN_URL_BASE pointed at a localhost that did not exist. Promising
+// a browser harness and shipping an API harness is the same class of overclaim this
+// audit keeps finding, so it is either real or renamed. It is real now.
+//
+// ketodial/public/ is NEVER modified. The two production constants are rewritten in
+// a copy held in memory and served from here.
+import http from 'node:http';
+
+const PUBLIC_DIR = path.join(REPO, 'ketodial', 'public');
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css', '.json': 'application/json', '.xml': 'application/xml',
+  '.jpg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
+
+function patchedCalculatorJs() {
+  const src = fs.readFileSync(path.join(PUBLIC_DIR, 'ketodial.js'), 'utf8');
+  const patched = src
+    .replace(/var API_BASE='[^']*'/, `var API_BASE='http://localhost:${HARNESS_PORT}/api'`)
+    .replace(/var STRIPE_PK='[^']*'/, `var STRIPE_PK='${PK}'`);
+  if (patched === src) throw new Error('Could not patch API_BASE / STRIPE_PK — the constants moved.');
+  if (!patched.includes(PK)) throw new Error('TEST publishable key did not land in the served bundle.');
+  return patched;
+}
+
+const harnessServer = http.createServer(async (req, res) => {
+  const url = new URL(req.url, `http://localhost:${HARNESS_PORT}`);
+
+  // Proxy the worker so the browser talks to THIS process, not production.
+  if (url.pathname.startsWith('/api/')) {
+    const body = ['GET', 'HEAD'].includes(req.method) ? undefined :
+      await new Promise(r => { let b = ''; req.on('data', c => b += c); req.on('end', () => r(b)); });
+    const wres = await worker.fetch(new Request(
+      'https://ketodial-api.test' + url.pathname.replace(/^\/api/, '') + url.search,
+      { method: req.method, headers: { 'Content-Type': 'application/json' }, body }), ENV);
+    const text = await wres.text();
+    res.writeHead(wres.status, {
+      'Content-Type': wres.headers.get('content-type') || 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    });
+    return res.end(text);
+  }
+
+  if (url.pathname === '/ketodial.js') {
+    res.writeHead(200, { 'Content-Type': MIME['.js'] });
+    return res.end(patchedCalculatorJs());
+  }
+
+  const rel = url.pathname === '/' ? 'index.html' : url.pathname.replace(/^\//, '');
+  const file = path.join(PUBLIC_DIR, rel);
+  if (!file.startsWith(PUBLIC_DIR) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+    res.writeHead(404); return res.end('not found');
+  }
+  res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream' });
+  res.end(fs.readFileSync(file));
+});
+
+await new Promise(r => harnessServer.listen(HARNESS_PORT, r));
+console.log(`Harness server on http://localhost:${HARNESS_PORT}`);
+console.log(`  calculator  -> patched copy of ketodial/public (API_BASE + pk_test rewritten in memory)`);
+console.log(`  /api/*      -> this process's worker, with TEST prices and TEST return URL`);
 
 console.log('\nHarness ready. Runs: A(no) B(yes) C(unsure) D(pay-first).');
 console.log(`Return URL base: ${ENV.RETURN_URL_BASE}   Report base: ${ENV.REPORT_BASE_URL}`);
@@ -328,18 +436,31 @@ try {
     check(G, 'return URL points at the harness, not production',
       String(s.return_url || '').startsWith(ENV.RETURN_URL_BASE), s.return_url);
 
-    const paid = await payTestSession(csid);
+    // Completed by Stripe, in the browser, with a test card. No API shortcut.
+    const paid = await awaitCheckoutCompletion(csid);
     check(G, 'Stripe reports the session paid', paid.payment_status === 'paid', paid.payment_status);
+    check(G, 'and the session is complete', paid.status === 'complete', paid.status);
 
+    // THE WEBHOOK IS THE PATH UNDER TEST, not /fulfill.
     emails.length = 0;
-    const fulfil = await call('POST', '/fulfill', { stripe_session_id: csid });
-    check(G, 'fulfilment succeeded', fulfil.status === 200, `status ${fulfil.status} ${fulfil.text.slice(0,200)}`);
-    check(G, 'one report email', emails.length === 1, `${emails.length}`);
-    check(G, 'idempotency key is deterministic',
-      emails[0]?.idempotencyKey === `kd-report/${csid}`, emails[0]?.idempotencyKey);
+    const hook = await deliverWebhook(paid);
+    check(G, '/webhook accepted the signed event', hook.status === 200,
+      `status ${hook.status} ${hook.text.slice(0, 200)}`);
+    check(G, '  ...and did not report awaiting_payment', hook.json?.awaiting_payment !== true, '');
 
+    // Payment writeback, through the webhook.
     const row = await readRow(token);
-    check(G, 'delivery marker written', !!row?.reports_delivered_at, '');
+    check(G, 'payment_status became completed', row?.payment_status === 'completed', row?.payment_status);
+    check(G, 'amount_paid_cents landed', row?.amount_paid_cents === run.expectCents,
+      `${row?.amount_paid_cents}`);
+    check(G, 'paid_at landed', !!row?.paid_at, '');
+    check(G, 'payment_verified_at landed', !!row?.payment_verified_at, '');
+    check(G, 'stripe_payment_intent_id landed', !!row?.stripe_payment_intent_id, '');
+
+    check(G, 'the webhook delivered one report email', emails.length === 1, `${emails.length}`);
+    check(G, 'with the deterministic idempotency key',
+      emails[0]?.idempotencyKey === `kd-report/${csid}`, emails[0]?.idempotencyKey);
+    check(G, 'delivery marker written only after acceptance', !!row?.reports_delivered_at, '');
 
     const status = await call('GET', `/purchase/${csid}`);
     const expected = run.items.includes('protocol') ? ['doctor','meal','starter'] : run.items;
@@ -375,7 +496,22 @@ try {
       const csid = buy.json?.sessionId;
       check(G, 'can buy before the optional profile', buy.status === 200, `status ${buy.status}`);
       if (csid) {
-        await payTestSession(csid);
+        const paid = await awaitCheckoutCompletion(csid);
+        emails.length = 0;
+        const hook = await deliverWebhook(paid);
+        check(G, '/webhook accepted the signed event', hook.status === 200, `${hook.status}`);
+        check(G, 'the webhook saw an unfinished profile', hook.json?.awaiting_profile === true,
+          JSON.stringify(hook.json));
+        check(G, 'and sent the finish-profile reminder, not silence',
+          emails.length === 1 && /finish your/i.test(emails[0]?.subject || ''),
+          `${emails.length} email(s): ${emails[0]?.subject}`);
+        check(G, '  ...with its own deterministic key',
+          emails[0]?.idempotencyKey === `kd-finish/${csid}`, emails[0]?.idempotencyKey);
+        check(G, 'no false delivery marker was written',
+          (await readRow(token))?.reports_delivered_at == null, '');
+        check(G, 'but the payment WAS written back',
+          (await readRow(token))?.payment_status === 'completed', '');
+
         const early = await call('POST', '/fulfill', { stripe_session_id: csid });
         check(G, 'fulfilment refused while the profile is unfinished', early.status === 409, `${early.status}`);
 
@@ -420,6 +556,7 @@ try {
   check('cleanup', 'every test row deleted', c.leaked.length === 0, c.leaked.join(','));
   check('cleanup', 'no tagged rows remain', c.stray === 0, String(c.stray));
   globalThis.fetch = realFetch;
+  await new Promise(r => harnessServer.close(r));
 }
 
 const W = '─'.repeat(78);

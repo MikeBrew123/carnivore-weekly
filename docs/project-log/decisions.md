@@ -1397,3 +1397,63 @@ prints the URL.
 ### Status
 **BLOCKED, not failed.** No code defect is known. Nothing has been merged or deployed, no live Stripe
 object exists, and no production customer row was touched.
+
+---
+
+## 2026-09-08 — AUDIT 2B: two webhook production defects, and an honest harness
+
+The sixth review rejected the harness and, in doing so, surfaced two **production**
+defects that no amount of harness work would have found.
+
+### 1. The webhook signature could be skipped entirely (security)
+```js
+if (env.STRIPE_WEBHOOK_SECRET && sig) { ...verify... }
+```
+A request that simply **omitted** the `stripe-signature` header skipped verification. Anyone able to
+POST to `/webhook` could forge a `checkout.session.completed` carrying any `session_token` and
+(a) write `payment_status` onto that customer's row and (b) trigger a report email to an address of
+their choosing. An unauthenticated write-and-send.
+
+Now fails closed on all three: missing secret → 500 and no processing; missing header → 400; invalid
+signature → 400. Verification is also wrapped so a malformed header or secret **rejects rather than
+throwing** — an exception escaping an unauthenticated endpoint is its own problem, and it was how the
+missing-secret mutation was "detected" (by crashing) before the fix.
+
+### 2. `checkout.session.completed` was treated as paid
+Stripe's delayed and asynchronous payment methods complete a Session **before the money arrives**, and
+report settlement later via `checkout.session.async_payment_succeeded`. The webhook wrote
+`payment_status='completed'` to Supabase and emailed paid reports on `completed` alone.
+
+One shared paid-session path now, entered only when `session.payment_status === 'paid'`:
+- `completed` + paid → process
+- `completed`, not paid → acknowledge, **no writeback, no delivery**
+- `async_payment_succeeded` → same path
+- `async_payment_failed` → acknowledged and logged; nothing to undo, because nothing was delivered
+
+### The harness was overclaiming
+`payTestSession()` retrieved the Session's PaymentIntent and confirmed it directly. **Stripe's Checkout
+API states a PaymentIntent belonging to a Checkout Session cannot be confirmed that way.** Removed, and
+not replaced with another shortcut: anything that merely makes `payment_status` look paid proves nothing
+about the path a customer takes.
+
+The matrix also went `checkout → fake payment → /fulfill`, stepping over the most important
+post-payment code. It now completes Checkout for real, then drives a **signed** event into `/webhook`,
+and asserts the payment writeback (`completed`, amount, `paid_at`, `payment_verified_at`, payment
+intent), delivery, and the marker. `/fulfill` is still tested, but only where it belongs — after a late
+profile completion.
+
+And the README promised a browser harness the script did not implement: no server, no patched
+calculator, `pk_test` printed but never used, `RETURN_URL_BASE` pointing at a port nothing listened on.
+It is real now — a server on 8797 serving the shipped calculator with `API_BASE` and `STRIPE_PK`
+rewritten **in memory**, `/api/*` proxied to this process's worker. `ketodial/public/` is never touched,
+and GROUP R pins that both constants remain rewritable **and** that the shipped file still carries the
+production values.
+
+**One manual card entry per run** is the only human step, stated plainly rather than faked.
+
+### Mutations — all four webhook ones detected on named assertions
+signature optional · missing secret trusted · completed treated as paid · `async_payment_succeeded` no
+longer fulfilling. The last two initially escaped: one asserted only a status code, satisfied by the
+event being silently ignored, and one was caught by a crash rather than an assertion. Both now observe
+the side effect (a database write) instead of the response shape. That is the seventh and eighth
+masked assertion in this branch.

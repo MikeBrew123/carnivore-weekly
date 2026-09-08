@@ -54,7 +54,10 @@ and — worse — the run would have looked like it passed the parts that matter
 Both worker overrides **default to exactly the string they replaced**, pinned by
 GROUP R in `tests/kd-intake-authority.test.mjs` with a mutation proving a non-production
 default fails the build. The browser-side values are patched only in a copy the
-harness serves from a temporary directory; `ketodial/public/` is never modified.
+harness serves from memory; `ketodial/public/` is never modified. GROUP R also pins
+that both constants are still rewritable and that the shipped file still carries the
+production values — if either moves, the harness would silently serve a page pointing
+at production with the LIVE publishable key.
 
 ## Safety rails in the harness
 
@@ -81,15 +84,48 @@ Plus the failure matrix: unknown checkout session, unpaid session attempting a
 post-payment write, missing metadata, incomplete authoritative intake, and a check
 that nothing anywhere falls back to `form_data` or an invented customer value.
 
-## The one thing the harness cannot do headlessly
+## How a Checkout Session actually completes: one manual card entry
 
-Completing payment inside Stripe's **embedded** checkout requires driving their
-iframe, which is hosted on `js.stripe.com` and not scriptable from our page. The
-harness therefore uses the documented test card through Stripe's own API to move the
-session to `paid`, then drives the real webhook and the real return URL. That is a
-real test-mode Checkout Session and a real payment, but the card entry itself is
-API-driven rather than typed into their iframe.
+**There is no API shortcut, and an earlier version of this file was wrong to try one.**
+It retrieved the Session's PaymentIntent and confirmed it directly. Stripe's Checkout
+API states plainly that a PaymentIntent belonging to a Checkout Session cannot be
+confirmed or cancelled that way. Any other trick that merely makes `payment_status`
+*look* paid would be worse: it would prove nothing about the path a real customer takes.
 
-If the reviewer wants the literal iframe interaction too, that is a manual pass:
-open the harness page, pay with `4242 4242 4242 4242`, and confirm the same
-assertions. The harness prints the URL to use.
+So the session completes the way Stripe intends. The harness:
+
+1. serves the real shipped calculator from `http://localhost:8797`, with `API_BASE`
+   and `STRIPE_PK` rewritten **in memory** to the harness API and `pk_test_…`
+   (`ketodial/public/` is never modified);
+2. proxies `/api/*` to this process's worker, with TEST prices and the TEST return URL;
+3. prints the URL and **waits** while you complete embedded Checkout with
+   `4242 4242 4242 4242`, any future expiry, any CVC;
+4. polls Stripe until the Session reports `status=complete` and `payment_status=paid`;
+5. automates everything after that.
+
+**One manual card entry per run is the only human step.** Cross-origin iframe
+interaction is not something page JavaScript can do, and this harness does not pretend
+otherwise. If you have browser automation that can drive the Stripe iframe, it can
+replace step 3; nothing else changes.
+
+## The webhook is in the matrix, not skipped
+
+Earlier the run went `checkout → fake payment → /fulfill`, which stepped over the most
+important post-payment code. It now goes:
+
+```
+real Checkout completion → signed checkout.session.completed → /webhook
+  → payment writeback → immediate delivery, or the finish-profile path
+```
+
+`/fulfill` is still tested, but only where it belongs: after a late profile completion.
+
+**Signing.** The harness signs its replay with its own secret
+(`whsec_kd_audit2b_harness_only_not_production`) supplied to the worker as
+`STRIPE_WEBHOOK_SECRET`. The production webhook secret is deliberately not used and
+this process never holds it. The event body is the genuine Checkout Session Stripe
+just produced.
+
+For end-to-end Stripe-signed delivery instead, run
+`stripe listen --forward-to localhost:8797/api/webhook` and set the harness secret to
+the one the CLI prints.

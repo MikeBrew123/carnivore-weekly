@@ -654,16 +654,64 @@ async function handleWebhook(request, env) {
   const payload = await request.text();
   const sig = request.headers.get('stripe-signature');
 
-  // Verify webhook signature
-  if (env.STRIPE_WEBHOOK_SECRET && sig) {
-    const valid = await verifyWebhookSignature(payload, sig, env.STRIPE_WEBHOOK_SECRET);
-    if (!valid) return jsonResponse(400, { error: 'Invalid signature' });
+  // ---------------------------------------------------------------------
+  // SIGNATURE VERIFICATION, FAILING CLOSED.
+  // ---------------------------------------------------------------------
+  // This was `if (env.STRIPE_WEBHOOK_SECRET && sig) { ...verify... }`, so a request
+  // that simply OMITTED the stripe-signature header skipped verification entirely.
+  // Anyone able to POST here could forge a checkout.session.completed carrying any
+  // session_token and (a) write payment_status onto that customer's row and
+  // (b) trigger a report email to an address of their choosing.
+  //
+  // An unverifiable event is not an event. All three of these reject.
+  if (!env.STRIPE_WEBHOOK_SECRET) {
+    console.error('WEBHOOK REJECTED: STRIPE_WEBHOOK_SECRET is not configured.');
+    return jsonResponse(500, { error: 'Webhook not configured' });
+  }
+  if (!sig) {
+    console.error('WEBHOOK REJECTED: no stripe-signature header.');
+    return jsonResponse(400, { error: 'Missing signature' });
+  }
+  // Verification must never throw out of the handler. A malformed header or a
+  // misconfigured secret is a rejection, not a 500 with a stack trace — and an
+  // exception escaping here would be an unhandled crash on an unauthenticated
+  // endpoint. Anything other than a clean `true` rejects.
+  let signatureOk = false;
+  try {
+    signatureOk = await verifyWebhookSignature(payload, sig, env.STRIPE_WEBHOOK_SECRET);
+  } catch (e) {
+    console.error('WEBHOOK REJECTED: signature verification threw:', e.message);
+  }
+  if (!signatureOk) {
+    console.error('WEBHOOK REJECTED: invalid signature.');
+    return jsonResponse(400, { error: 'Invalid signature' });
   }
 
-  const event = JSON.parse(payload);
+  let event;
+  try { event = JSON.parse(payload); }
+  catch { return jsonResponse(400, { error: 'Malformed event' }); }
 
-  if (event.type === 'checkout.session.completed') {
+  // ---------------------------------------------------------------------
+  // COMPLETED IS NOT PAID.
+  // ---------------------------------------------------------------------
+  // A Checkout Session can complete before the money arrives — Stripe's delayed and
+  // asynchronous payment methods do exactly that, and report settlement later via
+  // checkout.session.async_payment_succeeded. Treating `completed` as `paid` writes
+  // payment_status='completed' to Supabase and emails paid reports for a payment that
+  // has not settled and may never.
+  //
+  // One shared path for both events, entered only when the Session says `paid`.
+  if (event.type === 'checkout.session.completed' ||
+      event.type === 'checkout.session.async_payment_succeeded') {
     const session = event.data.object;
+
+    if (session.payment_status !== 'paid') {
+      // Acknowledge so Stripe stops retrying, and do nothing else.
+      // checkout.session.async_payment_succeeded is what brings this session back.
+      console.log(`Session ${session.id} is ${event.type} but payment_status=` +
+        `${session.payment_status}; awaiting settlement. No writeback, no delivery.`);
+      return jsonResponse(200, { received: true, awaiting_payment: true });
+    }
 
     // Product filter: this Stripe account also receives CW calculator and coach
     // subscription checkouts. A KD report checkout always carries metadata.items.
@@ -811,6 +859,13 @@ async function handleWebhook(request, env) {
     }
 
     console.log(`Reports sent to ${email} for session ${session.id}: ${Array.from(reportTypes).join(', ')}`);
+  }
+
+  if (event.type === 'checkout.session.async_payment_failed') {
+    // Nothing to undo: we never wrote a payment or delivered anything for a session
+    // that was not `paid`. Logged so a failed settlement is visible rather than silent.
+    console.log(`Async payment FAILED for session ${event.data.object?.id}; nothing was delivered.`);
+    return jsonResponse(200, { received: true, payment_failed: true });
   }
 
   return jsonResponse(200, { received: true });
