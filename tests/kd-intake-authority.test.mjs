@@ -973,6 +973,87 @@ for (const c of MALFORMED_CASES) {
 }
 
 // ===========================================================================
+// GROUP O — PAID FULFILMENT IS RESUMABLE, AND NEVER SILENT.
+// ---------------------------------------------------------------------------
+// Splitting purchase from report eligibility let a customer pay after step 1. The
+// webhook then could not build a report, and it logged NO REPORT SENT, returned 200
+// to Stripe and sent nothing — a paying customer heard silence. The recovery the
+// error page suggested did not work either: Stripe redirects to a freshly loaded
+// page where sessionToken is null and nothing restores it, so the profile could not
+// be attached to the paid order.
+//
+// These are source-level invariants so they hold in CI without credentials; the
+// behaviour itself is proven end to end in tests/kd-integration-live.test.mjs.
+// ===========================================================================
+{
+  const worker = fs.readFileSync(WORKER_JS, 'utf8');
+  const client = fs.readFileSync(KD_PUBLIC_JS, 'utf8');
+  const code = worker.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const clientCode = client.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+
+  check('O', 'the webhook does NOT go silent on an unfinished profile',
+    /INTAKE_PROFILE_NOT_COMPLETED[\s\S]{0,400}?sendFinishProfileEmail/.test(code),
+    'a paying customer with an unfinished profile is told nothing');
+  check('O', 'the finish-profile email links back to THAT paid session',
+    /ketodial\.com\/\?finish=\$\{encodeURIComponent\(stripeSessionId\)\}/.test(worker), '');
+
+  check('O', 'the profile can be saved keyed on a paid Stripe session, not just a token',
+    /b\.stripe_session_id[\s\S]{0,200}?resolvePaidCheckout/.test(code),
+    'post-payment completion is impossible: the browser has no token after the redirect');
+  // SCOPED TO THE FUNCTION. An unscoped scan for the paid check matched
+  // handleReport's identical guard in a different function, so deleting this one
+  // left the assertion green — it was passing through a mechanism it did not name.
+  const resolveBody = (() => {
+    const i = code.indexOf('async function resolvePaidCheckout');
+    if (i === -1) return '';
+    const j = code.indexOf('\nasync function', i + 10);
+    const k = code.indexOf('\nfunction', i + 10);
+    const end = Math.min(...[j, k].filter(x => x > -1).concat([code.length]));
+    return code.slice(i, end);
+  })();
+  check('O', 'resolvePaidCheckout exists', resolveBody.length > 0, '');
+  check('O', 'and that key only resolves for a PAID session',
+    /payment_status !== 'paid'/.test(resolveBody) && /403/.test(resolveBody),
+    'an unpaid checkout id could write to somebody\'s row');
+  check('O', 'and only for a well-formed checkout id',
+    /\^cs_/.test(resolveBody), '');
+  check('O', 'the raw session token is never handed back to the browser',
+    !/token:\s*resolved\.token/.test(code) && !/json.*\btoken\b.*resolved/.test(code), '');
+
+  check('O', 'there is a purchase-status endpoint the success screen can read',
+    /\/purchase\//.test(code) && /handlePurchaseStatus/.test(code), '');
+  check('O', 'there is a fulfilment endpoint for late profile completion',
+    /'\/fulfill'/.test(code) && /handleFulfill/.test(code), '');
+  check('O', 'late fulfilment is idempotent',
+    /reports_delivered_at[\s\S]{0,200}?alreadyDelivered/.test(code) && /markDelivered/.test(code),
+    'a double click would email the customer twice');
+  check('O', 'the happy path records delivery too, so "paid but not delivered" is answerable',
+    /await sendReportEmail\([\s\S]{0,120}?markDelivered/.test(code), '');
+
+  // The success screen.
+  check('O', 'the success screen renders from the server, not a hardcoded report list',
+    /loadPurchaseStatus/.test(clientCode) && /status\.purchased/.test(clientCode),
+    'it shows reports the customer may never have bought');
+  check('O', 'it no longer hardcodes all three reports',
+    !/name:'7-Day Meal Plan',type:'meal'/.test(clientCode),
+    'a renal customer is still offered a meal plan they were correctly not sold');
+  check('O', 'the post-payment submit carries the Stripe session id',
+    /payload\.stripe_session_id\s*=\s*paidSessionId/.test(clientCode), '');
+  check('O', 'and the finish link from the email is honoured',
+    /urlParams\.get\('finish'\)/.test(clientCode), '');
+
+  // The race hole: a later success must not clear an earlier failure.
+  check('O', 'a write failure is sticky, not cleared by the next successful write',
+    /writeFailures\+\+/.test(clientCode) && /writeFailures>0/.test(clientCode) &&
+    !/lastWriteError=null;/.test(clientCode),
+    'checkout queues step_completed:3, whose success would erase an earlier profile failure');
+  check('O', 'and only the profile submit clears it — the retry of the thing that failed',
+    /writeFailures=0;[\s\S]{0,120}?collectProfile\(\)/.test(clientCode), '');
+  check('O', 'one profile collector serves both the pre- and post-payment submits',
+    (clientCode.match(/collectProfile\(\)/g) || []).length >= 2, '');
+}
+
+// ===========================================================================
 // GROUP G — MUTATION TESTING.
 // ---------------------------------------------------------------------------
 // A passing suite is not evidence. Each protection is broken on purpose against a
@@ -1184,6 +1265,7 @@ const GROUPS = {
   L: 'purchase eligibility is not report eligibility',
   M: '"I am not sure" is not a diagnosis',
   N: 'CI runs on the live intake UI',
+  O: 'paid fulfilment is resumable and never silent',
   G: 'mutation testing',
 };
 for (const [g, title] of Object.entries(GROUPS)) {

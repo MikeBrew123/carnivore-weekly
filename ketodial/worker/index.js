@@ -105,6 +105,16 @@ export default {
     if (url.pathname === '/session' && request.method === 'PATCH') {
       return handleSessionUpdate(request, env);
     }
+    // POST-PAYMENT FULFILMENT. A customer may pay after step 1 and finish the
+    // optional profile afterwards; these two resolve a paid Stripe session back to
+    // its authoritative row so that is possible without the browser having to carry
+    // a session token across the Stripe redirect (it cannot — the page reloads).
+    if (url.pathname.startsWith('/purchase/') && request.method === 'GET') {
+      return handlePurchaseStatus(url.pathname.split('/purchase/')[1], env);
+    }
+    if (url.pathname === '/fulfill' && request.method === 'POST') {
+      return handleFulfill(request, env);
+    }
     if (url.pathname === '/email-plan' && request.method === 'POST') {
       return handleEmailPlan(request, env);
     }
@@ -209,7 +219,24 @@ async function handleSession(request, env) {
 async function handleSessionUpdate(request, env) {
   try {
     const b = await request.json();
-    if (!b.token) return jsonResponse(400, { error: 'Missing token' });
+
+    // TWO WAYS TO NAME THE SAME ROW.
+    // Before payment the browser holds the session token. AFTER payment it does not
+    // and cannot: Stripe redirects back to a freshly loaded page where
+    // `sessionToken` starts null, and nothing persists it. The only handle the
+    // customer carries through that redirect is the Stripe session id in the return
+    // URL — so the server resolves it, rather than the browser trying to.
+    //
+    // The token is deliberately NOT handed back to the browser. Holding the Stripe
+    // session id already grants report access; it does not need to grant more.
+    let token = b.token;
+    if (!token && b.stripe_session_id) {
+      const resolved = await resolvePaidCheckout(b.stripe_session_id, env);
+      if (resolved.error) return jsonResponse(resolved.status, { error: resolved.error });
+      token = resolved.token;
+    }
+    if (!token) return jsonResponse(400, { error: 'Missing token' });
+    b.token = token;
 
     // "ANSWERED NOTHING" IS NOT "NEVER ASKED".
     // These were all `if (b.medications)` until 2026-09-08. An empty string and an
@@ -625,6 +652,19 @@ async function handleWebhook(request, env) {
       intake = await loadAuthoritativeIntake(session.metadata?.session_token, env);
     } catch (err) {
       if (err instanceof IntakeError) {
+        // AN UNFINISHED PROFILE IS NOT A DEAD END. The customer paid; they simply
+        // bought before filling in the optional profile, which the page invites.
+        // Going silent here — log, 200, no email — is how a paying customer ends up
+        // with nothing and no idea why. Send them the one short step instead.
+        if (err.code === 'INTAKE_PROFILE_NOT_COMPLETED') {
+          console.log(`Profile incomplete for paid session ${session.id}; sending finish-your-reports email.`);
+          try {
+            await sendFinishProfileEmail(email, name, session.id, env);
+          } catch (e) {
+            console.error(`Could not send finish-profile email for ${session.id}:`, e.message);
+          }
+          return jsonResponse(200, { received: true, awaiting_profile: true });
+        }
         console.error(
           `NO REPORT SENT — intake unusable for paid session ${session.id} (${email}): ` +
           `${err.code} [${err.missing.join(', ')}]. Needs a human; do not backfill.`);
@@ -654,11 +694,179 @@ async function handleWebhook(request, env) {
 
     // Send email via Resend
     await sendReportEmail(email, name, reportLinks, intake, env);
+    if (sessionToken) await markDelivered(sessionToken, env);
 
     console.log(`Reports sent to ${email} for session ${session.id}: ${Array.from(reportTypes).join(', ')}`);
   }
 
   return jsonResponse(200, { received: true });
+}
+
+// ──────────────────────────────────────────────
+// POST-PAYMENT FULFILMENT
+// ──────────────────────────────────────────────
+//
+// Splitting purchase eligibility from report eligibility (2026-09-08) let a customer
+// buy after step 1 and finish the optional profile later. That was the right call for
+// conversion, and it opened a hole this section closes: the webhook ran the full
+// report validator, found the profile incomplete, logged NO REPORT SENT and returned
+// 200 — so a paying customer received nothing and was told nothing.
+//
+//   pay -> profile complete   -> deliver immediately (webhook, unchanged)
+//   pay -> profile incomplete -> email a "one short step" link tied to THAT paid
+//                                session -> customer finishes the profile against
+//                                the original row -> deliver
+//
+// Everything hangs off one mapping the server already had:
+//     Stripe session_id -> metadata.session_token -> calculator_sessions_v2
+
+/**
+ * Resolve a Stripe checkout session to the authoritative row behind it.
+ *
+ * Returns `{ error, status }` instead of throwing so callers can shape their own
+ * response. Requires the session to be PAID: this is the key that unlocks writing to
+ * someone's row after checkout, so an unpaid or unknown id must not resolve.
+ */
+async function resolvePaidCheckout(stripeSessionId, env) {
+  if (!stripeSessionId || !/^cs_[A-Za-z0-9_]+$/.test(stripeSessionId)) {
+    return { error: 'Invalid checkout reference', status: 400 };
+  }
+  const session = await stripeAPI(`checkout/sessions/${stripeSessionId}`, null, env, 'GET');
+  if (session.error || !session.metadata) {
+    return { error: 'Checkout session not found', status: 404 };
+  }
+  if (session.payment_status !== 'paid') {
+    return { error: 'Payment not completed', status: 403 };
+  }
+  const token = session.metadata.session_token;
+  if (!token) {
+    // A purchase with no session reference. Nothing to attach a profile to, and we
+    // will not invent one.
+    return { error: 'This purchase is not linked to a saved questionnaire', status: 409 };
+  }
+  return { token, session };
+}
+
+/** The individual report types a set of purchased items expands to. */
+function expandItems(items) {
+  const out = new Set();
+  for (const item of items) {
+    if (BUNDLE_EXPAND[item]) BUNDLE_EXPAND[item].forEach(r => out.add(r));
+    else if (item) out.add(item);
+  }
+  return [...out];
+}
+
+/**
+ * GET /purchase/:stripeSessionId
+ *
+ * What the success screen needs in order to be honest: what was actually bought, and
+ * whether the reports can be generated yet. The screen used to hardcode all three
+ * report links regardless of the order, so a renal customer who was correctly
+ * prevented from BUYING the meal plan was still shown a link to open it — which then
+ * 403s. Telling someone they own something they were deliberately not sold is worse
+ * than the 403.
+ */
+async function handlePurchaseStatus(stripeSessionId, env) {
+  const resolved = await resolvePaidCheckout(stripeSessionId, env);
+  if (resolved.error) return jsonResponse(resolved.status, { error: resolved.error });
+
+  const purchased = expandItems((resolved.session.metadata.items || '').split(','));
+
+  let profileComplete = true;
+  let missing = [];
+  try {
+    await loadAuthoritativeIntake(resolved.token, env);
+  } catch (err) {
+    if (err instanceof IntakeError) {
+      profileComplete = false;
+      missing = err.missing;
+      if (err.code !== 'INTAKE_PROFILE_NOT_COMPLETED') {
+        // Something worse than an unfinished profile. Say so rather than sending the
+        // customer round a form that will not fix it.
+        return jsonResponse(200, {
+          paid: true, purchased, profileComplete: false, recoverable: false,
+          message: err.customerMessage,
+        });
+      }
+    } else {
+      return jsonResponse(503, { error: 'Temporarily unavailable, please retry' });
+    }
+  }
+
+  return jsonResponse(200, { paid: true, purchased, profileComplete, recoverable: !profileComplete, missing });
+}
+
+/**
+ * POST /fulfill  { stripe_session_id }
+ *
+ * Deliver the reports for a paid session. Called after a late profile completion.
+ * Idempotent via `reports_delivered_at`, so a double click does not send twice.
+ */
+async function handleFulfill(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return jsonResponse(400, { error: 'Bad request' }); }
+
+  const resolved = await resolvePaidCheckout(body.stripe_session_id, env);
+  if (resolved.error) return jsonResponse(resolved.status, { error: resolved.error });
+
+  const { token, session } = resolved;
+
+  let intake;
+  try {
+    intake = await loadAuthoritativeIntake(token, env);
+  } catch (err) {
+    if (err instanceof IntakeError) {
+      return jsonResponse(409, { error: 'profile_incomplete', code: err.code, message: err.customerMessage });
+    }
+    return jsonResponse(503, { error: 'Temporarily unavailable, please retry' });
+  }
+
+  const row = await readSessionRow(token, env);
+  if (row && row.reports_delivered_at) {
+    return jsonResponse(200, { ok: true, alreadyDelivered: true, links: reportLinksFor(session) });
+  }
+
+  const email = session.customer_email || session.customer_details?.email || (row && row.email);
+  if (!email) return jsonResponse(409, { error: 'no_email', message: 'We have no email address for this purchase.' });
+
+  const links = reportLinksFor(session);
+  await sendReportEmail(email, session.metadata.customer_name || 'there', links, intake, env);
+  await markDelivered(token, env);
+
+  return jsonResponse(200, { ok: true, links });
+}
+
+/** The report links for a paid session, honouring what was actually purchased. */
+function reportLinksFor(session) {
+  const baseUrl = 'https://ketodial-api.iambrew.workers.dev';
+  return expandItems((session.metadata.items || '').split(',')).map(type => ({
+    type, name: REPORT_NAMES[type], url: `${baseUrl}/report/${session.id}?type=${type}`,
+  }));
+}
+
+async function readSessionRow(token, env) {
+  try {
+    const res = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(token)}&limit=1`,
+      { headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+                   Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`, Accept: 'application/json' } });
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return Array.isArray(rows) && rows.length ? rows[0] : null;
+  } catch { return null; }
+}
+
+async function markDelivered(token, env) {
+  try {
+    await fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(token)}`, {
+      method: 'PATCH',
+      headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+                 Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ reports_delivered_at: new Date().toISOString() }),
+    });
+  } catch (e) { console.error('Could not mark reports delivered for', token, e.message); }
 }
 
 // ──────────────────────────────────────────────
@@ -842,6 +1050,55 @@ function targetsLine(d) {
            'so we have not set one for you.';
   }
   return `${d.calories} kcal \u00b7 ${d.fatG}g fat \u00b7 ${d.proteinG}g protein \u00b7 ${d.carbG}g net carbs`;
+}
+
+/**
+ * "One short step to finish your reports."
+ *
+ * Sent when someone pays before completing the optional profile. It is the ONLY
+ * thing standing between that customer and silence, so it says plainly that the
+ * payment worked, what is missing, and gives one link that resumes against THEIR
+ * paid session. No apology for a mistake they did not make, and no suggestion that
+ * anything is wrong with their order.
+ */
+async function sendFinishProfileEmail(email, name, stripeSessionId, env) {
+  if (!env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY missing; cannot send finish-profile email for', stripeSessionId);
+    return;
+  }
+  const link = `https://ketodial.com/?finish=${encodeURIComponent(stripeSessionId)}`;
+  const html = `
+<div style="max-width:560px;margin:0 auto;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#0f172a">
+  <h1 style="font-size:22px;margin:0 0 14px">One short step to finish your reports</h1>
+  <p style="line-height:1.6">Hi ${escapeHtmlBasic(name)}, your payment went through — thank you.</p>
+  <p style="line-height:1.6">Your reports are built around the short health profile on the calculator
+  page, and it has not been filled in yet. It takes about a minute, and we would rather ask than
+  guess at your details.</p>
+  <p style="margin:26px 0">
+    <a href="${link}" style="background:#0f172a;color:#fff;padding:13px 22px;border-radius:8px;
+       text-decoration:none;font-weight:600;display:inline-block">Finish my reports</a>
+  </p>
+  <p style="line-height:1.6;font-size:14px;color:#475569">That link is tied to this purchase, so your
+  answers attach to the right order. As soon as you are done, your reports are emailed straight to you.</p>
+  <p style="line-height:1.6;font-size:14px;color:#475569">Stuck, or would rather we did it for you?
+  Reply to this email or write to ketodial@carnivoreweekly.com.</p>
+</div>`;
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: 'KetoDial <ketodial@carnivoreweekly.com>',
+      to: [email],
+      reply_to: 'ketodial@carnivoreweekly.com',
+      subject: 'One short step to finish your KetoDial reports',
+      html,
+    }),
+  });
+  if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
+}
+
+function escapeHtmlBasic(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 async function sendReportEmail(email, name, reportLinks, formData, env) {

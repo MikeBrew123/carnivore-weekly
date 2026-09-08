@@ -121,8 +121,16 @@ const realFetch = globalThis.fetch;
 const stripeCalls = [];
 const fakeSessions = new Map();
 
+const emailsSent = [];
 globalThis.fetch = async (url, opts = {}) => {
   const u = String(url);
+  // NOTHING MAY LEAVE. /fulfill and the webhook both send real mail, so Resend is
+  // captured here rather than trusted to fail on an empty key.
+  if (u.includes('api.resend.com')) {
+    const b = opts.body ? JSON.parse(opts.body) : {};
+    emailsSent.push({ to: b.to, subject: b.subject, html: b.html || '' });
+    return { ok: true, json: async () => ({ id: 'email_stubbed_no_send' }) };
+  }
   if (!u.includes('api.stripe.com')) return realFetch(url, opts);
 
   const body = opts.body ? String(opts.body) : '';
@@ -449,6 +457,120 @@ try {
       `prep=${row && row.meal_prep_time} family=${row && row.family_situation} budget=${row && row.budget}`);
     check(G, 'so the medical answers it carried are not lost with it',
       row && row.medications !== null && row.conditions !== null && row.step_completed >= 2, '');
+  }
+
+  // -------------------------------------------------------------------------
+  // GROUP 1c — PAY FIRST, FINISH THE PROFILE AFTERWARDS.
+  // ---------------------------------------------------------------------------
+  // The hole that splitting the boundaries opened. A customer may buy after step 1;
+  // the webhook then cannot generate a report, and it used to log NO REPORT SENT,
+  // return 200 to Stripe and send nothing at all. The customer paid and heard
+  // silence. The recovery the error page suggested did not work either: Stripe
+  // redirects to a freshly loaded page where sessionToken is null and nothing
+  // restores it, so the profile could not be attached to the paid session.
+  //
+  // Proven end to end here against the real database.
+  // -------------------------------------------------------------------------
+  {
+    const G = '1c/pay-then-profile';
+    const created = await call('POST', '/session', step1('yes'));
+    const token = created.json.token;
+    createdTokens.add(token);
+    await realFetch(`${SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${token}`, {
+      method: 'PATCH',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ source: TEST_SOURCE }),
+    });
+
+    // 1. Buy with NO step-2 profile. This must succeed.
+    const buy = await call('POST', '/checkout',
+      { items: ['doctor', 'starter'], email: `audit2b-late${TEST_EMAIL_DOMAIN}`, name: 'Linda', token });
+    check(G, 'a customer can buy before completing the optional profile', buy.status === 200,
+      `status ${buy.status} ${JSON.stringify(buy.json)}`);
+    const csid = buy.json && buy.json.sessionId;
+
+    // 2. The webhook must NOT go silent — it sends the finish-your-reports email.
+    emailsSent.length = 0;
+    // The webhook verifies Stripe signatures, so the branch is driven through the
+    // same loader it uses rather than by forging one.
+    const { loadAuthoritativeIntake: loadReport } =
+      await import('file://' + path.join(REPO, 'ketodial', 'worker', 'intake.js'));
+    let hookErr = null;
+    try { await loadReport(token, ENV); } catch (e) { hookErr = e; }
+    check(G, 'the webhook path sees an unfinished profile, not a corrupt one',
+      hookErr && hookErr.code === 'INTAKE_PROFILE_NOT_COMPLETED',
+      hookErr ? hookErr.code : 'no error at all');
+
+    // 3. The success screen learns what was bought and that delivery is pending.
+    const before = await call('GET', `/purchase/${csid}`);
+    check(G, 'purchase status is readable from the Stripe session alone', before.status === 200,
+      `status ${before.status}`);
+    check(G, 'it reports only what was actually purchased',
+      before.json && JSON.stringify(before.json.purchased.sort()) === JSON.stringify(['doctor', 'starter']),
+      JSON.stringify(before.json && before.json.purchased));
+    check(G, 'it does NOT claim the meal plan they were correctly not sold',
+      before.json && !before.json.purchased.includes('meal'), '');
+    check(G, 'it reports the profile as incomplete but recoverable',
+      before.json && before.json.profileComplete === false && before.json.recoverable === true, '');
+
+    // 4. Fulfilment is refused while the profile is unfinished.
+    const early = await call('POST', '/fulfill', { stripe_session_id: csid });
+    check(G, 'fulfilment refuses while the profile is unfinished', early.status === 409,
+      `status ${early.status}`);
+    check(G, '  ...and no report email was sent', emailsSent.length === 0,
+      `${emailsSent.length} email(s) escaped`);
+
+    // 5. THE RECOVERY: the profile is submitted keyed on the STRIPE SESSION ID, with
+    //    no session token — exactly what the browser has after the redirect.
+    const late = await call('PATCH', '/session', {
+      stripe_session_id: csid,
+      step_completed: 2, first_name: 'Linda',
+      conditions: ['t2d'], symptoms: ['energy'], medications: 'Metformin 1000mg',
+      dairy_tolerance: 'some', cooking_skill: 'beginner', meal_prep_time: 'some',
+      family_situation: 'solo', budget: 'moderate', biggest_challenge: '', previous_diets: [],
+    });
+    check(G, 'the profile can be saved with NO session token, keyed on the paid session',
+      late.status === 200, `status ${late.status} ${late.text.slice(0, 160)}`);
+
+    const row = await readRow(token);
+    check(G, 'and it landed on the ORIGINAL authoritative row', row && row.step_completed >= 2 &&
+      row.medications === 'Metformin 1000mg' && (row.conditions || []).includes('t2d'),
+      `step=${row && row.step_completed} meds=${row && row.medications}`);
+    check(G, 'without disturbing the kidney answer given before payment',
+      row && row.kidney_status === 'yes', `kidney=${row && row.kidney_status}`);
+
+    // 6. Now it delivers.
+    emailsSent.length = 0;
+    const done = await call('POST', '/fulfill', { stripe_session_id: csid });
+    check(G, 'fulfilment now succeeds', done.status === 200, `status ${done.status}`);
+    check(G, 'and exactly one report email is sent', emailsSent.length === 1,
+      `${emailsSent.length} sent`);
+    check(G, 'the email offers only the purchased reports',
+      emailsSent[0] && /Doctor/.test(emailsSent[0].html) && /Starter/.test(emailsSent[0].html) &&
+      !/7-Day Meal Plan/.test(emailsSent[0].html), '');
+
+    const after = await call('GET', `/purchase/${csid}`);
+    check(G, 'the success screen now shows the profile as complete',
+      after.json && after.json.profileComplete === true, '');
+
+    // 7. Idempotent: a double click must not send twice.
+    emailsSent.length = 0;
+    const again = await call('POST', '/fulfill', { stripe_session_id: csid });
+    check(G, 'a repeated fulfilment is idempotent', again.status === 200 &&
+      again.json.alreadyDelivered === true, JSON.stringify(again.json));
+    check(G, '  ...and sends no second email', emailsSent.length === 0,
+      `${emailsSent.length} duplicate(s)`);
+
+    const delivered = await readRow(token);
+    check(G, 'delivery is recorded, so "paid but never delivered" is answerable',
+      delivered && delivered.reports_delivered_at !== null, '');
+
+    // 8. An UNPAID session must not unlock writing to someone's row.
+    const unpaid = await call('PATCH', '/session',
+      { stripe_session_id: 'cs_test_never_existed', step_completed: 2, conditions: [], medications: '' });
+    check(G, 'an unknown checkout id cannot write to any row', unpaid.status >= 400,
+      `status ${unpaid.status}`);
   }
 
   // -------------------------------------------------------------------------

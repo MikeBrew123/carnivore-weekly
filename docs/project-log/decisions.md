@@ -1131,3 +1131,68 @@ The kidney-answer mutation initially went **undetected**: the assertion used
 `err.missing.some(/kidney/i)`, which the plausibility check satisfied by reporting `kidneyStatus`, so
 deleting the requirement outright left it green. The assertion passed through a different mechanism
 than the one it was written to pin. Now asserts the exact code and the exact missing string.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4f: paid fulfilment made resumable (third review)
+
+Splitting purchase from report eligibility was right for conversion and **opened a paid-fulfilment
+P0 that I did not close.** A customer could pay after step 1; the webhook then ran the full report
+validator, found the profile incomplete, logged `NO REPORT SENT`, returned 200 to Stripe and **sent
+nothing at all**. The customer paid and heard silence.
+
+The recovery my own error page suggested did not work either. Stripe redirects to a freshly loaded
+page where `sessionToken` starts null and **nothing persists or restores it** — the Stripe
+`session_id` was used only for report links and analytics. So "go back and finish the profile" could
+not attach anything to the paid order.
+
+### The flow now
+```
+pay → profile complete   → deliver immediately (webhook, unchanged)
+pay → profile incomplete → "One short step to finish your reports" email, linked to THAT paid session
+                         → customer completes the profile against the original row
+                         → POST /fulfill delivers, and records that it did
+```
+Everything hangs off a mapping the server already had: **Stripe `session_id` → `metadata.session_token`
+→ `calculator_sessions_v2`**. The browser never carries the raw token across the redirect, and the
+token is deliberately **not** handed back to it — holding the Stripe session id already grants report
+access and does not need to grant more.
+
+- `PATCH /session` accepts `stripe_session_id` as an alternative key. It resolves **only for a PAID
+  session**, so an unpaid or unknown id cannot write to anyone's row.
+- `GET /purchase/:id` — what was actually bought, and whether delivery is possible yet.
+- `POST /fulfill` — delivers after late completion, **idempotent** via `reports_delivered_at`.
+- The webhook sends the finish-profile email instead of going silent.
+
+### New column
+`calculator_sessions_v2.reports_delivered_at` (additive, nullable, no backfill), applied to the
+**production** database — the only Supabase project on the account. It makes late delivery idempotent
+and makes a state the product never had before queryable:
+
+```sql
+SELECT session_token, email, paid_at FROM calculator_sessions_v2
+WHERE payment_status = 'completed' AND reports_delivered_at IS NULL;
+```
+
+### The two smaller bugs
+**The race fix had a hole.** Every successful PATCH did `lastWriteError=null`, and checkout itself
+queues `step_completed:3` — so a failed profile save could be erased by that later success before
+`writesSettled()` ever looked. Failures are now a sticky counter, cleared only by the profile submit,
+which is the retry of the thing that failed.
+
+**The success screen hardcoded all three reports.** A renal customer correctly prevented from *buying*
+the meal plan was still shown "Open 7-Day Meal Plan", which 403s. Telling someone they own something
+we deliberately did not sell them is worse than the 403 it leads to. The screen now renders from
+`GET /purchase/:id`, and shows PENDING rather than a dead link while the profile is unfinished.
+
+One `collectProfile()` now serves both the pre- and post-payment submits, so they cannot drift apart.
+
+### Mutation results — six, all detected
+webhook silence · `stripe_session_id` no longer resolving · unpaid id able to write · fulfilment
+losing idempotency · success screen hardcoding reports · write failure cleared by a later success.
+
+The unpaid-id mutation initially went **undetected**: the assertion scanned the whole file for
+`payment_status !== 'paid'` and matched `handleReport`'s identical guard in a different function. Same
+masking as the earlier kidney-answer case — an assertion passing through a mechanism it did not name.
+Both are now scoped to the function they are about. **That is twice; treat an unscoped source regex as
+a smell.**
