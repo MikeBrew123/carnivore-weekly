@@ -1262,3 +1262,45 @@ The kidney one initially went undetected: the assertion sliced from `collectProf
 matched the same expression in two later call sites. **Third occurrence of an unscoped source match
 passing through a mechanism it did not name.** All three are now scoped to the function they are about,
 and that is now a standing smell to check for.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4h: fifth review — submodule merge, migration CI trigger, idempotency window
+
+### My "zero file overlap" claim was wrong
+I compared parent-level filenames and never looked inside the moved gitlink. `origin/main @ 206920bd`
+advances `ketodial/public` to `5c1cab7`, and the submodule histories had diverged from `fa8d27c`: the
+audit branch **6 ahead, 1 behind**. Advancing the parent pointer alone would have silently dropped five
+migrated blog posts and their images.
+
+A real submodule merge was required, and the reviewer was right to insist on the order. One factual
+correction: `5c1cab7` touches `blog/index.html` (the blog listing) and blog assets, not the calculator
+`index.html`, so the merge was clean with **no file edited on both sides** — but it was still necessary.
+
+Done in the prescribed order: merge in the submodule repo (`07a2337`), verify both halves, push the
+submodule, update the parent gitlink, merge the parent, re-run everything. After the merge the five
+posts and their sitemap entries serve, and the calculator still carries the kidney question, suppresses
+the protein figure, withholds the meal plan and its bundles, keeps explicit option `value=` attributes,
+and sends `kidney_status` on session create.
+
+### The migration was not watched by CI — third instance of this hole
+`supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql` is safety-critical and
+GROUP P mutation-tests it, but `calculator-guard.yml` did not watch the path. A migration-only edit
+adding a backfill — giving every legacy customer a kidney answer nobody gave — could have landed with
+none of those tests running.
+
+Added to **both** triggers and pinned in GROUP N, mutation-verified by dropping it from each trigger in
+turn. That is the third time this exact hole has appeared: `pull_request` missing the KD paths, the
+`ketodial/public` gitlink, and now the migration. **A file that a test asserts against must be on the
+trigger list for the workflow that runs that test** — worth making a standing check rather than finding
+it a fourth time.
+
+### Idempotency claims corrected
+Resend retains an idempotency key for **24 hours**, not forever. The code said a resend was simply safe.
+Now stated accurately: the deterministic key is the short-window protection, `reports_delivered_at` is
+the durable one, and outside the window the database marker is what prevents a second send. The
+customer-facing retry message no longer promises "you will not receive duplicates".
+
+### Confirmed by the reviewer, recorded here
+The worker deliberately ignores an invalid or blank resumed `kidney_status` rather than clearing the
+stored value, so the post-payment Step 2 flow preserves the pre-payment answer. Checked and correct.

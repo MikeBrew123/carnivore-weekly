@@ -969,6 +969,13 @@ for (const c of MALFORMED_CASES) {
     check('N', `${trigger} watches the ketodial/public submodule gitlink`,
       /^\s*- 'ketodial\/public'\s*$/m.test(body),
       'a change to the live intake UI would not run the KD safety suite');
+    // The schema the safety code depends on. GROUP P mutation-tests this file, but a
+    // migration-only edit would not have triggered the guard at all — so a backfill
+    // giving every legacy customer a kidney answer nobody gave could have landed with
+    // none of those tests running. Third instance of this exact hole.
+    check('N', `${trigger} watches the Audit 2B migration`,
+      /^\s*- 'supabase\/migrations\/20260908_kd_audit2b_kidney_status_and_delivery_marker\.sql'\s*$/m.test(body),
+      'a migration-only change would bypass the safety suite that mutation-tests it');
     for (const p of ['ketodial/worker/index.js', 'ketodial/worker/reports.js', 'ketodial/worker/intake.js']) {
       check('N', `${trigger} watches ${p}`,
         new RegExp(`^\\s*- '${p.replace(/\//g, '\\/')}'\\s*$`, 'm').test(body), '');

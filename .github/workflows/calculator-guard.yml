@@ -36,6 +36,12 @@ on:
       # with calculator_sessions_v2. A pointer bump changes what real customers
       # submit, so it has to run the KD safety suite like any other source change.
       - 'ketodial/public'
+      # The schema the safety code depends on. GROUP P mutation-tests this file —
+      # a backfill added here would give every legacy customer a kidney answer
+      # nobody gave — but a migration-only edit would not have triggered the guard
+      # at all, so none of those tests would have run. Same hole as the submodule
+      # gitlink and the pull_request paths before it, for the third time.
+      - 'supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql'
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
@@ -70,6 +76,12 @@ on:
       # with calculator_sessions_v2. A pointer bump changes what real customers
       # submit, so it has to run the KD safety suite like any other source change.
       - 'ketodial/public'
+      # The schema the safety code depends on. GROUP P mutation-tests this file —
+      # a backfill added here would give every legacy customer a kidney answer
+      # nobody gave — but a migration-only edit would not have triggered the guard
+      # at all, so none of those tests would have run. Same hole as the submodule
+      # gitlink and the pull_request paths before it, for the third time.
+      - 'supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql'
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
   workflow_dispatch:

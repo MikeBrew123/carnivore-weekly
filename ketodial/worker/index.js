@@ -723,7 +723,8 @@ async function handleWebhook(request, env) {
         // Stripe to retry — that would be correct for the marker and pointless for
         // the customer. The log line is the recovery path.
         console.error(`Reports delivered for ${session.id} but the marker did not write. ` +
-          `Re-running /fulfill is safe (Resend idempotency key ${'kd-report/' + session.id}).`);
+          `Re-running /fulfill within 24h is a no-op at Resend (key ${'kd-report/' + session.id}); ` +
+          `after that window the customer would receive a second copy.`);
       }
     }
 
@@ -871,7 +872,7 @@ async function handleFulfill(request, env) {
     return jsonResponse(502, {
       error: 'delivery_failed', retryable: true,
       message: 'We could not send your reports just now. Please try again in a moment — ' +
-               'you will not be charged again and you will not receive duplicates.',
+               'you will not be charged again.',
     });
   }
 
@@ -905,8 +906,8 @@ async function readSessionRow(token, env) {
  * This used to swallow both the network error AND a non-2xx PostgREST response, so a
  * rejected PATCH looked exactly like a successful one. A marker that lies in the
  * optimistic direction is worse than no marker: it hides the customer from the
- * paid-but-undelivered query. Retrying a send is safe — Resend's deterministic
- * idempotency key makes the duplicate a no-op — so failing loudly here is cheap.
+ * paid-but-undelivered query. A prompt retry is safe — inside Resend's 24-hour
+ * idempotency window the duplicate is a no-op — so failing loudly here is cheap.
  */
 async function markDelivered(token, env) {
   try {
@@ -1162,6 +1163,11 @@ function escapeHtmlBasic(s) {
  * would defeat the entire mechanism, which is why they are built here rather than at
  * each call site.
  */
+// Resend retains an idempotency key for 24 HOURS, not forever, so this is the
+// short-window protection and `reports_delivered_at` is the durable one. Inside the
+// window a retry is genuinely the same message; outside it the database marker is
+// what stops a second send. Saying "a resend is always safe" would be wrong, and
+// treating the key as long-term state would be worse.
 const idempotencyKey = {
   report: (stripeSessionId) => `kd-report/${stripeSessionId}`,
   finish: (stripeSessionId) => `kd-finish/${stripeSessionId}`,
