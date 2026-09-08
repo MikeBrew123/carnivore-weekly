@@ -43,6 +43,7 @@
 
 import { fileURLToPath } from 'url';
 import path from 'path';
+import fs from 'fs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const API = path.join(HERE, '..', 'api', 'calculator-api.js');
@@ -82,7 +83,8 @@ const {
   __test_calculateMacros: calculateMacros,
   __test_generateAllReports: generateAllReports,
 } = api;
-const { deriveMedicalContext, HEALTH_CONTEXT_FIELDS, buildMedicalSafetyRules } = med;
+const { deriveMedicalContext, HEALTH_CONTEXT_FIELDS, buildMedicalSafetyRules,
+        findConditionClaimFrames, buildSymptomDisclosure } = med;
 
 for (const [name, fn] of Object.entries({ buildReportData, calculateMacros, generateAllReports })) {
   if (typeof fn !== 'function') {
@@ -258,6 +260,105 @@ for (const persona of CLAIM_PERSONAS) {
 }
 
 // ===========================================================================
+// GROUP G — THE RENDERED PHYSICIAN GUIDE. Asserted against the finished text of
+// Report #5 and the one-page handout, not against prompts or intermediate state.
+//
+// Why this group exists, and why it is separate from GROUP B:
+// GROUP B audits the SYSTEM PROMPT for the two live-written sections. On 2026-09-08
+// that passed while the shipped Report #5 said, in the patient's voice:
+//
+//     "I'm starting a therapeutic Carnivore protocol to address pelvic floor
+//      prolapse. This is evidence-based metabolic therapy, not a fad diet."
+//     "I am starting a therapeutic Carnivore protocol to address: pelvic floor prolapse"
+//
+// Both came from a hardcoded template, so no prompt rule could reach them. The
+// classifier decides what a section may say and never reads back what it said. And
+// this file's own GROUP D asserted the handout CONTAINED the symptom, which the
+// therapeutic sentence satisfied perfectly: testing for presence without testing for
+// framing is what let it through.
+//
+// So these assertions read the rendered document and check HOW the condition appears.
+// ===========================================================================
+{
+  const SYMPTOM = 'bladder prolapse, stage 2, diagnosed last year';
+  const r = await render('G-rendered', { ...BASE, otherSymptoms: SYMPTOM });
+  const consult = r.sections[5] || '';
+  const handout = consult.slice(consult.indexOf('ONE-PAGE PHYSICIAN CONSULTATION GUIDE'));
+
+  check('G', 'Report #5 renders at all', consult.length > 500, `${consult.length} chars`);
+  check('G', 'the one-page handout renders', handout.length > 200, `${handout.length} chars`);
+
+  // The exact constructions that shipped. Named individually so a failure says which.
+  const BANNED = [
+    [/therapeutic[^.\n]{0,60}protocol to address/i, 'therapeutic ... protocol to address'],
+    [/protocol to address:?\s*\*{0,2}[^*\n]*prolapse/i, 'protocol to address: <condition>'],
+    [/evidence-based metabolic therapy/i, 'evidence-based metabolic therapy'],
+    [/starting a therapeutic/i, 'starting a therapeutic ...'],
+  ];
+  for (const [rx, name] of BANNED) {
+    for (const [label, body] of [['Report #5', consult], ['one-page handout', handout]]) {
+      const hit = body.match(rx);
+      check('G', `${label}: no "${name}"`, !hit, hit ? `found: "${hit[0]}"` : '');
+    }
+  }
+
+  // The general property, not just the two known strings: the reported condition may
+  // not share a sentence with a therapeutic frame, anywhere in any rendered section.
+  for (const [num, body] of Object.entries(r.sections)) {
+    const hits = findConditionClaimFrames(body, r.ctx);
+    check('G', `Report #${num}: reported condition never sits in a treatment-claim frame`,
+      hits.length === 0,
+      hits.map(h => `"${h.sentence}"`).join(' ; '));
+  }
+
+  // Provenance must survive the fix: removing the claim must not remove the disclosure.
+  check('G', 'the handout still tells the doctor what the patient reported',
+    /Patient-reported symptoms\/concerns:[^\n]*prolapse/i.test(handout),
+    'the condition vanished from the handout entirely');
+  check('G', 'the patient request discloses the condition without a purpose claim',
+    /what I am dealing with: [^.\n]*prolapse/i.test(consult),
+    'the disclosure sentence is missing from Report #5');
+  check('G', 'the disclosure disclaims any assumed benefit',
+    /not assuming that changing my diet will do anything for that/i.test(consult), '');
+  check('G', 'the disclosure asks the clinician whether the change is appropriate',
+    /whether you think this change is appropriate/i.test(consult), '');
+
+  // And the detector itself must be able to see the historical sentence, otherwise
+  // every assertion above is vacuous.
+  const HISTORICAL = "I'm starting a therapeutic Carnivore protocol to address bladder prolapse, " +
+    "stage 2, diagnosed last year. This is evidence-based metabolic therapy, not a fad diet.";
+  check('G', 'the detector flags the exact sentence that shipped',
+    findConditionClaimFrames(HISTORICAL, r.ctx).length > 0,
+    'findConditionClaimFrames() cannot see the 2026-09-08 bypass; the guard is decorative');
+
+  // Referral language must NOT trip it. Over-firing here would push the generator into
+  // throwing on correct copy, which is its own outage.
+  const REFERRAL = 'You mentioned bladder prolapse, stage 2, diagnosed last year. ' +
+    'That is one for the clinician who treats it, and worth asking about.';
+  check('G', 'the detector does not flag ordinary referral language',
+    findConditionClaimFrames(REFERRAL, r.ctx).length === 0,
+    'referral copy trips the guard: ' + JSON.stringify(findConditionClaimFrames(REFERRAL, r.ctx)));
+
+  // SEAM: the detector must actually be called by the generator. A guard that works
+  // perfectly and is never invoked is the same as no guard, and nothing else in this
+  // file would notice its removal.
+  const src = fs.readFileSync(API, 'utf8');
+  const genStart = src.indexOf('async function generateAllReports');
+  const genEnd = src.indexOf('async function generateAIReports');
+  const genBody = src.slice(genStart, genEnd > genStart ? genEnd : undefined);
+  check('G', 'generateAllReports calls the render-time claim gate on every section',
+    genStart !== -1 && /assertNoConditionClaimFrames\s*\(/.test(genBody),
+    'the guard is defined but generateAllReports never invokes it');
+  check('G', 'the render-time gate runs over all sections, not one',
+    /for \(const \[num, body\] of Object\.entries\(reports\)\)[\s\S]{0,200}assertNoConditionClaimFrames/.test(genBody),
+    'the guard is called but not across every rendered section');
+
+  const PROVENANCE = 'Symptoms and concerns you reported: bladder prolapse, stage 2, diagnosed last year';
+  check('G', 'the detector does not flag the provenance heading',
+    findConditionClaimFrames(PROVENANCE, r.ctx).length === 0, '');
+}
+
+// ===========================================================================
 // GROUP C — CASE 4. A benign free-text symptom must not strip ordinary nutrition
 // content. Over-suppression is a real failure mode, not a safe default: a reader who
 // types "bloating" paid for macros, a food list and a meal plan.
@@ -310,8 +411,13 @@ for (const persona of CLAIM_PERSONAS) {
     /not a diagnosis made by this report/i.test(consult),
     'nothing distinguishes patient report from a diagnosis');
   check('D', 'the handout no longer falls back to the generic placeholder',
-    !/protocol to address: \*\*the health goals described in this report\*\*/i.test(consult),
+    !/the health goals described in this report/i.test(consult),
     'the free-text symptom is present in the form but the handout still says "the health goals described in this report"');
+  // {{symptoms}} is retired on purpose: its only job was to drop the condition into a
+  // sentence about the condition, which is the construction that shipped the bypass.
+  // A live substitution for it is a loaded gun for the next template author.
+  check('D', 'the raw {{symptoms}} placeholder is not substituted anywhere',
+    !/\{\{symptoms\}\}/.test(r.full), 'an unreplaced {{symptoms}} token reached the page');
 
   // And the reader-facing banner acknowledges it too.
   check('D', 'the medical-context banner acknowledges reported symptoms',
@@ -403,7 +509,7 @@ for (const persona of CLAIM_PERSONAS) {
 }
 
 // ---------------------------------------------------------------------------
-console.log(`\nhealth-context-flow: ${pass.length} passed, ${failures.length} failed  (groups A B C D E F)\n`);
+console.log(`\nhealth-context-flow: ${pass.length} passed, ${failures.length} failed  (groups A B C D E F G)\n`);
 if (failures.length) {
   for (const f of failures) console.log(`  [${f.group}] ${f.label}\n        ${f.detail}`);
   console.log('');

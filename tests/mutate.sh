@@ -54,18 +54,16 @@ open('$MED','w').write(s.replace(old,new))
 mutate 3 "condition-specific treatment claim restored in Report #8" health-context-flow "
 s=open('$API').read()
 old='The research below is general. It is not a finding about you, your questionnaire answers, or anything you told us you are dealing with:'
-new='Research on {{diet}} shows promising results for {{goal}} and {{symptoms}}:'
-assert s.count(old)==1
+new='Research on {{diet}} shows promising results for {{goal}} and {{symptomsList}}:'
+assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
 mutate 4 "physician handout ignores the free-text symptom field" health-context-flow "
 s=open('$API').read()
-old='''  const symptomText = medicalContext.hasDeclaredSymptoms
-    ? medicalContext.symptomsText
-    : 'the health goals described in this report';'''
-new='''  const symptomText = humanizeList(data.symptoms, 'the health goals described in this report');'''
-assert s.count(old)==1
+old='result = result.replace(/\\\\{\\\\{symptomsList\\\\}\\\\}/g, medicalContext.symptomsText);'
+new='result = result.replace(/\\\\{\\\\{symptomsList\\\\}\\\\}/g, humanizeList(data.symptoms, chr39None reportedchr39));'.replace('chr39',chr(39))
+assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
@@ -81,6 +79,30 @@ mutate 6 "groceries ignore days 29-30 while the calendar renders them" report-in
 s=open('$API').read()
 old='  for (const planWeek of fullMealPlan.weeks) {'
 new='  for (const planWeek of fullMealPlan.weeks.slice(0, 4)) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 7 "therapeutic interpolation restored in the Report #5 pitch" health-context-flow "
+s=open('$API').read()
+old=chr(34)+'Dr. [Name], I'+chr(39)+'m planning to change the way I eat to a {{diet}} diet, and I want your input before I start. {{symptomDisclosure}}'
+new=chr(34)+'Dr. [Name], I'+chr(39)+'m starting a therapeutic {{diet}} protocol to address {{symptoms}}. This is evidence-based metabolic therapy, not a fad diet.'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 8 "therapeutic interpolation restored in the one-page handout" health-context-flow "
+s=open('$API').read()
+old='I am planning to start a **{{diet}}** diet.'
+new='I am starting a therapeutic {{diet}} protocol to address: **{{symptomsList}}**'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 9 "render-time claim gate removed" health-context-flow "
+s=open('$API').read()
+old='      assertNoConditionClaimFrames(\`Report #\${num}\`, body, medCtx);'
+new='      void num; void body; void medCtx;'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "

@@ -433,6 +433,85 @@ export function buildMedicalContextBanner(ctx) {
  * that figure is and is not. For a reader who HAS declared it, there is no figure to
  * discuss, and the note must not imply there is one waiting somewhere in the document.
  */
+/**
+ * What the patient says to their doctor about what they reported.
+ *
+ * The distinction this exists to hold: DISCLOSURE is not PURPOSE. Until 2026-09-08
+ * the physician guide interpolated the reported condition straight into a claim frame,
+ * twice:
+ *
+ *   "I'm starting a therapeutic Carnivore protocol to address pelvic floor prolapse.
+ *    This is evidence-based metabolic therapy, not a fad diet."
+ *   "I am starting a therapeutic Carnivore protocol to address: pelvic floor prolapse"
+ *
+ * Those put words in the patient's mouth that assert the diet is a therapy for her
+ * diagnosis, on the sheet she hands a clinician. Nothing the model wrote was involved:
+ * rules 11 and 12 govern the two live-written sections and this is a static template,
+ * so hardening the prompt did not touch it.
+ *
+ * The replacement states the condition as something the patient reported and asks the
+ * doctor whether the dietary change is appropriate. It deliberately contains no
+ * therapeutic verb, so it cannot itself trip assertNoConditionClaimFrames().
+ */
+export function buildSymptomDisclosure(ctx) {
+  if (!ctx || !ctx.hasDeclaredSymptoms) {
+    return 'I would like to know whether you think this change is appropriate for me.';
+  }
+  return `I also want you to know what I am dealing with: ${ctx.symptomsText}. ` +
+    `I am not assuming that changing my diet will do anything for that, and nobody has ` +
+    `told me it will. I would like to know whether you think this change is appropriate ` +
+    `for me, and what you would want to keep an eye on.`;
+}
+
+/**
+ * THE RENDER-TIME GUARD. Nothing a reader reported may appear in a sentence that
+ * frames this diet as therapy for it.
+ *
+ * Why a render-time check and not only a prompt rule: the bypass found on 2026-09-08
+ * was in a hardcoded template. Prompt rules cannot reach a template, the safety
+ * classifier only decides what the templates are ALLOWED to say rather than reading
+ * back what they did say, and the fixture asserted the handout CONTAINED the symptom
+ * without asserting how. Every layer was looking somewhere else. This one reads the
+ * finished text, which is the only artifact a customer actually gets.
+ *
+ * Deliberately narrow. It fires only when a diet/protocol noun and a therapeutic verb
+ * share a sentence with the reported condition, so ordinary referral language
+ * ("that is one for the clinician who treats it") and the provenance headings
+ * ("Symptoms and concerns you reported: ...") do not trip it.
+ */
+const CLAIM_FRAME_DIET = /\b(carnivore|pescatarian|keto(genic)?|lion|low[- ]carb|protocol|regimen|this diet|the diet|dietary (change|protocol|intervention)|meal plan|this plan|this report|eating this way|way of eating)\b/i;
+const CLAIM_FRAME_VERB = /\b(to address|addresses|addressing|address(?=[:\s])|to treat|treats|treating|treatment for|to heal|heals|healing|to repair|repairs|repairing|to reverse|reverses|reversing|to cure|cures|to fix|fixes|resolves?|restores?|rebuilds?|regenerates?|strengthens?|supports? the|improves?)\b/i;
+const CLAIM_FRAME_ABSOLUTE = /\b(therapeutic|metabolic therapy|evidence[- ]based (therapy|treatment|metabolic))\b/i;
+
+export function findConditionClaimFrames(text, ctx) {
+  if (!ctx || !ctx.restrictConditionClaims || !text) return [];
+  const terms = String(ctx.reportedContextText || '')
+    .split(',').map(t => t.trim()).filter(t => t && t.toLowerCase() !== 'none reported');
+  if (!terms.length) return [];
+
+  const hits = [];
+  for (const sentence of String(text).split(/(?<=[.!?])\s+|\n{2,}/)) {
+    const matched = terms.find(t => sentence.toLowerCase().includes(t.toLowerCase()));
+    if (!matched) continue;
+    const absolute = CLAIM_FRAME_ABSOLUTE.test(sentence);
+    const framed = CLAIM_FRAME_DIET.test(sentence) && CLAIM_FRAME_VERB.test(sentence);
+    if (absolute || framed) {
+      hits.push({ term: matched, sentence: sentence.trim().slice(0, 300) });
+    }
+  }
+  return hits;
+}
+
+export function assertNoConditionClaimFrames(sectionLabel, text, ctx) {
+  const hits = findConditionClaimFrames(text, ctx);
+  if (!hits.length) return;
+  throw new Error(
+    `${sectionLabel}: a reported condition appears inside a treatment-claim frame. ` +
+    hits.map(h => `[${h.term}] "${h.sentence}"`).join(' ; ') +
+    ` — the reader's own words may be disclosed, never presented as what this diet treats.`
+  );
+}
+
 export function buildProteinTargetNote(ctx) {
   if (ctx && ctx.restrictProteinTarget) {
     return [
