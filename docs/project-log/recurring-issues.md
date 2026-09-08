@@ -753,3 +753,31 @@ Attempts:
   topic research, widen mining from 2 threads to all 9 → 146 comments vs 38 → fixed
 If recurs: check that the sort key and the task brief still agree. They disagreed
 for a week without anyone noticing because the output still looked plausible.
+
+## ISSUE-077 — Paid report: shopping list generated independently of the meal calendar
+**Status:** 🟢 FIXED 2026-09-08
+
+**Pattern:** Two functions generating text that describes the same thing, from the same
+source data, by separate routes. `generateFullMealPlan()` rotated proteins per day
+(`dayNum % pool.length`); `generateGroceryListByWeek()` ran its own rotation
+(`week % pool.length`) and read `foodDatabase` directly. They agreed by coincidence
+only, and never did. Same shape as the hardcoded substitution guide found alongside it.
+
+**Attempts:**
+- 2026-09-08 — Reported by a customer, not by us. Reproduced her report byte-for-byte
+  offline, then audited all 7 delivered reports: 29 of ~34 proteins per report were
+  cooked but never listed. Also found 30 empty lunch cells per report (`mealsPerDay`
+  is never collected, defaults to 2, rendered into a hardcoded 3-column table as `-`,
+  which markdownToHTML turned into an empty cell).
+- Fix: deleted the second generator. The grocery builder now aggregates structured
+  `items` attached to each day, reads no food database, and throws without a meal plan.
+  Calendar renders as many columns as the plan has meals.
+- `tests/report-integrity.test.mjs` (1762 assertions, 14 personas). Mutation-checked:
+  restoring the old rotation gives 307 failures. Both report suites now gate in
+  calculator-guard CI; neither ran anywhere before.
+
+**If recurs:** the smell is any function that re-derives what another function already
+decided. Grep for a second call into `foodDatabase` outside the meal planner. GROUP D
+of the integrity fixture is the tripwire; D5 scans all of `api/` for a new offender.
+`api/generate-report.js` is a dormant duplicate still carrying the original design and
+is named in that test's KNOWN_DORMANT allowlist.
