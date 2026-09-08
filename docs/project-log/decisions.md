@@ -1063,3 +1063,71 @@ Mutation-proved, and the polarity is the point:
 before this deploy and for cached pages still submitting label text. That case has its own proof
 against the real constraints (integration GROUP 1b), because it is the only remaining reason to keep
 the code.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4e: second review, three blockers closed
+
+### 1. Purchase eligibility is not report eligibility
+`handleCheckout` reused the full report validator, which requires `step_completed >= 2`, conditions
+and medications. But `ketodial.js` moves the priced picker ABOVE the profile deliberately — its own
+comment says *"so prices are visible without completing the 12-field profile. The survey stays below
+as optional personalization"* — and the profile heading says *"Most are optional"*.
+
+So a customer who finished the calculator, answered the kidney question and wanted the Starter Kit was
+told to finish a questionnaire the product calls optional. **Safety changing the offer had become
+safety blocking the sale**, which is the opposite of the rule.
+
+Two boundaries now, as separate exported functions so a caller cannot pick the weaker one by accident:
+
+| | `validatePurchaseIntake` | `validateIntake` (report) |
+|---|---|---|
+| session is real, body + macros sane | ✓ | ✓ |
+| `kidney_status` explicit `no\|yes\|unsure` | ✓ | ✓ |
+| product allowed for that kidney state | ✓ (`allowedProducts`) | n/a |
+| `step_completed >= 2`, conditions, medications | **not required** | ✓ |
+
+A purchase outrunning the profile is fine — the customer finishes it and the report generates. A
+REPORT built from data nobody supplied is not, and that bar did not move. GROUP L asserts both halves,
+and pins that the report validator stays strictly stronger.
+
+**Related fabrication found while splitting them:** with `conditions`/`meds` absent the generators
+printed **"None reported"** — a claim about the customer, on a document for their physician, that
+nobody made. `d.conditions || []` is the `|| 75` of the medical section. New `requireDeclaredAnswers()`
+refuses undefined/null while still accepting `[]` and `''`, which are real answers.
+
+A buyer who has not finished the profile now gets *"One short step and your reports are ready"* with a
+link back, not *"your answers were lost"* — those are different situations and must read differently.
+
+**Save race removed.** `updateSession` returns a promise chain; checkout awaits it via `writesSettled()`
+and surfaces failure. Verified in a browser with a deliberately slow 600ms write and an immediate
+checkout click: checkout ran only after every dependent write landed. With a rejected write, checkout
+was blocked, the customer was told, and the button re-enabled.
+
+### 2. "I'm not sure" must never become a diagnosis in prose
+`kdProteinSuppressionNote()` and the meal-plan referral both said **"You told us about kidney
+disease"** to an `unsure` customer. False, and it puts a diagnosis in their mouth on a clinician-facing
+document — the exact failure the dedicated `kidney_status` column exists to prevent, surviving in the
+copy. `ctx.kidneyConditionDeclared` / `ctx.kidneyUnsureOnly` now split the wording while the
+suppression stays identical. The referral's summary table states the kidney check honestly
+("Answered 'I am not sure' — not a reported diagnosis"). Every other "kidney disease" string was
+already gated on a real declaration; all were re-checked.
+
+### 3. CI now runs on the live intake UI
+`ketodial/public` (the submodule gitlink) added to **both** `push.paths` and `pull_request.paths`.
+`submodules: true` kept. GROUP N reads the workflow and fails if either trigger loses the path.
+
+### Mutation results — all six detected
+| Mutation | Detected by |
+|---|---|
+| checkout back to the report validator | L: "checkout uses the purchase boundary" |
+| purchase stops requiring the kidney answer | L: "purchase is refused when the kidney answer is missing" |
+| report validator loosened to the purchase bar | C: "medical screen never submitted" |
+| `unsure` told it declared kidney disease | M: "is NOT described as having told us about kidney disease" |
+| generators may print "None reported" unasked | L: "the Doctor's Report refuses rather than printing 'None reported'" |
+| `ketodial/public` dropped from `pull_request` | N: "pull_request watches the ketodial/public submodule gitlink" |
+
+The kidney-answer mutation initially went **undetected**: the assertion used
+`err.missing.some(/kidney/i)`, which the plausibility check satisfied by reporting `kidneyStatus`, so
+deleting the requirement outright left it green. The assertion passed through a different mechanism
+than the one it was written to pin. Now asserts the exact code and the exact missing string.

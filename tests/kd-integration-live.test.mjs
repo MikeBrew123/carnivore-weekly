@@ -478,15 +478,25 @@ try {
                  'Content-Type': 'application/json', Prefer: 'return=minimal' },
       body: JSON.stringify({ source: TEST_SOURCE }),
     });
+    // THE OPTIONAL PROFILE MUST NOT BLOCK A SALE. This row is step 1 only: calculator
+    // done, kidney answered, profile skipped — exactly what the page invites, since it
+    // shows the picker above the profile and calls the profile optional. Until
+    // 2026-09-08 checkout used the full REPORT validator and turned this buyer away.
     const r = await call('POST', '/checkout',
       { items: ['starter'], email: 'x' + TEST_EMAIL_DOMAIN, name: 'X', token });
-    check(G, 'incomplete authoritative row: checkout refused', r.status === 409, `status ${r.status}`);
-    check(G, '  ...as INTAKE_INCOMPLETE', r.json && r.json.code === 'INTAKE_INCOMPLETE', '');
-    check(G, '  ...and no report can be produced from it either',
-      (await (async () => {
-        const { loadAuthoritativeIntake } = await import('file://' + path.join(REPO, 'ketodial', 'worker', 'intake.js'));
-        try { await loadAuthoritativeIntake(token, ENV); return false; } catch { return true; }
-      })()), '');
+    check(G, 'step 1 only, no profile: checkout is ALLOWED', r.status === 200,
+      `status ${r.status} ${JSON.stringify(r.json)} — a willing buyer was turned away`);
+
+    // ...and the report bar is untouched: the same row still cannot produce one.
+    const { loadAuthoritativeIntake: loadReport } =
+      await import('file://' + path.join(REPO, 'ketodial', 'worker', 'intake.js'));
+    let reportErr = null;
+    try { await loadReport(token, ENV); } catch (e) { reportErr = e; }
+    check(G, '  ...while report generation from the same row still REFUSES',
+      reportErr !== null, 'the report bar was loosened along with the purchase bar');
+    check(G, '  ...saying the profile is unfinished, not that data was lost',
+      reportErr && reportErr.code === 'INTAKE_PROFILE_NOT_COMPLETED',
+      reportErr ? reportErr.code : '');
   }
   {
     // A complete row whose kidney answer is NULL — every session predating the gate.
@@ -505,7 +515,8 @@ try {
     const r = await call('POST', '/checkout',
       { items: ['starter'], email: 'x' + TEST_EMAIL_DOMAIN, name: 'X', token });
     check(G, 'missing kidney answer: checkout refused, not defaulted to No',
-      r.status === 409 && r.json.code === 'INTAKE_INCOMPLETE', `status ${r.status}`);
+      r.status === 409 && r.json.code === 'PURCHASE_INTAKE_INCOMPLETE',
+      `status ${r.status} code ${r.json && r.json.code}`);
   }
   {
     // The CHECK constraint is a real guard, not a comment.

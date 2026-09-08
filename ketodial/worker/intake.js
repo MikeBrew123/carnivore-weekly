@@ -339,10 +339,96 @@ export function normalizeIntake(row) {
 const REQUIRED_BODY_FACTS = ['sex', 'age', 'heightCm', 'weightKg', 'goal'];
 const REQUIRED_MACRO_FACTS = ['calories', 'proteinG', 'fatG', 'carbG', 'tdee'];
 
+// ---------------------------------------------------------------------------
+// TWO BOUNDARIES, NOT ONE
+// ---------------------------------------------------------------------------
+// These were the same function until 2026-09-08, and that was a funnel bug wearing
+// a safety costume.
+//
+// The KetoDial page deliberately reveals the priced report picker ABOVE the step-2
+// profile — the code that moves it says so: "so prices are visible without
+// completing the 12-field profile. The survey stays below as optional
+// personalization." The profile's own heading says "Most are optional".
+//
+// So a customer who finished the calculator, answered the kidney question, and
+// wanted to buy the Starter Kit was being told to "finish your questionnaire" —
+// about a questionnaire the product calls optional. Safety is supposed to change
+// the offer, not block a willing buyer.
+//
+//   PURCHASE eligibility  — is this a real saved session, is the body data sane,
+//                           is the kidney answer explicit, and may this customer
+//                           buy this product? Nothing about step 2.
+//
+//   REPORT eligibility    — everything above PLUS the complete medical intake,
+//                           because a report states facts about a person and may
+//                           not invent one. Unchanged, and deliberately stricter.
+//
+// A purchase that outruns the profile is fine: the customer finishes it afterwards
+// and the report generates. What must never happen is a REPORT built from data
+// nobody supplied, and that is what validateIntake still guarantees.
+
 /**
- * Decide whether this intake may be turned into a paid report.
+ * May this session be taken through checkout?
+ *
+ * The minimum that makes a purchase honest: the session exists, the body data
+ * behind the price is real and sane, and the kidney answer — which decides what we
+ * are allowed to sell — was explicitly given. It does NOT require the optional
+ * profile, and it must not start doing so.
+ *
+ * @param {object} intake from normalizeIntake()
+ * @returns {object} the same intake
+ */
+export function validatePurchaseIntake(intake) {
+  if (!intake || typeof intake !== 'object') {
+    throw new IntakeError('INTAKE_ROW_MISSING', ['session record']);
+  }
+
+  const missing = [];
+  for (const f of REQUIRED_BODY_FACTS) {
+    if (intake[f] === undefined || intake[f] === null || intake[f] === '') missing.push(f);
+  }
+  for (const f of REQUIRED_MACRO_FACTS) {
+    if (intake[f] === undefined || intake[f] === null) missing.push(f);
+  }
+  // The one medical fact a purchase DOES depend on: it decides which products are
+  // deliverable. Asked on step 1, before the free result, so a buyer always has it.
+  if (intake.kidneyStatus === undefined) missing.push('kidney safety answer');
+
+  if (missing.length) {
+    throw new IntakeError('PURCHASE_INTAKE_INCOMPLETE', missing,
+      'We could not find the calculator results this purchase is based on. Please run the ' +
+      'calculator again and retry — nothing has been charged.');
+  }
+
+  checkPlausibility(intake);
+  return intake;
+}
+
+/**
+ * Shape and plausibility, shared by both boundaries. A value that fails here is
+ * corrupt input, not a small person.
+ */
+function checkPlausibility(intake) {
+  const invalid = [];
+  if (!VALID_SEX.has(String(intake.sex).toLowerCase())) invalid.push('sex');
+  if (!VALID_GOAL.has(String(intake.goal).toLowerCase())) invalid.push('goal');
+  if (!VALID_KIDNEY.has(String(intake.kidneyStatus).toLowerCase())) invalid.push('kidneyStatus');
+  if (!inBounds('age', intake.age)) invalid.push('age');
+  if (!inBounds('height_cm', intake.heightCm)) invalid.push('heightCm');
+  if (!inBounds('weight_kg', intake.weightKg)) invalid.push('weightKg');
+  if (!inBounds('calories', intake.calories)) invalid.push('calories');
+  if (!inBounds('proteinG', intake.proteinG)) invalid.push('proteinG');
+  if (!inBounds('fatG', intake.fatG)) invalid.push('fatG');
+  if (!inBounds('carbG', intake.carbG)) invalid.push('carbG');
+  if (!inBounds('tdee', intake.tdee)) invalid.push('tdee');
+  if (invalid.length) throw new IntakeError('INTAKE_IMPLAUSIBLE', invalid);
+}
+
+/**
+ * Decide whether this intake may be turned into a paid REPORT.
  *
  * Throws IntakeError. Does not repair, default, or approximate anything.
+ * Strictly stronger than validatePurchaseIntake, and must stay that way.
  *
  * @param {object} intake from normalizeIntake()
  * @returns {object} the same intake, once it has earned the right to be used
@@ -375,26 +461,23 @@ export function validateIntake(intake) {
   if (intake.kidneyStatus === undefined) missing.push('kidney safety answer');
 
   if (missing.length) {
-    throw new IntakeError('INTAKE_INCOMPLETE', missing);
+    // A buyer who simply has not finished the optional profile yet is NOT a data
+    // loss, and must not be told their answers went missing. Distinguish the two so
+    // the page can send them back to the form instead of to support.
+    const onlyProfileMissing = missing.every(m =>
+      m === 'conditions' || m === 'medications' || m.startsWith('medical intake'));
+    throw new IntakeError(
+      onlyProfileMissing ? 'INTAKE_PROFILE_NOT_COMPLETED' : 'INTAKE_INCOMPLETE',
+      missing,
+      onlyProfileMissing
+        ? 'Your reports are personalised from the short health profile on the calculator page, ' +
+          'and it has not been filled in yet. Nothing is lost and you have not been charged ' +
+          'twice — go back to the calculator, complete the profile, and your reports will be ' +
+          'ready. If you would rather we did it for you, email ketodial@carnivoreweekly.com.'
+        : undefined);
   }
 
-  // Shape and plausibility. A value that fails here is corrupt, not small.
-  const invalid = [];
-  if (!VALID_SEX.has(String(intake.sex).toLowerCase())) invalid.push('sex');
-  if (!VALID_GOAL.has(String(intake.goal).toLowerCase())) invalid.push('goal');
-  if (!VALID_KIDNEY.has(String(intake.kidneyStatus).toLowerCase())) invalid.push('kidneyStatus');
-  if (!inBounds('age', intake.age)) invalid.push('age');
-  if (!inBounds('height_cm', intake.heightCm)) invalid.push('heightCm');
-  if (!inBounds('weight_kg', intake.weightKg)) invalid.push('weightKg');
-  if (!inBounds('calories', intake.calories)) invalid.push('calories');
-  if (!inBounds('proteinG', intake.proteinG)) invalid.push('proteinG');
-  if (!inBounds('fatG', intake.fatG)) invalid.push('fatG');
-  if (!inBounds('carbG', intake.carbG)) invalid.push('carbG');
-  if (!inBounds('tdee', intake.tdee)) invalid.push('tdee');
-
-  if (invalid.length) {
-    throw new IntakeError('INTAKE_IMPLAUSIBLE', invalid);
-  }
+  checkPlausibility(intake);
 
   return intake;
 }
@@ -431,6 +514,36 @@ export function requireFacts(d, facts, who = 'report generator') {
 }
 
 /**
+ * Guard for answers where EMPTY IS A REAL ANSWER.
+ *
+ * `requireFacts` rejects '' because an empty weight is missing data. That is wrong
+ * for the medical questionnaire: a customer who ticked no conditions and takes no
+ * medications gave us `[]` and `''`, and they are entitled to a report saying
+ * "None reported".
+ *
+ * But a generator that has NEVER been given those fields must not print "None
+ * reported" either — that sentence is a claim about the customer, on a document
+ * they may hand to a clinician, and it is exactly as fabricated as a substituted
+ * body weight. `d.conditions || []` is the `|| 75` of the medical section.
+ *
+ * So: undefined or null refuses; empty passes.
+ */
+export function requireDeclaredAnswers(d, fields, who = 'report generator') {
+  const missing = [];
+  for (const f of fields) {
+    const v = d ? d[f] : undefined;
+    if (v === undefined || v === null) missing.push(f);
+  }
+  if (missing.length) {
+    throw new IntakeError('GENERATOR_MISSING_DECLARATIONS', missing,
+      'Your reports are personalised from the short health profile on the calculator page, ' +
+      'and it has not been filled in yet. Nothing is lost — go back to the calculator, ' +
+      'complete the profile, and your reports will be ready.');
+  }
+  return d;
+}
+
+/**
  * Fetch and validate the authoritative intake for a session token.
  *
  * Distinguishes three outcomes on purpose, because they need different handling
@@ -443,6 +556,12 @@ export function requireFacts(d, facts, who = 'report generator') {
  * @param {object} env worker env with SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY
  */
 export async function loadAuthoritativeIntake(sessionToken, env) {
+  return validateIntake(normalizeIntake(await fetchIntakeRow(sessionToken, env)));
+}
+
+/** The shared read. Throws IntakeError for a bad reference or a missing row, and a
+ *  plain Error for a transient store failure — the callers treat those differently. */
+async function fetchIntakeRow(sessionToken, env) {
   if (!sessionToken || typeof sessionToken !== 'string' || !/^kd_[A-Za-z0-9]{8,64}$/.test(sessionToken)) {
     throw new IntakeError('INTAKE_REFERENCE_INVALID', ['session_token'],
       'This purchase is not linked to a saved questionnaire, so we have not generated a ' +
@@ -486,5 +605,16 @@ export async function loadAuthoritativeIntake(sessionToken, env) {
       'ketodial@carnivoreweekly.com with your receipt and we will sort it out.');
   }
 
-  return validateIntake(normalizeIntake(rows[0]));
+  return rows[0];
+}
+
+/**
+ * The same fetch, validated only to the PURCHASE bar.
+ *
+ * Separate exported function rather than a boolean flag, so a future caller cannot
+ * quietly downgrade report generation to the weaker check by passing `false`.
+ */
+export async function loadIntakeForPurchase(sessionToken, env) {
+  const row = await fetchIntakeRow(sessionToken, env);
+  return validatePurchaseIntake(normalizeIntake(row));
 }

@@ -42,7 +42,7 @@ import {
   generateMealPlan,
   generateStarterKit,
 } from './reports.js';
-import { IntakeError, loadAuthoritativeIntake, toStoredVocabulary } from './intake.js';
+import { IntakeError, loadAuthoritativeIntake, loadIntakeForPurchase, toStoredVocabulary } from './intake.js';
 import { deriveKdMedicalContext, allowedProducts } from './reports.js';
 
 const PRICE_MAP_LIVE = {
@@ -449,24 +449,22 @@ async function handleCheckout(request, env) {
       return jsonResponse(400, { error: 'No items selected' });
     }
 
-    // DO NOT TAKE MONEY FOR A REPORT WE ALREADY KNOW WE CANNOT WRITE.
-    // The authoritative intake is validated BEFORE the Stripe session exists, so the
-    // common failure — an incomplete questionnaire — surfaces as "finish the
-    // questionnaire", at the moment the customer can still do something about it,
-    // instead of as a refund conversation after they have paid. Everything after
-    // this line has a validated intake behind it.
+    // PURCHASE ELIGIBILITY, NOT REPORT ELIGIBILITY. See the two-boundary note in
+    // intake.js. This checks that the session is real, the body data behind the
+    // price is sane, and the kidney answer was explicitly given — and deliberately
+    // does NOT require the step-2 profile, which this page presents ABOVE the
+    // picker and labels optional. Requiring it here turned "safety changes the
+    // offer" into "safety blocks the sale", which is the opposite of the rule.
     let checkoutIntake;
     try {
-      checkoutIntake = await loadAuthoritativeIntake(token, env);
+      checkoutIntake = await loadIntakeForPurchase(token, env);
     } catch (err) {
       if (err instanceof IntakeError) {
-        console.error('Checkout blocked, intake not usable:', err.code, err.missing.join('|'));
+        console.error('Checkout blocked, purchase intake not usable:', err.code, err.missing.join('|'));
         return jsonResponse(409, {
           error: 'incomplete_intake',
           code: err.code,
-          message: 'We could not find your completed questionnaire, so we have not started ' +
-                   'a payment. Please finish the questions above and try again. If you have ' +
-                   'already done that, email ketodial@carnivoreweekly.com.',
+          message: err.customerMessage,
         });
       }
       // Store unreachable: transient, and not the customer's fault. Do not sell them
@@ -773,9 +771,12 @@ async function handleReport(sessionId, reportType, env) {
  */
 function intakeErrorPage(err) {
   const transient = !err;
+  const profilePending = !transient && err.code === 'INTAKE_PROFILE_NOT_COMPLETED';
   const heading = transient
     ? 'We cannot reach your report right now'
-    : 'We have not generated this report';
+    : profilePending
+      ? 'One short step and your reports are ready'
+      : 'We have not generated this report';
   const message = transient
     ? 'This is a temporary problem on our side, not a problem with your purchase or your ' +
       'answers. Please refresh in a few minutes. If it is still not working, email us.'
@@ -797,8 +798,13 @@ function intakeErrorPage(err) {
 <div class="wrap"><div class="card">
   <h1>${heading}</h1>
   <p>${message}</p>
-  <p><b>Your payment is safe and your answers are not lost.</b> We would rather show you
-  nothing than show you a report built on details we had to assume.</p>
+  ${profilePending
+    ? `<p><a href="https://ketodial.com/#step2">Go back to the calculator and finish the health
+       profile</a>, then reopen this link.</p>
+       <p><b>Nothing is wrong with your purchase.</b> The reports are personalised from that
+       profile, and we will not invent the answers to it.</p>`
+    : `<p><b>Your payment is safe and your answers are not lost.</b> We would rather show you
+       nothing than show you a report built on details we had to assume.</p>`}
   <p>Email <a href="mailto:ketodial@carnivoreweekly.com">ketodial@carnivoreweekly.com</a>
   with your receipt and we will put this right by hand.</p>
   <div class="foot">KetoDial${err ? ` · reference: ${err.code}` : ''}</div>

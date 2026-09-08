@@ -30,6 +30,11 @@ on:
       - 'ketodial/worker/reports.js'
       - 'ketodial/worker/intake.js'
       - 'ketodial/worker/wrangler.toml'
+      # The submodule GITLINK. ketodial/public is the live intake UI: the kidney
+      # safety question, and the option value= attributes that are an API contract
+      # with calculator_sessions_v2. A pointer bump changes what real customers
+      # submit, so it has to run the KD safety suite like any other source change.
+      - 'ketodial/public'
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
@@ -58,6 +63,11 @@ on:
       - 'ketodial/worker/reports.js'
       - 'ketodial/worker/intake.js'
       - 'ketodial/worker/wrangler.toml'
+      # The submodule GITLINK. ketodial/public is the live intake UI: the kidney
+      # safety question, and the option value= attributes that are an API contract
+      # with calculator_sessions_v2. A pointer bump changes what real customers
+      # submit, so it has to run the KD safety suite like any other source change.
+      - 'ketodial/public'
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
   workflow_dispatch:

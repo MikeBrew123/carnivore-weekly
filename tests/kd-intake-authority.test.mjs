@@ -66,9 +66,11 @@ const REPORTS_JS = path.join(REPO, 'ketodial', 'worker', 'reports.js');
 const KD_PUBLIC_JS = path.join(REPO, 'ketodial', 'public', 'ketodial.js');
 
 const {
-  IntakeError, normalizeIntake, validateIntake, requireFacts, loadAuthoritativeIntake,
-  toStoredVocabulary,
+  IntakeError, normalizeIntake, validateIntake, validatePurchaseIntake,
+  requireFacts, loadAuthoritativeIntake, loadIntakeForPurchase, toStoredVocabulary,
 } = await import('file://' + INTAKE_JS);
+const { kdProteinSuppressionNote } = await import('file://' + REPORTS_JS);
+const WORKFLOW_YML = path.join(REPO, '.github', 'workflows', 'calculator-guard.yml');
 const { generateDoctorReport, generateMealPlan, generateStarterKit,
         deriveKdMedicalContext, allowedProducts } = await import('file://' + REPORTS_JS);
 const KD_INDEX_HTML = path.join(REPO, 'ketodial', 'public', 'index.html');
@@ -328,9 +330,15 @@ for (const c of REFERENCE_CASES) {
 }
 
 const INCOMPLETE_CASES = [
-  { id: 'medical screen never submitted (step 1)', row: { ...ROW, step_completed: 1 }, missing: 'medical intake' },
-  { id: 'conditions column lost', row: { ...ROW, conditions: null }, missing: 'conditions' },
-  { id: 'medications column lost', row: { ...ROW, medications: null }, missing: 'medications' },
+  // These three are the "profile not filled in yet" shape, which validateIntake
+  // reports as INTAKE_PROFILE_NOT_COMPLETED so the page can send the customer back
+  // to the form instead of telling them their answers were lost. Still refused.
+  { id: 'medical screen never submitted (step 1)', row: { ...ROW, step_completed: 1 },
+    missing: 'medical intake', code: 'INTAKE_PROFILE_NOT_COMPLETED' },
+  { id: 'conditions column lost', row: { ...ROW, conditions: null },
+    missing: 'conditions', code: 'INTAKE_PROFILE_NOT_COMPLETED' },
+  { id: 'medications column lost', row: { ...ROW, medications: null },
+    missing: 'medications', code: 'INTAKE_PROFILE_NOT_COMPLETED' },
   { id: 'macros absent', row: { ...ROW, calculated_macros: null }, missing: 'calories' },
   { id: 'macros present but empty', row: { ...ROW, calculated_macros: {} }, missing: 'calories' },
   { id: 'protein missing from macros',
@@ -346,7 +354,7 @@ for (const c of INCOMPLETE_CASES) {
   let err = null;
   try { validateIntake(normalizeIntake(c.row)); } catch (e) { err = e; }
   check('C', `incomplete intake fails closed: ${c.id}`,
-    err instanceof IntakeError && err.code === 'INTAKE_INCOMPLETE',
+    err instanceof IntakeError && err.code === (c.code || 'INTAKE_INCOMPLETE'),
     err ? `${err.name}/${err.code}` : 'an incomplete intake was accepted');
   check('C', `  ...and names the missing fact (${c.missing})`,
     err && err.missing.some(m => m.includes(c.missing)),
@@ -761,6 +769,210 @@ for (const c of MALFORMED_CASES) {
 }
 
 // ===========================================================================
+// GROUP L — PURCHASE ELIGIBILITY IS NOT REPORT ELIGIBILITY.
+// ---------------------------------------------------------------------------
+// These were one function, and that was a funnel bug wearing a safety costume.
+// ketodial.js moves the priced picker ABOVE the step-2 profile on purpose ("so
+// prices are visible without completing the 12-field profile"), and the profile's
+// own heading says "Most are optional". Requiring it at checkout told a willing
+// buyer to finish a questionnaire the product calls optional.
+//
+// Both halves are asserted here. Loosening the purchase bar is only correct if the
+// REPORT bar stays exactly where it was.
+// ===========================================================================
+{
+  // A real session that stopped after step 1: calculator done, kidney answered,
+  // profile skipped. This is the customer the old code turned away.
+  const step1Only = (kidney) => ({
+    ...ROW, kidney_status: kidney, step_completed: 1,
+    conditions: null, symptoms: null, medications: null,
+    dairy_tolerance: null, cooking_skill: null, meal_prep_time: null,
+    family_situation: null, budget: null, biggest_challenge: null, previous_diets: null,
+  });
+
+  for (const kidney of ['no', 'yes', 'unsure']) {
+    const row = step1Only(kidney);
+    let purchaseErr = null, intake = null;
+    try { intake = validatePurchaseIntake(normalizeIntake(row)); } catch (e) { purchaseErr = e; }
+
+    check('L', `kidney=${kidney}, no step 2: the purchase boundary ACCEPTS them`,
+      purchaseErr === null,
+      purchaseErr ? `${purchaseErr.code}: ${purchaseErr.missing.join(', ')} — a willing buyer was turned away`
+                  : '');
+
+    if (intake) {
+      const offer = allowedProducts(deriveKdMedicalContext(intake));
+      if (kidney === 'no') {
+        check('L', 'kidney=no, no step 2: the full product set can reach checkout',
+          offer.allowed.length === 5 && offer.blocked.length === 0, offer.blocked.join(','));
+      } else {
+        check('L', `kidney=${kidney}, no step 2: Doctor + Starter can reach checkout`,
+          offer.allowed.includes('doctor') && offer.allowed.includes('starter'),
+          `allowed: ${offer.allowed.join(',')}`);
+        check('L', `kidney=${kidney}, no step 2: meal and its bundles still cannot`,
+          offer.blocked.includes('meal') && offer.blocked.includes('essentials') &&
+          offer.blocked.includes('protocol'), `blocked: ${offer.blocked.join(',')}`);
+      }
+    }
+
+    // THE OTHER HALF: the same row must still be refused a REPORT.
+    let reportErr = null;
+    try { validateIntake(normalizeIntake(row)); } catch (e) { reportErr = e; }
+    check('L', `kidney=${kidney}, no step 2: report generation still REFUSES`,
+      reportErr instanceof IntakeError,
+      'the report bar was loosened along with the purchase bar');
+    check('L', `  ...and says the profile is unfinished, not that data was lost`,
+      reportErr && reportErr.code === 'INTAKE_PROFILE_NOT_COMPLETED',
+      reportErr ? reportErr.code : '');
+    check('L', `  ...and no generator will render from it`,
+      (() => { try { generateDoctorReport('L', normalizeIntake(row)); return false; }
+               catch (e) { return e instanceof IntakeError; } })(), '');
+  }
+
+  // The purchase bar must stay STRICTLY weaker, never weaker on the things that
+  // make a purchase honest.
+  const noKidney = { ...ROW, kidney_status: null, step_completed: 1, conditions: null, medications: null };
+  let e1 = null;
+  try { validatePurchaseIntake(normalizeIntake(noKidney)); } catch (e) { e1 = e; }
+  // NAMED PRECISELY. A looser assertion (`err.missing.some(/kidney/i)`) was satisfied
+  // by the plausibility check reporting "kidneyStatus", so deleting the requirement
+  // outright left this green — the assertion passed through a different mechanism
+  // than the one it was written to pin. Mutation testing is how that surfaced.
+  check('L', 'purchase is refused when the kidney answer is missing — it decides what we may sell',
+    e1 instanceof IntakeError && e1.code === 'PURCHASE_INTAKE_INCOMPLETE' &&
+    e1.missing.includes('kidney safety answer'),
+    e1 ? `${e1.code}: ${e1.missing.join(', ')}` : 'a purchase with no kidney answer was accepted');
+
+  for (const [what, row] of [
+    ['body data', { ...ROW, weight_value: null, step_completed: 1, conditions: null, medications: null }],
+    ['macros', { ...ROW, calculated_macros: null, step_completed: 1, conditions: null, medications: null }],
+    ['a sane weight', { ...ROW, weight_value: '4000', step_completed: 1, conditions: null, medications: null }],
+  ]) {
+    let e2 = null;
+    try { validatePurchaseIntake(normalizeIntake(row)); } catch (e) { e2 = e; }
+    check('L', `purchase is still refused without ${what}`, e2 instanceof IntakeError, '');
+  }
+
+  // Anything the purchase bar accepts, the report bar must also demand.
+  check('L', 'the report validator is strictly stronger than the purchase validator',
+    (() => {
+      const full = normalizeIntake(ROW);
+      try { validatePurchaseIntake(full); validateIntake(full); } catch { return false; }
+      const weakened = normalizeIntake(step1Only('no'));
+      let purchaseOk = true, reportOk = true;
+      try { validatePurchaseIntake(weakened); } catch { purchaseOk = false; }
+      try { validateIntake(weakened); } catch { reportOk = false; }
+      return purchaseOk && !reportOk;
+    })(), '');
+
+  const worker = fs.readFileSync(WORKER_JS, 'utf8');
+  check('L', 'checkout uses the purchase boundary',
+    /loadIntakeForPurchase\(token, env\)/.test(worker), '');
+  check('L', 'the webhook and report paths still use the full report boundary',
+    (worker.match(/loadAuthoritativeIntake\(/g) || []).length >= 2, '');
+}
+
+// ===========================================================================
+// GROUP M — "I'M NOT SURE" IS NOT A DIAGNOSIS.
+// ---------------------------------------------------------------------------
+// Yes and Unsure get IDENTICAL safety behaviour. They are not the same statement
+// about the reader. Until 2026-09-08 the suppression copy said "You told us about
+// kidney disease" to both, which puts a diagnosis in the mouth of someone who
+// answered "I'm not sure" — on a document they may hand to a clinician.
+// ===========================================================================
+{
+  const withKidney = (kidney, extra = {}) => ({
+    ...legacyFormDataShape(ROW), kidneyStatus: kidney, conditions: [], meds: '', ...extra });
+  const text = h => h.replace(/<[^>]+>/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/\s+/g, ' ');
+
+  const unsure = withKidney('unsure');
+  const yes = withKidney('yes');
+  const unsureWhoAlsoTicked = withKidney('unsure', { conditions: ['kidney'] });
+
+  // Safety first: unchanged.
+  for (const [label, d] of [['unsure', unsure], ['yes', yes]]) {
+    const ctx = deriveKdMedicalContext(d);
+    check('M', `${label}: still restricted`, ctx.restrictProteinTarget === true, '');
+    const all = text(generateDoctorReport('L', d) + generateMealPlan('L', d) + generateStarterKit('L', d));
+    check('M', `${label}: still receives no personalized protein target`,
+      !new RegExp(`\\b${d.proteinG}\\s*g\\b`).test(all), '');
+    check('M', `${label}: and no substitute protein number`,
+      !/\b\d{1,3}\s*g\s*(?:of\s+)?protein\b/i.test(all) &&
+      !/protein[^.]{0,40}?\b\d{1,3}\s*g\b/i.test(all), '');
+  }
+
+  // Wording: the whole point of this group.
+  const unsureAll = text(generateDoctorReport('L', unsure) + generateMealPlan('L', unsure) +
+                         generateStarterKit('L', unsure));
+  check('M', 'unsure: is NOT described as having told us about kidney disease',
+    !/told us about kidney disease/i.test(unsureAll),
+    'an "I am not sure" answer is being reported back as a declaration');
+  check('M', 'unsure: is NOT described as having REPORTED kidney disease',
+    !/reported kidney disease/i.test(unsureAll), '');
+  check('M', 'unsure: the wording says they could not rule it out',
+    /not sure whether your kidney function is reduced/i.test(unsureAll),
+    'the neutral wording is missing, so the reader is told nothing about why');
+
+  const yesAll = text(generateDoctorReport('L', yes) + generateMealPlan('L', yes));
+  check('M', 'yes: DOES get the diagnosis-appropriate wording',
+    /told us about kidney disease/i.test(yesAll),
+    'a real declaration was softened into the unsure wording');
+
+  // Someone who answered unsure AND ticked the condition has declared it.
+  const bothAll = text(generateDoctorReport('L', unsureWhoAlsoTicked));
+  check('M', 'unsure + kidney condition ticked: treated as a declaration',
+    deriveKdMedicalContext(unsureWhoAlsoTicked).kidneyConditionDeclared === true &&
+    /told us about kidney disease/i.test(bothAll), '');
+
+  // Unit level, so a wording regression is attributable.
+  check('M', 'kdProteinSuppressionNote branches on the distinction',
+    /not sure whether your kidney function is reduced/i
+      .test(kdProteinSuppressionNote(deriveKdMedicalContext(unsure))) &&
+    /told us about kidney disease/i
+      .test(kdProteinSuppressionNote(deriveKdMedicalContext(yes))), '');
+
+  check('M', 'the meal-plan referral states the kidney check honestly for an unsure customer',
+    /not a reported diagnosis/i.test(text(generateMealPlan('L', unsure))), '');
+}
+
+// ===========================================================================
+// GROUP N — CI MUST RUN ON THE LIVE INTAKE UI.
+// ---------------------------------------------------------------------------
+// ketodial/public is a submodule. Its gitlink is where the kidney question and the
+// option value= contract actually live, so a pointer bump changes what real
+// customers submit. If the workflow does not watch that path, the KD safety suite
+// does not run on the one change most likely to break it.
+// ===========================================================================
+{
+  const yml = fs.readFileSync(WORKFLOW_YML, 'utf8');
+  const section = (name) => {
+    const i = yml.indexOf(`  ${name}:`);
+    if (i === -1) return '';
+    const rest = yml.slice(i + 1);
+    const end = rest.search(/\n  [a-z_]+:/);
+    return end === -1 ? rest : rest.slice(0, end);
+  };
+  for (const trigger of ['push', 'pull_request']) {
+    const body = section(trigger);
+    check('N', `${trigger} watches the ketodial/public submodule gitlink`,
+      /^\s*- 'ketodial\/public'\s*$/m.test(body),
+      'a change to the live intake UI would not run the KD safety suite');
+    for (const p of ['ketodial/worker/index.js', 'ketodial/worker/reports.js', 'ketodial/worker/intake.js']) {
+      check('N', `${trigger} watches ${p}`,
+        new RegExp(`^\\s*- '${p.replace(/\//g, '\\/')}'\\s*$`, 'm').test(body), '');
+    }
+    check('N', `${trigger} watches both KD suites`,
+      /tests\/kd-report-safety\.test\.mjs/.test(body) &&
+      /tests\/kd-intake-authority\.test\.mjs/.test(body), '');
+  }
+  check('N', 'the report job still checks out submodules',
+    /submodules:\s*true/.test(yml),
+    'without this the intake assertions fail because the file is simply absent');
+  check('N', 'the authoritative intake suite is a gating step',
+    /node tests\/kd-intake-authority\.test\.mjs/.test(yml), '');
+}
+
+// ===========================================================================
 // GROUP G — MUTATION TESTING.
 // ---------------------------------------------------------------------------
 // A passing suite is not evidence. Each protection is broken on purpose against a
@@ -969,6 +1181,9 @@ const GROUPS = {
   I: 'persistence: one source of truth',
   J: 'vocabulary bridge to the shared table',
   K: 'intake form values are an API contract',
+  L: 'purchase eligibility is not report eligibility',
+  M: '"I am not sure" is not a diagnosis',
+  N: 'CI runs on the live intake UI',
   G: 'mutation testing',
 };
 for (const [g, title] of Object.entries(GROUPS)) {

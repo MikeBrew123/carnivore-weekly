@@ -13,7 +13,7 @@
  * None of them may substitute a customer fact it was not given — see requireFacts().
  */
 
-import { requireFacts } from './intake.js';
+import { requireFacts, requireDeclaredAnswers } from './intake.js';
 
 // ─────────────────────────────────────────────────
 // HELPERS
@@ -330,6 +330,20 @@ export function deriveKdMedicalContext(d) {
   // `restrictProteinTarget` so the two products cannot drift apart again.
   const restrictProteinTarget = renal;
 
+  // SUPPRESSION IS NOT DIAGNOSIS.
+  // "Yes" and "I'm not sure" get IDENTICAL safety behaviour — both suppress — but
+  // they are not the same statement about the reader, and the prose must not treat
+  // them as one. Telling a customer who answered "I'm not sure" that they "told us
+  // about kidney disease" puts a diagnosis in their mouth, on a document they may
+  // hand to a clinician. That is the exact failure the dedicated kidney_status
+  // column was created to avoid, and it survived in the copy until 2026-09-08.
+  const kidneyConditionDeclared =
+    kidneyAnswer === 'yes' ||
+    declaredConditionSlugs.includes('kidney') ||
+    ['kidney', 'renal', 'ckd', 'esrd', 'nephro', 'dialysis', 'glomerul', 'egfr']
+      .some(t => blob.includes(t));
+  const kidneyUnsureOnly = renal && !kidneyConditionDeclared;
+
   let restrictionReason = '';
   if (restrictElectrolyteProtocol) {
     const parts = [];
@@ -352,6 +366,8 @@ export function deriveKdMedicalContext(d) {
     unreadableIntake,
     kidneyAnswer: kidneyAnswered ? kidneyAnswer : undefined,
     kidneyAnswered,
+    kidneyConditionDeclared,
+    kidneyUnsureOnly,
     restrictElectrolyteProtocol,
     restrictProteinTarget,
     restrictionReason,
@@ -424,9 +440,14 @@ export function allowedProducts(ctx) {
  */
 export function kdProteinSuppressionNote(ctx) {
   if (!ctx || !ctx.restrictProteinTarget) return '';
+  // Same suppression, different sentence. See kidneyUnsureOnly above.
+  const opening = ctx.kidneyUnsureOnly
+    ? 'You told us you were not sure whether your kidney function is reduced, and we cannot ' +
+      'settle that from a questionnaire.'
+    : 'You told us about kidney disease.';
   return `<div class="callout warn" style="margin-top:16px">
         <span class="ct">Your protein target is not in this report</span>
-        You told us about kidney disease. How much protein is right for you can depend on your
+        ${opening} How much protein is right for you can depend on your
         kidney function, on whether you are being treated and how, on your nutritional status,
         and on your clinician's assessment of all three. None of that is in a questionnaire, so
         this report does not set a protein target for you — and it deliberately does not give
@@ -863,6 +884,10 @@ export function generateDoctorReport(name, d) {
   // BMI was 32.3, under a heading inviting her doctor to act on it. Refuse instead.
   requireFacts(d, ['calories', 'fatG', 'proteinG', 'carbG', 'tdee', 'weightKg', 'heightCm',
                    'sex', 'age', 'goal', 'kidneyStatus'], 'generateDoctorReport');
+  // This document prints a conditions table and a medications table. With neither
+  // field supplied it printed "None reported" in both — a claim about the customer,
+  // addressed to their physician, that nobody made. Empty is fine; absent is not.
+  requireDeclaredAnswers(d, ['conditions', 'meds'], 'generateDoctorReport');
 
   const rid = reportId();
   const dateStr = fmtDate();
@@ -1579,7 +1604,9 @@ function generateRenalMealPlanReferral(name, d, ctx) {
 
   <section class="sec">
     <div class="sec-title"><span class="num">01</span> The short version</div>
-    <p>${escHtml(name)}, you told us about kidney disease. Every meal in this plan would have
+    <p>${escHtml(name)}, ${ctx.kidneyUnsureOnly
+      ? 'you told us you were not sure whether your kidney function is reduced'
+      : 'you told us about kidney disease'}. Every meal in this plan would have
     been chosen and portioned to hit a daily protein target. Deciding what that target should
     be for someone with reduced kidney function is a clinical judgement — it depends on your
     kidney function, on whether you are being treated and how, on your nutritional status, and
@@ -1621,6 +1648,9 @@ function generateRenalMealPlanReferral(name, d, ctx) {
       <thead><tr><th>You reported</th><th>Details</th></tr></thead>
       <tbody>
         <tr><td><b>Conditions</b></td><td>${escHtml(ctx.declaredConditionLabels.join(', ') || 'None reported')}</td></tr>
+        <tr><td><b>Kidney safety check</b></td><td>${ctx.kidneyUnsureOnly
+          ? 'Answered &ldquo;I am not sure&rdquo; &mdash; not a reported diagnosis'
+          : 'Reported reduced kidney function or kidney disease'}</td></tr>
         <tr><td><b>Medications</b></td><td>${escHtml(ctx.medsText)}</td></tr>
       </tbody>
     </table>
@@ -1640,6 +1670,9 @@ export function generateMealPlan(name, d) {
   // NO DEFAULTS: the portions on every page of this document are computed from
   // these four numbers. See generateDoctorReport for why the `|| 1800` idiom is gone.
   requireFacts(d, ['calories', 'fatG', 'proteinG', 'carbG', 'kidneyStatus'], 'generateMealPlan');
+  // The renal referral restates what the customer declared, so it has the same
+  // "None reported" hazard as the Doctor's Report.
+  requireDeclaredAnswers(d, ['conditions', 'meds'], 'generateMealPlan');
 
   // THE SHARED BOUNDARY, consulted before a single portion is sized.
   const ctx = deriveKdMedicalContext(d);
@@ -1808,6 +1841,7 @@ const STARTER_CSS = `
 export function generateStarterKit(name, d) {
   // NO DEFAULTS, for the same reason as the other two generators.
   requireFacts(d, ['carbG', 'kidneyStatus'], 'generateStarterKit');
+  requireDeclaredAnswers(d, ['conditions', 'meds'], 'generateStarterKit');
   const carb = d.carbG;
   const ctx = deriveKdMedicalContext(d);
   // `restricted` decides whether this document is allowed to print a quantitative
