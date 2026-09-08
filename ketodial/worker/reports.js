@@ -8,7 +8,12 @@
  *   generateDoctorReport(name, formData)  -> HTML string
  *   generateMealPlan(name, formData)      -> HTML string
  *   generateStarterKit(name, formData)    -> HTML string
+ *
+ * Every generator here takes a VALIDATED intake object (ketodial/worker/intake.js).
+ * None of them may substitute a customer fact it was not given — see requireFacts().
  */
+
+import { requireFacts } from './intake.js';
 
 // ─────────────────────────────────────────────────
 // HELPERS
@@ -148,16 +153,44 @@ function normalizeMedications(raw) {
 // unknown slug is treated as a declared condition we cannot interpret, and the
 // protocol is withheld.
 //
-// And it fails closed on an UNREADABLE form. index.js stores the questionnaire in a
-// Stripe metadata field as `JSON.stringify(formData).slice(0, 490)`, and
-// handleReport() does `safeParseJSON(...) || {}`. A customer who types more than
-// about eighty characters into the free-text "biggest challenge" box pushes the JSON
-// past 490, the truncated string does not parse, and the WHOLE form - conditions,
-// medications and all - silently becomes `{}`. Read literally that is a reader who
+// And it fails closed on an UNREADABLE form. Until 2026-09-08 index.js stored the
+// questionnaire in a Stripe metadata field as `JSON.stringify(formData).slice(0, 490)`
+// and handleReport() did `safeParseJSON(...) || {}`. A customer who typed more than
+// about eighty characters into the free-text "biggest challenge" box pushed the JSON
+// past 490, the truncated string did not parse, and the WHOLE form - conditions,
+// medications and all - silently became `{}`. Read literally that is a reader who
 // declared nothing, which is how a CKD customer on four drugs would have been handed
-// the full protocol through a fault that has nothing to do with their health. The
-// intake always sends both keys, so their absence means the data did not survive,
-// and this function will not pretend that is the same as an all-clear.
+// the full protocol through a fault that has nothing to do with their health.
+//
+// That store is gone: the authoritative questionnaire now lives in
+// calculator_sessions_v2 and is loaded and validated by ketodial/worker/intake.js
+// before any generator runs. `unreadableIntake` is KEPT anyway. It costs nothing, it
+// is the last line if some future caller reaches a generator without going through
+// intake.js, and a gate that has already been wrong once does not get to rely on the
+// layer above it being right.
+//
+// ---------------------------------------------------------------------------
+// PROTEIN, AND WHY THIS GATE GREW A SECOND SWITCH (2026-09-08)
+// ---------------------------------------------------------------------------
+// `renal` was computed here from the day this gate was written, returned in the
+// context object, and read by nothing. Carnivore Weekly treats an undeclared protein
+// target for a reader with kidney disease as a P0 and suppresses it. KetoDial
+// computed the same flag and then printed the customer's protein target in the
+// Doctor's Report and twice in the meal plan, on top of a seven-day plan that was
+// byte-identical to the one a customer with healthy kidneys received.
+//
+// `restrictProteinTarget` closes that. It is the same rule, in the same words, as
+// api/medical-context.js: how much protein is right in reduced kidney function
+// depends on stage, on dialysis, on nutritional status and on a clinician's
+// assessment, and none of that is in a questionnaire. So the report prints NO protein
+// figure. It does not print a lower one. Choosing a lower one is the clinical
+// judgement this software is not entitled to make.
+//
+// It is NOT a display rule. buildMealPlanDays() anchors on protein twice over -
+// `minDensity = prot / cal` filters which meals are eligible, and
+// `protScale = prot / baseP` scales every portion - so hiding the number while it
+// still sizes the food would be the cosmetic safety CLAUDE.md names by that term.
+// When this flag is set, the protein-anchored plan is not generated at all.
 
 /** Answers that mean "nothing to declare". Anything else counts as a declaration. */
 const KD_NONE_VALUES = new Set([
@@ -250,6 +283,13 @@ export function deriveKdMedicalContext(d) {
   const restrictElectrolyteProtocol =
     hasDeclaredMedication || cardioRenal || unknownConditionSlug || unreadableIntake;
 
+  // SUPPRESS, DO NOT SUBSTITUTE. Declared kidney disease means this product states no
+  // protein target at all — not in grams, not per kilogram, not as a range, not as a
+  // per-meal amount — and generates no plan whose portions were sized from one.
+  // See the block at the top of this section. Mirrors api/medical-context.js
+  // `restrictProteinTarget` so the two products cannot drift apart again.
+  const restrictProteinTarget = renal;
+
   let restrictionReason = '';
   if (restrictElectrolyteProtocol) {
     const parts = [];
@@ -271,9 +311,33 @@ export function deriveKdMedicalContext(d) {
     unknownConditionSlug,
     unreadableIntake,
     restrictElectrolyteProtocol,
+    restrictProteinTarget,
     restrictionReason,
   };
 }
+
+/**
+ * What a reader who declared kidney disease is told where a protein target would
+ * otherwise have been. It is a referral, not a smaller number, and it deliberately
+ * does not imply a figure is waiting elsewhere in the document.
+ */
+export function kdProteinSuppressionNote(ctx) {
+  if (!ctx || !ctx.restrictProteinTarget) return '';
+  return `<div class="callout warn" style="margin-top:16px">
+        <span class="ct">Your protein target is not in this report</span>
+        You told us about kidney disease. How much protein is right for you can depend on your
+        kidney function, on whether you are being treated and how, on your nutritional status,
+        and on your clinician's assessment of all three. None of that is in a questionnaire, so
+        this report does not set a protein target for you — and it deliberately does not give
+        you a lower or more cautious one either, because choosing that number is the same
+        clinical decision in a quieter voice.
+        <b>Ask your doctor or a renal dietitian what your protein intake should be</b>, and take
+        this report with you when you do.
+      </div>`;
+}
+
+/** The phrase that replaces a protein figure wherever one would have been printed. */
+export const KD_PROTEIN_WITHHELD = 'Not set by this report — ask your doctor or renal dietitian';
 
 function goalLabel(g) {
   const map = {
@@ -692,18 +756,31 @@ const STANDARD_LABS = [
 ];
 
 export function generateDoctorReport(name, d) {
+  // NO DEFAULTS. This document is written to be handed to a physician, and every
+  // figure on it is a claim about a specific person's body. `const cal = d.calories
+  // || 1800` is what let a lost questionnaire print BMI 26.0 for a customer whose
+  // BMI was 32.3, under a heading inviting her doctor to act on it. Refuse instead.
+  requireFacts(d, ['calories', 'fatG', 'proteinG', 'carbG', 'tdee', 'weightKg', 'heightCm', 'sex', 'age', 'goal'],
+    'generateDoctorReport');
+
   const rid = reportId();
   const dateStr = fmtDate();
-  const cal = d.calories || 1800;
-  const fat = d.fatG || 140;
-  const prot = d.proteinG || 113;
-  const carb = d.carbG || 25;
+  const cal = d.calories;
+  const fat = d.fatG;
+  const prot = d.proteinG;
+  const carb = d.carbG;
   const pct = macroPercents(cal, fat, prot, carb);
-  const wKg = d.weightKg || 75;
-  const hCm = d.heightCm || 170;
+  const wKg = d.weightKg;
+  const hCm = d.heightCm;
   const bmi = calcBmi(wKg, hCm);
   const bmiCat = bmiCategory(bmi);
-  const tdee = d.tdee || cal;
+  const tdee = d.tdee;
+
+  // THE SHARED BOUNDARY. Until 2026-09-08 only generateStarterKit consulted it, so
+  // the two documents most likely to be read by a clinician were the two with no
+  // gate at all. Every generator now passes through this one call.
+  const ctx = deriveKdMedicalContext(d);
+  const proteinWithheld = ctx.restrictProteinTarget;
 
   const conditions = (d.conditions || []).filter(c => c !== 'none' && CONDITION_INFO[c]);
   const rawMeds = d.meds || 'None reported';
@@ -853,9 +930,19 @@ export function generateDoctorReport(name, d) {
     <section class="sec avoid-break">
       <div class="sec-eyebrow">Section 2</div>
       <div class="sec-title"><span class="num">02</span> Proposed dietary intervention</div>
-      <div class="sec-sub">A ketogenic macronutrient distribution${d.goal === 'lose' ? ' at a 20% caloric deficit from estimated maintenance' : d.goal === 'gain' ? ' at a 10% caloric surplus above maintenance' : ' at estimated maintenance'}. Protein set to approximately 25% of calories to support body composition during fat loss.</div>
+      <div class="sec-sub">${proteinWithheld
+        ? 'This section would normally set a macronutrient distribution. It does not, for the reason stated below.'
+        : `A ketogenic macronutrient distribution${d.goal === 'lose' ? ' at a 20% caloric deficit from estimated maintenance' : d.goal === 'gain' ? ' at a 10% caloric surplus above maintenance' : ' at estimated maintenance'}. Protein set to approximately 25% of calories to support body composition during fat loss.`}</div>
       <div class="intervention">
-        <div class="macro-line">
+        ${proteinWithheld
+          // THE WHOLE PANEL GOES, NOT JUST THE PROTEIN ROW. Energy, fat, protein and
+          // carbohydrate are one closed system: printing any three of them states the
+          // fourth. Blanking the protein line while leaving calories, fat and carbs on
+          // the page would let the reader recover the number by subtraction, which is
+          // suppression in appearance only — the exact failure CLAUDE.md calls
+          // cosmetic safety. So the macro panel is replaced, not edited.
+          ? kdProteinSuppressionNote(ctx)
+          : `<div class="macro-line">
           <div class="ml" style="margin-bottom:4px">
             <div class="nm">Energy</div>
             <div class="bar"><i style="background:var(--ink);width:80%"></i></div>
@@ -876,7 +963,7 @@ export function generateDoctorReport(name, d) {
             <div class="bar"><i style="background:var(--carbs);width:${Math.max(pct.carb, 3)}%"></i></div>
             <div class="val">${carb} g <small>· ${pct.carb}%</small></div>
           </div>
-        </div>
+        </div>`}
         <div class="minigauge">
           <svg viewBox="0 0 150 96" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
             <path d="M16 84 A 59 59 0 0 1 134 84" stroke="#e2e8f0" stroke-width="9" stroke-linecap="round"/>
@@ -1120,9 +1207,13 @@ function scaleMeal(base, s) {
 }
 
 function buildMealPlanDays(d) {
-  const cal = d.calories || 1800;
-  const prot = d.proteinG || 113;
-  const carb = d.carbG || 25;
+  // NO DEFAULTS. `prot` is not decoration here: it filters which meals are eligible
+  // (minDensity, below) and scales every portion (protScale). A substituted 113 g
+  // would silently reshape a real customer's week.
+  requireFacts(d, ['calories', 'proteinG', 'carbG'], 'buildMealPlanDays');
+  const cal = d.calories;
+  const prot = d.proteinG;
+  const carb = d.carbG;
   const budget = d.budget || 'mod';
   const dairyPref = (d.dairy || '').toLowerCase();
   const noDairy = dairyPref.includes('free') || dairyPref.includes('none') || dairyPref.includes('strict');
@@ -1359,11 +1450,113 @@ function grocerySection(d) {
     </div>`;
 }
 
+/**
+ * What a customer who declared kidney disease receives in place of the seven-day
+ * plan they bought.
+ *
+ * This is PRODUCT ROUTING, not clinical guidance. It states what the plan would have
+ * been built from, why that is not something this software may build, and who to ask
+ * instead. It gives no protein figure, no portion size and no substitute target, and
+ * it does not imply that a gentler version of the plan exists somewhere.
+ *
+ * It also tells them, in the first line, that they can have their money back. A
+ * customer who paid for a meal plan and received a referral is owed that plainly and
+ * without having to ask twice.
+ */
+function generateRenalMealPlanReferral(name, d, ctx) {
+  const body = `
+<div class="page">
+  <header class="rep-head">
+    ${brandHeader('Personalized Plan')}
+    <div class="rh-title-row">
+      <div>
+        <div class="rh-eyebrow">7-Day Meal Plan</div>
+        <h1>We have not built this plan,<br /><span class="lt">and here is exactly why.</span></h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="sec">
+    <div class="sec-title"><span class="num">01</span> The short version</div>
+    <p>${escHtml(name)}, you told us about kidney disease. Every meal in this plan would have
+    been chosen and portioned to hit a daily protein target. Deciding what that target should
+    be for someone with reduced kidney function is a clinical judgement — it depends on your
+    kidney function, on whether you are being treated and how, on your nutritional status, and
+    on your clinician's assessment of all three. This is an automated questionnaire. It has
+    never seen your labs and there is no clinician in the loop.</p>
+
+    <p>So we have not set you a protein target, and we have not built you a week of meals sized
+    to one. <b>We have also not quietly given you a lower number instead.</b> Choosing a smaller
+    figure would be the same clinical decision made more quietly, and it is not ours to make.</p>
+
+    <div class="callout warn" style="margin-top:16px">
+      <span class="ct">Your money back, no conversation required</span>
+      You paid for a meal plan and this is not one. Reply to your receipt, or email
+      <b>ketodial@carnivoreweekly.com</b>, and we will refund the meal plan. You do not have to
+      explain yourself and nothing else in your order is affected.
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-title"><span class="num">02</span> What to ask for instead</div>
+    <p>The person you want is a <b>renal dietitian</b> — a dietitian who specialises in kidney
+    disease. Your kidney clinician can refer you, and in many places you can self-refer. Worth
+    asking them:</p>
+    <ul>
+      <li>How much protein should I be eating each day, given my current kidney function?</li>
+      <li>Is a low-carbohydrate or ketogenic pattern reasonable for me at all right now?</li>
+      <li>Which of my usual foods should I be eating less of, and which are fine?</li>
+      <li>Should anything be rechecked after a few weeks if I do change how I eat?</li>
+      <li>What should I watch for at home, and what should make me call you?</li>
+    </ul>
+    <p><b>Do not start, stop or change any medication or supplement on your own</b>, and that
+    includes over-the-counter salt, potassium and magnesium products.</p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-title"><span class="num">03</span> What you did tell us</div>
+    <p>So the person you take this to does not have to start from nothing:</p>
+    <table class="dtable">
+      <thead><tr><th>You reported</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td><b>Conditions</b></td><td>${escHtml(ctx.declaredConditionLabels.join(', ') || 'None reported')}</td></tr>
+        <tr><td><b>Medications</b></td><td>${escHtml(ctx.medsText)}</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--ink-faint);margin-top:8px">Self-reported into an online
+    questionnaire and not verified. Please confirm against your own record.</p>
+  </section>
+
+  ${pageFooter(
+    `KetoDial 7-Day Meal Plan <span class="dot">·</span> ${escHtml(name)}`,
+    'Not medical advice — take this to your kidney clinician or a renal dietitian', 1, 1)}
+</div>`;
+
+  return htmlShell('7-Day Meal Plan', MEAL_CSS, body);
+}
+
 export function generateMealPlan(name, d) {
-  const cal = d.calories || 1800;
-  const fat = d.fatG || 140;
-  const prot = d.proteinG || 113;
-  const carb = d.carbG || 25;
+  // NO DEFAULTS: the portions on every page of this document are computed from
+  // these four numbers. See generateDoctorReport for why the `|| 1800` idiom is gone.
+  requireFacts(d, ['calories', 'fatG', 'proteinG', 'carbG'], 'generateMealPlan');
+
+  // THE SHARED BOUNDARY, consulted before a single portion is sized.
+  const ctx = deriveKdMedicalContext(d);
+  if (ctx.restrictProteinTarget) {
+    // buildMealPlanDays() anchors on protein twice — `minDensity = prot / cal` picks
+    // which meals are eligible and `protScale = prot / baseP` scales every portion.
+    // So for a reader who declared kidney disease there is no version of this plan
+    // that is not an individualised protein prescription with pictures. Returning
+    // the plan with the number blanked would leave the food doing the prescribing.
+    // The plan is therefore not generated. This is a real product consequence and it
+    // is flagged for Brew in docs/project-log/decisions.md, not hidden here.
+    return generateRenalMealPlanReferral(name, d, ctx);
+  }
+
+  const cal = d.calories;
+  const fat = d.fatG;
+  const prot = d.proteinG;
+  const carb = d.carbG;
   const budget = d.budget || 'mod';
   const dairyPrefMP = (d.dairy || '').toLowerCase();
   const noDairyMP = dairyPrefMP.includes('free') || dairyPrefMP.includes('none') || dairyPrefMP.includes('strict');
@@ -1512,8 +1705,9 @@ const STARTER_CSS = `
 `;
 
 export function generateStarterKit(name, d) {
-  const carb = d.carbG || 25;
-  const prot = d.proteinG || 113;
+  // NO DEFAULTS, for the same reason as the other two generators.
+  requireFacts(d, ['carbG'], 'generateStarterKit');
+  const carb = d.carbG;
   const ctx = deriveKdMedicalContext(d);
   // `restricted` decides whether this document is allowed to print a quantitative
   // electrolyte protocol. Every quantity on page 2, plus the sodium/fluid

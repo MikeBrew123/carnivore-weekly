@@ -8,7 +8,9 @@
 #  2. Bundle build check — the calculator2 bundle only ever built on one
 #     laptop before this. This proves a clean clone still builds, so the page
 #     is never one dead node_modules away from being unshippable.
-#  3. Report suites (added 2026-09-08) — safety (medical gating) and integrity
+#  3. Report suites (added 2026-09-08) — safety (medical gating), authoritative
+#     intake (KetoDial: no paid report without a complete validated intake record)
+#     and integrity
 #     (the calendar and the shopping list must agree, and the list must be
 #     DERIVED from the calendar). Both existed as files anyone could forget to
 #     run; a customer found the divergence before we did. Now they gate.
@@ -23,9 +25,13 @@ on:
       - 'calculator2-demo/**'
       - 'tests/macro_parity/**'
       - 'tests/report-safety.test.mjs'
-      - 'tests/kd-report-safety.test.mjs'
-      - 'ketodial/worker/reports.js'
       - 'tests/report-integrity.test.mjs'
+      - 'ketodial/worker/index.js'
+      - 'ketodial/worker/reports.js'
+      - 'ketodial/worker/intake.js'
+      - 'ketodial/worker/wrangler.toml'
+      - 'tests/kd-report-safety.test.mjs'
+      - 'tests/kd-intake-authority.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
@@ -47,6 +53,13 @@ on:
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
+      - '.github/workflows/calculator-guard.yml'
+      - 'ketodial/worker/index.js'
+      - 'ketodial/worker/reports.js'
+      - 'ketodial/worker/intake.js'
+      - 'ketodial/worker/wrangler.toml'
+      - 'tests/kd-report-safety.test.mjs'
+      - 'tests/kd-intake-authority.test.mjs'
   workflow_dispatch:
 
 jobs:
@@ -81,6 +94,14 @@ jobs:
       # beside it. See the header of that file for the customer report behind it.
       - name: KetoDial report safety regression
         run: node tests/kd-report-safety.test.mjs
+      # A paid KetoDial report may only be written from a complete, validated,
+      # authoritative intake record. Guards the storage contract itself: Stripe
+      # metadata must never become the questionnaire store again, every
+      # missing/malformed/incomplete/unreferenced intake must fail closed, and the
+      # renal protein suppression must stay wired to the gate. Includes its own
+      # mutation harness — a green run here is checked, not assumed.
+      - name: KetoDial authoritative intake regression
+        run: node tests/kd-intake-authority.test.mjs
 
       - name: Report integrity regression
         run: node tests/report-integrity.test.mjs

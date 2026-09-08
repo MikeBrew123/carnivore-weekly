@@ -4,7 +4,34 @@
  * Handles:
  *   POST /checkout     — Create Stripe Checkout Session
  *   POST /webhook      — Stripe webhook → generate reports → email customer
- *   GET  /report/:id   — Serve generated report (fetches from Stripe metadata)
+ *   GET  /report/:id   — Serve generated report
+ *
+ * SOURCE OF TRUTH (changed 2026-09-08)
+ * -----------------------------------
+ * The customer's questionnaire lives in `calculator_sessions_v2`, keyed by
+ * `session_token`. Stripe metadata carries ONLY that token — a 32-character
+ * reference, never the serialized form.
+ *
+ * It used to carry the form itself, as
+ * `metadata[form_data] = JSON.stringify(formData).slice(0, 490)`, because Stripe
+ * caps a metadata value at 500 characters. The KetoDial form's fixed fields take
+ * 307 of those, so a customer with four medications and a sentence in the
+ * free-text box overflowed, the truncated JSON failed to parse,
+ * `safeParseJSON(...) || {}` handed the generators an empty object, and the
+ * generators filled the gap with constants — printing BMI 26.0 on a Doctor's
+ * Report for a customer whose BMI was 32.3. Payload length tracks medical
+ * complexity, so the loss concentrated on exactly the customers the safety gate
+ * exists to protect.
+ *
+ *   validated intake -> calculator_sessions_v2 (authoritative)
+ *                    -> Stripe metadata[session_token] (bounded reference)
+ *                    -> loadAuthoritativeIntake() + validateIntake() at report time
+ *                    -> deriveKdMedicalContext()
+ *                    -> generators
+ *
+ * Nothing on that path invents a customer fact. If the intake is missing,
+ * incomplete, implausible or unreferenced, report generation FAILS CLOSED and the
+ * customer is routed to a human.
  *
  * Env vars (wrangler secrets):
  *   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY
@@ -15,6 +42,8 @@ import {
   generateMealPlan,
   generateStarterKit,
 } from './reports.js';
+import { IntakeError, loadAuthoritativeIntake } from './intake.js';
+import { deriveKdMedicalContext } from './reports.js';
 
 const PRICE_MAP = {
   doctor: 'price_1TcvcxEVDfkpGz8w3XZgaWjN',
@@ -82,6 +111,10 @@ async function handleSession(request, env) {
       sex: b.sex || null,
       age: b.age || null,
       goal: b.goal || null,
+      // Printed on the Doctor's Report as "Activity". It was computed client-side to
+      // derive TDEE and then never persisted, so the report could only have shown a
+      // value it invented. Store it or do not print it.
+      lifestyle_activity: b.lifestyle_activity || null,
       height_cm: b.height_cm || null,
       weight_value: b.weight_value || null,
       weight_unit: b.weight_unit || 'lbs',
@@ -154,21 +187,33 @@ async function handleSessionUpdate(request, env) {
     const b = await request.json();
     if (!b.token) return jsonResponse(400, { error: 'Missing token' });
 
+    // "ANSWERED NOTHING" IS NOT "NEVER ASKED".
+    // These were all `if (b.medications)` until 2026-09-08. An empty string and an
+    // empty array are falsy, so a customer who ticked no conditions and takes no
+    // medications had those answers silently dropped and the columns stayed NULL —
+    // indistinguishable, later, from a row whose medical intake was lost. Live rows
+    // confirm it: conditions [] stored, medications/symptoms/budget all NULL.
+    // intake.js treats a NULL medical column as LOST and refuses to generate, so a
+    // falsy guard here is a refused report for a customer whose data was fine.
+    // Presence, not truthiness.
     const updates = {};
-    if (b.step_completed) updates.step_completed = b.step_completed;
-    if (b.email) updates.email = b.email;
-    if (b.first_name) updates.first_name = b.first_name;
-    if (b.payment_status) updates.payment_status = b.payment_status;
-    if (b.conditions) updates.conditions = b.conditions;
-    if (b.symptoms) updates.symptoms = b.symptoms;
-    if (b.medications) updates.medications = b.medications;
-    if (b.cooking_skill) updates.cooking_skill = b.cooking_skill;
-    if (b.meal_prep_time) updates.meal_prep_time = b.meal_prep_time;
-    if (b.budget) updates.budget = b.budget;
-    if (b.family_situation) updates.family_situation = b.family_situation;
-    if (b.biggest_challenge) updates.biggest_challenge = b.biggest_challenge;
-    if (b.previous_diets) updates.previous_diets = b.previous_diets;
-    if (b.dairy_tolerance) updates.dairy_tolerance = b.dairy_tolerance;
+    const setIfSent = (key, value) => { if (value !== undefined) updates[key] = value; };
+
+    setIfSent('step_completed', b.step_completed);
+    setIfSent('email', b.email);
+    setIfSent('first_name', b.first_name);
+    setIfSent('payment_status', b.payment_status);
+    setIfSent('conditions', b.conditions);
+    setIfSent('symptoms', b.symptoms);
+    setIfSent('medications', b.medications);
+    setIfSent('cooking_skill', b.cooking_skill);
+    setIfSent('meal_prep_time', b.meal_prep_time);
+    setIfSent('budget', b.budget);
+    setIfSent('family_situation', b.family_situation);
+    setIfSent('biggest_challenge', b.biggest_challenge);
+    setIfSent('previous_diets', b.previous_diets);
+    setIfSent('dairy_tolerance', b.dairy_tolerance);
+    setIfSent('lifestyle_activity', b.lifestyle_activity);
     updates.updated_at = new Date().toISOString();
 
     const res = await fetch(
@@ -360,10 +405,39 @@ async function handleEmailPlan(request, env) {
 async function handleCheckout(request, env) {
   try {
     const body = await request.json();
-    const { items, email, name, formData, token } = body;
+    const { items, email, name, token } = body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return jsonResponse(400, { error: 'No items selected' });
+    }
+
+    // DO NOT TAKE MONEY FOR A REPORT WE ALREADY KNOW WE CANNOT WRITE.
+    // The authoritative intake is validated BEFORE the Stripe session exists, so the
+    // common failure — an incomplete questionnaire — surfaces as "finish the
+    // questionnaire", at the moment the customer can still do something about it,
+    // instead of as a refund conversation after they have paid. Everything after
+    // this line has a validated intake behind it.
+    try {
+      await loadAuthoritativeIntake(token, env);
+    } catch (err) {
+      if (err instanceof IntakeError) {
+        console.error('Checkout blocked, intake not usable:', err.code, err.missing.join('|'));
+        return jsonResponse(409, {
+          error: 'incomplete_intake',
+          code: err.code,
+          message: 'We could not find your completed questionnaire, so we have not started ' +
+                   'a payment. Please finish the questions above and try again. If you have ' +
+                   'already done that, email ketodial@carnivoreweekly.com.',
+        });
+      }
+      // Store unreachable: transient, and not the customer's fault. Do not sell them
+      // something we cannot currently prove we can deliver.
+      console.error('Checkout blocked, intake store unavailable:', err.message);
+      return jsonResponse(503, {
+        error: 'intake_store_unavailable',
+        message: 'We are having trouble reaching our own records right now. Please try again ' +
+                 'in a few minutes — nothing has been charged.',
+      });
     }
 
     const line_items = items.map(key => ({
@@ -386,10 +460,15 @@ async function handleCheckout(request, env) {
 
     sessionParams.append('metadata[customer_name]', name || '');
     sessionParams.append('metadata[items]', items.join(','));
-    if (token) sessionParams.append('metadata[session_token]', token);
-    if (formData) {
-      sessionParams.append('metadata[form_data]', JSON.stringify(formData).slice(0, 490));
-    }
+    // THE ONLY INTAKE REFERENCE IN STRIPE. 32 characters, bounded by construction,
+    // and it points at calculator_sessions_v2 rather than trying to be it.
+    //
+    // `metadata[form_data]` used to live here as
+    // `JSON.stringify(formData).slice(0, 490)`. It is gone, and it must not come
+    // back: Stripe's 500-character cap silently amputated the questionnaire of any
+    // customer with more than about 183 characters of free text, and free-text
+    // length tracks medical complexity.
+    sessionParams.append('metadata[session_token]', token);
 
     const session = await stripeAPI('checkout/sessions', sessionParams, env);
 
@@ -428,7 +507,6 @@ async function handleWebhook(request, env) {
     const email = session.customer_email || session.customer_details?.email;
     const name = session.metadata?.customer_name || 'there';
     const items = (session.metadata?.items || '').split(',').filter(Boolean);
-    const formData = safeParseJSON(session.metadata?.form_data);
 
     // Write the purchase back to the calculator session so revenue + paid
     // conversion are queryable in calculator_sessions_v2 (Stripe was the only
@@ -474,6 +552,29 @@ async function handleWebhook(request, env) {
       return jsonResponse(200, { received: true });
     }
 
+    // AUTHORITATIVE INTAKE, OR NO REPORT. handleCheckout validated this before the
+    // payment existed, so reaching here with an unusable intake means something
+    // changed in between. The two causes need opposite handling:
+    //
+    //   transient (store unreachable)  -> 500, let Stripe retry; the data is fine
+    //   definitively unusable          -> 200 + loud log; retrying forever fixes nothing
+    //
+    // Collapsing those into one branch is how an outage becomes a refused report, or
+    // how a permanently broken row becomes an infinite retry loop.
+    let intake;
+    try {
+      intake = await loadAuthoritativeIntake(session.metadata?.session_token, env);
+    } catch (err) {
+      if (err instanceof IntakeError) {
+        console.error(
+          `NO REPORT SENT — intake unusable for paid session ${session.id} (${email}): ` +
+          `${err.code} [${err.missing.join(', ')}]. Needs a human; do not backfill.`);
+        return jsonResponse(200, { received: true, report_withheld: err.code });
+      }
+      console.error(`Intake store unavailable for paid session ${session.id}, asking Stripe to retry:`, err.message);
+      return jsonResponse(500, { error: 'intake_store_unavailable' });
+    }
+
     // Expand bundles to individual report types
     const reportTypes = new Set();
     items.forEach(item => {
@@ -493,7 +594,7 @@ async function handleWebhook(request, env) {
     }));
 
     // Send email via Resend
-    await sendReportEmail(email, name, reportLinks, formData, env);
+    await sendReportEmail(email, name, reportLinks, intake, env);
 
     console.log(`Reports sent to ${email} for session ${session.id}: ${Array.from(reportTypes).join(', ')}`);
   }
@@ -526,7 +627,6 @@ async function handleReport(sessionId, reportType, env) {
   }
 
   const name = session.metadata.customer_name || 'Friend';
-  const formData = safeParseJSON(session.metadata.form_data) || {};
   const purchasedItems = (session.metadata.items || '').split(',');
 
   // Check if this report type was purchased
@@ -542,13 +642,50 @@ async function handleReport(sessionId, reportType, env) {
     });
   }
 
-  // Generate the appropriate report
+  // AUTHORITATIVE INTAKE, OR NO REPORT.
+  // This used to be `safeParseJSON(session.metadata.form_data) || {}`, and that `|| {}`
+  // is the whole defect: a truncated questionnaire became an empty object, and the
+  // generators turned an empty object into a confident document about a 75 kg,
+  // 170 cm person. There is no fallback here now, by design.
+  let intake;
+  try {
+    intake = await loadAuthoritativeIntake(session.metadata.session_token, env);
+  } catch (err) {
+    if (err instanceof IntakeError) {
+      console.error(`Report refused for ${sessionId}: ${err.code} [${err.missing.join(', ')}]`);
+      return new Response(intakeErrorPage(err), {
+        status: 422,
+        headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+      });
+    }
+    console.error(`Intake store unavailable serving report ${sessionId}:`, err.message);
+    return new Response(intakeErrorPage(null), {
+      status: 503,
+      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+    });
+  }
+
+  // Generate the appropriate report. A generator may still refuse (requireFacts),
+  // which is a bug rather than a data problem — surface it as one, never as a
+  // half-filled report.
   let html;
-  switch (reportType) {
-    case 'doctor': html = generateDoctorReport(name, formData); break;
-    case 'meal': html = generateMealPlan(name, formData); break;
-    case 'starter': html = generateStarterKit(name, formData); break;
-    default: html = generateAllReports(name, formData, allReports); break;
+  try {
+    switch (reportType) {
+      case 'doctor': html = generateDoctorReport(name, intake); break;
+      case 'meal': html = generateMealPlan(name, intake); break;
+      case 'starter': html = generateStarterKit(name, intake); break;
+      default: html = generateAllReports(name, intake, allReports); break;
+    }
+  } catch (err) {
+    if (err instanceof IntakeError) {
+      console.error(`Generator refused for ${sessionId}: ${err.code} [${err.missing.join(', ')}] ` +
+        '— validateIntake() passed but a generator still lacked a fact. Fix the contract, not the data.');
+      return new Response(intakeErrorPage(err), {
+        status: 422,
+        headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+      });
+    }
+    throw err;
   }
 
   return new Response(html, {
@@ -560,6 +697,52 @@ async function handleReport(sessionId, reportType, env) {
       'X-Content-Type-Options': 'nosniff',
     },
   });
+}
+
+/**
+ * What a customer sees instead of a report when the intake cannot be trusted.
+ *
+ * It says what happened, says plainly that we did NOT guess, and gives one route to
+ * a human. It does not apologise its way around the fact that they paid, and it does
+ * not offer a "basic version" — a report built from assumed details is the thing this
+ * whole change exists to prevent.
+ *
+ * @param {IntakeError|null} err null means a transient store failure, which is worth
+ *                               telling the customer to simply retry.
+ */
+function intakeErrorPage(err) {
+  const transient = !err;
+  const heading = transient
+    ? 'We cannot reach your report right now'
+    : 'We have not generated this report';
+  const message = transient
+    ? 'This is a temporary problem on our side, not a problem with your purchase or your ' +
+      'answers. Please refresh in a few minutes. If it is still not working, email us.'
+    : err.customerMessage;
+  return `<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KetoDial — ${transient ? 'Temporarily unavailable' : 'Report not generated'}</title>
+<meta name="robots" content="noindex, nofollow" />
+<style>
+  body{margin:0;background:#f7f6f3;color:#1a1a1a;font:16px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif}
+  .wrap{max-width:560px;margin:12vh auto;padding:0 24px}
+  .card{background:#fff;border:1px solid #e3e0da;border-radius:14px;padding:32px}
+  h1{font-size:22px;margin:0 0 14px;line-height:1.3}
+  p{margin:0 0 14px;color:#333}
+  a{color:#0b6b5e;font-weight:600}
+  .foot{margin-top:22px;padding-top:16px;border-top:1px solid #eeece7;font-size:13px;color:#666}
+</style></head><body>
+<div class="wrap"><div class="card">
+  <h1>${heading}</h1>
+  <p>${message}</p>
+  <p><b>Your payment is safe and your answers are not lost.</b> We would rather show you
+  nothing than show you a report built on details we had to assume.</p>
+  <p>Email <a href="mailto:ketodial@carnivoreweekly.com">ketodial@carnivoreweekly.com</a>
+  with your receipt and we will put this right by hand.</p>
+  <div class="foot">KetoDial${err ? ` · reference: ${err.code}` : ''}</div>
+</div></div>
+</body></html>`;
 }
 
 // ──────────────────────────────────────────────
@@ -576,6 +759,24 @@ function generateAllReports(name, d, reportTypes) {
 // ──────────────────────────────────────────────
 // EMAIL
 // ──────────────────────────────────────────────
+/**
+ * The macro line in the delivery email.
+ *
+ * A reader who declared kidney disease is told, inside the report, that we are not
+ * setting them a protein target. Emailing them one anyway would undo that in the
+ * first thing they read. And because energy, fat, protein and carbohydrate are one
+ * closed system, blanking only the protein term would still state it by subtraction —
+ * so the whole line goes, exactly as the macro panel does in the Doctor's Report.
+ */
+function targetsLine(d) {
+  const ctx = deriveKdMedicalContext(d);
+  if (ctx.restrictProteinTarget) {
+    return 'inside your report \u2014 your protein target is a question for your doctor or a renal dietitian, ' +
+           'so we have not set one for you.';
+  }
+  return `${d.calories} kcal \u00b7 ${d.fatG}g fat \u00b7 ${d.proteinG}g protein \u00b7 ${d.carbG}g net carbs`;
+}
+
 async function sendReportEmail(email, name, reportLinks, formData, env) {
   const linkList = reportLinks.map(r =>
     `<tr><td style="padding:8px 0"><a href="${r.url}" style="color:#38bdf8;font-weight:600;text-decoration:none">${r.name}</a></td><td style="padding:8px 0;text-align:right"><a href="${r.url}" style="background:#0f172a;color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">View Report</a></td></tr>`
@@ -593,7 +794,7 @@ async function sendReportEmail(email, name, reportLinks, formData, env) {
 ${linkList}
 </table>
 <div style="margin-top:20px;padding:14px;background:#f1f5f9;border-radius:10px;font-size:13px;color:#64748b">
-<strong>Your daily targets:</strong> ${formData.calories || '—'} kcal · ${formData.fatG || '—'}g fat · ${formData.proteinG || '—'}g protein · ${formData.carbG || '—'}g net carbs
+<strong>Your daily targets:</strong> ${targetsLine(formData)}
 </div>
 <p style="margin-top:20px;font-size:13px;color:#94a3b8">These links are unique to your purchase and don't expire. Bookmark them for easy access.</p>
 <div style="margin-top:20px;padding:16px 18px;background:#0b1620;border-radius:12px">
@@ -660,10 +861,6 @@ async function verifyWebhookSignature(payload, sig, secret) {
   const sig_bytes = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signedPayload));
   const expected = Array.from(new Uint8Array(sig_bytes)).map(b => b.toString(16).padStart(2, '0')).join('');
   return expected === signature;
-}
-
-function safeParseJSON(str) {
-  try { return JSON.parse(str); } catch { return null; }
 }
 
 function jsonResponse(status, data) {

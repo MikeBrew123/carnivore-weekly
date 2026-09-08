@@ -828,3 +828,77 @@ This session then moved to an isolated worktree at `.claude/worktrees/safety-clo
 Traps found while isolating, both now in CLAUDE.md: submodules are not checked out in a new worktree (the
 KD suite failed 3 of 211 assertions for that reason alone, correctly), and a worktree's submodule follows
 the parent's committed gitlink, which was **ahead of** the main checkout's.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4: KetoDial authoritative intake (Stripe metadata is no longer a store)
+
+### What was wrong
+`ketodial/worker/index.js` carried the questionnaire to the report generators inside
+`metadata[form_data] = JSON.stringify(formData).slice(0, 490)`. Stripe caps a metadata value at
+500 characters; the fixed part of the KD form serialises to 307, leaving ~183 characters for every
+medication, condition slug and free-text answer. Past that the JSON was cut mid-object,
+`safeParseJSON(...) || {}` produced `{}`, and the generators substituted
+`cal=1800 fat=140 prot=113 carb=25 wKg=75 hCm=170`.
+
+Reproduced: 58F / 88 kg / 165 cm, 4 medications, 3 conditions, 97-char free text (534-char JSON)
+received a Doctor's Report stating **BMI 26.0 instead of 32.3**, "None reported" against her
+conditions, and no medications — on the one document in the product designed to be handed to a
+physician. Payload length tracks medical complexity, so the loss concentrated on exactly the
+readers the safety gate exists to protect.
+
+The 2026-09-08 closeout recorded this as "contained". That was true of the ELECTROLYTE gate only.
+`generateDoctorReport` and `generateMealPlan` never consulted the gate at all.
+
+### The end state
+`validated intake -> calculator_sessions_v2 (authoritative) -> Stripe metadata[session_token]
+(bounded 32-char reference) -> loadAuthoritativeIntake() + validateIntake() -> deriveKdMedicalContext()
+-> generators`
+
+The durable store already existed and was already being written; nothing read it at report time.
+This is a rewiring, not a new table. **Stripe metadata is a pointer, never a store.**
+
+- New `ketodial/worker/intake.js`: `normalizeIntake` (a rename, no `|| fallback` anywhere),
+  `validateIntake` (fails closed, names the missing facts), `requireFacts` (generator backstop),
+  `loadAuthoritativeIntake`.
+- Checkout validates the intake BEFORE creating the Stripe session. We do not take money for a
+  report we already know we cannot write; the customer is told to finish the questionnaire while
+  they can still do something about it.
+- Transient store failures are kept distinct from unusable intake. Collapsing them turns an outage
+  into a refused report, or a broken row into an infinite Stripe retry.
+
+### Three gaps found while wiring it
+1. `handleSessionUpdate` guarded every write with `if (b.medications)`. An empty answer is falsy, so
+   "takes no medications" was never written and the column stayed NULL — indistinguishable from a
+   lost answer. Live rows confirmed it. Now `!== undefined`. **"Answered nothing" is not "never asked."**
+2. `lifestyle_activity` is printed on the Doctor's Report and was never persisted.
+3. The KD meal plan is **protein-anchored**, not calorie-scaled (`minDensity = prot/cal` selects
+   meals, `protScale = prot/baseP` scales portions).
+
+### Renal protein suppression folded into the shared boundary
+`ctx.renal` had been computed since the gate was written and read by NOTHING. `restrictProteinTarget`
+now follows it, mirroring `api/medical-context.js` so the two products cannot drift again. All three
+generators pass through `deriveKdMedicalContext` — previously only `generateStarterKit` did.
+
+Because of (3), suppression could not be a display change:
+- The **whole macro panel** is withheld, not the protein row. Energy, fat and carbohydrate are a
+  closed system; blanking one term states it by subtraction.
+- **No protein-anchored plan is generated at all.** A renal customer receives a clinician-routing
+  document instead, which offers the meal plan refunded without their having to ask twice.
+
+### OPEN — BREW'S DECISION, NOT TAKEN HERE
+A declared-renal customer can still BUY the meal plan and will now receive a referral instead of a
+plan. Blocking that sale at checkout is a pricing/product call and was deliberately not made
+unilaterally. Options: block the meal-plan SKU on declared renal, warn before purchase, or leave the
+refund path as the answer.
+
+### Legacy
+`calculator_sessions_v2` held 20 KetoDial sessions and **0 paid** at the time of the change, so there
+was nothing to migrate. `payment_status` is only written when the webhook sees a token, so that count
+cannot PROVE no purchase ever happened. A paid Stripe session with no token, no row, or a row that
+fails validation therefore gets **422 and a support route, never a reconstructed report**. A complete
+historical row still generates normally.
+
+### Not done
+Production was NOT deployed. Both Cloudflare workers still deploy by hand
+(bead: no workflow deploys either worker), and `ketodial/public` is a separate Pages repo.
