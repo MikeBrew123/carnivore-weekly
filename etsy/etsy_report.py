@@ -1,12 +1,48 @@
-import json, urllib.request, urllib.error, datetime
+import json, os, subprocess, sys, urllib.request, urllib.error, datetime
 
-with open('/Users/mbrew/Developer/carnivore-weekly/secrets/api-keys.json') as f:
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+with open(os.path.join(REPO, 'secrets', 'api-keys.json')) as f:
     d = json.load(f)
 etsy = d['etsy']
-access_token = etsy['access_token']
+# api_key / shared_secret are the static app identifiers and do not rotate.
 api_key = etsy['api_key']
 shared_secret = etsy['shared_secret']
 combined_key = f'{api_key}:{shared_secret}'
+
+
+def live_access_token():
+    """Get a valid Etsy access token from the single source of truth.
+
+    This script used to read `access_token` out of secrets/api-keys.json. Etsy
+    access tokens live about an hour, so that copy is stale almost always and
+    every call came back 401 invalid_token. That is why the daily snapshot has
+    been fine while this report has been broken: etsy-snapshot.mjs goes through
+    etsy/token.mjs, which holds the shared Supabase `etsy_tokens` row and
+    refreshes on demand.
+
+    Refreshing is deliberately delegated to that module rather than reimplemented
+    here. Etsy rotates the refresh token on every use and invalidates the
+    previous one, so a second refresh chain in Python would silently break the
+    Worker and every other script.
+    """
+    js = ("import { getEtsyToken } from './etsy/token.mjs';"
+          "process.stdout.write(await getEtsyToken());")
+    try:
+        out = subprocess.run(['node', '--input-type=module', '-e', js],
+                             cwd=REPO, capture_output=True, text=True, timeout=90)
+    except FileNotFoundError:
+        sys.exit('node is not on PATH, so the Etsy token cannot be refreshed.')
+    token = (out.stdout or '').strip()
+    if out.returncode != 0 or not token:
+        # stderr can carry Supabase URLs but never the token itself.
+        sys.exit('Could not get an Etsy access token via etsy/token.mjs:\n'
+                 + (out.stderr or '').strip()[:500]
+                 + '\nIf this says invalid_grant, re-authorize: node etsy/etsy-oauth.mjs')
+    return token
+
+
+access_token = live_access_token()
 
 headers = {
     'x-api-key': combined_key,

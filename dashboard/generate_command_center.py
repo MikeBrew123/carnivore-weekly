@@ -29,6 +29,7 @@ Maintenance notes for future (small-model) sessions:
 """
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -91,6 +92,98 @@ TEST_TEXT_MARKERS = ('please ignore', 'this is only a test', 'test feedback')
 def is_test_email(email):
     e = (email or '').lower()
     return any(m in e for m in TEST_EMAIL_MARKERS)
+
+
+MAIL_SCRIPT = r'''
+<script>
+/* Mail & Feedback: which reader threads Brew has already handled.
+   State lives on the deck server so it survives every regeneration of this
+   file. If the API is unreachable (page opened outside the tailnet, or the
+   deck is down) every thread simply stays visible, which is the safe failure:
+   showing a handled thread again is an annoyance, hiding an unanswered reader
+   is a lost customer. A thread reappears on its own when the person writes
+   back, because a new message carries a new id. */
+(function () {
+  var API = '/api/mail-handled';
+  var open_ = document.querySelector('#mail-open tbody');
+  var done = document.getElementById('mail-done');
+  var wrap = document.getElementById('mail-done-wrap');
+  var count = document.getElementById('mail-done-count');
+  var empty = document.getElementById('mail-empty');
+  if (!open_ || !done) return;
+
+  function refresh() {
+    var n = done.children.length;
+    if (count) count.textContent = n;
+    if (wrap) wrap.hidden = n === 0;
+    if (empty) empty.hidden = open_.children.length !== 0;
+  }
+
+  function button(row, handled) {
+    var cell = row.querySelector('td.mailact');
+    if (!cell) return;
+    cell.innerHTML = '';
+    var b = document.createElement('button');
+    b.className = handled ? 'mundo' : 'mdone';
+    b.textContent = handled ? 'Reopen' : 'Done';
+    b.addEventListener('click', function () { set(row, !handled, b); });
+    cell.appendChild(b);
+  }
+
+  function move(row, handled) {
+    (handled ? done : open_).appendChild(row);
+    button(row, handled);
+    refresh();
+  }
+
+  function set(row, handled, b) {
+    b.disabled = true;
+    fetch(API, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        id: row.dataset.mid,
+        handled: handled,
+        sender: row.dataset.sender || '',
+        subject: row.dataset.subject || ''
+      })
+    }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      move(row, handled);
+    }).catch(function () {
+      b.disabled = false;
+      b.textContent = 'retry';
+    });
+  }
+
+  Array.prototype.forEach.call(open_.querySelectorAll('tr'), function (row) {
+    button(row, false);
+  });
+
+  fetch(API).then(function (r) { return r.json(); }).then(function (d) {
+    var h = (d && d.handled) || {};
+    Array.prototype.forEach.call(open_.querySelectorAll('tr'), function (row) {
+      if (h[row.dataset.mid]) move(row, true);
+    });
+    refresh();
+  }).catch(function () { refresh(); });
+
+  refresh();
+})();
+</script>
+'''
+
+
+def mail_id(created_at, sender, subject):
+    """Stable id for one inbound message.
+
+    Resend's own id is used when present. The drip_events fallback has no id, so
+    this hashes the three fields that identify a message. It must stay stable
+    across regenerations: an id that changes daily would un-handle every thread
+    Brew has already cleared.
+    """
+    blob = f'{created_at or ""}|{sender or ""}|{subject or ""}'
+    return 'h' + hashlib.sha1(blob.encode()).hexdigest()[:15]
 
 
 def is_test_feedback(row):
@@ -538,6 +631,8 @@ def fetch_mail():
             resp.raise_for_status()
             items = resp.json().get('data', [])
             out['inbound'] = [{
+                'id': i.get('id') or mail_id(i.get('created_at'), i.get('from'),
+                                            i.get('subject')),
                 'from': i.get('from'), 'to': ', '.join(i.get('to') or []),
                 'subject': i.get('subject'), 'date': (i.get('created_at') or '')[:16],
             } for i in items]
@@ -548,7 +643,10 @@ def fetch_mail():
         rows = supa_fetch('drip_events', select='email,subject,created_at,metadata',
                           filters='event_type=eq.email.received',
                           order='created_at.desc', limit=25)
-        out['inbound'] = [{'from': (r.get('metadata') or {}).get('from', '(unknown sender)'),
+        out['inbound'] = [{'id': mail_id(r.get('created_at'),
+                                         (r.get('metadata') or {}).get('from'),
+                                         r.get('subject')),
+                           'from': (r.get('metadata') or {}).get('from', '(unknown sender)'),
                            'to': r.get('email'), 'subject': r.get('subject'),
                            'date': (r.get('created_at') or '')[:16]} for r in rows]
         out['source'] = out['source'] or 'drip_events'
@@ -1588,25 +1686,64 @@ def render_html(d):
 
     fb = d.get('feedback', {})
     fb_recent = fb.get('recent', []) if not fb.get('error') else []
-    # Open items get the table; completed/closed collapse so they stop
-    # resurfacing every day after they've been handled.
-    _fb_done = ('completed', 'done', 'closed', 'resolved')
+    # Open items get the table; handled ones collapse so they stop resurfacing
+    # every day, and then fall off entirely after 30 days (Brew, 2026-08-14:
+    # "completed messages older than 30 days fall off the view").
+    # 'declined' belongs here too: a declined item is handled, and leaving it out
+    # of this tuple rendered it as open forever.
+    _fb_done = ('completed', 'done', 'closed', 'resolved', 'declined')
+    _fb_cutoff = iso_days_ago(30)[:16]
+
     def _fb_row(r):
         return [esc(r['date']), esc(r['email']), esc(r['text']), esc(r['status'])]
-    fb_open_rows = [_fb_row(r) for r in fb_recent
-                    if (r.get('status') or '').lower() not in _fb_done]
-    fb_done_rows = [_fb_row(r) for r in fb_recent
-                    if (r.get('status') or '').lower() in _fb_done]
+
+    def _is_done(r):
+        return (r.get('status') or '').lower() in _fb_done
+
+    fb_open_rows = [_fb_row(r) for r in fb_recent if not _is_done(r)]
+    fb_done_recent = [r for r in fb_recent
+                      if _is_done(r) and (r.get('date') or '') >= _fb_cutoff]
+    fb_done_rows = [_fb_row(r) for r in fb_done_recent]
+    fb_aged_off = sum(1 for r in fb_recent if _is_done(r)) - len(fb_done_rows)
 
     mail = d.get('mail', {})
-    human_rows = [[esc(m['date']), esc(m['from']), esc(m['to']), esc(m['subject'])]
-                  for m in mail.get('human', [])]
+    # Reader mail rows carry a stable id and a Done control. Handled state lives
+    # on the deck server (/api/mail-handled), NOT in this file, so it survives
+    # every regeneration; the script at the bottom of the page moves handled
+    # threads into the collapsed section on load.
+    #
+    # Why this is a button and not automatic reply-detection: Brew answers
+    # readers from his own mail client, so nothing about a reply reaches Resend.
+    # Checked 2026-09-07 against the last 100 sent emails, and every one is an
+    # automated drip or newsletter send. Inferring "replied" from Resend would
+    # have marked a reader handled because the drip mailed them afterwards,
+    # which hides real mail. One tap is honest; a wrong guess is not.
+    def _mail_row(m):
+        mid = esc(m.get('id') or '')
+        return (f'<tr data-mid="{mid}" data-sender="{esc(m.get("from") or "")}" '
+                f'data-subject="{esc(m.get("subject") or "")}">'
+                f'<td>{esc(m["date"])}</td><td>{esc(m["from"])}</td>'
+                f'<td>{esc(m["to"])}</td><td>{esc(m["subject"])}</td>'
+                f'<td class="mailact"><button class="mdone" data-mid="{mid}">Done</button></td>'
+                f'</tr>')
+
+    human = mail.get('human', [])
     report_rows = [[esc(m['date']), esc(m['from']), esc(m['subject'])]
                    for m in mail.get('reports', [])]
     internal_rows = [[esc(m['date']), esc(m['from']), esc(m['to']), esc(m['subject'])]
                      for m in mail.get('internal', [])]
-    mail_html = (table(['Date', 'From', 'To', 'Subject'], human_rows) if human_rows
-                 else '<p class="muted">No reader mail — inbox is clear.</p>')
+    if human:
+        _head = ('<thead><tr><th>Date</th><th>From</th><th>To</th><th>Subject</th>'
+                 '<th></th></tr></thead>')
+        mail_html = (f'<table id="mail-open">{_head}<tbody>'
+                     + ''.join(_mail_row(m) for m in human) + '</tbody></table>'
+                     + '<p class="muted small" id="mail-empty" hidden>'
+                       'No open reader mail — inbox is clear.</p>'
+                     + '<details id="mail-done-wrap" hidden><summary>'
+                       '<span id="mail-done-count">0</span> handled</summary>'
+                       f'<table>{_head}<tbody id="mail-done"></tbody></table></details>')
+    else:
+        mail_html = '<p class="muted">No reader mail — inbox is clear.</p>'
     if internal_rows:
         mail_html += (f'<details><summary>{len(internal_rows)} internal / test email(s)</summary>'
                       f'{table(["Date", "From", "To", "Subject"], internal_rows)}</details>')
@@ -1671,10 +1808,11 @@ def render_html(d):
     drip_cw_html = drip_block(drip_cw)
     drip_kd_html = drip_block(drip_kd)
 
-    def nl_block(label, nl):
+    def nl_block(nl):
         if not nl:
             return ''
-        return (f'<div class="stat"><b>{nl.get("active", 0)}</b><span>{label} active</span></div>'
+        # The card header already names the site, so the stat says just "active".
+        return (f'<div class="stat"><b>{nl.get("active", 0)}</b><span>active</span></div>'
                 f'<div class="stat"><b>{nl.get("new_7d", 0)}</b><span>new 7d</span>'
                 f'{trend_html(pct_change(nl.get("new_7d", 0), nl.get("new_prev_7d", 0)))}</div>')
 
@@ -1718,6 +1856,11 @@ def render_html(d):
     .stat b{display:block;font-size:22px}
     .stat span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
     .funnel{margin:8px 0}
+    td.mailact{width:1%;white-space:nowrap;text-align:right}
+    button.mdone,button.mundo{font:inherit;font-size:11px;cursor:pointer;padding:2px 8px;
+      border:1px solid var(--line,#ccc);border-radius:4px;background:transparent;color:inherit;opacity:.65}
+    button.mdone:hover,button.mundo:hover{opacity:1}
+    button.mdone[disabled],button.mundo[disabled]{opacity:.3;cursor:default}
     .fstage{margin:7px 0;font-size:13px}
     .frow{display:flex;justify-content:space-between;gap:10px;margin-bottom:3px}
     .fbarwrap{background:var(--card2);border-radius:6px;height:14px;overflow:hidden}
@@ -1798,7 +1941,8 @@ def render_html(d):
 {funnel_html(f.get('calculator_kd'), 'var(--blue)')}</div>
 <div class="card"><h3 style="border-color:var(--green)">30-Day Drip (CW)</h3>{drip_cw_html or err_note(f, 'Funnels') or ''}</div>
 <div class="card"><h3 style="border-color:var(--blue)">30-Day Drip (KD)</h3>{drip_kd_html or err_note(f, 'Funnels') or ''}</div>
-<div class="card"><h3>Newsletters</h3><div class="statrow wrap">{nl_block('CW', nl_cw)}{nl_block('KD', nl_kd)}</div></div>
+<div class="card"><h3 style="border-color:var(--green)">Newsletter (CW)</h3><div class="statrow wrap">{nl_block(nl_cw)}</div></div>
+<div class="card"><h3 style="border-color:var(--blue)">Newsletter (KD)</h3><div class="statrow wrap">{nl_block(nl_kd)}</div></div>
 <div class="card"><h3>Coach (KD)</h3>{coach_html}</div>
 </div></section>
 
@@ -1815,7 +1959,8 @@ def render_html(d):
 </div>
 <div class="card"><h3>Site Feedback <span class="muted small">({fb.get('new_7d', 0)} new this week · {fb.get('unreviewed', 0)} unreviewed · {fb.get('hidden_test', 0)} test entries hidden)</span></h3>
 {table(['Date', 'From', 'Message', 'Status'], fb_open_rows) if fb_open_rows else (err_note(fb, 'Feedback') or '<p class="muted">No open feedback — all caught up.</p>')}
-{f'<details><summary>{len(fb_done_rows)} completed item(s)</summary>{table(["Date", "From", "Message", "Status"], fb_done_rows)}</details>' if fb_done_rows else ''}
+{f'<details><summary>{len(fb_done_rows)} completed item(s), last 30 days</summary>{table(["Date", "From", "Message", "Status"], fb_done_rows)}</details>' if fb_done_rows else ''}
+{f'<p class="muted small">{fb_aged_off} older completed item(s) aged off this view.</p>' if fb_aged_off > 0 else ''}
 </div>
 <div class="card"><h3>Email Engagement <span class="muted small">(drip + newsletter, 7d)</span></h3>
 {eng_html or err_note(eng, 'Engagement') or ''}</div>
@@ -1830,7 +1975,7 @@ def render_html(d):
 <p class="muted small">Generated by dashboard/generate_command_center.py · data in command-center-data.json ·
 auto-updates daily via GitHub Actions (dashboard-update.yml) · run manually any time:
 <code>python3 dashboard/generate_command_center.py</code></p>
-</main></body></html>'''
+</main>{MAIL_SCRIPT}</body></html>'''
     return html
 
 
