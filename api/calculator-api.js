@@ -38,6 +38,17 @@
  * production one the live site calls. Use npm run deploy:dev for that on purpose.
  */
 
+import {
+  deriveMedicalContext,
+  buildMedicalContextBanner,
+  buildElectrolyteProtocol,
+  buildMedicalSafetyRules,
+  buildProteinTargetNote,
+  buildMealPlanMedicalNote,
+  withMedicalFoodExclusions,
+  humanizeList
+} from './medical-context.js';
+
 // Version marker for deployment verification
 const DEPLOY_VERSION = "v2026-06-07-resend-webhook";
 
@@ -1576,25 +1587,7 @@ async function handleReportInit(request, env) {
     console.log('=====================================');
 
     // FIX: The form field names are SCRAMBLED - remap them correctly
-    const correctedData = {
-      ...session,
-      ...session.form_data,
-      // Map frontend field names correctly:
-      firstName: session.form_data?.firstName || session.first_name,
-      lastName: session.form_data?.lastName || session.last_name,
-      goals: session.form_data?.goals || '',  // User's health goals
-      currentSymptoms: session.form_data?.otherSymptoms || '',  // Current symptoms
-      dietHistory: session.form_data?.previousDiets || '',  // Past diet experience
-      allergies: session.form_data?.allergies || '',  // Food allergies
-      avoidFoods: session.form_data?.avoidFoods || '',  // Foods to avoid
-      medications: session.form_data?.medications || '',  // Current medications
-      whatWorked: session.form_data?.whatWorked || '',  // What worked before
-      lifestyle: session.form_data?.biggestChallenge || '',  // Lifestyle details
-      challenges: session.form_data?.additionalNotes || '',  // Challenges
-      healthConditions: session.form_data?.conditions || [],
-      // CRITICAL FIX: diet_type is stored as a SEPARATE COLUMN from Step 2, NOT in form_data.diet
-      selectedProtocol: session.diet_type || session.form_data?.diet || 'Carnivore'
-    };
+    const correctedData = buildReportData(session);
 
     // VALIDATION LOG: Verify diet selection source
     console.log('=== DIET SELECTION DEBUG ===');
@@ -1838,6 +1831,42 @@ async function handleEmailReport(request, env) {
 /**
  * Calculate macros from form data (mirrors frontend calculation)
  */
+/**
+ * Assemble the object every report section is rendered from.
+ *
+ * Extracted out of handleReportInit() on 2026-09-07 so that the adversarial
+ * regression fixture (tests/report-safety.test.mjs) renders from the SAME mapping
+ * production uses, instead of a hand-copied replica that silently drifts.
+ * If you change the shape of the report data, change it here.
+ */
+function buildReportData(session) {
+  const form = session.form_data || {};
+  return {
+    ...session,
+    ...form,
+    // Map frontend field names correctly:
+    firstName: form.firstName || session.first_name,
+    lastName: form.lastName || session.last_name,
+    goals: form.goals || '',                   // User's health goals
+    currentSymptoms: form.otherSymptoms || '', // Current symptoms
+    dietHistory: form.previousDiets || '',     // Past diet experience
+    allergies: form.allergies || '',           // Food allergies
+    avoidFoods: form.avoidFoods || '',         // Foods to avoid
+    medications: form.medications || '',       // Current medications
+    whatWorked: form.whatWorked || '',         // What worked before
+    // NOTE: `lifestyle` is overwritten with biggestChallenge below for historical
+    // reasons, which is why the real activity level is preserved separately here.
+    // buildProfile() reads activityLevel first; without this the AI prompt reported
+    // the user's biggest challenge as their activity level.
+    activityLevel: form.lifestyle || form.activityLevel || '',
+    lifestyle: form.biggestChallenge || '',    // Lifestyle details
+    challenges: form.additionalNotes || '',    // Challenges
+    healthConditions: form.conditions || [],
+    // diet_type is stored as a SEPARATE COLUMN from Step 2, NOT in form_data.diet
+    selectedProtocol: session.diet_type || form.diet || 'Carnivore'
+  };
+}
+
 function calculateMacros(formData) {
   // Handle undefined formData
   if (!formData) {
@@ -1974,202 +2003,22 @@ function calculateMacros(formData) {
   return result;
 }
 
-/**
- * SIMPLE FALLBACK REPORT - Single AI section (11 pages)
- * Used only if comprehensive generator fails
- *
- * @deprecated Use generateAllReports() for full 60-80 page reports
- */
-async function generateSimpleFallbackReport(session, env) {
-  try {
-    console.error('[generateReportWithClaude] CHECKING API KEYS...');
-    console.error('[generateReportWithClaude] env object keys:', Object.keys(env || {}));
+// generateSimpleFallbackReport() and its HTML wrappers (generateFallbackReport,
+// wrapReportHTML) were DELETED on 2026-09-07.
+//
+// They were unreachable — nothing called generateSimpleFallbackReport, and
+// handleReportInit 500s rather than falling back — but they were a complete second
+// report generator that bypassed every guardrail in this file: no medical safety
+// rule block, no medication field in the prompt, no api/medical-context.js, and a
+// prompt that asked the model for "how to handle their specific conditions/symptoms"
+// and "when to adjust macros". Their HTML also printed an ungated daily protein
+// target. Wiring one back in during an incident would have silently reverted the
+// report to pre-remediation behaviour.
+//
+// Do not reintroduce a fallback generator. If generateAllReports() fails, the request
+// must fail — a paid medical-adjacent report that quietly degrades to an ungated one
+// is worse than an error the customer can retry.
 
-    // FIXED: Use ANTHROPIC_API_KEY (not CLAUDE_API_KEY)
-    const apiKey = env?.ANTHROPIC_API_KEY || env?.CLAUDE_API_KEY;
-    console.error('[generateReportWithClaude] ANTHROPIC_API_KEY exists?', !!env?.ANTHROPIC_API_KEY);
-    console.error('[generateReportWithClaude] ANTHROPIC_API_KEY length:', env?.ANTHROPIC_API_KEY?.length || 'MISSING');
-
-    if (!apiKey) {
-      console.error('[generateReportWithClaude] FATAL: ANTHROPIC_API_KEY not configured!');
-      console.error('[generateReportWithClaude] Available secrets:', Object.keys(env || {}));
-      return generateFallbackReport(session);
-    }
-    console.log('[generateReportWithClaude] ✓ ANTHROPIC_API_KEY is configured');
-
-    // Handle both old and new session structures
-    // New structure: form_data is a JSONB field containing all fields
-    // Old structure: fields are at top level
-    console.error('[generateReportWithClaude] SESSION_FORM_DATA_RAW:', {
-      hasFormData: !!session.form_data,
-      formDataType: typeof session.form_data,
-      formDataSample: JSON.stringify(session.form_data).substring(0, 300),
-    });
-
-    let formData = session.form_data || session;
-
-    // If form_data is a string, parse it
-    if (typeof formData === 'string') {
-      console.error('[generateReportWithClaude] PARSING_FORM_DATA_FROM_STRING');
-      try {
-        formData = JSON.parse(formData);
-      } catch (e) {
-        console.warn('[generateReportWithClaude] Could not parse form_data as JSON, treating as object');
-      }
-    }
-
-    // Ensure formData is an object
-    if (!formData || typeof formData !== 'object') {
-      formData = {};
-    }
-
-    // EXPLICIT DEBUG: Show exactly what we have before extraction
-    console.error('[generateReportWithClaude] FORM_DATA_BEFORE_EXTRACTION:', {
-      formDataType: typeof formData,
-      formDataIsObject: formData && typeof formData === 'object',
-      formDataKeys: Object.keys(formData || {}),
-      weight: formData?.weight,
-      age: formData?.age,
-      firstName: formData?.firstName,
-      lastName: formData?.lastName,
-      fullFormData: JSON.stringify(formData).substring(0, 500),
-    });
-
-    const firstName = session.first_name || formData.firstName || '';
-    const lastName = formData.lastName || '';
-    const age = formData.age || 30;
-    const sex = formData.sex || 'Male';
-    const weight = formData.weight || 200;
-    const heightFeet = formData.heightFeet || 6;
-    const heightInches = formData.heightInches || 0;
-    const goal = formData.goal || 'maintain';
-    const diet = formData.diet || 'carnivore';
-    const lifestyle = formData.lifestyle || 'moderate';
-
-    // Calculate macros from form data
-    const macros = calculateMacros(formData);
-    console.log('[generateReportWithClaude] Input formData:', {
-      weight: formData.weight,
-      heightFeet: formData.heightFeet,
-      heightInches: formData.heightInches,
-      heightCm: formData.heightCm,
-      age: formData.age,
-      sex: formData.sex,
-      goal: formData.goal,
-      diet: formData.diet,
-      exercise: formData.exercise,
-      lifestyle: formData.lifestyle,
-    });
-    console.log('[generateReportWithClaude] Calculated macros:', macros);
-
-    const prompt = `Generate a personalized carnivore diet report for:
-
-Name: ${firstName} ${lastName}
-Age: ${age}
-Sex: ${sex}
-Weight: ${weight} lbs
-Height: ${heightFeet}ft ${heightInches}in
-Goal: ${goal}
-Diet Type: ${diet}
-Activity Level: ${lifestyle}
-
-Health Info:
-- Allergies: ${formData.allergies || 'None'}
-- Foods to avoid: ${formData.avoidFoods || 'None'}
-- Dairy tolerance: ${formData.dairyTolerance || 'Not specified'}
-- Previous diet experience: ${formData.previousDiets || 'Not specified'}
-- Current conditions: ${Array.isArray(formData.conditions) ? formData.conditions.join(', ') : formData.conditions || 'None'}
-- Current symptoms: ${Array.isArray(formData.symptoms) ? formData.symptoms.join(', ') : formData.symptoms || 'None'}
-- Biggest challenge: ${formData.biggestChallenge || 'Not specified'}
-- Additional notes: ${formData.otherSymptoms || 'None'}
-
-Calculated Daily Macro Targets (personalized for this user):
-- Daily Calories: ${macros.calories}
-- Daily Protein: ${macros.protein_grams}g
-- Daily Fat: ${macros.fat_grams}g
-- Daily Carbs: ${macros.carbs_grams}g
-
-Generate a comprehensive, personalized carnivore diet protocol with:
-1. Daily nutrition targets (using the calculated macros above)
-2. Meal timing recommendations
-3. Food choices (high quality meats, organs, etc.)
-4. How to handle their specific conditions/symptoms
-5. Practical tips for their lifestyle and challenges
-6. When to adjust macros based on progress`;
-
-    // DEBUG: Log before Claude API call
-    console.log('[generateReportWithClaude] CALLING CLAUDE API WITH:', JSON.stringify({
-      firstName,
-      goal,
-      calories: macros.calories,
-      protein: macros.protein_grams,
-      fat: macros.fat_grams,
-      carbs: macros.carbs_grams,
-    }, null, 2));
-
-    console.error('[generateReportWithClaude] MAKING CLAUDE API CALL...');
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,  // FIXED: Use apiKey variable
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-5-20251101',  // FIXED: Updated from sonnet-20241022 to current Opus 4.5
-        max_tokens: 8000,  // FIXED: Increased from 2000 to allow full comprehensive report
-        system: `You are a personalized nutrition expert creating detailed carnivore diet protocols.
-
-Output your response as formatted HTML. Use proper HTML tags:
-- <h2> for section headers
-- <h3> for subsections
-- <table><tr><td> for tables (include proper thead/tbody structure)
-- <strong> for bold text
-- <ul><li> for bullet lists
-- <p> for paragraphs
-- <div class="section"> to group related content
-
-Do NOT use markdown syntax. Output clean HTML only.
-
-Do NOT include <html>, <head>, <body>, or <DOCTYPE> tags. Return only the HTML content that will be inserted into an existing template.`,
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-      }),
-    });
-
-    console.error('[generateReportWithClaude] CLAUDE API RESPONSE:', {
-      status: response.status,
-      ok: response.ok,
-      statusText: response.statusText,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[generateReportWithClaude] CLAUDE API ERROR:', response.status, errorText.substring(0, 200));
-      // CRITICAL: Include error in response for debugging
-      session._claude_api_error = {
-        status: response.status,
-        message: errorText.substring(0, 200),
-      };
-      return generateFallbackReport(session);
-    }
-
-    const data = await response.json();
-    console.error('[generateReportWithClaude] CLAUDE API SUCCESS - received response with', data.content?.length, 'content items');
-    const reportContent = data.content[0]?.text || '';
-
-    // Pass macros to the report template
-    console.error('[generateReportWithClaude] WRAPPING REPORT WITH REAL CLAUDE CONTENT');
-    return wrapReportHTML(reportContent, session, macros);
-  } catch (err) {
-    console.error('[generateReportWithClaude] EXCEPTION:', err?.message || String(err));
-    return generateFallbackReport(session);
-  }
-}
 /**
  * COMPREHENSIVE REPORT GENERATOR - EXTRACTED CODE
  *
@@ -2377,7 +2226,15 @@ function generateFullMealPlan(data) {
   const budget = data.budget || 'moderate';
   const allergies = (data.allergies || '').toLowerCase();
   // Use avoidFoods (form field) or foodRestrictions (API field) - whichever is provided
-  const foodRestrictions = (data.avoidFoods || data.foodRestrictions || '').toLowerCase();
+  // Foods the reader asked us to leave out, PLUS foods withheld for a declared medical
+  // reason (api/medical-context.js). Both go through the same shouldFilterOutFood()
+  // path: one mechanism, so a medical exclusion cannot be honoured in the meal plan
+  // and forgotten in the grocery list. This removes items; it never swaps in a
+  // "safer" quantity of the removed one.
+  const foodRestrictions = withMedicalFoodExclusions(
+    (data.avoidFoods || data.foodRestrictions || '').toLowerCase(),
+    deriveMedicalContext(data)
+  );
 
   console.log('[generateFullMealPlan] ===  MEAL PLAN GENERATION START ===');
   console.log('[generateFullMealPlan] Diet/Protocol:', diet);
@@ -2540,15 +2397,35 @@ function generateFullMealPlan(data) {
       // calorie target. Close the gap with the cooking fat: scale the butter from the
       // fixed "1 tbsp" up to at most 4 tbsp (each ~102 cal / 11g fat).
       const BUTTER_CAL_PER_TBSP = 102;
+      // Returns BOTH the display string and the structured items behind it. Every
+      // ingredient the reader is told to buy has to leave this function as data, not
+      // only as prose: the grocery list is aggregated from these items and from
+      // nothing else (see generateGroceryListByWeek), which is what stops the meal
+      // calendar and the shopping list from drifting apart the way they did for the
+      // 2026-09-07 reports.
       const butterizeExtras = (extras, mealProteinG, mealFatG) => {
-        if (!extras.includes('1 tbsp Butter')) return extras;
+        const items = [];
+        for (const [needle, item] of NON_MEAT_EXTRAS) {
+          if (extras.includes(needle)) items.push({ ...item });
+        }
+        if (!extras.includes('1 tbsp Butter')) return { text: extras, items };
         const mealCals = mealProteinG * 4 + mealFatG * 9;
         const tbsp = Math.min(4, Math.max(1, Math.round((calPerMeal - mealCals) / BUTTER_CAL_PER_TBSP)));
-        return extras.replace('1 tbsp Butter', `${tbsp} tbsp Butter`);
+        for (const it of items) if (it.name === 'Butter') it.qty = tbsp;
+        return { text: extras.replace('1 tbsp Butter', `${tbsp} tbsp Butter`), items };
       };
 
       // Helper: Generate meal description, splitting if portion > 500g
       // STRICT ENFORCEMENT: Never exceed 500g per protein source
+      const eggItems = (includeEggs) =>
+        includeEggs && eggCount > 0
+          ? [{ name: 'Eggs', category: 'Eggs', unit: 'each', qty: eggCount }]
+          : [];
+      const meatItem = (food, grams) => ({
+        name: food.name, category: food.category || 'Protein', unit: 'g', qty: grams,
+        protein: food.protein, calories: food.calories, cost: food.cost, diet: food.diet
+      });
+
       const generateMealDescription = (protein1, protein2, targetProtein, includeEggs, extras = '') => {
         const portion = calculateMeatPortion(protein1, targetProtein, includeEggs);
 
@@ -2563,18 +2440,31 @@ function generateFullMealPlan(data) {
             const splitProtein = portion1.protein + portion2.protein + (includeEggs ? eggProtein : 0);
             const splitFat = portion1.fat + portion2.fat + (includeEggs ? eggFat : 0);
             const splitExtras = butterizeExtras(extras, splitProtein, splitFat);
-            return `${eggPart}${portion1.grams}g ${protein1.name}, ${portion2.grams}g ${protein2.name}${splitExtras}`;
+            return {
+              description: `${eggPart}${portion1.grams}g ${protein1.name}, ${portion2.grams}g ${protein2.name}${splitExtras.text}`,
+              items: [...eggItems(includeEggs), meatItem(protein1, portion1.grams), meatItem(protein2, portion2.grams), ...splitExtras.items]
+            };
           } else {
             // Only one protein available - HARD CAP at 500g, add note about multiple servings
             const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
             const cappedGrams = MAX_SINGLE_PROTEIN_GRAMS;
             const servings = Math.ceil(portion.grams / MAX_SINGLE_PROTEIN_GRAMS);
             const cappedExtras = butterizeExtras(extras, portion.protein, portion.fat);
-            return `${eggPart}${cappedGrams}g ${protein1.name} (x${servings} servings throughout day)${cappedExtras}`;
+            // The reader is told to eat this x`servings` times, so that is what has to
+            // reach the shopping list. Buying one 500g portion for a day of three is
+            // exactly the kind of quiet divergence this refactor exists to prevent.
+            return {
+              description: `${eggPart}${cappedGrams}g ${protein1.name} (x${servings} servings throughout day)${cappedExtras.text}`,
+              items: [...eggItems(includeEggs), meatItem(protein1, cappedGrams * servings), ...cappedExtras.items]
+            };
           }
         } else {
           const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
-          return `${eggPart}${portion.grams}g ${protein1.name}${butterizeExtras(extras, portion.protein, portion.fat)}`;
+          const ex = butterizeExtras(extras, portion.protein, portion.fat);
+          return {
+            description: `${eggPart}${portion.grams}g ${protein1.name}${ex.text}`,
+            items: [...eggItems(includeEggs), meatItem(protein1, portion.grams), ...ex.items]
+          };
         }
       };
 
@@ -2589,20 +2479,23 @@ function generateFullMealPlan(data) {
             const p2 = calculateMeatPortion(altProtein, halfProtein, false);
             meals.push({
               name: 'Meal',
-              description: `${p1.grams}g ${mainProtein.name}, ${p2.grams}g ${altProtein.name}`
+              description: `${p1.grams}g ${mainProtein.name}, ${p2.grams}g ${altProtein.name}`,
+              items: [meatItem(mainProtein, p1.grams), meatItem(altProtein, p2.grams)]
             });
           } else {
             // Only one protein - cap at 500g with servings note
             const servings = Math.ceil(portion.grams / MAX_SINGLE_PROTEIN_GRAMS);
             meals.push({
               name: 'Meal',
-              description: `${MAX_SINGLE_PROTEIN_GRAMS}g ${mainProtein.name} (x${servings} servings)`
+              description: `${MAX_SINGLE_PROTEIN_GRAMS}g ${mainProtein.name} (x${servings} servings)`,
+              items: [meatItem(mainProtein, MAX_SINGLE_PROTEIN_GRAMS * servings)]
             });
           }
         } else {
           meals.push({
             name: 'Meal',
-            description: `${portion.grams}g ${mainProtein.name}`
+            description: `${portion.grams}g ${mainProtein.name}`,
+            items: [meatItem(mainProtein, portion.grams)]
           });
         }
 
@@ -2612,21 +2505,15 @@ function generateFullMealPlan(data) {
         // Meal 1 (Morning): Include eggs if allowed
         const isKeto = diet.toLowerCase().includes('keto');
         const extras1 = isKeto ? ', 1/2 Avocado' : ', 1 tbsp Butter';
-        const meal1Desc = generateMealDescription(mainProtein, altProtein, proteinPerMeal, eggsAllowed, extras1);
-        meals.push({
-          name: 'Meal 1',
-          description: meal1Desc
-        });
+        const meal1 = generateMealDescription(mainProtein, altProtein, proteinPerMeal, eggsAllowed, extras1);
+        meals.push({ name: 'Meal 1', description: meal1.description, items: meal1.items });
 
         // Meal 2 (Evening): Alternate protein without eggs
         const extras2 = isKeto ? ', 1 cup Broccoli, 1 tbsp Butter' : ', 1 tbsp Butter';
         // Use a third protein if available for more variety
         const thirdProtein = rotationProteins[(proteinIndex + 2) % rotationProteins.length];
-        const meal2Desc = generateMealDescription(altProtein, thirdProtein, proteinPerMeal, false, extras2);
-        meals.push({
-          name: 'Meal 2',
-          description: meal2Desc
-        });
+        const meal2 = generateMealDescription(altProtein, thirdProtein, proteinPerMeal, false, extras2);
+        meals.push({ name: 'Meal 2', description: meal2.description, items: meal2.items });
 
       } else {
         // Three meals per day - use generateMealDescription for variety on high-calorie plans
@@ -2635,32 +2522,31 @@ function generateFullMealPlan(data) {
 
         // Breakfast: Include eggs if allowed
         const breakfastExtras = isKeto ? ', 1/2 Avocado' : ', 1 tbsp Butter';
-        const breakfastDesc = generateMealDescription(mainProtein, altProtein, proteinPerMeal, eggsAllowed, breakfastExtras);
-        meals.push({
-          name: 'Breakfast',
-          description: breakfastDesc
-        });
+        const breakfastMeal = generateMealDescription(mainProtein, altProtein, proteinPerMeal, eggsAllowed, breakfastExtras);
+        meals.push({ name: 'Breakfast', description: breakfastMeal.description, items: breakfastMeal.items });
 
         // Lunch: Main protein, no eggs
         const lunchExtras = isKeto ? ', 1 cup Leafy Greens, 1 tbsp Butter' : '';
-        const lunchDesc = generateMealDescription(mainProtein, thirdProtein, proteinPerMeal, false, lunchExtras);
-        meals.push({
-          name: 'Lunch',
-          description: lunchDesc
-        });
+        const lunchMeal = generateMealDescription(mainProtein, thirdProtein, proteinPerMeal, false, lunchExtras);
+        meals.push({ name: 'Lunch', description: lunchMeal.description, items: lunchMeal.items });
 
         // Dinner: Alternate protein, no eggs
         const dinnerExtras = isKeto ? ', 1 cup Broccoli, 1 tbsp Butter' : ', 1 tbsp Butter';
-        const dinnerDesc = generateMealDescription(altProtein, thirdProtein, proteinPerMeal, false, dinnerExtras);
-        meals.push({
-          name: 'Dinner',
-          description: dinnerDesc
-        });
+        const dinnerMeal = generateMealDescription(altProtein, thirdProtein, proteinPerMeal, false, dinnerExtras);
+        meals.push({ name: 'Dinner', description: dinnerMeal.description, items: dinnerMeal.items });
       }
 
     // Build day object with only the meals that should be included
     const dayObj = {
-      dayNumber: dayNum
+      dayNumber: dayNum,
+      // Structured truth for this day. The rendered strings above are for the reader;
+      // THIS is what the grocery list is built from.
+      items: meals.flatMap(m => m.items || []),
+      // The day's meals in order, named by what they actually are. The calendar table
+      // is built from this, so a 2-meal plan renders two columns instead of three with
+      // an empty one. Legacy breakfast/lunch/dinner fields below are kept for the
+      // sample-day and substitution-guide code that still reads them.
+      meals: meals.map(m => ({ name: m.name, description: m.description }))
     };
 
     // Add meals dynamically (supports 1, 2, or 3 meals)
@@ -2683,6 +2569,20 @@ function generateFullMealPlan(data) {
   return mealPlan;
 }
 
+/**
+ * Every non-meat extra a meal description can mention, mapped to the structured item
+ * behind it. If you add a new extra to a meal string, add it here in the same commit:
+ * the grocery list is built only from structured items, so an extra that is missing
+ * from this table is an extra the reader is never told to buy.
+ */
+const NON_MEAT_EXTRAS = [
+  ['1 tbsp Butter',        { name: 'Butter',            category: 'Dairy',   unit: 'tbsp', qty: 1 }],
+  ['1/2 Avocado',          { name: 'Avocado',           category: 'Produce', unit: 'half', qty: 1 }],
+  ['1 cup Leafy Greens',   { name: 'Leafy Greens',      category: 'Produce', unit: 'cup',  qty: 1 }],
+  ['1 cup Broccoli',       { name: 'Broccoli',          category: 'Produce', unit: 'cup',  qty: 1 }],
+  ['Salt',                 { name: 'Salt',              category: 'Pantry',  unit: 'each', qty: 1 }],
+];
+
 // ============================================================================
 // 4. GROCERY LIST GENERATOR
 // ============================================================================
@@ -2690,145 +2590,91 @@ function generateFullMealPlan(data) {
 /**
  * Generate data-driven grocery list using database filtering
  */
-function generateGroceryListByWeek(data) {
-  const diet = (data.selectedProtocol || 'Carnivore').trim();
-  const budget = data.budget || 'moderate';
-  const allergies = (data.allergies || '').toLowerCase();
-  // Use avoidFoods (form field) or foodRestrictions (API field) - whichever is provided
-  const foodRestrictions = (data.avoidFoods || data.foodRestrictions || '').toLowerCase();
-
-  // Get user's daily protein target (grams) - default to 150g if not calculated
-  const dailyProteinGrams = data.macros?.protein_grams || 150;
-  // Weekly protein needed in grams
-  const weeklyProteinGrams = dailyProteinGrams * 7;
-
-  console.log(`[generateGroceryListByWeek] Daily protein: ${dailyProteinGrams}g, Weekly: ${weeklyProteinGrams}g`);
-
-  // Filter ingredients by diet, budget, allergies, and restrictions (case-insensitive)
-  let proteins = foodDatabase.proteins.filter(p =>
-    p.diet.some(d => d.toLowerCase() === diet.toLowerCase()) &&
-    p.cost.includes(budget) &&
-    !shouldFilterOutFood(p, allergies, foodRestrictions)
-  );
-
-  // Fallback: if no proteins match, use Carnivore defaults
-  if (proteins.length === 0) {
-    proteins = foodDatabase.proteins.filter(p =>
-      p.diet.some(d => d.toLowerCase() === 'carnivore') &&
-      !shouldFilterOutFood(p, allergies, foodRestrictions)
-    );
+/**
+ * Build the weekly shopping lists.
+ *
+ * DERIVED, NEVER REGENERATED. This function does not know what a protein rotation is,
+ * does not read foodDatabase, and does not look at budget or diet to choose food. It
+ * aggregates the structured `items` that generateFullMealPlan already attached to each
+ * day. That is the whole design: the only way the shopping list can disagree with the
+ * meal calendar is if the calendar disagrees with itself.
+ *
+ * History: until 2026-09-08 this function ran its OWN protein rotation
+ * (meatProteins[(week-1) % len]) alongside the calendar's per-day rotation
+ * (dayNum % len). Two generators, two rotations, guaranteed drift. A customer's Week 1
+ * meals called for eight cuts while her Week 1 list named two, neither of which she
+ * was ever told to cook. Do not reintroduce a food-selection step here.
+ *
+ * @param {object} data      report data (used only for the pantry staple line)
+ * @param {object} mealPlan  the SAME object rendered into the meal calendar
+ */
+function generateGroceryListByWeek(data, mealPlan) {
+  // Fail loudly. A missing meal plan used to mean "improvise a list"; now it means the
+  // caller has a bug, and improvising is the bug we are removing.
+  if (!mealPlan || !Array.isArray(mealPlan.weeks)) {
+    throw new Error('generateGroceryListByWeek: requires the meal plan it must be derived from');
   }
 
-  // Last resort fallback: if user has conflicting restrictions, use ground beef
-  if (proteins.length === 0) {
-    console.warn('[generateGroceryListByWeek] WARNING: No proteins available after applying allergies/restrictions. Using ground beef fallback.');
-    proteins = [
-      { name: 'Ground Beef', category: 'Beef', diet: ['Carnivore'], cost: ['tight', 'moderate'], protein: 20, calories: 290 }
-    ];
-  }
+  const GRAMS_PER_LB = 453.6;
+  const BUTTER_TBSP_PER_LB = 32;   // ~14g per tbsp
 
-  let fats = foodDatabase.fats.filter(f =>
-    f.diet.some(d => d.toLowerCase() === diet.toLowerCase()) &&
-    f.cost.includes(budget) &&
-    !shouldFilterOutFood(f, allergies, foodRestrictions)
-  );
+  // Round up, never down: a short shopping list is a reader standing at the counter
+  // without enough meat for the day the calendar told them to cook.
+  const roundUpHalfLb = g => Math.max(0.5, Math.ceil((g / GRAMS_PER_LB) * 2) / 2);
+  const lbs = n => `${n} ${n === 1 ? 'lb' : 'lbs'}`;
 
-  // Fallback: if no fats match, use Carnivore defaults
-  if (fats.length === 0) {
-    fats = foodDatabase.fats.filter(f =>
-      f.diet.some(d => d.toLowerCase() === 'carnivore') &&
-      !shouldFilterOutFood(f, allergies, foodRestrictions)
-    );
-  }
-
-  // Last resort fallback: if user has dairy allergy, use alternative fats
-  if (fats.length === 0 && allergies && allergies.includes('dairy')) {
-    console.warn('[generateGroceryListByWeek] WARNING: No fats available due to dairy allergy. Using coconut oil fallback.');
-    fats = [
-      { name: 'Coconut Oil', category: 'Fats', diet: ['Carnivore', 'Keto'], cost: ['moderate'] }
-    ];
-  }
-
-  // Fallback: if still no fats, use all fats (worst case)
-  if (fats.length === 0) {
-    fats = foodDatabase.fats;
-  }
-
-  // Separate eggs from meat proteins (eggs go in "Dairy & Eggs" section)
-  const eggs = proteins.filter(p => p.category === 'Eggs');
-  const meatProteins = proteins.filter(p => p.category !== 'Eggs');
-
-  console.log(`[generateGroceryListByWeek] Filtered proteins: ${meatProteins.length}, fats: ${fats.length}, eggs: ${eggs.length}`);
-
-  /**
-   * Calculate quantity needed for a protein based on weekly protein target
-   * Protein values in database are per 100g
-   * 1 lb = 453.6g
-   */
-  function calculateProteinQuantity(proteinItem, weeklyGrams, numProteins) {
-    // Protein per protein item from this source (divide among numProteins sources)
-    const proteinFromThisSource = weeklyGrams / numProteins;
-    // Protein content per 100g (from database)
-    const proteinPer100g = proteinItem.protein || 20; // default 20g/100g
-    // Grams of this food needed
-    const gramsNeeded = (proteinFromThisSource / proteinPer100g) * 100;
-    // Convert to lbs (1 lb = 453.6g)
-    const lbsNeeded = gramsNeeded / 453.6;
-    // Round to nearest 0.5 lb, minimum 1 lb
-    const roundedLbs = Math.max(1, Math.round(lbsNeeded * 2) / 2);
-
-    console.log(`[calculateProteinQuantity] ${proteinItem.name}: ${proteinPer100g}g protein/100g, need ${proteinFromThisSource}g protein -> ${gramsNeeded}g food -> ${roundedLbs} lbs`);
-
-    return roundedLbs;
-  }
-
-  // Generate grocery lists for each week, rotating items for variety
   const groceryLists = {};
 
-  for (let week = 1; week <= 4; week++) {
-    // Rotate through available proteins (2-3 per week)
-    const weekProteinItems = [];
-    if (meatProteins.length >= 1) {
-      weekProteinItems.push(meatProteins[(week - 1) % meatProteins.length]);
-    }
-    if (meatProteins.length >= 2) {
-      weekProteinItems.push(meatProteins[week % meatProteins.length]);
-    }
-    if (meatProteins.length >= 3 && week % 2 === 0) {
-      // Add 3rd protein every other week for variety
-      weekProteinItems.push(meatProteins[(week + 1) % meatProteins.length]);
+  for (const week of mealPlan.weeks) {
+    const totals = new Map();   // name -> { name, category, unit, qty, ...meta }
+
+    for (const day of (week.days || [])) {
+      for (const item of (day.items || [])) {
+        const key = item.name;
+        const seen = totals.get(key);
+        if (seen) seen.qty += item.qty;
+        else totals.set(key, { ...item });
+      }
     }
 
-    // Calculate quantities for each protein
-    const numProteins = weekProteinItems.length || 1;
-    const weekProteinsWithQuantity = weekProteinItems.map(p => ({
-      ...p,
-      quantity: `${calculateProteinQuantity(p, weeklyProteinGrams, numProteins)} lbs`
-    }));
+    const all = [...totals.values()];
+    const fmtEach = n => (n === 1 ? '1' : String(n));
 
-    // Rotate through fats (up to 2 per week) - fats get standard quantities
-    const weekFats = fats.slice(0, 2).map(f => ({
-      ...f,
-      quantity: f.category === 'Dairy' ? '1 lb' : '1 bottle'
-    }));
+    // Meats: everything measured in grams that is not an egg.
+    const proteins = all
+      .filter(i => i.unit === 'g' && i.category !== 'Eggs')
+      .map(i => ({ ...i, quantity: lbs(roundUpHalfLb(i.qty)) }));
 
-    // Eggs: ~2 eggs/day = 14/week, round up to 18-count
-    const weekEggs = eggs.map(e => ({
-      ...e,
-      quantity: '18-count'
-    }));
+    // Eggs are counted, not weighed, and are sold by the dozen.
+    const eggs = all
+      .filter(i => i.category === 'Eggs')
+      .map(i => ({ ...i, quantity: `${i.qty} (${Math.ceil(i.qty / 12)} dozen)` }));
 
-    groceryLists[`week${week}`] = {
-      weekNumber: week,
-      proteins: weekProteinsWithQuantity,
-      fats: weekFats,
-      eggs: weekEggs,
+    // Fats: butter arrives as tbsp across the week.
+    const fats = all
+      .filter(i => i.category === 'Dairy')
+      .map(i => ({
+        ...i,
+        quantity: i.unit === 'tbsp'
+          ? lbs(Math.max(0.5, Math.ceil((i.qty / BUTTER_TBSP_PER_LB) * 2) / 2))
+          : '1 lb'
+      }));
+
+    const produce = all
+      .filter(i => i.category === 'Produce')
+      .map(i => ({
+        ...i,
+        quantity: i.unit === 'half' ? `${Math.ceil(i.qty / 2)}` : `${fmtEach(i.qty)} ${i.unit}s`
+      }));
+
+    groceryLists[`week${week.weekNumber}`] = {
+      weekNumber: week.weekNumber,
+      proteins,
+      fats,
+      eggs,
       pantry: [
-        {
-          name: 'Salt (Redmond Real Salt)',
-          quantity: '1 container',
-          category: 'Pantry'
-        }
+        ...produce,
+        { name: 'Salt (Redmond Real Salt)', quantity: '1 container', category: 'Pantry' }
       ]
     };
   }
@@ -3276,7 +3122,9 @@ async function callClaudeAPI(apiKey, systemPrompt, userPrompt, maxTokens) {
       body: JSON.stringify({
         model: 'claude-opus-4-5-20251101',
         max_tokens: maxTokens,
-        temperature: 1.0,
+        // Lowered from 1.0 (2026-09-07 safety remediation): these prompts carry the
+        // medication guardrails, and max-entropy sampling is not what you want there.
+        temperature: 0.4,
         system: systemPrompt,
         messages: [{
           role: 'user',
@@ -3332,14 +3180,10 @@ function buildExecutiveSummarySystemPrompt(data) {
     ? `\n\n⚠️ CRITICAL - FOODS THIS USER CANNOT/WILL NOT EAT:\n${foodsToAvoid.map(f => `- ${f}`).join('\n')}\n\nDO NOT RECOMMEND ANY OF THESE FOODS. PERIOD. This is non-negotiable.`
     : '';
 
-  const medicalSafetyWarnings = `
-
-⚠️ MEDICAL SAFETY - CRITICAL RULES:
-1. NEVER suggest removing or substituting electrolytes (salt, potassium, magnesium)
-2. NEVER suggest substituting salt with butter/fat (not equivalent - salt is essential electrolyte)
-3. Electrolytes are ESSENTIAL for preventing keto flu and maintaining health
-4. If user has medical conditions, ALWAYS recommend consulting healthcare provider
-5. DO NOT provide medical advice that contradicts standard medical practice`;
+  // Medication and medical-context guardrails live in api/medical-context.js so both
+  // AI sections, in both generators, are governed by one rule set. These are the only
+  // two sections that receive the reader's medication list.
+  const medicalSafetyWarnings = buildMedicalSafetyRules(deriveMedicalContext(data));
 
   const consistencyRules = `
 
@@ -3513,14 +3357,10 @@ function buildObstacleProtocolSystemPrompt(data) {
     dietGuidance = `\n\nDIET PROTOCOL: PESCATARIAN\nThis user ONLY eats fish, seafood, eggs, and dairy. NO land animal meat.\nWhen suggesting food tactics, ONLY use: salmon, tuna, cod, mackerel, eggs, butter.\nNEVER mention: ribeye, ground beef, steak, chicken, bacon, pork, lamb, or jerky.`;
   }
 
-  const medicalSafetyWarnings = `
-
-⚠️ MEDICAL SAFETY - CRITICAL RULES:
-1. NEVER suggest removing or substituting electrolytes (salt, potassium, magnesium)
-2. NEVER suggest substituting salt with butter/fat (not equivalent - salt is essential electrolyte)
-3. Electrolytes are ESSENTIAL for preventing keto flu and maintaining health
-4. If user has medical conditions, ALWAYS recommend consulting healthcare provider
-5. DO NOT provide medical advice that contradicts standard medical practice`;
+  // Medication and medical-context guardrails live in api/medical-context.js so both
+  // AI sections, in both generators, are governed by one rule set. These are the only
+  // two sections that receive the reader's medication list.
+  const medicalSafetyWarnings = buildMedicalSafetyRules(deriveMedicalContext(data));
 
   const consistencyRules = `
 
@@ -3544,7 +3384,7 @@ GENERATE:
 1. IDENTIFYING THE ENEMY: Reframe their challenge psychologically
 2. THE MINDSET SHIFT: Explain why they can overcome this
 3. THE TACTICAL SOLUTION: 3-step protocol with specific actions
-4. THE "BREAK GLASS" EMERGENCY PLAN: Backup tools (salt trick, 10-min rule, etc.)
+4. THE "BREAK GLASS" EMERGENCY PLAN: Backup tools (the 10-minute rule, a walk, a protein-first snack, etc.). Do NOT build a tactic around salt, electrolyte or supplement dosing — Report #10 owns that and it is gated on the reader's medical context.
 5. COMMITMENT CONTRACT: They can sign to reinforce commitment
 
 OUTPUT FORMAT:
@@ -3609,7 +3449,7 @@ function getTemplateContent(templateName, dietOrData) {
       const cookingFatExamples = isPescatarian
         ? 'butter, olive oil'
         : 'butter, tallow';
-      return `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n**Note on Macros:** Your protein targets are precisely calculated. Fat may vary ±20-30% based on protein choices—${fattyProteinExamples} naturally deliver more fat when portioned for protein. Adjust cooking fats (${cookingFatExamples}) up or down based on hunger and your body's response.\n\n## Week 1: Adaptation & Baseline\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 1 | {{breakfast1}} | {{lunch1}} | {{dinner1}} |\n| Day 2 | {{breakfast2}} | {{lunch2}} | {{dinner2}} |\n| Day 3 | {{breakfast3}} | {{lunch3}} | {{dinner3}} |\n| Day 4 | {{breakfast4}} | {{lunch4}} | {{dinner4}} |\n| Day 5 | {{breakfast5}} | {{lunch5}} | {{dinner5}} |\n| Day 6 | {{breakfast6}} | {{lunch6}} | {{dinner6}} |\n| Day 7 | {{breakfast7}} | {{lunch7}} | {{dinner7}} |\n\n## Week 2: Building Consistency\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 8 | {{breakfast8}} | {{lunch8}} | {{dinner8}} |\n| Day 9 | {{breakfast9}} | {{lunch9}} | {{dinner9}} |\n| Day 10 | {{breakfast10}} | {{lunch10}} | {{dinner10}} |\n| Day 11 | {{breakfast11}} | {{lunch11}} | {{dinner11}} |\n| Day 12 | {{breakfast12}} | {{lunch12}} | {{dinner12}} |\n| Day 13 | {{breakfast13}} | {{lunch13}} | {{dinner13}} |\n| Day 14 | {{breakfast14}} | {{lunch14}} | {{dinner14}} |\n\n## Week 3: Finding Your Rhythm\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 15 | {{breakfast15}} | {{lunch15}} | {{dinner15}} |\n| Day 16 | {{breakfast16}} | {{lunch16}} | {{dinner16}} |\n| Day 17 | {{breakfast17}} | {{lunch17}} | {{dinner17}} |\n| Day 18 | {{breakfast18}} | {{lunch18}} | {{dinner18}} |\n| Day 19 | {{breakfast19}} | {{lunch19}} | {{dinner19}} |\n| Day 20 | {{breakfast20}} | {{lunch20}} | {{dinner20}} |\n| Day 21 | {{breakfast21}} | {{lunch21}} | {{dinner21}} |\n\n## Week 4: The New Normal\n| Day | Breakfast | Lunch | Dinner |\n| :--- | :--- | :--- | :--- |\n| Day 22 | {{breakfast22}} | {{lunch22}} | {{dinner22}} |\n| Day 23 | {{breakfast23}} | {{lunch23}} | {{dinner23}} |\n| Day 24 | {{breakfast24}} | {{lunch24}} | {{dinner24}} |\n| Day 25 | {{breakfast25}} | {{lunch25}} | {{dinner25}} |\n| Day 26 | {{breakfast26}} | {{lunch26}} | {{dinner26}} |\n| Day 27 | {{breakfast27}} | {{lunch27}} | {{dinner27}} |\n| Day 28 | {{breakfast28}} | {{lunch28}} | {{dinner28}} |\n| Day 29 | {{breakfast29}} | {{lunch29}} | {{dinner29}} |\n| Day 30 | {{breakfast30}} | {{lunch30}} | {{dinner30}} |\n\n## Substitution Guide\n{{substitutionGuide}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`;
+      return `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n{{mealPlanMedicalNote}}\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n**Note on Macros:** {{proteinPrecisionClaim}} Fat may vary ±20-30% based on protein choices—${fattyProteinExamples} naturally deliver more fat when portioned for protein. Adjust cooking fats (${cookingFatExamples}) up or down based on hunger and your body's response.\n\n## Week 1: Adaptation & Baseline\n{{mealTableWeek1}}\n\n## Week 2: Building Consistency\n{{mealTableWeek2}}\n\n## Week 3: Finding Your Rhythm\n{{mealTableWeek3}}\n\n## Week 4: The New Normal\n{{mealTableWeek4}}\n\n## Substitution Guide\n{{substitutionGuide}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`;
     })(),
 
     // Report #4: Weekly Shopping Lists
@@ -3631,7 +3471,7 @@ function getTemplateContent(templateName, dietOrData) {
 ### 🥚 Dairy & Eggs
 {{dairyEggsWeek1}}
 ### 🧂 Pantry
-* [ ] Salt - 1 container
+{{pantryWeek1}}
 
 ## 🛒 Week 2 Shopping List
 ### {{proteinSectionHeader}}
@@ -3639,7 +3479,7 @@ function getTemplateContent(templateName, dietOrData) {
 ### 🥚 Dairy & Eggs
 {{dairyEggsWeek2}}
 ### 🧂 Pantry
-* [ ] Salt (replenish as needed)
+{{pantryWeek2}}
 
 ## 🛒 Week 3 Shopping List
 ### {{proteinSectionHeader}}
@@ -3647,7 +3487,7 @@ function getTemplateContent(templateName, dietOrData) {
 ### 🥚 Dairy & Eggs
 {{dairyEggsWeek3}}
 ### 🧂 Pantry
-* [ ] Salt (replenish as needed)
+{{pantryWeek3}}
 
 ## 🛒 Week 4 Shopping List
 ### {{proteinSectionHeader}}
@@ -3655,7 +3495,7 @@ function getTemplateContent(templateName, dietOrData) {
 ### 🥚 Dairy & Eggs
 {{dairyEggsWeek4}}
 ### 🧂 Pantry
-* [ ] Salt (replenish as needed)
+{{pantryWeek4}}
 
 ## 💡 Smart Shopping Tips
 {{shoppingTips}}
@@ -3663,7 +3503,7 @@ function getTemplateContent(templateName, dietOrData) {
 **Pro tip:** {{proTip}}`,
 
     // Report #5: Physician Consultation Guide
-    physicianConsult: `## Report #5: Physician Consultation Guide\n\n*For {{firstName}} to discuss with your doctor about {{diet}}*\n\n> **⚠️ MEDICAL DISCLAIMER:** This guide is educational. Never change medications without medical supervision. Always work with your doctor.\n\n---\n\n## SECTION 1: The Opening Script\n\n### The 2-Minute Pitch\n\n"Dr. [Name], I'm starting a therapeutic {{diet}} protocol to address {{symptoms}}. This is evidence-based metabolic therapy, not a fad diet. I need your partnership in three areas:\n\n1. **Lab monitoring** - Baseline now, recheck at 8 weeks\n2. **Medication adjustment** - Discussing tapering if improvements occur\n3. **Advanced markers** - Looking beyond standard LDL to assess real cardiovascular risk\n\nI've prepared a one-page summary for you. Can we schedule an 8-week follow-up now?"\n\n### If They Push Back Immediately\n\nUse Section 3 (Conflict Resolution Scripts) - Choose the response that matches their concern.\n\n---\n\n## SECTION 2: Advanced Bloodwork Markers\n\n### Why Standard LDL is Misleading\n\nStandard lipid panels measure LDL-C (cholesterol content), NOT particle count or size. On {{diet}}, LDL-C may increase, but particle size typically improves (large, fluffy, less atherogenic).\n\n### Request These Advanced Markers\n\n**1. ApoB (Apolipoprotein B)**\n- **What it measures:** Actual number of atherogenic particles\n- **Why it matters:** Better predictor than LDL-C for cardiovascular risk\n- **{{diet}} expectation:** Often neutral or improves (even if LDL-C rises)\n- **What to say:** \"Can we order ApoB instead of relying on LDL alone? It's a more accurate cardiovascular marker.\"\n\n**2. Triglyceride/HDL Ratio**\n- **What it measures:** Insulin resistance and small dense LDL particles\n- **Why it matters:** Ratio <2 = metabolic health, <1 = excellent\n- **{{diet}} expectation:** Usually improves dramatically (triglycerides ↓, HDL ↑)\n- **What to say:** \"I've read that Trig/HDL ratio under 2 is protective. Can we track this?\"\n\n**3. CAC Score (Coronary Artery Calcium)**\n- **What it measures:** Actual arterial calcification (hard endpoint)\n- **Why it matters:** Direct measure of plaque burden\n- **{{diet}} expectation:** Stable or slow progression (requires years to improve)\n- **What to say:** \"If my LDL is elevated, can we get a CAC score to see if there's actual plaque? A score of 0 means no disease regardless of LDL.\"\n\n**4. Fasting Insulin & HOMA-IR**\n- **What it measures:** Insulin resistance (root cause of metabolic disease)\n- **Why it matters:** Standard glucose is a lagging indicator\n- **{{diet}} expectation:** Fasting insulin <5, HOMA-IR <1.0 (excellent metabolic health)\n- **What to say:** \"Can we measure fasting insulin? I want to track insulin resistance, not just glucose.\"\n\n### The Key Markers Table\n\n| Marker | Standard Range | {{diet}} Target | Why It Matters |\n|--------|---|---|---|\n| ApoB | <130 mg/dL | <100 mg/dL | Actual particle count |\n| Trig/HDL Ratio | <3 | <1 | Insulin resistance |\n| CAC Score | N/A | 0 (if <50) | Hard plaque endpoint |\n| Fasting Insulin | <10 μIU/mL | <5 μIU/mL | True metabolic health |\n| HOMA-IR | <2 | <1 | Insulin resistance |\n| hs-CRP | <3 mg/L | <1 mg/L | Inflammation |\n\n---\n\n## SECTION 3: Doctor Conflict Resolution Scripts\n\n### Concern #1: \"This will destroy your cholesterol\"\n\n**The Weak Response (Avoid):**\n\"I'll be fine, I read it online.\"\n\n**The Strong Response:**\n\"I understand your concern about LDL. Can we agree on three things?\n\n1. **Get baseline labs now** - Including ApoB and CAC score if possible\n2. **Recheck in 8 weeks** - If ApoB worsens or triglycerides rise, I'll reconsider\n3. **Focus on the markers that matter** - Triglyceride/HDL ratio, fasting insulin, hs-CRP, and how I feel\n\nIf my inflammation drops, insulin sensitivity improves, and triglycerides fall - but LDL rises - can we discuss the research on large fluffy LDL being protective?\"\n\n**If they insist on statins immediately:**\n\"I respect your clinical judgment. Can we compromise? Let me try this intervention for 8 weeks with close monitoring. If my cardiovascular markers worsen, I'll consider medication. But I'd like to try lifestyle first.\"\n\n### Concern #2: \"You'll be deficient in fiber and vitamins\"\n\n**The Weak Response (Avoid):**\n\"Carnivore has everything I need.\"\n\n**The Strong Response:**\n\"That's a common concern. {{diet}} includes {{proteins}} which provide:\n- **Vitamin C:** Adequate amounts in fresh meat (humans need less on low-carb)\n- **Fiber:** Not an essential nutrient - many thrive without it\n- **Micronutrients:** B12, iron, zinc, selenium all highly bioavailable in animal foods\n\nCan we test my micronutrient levels at baseline and 8 weeks? If I show deficiencies, I'll adjust. But the data shows most people improve these markers, not worsen them.\"\n\n### Concern #3: \"This is dangerous for your kidneys\"\n\n**The Weak Response (Avoid):**\n\"No it's not.\"\n\n**The Strong Response:**\n\"I appreciate your concern. High protein is not dangerous for healthy kidneys - that's a myth from outdated research on people with existing kidney disease.\n\nCan we monitor:\n- **Creatinine & eGFR** (kidney function)\n- **Albumin/Creatinine ratio** (kidney damage marker)\n\nIf these worsen, I'll stop immediately. But the research shows high protein is safe for healthy kidneys and may even be protective.\"\n\n### Concern #4: \"You need carbs for energy and brain function\"\n\n**The Weak Response (Avoid):**\n\"Carbs aren't essential.\"\n\n**The Strong Response:**\n\"The brain can run on ketones, which the liver produces from fat. In fact, ketones may be a superior fuel for the brain - that's why ketogenic diets are used for epilepsy and being studied for Alzheimer's.\n\nCan we track my cognitive function and energy levels? If I report brain fog, fatigue, or declining performance, I'll reconsider. But most people report improved mental clarity within 2-4 weeks.\"\n\n### The Nuclear Option: Find a New Doctor\n\n**If your doctor:**\n- ❌ Refuses to order baseline labs\n- ❌ Prescribes statins without trying lifestyle first\n- ❌ Dismisses your concerns or goals\n- ❌ Won't monitor you during dietary intervention\n\n**You have the right to find a doctor who will partner with you.**\n\nResources for finding supportive doctors:\n- **DietDoctor.com** - Doctor directory (keto/carnivore friendly)\n- **PaleophysiciansNetwork.com** - Ancestral health practitioners\n- **Functional medicine practitioners** - Often more open to dietary interventions\n\n---\n\n## SECTION 4: Medication Adjustment Protocols\n\n> **⚠️ CRITICAL:** NEVER adjust medications without medical supervision. These are discussion frameworks for your doctor, NOT medical advice.\n\n{{#if medications && (medications.toLowerCase().includes('metformin') || medications.toLowerCase().includes('diabetes'))}}\n\n### Type 2 Diabetes: Metformin\n\n**Week 0-2: Monitor Closely**\n- **Action:** Continue current dose, monitor blood glucose 2-3x daily\n- **Risk:** Hypoglycemia (low blood sugar) as diet lowers glucose\n- **Symptoms to watch:** Shaking, sweating, dizziness, confusion\n\n**Week 2: First Checkpoint**\n- **IF** fasting glucose consistently <100 mg/dL for 5+ days\n- **THEN** Discuss with doctor: Reduce Metformin by 50% (e.g., 1000mg → 500mg)\n- **Monitor:** Continue daily fasting glucose checks\n\n**Week 4: Second Checkpoint**\n- **IF** fasting glucose consistently <90 mg/dL AND HbA1c <5.7%\n- **THEN** Discuss with doctor: Consider discontinuing Metformin\n- **Monitor:** Weekly fasting glucose for 4 weeks after stopping\n\n{{/if}}\n\n{{#if medications && (medications.toLowerCase().includes('blood pressure') || medications.toLowerCase().includes('lisinopril') || medications.toLowerCase().includes('losartan'))}}\n\n### Blood Pressure: ACE Inhibitors, ARBs, Diuretics\n\n**Week 0-2: Establish Baseline**\n- **Action:** Monitor BP daily (morning and evening)\n- **Record:** Keep 7-day average\n- **Risk:** BP may drop quickly on {{diet}} (salt loss + improved insulin sensitivity)\n\n**Week 2: First Checkpoint**\n- **IF** average systolic BP <110 mmHg OR experiencing dizziness/lightheadedness\n- **THEN** Discuss with doctor: Reduce medication by 25-50%\n- **AND** Increase salt intake (2-3 tsp daily)\n- **Monitor:** BP 2x daily for next week\n\n**Week 4: Second Checkpoint**\n- **IF** average BP <120/80 for 7+ days AND no symptoms\n- **THEN** Discuss with doctor: Consider reducing or stopping medication\n- **Monitor:** Weekly BP checks for 4 weeks after stopping\n\n{{/if}}\n\n{{#if medications && (medications.toLowerCase().includes('thyroid') || medications.toLowerCase().includes('synthroid'))}}\n\n### Thyroid: Levothyroxine / Synthroid\n\n**Weeks 0-8: No Changes Expected**\n- **Action:** Continue current dose\n- **Monitor:** Thyroid function often improves on {{diet}}, but this takes 3-6 months\n- **Lab:** TSH, Free T3, Free T4 at Week 8\n\n**Week 8: Lab Review**\n- **IF** TSH <0.5 mIU/L (suppressed, indicating over-medication)\n- **THEN** Discuss with doctor: Reduce dose by 12.5-25 mcg\n- **Recheck:** TSH in 6 weeks\n\n{{/if}}\n\n### General Medication Safety Rules\n\n1. **NEVER adjust medications without your doctor's knowledge**\n2. **Monitor relevant biomarkers daily/weekly** (glucose, BP, etc.)\n3. **Keep a medication log** - Record every change with date and reason\n4. **Have rescue protocols** - Know when to take extra medication\n5. **Report symptoms immediately** - Dizziness, confusion, chest pain, severe fatigue\n6. **Recheck labs at Week 8** - Comprehensive metabolic panel + relevant markers\n\n---\n\n## SECTION 5: Finding a Supportive Doctor\n\n### Red Flags (Time to Find a New Doctor)\n\n❌ Refuses to order baseline labs before dismissing your diet\n❌ Prescribes statins immediately without discussing lifestyle intervention\n❌ Uses fear tactics (\"You'll have a heart attack in 6 months\")\n❌ Dismisses patient autonomy (\"I'm the doctor, you need to listen to me\")\n❌ Won't monitor you during dietary intervention\n\n### Green Flags (Signs of a Good Doctor)\n\n✅ Orders comprehensive labs (including advanced markers if requested)\n✅ Proposes a trial period (\"Let's try this for 8 weeks and recheck\")\n✅ Focuses on outcomes (\"Let's see how you feel and what the labs show\")\n✅ Respects patient autonomy (\"I have concerns, but I'll monitor you closely\")\n✅ Evidence-based discussion (cites research, not just guidelines)\n\n### Where to Find Carnivore/Keto-Friendly Doctors\n\n**Online Directories:**\n- **DietDoctor.com/find-doctors** - Keto/low-carb provider directory\n- **PaleophysiciansNetwork.com** - Ancestral health practitioners\n- **IFM.org** - Institute for Functional Medicine\n\n**Telemedicine Options:**\n- **SteadyMD** - Keto-friendly primary care via telehealth\n- **Levels.com** - Continuous glucose monitoring + MD consults\n- **Function Health** - Comprehensive lab testing + health optimization\n\n**What to Ask When Interviewing a New Doctor:**\n1. \"Have you worked with patients on ketogenic or carnivore diets?\"\n2. \"Are you willing to order advanced lipid markers like ApoB and CAC score?\"\n3. \"If my standard LDL rises but triglycerides drop and I feel great, will you support me?\"\n4. \"Can we agree on an 8-week trial with close monitoring?\"\n\n---\n\n## SECTION 6: Comprehensive Lab Monitoring Schedule\n\n### Baseline Labs (Week 0 - Before Starting {{diet}})\n\n**Metabolic Panel:**\n- [ ] Fasting Glucose\n- [ ] Fasting Insulin (critical for tracking insulin resistance)\n- [ ] HbA1c (3-month glucose average)\n- [ ] HOMA-IR (calculated from glucose + insulin)\n\n**Lipid Panel (Standard):**\n- [ ] Total Cholesterol\n- [ ] LDL-C\n- [ ] HDL-C\n- [ ] Triglycerides\n- [ ] **Calculate Trig/HDL ratio** (divide Trig by HDL)\n\n**Advanced Lipids (Request if possible):**\n- [ ] ApoB (gold standard for cardiovascular risk)\n- [ ] LDL Particle Number (LDL-P)\n- [ ] LDL Particle Size (small vs large)\n\n**Cardiovascular Risk:**\n- [ ] hs-CRP (high-sensitivity C-reactive protein - inflammation marker)\n- [ ] **CAC Score** (Coronary Artery Calcium scan - optional but valuable if >40 years old)\n\n**Kidney & Liver Function:**\n- [ ] Creatinine\n- [ ] eGFR (estimated glomerular filtration rate)\n- [ ] BUN (blood urea nitrogen)\n- [ ] ALT (alanine aminotransferase)\n- [ ] AST (aspartate aminotransferase)\n- [ ] Albumin\n\n**Micronutrients:**\n- [ ] Vitamin D (25-hydroxy)\n- [ ] Vitamin B12\n- [ ] Magnesium (RBC magnesium preferred over serum)\n- [ ] Iron panel (ferritin, TIBC, serum iron, transferrin saturation)\n\n### Week 8 Recheck (Comprehensive Follow-Up)\n\n**Repeat ALL baseline labs** to assess metabolic response\n\n**Expected Changes:**\n✅ **Likely improvements:**\n- Fasting glucose ↓\n- Fasting insulin ↓↓ (often dramatic)\n- HbA1c ↓\n- Triglycerides ↓↓\n- HDL ↑\n- Trig/HDL ratio ↓↓ (should be <2, ideally <1)\n- hs-CRP ↓\n- ALT/AST ↓ (if fatty liver present)\n\n⚠️ **May increase (not necessarily bad):**\n- LDL-C ↑ (often increases, especially if losing weight rapidly)\n- Total Cholesterol ↑ (follows LDL)\n\n**Key Insight:** If triglycerides drop, HDL rises, and Trig/HDL ratio improves - even if LDL rises - your cardiovascular risk is likely IMPROVING, not worsening.\n\n### Ongoing Labs (Beyond Week 8)\n\n- **Week 12-16:** Optional extended monitoring\n- **Yearly:** Full lipid panel, fasting glucose, insulin, HbA1c, kidney/liver function, micronutrients, TSH\n- **Every 2-5 years:** CAC score (if previous score >0)\n\n---\n\n## SECTION 7: The One-Page Doctor Handout\n\n**Print this and bring to your appointment**\n\n---\n\n### ONE-PAGE PHYSICIAN CONSULTATION GUIDE\n\n**Patient:** {{firstName}}\n**Protocol:** {{diet}} Metabolic Intervention\n**Duration:** 8-week monitored trial\n**Date:** {{currentDate}}\n\n---\n\n#### PATIENT REQUEST:\n\nI am starting a therapeutic {{diet}} protocol to address: **{{symptoms}}**\n\nI am requesting:\n1. **Baseline comprehensive labs** (see list below)\n2. **8-week recheck labs** with medication adjustment discussion if warranted\n3. **Partnership in monitoring** - I will report any adverse symptoms immediately\n\n---\n\n#### BASELINE LABS REQUESTED (Week 0):\n\n**Metabolic:** Fasting Glucose, Fasting Insulin, HbA1c, HOMA-IR\n**Lipids:** Total Chol, LDL, HDL, Triglycerides, **ApoB** (if available)\n**Inflammation:** hs-CRP\n**Kidney:** Creatinine, eGFR, BUN\n**Liver:** ALT, AST, Albumin\n**Micronutrients:** Vitamin D, B12, Magnesium, Iron Panel\n**Optional:** CAC Score (if age >40 and no recent scan)\n\n---\n\n#### WEEK 8 RECHECK LABS:\n\n**Repeat all baseline labs** to assess metabolic response\n\n---\n\n#### MEDICATION MONITORING (if applicable):\n\n**I will contact you immediately if:**\n- Blood glucose <70 mg/dL (hypoglycemia)\n- Blood pressure <90/60 mmHg (hypotension)\n- Severe fatigue, dizziness, confusion, chest pain\n- Any other concerning symptoms\n\n---\n\n#### EVIDENCE SUMMARY:\n\nLow-carbohydrate / ketogenic / carnivore interventions have peer-reviewed evidence for:\n- **Type 2 Diabetes Remission:** 60% remission at 1 year\n- **Metabolic Syndrome Reversal:** Multiple RCTs showing improvements\n- **Weight Loss:** Superior to low-fat diets in meta-analyses\n- **Inflammation Reduction:** Decreases hs-CRP and other inflammatory markers\n\n**Patient commitment:** I, {{firstName}} {{lastName}}, will adhere strictly to protocol, monitor daily, and report any adverse effects immediately.\n\n---\n\n**Patient Signature:** ___________________________                    **Date:** __________\n\n---\n\n## SECTION 8: After Your Appointment\n\n### If Your Doctor Agreed to Monitor You ✅\n\n**Immediate Actions:**\n1. [ ] Schedule Week 8 follow-up appointment NOW (before you leave office)\n2. [ ] Get lab orders and complete baseline labs within 48 hours\n3. [ ] Request copies of all lab results (you own your medical records)\n4. [ ] Create a tracking spreadsheet or use app\n5. [ ] Start {{diet}} protocol after baseline labs are complete\n\n**Daily Monitoring (Weeks 0-8):**\n- [ ] Weight (morning, after bathroom) - Log in tracker\n- [ ] Blood glucose (if diabetic/pre-diabetic) - 2-3x daily\n- [ ] Blood pressure (if on BP meds) - Morning + evening\n- [ ] Symptoms: Energy, mood, cravings, digestion - Rate 1-10 daily\n- [ ] Medication changes - Log every adjustment with date/time/reason\n\n**Emergency Contacts:**\n- **Hypoglycemia** (glucose <50 mg/dL): Drink 4 oz orange juice, call 911 if unconscious\n- **Severe hypotension** (BP <80/50 mmHg): Lie down, elevate legs, drink salted water, call 911\n- **Chest pain**: Call 911 immediately\n\n### If Your Doctor Refused to Partner ❌\n\n**Don't Panic - You Have Options:**\n\n**Option 1: Find a New Doctor (Recommended)**\n- Use directories: DietDoctor.com, PaleophysiciansNetwork.com\n- Ask in carnivore/keto communities for local recommendations\n- Interview new doctors using questions from Section 5\n\n**Option 2: Use Telemedicine**\n- SteadyMD, Levels.com, Function Health\n- Often more affordable than traditional office visits\n- Many are keto/carnivore-experienced\n\n**Option 3: Self-Direct Labs (Legal in Most States)**\n- **Ulta Lab Tests**, **Walk-In Lab**, **Life Extension**\n- Cost: $100-300 for comprehensive panel\n- You won't have a doctor to interpret, but you'll have data\n\n---\n\n**You've got this. Most doctors will partner with you if you approach professionally and commit to close monitoring. If not, there are other options. Your health is worth fighting for.**`,
+    physicianConsult: `## Report #5: Physician Consultation Guide\n\n*For {{firstName}} to discuss with your doctor about {{diet}}*\n\n> **⚠️ MEDICAL DISCLAIMER:** This guide is educational. Never change medications without medical supervision. Always work with your doctor.\n\n{{medicalContextBanner}}\n\n---\n\n## SECTION 1: The Opening Script\n\n### The 2-Minute Pitch\n\n"Dr. [Name], I'm starting a therapeutic {{diet}} protocol to address {{symptoms}}. This is evidence-based metabolic therapy, not a fad diet. I need your partnership in three areas:\n\n1. **Lab monitoring** - Baseline now, recheck at 8 weeks\n2. **Medication monitoring** - What you want me to watch, when to recheck, and how you would want to handle it if my numbers change\n3. **Advanced markers** - Looking beyond standard LDL to assess real cardiovascular risk\n\nI've prepared a one-page summary for you. Can we schedule an 8-week follow-up now?"\n\n### If They Push Back Immediately\n\nUse Section 3 (Conflict Resolution Scripts) - Choose the response that matches their concern.\n\n---\n\n## SECTION 2: Advanced Bloodwork Markers\n\n### Why Standard LDL is Misleading\n\nStandard lipid panels measure LDL-C (cholesterol content), NOT particle count or size. On {{diet}}, LDL-C may increase, but particle size typically improves (large, fluffy, less atherogenic).\n\n### Request These Advanced Markers\n\n**1. ApoB (Apolipoprotein B)**\n- **What it measures:** Actual number of atherogenic particles\n- **Why it matters:** Better predictor than LDL-C for cardiovascular risk\n- **{{diet}} expectation:** Often neutral or improves (even if LDL-C rises)\n- **What to say:** \"Can we order ApoB instead of relying on LDL alone? It's a more accurate cardiovascular marker.\"\n\n**2. Triglyceride/HDL Ratio**\n- **What it measures:** Insulin resistance and small dense LDL particles\n- **Why it matters:** Ratio <2 = metabolic health, <1 = excellent\n- **{{diet}} expectation:** Usually improves dramatically (triglycerides ↓, HDL ↑)\n- **What to say:** \"I've read that Trig/HDL ratio under 2 is protective. Can we track this?\"\n\n**3. CAC Score (Coronary Artery Calcium)**\n- **What it measures:** Actual arterial calcification (hard endpoint)\n- **Why it matters:** Direct measure of plaque burden\n- **{{diet}} expectation:** Stable or slow progression (requires years to improve)\n- **What to say:** \"If my LDL is elevated, can we get a CAC score to see if there's actual plaque? A score of 0 means no disease regardless of LDL.\"\n\n**4. Fasting Insulin & HOMA-IR**\n- **What it measures:** Insulin resistance (root cause of metabolic disease)\n- **Why it matters:** Standard glucose is a lagging indicator\n- **{{diet}} expectation:** Fasting insulin <5, HOMA-IR <1.0 (excellent metabolic health)\n- **What to say:** \"Can we measure fasting insulin? I want to track insulin resistance, not just glucose.\"\n\n### The Key Markers Table\n\n| Marker | Standard Range | {{diet}} Target | Why It Matters |\n|--------|---|---|---|\n| ApoB | <130 mg/dL | <100 mg/dL | Actual particle count |\n| Trig/HDL Ratio | <3 | <1 | Insulin resistance |\n| CAC Score | N/A | 0 (if <50) | Hard plaque endpoint |\n| Fasting Insulin | <10 μIU/mL | <5 μIU/mL | True metabolic health |\n| HOMA-IR | <2 | <1 | Insulin resistance |\n| hs-CRP | <3 mg/L | <1 mg/L | Inflammation |\n\n---\n\n## SECTION 3: Doctor Conflict Resolution Scripts\n\n### Concern #1: \"This will destroy your cholesterol\"\n\n**The Weak Response (Avoid):**\n\"I'll be fine, I read it online.\"\n\n**The Strong Response:**\n\"I understand your concern about LDL. Can we agree on three things?\n\n1. **Get baseline labs now** - Including ApoB and CAC score if possible\n2. **Recheck in 8 weeks** - If ApoB worsens or triglycerides rise, I'll reconsider\n3. **Focus on the markers that matter** - Triglyceride/HDL ratio, fasting insulin, hs-CRP, and how I feel\n\nIf my inflammation drops, insulin sensitivity improves, and triglycerides fall - but LDL rises - can we discuss the research on large fluffy LDL being protective?\"\n\n### Concern #2: \"You'll be deficient in fiber and vitamins\"\n\n**The Weak Response (Avoid):**\n\"Carnivore has everything I need.\"\n\n**The Strong Response:**\n\"That's a common concern. {{diet}} includes {{proteins}} which provide:\n- **Vitamin C:** Adequate amounts in fresh meat (humans need less on low-carb)\n- **Fiber:** Not an essential nutrient - many thrive without it\n- **Micronutrients:** B12, iron, zinc, selenium all highly bioavailable in animal foods\n\nCan we test my micronutrient levels at baseline and 8 weeks? If I show deficiencies, I'll adjust. But the data shows most people improve these markers, not worsen them.\"\n\n### Concern #3: \"This is dangerous for your kidneys\"\n\n**The Weak Response (Avoid):**\n\"No it's not.\"\n\n**The Strong Response:**\n\"That is a fair thing to check, and I would rather measure it than argue about it. Can we monitor:\n\n- **Creatinine & eGFR** (kidney function)\n- **Albumin/Creatinine ratio** (kidney damage marker)\n\nCan we take a baseline now and recheck it, and can you tell me what change in those numbers would mean I should stop?\"\n\n{{proteinTargetNote}}\n\n### Concern #4: \"You need carbs for energy and brain function\"\n\n**The Weak Response (Avoid):**\n\"Carbs aren't essential.\"\n\n**The Strong Response:**\n\"The brain can run on ketones, which the liver produces from fat. In fact, ketones may be a superior fuel for the brain - that's why ketogenic diets are used for epilepsy and being studied for Alzheimer's.\n\nCan we track my cognitive function and energy levels? If I report brain fog, fatigue, or declining performance, I'll reconsider. But most people report improved mental clarity within 2-4 weeks.\"\n\n### When to Seek a Second Opinion\n\nIf you feel your concerns are not being heard, you can ask questions, request clarification, or seek a second opinion from another qualified clinician. That is a normal part of medical care, not a confrontation.\n\n**Reasonable things to ask for:**\n- Baseline labs before you start, so there is something to compare against later\n- A clear explanation of which markers concern your doctor, and why\n- An agreed monitoring schedule while you make a dietary change\n\nDecisions about medications, treatment and testing should be made with your healthcare professional.\n\n---\n\n## SECTION 4: Medications\n\n> **Medication changes are your prescriber's decision, not ours.** Our job is what to measure and what to ask.\n\nA {{diet}} diet can change blood glucose, blood pressure and thyroid labs, sometimes within weeks. That is exactly why this guide exists: so your doctor knows what you are doing and can monitor you properly.\n\n**Bring your current medication list to the appointment and ask:**\n- Which of my medications could be affected if my glucose, blood pressure or weight changes?\n- What should I monitor at home, how often, and what readings should prompt me to call you?\n- When would you like to recheck my labs?\n- If something does need to change, how would you want to do it?\n\n**Do not change a dose, skip a dose, or stop a medication on your own.** If you notice dizziness, shaking, sweating, confusion, unusual fatigue or any symptom that worries you, contact your doctor or seek urgent care.\n\n## SECTION 5: Finding a Supportive Doctor\n\n### Signs the Conversation Is Not Working\n\nIf you consistently cannot get answers to reasonable questions, it is fair to seek a second opinion:\n\n- You cannot get baseline labs ordered, or get the results explained\n- Your questions about monitoring go unanswered\n- You do not feel able to raise concerns at all\n\nSeeking a second opinion is not the same as ignoring medical advice. Keep a prescribing clinician involved either way.\n\n### Green Flags (Signs of a Good Doctor)\n\n✅ Orders comprehensive labs (including advanced markers if requested)\n✅ Proposes a trial period (\"Let's try this for 8 weeks and recheck\")\n✅ Focuses on outcomes (\"Let's see how you feel and what the labs show\")\n✅ Respects patient autonomy (\"I have concerns, but I'll monitor you closely\")\n✅ Evidence-based discussion (cites research, not just guidelines)\n\n### Where to Find Carnivore/Keto-Friendly Doctors\n\n**Online Directories:**\n- **DietDoctor.com/find-doctors** - Keto/low-carb provider directory\n- **PaleophysiciansNetwork.com** - Ancestral health practitioners\n- **IFM.org** - Institute for Functional Medicine\n\n**Telemedicine Options:**\n- **SteadyMD** - Keto-friendly primary care via telehealth\n- **Levels.com** - Continuous glucose monitoring + MD consults\n- **Function Health** - Comprehensive lab testing + health optimization\n\n**What to Ask When Interviewing a New Doctor:**\n1. \"Have you worked with patients on ketogenic or carnivore diets?\"\n2. \"Are you willing to order advanced lipid markers like ApoB and CAC score?\"\n3. \"If my standard LDL rises but triglycerides drop and I feel great, will you support me?\"\n4. \"Can we agree on an 8-week trial with close monitoring?\"\n\n---\n\n## SECTION 6: Comprehensive Lab Monitoring Schedule\n\n### Baseline Labs (Week 0 - Before Starting {{diet}})\n\n**Metabolic Panel:**\n- [ ] Fasting Glucose\n- [ ] Fasting Insulin (critical for tracking insulin resistance)\n- [ ] HbA1c (3-month glucose average)\n- [ ] HOMA-IR (calculated from glucose + insulin)\n\n**Lipid Panel (Standard):**\n- [ ] Total Cholesterol\n- [ ] LDL-C\n- [ ] HDL-C\n- [ ] Triglycerides\n- [ ] **Calculate Trig/HDL ratio** (divide Trig by HDL)\n\n**Advanced Lipids (Request if possible):**\n- [ ] ApoB (gold standard for cardiovascular risk)\n- [ ] LDL Particle Number (LDL-P)\n- [ ] LDL Particle Size (small vs large)\n\n**Cardiovascular Risk:**\n- [ ] hs-CRP (high-sensitivity C-reactive protein - inflammation marker)\n- [ ] **CAC Score** (Coronary Artery Calcium scan - optional but valuable if >40 years old)\n\n**Kidney & Liver Function:**\n- [ ] Creatinine\n- [ ] eGFR (estimated glomerular filtration rate)\n- [ ] BUN (blood urea nitrogen)\n- [ ] ALT (alanine aminotransferase)\n- [ ] AST (aspartate aminotransferase)\n- [ ] Albumin\n\n**Micronutrients:**\n- [ ] Vitamin D (25-hydroxy)\n- [ ] Vitamin B12\n- [ ] Magnesium (RBC magnesium preferred over serum)\n- [ ] Iron panel (ferritin, TIBC, serum iron, transferrin saturation)\n\n### Week 8 Recheck (Comprehensive Follow-Up)\n\n**Repeat ALL baseline labs** to assess metabolic response\n\n**Expected Changes:**\n✅ **Likely improvements:**\n- Fasting glucose ↓\n- Fasting insulin ↓↓ (often dramatic)\n- HbA1c ↓\n- Triglycerides ↓↓\n- HDL ↑\n- Trig/HDL ratio ↓↓ (should be <2, ideally <1)\n- hs-CRP ↓\n- ALT/AST ↓ (if fatty liver present)\n\n⚠️ **May increase (not necessarily bad):**\n- LDL-C ↑ (often increases, especially if losing weight rapidly)\n- Total Cholesterol ↑ (follows LDL)\n\n**Key Insight:** If triglycerides drop, HDL rises, and Trig/HDL ratio improves - even if LDL rises - your cardiovascular risk is likely IMPROVING, not worsening.\n\n### Ongoing Labs (Beyond Week 8)\n\n- **Week 12-16:** Optional extended monitoring\n- **Yearly:** Full lipid panel, fasting glucose, insulin, HbA1c, kidney/liver function, micronutrients, TSH\n- **Every 2-5 years:** CAC score (if previous score >0)\n\n---\n\n## SECTION 7: The One-Page Doctor Handout\n\n**Print this and bring to your appointment**\n\n---\n\n### ONE-PAGE PHYSICIAN CONSULTATION GUIDE\n\n**Patient:** {{firstName}}\n**Protocol:** {{diet}} Metabolic Intervention\n**Duration:** 8-week monitored trial\n**Date:** {{currentDate}}\n\n**Conditions the patient reported:** {{conditionsList}}\n**Medications the patient reported:** {{medicationsList}}\n\n*This list is self-reported into an online questionnaire and has not been verified. Please confirm it against your own record.*\n\n---\n\n#### PATIENT REQUEST:\n\nI am starting a therapeutic {{diet}} protocol to address: **{{symptoms}}**\n\nI am requesting:\n1. **Baseline comprehensive labs** (see list below)\n2. **8-week recheck labs**, and your assessment of whether anything in my treatment needs to change\n3. **Partnership in monitoring** - I will report any adverse symptoms immediately\n\n---\n\n#### BASELINE LABS REQUESTED (Week 0):\n\n**Metabolic:** Fasting Glucose, Fasting Insulin, HbA1c, HOMA-IR\n**Lipids:** Total Chol, LDL, HDL, Triglycerides, **ApoB** (if available)\n**Inflammation:** hs-CRP\n**Kidney:** Creatinine, eGFR, BUN\n**Liver:** ALT, AST, Albumin\n**Micronutrients:** Vitamin D, B12, Magnesium, Iron Panel\n**Optional:** CAC Score (if age >40 and no recent scan)\n\n---\n\n#### WEEK 8 RECHECK LABS:\n\n**Repeat all baseline labs** to assess metabolic response\n\n---\n\n#### MEDICATION MONITORING (if applicable):\n\n**I will contact you immediately if:**\n- Blood glucose <70 mg/dL (hypoglycemia)\n- Blood pressure <90/60 mmHg (hypotension)\n- Severe fatigue, dizziness, confusion, chest pain\n- Any other concerning symptoms\n\n---\n\n#### EVIDENCE SUMMARY:\n\nLow-carbohydrate / ketogenic / carnivore interventions have peer-reviewed evidence for:\n- **Type 2 Diabetes Remission:** 60% remission at 1 year\n- **Metabolic Syndrome Reversal:** Multiple RCTs showing improvements\n- **Weight Loss:** Superior to low-fat diets in meta-analyses\n- **Inflammation Reduction:** Decreases hs-CRP and other inflammatory markers\n\n**Patient commitment:** I, {{firstName}} {{lastName}}, will adhere strictly to protocol, monitor daily, and report any adverse effects immediately.\n\n---\n\n**Patient Signature:** ___________________________                    **Date:** __________\n\n---\n\n## SECTION 8: After Your Appointment\n\n### If Your Doctor Agreed to Monitor You ✅\n\n**Immediate Actions:**\n1. [ ] Schedule Week 8 follow-up appointment NOW (before you leave office)\n2. [ ] Get lab orders and complete baseline labs within 48 hours\n3. [ ] Request copies of all lab results (you own your medical records)\n4. [ ] Create a tracking spreadsheet or use app\n5. [ ] Start {{diet}} protocol after baseline labs are complete\n\n**Daily Monitoring (Weeks 0-8):**\n- [ ] Weight (morning, after bathroom) - Log in tracker\n- [ ] Blood glucose (if diabetic/pre-diabetic) - 2-3x daily\n- [ ] Blood pressure (if on BP meds) - Morning + evening\n- [ ] Symptoms: Energy, mood, cravings, digestion - Rate 1-10 daily\n- [ ] Medication changes - Log every adjustment with date/time/reason\n\n**Emergency Contacts:**\n- **Low blood glucose:** a reading under 70 mg/dL, or symptoms of a low (shaking, sweating, confusion, sudden hunger), means follow the hypoglycemia plan your own doctor gave you and call them. If you do not have one and you take any glucose-lowering medication, ask for one before you start this diet. **Call 911 for confusion that is not clearing, seizure, or loss of consciousness.**\n- **Fainting, or a blood pressure reading far below your normal:** lie down and call your doctor. Do not treat it with salt or salted water.\n- **Chest pain**: Call 911 immediately\n\n### If You Did Not Get the Answers You Needed\n\n**You still have options, and none of them mean going it alone:**\n\n- **Ask for a follow-up appointment.** \"I have three specific questions about monitoring\" often changes the conversation.\n- **Request a referral** to a dietitian, endocrinologist or cardiologist, depending on what concerns you.\n- **Seek a second opinion** from another qualified clinician. Bring your labs and this guide.\n\nWhatever you decide, keep a prescribing clinician involved. Decisions about medications, treatment and testing should be made with your healthcare professional.\n\n**Most doctors will work with you if you come prepared, ask specific questions, and commit to monitoring.**`,
 
     // Report #7: Restaurant & Travel Guide - DIET-AWARE
     restaurant: (() => {
@@ -3719,18 +3559,17 @@ function getTemplateContent(templateName, dietOrData) {
     })(),
 
     // Report #8-13: Appendix Reports (Condensed)
-    science: `## Report #8: The Science & Evidence\n\n*Why {{diet}} works: Evidence-based research*\n\n## Key Research\n\nResearch on {{diet}} shows promising results for {{goal}} and {{symptoms}}:\n\n**Metabolic Effects:** {{diet}} shifts metabolism to fat-burning, reducing insulin resistance and stabilizing blood sugar.\n\n**Anti-Inflammatory:** Elimination of plant foods may reduce {{symptoms}}.\n\n**Microbiome Changes:** {{diet}} shifts gut bacteria toward beneficial species.\n\n## Why {{diet}} for {{firstName}}:\n\n1. **Rapid metabolic effect** - Addresses your insulin sensitivity quickly\n2. **Anti-inflammatory** - Removes your common triggers\n3. **Sustainable** - No calorie counting, naturally satiating\n4. **Evidence-backed** - Research supports efficacy\n\n**Work with your doctor for personalized guidance.**`,
+    science: `## Report #8: The Science & Evidence\n\n*Why {{diet}} works: Evidence-based research*\n\n## Key Research\n\nResearch on {{diet}} shows promising results for {{goal}} and {{symptoms}}:\n\n**Metabolic Effects:** {{diet}} shifts metabolism to fat-burning, reducing insulin resistance and stabilizing blood sugar.\n\n**Anti-Inflammatory:** Elimination of plant foods removes common dietary triggers, which some people find reduces inflammatory symptoms.\n\n**Microbiome Changes:** {{diet}} shifts gut bacteria toward beneficial species.\n\n## Why {{diet}} for {{firstName}}:\n\n1. **Rapid metabolic effect** - Addresses your insulin sensitivity quickly\n2. **Anti-inflammatory** - Removes your common triggers\n3. **Sustainable** - No calorie counting, naturally satiating\n4. **Evidence-backed** - Research supports efficacy\n\n**Work with your doctor for personalized guidance.**`,
 
-    labs: `## Report #9: Laboratory Reference Guide\n\n*Understanding your lab results on {{diet}}*\n\n## Standard vs. {{diet}} Ranges\n\n### Glucose & Insulin\n| Marker | Standard | {{diet}} Target | Note |\n|--------|----------|---|---|\n| Fasting Glucose | 70-100 | 60-85 | Lower is better on low-carb |\n| Fasting Insulin | <10 | <5 | Measures insulin sensitivity |\n| HbA1c | <5.7% | <5.5% | 3-month glucose average |\n\n### Lipids\n| Marker | Standard | {{diet}} Typical | Note |\n|--------|----------|---|---|\n| HDL | >40 | Often ↑ | Protective factor |\n| Triglycerides | <150 | Often ↓ | Improves a lot |\n| hs-CRP | <1.0 | Often ↓↓ | Expect improvement |\n\n## What to Expect After 8 Weeks\n\n✅ **Likely:** HbA1c, glucose, triglycerides, hs-CRP, HDL improve\n⚠️ **May increase:** LDL (particle size usually improves)\n\n**Ask your doctor:** Can we focus on LDL particle size rather than LDL number?`,
+    labs: `## Report #9: Laboratory Reference Guide\n\n*Understanding your lab results on {{diet}}*\n\n{{medicalContextBanner}}\n\n## Standard vs. {{diet}} Ranges\n\n### Glucose & Insulin\n| Marker | Standard | {{diet}} Target | Note |\n|--------|----------|---|---|\n| Fasting Glucose | 70-100 | *(see note below)* | This report does not set a personal target |\n| Fasting Insulin | <10 | <5 | Measures insulin sensitivity |\n| HbA1c | <5.7% | <5.5% | 3-month glucose average |\n\n### Lipids\n| Marker | Standard | {{diet}} Typical | Note |\n|--------|----------|---|---|\n| HDL | >40 | Often ↑ | Protective factor |\n| Triglycerides | <150 | Often ↓ | Improves a lot |\n| hs-CRP | <1.0 | Often ↓↓ | Expect improvement |\n\n**On fasting glucose:** this report does not give you a fasting glucose target, and it deliberately does not tell you that lower is better. A fasting glucose under 70 mg/dL is hypoglycemia, and if you take insulin, metformin, a sulfonylurea or any other glucose-lowering medication, chasing a low number is a hazard rather than an achievement. Your target is your doctor\u2019s call. Ask them what yours is.\n\n## What to Expect After 8 Weeks\n\n✅ **Likely:** HbA1c, glucose, triglycerides, hs-CRP, HDL improve\n⚠️ **May increase:** LDL (particle size usually improves)\n\n**Ask your doctor:** Can we focus on LDL particle size rather than LDL number?`,
 
-    electrolytes: (() => {
-      const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
-      const isPescatarian = diet === 'pescatarian';
-      const potassiumSource = isPescatarian ? 'fish + ketoade' : 'protein + ketoade';
-      return `## Report #10: The Electrolyte Protocol\n\n*Managing sodium, potassium, and magnesium on {{diet}}*\n\n## Why Electrolytes Matter\n\nOn {{diet}}, your body releases water and electrolytes more rapidly. This causes "keto flu" (headache, fatigue) in Week 1-2.\n\n## The Ketoade Recipe\n\n### Ingredients\n- 1 liter water\n- 1 teaspoon salt (Redmond or Himalayan)\n- ½ teaspoon "Lite Salt" (potassium)\n- Pinch of magnesium powder (optional, 200-300mg)\n- Lemon/lime juice (optional)\n\n### Instructions\n1. Mix all ingredients\n2. Drink 1-2 liters daily, especially weeks 1-4\n\n## Daily Electrolyte Goals\n\n- **Salt:** 3-7 grams (3-7 teaspoons, based on activity)\n- **Potassium:** 2-4 grams (from ${potassiumSource})\n- **Magnesium:** 300-600mg (supplement or food)\n\n## Signs You Need More\n\n⚠️ **Headaches** → Add salt\n⚠️ **Muscle cramps** → Add potassium + magnesium\n⚠️ **Fatigue** → Add salt + magnesium\n⚠️ **Dizziness** → Add salt immediately`;
-    })(),
+    // Report #10: Electrolyte Protocol.
+    // The body is built in replacePlaceholders() from the reader's declared
+    // conditions and medications (api/medical-context.js). getTemplateContent() is
+    // called without `data` for this template, so the placeholder is the seam.
+    electrolytes: `## Report #10: The Electrolyte Protocol\n\n*Managing sodium, potassium, and magnesium on {{diet}}*\n\n{{medicalContextBanner}}\n\n## Why Electrolytes Matter\n\nOn {{diet}}, your body releases water and electrolytes more rapidly. This causes "keto flu" (headache, fatigue) in Week 1-2.\n\n{{electrolyteProtocol}}`,
 
-    timeline: `## Report #11: The Adaptation Timeline\n\n*What to expect week by week on {{diet}}*\n\n## Week 1: The Glycogen Depletion Phase\n\n**Days 1-3:** Water loss (3-7 lbs normal), stable energy\n**Days 4-7:** Transition trough, possible "keto flu", cravings peak\n**Action:** Eat normally, stay hydrated, increase salt\n\n## Week 2: The Difficult Week\n\n**Days 8-10:** Peak dip, worst energy, strong cravings\n**Days 11-14:** Turning point, energy returns, cravings subside\n**Action:** Push through. This is temporary. Don't cheat.\n\n## Week 3: The Breakthrough\n\n**Days 15-21:** Fat adaptation accelerating, consistent weight loss, excellent energy, mental clarity improves\n**Action:** Enjoy. Note health improvements.\n\n## Week 4: The New Normal\n\n**Days 22-30:** {{diet}} feels normal, stable energy, sleep improves, skin/hair improve\n**Action:** This is your new baseline. Track improvements.\n\n**The hardest part is Weeks 1-2. If you push through, the payoff is worth it.**`,
+    timeline: `## Report #11: The Adaptation Timeline\n\n*What to expect week by week on {{diet}}*\n\n## Week 1: The Glycogen Depletion Phase\n\n**Days 1-3:** Water loss (3-7 lbs normal), stable energy\n**Days 4-7:** Transition trough, possible "keto flu", cravings peak\n**Action:** Eat normally and stay hydrated. For electrolytes, follow Report #10 — it is the section that knows what you told us about your health.\n\n## Week 2: The Difficult Week\n\n**Days 8-10:** Peak dip, worst energy, strong cravings\n**Days 11-14:** Turning point, energy returns, cravings subside\n**Action:** Push through. This is temporary. Don't cheat.\n\n## Week 3: The Breakthrough\n\n**Days 15-21:** Fat adaptation accelerating, consistent weight loss, excellent energy, mental clarity improves\n**Action:** Enjoy. Note health improvements.\n\n## Week 4: The New Normal\n\n**Days 22-30:** {{diet}} feels normal, stable energy, sleep improves, skin/hair improve\n**Action:** This is your new baseline. Track improvements.\n\n**The hardest part is Weeks 1-2. If you push through, the payoff is worth it.**`,
 
     stallBreaker: (() => {
       const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
@@ -3753,6 +3592,10 @@ function getTemplateContent(templateName, dietOrData) {
  */
 function replacePlaceholders(template, data) {
   let result = template;
+
+  // Derived once, at the top, because several substitutions below it (shopping tips,
+  // the doctor-facing diet description) also have to know what the reader declared.
+  const medicalContext = deriveMedicalContext(data);
 
   // First, handle conditional blocks: {{#if condition}} ... {{else if condition}} ... {{else}} ... {{/if}}
   result = result.replace(/\{\{#if\s+([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, condition, content) => {
@@ -3794,7 +3637,13 @@ function replacePlaceholders(template, data) {
   result = result.replace(/\{\{currentDate\}\}/g, currentDate);
 
   // Basic information
+  // {{lastName}} was never registered, so the final unmatched-placeholder sweep
+  // deleted it and the physician letter's signature block read "I, Linda , will
+  // adhere strictly...". Collapse the full-name pair FIRST, before {{firstName}} is
+  // substituted on its own, or the pair never matches.
+  result = result.replace(/\{\{firstName\}\} \{\{lastName\}\}/g, [data.firstName, data.lastName].filter(Boolean).join(' ') || 'Friend');
   result = result.replace(/\{\{firstName\}\}/g, data.firstName || 'Friend');
+  result = result.replace(/\{\{lastName\}\}/g, data.lastName || '');
   result = result.replace(/\{\{diet\}\}/g, data.selectedProtocol || 'Carnivore');
   result = result.replace(/\{\{selectedProtocol\}\}/g, data.selectedProtocol || 'Carnivore');
   result = result.replace(/\{\{goal\}\}/g, data.goal || 'Health Optimization');
@@ -3865,6 +3714,13 @@ function replacePlaceholders(template, data) {
       proTip = 'Build relationships with local farmers for the best quality meat and insider access to premium cuts.';
     }
   }
+  // Do not send a reader shopping for a food their plan deliberately excluded.
+  if (medicalContext.excludedFoodTerms.length) {
+    shoppingTips = shoppingTips.replace(
+      /,?\s*organ meats are super cheap and nutrient-dense\.?/i,
+      '.'
+    ).replace(/\.\.$/, '.');
+  }
   result = result.replace(/\{\{shoppingTips\}\}/g, shoppingTips);
   result = result.replace(/\{\{proTip\}\}/g, proTip);
 
@@ -3878,19 +3734,47 @@ function replacePlaceholders(template, data) {
   }
   result = result.replace(/\{\{cookingFatRecommendation\}\}/g, cookingFatRecommendation);
 
-  // Health information with smart fallbacks
+  // ---------------------------------------------------------------------------
+  // Medical context. THIS is the fix for the report being condition-blind and
+  // medication-blind: replacePlaceholders() is the one function every template
+  // section passes through, and it always has the full user object. So the
+  // classification happens once, here, and the sections that need it read it as
+  // ordinary placeholders. No template parser change required.
+  //
+  // Before 2026-09-07 these two substitutions were computed and then discarded,
+  // because {{conditions}} and {{medications}} appeared in zero templates.
+  // ---------------------------------------------------------------------------
   const allergyText = data.allergies ? data.allergies : 'No known allergies';
-  const conditionText = Array.isArray(data.conditions) ? data.conditions.join(', ') :
-    (data.conditions ? data.conditions : 'No significant health conditions');
-  const medicationText = Array.isArray(data.medications) ? data.medications.join(', ') :
-    (data.medications ? data.medications : 'Not taking medications');
-  const symptomText = Array.isArray(data.symptoms) ? data.symptoms.join(', ') :
-    (data.symptoms ? data.symptoms : 'No significant symptoms');
+  const conditionText = medicalContext.hasDeclaredConditions
+    ? medicalContext.conditionsText
+    : 'No significant health conditions';
+  const medicationText = humanizeList(data.medications, 'Not taking medications');
+  // Slug values ('brain-fog', 'weight-issues', 'none') used to render raw into the
+  // physician-facing letter: "I'm starting a therapeutic Carnivore protocol to
+  // address none."
+  const symptomText = humanizeList(data.symptoms, 'the health goals described in this report');
 
   result = result.replace(/\{\{allergies\}\}/g, allergyText);
   result = result.replace(/\{\{conditions\}\}/g, conditionText);
+  result = result.replace(/\{\{conditionsList\}\}/g, medicalContext.conditionsText);
   result = result.replace(/\{\{medications\}\}/g, medicationText);
+  result = result.replace(/\{\{medicationsList\}\}/g, medicalContext.medicationsText);
   result = result.replace(/\{\{symptoms\}\}/g, symptomText);
+
+  // The acknowledgement block, and the electrolyte section that is gated on it.
+  const potassiumSource = (data.selectedProtocol || 'Carnivore').toLowerCase() === 'pescatarian'
+    ? 'fish and eggs'
+    : 'meat and eggs';
+  result = result.replace(/\{\{medicalContextBanner\}\}/g, () => buildMedicalContextBanner(medicalContext));
+  result = result.replace(/\{\{electrolyteProtocol\}\}/g, () => buildElectrolyteProtocol(medicalContext, { potassiumSource }));
+  result = result.replace(/\{\{proteinTargetNote\}\}/g, () => buildProteinTargetNote(medicalContext));
+  // A reader we have just told "this report does not set a protein target for you"
+  // must not then be told, two sections later, that their protein target is precisely
+  // calculated. Removing the claim, not softening the number.
+  result = result.replace(/\{\{proteinPrecisionClaim\}\}/g, medicalContext.restrictProteinTarget
+    ? 'This plan is built around ordinary portions, not around a protein target set for you — you reported kidney disease, and your protein intake is a question for your doctor or a renal dietitian. Take this plan to them before you follow it.'
+    : 'Your protein targets are precisely calculated.');
+  result = result.replace(/\{\{mealPlanMedicalNote\}\}/g, () => buildMealPlanMedicalNote(medicalContext));
 
   // Macro information (both macros.calories and calories formats)
   if (data.macros) {
@@ -3899,14 +3783,22 @@ function replacePlaceholders(template, data) {
     const fat = data.macros.fat_grams || 150;
     const carbs = data.macros.carbs_grams || 20;
 
+    // SUPPRESSION, NOT SUBSTITUTION. A reader who declared kidney disease gets no
+    // protein figure anywhere a template can print one. `proteinDisplay` is a phrase,
+    // not a smaller number, because choosing a smaller number is the clinical
+    // judgement this product is not entitled to make. See api/medical-context.js.
+    const proteinDisplay = medicalContext.restrictProteinTarget
+      ? 'not set by this report — ask your doctor or renal dietitian'
+      : protein;
+
     result = result.replace(/\{\{macros\.calories\}\}/g, calories);
-    result = result.replace(/\{\{macros\.protein\}\}/g, protein);
+    result = result.replace(/\{\{macros\.protein\}\}/g, proteinDisplay);
     result = result.replace(/\{\{macros\.fat\}\}/g, fat);
     result = result.replace(/\{\{macros\.carbs\}\}/g, carbs);
 
     // Also support non-nested format
     result = result.replace(/\{\{calories\}\}/g, calories);
-    result = result.replace(/\{\{protein\}\}/g, protein);
+    result = result.replace(/\{\{protein\}\}/g, proteinDisplay);
     result = result.replace(/\{\{fat\}\}/g, fat);
     result = result.replace(/\{\{carbs\}\}/g, carbs);
   }
@@ -3928,7 +3820,12 @@ function replacePlaceholders(template, data) {
     'Pescatarian': 'fish and eggs',
     'Keto': 'meat, fish, and eggs'
   };
-  const proteinText = proteinsByDiet[data.selectedProtocol] || 'meat and fish';
+  // This string is spoken by the reader to their doctor ("my diet includes X"). If the
+  // plan withheld organ meats for a medical reason, the script must not still name them.
+  let proteinText = proteinsByDiet[data.selectedProtocol] || 'meat and fish';
+  if (medicalContext.excludedFoodTerms.length) {
+    proteinText = proteinText.replace(/\s*and organ meats/i, '').replace(/,\s*organ meats/i, '');
+  }
   result = result.replace(/\{\{proteins\}\}/g, proteinText);
 
   // Nutrient fallbacks by diet
@@ -3952,40 +3849,48 @@ function replacePlaceholders(template, data) {
   // Handle dynamic meal structure (1, 2, or 3 meals per day)
   const mealsPerDay = data.mealsPerDay || 2;
 
+  // Build one table per week, with as many meal columns as the plan actually has.
+  // Until 2026-09-08 this rendered a fixed Breakfast/Lunch/Dinner table for everyone
+  // and wrote '-' into Lunch for the 2-meal default, which markdownToHTML then
+  // rendered as an empty cell: 30 blank rows in a calendar the reader paid for. The
+  // table now follows the meal plan instead of the meal plan being padded to fit the
+  // table.
+  const WEEK_TITLES = [1, 2, 3, 4];
+  for (const week of WEEK_TITLES) {
+    const days = fullMealPlan.weeks[week - 1]?.days || [];
+    const names = days[0]?.meals?.map(m => m.name) || [];
+
+    let table = '';
+    if (names.length) {
+      table += `| Day | ${names.join(' | ')} |\n`;
+      table += `| :--- | ${names.map(() => ':---').join(' | ')} |\n`;
+      for (const d of days) {
+        const cells = names.map((_, i) => d.meals[i]?.description || '');
+        table += `| Day ${d.dayNumber} | ${cells.join(' | ')} |\n`;
+      }
+    }
+    result = result.replace(new RegExp(`\\{\\{mealTableWeek${week}\\}\\}`, 'g'), table.trimEnd());
+  }
+
+  // Legacy per-day placeholders. Some templates and the sample-day breakdown still
+  // reference them; they are filled from the same day objects, never recomputed.
   for (let day = 1; day <= 30; day++) {
     const week = Math.ceil(day / 7);
     const dayInWeek = ((day - 1) % 7);
     const dayData = fullMealPlan.weeks[week - 1]?.days[dayInWeek];
-
     if (dayData) {
-      // Map dynamic meal fields to template placeholders
-      let breakfast, lunch, dinner;
-
-      if (mealsPerDay === 1) {
-        // 1 meal: put it in breakfast, leave lunch/dinner empty
-        breakfast = dayData.meal || '';
-        lunch = '-';
-        dinner = '-';
-      } else if (mealsPerDay === 2) {
-        // 2 meals: meal1 → breakfast, lunch empty, meal2 → dinner
-        breakfast = dayData.meal1 || '';
-        lunch = '-';
-        dinner = dayData.meal2 || '';
-      } else {
-        // 3 meals: standard breakfast/lunch/dinner
-        breakfast = dayData.breakfast || '';
-        lunch = dayData.lunch || '';
-        dinner = dayData.dinner || '';
-      }
-
-      result = result.replace(new RegExp(`\\{\\{breakfast${day}\\}\\}`, 'g'), breakfast);
-      result = result.replace(new RegExp(`\\{\\{lunch${day}\\}\\}`, 'g'), lunch);
-      result = result.replace(new RegExp(`\\{\\{dinner${day}\\}\\}`, 'g'), dinner);
+      const m = dayData.meals || [];
+      const pick = i => m[i]?.description || '';
+      result = result.replace(new RegExp(`\\{\\{breakfast${day}\\}\\}`, 'g'), pick(0));
+      result = result.replace(new RegExp(`\\{\\{lunch${day}\\}\\}`, 'g'), m.length >= 3 ? pick(1) : '');
+      result = result.replace(new RegExp(`\\{\\{dinner${day}\\}\\}`, 'g'), m.length >= 3 ? pick(2) : pick(m.length - 1));
     }
   }
 
-  // Generate grocery lists by week using database-driven algorithm
-  const groceryLists = generateGroceryListByWeek(data);
+  // Derived from the SAME fullMealPlan object rendered into the calendar above.
+  // Passing it is not a convenience: generateGroceryListByWeek throws without it,
+  // so there is no code path that can invent a second, disagreeing list.
+  const groceryLists = generateGroceryListByWeek(data, fullMealPlan);
 
   // Build dynamic grocery list sections for all 4 weeks
   for (let week = 1; week <= 4; week++) {
@@ -4016,7 +3921,7 @@ function replacePlaceholders(template, data) {
           if (!itemName || itemName === 'undefined' || itemName.trim().length < 2) {
             return null; // Skip invalid items completely
           }
-          dairyEggsSection += `* [ ] ${itemName.trim()} - 18-count\n`;
+          dairyEggsSection += `* [ ] ${itemName.trim()} - ${e.quantity || '1 dozen'}\n`;
         });
       }
       // Add fats/dairy (if not allergic and has valid name)
@@ -4035,8 +3940,18 @@ function replacePlaceholders(template, data) {
 
     // Replace entire sections (not individual placeholders)
     // Trim trailing newlines to prevent empty checkboxes in PDF
+    let pantrySection = '';
+    if (weekData && weekData.pantry) {
+      weekData.pantry.forEach(i => {
+        const itemName = i?.name;
+        if (!itemName || itemName === 'undefined' || itemName.trim().length < 2) return;
+        pantrySection += `* [ ] ${itemName.trim()} - ${i.quantity || '1'}\n`;
+      });
+    }
+
     result = result.replace(new RegExp(`\\{\\{proteinsWeek${week}\\}\\}`, 'g'), proteinSection.trim());
     result = result.replace(new RegExp(`\\{\\{dairyEggsWeek${week}\\}\\}`, 'g'), dairyEggsSection.trim());
+    result = result.replace(new RegExp(`\\{\\{pantryWeek${week}\\}\\}`, 'g'), pantrySection.trim());
   }
 
   // Also fill the old-style single-week placeholders for backward compatibility
@@ -4081,25 +3996,40 @@ function replacePlaceholders(template, data) {
   // CRITICAL: Respect user's avoidFoods preferences when generating substitutions
   const dietLower = (data.selectedProtocol || 'Carnivore').toLowerCase();
   const avoidFoodsLower = (data.avoidFoods || '').toLowerCase();
-  let substitutionGuide = '';
+  // Built from the proteins this reader's plan ACTUALLY uses, for the same reason the
+  // grocery list is: prose that names food independently of the reader's data will
+  // eventually name food the reader told us to avoid. Until 2026-09-08 the carnivore
+  // branch was a hardcoded string offering "lamb, pork, or fish" to everyone, which
+  // tests/report-integrity.test.mjs caught being served to a reader avoiding pork and
+  // lamb.
+  const planProteins = [...new Set(
+    (fullMealPlan.weeks || [])
+      .flatMap(w => w.days || [])
+      .flatMap(d => d.items || [])
+      .filter(i => i.unit === 'g' && i.category !== 'Eggs')
+      .map(i => i.name)
+  )];
 
-  if (dietLower === 'pescatarian') {
-    // Build pescatarian substitution guide, respecting avoidFoods
-    // NO beef, tallow, or meat references - fish and butter/ghee only
-    const fishSubs = [];
-    if (!avoidFoodsLower.includes('mackerel')) fishSubs.push('mackerel');
-    if (!avoidFoodsLower.includes('sardine')) fishSubs.push('sardines');
-    if (!avoidFoodsLower.includes('tuna')) fishSubs.push('tuna');
-    if (!avoidFoodsLower.includes('cod')) fishSubs.push('cod');
-    const fishSubText = fishSubs.length > 0 ? fishSubs.slice(0, 2).join(' or ') : 'other available fish';
-    substitutionGuide = `- If you lack salmon, substitute with ${fishSubText}\n- If you lack fresh fish, use canned fish (in oil)\n- Eggs can replace any fish meal if needed\n- To boost fat: add extra butter or ghee when cooking fish`;
-  } else if (dietLower === 'lion') {
-    substitutionGuide = '- If you lack ribeye, substitute with NY strip or sirloin\n- If you lack steaks, use ground beef (80/20)\n- All beef cuts are interchangeable based on availability';
-  } else if (dietLower === 'keto') {
-    substitutionGuide = '- If you lack beef, substitute with pork or chicken thighs\n- If you lack fresh vegetables, use frozen (equally nutritious)\n- Eggs can replace any protein meal if needed';
+  let substitutionGuide;
+  if (planProteins.length === 0) {
+    substitutionGuide = '- Swap any protein in this plan for another you tolerate and enjoy.';
   } else {
-    // Carnivore / Strict Carnivore
-    substitutionGuide = '- If you lack ribeye, substitute with NY strip, chuck, or ground beef\n- If you lack beef, use lamb, pork, or fish\n- Eggs can replace any protein meal if needed';
+    const [first, ...rest] = planProteins;
+    const alternatives = rest.slice(0, 3);
+    const lines = [];
+    if (alternatives.length) {
+      lines.push(`- If you lack ${first}, substitute with ${alternatives.join(', ')}`);
+    }
+    lines.push('- Any protein in this plan can stand in for any other; match the portion size, not the cut');
+    if (planProteins.length > 4) {
+      lines.push(`- Your plan also uses ${planProteins.slice(4).join(', ')}, all interchangeable`);
+    }
+    const eggsInPlan = (fullMealPlan.weeks || [])
+      .flatMap(w => w.days || [])
+      .flatMap(d => d.items || [])
+      .some(i => i.category === 'Eggs');
+    if (eggsInPlan) lines.push('- Eggs can replace any protein meal if needed');
+    substitutionGuide = lines.join('\n');
   }
 
   result = result.replace(/\{\{substitutionGuide\}\}/g, substitutionGuide);
@@ -4153,7 +4083,15 @@ function generateDynamicFoodGuide(dietType, data) {
   const dietNormalized = (dietType || '').trim().toLowerCase().split(/[,\s]+/)[0];
   const allergies = (data.allergies || '').toLowerCase();
   // Use avoidFoods (form field) or foodRestrictions (API field) - whichever is provided
-  const foodRestrictions = (data.avoidFoods || data.foodRestrictions || '').toLowerCase();
+  // Foods the reader asked us to leave out, PLUS foods withheld for a declared medical
+  // reason (api/medical-context.js). Both go through the same shouldFilterOutFood()
+  // path: one mechanism, so a medical exclusion cannot be honoured in the meal plan
+  // and forgotten in the grocery list. This removes items; it never swaps in a
+  // "safer" quantity of the removed one.
+  const foodRestrictions = withMedicalFoodExclusions(
+    (data.avoidFoods || data.foodRestrictions || '').toLowerCase(),
+    deriveMedicalContext(data)
+  );
   const budget = data.budget || 'moderate';
 
   console.log(`[generateDynamicFoodGuide] Raw dietType: "${dietType}" → Normalized: "${dietNormalized}"`);
@@ -4374,14 +4312,34 @@ function buildProfile(data) {
   }
   profile.push(`EMAIL: ${data.email}`);
 
+  // Age and sex were never placed in the profile at all, so the model writing the
+  // personalized sections for a 72-year-old did not know she was 72.
+  const demographics = [];
+  if (data.age) demographics.push(`- Age: ${data.age}`);
+  if (data.sex) demographics.push(`- Sex: ${data.sex}`);
+  if (demographics.length) {
+    profile.push(`\nDEMOGRAPHICS:`);
+    profile.push(...demographics);
+  }
+
   // Macro calculations (if provided from calculator)
   if (data.macros) {
     profile.push(`\nMACRO TARGETS:`);
     profile.push(`- Calories: ${data.macros.calories}`);
-    profile.push(`- Protein: ${data.macros.protein_grams}g`);
+    // The model cannot print a number it was never given. A reader who declared kidney
+    // disease gets no protein figure in the prompt at all — not a reduced one — so the
+    // live-written sections have nothing to quote and nothing to "adjust". The prompt
+    // rules (rule 9) tell it what to say instead. Suppression, not substitution.
+    if (deriveMedicalContext(data).restrictProteinTarget) {
+      profile.push(`- Protein: WITHHELD — this reader declared kidney disease. State no protein target of any kind. See rule 9.`);
+    } else {
+      profile.push(`- Protein: ${data.macros.protein_grams}g`);
+    }
     profile.push(`- Fat: ${data.macros.fat_grams}g`);
-    profile.push(`- Activity Level: ${data.macros.activityLevel}`);
-    profile.push(`- Goal: ${data.macros.goal}`);
+    // calculateMacros() does not return activityLevel/goal; these come off the form.
+    // They previously rendered the literal string "undefined" into every prompt.
+    if (data.lifestyle || data.activityLevel) profile.push(`- Activity Level: ${data.activityLevel || data.lifestyle}`);
+    if (data.goal) profile.push(`- Goal: ${data.goal}`);
   }
 
   // Allergies & restrictions
@@ -4504,200 +4462,6 @@ function ensureHTML(content) {
     .join('\n');
 
   return html;
-}
-
-/**
- * Wrap report content in proper HTML template
- */
-function wrapReportHTML(content, session, macros) {
-  // Use passed macros or fallback to session data or defaults
-  const calories = macros?.calories || session.calculated_macros?.calories || 2000;
-  const protein = macros?.protein_grams || session.calculated_macros?.protein_grams || 150;
-  const fat = macros?.fat_grams || session.calculated_macros?.fat_grams || 150;
-  const carbs = macros?.carbs_grams || session.calculated_macros?.carbs_grams || 25;
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Personalized Carnivore Report</title>
-  <style>
-    body {
-      font-family: 'Merriweather', Georgia, serif;
-      line-height: 1.6;
-      color: #2c1810;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      background: #f4e4d4;
-    }
-    h1, h2, h3 {
-      font-family: 'Playfair Display', Georgia, serif;
-      color: #b8860b;
-    }
-    .container {
-      background: white;
-      padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-    .header {
-      text-align: center;
-      border-bottom: 3px solid #d4a574;
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-    .macros {
-      background: #f9f5f0;
-      padding: 20px;
-      border-radius: 4px;
-      margin: 20px 0;
-      border-left: 4px solid #d4a574;
-    }
-    .macro-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #e0d5c7;
-    }
-    .macro-row:last-child {
-      border-bottom: none;
-    }
-    .macro-label {
-      font-weight: 600;
-    }
-    .macro-value {
-      color: #b8860b;
-      font-weight: 700;
-    }
-    .recommendations {
-      padding: 20px 0;
-    }
-    .recommendations h3 {
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    .recommendations ul {
-      margin-bottom: 15px;
-      padding-left: 20px;
-    }
-    .recommendations li {
-      margin-bottom: 8px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Your Personalized Carnivore Protocol</h1>
-      <p>${session.first_name || 'User'}</p>
-    </div>
-
-    <div class="macros">
-      <h2>Your Daily Macro Targets</h2>
-      <div class="macro-row">
-        <span class="macro-label">Calories</span>
-        <span class="macro-value">${calories}</span>
-      </div>
-      <div class="macro-row">
-        <span class="macro-label">Protein</span>
-        <span class="macro-value">${protein}g</span>
-      </div>
-      <div class="macro-row">
-        <span class="macro-label">Fat</span>
-        <span class="macro-value">${fat}g</span>
-      </div>
-      <div class="macro-row">
-        <span class="macro-label">Carbs</span>
-        <span class="macro-value">${carbs}g</span>
-      </div>
-    </div>
-
-    <div class="recommendations">
-      ${ensureHTML(content)}
-    </div>
-  </div>
-</body>
-</html>`;
-}
-
-/**
- * Generate fallback report if Claude API fails
- */
-function generateFallbackReport(session) {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Personalized Carnivore Report</title>
-  <style>
-    body {
-      font-family: 'Merriweather', Georgia, serif;
-      line-height: 1.6;
-      color: #2c1810;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      background: #f4e4d4;
-    }
-    h1, h2 { font-family: 'Playfair Display', Georgia, serif; color: #b8860b; }
-    .container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
-    .header { text-align: center; border-bottom: 3px solid #d4a574; padding-bottom: 20px; margin-bottom: 30px; }
-    .macros { background: #f9f5f0; padding: 20px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #d4a574; }
-    .macro-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0d5c7; }
-    .macro-value { color: #b8860b; font-weight: 700; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Your Personalized Carnivore Report</h1>
-      <p>${session.first_name} ${session.last_name}</p>
-    </div>
-
-    <div class="macros">
-      <h2>Your Daily Macro Targets</h2>
-      <div class="macro-row">
-        <span>Calories</span>
-        <span class="macro-value">${session.calculated_macros?.calories || 2000}</span>
-      </div>
-      <div class="macro-row">
-        <span>Protein</span>
-        <span class="macro-value">${session.calculated_macros?.protein_grams || 150}g</span>
-      </div>
-      <div class="macro-row">
-        <span>Fat</span>
-        <span class="macro-value">${session.calculated_macros?.fat_grams || 150}g</span>
-      </div>
-      <div class="macro-row">
-        <span>Carbs</span>
-        <span class="macro-value">${session.calculated_macros?.carbs_grams || 25}g</span>
-      </div>
-    </div>
-
-    <div class="recommendations">
-      <h2>Your Carnivore Protocol</h2>
-      <p>Your personalized report is being generated. Based on your profile:</p>
-      <ul>
-        <li><strong>Goal:</strong> ${session.goal}</li>
-        <li><strong>Activity Level:</strong> ${session.lifestyle_activity}</li>
-        <li><strong>Diet Type:</strong> ${session.diet_type}</li>
-        <li><strong>Dairy Tolerance:</strong> ${session.dairy_tolerance || 'Not specified'}</li>
-      </ul>
-      <h3>Primary Recommendations</h3>
-      <ul>
-        <li>Focus on ruminant meats (beef, lamb, bison) as your primary protein</li>
-        <li>Include organ meats (liver, kidney) for micronutrient density</li>
-        <li>Add butter and fat from quality sources</li>
-        <li>Drink plenty of water and consider electrolyte supplementation</li>
-        <li>Track macros for the first 2-4 weeks to understand portion sizes</li>
-      </ul>
-    </div>
-  </div>
-</body>
-</html>`;
 }
 
 /**
@@ -7387,3 +7151,24 @@ async function handleResendWebhook(request, env) {
     });
   }
 }
+
+// ============================================================================
+// TEST SURFACE
+// ----------------------------------------------------------------------------
+// Named exports for tests/report-safety.test.mjs, the adversarial regression
+// fixture that renders the nine safety personas end to end. Wrangler only cares
+// about the default export, so these are inert in the deployed worker. Do not
+// remove them: the fixture is the thing that stops the 2026-09-07 defects from
+// coming back.
+// ============================================================================
+export {
+  buildReportData as __test_buildReportData,
+  generateAllReports as __test_generateAllReports,
+  calculateMacros as __test_calculateMacros,
+  wrapInPrintHTML as __test_wrapInPrintHTML,
+  // Exposed so tests/report-integrity.test.mjs can assert the derivation directly,
+  // not just its rendered output: the grocery list must be a pure function of the
+  // meal plan. See that file's GROUP D.
+  generateFullMealPlan as __test_generateFullMealPlan,
+  generateGroceryListByWeek as __test_generateGroceryListByWeek
+};

@@ -8,8 +8,11 @@
     "test:performance": "playwright test performance.test.js",
     "test:brand": "jest tests/brand-consistency.test.js",
     "test:content": "jest tests/content-validation.test.js",
+    "test:report-safety": "node tests/report-safety.test.mjs",
     "test:py": "pytest tests/ -v",
-    "test:py:structure": "pytest tests/test_bento_grid_structure.py -v"
+    "test:py:structure": "pytest tests/test_bento_grid_structure.py -v",
+    "test:kd-report-safety": "node tests/kd-report-safety.test.mjs",
+    "test:report-integrity": "node tests/report-integrity.test.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

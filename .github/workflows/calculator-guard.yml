@@ -8,6 +8,10 @@
 #  2. Bundle build check — the calculator2 bundle only ever built on one
 #     laptop before this. This proves a clean clone still builds, so the page
 #     is never one dead node_modules away from being unshippable.
+#  3. Report suites (added 2026-09-08) — safety (medical gating) and integrity
+#     (the calendar and the shopping list must agree, and the list must be
+#     DERIVED from the calendar). Both existed as files anyone could forget to
+#     run; a customer found the divergence before we did. Now they gate.
 name: calculator-guard
 
 on:
@@ -15,14 +19,20 @@ on:
     branches: [main]
     paths:
       - 'api/calculator-api.js'
+      - 'api/medical-context.js'
       - 'calculator2-demo/**'
       - 'tests/macro_parity/**'
+      - 'tests/report-safety.test.mjs'
+      - 'tests/report-integrity.test.mjs'
       - '.github/workflows/calculator-guard.yml'
   pull_request:
     paths:
       - 'api/calculator-api.js'
+      - 'api/medical-context.js'
       - 'calculator2-demo/**'
       - 'tests/macro_parity/**'
+      - 'tests/report-safety.test.mjs'
+      - 'tests/report-integrity.test.mjs'
   workflow_dispatch:
 
 jobs:
@@ -35,6 +45,23 @@ jobs:
           node-version: 20
       - name: Golden macro regression test
         run: node tests/macro_parity/golden_test.mjs
+
+  report-suites:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Medical gating of the paid report.
+      - name: Report safety regression
+        run: node tests/report-safety.test.mjs
+      # The report must agree with itself: every protein the calendar tells the
+      # reader to cook in week N is on week N's shopping list, in a quantity that
+      # covers it, and the list is derived from the calendar rather than generated
+      # beside it. See the header of that file for the customer report behind it.
+      - name: Report integrity regression
+        run: node tests/report-integrity.test.mjs
 
   bundle-builds:
     runs-on: ubuntu-latest
