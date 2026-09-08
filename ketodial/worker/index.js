@@ -93,10 +93,14 @@ const BUNDLE_EXPAND = {
 // This is the only change made solely to enable the test, and it changes no
 // behaviour when unset.
 
+/** The site the customer is sent back to. Defaults to production. */
+function appBaseUrl(env) {
+  return (env && env.RETURN_URL_BASE) || 'https://ketodial.com';
+}
+
 /** Where Stripe returns the customer after checkout. */
 function returnUrl(env) {
-  const base = (env && env.RETURN_URL_BASE) || 'https://ketodial.com';
-  return `${base}/?success=true&session_id={CHECKOUT_SESSION_ID}`;
+  return `${appBaseUrl(env)}/?success=true&session_id={CHECKOUT_SESSION_ID}`;
 }
 
 /** The origin report links are built against. */
@@ -1118,13 +1122,13 @@ async function handleReport(sessionId, reportType, env) {
   } catch (err) {
     if (err instanceof IntakeError) {
       console.error(`Report refused for ${sessionId}: ${err.code} [${err.missing.join(', ')}]`);
-      return new Response(intakeErrorPage(err), {
+      return new Response(intakeErrorPage(err, env), {
         status: 422,
         headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
       });
     }
     console.error(`Intake store unavailable serving report ${sessionId}:`, err.message);
-    return new Response(intakeErrorPage(null), {
+    return new Response(intakeErrorPage(null, env), {
       status: 503,
       headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
     });
@@ -1145,7 +1149,7 @@ async function handleReport(sessionId, reportType, env) {
     if (err instanceof IntakeError) {
       console.error(`Generator refused for ${sessionId}: ${err.code} [${err.missing.join(', ')}] ` +
         '— validateIntake() passed but a generator still lacked a fact. Fix the contract, not the data.');
-      return new Response(intakeErrorPage(err), {
+      return new Response(intakeErrorPage(err, env), {
         status: 422,
         headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
       });
@@ -1175,7 +1179,8 @@ async function handleReport(sessionId, reportType, env) {
  * @param {IntakeError|null} err null means a transient store failure, which is worth
  *                               telling the customer to simply retry.
  */
-function intakeErrorPage(err) {
+function intakeErrorPage(err, env) {
+  const appBase = appBaseUrl(env);
   const transient = !err;
   const profilePending = !transient && err.code === 'INTAKE_PROFILE_NOT_COMPLETED';
   const heading = transient
@@ -1205,7 +1210,7 @@ function intakeErrorPage(err) {
   <h1>${heading}</h1>
   <p>${message}</p>
   ${profilePending
-    ? `<p><a href="https://ketodial.com/#step2">Go back to the calculator and finish the health
+    ? `<p><a href="${appBase}/#step2">Go back to the calculator and finish the health
        profile</a>, then reopen this link.</p>
        <p><b>Nothing is wrong with your purchase.</b> The reports are personalised from that
        profile, and we will not invent the answers to it.</p>`
@@ -1260,7 +1265,10 @@ function targetsLine(d) {
  * anything is wrong with their order.
  */
 async function sendFinishProfileEmail(email, name, stripeSessionId, env) {
-  const link = `https://ketodial.com/?finish=${encodeURIComponent(stripeSessionId)}`;
+  // Same base as the Stripe return URL. This was hardcoded to production, so the
+  // harness could not follow the one link that proves the pay-first recovery works
+  // without bouncing into the live site. Defaults to production when unset.
+  const link = `${appBaseUrl(env)}/?finish=${encodeURIComponent(stripeSessionId)}`;
   const html = `
 <div style="max-width:560px;margin:0 auto;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#0f172a">
   <h1 style="font-size:22px;margin:0 0 14px">One short step to finish your reports</h1>
@@ -1391,25 +1399,75 @@ async function stripeAPI(endpoint, params, env, method) {
   return res.json();
 }
 
-async function verifyWebhookSignature(payload, sig, secret) {
-  // Simple timestamp + signature check
-  const parts = {};
-  sig.split(',').forEach(p => {
-    const [k, v] = p.split('=');
-    parts[k] = v;
-  });
-  const timestamp = parts.t;
-  const signature = parts.v1;
-  if (!timestamp || !signature) return false;
+/**
+ * How far out of date a signed event may be, in seconds.
+ *
+ * Stripe's own libraries default to 300s and document the reason: without a
+ * tolerance a captured payload-plus-signature stays valid forever, so anyone who
+ * once observed a legitimate event can replay it indefinitely. Stripe's retries
+ * carry a FRESH timestamp and signature, so a real retry is never rejected by this.
+ */
+const WEBHOOK_TOLERANCE_SECONDS = 300;
 
-  const signedPayload = `${timestamp}.${payload}`;
+/**
+ * Verify a Stripe webhook signature.
+ *
+ * Two things this did wrong, both fixed here:
+ *
+ *  1. It never looked at `t`. A valid payload and signature captured today stayed
+ *     valid next week — the replay attack Stripe calls out by name.
+ *
+ *  2. `parts[k] = v` kept only the LAST v1. Stripe sends one v1 per active signing
+ *     secret, so during a secret rotation the header carries several and the one
+ *     matching your current secret may not be last. Rotating the webhook secret
+ *     would have started rejecting genuine events. All v1 values are collected and
+ *     any match is accepted.
+ *
+ * Returns false rather than throwing; the caller also guards, because an exception
+ * escaping an unauthenticated endpoint is its own problem.
+ */
+async function verifyWebhookSignature(payload, sig, secret, nowSeconds = Math.floor(Date.now() / 1000)) {
+  let timestamp = null;
+  const signatures = [];
+  for (const part of String(sig).split(',')) {
+    const idx = part.indexOf('=');
+    if (idx < 1) continue;
+    const k = part.slice(0, idx).trim();
+    const v = part.slice(idx + 1).trim();
+    if (k === 't' && timestamp === null) timestamp = v;
+    else if (k === 'v1' && v) signatures.push(v);
+  }
+  if (timestamp === null || signatures.length === 0) return false;
+
+  // REPLAY WINDOW.
+  //
+  // The shape check below is DEFENCE IN DEPTH, not load-bearing, and mutation
+  // testing is what established that: removing it changes no behaviour, because
+  // every input it rejects is already rejected downstream — 'abc' fails
+  // Number.isFinite, and '', '-1', '12.5' and '1e9' all land outside the tolerance
+  // bound. It is kept because "a timestamp is a string of digits" is worth stating
+  // where a reader will see it, but no test can distinguish its presence, and
+  // inventing one that appeared to would be worse than saying so here.
+  if (!/^\d+$/.test(timestamp)) return false;
+  const t = Number(timestamp);
+  if (!Number.isFinite(t)) return false;
+  if (Math.abs(nowSeconds - t) > WEBHOOK_TOLERANCE_SECONDS) return false;
+
   const key = await crypto.subtle.importKey(
     'raw', new TextEncoder().encode(secret),
     { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
   );
-  const sig_bytes = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signedPayload));
-  const expected = Array.from(new Uint8Array(sig_bytes)).map(b => b.toString(16).padStart(2, '0')).join('');
-  return expected === signature;
+  const sigBytes = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${timestamp}.${payload}`));
+  const expected = Array.from(new Uint8Array(sigBytes)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return signatures.some(candidate => timingSafeEqualHex(candidate, expected));
+}
+
+/** Constant-time-ish hex compare, so a wrong signature leaks no timing information. */
+function timingSafeEqualHex(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
 }
 
 function jsonResponse(status, data) {

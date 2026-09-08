@@ -1013,8 +1013,10 @@ for (const c of MALFORMED_CASES) {
   check('O', 'the webhook does NOT go silent on an unfinished profile',
     /INTAKE_PROFILE_NOT_COMPLETED[\s\S]{0,400}?sendFinishProfileEmail/.test(code),
     'a paying customer with an unfinished profile is told nothing');
+  // The host moved behind appBaseUrl(env) so the harness can follow this link; what
+  // matters here is that the link still carries THAT session id.
   check('O', 'the finish-profile email links back to THAT paid session',
-    /ketodial\.com\/\?finish=\$\{encodeURIComponent\(stripeSessionId\)\}/.test(worker), '');
+    /\?finish=\$\{encodeURIComponent\(stripeSessionId\)\}/.test(worker), '');
 
   check('O', 'the profile can be saved keyed on a paid Stripe session, not just a token',
     /b\.stripe_session_id[\s\S]{0,200}?resolvePaidCheckout/.test(code),
@@ -1315,10 +1317,21 @@ for (const c of MALFORMED_CASES) {
   const mod = await import('file://' + WORKER_JS + '?groupR=' + Date.now());
 
   // Behavioural, not textual: call the worker with no env and read what it produces.
+  // returnUrl() now delegates to appBaseUrl(), so both are extracted together —
+  // evaluating one in isolation just throws ReferenceError, which would have read as
+  // a broken test rather than the missing dependency it is.
   const returnUrlFn = (() => {
+    const base = worker.match(/function appBaseUrl\(env\)[\s\S]*?\n}/);
     const m = worker.match(/function returnUrl\(env\)[\s\S]*?\n}/);
+    return (base && m) ? new Function(`${base[0]}\n${m[0]}\nreturn returnUrl;`)() : null;
+  })();
+  const appBaseFn = (() => {
+    const m = worker.match(/function appBaseUrl\(env\)[\s\S]*?\n}/);
     return m ? new Function('return (' + m[0] + ')')() : null;
   })();
+  check('R', 'unset RETURN_URL_BASE gives exactly the production site',
+    !!appBaseFn && appBaseFn({}) === 'https://ketodial.com' &&
+    appBaseFn(undefined) === 'https://ketodial.com', `got ${appBaseFn && appBaseFn({})}`);
   const reportBaseFn = (() => {
     const m = worker.match(/function reportBaseUrl\(env\)[\s\S]*?\n}/);
     return m ? new Function('return (' + m[0] + ')')() : null;
@@ -1372,6 +1385,43 @@ for (const c of MALFORMED_CASES) {
   }
   check('R', 'and PRICE_MAP_JSON still defaults to the live price map',
     /return PRICE_MAP_LIVE;/.test(worker), '');
+
+  // The finish-profile email is the ONE link that proves pay-first recovery. It was
+  // hardcoded to production, so the harness could not follow it without bouncing
+  // into the live site.
+  const code = worker.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  check('R', 'the finish-profile link uses the configurable app base',
+    /\$\{appBaseUrl\(env\)\}\/\?finish=/.test(code),
+    'the reminder link is hardcoded to production');
+  check('R', 'the report error page uses it too',
+    /\$\{appBase\}\/#step2/.test(code), '');
+  // THE MANUAL PAY PAGE. The harness used to print `/?cs=<session>` and wait — but
+  // the shipped calculator mounts embedded Checkout only inside startCheckout(),
+  // after ITS OWN /checkout call returns a clientSecret, and its URL handling reads
+  // only session_id and finish. Opening that link showed a page with nothing to pay
+  // and the harness polled until timeout. The harness serves its own /pay/<id>.
+  {
+    const harness = fs.readFileSync(path.join(REPO, 'tests', 'harness', 'stripe-e2e.mjs'), 'utf8');
+    const client = fs.readFileSync(KD_PUBLIC_JS, 'utf8');
+
+    check('R', 'the shipped calculator still does not consume ?cs (so /pay is required)',
+      !/urlParams\.get\('cs'\)/.test(client) && /urlParams\.get\('finish'\)/.test(client),
+      'the calculator now handles ?cs — revisit whether /pay is still needed');
+    check('R', 'the harness serves its own pay page', /url\.pathname\.startsWith\('\/pay\/'\)/.test(harness),
+      'the harness points at a URL nothing can render');
+    check('R', 'which mounts embedded Checkout with the TEST publishable key',
+      /initEmbeddedCheckout\(\{ clientSecret/.test(harness) && /Stripe\(\$\{JSON\.stringify\(PK\)\}/.test(harness), '');
+    check('R', 'and the harness captures the clientSecret from /checkout',
+      /clientSecrets\.set\(csid, buy\.json\.clientSecret\)/.test(harness), '');
+    check('R', 'the worker already returns a clientSecret, so no production change was needed',
+      /clientSecret: session\.client_secret/.test(worker), '');
+    check('R', 'and the harness no longer prints the dead ?cs link',
+      !/\/\?cs=\$\{sessionId\}/.test(harness), '');
+  }
+
+  check('R', 'no customer-facing link back into the site is hardcoded any more',
+    !/href="https:\/\/ketodial\.com\/\?finish=/.test(code) &&
+    !/href="https:\/\/ketodial\.com\/#step2"/.test(code), '');
 }
 
 // ===========================================================================
@@ -1471,6 +1521,62 @@ for (const c of MALFORMED_CASES) {
     const good = await post(body, { 'stripe-signature': sign(body) });
     check('S', 'a VALID signature is accepted', good.status === 200 || good.status === 500,
       `status ${good.status} (200 processed, 500 = downstream stub, both mean it got past the gate)`);
+  }
+
+  // --- replay window ---
+  // Without a tolerance, a payload and signature captured once stay valid forever.
+  // Stripe's own libraries default to 300s and its retries carry a fresh timestamp
+  // and signature, so a genuine retry is never rejected by this.
+  {
+    const body = evt('checkout.session.completed', 'paid');
+    const now = Math.floor(Date.now() / 1000);
+    sideEffects.supabaseWrites = 0; sideEffects.emails = 0;
+
+    const old10m = await post(body, { 'stripe-signature': sign(body, SECRET, now - 600) });
+    check('S', 'a correctly signed but 10-minute-old event is REJECTED', old10m.status === 400,
+      `status ${old10m.status} — a captured event can be replayed indefinitely`);
+
+    const old6m = await post(body, { 'stripe-signature': sign(body, SECRET, now - 360) });
+    check('S', 'six minutes old is outside tolerance', old6m.status === 400, `${old6m.status}`);
+
+    const future = await post(body, { 'stripe-signature': sign(body, SECRET, now + 600) });
+    check('S', 'a far-future timestamp is rejected too', future.status === 400, `${future.status}`);
+
+    check('S', 'no replayed event wrote or emailed anything',
+      sideEffects.supabaseWrites === 0 && sideEffects.emails === 0,
+      `${sideEffects.supabaseWrites} writes, ${sideEffects.emails} emails`);
+
+    const recent = await post(body, { 'stripe-signature': sign(body, SECRET, now - 120) });
+    check('S', 'a two-minute-old event is still accepted (real retries must work)',
+      recent.status !== 400, `status ${recent.status}`);
+
+    for (const bad of ['abc', '', '-1', '1e9', '12.5']) {
+      const r = await post(body, { 'stripe-signature': `t=${bad},v1=${'0'.repeat(64)}` });
+      check('S', `a non-numeric timestamp is rejected: ${JSON.stringify(bad)}`,
+        r.status === 400, `status ${r.status}`);
+    }
+  }
+
+  // --- multiple v1 signatures, as sent during a secret rotation ---
+  // Stripe emits one v1 per active signing secret. The parser kept only the LAST,
+  // so mid-rotation the header could carry a valid signature that was ignored and
+  // genuine events would have started failing.
+  {
+    const body = evt('checkout.session.completed', 'paid');
+    const t = Math.floor(Date.now() / 1000);
+    const ours = sign(body, SECRET, t).split('v1=')[1];
+    const theirs = sign(body, 'whsec_the_other_active_secret', t).split('v1=')[1];
+
+    const oursFirst = await post(body, { 'stripe-signature': `t=${t},v1=${ours},v1=${theirs}` });
+    check('S', 'a matching v1 is accepted when it is NOT last', oursFirst.status !== 400,
+      `status ${oursFirst.status} — only the final v1 is being checked`);
+
+    const oursLast = await post(body, { 'stripe-signature': `t=${t},v1=${theirs},v1=${ours}` });
+    check('S', 'and when it is last', oursLast.status !== 400, `status ${oursLast.status}`);
+
+    const neither = await post(body, { 'stripe-signature': `t=${t},v1=${theirs},v1=${'f'.repeat(64)}` });
+    check('S', 'but a header with no matching v1 is still rejected', neither.status === 400,
+      `status ${neither.status}`);
   }
 
   // --- completed is not paid ---

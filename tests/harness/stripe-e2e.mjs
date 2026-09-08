@@ -165,6 +165,12 @@ const SB = {
   'Content-Type': 'application/json', Accept: 'application/json',
 };
 const createdTokens = new Set();
+// clientSecret per Checkout Session, so /pay/<id> can mount embedded Checkout.
+// The shipped calculator cannot do this for us: its embedded Checkout only mounts
+// inside startCheckout() after ITS OWN /checkout call returns a clientSecret, and it
+// recognises only ?session_id and ?finish in the URL — never a ?cs the harness made.
+// Pointing a customer at ?cs=… would have shown a page with nothing to pay.
+const clientSecrets = new Map();
 
 async function readRow(token) {
   const res = await realFetch(
@@ -293,7 +299,7 @@ async function awaitCheckoutCompletion(sessionId, { timeoutMs = 300000 } = {}) {
   let lastStatus = null;
   console.log(`\n  Complete this Checkout Session in the browser (test card 4242 4242 4242 4242,`);
   console.log(`  any future expiry, any CVC, any postcode):`);
-  console.log(`     http://localhost:${HARNESS_PORT}/?cs=${sessionId}\n`);
+  console.log(`     http://localhost:${HARNESS_PORT}/pay/${sessionId}\n`);
   while (Date.now() - started < timeoutMs) {
     const s = await stripe(`checkout/sessions/${sessionId}`, null, 'GET');
     if (s.status !== lastStatus || s.payment_status !== lastStatus) {
@@ -380,6 +386,35 @@ const harnessServer = http.createServer(async (req, res) => {
     return res.end(text);
   }
 
+  // The manual card-entry page. Mounts Stripe's embedded Checkout with pk_test and
+  // the clientSecret of a Session this harness created — the one thing the shipped
+  // calculator cannot be asked to do for a session it did not create itself.
+  if (url.pathname.startsWith('/pay/')) {
+    const csid = decodeURIComponent(url.pathname.slice('/pay/'.length));
+    const secret = clientSecrets.get(csid);
+    if (!secret) { res.writeHead(404); return res.end('Unknown checkout session for this harness run.'); }
+    res.writeHead(200, { 'Content-Type': MIME['.html'] });
+    return res.end(`<!doctype html><meta charset="utf-8">
+<title>KetoDial harness — complete test payment</title>
+<style>body{font:15px/1.6 system-ui,sans-serif;margin:0;background:#0b1620;color:#e2eef7}
+.wrap{max-width:620px;margin:5vh auto;padding:0 20px}
+.note{background:rgba(56,189,248,.08);border-left:3px solid #38bdf8;padding:12px 16px;border-radius:0 8px 8px 0;margin-bottom:20px}
+code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px}</style>
+<div class="wrap">
+  <h1>Complete the TEST payment</h1>
+  <div class="note">Stripe <b>TEST</b> mode. Card <code>4242 4242 4242 4242</code>, any future
+  expiry, any CVC, any postcode. No money moves. Session <code>${csid}</code>.</div>
+  <div id="checkout"></div>
+</div>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  Stripe(${JSON.stringify(PK)})
+    .initEmbeddedCheckout({ clientSecret: ${JSON.stringify(secret)} })
+    .then(c => c.mount('#checkout'))
+    .catch(e => { document.getElementById('checkout').textContent = 'Could not mount Checkout: ' + e.message; });
+</script>`);
+  }
+
   if (url.pathname === '/ketodial.js') {
     res.writeHead(200, { 'Content-Type': MIME['.js'] });
     return res.end(patchedCalculatorJs());
@@ -425,6 +460,9 @@ try {
     check(G, 'checkout accepted', buy.status === 200, `status ${buy.status} ${JSON.stringify(buy.json)}`);
     const csid = buy.json?.sessionId;
     if (!csid) continue;
+    if (buy.json?.clientSecret) clientSecrets.set(csid, buy.json.clientSecret);
+    check(G, 'a clientSecret came back, so the harness can mount Checkout',
+      !!buy.json?.clientSecret, 'no clientSecret — the manual pay page cannot render');
 
     const s = await stripe(`checkout/sessions/${csid}`, null, 'GET');
     check(G, 'Checkout Session is TEST mode', s.livemode === false, `livemode=${s.livemode}`);
@@ -494,6 +532,7 @@ try {
       createdTokens.add(token); await tagRow(token);
       const buy = await call('POST', '/checkout', { items: ['doctor'], email, name: 'Linda', token });
       const csid = buy.json?.sessionId;
+      if (csid && buy.json?.clientSecret) clientSecrets.set(csid, buy.json.clientSecret);
       check(G, 'can buy before the optional profile', buy.status === 200, `status ${buy.status}`);
       if (csid) {
         const paid = await awaitCheckoutCompletion(csid);

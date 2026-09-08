@@ -1457,3 +1457,53 @@ longer fulfilling. The last two initially escaped: one asserted only a status co
 event being silently ignored, and one was caught by a crash rather than an assertion. Both now observe
 the side effect (a database write) instead of the response shape. That is the seventh and eighth
 masked assertion in this branch.
+
+---
+
+## 2026-09-08 — AUDIT 2B: webhook replay window, secret rotation, and an honest pay page
+
+### Replay protection (production defect)
+`verifyWebhookSignature()` validated the HMAC and never looked at `t`. A valid payload plus signature
+captured once stayed valid **indefinitely** — the replay attack Stripe names explicitly. Stripe's own
+libraries default to a 300-second tolerance, and its retries carry a fresh timestamp and signature, so a
+genuine retry is never affected.
+
+Now: timestamp parsed as a number, non-numeric rejected, anything more than 300s from now rejected in
+either direction. Mutation-tested with a correctly signed 10-minute-old payload, a 6-minute one, and a
+far-future one — all rejected, none writing or emailing anything; a 2-minute-old event still accepted so
+real retries keep working.
+
+### Multiple v1 signatures (latent, would have broken a rotation)
+The parser did `parts[k] = v`, keeping only the **last** v1. Stripe emits one v1 per active signing
+secret, so **during a webhook-secret rotation the header carries several** and the one matching the
+current secret may not be last. Rotating the secret would have started rejecting genuine events. All v1
+values are collected now and any match is accepted; mutation-tested with the matching signature first,
+last, and absent. Comparison is constant-time-ish so a wrong signature leaks no timing.
+
+### One mutation that legitimately cannot be detected
+Removing the `/^\d+$/` timestamp shape check changes **no behaviour**: `'abc'` fails `Number.isFinite`,
+and `''`, `'-1'`, `'12.5'`, `'1e9'` all land outside the tolerance bound. The guard is defence in depth,
+kept because it states the intent where a reader sees it. That is recorded in the code rather than
+papered over with a contrived assertion — inventing a test that *appeared* to detect a no-op would be
+the masked-assertion problem in reverse.
+
+### The manual pay page was a dead link
+The harness printed `/?cs=<session>` and waited. The shipped calculator mounts embedded Checkout only
+inside `startCheckout()`, after **its own** `/checkout` call returns a clientSecret, and its URL handling
+reads only `session_id` and `finish`. Opening that link showed a page with nothing to pay into, and the
+harness would have polled to timeout.
+
+The harness now serves `/pay/<session>`, initialising `Stripe(pk_test)` and mounting embedded Checkout
+with the clientSecret of the session it created. **No production change was needed** — the worker
+already returns `clientSecret`. GROUP R pins that the calculator still does not consume `?cs`, so if that
+ever changes someone re-examines whether `/pay` is still required.
+
+### The finish-profile link was hardcoded
+`https://ketodial.com/?finish=…` meant the harness could not follow the one link that proves pay-first
+recovery without bouncing into the live site. It and the report error page's "back to the calculator"
+link now use `appBaseUrl(env)`, which defaults to exactly `https://ketodial.com`.
+
+### Filed, not gated
+Stripe event-ID deduplication (`carnivore-weekly` bead, P2). `reports_delivered_at` plus the
+deterministic Resend key already cover most of it; the uncovered case is a duplicate event arriving
+outside Resend's 24-hour window and before the marker is written.
