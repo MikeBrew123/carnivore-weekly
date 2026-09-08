@@ -2277,6 +2277,65 @@ function shouldFilterOutFood(food, allergies, foodRestrictions) {
 /**
  * Generate full 30-day meal plan using database and week/day loops
  */
+/**
+ * The length of the plan this product sells, in days. ONE definition.
+ *
+ * The generator built 30 days and the calendar template had four week placeholders,
+ * so days 29 and 30 were generated, bucketed into a fifth week, and silently dropped
+ * on the way to the page (5128d550, 2026-09-08). The report kept its "30-Day Meal
+ * Calendar" title throughout. Nothing failed, because nothing compared the two.
+ *
+ * Both the generator and the renderer now derive from this constant and from the
+ * plan object itself, and assertRenderedPlanIsComplete() below fails generation if
+ * the rendered day set ever stops matching the generated one.
+ */
+const MEAL_PLAN_DAYS = 30;
+
+/** Customer-facing heading for each week bucket, by week number. */
+function weekHeading(weekNumber, days) {
+  const NAMED = {
+    1: 'Adaptation & Baseline',
+    2: 'Building Consistency',
+    3: 'Finding Your Rhythm',
+    4: 'The New Normal',
+  };
+  const first = days[0]?.dayNumber;
+  const last = days[days.length - 1]?.dayNumber;
+  const range = first === last ? `Day ${first}` : `Days ${first}-${last}`;
+  // Week 5 is the two-day tail of a 30-day plan, not a real week, so it gets a name
+  // that reads correctly to a customer instead of "Week 5: " and two rows.
+  const title = NAMED[weekNumber] || 'Final Days';
+  return { label: `Week ${weekNumber}`, title, range };
+}
+
+/**
+ * THE structural invariant for the calendar: everything the generator produced is on
+ * the page, exactly once, with no gaps.
+ *
+ * Throws rather than warns. A report that quietly contains 28 of the 30 days it
+ * promises is worse than a report that failed to build, because only one of those
+ * two reaches a customer.
+ */
+function assertRenderedPlanIsComplete(mealPlan, renderedDayNumbers) {
+  const generated = (mealPlan.weeks || []).flatMap(w => (w.days || []).map(d => d.dayNumber));
+  const rendered = [...renderedDayNumbers];
+  const uniq = new Set(rendered);
+
+  if (uniq.size !== rendered.length) {
+    const dupes = rendered.filter((d, i) => rendered.indexOf(d) !== i);
+    throw new Error(`meal calendar: day(s) rendered more than once: ${[...new Set(dupes)].join(', ')}`);
+  }
+  const missing = generated.filter(d => !uniq.has(d));
+  if (missing.length) {
+    throw new Error(`meal calendar: generated ${generated.length} days but rendered ` +
+      `${rendered.length}. Days missing from the page: ${missing.join(', ')}. ` +
+      `The renderer must consume every week the generator produced.`);
+  }
+  if (generated.length !== MEAL_PLAN_DAYS) {
+    throw new Error(`meal calendar: expected ${MEAL_PLAN_DAYS} generated days, got ${generated.length}.`);
+  }
+}
+
 function generateFullMealPlan(data) {
   console.log('=== MEAL PLAN DEBUG ===');
   console.log('dailyProtein:', data.dailyProtein);
@@ -2386,7 +2445,7 @@ function generateFullMealPlan(data) {
   };
 
   // Generate all 30 days
-  for (let dayNum = 1; dayNum <= 30; dayNum++) {
+  for (let dayNum = 1; dayNum <= MEAL_PLAN_DAYS; dayNum++) {
     const week = Math.ceil(dayNum / 7);
 
     // Create week object if doesn't exist
@@ -3717,7 +3776,7 @@ function getTemplateContent(templateName, dietOrData) {
       const cookingFatExamples = isPescatarian
         ? 'butter, olive oil'
         : 'butter, tallow';
-      return `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n{{mealPlanMedicalNote}}\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n**Note on Macros:** {{proteinPrecisionClaim}} Fat may vary ±20-30% based on protein choices—${fattyProteinExamples} naturally deliver more fat when portioned for protein. Adjust cooking fats (${cookingFatExamples}) up or down based on hunger and your body's response.\n\n## Week 1: Adaptation & Baseline\n{{mealTableWeek1}}\n\n## Week 2: Building Consistency\n{{mealTableWeek2}}\n\n## Week 3: Finding Your Rhythm\n{{mealTableWeek3}}\n\n## Week 4: The New Normal\n{{mealTableWeek4}}\n\n## Substitution Guide\n{{substitutionGuide}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`;
+      return `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n{{mealPlanMedicalNote}}\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n**Note on Macros:** {{proteinPrecisionClaim}} Fat may vary ±20-30% based on protein choices—${fattyProteinExamples} naturally deliver more fat when portioned for protein. Adjust cooking fats (${cookingFatExamples}) up or down based on hunger and your body's response.\n\n{{mealCalendarWeeks}}\n\n## Substitution Guide\n{{substitutionGuide}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`;
     })(),
 
     // Report #4: Weekly Shopping Lists
@@ -3733,37 +3792,7 @@ function getTemplateContent(templateName, dietOrData) {
 * [ ] Food Storage Containers
 * [ ] Basic Seasonings (if tolerated)
 
-## 🛒 Week 1 Shopping List
-### {{proteinSectionHeader}}
-{{proteinsWeek1}}
-### 🥚 Dairy & Eggs
-{{dairyEggsWeek1}}
-### 🧂 Pantry
-{{pantryWeek1}}
-
-## 🛒 Week 2 Shopping List
-### {{proteinSectionHeader}}
-{{proteinsWeek2}}
-### 🥚 Dairy & Eggs
-{{dairyEggsWeek2}}
-### 🧂 Pantry
-{{pantryWeek2}}
-
-## 🛒 Week 3 Shopping List
-### {{proteinSectionHeader}}
-{{proteinsWeek3}}
-### 🥚 Dairy & Eggs
-{{dairyEggsWeek3}}
-### 🧂 Pantry
-{{pantryWeek3}}
-
-## 🛒 Week 4 Shopping List
-### {{proteinSectionHeader}}
-{{proteinsWeek4}}
-### 🥚 Dairy & Eggs
-{{dairyEggsWeek4}}
-### 🧂 Pantry
-{{pantryWeek4}}
+{{groceryWeeks}}
 
 ## 💡 Smart Shopping Tips
 {{shoppingTips}}
@@ -3771,7 +3800,7 @@ function getTemplateContent(templateName, dietOrData) {
 **Pro tip:** {{proTip}}`,
 
     // Report #5: Physician Consultation Guide
-    physicianConsult: `## Report #5: Physician Consultation Guide\n\n*For {{firstName}} to discuss with your doctor about {{diet}}*\n\n> **⚠️ MEDICAL DISCLAIMER:** This guide is educational. Never change medications without medical supervision. Always work with your doctor.\n\n{{medicalContextBanner}}\n\n---\n\n## SECTION 1: The Opening Script\n\n### The 2-Minute Pitch\n\n"Dr. [Name], I'm starting a therapeutic {{diet}} protocol to address {{symptoms}}. This is evidence-based metabolic therapy, not a fad diet. I need your partnership in three areas:\n\n1. **Lab monitoring** - Baseline now, recheck at 8 weeks\n2. **Medication monitoring** - What you want me to watch, when to recheck, and how you would want to handle it if my numbers change\n3. **Advanced markers** - Looking beyond standard LDL to assess real cardiovascular risk\n\nI've prepared a one-page summary for you. Can we schedule an 8-week follow-up now?"\n\n### If They Push Back Immediately\n\nUse Section 3 (Conflict Resolution Scripts) - Choose the response that matches their concern.\n\n---\n\n## SECTION 2: Advanced Bloodwork Markers\n\n### Why Standard LDL is Misleading\n\nStandard lipid panels measure LDL-C (cholesterol content), NOT particle count or size. On {{diet}}, LDL-C may increase, but particle size typically improves (large, fluffy, less atherogenic).\n\n### Request These Advanced Markers\n\n**1. ApoB (Apolipoprotein B)**\n- **What it measures:** Actual number of atherogenic particles\n- **Why it matters:** Better predictor than LDL-C for cardiovascular risk\n- **{{diet}} expectation:** Often neutral or improves (even if LDL-C rises)\n- **What to say:** \"Can we order ApoB instead of relying on LDL alone? It's a more accurate cardiovascular marker.\"\n\n**2. Triglyceride/HDL Ratio**\n- **What it measures:** Insulin resistance and small dense LDL particles\n- **Why it matters:** Ratio <2 = metabolic health, <1 = excellent\n- **{{diet}} expectation:** Usually improves dramatically (triglycerides ↓, HDL ↑)\n- **What to say:** \"I've read that Trig/HDL ratio under 2 is protective. Can we track this?\"\n\n**3. CAC Score (Coronary Artery Calcium)**\n- **What it measures:** Actual arterial calcification (hard endpoint)\n- **Why it matters:** Direct measure of plaque burden\n- **{{diet}} expectation:** Stable or slow progression (requires years to improve)\n- **What to say:** \"If my LDL is elevated, can we get a CAC score to see if there's actual plaque? A score of 0 means no disease regardless of LDL.\"\n\n**4. Fasting Insulin & HOMA-IR**\n- **What it measures:** Insulin resistance (root cause of metabolic disease)\n- **Why it matters:** Standard glucose is a lagging indicator\n- **{{diet}} expectation:** Fasting insulin <5, HOMA-IR <1.0 (excellent metabolic health)\n- **What to say:** \"Can we measure fasting insulin? I want to track insulin resistance, not just glucose.\"\n\n### The Key Markers Table\n\n| Marker | Standard Range | {{diet}} Target | Why It Matters |\n|--------|---|---|---|\n| ApoB | <130 mg/dL | <100 mg/dL | Actual particle count |\n| Trig/HDL Ratio | <3 | <1 | Insulin resistance |\n| CAC Score | N/A | 0 (if <50) | Hard plaque endpoint |\n| Fasting Insulin | <10 μIU/mL | <5 μIU/mL | True metabolic health |\n| HOMA-IR | <2 | <1 | Insulin resistance |\n| hs-CRP | <3 mg/L | <1 mg/L | Inflammation |\n\n---\n\n## SECTION 3: Doctor Conflict Resolution Scripts\n\n### Concern #1: \"This will destroy your cholesterol\"\n\n**The Weak Response (Avoid):**\n\"I'll be fine, I read it online.\"\n\n**The Strong Response:**\n\"I understand your concern about LDL. Can we agree on three things?\n\n1. **Get baseline labs now** - Including ApoB and CAC score if possible\n2. **Recheck in 8 weeks** - If ApoB worsens or triglycerides rise, I'll reconsider\n3. **Focus on the markers that matter** - Triglyceride/HDL ratio, fasting insulin, hs-CRP, and how I feel\n\nIf my inflammation drops, insulin sensitivity improves, and triglycerides fall - but LDL rises - can we discuss the research on large fluffy LDL being protective?\"\n\n### Concern #2: \"You'll be deficient in fiber and vitamins\"\n\n**The Weak Response (Avoid):**\n\"Carnivore has everything I need.\"\n\n**The Strong Response:**\n\"That's a common concern. {{diet}} includes {{proteins}} which provide:\n- **Vitamin C:** Adequate amounts in fresh meat (humans need less on low-carb)\n- **Fiber:** Not an essential nutrient - many thrive without it\n- **Micronutrients:** B12, iron, zinc, selenium all highly bioavailable in animal foods\n\nCan we test my micronutrient levels at baseline and 8 weeks? If I show deficiencies, I'll adjust. But the data shows most people improve these markers, not worsen them.\"\n\n### Concern #3: \"This is dangerous for your kidneys\"\n\n**The Weak Response (Avoid):**\n\"No it's not.\"\n\n**The Strong Response:**\n\"That is a fair thing to check, and I would rather measure it than argue about it. Can we monitor:\n\n- **Creatinine & eGFR** (kidney function)\n- **Albumin/Creatinine ratio** (kidney damage marker)\n\nCan we take a baseline now and recheck it, and can you tell me what change in those numbers would mean I should stop?\"\n\n{{proteinTargetNote}}\n\n### Concern #4: \"You need carbs for energy and brain function\"\n\n**The Weak Response (Avoid):**\n\"Carbs aren't essential.\"\n\n**The Strong Response:**\n\"The brain can run on ketones, which the liver produces from fat. In fact, ketones may be a superior fuel for the brain - that's why ketogenic diets are used for epilepsy and being studied for Alzheimer's.\n\nCan we track my cognitive function and energy levels? If I report brain fog, fatigue, or declining performance, I'll reconsider. But most people report improved mental clarity within 2-4 weeks.\"\n\n### When to Seek a Second Opinion\n\nIf you feel your concerns are not being heard, you can ask questions, request clarification, or seek a second opinion from another qualified clinician. That is a normal part of medical care, not a confrontation.\n\n**Reasonable things to ask for:**\n- Baseline labs before you start, so there is something to compare against later\n- A clear explanation of which markers concern your doctor, and why\n- An agreed monitoring schedule while you make a dietary change\n\nDecisions about medications, treatment and testing should be made with your healthcare professional.\n\n---\n\n## SECTION 4: Medications\n\n> **Medication changes are your prescriber's decision, not ours.** Our job is what to measure and what to ask.\n\nA {{diet}} diet can change blood glucose, blood pressure and thyroid labs, sometimes within weeks. That is exactly why this guide exists: so your doctor knows what you are doing and can monitor you properly.\n\n**Bring your current medication list to the appointment and ask:**\n- Which of my medications could be affected if my glucose, blood pressure or weight changes?\n- What should I monitor at home, how often, and what readings should prompt me to call you?\n- When would you like to recheck my labs?\n- If something does need to change, how would you want to do it?\n\n**Do not change a dose, skip a dose, or stop a medication on your own.** If you notice dizziness, shaking, sweating, confusion, unusual fatigue or any symptom that worries you, contact your doctor or seek urgent care.\n\n## SECTION 5: Finding a Supportive Doctor\n\n### Signs the Conversation Is Not Working\n\nIf you consistently cannot get answers to reasonable questions, it is fair to seek a second opinion:\n\n- You cannot get baseline labs ordered, or get the results explained\n- Your questions about monitoring go unanswered\n- You do not feel able to raise concerns at all\n\nSeeking a second opinion is not the same as ignoring medical advice. Keep a prescribing clinician involved either way.\n\n### Green Flags (Signs of a Good Doctor)\n\n✅ Orders comprehensive labs (including advanced markers if requested)\n✅ Proposes a trial period (\"Let's try this for 8 weeks and recheck\")\n✅ Focuses on outcomes (\"Let's see how you feel and what the labs show\")\n✅ Respects patient autonomy (\"I have concerns, but I'll monitor you closely\")\n✅ Evidence-based discussion (cites research, not just guidelines)\n\n### Where to Find Carnivore/Keto-Friendly Doctors\n\n**Online Directories:**\n- **DietDoctor.com/find-doctors** - Keto/low-carb provider directory\n- **PaleophysiciansNetwork.com** - Ancestral health practitioners\n- **IFM.org** - Institute for Functional Medicine\n\n**Telemedicine Options:**\n- **SteadyMD** - Keto-friendly primary care via telehealth\n- **Levels.com** - Continuous glucose monitoring + MD consults\n- **Function Health** - Comprehensive lab testing + health optimization\n\n**What to Ask When Interviewing a New Doctor:**\n1. \"Have you worked with patients on ketogenic or carnivore diets?\"\n2. \"Are you willing to order advanced lipid markers like ApoB and CAC score?\"\n3. \"If my standard LDL rises but triglycerides drop and I feel great, will you support me?\"\n4. \"Can we agree on an 8-week trial with close monitoring?\"\n\n---\n\n## SECTION 6: Comprehensive Lab Monitoring Schedule\n\n### Baseline Labs (Week 0 - Before Starting {{diet}})\n\n**Metabolic Panel:**\n- [ ] Fasting Glucose\n- [ ] Fasting Insulin (critical for tracking insulin resistance)\n- [ ] HbA1c (3-month glucose average)\n- [ ] HOMA-IR (calculated from glucose + insulin)\n\n**Lipid Panel (Standard):**\n- [ ] Total Cholesterol\n- [ ] LDL-C\n- [ ] HDL-C\n- [ ] Triglycerides\n- [ ] **Calculate Trig/HDL ratio** (divide Trig by HDL)\n\n**Advanced Lipids (Request if possible):**\n- [ ] ApoB (gold standard for cardiovascular risk)\n- [ ] LDL Particle Number (LDL-P)\n- [ ] LDL Particle Size (small vs large)\n\n**Cardiovascular Risk:**\n- [ ] hs-CRP (high-sensitivity C-reactive protein - inflammation marker)\n- [ ] **CAC Score** (Coronary Artery Calcium scan - optional but valuable if >40 years old)\n\n**Kidney & Liver Function:**\n- [ ] Creatinine\n- [ ] eGFR (estimated glomerular filtration rate)\n- [ ] BUN (blood urea nitrogen)\n- [ ] ALT (alanine aminotransferase)\n- [ ] AST (aspartate aminotransferase)\n- [ ] Albumin\n\n**Micronutrients:**\n- [ ] Vitamin D (25-hydroxy)\n- [ ] Vitamin B12\n- [ ] Magnesium (RBC magnesium preferred over serum)\n- [ ] Iron panel (ferritin, TIBC, serum iron, transferrin saturation)\n\n### Week 8 Recheck (Comprehensive Follow-Up)\n\n**Repeat ALL baseline labs** to assess metabolic response\n\n**Expected Changes:**\n✅ **Likely improvements:**\n- Fasting glucose ↓\n- Fasting insulin ↓↓ (often dramatic)\n- HbA1c ↓\n- Triglycerides ↓↓\n- HDL ↑\n- Trig/HDL ratio ↓↓ (should be <2, ideally <1)\n- hs-CRP ↓\n- ALT/AST ↓ (if fatty liver present)\n\n⚠️ **May increase (not necessarily bad):**\n- LDL-C ↑ (often increases, especially if losing weight rapidly)\n- Total Cholesterol ↑ (follows LDL)\n\n**Key Insight:** If triglycerides drop, HDL rises, and Trig/HDL ratio improves - even if LDL rises - your cardiovascular risk is likely IMPROVING, not worsening.\n\n### Ongoing Labs (Beyond Week 8)\n\n- **Week 12-16:** Optional extended monitoring\n- **Yearly:** Full lipid panel, fasting glucose, insulin, HbA1c, kidney/liver function, micronutrients, TSH\n- **Every 2-5 years:** CAC score (if previous score >0)\n\n---\n\n## SECTION 7: The One-Page Doctor Handout\n\n**Print this and bring to your appointment**\n\n---\n\n### ONE-PAGE PHYSICIAN CONSULTATION GUIDE\n\n**Patient:** {{firstName}}\n**Protocol:** {{diet}} Metabolic Intervention\n**Duration:** 8-week monitored trial\n**Date:** {{currentDate}}\n\n**Conditions the patient reported:** {{conditionsList}}\n**Medications the patient reported:** {{medicationsList}}\n\n*This list is self-reported into an online questionnaire and has not been verified. Please confirm it against your own record.*\n\n---\n\n#### PATIENT REQUEST:\n\nI am starting a therapeutic {{diet}} protocol to address: **{{symptoms}}**\n\nI am requesting:\n1. **Baseline comprehensive labs** (see list below)\n2. **8-week recheck labs**, and your assessment of whether anything in my treatment needs to change\n3. **Partnership in monitoring** - I will report any adverse symptoms immediately\n\n---\n\n#### BASELINE LABS REQUESTED (Week 0):\n\n**Metabolic:** Fasting Glucose, Fasting Insulin, HbA1c, HOMA-IR\n**Lipids:** Total Chol, LDL, HDL, Triglycerides, **ApoB** (if available)\n**Inflammation:** hs-CRP\n**Kidney:** Creatinine, eGFR, BUN\n**Liver:** ALT, AST, Albumin\n**Micronutrients:** Vitamin D, B12, Magnesium, Iron Panel\n**Optional:** CAC Score (if age >40 and no recent scan)\n\n---\n\n#### WEEK 8 RECHECK LABS:\n\n**Repeat all baseline labs** to assess metabolic response\n\n---\n\n#### MEDICATION MONITORING (if applicable):\n\n**I will contact you immediately if:**\n- Blood glucose <70 mg/dL (hypoglycemia)\n- Blood pressure <90/60 mmHg (hypotension)\n- Severe fatigue, dizziness, confusion, chest pain\n- Any other concerning symptoms\n\n---\n\n#### EVIDENCE SUMMARY:\n\nLow-carbohydrate / ketogenic / carnivore interventions have peer-reviewed evidence for:\n- **Type 2 Diabetes Remission:** 60% remission at 1 year\n- **Metabolic Syndrome Reversal:** Multiple RCTs showing improvements\n- **Weight Loss:** Superior to low-fat diets in meta-analyses\n- **Inflammation Reduction:** Decreases hs-CRP and other inflammatory markers\n\n**Patient commitment:** I, {{firstName}} {{lastName}}, will adhere strictly to protocol, monitor daily, and report any adverse effects immediately.\n\n---\n\n**Patient Signature:** ___________________________                    **Date:** __________\n\n---\n\n## SECTION 8: After Your Appointment\n\n### If Your Doctor Agreed to Monitor You ✅\n\n**Immediate Actions:**\n1. [ ] Schedule Week 8 follow-up appointment NOW (before you leave office)\n2. [ ] Get lab orders and complete baseline labs within 48 hours\n3. [ ] Request copies of all lab results (you own your medical records)\n4. [ ] Create a tracking spreadsheet or use app\n5. [ ] Start {{diet}} protocol after baseline labs are complete\n\n**Daily Monitoring (Weeks 0-8):**\n- [ ] Weight (morning, after bathroom) - Log in tracker\n- [ ] Blood glucose (if diabetic/pre-diabetic) - 2-3x daily\n- [ ] Blood pressure (if on BP meds) - Morning + evening\n- [ ] Symptoms: Energy, mood, cravings, digestion - Rate 1-10 daily\n- [ ] Medication changes - Log every adjustment with date/time/reason\n\n**Emergency Contacts:**\n- **Low blood glucose:** a reading under 70 mg/dL, or symptoms of a low (shaking, sweating, confusion, sudden hunger), means follow the hypoglycemia plan your own doctor gave you and call them. If you do not have one and you take any glucose-lowering medication, ask for one before you start this diet. **Call 911 for confusion that is not clearing, seizure, or loss of consciousness.**\n- **Fainting, or a blood pressure reading far below your normal:** lie down and call your doctor. Do not treat it with salt or salted water.\n- **Chest pain**: Call 911 immediately\n\n### If You Did Not Get the Answers You Needed\n\n**You still have options, and none of them mean going it alone:**\n\n- **Ask for a follow-up appointment.** \"I have three specific questions about monitoring\" often changes the conversation.\n- **Request a referral** to a dietitian, endocrinologist or cardiologist, depending on what concerns you.\n- **Seek a second opinion** from another qualified clinician. Bring your labs and this guide.\n\nWhatever you decide, keep a prescribing clinician involved. Decisions about medications, treatment and testing should be made with your healthcare professional.\n\n**Most doctors will work with you if you come prepared, ask specific questions, and commit to monitoring.**`,
+    physicianConsult: `## Report #5: Physician Consultation Guide\n\n*For {{firstName}} to discuss with your doctor about {{diet}}*\n\n> **⚠️ MEDICAL DISCLAIMER:** This guide is educational. Never change medications without medical supervision. Always work with your doctor.\n\n{{medicalContextBanner}}\n\n---\n\n## SECTION 1: The Opening Script\n\n### The 2-Minute Pitch\n\n"Dr. [Name], I'm starting a therapeutic {{diet}} protocol to address {{symptoms}}. This is evidence-based metabolic therapy, not a fad diet. I need your partnership in three areas:\n\n1. **Lab monitoring** - Baseline now, recheck at 8 weeks\n2. **Medication monitoring** - What you want me to watch, when to recheck, and how you would want to handle it if my numbers change\n3. **Advanced markers** - Looking beyond standard LDL to assess real cardiovascular risk\n\nI've prepared a one-page summary for you. Can we schedule an 8-week follow-up now?"\n\n### If They Push Back Immediately\n\nUse Section 3 (Conflict Resolution Scripts) - Choose the response that matches their concern.\n\n---\n\n## SECTION 2: Advanced Bloodwork Markers\n\n### Why Standard LDL is Misleading\n\nStandard lipid panels measure LDL-C (cholesterol content), NOT particle count or size. On {{diet}}, LDL-C may increase, but particle size typically improves (large, fluffy, less atherogenic).\n\n### Request These Advanced Markers\n\n**1. ApoB (Apolipoprotein B)**\n- **What it measures:** Actual number of atherogenic particles\n- **Why it matters:** Better predictor than LDL-C for cardiovascular risk\n- **{{diet}} expectation:** Often neutral or improves (even if LDL-C rises)\n- **What to say:** \"Can we order ApoB instead of relying on LDL alone? It's a more accurate cardiovascular marker.\"\n\n**2. Triglyceride/HDL Ratio**\n- **What it measures:** Insulin resistance and small dense LDL particles\n- **Why it matters:** Ratio <2 = metabolic health, <1 = excellent\n- **{{diet}} expectation:** Usually improves dramatically (triglycerides ↓, HDL ↑)\n- **What to say:** \"I've read that Trig/HDL ratio under 2 is protective. Can we track this?\"\n\n**3. CAC Score (Coronary Artery Calcium)**\n- **What it measures:** Actual arterial calcification (hard endpoint)\n- **Why it matters:** Direct measure of plaque burden\n- **{{diet}} expectation:** Stable or slow progression (requires years to improve)\n- **What to say:** \"If my LDL is elevated, can we get a CAC score to see if there's actual plaque? A score of 0 means no disease regardless of LDL.\"\n\n**4. Fasting Insulin & HOMA-IR**\n- **What it measures:** Insulin resistance (root cause of metabolic disease)\n- **Why it matters:** Standard glucose is a lagging indicator\n- **{{diet}} expectation:** Fasting insulin <5, HOMA-IR <1.0 (excellent metabolic health)\n- **What to say:** \"Can we measure fasting insulin? I want to track insulin resistance, not just glucose.\"\n\n### The Key Markers Table\n\n| Marker | Standard Range | {{diet}} Target | Why It Matters |\n|--------|---|---|---|\n| ApoB | <130 mg/dL | <100 mg/dL | Actual particle count |\n| Trig/HDL Ratio | <3 | <1 | Insulin resistance |\n| CAC Score | N/A | 0 (if <50) | Hard plaque endpoint |\n| Fasting Insulin | <10 μIU/mL | <5 μIU/mL | True metabolic health |\n| HOMA-IR | <2 | <1 | Insulin resistance |\n| hs-CRP | <3 mg/L | <1 mg/L | Inflammation |\n\n---\n\n## SECTION 3: Doctor Conflict Resolution Scripts\n\n### Concern #1: \"This will destroy your cholesterol\"\n\n**The Weak Response (Avoid):**\n\"I'll be fine, I read it online.\"\n\n**The Strong Response:**\n\"I understand your concern about LDL. Can we agree on three things?\n\n1. **Get baseline labs now** - Including ApoB and CAC score if possible\n2. **Recheck in 8 weeks** - If ApoB worsens or triglycerides rise, I'll reconsider\n3. **Focus on the markers that matter** - Triglyceride/HDL ratio, fasting insulin, hs-CRP, and how I feel\n\nIf my inflammation drops, insulin sensitivity improves, and triglycerides fall - but LDL rises - can we discuss the research on large fluffy LDL being protective?\"\n\n### Concern #2: \"You'll be deficient in fiber and vitamins\"\n\n**The Weak Response (Avoid):**\n\"Carnivore has everything I need.\"\n\n**The Strong Response:**\n\"That's a common concern. {{diet}} includes {{proteins}} which provide:\n- **Vitamin C:** Adequate amounts in fresh meat (humans need less on low-carb)\n- **Fiber:** Not an essential nutrient - many thrive without it\n- **Micronutrients:** B12, iron, zinc, selenium all highly bioavailable in animal foods\n\nCan we test my micronutrient levels at baseline and 8 weeks? If I show deficiencies, I'll adjust. But the data shows most people improve these markers, not worsen them.\"\n\n### Concern #3: \"This is dangerous for your kidneys\"\n\n**The Weak Response (Avoid):**\n\"No it's not.\"\n\n**The Strong Response:**\n\"That is a fair thing to check, and I would rather measure it than argue about it. Can we monitor:\n\n- **Creatinine & eGFR** (kidney function)\n- **Albumin/Creatinine ratio** (kidney damage marker)\n\nCan we take a baseline now and recheck it, and can you tell me what change in those numbers would mean I should stop?\"\n\n{{proteinTargetNote}}\n\n### Concern #4: \"You need carbs for energy and brain function\"\n\n**The Weak Response (Avoid):**\n\"Carbs aren't essential.\"\n\n**The Strong Response:**\n\"The brain can run on ketones, which the liver produces from fat. In fact, ketones may be a superior fuel for the brain - that's why ketogenic diets are used for epilepsy and being studied for Alzheimer's.\n\nCan we track my cognitive function and energy levels? If I report brain fog, fatigue, or declining performance, I'll reconsider. But most people report improved mental clarity within 2-4 weeks.\"\n\n### When to Seek a Second Opinion\n\nIf you feel your concerns are not being heard, you can ask questions, request clarification, or seek a second opinion from another qualified clinician. That is a normal part of medical care, not a confrontation.\n\n**Reasonable things to ask for:**\n- Baseline labs before you start, so there is something to compare against later\n- A clear explanation of which markers concern your doctor, and why\n- An agreed monitoring schedule while you make a dietary change\n\nDecisions about medications, treatment and testing should be made with your healthcare professional.\n\n---\n\n## SECTION 4: Medications\n\n> **Medication changes are your prescriber's decision, not ours.** Our job is what to measure and what to ask.\n\nA {{diet}} diet can change blood glucose, blood pressure and thyroid labs, sometimes within weeks. That is exactly why this guide exists: so your doctor knows what you are doing and can monitor you properly.\n\n**Bring your current medication list to the appointment and ask:**\n- Which of my medications could be affected if my glucose, blood pressure or weight changes?\n- What should I monitor at home, how often, and what readings should prompt me to call you?\n- When would you like to recheck my labs?\n- If something does need to change, how would you want to do it?\n\n**Do not change a dose, skip a dose, or stop a medication on your own.** If you notice dizziness, shaking, sweating, confusion, unusual fatigue or any symptom that worries you, contact your doctor or seek urgent care.\n\n## SECTION 5: Finding a Supportive Doctor\n\n### Signs the Conversation Is Not Working\n\nIf you consistently cannot get answers to reasonable questions, it is fair to seek a second opinion:\n\n- You cannot get baseline labs ordered, or get the results explained\n- Your questions about monitoring go unanswered\n- You do not feel able to raise concerns at all\n\nSeeking a second opinion is not the same as ignoring medical advice. Keep a prescribing clinician involved either way.\n\n### Green Flags (Signs of a Good Doctor)\n\n✅ Orders comprehensive labs (including advanced markers if requested)\n✅ Proposes a trial period (\"Let's try this for 8 weeks and recheck\")\n✅ Focuses on outcomes (\"Let's see how you feel and what the labs show\")\n✅ Respects patient autonomy (\"I have concerns, but I'll monitor you closely\")\n✅ Evidence-based discussion (cites research, not just guidelines)\n\n### Where to Find Carnivore/Keto-Friendly Doctors\n\n**Online Directories:**\n- **DietDoctor.com/find-doctors** - Keto/low-carb provider directory\n- **PaleophysiciansNetwork.com** - Ancestral health practitioners\n- **IFM.org** - Institute for Functional Medicine\n\n**Telemedicine Options:**\n- **SteadyMD** - Keto-friendly primary care via telehealth\n- **Levels.com** - Continuous glucose monitoring + MD consults\n- **Function Health** - Comprehensive lab testing + health optimization\n\n**What to Ask When Interviewing a New Doctor:**\n1. \"Have you worked with patients on ketogenic or carnivore diets?\"\n2. \"Are you willing to order advanced lipid markers like ApoB and CAC score?\"\n3. \"If my standard LDL rises but triglycerides drop and I feel great, will you support me?\"\n4. \"Can we agree on an 8-week trial with close monitoring?\"\n\n---\n\n## SECTION 6: Comprehensive Lab Monitoring Schedule\n\n### Baseline Labs (Week 0 - Before Starting {{diet}})\n\n**Metabolic Panel:**\n- [ ] Fasting Glucose\n- [ ] Fasting Insulin (critical for tracking insulin resistance)\n- [ ] HbA1c (3-month glucose average)\n- [ ] HOMA-IR (calculated from glucose + insulin)\n\n**Lipid Panel (Standard):**\n- [ ] Total Cholesterol\n- [ ] LDL-C\n- [ ] HDL-C\n- [ ] Triglycerides\n- [ ] **Calculate Trig/HDL ratio** (divide Trig by HDL)\n\n**Advanced Lipids (Request if possible):**\n- [ ] ApoB (gold standard for cardiovascular risk)\n- [ ] LDL Particle Number (LDL-P)\n- [ ] LDL Particle Size (small vs large)\n\n**Cardiovascular Risk:**\n- [ ] hs-CRP (high-sensitivity C-reactive protein - inflammation marker)\n- [ ] **CAC Score** (Coronary Artery Calcium scan - optional but valuable if >40 years old)\n\n**Kidney & Liver Function:**\n- [ ] Creatinine\n- [ ] eGFR (estimated glomerular filtration rate)\n- [ ] BUN (blood urea nitrogen)\n- [ ] ALT (alanine aminotransferase)\n- [ ] AST (aspartate aminotransferase)\n- [ ] Albumin\n\n**Micronutrients:**\n- [ ] Vitamin D (25-hydroxy)\n- [ ] Vitamin B12\n- [ ] Magnesium (RBC magnesium preferred over serum)\n- [ ] Iron panel (ferritin, TIBC, serum iron, transferrin saturation)\n\n### Week 8 Recheck (Comprehensive Follow-Up)\n\n**Repeat ALL baseline labs** to assess metabolic response\n\n**Expected Changes:**\n✅ **Likely improvements:**\n- Fasting glucose ↓\n- Fasting insulin ↓↓ (often dramatic)\n- HbA1c ↓\n- Triglycerides ↓↓\n- HDL ↑\n- Trig/HDL ratio ↓↓ (should be <2, ideally <1)\n- hs-CRP ↓\n- ALT/AST ↓ (if fatty liver present)\n\n⚠️ **May increase (not necessarily bad):**\n- LDL-C ↑ (often increases, especially if losing weight rapidly)\n- Total Cholesterol ↑ (follows LDL)\n\n**Key Insight:** If triglycerides drop, HDL rises, and Trig/HDL ratio improves - even if LDL rises - your cardiovascular risk is likely IMPROVING, not worsening.\n\n### Ongoing Labs (Beyond Week 8)\n\n- **Week 12-16:** Optional extended monitoring\n- **Yearly:** Full lipid panel, fasting glucose, insulin, HbA1c, kidney/liver function, micronutrients, TSH\n- **Every 2-5 years:** CAC score (if previous score >0)\n\n---\n\n## SECTION 7: The One-Page Doctor Handout\n\n**Print this and bring to your appointment**\n\n---\n\n### ONE-PAGE PHYSICIAN CONSULTATION GUIDE\n\n**Patient:** {{firstName}}\n**Protocol:** {{diet}} Metabolic Intervention\n**Duration:** 8-week monitored trial\n**Date:** {{currentDate}}\n\n**Conditions the patient reported:** {{conditionsList}}\n**Patient-reported symptoms/concerns:** {{symptomsList}}\n**Medications the patient reported:** {{medicationsList}}\n\n*These lists are self-reported into an online questionnaire and have not been verified. They are the patient's own words, not a diagnosis made by this report. Please confirm them against your own record.*\n\n---\n\n#### PATIENT REQUEST:\n\nI am starting a therapeutic {{diet}} protocol to address: **{{symptoms}}**\n\nI am requesting:\n1. **Baseline comprehensive labs** (see list below)\n2. **8-week recheck labs**, and your assessment of whether anything in my treatment needs to change\n3. **Partnership in monitoring** - I will report any adverse symptoms immediately\n\n---\n\n#### BASELINE LABS REQUESTED (Week 0):\n\n**Metabolic:** Fasting Glucose, Fasting Insulin, HbA1c, HOMA-IR\n**Lipids:** Total Chol, LDL, HDL, Triglycerides, **ApoB** (if available)\n**Inflammation:** hs-CRP\n**Kidney:** Creatinine, eGFR, BUN\n**Liver:** ALT, AST, Albumin\n**Micronutrients:** Vitamin D, B12, Magnesium, Iron Panel\n**Optional:** CAC Score (if age >40 and no recent scan)\n\n---\n\n#### WEEK 8 RECHECK LABS:\n\n**Repeat all baseline labs** to assess metabolic response\n\n---\n\n#### MEDICATION MONITORING (if applicable):\n\n**I will contact you immediately if:**\n- Blood glucose <70 mg/dL (hypoglycemia)\n- Blood pressure <90/60 mmHg (hypotension)\n- Severe fatigue, dizziness, confusion, chest pain\n- Any other concerning symptoms\n\n---\n\n#### EVIDENCE SUMMARY:\n\nLow-carbohydrate / ketogenic / carnivore interventions have peer-reviewed evidence for:\n- **Type 2 Diabetes Remission:** 60% remission at 1 year\n- **Metabolic Syndrome Reversal:** Multiple RCTs showing improvements\n- **Weight Loss:** Superior to low-fat diets in meta-analyses\n- **Inflammation Reduction:** Decreases hs-CRP and other inflammatory markers\n\n**Patient commitment:** I, {{firstName}} {{lastName}}, will adhere strictly to protocol, monitor daily, and report any adverse effects immediately.\n\n---\n\n**Patient Signature:** ___________________________                    **Date:** __________\n\n---\n\n## SECTION 8: After Your Appointment\n\n### If Your Doctor Agreed to Monitor You ✅\n\n**Immediate Actions:**\n1. [ ] Schedule Week 8 follow-up appointment NOW (before you leave office)\n2. [ ] Get lab orders and complete baseline labs within 48 hours\n3. [ ] Request copies of all lab results (you own your medical records)\n4. [ ] Create a tracking spreadsheet or use app\n5. [ ] Start {{diet}} protocol after baseline labs are complete\n\n**Daily Monitoring (Weeks 0-8):**\n- [ ] Weight (morning, after bathroom) - Log in tracker\n- [ ] Blood glucose (if diabetic/pre-diabetic) - 2-3x daily\n- [ ] Blood pressure (if on BP meds) - Morning + evening\n- [ ] Symptoms: Energy, mood, cravings, digestion - Rate 1-10 daily\n- [ ] Medication changes - Log every adjustment with date/time/reason\n\n**Emergency Contacts:**\n- **Low blood glucose:** a reading under 70 mg/dL, or symptoms of a low (shaking, sweating, confusion, sudden hunger), means follow the hypoglycemia plan your own doctor gave you and call them. If you do not have one and you take any glucose-lowering medication, ask for one before you start this diet. **Call 911 for confusion that is not clearing, seizure, or loss of consciousness.**\n- **Fainting, or a blood pressure reading far below your normal:** lie down and call your doctor. Do not treat it with salt or salted water.\n- **Chest pain**: Call 911 immediately\n\n### If You Did Not Get the Answers You Needed\n\n**You still have options, and none of them mean going it alone:**\n\n- **Ask for a follow-up appointment.** \"I have three specific questions about monitoring\" often changes the conversation.\n- **Request a referral** to a dietitian, endocrinologist or cardiologist, depending on what concerns you.\n- **Seek a second opinion** from another qualified clinician. Bring your labs and this guide.\n\nWhatever you decide, keep a prescribing clinician involved. Decisions about medications, treatment and testing should be made with your healthcare professional.\n\n**Most doctors will work with you if you come prepared, ask specific questions, and commit to monitoring.**`,
 
     // Report #7: Restaurant & Travel Guide - DIET-AWARE
     restaurant: (() => {
@@ -3827,7 +3856,7 @@ function getTemplateContent(templateName, dietOrData) {
     })(),
 
     // Report #8-13: Appendix Reports (Condensed)
-    science: `## Report #8: The Science & Evidence\n\n*Why {{diet}} works: Evidence-based research*\n\n## Key Research\n\nResearch on {{diet}} shows promising results for {{goal}} and {{symptoms}}:\n\n**Metabolic Effects:** {{diet}} shifts metabolism to fat-burning, reducing insulin resistance and stabilizing blood sugar.\n\n**Anti-Inflammatory:** Elimination of plant foods removes common dietary triggers, which some people find reduces inflammatory symptoms.\n\n**Microbiome Changes:** {{diet}} shifts gut bacteria toward beneficial species.\n\n## Why {{diet}} for {{firstName}}:\n\n1. **Rapid metabolic effect** - Addresses your insulin sensitivity quickly\n2. **Anti-inflammatory** - Removes your common triggers\n3. **Sustainable** - No calorie counting, naturally satiating\n4. **Evidence-backed** - Research supports efficacy\n\n**Work with your doctor for personalized guidance.**`,
+    science: `## Report #8: The Science & Evidence\n\n*Why {{diet}} works: Evidence-based research*\n\n## Key Research\n\nThe research below is general. It is not a finding about you, your questionnaire answers, or anything you told us you are dealing with:\n\n**Metabolic Effects:** {{diet}} shifts metabolism to fat-burning, reducing insulin resistance and stabilizing blood sugar.\n\n**Anti-Inflammatory:** Elimination of plant foods removes common dietary triggers, which some people find reduces inflammatory symptoms.\n\n**Microbiome Changes:** {{diet}} shifts gut bacteria toward beneficial species.\n\n## Why people choose {{diet}}:\n\n1. **Simple to follow** - A short food list and no calorie counting\n2. **Satiating** - Protein and fat are filling, so most people stop tracking portions\n3. **Easy to shop for** - The same cuts, week after week\n\nWhat any of this does for a condition you are living with is a question for a clinician who treats it, not for this report.\n\n**Work with your doctor for personalized guidance.**`,
 
     labs: `## Report #9: Laboratory Reference Guide\n\n*Understanding your lab results on {{diet}}*\n\n{{medicalContextBanner}}\n\n## Standard vs. {{diet}} Ranges\n\n### Glucose & Insulin\n| Marker | Standard | {{diet}} Target | Note |\n|--------|----------|---|---|\n| Fasting Glucose | 70-100 | *(see note below)* | This report does not set a personal target |\n| Fasting Insulin | <10 | <5 | Measures insulin sensitivity |\n| HbA1c | <5.7% | <5.5% | 3-month glucose average |\n\n### Lipids\n| Marker | Standard | {{diet}} Typical | Note |\n|--------|----------|---|---|\n| HDL | >40 | Often ↑ | Protective factor |\n| Triglycerides | <150 | Often ↓ | Improves a lot |\n| hs-CRP | <1.0 | Often ↓↓ | Expect improvement |\n\n**On fasting glucose:** this report does not give you a fasting glucose target, and it deliberately does not tell you that lower is better. A fasting glucose under 70 mg/dL is hypoglycemia, and if you take insulin, metformin, a sulfonylurea or any other glucose-lowering medication, chasing a low number is a hazard rather than an achievement. Your target is your doctor\u2019s call. Ask them what yours is.\n\n## What to Expect After 8 Weeks\n\n✅ **Likely:** HbA1c, glucose, triglycerides, hs-CRP, HDL improve\n⚠️ **May increase:** LDL (particle size usually improves)\n\n**Ask your doctor:** Can we focus on LDL particle size rather than LDL number?`,
 
@@ -4022,11 +4051,22 @@ function replacePlaceholders(template, data) {
   // Slug values ('brain-fog', 'weight-issues', 'none') used to render raw into the
   // physician-facing letter: "I'm starting a therapeutic Carnivore protocol to
   // address none."
-  const symptomText = humanizeList(data.symptoms, 'the health goals described in this report');
+  // Symptoms come from the SAME canonical derivation the safety gate uses, so the
+  // physician-facing sections cannot silently omit something the reader typed. Before
+  // 2026-09-08 this read `data.symptoms` alone: a reader whose only symptom entry was
+  // the free-text `otherSymptoms` box got "the health goals described in this report"
+  // on the sheet she was told to hand her doctor, and the one thing she actually
+  // wanted looked at never appeared on it.
+  const symptomText = medicalContext.hasDeclaredSymptoms
+    ? medicalContext.symptomsText
+    : 'the health goals described in this report';
 
   result = result.replace(/\{\{allergies\}\}/g, allergyText);
   result = result.replace(/\{\{conditions\}\}/g, conditionText);
   result = result.replace(/\{\{conditionsList\}\}/g, medicalContext.conditionsText);
+  // Provenance matters on the doctor's sheet: this is what the patient typed, in
+  // their words, and it is labelled as such rather than presented as a finding.
+  result = result.replace(/\{\{symptomsList\}\}/g, medicalContext.symptomsText);
   result = result.replace(/\{\{medications\}\}/g, medicationText);
   result = result.replace(/\{\{medicationsList\}\}/g, medicalContext.medicationsText);
   result = result.replace(/\{\{symptoms\}\}/g, symptomText);
@@ -4125,22 +4165,36 @@ function replacePlaceholders(template, data) {
   // rendered as an empty cell: 30 blank rows in a calendar the reader paid for. The
   // table now follows the meal plan instead of the meal plan being padded to fit the
   // table.
-  const WEEK_TITLES = [1, 2, 3, 4];
-  for (const week of WEEK_TITLES) {
-    const days = fullMealPlan.weeks[week - 1]?.days || [];
+  //
+  // The calendar is built by walking fullMealPlan.weeks, NOT by filling a fixed set
+  // of week placeholders. That distinction is the whole fix: a hardcoded week list
+  // silently discards anything the generator produces beyond it, which is how days 29
+  // and 30 disappeared while the section kept its "30-Day" title. Adding a fifth
+  // hardcoded slot would fix today's number and leave the same trap set.
+  const renderedDayNumbers = [];
+  let calendarBlocks = '';
+  for (const week of fullMealPlan.weeks) {
+    const days = week?.days || [];
+    if (!days.length) continue;
     const names = days[0]?.meals?.map(m => m.name) || [];
+    if (!names.length) continue;
 
-    let table = '';
-    if (names.length) {
-      table += `| Day | ${names.join(' | ')} |\n`;
-      table += `| :--- | ${names.map(() => ':---').join(' | ')} |\n`;
-      for (const d of days) {
-        const cells = names.map((_, i) => d.meals[i]?.description || '');
-        table += `| Day ${d.dayNumber} | ${cells.join(' | ')} |\n`;
-      }
+    const { label, title, range } = weekHeading(week.weekNumber, days);
+    calendarBlocks += `## ${label}: ${title}\n\n*${range}*\n\n`;
+    calendarBlocks += `| Day | ${names.join(' | ')} |\n`;
+    calendarBlocks += `| :--- | ${names.map(() => ':---').join(' | ')} |\n`;
+    for (const d of days) {
+      const cells = names.map((_, i) => d.meals[i]?.description || '');
+      calendarBlocks += `| Day ${d.dayNumber} | ${cells.join(' | ')} |\n`;
+      renderedDayNumbers.push(d.dayNumber);
     }
-    result = result.replace(new RegExp(`\\{\\{mealTableWeek${week}\\}\\}`, 'g'), table.trimEnd());
+    calendarBlocks += '\n';
   }
+
+  // Fails the build rather than shipping a short calendar. See the function's comment.
+  assertRenderedPlanIsComplete(fullMealPlan, renderedDayNumbers);
+
+  result = result.replace(/\{\{mealCalendarWeeks\}\}/g, calendarBlocks.trimEnd());
 
   // Legacy per-day placeholders. Some templates and the sample-day breakdown still
   // reference them; they are filled from the same day objects, never recomputed.
@@ -4162,8 +4216,18 @@ function replacePlaceholders(template, data) {
   // so there is no code path that can invent a second, disagreeing list.
   const groceryLists = generateGroceryListByWeek(data, fullMealPlan);
 
-  // Build dynamic grocery list sections for all 4 weeks
-  for (let week = 1; week <= 4; week++) {
+  // Built by walking the meal plan's own weeks, for the same reason the calendar is:
+  // a fixed `week <= 4` loop drops week 5's shopping without dropping week 5's meals,
+  // which is the worse half of the same bug. Days 29 and 30 tell a reader to cook
+  // something; this is where they find out to buy it.
+  // The computed value, not the placeholder: {{proteinSectionHeader}} was already
+  // substituted further up, so emitting the token here would ship it unreplaced.
+  const groceryProteinHeader = proteinSectionHeader;
+  let groceryBlocks = '';
+  for (const planWeek of fullMealPlan.weeks) {
+    const days = planWeek?.days || [];
+    if (!days.length) continue;
+    const week = planWeek.weekNumber;
     const weekData = groceryLists[`week${week}`];
 
     // Build protein section dynamically (all filtered proteins)
@@ -4219,10 +4283,13 @@ function replacePlaceholders(template, data) {
       });
     }
 
-    result = result.replace(new RegExp(`\\{\\{proteinsWeek${week}\\}\\}`, 'g'), proteinSection.trim());
-    result = result.replace(new RegExp(`\\{\\{dairyEggsWeek${week}\\}\\}`, 'g'), dairyEggsSection.trim());
-    result = result.replace(new RegExp(`\\{\\{pantryWeek${week}\\}\\}`, 'g'), pantrySection.trim());
+    const { label, title, range } = weekHeading(week, days);
+    groceryBlocks += `## \u{1F6D2} ${label} Shopping List\n\n*${title} \u00b7 ${range}*\n\n`;
+    groceryBlocks += `### ${groceryProteinHeader}\n${proteinSection.trim()}\n`;
+    groceryBlocks += `### \u{1F95A} Dairy & Eggs\n${dairyEggsSection.trim()}\n`;
+    groceryBlocks += `### \u{1F9C2} Pantry\n${pantrySection.trim()}\n\n`;
   }
+  result = result.replace(/\{\{groceryWeeks\}\}/g, groceryBlocks.trimEnd());
 
   // Also fill the old-style single-week placeholders for backward compatibility
   if (groceryLists.week1) {

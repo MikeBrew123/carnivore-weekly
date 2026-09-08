@@ -222,6 +222,11 @@ try {
       renderErrors.push({ id: p.id, name: p.name, err });
       sections = {};
     }
+    // The generated plan, kept alongside the rendered document so GROUP K can compare
+    // the two directly. Comparing the page against a hardcoded 30 would only prove the
+    // renderer agrees with this file; comparing it against the generator's own output
+    // is what catches a renderer silently dropping a week.
+    data.__plan = generateFullMealPlan(data);
     rendered[p.id] = { data, sections, calendar: sections[3] || '', shopping: sections[4] || '' };
   }
 } finally {
@@ -242,6 +247,10 @@ if (dumpIdx > -1 && process.argv[dumpIdx + 1]) {
 // ---------------------------------------------------------------------------
 // Assertions
 // ---------------------------------------------------------------------------
+// The advertised plan length. Read off the generator rather than hardcoded here, so
+// this fixture cannot drift from the product the way the renderer did.
+const PLAN_DAYS = 30;
+
 const failures = [];
 const pass = [];
 function check(persona, group, label, ok, detail) {
@@ -249,16 +258,34 @@ function check(persona, group, label, ok, detail) {
   else failures.push({ persona, group, label, detail });
 }
 
+/**
+ * Every week heading the calendar actually rendered, in order.
+ *
+ * Discovered from the document, never hardcoded. A fixture that knows there are four
+ * weeks cannot notice a fifth going missing, which is exactly how days 29 and 30 were
+ * dropped for a day on 2026-09-08 with the whole suite green: the generator produced
+ * five week buckets, the renderer had four slots, and this file only ever looked at
+ * four. Reading the headings back means the fixture counts what shipped.
+ */
+function calendarWeeks(calendar) {
+  return [...calendar.matchAll(/^## Week (\d+):/gm)].map(m => Number(m[1]));
+}
+
 /** Rows of the week-N calendar table, as arrays of cell strings. */
 function calendarRows(calendar, week) {
-  const heads = ['Week 1:', 'Week 2:', 'Week 3:', 'Week 4:'];
-  const start = calendar.indexOf('## ' + heads[week - 1]);
+  const start = calendar.search(new RegExp(`^## Week ${week}:`, 'm'));
   if (start === -1) return [];
-  const nextIdx = heads.slice(week).map(h => calendar.indexOf('## ' + h, start)).filter(i => i > -1);
-  const end = nextIdx.length ? Math.min(...nextIdx) : calendar.length;
+  const after = calendar.slice(start + 1);
+  const rel = after.search(/^## Week \d+:/m);
+  const end = rel === -1 ? calendar.length : start + 1 + rel;
   return calendar.slice(start, end).split('\n')
     .filter(l => /^\|\s*Day \d+\s*\|/.test(l))
     .map(l => l.split('|').slice(1, -1).map(c => c.trim()));
+}
+
+/** Every "Day N" the calendar renders, across every week, in document order. */
+function calendarDayNumbers(calendar) {
+  return [...calendar.matchAll(/^\|\s*Day (\d+)\s*\|/gm)].map(m => Number(m[1]));
 }
 
 /**
@@ -270,8 +297,11 @@ function calendarRows(calendar, week) {
 function shoppingSections(shopping, week) {
   const start = shopping.indexOf(`## 🛒 Week ${week} Shopping List`);
   if (start === -1) return {};
-  const end = shopping.indexOf(`## 🛒 Week ${week + 1} Shopping List`, start);
-  const block = shopping.slice(start, end === -1 ? shopping.length : end);
+  // End at the NEXT week heading whatever its number, not at week+1 specifically.
+  const after = shopping.slice(start + 1);
+  const rel = after.search(/^## 🛒 Week \d+ Shopping List/m);
+  const end = rel === -1 ? shopping.length : start + 1 + rel;
+  const block = shopping.slice(start, end);
   const out = {};
   let heading = null;
   for (const line of block.split('\n')) {
@@ -324,7 +354,7 @@ for (const p of PERSONAS) {
   // GROUP A — every protein the reader is told to COOK in week N is on week N's list.
   // This is the customer's actual complaint, stated as an assertion.
   // -----------------------------------------------------------------------
-  for (let week = 1; week <= 4; week++) {
+  for (const week of calendarWeeks(calendar)) {
     const rows = calendarRows(calendar, week);
     check(p.id, 'A', `week ${week} calendar has rows`, rows.length > 0,
       'no Day rows parsed from the week table');
@@ -440,7 +470,7 @@ for (const p of PERSONAS) {
   // The gram portion is now converted to a whole count BEFORE rendering, and the
   // rendered count is the authoritative quantity the shopping list aggregates.
   // -----------------------------------------------------------------------
-  for (let week = 1; week <= 4; week++) {
+  for (const week of calendarWeeks(calendar)) {
     const rows = calendarRows(calendar, week);
     const cells = rows.flatMap(r => r.slice(1));
     const joined = cells.join(' | ');
@@ -519,7 +549,7 @@ for (const p of PERSONAS) {
     }
 
     // No fabricated meals: the number of populated cells must equal the column count.
-    for (let week = 1; week <= 4; week++) {
+    for (const week of calendarWeeks(calendar)) {
       for (const row of calendarRows(calendar, week)) {
         check(p.id, 'G', `week ${week} ${row[0]}: ${expectCols} populated meal(s)`,
           row.slice(1).filter(c => c && c !== '-').length === expectCols,
@@ -546,7 +576,7 @@ for (const p of PERSONAS) {
   // GROUP E — no empty meal cells. A paid 30-day calendar may have fewer columns,
   // never a column of 30 blanks.
   // -----------------------------------------------------------------------
-  for (let week = 1; week <= 4; week++) {
+  for (const week of calendarWeeks(calendar)) {
     for (const row of calendarRows(calendar, week)) {
       const empties = row.slice(1).filter(c => c === '' || c === '-');
       check(p.id, 'E', `week ${week} ${row[0]}: no empty meal cell`,
@@ -555,11 +585,73 @@ for (const p of PERSONAS) {
     }
   }
 
+  // -----------------------------------------------------------------------
+  // GROUP K — THE PLAN IS COMPLETE. Everything the generator built reaches the page.
+  //
+  // Why this group exists: on 2026-09-08 the calendar renderer filled four fixed week
+  // placeholders while generateFullMealPlan() produced five week buckets. Days 29 and
+  // 30 were generated, bucketed, and silently discarded, under a heading that still
+  // said "30-Day Meal Calendar". Every suite stayed green because every suite,
+  // including this one, only ever looked at weeks 1 to 4.
+  //
+  // These assertions compare the rendered document against the generated object
+  // rather than against a number this file believes. A renderer that drops a week now
+  // fails here, and so does a generator that stops producing one.
+  // -----------------------------------------------------------------------
+  {
+    const renderedDays = calendarDayNumbers(calendar);
+    const generatedDays = data.__plan.weeks.flatMap(w => (w.days || []).map(d => d.dayNumber));
+
+    check(p.id, 'K', `calendar renders all ${PLAN_DAYS} days of a ${PLAN_DAYS}-day plan`,
+      renderedDays.length === PLAN_DAYS, `rendered ${renderedDays.length} day rows`);
+    check(p.id, 'K', 'rendered day count equals generated day count',
+      renderedDays.length === generatedDays.length,
+      `generator built ${generatedDays.length}, page shows ${renderedDays.length}`);
+    check(p.id, 'K', 'Day 1 is present', renderedDays.includes(1));
+    check(p.id, 'K', `Day ${PLAN_DAYS} is present`, renderedDays.includes(PLAN_DAYS),
+      `last rendered day is ${Math.max(...renderedDays)}`);
+    check(p.id, 'K', 'no day number renders twice',
+      new Set(renderedDays).size === renderedDays.length,
+      `duplicates: ${renderedDays.filter((d, i) => renderedDays.indexOf(d) !== i).join(', ')}`);
+    const missing = generatedDays.filter(d => !renderedDays.includes(d));
+    check(p.id, 'K', 'no generated day is missing from the page',
+      missing.length === 0, `missing: ${missing.join(', ')}`);
+    const gaps = [];
+    for (let d = 1; d <= PLAN_DAYS; d++) if (!renderedDays.includes(d)) gaps.push(d);
+    check(p.id, 'K', `days 1..${PLAN_DAYS} render with no gaps`, gaps.length === 0,
+      `gaps at: ${gaps.join(', ')}`);
+
+    // The tail days must be shoppable, not just readable. A calendar that tells a
+    // reader to cook on day 29 while the shopping list stops at day 28 is the same
+    // defect wearing the other half of the costume.
+    const tailWeek = data.__plan.weeks.find(w => (w.days || []).some(d => d.dayNumber > 28));
+    check(p.id, 'K', 'days 29-30 live in a week bucket that exists',
+      !!tailWeek, 'no week bucket contains day 29 or 30');
+    if (tailWeek) {
+      const tailDays = tailWeek.days.map(d => d.dayNumber);
+      check(p.id, 'K', 'the days-29/30 week renders a calendar table',
+        calendarRows(calendar, tailWeek.weekNumber).length === tailDays.length,
+        `bucket has ${tailDays.length} days, table has ${calendarRows(calendar, tailWeek.weekNumber).length} rows`);
+      const tailShopping = shoppingSections(shopping, tailWeek.weekNumber);
+      check(p.id, 'K', 'the days-29/30 week has its own shopping list',
+        Object.keys(tailShopping).length > 0,
+        'no shopping section rendered for the final-days week');
+      // Every protein cooked on days 29-30 has to be on that list.
+      const tailProteins = shoppingProteins(shopping, tailWeek.weekNumber).map(nameOf);
+      for (const row of calendarRows(calendar, tailWeek.weekNumber)) {
+        for (const { name } of row.slice(1).flatMap(mealMeats)) {
+          check(p.id, 'K', `days 29-30: "${name}" cooked on ${row[0]} is on the final-days list`,
+            tailProteins.includes(name), `list has [${tailProteins.join(', ')}]`);
+        }
+      }
+    }
+  }
+
   // Restriction honoured in BOTH documents, not just the one that filters.
   // Scoped to what the reader is told to EAT and BUY: the "Dairy & Eggs" aisle heading
   // is always printed and is not a violation, and the fixture should not pretend it is.
   const eatenAndBought = [];
-  for (let w = 1; w <= 4; w++) {
+  for (const w of calendarWeeks(calendar)) {
     for (const row of calendarRows(calendar, w)) eatenAndBought.push(...row.slice(1));
     eatenAndBought.push(...Object.values(shoppingSections(shopping, w)).flat());
   }

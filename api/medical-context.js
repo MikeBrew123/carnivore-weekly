@@ -114,6 +114,46 @@ const ANTICOAGULANT_DRUG_TERMS = [
 const NONE_VALUES = new Set(['', 'none', 'n/a', 'na', 'no', 'nothing', 'no medications', 'no conditions']);
 
 // ---------------------------------------------------------------------------
+// THE CANONICAL HEALTH-CONTEXT FIELD MAP
+// ---------------------------------------------------------------------------
+/**
+ * Every customer-entered field that carries health context, in one place.
+ *
+ * THE INVARIANT THIS ENCODES
+ * --------------------------
+ *   If a field the customer typed can influence generated health-related prose,
+ *   it must also be visible to this classifier.
+ *
+ * That is a data-flow rule, not a keyword rule. It was broken on 2026-09-08: a
+ * reader typed a structural diagnosis into `otherSymptoms`, buildProfile() put it in
+ * the AI prompt under CURRENT SYMPTOMS, and deriveMedicalContext() read only
+ * conditions and medications, so the safety layer never saw it. The live section then
+ * wrote that protein was "essential for pelvic floor tissue integrity" and that the
+ * diet "can support the tissue integrity". Adding that one diagnosis to a blacklist
+ * would have fixed that reader and left the next one exposed, because the defect is
+ * the gap between what reaches the model and what reaches the gate.
+ *
+ * SO: adding any new customer health field to the questionnaire means adding it here.
+ * `narrative` covers the long free-text boxes, which are prompt inputs too
+ * (buildExecutiveSummarySystemPrompt pastes additionalNotes in verbatim).
+ *
+ * Aliases are deliberate. buildReportData() re-exposes `otherSymptoms` as
+ * `currentSymptoms` and `additionalNotes` as `challenges`, so both spellings can
+ * reach a generator. meaningful() de-duplicates, so listing both is free.
+ */
+export const HEALTH_CONTEXT_FIELDS = {
+  conditions:  ['conditions', 'healthConditions', 'otherConditions'],
+  medications: ['medications', 'currentMedications'],
+  symptoms:    ['symptoms', 'otherSymptoms', 'currentSymptoms'],
+  narrative:   ['additionalNotes', 'challenges'],
+};
+
+/** Gather one field group off the report data object. */
+function collectFields(data, keys) {
+  return keys.flatMap(k => toList(data?.[k]));
+}
+
+// ---------------------------------------------------------------------------
 // Small helpers
 // ---------------------------------------------------------------------------
 
@@ -184,32 +224,38 @@ function matchesAny(haystack, terms) {
  * }}
  */
 export function deriveMedicalContext(data = {}) {
-  const conditionItems = meaningful([
-    ...toList(data.conditions),
-    ...toList(data.healthConditions),
-    ...toList(data.otherConditions)
-  ]);
-  const medicationItems = meaningful([
-    ...toList(data.medications),
-    ...toList(data.currentMedications)
-  ]);
+  const conditionItems  = meaningful(collectFields(data, HEALTH_CONTEXT_FIELDS.conditions));
+  const medicationItems = meaningful(collectFields(data, HEALTH_CONTEXT_FIELDS.medications));
+  const symptomItems    = meaningful(collectFields(data, HEALTH_CONTEXT_FIELDS.symptoms));
+  const narrativeItems  = meaningful(collectFields(data, HEALTH_CONTEXT_FIELDS.narrative));
 
-  const conditionsBlob = conditionItems.join(' | ').toLowerCase().replace(/[-_]+/g, ' ');
+  const conditionsBlob  = conditionItems.join(' | ').toLowerCase().replace(/[-_]+/g, ' ');
   const medicationsBlob = medicationItems.join(' | ').toLowerCase();
-  const combinedBlob = `${conditionsBlob} | ${medicationsBlob}`;
+  const symptomsBlob    = symptomItems.join(' | ').toLowerCase().replace(/[-_]+/g, ' ');
+  const narrativeBlob   = narrativeItems.join(' | ').toLowerCase().replace(/[-_]+/g, ' ');
 
-  const hasDeclaredConditions = conditionItems.length > 0;
+  // Everything the reader typed about their health. The clinical classifiers below
+  // read THIS, not just conditions, because readers put a diagnosis wherever the form
+  // let them type: "CKD stage 3" lands in otherConditions for one reader, in
+  // otherSymptoms for the next, and in additionalNotes for the third. All three reach
+  // the model, so all three must reach the gate.
+  const clinicalBlob = [conditionsBlob, medicationsBlob, symptomsBlob, narrativeBlob].join(' | ');
+  // Drug-name matching also has to survive "I take warfarin" typed into a notes box.
+  const drugBlob = [medicationsBlob, narrativeBlob].join(' | ');
+
+  const hasDeclaredConditions  = conditionItems.length > 0;
   const hasDeclaredMedications = medicationItems.length > 0;
+  const hasDeclaredSymptoms    = symptomItems.length > 0;
 
-  const cardioRenal = matchesAny(conditionsBlob, CARDIO_RENAL_CONDITION_TERMS);
-  const fluidElectrolyteDrug = matchesAny(medicationsBlob, FLUID_ELECTROLYTE_DRUG_TERMS);
-  const glucoseLowering = matchesAny(combinedBlob, GLUCOSE_LOWERING_DRUG_TERMS) ||
-    /diabet/.test(conditionsBlob);
-  const symptomMaskingDrug = matchesAny(medicationsBlob, SYMPTOM_MASKING_DRUG_TERMS);
-  const anticoagulant = matchesAny(medicationsBlob, ANTICOAGULANT_DRUG_TERMS);
-  // Kidney disease is searched across BOTH blobs. There is no kidney checkbox, so it
+  const cardioRenal = matchesAny(clinicalBlob, CARDIO_RENAL_CONDITION_TERMS);
+  const fluidElectrolyteDrug = matchesAny(drugBlob, FLUID_ELECTROLYTE_DRUG_TERMS);
+  const glucoseLowering = matchesAny(clinicalBlob, GLUCOSE_LOWERING_DRUG_TERMS) ||
+    /diabet/.test(clinicalBlob);
+  const symptomMaskingDrug = matchesAny(drugBlob, SYMPTOM_MASKING_DRUG_TERMS);
+  const anticoagulant = matchesAny(drugBlob, ANTICOAGULANT_DRUG_TERMS);
+  // Kidney disease is searched across every blob. There is no kidney checkbox, so it
   // arrives as free text, and readers put it wherever the form let them type.
-  const renal = matchesAny(combinedBlob, RENAL_CONDITION_TERMS);
+  const renal = matchesAny(clinicalBlob, RENAL_CONDITION_TERMS);
 
   // FAILS CLOSED. Any declared medication at all, or any cardiac / renal / hepatic /
   // blood-pressure condition, withholds the quantitative electrolyte protocol.
@@ -238,11 +284,33 @@ export function deriveMedicalContext(data = {}) {
   // software's move is to leave the item out and say so.
   const excludedFoodTerms = anticoagulant ? ['liver', 'organ'] : [];
 
+  // CLAIM SCOPE — a separate axis from the restrictions above, on purpose.
+  //
+  // The restrictions decide whether we may print a NUMBER. This decides whether the
+  // live-written sections may assert an OUTCOME for something the reader reported.
+  // They are not the same question and must not share a trigger: a reader who reports
+  // "bloating" should keep every ordinary macro, food list and adaptation paragraph
+  // (nothing here suppresses those), while still never being told that this diet
+  // treats their bloating.
+  //
+  // So this fires on ANY reported condition or symptom, benign or not, and it gates
+  // language only. Over-suppressing prose costs a sentence; under-suppressing it
+  // ships a medical claim we cannot support.
+  const restrictConditionClaims = hasDeclaredConditions || hasDeclaredSymptoms;
+  const reportedContextItems = [...conditionItems, ...symptomItems];
+
   return {
     hasDeclaredConditions,
     hasDeclaredMedications,
+    hasDeclaredSymptoms,
     conditionsText: humanizeList(conditionItems, 'None reported'),
     medicationsText: humanizeList(medicationItems, 'None reported'),
+    symptomsText: humanizeList(symptomItems, 'None reported'),
+    // What the reader themself reported, conditions and symptoms together. This is
+    // the provenance-bearing string for the physician handout: it is what the patient
+    // typed, not a diagnosis this software has made.
+    reportedContextText: humanizeList(reportedContextItems, 'None reported'),
+    restrictConditionClaims,
     cardioRenal,
     fluidElectrolyteDrug,
     glucoseLowering,
@@ -252,7 +320,7 @@ export function deriveMedicalContext(data = {}) {
     restrictElectrolyteTargets,
     restrictProteinTarget,
     excludedFoodTerms,
-    hasAnyMedicalContext: hasDeclaredConditions || hasDeclaredMedications
+    hasAnyMedicalContext: hasDeclaredConditions || hasDeclaredMedications || hasDeclaredSymptoms
   };
 }
 
@@ -287,7 +355,7 @@ export function buildMedicalContextBanner(ctx) {
   if (!ctx.hasAnyMedicalContext) {
     return [
       '> **About the numbers in this report.** You did not tell us about any health',
-      '> conditions or medications, so the general figures here are written for someone',
+      '> conditions, symptoms or medications, so the general figures here are written for someone',
       '> in that situation. If you are taking anything, or you are being treated for a',
       '> heart, kidney, liver or blood pressure problem, those figures stop applying to',
       '> you and become a question for your doctor.'
@@ -298,6 +366,7 @@ export function buildMedicalContextBanner(ctx) {
     '> ### What you told us, and what it means for this report',
     '>',
     `> **Conditions you reported:** ${ctx.conditionsText}`,
+    `> **Symptoms and concerns you reported:** ${ctx.symptomsText}`,
     `> **Medications you reported:** ${ctx.medicationsText}`,
     '>',
     '> This report was generated automatically from your questionnaire. It has not seen',
@@ -554,7 +623,22 @@ above, the rule here wins.
    you are not making it.
 10. If an item has been left out of this reader's meal plan for a medical reason, do
    not add it back, do not suggest eating it, and do not state an amount of it that
-   would be acceptable. Say the amount is a question for their prescriber.`;
+   would be acceptable. Say the amount is a question for their prescriber.
+11. NEVER claim, imply or hint that this diet treats, heals, cures, reverses, repairs,
+   resolves or improves any condition, symptom or diagnosis the reader reported. You
+   MAY state that they told us about it, and you MAY say the condition itself belongs
+   with a clinician who treats it. You may NOT connect this diet to an outcome for it,
+   in either direction, however hedged. "X won't fix it, but it can support Y" is a
+   claim about X and is prohibited by this rule.
+12. NEVER attribute tissue, ligament, tendon, joint, pelvic floor, organ, bone or
+   connective-tissue repair, healing, support, integrity or strengthening to food,
+   protein, fat or this diet. Do NOT convert a general nutrient statement into
+   condition-specific treatment language: "protein is essential for <their condition>
+   tissue integrity" is prohibited even though "protein is essential" is fine on its
+   own. Do NOT offer reduced inflammation as a treatment mechanism for something they
+   reported. Do NOT cite testimonials, anecdotes, success stories, books, influencers,
+   or "many people report" / "some people find" phrasing as evidence for any of it,
+   including when the reader raised the story themself.`;
 
   if (!ctx || !ctx.hasAnyMedicalContext) {
     return rules + `
@@ -564,6 +648,14 @@ medications they did not report, and do not write as though they have any.`;
   }
 
   const notes = [];
+  if (ctx.restrictConditionClaims) {
+    notes.push(`- The reader reported: ${ctx.reportedContextText}. Rules 11 and 12 are ACTIVE for ` +
+      `every one of those. Refer to them ONLY as what the reader told us, and send the ` +
+      `condition itself to a clinician who treats it. This restricts LANGUAGE, not content: ` +
+      `their macros, food lists, meal timing, shopping guidance and ordinary adaptation ` +
+      `advice all stay normal and complete. Do not thin the section out, and do not ` +
+      `substitute a vaguer claim for a specific one.`);
+  }
   if (ctx.restrictElectrolyteTargets) {
     notes.push('- Rule 4 is ACTIVE. Give this reader no sodium, potassium or fluid numbers at all.');
   }
@@ -587,6 +679,7 @@ medications they did not report, and do not write as though they have any.`;
 
 MEDICAL CONTEXT FOR THIS READER — the rules above are live, not theoretical:
 - Conditions reported: ${ctx.conditionsText}
+- Symptoms and concerns reported: ${ctx.symptomsText}
 - Medications reported: ${ctx.medicationsText}
 ${notes.join('\n')}
 
