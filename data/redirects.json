@@ -1,7 +1,7 @@
 {
   "note": "Redirect rules. GitHub Pages ignores .htaccess so these are served as HTML meta-refresh files in public/.",
   "created": "2026-02-12",
-  "updated": "2026-09-02",
+  "updated": "2026-09-08",
   "redirects": [
     {
       "from": "blog/wiki.html",
@@ -233,6 +233,36 @@
       "to": "https://ketodial.com/low-carb-food-list.html",
       "added": "2026-09-03",
       "reason": "Page moved to KetoDial by Brew's ruling 2026-09-03: a low carb food list belongs on KD, not on Carnivore Weekly"
+    },
+    {
+      "from": "blog/2026-07-10-second-attempt-keto-harder.html",
+      "to": "https://ketodial.com/blog/second-attempt-keto-harder.html",
+      "added": "2026-09-08",
+      "reason": "Post moved to KetoDial by Brew's ruling 2026-09-07: keto-first content belongs on KetoDial, not on Carnivore Weekly. Same treatment as low-carb-food-list.html."
+    },
+    {
+      "from": "blog/2026-07-11-too-much-fat-keto.html",
+      "to": "https://ketodial.com/blog/too-much-fat-keto.html",
+      "added": "2026-09-08",
+      "reason": "Post moved to KetoDial by Brew's ruling 2026-09-07: keto-first content belongs on KetoDial, not on Carnivore Weekly. Same treatment as low-carb-food-list.html."
+    },
+    {
+      "from": "blog/2026-07-12-keto-cramps-decision-tree.html",
+      "to": "https://ketodial.com/blog/keto-cramps-decision-tree.html",
+      "added": "2026-09-08",
+      "reason": "Post moved to KetoDial by Brew's ruling 2026-09-07: keto-first content belongs on KetoDial, not on Carnivore Weekly. Same treatment as low-carb-food-list.html."
+    },
+    {
+      "from": "blog/2026-07-15-keto-without-exercise.html",
+      "to": "https://ketodial.com/blog/keto-without-exercise.html",
+      "added": "2026-09-08",
+      "reason": "Post moved to KetoDial by Brew's ruling 2026-09-07: keto-first content belongs on KetoDial, not on Carnivore Weekly. Same treatment as low-carb-food-list.html."
+    },
+    {
+      "from": "blog/2026-07-18-ketone-numbers-obsession.html",
+      "to": "https://ketodial.com/blog/ketone-numbers-obsession.html",
+      "added": "2026-09-08",
+      "reason": "Post moved to KetoDial by Brew's ruling 2026-09-07: keto-first content belongs on KetoDial, not on Carnivore Weekly. Same treatment as low-carb-food-list.html."
     }
   ]
 }
