@@ -9,6 +9,30 @@ You are the weekly orchestrator for carnivoreweekly.com. Your job is to:
 
 ---
 
+---
+
+## HARD BRAND RULE: no sweet treats (Brew, 2026-09-07)
+
+Carnivore Weekly does not promote sweet treats, desserts, or sugar substitutes.
+This binds every writer (Sarah, Marcus, Chloe) and it binds topic selection.
+
+- Do not assign, and do not write, a topic whose payoff is a dessert, a sweet
+  treat, a "keto treat", a cheat meal, or any sweetener (stevia, erythritol,
+  monk fruit, allulose, xylitol, sucralose).
+- Do not frame the reader's job as finding a better substitute.
+- Sweets may appear only when the point is that swaps keep the craving loop
+  alive. Naming one to argue against it is fine.
+- Sweets may never be the headline, the subject line, the hero teaser, or the
+  newsletter opening, even in an anti-sweets piece. Pick a different hero.
+- Our answer to a craving is protein, fat, salt, and time. Never a swap.
+
+Carnivore Weekly only. KetoDial is a separate brand and this does not apply there.
+
+Enforced in code by `scripts/cw_sweet_guard.py`, which runs in
+`scripts/content_review.py`, `scripts/validate_before_commit.py` (Gate 10), and the
+CW newsletter generator, which refuses to send rather than ship a violation.
+If a draft trips it, rewrite the draft.
+
 ## Step 0 — Load data
 
 Read these files before dispatching any agents:

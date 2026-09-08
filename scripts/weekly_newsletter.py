@@ -167,6 +167,20 @@ You write in three voices:
 
 {VOICE_RULES}
 
+CARNIVORE WEEKLY BRAND RULE, NON-NEGOTIABLE (Brew, 2026-09-07):
+Carnivore Weekly never promotes sweet treats, desserts, or sugar substitutes.
+- Do NOT recommend, endorse, rank, or give instructions for desserts, sweet
+  treats, candy, chocolate, fat bombs, "keto treats", cheat meals, or any
+  sweetener (stevia, erythritol, monk fruit, allulose, xylitol, sucralose).
+- Do NOT frame the reader's job as finding a better substitute. Our answer to
+  a sugar craving is protein, fat, salt and time, never a swap.
+- You MAY discuss sweets when the point is that they keep the craving loop
+  alive. That is our editorial position. Naming one to argue against it is fine.
+- But the FRONT of the email (subject line, opening, hero title, hero teaser)
+  must not be about sweets at all, not even to argue against them. Do not put
+  sweeteners or desserts in the subject line or the hero. Pick a different hero.
+This rule is Carnivore Weekly only. It does not apply to KetoDial.
+
 NEWSLETTER STRUCTURE RULES:
 - ONE hero story at the top. This is the thing worth forwarding.
 - THREE supporting links max, each a single sentence that creates curiosity (an open loop, not a summary).
@@ -179,7 +193,7 @@ NEWSLETTER STRUCTURE RULES:
 Return ONLY valid JSON. No markdown fences, no explanation."""
 
 
-def enforce_style(content, api_key, system_prompt, label):
+def enforce_style(content, api_key, system_prompt, label, site="cw"):
     """Self-check generated newsletter copy against house style before sending.
 
     Uses content_review.check_text (em-dashes, AI-tell words, reading grade)
@@ -199,7 +213,7 @@ def enforce_style(content, api_key, system_prompt, label):
         probs = []
         def walk(v, path):
             if isinstance(v, str):
-                probs.extend(check_text(v, path))
+                probs.extend(check_text(v, path, site))
             elif isinstance(v, dict):
                 for k, vv in v.items():
                     walk(vv, f"{path}.{k}")
@@ -238,6 +252,70 @@ def enforce_style(content, api_key, system_prompt, label):
     except Exception as e:
         print(f"  [{label}] repair failed ({e}) — sending original with violations")
         return content
+
+
+def sweet_guard_cw(content, api_key):
+    """Hard gate: Carnivore Weekly newsletters do not promote sweets.
+
+    Brew, 2026-09-07, after the Sep 6 issue led with sweet swaps and named
+    dark chocolate, berries and keto desserts in the hero teaser.
+
+    One regeneration attempt, then a refusal. Unlike enforce_style (which warns
+    and sends anyway because a stray em-dash is not worth blocking a send), this
+    one BLOCKS. A newsletter that promotes sweet treats is off-brand in a way
+    that reaches every subscriber at once, and a rule that only lives in a
+    prompt is a suggestion. Returns the (possibly repaired) content, or None to
+    mean "do not render, do not send".
+
+    CW only. KD newsletters never come through here.
+    """
+    sys.path.insert(0, str(Path(__file__).parent))
+    try:
+        from cw_sweet_guard import check_newsletter_content
+    except ImportError as e:
+        print(f"  [cw-newsletter] SWEET GUARD UNAVAILABLE ({e}). Blocking to be safe.")
+        return None
+
+    probs = check_newsletter_content(content, site="cw")
+    if not probs:
+        print("  [cw-newsletter] sweet-treat guardrail clean")
+        return content
+
+    print("  [cw-newsletter] SWEET-TREAT GUARDRAIL TRIPPED:")
+    for p in probs:
+        print(f"      {p}")
+
+    repair_prompt = (
+        "The Carnivore Weekly newsletter content below breaks the brand's "
+        "sweet-treat rule. Carnivore Weekly does not promote sweet treats, "
+        "desserts, or sugar substitutes, and the subject line, opening and hero "
+        "must not be about sweets at all.\n\nViolations:\n"
+        + "\n".join(f"- {p}" for p in probs)
+        + "\n\nRewrite ONLY what is needed to clear these. Keep the same keys and "
+        "the same structure. If the hero itself is the problem, promote one of "
+        "the supporting posts to hero and move the old hero into supporting. "
+        "Never answer a craving with a substitute.\n\nContent JSON:\n"
+        + json.dumps(content, ensure_ascii=False)
+        + "\n\nReturn ONLY the corrected JSON object."
+    )
+    try:
+        raw = call_anthropic(CW_SYSTEM_PROMPT, repair_prompt, api_key).strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```(?:json)?\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw)
+        fixed = json.loads(raw)
+    except Exception as e:
+        print(f"  [cw-newsletter] repair call failed ({e}). BLOCKED.")
+        return None
+
+    remaining = check_newsletter_content(fixed, site="cw")
+    if remaining:
+        print("  [cw-newsletter] STILL TRIPPED after repair. BLOCKED, nothing sent:")
+        for p in remaining:
+            print(f"      {p}")
+        return None
+    print("  [cw-newsletter] repaired clean")
+    return fixed
 
 
 def load_fresh_trends(site, max_age_days=8, limit=8):
@@ -916,17 +994,26 @@ def main():
                 print("[CW] Step 1: Generating content...")
                 content = generate_cw_content(cw_posts, api_key)
                 content = enforce_style(content, api_key, CW_SYSTEM_PROMPT, "cw-newsletter")
-                content_path = PROJECT_ROOT / "data" / "newsletter_content.json"
-                content_path.write_text(json.dumps(content, indent=2, ensure_ascii=False), encoding="utf-8")
-                print(f"  Saved {content_path}")
-                print(f"  Subject: {content.get('subject_line', 'N/A')}")
-
-                # Step 2: Render HTML
-                print("[CW] Step 2: Rendering newsletter...")
-                if not render_cw_newsletter():
-                    results["cw"] = "render_failed"
+                content = sweet_guard_cw(content, api_key)
+                if content is None:
+                    # Hard stop. Not rendered, not saved over the last good
+                    # content file, not sent. KD is unaffected and still runs.
+                    print("[CW] BLOCKED by the sweet-treat guardrail. Nothing "
+                          "rendered, nothing sent. Fix the source post or the "
+                          "hero pick, then rerun.")
+                    results["cw"] = "blocked_sweet_guard"
                 else:
-                    results["cw"] = "generated"
+                    content_path = PROJECT_ROOT / "data" / "newsletter_content.json"
+                    content_path.write_text(json.dumps(content, indent=2, ensure_ascii=False), encoding="utf-8")
+                    print(f"  Saved {content_path}")
+                    print(f"  Subject: {content.get('subject_line', 'N/A')}")
+
+                    # Step 2: Render HTML
+                    print("[CW] Step 2: Rendering newsletter...")
+                    if not render_cw_newsletter():
+                        results["cw"] = "render_failed"
+                    else:
+                        results["cw"] = "generated"
             else:
                 print("[CW] Dry run: would generate content and render newsletter")
                 results["cw"] = "dry_run"
@@ -955,7 +1042,7 @@ def main():
                 # Step 3: Generate KD content + HTML
                 print("[KD] Step 1: Generating content...")
                 kd_content = generate_kd_content(kd_posts, issue_num, api_key)
-                kd_content = enforce_style(kd_content, api_key, KD_SYSTEM_PROMPT, "kd-newsletter")
+                kd_content = enforce_style(kd_content, api_key, KD_SYSTEM_PROMPT, "kd-newsletter", site="kd")
 
                 print("[KD] Step 2: Building newsletter HTML...")
                 kd_html = build_kd_newsletter_html(kd_content)

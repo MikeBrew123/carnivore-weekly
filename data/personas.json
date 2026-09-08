@@ -137,5 +137,30 @@
       "performance_tips": "marcus",
       "closing_thoughts": "sarah"
     }
+  },
+  "carnivore_weekly_brand_rules": {
+    "added": "2026-09-07",
+    "source": "Brew, standing rule, after the 2026-09-06 CW newsletter led with sweet swaps",
+    "scope": "carnivore-weekly only. Does NOT apply to KetoDial, where keto content legitimately discusses sweeteners.",
+    "applies_to": [
+      "sarah",
+      "marcus",
+      "chloe"
+    ],
+    "no_sweet_treats": {
+      "rule": "Carnivore Weekly never promotes sweet treats, desserts, or sugar substitutes.",
+      "forbidden": [
+        "recommending, endorsing, ranking, or giving instructions for desserts, sweet treats, candy, chocolate, cookies, brownies, fat bombs, keto treats, cheat meals, or cheat days",
+        "recommending any sweetener: stevia, erythritol, monk fruit, allulose, xylitol, maltitol, sucralose, aspartame, or anything sold as a sugar substitute",
+        "framing the reader's job as finding a better substitute",
+        "putting sweets in a headline, subject line, hero teaser, or newsletter opening, even to argue against them"
+      ],
+      "allowed": [
+        "saying plainly that swaps keep the craving loop alive, which is our editorial position",
+        "naming a sweet in order to talk a reader out of it"
+      ],
+      "our_answer": "A sugar craving is answered with protein, fat, salt, and time. Never a swap.",
+      "enforced_by": "scripts/cw_sweet_guard.py, wired into content_review.py, validate_before_commit.py Gate 10, and weekly_newsletter.py (blocks the send)"
+    }
   }
 }

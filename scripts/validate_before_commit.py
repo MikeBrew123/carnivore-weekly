@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 from dataclasses import dataclass
 from xml.etree import ElementTree as ET
-from datetime import datetime
+from datetime import datetime, date
 
 try:
     from bs4 import BeautifulSoup
@@ -937,6 +937,71 @@ def run_validation(staged_only: bool = False, verbose: bool = False) -> Validati
                             '"Made-to-order download" instead of "Instant Download".',
                             "Use a finished-product date range, e.g. when_made: '2020_2026'."
                         )
+
+    # Gate 10: Carnivore Weekly does not promote sweet treats, desserts, or
+    # sugar substitutes (Brew standing rule, 2026-09-07, after the Sep 6
+    # newsletter led with sweet swaps and named dark chocolate, berries and
+    # keto desserts). CW ONLY. KetoDial keto content legitimately discusses
+    # sweeteners and is never checked here.
+    #
+    # Two scopes, both deliberately forward-looking:
+    #   - CW queue entries in blog_posts.json that have not published yet.
+    #     This is the real catch point: it fires before the HTML is rendered.
+    #   - Rendered CW blog HTML dated on or after the activation date.
+    #     Older pages are grandfathered on purpose. Retro-flagging 230 live
+    #     posts would block every commit and force edits to published history,
+    #     which is a separate editorial decision for Brew, not a pre-commit hook.
+    SWEET_GUARD_ACTIVE_FROM = date(2026, 9, 8)
+    try:
+        sys.path.insert(0, str(project_root / 'scripts'))
+        from cw_sweet_guard import check_copy as cw_sweet_check
+    except ImportError as e:
+        results.add_warning(
+            'scripts/cw_sweet_guard.py', 1,
+            f'Sweet-treat guardrail could not be loaded: {e}',
+            'CW sweet-treat content is unchecked until this import works.'
+        )
+        cw_sweet_check = None
+
+    if cw_sweet_check:
+        fix_hint = ('Carnivore Weekly does not promote sweet treats, desserts, or '
+                    'sugar substitutes. Rewrite so the answer to a craving is '
+                    'protein, fat, salt and time. Naming a sweet to argue against '
+                    'it is fine. This rule is CW only, KetoDial is unaffected.')
+
+        blog_json_path = project_root / 'data' / 'blog_posts.json'
+        if blog_json_path.exists():
+            try:
+                bd = json.loads(blog_json_path.read_text(encoding='utf-8'))
+                queue = bd if isinstance(bd, list) else bd.get('blog_posts', [])
+            except (json.JSONDecodeError, OSError):
+                queue = []
+            for post in queue:
+                if post.get('site', 'cw') != 'cw':
+                    continue
+                if post.get('status') == 'published':
+                    continue
+                slug = post.get('slug', '(no slug)')
+                body = f"{post.get('title', '')} . {post.get('excerpt', '')} . {post.get('content', '')}"
+                for problem in cw_sweet_check(body, 'cw', slug):
+                    results.add_critical('data/blog_posts.json', 1, problem, fix_hint)
+
+        if blog_dir.exists():
+            for bf in sorted(blog_dir.glob('*.html')):
+                m = date_pattern.match(bf.name)
+                if not m:
+                    continue
+                try:
+                    if datetime.strptime(m.group(1), '%Y-%m-%d').date() < SWEET_GUARD_ACTIVE_FROM:
+                        continue
+                except ValueError:
+                    continue
+                try:
+                    html = bf.read_text(encoding='utf-8', errors='ignore')
+                except (OSError, IOError):
+                    continue
+                for problem in cw_sweet_check(html, 'cw', bf.name):
+                    results.add_critical(f'public/blog/{bf.name}', 1, problem, fix_hint)
 
     return results
 

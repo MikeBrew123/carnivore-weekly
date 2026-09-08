@@ -35,6 +35,7 @@ class PersonaManager:
 
         with open(PERSONAS_FILE, "r") as f:
             data = json.load(f)
+        self.brand_rules = data.get("carnivore_weekly_brand_rules", {})
         return data.get("personas", {})
 
     def get_persona(self, persona_name: str) -> Optional[dict]:
@@ -71,14 +72,38 @@ class PersonaManager:
             return f"{content}\n\n{signature}"
         return content
 
-    def get_persona_context(self, persona_name: str) -> str:
+    def get_cw_brand_rules(self) -> str:
+        """Carnivore Weekly hard brand rules, as prompt text.
+
+        CW only. Returns "" for any other site, because KetoDial keto content
+        legitimately discusses sweeteners. Brew standing rule, 2026-09-07.
+        """
+        rules = getattr(self, "brand_rules", {}) or {}
+        sweet = rules.get("no_sweet_treats")
+        if not sweet:
+            return ""
+        lines = [f"HARD BRAND RULE (Carnivore Weekly only): {sweet['rule']}", "", "Never:"]
+        lines += [f"- {f}" for f in sweet.get("forbidden", [])]
+        lines += ["", "Allowed:"] + [f"- {a}" for a in sweet.get("allowed", [])]
+        lines += ["", sweet.get("our_answer", ""),
+                  "", "This is checked in code before publish, not just requested. "
+                      "If a draft trips it, rewrite the draft."]
+        return "\n".join(lines)
+
+    def get_persona_context(self, persona_name: str, site: str = "cw") -> str:
         """
         Get persona context for Claude API prompts.
         Returns a string that can be injected into prompts to guide tone.
+
+        `site` controls the Carnivore Weekly brand rules block. Pass "kd" for
+        KetoDial, where the sweet-treat ban does not apply.
         """
         persona = self.get_persona(persona_name)
         if not persona:
             return ""
+
+        brand = self.get_cw_brand_rules() if (site or "cw").lower() == "cw" else ""
+        brand_block = f"\n\n{brand}" if brand else ""
 
         style = persona.get("writing_style", {})
         characteristics = ", ".join(style.get("characteristics", []))
@@ -98,7 +123,7 @@ Remember to:
 1. Write in {persona.get('name')}'s voice
 2. Reference their tech interests naturally if relevant
 3. Match their personality and tone
-4. Sign with: {persona.get('signature')}"""
+4. Sign with: {persona.get('signature')}{brand_block}"""
 
     def get_opening_pattern(self, persona_name: str) -> str:
         """Get a typical opening pattern for the persona"""

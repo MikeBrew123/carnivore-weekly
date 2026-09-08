@@ -25,6 +25,10 @@ import argparse
 import json
 import re
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cw_sweet_guard import check_copy as cw_sweet_check  # noqa: E402
 
 BLOG_JSON = '/Users/mbrew/Developer/carnivore-weekly/data/blog_posts.json'
 
@@ -94,6 +98,11 @@ def review_post(p):
 
     grade = fk_grade(text)
     critical, warn = [], []
+    # Carnivore Weekly does not promote sweet treats, desserts, or sugar
+    # substitutes (Brew standing rule 2026-09-07). CW only: KetoDial keto
+    # content legitimately discusses sweeteners.
+    for problem in cw_sweet_check(html, p.get('site', 'cw'), p['slug']):
+        critical.append(problem)
     if emdash:
         critical.append(f'{emdash} em-dash(es)')
     if tells:
@@ -115,15 +124,18 @@ def review_post(p):
             'cross_site_links': len(cross), 'critical': critical, 'warnings': warn}
 
 
-def check_text(text, label='text'):
+def check_text(text, label='text', site='cw'):
     """Reusable style check for arbitrary copy (newsletter sections, drip emails).
 
     Returns a list of violation strings; empty list = clean. Used by
     weekly_newsletter.py to self-check generated content before sending.
+
+    `site` gates the Carnivore Weekly sweet-treat guardrail. Pass 'kd' for
+    KetoDial copy, where sweeteners are legitimate subject matter.
     """
     plain = strip_html(text)
     low = plain.lower()
-    problems = []
+    problems = list(cw_sweet_check(text, site, label))
     emdash = text.count('—') + text.count('&mdash;')
     if emdash:
         problems.append(f'{label}: {emdash} em-dash(es)')
@@ -148,6 +160,8 @@ def main():
     ap.add_argument('--all-ready', action='store_true')
     ap.add_argument('--files', nargs='*', help='Score arbitrary HTML files (e.g. drip emails)')
     ap.add_argument('--json', action='store_true')
+    ap.add_argument('--site', default='cw',
+                    help="site for --files copy: cw (sweet-treat guardrail on) or kd")
     args = ap.parse_args()
 
     if args.files:
@@ -156,7 +170,7 @@ def main():
             html = open(path).read()
             text = strip_html(html)
             words = re.findall(r"[A-Za-z']+", text)
-            problems = check_text(html, path.split('/')[-1])
+            problems = check_text(html, path.split('/')[-1], args.site)
             contr = sum(text.lower().count(c) for c in CONTRACTIONS)
             cpk = round(contr / len(words) * 1000, 1) if words else 0
             flag = 'CRIT' if problems else 'ok  '
