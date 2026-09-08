@@ -49,6 +49,7 @@ import {
   humanizeList,
   buildSymptomDisclosure,
   assertNoConditionClaimFrames,
+  assertNoUnfoundedClearance,
 } from './medical-context.js';
 import { resolveGoal, detectGoalConflict } from './goal-semantics.js';
 
@@ -3397,6 +3398,11 @@ async function generateAllReports(data, apiKey) {
     const medCtx = deriveMedicalContext(data);
     for (const [num, body] of Object.entries(reports)) {
       assertNoConditionClaimFrames(`Report #${num}`, body, medCtx);
+      // Unconditional, and NOT keyed on medCtx: a reader who declared nothing is the
+      // one this fires for. "You didn't report anything that requires modified
+      // guidance, so your targets are appropriate to follow" shipped on the default
+      // path, which means it was the sentence most readers saw.
+      assertNoUnfoundedClearance(`Report #${num}`, body);
     }
 
     console.log('=== COMBINING SECTIONS ===');

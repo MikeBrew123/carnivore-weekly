@@ -358,7 +358,13 @@ export function buildMedicalContextBanner(ctx) {
       '> conditions, symptoms or medications, so the general figures here are written for someone',
       '> in that situation. If you are taking anything, or you are being treated for a',
       '> heart, kidney, liver or blood pressure problem, those figures stop applying to',
-      '> you and become a question for your doctor.'
+      '> you and become a question for your doctor.',
+      '>',
+      '> **That is not the same as saying these numbers are right for you.** Nothing you',
+      '> entered triggered an automatic change to them, which is all this questionnaire',
+      '> can tell. It has not seen your labs or your history, so whether these targets',
+      '> suit you is a question for your healthcare provider, not something this report',
+      '> is able to answer.'
     ].join('\n');
   }
 
@@ -482,6 +488,68 @@ export function buildSymptomDisclosure(ctx) {
 const CLAIM_FRAME_DIET = /\b(carnivore|pescatarian|keto(genic)?|lion|low[- ]carb|protocol|regimen|this diet|the diet|dietary (change|protocol|intervention)|meal plan|this plan|this report|eating this way|way of eating)\b/i;
 const CLAIM_FRAME_VERB = /\b(to address|addresses|addressing|address(?=[:\s])|to treat|treats|treating|treatment for|to heal|heals|healing|to repair|repairs|repairing|to reverse|reverses|reversing|to cure|cures|to fix|fixes|resolves?|restores?|rebuilds?|regenerates?|strengthens?|supports? the|improves?)\b/i;
 const CLAIM_FRAME_ABSOLUTE = /\b(therapeutic|metabolic therapy|evidence[- ]based (therapy|treatment|metabolic))\b/i;
+
+/**
+ * UNFOUNDED CLEARANCE. The report may never tell a reader that its numbers are
+ * appropriate, safe or suitable for them.
+ *
+ * The defect this closes, found in a shipped Report #1 on 2026-09-08:
+ *
+ *     "Since you haven't reported any medications or conditions that would require
+ *      modified guidance, your targets above are appropriate to follow."
+ *
+ * That is absence of a triggered gate laundered into affirmative medical clearance.
+ * All this software knows is that nothing the reader typed matched a rule that would
+ * have changed the output. It has not seen their labs, their history, or anything they
+ * chose not to type, so "nothing triggered" and "this is appropriate for you" are not
+ * the same statement and the second is not ours to make. The unflagged path is the
+ * DEFAULT path, which means this sentence is the one most readers would have seen.
+ *
+ * Deliberately not scoped to the no-context reader: a reader WITH declared context
+ * must not be told their targets are fine either.
+ *
+ * Deferential and interrogative uses are excluded, so the patient asking their doctor
+ * "whether you think this change is appropriate for me" does not trip it. The
+ * exclusion looks only at the words immediately before the phrase, so a clearance
+ * assertion cannot be laundered by appending "but check with your doctor".
+ */
+const CLEARANCE_PATTERNS = [
+  /\b(targets?|numbers?|figures?|macros?|calories|protein|fat|plan|guidance|recommendations?|these|those|it)\b[^.!?]{0,70}\b(are|is|remain|stay|should be|will be)\b[^.!?]{0,40}\b(appropriate|safe|suitable|fine|okay|ok|cleared|sound)\b/i,
+  /\b(appropriate|safe|suitable|fine)\s+(to follow|for you|to use|to start|as (?:written|shown|listed))\b/i,
+  /\bnothing (?:you|she|he|they) (?:reported|told us)[^.!?]{0,70}\b(unsafe|unsuitable|inappropriate|a problem|contraindicat\w*)\b/i,
+  /\byou(?:'re| are) (?:cleared|good to go|all set|in the clear)\b/i,
+  /\bno (?:reason|indication)[^.!?]{0,40}\byou (?:can(?:'|no)?t|should not|shouldn't)\b/i,
+];
+const CLEARANCE_DEFERRAL = /\b(whether|if|ask(?:ing|ed)?|think|question|know|confirm|decide[sd]?|determin\w*|discuss)\b/i;
+
+export function findUnfoundedClearance(text) {
+  if (!text) return [];
+  const hits = [];
+  for (const sentence of String(text).split(/(?<=[.!?])\s+|\n{2,}/)) {
+    for (const rx of CLEARANCE_PATTERNS) {
+      const m = sentence.match(rx);
+      if (!m) continue;
+      // Only the words immediately before the phrase can excuse it. A trailing
+      // "but review with your doctor" does not turn a clearance into a question.
+      const before = sentence.slice(Math.max(0, m.index - 45), m.index);
+      if (CLEARANCE_DEFERRAL.test(before)) continue;
+      hits.push({ sentence: sentence.trim().slice(0, 300), matched: m[0].slice(0, 120) });
+      break;
+    }
+  }
+  return hits;
+}
+
+export function assertNoUnfoundedClearance(sectionLabel, text) {
+  const hits = findUnfoundedClearance(text);
+  if (!hits.length) return;
+  throw new Error(
+    `${sectionLabel}: the report tells the reader its numbers are appropriate or safe for them. ` +
+    hits.map(h => `"${h.sentence}"`).join(' ; ') +
+    ` — no triggered restriction means nothing matched a rule, not that a target is ` +
+    `medically appropriate. Say what was checked, then route the judgement to a clinician.`
+  );
+}
 
 export function findConditionClaimFrames(text, ctx) {
   if (!ctx || !ctx.restrictConditionClaims || !text) return [];
@@ -717,16 +785,39 @@ above, the rule here wins.
    own. Do NOT offer reduced inflammation as a treatment mechanism for something they
    reported. Do NOT cite testimonials, anecdotes, success stories, books, influencers,
    or "many people report" / "some people find" phrasing as evidence for any of it,
-   including when the reader raised the story themself.`;
+   including when the reader raised the story themself.
+13. NEVER tell the reader that their targets, macros, numbers or this plan are
+   appropriate, safe, suitable, fine or cleared for them, and NEVER derive that from
+   the absence of a declared condition or medication. "You didn't report anything that
+   requires modified guidance, so these targets are appropriate to follow" is
+   PROHIBITED. All this system knows is that nothing they typed matched a rule that
+   would have changed the output; it has not seen their labs, their history, or
+   anything they chose not to type. State what was and was not checked, then send the
+   judgement to their clinician. The correct shape is: "You did not report anything
+   that triggered an automatic change to these targets. That is not the same as this
+   questionnaire knowing they are right for you, so please go through them with your
+   healthcare provider."`;
 
   if (!ctx || !ctx.hasAnyMedicalContext) {
+    // Rule 13 belongs HERE most of all. The clearance sentence that shipped on
+    // 2026-09-08 was written for exactly this reader: the one who declared nothing,
+    // on the default path, which is most customers. Emitting the reminder only in the
+    // has-context branch would leave it missing from the case it exists for.
     return rules + `
 
 MEDICAL CONTEXT FOR THIS READER: none declared. Do not invent conditions or
-medications they did not report, and do not write as though they have any.`;
+medications they did not report, and do not write as though they have any.
+- Rule 13 is ALWAYS ACTIVE. They declared nothing, which means nothing they typed
+  matched a rule that would have changed these targets. That is ALL it means. Do not
+  turn it into "so these targets are appropriate for you", in those words or any
+  others. Say what was checked, and send the question of whether the numbers suit
+  them to their healthcare provider.`;
   }
 
   const notes = [];
+  notes.push('- Rule 13 is ALWAYS ACTIVE. Whatever this reader did or did not declare, ' +
+    'do not tell them their targets are appropriate, safe or suitable for them, and do ' +
+    'not infer that from anything they left blank.');
   if (ctx.restrictConditionClaims) {
     notes.push(`- The reader reported: ${ctx.reportedContextText}. Rules 11 and 12 are ACTIVE for ` +
       `every one of those. Refer to them ONLY as what the reader told us, and send the ` +

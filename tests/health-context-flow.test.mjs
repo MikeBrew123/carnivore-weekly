@@ -84,7 +84,8 @@ const {
   __test_generateAllReports: generateAllReports,
 } = api;
 const { deriveMedicalContext, HEALTH_CONTEXT_FIELDS, buildMedicalSafetyRules,
-        findConditionClaimFrames, buildSymptomDisclosure } = med;
+        findConditionClaimFrames, buildSymptomDisclosure,
+        findUnfoundedClearance } = med;
 
 for (const [name, fn] of Object.entries({ buildReportData, calculateMacros, generateAllReports })) {
   if (typeof fn !== 'function') {
@@ -359,6 +360,106 @@ for (const persona of CLAIM_PERSONAS) {
 }
 
 // ===========================================================================
+// GROUP H — NO UNFOUNDED CLEARANCE. Absence of a triggered gate is not medical
+// clearance, and the report may never say it is.
+//
+// The sentence this group exists for, from a shipped Report #1 on 2026-09-08:
+//
+//     "Since you haven't reported any medications or conditions that would require
+//      modified guidance, your targets above are appropriate to follow."
+//
+// It is an invalid inference. All the system knows is that nothing the reader typed
+// matched a rule that would have changed the output. It has not seen their labs,
+// their history, or anything they chose not to type. And note WHICH reader gets it:
+// the one who declared nothing, i.e. the default path, i.e. most customers.
+//
+// Asserted on the rendered document. GROUP H's negative control is the healthy
+// persona, because that is the reader the sentence was written for.
+// ===========================================================================
+{
+  const healthy = await render('H-healthy', { ...BASE });
+  const declared = await render('H-declared', { ...BASE, otherSymptoms: 'occasional bloating after meals' });
+
+  const BANNED_CLEARANCE = [
+    [/appropriate to follow/i, 'appropriate to follow'],
+    [/targets?[^.!?]{0,40}\b(are|is)\b[^.!?]{0,25}(appropriate|safe|suitable|fine)/i, 'targets are appropriate/safe'],
+    [/\b(safe|appropriate|suitable) for you\b/i, 'safe/appropriate for you'],
+    [/nothing you reported[^.!?]{0,60}(unsafe|unsuitable|inappropriate)/i, 'nothing you reported makes these unsuitable'],
+    [/you(?:'re| are) (?:cleared|good to go|all set)/i, "you're cleared"],
+  ];
+
+  for (const [label, r] of [['healthy persona', healthy], ['symptom-declaring persona', declared]]) {
+    for (const [num, body] of Object.entries(r.sections)) {
+      for (const [rx, name] of BANNED_CLEARANCE) {
+        const hit = body.match(rx);
+        check('H', `${label}, Report #${num}: no "${name}"`, !hit, hit ? `found: "${hit[0]}"` : '');
+      }
+    }
+    // The general property, via the shared detector, across the whole document.
+    const hits = findUnfoundedClearance(r.full);
+    check('H', `${label}: no clearance language anywhere in the report`,
+      hits.length === 0, hits.map(h => `"${h.sentence}"`).join(' ; '));
+  }
+
+  // POSITIVE CONTROL. Removing a false reassurance must not remove the product. A
+  // healthy reader still gets every number and every day they paid for.
+  check('H', 'positive control: healthy persona still gets a calorie target',
+    /- Calories: \d{3,4}/.test(healthy.prompts), 'the calorie target vanished');
+  check('H', 'positive control: healthy persona still gets a protein target',
+    /- Protein: \d+g/.test(healthy.prompts), 'the protein target vanished');
+  check('H', 'positive control: healthy persona still gets quantitative electrolytes',
+    /\d\s*-\s*\d\s*grams a day/i.test(healthy.sections[10] || ''),
+    'the electrolyte protocol was suppressed for a reader who declared nothing');
+  check('H', 'positive control: healthy persona still gets all 30 calendar days',
+    ((healthy.sections[3] || '').match(/^\|\s*Day \d+\s*\|/gm) || []).length === 30,
+    'the meal plan was thinned out');
+  check('H', 'positive control: healthy persona still gets a full grocery list',
+    ((healthy.sections[4] || '').match(/\* \[ \]/g) || []).length > 20,
+    'the shopping list was thinned out');
+
+  // The replacement wording must actually be on the page, not merely the removal.
+  check('H', 'the banner says plainly that nothing triggered is not the same as suitable',
+    /not the same as saying these numbers are right for you/i.test(healthy.full),
+    'the correction was removed without putting the true statement in its place');
+  check('H', 'the banner routes suitability to the provider',
+    /whether these targets[\s>]+suit you is a question for your healthcare provider/i.test(healthy.full), '');
+
+  // Rule 13 must reach the model that wrote the sentence, unconditionally.
+  for (const [label, r] of [['healthy', healthy], ['declared', declared]]) {
+    check('H', `${label}: rule 13 is in the system prompt`,
+      /13\. NEVER tell the reader that their targets/i.test(r.prompts),
+      'the model was never told not to infer clearance');
+    check('H', `${label}: rule 13 is marked always active`,
+      /Rule 13 is ALWAYS ACTIVE/i.test(r.prompts), '');
+  }
+
+  // Detector sanity, both directions.
+  check('H', 'the detector flags the exact sentence that shipped',
+    findUnfoundedClearance("Since you haven't reported any medications or conditions that " +
+      'would require modified guidance, your targets above are appropriate to follow.').length > 0,
+    'findUnfoundedClearance() cannot see the sentence it exists for');
+  check('H', 'the detector flags a clearance dressed up with a trailing caveat',
+    findUnfoundedClearance('Your targets are appropriate to follow, but do review them with your doctor.').length > 0,
+    'a trailing caveat launders the clearance past the detector');
+  check('H', 'the detector does NOT flag the patient asking their doctor',
+    findUnfoundedClearance('I would like to know whether you think this change is appropriate for me.').length === 0,
+    'deferential phrasing trips the guard');
+  check('H', 'the detector does NOT flag the corrected banner wording',
+    findUnfoundedClearance('That is not the same as saying these numbers are right for you. ' +
+      'Whether these targets suit you is a question for your healthcare provider.').length === 0,
+    'the replacement copy trips its own guard');
+
+  // SEAM: the generator must call it, on every section, for every reader.
+  const srcH = fs.readFileSync(API, 'utf8');
+  const gStart = srcH.indexOf('async function generateAllReports');
+  const gEnd = srcH.indexOf('async function generateAIReports');
+  const gBody = srcH.slice(gStart, gEnd > gStart ? gEnd : undefined);
+  check('H', 'generateAllReports calls the clearance gate',
+    /assertNoUnfoundedClearance\s*\(/.test(gBody),
+    'the clearance guard is defined but never invoked');
+}
+
+// ===========================================================================
 // GROUP C — CASE 4. A benign free-text symptom must not strip ordinary nutrition
 // content. Over-suppression is a real failure mode, not a safe default: a reader who
 // types "bloating" paid for macros, a food list and a meal plan.
@@ -509,7 +610,7 @@ for (const persona of CLAIM_PERSONAS) {
 }
 
 // ---------------------------------------------------------------------------
-console.log(`\nhealth-context-flow: ${pass.length} passed, ${failures.length} failed  (groups A B C D E F G)\n`);
+console.log(`\nhealth-context-flow: ${pass.length} passed, ${failures.length} failed  (groups A B C D E F G H)\n`);
 if (failures.length) {
   for (const f of failures) console.log(`  [${f.group}] ${f.label}\n        ${f.detail}`);
   console.log('');
