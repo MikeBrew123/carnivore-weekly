@@ -44,3 +44,7 @@ export-state/
 # contributors to accidentally commit upstream issue databases.
 # The JSONL files (issues.jsonl, interactions.jsonl) and config files
 # are tracked by git by default since no pattern above ignores them.
+
+# 2026-09-08: issues.jsonl and interactions.jsonl are ALSO ignored, from the
+# repository root .gitignore, because this repo is public. See the LOCAL NOTE
+# at the top of .beads/README.md before changing that.

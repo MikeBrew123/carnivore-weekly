@@ -200,3 +200,14 @@ data/reddit-comments-*.json
 # run can leave these behind; the suite removes them on a clean exit)
 calculator2-demo/.step4-state-test-*
 calculator2-demo/.step4-store-stub-*
+
+# Beads issue tracker: local content, deliberately NOT tracked (2026-09-08).
+# This repo is PUBLIC. .beads/issues.jsonl is regenerated from the local
+# .beads/beads.db by `bd sync --flush-only` and carries internal issue titles
+# and bodies, including open safety findings against the paid report product.
+# It was tracked until 2026-09-08 and was being republished on every commit.
+# The config files (.beads/config.yaml, metadata.json, README.md, .gitignore)
+# stay tracked so a fresh clone still works; only the issue content is local.
+.beads/issues.jsonl
+.beads/interactions.jsonl
+.beads/events.jsonl
