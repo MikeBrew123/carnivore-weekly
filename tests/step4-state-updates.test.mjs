@@ -283,7 +283,10 @@ const BASE = { goal: 'gain', goals: [], conditions: [], medications: '' };
     direct === 1, `${direct} direct onDataChange call sites`);
 }
 
-try { fs.unlinkSync(OUT); } catch {}
+// Always clean up, including on the failure path below.
+const cleanup = () => { try { fs.unlinkSync(OUT); } catch {} };
+cleanup();
+process.on('exit', cleanup);
 
 console.log(`\nstep4-state-updates: ${passed} passed, ${failures.length} failed\n`);
 if (failures.length) {

@@ -195,3 +195,8 @@ data/reddit-comments-*.json
 # calculator2-demo lockfile IS committed: it pins the dependency set that
 # reproduces the live bundle byte-for-byte (verified 2026-08-30). CI needs it.
 !calculator2-demo/package-lock.json
+
+# transient build artifacts from tests/step4-state-updates.test.mjs (a crashed
+# run can leave these behind; the suite removes them on a clean exit)
+calculator2-demo/.step4-state-test-*
+calculator2-demo/.step4-store-stub-*
