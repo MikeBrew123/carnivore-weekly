@@ -46,6 +46,12 @@ const ARGS = new Set(process.argv.slice(2));
 const CREATE_PRICES = ARGS.has('--create-prices');
 const CLEANUP_ONLY = ARGS.has('--cleanup');
 const LIVE_EMAIL = ARGS.has('--live-email');
+// Run A's webhook leg via Stripe CLI instead of a harness-signed replay. The
+// synthetic HMAC is right for deterministic replay/malformed/multi-signature tests,
+// but it only proves OUR verifier against OUR signature. This proves Stripe's actual
+// event envelope and signing format traverse the worker.
+const STRIPE_CLI = ARGS.has('--stripe-cli');
+const CLI_SECRET = process.env.KD_STRIPE_CLI_SECRET || '';
 
 const TEST_SOURCE = 'kd-audit2b-test';
 const TEST_EMAIL_DOMAIN = '@audit2b.invalid';
@@ -74,6 +80,15 @@ if (!SK.startsWith('sk_test_')) {
   die('Refusing to run: stripe.secret_key_test is not an sk_test_ key.\n' +
       '  This harness never uses the live key — a live Checkout Session is a\n' +
       '  production artifact. See README-stripe-e2e.md.');
+}
+// The publishable key cannot create a live charge on its own — the Session is made
+// with the test secret — but a stale or mistyped pk turns into a confusing Stripe.js
+// mode-mismatch inside the iframe, several minutes into a manual run. Fail here instead.
+if (!PK.startsWith('pk_test_')) {
+  die('Refusing to run: stripe.publishable_key_test is not a pk_test_ key.\n' +
+      `  Got: ${PK ? PK.slice(0, 8) + '…' : '(empty)'}\n` +
+      '  The /pay page would mount Embedded Checkout in the wrong mode and fail\n' +
+      '  with a message that does not name this as the cause.');
 }
 
 async function stripe(pathname, params, method = 'POST') {
@@ -240,10 +255,22 @@ const HARNESS_PORT = Number(process.env.KD_HARNESS_PORT || 8797);
 // NOT used: this process must not hold it, and the events below are ours, not Stripe's.
 const HARNESS_WEBHOOK_SECRET = 'whsec_kd_audit2b_harness_only_not_production';
 
+// With --stripe-cli the worker must verify against the secret `stripe listen`
+// printed, because those events are signed by Stripe, not by us.
+if (STRIPE_CLI && !/^whsec_/.test(CLI_SECRET)) {
+  die('--stripe-cli needs the signing secret from Stripe CLI.\n\n' +
+      '  In another terminal:\n' +
+      `    stripe listen --forward-to localhost:${HARNESS_PORT}/api/webhook\n\n` +
+      '  It prints:  Ready! Your webhook signing secret is whsec_…\n' +
+      '  Then:\n' +
+      `    KD_STRIPE_CLI_SECRET=whsec_… node tests/harness/stripe-e2e.mjs --stripe-cli`);
+}
+const WEBHOOK_SECRET = STRIPE_CLI ? CLI_SECRET : HARNESS_WEBHOOK_SECRET;
+
 const ENV = {
   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: SUPABASE_KEY,
   STRIPE_SECRET_KEY: SK,
-  STRIPE_WEBHOOK_SECRET: HARNESS_WEBHOOK_SECRET,
+  STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET,
   RESEND_API_KEY: creds.resend?.key || 'intercepted',
   PRICE_MAP_JSON: JSON.stringify(PRICE_MAP),
   // Both default to production when unset — see GROUP R.
@@ -325,6 +352,26 @@ async function awaitCheckoutCompletion(sessionId, { timeoutMs = 300000 } = {}) {
  * With Stripe CLI available, `stripe listen --forward-to localhost:PORT/webhook`
  * delivers genuinely Stripe-signed events instead; see the README.
  */
+/**
+ * Wait for Stripe CLI to forward the real event into the worker.
+ *
+ * There is nothing to assert on the response — the CLI holds it. The evidence that
+ * the event arrived AND verified is the side effect only the paid path produces:
+ * the payment writeback. If the signature had failed the worker would have returned
+ * 400 and this row would never change.
+ */
+async function awaitForwardedWebhook(token, { timeoutMs = 120000 } = {}) {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const row = await readRow(token);
+    if (row?.payment_status === 'completed') return row;
+    process.stdout.write('\r  waiting for the Stripe CLI to forward the event…   ');
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  throw new Error('Timed out waiting for a Stripe-CLI-forwarded event. Is `stripe listen` running, ' +
+                  'and is KD_STRIPE_CLI_SECRET the secret it printed?');
+}
+
 async function deliverWebhook(session, type = 'checkout.session.completed') {
   const body = JSON.stringify({ type, data: { object: session } });
   const t = Math.floor(Date.now() / 1000);
@@ -375,9 +422,20 @@ const harnessServer = http.createServer(async (req, res) => {
   if (url.pathname.startsWith('/api/')) {
     const body = ['GET', 'HEAD'].includes(req.method) ? undefined :
       await new Promise(r => { let b = ''; req.on('data', c => b += c); req.on('end', () => r(b)); });
+    // FORWARD THE INCOMING HEADERS. This used to hardcode Content-Type and drop
+    // everything else — which would have silently stripped `stripe-signature` from
+    // any event Stripe CLI forwarded here, so every real Stripe event would have
+    // been rejected as unsigned and the CLI leg would have "failed" for a reason
+    // that has nothing to do with the worker.
+    const fwd = new Headers();
+    for (const [k, v] of Object.entries(req.headers)) {
+      if (['host', 'connection', 'content-length'].includes(k.toLowerCase())) continue;
+      fwd.set(k, Array.isArray(v) ? v.join(',') : String(v));
+    }
+    if (!fwd.has('content-type')) fwd.set('content-type', 'application/json');
     const wres = await worker.fetch(new Request(
       'https://ketodial-api.test' + url.pathname.replace(/^\/api/, '') + url.search,
-      { method: req.method, headers: { 'Content-Type': 'application/json' }, body }), ENV);
+      { method: req.method, headers: fwd, body }), ENV);
     const text = await wres.text();
     res.writeHead(wres.status, {
       'Content-Type': wres.headers.get('content-type') || 'application/json',
@@ -431,6 +489,11 @@ code{background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px}</style>
 
 await new Promise(r => harnessServer.listen(HARNESS_PORT, r));
 console.log(`Harness server on http://localhost:${HARNESS_PORT}`);
+if (STRIPE_CLI) {
+  console.log(`  webhook     -> Stripe CLI, verified against the secret it printed`);
+} else {
+  console.log(`  webhook     -> harness-signed replay (add --stripe-cli for the real envelope)`);
+}
 console.log(`  calculator  -> patched copy of ketodial/public (API_BASE + pk_test rewritten in memory)`);
 console.log(`  /api/*      -> this process's worker, with TEST prices and TEST return URL`);
 
@@ -481,10 +544,22 @@ try {
 
     // THE WEBHOOK IS THE PATH UNDER TEST, not /fulfill.
     emails.length = 0;
-    const hook = await deliverWebhook(paid);
-    check(G, '/webhook accepted the signed event', hook.status === 200,
-      `status ${hook.status} ${hook.text.slice(0, 200)}`);
-    check(G, '  ...and did not report awaiting_payment', hook.json?.awaiting_payment !== true, '');
+    const useCli = STRIPE_CLI && run.id === 'A';
+    if (useCli) {
+      // Stripe signed this one, not us. Nothing to inspect in the response — the CLI
+      // holds it — so the evidence is the writeback only the paid path performs.
+      console.log('\n  Expecting Stripe CLI to forward checkout.session.completed…');
+      const row = await awaitForwardedWebhook(token);
+      console.log('\n  forwarded and verified.');
+      check(G, "a genuinely Stripe-signed event traversed the worker and was ACCEPTED",
+        row?.payment_status === 'completed',
+        'the real Stripe envelope did not verify against our implementation');
+    } else {
+      const hook = await deliverWebhook(paid);
+      check(G, '/webhook accepted the signed event', hook.status === 200,
+        `status ${hook.status} ${hook.text.slice(0, 200)}`);
+      check(G, '  ...and did not report awaiting_payment', hook.json?.awaiting_payment !== true, '');
+    }
 
     // Payment writeback, through the webhook.
     const row = await readRow(token);

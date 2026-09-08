@@ -29,9 +29,27 @@ Only the test credentials change. **Do not touch `secret_key_live` or
 
 ```bash
 node tests/harness/stripe-e2e.mjs --create-prices   # makes TEST-mode products/prices
-node tests/harness/stripe-e2e.mjs                   # runs the full matrix
+
+# In a second terminal — leave it running:
+stripe listen --forward-to localhost:8797/api/webhook
+#   -> Ready! Your webhook signing secret is whsec_…
+
+KD_STRIPE_CLI_SECRET=whsec_… node tests/harness/stripe-e2e.mjs --stripe-cli
+
 node tests/harness/stripe-e2e.mjs --cleanup         # archives the TEST prices
 ```
+
+`--stripe-cli` routes **run A's** webhook through Stripe CLI, so at least one
+completed purchase is proven against Stripe's real event envelope and signing
+format rather than only our own HMAC. Runs B, C and D keep the harness-signed
+replay, which is what makes the replay / malformed / multi-signature cases
+deterministic. Without the flag every run uses the synthetic signature and the
+script says so on startup.
+
+There is nothing to assert on the CLI-forwarded response — Stripe CLI holds it —
+so the evidence that the event arrived **and verified** is the payment writeback,
+which only the paid path performs. A failed signature returns 400 and the row never
+changes.
 
 ## Why swapping two env vars is not enough
 

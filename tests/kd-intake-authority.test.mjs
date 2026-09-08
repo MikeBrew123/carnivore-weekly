@@ -1417,6 +1417,25 @@ for (const c of MALFORMED_CASES) {
       /clientSecret: session\.client_secret/.test(worker), '');
     check('R', 'and the harness no longer prints the dead ?cs link',
       !/\/\?cs=\$\{sessionId\}/.test(harness), '');
+
+    // A stale or mistyped publishable key cannot create a live charge — the Session
+    // is made with the test secret — but it surfaces as a Stripe.js mode mismatch
+    // inside the iframe, minutes into a manual run, naming nothing useful.
+    check('R', 'the harness refuses a publishable key that is not pk_test_',
+      /!PK\.startsWith\('pk_test_'\)/.test(harness), '');
+
+    // Stripe CLI forwards genuinely Stripe-signed events. The proxy used to hardcode
+    // Content-Type and drop every other header, which would have stripped
+    // stripe-signature and rejected every real event as unsigned.
+    // NAME THE SOURCE. Asserting only that `fwd.set(k, …)` exists was satisfied by
+    // iterating an empty object — the headers were still dropped and the check stayed
+    // green. The assertion has to say WHERE the headers come from.
+    check('R', 'the harness proxy forwards incoming headers to the worker',
+      /Object\.entries\(req\.headers\)/.test(harness) && /fwd\.set\(k,/.test(harness) &&
+      !/headers: \{ 'Content-Type': 'application\/json' \}, body \}\), ENV\)/.test(harness),
+      'stripe-signature would be stripped from any CLI-forwarded event');
+    check('R', 'and a --stripe-cli run verifies against the secret the CLI printed',
+      /KD_STRIPE_CLI_SECRET/.test(harness) && /STRIPE_CLI \? CLI_SECRET : HARNESS_WEBHOOK_SECRET/.test(harness), '');
   }
 
   check('R', 'no customer-facing link back into the site is hardcoded any more',

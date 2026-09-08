@@ -1507,3 +1507,34 @@ link now use `appBaseUrl(env)`, which defaults to exactly `https://ketodial.com`
 Stripe event-ID deduplication (`carnivore-weekly` bead, P2). `reports_delivered_at` plus the
 deterministic Resend key already cover most of it; the uncovered case is a duplicate event arriving
 outside Resend's 24-hour window and before the marker is written.
+
+---
+
+## 2026-09-08 — AUDIT 2B: harness ready for the Stripe run; still waiting on the key
+
+Code review approved rotating the TEST key. **The key has not been rotated** — it is still
+`api_key_expired`, `last_rotated 2026-01-06` — and rotating it is a Stripe Dashboard action behind
+Brew's login. Nothing was run.
+
+Two items from the review are in, plus one bug found while implementing them.
+
+**`pk_test_` guard.** The harness validated the secret and not the publishable key. A stale or mistyped
+`pk` cannot create a live charge — the Session is made with the test secret — but it surfaces as a
+Stripe.js mode mismatch inside the iframe, minutes into a manual run, naming nothing useful. It now
+fails at startup.
+
+**Stripe CLI leg.** `--stripe-cli` routes run A's webhook through
+`stripe listen --forward-to localhost:8797/api/webhook`, verified against the secret the CLI prints, so
+at least one completed purchase is proven against Stripe's real event envelope and signing format
+rather than only our own HMAC. B, C and D keep the synthetic signature, which is what makes the replay,
+malformed and multi-signature cases deterministic. There is nothing to assert on the forwarded response
+— the CLI holds it — so the evidence is the payment writeback, which only the paid path performs.
+
+**A bug that would have made the CLI leg fail for the wrong reason.** The harness `/api/*` proxy
+hardcoded `Content-Type` and dropped every other incoming header, so `stripe-signature` would have been
+stripped from every forwarded event and each one rejected as unsigned. Fixed; headers are forwarded.
+
+**Ninth masked assertion.** The header-forwarding check asserted that `fwd.set(k, …)` existed, which was
+satisfied by iterating an empty object — the headers were still dropped and the test stayed green. It
+now names the source (`Object.entries(req.headers)`). Nine of these in this branch; every one was an
+assertion that did not name the mechanism it depended on.
