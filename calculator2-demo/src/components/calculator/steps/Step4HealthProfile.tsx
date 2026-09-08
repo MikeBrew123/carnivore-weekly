@@ -26,13 +26,37 @@ export default function Step4HealthProfile({
   errors,
 }: Step4HealthProfileProps) {
   const { resetForm } = useFormStore()
-  const handleInputChange = (field: string, value: any) => {
-    onDataChange({ ...data, [field]: value })
-    // Clear error for this field if it has a value
-    if (value !== '' && value !== undefined && value !== null && onFieldChange) {
-      onFieldChange(field)
+  /**
+   * Apply a patch of one or more fields as a SINGLE update.
+   *
+   * The stale-closure footgun this removes: the old helper sent
+   * `onDataChange({ ...data, [field]: value })`, where `data` is the props object
+   * from the current render. The parent merges whatever it receives into the store,
+   * so re-sending a whole stale snapshot reverts every field that changed after that
+   * render. Two calls in one handler was the visible case (the second discarded the
+   * first, so ticking a motivation set `goals` and instantly reverted it), but any
+   * update racing a state change had the same defect.
+   *
+   * Sending a PATCH rather than a snapshot removes the class: nothing unmentioned is
+   * ever written back, so an update cannot undo one it does not know about. Multi-field
+   * handlers still pass one patch, which keeps the intent obvious and keeps the
+   * regression assertion simple.
+   */
+  const handleInputChanges = (patch: Partial<FormData>) => {
+    onDataChange(patch as FormData)
+    if (!onFieldChange) return
+    // Clear the error for each field the patch actually gives a value to. Fields set
+    // to undefined (such as clearing a stale goal resolution) are deliberately not
+    // treated as answered.
+    for (const [field, value] of Object.entries(patch)) {
+      if (value !== '' && value !== undefined && value !== null) {
+        onFieldChange(field)
+      }
     }
   }
+
+  const handleInputChange = (field: string, value: any) =>
+    handleInputChanges({ [field]: value } as Partial<FormData>)
 
   // Validate email on blur
   const validateEmail = () => {
@@ -389,28 +413,21 @@ export default function Step4HealthProfile({
               values={data.goals || []}
               error={errors.goals}
               onChange={(values) =>
-                // ONE update. handleInputChange spreads the `data` of the current
-                // render, so two calls in a row make the second discard the first:
-                // ticking a box set `goals` and then immediately reverted it.
-                //
                 // Changing the motivations can create a brand new contradiction, or
                 // remove the one that was already answered. Either way the previous
                 // answer no longer describes the current selection, so it is cleared
-                // here and asked again rather than carried forward stale.
-                onDataChange({ ...data, goals: values, primaryGoalConfirmed: undefined })
+                // in the SAME patch and asked again rather than carried forward stale.
+                handleInputChanges({ goals: values, primaryGoalConfirmed: undefined })
               }
             />
             <GoalConflictResolver
               data={data}
               onResolve={(primaryGoal) =>
-                // Also ONE update, for the same reason: three sequential calls would
-                // have left only the timestamp and dropped the answer itself.
-                //
-                // The customer's explicit choice becomes the authoritative goal. The
+                // The customer's explicit choice becomes the authoritative goal, the
+                // confirmation and its timestamp land with it in one patch. The
                 // motivations they ticked are kept exactly as they are: they are still
                 // true things the customer wants, they just do not set the calories.
-                onDataChange({
-                  ...data,
+                handleInputChanges({
                   goal: primaryGoal,
                   primaryGoalConfirmed: true,
                   primaryGoalConfirmedAt: new Date().toISOString(),

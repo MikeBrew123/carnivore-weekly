@@ -14,7 +14,8 @@
     "test:kd-report-safety": "node tests/kd-report-safety.test.mjs",
     "test:report-integrity": "node tests/report-integrity.test.mjs",
     "test:deploy-tripwire": "node tests/deploy-tripwire.test.mjs",
-    "test:goal-conflict": "node tests/goal-conflict-flow.test.mjs"
+    "test:goal-conflict": "node tests/goal-conflict-flow.test.mjs",
+    "test:step4-state": "node tests/step4-state-updates.test.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

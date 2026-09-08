@@ -26,6 +26,7 @@ on:
       - 'tests/report-integrity.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
+      - 'tests/step4-state-updates.test.mjs'
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
@@ -40,6 +41,7 @@ on:
       - 'tests/report-integrity.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
+      - 'tests/step4-state-updates.test.mjs'
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
@@ -99,5 +101,9 @@ jobs:
           npx vite build --outDir /tmp/calc2-ci-build --emptyOutDir
       - name: Client-vs-worker macro parity
         run: node tests/macro_parity/parity_test.mjs
+      # Needs calculator2-demo/node_modules (react + esbuild), so it runs in this
+      # job rather than the dependency-free one. Skips cleanly if they are absent.
+      - name: Step 4 state-update regression
+        run: node tests/step4-state-updates.test.mjs
       - name: Report bundle hash
         run: ls -la /tmp/calc2-ci-build/assets/
