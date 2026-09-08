@@ -580,10 +580,22 @@ for (const c of MALFORMED_CASES) {
     html.indexOf('id="kidneyField"') > -1 &&
     html.indexOf('id="kidneyField"') < html.indexOf('id="freeResults"'),
     'the protein figure would be shown before the safety question was answered');
+  // SCOPED. An unscoped match here is satisfied by any of the three call sites, so
+  // deleting it from the session-create payload left this green — the same masking
+  // that hid three earlier mutations. Each site is asserted where it lives.
+  const sessionCreatePayload = (() => {
+    // Anchored on the CREATE call. The first `API_BASE+'/session'` in the file is the
+    // PATCH inside updateSession(), which is a different write entirely.
+    const i = client.indexOf("sessionReady=fetch(API_BASE+'/session'");
+    return i === -1 ? '' : client.slice(i, i + 1600);
+  })();
+  check('I', 'the session-create call is locatable', sessionCreatePayload.length > 0, '');
   check('I', 'the browser sends the answer when the session is created',
-    /kidney_status:kidneyStatus\(\)/.test(client), '');
+    /kidney_status:kidneyStatus\(\)/.test(sessionCreatePayload),
+    'the answer is not stored until some later PATCH lands');
   check('I', 'and re-sends it if the customer changes their mind',
-    (client.match(/kidney_status:kidneyStatus\(\)/g) || []).length >= 2, '');
+    /\[data-seg="kidney"\][\s\S]{0,600}?updateSession\(\{kidney_status:kidneyStatus\(\)\}\)/.test(client),
+    'changing the answer no longer updates the authoritative row');
   check('I', 'the worker persists it on session create',
     /kidney_status:\s*KIDNEY_ANSWERS\.has/.test(worker), '');
   check('I', 'and accepts a correction on session update',
