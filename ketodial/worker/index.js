@@ -612,19 +612,32 @@ async function handleWebhook(request, env) {
               'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
               'Prefer': 'return=minimal',
             },
+            // STRIPE'S VOCABULARY IS NOT THE DATABASE'S.
+            // Stripe Checkout says payment_status='paid'; calculator_sessions_v2
+            // allows pending|completed|failed|refunded. This wrote 'paid' straight
+            // through, PostgREST rejected the WHOLE patch on the CHECK constraint,
+            // and every field below it — the amount, the payment intent, the
+            // timestamps — was lost with it. Verified against the real table.
+            //
+            // is_premium is also gone, and not by oversight: `premium_requires_payment`
+            // requires is_premium=false OR (payment_status='completed' AND tier_id IS
+            // NOT NULL). tier_id is a Carnivore Weekly tier, and KetoDial has no value
+            // for it, so is_premium=true is unsatisfiable here. Leaving the column
+            // alone is honest; inventing a tier id to satisfy a constraint would not be.
             body: JSON.stringify({
-              payment_status: 'paid',
+              payment_status: 'completed',
               amount_paid_cents: session.amount_total ?? null,
               paid_at: nowIso,
               payment_verified_at: nowIso,
               stripe_payment_intent_id: session.payment_intent || null,
-              is_premium: true,
               step_completed: 4,
               updated_at: nowIso,
             }),
           }
         );
-        if (!wb.ok) console.error('Payment writeback failed:', await wb.text());
+        // Loud: a lost writeback means this customer is invisible to the
+        // paid-but-undelivered query, which is the one that finds people we owe.
+        if (!wb.ok) console.error(`PAYMENT WRITEBACK FAILED for ${sessionToken}:`, await wb.text());
         else console.log(`Payment written back for ${sessionToken}: ${session.amount_total} cents`);
       } catch (e) {
         console.error('Payment writeback error:', e.message);
@@ -693,8 +706,26 @@ async function handleWebhook(request, env) {
     }));
 
     // Send email via Resend
-    await sendReportEmail(email, name, reportLinks, intake, env);
-    if (sessionToken) await markDelivered(sessionToken, env);
+    // ORDER MATTERS AND SO DOES THE FAILURE PATH. Nothing is marked delivered until
+    // Resend has accepted the message. A send failure asks Stripe to retry rather
+    // than reporting a success that did not happen; the deterministic idempotency
+    // key makes that retry safe.
+    try {
+      await sendReportEmail(email, name, reportLinks, intake, env, session.id);
+    } catch (e) {
+      console.error(`REPORT EMAIL NOT SENT for paid session ${session.id} (${email}):`, e.message);
+      return jsonResponse(500, { error: 'report_email_failed' });
+    }
+    if (sessionToken) {
+      const marked = await markDelivered(sessionToken, env);
+      if (!marked) {
+        // The customer HAS their reports; only our record of it failed. Do not ask
+        // Stripe to retry — that would be correct for the marker and pointless for
+        // the customer. The log line is the recovery path.
+        console.error(`Reports delivered for ${session.id} but the marker did not write. ` +
+          `Re-running /fulfill is safe (Resend idempotency key ${'kd-report/' + session.id}).`);
+      }
+    }
 
     console.log(`Reports sent to ${email} for session ${session.id}: ${Array.from(reportTypes).join(', ')}`);
   }
@@ -831,10 +862,21 @@ async function handleFulfill(request, env) {
   if (!email) return jsonResponse(409, { error: 'no_email', message: 'We have no email address for this purchase.' });
 
   const links = reportLinksFor(session);
-  await sendReportEmail(email, session.metadata.customer_name || 'there', links, intake, env);
-  await markDelivered(token, env);
+  try {
+    await sendReportEmail(email, session.metadata.customer_name || 'there', links, intake, env, session.id);
+  } catch (e) {
+    // NOT DELIVERED, so nothing is marked. Retryable, and safe to retry: the
+    // deterministic idempotency key means a duplicate attempt is one message.
+    console.error(`REPORT EMAIL NOT SENT for ${session.id}:`, e.message);
+    return jsonResponse(502, {
+      error: 'delivery_failed', retryable: true,
+      message: 'We could not send your reports just now. Please try again in a moment — ' +
+               'you will not be charged again and you will not receive duplicates.',
+    });
+  }
 
-  return jsonResponse(200, { ok: true, links });
+  const marked = await markDelivered(token, env);
+  return jsonResponse(200, { ok: true, links, deliveryRecorded: marked });
 }
 
 /** The report links for a paid session, honouring what was actually purchased. */
@@ -857,16 +899,34 @@ async function readSessionRow(token, env) {
   } catch { return null; }
 }
 
+/**
+ * Record that the reports were emailed. Returns true only if the row actually says so.
+ *
+ * This used to swallow both the network error AND a non-2xx PostgREST response, so a
+ * rejected PATCH looked exactly like a successful one. A marker that lies in the
+ * optimistic direction is worse than no marker: it hides the customer from the
+ * paid-but-undelivered query. Retrying a send is safe — Resend's deterministic
+ * idempotency key makes the duplicate a no-op — so failing loudly here is cheap.
+ */
 async function markDelivered(token, env) {
   try {
-    await fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(token)}`, {
-      method: 'PATCH',
-      headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-                 Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
-                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ reports_delivered_at: new Date().toISOString() }),
-    });
-  } catch (e) { console.error('Could not mark reports delivered for', token, e.message); }
+    const res = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(token)}`, {
+        method: 'PATCH',
+        headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+                   Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+                   'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ reports_delivered_at: new Date().toISOString() }),
+      });
+    if (!res.ok) {
+      console.error(`DELIVERY MARKER NOT WRITTEN for ${token}: ${res.status} ${await res.text()}`);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error(`DELIVERY MARKER NOT WRITTEN for ${token}:`, e.message);
+    return false;
+  }
 }
 
 // ──────────────────────────────────────────────
@@ -1062,10 +1122,6 @@ function targetsLine(d) {
  * anything is wrong with their order.
  */
 async function sendFinishProfileEmail(email, name, stripeSessionId, env) {
-  if (!env.RESEND_API_KEY) {
-    console.error('RESEND_API_KEY missing; cannot send finish-profile email for', stripeSessionId);
-    return;
-  }
   const link = `https://ketodial.com/?finish=${encodeURIComponent(stripeSessionId)}`;
   const html = `
 <div style="max-width:560px;margin:0 auto;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#0f172a">
@@ -1083,25 +1139,62 @@ async function sendFinishProfileEmail(email, name, stripeSessionId, env) {
   <p style="line-height:1.6;font-size:14px;color:#475569">Stuck, or would rather we did it for you?
   Reply to this email or write to ketodial@carnivoreweekly.com.</p>
 </div>`;
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: 'KetoDial <ketodial@carnivoreweekly.com>',
-      to: [email],
-      reply_to: 'ketodial@carnivoreweekly.com',
-      subject: 'One short step to finish your KetoDial reports',
-      html,
-    }),
-  });
-  if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
+  return resendSend({
+    from: 'KetoDial <ketodial@carnivoreweekly.com>',
+    to: [email],
+    reply_to: 'ketodial@carnivoreweekly.com',
+    subject: 'One short step to finish your KetoDial reports',
+    html,
+  }, idempotencyKey.finish(stripeSessionId), env);
 }
 
 function escapeHtmlBasic(s) {
   return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-async function sendReportEmail(email, name, reportLinks, formData, env) {
+/**
+ * Deterministic Resend idempotency keys.
+ *
+ * `reports_delivered_at` is read-then-write, so two concurrent /fulfill requests can
+ * both see NULL and both send. The database marker is the durable application state;
+ * this is what stops the duplicate at the point of sending. Keys are derived from the
+ * Stripe Checkout Session so a retry produces the SAME key — a random key per attempt
+ * would defeat the entire mechanism, which is why they are built here rather than at
+ * each call site.
+ */
+const idempotencyKey = {
+  report: (stripeSessionId) => `kd-report/${stripeSessionId}`,
+  finish: (stripeSessionId) => `kd-finish/${stripeSessionId}`,
+};
+
+/**
+ * POST to Resend and INSIST ON AN ANSWER.
+ *
+ * sendReportEmail used to log a non-2xx response and return normally, so the callers
+ * went on to write `reports_delivered_at` — permanently recording a delivery that
+ * never happened, on the one column that answers "who paid and got nothing".
+ * A send either succeeds or throws.
+ */
+async function resendSend(payload, idemKey, env) {
+  if (!env.RESEND_API_KEY) throw new Error('RESEND_NOT_CONFIGURED');
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+      // Deterministic, so a retry of the same delivery is the same message.
+      'Idempotency-Key': idemKey,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`RESEND_REJECTED ${res.status}: ${body.slice(0, 300)}`);
+  }
+  return res.json().catch(() => ({}));
+}
+
+async function sendReportEmail(email, name, reportLinks, formData, env, stripeSessionId) {
   const linkList = reportLinks.map(r =>
     `<tr><td style="padding:8px 0"><a href="${r.url}" style="color:#38bdf8;font-weight:600;text-decoration:none">${r.name}</a></td><td style="padding:8px 0;text-align:right"><a href="${r.url}" style="background:#0f172a;color:#fff;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">View Report</a></td></tr>`
   ).join('');
@@ -1130,24 +1223,13 @@ ${linkList}
 <p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:16px">© 2026 KetoDial — ketodial.com</p>
 </div>`;
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'KetoDial <reports@carnivoreweekly.com>',
-      to: [email],
-      subject: `${name}, your KetoDial reports are ready`,
-      html: html,
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    console.error('Resend error:', err);
-  }
+  // Throws on rejection. The caller must not mark delivery until this returns.
+  return resendSend({
+    from: 'KetoDial <reports@carnivoreweekly.com>',
+    to: [email],
+    subject: `${name}, your KetoDial reports are ready`,
+    html: html,
+  }, idempotencyKey.report(stripeSessionId), env);
 }
 
 // ──────────────────────────────────────────────

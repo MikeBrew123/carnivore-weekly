@@ -110,7 +110,10 @@ const ENV = {
   SUPABASE_SERVICE_ROLE_KEY: SUPABASE_KEY,
   STRIPE_SECRET_KEY: 'sk_test_UNUSED_no_stripe_object_is_created_by_this_run',
   PRICE_MAP_JSON: JSON.stringify(TEST_PRICE_MAP),
-  RESEND_API_KEY: '',
+  // Non-empty so the send path actually runs; every call is captured by the stub
+  // above and nothing reaches Resend. resendSend() now throws on a missing key, so
+  // leaving this blank would make every delivery test pass for the wrong reason.
+  RESEND_API_KEY: 'stub-key-never-used-no-mail-leaves-this-process',
 };
 
 // ---------------------------------------------------------------------------
@@ -122,13 +125,16 @@ const stripeCalls = [];
 const fakeSessions = new Map();
 
 const emailsSent = [];
+let resendShouldFail = false;
 globalThis.fetch = async (url, opts = {}) => {
   const u = String(url);
   // NOTHING MAY LEAVE. /fulfill and the webhook both send real mail, so Resend is
   // captured here rather than trusted to fail on an empty key.
   if (u.includes('api.resend.com')) {
     const b = opts.body ? JSON.parse(opts.body) : {};
-    emailsSent.push({ to: b.to, subject: b.subject, html: b.html || '' });
+    const key = (opts.headers && (opts.headers['Idempotency-Key'] || opts.headers['idempotency-key'])) || null;
+    emailsSent.push({ to: b.to, subject: b.subject, html: b.html || '', idempotencyKey: key });
+    if (resendShouldFail) return { ok: false, status: 500, text: async () => 'stubbed Resend outage' };
     return { ok: true, json: async () => ({ id: 'email_stubbed_no_send' }) };
   }
   if (!u.includes('api.stripe.com')) return realFetch(url, opts);
@@ -571,6 +577,251 @@ try {
       { stripe_session_id: 'cs_test_never_existed', step_completed: 2, conditions: [], medications: '' });
     check(G, 'an unknown checkout id cannot write to any row', unpaid.status >= 400,
       `status ${unpaid.status}`);
+  }
+
+  // -------------------------------------------------------------------------
+  // GROUP 1d — DELIVERY TRUTHFULNESS, against the real database.
+  // ---------------------------------------------------------------------------
+  // sendReportEmail used to log a non-2xx Resend response and return normally, so
+  // both callers went on to write reports_delivered_at — permanently recording a
+  // delivery that never happened, on the one column that answers "who paid and got
+  // nothing". And the marker itself swallowed a rejected PATCH, so a failed write
+  // looked identical to a successful one.
+  // -------------------------------------------------------------------------
+  {
+    const G = '1d/delivery';
+    const created = await call('POST', '/session', step1('no'));
+    const token = created.json.token;
+    createdTokens.add(token);
+    await realFetch(`${SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${token}`, {
+      method: 'PATCH',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ source: TEST_SOURCE }),
+    });
+    await call('PATCH', '/session', step2(token));
+    const buy = await call('POST', '/checkout',
+      { items: ['doctor'], email: `audit2b-deliv${TEST_EMAIL_DOMAIN}`, name: 'Linda', token });
+    const csid = buy.json.sessionId;
+
+    // --- Resend rejects: nothing may be marked delivered. ---
+    resendShouldFail = true;
+    emailsSent.length = 0;
+    const failed = await call('POST', '/fulfill', { stripe_session_id: csid });
+    resendShouldFail = false;
+
+    check(G, 'a rejected send reports failure, not success', failed.status === 502,
+      `status ${failed.status} ${JSON.stringify(failed.json)}`);
+    check(G, '  ...and says it is retryable', failed.json && failed.json.retryable === true, '');
+    const afterFail = await readRow(token);
+    check(G, '  ...and reports_delivered_at is NOT written',
+      afterFail && afterFail.reports_delivered_at === null,
+      `marker = ${afterFail && afterFail.reports_delivered_at} — a delivery that never happened`);
+    check(G, '  ...so the customer stays visible to the paid-but-undelivered query',
+      afterFail && afterFail.reports_delivered_at === null, '');
+
+    // --- Retry after the transient failure succeeds, with the SAME key. ---
+    emailsSent.length = 0;
+    const ok1 = await call('POST', '/fulfill', { stripe_session_id: csid });
+    check(G, 'the retry after a transient failure succeeds', ok1.status === 200,
+      `status ${ok1.status}`);
+    check(G, '  ...and the delivery is recorded only now',
+      ok1.json && ok1.json.deliveryRecorded === true, '');
+    const afterOk = await readRow(token);
+    check(G, '  ...in the database', afterOk && afterOk.reports_delivered_at !== null, '');
+
+    check(G, 'the report email carries a DETERMINISTIC idempotency key',
+      emailsSent.length === 1 && emailsSent[0].idempotencyKey === `kd-report/${csid}`,
+      `key = ${emailsSent[0] && emailsSent[0].idempotencyKey}`);
+  }
+
+  // -------------------------------------------------------------------------
+  // GROUP 1e — CONCURRENT FULFILMENT.
+  // ---------------------------------------------------------------------------
+  // reports_delivered_at is read-then-write, so two simultaneous /fulfill requests
+  // can both see NULL and both send. The database marker is durable application
+  // state; the deterministic Resend key is what makes the duplicate a no-op.
+  // -------------------------------------------------------------------------
+  {
+    const G = '1e/concurrent';
+    const created = await call('POST', '/session', step1('no'));
+    const token = created.json.token;
+    createdTokens.add(token);
+    await realFetch(`${SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${token}`, {
+      method: 'PATCH',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ source: TEST_SOURCE }),
+    });
+    await call('PATCH', '/session', step2(token));
+    const buy = await call('POST', '/checkout',
+      { items: ['starter'], email: `audit2b-conc${TEST_EMAIL_DOMAIN}`, name: 'Linda', token });
+    const csid = buy.json.sessionId;
+
+    emailsSent.length = 0;
+    const [a, b] = await Promise.all([
+      call('POST', '/fulfill', { stripe_session_id: csid }),
+      call('POST', '/fulfill', { stripe_session_id: csid }),
+    ]);
+    check(G, 'both concurrent fulfilments answer successfully',
+      a.status === 200 && b.status === 200, `${a.status} / ${b.status}`);
+
+    const keys = emailsSent.map(e => e.idempotencyKey);
+    check(G, 'every send used the SAME deterministic key, so Resend collapses them',
+      keys.length > 0 && keys.every(k => k === `kd-report/${csid}`),
+      `keys: ${JSON.stringify(keys)}`);
+    check(G, '  ...and the key is derived from the Stripe session, not random',
+      keys.every(k => k === `kd-report/${csid}`), '');
+    check(G, 'the row records delivery exactly once',
+      (await readRow(token)).reports_delivered_at !== null, '');
+  }
+
+  // -------------------------------------------------------------------------
+  // GROUP 1f — THE PAYMENT WRITEBACK, AGAINST THE REAL DB VOCABULARY.
+  // ---------------------------------------------------------------------------
+  // Stripe Checkout says payment_status='paid'. calculator_sessions_v2 allows
+  // pending|completed|failed|refunded. The webhook wrote Stripe's word straight
+  // through, PostgREST rejected the WHOLE patch on the CHECK constraint, and the
+  // amount, the payment intent and the timestamps went with it. Same class as the
+  // step-2 defect: one wrong enum value silently discards an entire write.
+  //
+  // Stubs cannot catch this, so it is asserted against the real table.
+  // -------------------------------------------------------------------------
+  {
+    const G = '1f/payment-writeback';
+    const created = await call('POST', '/session', step1('no'));
+    const token = created.json.token;
+    createdTokens.add(token);
+
+    const writeback = async (payload) => {
+      const res = await realFetch(
+        `${SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${token}`, {
+          method: 'PATCH',
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
+                     'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify(payload),
+        });
+      return res.ok;
+    };
+    await writeback({ source: 'ketodial', lifestyle_activity: 'sedentary', exercise_frequency: '1-2' });
+
+    // paid_timestamp_check requires paid_at >= created_at, and created_at is the
+    // DATABASE clock. Deriving paid_at from the row rather than from this machine
+    // keeps the test about the payment vocabulary instead of about clock skew.
+    const createdAt = new Date((await readRow(token)).created_at).getTime();
+    const nowIso = new Date(Math.max(Date.now(), createdAt) + 1000).toISOString();
+
+    // Stripe's own vocabulary must be rejected — that is the bug, reproduced.
+    check(G, "Stripe's payment_status='paid' is REJECTED by the real table",
+      (await writeback({ payment_status: 'paid' })) === false,
+      'the constraint no longer rejects it, so this test proves nothing');
+
+    // The mapped payload the worker now sends must land in full.
+    const workerPayload = {
+      payment_status: 'completed',
+      amount_paid_cents: 599,
+      paid_at: nowIso,
+      payment_verified_at: nowIso,
+      stripe_payment_intent_id: 'pi_audit2b_test',
+      step_completed: 4,
+      updated_at: nowIso,
+    };
+    check(G, 'the mapped payload is accepted', (await writeback(workerPayload)) === true, '');
+
+    const row = await readRow(token);
+    check(G, 'payment_status landed as completed', row.payment_status === 'completed', row.payment_status);
+    check(G, 'amount_paid_cents landed', row.amount_paid_cents === 599, String(row.amount_paid_cents));
+    check(G, 'paid_at landed', !!row.paid_at, '');
+    check(G, 'payment_verified_at landed', !!row.payment_verified_at, '');
+    check(G, 'stripe_payment_intent_id landed',
+      row.stripe_payment_intent_id === 'pi_audit2b_test', row.stripe_payment_intent_id);
+    check(G, 'step_completed reached 4', row.step_completed === 4, String(row.step_completed));
+
+    // is_premium is deliberately NOT written: premium_requires_payment demands a
+    // tier_id, which is a Carnivore Weekly concept KetoDial has no value for.
+    check(G, 'is_premium=true is unsatisfiable here, and the worker does not attempt it',
+      (await writeback({ is_premium: true })) === false,
+      'premium_requires_payment now accepts is_premium without a tier_id; revisit the worker');
+    check(G, '  ...and the row is still intact after that rejection',
+      (await readRow(token)).payment_status === 'completed', '');
+
+    // THE OPERATIONAL QUERY must find this customer — and only KetoDial ones. Run
+    // unscoped it also returns Carnivore Weekly purchases whose worker never writes
+    // this column, presenting customers nobody owes anything as stuck fulfilments.
+    const unscoped = await realFetch(
+      `${SUPABASE_URL}/rest/v1/calculator_sessions_v2` +
+      `?payment_status=eq.completed&reports_delivered_at=is.null&source=neq.ketodial&select=session_token`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Accept: 'application/json' } });
+    const falsePositives = await unscoped.json();
+    check(G, 'the unscoped query really does have non-KetoDial false positives',
+      Array.isArray(falsePositives) && falsePositives.length > 0,
+      'if this is 0 the scoping assertion below proves nothing');
+
+    const q = await realFetch(
+      `${SUPABASE_URL}/rest/v1/calculator_sessions_v2` +
+      `?source=eq.ketodial&payment_status=eq.completed&reports_delivered_at=is.null&session_token=eq.${token}&select=session_token`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Accept: 'application/json' } });
+    const stuck = await q.json();
+    check(G, 'the paid-but-undelivered query finds a paid customer with no delivery',
+      Array.isArray(stuck) && stuck.length === 1 && stuck[0].session_token === token,
+      `returned ${JSON.stringify(stuck)}`);
+
+    // ...and stops finding them once delivery is recorded.
+    await writeback({ reports_delivered_at: new Date().toISOString() });
+    const q2 = await realFetch(
+      `${SUPABASE_URL}/rest/v1/calculator_sessions_v2` +
+      `?source=eq.ketodial&payment_status=eq.completed&reports_delivered_at=is.null&session_token=eq.${token}&select=session_token`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Accept: 'application/json' } });
+    check(G, '  ...and drops them once delivery is recorded',
+      (await q2.json()).length === 0, '');
+  }
+
+  // -------------------------------------------------------------------------
+  // GROUP 1g — A FAILED KIDNEY WRITE MUST NOT SURVIVE THE PROFILE CHECKPOINT.
+  // ---------------------------------------------------------------------------
+  //   stored=No -> customer changes to Yes -> that PATCH fails -> profile submit
+  //   -> if the profile payload omits kidney_status, the server still believes No.
+  // The customer would see suppression on screen while the authoritative row — the
+  // one that decides what we sell and what the report says — said the opposite.
+  // -------------------------------------------------------------------------
+  for (const answer of ['yes', 'unsure']) {
+    const G = `1g/kidney-recovery-${answer}`;
+    const created = await call('POST', '/session', step1('no'));
+    const token = created.json.token;
+    createdTokens.add(token);
+    await realFetch(`${SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${token}`, {
+      method: 'PATCH',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ source: TEST_SOURCE }),
+    });
+    check(G, 'the row starts at No', (await readRow(token)).kidney_status === 'no', '');
+
+    // The kidney-only PATCH is simulated as having failed: it simply never happened.
+    // The profile checkpoint is then submitted, carrying the CURRENT answer.
+    const checkpoint = { ...step2(token), kidney_status: answer };
+    const res = await call('PATCH', '/session', checkpoint);
+    check(G, 'the profile checkpoint is accepted', res.status === 200, `status ${res.status}`);
+
+    const row = await readRow(token);
+    check(G, `the authoritative row is now ${answer}, not the stale No`,
+      row.kidney_status === answer,
+      `row says ${row.kidney_status} while the customer sees ${answer}`);
+
+    const { loadIntakeForPurchase: loadBuy, loadAuthoritativeIntake: loadRep } =
+      await import('file://' + path.join(REPO, 'ketodial', 'worker', 'intake.js'));
+    const { deriveKdMedicalContext: derive, allowedProducts: allowed } =
+      await import('file://' + path.join(REPO, 'ketodial', 'worker', 'reports.js'));
+
+    const buyIntake = await loadBuy(token, ENV);
+    const ctx = derive(buyIntake);
+    check(G, 'product routing sees the corrected answer',
+      ctx.restrictProteinTarget === true && allowed(ctx).blocked.includes('meal'),
+      `suppress=${ctx.restrictProteinTarget} blocked=${allowed(ctx).blocked.join(',')}`);
+
+    const repIntake = await loadRep(token, ENV);
+    check(G, 'report medical context sees the corrected answer',
+      derive(repIntake).kidneyAnswer === answer, derive(repIntake).kidneyAnswer);
   }
 
   // -------------------------------------------------------------------------

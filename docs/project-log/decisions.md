@@ -1196,3 +1196,69 @@ The unpaid-id mutation initially went **undetected**: the assertion scanned the 
 masking as the earlier kidney-answer case — an assertion passing through a mechanism it did not name.
 Both are now scoped to the function they are about. **That is twice; treat an unscoped source regex as
 a smell.**
+
+---
+
+## 2026-09-08 — AUDIT 2B #4g: delivery truthfulness, idempotency, DB vocabulary, schema in git
+
+### 1. A failed email was recorded as a delivery
+`sendReportEmail()` logged a non-2xx Resend response and returned normally, so both callers went on to
+write `reports_delivered_at` — permanently recording a delivery that never happened, on the one column
+that answers *who paid and got nothing*. `markDelivered()` swallowed a rejected PostgREST PATCH too, so
+a failed marker was indistinguishable from a written one.
+
+Sends now throw. Nothing is marked until Resend accepts. `/fulfill` returns **502 retryable**; the
+webhook returns **500** so Stripe retries. If the send succeeds but the marker fails, the customer keeps
+their reports and the log names the recovery — retrying is safe.
+
+### 2. Idempotency was only sequential
+`read → send → mark` lets two concurrent `/fulfill` calls both see NULL and both send. Resend
+`Idempotency-Key` now carries a **deterministic** key derived from the Stripe session —
+`kd-report/<id>` and `kd-finish/<id>` — so a retry is the same message. `reports_delivered_at` remains
+the durable application state. A random-per-attempt key would defeat the whole mechanism, so the keys
+are built in one place rather than at each call site.
+
+### 3. The webhook wrote Stripe's vocabulary into the database
+Stripe Checkout says `payment_status='paid'`; `calculator_sessions_v2` allows
+`pending|completed|failed|refunded`. **PostgREST rejected the entire writeback**, and the amount, the
+payment intent and both timestamps went with it — the same class as the step-2 defect, and invisible
+because the failure was logged and swallowed. Mapped to `completed`; the constraint was **not** widened
+to accommodate Stripe.
+
+`is_premium: true` was also dropped, and not by oversight: `premium_requires_payment` requires
+`is_premium=false OR (payment_status='completed' AND tier_id IS NOT NULL)`. `tier_id` is a Carnivore
+Weekly tier; KetoDial has no value for it, so `is_premium=true` is unsatisfiable and rejected the whole
+patch on its own. Leaving the column alone is honest; inventing a tier id to satisfy a constraint is not.
+
+Proven against the real table: `completed`, `amount_paid_cents`, `paid_at`, `payment_verified_at`,
+`stripe_payment_intent_id` and `step_completed=4` all land; `'paid'` and `is_premium=true` are both
+rejected.
+
+**The operational query was wrong too.** Unscoped it returned **6 Carnivore Weekly rows** from
+2026-07-05 onward — CW's worker never writes this column, so it is NULL for every historical CW
+purchase. Six customers nobody owes anything, presented as stuck fulfilments. Now scoped to
+`source = 'ketodial'`, with the partial index predicate rebuilt to match. KetoDial stuck fulfilments: **0**.
+
+### 4. A failed kidney write survived the profile checkpoint
+`stored=No → customer changes to Yes → that PATCH fails → profile submit clears the failure counter →
+profile PATCH succeeds WITHOUT the kidney answer → the server still believes No.` The customer would see
+suppression on screen while the row that decides what we sell said the opposite.
+
+`collectProfile()` now carries `kidney_status`, and failures are cleared **only after** the checkpoint
+has landed. Proven in a browser for the exact sequence, and against the real database for both `yes` and
+`unsure`: the row corrects, and product routing and report context both see the corrected answer.
+
+### 5. Schema is in the repository
+`supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql` — idempotent, verified
+as a genuine no-op by re-applying it to the already-migrated production database. No backfill: a default
+kidney answer would be a safety answer nobody gave.
+
+### Mutations — seven, all detected
+log-and-continue on Resend · marker swallowing a rejected PATCH · random idempotency key ·
+Stripe's vocabulary · `is_premium=true` · kidney answer dropped from the checkpoint · migration
+backfilling a health answer.
+
+The kidney one initially went undetected: the assertion sliced from `collectProfile` to end-of-file and
+matched the same expression in two later call sites. **Third occurrence of an unscoped source match
+passing through a mechanism it did not name.** All three are now scoped to the function they are about,
+and that is now a standing smell to check for.

@@ -1028,7 +1028,8 @@ for (const c of MALFORMED_CASES) {
     /reports_delivered_at[\s\S]{0,200}?alreadyDelivered/.test(code) && /markDelivered/.test(code),
     'a double click would email the customer twice');
   check('O', 'the happy path records delivery too, so "paid but not delivered" is answerable',
-    /await sendReportEmail\([\s\S]{0,120}?markDelivered/.test(code), '');
+    /await sendReportEmail\([\s\S]{0,600}?markDelivered/.test(code),
+    'the webhook no longer records a successful delivery at all');
 
   // The success screen.
   check('O', 'the success screen renders from the server, not a hardcoded report list',
@@ -1043,14 +1044,144 @@ for (const c of MALFORMED_CASES) {
     /urlParams\.get\('finish'\)/.test(clientCode), '');
 
   // The race hole: a later success must not clear an earlier failure.
+  // The response handler must not clear anything: checkout queues step_completed:3,
+  // and its success would otherwise erase an earlier failed profile save. Clearing
+  // belongs only to the checkpoint, and only once the checkpoint has landed.
+  const responseHandler = clientCode.slice(
+    clientCode.indexOf('.then(function(r){'), clientCode.indexOf('}).catch(function(e){'));
   check('O', 'a write failure is sticky, not cleared by the next successful write',
     /writeFailures\+\+/.test(clientCode) && /writeFailures>0/.test(clientCode) &&
-    !/lastWriteError=null;/.test(clientCode),
-    'checkout queues step_completed:3, whose success would erase an earlier profile failure');
-  check('O', 'and only the profile submit clears it — the retry of the thing that failed',
-    /writeFailures=0;[\s\S]{0,120}?collectProfile\(\)/.test(clientCode), '');
+    !/lastWriteError=null/.test(responseHandler),
+    'a successful unrelated write still clears an earlier failure');
+  check('O', 'and only a landed profile checkpoint clears it',
+    /updateSession\(collectProfile\(\)\)\.then\(function\(\)\{[\s\S]{0,300}?writeFailures=0/.test(clientCode),
+    'failures are cleared somewhere other than after a successful checkpoint');
   check('O', 'one profile collector serves both the pre- and post-payment submits',
     (clientCode.match(/collectProfile\(\)/g) || []).length >= 2, '');
+}
+
+// ===========================================================================
+// GROUP P — DELIVERY TRUTHFULNESS, IDEMPOTENCY, AND THE DB VOCABULARY.
+// ---------------------------------------------------------------------------
+// Source-level invariants for the fourth review's findings. Behaviour is proven
+// against the real database in tests/kd-integration-live.test.mjs; these hold in CI
+// without credentials.
+// ===========================================================================
+{
+  const worker = fs.readFileSync(WORKER_JS, 'utf8');
+  const code = worker.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const client = fs.readFileSync(KD_PUBLIC_JS, 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const fnBody = (name) => {
+    const i = code.indexOf(name);
+    if (i === -1) return '';
+    const rest = code.slice(i + name.length);
+    const end = rest.search(/\n(?:async )?function /);
+    return end === -1 ? rest : rest.slice(0, end);
+  };
+
+  // --- 1. A failed send must never be recorded as a delivery. ---
+  check('P', 'a non-2xx Resend response throws instead of returning normally',
+    /RESEND_REJECTED/.test(code) && /throw new Error\(`RESEND_REJECTED/.test(worker),
+    'a rejected send returns quietly and the caller marks it delivered');
+  check('P', 'no Resend call swallows a failure with a bare console.error',
+    !/console\.error\('Resend error:'/.test(code), '');
+  check('P', 'the webhook marks delivery only AFTER the send returns',
+    /await sendReportEmail\([\s\S]{0,400}?markDelivered/.test(code) &&
+    /catch[\s\S]{0,240}?REPORT EMAIL NOT SENT[\s\S]{0,200}?return jsonResponse\(500/.test(code),
+    'a send failure still reaches markDelivered, or is reported as success');
+  check('P', '/fulfill returns a retryable failure rather than claiming success',
+    /delivery_failed[\s\S]{0,120}?retryable: true/.test(code), '');
+  check('P', 'markDelivered checks res.ok — a rejected PATCH is not success',
+    /!res\.ok[\s\S]{0,200}?DELIVERY MARKER NOT WRITTEN[\s\S]{0,200}?return false/.test(fnBody('async function markDelivered')),
+    'a rejected Supabase PATCH is indistinguishable from a written marker');
+  check('P', 'and its result is inspected rather than discarded',
+    /const marked = await markDelivered/.test(code), '');
+
+  // --- 2. Deterministic idempotency keys. ---
+  check('P', 'report delivery uses a deterministic key tied to the Stripe session',
+    /report:\s*\(stripeSessionId\)\s*=>\s*`kd-report\/\$\{stripeSessionId\}`/.test(worker), '');
+  check('P', 'the finish-profile reminder uses its own deterministic key',
+    /finish:\s*\(stripeSessionId\)\s*=>\s*`kd-finish\/\$\{stripeSessionId\}`/.test(worker), '');
+  check('P', 'the key is sent as an Idempotency-Key header',
+    /'Idempotency-Key': idemKey/.test(worker), '');
+  check('P', 'no send builds a random key per attempt',
+    !/Idempotency-Key[^\n]*(?:randomUUID|Math\.random|Date\.now)/.test(worker),
+    'a random key per retry defeats the entire mechanism');
+  // Scoped to the two PAID delivery emails. handleEmailPlan sends the free
+  // pre-purchase plan email; it already checks res.ok and returns 502, and has no
+  // idempotency requirement, so it is not required to use the keyed helper.
+  for (const fn of ['async function sendReportEmail', 'async function sendFinishProfileEmail']) {
+    const body = fnBody(fn);
+    check('P', `${fn.replace('async function ', '')} sends through the keyed helper`,
+      /return resendSend\(/.test(body) && !/api\.resend\.com/.test(body),
+      'this delivery posts to Resend directly, bypassing the idempotency key');
+  }
+
+  // --- 3. Stripe vocabulary vs the database vocabulary. ---
+  check('P', "the webhook writes the DATABASE's word, not Stripe's",
+    /payment_status: 'completed'/.test(code) && !/payment_status: 'paid'/.test(code),
+    "writing Stripe's 'paid' makes PostgREST reject the whole writeback");
+  check('P', 'the payment writeback still carries the money fields',
+    /amount_paid_cents: session\.amount_total/.test(code) &&
+    /stripe_payment_intent_id: session\.payment_intent/.test(code) &&
+    /paid_at: nowIso/.test(code) && /payment_verified_at: nowIso/.test(code), '');
+  check('P', 'is_premium is NOT written — premium_requires_payment needs a tier_id KD has none for',
+    !/is_premium: true/.test(code),
+    'is_premium=true is unsatisfiable without tier_id and rejects the entire patch');
+  check('P', 'a failed writeback is logged loudly, not swallowed',
+    /PAYMENT WRITEBACK FAILED/.test(code), '');
+
+  // --- 4. The safety answer rides the checkpoint that clears failures. ---
+  // SCOPED TO collectProfile's OWN BODY. Slicing to end-of-file matched the same
+  // expression in the session-create payload and in the chip handler, so deleting it
+  // from the checkpoint left this green. Third time an unscoped source match has
+  // passed through a mechanism it did not name; scope every one of them.
+  const collectProfileBody = (() => {
+    const i = client.indexOf('function collectProfile');
+    if (i === -1) return '';
+    const rest = client.slice(i);
+    const end = rest.indexOf('\n  }');
+    return end === -1 ? rest : rest.slice(0, end);
+  })();
+  check('P', 'collectProfile() is present', collectProfileBody.length > 0, '');
+  check('P', 'the profile checkpoint carries the current kidney answer',
+    /kidney_status:kidneyStatus\(\)/.test(collectProfileBody),
+    'a failed kidney write is erased by the profile submit and the server keeps the stale answer');
+  check('P', 'failures are cleared only after the checkpoint has landed',
+    !/writeFailures=0;\s*updateSession/.test(client) &&
+    /updateSession\(collectProfile\(\)\)\.then/.test(client),
+    'the counter is reset before the write, so a failed checkpoint looks clean');
+  check('P', 'and only when that checkpoint itself succeeded',
+    /lastCheckpointFailed/.test(client), '');
+
+  // --- 5. The schema this code depends on is in the repository. ---
+  const migDir = path.join(REPO, 'supabase', 'migrations');
+  const mig = fs.existsSync(migDir)
+    ? fs.readdirSync(migDir).filter(f => /kd_audit2b/.test(f)).map(f => fs.readFileSync(path.join(migDir, f), 'utf8')).join('\n')
+    : '';
+  check('P', 'a migration in the repo creates the schema the code expects', mig.length > 0,
+    'production holds columns the repository cannot recreate');
+  check('P', 'it adds kidney_status', /ADD COLUMN IF NOT EXISTS kidney_status/.test(mig), '');
+  check('P', 'with the allowed-value constraint',
+    /kidney_status IN \('no', 'yes', 'unsure'\)/.test(mig), '');
+  check('P', 'it adds reports_delivered_at',
+    /ADD COLUMN IF NOT EXISTS reports_delivered_at/.test(mig), '');
+  check('P', 'it is idempotent against an already-migrated database',
+    (mig.match(/IF NOT EXISTS/g) || []).length >= 3, '');
+  check('P', 'and it backfills no customer health answer',
+    !/UPDATE\s+public\.calculator_sessions_v2/i.test(mig) && !/SET DEFAULT '(no|yes|unsure)'/.test(mig),
+    'a default kidney answer would be a safety answer nobody gave');
+  check('P', 'nothing destructive',
+    !/DROP\s+(TABLE|COLUMN)/i.test(mig) && !/TRUNCATE/i.test(mig), '');
+  // The operational query is shared with Carnivore Weekly's rows. Unscoped it
+  // returned 6 CW purchases from 2026-07-05 onward as KetoDial customers awaiting
+  // delivery — CW's worker never writes this column, so it is NULL for all of them.
+  check('P', "the paid-but-undelivered query is scoped to KetoDial",
+    /source = 'ketodial'[\s\S]{0,120}?reports_delivered_at IS NULL/.test(mig),
+    'the query surfaces Carnivore Weekly rows as stuck KetoDial fulfilments');
+  check('P', 'and the index predicate matches that query',
+    /WHERE source = 'ketodial'[\s\S]{0,120}?reports_delivered_at IS NULL/.test(mig), '');
 }
 
 // ===========================================================================
@@ -1266,6 +1397,7 @@ const GROUPS = {
   M: '"I am not sure" is not a diagnosis',
   N: 'CI runs on the live intake UI',
   O: 'paid fulfilment is resumable and never silent',
+  P: 'delivery truthfulness, idempotency, DB vocabulary, schema in git',
   G: 'mutation testing',
 };
 for (const [g, title] of Object.entries(GROUPS)) {
