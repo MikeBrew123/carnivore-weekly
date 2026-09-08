@@ -387,6 +387,7 @@ export default function Step4HealthProfile({
                 { value: 'hormones', label: 'Hormone balance' },
               ]}
               values={data.goals || []}
+              error={errors.goals}
               onChange={(values) => {
                 handleInputChange('goals', values)
                 // Changing the motivations can create a brand new contradiction, or

@@ -234,6 +234,38 @@ check('D', 'report generation keeps its own backstop',
   /assertReportInputsCoherent\(data\)/.test(worker), '');
 check('D', 'the client blocks its own submit rather than trusting the button',
   /goalConflict\.blocking/.test(appSrc), '');
+{
+  // The 422 is defence in depth. If it ever reaches the customer, it must land them
+  // back in the resolver with a question, not in an error state. A paying customer
+  // seeing "Report generation failed" for what is really an unanswered question is
+  // the failure mode this whole pass exists to remove.
+  const step4Src = fs.readFileSync(path.join(ROOT, 'calculator2-demo', 'src', 'components',
+    'calculator', 'steps', 'Step4HealthProfile.tsx'), 'utf8');
+  check('D', 'a 422 GOAL_CONFLICT_UNRESOLVED is handled specifically, not as a generic error',
+    /status === 422 && \w+\.code === 'GOAL_CONFLICT_UNRESOLVED'/.test(appSrc),
+    'the conflict refusal falls through to the generic report-failure path');
+  check('D', 'the 422 path returns instead of throwing',
+    /GOAL_CONFLICT_UNRESOLVED[\s\S]{0,900}?\n\s+return\n?/.test(appSrc),
+    'it still throws, so the customer sees a failure screen');
+  check('D', 'the 422 path re-opens the resolver by clearing the flag',
+    /GOAL_CONFLICT_UNRESOLVED[\s\S]{0,400}primaryGoalConfirmed: undefined/.test(appSrc), '');
+  check('D', 'the 422 path leaves the generating animation',
+    /GOAL_CONFLICT_UNRESOLVED[\s\S]{0,500}setIsGenerating\(false\)/.test(appSrc),
+    'the customer is stranded on the progress animation');
+  {
+    // Only the 422 branch itself, up to its return. A window measured in characters
+    // runs past the branch into the generic fallback below it and reports a false hit.
+    const at = appSrc.indexOf("GOAL_CONFLICT_UNRESOLVED') {");
+    const branch = at === -1 ? '' : appSrc.slice(at, appSrc.indexOf('\n          return', at));
+    check('D', 'the customer is not shown the server-authored message',
+      at > -1 && branch.length > 0 && !branch.includes('reportError.message'),
+      'internal wording about calorie surpluses is being surfaced to the reader');
+  }
+  check('D', 'the goals error is actually rendered next to the checklist',
+    /error=\{errors\.goals\}/.test(step4Src),
+    'the message is set but nothing displays it');
+}
+
 check('D', 'changing the motivations clears a stale resolution',
   /primaryGoalConfirmed', undefined/.test(
     fs.readFileSync(path.join(ROOT, 'calculator2-demo', 'src', 'components', 'calculator',

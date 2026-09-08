@@ -511,6 +511,30 @@ export default function CalculatorApp({
       if (!reportInitResponse.ok) {
         const reportError = await reportInitResponse.json().catch(() => ({} as any))
         console.error('[Step4] Report init failed:', reportError)
+
+        // The worker refuses to build a report whose goal answers contradict each
+        // other. That refusal is defence in depth: the resolver in Step 4 should have
+        // asked already, so reaching here means the client-side check was bypassed
+        // (an older cached bundle, a resumed session, a hand-made request).
+        //
+        // It is a question we still need answered, NOT a failure. Recover into the
+        // same resolver rather than showing the customer a server error: they have
+        // paid, their purchase is intact, and one tap finishes it. The server's own
+        // message describes the internals, so it is deliberately not shown.
+        if (reportInitResponse.status === 422 && reportError.code === 'GOAL_CONFLICT_UNRESOLVED') {
+          setFormData({ primaryGoalConfirmed: undefined })
+          setIsGenerating(false)
+          setErrors({
+            goals: 'Before we build your report, please tell us which goal your calorie ' +
+                   'target should be built around.',
+          })
+          requestAnimationFrame(() => {
+            document.getElementById('goal-conflict-heading')
+              ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          })
+          return
+        }
+
         throw new Error(reportError.message || `Report generation failed (${reportInitResponse.status})`)
       }
 
