@@ -1,31 +1,26 @@
 # KetoDial Stripe TEST-mode end-to-end harness
 
-**Status: BLOCKED, waiting on one credential.** Everything below is built and the
-non-Stripe halves are verified. The run needs a working Stripe **test** secret key,
-which only Brew can create — rotating an API key is a Stripe Dashboard action behind
-his login, and the Stripe MCP server is not authorized in this session.
+**Status: RUN COMPLETE, 2026-09-08.** The TEST secret was rotated, five TEST-mode
+prices were created, real Checkout Sessions were completed with `4242 4242 4242 4242`
+in a browser, and `stripe listen --forward-to` forwarded genuine
+`checkout.session.completed` events into the worker, which accepted them (200) and
+performed the payment writeback. Full evidence table: `docs/archive/reports-archive/`.
 
-```
-secrets/api-keys.json -> stripe.secret_key_test   (last rotated 2026-01-06)
-GET https://api.stripe.com/v1/balance
-  -> "Expired API Key provided: sk_test_****"
-```
+Nine TEST Checkout Sessions exist in Stripe history, all `livemode=false`, every one
+carrying metadata keys `customer_name, items, session_token` and **no `form_data`**.
+Stripe does not allow deleting Checkout Sessions; that history is normal and is not
+cleanup residue. All five temporary TEST prices are archived (`active=false`), and no
+live Price object was created, modified, or archived.
 
-The **live** key works. It was deliberately not used: creating a live-mode Checkout
-Session is a production artifact, and this exercise is explicitly non-production.
+## Credentials
 
-## What Brew needs to do (about two minutes)
+`secrets/api-keys.json` → `stripe.secret_key_test` / `stripe.publishable_key_test`
+(rotated 2026-09-08). The harness refuses to start unless the secret begins `sk_test_`
+**and** the publishable key begins `pk_test_`, and it re-checks `livemode:false` on the
+account before touching anything. `secret_key_live` and `publishable_key_live` are never
+read by this file.
 
-1. Stripe Dashboard → **Developers → API keys**, with the **Test mode** toggle on.
-2. Reveal or roll the **test** secret key (`sk_test_…`) and copy it.
-3. Copy the **test** publishable key (`pk_test_…`) from the same page.
-4. Put both into `secrets/api-keys.json` under `stripe.secret_key_test` and
-   `stripe.publishable_key_test`, and set `stripe.last_rotated` to today.
-
-Only the test credentials change. **Do not touch `secret_key_live` or
-`publishable_key_live`, and do not modify any live Price object.**
-
-## Then
+## To run it again
 
 ```bash
 node tests/harness/stripe-e2e.mjs --create-prices   # makes TEST-mode products/prices
@@ -39,17 +34,17 @@ KD_STRIPE_CLI_SECRET=whsec_… node tests/harness/stripe-e2e.mjs --stripe-cli
 node tests/harness/stripe-e2e.mjs --cleanup         # archives the TEST prices
 ```
 
-`--stripe-cli` routes **run A's** webhook through Stripe CLI, so at least one
-completed purchase is proven against Stripe's real event envelope and signing
-format rather than only our own HMAC. Runs B, C and D keep the harness-signed
-replay, which is what makes the replay / malformed / multi-signature cases
-deterministic. Without the flag every run uses the synthetic signature and the
-script says so on startup.
+`--stripe-cli` routes **every** completed purchase's webhook through Stripe CLI, so the
+signature, the event envelope and the delivery are all Stripe's rather than ours.
+Without the flag every run uses the harness's own HMAC and the script says so on
+startup. Those synthetic signatures are still what makes the malformed-signature,
+replay-window and secret-rotation cases deterministic — but they are harness-generated,
+not Stripe-generated, and must never be described as the latter.
 
-There is nothing to assert on the CLI-forwarded response — Stripe CLI holds it —
-so the evidence that the event arrived **and verified** is the payment writeback,
-which only the paid path performs. A failed signature returns 400 and the row never
-changes.
+There is nothing to assert on the CLI-forwarded response — Stripe CLI holds it — so the
+evidence that the event arrived **and verified** is the payment writeback, which only
+the paid branch of a signature-verified event performs. A failed signature returns 400
+and the row never changes. Every CLI leg asserts on that row, never on a literal `true`.
 
 ## Why swapping two env vars is not enough
 
@@ -121,10 +116,12 @@ So the session completes the way Stripe intends. The harness:
 4. polls Stripe until the Session reports `status=complete` and `payment_status=paid`;
 5. automates everything after that.
 
-**One manual card entry per run is the only human step.** Cross-origin iframe
-interaction is not something page JavaScript can do, and this harness does not pretend
-otherwise. If you have browser automation that can drive the Stripe iframe, it can
-replace step 3; nothing else changes.
+**One card entry per run is the only step the harness cannot do itself.** Cross-origin
+iframe interaction is not something page JavaScript can do, and this harness does not
+pretend otherwise. On 2026-09-08 step 3 was performed twice by hand and then by Chrome
+browser automation driving the real Stripe iframe; the in-app browser pane could not
+reach across the origin boundary, so the run used the Chrome extension instead. Nothing
+else about the flow changes either way.
 
 ## The webhook is in the matrix, not skipped
 
@@ -138,12 +135,19 @@ real Checkout completion → signed checkout.session.completed → /webhook
 
 `/fulfill` is still tested, but only where it belongs: after a late profile completion.
 
-**Signing.** The harness signs its replay with its own secret
-(`whsec_kd_audit2b_harness_only_not_production`) supplied to the worker as
-`STRIPE_WEBHOOK_SECRET`. The production webhook secret is deliberately not used and
-this process never holds it. The event body is the genuine Checkout Session Stripe
-just produced.
+**Signing, and what each kind of signature does and does not prove.**
 
-For end-to-end Stripe-signed delivery instead, run
-`stripe listen --forward-to localhost:8797/api/webhook` and set the harness secret to
-the one the CLI prints.
+| Signature | Produced by | Proves |
+|---|---|---|
+| `stripe listen --forward-to` | Stripe | that Stripe's real envelope and signing format verify against the worker, end to end |
+| harness HMAC over the genuine Session body | this script | malformed signatures, the replay window, multi-secret rotation, and the unpaid branch, deterministically |
+
+The harness HMAC cases are useful and they are **not** Stripe-generated. Do not describe
+them as Stripe evidence.
+
+Whichever is in use, `STRIPE_WEBHOOK_SECRET` given to the worker is the matching test
+secret: the harness's own `whsec_kd_audit2b_harness_only_not_production`, or the one
+`stripe listen` prints. The production webhook secret is deliberately not used and this
+process never holds it. Passing `KD_STRIPE_CLI_SECRET` switches both the worker's
+verification secret and the harness's signing secret together; an earlier version
+switched only one, and every CLI run returned 400 for the wrong reason.

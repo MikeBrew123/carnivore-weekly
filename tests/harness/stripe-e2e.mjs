@@ -175,6 +175,11 @@ if (CREATE_PRICES) { await createPrices(); process.exit(0); }
 // ---------------------------------------------------------------------------
 // Supabase helpers — real database, marked rows, guaranteed cleanup
 // ---------------------------------------------------------------------------
+// Captured HERE, above the --cleanup early exit. It used to be declared with the
+// Resend interceptor further down, so `--cleanup` reached cleanupRows() before the
+// binding was initialised and died in the temporal dead zone — after archiving the
+// prices but before reporting on the rows.
+const realFetch = globalThis.fetch;
 const SB = {
   apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
   'Content-Type': 'application/json', Accept: 'application/json',
@@ -225,7 +230,6 @@ if (CLEANUP_ONLY) {
 // ---------------------------------------------------------------------------
 // Resend interception — RAIL 3
 // ---------------------------------------------------------------------------
-const realFetch = globalThis.fetch;
 const emails = [];
 globalThis.fetch = async (url, opts = {}) => {
   const u = String(url);
@@ -321,7 +325,7 @@ const step2 = (token) => ({
  * with a test card — and this polls until Stripe says so. That single card entry is
  * the one manual action in the whole run; everything after it is automated.
  */
-async function awaitCheckoutCompletion(sessionId, { timeoutMs = 300000 } = {}) {
+async function awaitCheckoutCompletion(sessionId, { timeoutMs = 900000 } = {}) {
   const started = Date.now();
   let lastStatus = null;
   console.log(`\n  Complete this Checkout Session in the browser (test card 4242 4242 4242 4242,`);
@@ -360,13 +364,20 @@ async function awaitCheckoutCompletion(sessionId, { timeoutMs = 300000 } = {}) {
  * the payment writeback. If the signature had failed the worker would have returned
  * 400 and this row would never change.
  */
-async function awaitForwardedWebhook(token, { timeoutMs = 120000 } = {}) {
+async function awaitForwardedWebhook(token, { timeoutMs = 180000, until = 'delivered' } = {}) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
     const row = await readRow(token);
-    if (row?.payment_status === 'completed') return row;
+    // The webhook writes the payment back BEFORE it sends anything, so waiting on
+    // payment_status alone races the email and reads emails.length as 0. Wait for the
+    // actual terminal state of the run.
+    if (row?.payment_status === 'completed') {
+      if (until === 'payment') return row;
+      if (until === 'delivered' && row.reports_delivered_at) return row;
+      if (until === 'awaiting-profile' && emails.length > 0) return row;
+    }
     process.stdout.write('\r  waiting for the Stripe CLI to forward the event…   ');
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 1500));
   }
   throw new Error('Timed out waiting for a Stripe-CLI-forwarded event. Is `stripe listen` running, ' +
                   'and is KD_STRIPE_CLI_SECRET the secret it printed?');
@@ -376,7 +387,7 @@ async function deliverWebhook(session, type = 'checkout.session.completed') {
   const body = JSON.stringify({ type, data: { object: session } });
   const t = Math.floor(Date.now() / 1000);
   const { createHmac } = await import('node:crypto');
-  const v1 = createHmac('sha256', HARNESS_WEBHOOK_SECRET).update(`${t}.${body}`).digest('hex');
+  const v1 = createHmac('sha256', WEBHOOK_SECRET).update(`${t}.${body}`).digest('hex');
   const res = await worker.fetch(new Request('https://ketodial-api.test/webhook', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'stripe-signature': `t=${t},v1=${v1}` },
@@ -544,12 +555,12 @@ try {
 
     // THE WEBHOOK IS THE PATH UNDER TEST, not /fulfill.
     emails.length = 0;
-    const useCli = STRIPE_CLI && run.id === 'A';
+    const useCli = STRIPE_CLI;
     if (useCli) {
       // Stripe signed this one, not us. Nothing to inspect in the response — the CLI
       // holds it — so the evidence is the writeback only the paid path performs.
       console.log('\n  Expecting Stripe CLI to forward checkout.session.completed…');
-      const row = await awaitForwardedWebhook(token);
+      const row = await awaitForwardedWebhook(token, { until: 'delivered' });
       console.log('\n  forwarded and verified.');
       check(G, "a genuinely Stripe-signed event traversed the worker and was ACCEPTED",
         row?.payment_status === 'completed',
@@ -612,10 +623,22 @@ try {
       if (csid) {
         const paid = await awaitCheckoutCompletion(csid);
         emails.length = 0;
-        const hook = await deliverWebhook(paid);
-        check(G, '/webhook accepted the signed event', hook.status === 200, `${hook.status}`);
-        check(G, 'the webhook saw an unfinished profile', hook.json?.awaiting_profile === true,
-          JSON.stringify(hook.json));
+        if (STRIPE_CLI) {
+          console.log('\n  Expecting Stripe CLI to forward checkout.session.completed…');
+          const dRow = await awaitForwardedWebhook(token, { until: 'awaiting-profile' });
+          console.log('\n  forwarded and verified.');
+          // Assert the writeback, not `true`. Nothing but the paid branch of a
+          // signature-verified event writes payment_status; a 400 leaves it alone.
+          check(G, 'a genuinely Stripe-signed event reached the webhook and was ACCEPTED',
+            dRow?.payment_status === 'completed' && dRow?.stripe_payment_intent_id,
+            `${dRow?.payment_status} / pi=${dRow?.stripe_payment_intent_id ? 'set' : 'MISSING'}`);
+          check(G, 'the webhook saw an unfinished profile', emails.length === 1, `${emails.length} email(s)`);
+        } else {
+          const hook = await deliverWebhook(paid);
+          check(G, '/webhook accepted the signed event', hook.status === 200, `${hook.status}`);
+          check(G, 'the webhook saw an unfinished profile', hook.json?.awaiting_profile === true,
+            JSON.stringify(hook.json));
+        }
         check(G, 'and sent the finish-profile reminder, not silence',
           emails.length === 1 && /finish your/i.test(emails[0]?.subject || ''),
           `${emails.length} email(s): ${emails[0]?.subject}`);

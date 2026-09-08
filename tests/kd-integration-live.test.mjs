@@ -1052,5 +1052,7 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`\n${checks} assertions passed against the real storage path.`);
-console.log('\nRemaining gap: no Stripe object was created. Rotate stripe.secret_key_test');
-console.log('and re-run for a true end-to-end with no change to this file.\n');
+console.log('\nScope: the storage path only. No Stripe object is created here — that gap');
+console.log('was closed separately on 2026-09-08 by tests/harness/stripe-e2e.mjs, which');
+console.log('completed real TEST-mode Checkout Sessions and had Stripe CLI forward the');
+console.log('resulting checkout.session.completed events into the worker.\n');
