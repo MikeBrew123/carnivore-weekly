@@ -43,7 +43,7 @@ import {
   generateStarterKit,
 } from './reports.js';
 import { IntakeError, loadAuthoritativeIntake } from './intake.js';
-import { deriveKdMedicalContext } from './reports.js';
+import { deriveKdMedicalContext, allowedProducts } from './reports.js';
 
 const PRICE_MAP = {
   doctor: 'price_1TcvcxEVDfkpGz8w3XZgaWjN',
@@ -58,6 +58,9 @@ const BUNDLE_EXPAND = {
   essentials: ['meal', 'starter'],
   protocol: ['doctor', 'meal', 'starter'],
 };
+
+/** The only three answers the early kidney-safety question can produce. */
+const KIDNEY_ANSWERS = new Set(['no', 'yes', 'unsure']);
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -115,6 +118,10 @@ async function handleSession(request, env) {
       // derive TDEE and then never persisted, so the report could only have shown a
       // value it invented. Store it or do not print it.
       lifestyle_activity: b.lifestyle_activity || null,
+      // The early renal gate, answered before the free protein result is shown.
+      // Not `|| null` on a falsy check by accident: 'no' is a real answer and the
+      // only one that unlocks a personalized protein target.
+      kidney_status: KIDNEY_ANSWERS.has(b.kidney_status) ? b.kidney_status : null,
       height_cm: b.height_cm || null,
       weight_value: b.weight_value || null,
       weight_unit: b.weight_unit || 'lbs',
@@ -214,6 +221,9 @@ async function handleSessionUpdate(request, env) {
     setIfSent('previous_diets', b.previous_diets);
     setIfSent('dairy_tolerance', b.dairy_tolerance);
     setIfSent('lifestyle_activity', b.lifestyle_activity);
+    // A customer may go back and change this. Only the three real answers are
+    // accepted; anything else leaves the stored value alone rather than clearing it.
+    if (KIDNEY_ANSWERS.has(b.kidney_status)) updates.kidney_status = b.kidney_status;
     updates.updated_at = new Date().toISOString();
 
     const res = await fetch(
@@ -417,8 +427,9 @@ async function handleCheckout(request, env) {
     // questionnaire", at the moment the customer can still do something about it,
     // instead of as a refund conversation after they have paid. Everything after
     // this line has a validated intake behind it.
+    let checkoutIntake;
     try {
-      await loadAuthoritativeIntake(token, env);
+      checkoutIntake = await loadAuthoritativeIntake(token, env);
     } catch (err) {
       if (err instanceof IntakeError) {
         console.error('Checkout blocked, intake not usable:', err.code, err.missing.join('|'));
@@ -437,6 +448,27 @@ async function handleCheckout(request, env) {
         error: 'intake_store_unavailable',
         message: 'We are having trouble reaching our own records right now. Please try again ' +
                  'in a few minutes — nothing has been charged.',
+      });
+    }
+
+    // SAFETY CHANGES THE OFFER, NOT THE ABILITY TO PURCHASE.
+    // The browser has already removed the protein-anchored items from the picker for
+    // this customer, so reaching here with one is either a stale page or someone
+    // calling the endpoint directly. Either way we decline THAT ITEM and say what is
+    // still available — we do not block the purchase, disable the button, or ask for
+    // a second health intake. The customer buys what we can actually deliver.
+    const offer = allowedProducts(deriveKdMedicalContext(checkoutIntake));
+    const unavailable = items.filter(i => !offer.allowed.includes(i));
+    if (unavailable.length) {
+      console.log(`Checkout offer adjusted for ${token}: declined ${unavailable.join(',')} (${offer.reason})`);
+      return jsonResponse(409, {
+        error: 'product_unavailable',
+        code: offer.reason,
+        unavailable,
+        available: offer.allowed,
+        message: 'Because you told us about your kidney function, KetoDial does not build a ' +
+                 'personalized protein-anchored meal plan for you. The other reports are ' +
+                 'unaffected — please refresh to see what is available.',
       });
     }
 

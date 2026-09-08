@@ -68,8 +68,9 @@ const KD_PUBLIC_JS = path.join(REPO, 'ketodial', 'public', 'ketodial.js');
 const {
   IntakeError, normalizeIntake, validateIntake, requireFacts, loadAuthoritativeIntake,
 } = await import('file://' + INTAKE_JS);
-const { generateDoctorReport, generateMealPlan, generateStarterKit } =
-  await import('file://' + REPORTS_JS);
+const { generateDoctorReport, generateMealPlan, generateStarterKit,
+        deriveKdMedicalContext, allowedProducts } = await import('file://' + REPORTS_JS);
+const KD_INDEX_HTML = path.join(REPO, 'ketodial', 'public', 'index.html');
 
 let checks = 0;
 const failures = [];
@@ -96,6 +97,7 @@ const ROW = {
   weight_unit: 'lbs',
   goal: 'lose',
   lifestyle_activity: 'sedentary',
+  kidney_status: 'no',
   calculated_macros: { calories: 1650, fatG: 128, proteinG: 118, carbG: 22, tdee: 2060 },
   conditions: ['t2d', 'bp', 'chol'],
   symptoms: ['energy', 'cravings', 'sleep'],
@@ -119,6 +121,7 @@ function legacyFormDataShape(row) {
     weightKg: Math.round(Number(row.weight_value) * 0.453592),
     heightCm: row.height_cm,
     goal: row.goal, activity: row.lifestyle_activity,
+    kidneyStatus: row.kidney_status,
     calories: row.calculated_macros.calories, fatG: row.calculated_macros.fatG,
     proteinG: row.calculated_macros.proteinG, carbG: row.calculated_macros.carbG,
     tdee: row.calculated_macros.tdee,
@@ -447,6 +450,164 @@ for (const c of MALFORMED_CASES) {
 }
 
 // ===========================================================================
+// GROUP H — THE EARLY RENAL GATE: what we SHOW and what we SELL.
+// ---------------------------------------------------------------------------
+// One question, asked once, before the free protein result:
+//
+//   "Have you been diagnosed with kidney disease, told that your kidney function is
+//    reduced, or are you on dialysis?"   No / Yes / I'm not sure
+//
+// The rule being tested is SAFETY CHANGES THE OFFER, NOT THE ABILITY TO PURCHASE.
+// A customer who answers Yes must still be able to spend money — on the things we
+// can actually deliver. Assertions that only checked suppression would be satisfied
+// by a product that refuses to sell anything, which is the opposite of the point, so
+// every suppression case below also asserts that a purchase path survives.
+// ===========================================================================
+{
+  const asked = (answer, extra = {}) => ({ ...legacyFormDataShape(ROW), kidneyStatus: answer, ...extra });
+
+  // --- No: nothing changes. ---
+  {
+    const d = asked('no');
+    const ctx = deriveKdMedicalContext(d);
+    const offer = allowedProducts(ctx);
+    check('H', 'No — protein target is NOT suppressed', ctx.restrictProteinTarget === false, '');
+    check('H', 'No — the personalized protein figure appears in the report',
+      new RegExp(`${d.proteinG}\\s*g`).test(generateDoctorReport('Linda', d)), '');
+    check('H', 'No — the protein-anchored meal plan is generated',
+      /class="wg"/.test(generateMealPlan('Linda', d)), '');
+    check('H', 'No — every product remains purchasable, bundles included',
+      offer.allowed.length === 5 && offer.blocked.length === 0, offer.blocked.join(','));
+  }
+
+  // --- Yes and I'm not sure: identical treatment. ---
+  for (const answer of ['yes', 'unsure']) {
+    const d = asked(answer);
+    const ctx = deriveKdMedicalContext(d);
+    const offer = allowedProducts(ctx);
+    const doc = generateDoctorReport('Linda', d);
+    const meal = generateMealPlan('Linda', d);
+    const starter = generateStarterKit('Linda', d);
+    const text = h => h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+    check('H', `${answer} — the gate suppresses the protein target`,
+      ctx.restrictProteinTarget === true, '');
+    check('H', `${answer} — and the electrolyte protocol too (renal is cardio-renal)`,
+      ctx.restrictElectrolyteProtocol === true,
+      'protein was withheld while the sodium and potassium protocol still printed');
+
+    check('H', `${answer} — their protein number appears in NO document`,
+      !new RegExp(`\\b${d.proteinG}\\s*g\\b`).test(text(doc + meal + starter)), '');
+    check('H', `${answer} — and no SUBSTITUTE protein number is offered either`,
+      !/\b\d{1,3}\s*(?:g|grams)\s*(?:of\s+)?protein\b/i.test(text(doc + meal + starter)) &&
+      !/protein[^.]{0,40}?\b\d{1,3}\s*(?:g|grams)\b/i.test(text(doc + meal + starter)),
+      'a gentler protein figure was printed, which is the same decision in a quieter voice');
+    check('H', `${answer} — the reader is routed to a clinician instead`,
+      /renal dietitian/i.test(text(doc)), '');
+
+    check('H', `${answer} — the protein-anchored meal plan is NOT sold`,
+      offer.blocked.includes('meal'), '');
+    check('H', `${answer} — nor any bundle containing it`,
+      offer.blocked.includes('essentials') && offer.blocked.includes('protocol'), '');
+
+    // The half that stops this becoming a blocked funnel.
+    check('H', `${answer} — the Doctor's Report is still purchasable`,
+      offer.allowed.includes('doctor'), '');
+    check('H', `${answer} — the Starter Kit is still purchasable`,
+      offer.allowed.includes('starter'), '');
+    check('H', `${answer} — the customer can still spend money`,
+      offer.allowed.length >= 2, 'the funnel was closed rather than adjusted');
+
+    // $5.99 + $3.99 = $9.98 against $10.99 for the Full Protocol they can no longer
+    // receive in full. Removing the bundle must never cost them more.
+    check('H', `${answer} — buying the remaining products costs less than the blocked bundle`,
+      (5.99 + 3.99) < 10.99, '');
+  }
+
+  // --- The early answer is not the ONLY signal. ---
+  {
+    const backstop = asked('no', { meds: 'I see a nephrologist for CKD stage 3' });
+    check('H', 'answering No does not override a declared CKD elsewhere in the intake',
+      deriveKdMedicalContext(backstop).restrictProteinTarget === true,
+      'the early question became the only signal, so free text no longer protects anyone');
+  }
+
+  // --- Unanswered is not "no". ---
+  {
+    const ctx = deriveKdMedicalContext(asked(undefined));
+    check('H', 'an unrecorded answer fails CLOSED, it is not read as No',
+      ctx.restrictProteinTarget === true, '');
+  }
+}
+
+// ===========================================================================
+// GROUP I — PERSISTENCE. One source of truth, not two.
+// ---------------------------------------------------------------------------
+// The early answer is given on the first screen, long before payment. If it lived
+// only in client state it would be a second, contradictory source of truth — the
+// exact shape of the defect this whole change removed. It must survive into the
+// authoritative record and be the same value the report generator later reads.
+// ===========================================================================
+{
+  const client = fs.readFileSync(KD_PUBLIC_JS, 'utf8');
+  const html = fs.readFileSync(KD_INDEX_HTML, 'utf8');
+  const worker = fs.readFileSync(WORKER_JS, 'utf8');
+
+  check('I', 'the question is asked in the intake form',
+    /data-seg="kidney"/.test(html), '');
+  check('I', 'with all three answers the worker understands',
+    ['no', 'yes', 'unsure'].every(v => new RegExp(`data-val="${v}"`).test(html)), '');
+  check('I', 'and it is asked BEFORE the free results block',
+    html.indexOf('id="kidneyField"') > -1 &&
+    html.indexOf('id="kidneyField"') < html.indexOf('id="freeResults"'),
+    'the protein figure would be shown before the safety question was answered');
+  check('I', 'the browser sends the answer when the session is created',
+    /kidney_status:kidneyStatus\(\)/.test(client), '');
+  check('I', 'and re-sends it if the customer changes their mind',
+    (client.match(/kidney_status:kidneyStatus\(\)/g) || []).length >= 2, '');
+  check('I', 'the worker persists it on session create',
+    /kidney_status:\s*KIDNEY_ANSWERS\.has/.test(worker), '');
+  check('I', 'and accepts a correction on session update',
+    /updates\.kidney_status\s*=\s*b\.kidney_status/.test(worker), '');
+  check('I', 'only the three real answers are storable',
+    /KIDNEY_ANSWERS = new Set\(\['no', 'yes', 'unsure'\]\)/.test(worker), '');
+
+  // THE ROUND TRIP: stored column -> authoritative intake -> medical context.
+  for (const answer of ['no', 'yes', 'unsure']) {
+    const intake = validateIntake(normalizeIntake({ ...ROW, kidney_status: answer }));
+    check('I', `round trip: '${answer}' survives the DB row into authoritative intake`,
+      intake.kidneyStatus === answer, `got ${intake.kidneyStatus}`);
+    check('I', `round trip: report-generation medical context sees the same '${answer}'`,
+      deriveKdMedicalContext(intake).kidneyAnswer === answer, '');
+    check('I', `round trip: suppression follows the stored answer for '${answer}'`,
+      deriveKdMedicalContext(intake).restrictProteinTarget === (answer !== 'no'), '');
+  }
+
+  // The column is REQUIRED, so a session that never asked cannot buy or generate.
+  let err = null;
+  try { validateIntake(normalizeIntake({ ...ROW, kidney_status: null })); } catch (e) { err = e; }
+  check('I', 'a row where the question was never asked is refused, not defaulted to No',
+    err instanceof IntakeError && err.missing.some(m => /kidney/i.test(m)),
+    err ? err.missing.join(', ') : 'an intake with no kidney answer was accepted');
+
+  for (const bogus of ['maybe', 'NO ', 'true', '']) {
+    let e2 = null;
+    try { validateIntake(normalizeIntake({ ...ROW, kidney_status: bogus })); } catch (e) { e2 = e; }
+    check('I', `an answer outside the three options is rejected: ${JSON.stringify(bogus)}`,
+      e2 instanceof IntakeError, '');
+  }
+
+  // ONE SOURCE OF TRUTH: the answer must not have been smuggled into `conditions`,
+  // which would make the Doctor's Report assert a diagnosis for an "I'm not sure".
+  const unsure = validateIntake(normalizeIntake({ ...ROW, kidney_status: 'unsure', conditions: [] }));
+  check('I', 'an "I\'m not sure" answer does not fabricate a declared kidney condition',
+    !unsure.conditions.includes('kidney'), '');
+  check('I', 'and the report does not state kidney disease as something they reported',
+    !/Kidney disease \/ CKD/i.test(generateDoctorReport('Linda', unsure)),
+    'suppression turned into diagnosis: the report claims a condition the customer never declared');
+}
+
+// ===========================================================================
 // GROUP G — MUTATION TESTING.
 // ---------------------------------------------------------------------------
 // A passing suite is not evidence. Each protection is broken on purpose against a
@@ -577,6 +738,63 @@ for (const c of MALFORMED_CASES) {
       return /class="wg"/.test(meal);
     });
 
+  // -------------------------------------------------------------------------
+  // The early renal gate. Three mutations, one per required protection.
+  // -------------------------------------------------------------------------
+  const asked = (answer) => ({ ...legacyFormDataShape(ROW), kidneyStatus: answer });
+
+  // 9. REMOVE THE EARLY GATE ENTIRELY. The answer is collected and then ignored,
+  //    which is precisely the state ctx.renal was in before Audit 2B.
+  await mutate('the early kidney answer is ignored', 'reports.js', reportsSrc,
+    "  const kidneyDeclared = kidneyAnswer !== 'no';",
+    '  const kidneyDeclared = false;',
+    async (m) => {
+      const yes = m.deriveKdMedicalContext(asked('yes'));
+      // Detected when a Yes stops suppressing.
+      return yes.restrictProteinTarget === false;
+    });
+
+  // 10. RESTORE INDIVIDUALIZED PROTEIN OUTPUT FOR YES/UNSURE by treating "not sure"
+  //     as an all-clear — the tempting shortcut, since most unsure customers do not
+  //     have kidney disease. It is still asking them to rule out their own renal
+  //     function.
+  await mutate('"I\'m not sure" treated as an all-clear', 'reports.js', reportsSrc,
+    "  const kidneyDeclared = kidneyAnswer !== 'no';",
+    "  const kidneyDeclared = kidneyAnswer === 'yes';",
+    async (m) => {
+      const unsure = m.deriveKdMedicalContext(asked('unsure'));
+      if (unsure.restrictProteinTarget) return false;
+      // Detected when the individualized figure comes back for an unsure customer.
+      const doc = m.generateDoctorReport('Linda', asked('unsure'));
+      return new RegExp(`${ROW.calculated_macros.proteinG}\\s*g`).test(doc);
+    });
+
+  // 11. ALLOW UNSUPPORTED MEAL-PLAN CHECKOUT: the offer stops adjusting, so a
+  //     customer can pay for a plan that will be refused at generation time.
+  await mutate('the meal plan is sold to a suppressed customer', 'reports.js', reportsSrc,
+    "const PROTEIN_ANCHORED_PRODUCTS = new Set(['meal']);",
+    'const PROTEIN_ANCHORED_PRODUCTS = new Set([]);',
+    async (m) => {
+      const offer = m.allowedProducts(m.deriveKdMedicalContext(asked('yes')));
+      // Detected when a protein-anchored product is back on sale for this customer.
+      return offer.allowed.includes('meal') || offer.allowed.includes('protocol');
+    });
+
+  // 12. And the belt to that brace: the renal signal reaching protein but not the
+  //     electrolyte protocol. This is a hole that actually existed for one commit.
+  await mutate('renal suppresses protein but not electrolytes', 'reports.js', reportsSrc,
+    '  const cardioRenal = cardioRenalSlug || cardioRenalText || renal;',
+    '  const cardioRenal = cardioRenalSlug || cardioRenalText;',
+    async (m) => {
+      // The probe MUST be a persona whose only restricting signal is the kidney
+      // answer. ROW declares four medications, and hasDeclaredMedication alone keeps
+      // the electrolyte protocol suppressed — so probing with it would mask this
+      // mutation entirely and score a decorative assertion as a real one.
+      const kidneyOnly = { ...asked('yes'), meds: '', conditions: [], symptoms: [] };
+      const yes = m.deriveKdMedicalContext(kidneyOnly);
+      return yes.restrictProteinTarget === true && yes.restrictElectrolyteProtocol === false;
+    });
+
   try { fs.rmSync(tmp, { recursive: true, force: true }); } catch { /* best effort */ }
 }
 
@@ -594,6 +812,8 @@ const GROUPS = {
   D: '"answered nothing" is not "never asked"',
   E: 'legacy paid sessions',
   F: 'requireFacts backstop',
+  H: 'early renal gate: what we show and what we sell',
+  I: 'persistence: one source of truth',
   G: 'mutation testing',
 };
 for (const [g, title] of Object.entries(GROUPS)) {

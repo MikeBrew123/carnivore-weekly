@@ -273,10 +273,50 @@ export function deriveKdMedicalContext(d) {
     .join(' | ').toLowerCase();
   const cardioRenalSlug = declaredConditionSlugs.some(c => KD_RESTRICTING_CONDITION_SLUGS.has(c));
   const cardioRenalText = KD_CARDIO_RENAL_TERMS.some(t => blob.includes(t));
-  const cardioRenal = cardioRenalSlug || cardioRenalText;
-  const renal = declaredConditionSlugs.includes('kidney') ||
+  // THE EARLY GATE (2026-09-08, Audit 2B). One question, asked once, BEFORE the free
+  // protein result: "Have you been diagnosed with kidney disease, told that your
+  // kidney function is reduced, or are you on dialysis?" -> no | yes | unsure.
+  //
+  // "I'm not sure" is treated exactly as "yes". That is not caution for its own sake:
+  // the alternative is asking a customer to rule out their own renal function, which
+  // is the clinical judgement this software is least entitled to ask for. Over-
+  // suppression costs one line of a report; under-suppression prints a protein
+  // prescription for someone with reduced kidney function.
+  //
+  // FAIL CLOSED ON AN UNRECORDED ANSWER. Anything that is not an explicit 'no'
+  // restricts, and that includes the field being absent entirely. An unanswered
+  // safety question is not a negative answer.
+  //
+  // Two layers stop that from turning into over-suppression for real customers:
+  // validateIntake() makes kidneyStatus a required fact, so a session that never
+  // recorded it is refused at the request boundary rather than quietly downgraded to
+  // a restricted report; and requireFacts() repeats the demand inside each generator
+  // for any caller that arrives by some other route. What is left here is the last
+  // line, and the last line does not get to assume the best case.
+  const kidneyAnswer = typeof data.kidneyStatus === 'string'
+    ? data.kidneyStatus.trim().toLowerCase() : '';
+  const kidneyAnswered = kidneyAnswer === 'no' || kidneyAnswer === 'yes' || kidneyAnswer === 'unsure';
+  const kidneyDeclared = kidneyAnswer !== 'no';
+
+  // The free-text and slug detection stays. The early question is the gate a real
+  // customer actually passes through; these catch the reader who answered 'no' to a
+  // formal diagnosis and then typed "my nephrologist" into the medications box.
+  const renal = kidneyDeclared ||
+    declaredConditionSlugs.includes('kidney') ||
     ['kidney', 'renal', 'ckd', 'esrd', 'nephro', 'dialysis', 'glomerul', 'egfr']
       .some(t => blob.includes(t));
+
+  // RENAL IS CARDIO-RENAL. Declared reduced kidney function restricts the electrolyte
+  // protocol as well as the protein target — sodium, potassium and fluid are the
+  // canonical renal decisions, and they are not the software's to make either.
+  //
+  // This line is here because the suite caught its absence. When the early kidney
+  // question was first wired it fed `restrictProteinTarget` only, so a customer who
+  // answered "yes" WITHOUT also ticking the `kidney` condition chip on the later
+  // screen had their protein target withheld and was then handed the full sodium and
+  // potassium protocol on the next page. A new signal has to reach every gate it is
+  // relevant to, not just the one it was added for.
+  const cardioRenal = cardioRenalSlug || cardioRenalText || renal;
 
   // THE GATE. Blunt on purpose. Over-suppression is the acceptable failure here;
   // printing a potassium target for someone on an ACE inhibitor is not.
@@ -310,9 +350,70 @@ export function deriveKdMedicalContext(d) {
     renal,
     unknownConditionSlug,
     unreadableIntake,
+    kidneyAnswer: kidneyAnswered ? kidneyAnswer : undefined,
+    kidneyAnswered,
     restrictElectrolyteProtocol,
     restrictProteinTarget,
     restrictionReason,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// WHAT WE ARE ALLOWED TO SELL
+// ---------------------------------------------------------------------------
+
+/**
+ * Products whose value IS an individualised protein target. There is no version of
+ * these that is not a protein prescription, so when protein is suppressed they are
+ * not deliverable and must not be sold.
+ *
+ * Only the 7-Day Meal Plan qualifies. buildMealPlanDays() anchors on protein twice
+ * over: `minDensity = prot / cal` decides which meals are eligible and
+ * `protScale = prot / baseP` scales every portion.
+ *
+ * The Doctor's Report and the Starter Kit are NOT on this list, and that is the
+ * point of having a list at all. The Doctor's Report withholds the macro panel for a
+ * renal reader and is otherwise exactly the document such a reader most benefits from
+ * taking to their clinician. The Starter Kit's quantities are already gated by
+ * restrictElectrolyteProtocol. Both remain fully deliverable and fully purchasable.
+ */
+const PROTEIN_ANCHORED_PRODUCTS = new Set(['meal']);
+
+/** items -> the individual reports they contain. Mirrors BUNDLE_EXPAND in index.js. */
+const KD_BUNDLE_CONTENTS = {
+  essentials: ['meal', 'starter'],
+  protocol: ['doctor', 'meal', 'starter'],
+};
+
+/**
+ * Decide which catalogue items this customer may buy, given their medical context.
+ *
+ * SAFETY CHANGES THE OFFER, NOT THE ABILITY TO PURCHASE. The customer is never shown
+ * a disabled button, never asked to complete a second health intake to buy, and never
+ * charged for something that will later be refused. The catalogue simply contains
+ * what we can actually deliver to them.
+ *
+ * A bundle is unavailable when any component is, because we have no Stripe price for
+ * a partial bundle. That is not a worse deal: for a renal customer the Doctor's
+ * Report ($5.99) plus the Starter Kit ($3.99) is $9.98, against $10.99 for the Full
+ * Protocol they can no longer receive in full. Nobody pays more for less.
+ *
+ * @param {object} ctx from deriveKdMedicalContext()
+ * @returns {{allowed: string[], blocked: string[], reason: string}}
+ */
+export function allowedProducts(ctx) {
+  const ALL = ['doctor', 'meal', 'starter', 'essentials', 'protocol'];
+  if (!ctx || !ctx.restrictProteinTarget) {
+    return { allowed: ALL, blocked: [], reason: '' };
+  }
+  const blocked = ALL.filter(item => {
+    const parts = KD_BUNDLE_CONTENTS[item] || [item];
+    return parts.some(part => PROTEIN_ANCHORED_PRODUCTS.has(part));
+  });
+  return {
+    allowed: ALL.filter(i => !blocked.includes(i)),
+    blocked,
+    reason: 'personalized_protein_target_unavailable',
   };
 }
 
@@ -760,8 +861,8 @@ export function generateDoctorReport(name, d) {
   // figure on it is a claim about a specific person's body. `const cal = d.calories
   // || 1800` is what let a lost questionnaire print BMI 26.0 for a customer whose
   // BMI was 32.3, under a heading inviting her doctor to act on it. Refuse instead.
-  requireFacts(d, ['calories', 'fatG', 'proteinG', 'carbG', 'tdee', 'weightKg', 'heightCm', 'sex', 'age', 'goal'],
-    'generateDoctorReport');
+  requireFacts(d, ['calories', 'fatG', 'proteinG', 'carbG', 'tdee', 'weightKg', 'heightCm',
+                   'sex', 'age', 'goal', 'kidneyStatus'], 'generateDoctorReport');
 
   const rid = reportId();
   const dateStr = fmtDate();
@@ -1538,7 +1639,7 @@ function generateRenalMealPlanReferral(name, d, ctx) {
 export function generateMealPlan(name, d) {
   // NO DEFAULTS: the portions on every page of this document are computed from
   // these four numbers. See generateDoctorReport for why the `|| 1800` idiom is gone.
-  requireFacts(d, ['calories', 'fatG', 'proteinG', 'carbG'], 'generateMealPlan');
+  requireFacts(d, ['calories', 'fatG', 'proteinG', 'carbG', 'kidneyStatus'], 'generateMealPlan');
 
   // THE SHARED BOUNDARY, consulted before a single portion is sized.
   const ctx = deriveKdMedicalContext(d);
@@ -1706,7 +1807,7 @@ const STARTER_CSS = `
 
 export function generateStarterKit(name, d) {
   // NO DEFAULTS, for the same reason as the other two generators.
-  requireFacts(d, ['carbG'], 'generateStarterKit');
+  requireFacts(d, ['carbG', 'kidneyStatus'], 'generateStarterKit');
   const carb = d.carbG;
   const ctx = deriveKdMedicalContext(d);
   // `restricted` decides whether this document is allowed to print a quantitative

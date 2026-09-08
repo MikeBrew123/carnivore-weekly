@@ -902,3 +902,67 @@ historical row still generates normally.
 ### Not done
 Production was NOT deployed. Both Cloudflare workers still deploy by hand
 (bead: no workflow deploys either worker), and `ketodial/public` is a separate Pages repo.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4b: the renal gate moves BEFORE the free result (Brew)
+
+### The rule
+**Do not make it hard for people to spend money.** Safety changes what we show and sell, not whether
+a customer can buy.
+
+### Why the first version was wrong
+The 2026-09-08 remediation put the renal gate at report generation. That was safe and badly placed:
+the customer answered no safety question, saw a personalized protein target on the free screen, paid,
+and *then* received a referral plus a refund offer. Safety arrived as an apology after the money moved.
+
+### What changed
+One question, asked once, on step 1 before the free protein result:
+
+> **One quick safety check.** Have you been diagnosed with kidney disease, told that your kidney
+> function is reduced, or are you on dialysis?  **No / Yes / I'm not sure**
+
+Not a medical questionnaire, and deliberately not "do you suspect" — we ask what a clinician has
+already told them, never for a self-diagnosis.
+
+| Answer | Free protein result | Products offered |
+|---|---|---|
+| No | personalized figure, normal flow | all five |
+| Yes | "Ask your doctor or renal dietitian" | Doctor's Report + Starter Kit |
+| I'm not sure | identical to Yes | Doctor's Report + Starter Kit |
+
+"I'm not sure" is treated as "Yes". The alternative is asking a customer to rule out their own renal
+function, which is the judgement this software is least entitled to ask for.
+
+### Safety changes the offer, not the ability to purchase
+Only the 7-Day Meal Plan is protein-anchored (`minDensity = prot/cal` selects meals, `protScale =
+prot/baseP` scales portions), so only it and the bundles containing it are withdrawn. The cards are
+removed from the picker, not greyed out behind a warning. No disabled button, no second health form,
+no scary banner. **Doctor's Report $5.99 + Starter Kit $3.99 = $9.98 against $10.99 for the Full
+Protocol they could not have received in full — nobody pays more for less**, so no new Stripe price
+is needed for a partial bundle.
+
+### One source of truth
+`calculator_sessions_v2.kidney_status` (`no|yes|unsure`, CHECK-constrained). A dedicated column, NOT
+the `conditions` array: writing the slug `kidney` would make the Doctor's Report assert a diagnosis
+for someone who answered "I'm not sure". **Suppression must not become diagnosis.** The answer is sent
+with the first `POST /session` and re-sent on change; it is required by `validateIntake`, so NULL
+(every pre-2026-09-08 session) fails closed rather than defaulting to No.
+
+The architecture is unchanged: validated data -> authoritative intake -> medical context -> allowed
+products -> Stripe reference -> report generation.
+
+### A hole the suite caught mid-change
+The early answer first fed `restrictProteinTarget` only. A customer answering Yes without also ticking
+the `kidney` condition chip had their protein withheld and was then handed the full sodium/potassium
+protocol. `cardioRenal` now includes `renal`. **A new signal has to reach every gate it is relevant to,
+not just the one it was added for**, and there is a mutation pinning it.
+
+### Honest limitation
+KetoDial's free protein figure is a flat 25% of calories, not a body-composition calculation. The page
+still shows calories, so the number remains recoverable by arithmetic by anyone who knows the 70/25/5
+split the page itself states. Closing that would mean withholding calories, which contradicts the
+normal-flow rule. The **paid** report has no such leak: the whole macro panel is withheld there.
+
+### Not done
+Production NOT deployed. The migration IS applied to Supabase (additive, nullable, no backfill).

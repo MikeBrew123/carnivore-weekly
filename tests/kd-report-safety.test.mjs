@@ -82,6 +82,11 @@ const { validateIntake } = await import('file://' + path.join(REPO, 'ketodial', 
 const BASE = {
   sex: 'female', age: 58, weightKg: 88, heightCm: 165,
   goal: 'lose', activity: 'sedentary',
+  // The early renal gate, asked once before the free protein result. Every persona
+  // states it explicitly: an absent answer now fails CLOSED, so a fixture that
+  // omitted it would be over-suppressed and every assertion below would pass for
+  // the wrong reason.
+  kidneyStatus: 'no',
   calories: 1650, fatG: 128, proteinG: 113, carbG: 25, tdee: 2060,
   dairy: 'Fine with dairy', cooking: 'Basic — I can follow a recipe',
   prepTime: '30 minutes', cookingFor: 'Two',
@@ -96,7 +101,7 @@ const PERSONAS = [
 
   { id: 'K2', name: 'Kidney disease / CKD, no medications',
     expectRestricted: true, expectRenal: true,
-    d: { ...BASE, conditions: ['kidney'], meds: '' } },
+    d: { ...BASE, kidneyStatus: 'yes', conditions: ['kidney'], meds: '' } },
 
   { id: 'A3', name: 'ACE inhibitor, no conditions declared',
     expectRestricted: true,
@@ -138,9 +143,18 @@ const PERSONAS = [
   // K10 exists because K2 declares kidney disease through the `kidney` slug alone.
   // A protein fix keyed to that slug would leave every reader who typed it in free
   // text unprotected, which is most of them.
-  { id: 'K10', name: 'Kidney disease in free text only, no slug',
+  // kidneyStatus stays 'no' HERE ON PURPOSE. K10 is the backstop persona: someone who
+  // answered No to a formal diagnosis and then typed CKD into the medications box.
+  // If the early question were the only signal, this reader would be unprotected.
+  { id: 'K10', name: 'Answered No to the early gate but declared CKD in free text',
     expectRestricted: true, expectNoProteinTarget: true,
-    d: { ...BASE, conditions: [], meds: 'I see a nephrologist for CKD stage 3' } },
+    d: { ...BASE, kidneyStatus: 'no', conditions: [], meds: 'I see a nephrologist for CKD stage 3' } },
+
+  // "I'm not sure" is treated exactly as "yes". Asking a customer to rule out their
+  // own renal function is the one judgement this software is least entitled to ask for.
+  { id: 'U11', name: 'Answered "I\'m not sure" to the early gate',
+    expectRestricted: true, expectNoProteinTarget: true,
+    d: { ...BASE, kidneyStatus: 'unsure', conditions: [], meds: '' } },
 ];
 
 // ---------------------------------------------------------------------------
@@ -191,6 +205,11 @@ const MUST_REFUSE = [
   { id: 'R5', why: 'null rather than undefined',
     d: { ...BASE, weightKg: null, calories: null },
     refusedBy: ['doctor', 'meal'] },
+  // The early gate itself going missing. A safety question that was never recorded
+  // is not a negative answer, and no generator may proceed on one.
+  { id: 'R6', why: 'the early kidney answer was never recorded',
+    d: { ...BASE, kidneyStatus: undefined },
+    refusedBy: ['doctor', 'meal', 'starter'] },
 ];
 
 const BASELINE = 'H1';

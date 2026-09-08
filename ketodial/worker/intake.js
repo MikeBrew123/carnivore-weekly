@@ -100,6 +100,8 @@ const BOUNDS = {
 
 const VALID_SEX = new Set(['male', 'female']);
 const VALID_GOAL = new Set(['lose', 'maintain', 'gain']);
+/** The only three answers the early kidney question can produce. */
+const VALID_KIDNEY = new Set(['no', 'yes', 'unsure']);
 
 function inBounds(name, value) {
   const b = BOUNDS[name];
@@ -196,6 +198,12 @@ export function normalizeIntake(row) {
     carbG: num(macros.carbG) ?? undefined,
     tdee: num(macros.tdee) ?? undefined,
 
+    // THE EARLY RENAL GATE. Asked once, before the free protein result, and stored
+    // in its own column rather than folded into `conditions` — writing the slug
+    // 'kidney' would have made the Doctor's Report assert a diagnosis for a customer
+    // who answered "I'm not sure". Suppression must not become diagnosis.
+    kidneyStatus: textOrLost(row.kidney_status),
+
     // Medical intake. `undefined` here means LOST, not "none".
     conditions: listOrLost(row.conditions),
     symptoms: listOrLost(row.symptoms),
@@ -251,6 +259,10 @@ export function validateIntake(intake) {
   if (!(intake.stepCompleted >= 2)) missing.push('medical intake (step 2 never recorded)');
   if (intake.conditions === undefined) missing.push('conditions');
   if (intake.meds === undefined) missing.push('medications');
+  // The early kidney answer decides both what we show and what we are allowed to
+  // sell, so a session that never recorded it cannot produce a paid report. NULL is
+  // every session predating 2026-09-08; there were 0 paid KetoDial sessions then.
+  if (intake.kidneyStatus === undefined) missing.push('kidney safety answer');
 
   if (missing.length) {
     throw new IntakeError('INTAKE_INCOMPLETE', missing);
@@ -260,6 +272,7 @@ export function validateIntake(intake) {
   const invalid = [];
   if (!VALID_SEX.has(String(intake.sex).toLowerCase())) invalid.push('sex');
   if (!VALID_GOAL.has(String(intake.goal).toLowerCase())) invalid.push('goal');
+  if (!VALID_KIDNEY.has(String(intake.kidneyStatus).toLowerCase())) invalid.push('kidneyStatus');
   if (!inBounds('age', intake.age)) invalid.push('age');
   if (!inBounds('height_cm', intake.heightCm)) invalid.push('heightCm');
   if (!inBounds('weight_kg', intake.weightKg)) invalid.push('weightKg');
