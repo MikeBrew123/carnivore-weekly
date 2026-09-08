@@ -266,11 +266,48 @@ check('D', 'the client blocks its own submit rather than trusting the button',
     'the message is set but nothing displays it');
 }
 
-check('D', 'changing the motivations clears a stale resolution',
-  /primaryGoalConfirmed', undefined/.test(
-    fs.readFileSync(path.join(ROOT, 'calculator2-demo', 'src', 'components', 'calculator',
-      'steps', 'Step4HealthProfile.tsx'), 'utf8')),
-  'editing the checklist keeps an answer that no longer describes the selection');
+{
+  const st4 = fs.readFileSync(path.join(ROOT, 'calculator2-demo', 'src', 'components',
+    'calculator', 'steps', 'Step4HealthProfile.tsx'), 'utf8');
+
+  check('D', 'changing the motivations clears a stale resolution',
+    /goals: values,\s*primaryGoalConfirmed: undefined/.test(st4),
+    'editing the checklist keeps an answer that no longer describes the selection');
+
+  // The clearing and the edit must land in ONE state update. handleInputChange spreads
+  // the `data` of the current render, so two calls in a row make the second discard
+  // the first. Shipped once: ticking a motivation set `goals` and instantly reverted
+  // it, so the checklist did nothing at all and the resolver could never appear.
+  // Found by driving the deployed page, not by any assertion that existed then.
+  // Slice each handler by brace balance rather than by regex: JSX bodies vary in
+  // indentation and a character-window match silently reports "not found" as a pass.
+  const handlerBody = (marker, from = 0) => {
+    const at = st4.indexOf(marker, from);
+    if (at === -1) return null;
+    let i = st4.indexOf('{', at + marker.length - 1), depth = 0;
+    for (let j = i; j < st4.length; j++) {
+      if (st4[j] === '{') depth++;
+      else if (st4[j] === '}' && --depth === 0) return st4.slice(at, j + 1);
+    }
+    return null;
+  };
+  // Anchor on the goals CheckboxGroup: an earlier group (conditions) has an
+  // identically shaped onChange, and matching that one would test nothing.
+  const goalsAt = st4.indexOf('name="goals"');
+  check('D', 'the goals checklist is present in Step 4', goalsAt > -1, '');
+  for (const [what, marker] of [
+    ['the motivations handler', 'onChange={(values)'],
+    ['the resolver handler', 'onResolve={(primaryGoal)'],
+  ]) {
+    const body = handlerBody(marker, goalsAt);
+    check('D', `${what} exists`, body !== null, `could not find "${marker}"`);
+    if (body === null) continue;
+    const calls = (body.match(/handleInputChange\(/g) || []).length;
+    check('D', `${what} makes a single state update`, calls === 0,
+      `it calls handleInputChange ${calls} time(s); each call spreads stale data, so ` +
+      `all but the last are silently discarded. Use one onDataChange({...data, ...}).`);
+  }
+}
 
 // ===========================================================================
 // GROUP E — BEHAVIOURAL. Drive the real HTTP handlers and prove no charge can be

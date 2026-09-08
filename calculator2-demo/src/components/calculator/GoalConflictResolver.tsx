@@ -31,7 +31,7 @@ export default function GoalConflictResolver({
   onResolve,
 }: {
   data: GoalConflictInput
-  onResolve: (primaryGoal: string) => void
+  onResolve: (primaryGoal: 'lose' | 'maintain' | 'gain') => void
 }) {
   const conflict = detectGoalConflict(data)
   if (!conflict.conflict) return null
@@ -86,7 +86,7 @@ export default function GoalConflictResolver({
             <button
               key={c.value}
               type="button"
-              onClick={() => onResolve(c.value)}
+              onClick={() => onResolve(c.value as 'lose' | 'maintain' | 'gain')}
               aria-pressed={selected}
               style={{
                 textAlign: 'left',

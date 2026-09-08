@@ -388,25 +388,34 @@ export default function Step4HealthProfile({
               ]}
               values={data.goals || []}
               error={errors.goals}
-              onChange={(values) => {
-                handleInputChange('goals', values)
+              onChange={(values) =>
+                // ONE update. handleInputChange spreads the `data` of the current
+                // render, so two calls in a row make the second discard the first:
+                // ticking a box set `goals` and then immediately reverted it.
+                //
                 // Changing the motivations can create a brand new contradiction, or
                 // remove the one that was already answered. Either way the previous
                 // answer no longer describes the current selection, so it is cleared
-                // and asked again rather than carried forward stale.
-                handleInputChange('primaryGoalConfirmed', undefined)
-              }}
+                // here and asked again rather than carried forward stale.
+                onDataChange({ ...data, goals: values, primaryGoalConfirmed: undefined })
+              }
             />
             <GoalConflictResolver
               data={data}
-              onResolve={(primaryGoal) => {
+              onResolve={(primaryGoal) =>
+                // Also ONE update, for the same reason: three sequential calls would
+                // have left only the timestamp and dropped the answer itself.
+                //
                 // The customer's explicit choice becomes the authoritative goal. The
                 // motivations they ticked are kept exactly as they are: they are still
                 // true things the customer wants, they just do not set the calories.
-                handleInputChange('goal', primaryGoal)
-                handleInputChange('primaryGoalConfirmed', true)
-                handleInputChange('primaryGoalConfirmedAt', new Date().toISOString())
-              }}
+                onDataChange({
+                  ...data,
+                  goal: primaryGoal,
+                  primaryGoalConfirmed: true,
+                  primaryGoalConfirmedAt: new Date().toISOString(),
+                })
+              }
             />
           </div>
 

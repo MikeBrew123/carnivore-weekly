@@ -21,6 +21,9 @@ export interface FormData {
   // `goals` and has explicitly chosen which should set their calorie target.
   // The worker accepts the literal boolean true and nothing else.
   primaryGoalConfirmed?: boolean
+  // Audit trail: when the customer answered. Informational only, never consulted
+  // for the decision itself, which is primaryGoalConfirmed === true.
+  primaryGoalConfirmedAt?: string
   deficit: number
   diet: 'carnivore' | 'pescatarian' | 'keto' | 'lowcarb'
   ratio?: string
