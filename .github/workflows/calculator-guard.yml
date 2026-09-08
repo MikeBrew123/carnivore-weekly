@@ -23,6 +23,8 @@ on:
       - 'calculator2-demo/**'
       - 'tests/macro_parity/**'
       - 'tests/report-safety.test.mjs'
+      - 'tests/kd-report-safety.test.mjs'
+      - 'ketodial/worker/reports.js'
       - 'tests/report-integrity.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
@@ -72,6 +74,9 @@ jobs:
       # reader to cook in week N is on week N's shopping list, in a quantity that
       # covers it, and the list is derived from the calendar rather than generated
       # beside it. See the header of that file for the customer report behind it.
+      - name: KetoDial report safety regression
+        run: node tests/kd-report-safety.test.mjs
+
       - name: Report integrity regression
         run: node tests/report-integrity.test.mjs
       # Exactly one file may be a deployed report generator. Two dormant ones exist
