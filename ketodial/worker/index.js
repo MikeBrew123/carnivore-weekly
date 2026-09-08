@@ -76,6 +76,34 @@ const BUNDLE_EXPAND = {
   protocol: ['doctor', 'meal', 'starter'],
 };
 
+// ---------------------------------------------------------------------------
+// ENVIRONMENT SURFACES
+// ---------------------------------------------------------------------------
+// Three strings were hardcoded to production: the Stripe return URL, and the report
+// link base in two places. That is fine for production and fatal for a genuine
+// TEST-mode end-to-end — after paying in test mode the browser would be redirected
+// to the live site, and the report links in the email would point at the live
+// worker, so the "test" would finish by exercising production surfaces with test
+// data.
+//
+// EACH DEFAULTS EXACTLY TO THE STRING IT REPLACED. With neither variable set the
+// worker behaves byte-for-byte as before; tests/kd-intake-authority.test.mjs pins
+// those defaults so an override cannot quietly become the production value.
+//
+// This is the only change made solely to enable the test, and it changes no
+// behaviour when unset.
+
+/** Where Stripe returns the customer after checkout. */
+function returnUrl(env) {
+  const base = (env && env.RETURN_URL_BASE) || 'https://ketodial.com';
+  return `${base}/?success=true&session_id={CHECKOUT_SESSION_ID}`;
+}
+
+/** The origin report links are built against. */
+function reportBaseUrl(env) {
+  return (env && env.REPORT_BASE_URL) || 'https://ketodial-api.iambrew.workers.dev';
+}
+
 /** The only three answers the early kidney-safety question can produce. */
 const KIDNEY_ANSWERS = new Set(['no', 'yes', 'unsure']);
 
@@ -588,7 +616,7 @@ async function handleCheckout(request, env) {
     const sessionParams = new URLSearchParams();
     sessionParams.append('mode', 'payment');
     sessionParams.append('ui_mode', 'embedded');
-    sessionParams.append('return_url', 'https://ketodial.com/?success=true&session_id={CHECKOUT_SESSION_ID}');
+    sessionParams.append('return_url', returnUrl(env));
     sessionParams.append('allow_promotion_codes', 'true');
 
     line_items.forEach((item, i) => {
@@ -752,7 +780,7 @@ async function handleWebhook(request, env) {
     });
 
     // Generate report links
-    const baseUrl = 'https://ketodial-api.iambrew.workers.dev';
+    const baseUrl = reportBaseUrl(env);
     const reportLinks = Array.from(reportTypes).map(type => ({
       type,
       name: REPORT_NAMES[type],
@@ -910,13 +938,13 @@ async function handleFulfill(request, env) {
 
   const row = await readSessionRow(token, env);
   if (row && row.reports_delivered_at) {
-    return jsonResponse(200, { ok: true, alreadyDelivered: true, links: reportLinksFor(session) });
+    return jsonResponse(200, { ok: true, alreadyDelivered: true, links: reportLinksFor(session, env) });
   }
 
   const email = session.customer_email || session.customer_details?.email || (row && row.email);
   if (!email) return jsonResponse(409, { error: 'no_email', message: 'We have no email address for this purchase.' });
 
-  const links = reportLinksFor(session);
+  const links = reportLinksFor(session, env);
   try {
     await sendReportEmail(email, session.metadata.customer_name || 'there', links, intake, env, session.id);
   } catch (e) {
@@ -935,8 +963,8 @@ async function handleFulfill(request, env) {
 }
 
 /** The report links for a paid session, honouring what was actually purchased. */
-function reportLinksFor(session) {
-  const baseUrl = 'https://ketodial-api.iambrew.workers.dev';
+function reportLinksFor(session, env) {
+  const baseUrl = reportBaseUrl(env);
   return expandItems((session.metadata.items || '').split(',')).map(type => ({
     type, name: REPORT_NAMES[type], url: `${baseUrl}/report/${session.id}?type=${type}`,
   }));

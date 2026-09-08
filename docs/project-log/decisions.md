@@ -1356,3 +1356,44 @@ Two more masked assertions found and fixed: the macro-source check tested the *r
 *assignment* and stayed green when the assignment was deleted; and the integration flattener collapsed
 the Fat row's "128 g" into the next row's "Protein" label and read it as a protein figure. That is the
 fifth and sixth. **An assertion must name the mechanism it depends on, and be scoped to it.**
+
+---
+
+## 2026-09-08 — AUDIT 2B: Stripe TEST end-to-end BLOCKED on a credential
+
+The final pre-production gate could not run. `stripe.secret_key_test` (last rotated 2026-01-06) returns
+`api_key_expired`, and the Stripe MCP server is not authorized in this session. **Rotating an API key is
+a Stripe Dashboard action behind Brew's login — I cannot do it.** The live key works and was deliberately
+not used: a live-mode Checkout Session is a production artifact.
+
+Everything that does not need the key is built and verified.
+
+### Three hardcoded production surfaces, not two
+The review named the live publishable key, the production API base and the hardcoded return URL. There
+is a **third** that would have been worse: `reportLinksFor()` and the webhook both built report links
+against `https://ketodial-api.iambrew.workers.dev`. A test purchase would have emailed links pointing at
+the **live worker**, and the run would have looked like it passed the parts that mattered.
+
+`RETURN_URL_BASE` and `REPORT_BASE_URL` are now configurable and **default to exactly the strings they
+replaced**. GROUP R asserts those defaults behaviourally — calling the functions with no env at all —
+and a mutation making the default a test URL fails the build. This is the only change made solely to
+enable the test, and it changes nothing when unset.
+
+### The harness
+`tests/harness/stripe-e2e.mjs` drives the worker's own handler with real Requests, real Supabase and
+real Stripe test objects. Rails: refuses anything but `sk_test_`, re-checks `livemode:false` against the
+account, tags every row `kd-audit2b-test` at `@audit2b.invalid` with cleanup that fails the run on a
+survivor, intercepts Resend unless `--live-email` (which then only permits `@audit2b.invalid`), and uses
+only Stripe's documented test tokens. Runs A(no) / B(yes) / C(unsure) / D(pay-first) plus the failure
+matrix. With the expired key it exits 2 with the exact rotation steps.
+
+### One honest limitation, stated not papered over
+Stripe **embedded** checkout is an iframe on `js.stripe.com` and cannot be driven from our page. The
+harness confirms the documented test card through Stripe's own API instead. The Checkout Session, the
+PaymentIntent and `payment_status` are all genuine test-mode objects — only the card *entry* is
+API-driven rather than typed into their iframe. A literal iframe pass is a manual step; the harness
+prints the URL.
+
+### Status
+**BLOCKED, not failed.** No code defect is known. Nothing has been merged or deployed, no live Stripe
+object exists, and no production customer row was touched.

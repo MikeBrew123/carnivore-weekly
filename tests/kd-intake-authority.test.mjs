@@ -1298,6 +1298,58 @@ for (const c of MALFORMED_CASES) {
 }
 
 // ===========================================================================
+// GROUP R — THE TEST-HARNESS OVERRIDES DEFAULT TO PRODUCTION.
+// ---------------------------------------------------------------------------
+// Two strings were hardcoded to production: the Stripe return URL and the report
+// link base. A genuine TEST-mode end-to-end cannot use either — after paying in
+// test mode the browser would land on the live site, and the emailed report links
+// would point at the live worker, so the "test" would end by exercising production
+// with test data.
+//
+// They are configurable now, and the ONLY acceptable default is exactly the string
+// each replaced. An override that silently became the default would move production
+// traffic to a test surface, which is far worse than the problem it solved.
+// ===========================================================================
+{
+  const worker = fs.readFileSync(WORKER_JS, 'utf8');
+  const mod = await import('file://' + WORKER_JS + '?groupR=' + Date.now());
+
+  // Behavioural, not textual: call the worker with no env and read what it produces.
+  const returnUrlFn = (() => {
+    const m = worker.match(/function returnUrl\(env\)[\s\S]*?\n}/);
+    return m ? new Function('return (' + m[0] + ')')() : null;
+  })();
+  const reportBaseFn = (() => {
+    const m = worker.match(/function reportBaseUrl\(env\)[\s\S]*?\n}/);
+    return m ? new Function('return (' + m[0] + ')')() : null;
+  })();
+
+  check('R', 'both overrides exist', !!returnUrlFn && !!reportBaseFn, '');
+  if (returnUrlFn && reportBaseFn) {
+    check('R', 'unset RETURN_URL_BASE gives exactly the production return URL',
+      returnUrlFn({}) === 'https://ketodial.com/?success=true&session_id={CHECKOUT_SESSION_ID}' &&
+      returnUrlFn(undefined) === 'https://ketodial.com/?success=true&session_id={CHECKOUT_SESSION_ID}',
+      `got ${returnUrlFn({})}`);
+    check('R', 'unset REPORT_BASE_URL gives exactly the production worker origin',
+      reportBaseFn({}) === 'https://ketodial-api.iambrew.workers.dev' &&
+      reportBaseFn(undefined) === 'https://ketodial-api.iambrew.workers.dev',
+      `got ${reportBaseFn({})}`);
+    check('R', 'an empty override falls back to production rather than an empty origin',
+      returnUrlFn({ RETURN_URL_BASE: '' }).startsWith('https://ketodial.com') &&
+      reportBaseFn({ REPORT_BASE_URL: '' }) === 'https://ketodial-api.iambrew.workers.dev', '');
+    check('R', 'and a set override is honoured',
+      returnUrlFn({ RETURN_URL_BASE: 'http://localhost:8797' })
+        === 'http://localhost:8797/?success=true&session_id={CHECKOUT_SESSION_ID}' &&
+      reportBaseFn({ REPORT_BASE_URL: 'http://127.0.0.1:8788' }) === 'http://127.0.0.1:8788', '');
+  }
+
+  check('R', 'the Stripe return URL is no longer hardcoded at the call site',
+    !/append\('return_url', 'https:\/\/ketodial\.com/.test(worker), '');
+  check('R', 'and PRICE_MAP_JSON still defaults to the live price map',
+    /return PRICE_MAP_LIVE;/.test(worker), '');
+}
+
+// ===========================================================================
 // GROUP G — MUTATION TESTING.
 // ---------------------------------------------------------------------------
 // A passing suite is not evidence. Each protection is broken on purpose against a
@@ -1512,6 +1564,7 @@ const GROUPS = {
   O: 'paid fulfilment is resumable and never silent',
   P: 'delivery truthfulness, idempotency, DB vocabulary, schema in git',
   Q: 'the free plan email is inside the gate',
+  R: 'test-harness overrides default to production',
   G: 'mutation testing',
 };
 for (const [g, title] of Object.entries(GROUPS)) {
