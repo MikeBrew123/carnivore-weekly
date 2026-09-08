@@ -25,6 +25,7 @@ on:
       - 'calculator2-demo/**'
       - 'tests/macro_parity/**'
       - 'tests/report-safety.test.mjs'
+      - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
       - 'ketodial/worker/index.js'
       - 'ketodial/worker/reports.js'
@@ -51,6 +52,7 @@ on:
       - 'calculator2-demo/**'
       - 'tests/macro_parity/**'
       - 'tests/report-safety.test.mjs'
+      - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
@@ -115,6 +117,12 @@ jobs:
 
       - name: Report integrity regression
         run: node tests/report-integrity.test.mjs
+      # The data-flow invariant behind the 2026-09-08 defect: any customer-entered
+      # health field that can reach the AI prompt must also reach the safety
+      # classifier. Walks the canonical field map rather than a keyword list, so a new
+      # questionnaire field that is not wired into the gate fails here.
+      - name: Health-context data-flow regression
+        run: node tests/health-context-flow.test.mjs
       # Exactly one file may be a deployed report generator. Two dormant ones exist
       # in api/ and neither is authorized for deletion, so this reads the actual
       # deployment surface (wrangler configs, package mains, CI) and fails the build
