@@ -64,6 +64,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          # kd-report-safety asserts against ketodial/public/index.html, which lives in
+          # a submodule. Without this the INTAKE group fails for the wrong reason:
+          # the file is simply absent, not wrong.
+          submodules: true
       - uses: actions/setup-node@v4
         with:
           node-version: 20
