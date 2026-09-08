@@ -453,3 +453,78 @@ Jordan Validator 2B flags missing Category 7 disclaimers automatically.
 **Status:** ✅ Active and ready to write
 **First Post Deadline:** End of Week 2
 **Next Review:** End of January (after 4 posts published)
+
+## Who You Are Writing For (standing rule, Brew 2026-09-07)
+
+**Write broadly enough to capture search demand, but design the experience specifically for our core
+Carnivore Weekly audience: roughly 45-70, majority women.**
+
+A broad keyword never changes the customer. Someone searching "carnivore diet food list" could be 28,
+48, or 68, and we do not artificially exclude the 28-year-old at the Google layer. But once they land on
+CW, the page should feel built for the person we actually want as a customer. The search query does not
+identify our customer. The problem they are trying to solve does.
+
+Do NOT make every article scream "carnivore for women over 50." Google supplies the broad audience; our
+UX, tone, products, email questions, calculator and protocol do the filtering.
+
+**Voice.** Yes: "Here's exactly what you can eat. Here's what to buy. Here's how to make this simple."
+No: bro-fitness macro shouting, or internet tribalism.
+
+**Give extra room to what gets more valuable as the reader gets older**, beyond what raw search volume
+alone would justify: simple grocery shopping, easy meals, portion guidance, meal planning, budget,
+eating out, protein choices, how to transition, what to do when you are not hungry, practical
+adherence, clear explanations, large readable tables and checklists, printable resources.
+
+Titles and topic selection follow search demand and stay broad. Depth, examples, tone, table design and
+printability serve the 45-70 reader.
+
+### Content strategy: upgrade before you expand (Brew, 2026-09-07)
+
+**We are building search-driven resources around the problems people are already demonstrating that they
+want solved.** Search impressions are evidence of demand. Existing rankings are evidence of relevance. Our
+first job is to make sure the right CW page owns that intent and deserves to rank.
+
+- **We do not create a new URL simply because we found a keyword.**
+- Before proposing anything new, determine whether an existing CW page already owns, or should own, that
+  search intent.
+- **Upgrade, consolidate, redirect, or restructure before expanding.**
+- New pages are for genuinely distinct problems, not variations of an existing one.
+- Do not fight Google. If one URL already ranks for a family of related queries, make that URL excellent
+  rather than splitting the intent across several pages.
+- Before proposing a redirect, check page-level performance for both source and destination. Never redirect
+  a page into one with weaker impressions, clicks, or position.
+
+### The philosophy, final form (Brew, 2026-09-07)
+
+Find problems people are actually searching for. Find the page Google already trusts to answer them.
+Strengthen that page when the evidence supports it. Create a new page only when the problem is genuinely
+distinct and the evidence justifies starting from zero.
+
+**What CW is demonstrably good at.** Verified 2026-09-07: this domain ranks narrow, problem-shaped pages at
+position 5-12 on publish, and has never moved a broad reference hub above position 30. The winners are
+things like hot flashes, knee pain after 60, appetite loss, heart palpitations, gallbladder, period and
+cycle changes. Those are problem-shaped searches that occur naturally in the 45-70 audience, which means
+writing for Google and writing for our reader are the same act here, not a trade-off.
+
+**NEVER rewrite a page ranking at position <=15 without a preservation plan and a before/after measurement
+window.** Record the baseline, state what must not change, make one change, set the read date. "It could be
+better" is not a reason to touch a winner.
+
+**Evidence order for any proposal:** query/problem -> existing CW URL -> impressions -> clicks -> position
+-> search intent -> demographic fit -> action. Action is one of exactly four: UPGRADE / CONSOLIDATE /
+NEW PAGE / LEAVE ALONE. Never a word count, never an outline, never a keyword alone.
+
+**Always use the page dimension for aggregate claims.** The GSC query view covers ~27% of impressions and
+~18% of clicks on this property.
+
+**Diagnose before fixing.** High impressions with no clicks has an unknown cause: wrong intent, wrong
+format, bad snippet, weak authority, cannibalization, or Google not rating CW for that term. Name the cause
+with evidence before proposing a fix.
+
+**Never run overlapping content experiments.** Do not create, upgrade, consolidate and prune at the same
+time; if traffic moves you cannot attribute it. A naturally improving page nobody has touched is a control
+group. Change nothing on it, not even an inbound link.
+
+**Never base a product or content recommendation on database schema alone.** Trace input -> persistence ->
+calculation -> rendering -> delivery. Empty columns are not proof a question is unasked; the data may be
+written elsewhere, after a paywall, or never read back.

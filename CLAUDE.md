@@ -29,8 +29,53 @@ A PreToolUse hook (`scripts/hooks/etsy-write-first-guard.sh`) enforces both rule
 
 ---
 
+## Concurrency: one active mutating session per worktree (Brew, 2026-09-08)
+**Assume another Claude session may be pointed at this checkout.** On 2026-09-08 two sessions shared `/Users/mbrew/Developer/carnivore-weekly` and the other one committed this session's uncommitted safety work inside its own commits (`api/medical-context.js` entered history via a commit about shopping lists).
+
+- Before any multi-step work that will modify files, **create a worktree** (`git worktree add --detach <path> HEAD`) and work there. One active mutating session per working directory.
+- **Never use bare `git stash` / `git stash pop`** — the stash stack is shared across worktrees and another session can pop yours. Use `git stash push -u -m "<unique-tag>"`, apply by SHA, then drop by tag.
+- Submodules are NOT checked out in a new worktree. `git submodule update --init ketodial/public` before running any suite that reads the intake form, or its assertions fail for the wrong reason.
+- A worktree's submodule follows the parent's committed gitlink, which may be **ahead of** the main checkout's submodule. Check both before applying a patch.
+- Commits found in the log that you did not make are probably another session's legitimate work. **Do not revert, squash or reorganize them to tidy history.**
+
+## Paid health reports: hard launch rule (Brew, 2026-09-08)
+**No paid health-related report may launch or materially change unless EVERY production report-generation entry point is enumerated and covered by the safety boundary, or explicitly retired.** On 2026-09-07 three separate generations of "the same report generator" were found hiding in different places across two products. That is a process problem, not a content problem, and this rule exists to stop a fourth.
+
+**Suppress, never substitute.** Where a safe answer would require clinical judgement (protein in CKD, vitamin K with warfarin, electrolytes with a diuretic), the software suppresses the recommendation and routes to a clinician. It never computes a gentler number. Product-routing language is allowed; new clinical guidance is not.
+
+**Gate on the blunt signal, not a keyword list.** Declared medication or relevant condition means no quantitative protocol. Free-text medication fields fail open on brand names, misspellings and "the little white one for my heart." Keyword lists may only sharpen *what the reader is told*, never decide whether it is safe to print a number.
+
+**A suppressed recommendation must not keep driving downstream output.** Hiding a number while it still sizes the meal plan is cosmetic safety. A suppressed value may only continue to influence generated quantities if that behaviour has been separately reviewed and intentionally approved. See `docs/project-log/decisions.md` 2026-09-08.
+
+**Test rendered output, and mutation-test the test.** A passing suite is not evidence until you have broken each protection, watched the suite go red on a named assertion, and restored it. On 2026-09-07 a 445-assertion pass sat on top of six P0 defects.
+
 ## Content Quality
 **NEVER publish user-facing content (blog, commentary, newsletter, video descriptions, social, marketing) without the writer agents (Sarah, Marcus, Chloe).** Humanization and soft-conversion rules live in the `copy-editor`, `ai-text-humanization`, and `soft-conversion` skills; `scripts/generate_commentary.py` applies them automatically, manual content runs them before publishing.
+
+## Content Strategy: upgrade before you expand (Brew, 2026-09-07)
+**We build search-driven resources around the problems people are already demonstrating that they want solved.** Search impressions are evidence of demand. Existing rankings are evidence of relevance. The first job is making sure the right CW page owns that intent and deserves to rank.
+
+- **NEVER create a new URL simply because a keyword was found.**
+- Before creating anything, determine whether an existing CW page already owns, or should own, that search intent. Check GSC at page level and query level, and check `data/blog_posts.json`.
+- **Upgrade, consolidate, redirect, or restructure before expanding.**
+- New pages are for genuinely distinct problems, never variations of an existing one.
+- Do not fight Google: if one URL already ranks for a family of related queries, make that URL excellent instead of splitting the intent across several pages.
+- **Write broadly enough to capture search demand, but design the experience for the core 45-70, majority-women audience.** Titles and topic selection follow demand and stay broad; depth, tone, tables and printability serve that reader.
+- Before proposing a redirect, pull **page-level** GSC for both source and destination. Never redirect a page into one with weaker impressions, clicks, or position. Redirects on live ranking URLs are irreversible in practice and need Brew's approval.
+
+**The philosophy, final form (Brew, 2026-09-07):** Find problems people are actually searching for. Find the page Google already trusts to answer them. Strengthen that page when the evidence supports it. Create a new page only when the problem is genuinely distinct and the evidence justifies starting from zero.
+
+**NEVER rewrite a page ranking at position <=15 without a preservation plan and a before/after measurement window.** Page-one and page-two winners are destroyed by well-meaning editors. State what must not change, record the baseline (impressions, clicks, position, date), make one change, and set the read date before touching it. "It could be better" is not a reason.
+
+**Evidence order for any content proposal:** query/problem -> existing CW URL -> impressions -> clicks -> position -> search intent -> demographic fit -> action. The action is one of exactly four: UPGRADE / CONSOLIDATE / NEW PAGE / LEAVE ALONE. No word counts, no article outlines, no "SEO opportunity" justified by a keyword alone.
+
+**No product redesign recommendation may be based on database schema alone (Brew, 2026-09-07).** Trace the data the whole way: **input -> persistence -> calculation -> rendering -> delivery.** Empty columns are not proof a question is unasked; they may be written to a different table, after a paywall, or never read back. This rule exists because a schema-only read produced "the personalization layer collects nothing," and the forensic pass found it collects *after purchase* into `cw_assessment_sessions`. Those are completely different product problems with opposite fixes.
+
+**Diagnose before fixing.** A page with high impressions and no clicks has an unknown cause: wrong intent, wrong format, bad title/snippet, weak authority, cannibalization, or Google not rating the domain for that term. Name the cause with evidence before proposing the fix. "Obvious SEO logic" is frequently wrong here (2026-09-07: the seasonings page's smallest sub-query outranked its head term by 10 positions).
+
+**Protect the control group. Never run overlapping content experiments.** When an experiment is live, do not simultaneously create, upgrade, consolidate and prune. If traffic moves you will not know why. Naturally improving pages that nobody has touched are the most valuable measurement asset the site has: designate them, change nothing on them, not even an inbound link, and read them on a fixed date.
+
+**Use the page dimension, not the query dimension, for any aggregate claim.** The GSC query view covers ~27% of impressions and ~18% of clicks on this property (measured 2026-09-07). Per-query rows are fine; totals computed from it are not.
 
 ## Blog Pipeline
 **The One Rule:** writers produce CONTENT ONLY. `scripts/generate_blog_pages.py` produces HTML pages. Writers never open, edit, or create files in `public/blog/` or `templates/`.
@@ -52,6 +97,7 @@ PROHIBITED:
 ### SEO / slug / date rules (ISSUE-021, ISSUE-022)
 - Max 2 posts sharing any single `datePublished`. Never batch-rename dates to one value.
 - Never rename a published slug or date without a redirect (`data/redirects.json` + meta-refresh stub). Never chain redirects.
+- **Unpublishing or deleting a post requires the same redirect stub as a rename.** "Zero traffic today" is not a reason to skip it: an unpublished URL keeps drawing impressions and clicks for months (verified 2026-09-07 — commit `f0e31058` unpublished 5 posts on 2026-08-24 with no stubs, and one of them took a real click into a 404 nine days later). Retargeting pre-existing stubs is not enough; the canonical URL of every removed post needs its own stub.
 - Google Indexing API only works for JobPosting/BroadcastEvent schema (formerly "Lesson #13", referenced by the `weekly-gsc-indexing` task). For normal pages: resubmit the sitemap and wait.
 - Never trend a GA4 event across its own instrumentation date: run `python3 dashboard/ga4_event_history.py <event>` first. Raw GA4 sessions are bot-inflatable; trend calls use GSC clicks + calculator sessions.
 

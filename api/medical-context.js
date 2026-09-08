@@ -16,8 +16,9 @@
  *
  * That was one architectural defect, not six content defects, so it gets one fix.
  * Every report section funnels through `replacePlaceholders()`, which always has the
- * full user object. So the medical decisions live here, once, and both generators
- * (api/calculator-api.js, api/generate-report.js) call in.
+ * full user object. So the medical decisions live here, once, and the report generator
+ * (api/calculator-api.js) calls in. It is the only one: api/generate-report.js, the
+ * second copy this module used to also serve, was deleted on 2026-09-08.
  *
  * The governing principle
  * -----------------------

@@ -418,3 +418,413 @@ regenerates every page and was not part of this approval. Flagged for a separate
 
 **Branch.** Work landed on `calculator-goal-weight`, which was already checked out with unpushed
 work. Not merged to main.
+
+## 2026-09-07 — CW food cluster: upgrade the ranking URL, do not split it
+Brew: "If Google is already treating the existing food-list article as the answer to carnivore food list,
+foods to eat, foods to avoid, grocery list and beginner food list, then don't fight Google by creating five
+URLs. Make the existing URL excellent."
+Brew's 7 priority food topics resolve to 3 pages. Items 2, 3, 4, 5 and 7 die as separate pages and become
+sections of `2026-02-09-carnivore-food-list-complete`. Evidence: that URL already holds 632 impressions
+across 102 distinct queries, 98 of them food-list-family, avg pos 76.4.
+Consequence: Sarah's proposed A-Z "Can I Eat This?" index is also dropped as a new URL by the same logic.
+Orphaned single-food lookup queries become rows in the cornerstone's quick-answer table. Revisit only if the
+upgraded cornerstone fails to hold that intent.
+Full map: docs/archive/reports-archive/2026-09-07-carnivore-food-content-map.md
+
+## 2026-09-07 — Standing content strategy rule: upgrade before you expand
+Brew formalized the CW/KD content policy. Now in CLAUDE.md ("Content Strategy: upgrade before you expand")
+and mirrored into .claude/agents/{sarah,marcus,chloe}.md so the unattended blog-generation tasks inherit it.
+Core: search impressions are evidence of demand, existing rankings are evidence of relevance. Never create a
+new URL just because a keyword was found. Determine whether an existing page already owns or should own the
+intent, then upgrade, consolidate, redirect or restructure before expanding. New pages are for genuinely
+distinct problems, not variations. Added operational guard: pull page-level GSC for source and destination
+before any redirect, never redirect into a weaker page.
+
+## 2026-09-07 — Red team result: food-cluster plan halted before writing
+All three writers red-teamed the merged plan and independently concluded it targets the one category CW has
+never ranked. Verified by the main session against fresh page-dimension GSC pulls:
+- 16 narrow pages published Aug 2026 debuted at pos 5-12. Every broad hub (food list 34.9, meal plan 49.5,
+  seasonings 31.6, beginners 39.9, budget 32.0) sits at 31-50. Largest position gain on the domain in 3
+  months is +3.2; zero pages have crossed 30 -> 15.
+- The bare /blog/ directory index outranks the 4,711-word cornerstone on all 7 shared queries, by 12-40
+  positions. Google already ran that A/B.
+- Cornerstone impressions: 374/693/199/46/0 May-Sep while the site went 5,986 -> 24,347.
+- The GSC query dimension, which all three maps were built from, covers only 27.2% of impressions and
+  17.7% of clicks.
+DECISION: no writing. Leave today's cornerstone upgrade in place as a controlled experiment, baseline
+29 imp / pos 34.1, read 2026-10-05. Execute only Marcus's two zero-traffic budget redirects. Hold the three
+eating-out redirects (2026-06-25 climbed 41 -> 15.2 unaided). Do not retitle seasonings (target term ranks
+worse than current). Re-shape food demand as narrow problem pages, the format that debuts at pos 5-9.
+Full detail: docs/archive/reports-archive/2026-09-07-carnivore-food-content-map.md
+
+## 2026-09-07 — Direction change locked after red team (Brew)
+Brew accepted the red-team verdict and changed direction. "This is a successful red-team exercise, not a
+failed content plan." What we learned: Etsy proves demand exists; Google proves CW ranks problem-shaped
+content; GSC shows the broad food/reference format does not work on this domain.
+
+LOCKED:
+1. Leave the food-list cornerstone alone after today's upgrade. Baseline 29 imp / pos 34.1, recheck
+   2026-10-05. Do not keep touching it out of impatience.
+2. No A-Z page. Lookup questions go in the cornerstone quick-answer table. Reconsider only if that table
+   gains traction.
+3. Hold the eating-out redirects. Old or redundant-looking is not sufficient reason to 301 a page already
+   showing page-one/page-two performance.
+4. Execute only the two genuinely dead budget redirects, assuming page-level evidence holds.
+5. Do not retitle the seasonings page. Current data says mustard (pos 30.8) outperforms the broader head
+   term (pos 40.1). "Obvious SEO logic" can be completely wrong.
+6. Next opportunities are narrow problems, but each still needs the full evidence -> intent ->
+   existing-owner check. No automatic articles.
+
+AUDIENCE CONFIRMED, not just retained: the domain's winners (hot flashes, knee pain after 60, appetite
+loss, heart palpitations, gallbladder, period/cycle changes) are problem-shaped searches that occur
+naturally in the 45-70 majority-women demographic. Writing for Google and writing for our audience overlap
+here rather than competing.
+
+NEW HARD RULE: never rewrite a page ranking at position <=15 without a preservation plan and a
+before/after measurement window. Named example: 2026-08-05-appetite-loss-carnivore, pos 8.0 / 172 imp /
+6 clicks. Now in CLAUDE.md and the three writer agent files.
+
+NEXT ACTION (explicitly NOT another content map): a short evidence table of 5-10 validated problem
+opportunities. Columns: query/problem, existing CW URL, impressions, clicks, position, search intent,
+demographic fit, action. Action is one of UPGRADE / CONSOLIDATE / NEW PAGE / LEAVE ALONE. No word counts,
+no outlines, no keyword-only opportunities, no writing.
+
+## 2026-09-07 — Opportunity queue funded; row 7 designated the control group
+FUNDED (execute): row 1 alcohol UPGRADE, row 2 seven-day week NEW PAGE, row 3 dirty/lazy/relaxed variants
+NEW PAGE, row 4 coffee UPGRADE, row 5 lion CONSOLIDATE.
+Row 2 authorized specifically on the verified natural experiment: same query, same 28-day window, narrow
+page pos 16.0 vs the hub pos 45.7.
+ROW 6 (seasonings, 2,366 imp / 1 click / pos 33.5): DIAGNOSE ONLY, no changes. Cause unknown among wrong
+intent, wrong format, bad snippet, weak authority, cannibalization, or Google not rating CW for the broad
+term. Diagnose before fixing.
+ROWS 7-9: LEAVE ALONE. Row 7 (2026-04-13-carnivore-2-months-weight-loss-timeline, 2,009 imp / 42 clicks /
+pos 6.13, improving with no intervention) is now the CONTROL GROUP: zero changes of any kind. Brew
+cancelled the single below-fold inbound link Marcus had proposed. Row 2's new page must NOT link to it.
+Observation only, read Oct 5, confirm Nov 2.
+EXPERIMENTAL HYGIENE: pruning is deliberately NOT mixed into this experiment. If we create, upgrade,
+consolidate and delete at once and traffic moves, we cannot attribute the cause. Pruning audit is
+analysis-only; nothing executes until rows 1-5 are read at their established dates.
+
+## 2026-09-07 — $29 report: release-safety sequence, and two dangerous template sections
+Brew: the salt fix is NOT the P0 resolution. This is a release-safety problem, not a typo problem.
+MANDATORY SEQUENCE before the report ships or Coach launches:
+1. remove dangerous tapering content (DONE 2026-09-07)
+2. test safety conditions
+3. correct salt unit (DONE 2026-09-07)
+4. test generated report outputs
+5. test paid delivery
+6. then consider launch
+Step 4 must be adversarial: medication=yes, condition=yes, across goals, ages, activity levels. The
+conditional engine itself is suspect (`evaluateCondition` supports only `field === 'literal'`).
+
+DONE: `SECTION 4: Medication Adjustment Protocols` removed from api/calculator-api.js and
+api/generate-report.js (3,068 chars each). Contained Metformin 50% reduction with thresholds, "consider
+discontinuing Metformin", BP/diuretic and thyroid dose decrements (12.5-25 mcg). Replaced with a
+what-to-measure-and-ask section per docs/house-claims.md ("medication changes are the prescriber's
+decision"). These blocks were inert only because the template parser cannot evaluate their conditions, so
+repairing the parser would have shipped them. Section 4 removal MUST precede any evaluateCondition work.
+DONE: salt unit error. Was "Salt: 3-7 grams (3-7 teaspoons)" (~18-42g). Now "Sodium: 3-7 grams (about
+1.5-3 teaspoons of salt)", matching published blog guidance. Was in TWO files, not one.
+
+NOT DONE, needs Brew: the physician guide still contains "The Nuclear Option: Find a New Doctor", "Red
+Flags (Time to Find a New Doctor)", "If Your Doctor Refused to Partner", and lists "prescribes statins
+without trying lifestyle first" as grounds to change doctors. This is the same stance that got 5 blog posts
+unpublished on 2026-08-24 (commit f0e31058) and directly contradicts docs/house-claims.md. The policy was
+applied to the blog and never to the product. Left in place; out of scope of the tapering authorization.
+
+## 2026-09-07 — The biggest product discovery
+Personalization is collected AFTER purchase, into cw_assessment_sessions, not calculator_sessions_v2.
+Paid rows (n=7): biggest challenge 5/7, conditions 5/7, experience 5/7, budget 6/7, cooking skill 6/7,
+medications 4/7. Unpaid rows (n=9): 0/9 on everything.
+People WILL give us this once committed. Whether they give it before paying is the P1 experiment.
+Current product order is "give us your money, then we'll ask what you're trying to accomplish."
+Ladder: FREE "here are your numbers" -> $29 "here's what they mean for you" -> $79 "let's keep you on
+track for 12 weeks." Coach check-ins should inherit the assessment, so week 6 is "how are the evening
+cravings going?" rather than generic education.
+
+NEW PERMANENT RULE (in CLAUDE.md + 3 agent files): no product redesign recommendation may be based on
+database schema alone. Trace input -> persistence -> calculation -> rendering -> delivery.
+
+## 2026-09-07 — Doctor-firing content removed from the paid report (Brew authorized)
+Rationale is product-policy consistency, not a medical or philosophical judgment: docs/house-claims.md
+(2026-08-24) says CW never advises distrusting doctors as a class or categorically dismissing statins. The
+blog was made compliant that day; the paid report was not. Blog policy-compliant + paid product on the old
+policy is a product inconsistency, not a content experiment.
+REMOVED/REPLACED in api/calculator-api.js and api/generate-report.js:
+- "The Nuclear Option: Find a New Doctor" -> "When to Seek a Second Opinion"
+- "Red Flags (Time to Find a New Doctor)" -> "Signs the Conversation Is Not Working"
+- "If Your Doctor Refused to Partner" -> "If You Did Not Get the Answers You Needed"
+- the "prescribes statins without trying lifestyle first" criterion (both instances)
+- "Option 3: Self-Direct Labs ... you won't have a doctor to interpret" (the go-it-alone path)
+Preserved deliberately: the legitimate user need "what if my doctor and I disagree" now routes to asking
+for a follow-up, requesting a referral, or seeking a second opinion, always keeping a prescribing clinician
+involved. Brew: "That's actually better product content."
+
+## 2026-09-07 — Step 2 release test is adversarial, and question redesign is ON HOLD
+A. Safety: 8 combinations (med+no condition, med+condition, multiple meds, diabetes, thyroid,
+   cardiovascular, BP meds, neither). Verify the report NEVER emits medication-adjustment instructions.
+B. Personalization: prove answers flow question -> database -> calculation/logic -> report, not merely
+   collected.
+C. Calculation: the three known defects (lifestyle vs exercise both used; age behaves as intended in
+   protein/calorie logic; protein responds to goal) plus the meals-per-day gap. A report showing Meal 1/2/3
+   to an OMAD reader is a personalization failure even if every calorie is mathematically correct.
+D. Delivery: a REAL $29 test transaction through the whole journey. Do not test functions individually and
+   declare victory.
+HOLD: no question redesign until the machine is safe and the data path is proven. Then the clean experiment
+is "existing 10 inputs + move the existing personalization questions before payment" versus "add new
+questions." Brew expects the first to teach us more. The machinery already exists; it was wired behind the
+cash register.
+
+## 2026-09-07 — Self-directed labs stays out (Brew)
+"Do not bring back the self-direct labs option. That wasn't merely aggressive wording; it undermined the
+safety boundary you're trying to establish." The replacement keeps the useful concept (you can advocate for
+yourself and seek another opinion) without turning the report into "manage your own medicine."
+
+Also confirmed as a standing expectation for audits: verify **source -> rendered output**, not just syntax
+validation. Two defects today were invisible at source level and only appeared in rendered output (salt
+dosage off by 6x; over-escaped quotes that would have printed literal backslashes to customers).
+
+Discipline order now locked: **make it safe -> prove the data path -> move existing questions -> measure ->
+only then add questions.** Not "redesign the calculator because it feels incomplete."
+
+## 2026-09-07 — 2A FAILED. Hard P0 stop on the $29 report.
+Brew: "The important discovery isn't any one bad recommendation. It's this: the report is collecting
+medical context, calculating a personalized medical-context payload, and then not using it." That is also
+why the first investigation ("the personalization layer collects nothing") was misleading. The data exists;
+the product does not consume it.
+
+Evidence: rendered byte-diff of a healthy persona vs a 72-year-old on warfarin/metoprolol/furosemide/
+metformin/levothyroxine with CHF, AFib and CKD3 differs only in meal-portion grams and grocery pounds.
+`{{conditions}}` and `{{medications}}` are computed at calculator-api.js:3891-3892 and appear in ZERO
+templates. Verified independently by the main session.
+
+LOCKED FIX ORDER (Brew moved the LLM guardrail to first):
+P0-1 LLM guardrail — prohibit medication dosing/adjustment/taper/discontinuation/substitution and
+     medication-specific recommendations; prohibit telling users to independently alter treatment; require
+     clinician involvement. The electrolyte guardrail must not substitute for the broader one. Test runtime
+     output after.
+P0-2 Electrolytes — not merely gating 3-7g on conditions. The question is whether this report should issue
+     quantitative electrolyte targets AT ALL to CKD / heart failure / diuretic personas. Lite Salt is
+     potassium chloride: hyperkalemia risk in CKD and with ACE inhibitors.
+P0-3 Glucose — target "60-85, lower is better" overlaps the report's own "<70 = hypoglycemia". The report
+     contradicts itself. Remove/replace the target; do not make the conditional logic clever.
+P0-4 Remove the CKD/protein "myth" rebuttal (vulnerable persona + dismissive framing + 154g target).
+P0-5 Remove the statin-deferral script (2nd house-claims violation; reaches someone on atorvastatin).
+P0-6 Wire medical context in, LAST. Goal is NOT "sick people get different advice" but "the report
+     acknowledges relevant medical context and safely routes individualized medical decisions to clinicians."
+
+PERMANENT REGRESSION FIXTURE required in the repo. Acceptance test: "A medically complex persona must not
+receive the same medically relevant report content as the healthy baseline, while neither persona may
+receive unsafe medication-management instructions." Stronger than "the report contains their conditions."
+
+2B IS ON HOLD. Do not move questions before payment until this is fixed and regression-tested: we would be
+running a conversion experiment on a product whose safety architecture is broken, and would confound the
+clean test by simultaneously changing what happens to medically complex users.
+SEQUENCE: 2A failures -> safety remediation -> adversarial regression -> 2B data-path trace -> question
+placement experiment.
+DO NOT COMMIT the working tree yet. One clean commit representing the safety remediation, not an
+intermediate state with known P0 defects.
+Bead structure: parent carnivore-weekly-6x88 with the six P0s as dependents, per Brew's instruction not to
+treat them as six independent coding tasks.
+
+## 2026-09-07 — Round 2 authorizations, and the release gate in final form
+GOVERNING PRINCIPLE, now standing: **never substitute a "safer" number; suppress.** Where the safe answer
+requires clinical judgement, the software stops and routes to a clinician. Product-routing language is
+allowed; new clinical guidance is not.
+
+AUTHORIZED:
+1. CKD -> remove the individualized protein target. No 154 g, no substitute figure. Explain that CKD
+   protein needs depend on kidney function, treatment status, nutritional status and clinician assessment;
+   route to clinician/renal dietitian. Fixture assertion: CKD persona -> no individualized protein target
+   in customer-facing report.
+2. Warfarin + liver -> suppress the meal. Do not invent a "safe amount of liver." Fixture assertion:
+   warfarin + liver -> ZERO liver meals. Testing that a warning appears is NOT sufficient.
+3. Delete generateSimpleFallbackReport / generateFallbackReport. Brew: "dead unsafe code doesn't become
+   safe because we've written a test warning us not to call it." Then sweep the repo for callers, alternate
+   report entry points, old prompt strings, duplicated medical logic, direct Claude calls that can produce
+   report content, and any path bypassing api/medical-context.js. The sweep is part of the architectural
+   audit.
+
+MAP ONLY, DO NOT SOLVE: the second safety domain. We have handled medical context -> suppress unsafe
+advice. We have NOT handled medical context -> food and recommendation selection. Map every interaction:
+medication->meal ingredient, condition->meal ingredient, medication->supplement, condition->fasting,
+condition->calorie target, medication->electrolyte, condition->protein target. The warfarin/liver case
+suggests more is hiding in the meal-generation layer.
+
+RELEASE GATE (final form).
+P0: LLM medication guardrail · medical-context wiring · electrolyte fail-closed · glucose contradiction
+removed · statin/doctor-adversarial content removed · CKD protein number suppressed · warfarin/liver
+suppressed · dead unsafe generators removed · adversarial fixture passes · MUTATION TEST proves the fixture
+fails when protections are disabled.
+P1: runtime Claude sections 1 and 6 · complete medical-context -> meal/recommendation inventory ·
+deterministic validation around runtime-generated content.
+
+Note on method (Brew): "445 passing assertions means very little; make the code fail, confirm it fails,
+restore it, is evidence." Mutation testing is now part of the P0 gate itself, not a nicety.
+2B still on hold.
+
+## 2026-09-08 — KetoDial jumps the queue; architectural boundary named; hard launch rule
+Brew: "KetoDial first. Full stop. This is no longer cleaning up a product before launch. KetoDial is
+actively selling a report that sends quantitative electrolyte advice to paying customers without
+suppressing it for the people most likely to need individual clinical guidance."
+
+ORDER LOCKED:
+1. KetoDial live containment + rendered regression suite
+2. KetoDial mutation test
+3. Delete CW's unsafe alternate generator (api/verify-and-generate.js + .ts) and sweep for references
+4. Sweep BOTH products for complete report-generation entry points
+5. Re-run CW's full 683-assertion gate
+6. Only then continue 2B data-path trace
+
+KD CONTAINMENT SCOPE (authorized): kidney/CKD, heart, blood-pressure conditions, or ANY medication ->
+no quantitative sodium, potassium, fluid, Lite Salt/KCl or electrolyte-supplement recommendation. Add
+kidney disease to intake before the gating counts as complete (KD's condition list is t2d/bp/chol only, so
+a CKD customer currently cannot declare it). NO medication keyword list: free-text parsing fails open.
+
+FREE CALCULATOR PROTEIN: do not solve CKD protein selection. But we cannot congratulate ourselves for
+hiding the number in the paid report while showing it on the free calculator. Suppress for declared CKD
+once that information exists at that stage. If CKD is not collected until later, the calculator literally
+cannot know when to suppress: that is a finding for the intake/data-path work, NOT a reason to invent a
+medical rule to patch around missing data.
+
+ARCHITECTURAL FINDING (new parent bead): medical-context affects output upstream of rendering.
+"Calculation suppression is not meal-plan suppression." Hiding 154g while the meal engine still sizes
+portions from it is cosmetic safety. Remediation rule: a suppressed recommendation cannot continue to
+influence downstream generated meal quantities unless separately reviewed and intentionally approved.
+No meal-selection fixes authorized yet.
+
+HARD LAUNCH RULE (now in CLAUDE.md): no paid health-related report may launch or materially change unless
+every production report-generation entry point is enumerated and covered by the safety boundary or
+explicitly retired. Three generations of the same generator have been found across two products in one day.
+
+---
+
+## 2026-09-08 — HANDOFF NOTE: safety remediation phase close (provenance and open state)
+Written before the closeout commit. Records only what would otherwise be lost with the session.
+
+### Verified personally by the main session (reproduced, not accepted)
+- **Cornerstone collapse.** 374/693/199/46/0 impressions May-Sep while the site went 5,986 -> 24,347.
+  Re-pulled independently after Sarah reported it.
+- **GSC query dimension covers 27.2% of impressions, 17.7% of clicks** (15,648/213 vs 57,453/1,201).
+  Every "zero clicks" aggregate in the lane maps was computed from that partial view.
+- **`/blog/` index outranks the cornerstone on all 7 shared queries**, by 12-40 positions. Re-ran the join.
+- **Narrow vs hub ranking split.** 16 Aug-published narrow pages at pos 5-12; every hub at 31-50.
+- **Salt unit error** and its presence in TWO files, not one.
+- **Medication tapering content** at calculator-api.js:3666 (Metformin 50%, thyroid 12.5-25 mcg).
+- **`{{conditions}}`/`{{medications}}` computed at :3891-3892 and present in ZERO templates.**
+- **Deletion commit `f0e31058`** unpublished 5 posts with no redirect stubs; `docs/house-claims.md` created
+  by that same commit.
+- **Both phantom 404 URLs appear in 0 commits on any branch.**
+- **Mutation testing of the CW fixture**: forced the gate open, exit 1 with 10 named failures; restored,
+  exit 0. Did not take the 445-assertion pass as evidence on its own.
+- **KD Stripe metadata truncation**, reproduced against the real `collectFormData()` field set (below).
+- **KD suite** exit 0; **CW suite** exit 0.
+
+### Accepted from agents, NOT independently reproduced
+- The 11 CW and 4 KD mutation runs beyond the one of each I re-ran myself.
+- The nine-persona rendered byte-diff similarity figures (0.980 -> 0.891; labs 1.000 -> 0.496;
+  electrolytes 1.000 -> 0.258).
+- The claim that liver meals went 4 -> 0 for the warfarin persona.
+- Sarah's per-page category aggregates (13 food/reference pages, 0 of 13 at pos <=15).
+- Marcus's "+3.2 largest position gain on the domain in 3 months".
+- Chloe's SERP characterisations.
+
+### KetoDial: deployment vs repository distinction (do not conflate)
+- `ketodial/worker/` is in THIS repo. Gate changes there are in this working tree.
+- **`ketodial/public/` is a git SUBMODULE pointing at github.com/MikeBrew123/ketodial — a separate
+  repository.** The kidney/heart intake chips were edited there and need their own commit and Pages
+  deploy.
+- **Until that deploys, a CKD customer cannot declare CKD** and is protected only if they happen to type
+  something into the free-text medication box. The gate is live in the worker; the intake is not live.
+- The worker gate fails closed on unrecognised condition slugs, so a chip shipping ahead of the worker
+  over-suppresses rather than silently passing through. That ordering is deliberate.
+
+### Stripe metadata truncation — reproduced, systemic, NOT fixed
+`ketodial/worker/index.js:391` stores `JSON.stringify(formData).slice(0, 490)`. `handleReport` does
+`safeParseJSON(...) || {}`, so a truncation becomes an empty form.
+Reproduced against the real `collectFormData()` shape:
+| Customer | JSON chars | Truncated | Parses |
+|---|---|---|---|
+| 1 medication, short free text | 401 | no | yes |
+| 3 medications | 483 | no | yes, by 7 characters |
+| 4 medications + 97-char free text | **545** | yes | **no -> whole form becomes {}** |
+**Why it is systemic, not a bug in one field:** payload length correlates with medical complexity. The more
+medications a customer lists, the more likely their conditions and medications are silently discarded. The
+failure is concentrated in exactly the readers the safety gate exists to protect.
+**Status: contained, not solved.** The gate now treats unreadable intake as a restriction trigger. The
+truncation itself is untouched and needs the form stored somewhere other than a 500-char metadata field.
+
+### False alarms and test mistakes worth remembering
+- **The Lite Salt grep.** I reported that the complex persona still received "Lite Salt" and "3-7", which
+  looked like the electrolyte gate had failed. Wrong. "3-7" was water-loss *pounds*, and "Lite Salt"
+  appeared only inside a warning that salt substitutes are potassium chloride. Pattern matching without
+  reading context, which is the exact failure the agents were briefed against.
+- **A related lesson from the KD suite:** one positive control was satisfiable by the suppression text
+  itself, because a bare `/lite salt/` matched "Do not treat any of it with salt, lite salt...". A positive
+  control must target the *offer*, not a word that appears in both the offer and its prohibition.
+- **Pipeline exit codes.** `node test.mjs | tail -8` reports tail's exit status, not the test's. I briefly
+  read a failing mutation as passing. Capture the exit code directly.
+- **A 445-assertion green suite sat on top of six P0 defects.** Green is not evidence. Mutation is.
+
+### Unresolved architectural findings — Audit 2B, NOT this commit
+- **Calculation suppression is not meal-plan suppression** (parent bead `carnivore-weekly-mz80`). A CKD
+  reader's meal portions are still sized from the 154 g protein figure the report now refuses to state. The
+  number is hidden; the food is not. Requires deliberate product design.
+- **The selection domain is entirely unaddressed.** No condition affects any meal ingredient. OMAD guidance
+  is ungated on insulin and sulfonylureas. A 20% deficit is applied identically to a healthy 51-year-old
+  and a 72-year-old with heart failure.
+- **Reports #1 and #6 are LLM-written at runtime and unverified in output.** Only their prompts are
+  audited. Temperature was lowered 1.0 -> 0.4 and a medication prohibition added, but what a customer reads
+  has never been checked.
+- **The free calculator renders an ungated protein figure client-side**, so a CKD user sees a number before
+  purchase. Cannot be fixed without knowing when CKD is collected: that is intake/data-path work (2B), not
+  a licence to invent a medical rule around missing data.
+
+## 2026-09-08 — REPORT-GENERATION ENTRY-POINT MAP (CW + KetoDial)
+Traced from configuration and execution, not filenames. Satisfies the CLAUDE.md launch rule that every
+production report-generation entry point be enumerated and covered by the safety boundary or retired.
+
+### Carnivore Weekly — deployable unit: `api/wrangler.toml` -> `name = carnivore-report-api`, `main = calculator-api.js`
+| Entry point | Data source | Safety gate | Generator | Storage / delivery |
+|---|---|---|---|---|
+| `POST /api/v1/calculator/report/init` | `cw_assessment_sessions.form_data` via `buildReportData()` | **`api/medical-context.js`** (`deriveMedicalContext` -> `buildMedicalSafetyRules`, `replacePlaceholders`) | `generateAllReports()` **(the only call site, line 1658)** | `calculator_reports.report_html` |
+| `POST /api/v1/calculator/email-report` | reads `calculator_reports` | n/a — never regenerates | none | Resend email |
+| `GET /api/v1/calculator/report/{token}/content` | reads `calculator_reports` | n/a — never regenerates | none | HTTP response |
+| `POST /api/v1/calculator/step/4` | request body | n/a — collection only | none | `cw_assessment_sessions.form_data` |
+**Invariant holds:** exactly one path can cause a CW report to exist, and it passes through
+`medical-context.js`. Enforced by `tests/deploy-tripwire.test.mjs` ("exactly one file may be a deployed
+report generator").
+
+### KetoDial — deployable unit: `ketodial/worker/wrangler.toml` -> `name = ketodial-api`, `main = index.js`
+| Entry point | Data source | Safety gate | Generator | Storage / delivery |
+|---|---|---|---|---|
+| `GET /report/:id` | Stripe metadata `form_data` -> `safeParseJSON(...) \|\| {}` | **`deriveKdMedicalContext`** (in `generateStarterKit` only) | `generateStarterKit` / `generateDoctorReport` / `generateMealPlan` | HTTP response |
+| `POST /webhook` (Stripe) | same | same | same, via `generateAllReports(name, d, types)` | Resend email |
+| `POST /email-plan` | same | same | `handleEmailPlan` | Resend email |
+| `POST /checkout`, `POST/PATCH /session` | request body | n/a — collection only | none | Stripe metadata (**see truncation defect**) |
+**Invariant holds today, but structurally weaker than CW.** The gate lives inside `generateStarterKit`, not
+at a shared seam. `generateDoctorReport` and `generateMealPlan` were checked and emit **zero** quantitative
+electrolyte content, so there is nothing to gate in them now. **P1 risk:** nothing prevents a future edit
+from adding quantitative content to those two builders, where no gate would apply. CW's pattern (one
+choke-point every section passes through) is the safer shape.
+
+### Retired in this closeout
+`api/verify-and-generate.js`, `api/verify-and-generate.ts`, `api/generate-report.js`. **Zero imports or
+requires anywhere in the repo** (verified by regex across all non-vendor files). Remaining textual
+references are the tripwire's own assertions, documentation, beads, and a URL-path string in
+`docs/tools/utility/simple-report-server.js`, a local dev utility with no build, deploy or workflow
+reference.
+**Residue flagged, not deleted:** `api/verify-and-generate-test.sql` (14 KB) is an orphaned test suite for
+a deleted endpoint. It cannot generate a report, so it was left for Brew rather than swept unilaterally.
+
+### Handoff addendum — concurrency incident, 2026-09-08
+Two Claude sessions were pointed at the same checkout. The other session (Judith incident/remediation work)
+made 10 legitimate commits between 04:19 and 10:13 and, because the working tree was shared, **committed
+this session's uncommitted safety work inside its own commits** — `api/medical-context.js` entered history
+via `213e208b`, a commit about shopping lists. Those commits are legitimate and were deliberately NOT
+reverted, squashed or reorganised.
+This session then moved to an isolated worktree at `.claude/worktrees/safety-closeout` based on HEAD
+`d292637b`. The main checkout was left untouched by explicit instruction.
+Traps found while isolating, both now in CLAUDE.md: submodules are not checked out in a new worktree (the
+KD suite failed 3 of 211 assertions for that reason alone, correctly), and a worktree's submodule follows
+the parent's committed gitlink, which was **ahead of** the main checkout's.

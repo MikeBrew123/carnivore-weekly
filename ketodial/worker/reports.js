@@ -118,6 +118,163 @@ function normalizeMedications(raw) {
   return result;
 }
 
+// ---------------------------------------------------------------------------
+// MEDICAL CONTAINMENT GATE
+// ---------------------------------------------------------------------------
+// The Starter Kit is a paid PDF emailed after a Stripe payment. It used to print
+// sodium 3,000-5,000 mg/day, potassium ~3,500 mg/day, a potassium-chloride "lite
+// salt" instruction and a supplement table to EVERY buyer, including one who had
+// just told us they take lisinopril. The only gating was a text callout that sat
+// UNDER the numbers and said to clear it with a physician.
+//
+// The rule this file now enforces is the one already established for the Carnivore
+// Weekly report: SUPPRESS, DO NOT SUBSTITUTE. A reader who declares a medication or
+// a cardiac / renal / blood-pressure condition gets NO quantitative electrolyte
+// protocol at all. They are not given gentler numbers - picking a gentler number is
+// the same clinical judgement in a quieter voice, and this software has never seen
+// their labs, their kidney function or their prescriber.
+//
+// FAILS CLOSED ON PURPOSE
+// -----------------------
+// `meds` is a free-text box. Brand names, misspellings, "the little white one for my
+// heart" - no keyword list survives contact with that. So the trigger is deliberately
+// blunt: ANY declared medication, or ANY cardio/renal/BP condition, withholds the
+// protocol. The term list below only sharpens WHAT the reader is told; it is never
+// the thing that decides whether it is safe to print a number.
+//
+// It also fails closed on an UNRECOGNISED condition slug. The intake form lives in a
+// different repository (ketodial/public/index.html, the ketodial.com Pages repo), so
+// a new checkbox can ship to customers before this worker learns what it means. An
+// unknown slug is treated as a declared condition we cannot interpret, and the
+// protocol is withheld.
+//
+// And it fails closed on an UNREADABLE form. index.js stores the questionnaire in a
+// Stripe metadata field as `JSON.stringify(formData).slice(0, 490)`, and
+// handleReport() does `safeParseJSON(...) || {}`. A customer who types more than
+// about eighty characters into the free-text "biggest challenge" box pushes the JSON
+// past 490, the truncated string does not parse, and the WHOLE form - conditions,
+// medications and all - silently becomes `{}`. Read literally that is a reader who
+// declared nothing, which is how a CKD customer on four drugs would have been handed
+// the full protocol through a fault that has nothing to do with their health. The
+// intake always sends both keys, so their absence means the data did not survive,
+// and this function will not pretend that is the same as an all-clear.
+
+/** Answers that mean "nothing to declare". Anything else counts as a declaration. */
+const KD_NONE_VALUES = new Set([
+  '', '-', '--', 'n/a', 'na', 'no', 'none', 'none reported', 'nope', 'nil',
+  'nothing', 'no meds', 'no medication', 'no medications', 'no meds.', 'none.',
+]);
+
+/** Condition slugs the intake form can send that are cardio / renal / BP. */
+const KD_RESTRICTING_CONDITION_SLUGS = new Set(['bp', 'kidney', 'heart']);
+
+/** Every condition slug this worker knows how to interpret. Anything else fails closed. */
+const KD_KNOWN_CONDITION_SLUGS = new Set([
+  't2d', 'pre', 'bp', 'chol', 'thy', 'pcos', 'liver', 'gerd', 'ibs', 'kidney', 'heart',
+]);
+
+/**
+ * Words that mean a cardiac, renal or blood-pressure problem, however the reader
+ * happened to write it. Used ONLY to sharpen wording and to catch free text; the
+ * safety decision above does not depend on this list matching anything.
+ */
+const KD_CARDIO_RENAL_TERMS = [
+  'kidney', 'renal', 'ckd', 'esrd', 'nephro', 'nephritis', 'nephropathy',
+  'dialysis', 'glomerul', 'creatinine', 'egfr',
+  'heart', 'cardiac', 'cardio', 'chf', 'congestive', 'heart failure',
+  'afib', 'a-fib', 'atrial fibrillation', 'arrhythmia', 'pacemaker',
+  'hypertension', 'blood pressure', 'stroke', 'transplant', 'edema', 'oedema',
+];
+
+function kdToList(value) {
+  if (Array.isArray(value)) return value.filter(v => typeof v === 'string' && v.trim());
+  if (typeof value === 'string' && value.trim()) {
+    return value.split(/[,;\n]/).map(v => v.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function kdIsNothing(value) {
+  return KD_NONE_VALUES.has(String(value == null ? '' : value).trim().toLowerCase());
+}
+
+/**
+ * Decide what this reader's Starter Kit is allowed to say.
+ *
+ * @param {object} d - the form_data object collected by ketodial.js/collectFormData()
+ * @returns {{
+ *   declaredConditionSlugs: string[],
+ *   declaredConditionLabels: string[],
+ *   medsText: string,
+ *   hasDeclaredMedication: boolean,
+ *   cardioRenal: boolean,
+ *   renal: boolean,
+ *   unknownConditionSlug: boolean,
+ *   restrictElectrolyteProtocol: boolean,
+ *   restrictionReason: string
+ * }}
+ */
+export function deriveKdMedicalContext(d) {
+  const data = d || {};
+
+  const declaredConditionSlugs = kdToList(data.conditions)
+    .map(c => c.trim().toLowerCase())
+    .filter(c => c && c !== 'none');
+
+  const medsRaw = typeof data.meds === 'string' ? data.meds : '';
+  const medsText = normalizeMedications(medsRaw.trim());
+  const hasDeclaredMedication = !kdIsNothing(medsText);
+
+  const declaredConditionLabels = declaredConditionSlugs.map(
+    c => (CONDITION_INFO[c] && CONDITION_INFO[c].label) || c
+  );
+
+  const unknownConditionSlug = declaredConditionSlugs.some(c => !KD_KNOWN_CONDITION_SLUGS.has(c));
+
+  // collectFormData() in ketodial.js always emits `conditions` and `meds`. If neither
+  // survived, we are not looking at a reader who declared nothing - we are looking at
+  // a form we lost. See the note at the top of this block.
+  const unreadableIntake = !('conditions' in data) && !('meds' in data);
+
+  const blob = [...declaredConditionSlugs, ...declaredConditionLabels, medsText]
+    .join(' | ').toLowerCase();
+  const cardioRenalSlug = declaredConditionSlugs.some(c => KD_RESTRICTING_CONDITION_SLUGS.has(c));
+  const cardioRenalText = KD_CARDIO_RENAL_TERMS.some(t => blob.includes(t));
+  const cardioRenal = cardioRenalSlug || cardioRenalText;
+  const renal = declaredConditionSlugs.includes('kidney') ||
+    ['kidney', 'renal', 'ckd', 'esrd', 'nephro', 'dialysis', 'glomerul', 'egfr']
+      .some(t => blob.includes(t));
+
+  // THE GATE. Blunt on purpose. Over-suppression is the acceptable failure here;
+  // printing a potassium target for someone on an ACE inhibitor is not.
+  const restrictElectrolyteProtocol =
+    hasDeclaredMedication || cardioRenal || unknownConditionSlug || unreadableIntake;
+
+  let restrictionReason = '';
+  if (restrictElectrolyteProtocol) {
+    const parts = [];
+    if (declaredConditionLabels.length) parts.push(declaredConditionLabels.join(', '));
+    if (hasDeclaredMedication) parts.push(medsText);
+    restrictionReason = parts.join(' - ') ||
+      (unreadableIntake
+        ? 'your questionnaire, which did not reach us in full'
+        : 'what you told us on the questionnaire');
+  }
+
+  return {
+    declaredConditionSlugs,
+    declaredConditionLabels,
+    medsText: hasDeclaredMedication ? medsText : 'None reported',
+    hasDeclaredMedication,
+    cardioRenal,
+    renal,
+    unknownConditionSlug,
+    unreadableIntake,
+    restrictElectrolyteProtocol,
+    restrictionReason,
+  };
+}
+
 function goalLabel(g) {
   const map = {
     lose: 'Fat loss',
@@ -493,6 +650,29 @@ const CONDITION_INFO = {
     meds: [
       { name: 'PPIs (omeprazole, etc.)', sub: 'if applicable', note: 'May be able to taper after 4-8 weeks if reflux improves. Do not stop abruptly without physician guidance.', risk: 'lo' },
     ],
+  },
+  // Added 2026-09-08 with the containment gate. Without an entry here the doctor
+  // report's `filter(c => CONDITION_INFO[c])` silently DROPS the condition, so a
+  // customer who ticked "kidney disease" would have handed their physician a report
+  // that did not mention it. Both entries carry empty labs/meds arrays on purpose:
+  // saying which panels to run or how to handle a prescription in reduced kidney
+  // function or cardiac disease is clinical guidance, and this product does not get
+  // to author it. The report states what the patient reported and defers.
+  kidney: {
+    label: 'Kidney disease / CKD',
+    relevance: 'Sodium, potassium, fluid and protein intake are clinical decisions in reduced kidney function',
+    why: 'You reported kidney disease. This report does not set sodium, potassium, fluid or electrolyte-supplement amounts for you. Ask the clinician who manages your kidneys, or a renal dietitian, what yours should be.',
+    risk: 'hi', riskLabel: 'defer to clinician',
+    labs: [],
+    meds: [],
+  },
+  heart: {
+    label: 'Heart condition',
+    relevance: 'Sodium and fluid shifts during adaptation are a clinical matter in cardiac disease',
+    why: 'You reported a heart condition. This report does not set sodium, potassium or fluid amounts for you. Ask the clinician who manages your heart what yours should be.',
+    risk: 'hi', riskLabel: 'defer to clinician',
+    labs: [],
+    meds: [],
   },
   ibs: {
     label: 'IBS',
@@ -1334,33 +1514,36 @@ const STARTER_CSS = `
 export function generateStarterKit(name, d) {
   const carb = d.carbG || 25;
   const prot = d.proteinG || 113;
-  const meds = normalizeMedications(d.meds || '');
-  const conditions = (d.conditions || []).filter(c => c !== 'none');
+  const ctx = deriveKdMedicalContext(d);
+  // `restricted` decides whether this document is allowed to print a quantitative
+  // electrolyte protocol. Every quantity on page 2, plus the sodium/fluid
+  // instructions scattered through pages 1 and 4, hang off it.
+  const restricted = ctx.restrictElectrolyteProtocol;
+  const meds = ctx.hasDeclaredMedication ? ctx.medsText : '';
+  const conditions = ctx.declaredConditionSlugs;
   const symptoms = (d.symptoms || []).filter(s => s !== 'none');
 
   // Build watch-outs from customer data
   const watchOuts = [];
   if (conditions.includes('t2d')) watchOuts.push({title: 'Blood sugar may drop fast', detail: 'Carb restriction can lower blood glucose quickly. If you take diabetes medication, monitor closely and talk to your doctor about dose adjustments in the first 2 weeks.'});
-  if (conditions.includes('bp')) watchOuts.push({title: 'Blood pressure may shift', detail: 'Sodium and fluid changes during keto can affect blood pressure. If you take blood pressure medication, monitor daily and watch for lightheadedness.'});
+  if (conditions.includes('bp')) watchOuts.push({title: 'Blood pressure may shift', detail: 'Sodium and fluid changes during keto can affect blood pressure. If you take blood pressure medication, ask your prescriber how often to check it and what reading should make you call them.'});
+  if (conditions.includes('kidney')) watchOuts.push({title: 'Your kidney team sets your electrolytes, not this kit', detail: 'You reported kidney disease. Sodium, potassium and fluid intake are decisions your kidney clinician or a renal dietitian makes with your labs in front of them. This kit does not set them for you.'});
+  if (conditions.includes('heart')) watchOuts.push({title: 'Your cardiology team sets your electrolytes, not this kit', detail: 'You reported a heart condition. Sodium and fluid intake affect blood pressure and heart rhythm directly, so the amounts are a decision for the clinician who manages your heart, not for an automated report.'});
   if (conditions.includes('chol')) watchOuts.push({title: 'Cholesterol numbers will change', detail: 'LDL may temporarily rise while triglycerides typically drop and HDL rises. Get an advanced lipid panel at 3 months, not a standard one.'});
-  if (meds && meds !== 'None reported') watchOuts.push({title: 'Your medications need attention', detail: `You reported taking ${escHtml(meds)}. Some medications interact with carbohydrate restriction. Review your medication plan with your doctor before starting.`});
-  if (symptoms.includes('energy')) watchOuts.push({title: 'Low energy will get worse before better', detail: 'Days 3-5 are the hardest for energy. This is normal adaptation, not failure. Electrolytes (page 2) are your fix.'});
+  if (meds) watchOuts.push({title: 'Your medications need attention', detail: `You reported taking ${escHtml(meds)}. Some medications interact with carbohydrate restriction, and several very common ones act directly on sodium, potassium and fluid balance. Review your plan with your doctor or pharmacist before starting. Do not change, stop or re-time any medication because of anything in here.`});
+  if (symptoms.includes('energy')) watchOuts.push({title: 'Low energy will get worse before better', detail: restricted
+    ? 'Days 3-5 are the hardest for energy. Electrolytes are usually the reason, but because of what you told us this kit does not set yours - ask your prescriber what your sodium, potassium and fluid intake should be. If you feel faint, confused or short of breath, call your doctor rather than treating it yourself.'
+    : 'Days 3-5 are the hardest for energy. This is normal adaptation, not failure. Electrolytes (page 2) are your fix.'});
   if (symptoms.includes('sleep')) watchOuts.push({title: 'Sleep may be disrupted temporarily', detail: 'Some people experience lighter sleep in week 1. Extra magnesium at bedtime helps. It resolves by week 2 for most.'});
   if (symptoms.includes('crave')) watchOuts.push({title: 'Cravings will peak around day 3-4', detail: 'Sugar cravings are real withdrawal. They pass. Eating enough fat and staying full is the strategy, not willpower.'});
   const topWatchOuts = watchOuts.slice(0, 3);
 
-  // Check if there's a med interaction warning needed
-  const hasBPMed = meds && (meds.toLowerCase().includes('lisinopril') || meds.toLowerCase().includes('ace') || meds.toLowerCase().includes('arb') || conditions.includes('bp'));
-  const hasDiabetesMed = meds && (meds.toLowerCase().includes('metformin') || meds.toLowerCase().includes('insulin') || conditions.includes('t2d'));
-
-  let medWarning = '';
-  if (hasBPMed) {
-    medWarning = `You reported taking <b>${escHtml(meds)}</b>. Potassium supplements and "lite salt" can interact with blood-pressure medications — clear the electrolyte plan with your physician before loading up. Your Doctor's Report covers this.`;
-  } else if (hasDiabetesMed) {
-    medWarning = `You reported taking <b>${escHtml(meds)}</b>. Electrolyte balance may shift more quickly when blood sugar drops on keto — discuss your electrolyte plan with your physician. Your Doctor's Report covers this.`;
-  } else if (meds && meds !== 'None reported' && meds.trim()) {
-    medWarning = `You reported taking <b>${escHtml(meds)}</b>. Check with your doctor before starting any new supplement regimen alongside your current medications.`;
-  }
+  // The old `medWarning` lived here: a keyword list (`lisinopril`, `ace`, `arb`,
+  // `metformin`, `insulin`) that chose which caution to print UNDERNEATH the
+  // sodium and potassium targets, which printed regardless. It is deleted, not
+  // moved. A keyword list must never be the thing that decides whether it is safe
+  // to print a number, and this one failed open on every brand name it did not
+  // know. What replaces it is `restricted` above, which removes the numbers.
 
   const firstName = name.split(' ')[0] || name;
 
@@ -1396,14 +1579,14 @@ export function generateStarterKit(name, d) {
           <div class="th ph1"><span class="dy">DAYS 1–3</span><span class="ph">Switching over</span></div>
           <div class="tb">
             <h4>Burning through stored sugar</h4>
-            <p>Your glycogen empties and you shed water weight fast — often 2–4 lb. The scale flatters you now; that's water, not fat. Drink more than feels normal.</p>
+            <p>Your glycogen empties and you shed water weight fast — often 2–4 lb. The scale flatters you now; that's water, not fat.${restricted ? ` Ask your doctor how much you should be drinking.` : ` Drink more than feels normal.`}</p>
           </div>
         </div>
         <div class="tcard avoid-break">
           <div class="th ph2"><span class="dy">DAYS 4–7</span><span class="ph">The flu window</span></div>
           <div class="tb">
             <h4>Where it can get rough</h4>
-            <p>Headaches, fatigue, or irritability can show up. This is the "keto flu" — and it's an <b>electrolyte</b> problem, not a sign keto is failing you. Page 2 prevents it.</p>
+            <p>Headaches, fatigue, or irritability can show up. This is the "keto flu" — and it's an <b>electrolyte</b> problem, not a sign keto is failing you. ${restricted ? `Page 2 explains why your electrolyte amounts have to come from your doctor rather than from this kit.` : `Page 2 prevents it.`}</p>
           </div>
         </div>
         <div class="tcard avoid-break">
@@ -1441,7 +1624,42 @@ export function generateStarterKit(name, d) {
 <!-- ============ PAGE 2 — KETO FLU / ELECTROLYTES / SUPPLEMENTS ============ -->
 <div class="page">
   <div class="rep-body tight">
+    ${restricted ? `<section class="sec">
+      <div class="sec-eyebrow">Electrolytes</div>
+      <div class="sec-title"><span class="num">03</span> Your amounts have to come from your doctor</div>
+      <div class="callout warn">
+        <span class="ct">This kit does not set sodium, potassium, fluid or supplement amounts for you</span>
+        You told us about <b>${escHtml(ctx.restrictionReason)}</b>. Sodium, potassium, fluid and
+        electrolyte supplements act directly on blood pressure, heart rhythm and kidney function, and
+        several of the most commonly prescribed medications there are change how your body handles all
+        of them. This kit was generated from a questionnaire. It has not seen your labs, it does not
+        know your kidney function, and it is not a clinician — so it is not the right thing to be
+        setting those amounts.
+      </div>
+      <div class="callout" style="margin-top:12px">
+        <span class="ct">What to do instead</span>
+        <b>Ask the clinician who manages your condition or your prescription what your sodium,
+        potassium and fluid intake should be</b>, and what supplements, if any, are appropriate for
+        you. Your Doctor's Report is written for exactly that conversation — print it and take it
+        with you. Do not change, stop or re-time any medication because of anything in this kit.
+      </div>
+      <div class="callout" style="margin-top:12px">
+        <span class="ct">If you feel unwell in the first two weeks</span>
+        Light-headedness, unusual weakness, confusion, breathlessness, swelling or a racing or
+        irregular heartbeat are reasons to <b>contact your doctor</b>, or to seek urgent care if they
+        are severe. <b>Do not treat any of it with salt, lite salt or an electrolyte supplement.</b>
+        Those symptoms have causes that salt makes worse, and telling them apart needs someone who can
+        examine you.
+      </div>
+    </section>
+
     <section class="sec">
+      <div class="sec-eyebrow">What still applies to you</div>
+      <div class="sec-title"><span class="num">04</span> The rest of this kit is unchanged</div>
+      <div class="sec-sub">Only the electrolyte and supplement amounts were withheld. The adaptation
+      timeline, your carb ceiling, the net-carb cheat sheet on page 3 and the shopping list on page 4
+      are all still yours to use, and nothing about them depends on the numbers we left out.</div>
+    </section>` : `<section class="sec">
       <div class="sec-eyebrow">Keto-flu prevention</div>
       <div class="sec-title"><span class="num">03</span> The three minerals that decide your week</div>
       <div class="sec-sub">As insulin drops, your kidneys flush sodium — and potassium and magnesium follow. Replace all three from day one and the keto flu mostly disappears before it starts.</div>
@@ -1465,6 +1683,13 @@ export function generateStarterKit(name, d) {
           <div class="src">Hardest to get from food. A glycinate or citrate supplement at night also helps sleep and cramps.</div>
         </div>
       </div>
+      <div class="callout" style="margin-top:14px">
+        <span class="ct">These are general figures, not targets set for you</span>
+        You did not tell us about any medication or any heart, kidney or blood-pressure condition, so
+        these are written for someone in that situation. If any of that changes, or you are being
+        treated for something you did not mention, <b>these figures stop applying to you and become a
+        question for your doctor.</b>
+      </div>
     </section>
 
     <section class="sec">
@@ -1479,11 +1704,7 @@ export function generateStarterKit(name, d) {
           <tr><td><b>Vitamin D3 + K2</b></td><td>Common baseline deficiency; K2 directs calcium.</td><td class="mono">2,000 IU D3</td></tr>
         </tbody>
       </table>
-      ${medWarning ? `<div class="callout warn" style="margin-top:16px">
-        <span class="ct">Check with your doctor first</span>
-        ${medWarning}
-      </div>` : ''}
-    </section>
+    </section>`}
   </div>
   ${pageFooter(footLeft, 'Educational — not medical advice', 2, 4)}
 </div>
@@ -1577,11 +1798,11 @@ export function generateStarterKit(name, d) {
         <div class="gcat" style="border:1px solid var(--line);border-radius:12px;padding:14px 16px">
           <h4 style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:10px;padding-bottom:7px;border-bottom:1.5px solid var(--line)">Pantry &amp; support</h4>
           <ul style="list-style:none">
-            <li style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);padding:5px 0"><span style="width:14px;height:14px;border:1.5px solid var(--line);border-radius:4px;flex:none"></span>Olive oil, sea salt, "lite salt"</li>
+            <li style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);padding:5px 0"><span style="width:14px;height:14px;border:1.5px solid var(--line);border-radius:4px;flex:none"></span>Olive oil${restricted ? `` : `, sea salt, "lite salt"`}</li>
             <li style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);padding:5px 0"><span style="width:14px;height:14px;border:1.5px solid var(--line);border-radius:4px;flex:none"></span>Olive-oil mayo, mustard, vinegar</li>
             <li style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);padding:5px 0"><span style="width:14px;height:14px;border:1.5px solid var(--line);border-radius:4px;flex:none"></span>Nuts (macadamia, pecan, almond)</li>
-            <li style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);padding:5px 0"><span style="width:14px;height:14px;border:1.5px solid var(--line);border-radius:4px;flex:none"></span>Bone broth, no-sugar electrolyte mix</li>
-            <li style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);padding:5px 0"><span style="width:14px;height:14px;border:1.5px solid var(--line);border-radius:4px;flex:none"></span>Magnesium glycinate</li>
+            <li style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);padding:5px 0"><span style="width:14px;height:14px;border:1.5px solid var(--line);border-radius:4px;flex:none"></span>${restricted ? `Herbs, spices and vinegars you like` : `Bone broth, no-sugar electrolyte mix`}</li>
+            <li style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);padding:5px 0"><span style="width:14px;height:14px;border:1.5px solid var(--line);border-radius:4px;flex:none"></span>${restricted ? `Anything else your doctor has told you to take` : `Magnesium glycinate`}</li>
           </ul>
         </div>
       </div>
@@ -1591,17 +1812,17 @@ export function generateStarterKit(name, d) {
       <div class="sec-eyebrow">Your first week, simplified</div>
       <div class="sec-title"><span class="num">06</span> Five rules that carry you</div>
       <ul class="checks">
-        <li><b style="color:var(--ink)">Salt everything.</b> The keto flu is almost always a sodium problem. A cup of broth a day is cheap insurance.</li>
+        <li>${restricted ? `<b style="color:var(--ink)">Get your electrolyte plan from your doctor.</b> The keto flu is almost always a sodium problem, but what you should be taking is a decision for the clinician who manages your condition or your prescription — not for this kit. Ask before you start.` : `<b style="color:var(--ink)">Salt everything.</b> The keto flu is almost always a sodium problem. A cup of broth a day is cheap insurance.`}</li>
         <li><b style="color:var(--ink)">Eat fat to fullness, don't fear it.</b> Hunger is your gauge — you don't need to count every gram in week one.</li>
         <li><b style="color:var(--ink)">Keep carbs under ${carb}g.</b> Lean on the green column. When in doubt, protein + fat + greens.</li>
-        <li><b style="color:var(--ink)">Drink more water than feels normal.</b> You're flushing a lot of it early on.</li>
+        <li>${restricted ? `<b style="color:var(--ink)">Ask about fluids too.</b> You flush a lot of water early on, and how much you should drink to replace it is part of the same conversation with your doctor.` : `<b style="color:var(--ink)">Drink more water than feels normal.</b> You're flushing a lot of it early on.`}</li>
         <li><b style="color:var(--ink)">Ignore the scale after day 3.</b> Early drops are water. Real fat loss shows up over weeks, not days.</li>
       </ul>
     </section>
 
     <div class="callout" style="margin-top:8px">
       <span class="ct">You've got this, ${escHtml(firstName)}</span>
-      When week-one gets hard, it's almost never willpower — it's electrolytes. Salt, hydrate, sleep, and let the cravings pass. Many people feel noticeably better by days 8-14.
+      ${restricted ? `When week-one gets hard, it's almost never willpower — it's usually electrolytes. Yours are your doctor's call, so make that call early rather than pushing through. Sleep, eat enough, let the cravings pass, and if you feel genuinely unwell, ring your doctor instead of reaching for the salt. Many people feel noticeably better by days 8-14.` : `When week-one gets hard, it's almost never willpower — it's electrolytes. Salt, hydrate, sleep, and let the cravings pass. Many people feel noticeably better by days 8-14.`}
     </div>
   </div>
   ${pageFooter(footLeft, '<a href="https://ketodial.com">ketodial.com</a> — educational, not medical advice', 4, 4)}

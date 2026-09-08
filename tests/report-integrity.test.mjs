@@ -691,14 +691,14 @@ for (const p of PERSONAS) {
 }
 
 // D5. No OTHER file in api/ may grow a grocery generator that picks its own food.
-// api/generate-report.js is a dormant copy of the pre-2026-09-08 worker: it is not
-// deployed (api/wrangler.toml points at calculator-api.js) but it still contains the
-// original two-rotation design, and api/package.json still names it "main". It is
-// listed here by name, deliberately and visibly, rather than being quietly skipped:
-// the day it is deleted or fixed, remove it from KNOWN_DORMANT and this assertion
-// starts protecting that file too. Anything NOT on this list fails immediately.
+// This used to carry a KNOWN_DORMANT allowlist holding api/generate-report.js, a
+// second copy of the pre-2026-09-08 worker that carried the original two-rotation
+// design. That file was DELETED on 2026-09-08 once it was proven to have no runtime,
+// so the allowlist is now empty and this sweep covers every file in api/ with no
+// exceptions. Do not re-add a name to it: a file that needs an exemption from this
+// assertion is a file that should not be in api/.
 {
-  const KNOWN_DORMANT = new Set(['generate-report.js']);
+  const KNOWN_DORMANT = new Set();
   const apiDir = path.dirname(API);
   const offenders = [];
   for (const f of fs.readdirSync(apiDir)) {

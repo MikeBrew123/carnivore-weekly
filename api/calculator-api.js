@@ -2089,8 +2089,10 @@ function calculateMacros(formData) {
  * This file contains all code needed to generate the comprehensive 13-section
  * 60-80 page personalized diet reports.
  *
- * Source: /Users/mbrew/Developer/carnivore-weekly/api/generate-report.js
- * Extraction Date: 2026-01-13
+ * Originally extracted 2026-01-13 from api/generate-report.js, which was a second,
+ * divergent copy of this generator. That file was DELETED on 2026-09-08 after it was
+ * proven to have no runtime: no wrangler main, no package main, no import, no route,
+ * no CI step. This file is now the only Carnivore Weekly report generator that exists.
  *
  * CONTENTS:
  * 1. foodDatabase constant (master ingredient database)
