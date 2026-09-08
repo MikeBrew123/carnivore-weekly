@@ -54,18 +54,16 @@ open('$MED','w').write(s.replace(old,new))
 mutate 3 "condition-specific treatment claim restored in Report #8" health-context-flow "
 s=open('$API').read()
 old='The research below is general. It is not a finding about you, your questionnaire answers, or anything you told us you are dealing with:'
-new='Research on {{diet}} shows promising results for {{goal}} and {{symptoms}}:'
-assert s.count(old)==1
+new='Research on {{diet}} shows promising results for {{goal}} and {{symptomsList}}:'
+assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
 mutate 4 "physician handout ignores the free-text symptom field" health-context-flow "
 s=open('$API').read()
-old='''  const symptomText = medicalContext.hasDeclaredSymptoms
-    ? medicalContext.symptomsText
-    : 'the health goals described in this report';'''
-new='''  const symptomText = humanizeList(data.symptoms, 'the health goals described in this report');'''
-assert s.count(old)==1
+old='result = result.replace(/\\\\{\\\\{symptomsList\\\\}\\\\}/g, medicalContext.symptomsText);'
+new='result = result.replace(/\\\\{\\\\{symptomsList\\\\}\\\\}/g, humanizeList(data.symptoms, chr39None reportedchr39));'.replace('chr39',chr(39))
+assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
@@ -83,6 +81,58 @@ old='  for (const planWeek of fullMealPlan.weeks) {'
 new='  for (const planWeek of fullMealPlan.weeks.slice(0, 4)) {'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
+"
+
+mutate 7 "therapeutic interpolation restored in the Report #5 pitch" health-context-flow "
+s=open('$API').read()
+old=chr(34)+'Dr. [Name], I'+chr(39)+'m planning to change the way I eat to a {{diet}} diet, and I want your input before I start. {{symptomDisclosure}}'
+new=chr(34)+'Dr. [Name], I'+chr(39)+'m starting a therapeutic {{diet}} protocol to address {{symptoms}}. This is evidence-based metabolic therapy, not a fad diet.'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 8 "therapeutic interpolation restored in the one-page handout" health-context-flow "
+s=open('$API').read()
+old='I am planning to start a **{{diet}}** diet.'
+new='I am starting a therapeutic {{diet}} protocol to address: **{{symptomsList}}**'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 9 "render-time claim gate removed" health-context-flow "
+s=open('$API').read()
+old='      assertNoConditionClaimFrames(\`Report #\${num}\`, body, medCtx);'
+new='      void num; void body; void medCtx;'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 10 "clearance gate removed from the generator" health-context-flow "
+s=open('$API').read()
+old='      assertNoUnfoundedClearance(\`Report #\${num}\`, body);'
+new='      void body;'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 11 "rule 13 removed, so the model may infer clearance again" health-context-flow "
+s=open('$MED').read()
+old='13. NEVER tell the reader that their targets, macros, numbers or this plan are'
+new='13. RESERVED. Nothing here. Targets, macros, numbers and this plan are'
+assert s.count(old)==1, s.count(old)
+open('$MED','w').write(s.replace(old,new))
+"
+
+mutate 12 "the appropriate-to-follow inference restored in the banner" health-context-flow "
+s=open('$MED').read()
+old=\"      '> **That is not the same as saying these numbers are right for you.** Nothing you',\"
+new=\"      '> Since you did not report anything that would require modified guidance, your',\"
+assert s.count(old)==1, s.count(old)
+s=s.replace(old,new)
+old2=\"      '> is able to answer.'\"
+new2=\"      '> targets above are appropriate to follow.'\"
+assert s.count(old2)==1, s.count(old2)
+open('$MED','w').write(s.replace(old2,new2))
 "
 
 echo
