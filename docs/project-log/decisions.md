@@ -1028,3 +1028,38 @@ is a production artifact. The Stripe leg is proven at the HTTP boundary instead,
 bytes `handleCheckout` serializes. **Rotating the test key upgrades this to a true end-to-end with no
 code change.** `PRICE_MAP` is now env-overridable (`PRICE_MAP_JSON`) so test-mode prices can be used;
 production behaviour is unchanged when it is unset.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4d: the intake form's values are an API contract (Brew)
+
+Brew, on the vocabulary bridge: *"relying on visible copy like 'Basic - I can follow a recipe' as an
+API contract is brittle as hell. A copywriter should not be able to break your database."* Correct,
+and the bridge only contained the damage rather than removing the cause.
+
+Every step-2 `<option>` and chip in `ketodial/public/index.html` now carries an explicit `value=`, and
+those values are the shared table's own vocabulary. Verified in a real browser: the form submits
+`dairy=some, cooking=advanced, prep=lots, family=partner, budget=flexible`. No label text reaches the
+database at all any more.
+
+Two options collapse onto one value in each of dairy tolerance ("I love dairy" / "I tolerate it fine"
+→ `full`) and cooking skill ("Microwave only" / "Basic" → `beginner`), and prep time collapses "I
+batch on weekends" / "I love cooking" → `lots`. The shared constraint has fewer levels than KetoDial's
+copy. No behaviour is lost — nothing downstream distinguished those pairs — and widening a CW
+constraint to hold KetoDial's copy would be the wrong direction.
+
+**GROUP K in `tests/kd-intake-authority.test.mjs` is the actual fix.** It reads the shipped HTML and
+fails the build if any option lacks a `value=`, or carries one the CHECK constraints do not accept.
+Mutation-proved, and the polarity is the point:
+
+| Mutation | Result |
+|---|---|
+| a copywriter rewrites a LABEL | **stays green** — copy is free to change |
+| a `value=` attribute is stripped | **red** — "every option declares an explicit value=" |
+| an invented value (`weekend-batch`) | **red** — "every value is one the shared table accepts" |
+| budget chip reverted to `mod` | **red** — same |
+
+**The bridge stays**, now demoted to what it should be: a compatibility layer for sessions created
+before this deploy and for cached pages still submitting label text. That case has its own proof
+against the real constraints (integration GROUP 1b), because it is the only remaining reason to keep
+the code.

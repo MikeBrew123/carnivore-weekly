@@ -679,6 +679,88 @@ for (const c of MALFORMED_CASES) {
 }
 
 // ===========================================================================
+// GROUP K — THE INTAKE FORM'S VALUES ARE AN API CONTRACT.
+// ---------------------------------------------------------------------------
+// The vocabulary bridge is a compatibility layer. This group is the actual fix.
+//
+// Until 2026-09-08 the step-2 <option> tags had no value= attributes, so the browser
+// submitted the LABEL TEXT into columns with CHECK constraints. Visible copy was the
+// API contract, which means a copywriter improving "Basic — I can follow a recipe"
+// would have silently destroyed the customer's medications — the PATCH fails as a
+// unit and takes conditions, medications, symptoms and step_completed with it.
+//
+// Every option now carries an explicit value, and every value must be one the shared
+// table accepts. THIS GROUP IS THE THING THAT STOPS IT REGRESSING: labels are free
+// to change, values are not.
+//
+// The allowed sets are copied from the live CHECK constraints on
+// calculator_sessions_v2, read on 2026-09-08 via pg_get_constraintdef.
+// ===========================================================================
+{
+  const html = fs.readFileSync(KD_INDEX_HTML, 'utf8');
+  const step2 = html.slice(html.indexOf('id="step2"'), html.indexOf('id="step2"') + 20000);
+
+  const ALLOWED = {
+    'Dairy tolerance': ['none', 'butter-only', 'some', 'full'],
+    'Cooking skill': ['beginner', 'intermediate', 'advanced'],
+    'Meal-prep time': ['minimal', 'some', 'lots'],
+    'Who are you cooking for?': ['solo', 'partner', 'family-with-kids', 'large-household'],
+  };
+  const selects = [...step2.matchAll(/<select[\s\S]*?<\/select>/g)].map(m => m[0]);
+  const labels = Object.keys(ALLOWED);
+
+  check('K', 'the four constrained selects are still present',
+    selects.length === labels.length, `found ${selects.length}, expected ${labels.length}`);
+
+  selects.forEach((sel, i) => {
+    const label = labels[i];
+    const options = [...sel.matchAll(/<option([^>]*)>/g)].map(m => m[1]);
+    const values = options.map(a => (a.match(/value="([^"]*)"/) || [])[1]);
+
+    check('K', `${label}: every option declares an explicit value=`,
+      values.every(v => v !== undefined),
+      `${values.filter(v => v === undefined).length} option(s) fall back to their label text`);
+
+    const bad = values.filter(v => v !== undefined && !ALLOWED[label].includes(v));
+    check('K', `${label}: every value is one the shared table accepts`,
+      bad.length === 0,
+      bad.length ? `${bad.join(', ')} — not in [${ALLOWED[label].join('|')}]; PostgREST will 23514 the whole PATCH`
+                 : '');
+  });
+
+  // Budget is chips, not a select, and had the same defect ('mod' / 'flex').
+  const budgetSeg = step2.match(/data-seg="budget"[\s\S]*?<\/div>/);
+  check('K', 'the budget chips are present', !!budgetSeg, '');
+  if (budgetSeg) {
+    const vals = [...budgetSeg[0].matchAll(/data-val="([^"]*)"/g)].map(m => m[1]);
+    const allowedBudget = ['tight', 'moderate', 'flexible'];
+    const bad = vals.filter(v => !allowedBudget.includes(v));
+    check('K', 'every budget chip value is one the shared table accepts', bad.length === 0,
+      bad.length ? `${bad.join(', ')} — not in [${allowedBudget.join('|')}]` : '');
+  }
+
+  // What the browser will now submit must survive the write path untouched.
+  for (const [field, vals] of Object.entries({
+    dairy_tolerance: ['none', 'some', 'full'],
+    cooking_skill: ['beginner', 'intermediate', 'advanced'],
+    meal_prep_time: ['minimal', 'some', 'lots'],
+    family_situation: ['solo', 'partner', 'family-with-kids', 'large-household'],
+    budget: ['tight', 'moderate', 'flexible'],
+  })) {
+    for (const v of vals) {
+      check('K', `${field}="${v}" passes through the bridge unchanged`,
+        toStoredVocabulary(field, v) === v, `became ${toStoredVocabulary(field, v)}`);
+    }
+  }
+
+  // And the bridge still rescues a session created BEFORE this change, which is the
+  // only reason to keep it now that the form sends the right thing.
+  check('K', 'legacy label text is still translated, for sessions predating the fix',
+    toStoredVocabulary('dairy_tolerance', 'A little bothers me') === 'some' &&
+    toStoredVocabulary('budget', 'mod') === 'moderate', '');
+}
+
+// ===========================================================================
 // GROUP G — MUTATION TESTING.
 // ---------------------------------------------------------------------------
 // A passing suite is not evidence. Each protection is broken on purpose against a
@@ -886,6 +968,7 @@ const GROUPS = {
   H: 'early renal gate: what we show and what we sell',
   I: 'persistence: one source of truth',
   J: 'vocabulary bridge to the shared table',
+  K: 'intake form values are an API contract',
   G: 'mutation testing',
 };
 for (const [g, title] of Object.entries(GROUPS)) {

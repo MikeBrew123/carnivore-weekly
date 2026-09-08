@@ -221,14 +221,13 @@ function step2(token) {
     token, step_completed: 2,
     email: null, first_name: 'Audit2B',
     conditions: [], symptoms: [], medications: '',
-    // The EXACT option text the KetoDial selects submit — no `value` attributes, so
-    // the browser sends the label. A fixture using tidy enum values would sail past
-    // the very defect this suite exists to catch.
-    dairy_tolerance: 'A little bothers me',
-    cooking_skill: 'Basic — I can follow a recipe',
-    meal_prep_time: 'About 30 min/day',
-    family_situation: 'Just me',
-    budget: 'mod',
+    // What the browser submits NOW: the explicit value= attributes added on
+    // 2026-09-08, which are the shared table's own vocabulary.
+    dairy_tolerance: 'some',
+    cooking_skill: 'beginner',
+    meal_prep_time: 'some',
+    family_situation: 'solo',
+    budget: 'moderate',
     biggest_challenge: '', previous_diets: [],
   };
 }
@@ -280,8 +279,8 @@ try {
       `medications=${row && JSON.stringify(row.medications)} conditions=${row && JSON.stringify(row.conditions)}`);
     check(G, 'the kidney answer survived the second write',
       row && row.kidney_status === answer, '');
-    // The vocabulary bridge, proven against the real constraints rather than asserted.
-    check(G, "KetoDial's own option text was translated into the shared table's vocabulary",
+    // Proven against the real constraints rather than asserted.
+    check(G, "the values the form now submits are accepted by the shared table as-is",
       row && row.dairy_tolerance === 'some' && row.cooking_skill === 'beginner' &&
       row.meal_prep_time === 'some' && row.family_situation === 'solo' && row.budget === 'moderate',
       `stored dairy=${row && row.dairy_tolerance} cooking=${row && row.cooking_skill} ` +
@@ -408,6 +407,48 @@ try {
         .filter(k => k.startsWith('metadata[')) : [],
       reportBytes: doc.length,
     };
+  }
+
+  // -------------------------------------------------------------------------
+  // GROUP 1b — a session created by the OLD form still works.
+  // ---------------------------------------------------------------------------
+  // The <option> tags now carry explicit values, so the bridge is no longer on the
+  // hot path. It still has to rescue anyone mid-session across the deploy, and a
+  // cached page will keep submitting label text for as long as it lives. This is
+  // the only remaining reason to keep the bridge, so it gets its own proof against
+  // the real constraints — the ones that rejected exactly these strings.
+  // -------------------------------------------------------------------------
+  {
+    const G = '1b/legacy-form';
+    const created = await call('POST', '/session', step1('yes'));
+    const token = created.json.token;
+    createdTokens.add(token);
+    await realFetch(`${SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${token}`, {
+      method: 'PATCH',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ source: TEST_SOURCE }),
+    });
+
+    const legacy = {
+      ...step2(token),
+      dairy_tolerance: 'A little bothers me',
+      cooking_skill: 'Basic — I can follow a recipe',
+      meal_prep_time: 'About 30 min/day',
+      family_situation: 'Just me',
+      budget: 'mod',
+    };
+    const res = await call('PATCH', '/session', legacy);
+    check(G, 'a stale page submitting label text is still accepted', res.status === 200,
+      `status ${res.status} ${res.text.slice(0, 160)}`);
+    const row = await readRow(token);
+    check(G, 'and its answers land in the shared vocabulary',
+      row && row.dairy_tolerance === 'some' && row.cooking_skill === 'beginner' &&
+      row.meal_prep_time === 'some' && row.family_situation === 'solo' && row.budget === 'moderate',
+      `stored dairy=${row && row.dairy_tolerance} cooking=${row && row.cooking_skill} ` +
+      `prep=${row && row.meal_prep_time} family=${row && row.family_situation} budget=${row && row.budget}`);
+    check(G, 'so the medical answers it carried are not lost with it',
+      row && row.medications !== null && row.conditions !== null && row.step_completed >= 2, '');
   }
 
   // -------------------------------------------------------------------------
