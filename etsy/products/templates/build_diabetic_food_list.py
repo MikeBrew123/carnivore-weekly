@@ -2,7 +2,8 @@
 """Build the diabetic-audience printable food list set (DRAFT, Etsy only).
 
 Approved by Brew 2026-09-02 by voice: "build diabetic food list products for
-ETSY ONLY." Not for carnivoreweekly.com, not for ketodial.com.
+ETSY ONLY." The sheets are not published on carnivoreweekly.com and not on
+ketodial.com; they carry the KetoDial brand line but live only in the shop.
 
 House style follows the existing food list family (keto-eat-limit-avoid.html,
 pcos-food-list.html): Fredoka + Nunito, a three column sheet with green /
@@ -28,13 +29,15 @@ Audience is women 45 and over. The appeal lives in the tone (plain language,
 no jargon, no lecture, big enough type to read across a kitchen) and in the
 listing copy, not in an outcome promise on the sheet.
 
-Every output carries a -DRAFT suffix so nothing here can be mistaken for a
-shipped asset. Publishing to Etsy is Brew's own hands.
+Every output carries a -DRAFT suffix by default so nothing here can be mistaken
+for a shipped asset. `--final` writes the same six sheets under buyer-facing
+filenames for upload. Publishing to Etsy is Brew's own hands either way.
 
 Usage:
-  python3 build_diabetic_food_list.py             -> all six PDFs
+  python3 build_diabetic_food_list.py             -> all six PDFs, -DRAFT names
   python3 build_diabetic_food_list.py --png       -> also write preview PNGs
   python3 build_diabetic_food_list.py food-list   -> one sheet only
+  python3 build_diabetic_food_list.py --final     -> buyer-facing filenames
 
 Outputs to etsy/products/pdfs/ (which is gitignored; only this builder is
 tracked).
@@ -47,7 +50,12 @@ from playwright.sync_api import sync_playwright
 
 OUT_DIR = Path(__file__).resolve().parents[1] / "pdfs"
 
-BRAND = "CarnivoreWeekly.com"
+# Brand: KetoDial, ruled by Brew 2026-09-07 by voice. "if the list contains
+# beans and oats and rice and quinoa, those are all not carnivore foods. So
+# you're right; those should be under the keto brand." Spelling and casing
+# copied from the existing KetoDial shop assets (build_trackers.py:97,105 and
+# mealplans/build_mealplans.py:123), not invented here.
+BRAND = "KetoDial.com"
 # ONE line, at the very bottom, small. Brew: "not overdone."
 FINE_PRINT = "For informational purposes only. Please talk with your doctor."
 
@@ -491,8 +499,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("sheets", nargs="*", choices=list(SHEETS) or None, default=None)
     ap.add_argument("--png", action="store_true", help="also write preview PNGs beside the PDFs")
+    # -DRAFT is the safety marker. Drop it ONLY for the copies that get uploaded
+    # to Etsy, because the filename is buyer-facing: nobody should download a
+    # file called "...-DRAFT.pdf". Both sets are written to the same gitignored
+    # directory; the draft copies stay put.
+    ap.add_argument("--final", action="store_true",
+                    help="write buyer-facing filenames with no -DRAFT suffix")
     args = ap.parse_args()
     wanted = args.sheets or list(SHEETS)
+    suffix = "" if args.final else "-DRAFT"
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as pw:
@@ -507,7 +522,7 @@ def main():
                 )
                 page.set_content(html, wait_until="networkidle")
                 page.emulate_media(media="print")
-                out = OUT_DIR / f"{cfg['stem']}-{size_key}-DRAFT.pdf"
+                out = OUT_DIR / f"{cfg['stem']}-{size_key}{suffix}.pdf"
                 page.pdf(path=str(out), width=s["w"], height=s["h"],
                          margin={"top": "0", "right": "0", "bottom": "0", "left": "0"},
                          print_background=True, scale=1.0)
@@ -515,7 +530,7 @@ def main():
                 if args.png:
                     px = {"letter": (816, 1056), "a4": (794, 1123)}[size_key]
                     page.set_viewport_size({"width": px[0], "height": px[1]})
-                    page.screenshot(path=str(OUT_DIR / f"{cfg['stem']}-{size_key}-DRAFT.png"))
+                    page.screenshot(path=str(OUT_DIR / f"{cfg['stem']}-{size_key}{suffix}.png"))
         browser.close()
 
 
