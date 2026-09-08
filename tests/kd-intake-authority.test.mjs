@@ -1204,6 +1204,100 @@ for (const c of MALFORMED_CASES) {
 }
 
 // ===========================================================================
+// GROUP Q — THE FREE PLAN EMAIL IS INSIDE THE GATE.
+// ---------------------------------------------------------------------------
+// The calculator auto-calls /email-plan seconds after the first free result. The
+// page suppressed the protein figure for Yes / "I'm not sure" and the email then
+// carried it in the subject line, a Protein row, "hit the protein number first",
+// copy explaining why we set their protein high, and an upsell to the meal plan
+// checkout had just refused to sell. Suppressed on one surface, emitted on another.
+// ===========================================================================
+{
+  const worker = fs.readFileSync(WORKER_JS, 'utf8');
+  const code = worker.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const planFn = (() => {
+    const i = code.indexOf('function buildPlanEmail');
+    const rest = code.slice(i);
+    const end = rest.search(/\n(?:async )?function /);
+    return i === -1 ? '' : (end === -1 ? rest : rest.slice(0, end));
+  })();
+  const handler = (() => {
+    const i = code.indexOf('async function handleEmailPlan');
+    const rest = code.slice(i);
+    const end = rest.search(/\n(?:async )?function /);
+    return i === -1 ? '' : (end === -1 ? rest : rest.slice(0, end));
+  })();
+
+  check('Q', 'buildPlanEmail and handleEmailPlan are locatable',
+    planFn.length > 0 && handler.length > 0, '');
+
+  check('Q', 'the free email reads the kidney answer from the authoritative row',
+    /readSessionRow\(b\.token, env\)/.test(handler) && /row\.kidney_status/.test(handler),
+    'the email cannot know about the gate, so it prints what the page withheld');
+  check('Q', 'and it fails closed when the answer is unknown',
+    /kidneyStatus !== 'no'/.test(handler),
+    'an unknown kidney answer is being treated as a negative one');
+  // ASSERT THE ASSIGNMENT, NOT THE READ. Checking only for `row.calculated_macros`
+  // stayed green when the assignment was deleted, because the value was still read
+  // into a local that nothing used. Fifth instance of an assertion satisfied by a
+  // mechanism other than the one it names.
+  check('Q', 'macros come from the stored session, not the client',
+    /stored\s*&&[\s\S]{0,80}?m\s*=\s*stored;/.test(handler),
+    'the email trusts client-supplied numbers');
+  check('Q', 'the subject line drops the protein figure when suppressed',
+    /suppressProtein[\s\S]{0,200}?kcal[^`]*net carbs`/.test(handler) &&
+    /suppressProtein\s*\n?\s*\?/.test(handler),
+    'the number the page withheld is in the subject line');
+  check('Q', 'the flag is passed into the email builder',
+    /buildPlanEmail\([\s\S]{0,300}?suppressProtein,/.test(handler), '');
+
+  // RENDER BOTH VARIANTS AND ASSERT ON THE OUTPUT. buildPlanEmail is pure, so the
+  // real email can be produced here without credentials — far stronger than guessing
+  // at distances between strings in the source, which is how the first version of
+  // this group produced a false failure.
+  const renderPlan = (() => {
+    const m = worker.match(/function buildPlanEmail[\s\S]*?\n}/);
+    if (!m) return null;
+    try { return new Function('return (' + m[0] + ')')(); } catch { return null; }
+  })();
+  check('Q', 'buildPlanEmail can be rendered for assertion', typeof renderPlan === 'function', '');
+
+  if (typeof renderPlan === 'function') {
+    const MACROS = { calories: 1650, fatG: 128, proteinG: 118, carbG: 22, tdee: 2060 };
+    const flat = (html) => html.replace(/<[^>]+>/g, ' | ').replace(/&[a-z]+;/g, ' ')
+      .replace(/(\s*\|\s*)+/g, ' | ').replace(/[^\S\n]+/g, ' ');
+    const open = flat(renderPlan(MACROS, 'lose', { age: 58, activity: 1.2, unsubUrl: '#' }));
+    const shut = flat(renderPlan(MACROS, 'lose', { age: 58, activity: 1.2, unsubUrl: '#', suppressProtein: true }));
+
+    check('Q', 'unsuppressed: the protein target is printed', /118 g/.test(open), '');
+    check('Q', 'unsuppressed: the Full Protocol upsell is present', /Full Protocol/.test(open), '');
+    check('Q', 'unsuppressed: the high-protein copy is present', /set your protein high/i.test(open), '');
+
+    check('Q', 'suppressed: the protein figure appears nowhere',
+      !/\b118\b/.test(shut), 'the number the page withheld is in the email');
+    check('Q', 'suppressed: no substitute protein number',
+      !/\b\d{1,3}\s*g\s*(?:of\s+)?protein\b/i.test(shut), '');
+    check('Q', 'suppressed: routed to a clinician instead', /renal dietitian/i.test(shut), '');
+    check('Q', 'suppressed: "hit the protein number first" is gone',
+      !/hit the protein number/i.test(shut), '');
+    check('Q', 'suppressed: no copy explaining why the protein target is high',
+      !/set your protein high/i.test(shut) && !/needs more protein/i.test(shut), '');
+    check('Q', 'suppressed: the meal-plan bundle is NOT advertised',
+      !/Full Protocol/.test(shut) && !/7-day meal plan/i.test(shut),
+      'the email upsells the product checkout would refuse to sell');
+    check('Q', 'suppressed: the two deliverable reports are offered instead',
+      /doctor-ready report/i.test(shut) && /starter kit/i.test(shut) && /9\.98/.test(shut), '');
+    check('Q', 'suppressed: fat and carbs are still given — only protein is withheld',
+      /128 g/.test(shut) && /22 g/.test(shut), '');
+  }
+
+  // CLAUDE.md: KetoDial replies go to the catch-all, never a personal inbox.
+  check('Q', 'KetoDial replies go to the catch-all, not a personal inbox',
+    !/iambrew@gmail\.com/.test(handler) && /ketodial@carnivoreweekly\.com/.test(handler),
+    'KD subscriber replies are routed to a personal gmail address');
+}
+
+// ===========================================================================
 // GROUP G — MUTATION TESTING.
 // ---------------------------------------------------------------------------
 // A passing suite is not evidence. Each protection is broken on purpose against a
@@ -1417,6 +1511,7 @@ const GROUPS = {
   N: 'CI runs on the live intake UI',
   O: 'paid fulfilment is resumable and never silent',
   P: 'delivery truthfulness, idempotency, DB vocabulary, schema in git',
+  Q: 'the free plan email is inside the gate',
   G: 'mutation testing',
 };
 for (const [g, title] of Object.entries(GROUPS)) {

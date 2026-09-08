@@ -308,21 +308,39 @@ async function handleSessionUpdate(request, env) {
 // EMAIL PLAN — send free macro results by email
 // ──────────────────────────────────────────────
 function buildPlanEmail(m, goal, p) {
-  // p: optional personalization {age, sex, activity, newsletterOptIn, unsubUrl}.
+  // p: optional personalization {age, sex, activity, newsletterOptIn, unsubUrl,
+  // suppressProtein}.
   // Every line is derived only from inputs the user actually gave us — the
   // "you told us X, so Y" framing is the point (Brew, 2026-08-30): make
   // answering questions feel worthwhile without asking any new ones for free.
+  //
+  // THE RENAL GATE REACHES THIS EMAIL TOO.
+  // The page suppresses the protein figure for a reader who answered Yes or "I'm
+  // not sure" to the kidney question — and then the calculator auto-sent this email
+  // seconds later carrying the number in the subject line, a Protein row, "hit the
+  // protein number first", copy explaining why we set their protein high, and an
+  // upsell to the meal plan we had just refused to sell them.
+  //
+  // Suppressed on one surface and still emitted on another is the exact defect class
+  // this whole audit has been closing. The email still goes — we do not stop the
+  // customer — but it carries no protein target and offers the two products that
+  // remain deliverable.
   p = p || {};
+  const suppressProtein = !!p.suppressProtein;
   const goalLabel = { lose: 'fat loss', gain: 'muscle gain', maintain: 'maintenance' }[goal] || 'your goal';
   const valueLines = [];
-  if (goal === 'lose') {
+  if (suppressProtein) {
+    valueLines.push(`You told us about your kidney function, so this plan does not set you a protein target. How much protein is right for you depends on things a questionnaire cannot see, and picking a lower number would be the same clinical decision made quietly. <b>Ask your doctor or a renal dietitian what your protein intake should be.</b>`);
+  } else if (goal === 'lose') {
     valueLines.push(`You told us you want to lose weight, so we set your protein high on purpose. It protects your muscle while your calories run under your TDEE, so more of what comes off is fat.`);
-  } else if (goal === 'gain') {
+  } else if (!suppressProtein && goal === 'gain') {
     valueLines.push(`You told us you want to gain, so we paired a high protein target with a small calorie surplus over your TDEE. That's enough to build muscle without turning into a bulk you'll have to diet off later.`);
-  } else if (goal === 'maintain') {
+  } else if (!suppressProtein && goal === 'maintain') {
     valueLines.push(`You told us you want to maintain, so your calories sit right at your TDEE. Carbs stay the lever: keep them under your target and your weight holds steady while your body runs on fat.`);
   }
-  if (Number(p.age) >= 50) {
+  // Explains why the protein target is HIGH — meaningless and unsafe when there is
+  // no protein target.
+  if (!suppressProtein && Number(p.age) >= 50) {
     valueLines.push(`You told us your age, and past 50 the body needs more protein to hold onto muscle, so your target runs higher than the generic keto advice you'll see online.`);
   }
   if (Number(p.activity) && Number(p.activity) <= 1.3) {
@@ -357,20 +375,30 @@ function buildPlanEmail(m, goal, p) {
     <table style="width:100%;border-collapse:collapse;padding:0 28px" cellpadding="0" cellspacing="0">
       ${row('Daily calories', `${Number(m.calories).toLocaleString()} kcal`, '#38bdf8')}
       ${row('Fat', `${m.fatG} g`)}
-      ${row('Protein', `${m.proteinG} g`)}
+      ${suppressProtein
+        ? row('Protein', 'Ask your doctor or renal dietitian')
+        : row('Protein', `${m.proteinG} g`)}
       ${row('Net carbs', `${m.carbG} g`)}
       ${row('Your TDEE (maintenance)', `${Number(m.tdee).toLocaleString()} kcal`)}
     </table>
     ${valueBlock}
     <div style="padding:20px 28px 26px">
-      <p style="margin:0 0 16px;color:#9fb8c9;font-size:13px;line-height:1.6">Hit the protein number first, use fat to stay full, and keep net carbs (total carbs minus fiber) under target. Give it two weeks before you judge anything.</p>
+      <p style="margin:0 0 16px;color:#9fb8c9;font-size:13px;line-height:1.6">${suppressProtein
+        ? `Use fat to stay full and keep net carbs (total carbs minus fiber) under target. Take the protein question to your doctor or a renal dietitian before you change how you eat.`
+        : `Hit the protein number first, use fat to stay full, and keep net carbs (total carbs minus fiber) under target. Give it two weeks before you judge anything.`}</p>
       <a href="https://ketodial.com/recipes/?utm_source=plan_email&utm_medium=email&utm_campaign=plan_delivery" style="display:inline-block;background:transparent;border:1px solid #38bdf8;color:#38bdf8;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;text-decoration:none">Browse keto recipes with these macros</a>
     </div>
     <div style="margin:0 28px 26px;padding:18px 20px;background:rgba(56,189,248,.07);border:1px solid #1e3a52;border-radius:12px">
       <p style="margin:0 0 8px;color:#6da6c9;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">Turn these numbers into a plan</p>
       <p style="margin:0 0 10px;color:#bcd4e3;font-size:13px;line-height:1.6">These free numbers are the floor. The optional Step 3 details, your budget, how you like to cook, whether dairy agrees with you, are what turn the paid reports into a plan built for your actual kitchen.</p>
-      <p style="margin:0 0 14px;color:#bcd4e3;font-size:13px;line-height:1.6">The Full Protocol is all three reports for $10.99: a 7-day meal plan built around your exact macros, a starter kit that walks you through the first 14 days, and a doctor-ready report you can hand over at your next appointment. One-time payment, no subscription, yours to keep.</p>
-      <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=protocol_upsell#calc" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 22px;border-radius:10px;text-decoration:none">Get the Full Protocol</a>
+      ${suppressProtein
+        // The Full Protocol contains the protein-anchored meal plan, which this
+        // customer cannot be sold. Offer the two that remain deliverable — $9.98,
+        // less than the bundle — rather than advertising a refusal.
+        ? `<p style="margin:0 0 14px;color:#bcd4e3;font-size:13px;line-height:1.6">Two of our reports are built for exactly your situation: a doctor-ready report you can hand over at your next appointment, and a starter kit that walks you through the first 14 days. $9.98 for both, one-time, yours to keep. We do not build you a meal plan, because that would mean setting the protein target we just told you belongs to your clinician.</p>
+      <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=safe_reports#calc" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 22px;border-radius:10px;text-decoration:none">See the two reports</a>`
+        : `<p style="margin:0 0 14px;color:#bcd4e3;font-size:13px;line-height:1.6">The Full Protocol is all three reports for $10.99: a 7-day meal plan built around your exact macros, a starter kit that walks you through the first 14 days, and a doctor-ready report you can hand over at your next appointment. One-time payment, no subscription, yours to keep.</p>
+      <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=protocol_upsell#calc" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 22px;border-radius:10px;text-decoration:none">Get the Full Protocol</a>`}
       <p style="margin:12px 0 0;color:#6da6c9;font-size:12px;line-height:1.5">Only want one piece? <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=protocol_upsell#calc" style="color:#6da6c9;text-decoration:underline">Single reports start at $3.99.</a></p>
     </div>
   </div>
@@ -387,13 +415,35 @@ async function handleEmailPlan(request, env) {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return jsonResponse(400, { error: 'Valid email required' });
     }
-    const m = b.macros || {};
-    if (!m.calories || !m.fatG || !m.proteinG || m.carbG == null || !m.tdee) {
-      return jsonResponse(400, { error: 'Macros required' });
-    }
     if (!env.RESEND_API_KEY) {
       return jsonResponse(500, { error: 'Email not configured' });
     }
+
+    // AUTHORITATIVE MACROS AND AUTHORITATIVE KIDNEY ANSWER, FROM THE SAME ROW.
+    // The client used to hand us both the numbers and nothing else, so this email
+    // could not know about the kidney gate and printed a protein target the page had
+    // just withheld. Reading the saved session fixes both problems at once: the
+    // figures are the ones we stored, and kidney_status comes with them.
+    //
+    // The token exists before the auto-send in the normal flow. If it does not — a
+    // stale page, or a session write that failed — fall back to the client's macros
+    // and SUPPRESS, because an unknown kidney answer is not a negative one.
+    let m = b.macros || {};
+    let kidneyStatus;
+    if (b.token) {
+      const row = await readSessionRow(b.token, env);
+      if (row) {
+        kidneyStatus = row.kidney_status;
+        const stored = row.calculated_macros;
+        if (stored && stored.calories && stored.proteinG) m = stored;
+      }
+    }
+    if (!m.calories || !m.fatG || !m.proteinG || m.carbG == null || !m.tdee) {
+      return jsonResponse(400, { error: 'Macros required' });
+    }
+    // Anything that is not an explicit 'no' suppresses, absence included. Same
+    // fail-closed shape as deriveKdMedicalContext.
+    const suppressProtein = kidneyStatus !== 'no';
 
     // Attach email to the calculator session if we have a token
     if (b.token) {
@@ -436,14 +486,18 @@ async function handleEmailPlan(request, env) {
       body: JSON.stringify({
         from: 'KetoDial <ketodial@carnivoreweekly.com>',
         to: [email],
-        reply_to: 'iambrew@gmail.com',
-        subject: `Your keto plan: ${Number(m.calories).toLocaleString()} kcal · ${m.proteinG}g protein · ${m.carbG}g net carbs`,
+        // KetoDial replies go to the inbound catch-all, never a personal inbox.
+        reply_to: 'ketodial@carnivoreweekly.com',
+        subject: suppressProtein
+          ? `Your keto plan: ${Number(m.calories).toLocaleString()} kcal · ${m.carbG}g net carbs`
+          : `Your keto plan: ${Number(m.calories).toLocaleString()} kcal · ${m.proteinG}g protein · ${m.carbG}g net carbs`,
         html: buildPlanEmail(m, b.goal, {
           age: b.age,
           sex: b.sex,
           activity: b.activity,
           newsletterOptIn: !!b.newsletter_opt_in,
           unsubUrl,
+          suppressProtein,
         }),
         // Same tag shape as the CW welcome sender so the /webhook/resend
         // open/click tracking can segment plan emails in drip_events.

@@ -133,7 +133,8 @@ globalThis.fetch = async (url, opts = {}) => {
   if (u.includes('api.resend.com')) {
     const b = opts.body ? JSON.parse(opts.body) : {};
     const key = (opts.headers && (opts.headers['Idempotency-Key'] || opts.headers['idempotency-key'])) || null;
-    emailsSent.push({ to: b.to, subject: b.subject, html: b.html || '', idempotencyKey: key });
+    emailsSent.push({ to: b.to, subject: b.subject, html: b.html || '',
+                      replyTo: b.reply_to, idempotencyKey: key });
     if (resendShouldFail) return { ok: false, status: 500, text: async () => 'stubbed Resend outage' };
     return { ok: true, json: async () => ({ id: 'email_stubbed_no_send' }) };
   }
@@ -822,6 +823,86 @@ try {
     const repIntake = await loadRep(token, ENV);
     check(G, 'report medical context sees the corrected answer',
       derive(repIntake).kidneyAnswer === answer, derive(repIntake).kidneyAnswer);
+  }
+
+  // -------------------------------------------------------------------------
+  // GROUP 1h — THE FREE PLAN EMAIL IS GATED TOO.
+  // ---------------------------------------------------------------------------
+  // The calculator auto-calls /email-plan seconds after the first free result. The
+  // page suppressed the protein figure for a Yes or "I'm not sure" — and the email
+  // then carried it in the SUBJECT LINE, in a Protein row, in "hit the protein
+  // number first", in copy explaining why we set their protein high, and in an
+  // upsell to the meal plan we had just refused to sell them.
+  //
+  // Suppressed on one surface, still emitted on another. Same defect class as the
+  // meal plan sized from a withheld figure.
+  // -------------------------------------------------------------------------
+  for (const answer of ['no', 'yes', 'unsure']) {
+    const G = `1h/free-email-${answer}`;
+    const created = await call('POST', '/session', step1(answer));
+    const token = created.json.token;
+    createdTokens.add(token);
+    await realFetch(`${SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${token}`, {
+      method: 'PATCH',
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ source: TEST_SOURCE }),
+    });
+
+    emailsSent.length = 0;
+    // The browser sends its own macros. They are deliberately WRONG here: the worker
+    // must use the authoritative row, not what the client claims.
+    const res = await call('POST', '/email-plan', {
+      email: `audit2b-plan-${answer}${TEST_EMAIL_DOMAIN}`,
+      token,
+      goal: 'lose', age: 58, activity: 1.2,
+      macros: { calories: 9999, fatG: 999, proteinG: 777, carbG: 99, tdee: 9999 },
+    });
+    check(G, 'the free plan email is still sent', res.status === 200, `status ${res.status}`);
+    check(G, '  ...exactly once', emailsSent.length === 1, `${emailsSent.length}`);
+    if (!emailsSent.length) continue;
+
+    const mail = emailsSent[0];
+    // Cells are separated by ' | ', not collapsed into one run of words. Flattening
+    // the macro table with a plain space made the Fat row's "128 g" run straight into
+    // the next row's "Protein" label and read as a protein figure — a false positive
+    // that would have masked a real one.
+    const text = mail.html.replace(/<[^>]+>/g, ' | ').replace(/&[a-z]+;/g, ' ')
+      .replace(/(\s*\|\s*)+/g, ' | ').replace(/[^\S\n]+/g, ' ');
+
+    check(G, 'macros come from the authoritative row, not the client',
+      /1,?650/.test(mail.html) && !/9,?999/.test(mail.html),
+      'the worker trusted client-supplied macros');
+    check(G, 'replies go to the KetoDial catch-all, never a personal inbox',
+      mail.replyTo === 'ketodial@carnivoreweekly.com', String(mail.replyTo));
+
+    if (answer === 'no') {
+      check(G, 'the protein target IS in the subject', /118g protein/.test(mail.subject), mail.subject);
+      check(G, 'and in the body', /Protein[\s\S]{0,40}118 g/.test(text), '');
+      check(G, '  ...and the fat row is unaffected', /128 g/.test(text), '');
+      check(G, 'the Full Protocol upsell is present', /Full Protocol/.test(text), '');
+    } else {
+      check(G, 'the protein target is NOT in the subject',
+        !/protein/i.test(mail.subject), mail.subject);
+      check(G, 'the protein figure appears NOWHERE in the email',
+        !/\b118\s*g\b/.test(text) && !/\b118\b/.test(mail.subject),
+        'the number the page withheld is in the email');
+      check(G, 'no substitute protein number either',
+        !/\b\d{1,3}\s*g\s*(?:of\s+)?protein\b/i.test(text) &&
+        !/protein[^.]{0,30}?\b\d{2,3}\s*g\b/i.test(text), '');
+      check(G, 'the reader is routed to a clinician instead',
+        /renal dietitian/i.test(text), '');
+      check(G, '"hit the protein number first" is gone',
+        !/hit the protein number/i.test(text), '');
+      check(G, 'no copy explaining why we set their protein high',
+        !/set your protein high/i.test(text) && !/needs more protein/i.test(text), '');
+      check(G, 'the meal-plan bundle is NOT advertised',
+        !/Full Protocol/.test(text) && !/7-day meal plan/i.test(text),
+        'the email upsells the product checkout would refuse to sell');
+      check(G, 'the two deliverable reports are offered instead',
+        /doctor-ready report/i.test(text) && /starter kit/i.test(text), '');
+      check(G, '  ...and the customer can still spend money', /9\.98/.test(text), '');
+    }
   }
 
   // -------------------------------------------------------------------------

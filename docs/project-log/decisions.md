@@ -1304,3 +1304,55 @@ customer-facing retry message no longer promises "you will not receive duplicate
 ### Confirmed by the reviewer, recorded here
 The worker deliberately ignores an invalid or blank resumed `kidney_status` rather than clearing the
 stored value, so the post-payment Step 2 flow preserves the pre-payment answer. Checked and correct.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4i: the free plan email was outside the gate
+
+### The miss
+The calculator auto-calls `/email-plan` seconds after the first free result. The page suppressed the
+protein figure for a reader who answered Yes or "I'm not sure" — and the email then carried it in the
+**subject line**, in a **Protein row**, in **"hit the protein number first"**, in copy explaining why we
+set their protein high, and in an **upsell to the meal plan checkout had just refused to sell them**.
+
+Same defect class as the meal plan sized from a withheld figure: suppressed on one surface, still
+emitted on another. I had flagged this email once as an unresolved risk, then mischaracterised it as
+Carnivore Weekly finding #3's class and let it drop. It is a KetoDial gate leak and it was in scope.
+
+### The fix
+`/email-plan` now loads the **authoritative session** and reads `kidney_status` from it. Anything that
+is not an explicit `no` suppresses, absence included — the same fail-closed shape as
+`deriveKdMedicalContext`.
+
+| | No | Yes / I'm not sure |
+|---|---|---|
+| email sent | yes | **yes** — we do not stop the customer |
+| subject | `… kcal · 118g protein · 22g net carbs` | `… kcal · 22g net carbs` |
+| protein row | `118 g` | `Ask your doctor or renal dietitian` |
+| fat / carbs / calories | shown | **still shown** — only protein is withheld |
+| "hit the protein number first" | present | replaced with fat/carb guidance + referral |
+| "we set your protein high" copy | present | absent |
+| offer | Full Protocol, $10.99 | Doctor + Starter, **$9.98** |
+
+Safety changes the offer, not the ability to buy.
+
+**Macros now come from the stored session, not the client.** The browser used to supply both the numbers
+and no context, which is why the email could not know about the gate. Reading the row fixes both at once.
+An integration test sends deliberately wrong client macros and asserts the stored ones are used.
+
+**Also fixed while in this function:** `reply_to` was `iambrew@gmail.com`. CLAUDE.md is explicit that
+KetoDial replies go to `ketodial@carnivoreweekly.com`. Now pinned by an assertion.
+
+### Mutations — six, all detected
+email ignoring the stored answer · protein row printed regardless · subject keeping the figure ·
+meal-plan bundle advertised to a suppressed reader · macros back to client-supplied · replies back to a
+personal inbox.
+
+GROUP Q **renders both variants of `buildPlanEmail` and asserts on the output**, rather than guessing at
+distances between strings in the source. The first version of the group did the latter and produced a
+false failure on a correct implementation.
+
+Two more masked assertions found and fixed: the macro-source check tested the *read* rather than the
+*assignment* and stayed green when the assignment was deleted; and the integration flattener collapsed
+the Fat row's "128 g" into the next row's "Protein" label and read it as a protein figure. That is the
+fifth and sixth. **An assertion must name the mechanism it depends on, and be scoped to it.**
