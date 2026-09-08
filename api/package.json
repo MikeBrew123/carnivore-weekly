@@ -2,7 +2,7 @@
   "name": "carnivore-report-api",
   "version": "1.0.0",
   "description": "Cloudflare Worker for generating personalized carnivore diet reports",
-  "main": "generate-report.js",
+  "main": "calculator-api.js",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
@@ -11,7 +11,12 @@
     "lint": "eslint *.js --max-warnings=10",
     "lint:fix": "eslint *.js --fix"
   },
-  "keywords": ["carnivore", "diet", "reports", "cloudflare-worker"],
+  "keywords": [
+    "carnivore",
+    "diet",
+    "reports",
+    "cloudflare-worker"
+  ],
   "author": "",
   "license": "MIT"
 }

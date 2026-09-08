@@ -24,6 +24,9 @@ on:
       - 'tests/macro_parity/**'
       - 'tests/report-safety.test.mjs'
       - 'tests/report-integrity.test.mjs'
+      - 'tests/deploy-tripwire.test.mjs'
+      - 'api/wrangler.toml'
+      - 'api/package.json'
       - '.github/workflows/calculator-guard.yml'
   pull_request:
     paths:
@@ -33,6 +36,9 @@ on:
       - 'tests/macro_parity/**'
       - 'tests/report-safety.test.mjs'
       - 'tests/report-integrity.test.mjs'
+      - 'tests/deploy-tripwire.test.mjs'
+      - 'api/wrangler.toml'
+      - 'api/package.json'
   workflow_dispatch:
 
 jobs:
@@ -62,6 +68,12 @@ jobs:
       # beside it. See the header of that file for the customer report behind it.
       - name: Report integrity regression
         run: node tests/report-integrity.test.mjs
+      # Exactly one file may be a deployed report generator. Two dormant ones exist
+      # in api/ and neither is authorized for deletion, so this reads the actual
+      # deployment surface (wrangler configs, package mains, CI) and fails the build
+      # if either is ever promoted.
+      - name: Deployment tripwire for dormant generators
+        run: node tests/deploy-tripwire.test.mjs
 
   bundle-builds:
     runs-on: ubuntu-latest

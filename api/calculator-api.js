@@ -1607,7 +1607,18 @@ async function handleReportInit(request, env) {
     console.log('Calculated macros:', macros);
     console.log('=================================');
 
-    const reportsObject = await generateAllReports(correctedData, env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY);
+    let reportsObject;
+    try {
+      reportsObject = await generateAllReports(correctedData, env.ANTHROPIC_API_KEY || env.CLAUDE_API_KEY);
+    } catch (err) {
+      if (err instanceof ReportValidationError) {
+        // A structured refusal, not a crash. The reader is asked which goal should set
+        // their calorie target; nothing is generated and nothing is charged again.
+        console.warn('[handleReportInit] refusing to generate:', err.code, err.message);
+        return createErrorResponse(err.code, err.message, 422, err.validation);
+      }
+      throw err;
+    }
 
     // CRITICAL: Combine all 13 sections into single markdown string
     let reportMarkdown = '';
@@ -1847,6 +1858,70 @@ async function handleEmailReport(request, env) {
  * the arithmetic in the report already reflects. `goals` is motivation, not direction.
  * This function does not decide between them; it names which is which.
  */
+/**
+ * GOAL CONFLICT DETECTION
+ * -----------------------
+ * The questionnaire asks two different things and stores them in two fields:
+ *
+ *   goal   a single radio: Fat Loss / Maintenance / Muscle Gain. This is the field
+ *          calculateMacros() consumes, so it alone sets the calorie direction.
+ *   goals  a multi-select of motivations, which can include "weightloss".
+ *
+ * Nothing reconciled them. A reader whose `goal` was Muscle Gain, and whose macros
+ * were therefore a 10% surplus, also had "weightloss" ticked in `goals`. The live
+ * sections then described her surplus as supporting fat loss, because the model was
+ * handed both fields and picked the wrong one.
+ *
+ * Making the prompt clearer is necessary but not sufficient: the right answer to
+ * "which of these two contradictory things did you mean" is to ask the reader, not to
+ * ask a language model to guess. So generation FAILS CLOSED on an unresolved material
+ * contradiction rather than shipping a report that argues with itself.
+ *
+ * `primaryGoalConfirmed` is how the frontend records that the reader was shown the
+ * contradiction and chose. Historical sessions do not have it and are never rewritten;
+ * they surface as unresolved, which is accurate.
+ */
+const MOTIVATIONS_CONTRADICTING = {
+  // normalized motivation tokens that pull against each primary goal
+  gain:     ['weightloss', 'weight-loss', 'fatloss', 'fat-loss', 'loseweight', 'lose-weight', 'slimdown'],
+  lose:     ['musclegain', 'muscle-gain', 'gainmuscle', 'gain-muscle', 'bulk', 'bulking', 'weightgain', 'weight-gain'],
+  maintain: ['weightloss', 'weight-loss', 'fatloss', 'fat-loss', 'loseweight', 'lose-weight',
+             'musclegain', 'muscle-gain', 'gainmuscle', 'gain-muscle', 'bulk', 'weightgain', 'weight-gain'],
+};
+
+const normalizeMotivation = m => String(m).toLowerCase().trim().replace(/[\s_]+/g, '');
+
+/**
+ * @returns {{conflict:boolean, resolved:boolean, blocking:boolean, primary:string,
+ *            primaryLabel:string, conflicting:string[], message:string}}
+ */
+function detectGoalConflict(data) {
+  const primary = resolveGoal(data);
+  const raw = data?.goals;
+  const motivations = (Array.isArray(raw) ? raw : String(raw ?? '').split(','))
+    .map(normalizeMotivation).filter(Boolean);
+
+  const against = (MOTIVATIONS_CONTRADICTING[primary.key] || []).map(normalizeMotivation);
+  const conflicting = motivations.filter(m => against.includes(m));
+  const conflict = conflicting.length > 0;
+  const resolved = data?.primaryGoalConfirmed === true;
+
+  return {
+    conflict,
+    resolved,
+    blocking: conflict && !resolved,
+    primary: primary.key,
+    primaryLabel: primary.label,
+    conflicting,
+    message: conflict
+      ? `The primary goal is "${primary.label}", which sets the calorie target to ` +
+        `${primary.direction}, but the motivations include ${conflicting.map(c => `"${c}"`).join(', ')}. ` +
+        `These point in opposite directions and the reader has not been asked which should drive ` +
+        `the calorie target.`
+      : '',
+  };
+}
+
 function resolveGoal(source) {
   const raw = String(source?.goal ?? 'maintain').toLowerCase().trim();
   // 'loss' is accepted because older sessions stored it; calculateMacros accepts it too.
@@ -2448,59 +2523,104 @@ function generateFullMealPlan(data) {
 
       // Helper: Generate meal description, splitting if portion > 500g
       // STRICT ENFORCEMENT: Never exceed 500g per protein source
+      // ---------------------------------------------------------------------
+      // DISPLAY UNITS
+      // Every ingredient is created as a structured item carrying an explicit
+      // display unit, and the sentence the reader sees is RENDERED FROM those
+      // items. Nothing builds the prose and the data separately, so the two
+      // cannot disagree, and the grocery list aggregates the same objects.
+      //
+      // Before this, portions were always printed in grams because that is how
+      // the nutrition maths works. That produced "423g Eggs", and where the
+      // rotation protein was Eggs and the meal also carried the counted egg
+      // extra, it produced "2 Eggs, 223g Eggs": one ingredient, twice, in two
+      // units, in one sentence.
+      // ---------------------------------------------------------------------
+
+      /** Build one structured ingredient from a food-database entry and a gram portion. */
+      const meatItem = (food, grams) => {
+        const unit = displayUnitFor(food);
+        if (unit === 'g') {
+          return { name: food.name, category: food.category || 'Protein', unit: 'g', qty: grams,
+                   grams, protein: food.protein, calories: food.calories, cost: food.cost, diet: food.diet };
+        }
+        // Count-denominated food (eggs). ROUNDING POLICY: nearest whole unit,
+        // minimum one. The rounded count is AUTHORITATIVE: it is what the reader
+        // is told to cook and what the shopping list aggregates, so `grams` is
+        // restated from it rather than kept at the pre-rounding figure. Maximum
+        // rounding error is half a unit; the suite measures the resulting
+        // nutrition variance against an explicit tolerance.
+        const per = GRAMS_PER_UNIT[unit];
+        const qty = Math.max(1, Math.round(grams / per));
+        return { name: food.name, category: food.category || 'Protein', unit, qty,
+                 grams: qty * per, protein: food.protein, calories: food.calories,
+                 cost: food.cost, diet: food.diet };
+      };
+
       const eggItems = (includeEggs) =>
         includeEggs && eggCount > 0
-          ? [{ name: 'Eggs', category: 'Eggs', unit: 'each', qty: eggCount }]
+          ? [{ name: 'Eggs', category: 'Eggs', unit: 'each', qty: eggCount, grams: eggCount * GRAMS_PER_EGG }]
           : [];
-      const meatItem = (food, grams) => ({
-        name: food.name, category: food.category || 'Protein', unit: 'g', qty: grams,
-        protein: food.protein, calories: food.calories, cost: food.cost, diet: food.diet
-      });
+
+      /**
+       * Merge duplicates, then render. Merging is what stops "2 Eggs, 223g Eggs":
+       * one ingredient appears once per meal, in one unit, with one quantity.
+       */
+      const buildMeal = (parts) => {
+        const merged = [];
+        for (const part of parts) {
+          if (!part) continue;
+          const seen = merged.find(m => m.name === part.name);
+          if (!seen) { merged.push({ ...part }); continue; }
+          if (seen.unit !== part.unit) {
+            throw new Error(`meal render: "${part.name}" appears twice in one meal as ` +
+              `"${seen.unit}" and "${part.unit}". One ingredient, one display unit.`);
+          }
+          seen.qty += part.qty;
+          if (typeof seen.grams === 'number' && typeof part.grams === 'number') seen.grams += part.grams;
+        }
+        return { description: merged.map(renderIngredient).join(', '), items: merged };
+      };
 
       const generateMealDescription = (protein1, protein2, targetProtein, includeEggs, extras = '') => {
         const portion = calculateMeatPortion(protein1, targetProtein, includeEggs);
 
         if (portion.grams > MAX_SINGLE_PROTEIN_GRAMS) {
-          // MUST split - portion exceeds cap
           if (protein2 && protein1.name !== protein2.name) {
-            // Split between two different proteins
             const halfProtein = Math.round(targetProtein / 2);
             const portion1 = calculateMeatPortion(protein1, halfProtein, false);
             const portion2 = calculateMeatPortion(protein2, halfProtein, false);
-            const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
             const splitProtein = portion1.protein + portion2.protein + (includeEggs ? eggProtein : 0);
             const splitFat = portion1.fat + portion2.fat + (includeEggs ? eggFat : 0);
             const splitExtras = butterizeExtras(extras, splitProtein, splitFat);
-            return {
-              description: `${eggPart}${portion1.grams}g ${protein1.name}, ${portion2.grams}g ${protein2.name}${splitExtras.text}`,
-              items: [...eggItems(includeEggs), meatItem(protein1, portion1.grams), meatItem(protein2, portion2.grams), ...splitExtras.items]
-            };
-          } else {
-            // Only one protein available - HARD CAP at 500g, add note about multiple servings
-            const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
-            const cappedGrams = MAX_SINGLE_PROTEIN_GRAMS;
-            const servings = Math.ceil(portion.grams / MAX_SINGLE_PROTEIN_GRAMS);
-            const cappedExtras = butterizeExtras(extras, portion.protein, portion.fat);
-            // The reader is told to eat this x`servings` times, so that is what has to
-            // reach the shopping list. Buying one 500g portion for a day of three is
-            // exactly the kind of quiet divergence this refactor exists to prevent.
-            return {
-              description: `${eggPart}${cappedGrams}g ${protein1.name} (x${servings} servings throughout day)${cappedExtras.text}`,
-              items: [...eggItems(includeEggs), meatItem(protein1, cappedGrams * servings), ...cappedExtras.items]
-            };
+            return buildMeal([...eggItems(includeEggs), meatItem(protein1, portion1.grams),
+                              meatItem(protein2, portion2.grams), ...splitExtras.items]);
           }
-        } else {
-          const eggPart = includeEggs ? `${eggCount} Eggs, ` : '';
-          const ex = butterizeExtras(extras, portion.protein, portion.fat);
-          return {
-            description: `${eggPart}${portion.grams}g ${protein1.name}${ex.text}`,
-            items: [...eggItems(includeEggs), meatItem(protein1, portion.grams), ...ex.items]
-          };
+          // Only one protein available. HARD CAP at 500g per serving, with the
+          // serving count carried on the item so the shopping list buys the
+          // whole day rather than one portion of it.
+          const servings = Math.ceil(portion.grams / MAX_SINGLE_PROTEIN_GRAMS);
+          const cappedExtras = butterizeExtras(extras, portion.protein, portion.fat);
+          const capped = meatItem(protein1, MAX_SINGLE_PROTEIN_GRAMS);
+          const built = buildMeal([...eggItems(includeEggs),
+                                   { ...capped, qty: capped.qty * servings, grams: capped.grams * servings, servings },
+                                   ...cappedExtras.items]);
+          // Restate the split for the reader without changing what is bought.
+          built.description = built.description.replace(
+            renderIngredient({ ...capped, qty: capped.qty * servings, grams: capped.grams * servings }),
+            `${renderIngredient(capped)} (x${servings} servings throughout day)`);
+          return built;
         }
+
+        const ex = butterizeExtras(extras, portion.protein, portion.fat);
+        return buildMeal([...eggItems(includeEggs), meatItem(protein1, portion.grams), ...ex.items]);
       };
 
       if (mealsPerDay === 1) {
-        // One meal per day (OMAD) - typically Lion diet
+        // One meal per day (OMAD) - typically Lion diet.
+        // Rendered through buildMeal like every other branch. This branch used to
+        // build its own gram strings, which is why "523g Eggs" survived the first
+        // pass at display units: the fix has to live in one place or it lives in none.
         const portion = calculateMeatPortion(mainProtein, proteinPerMeal, false);
         // STRICT: For OMAD with high calories, always split if over 500g
         if (portion.grams > MAX_SINGLE_PROTEIN_GRAMS) {
@@ -2508,26 +2628,21 @@ function generateFullMealPlan(data) {
             const halfProtein = Math.round(proteinPerMeal / 2);
             const p1 = calculateMeatPortion(mainProtein, halfProtein, false);
             const p2 = calculateMeatPortion(altProtein, halfProtein, false);
-            meals.push({
-              name: 'Meal',
-              description: `${p1.grams}g ${mainProtein.name}, ${p2.grams}g ${altProtein.name}`,
-              items: [meatItem(mainProtein, p1.grams), meatItem(altProtein, p2.grams)]
-            });
+            const built = buildMeal([meatItem(mainProtein, p1.grams), meatItem(altProtein, p2.grams)]);
+            meals.push({ name: 'Meal', description: built.description, items: built.items });
           } else {
-            // Only one protein - cap at 500g with servings note
+            // Only one protein - cap at 500g per serving with a servings note
             const servings = Math.ceil(portion.grams / MAX_SINGLE_PROTEIN_GRAMS);
-            meals.push({
-              name: 'Meal',
-              description: `${MAX_SINGLE_PROTEIN_GRAMS}g ${mainProtein.name} (x${servings} servings)`,
-              items: [meatItem(mainProtein, MAX_SINGLE_PROTEIN_GRAMS * servings)]
-            });
+            const capped = meatItem(mainProtein, MAX_SINGLE_PROTEIN_GRAMS);
+            const whole = { ...capped, qty: capped.qty * servings, grams: capped.grams * servings, servings };
+            const built = buildMeal([whole]);
+            built.description = built.description.replace(
+              renderIngredient(whole), `${renderIngredient(capped)} (x${servings} servings)`);
+            meals.push({ name: 'Meal', description: built.description, items: built.items });
           }
         } else {
-          meals.push({
-            name: 'Meal',
-            description: `${portion.grams}g ${mainProtein.name}`,
-            items: [meatItem(mainProtein, portion.grams)]
-          });
+          const built = buildMeal([meatItem(mainProtein, portion.grams)]);
+          meals.push({ name: 'Meal', description: built.description, items: built.items });
         }
 
       } else if (mealsPerDay === 2) {
@@ -2625,8 +2740,62 @@ const NON_MEAT_EXTRAS = [
  * "Eggs - 660 (55 dozen)". Grams were being counted as eggs.
  */
 
+/**
+ * DISPLAY UNITS
+ * -------------
+ * Nutrition is computed in grams throughout, because that is what the food database
+ * stores. But a reader does not buy or cook 423 grams of egg. Every ingredient
+ * therefore declares the unit it is SHOWN and SHOPPED in, and one renderer turns an
+ * item into the words the reader sees.
+ *
+ * Audited 2026-09-08 across every rotation-eligible food (20 of them, after the
+ * calorie-density filter): Beef, Beef Organs, Lamb, Pork, Fish and Poultry are all
+ * bought and cooked by weight, so grams is their natural unit. Eggs is the only
+ * rotation food that is not, and it was rendering as "423g Eggs".
+ *
+ * Canned fish (Canned Salmon, Sardines) is a deliberate exception left in grams: a
+ * tin is a package size, not a portion, and printing "2 cans" would be inventing a
+ * can weight we do not store. Grams here is honest and is never labelled as cans.
+ */
+const GRAMS_PER_EGG_UNIT = 50;
+const GRAMS_PER_UNIT = { each: GRAMS_PER_EGG_UNIT };
+
+/**
+ * ROUNDING POLICY for count-denominated foods.
+ *
+ * A gram portion becomes the NEAREST whole unit, minimum one. The rounded count is
+ * authoritative: the item's grams are restated as qty * GRAMS_PER_UNIT so the meal the
+ * reader cooks, the macros behind it, and the shopping list all describe the same food.
+ *
+ * Worst-case error is half a unit, so for eggs at 50g (13g protein, 11g fat, 155 cal
+ * per 100g) a single portion can move by at most 25g: 3.25g protein, 2.75g fat, 39 cal.
+ * tests/report-integrity.test.mjs asserts both the self-consistency and this bound.
+ */
+const COUNT_ROUNDING_MAX_GRAMS_ERROR = GRAMS_PER_EGG_UNIT / 2;
+
+/** The unit an ingredient is shown and shopped in. Category-keyed, per-food override. */
+function displayUnitFor(food) {
+  if (food.displayUnit) return food.displayUnit;
+  if (food.category === 'Eggs') return 'each';
+  return 'g';
+}
+
+/** The single place a structured ingredient becomes the words a reader reads. */
+function renderIngredient(item) {
+  switch (item.unit) {
+    case 'g':    return `${item.qty}g ${item.name}`;
+    case 'each': return `${item.qty} ${item.name}`;
+    case 'tbsp': return `${item.qty} tbsp ${item.name}`;
+    case 'cup':  return `${item.qty} cup ${item.name}`;
+    case 'half': return item.qty === 1 ? `1/2 ${item.name}` : `${item.qty / 2} ${item.name}`;
+    default:
+      throw new Error(`meal render: no display rule for unit "${item.unit}" (${item.name}). ` +
+        `Add one to renderIngredient() rather than letting a raw number reach the reader.`);
+  }
+}
+
 /** One large egg, edible portion. The single place grams of egg become a count. */
-const GRAMS_PER_EGG = 50;
+const GRAMS_PER_EGG = GRAMS_PER_EGG_UNIT;
 /** One tablespoon of butter. The single place grams of butter become tablespoons. */
 const GRAMS_PER_TBSP_BUTTER = 14;
 
@@ -3062,7 +3231,46 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
  * - Reports #2-5: Food Guide, Meal Calendar, Shopping, Physician Consultation
  * - Reports #7-13: Restaurant, Science, Labs, Electrolytes, Timeline, Stall-Breaker, Tracker
  */
+/**
+ * Thrown when the canonical generator refuses to build a report. Carries a structured
+ * validation result so the caller can answer the customer properly instead of
+ * surfacing a stack trace.
+ */
+class ReportValidationError extends Error {
+  constructor(validation) {
+    super(validation.message);
+    this.name = 'ReportValidationError';
+    this.code = validation.code;
+    this.validation = validation;
+  }
+}
+
+/**
+ * Every production report passes through here, so this is where the invariants that
+ * must hold for ANY entry point live. Fail closed: a report that contradicts itself is
+ * worse than a report that is late.
+ */
+function assertReportInputsCoherent(data) {
+  const goalConflict = detectGoalConflict(data);
+  if (goalConflict.blocking) {
+    throw new ReportValidationError({
+      code: 'GOAL_CONFLICT_UNRESOLVED',
+      field: 'goal',
+      message: goalConflict.message,
+      primaryGoal: goalConflict.primary,
+      primaryGoalLabel: goalConflict.primaryLabel,
+      conflictingMotivations: goalConflict.conflicting,
+      // How a caller clears it: ask the reader which goal should set the calorie
+      // target, write their answer to `goal`, and set primaryGoalConfirmed = true.
+      resolution: 'CONFIRM_PRIMARY_GOAL',
+    });
+  }
+}
+
 async function generateAllReports(data, apiKey) {
+  // Fail closed before a single section is written or a single token is spent.
+  assertReportInputsCoherent(data);
+
   // CRITICAL VALIDATION: Force diet to lowercase and log source
   const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
   console.log('========================================');
@@ -7281,6 +7489,11 @@ export {
   generateFullMealPlan as __test_generateFullMealPlan,
   generateGroceryListByWeek as __test_generateGroceryListByWeek,
   resolveGoal as __test_resolveGoal,
+  detectGoalConflict as __test_detectGoalConflict,
+  ReportValidationError as __test_ReportValidationError,
+  displayUnitFor as __test_displayUnitFor,
+  renderIngredient as __test_renderIngredient,
+  COUNT_ROUNDING_MAX_GRAMS_ERROR as __test_COUNT_ROUNDING_MAX_GRAMS_ERROR,
   convertQuantity as __test_convertQuantity,
   GRAMS_PER_EGG as __test_GRAMS_PER_EGG
 };

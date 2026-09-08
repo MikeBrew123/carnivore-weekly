@@ -70,7 +70,7 @@ const BASE_FORM = {
   symptoms: ['none'], otherSymptoms: '',
   allergies: '', avoidFoods: '', previousDiets: '', whatWorked: '',
   carnivoreExperience: 'beginner',
-  goals: ['weight-loss'], biggestChallenge: '',
+  goals: ['weight-loss'], biggestChallenge: '',   // consistent with goal:'lose'
   cookingSkill: 'basic', budget: 'moderate', familySituation: 'partner',
   workTravel: 'rarely', additionalNotes: ''
 };
@@ -87,6 +87,10 @@ const PERSONAS = [
     form: { ...BASE_FORM, age: 67, weight: 120, heightFeet: 5, heightInches: 4,
             lifestyle: 'light', diet: 'carnivore', goal: 'gain', deficit: 10,
             goals: ['mental', 'weightloss', 'energy'], budget: 'moderate',
+            // The contradiction the reported case actually had. It is marked resolved
+            // here so this persona still exercises RENDERING; the refusal itself is
+            // asserted by the CONFLICT personas below.
+            primaryGoalConfirmed: true,
             avoidFoods: '', otherSymptoms: '', familySituation: 'partner' } },
 
   { id: 'M1', name: 'OMAD: 1 meal/day',
@@ -118,13 +122,15 @@ const PERSONAS = [
 
   { id: 'BIG', name: 'High calorie: forces the 500g split and multi-serving branches',
     form: { ...BASE_FORM, sex: 'male', weight: 320, heightFeet: 6, heightInches: 4,
-            lifestyle: 'very', goal: 'gain', deficit: 15, mealsPerDay: 1 } },
+            lifestyle: 'very', goal: 'gain', deficit: 15, mealsPerDay: 1,
+            goals: ['muscle-gain', 'athletic'] } },
 
   { id: 'TIGHT', name: 'Tight budget, maintain',
-    form: { ...BASE_FORM, budget: 'tight', goal: 'maintain' } },
+    form: { ...BASE_FORM, budget: 'tight', goal: 'maintain', goals: ['energy'] } },
 
   { id: 'PREM', name: 'Premium budget, gain',
-    form: { ...BASE_FORM, budget: 'premium', goal: 'gain', deficit: 10 } },
+    form: { ...BASE_FORM, budget: 'premium', goal: 'gain', deficit: 10,
+            goals: ['muscle-gain'] } },
 
   { id: 'AVOID', name: 'Avoids pork and lamb: neither may appear in either document',
     form: { ...BASE_FORM, avoidFoods: 'pork, lamb', mealsPerDay: 3 } },
@@ -132,20 +138,21 @@ const PERSONAS = [
   // Goal controls. GAIN is the positive control: it exists so that "delete the word
   // gain everywhere" cannot pass this suite. LOSE and MAINT are the negative controls.
   { id: 'GAIN', name: 'Positive control: muscle-gain persona must still read as gain',
-    form: { ...BASE_FORM, goal: 'gain', deficit: 10, mealsPerDay: 2 } },
+    form: { ...BASE_FORM, goal: 'gain', deficit: 10, mealsPerDay: 2, goals: ['muscle-gain', 'energy'] } },
 
   { id: 'LOSE', name: 'Negative control: fat-loss persona, zero gain language',
     form: { ...BASE_FORM, goal: 'lose', deficit: 20, mealsPerDay: 2 } },
 
   { id: 'MAINT', name: 'Negative control: maintenance persona',
-    form: { ...BASE_FORM, goal: 'maintain', mealsPerDay: 2 } },
+    form: { ...BASE_FORM, goal: 'maintain', mealsPerDay: 2, goals: ['energy', 'guthealth'] } },
 
   // Forces the Eggs food-database entry into the rotation as a gram-denominated
   // protein ("423g Eggs") alongside the counted "2 Eggs" extra, which is the exact
   // collision that produced "Eggs - 660 (55 dozen)".
   { id: 'EGGMIX', name: 'Counted eggs AND gram-denominated eggs in the same week',
     form: { ...BASE_FORM, age: 67, weight: 118, heightFeet: 5, heightInches: 4,
-            lifestyle: 'light', diet: 'carnivore', goal: 'gain', deficit: 10 } },
+            lifestyle: 'light', diet: 'carnivore', goal: 'gain', deficit: 10,
+            goals: ['energy'] } },
 ];
 
 // ---------------------------------------------------------------------------
@@ -173,6 +180,11 @@ const {
   __test_resolveGoal: resolveGoal,
   __test_convertQuantity: convertQuantity,
   __test_GRAMS_PER_EGG: GRAMS_PER_EGG,
+  __test_displayUnitFor: displayUnitFor,
+  __test_renderIngredient: renderIngredient,
+  __test_COUNT_ROUNDING_MAX_GRAMS_ERROR: MAX_ROUNDING_ERROR_G,
+  __test_detectGoalConflict: detectGoalConflict,
+  __test_ReportValidationError: ReportValidationError,
 } = api;
 
 for (const [name, fn] of Object.entries({
@@ -187,6 +199,7 @@ for (const [name, fn] of Object.entries({
 }
 
 const rendered = {};
+const renderErrors = [];
 const quiet = ['log', 'info', 'warn', 'debug'].map(k => [k, console[k]]);
 for (const [k] of quiet) console[k] = () => {};
 try {
@@ -198,7 +211,17 @@ try {
     };
     const data = buildReportData(session);
     data.macros = calculateMacros(p.form);
-    const sections = await generateAllReports(data, 'sk-fixture-not-a-real-key');
+    // A persona that cannot render at all is a FAILURE to report, not a reason to kill
+    // the run. The generators fail closed on a self-contradictory meal or an unknown
+    // unit, and when that fires here we want the persona named, not a bare stack trace
+    // half way through the suite.
+    let sections;
+    try {
+      sections = await generateAllReports(data, 'sk-fixture-not-a-real-key');
+    } catch (err) {
+      renderErrors.push({ id: p.id, name: p.name, err });
+      sections = {};
+    }
     rendered[p.id] = { data, sections, calendar: sections[3] || '', shopping: sections[4] || '' };
   }
 } finally {
@@ -288,6 +311,11 @@ function mealMeats(cell) {
 }
 
 const GRAMS_PER_LB = 453.6;
+
+for (const { id, name, err } of renderErrors) {
+  check(id, 'I', `persona renders at all (${name})`, false,
+    `${err.name}: ${err.message}`);
+}
 
 for (const p of PERSONAS) {
   const { calendar, shopping, data } = rendered[p.id];
@@ -400,57 +428,64 @@ for (const p of PERSONAS) {
     `calories ${macroCal} for ${canonical.label}`);
 
   // -----------------------------------------------------------------------
-  // GROUP F — egg units. "Eggs" arrives two ways in one week: counted ("2 Eggs")
-  // and gram-denominated ("423g Eggs", the food database has an Eggs protein entry).
-  // Summing those without conversion shipped "Eggs - 660 (55 dozen)" to a customer.
+  // GROUP F — count-denominated foods are shown and shopped as counts.
+  //
+  // Eggs reach a meal two ways: as the per-meal extra ("2 Eggs") and as a rotation
+  // protein, because the food database has an Eggs entry with macros per 100g. The
+  // second used to render as a gram portion, so a reader saw "423g Eggs", and where
+  // both occurred in one meal, "2 Eggs, 223g Eggs": one ingredient, twice, in two
+  // units, in one sentence. Aggregation then summed 14 counted eggs with 646 grams
+  // and shipped "Eggs - 660 (55 dozen)".
+  //
+  // The gram portion is now converted to a whole count BEFORE rendering, and the
+  // rendered count is the authoritative quantity the shopping list aggregates.
   // -----------------------------------------------------------------------
   for (let week = 1; week <= 4; week++) {
-    const secs = shoppingSections(shopping, week);
-    const eggLine = Object.values(secs).flat().find(l => /^Eggs\b/.test(l));
     const rows = calendarRows(calendar, week);
     const cells = rows.flatMap(r => r.slice(1));
+    const joined = cells.join(' | ');
 
-    // What the meals actually schedule, computed independently of the aggregator.
-    let expected = 0;
+    // A count food must never be printed as a weight.
+    check(p.id, 'F', `week ${week}: no gram-denominated eggs in any meal`,
+      !/\d+\s*g\s+Eggs\b/i.test(joined),
+      `found: ${cells.find(c => /\d+\s*g\s+Eggs\b/i.test(c))}`);
+
+    // A meal may name an ingredient once. "2 Eggs, 223g Eggs" was one meal.
     for (const cell of cells) {
-      for (const m of cell.matchAll(/(\d+)\s+Eggs\b/g)) expected += parseInt(m[1], 10);
-      for (const m of cell.matchAll(/(\d+)\s*g\s+Eggs\b/g)) expected += parseInt(m[1], 10) / GRAMS_PER_EGG;
+      // Names legitimately contain parentheses ("Salmon Fillet (wild)"); the only
+      // parenthetical that is not part of a name is the "(x3 servings...)" note.
+      const names = [...cell.matchAll(/(?:\d+\s*g\s+|\d+ tbsp |\d+ cup |1\/2 |\d+\s+)([A-Z][^,]*?)(?=\s*(?:,|\(x\d|$))/g)]
+        .map(m => m[1].trim());
+      const dupes = names.filter((n, i) => names.indexOf(n) !== i);
+      check(p.id, 'F', `week ${week}: no ingredient listed twice in one meal`,
+        dupes.length === 0, `"${cell}" repeats: ${[...new Set(dupes)].join(', ')}`);
     }
+
+    // The shopping count is exactly what the rendered meals say to cook.
+    const expected = [...joined.matchAll(/(\d+)\s+Eggs\b/g)].reduce((a, m) => a + +m[1], 0);
+    const secs = shoppingSections(shopping, week);
+    const eggLine = Object.values(secs).flat().find(l => /^Eggs\b/.test(l));
 
     if (expected === 0) {
       check(p.id, 'F', `week ${week}: no eggs scheduled, none listed`,
         !eggLine, `list says "${eggLine}" but no meal this week contains eggs`);
       continue;
     }
-
     check(p.id, 'F', `week ${week}: eggs are on the list`, !!eggLine,
-      `${Math.ceil(expected)} eggs are scheduled but the list has no egg line`);
+      `${expected} eggs are scheduled but the list has no egg line`);
     if (!eggLine) continue;
 
     const count = parseInt((eggLine.match(/-\s*(\d+)/) || [])[1], 10);
+    check(p.id, 'F', `week ${week}: listed egg count equals what the meals say`,
+      count === expected,
+      `list says ${count}, the rendered meals total ${expected}`);
 
-    // The actual conversion path, not just a sanity range.
-    check(p.id, 'F', `week ${week}: egg count is derived, not summed across units`,
-      count === Math.ceil(expected),
-      `list says ${count}, meals schedule ${expected.toFixed(2)} (-> ${Math.ceil(expected)}). ` +
-      `A blind sum of counts and grams would give ` +
-      `${cells.join(' ').match(/\d+(?=\s*g?\s+Eggs)/g)?.reduce((a, b) => a + +b, 0)}`);
-
-    // Independent upper bound, so an absurd figure fails even if the maths above is
-    // ever weakened. 7 days of eggs for one person cannot plausibly exceed this.
+    // Independent plausibility bound, so an absurd figure fails on its own even if
+    // the equality above is ever weakened. The shipped bug said 660.
     const MAX_EGGS_PER_WEEK = 60;
-    check(p.id, 'F', `week ${week}: egg count is physically plausible`,
+    check(p.id, 'F', `week ${week}: egg count is physically plausible (${count})`,
       count > 0 && count <= MAX_EGGS_PER_WEEK,
-      `list says ${count} eggs for one week (the shipped bug said 660)`);
-
-    // Grams must never be printed as a count.
-    const gramsThisWeek = cells.join(' ').match(/(\d+)\s*g\s+Eggs\b/g) || [];
-    if (gramsThisWeek.length) {
-      const rawGrams = gramsThisWeek.reduce((a, t) => a + parseInt(t, 10), 0);
-      check(p.id, 'F', `week ${week}: gram-denominated eggs were converted`,
-        count < rawGrams,
-        `list count ${count} is not below the raw gram total ${rawGrams}; grams are being counted as eggs`);
-    }
+      `list says ${count} eggs for one week`);
   }
 
   // -----------------------------------------------------------------------
@@ -694,6 +729,171 @@ for (const p of PERSONAS) {
   check('-', 'D', 'the deployed worker renders the goal through resolveGoal()',
     /\{\\\{goal\\\}\\\}\/g,\s*resolveGoal\(data\)\.label/.test(live),
     'the {{goal}} placeholder is no longer going through the canonical resolver');
+}
+
+// ---------------------------------------------------------------------------
+// GROUP J — goal contradiction. The questionnaire asks two different questions and
+// they can disagree. When they do and the reader has not been asked which one should
+// set their calorie target, the report must REFUSE to generate rather than hand the
+// contradiction to a language model to reconcile.
+// ---------------------------------------------------------------------------
+{
+  const mk = (goal, goals, extra = {}) => ({
+    ...BASE_FORM, goal, goals, deficit: goal === 'maintain' ? undefined : 15,
+    selectedProtocol: 'Carnivore', ...extra,
+  });
+
+  const CASES = [
+    // [name, goal, motivations, expect blocking]
+    ['gain + weightloss',            'gain',     ['weightloss', 'energy'],      true],
+    ['gain + weight-loss (hyphen)',  'gain',     ['weight-loss'],               true],
+    ['gain + weight_loss (underscore)', 'gain',  ['weight_loss'],               true],
+    ['lose + muscle-gain',           'lose',     ['muscle-gain', 'energy'],     true],
+    ['lose + bulking',               'lose',     ['bulking'],                   true],
+    ['maintain + weightloss',        'maintain', ['weightloss'],                true],
+    ['maintain + muscle-gain',       'maintain', ['muscle-gain'],               true],
+    // consistent combinations must NOT be blocked
+    ['lose + weightloss (consistent)',  'lose',     ['weightloss', 'energy'],   false],
+    ['gain + muscle-gain (consistent)', 'gain',     ['muscle-gain'],            false],
+    ['maintain + energy (neutral)',     'maintain', ['energy', 'guthealth'],    false],
+    ['gain + athletic (neutral)',       'gain',     ['athletic', 'hormones'],   false],
+    ['no motivations at all',           'gain',     [],                         false],
+    ['motivations as a bare string',    'gain',     'weightloss, energy',       true],
+  ];
+
+  for (const [name, goal, goals, expectBlocking] of CASES) {
+    const r = detectGoalConflict(mk(goal, goals));
+    check('-', 'J', `${name}: ${expectBlocking ? 'blocks' : 'passes'}`,
+      r.blocking === expectBlocking,
+      `blocking=${r.blocking}, conflicting=[${r.conflicting.join(', ')}], primary=${r.primary}`);
+  }
+
+  // Explicit resolution clears the block, and ONLY explicit resolution does.
+  const conflicted = mk('gain', ['weightloss']);
+  check('-', 'J', 'an unresolved conflict blocks', detectGoalConflict(conflicted).blocking === true, '');
+  check('-', 'J', 'primaryGoalConfirmed clears the block',
+    detectGoalConflict({ ...conflicted, primaryGoalConfirmed: true }).blocking === false, '');
+  for (const truthy of ['true', 1, 'yes']) {
+    check('-', 'J', `primaryGoalConfirmed=${JSON.stringify(truthy)} does NOT clear the block`,
+      detectGoalConflict({ ...conflicted, primaryGoalConfirmed: truthy }).blocking === true,
+      'a loose truthy value is being accepted as an explicit customer decision');
+  }
+  // Resolving does not change the direction: the primary goal still wins.
+  check('-', 'J', 'resolution does not silently flip the calorie direction',
+    detectGoalConflict({ ...conflicted, primaryGoalConfirmed: true }).primary === 'gain', '');
+
+  // The canonical generator refuses, with a structured result, before spending tokens.
+  let err = null;
+  try {
+    await generateAllReports(buildReportData({
+      id: 'conflict', email: 'x@example.com', first_name: 'T', last_name: 'T',
+      diet_type: 'Carnivore', form_data: mk('gain', ['weightloss']),
+    }), 'sk-fixture-not-a-real-key');
+  } catch (e) { err = e; }
+  check('-', 'J', 'generateAllReports refuses an unresolved contradiction',
+    err !== null && err.name === 'ReportValidationError',
+    err ? `threw ${err.name}` : 'it generated a report anyway');
+  check('-', 'J', 'the refusal carries a machine-readable code',
+    err?.code === 'GOAL_CONFLICT_UNRESOLVED', `code=${err?.code}`);
+  check('-', 'J', 'the refusal says how to resolve it',
+    err?.validation?.resolution === 'CONFIRM_PRIMARY_GOAL', `resolution=${err?.validation?.resolution}`);
+  check('-', 'J', 'the refusal names the conflicting motivations',
+    Array.isArray(err?.validation?.conflictingMotivations) && err.validation.conflictingMotivations.length > 0,
+    JSON.stringify(err?.validation?.conflictingMotivations));
+
+  // And it still generates when the reader has chosen.
+  let ok = null;
+  try {
+    ok = await generateAllReports(buildReportData({
+      id: 'resolved', email: 'x@example.com', first_name: 'T', last_name: 'T',
+      diet_type: 'Carnivore', form_data: mk('gain', ['weightloss'], { primaryGoalConfirmed: true }),
+    }), 'sk-fixture-not-a-real-key');
+  } catch (e) { ok = e; }
+  check('-', 'J', 'a resolved contradiction still generates',
+    ok && !(ok instanceof Error) && !!ok[3],
+    ok instanceof Error ? `threw ${ok.name}: ${ok.message}` : 'no meal calendar produced');
+}
+
+// ---------------------------------------------------------------------------
+// GROUP I — display units. Nutrition stays gram-based internally; what the reader
+// reads must be the unit the food is actually bought and cooked in, and the two
+// must describe the same quantity.
+// ---------------------------------------------------------------------------
+{
+  // Structural: every rotation-eligible food resolves to a display unit that has a
+  // render rule. A food added to the database with an exotic category cannot quietly
+  // fall through to a bare number.
+  const CATEGORIES = ['Beef', 'Beef Organs', 'Lamb', 'Pork', 'Fish', 'Poultry',
+                      'Shellfish', 'Eggs', 'Dairy', 'Produce', 'Pantry'];
+  for (const category of CATEGORIES) {
+    const unit = displayUnitFor({ name: 'Probe', category });
+    let rendered = null;
+    try { rendered = renderIngredient({ name: 'Probe', category, unit, qty: 2 }); } catch { /* caught below */ }
+    check('-', 'I', `category "${category}" renders in a real unit (${unit})`,
+      typeof rendered === 'string' && rendered.length > 0,
+      `renderIngredient() has no rule for unit "${unit}"`);
+  }
+
+  check('-', 'I', 'Eggs are a counted food, not a weighed one',
+    displayUnitFor({ name: 'Eggs', category: 'Eggs' }) === 'each', '');
+  check('-', 'I', 'meat is a weighed food',
+    displayUnitFor({ name: 'Ribeye Steak', category: 'Beef' }) === 'g', '');
+  check('-', 'I', 'a per-food override wins over the category default',
+    displayUnitFor({ name: 'Odd', category: 'Beef', displayUnit: 'each' }) === 'each', '');
+
+  let threw = false;
+  try { renderIngredient({ name: 'Probe', unit: 'furlong', qty: 1 }); } catch { threw = true; }
+  check('-', 'I', 'an unknown display unit throws rather than printing a bare number',
+    threw, 'renderIngredient() silently accepted a unit it has no rule for');
+
+  // Behavioural, across every persona: the rendered quantity IS the stored quantity,
+  // and rounding a count food never moves it by more than half a unit.
+  let countItems = 0;
+  for (const p of PERSONAS) {
+    const data = rendered[p.id].data;
+    // Fail-closed guards live inside the generator (a meal may not name one ingredient
+    // in two units, an unknown unit may not be rendered). When one fires, name the
+    // persona and keep going rather than ending the run on a stack trace.
+    let plan;
+    try {
+      plan = generateFullMealPlan(data);
+    } catch (err) {
+      check(p.id, 'I', 'meal plan builds without a display-unit violation', false,
+        `${err.name}: ${err.message}`);
+      continue;
+    }
+    for (const week of plan.weeks) {
+      for (const day of week.days) {
+        for (const it of day.items) {
+          check(p.id, 'I', `item "${it.name}" declares a unit`, !!it.unit, JSON.stringify(it));
+          if (it.unit === 'each') {
+            countItems++;
+            // The rounded count is authoritative: grams are restated from it, so the
+            // meal, its macros and the shopping list all describe the same food.
+            check(p.id, 'I', `"${it.name}" grams are restated from the rounded count`,
+              it.grams === it.qty * GRAMS_PER_EGG,
+              `qty ${it.qty} but grams ${it.grams}`);
+            check(p.id, 'I', `"${it.name}" is a whole number of units`,
+              Number.isInteger(it.qty) && it.qty >= 1, `qty ${it.qty}`);
+          }
+          if (it.unit === 'g') {
+            check(p.id, 'I', `"${it.name}" gram quantity is a positive whole number`,
+              Number.isInteger(it.qty) && it.qty > 0, `qty ${it.qty}`);
+          }
+        }
+      }
+    }
+  }
+  check('-', 'I', `count-denominated items were actually exercised (${countItems} seen)`,
+    countItems > 0, 'no persona produced a counted food; this group proved nothing');
+
+  // The documented tolerance is what the code says it is.
+  check('-', 'I', 'rounding tolerance is half a unit',
+    MAX_ROUNDING_ERROR_G === GRAMS_PER_EGG / 2,
+    `constant says ${MAX_ROUNDING_ERROR_G}, half a unit is ${GRAMS_PER_EGG / 2}`);
+  const protErr = (MAX_ROUNDING_ERROR_G / 100) * 13;   // eggs: 13g protein per 100g
+  check('-', 'I', `worst-case rounding costs <= 3.5g protein per portion (${protErr.toFixed(2)}g)`,
+    protErr <= 3.5, `rounding can move a meal by ${protErr.toFixed(2)}g protein`);
 }
 
 // ---------------------------------------------------------------------------
