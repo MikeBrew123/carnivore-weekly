@@ -397,3 +397,42 @@ All three blockers from the W31 cowork digest fixed and pushed:
 - `blog-queue-watchdog.yml` will raise one false staleness alarm Mon 2026-08-17 from the one-time 7-day cadence transition gap. Close the issue, the 5-day threshold is correctly tuned.
 - 3 pytest failures in `test_layout_integration.py` (missing `analysis` field) and the jest/playwright suites failing to load are both pre-existing, confirmed by stashing and re-running.
 - Uncommitted: `etsy/build-foodlist-listing-images.py`, `etsy/_build/`, and `etsy/products/listing-images/food-list-buildout-2026-08-10/` (local only, nothing from it went live).
+
+---
+
+## 2026-09-09 — Judith Kiplinger paid report: four-layer remediation
+
+A single customer complaint ("my weekly meal plans don't match my weekly shopping lists")
+turned out to sit on top of four independent defect classes. Each fix exposed the next, and
+every one of them affected EVERY report sold, not just hers.
+
+1. **Wrong inputs.** Her questionnaire was self-contradictory (goal `gain` with `weightloss`
+   ticked) and nothing reconciled them. Corrected in `cw_assessment_sessions` with an
+   append-only audit trail in the new `data_corrections` column.
+2. **Raw markdown on the page.** Every medical safety block printed literal `>`, `###` and
+   `**`. The blockquote renderer existed only on the unmerged branch
+   `fix/cw-report-blockquote-rendering`. Merged and extended.
+3. **Structure and promises.** Numbered lists had no renderer branch and ran together in nine
+   places; three drifted copies of the adaptation timeline promised outcomes; a fat-loss stall
+   protocol advising a 20% fat cut was printed to a maintenance customer.
+4. **Advocacy instead of education.** Reports #5, #8 and #9 coached the reader to defeat a
+   clinician's concern, and the handout attributed low-carb and ketogenic trial results to
+   carnivore.
+
+**Why none of it was caught:** every test layer asserted on the MARKDOWN sections, and
+`tests/report-safety.test.mjs` actively STRIPS `>` before asserting. Nothing in the repo
+called `markdownToHTML` or `wrapInPrintHTML`. The artifact gate checked the PDF for `{{`,
+`undefined` and `NaN`, and never for `###`, `**` or a line-leading `>`.
+
+**Now in place:** `tests/report-render-markdown-leak.test.mjs` asserts on final HTML;
+`assertNoDeterministicOutcomes` and `assertNoAdvocacy` run at render time over every section
+including model-written ones; model sections are retried with the violation quoted, bounded at
+three attempts, still failing closed. 58 mutations, all caught.
+
+**Delivery:** her live report was corrected in place four times, keeping her id, access token,
+`created_at` and `expires_at`. Archive v1-v4 preserved with sha256 for each. Sarah's reply
+sent 2026-09-09 with the PDF attached (Resend `e5407c27`).
+
+**Still open:** `carnivoreweekly.com/api/*` is not routed to the worker, so the report viewer
+page is broken for anyone sent a link. Em dashes in report copy. Dormant `deficit` on
+maintenance customers.

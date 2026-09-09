@@ -1587,3 +1587,48 @@ Original 47,275 chars sha256 `4a8c316a…` preserved, also dumped to
 `.claude/backups/` because a copy that lives only in the database you are mutating is
 not a backup. Corrected 54,477 chars sha256 `b95de071…` promoted. Her token is unchanged
 and the endpoint serves the corrected report byte-identically.
+
+## 2026-09-09 — Assert on the artifact the customer receives
+
+**Decision.** Tests for customer-facing output assert on the FINAL rendered artifact, not on
+the input that produces it. Markdown correctness is not evidence of rendered correctness.
+
+**Why.** Raw markdown reached paying readers for an unknown period while three test layers
+were green. All three asserted on markdown sections, and one of them stripped the `>` markers
+in order to make its assertions, so it could never notice `>` surviving to the customer.
+Nothing in the repo rendered. The artifact gate looked at the PDF but only for unreplaced
+placeholders.
+
+**Corollary.** A gate is worth exactly what it looks at. When a gate passes something a human
+then finds by reading the output, the gate is the bug, and it gets a check for that defect
+before anything else is done.
+
+## 2026-09-09 — One canonical helper for anything stated more than once
+
+**Decision.** Where the product says the same thing in several places, one helper owns it.
+
+**Why.** Three versions of "what happens week by week" existed: model-written in Report #1, a
+static block in Report #2, and the long form in Report #11. Report #11 was rewritten to be
+observational and the other two kept promising outcomes, because nothing tied them together.
+
+## 2026-09-09 — Gate model-written sections, then retry, then fail closed
+
+**Decision.** Content rules for model-written sections are enforced by a render-time gate, not
+by prompt wording alone. On violation the section is regenerated with the violation quoted,
+bounded at three attempts, and generation fails closed after that.
+
+**Why.** A prompt rule is a request. The first regeneration after the content gates went in
+refused outright because the model wrote "digestion often simplifies". Failing closed is
+correct, but a paid report dying on a model wobble is not an acceptable customer outcome.
+
+## 2026-09-09 — Never merge evidence bases
+
+**Decision.** Evidence from ketogenic or low-carbohydrate research is labelled as such, and the
+report states that it cannot be assumed to transfer to a strict carnivore diet. Direct
+carnivore claims require direct carnivore evidence.
+
+**Why.** The one-page doctor handout listed "Low-carbohydrate / ketogenic / carnivore" together
+and attributed 60% diabetes remission, metabolic syndrome reversal, superiority for weight loss
+and reduced inflammation to all three. A clinician would have caught it, at the patient's
+expense. Current direct evidence is nine human studies, mostly case reports and surveys, no
+RCTs, no hard endpoints (Nutrients, 2026).
