@@ -42,7 +42,7 @@ import {
   generateMealPlan,
   generateStarterKit,
 } from './reports.js';
-import { IntakeError, loadAuthoritativeIntake, loadIntakeForPurchase, toStoredVocabulary } from './intake.js';
+import { IntakeError, loadAuthoritativeIntake, loadIntakeForPurchase, toStoredVocabulary, activityToStored } from './intake.js';
 import { deriveKdMedicalContext, allowedProducts } from './reports.js';
 
 const PRICE_MAP_LIVE = {
@@ -179,7 +179,7 @@ async function handleSession(request, env) {
       // Printed on the Doctor's Report as "Activity". It was computed client-side to
       // derive TDEE and then never persisted, so the report could only have shown a
       // value it invented. Store it or do not print it.
-      lifestyle_activity: b.lifestyle_activity || null,
+      lifestyle_activity: activityToStored(b.lifestyle_activity),
       // The early renal gate, answered before the free protein result is shown.
       // Not `|| null` on a falsy check by accident: 'no' is a real answer and the
       // only one that unlocks a personalized protein target.
@@ -314,7 +314,8 @@ async function handleSessionUpdate(request, env) {
     setIfSent('biggest_challenge', b.biggest_challenge);
     setIfSent('previous_diets', b.previous_diets);
     setIfSent('dairy_tolerance', toStoredVocabulary('dairy_tolerance', b.dairy_tolerance));
-    setIfSent('lifestyle_activity', b.lifestyle_activity);
+    setIfSent('lifestyle_activity', b.lifestyle_activity === undefined
+      ? undefined : activityToStored(b.lifestyle_activity));
     // RECOMPUTING AFTER AN EMAIL RESUME MUST UPDATE THE ORIGINAL ROW.
     // The resumed page holds a real session, so a customer who edits their stats and
     // presses the results button again has to land on the row they came back to
@@ -328,7 +329,8 @@ async function handleSessionUpdate(request, env) {
     setIfSent('height_cm', b.height_cm);
     setIfSent('weight_value', b.weight_value);
     setIfSent('weight_unit', b.weight_unit);
-    setIfSent('lifestyle_activity', b.lifestyle_activity);
+    setIfSent('lifestyle_activity', b.lifestyle_activity === undefined
+      ? undefined : activityToStored(b.lifestyle_activity));
     setIfSent('calculated_macros', b.macros);
 
     // A customer may go back and change this. Only the three real answers are

@@ -781,6 +781,44 @@ for (const c of MALFORMED_CASES) {
 }
 
 // ===========================================================================
+// GROUP KA — EVERY CONSTRAINED COLUMN GOES THROUGH THE VOCABULARY BRIDGE.
+// ---------------------------------------------------------------------------
+// PRODUCTION INCIDENT, 2026-09-09, caused by the Audit 2B deploy itself.
+// lifestyle_activity was persisted straight from the client, which sends the TDEE
+// multiplier (1.2 .. 1.9). The column's CHECK constraint accepts five words, so
+// EVERY POST /session returned 500 the moment the worker shipped and no customer
+// could reach checkout. GROUP K already pinned the option VALUES; this pins the one
+// numeric field that never went through the bridge those values exist for.
+// ===========================================================================
+{
+  const { activityToStored } = await import('file://' + INTAKE_JS + '?ka=' + Date.now());
+  const ALLOWED = new Set(['sedentary', 'light', 'moderate', 'very', 'extreme']);
+
+  // The five multipliers the calculator can actually produce.
+  for (const [mult, word] of [[1.2, 'sedentary'], [1.375, 'light'], [1.55, 'moderate'],
+                              [1.725, 'very'], [1.9, 'extreme']]) {
+    check('KA', `activity ${mult} stores as "${word}"`, activityToStored(mult) === word,
+      String(activityToStored(mult)));
+  }
+  // Anything the constraint would reject becomes null instead of failing the insert.
+  for (const bad of ['garbage', {}, [], NaN, undefined, null, '']) {
+    const out = activityToStored(bad);
+    check('KA', `an unmappable activity (${JSON.stringify(bad) || String(bad)}) becomes null, not a 500`,
+      out === null || ALLOWED.has(out), String(out));
+  }
+  // And both write paths use it, rather than one of them passing the number through.
+  const worker = fs.readFileSync(WORKER_JS, 'utf8');
+  check('KA', 'session CREATE maps the activity before insert',
+    /lifestyle_activity: activityToStored\(b\.lifestyle_activity\)/.test(worker), '');
+  check('KA', 'session PATCH maps it too',
+    /setIfSent\('lifestyle_activity', b\.lifestyle_activity === undefined/.test(worker), '');
+  check('KA', 'no raw client activity value reaches a column anywhere',
+    !/lifestyle_activity: b\.lifestyle_activity \|\| null/.test(worker) &&
+    !/setIfSent\('lifestyle_activity', b\.lifestyle_activity\)/.test(worker),
+    'the number would violate the CHECK constraint and 500 the whole write');
+}
+
+// ===========================================================================
 // GROUP L — PURCHASE ELIGIBILITY IS NOT REPORT ELIGIBILITY.
 // ---------------------------------------------------------------------------
 // These were one function, and that was a funnel bug wearing a safety costume.
@@ -1874,6 +1912,7 @@ const GROUPS = {
   I: 'persistence: one source of truth',
   J: 'vocabulary bridge to the shared table',
   K: 'intake form values are an API contract',
+  KA: 'every constrained column goes through the vocabulary bridge',
   L: 'purchase eligibility is not report eligibility',
   M: '"I am not sure" is not a diagnosis',
   N: 'CI runs on the live intake UI',

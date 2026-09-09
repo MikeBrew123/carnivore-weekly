@@ -93,6 +93,37 @@
 // gets. Each enum maps back to a phrase that reproduces today's behaviour exactly.
 
 /** KetoDial's option text -> the vocabulary the shared table accepts. */
+/**
+ * The activity multiplier the calculator uses to derive TDEE (1.2 .. 1.9) against the
+ * five words calculator_sessions_v2.lifestyle_activity actually accepts.
+ *
+ * PRODUCTION INCIDENT, 2026-09-09. Persisting this field was added during Audit 2B —
+ * correctly, because the Doctor's Report prints "Activity" and previously could only
+ * have shown a value it invented — but the number was written straight through. The
+ * column carries a CHECK constraint written in Carnivore Weekly's vocabulary, so
+ * EVERY POST /session returned 500 the moment the worker shipped, and no customer
+ * could create a session or reach checkout. Exactly the failure the vocabulary
+ * bridge below already existed to prevent, on the one column that was not routed
+ * through it.
+ *
+ * An unmappable value becomes null rather than failing the insert: losing the
+ * activity label costs a line of personalization, losing the write costs the whole
+ * session.
+ */
+export function activityToStored(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    const t = String(value).trim().toLowerCase();
+    return ['sedentary', 'light', 'moderate', 'very', 'extreme'].includes(t) ? t : null;
+  }
+  if (n < 1.3) return 'sedentary';
+  if (n < 1.46) return 'light';
+  if (n < 1.64) return 'moderate';
+  if (n < 1.81) return 'very';
+  return 'extreme';
+}
+
 const KD_TO_DB = {
   dairy_tolerance: {
     'i love dairy': 'full',
