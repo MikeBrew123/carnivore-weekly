@@ -242,3 +242,65 @@ Positions below default to the site's post-July-2026 editorial standard
   *Still open from earlier entries:* the LDL stance wording (2026-08-24 item 2),
   and the three additions Sarah proposed on 2026-08-31, one of which (the
   "overshooting is the higher-risk error" line) is now partly covered above.
+
+- 2026-09-09: **POTASSIUM SWEEP FINISHED. Both sites now say the same thing.**
+  No change to the figures: still 2,600 mg/day for adult women and 3,400 mg/day
+  for adult men, the 2019 NASEM Adequate Intakes, food first. This entry closes
+  the gaps the 2026-09-02 and 2026-09-03 passes left behind.
+
+  *Approval.* Brew, by voice on 2026-09-07: "So potassium numbers, I'm sure,
+  aren't nearly as important as other things, but yeah, let's bring them in line
+  so we're saying the same messaging."
+
+  *Why there was anything left.* The first two passes searched for the retired
+  "3,000-4,700" family and its close variants. Seven more CW posts stated the
+  same target in units that string never matched, mostly "3-4g" and
+  "1,000-3,500 mg", and the paid KetoDial Starter Kit stated it as
+  "~3,500 mg/day" inside worker code rather than in content.
+
+  *What changed on Carnivore Weekly.* Nine posts, corrected in BOTH
+  data/blog_posts.json and public/blog/ so the next daily publish cannot
+  re-render the old figure: 2026-01-02 beginners blueprint, 2026-01-07 fasting
+  protocols (legacy copy only), 2026-01-14 supplements, 2026-01-19 crossfit,
+  2026-02-08 strength gains, 2026-02-08 weightlifting, 2026-02-09 meal-plan
+  guide (legacy copy only), 2026-03-31 electrolyte protocol (legacy copy only),
+  2026-04-11 DIY electrolytes vs LMNT, 2026-04-30 72-hour fast, 2026-05-07
+  fasting protocols. Plus public/bride-protocol.html, which is a standalone page
+  and not a blog record.
+
+  *What changed on KetoDial.* ketodial/worker/reports.js: the paid Starter Kit
+  printed "Potassium ~3,500 mg/day" and offered a potassium-chloride "lite salt"
+  to fill the gap. It now prints the two AI figures and says the kit does not
+  give potassium-chloride dosing, which is what the Carnivore Weekly report
+  already said (api/medical-context.js). The KD newsletter ARCHIVE for
+  2026-06-07 ("Potassium: 1,000-3,500 mg/day") was NOT rewritten: it is the
+  record of an email real subscribers received, so it keeps the wrong number and
+  carries a dated correction note under it. Submodule commit 2f6b071.
+
+  *A second decision inside this one: no potassium dose for fasting.* Three CW
+  posts disagreed. 2026-01-07 already said we do not publish one; 2026-05-07 said
+  1,000 to 3,000 mg daily (roughly thirty OTC capsules, against our own FDA
+  99 mg framing); 2026-04-30 said 600-900 mg. The 2026-09-03 entry left 2026-04-30
+  alone as a different claim family, which was true then and is not true now that
+  the other two are aligned. All three now take the 2026-01-07 position: no
+  published potassium dose for extended fasting, because there is no safe way to
+  pick one by feel and overshooting is the dangerous error.
+
+  *Also corrected, not reader-facing today.*
+  calculator2-demo/src/components/ui/ElectrolyteGuidance.tsx printed a bare
+  "3500 mg/day" card. It is imported only by CalculatorWizard.tsx, which is not
+  mounted, and the string "potassium" does not appear anywhere in the shipped
+  bundle, so nothing was rebuilt. etsy/products/templates/keto-bundle-pages.html
+  printed "3,500 - 4,700 mg"; the live artifact is an uploaded PDF, so the
+  template is now right but the PDF on Etsy still is not.
+
+  *Test suite.* tests/kd-report-safety.test.mjs asserts that the HEALTHY reader
+  still receives each protocol element, as a canary against blanket suppression.
+  Two of its markers named strings this entry deliberately retired. The potassium
+  marker was repointed at the new figures. The lite-salt marker was replaced with
+  the "These are general figures, not targets set for you" callout, which also
+  renders only on the unrestricted path and so fails under the same mutation.
+  211 assertions, all passing.
+
+  *Still not changed, deliberately.* data/drip-emails/kd/day-2.html still prints
+  3,500 to 4,700 mg. It is a live send surface and remains Brew's call.

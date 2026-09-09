@@ -246,15 +246,22 @@ const CROSS_DOCUMENT_DOSES = [
 /** The protocol, as the healthy reader is supposed to still receive it. */
 const PROTOCOL_MARKERS = [
   { re: /3,000[–\-]5,000\s*mg\/day/i, what: 'the sodium target' },
-  { re: /~?3,500\s*mg\/day/i, what: 'the potassium target' },
+  { re: /2,600\s*mg\/day\s+women,\s*3,400\s+men/i, what: 'the potassium target' },
   { re: /300[–\-]400\s*mg\/day/i, what: 'the magnesium target' },
   { re: /Supplements worth considering/i, what: 'the supplement table' },
   { re: /Electrolyte powder/i, what: 'the electrolyte supplement row' },
-  // Must match the OFFER, not the mention. Blanket-suppressing everybody leaves
-  // "Do not treat any of it with salt, lite salt or an electrolyte supplement" in
-  // the text, and a bare /lite salt/ marker was satisfied by that sentence — the
-  // one marker out of eight that mutation 3 did not turn red.
-  { re: /potassium-chloride "lite salt" helps fill the gap/i, what: 'the lite salt guidance' },
+  // This slot used to hold the lite-salt OFFER ("a potassium-chloride 'lite salt'
+  // helps fill the gap"), chosen because it matched the offer rather than the
+  // mention: blanket-suppressing everybody leaves "Do not treat any of it with
+  // salt, lite salt or an electrolyte supplement" in the text, and a bare
+  // /lite salt/ marker was satisfied by that sentence — the one marker out of
+  // eight that mutation 3 did not turn red. The offer itself was retired on
+  // 2026-09-09 when the potassium figures were aligned across both sites: this
+  // kit no longer gives potassium-chloride dosing to ANY reader, matching what
+  // the Carnivore Weekly report already said. The callout below is its
+  // replacement — it renders only on the unrestricted path, so it turns red
+  // under exactly the same blanket-suppression mutation.
+  { re: /These are general figures, not targets set for you/i, what: 'the general-figures callout that only the unrestricted path prints' },
   { re: /Olive oil, sea salt, "lite salt"/i, what: 'lite salt on the shopping list' },
   { re: /Bone broth, no-sugar electrolyte mix/i, what: 'the electrolyte mix on the shopping list' },
   { re: /Salt everything/i, what: 'the "salt everything" rule' },
