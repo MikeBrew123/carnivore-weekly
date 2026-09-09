@@ -5091,7 +5091,23 @@ function generateDynamicFoodGuide(dietType, data) {
 
   let mealPatterns = '';
   if (standardizedDiet === 'Lion') {
-    mealPatterns = `## Daily Eating Pattern\n\nLion Diet is typically **one meal per day (OMAD)**.\n\n- **One large meal:** 500-1500g ${proteinSamples[0]?.name || 'beef'} + salt\n- **Meal timing:** Whenever hungry\n- **Seasoning:** Salt only`;
+    // Lion is the one protocol whose eating pattern states an amount, and it is a
+    // static string rather than a calculated one: every Lion reader saw the same
+    // "500-1500g". For a reader whose protein target is withheld that is still a large
+    // daily meat quantity, printed two sections after we told them we are not setting
+    // one and are not printing portions. The number not being derived from their
+    // target does not make it a smaller contradiction to the reader holding it.
+    //
+    // Only the amount bullet changes. Meal timing and seasoning carry no intake
+    // guidance and are untouched, and no other protocol is affected: the else branch
+    // below lists food combinations without quantities.
+    //
+    // Copy by Sarah (sarah-health-coach), 2026-09-09, used verbatim.
+    const oneMealBullet = deriveMedicalContext(data).restrictProteinTarget
+      ? '- **One meal:** Because of what you told us about your kidneys, we are not ' +
+        'stating an amount here. Ask your doctor or a renal dietitian how much to eat.'
+      : `- **One large meal:** 500-1500g ${proteinSamples[0]?.name || 'beef'} + salt`;
+    mealPatterns = `## Daily Eating Pattern\n\nLion Diet is typically **one meal per day (OMAD)**.\n\n${oneMealBullet}\n- **Meal timing:** Whenever hungry\n- **Seasoning:** Salt only`;
   } else {
     mealPatterns = `## Daily Eating Patterns\n\n- **Option 1:** ${proteinSamples[0]?.name || 'Protein'} + ${proteinSamples[1]?.name || 'Protein'} + ${fatSample}\n- **Option 2:** ${proteinSamples[1]?.name || 'Protein'} + ${fatSample}\n- **Option 3:** ${proteinSamples[2]?.name || 'Protein'} + ${proteinSamples[0]?.name || 'Protein'} + ${fatSample}`;
   }

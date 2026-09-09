@@ -423,6 +423,13 @@ assert s.count(old)==1, s.count(old)
 open('$MED','w').write(s.replace(old,'    notes.push(false'))
 "
 
+mutate 66 "the Lion food guide states a daily amount to a renal reader again" renal-meal-plan-suppression "
+s=open('$API').read()
+old='    const oneMealBullet = deriveMedicalContext(data).restrictProteinTarget'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'    const oneMealBullet = false'))
+"
+
 mutate 61 "sections 3 and 4 go back to the quantitative templates for a renal reader" renal-meal-plan-suppression "
 s=open('$API').read()
 old='    const suppressQuantities = deriveMedicalContext(data).restrictProteinTarget;'

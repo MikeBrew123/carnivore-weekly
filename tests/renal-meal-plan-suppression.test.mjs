@@ -316,6 +316,57 @@ const renalProteinTarget = renalData.macros.protein_grams;
     /leaves out organ/i.test(String(anticoagOnly[3] || '').replace(/\n>?\s*/g, ' ')), '');
 }
 
+// ===========================================================================
+// GROUP F — the Lion protocol's Report #2.
+//
+// Lion is the one protocol whose "Daily Eating Pattern" states an amount, and it is
+// a static string: "500-1500g <protein> + salt", the same for every Lion reader. It
+// is not calculated from the protein target, which is exactly why the suppression
+// built for the meal plan never touched it. To the reader holding the report that
+// distinction does not exist: they were told we set no target and print no portions,
+// and then handed a daily quantity of meat two sections later.
+// ===========================================================================
+{
+  const LION = { ...BASE, diet: 'Lion', selectedProtocol: 'Lion' };
+  const LION_RENAL = { ...LION, conditions: [], otherConditions: 'Chronic kidney disease, stage 3' };
+  const LION_HEALTHY = { ...LION, conditions: ['none'], otherConditions: '' };
+
+  const { reports: lionRenal } = await build(LION_RENAL);
+  const { reports: lionHealthy } = await build(LION_HEALTHY);
+  const r2 = String(lionRenal[2] || '');
+  const h2 = String(lionHealthy[2] || '');
+
+  check('F', 'the Lion renal fixture is on the suppressed path',
+    deriveMedicalContext(LION_RENAL).restrictProteinTarget === true, '');
+
+  check('F', 'the Lion daily amount is gone for a renal reader',
+    !/500-1500/.test(r2), '500-1500g is still printed to a reader we withhold a target from');
+  for (const [re, what] of QUANTITY_PATTERNS) {
+    check('F', `the Lion renal food guide contains no ${what}`, !re.test(r2), (r2.match(re) || [''])[0]);
+  }
+  check('F', 'no replacement amount was invented in its place',
+    !/\d/.test(r2.split('\n').filter(l => /One meal|One large meal/.test(l)).join(' ')), '');
+  check('F', 'the amount decision is routed to a clinician instead',
+    /renal dietitian/i.test(r2) && /doctor/i.test(r2), '');
+
+  // Still a report, not a hole where one was.
+  check('F', 'Report #2 still renders its heading and eating pattern',
+    /^## Report #2:/m.test(r2) && /Daily Eating Pattern/.test(r2), r2.slice(0, 120));
+  check('F', 'the bullets that carry no intake guidance are untouched',
+    /- \*\*Meal timing:\*\* Whenever hungry/.test(r2) && /- \*\*Seasoning:\*\* Salt only/.test(r2), '');
+  check('F', 'the section is not degraded to a stub',
+    r2.length > 800, `length ${r2.length}`);
+
+  // The healthy Lion reader is the control, and the else branch (every other
+  // protocol) lists combinations rather than amounts, so it cannot be affected.
+  check('F', 'a healthy Lion reader still gets the original amount',
+    /- \*\*One large meal:\*\* 500-1500g/.test(h2),
+    'the fix reached readers it was not for');
+  const secondLion = await build(LION_HEALTHY);
+  check('F', 'the healthy Lion food guide is byte-for-byte stable',
+    String(secondLion.reports[2] || '') === h2, 'the healthy Lion guide changed between builds');
+}
+
 globalThis.fetch = realFetch;
 
 console.log('');
@@ -324,7 +375,7 @@ if (failures.length) {
   console.log(`\nrenal-meal-plan-suppression: ${passed} passed, ${failures.length} FAILED`);
   process.exit(1);
 }
-console.log(`renal-meal-plan-suppression: ${passed} passed, 0 failed  (groups A B C D E)`);
+console.log(`renal-meal-plan-suppression: ${passed} passed, 0 failed  (groups A B C D E F)`);
 console.log('');
 console.log('A withheld protein target is not delivered as food. The plan is not built,');
 console.log('the quantities do not exist, nothing is substituted for them, and the reader');
