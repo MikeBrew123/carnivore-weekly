@@ -1673,8 +1673,8 @@ export function generateStarterKit(name, d) {
         <div class="ecard avoid-break">
           <div class="sym">K</div>
           <div class="nm">Potassium</div>
-          <div class="target">~3,500 mg/day</div>
-          <div class="src">Avocado, leafy greens, salmon, mushrooms. A potassium-chloride "lite salt" helps fill the gap.</div>
+          <div class="target">2,600 mg/day women, 3,400 men</div>
+          <div class="src">The 2019 National Academies adequate intakes, not ceilings. Food first: avocado, leafy greens, salmon, mushrooms, and meat carries more than most people expect. This kit does not give potassium-chloride ("lite salt") dosing.</div>
         </div>
         <div class="ecard avoid-break">
           <div class="sym">Mg</div>
@@ -1699,7 +1699,7 @@ export function generateStarterKit(name, d) {
         <thead><tr><th style="width:28%">Supplement</th><th>Why</th><th style="width:24%">Typical dose</th></tr></thead>
         <tbody>
           <tr><td><b>Magnesium glycinate</b></td><td>Prevents cramps and restless sleep during adaptation.</td><td class="mono">200–400 mg PM</td></tr>
-          <tr><td><b>Electrolyte powder</b><br /><span style="font-size:11px;color:var(--ink-faint)">no sugar</span></td><td>Easiest way to hit sodium &amp; potassium daily.</td><td class="mono">1 serving/day</td></tr>
+          <tr><td><b>Electrolyte powder</b><br /><span style="font-size:11px;color:var(--ink-faint)">no sugar</span></td><td>Easiest way to hit sodium daily. Check the label: many are underdosed.</td><td class="mono">1 serving/day</td></tr>
           <tr><td><b>Omega-3 (fish oil)</b></td><td>Balances the higher fat intake; supports heart health.</td><td class="mono">1–2 g EPA/DHA</td></tr>
           <tr><td><b>Vitamin D3 + K2</b></td><td>Common baseline deficiency; K2 directs calcium.</td><td class="mono">2,000 IU D3</td></tr>
         </tbody>

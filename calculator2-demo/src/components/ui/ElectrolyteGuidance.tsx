@@ -38,13 +38,13 @@ export default function ElectrolyteGuidance() {
         <div className="bg-white rounded-lg p-8 border-2 border-secondary/20">
           <div className="text-center mb-4">
             <p className="text-xs text-gray-600 font-semibold uppercase tracking-wide mb-3">Potassium</p>
-            <p className="text-4xl font-bold text-primary">3500</p>
-            <p className="text-sm text-gray-500">mg/day</p>
+            <p className="text-4xl font-bold text-primary">2,600 / 3,400</p>
+            <p className="text-sm text-gray-500">mg/day (women / men)</p>
           </div>
           <div className="border-t border-gray-100 pt-4">
             <p className="text-sm font-semibold text-gray-700 mb-2">From food</p>
             <p className="text-xs text-gray-600 leading-relaxed">
-              Beef, fish, and eggs provide most of it. Avocado if needed.
+              The 2019 National Academies adequate intakes, not ceilings. Beef, fish, and eggs provide most of it.
             </p>
           </div>
         </div>
