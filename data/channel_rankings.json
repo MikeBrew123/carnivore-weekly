@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-09-06",
+  "last_updated": "2026-09-09",
   "leaderboard": [
     {
       "name": "Shawn Baker MD",
       "rank": 1,
-      "appearances": 6,
+      "appearances": 7,
       "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
     },
     {
-      "name": "Meet Carnivore",
+      "name": "Captain Carnivore",
       "rank": 2,
-      "appearances": 5,
-      "channel_id": "UCYyYDEO8jSlpnJ2omzHXlGA"
+      "appearances": 1,
+      "channel_id": "UCDbCkyHd5afWkqGWngqk5gQ"
     },
     {
-      "name": "HomeSteadHow",
+      "name": "Coach Carnivore Cam ",
       "rank": 3,
-      "appearances": 9,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+      "appearances": 3,
+      "channel_id": "UC3vywUwv6B-JB4jmdhZnX7A"
+    },
+    {
+      "name": "Jenny Mitich",
+      "rank": 4,
+      "appearances": 7,
+      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
       "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 4,
+      "rank": 5,
       "appearances": 7,
       "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
     },
     {
-      "name": "Kent Carnivore",
-      "rank": 5,
-      "appearances": 4,
-      "channel_id": "UCqMGNjQC0qxqzW5CuzQ5-iQ"
-    },
-    {
-      "name": "Robert Kiltz, MD",
+      "name": "Unnatural Vegan",
       "rank": 6,
       "appearances": 1,
-      "channel_id": "UCogDXio0z4rbQP9vTh2i8qg"
+      "channel_id": "UCJBry7T2R1WeipWMBWKJ7Rg"
     },
     {
-      "name": "Jenny Mitich",
+      "name": "Ferrigno Freedom",
       "rank": 7,
-      "appearances": 6,
-      "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
+      "appearances": 4,
+      "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
     },
     {
-      "name": "Coach Carnivore Cam ",
+      "name": "HomeSteadHow",
       "rank": 8,
-      "appearances": 2,
-      "channel_id": "UC3vywUwv6B-JB4jmdhZnX7A"
-    },
-    {
-      "name": "Ben Guiles",
-      "rank": 9,
-      "appearances": 5,
-      "channel_id": "UCl6fmp49U7zd-8ozbvzLQKg"
-    },
-    {
-      "name": "Emmathecarnivore",
-      "rank": 10,
       "appearances": 9,
-      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
+    },
+    {
+      "name": "Carnivore Quest",
+      "rank": 9,
+      "appearances": 6,
+      "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
+    },
+    {
+      "name": "The Carnivore Way",
+      "rank": 10,
+      "appearances": 1,
+      "channel_id": "UCJrkp6b3RCG86fpCxvjAYhA"
     }
   ]
 }
