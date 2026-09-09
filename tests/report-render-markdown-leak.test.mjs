@@ -598,6 +598,143 @@ for (const p of PERSONAS) {
   check('-', 'the gate allows observational wording and lab comparisons', allowed, '');
 }
 
+// --- The medical sections must be patient education, not advocacy. ----------
+//
+// Reports #5, #8 and #9 were written to help a reader win an argument with their
+// clinician: "weak response / strong response" scripts, "ApoB instead of relying on
+// LDL alone", "Trig/HDL under 2 is protective", "ketones may be a superior fuel",
+// "gold standard for cardiovascular risk", a directory of carnivore-friendly doctors,
+// and an evidence summary that attributed randomised-trial results for
+// low-carbohydrate and ketogenic diets to carnivore by listing all three together.
+//
+// A banned-word list alone is satisfied by deleting the section, so every removal
+// below is paired with an assertion that its neutral replacement is PRESENT.
+{
+  const BANNED = med.ADVOCACY_PATTERNS;
+  // Direct-carnivore outcome claims. Current direct evidence is nine human studies,
+  // mostly case reports and surveys, no RCTs, no hard endpoints (Nutrients, 2026).
+  const UNSUPPORTED_DIRECT = [
+    [/carnivore[^.]{0,60}reducing insulin resistance/i, 'insulin resistance claim attributed to carnivore'],
+    [/shifts gut bacteria toward beneficial species/i, 'microbiome benefit claim'],
+    [/\b60% remission\b/i, 'a trial result attributed to carnivore'],
+    [/Metabolic Syndrome Reversal/i, 'reversal claim'],
+    [/Decreases hs-CRP and other inflammatory markers/i, 'inflammation claim stated as established'],
+  ];
+
+  for (const p of PERSONAS) {
+    const sec = rendered[p.id].sections || {};
+    const all = Object.values(sec).join('\n');
+    if (!all) continue;
+
+    for (const [re, why] of BANNED) {
+      const m = all.match(re);
+      check(p.id, `no advocacy: ${why.slice(0, 44)}`, !m, m ? m[0] : '');
+    }
+    for (const [re, why] of UNSUPPORTED_DIRECT) {
+      const m = all.match(re);
+      check(p.id, `no unsupported direct claim: ${why.slice(0, 40)}`, !m, m ? m[0] : '');
+    }
+
+    // --- The neutral replacements must actually be there. --------------------
+    const r5 = sec[5] || '', r8 = sec[8] || '', r9 = sec[9] || '';
+
+    check(p.id, 'R#5 asks whether ApoB adds information rather than asserting it is better',
+      /Would an ApoB add useful information/i.test(r5), '');
+    check(p.id, 'R#5 asks whether the clinician uses the Trig/HDL ratio',
+      /Do you use the triglyceride to HDL ratio/i.test(r5), '');
+    check(p.id, 'R#5 says ApoB is used selectively rather than as a gold standard',
+      /used selectively in current guidance/i.test(r5), '');
+    check(p.id, 'R#5 leaves the CAC decision with the clinician',
+      /your doctor decides whether your risk profile warrants one/i.test(r5), '');
+    check(p.id, 'R#5 section 3 is framed as questions, not scripts',
+      /SECTION 3: Questions for Common Concerns/.test(r5), '');
+    check(p.id, 'R#5 keeps the kidney monitoring ask intact',
+      /Creatinine & eGFR/.test(r5) && /Albumin\/Creatinine ratio/.test(r5), '');
+    check(p.id, 'R#5 second-opinion advice is about consultation quality, not agreement',
+      /not about whether the clinician agrees with your diet/i.test(r5), '');
+    check(p.id, 'R#5 warns against picking a clinician for agreement',
+      /is not a second\s*\n?opinion|not a second opinion/i.test(r5.replace(/\s+/g, ' ')), '');
+    check(p.id, 'R#5 keeps ketogenic evidence labelled as ketogenic',
+      /That is evidence about ketogenic diets/i.test(r5), '');
+    check(p.id, 'R#5 handout separates the two evidence bases',
+      /separates two different bodies of research/i.test(r5), '');
+    check(p.id, 'R#5 handout states the carnivore evidence is very limited',
+      /nine human studies/i.test(r5), '');
+    check(p.id, 'R#5 no longer editorialises a rising LDL-C as not necessarily bad',
+      !/not necessarily bad/i.test(r5), '');
+
+    check(p.id, 'R#8 is framed as what evidence can and cannot tell us',
+      /What the evidence can and cannot tell us/i.test(r8), '');
+    check(p.id, 'R#8 names the three evidence bases separately',
+      /ketogenic diets have been studied|Carbohydrate-restricted and ketogenic diets/i.test(r8), '');
+    check(p.id, 'R#8 states the carnivore evidence base and its size',
+      /nine human studies/i.test(r8) && /scoping review/i.test(r8), '');
+    check(p.id, 'R#8 says keto evidence cannot be assumed to transfer',
+      /cannot simply be assumed to apply/i.test(r8), '');
+    check(p.id, 'R#8 reports the risks the same review found, not only the benefits',
+      /vitamin C/i.test(r8) && /LDL cholesterol/i.test(r8), '');
+    check(p.id, 'R#8 frames the reasons people choose it as reasons, not health claims',
+      /reasons people give, not health claims/i.test(r8), '');
+
+    check(p.id, 'R#9 no longer implies diet-specific reference ranges',
+      !/Standard vs\./i.test(r9), '');
+    check(p.id, 'R#9 lists LDL-C and non-HDL-C rather than only the favourable markers',
+      /\| LDL-C \|/.test(r9) && /\| Non-HDL-C \|/.test(r9), '');
+    check(p.id, 'R#9 keeps the hypoglycemia warning intact',
+      /under 70 mg\/dL is hypoglycemia/i.test(r9), '');
+    check(p.id, 'R#9 still asks how the clinician reads the panel together',
+      /How do you read my LDL-C and non-HDL-C together/i.test(r9), '');
+  }
+
+  // Neutral uses must survive. The gate must not be so blunt that the report can no
+  // longer say what a test is for.
+  const neutral = [
+    'ApoB can refine risk in selected people.',
+    'A CAC score can reclassify risk in appropriate patients.',
+    'Ketogenic diets are used clinically in epilepsy.',
+    'Ask your doctor whether this applies to you.',
+    'HDL >40 is a common reference value.',
+  ];
+  for (const t of neutral) {
+    let threw = false;
+    try { med.assertNoAdvocacy('probe', t); } catch { threw = true; }
+    check('-', `neutral education survives the gate: "${t.slice(0, 40)}"`, !threw, '');
+  }
+  for (const t of ['ApoB is the gold standard for cardiovascular risk.',
+                   'A Trig/HDL ratio under 2 is protective.',
+                   'Ketones may be a superior fuel for the brain.',
+                   'Find a carnivore-friendly doctor near you.']) {
+    let threw = false;
+    try { med.assertNoAdvocacy('probe', t); } catch { threw = true; }
+    check('-', `the gate refuses advocacy: "${t.slice(0, 40)}"`, threw, '');
+  }
+
+  // THE GATE'S REAL JOB, again: Reports #1 and #6 are model-written. The static
+  // templates being clean proves nothing about them, and mutation M50 showed the
+  // whole gate could be deleted with every assertion above still green. Feed the
+  // generator an advocacy response and require it to REFUSE.
+  {
+    const poisoned = 'ApoB is the gold standard for cardiovascular risk. A Trig/HDL ratio under 2 is protective, and ketones may be a superior fuel for the brain.';
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (url) => String(url).includes('anthropic.com')
+      ? { ok: true, json: async () => ({ content: [{ text: poisoned }] }) }
+      : realFetch(url);
+    const form = { ...BASE, otherSymptoms: 'pelvic floor prolapse' };
+    const data = buildReportData({ id: 'advocacy-probe', email: form.email,
+      first_name: form.firstName, last_name: form.lastName, diet_type: form.diet, form_data: form });
+    data.macros = calculateMacros(form);
+    let threw = null;
+    const q3 = ['log', 'info', 'warn', 'debug'].map(k => [k, console[k]]);
+    for (const [k] of q3) console[k] = () => {};
+    try { await generateAllReports(data, 'sk-fixture-not-a-real-key'); }
+    catch (e) { threw = e; }
+    finally { for (const [k, fn] of q3) console[k] = fn; globalThis.fetch = realFetch; }
+    check('-', 'a model section written as advocacy is REFUSED, not rendered',
+      threw !== null && /advocacy rather than patient education/.test(String(threw && threw.message)),
+      threw ? String(threw.message).slice(0, 90) : 'generation succeeded with advocacy');
+  }
+}
+
 // --- Print CSS keeps the callout together. ----------------------------------
 {
   const html = rendered.REPORTED.html;

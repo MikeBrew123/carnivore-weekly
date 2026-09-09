@@ -53,9 +53,9 @@ open('$MED','w').write(s.replace(old,new))
 
 mutate 3 "condition-specific treatment claim restored in Report #8" health-context-flow "
 s=open('$API').read()
-old='The research below is general. It is not a finding about you, your questionnaire answers, or anything you told us you are dealing with:'
-new='Research on {{diet}} shows promising results for {{goal}} and {{symptomsList}}:'
+old='None of this is a finding about you, your questionnaire answers, or anything you told us you are dealing with.'
 assert s.count(old)==1, s.count(old)
+new='Research on {{diet}} shows promising results for {{goal}} and {{symptomsList}}.'
 open('$API','w').write(s.replace(old,new))
 "
 
@@ -440,8 +440,8 @@ open('$API','w').write(s.replace(old,new))
 
 mutate 48 "the large-fluffy-LDL advocacy returns" report-render-markdown-leak "
 s=open('$API').read()
-old='If some of my markers improve but my LDL-C rises, how do you weigh that'
-new='can we discuss the research on large, fluffy LDL being protective, and how do you weigh that'
+old='If some markers improve but my LDL-C rises, how do you weigh that'
+new='Can we discuss the research on large, fluffy LDL being protective, and how do you weigh that'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
@@ -452,6 +452,77 @@ old=\"| HDL | >40 | Sometimes higher | Interpretation is your doctor's |\"
 new='| HDL | >40 | Often ↑ | Protective factor |'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
+"
+
+# --- ADVOCACY vs PATIENT EDUCATION (reported 2026-09-09) -------------------------
+mutate 50 "the advocacy render gate is removed" report-render-markdown-leak "
+s=open('$API').read()
+old='      assertNoAdvocacy(\`Report #\${num}\`, body);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'      void num;'))
+"
+
+mutate 51 "ApoB is sold as better than LDL again" report-render-markdown-leak "
+s=open('$API').read()
+old='Would an ApoB add useful information in my situation'
+new='Can we order ApoB instead of relying on LDL alone? It is a more accurate cardiovascular marker'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 52 "the Trig/HDL ratio is called protective again" report-render-markdown-leak "
+s=open('$API').read()
+old='Do you use the triglyceride to HDL ratio'
+new='I have read that a Trig/HDL ratio under 2 is protective. Do you use the triglyceride to HDL ratio'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 53 "the three evidence bases are conflated again in the handout" report-render-markdown-leak "
+s=open('$API').read()
+old='This section separates two different bodies of research on purpose.'
+new='Low-carbohydrate / ketogenic / carnivore interventions have peer-reviewed evidence for type 2 diabetes remission.'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 54 "Report #8 goes back to proving the diet works" report-render-markdown-leak "
+s=open('$API').read()
+old='*What the evidence can and cannot tell us about {{diet}}*'
+new='*Why {{diet}} works: Evidence-based research*'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 55 "the direct-carnivore microbiome claim returns" report-render-markdown-leak "
+s=open('$API').read()
+old='## What to ask your clinician'
+new='**Microbiome Changes:** {{diet}} shifts gut bacteria toward beneficial species.'+chr(92)+'n'+chr(92)+'n## What to ask your clinician'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 56 "the doctor-shopping directory returns" report-render-markdown-leak "
+s=open('$API').read()
+old='### Finding Another Clinician'
+new='### Where to Find Carnivore-Friendly Doctors'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 57 "the weak/strong argument scripts return" report-render-markdown-leak "
+s=open('$API').read()
+old='### If they raise cholesterol'
+new='### If they raise cholesterol'+chr(92)+'n'+chr(92)+'n**The Weak Response (Avoid):**'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 58 "Report #9 drops LDL-C from the lipid table again" report-render-markdown-leak "
+s=open('$API').read()
+old=\"| LDL-C | set by your risk, not by a single cutoff | Sometimes higher | A treatment target in current guidance. Your number is your doctor's call |\"+chr(92)+'n'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,''))
 "
 
 echo

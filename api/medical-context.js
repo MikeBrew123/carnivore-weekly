@@ -617,6 +617,58 @@ export function assertNoDeterministicOutcomes(sectionLabel, text) {
   }
 }
 
+/**
+ * ADVOCACY, as distinct from patient education.
+ *
+ * The report may explain what a test measures, summarise how mainstream guidance uses
+ * it, tell the reader what to ask, and describe evidence accurately. It may not arm a
+ * reader to defeat their clinician's concern, call a biomarker protective, promise a
+ * carnivore outcome, borrow evidence from ketogenic trials, or send someone shopping
+ * for a doctor who approves of the diet.
+ *
+ * These patterns are the shapes that kept coming back. They are NOT the whole check:
+ * tests/report-render-markdown-leak.test.mjs also asserts, per section, that the
+ * neutral replacements are actually present, because a banned-word list alone is
+ * satisfied by deleting the section.
+ *
+ * Each entry carries why, so the next person reads a reason and not just a regex.
+ */
+export const ADVOCACY_PATTERNS = [
+  [/\bgold standard for cardiovascular risk\b/i, 'ApoB is used selectively in current guidance, not as a universal gold standard'],
+  [/\bsuperior fuel\b/i, 'ketones as a superior brain fuel is not established'],
+  [/improved mental clarity within/i, 'a timed cognitive outcome the report cannot promise'],
+  [/most people improve (?:these )?markers/i, 'an outcome claim used to rebut a clinician'],
+  [/\b(?:is|are) protective\b/i, 'calling a biomarker protective is an individualised clinical conclusion'],
+  [/\bProtective factor\b/i, 'same, in a table cell'],
+  [/large,? fluffy LDL/i, 'particle-size advocacy'],
+  [/particle size rather than LDL number/i, 'particle size offered as a replacement for LDL-C'],
+  [/score of 0 means no disease/i, 'a zero CAC means no detectable calcium, not no disease'],
+  [/cardiovascular risk is likely IMPROVING/i, 'tells a reader a rising LDL-C is outweighed'],
+  [/(?:carnivore|keto|low[- ]?carb)[- ]?friendly\s+(?:doctor|clinician|provider|primary care)/i, 'doctor shopping'],
+  [/find (?:a|another) (?:doctor|clinician)[^.]{0,40}(?:who (?:will )?support|supportive)/i, 'doctor shopping'],
+  [/will you support me/i, 'selecting a clinician for agreement rather than competence'],
+  [/cites research, not just guidelines/i, 'frames guidelines as inferior to research'],
+  [/\bThe (?:Weak|Strong) Response\b/i, 'argument-winning framing'],
+  [/Low-carbohydrate\s*\/\s*ketogenic\s*\/\s*carnivore/i, 'three evidence bases conflated into one claim'],
+  [/Superior to low-fat diets/i, 'a comparative weight-loss claim attributed to carnivore'],
+  [/\bWhy \w+ works\b/i, 'frames the section as proving the diet works'],
+  [/Why Standard LDL is Misleading/i, 'frames the standard panel as the problem'],
+];
+
+/**
+ * Render-time gate for advocacy. Runs over EVERY section, deterministic and
+ * model-written alike, because Report #1 and Report #6 are written live and a prompt
+ * rule is a request rather than a guarantee.
+ */
+export function assertNoAdvocacy(sectionLabel, text) {
+  for (const [re, why] of ADVOCACY_PATTERNS) {
+    const m = String(text || '').match(re);
+    if (m) {
+      throw new Error(`${sectionLabel}: advocacy rather than patient education: "${m[0]}" (${why}).`);
+    }
+  }
+}
+
 export function assertNoUnfoundedClearance(sectionLabel, text) {
   const hits = findUnfoundedClearance(text);
   if (!hits.length) return;
