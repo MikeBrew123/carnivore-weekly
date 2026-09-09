@@ -980,15 +980,22 @@ for (const c of MALFORMED_CASES) {
       check('N', `${trigger} watches ${p}`,
         new RegExp(`^\\s*- '${p.replace(/\//g, '\\/')}'\\s*$`, 'm').test(body), '');
     }
-    check('N', `${trigger} watches both KD suites`,
+    check('N', `${trigger} watches all three KD suites`,
       /tests\/kd-report-safety\.test\.mjs/.test(body) &&
-      /tests\/kd-intake-authority\.test\.mjs/.test(body), '');
+      /tests\/kd-intake-authority\.test\.mjs/.test(body) &&
+      // Added 2026-09-08 with the conversion pass. It is the only suite that proves
+      // the immediate upgrade card derives its offer from productAvailable() rather
+      // than from a second, hand-written product list — the precise way a Meal Plan
+      // could get advertised to a renal customer again.
+      /tests\/kd-upgrade-offer\.test\.mjs/.test(body), '');
   }
   check('N', 'the report job still checks out submodules',
     /submodules:\s*true/.test(yml),
     'without this the intake assertions fail because the file is simply absent');
   check('N', 'the authoritative intake suite is a gating step',
     /node tests\/kd-intake-authority\.test\.mjs/.test(yml), '');
+  check('N', 'the upgrade-offer suite is a gating step',
+    /node tests\/kd-upgrade-offer\.test\.mjs/.test(yml), '');
 }
 
 // ===========================================================================

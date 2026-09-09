@@ -44,6 +44,7 @@ on:
       - 'supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql'
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
+      - 'tests/kd-upgrade-offer.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
@@ -84,6 +85,7 @@ on:
       - 'supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql'
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
+      - 'tests/kd-upgrade-offer.test.mjs'
   workflow_dispatch:
 
 jobs:
@@ -126,6 +128,16 @@ jobs:
       # mutation harness — a green run here is checked, not assumed.
       - name: KetoDial authoritative intake regression
         run: node tests/kd-intake-authority.test.mjs
+
+      # The conversion pass of 2026-09-08 put a paid offer directly under the free
+      # macro result. That card must derive what it sells from the SAME
+      # productAvailable() the detailed picker uses — a hand-written product list
+      # there would be a second copy of the renal rule, free to drift, and it would
+      # advertise a Meal Plan the worker then declines at /checkout. This suite lifts
+      # the real featuredOffer()/renderUpgradeCard() out of the shipped ketodial.js
+      # and executes it, so it fails on behaviour rather than on wording.
+      - name: KetoDial upgrade offer and result hierarchy
+        run: node tests/kd-upgrade-offer.test.mjs
 
       - name: Report integrity regression
         run: node tests/report-integrity.test.mjs
