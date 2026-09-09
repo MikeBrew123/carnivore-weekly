@@ -214,10 +214,10 @@ assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
-mutate 22 "unconditional 'consistent weight loss' promise restored in the timeline" report-integrity "
+mutate 22 "unconditional weight-loss promise reintroduced into the timeline" report-render-markdown-leak "
 s=open('$API').read()
-old='**Days 15-21:** Fat adaptation accelerating, excellent energy'
-new='**Days 15-21:** Fat adaptation accelerating, consistent weight loss, excellent energy'
+old='**Days 15-21:** Some people report things like steadier energy'
+new='**Days 15-21:** Consistent weight loss and excellent energy, and some people report steadier energy'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
@@ -323,6 +323,61 @@ assert s.count(old)==1, s.count(old)
 i=s.index('  const underscoreRuns = [];')
 j=s.index('  html = html.replace(/__((?:', i)
 open('$API','w').write(s[:i]+s[j:])
+"
+
+# --- ORDERED LISTS and the ADAPTATION TIMELINE (reported 2026-09-09) -------------
+mutate 35 "ordered-list branch removed, numbered items run together again" report-render-markdown-leak "
+s=open('$API').read()
+old='    else if (/^'+chr(92)+'d{1,3}'+chr(92)+'.'+chr(92)+'s+'+chr(92)+'S/.test(line)) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'    else if (false) {'))
+"
+
+mutate 36 "ordered list closes with the wrong tag" report-render-markdown-leak "
+s=open('$API').read()
+old=\"listTag = 'ol'; }\"
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,\"listTag = 'ul'; }\"))
+"
+
+mutate 37 "list continuation lines break out of the item again" report-render-markdown-leak "
+s=open('$API').read()
+i=s.index('if (listTag && html.endsWith(')
+j=s.index(') {', i)+1
+assert s.count('if (listTag && html.endsWith(')==1
+open('$API','w').write(s[:i]+'if (false'+s[j:])
+"
+
+mutate 38 "every numbered-looking line becomes a list item, headings included" report-render-markdown-leak "
+s=open('$API').read()
+old='    else if (/^'+chr(92)+'d{1,3}'+chr(92)+'.'+chr(92)+'s+'+chr(92)+'S/.test(line)) {'
+new='    else if (/'+chr(92)+'d+'+chr(92)+'./.test(line)) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 39 "deterministic outcome promises restored in the adaptation timeline" report-render-markdown-leak "
+s=open('$API').read()
+old='**Action:** Keep logging in your tracker.'
+new='**Action:** Enjoy. Note health improvements. Keep logging in your tracker.'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 40 "the timeline stops saying outcomes vary between people" report-render-markdown-leak "
+s=open('$API').read()
+import re
+i=s.index('timeline: \`## Report #11')
+j=s.index('\`,', i)
+seg=s[i:j]
+new=seg.replace('Some people report things like steadier energy','You will have steadier energy')
+new=new.replace('Plenty of people don'+chr(39)+'t notice much yet.','')
+new=new.replace('Some people say','You will find')
+new=new.replace('Some people start to feel steadier here. Others need longer, and that'+chr(39)+'s not a sign you'+chr(39)+'re doing it wrong.','Energy returns here.')
+new=new.replace('Some people hit a rough patch in the first week. Others barely notice one. Both are normal.','You will hit a rough patch.')
+new=new.replace('varies a lot from person to person','is predictable')
+assert new!=seg
+open('$API','w').write(s[:i]+new+s[j:])
 "
 
 echo

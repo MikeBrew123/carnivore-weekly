@@ -3125,7 +3125,10 @@ function markdownToBlockHTML(markdown, depth = 0) {
   const lines = markdown.split('\n');
   let html = '';
   let currentParagraph = [];
-  let inList = false;
+  // The OPEN list's tag, or null. It was a boolean, which was fine while '<ul>' was
+  // the only list that existed. Ordered lists close with '</ol>', so the state has to
+  // remember which one it opened.
+  let listTag = null;
   let inTable = false;
 
   for (let i = 0; i < lines.length; i++) {
@@ -3137,9 +3140,9 @@ function markdownToBlockHTML(markdown, depth = 0) {
         html += '<p>' + currentParagraph.join('\n') + '</p>\n';
         currentParagraph = [];
       }
-      if (inList) {
-        html += '</ul>\n';
-        inList = false;
+      if (listTag) {
+        html += `</${listTag}>\n`;
+        listTag = null;
       }
       if (inTable) {
         html += '</table>\n';
@@ -3168,9 +3171,9 @@ function markdownToBlockHTML(markdown, depth = 0) {
         html += '<p>' + currentParagraph.join('\n') + '</p>\n';
         currentParagraph = [];
       }
-      if (inList) {
-        html += '</ul>\n';
-        inList = false;
+      if (listTag) {
+        html += `</${listTag}>\n`;
+        listTag = null;
       }
       if (inTable) {
         html += '</table>\n';
@@ -3204,9 +3207,9 @@ function markdownToBlockHTML(markdown, depth = 0) {
         html += '<p>' + currentParagraph.join('\n') + '</p>\n';
         currentParagraph = [];
       }
-      if (inList) {
-        html += '</ul>\n';
-        inList = false;
+      if (listTag) {
+        html += `</${listTag}>\n`;
+        listTag = null;
       }
       if (inTable) {
         html += '</table>\n';
@@ -3215,15 +3218,38 @@ function markdownToBlockHTML(markdown, depth = 0) {
     }
     // List item
     else if (/^[\*\-]\s/.test(line)) {
-      if (!inList && currentParagraph.length > 0) {
+      if (!listTag && currentParagraph.length > 0) {
         html += '<p>' + currentParagraph.join('\n') + '</p>\n';
         currentParagraph = [];
       }
-      if (!inList) {
-        html += '<ul>\n';
-        inList = true;
-      }
+      if (listTag && listTag !== 'ul') { html += `</${listTag}>\n`; listTag = null; }
+      if (!listTag) { html += '<ul>\n'; listTag = 'ul'; }
       const item = line.replace(/^[\*\-]\s*/, '');
+      html += `<li>${escapeHTML(item)}</li>\n`;
+    }
+    // Ordered list item.
+    //
+    // Until 2026-09-09 there was no branch for these, so every numbered list in the
+    // report ran together as one paragraph: "1. Lab monitoring - Baseline now, recheck
+    // at 8 weeks 2. Medication monitoring - What you want me to watch". Nine places in
+    // a delivered PDF, including the patient's own requests to their doctor and the
+    // tracker instructions.
+    //
+    // Scope, deliberately narrow, because a false positive turns prose into a list:
+    //   * the digits must open the line and be followed by '. ' and real content
+    //   * at most three digits, so a year at the start of a wrapped line ("2026. ")
+    //     is the only shape that could collide and even that needs the period
+    //   * headings are already handled above, so '### 1. IDENTIFYING THE ENEMY'
+    //     never reaches here, and a bolded pseudo-heading '**1. ApoB**' starts with
+    //     '*' so it does not match either. Both shapes appear in real reports.
+    else if (/^\d{1,3}\.\s+\S/.test(line)) {
+      if (!listTag && currentParagraph.length > 0) {
+        html += '<p>' + currentParagraph.join('\n') + '</p>\n';
+        currentParagraph = [];
+      }
+      if (listTag && listTag !== 'ol') { html += `</${listTag}>\n`; listTag = null; }
+      if (!listTag) { html += '<ol>\n'; listTag = 'ol'; }
+      const item = line.replace(/^\d{1,3}\.\s*/, '');
       html += `<li>${escapeHTML(item)}</li>\n`;
     }
     // Table row
@@ -3271,12 +3297,12 @@ function markdownToBlockHTML(markdown, depth = 0) {
       // working in the heat." (found 2026-09-09 while reading a delivered PDF).
       // A blank line still closes the list, so a genuine following paragraph is
       // unaffected.
-      if (inList && html.endsWith('</li>\n')) {
+      if (listTag && html.endsWith('</li>\n')) {
         html = html.slice(0, -'</li>\n'.length) + ' ' + escapeHTML(line.trim()) + '</li>\n';
       } else {
-        if (inList) {
-          html += '</ul>\n';
-          inList = false;
+        if (listTag) {
+          html += `</${listTag}>\n`;
+          listTag = null;
         }
         if (inTable) {
           html += '</table>\n';
@@ -3291,7 +3317,7 @@ function markdownToBlockHTML(markdown, depth = 0) {
   if (currentParagraph.length > 0) {
     html += '<p>' + currentParagraph.join('\n') + '</p>\n';
   }
-  if (inList) html += '</ul>\n';
+  if (listTag) html += `</${listTag}>\n`;
   if (inTable) html += '</table>\n';
 
   return html;
@@ -4119,7 +4145,7 @@ function getTemplateContent(templateName, dietOrData) {
     // called without `data` for this template, so the placeholder is the seam.
     electrolytes: `## Report #10: The Electrolyte Protocol\n\n*Managing sodium, potassium, and magnesium on {{diet}}*\n\n{{medicalContextBanner}}\n\n## Why Electrolytes Matter\n\nOn {{diet}}, your body releases water and electrolytes more rapidly. This causes "keto flu" (headache, fatigue) in Week 1-2.\n\n{{electrolyteProtocol}}`,
 
-    timeline: `## Report #11: The Adaptation Timeline\n\n*What to expect week by week on {{diet}}*\n\n## Week 1: The Glycogen Depletion Phase\n\n**Days 1-3:** Water loss (3-7 lbs normal), stable energy\n**Days 4-7:** Transition trough, possible "keto flu", cravings peak\n**Action:** Eat normally and stay hydrated. For electrolytes, follow Report #10, the section that knows what you told us about your health.\n\n## Week 2: The Difficult Week\n\n**Days 8-10:** Peak dip, worst energy, strong cravings\n**Days 11-14:** Turning point, energy returns, cravings subside\n**Action:** Push through. This is temporary. Don't cheat.\n\n## Week 3: The Breakthrough\n\n**Days 15-21:** Fat adaptation accelerating, excellent energy, mental clarity improves\n**Action:** Enjoy. Note health improvements.\n\n## Week 4: The New Normal\n\n**Days 22-30:** {{diet}} feels normal, stable energy, sleep improves, skin/hair improve\n**Action:** This is your new baseline. Track improvements.\n\n**The hardest part is Weeks 1-2. If you push through, the payoff is worth it.**`,
+    timeline: `## Report #11: The Adaptation Timeline\n\n*What people commonly report, week by week, on {{diet}}*\n\n## Week 1: Starting Out\n\n**Days 1-3:** Some early weight loss is mostly water, and that part is common. How you feel in these first days varies a lot from person to person.\n**Days 4-7:** Some people hit a rough patch in the first week. Others barely notice one. Both are normal.\n**Action:** Eat normally and stay hydrated. For electrolytes, follow Report #10, the section that knows what you told us about your health.\n\n## Week 2: The Adjustment Window\n\n**Days 8-10:** If you're going to feel off, this is a stretch where people often report it.\n**Days 11-14:** Some people start to feel steadier here. Others need longer, and that's not a sign you're doing it wrong.\n**Action:** Keep meals simple and keep following Report #10. Write down how you actually feel each day in Report #12, your 30-Day Symptom and Progress Tracker. If you feel genuinely unwell, that's a conversation with your doctor, not something to wait out.\n\n## Week 3: Checking In\n\n**Days 15-21:** Some people report things like steadier energy or hunger that's easier to predict by now. Plenty of people don't notice much yet.\n**Action:** Keep logging in your tracker. What you write down is more reliable than what you remember.\n\n## Week 4: Taking Stock\n\n**Days 22-30:** Some people say {{diet}} feels routine by this point. For others it still takes planning, and that's a normal place to be at day 30.\n**Action:** Read back through your tracker and see what actually changed for you.\n\n**Adaptation isn't a schedule. This is a rough map of what people commonly report, and your own notes in Report #12 are the only version that's about you.**`,
 
     stallBreaker: (() => {
       const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();

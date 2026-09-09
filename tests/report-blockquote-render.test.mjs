@@ -239,7 +239,12 @@ for (const persona of PERSONAS) {
     // renderer that "cleans up" by dropping the block cannot pass.
     const sourceLines = markdown
       .split('\n')
-      .map(l => l.replace(/^>[ \t]?/, '').replace(/^#+\s*/, '').replace(/\*\*/g, '').replace(/^[*-]\s*/, '').trim())
+      // The ordered-list marker is stripped for the same reason as the bullet, the
+      // quote marker and the '#': it is STRUCTURE, and once markdownToBlockHTML grew
+      // an <ol> branch on 2026-09-09 the "1. " is supplied by the list numbering
+      // rather than printed as text. This assertion is about the words surviving.
+      .map(l => l.replace(/^>[ \t]?/, '').replace(/^#+\s*/, '').replace(/\*\*/g, '')
+                 .replace(/^[*-]\s*/, '').replace(/^\d{1,3}\.\s*/, '').trim())
       .filter(l => l.length > 12);
 
     const missing = sourceLines.filter(l => !text.replace(/\s+/g, ' ').includes(l.replace(/\s+/g, ' ')));

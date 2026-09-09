@@ -121,7 +121,7 @@ try {
       if (i > 1) markdown += '\n\n---\n\n';
       markdown += sections[i];
     }
-    rendered[p.id] = { markdown, html: wrapInPrintHTML(markdown, data) };
+    rendered[p.id] = { markdown, sections, html: wrapInPrintHTML(markdown, data) };
   }
 } finally { for (const [k, fn] of quiet) console[k] = fn; }
 
@@ -277,6 +277,144 @@ for (const p of PERSONAS) {
   // The blanks the reader signs on must survive intact.
   check(p.id, 'the signature blank survives as a blank',
     /_{10,}/.test(body), 'the fill-in rule was eaten by emphasis parsing');
+}
+
+// --- Ordered lists. ---------------------------------------------------------
+// Until 2026-09-09 markdownToBlockHTML had a branch for '- ' and none for '1. ',
+// so every numbered list in the report ran together as one paragraph. Nine places
+// in a delivered PDF, including the patient's own requests to their doctor
+// ("1. Baseline comprehensive labs 2. 8-week recheck labs 3. Partnership in
+// monitoring") and the tracker instructions. It read as a formatting fault in a
+// paid document.
+for (const p of PERSONAS) {
+  const { html } = rendered[p.id];
+  const body = html.slice(html.indexOf('report-content'));
+
+  check(p.id, 'the report contains at least one ordered list',
+    /<ol>/.test(body), 'numbered lists are still running together as paragraphs');
+  check(p.id, 'every <ol> is closed',
+    (body.match(/<ol>/g) || []).length === (body.match(/<\/ol>/g) || []).length, '');
+  check(p.id, 'every <ul> is still closed (the shared close path did not regress)',
+    (body.match(/<ul>/g) || []).length === (body.match(/<\/ul>/g) || []).length, '');
+  // A tag STACK, not a regex. The first version was /<ol>[\s\S]*?<\/ul>/, which
+  // matched an <ol> early in the document against a </ul> much later even though
+  // both lists were correctly balanced. Balance and nesting are different questions
+  // and only a stack answers the second one.
+  const listTags = [...body.matchAll(/<(\/?)(ol|ul)>/g)];
+  const stack = [];
+  let mismatch = '';
+  for (const [, slash, tag] of listTags) {
+    if (!slash) stack.push(tag);
+    else if (stack.pop() !== tag) { mismatch = `closed a list with </${tag}>`; break; }
+  }
+  check(p.id, 'every list closes with its own tag', !mismatch && stack.length === 0,
+    mismatch || (stack.length ? `${stack.length} list(s) left open` : ''));
+
+  // The specific shape the reader saw. A numbered item must not still be sitting
+  // inside a paragraph next to the item that follows it.
+  const runOn = body.match(/<p>[^<]*\b1\.\s[^<]{5,}\b2\.\s[^<]{5,}/);
+  check(p.id, 'no two numbered items share one paragraph', !runOn, runOn ? runOn[0].slice(0, 90) : '');
+
+  // Headings that merely LOOK like list items must stay headings. Real reports
+  // contain "### 1. IDENTIFYING THE ENEMY" and "**1. ApoB (Apolipoprotein B)**".
+  const listified = [...body.matchAll(/<li>(\d+\.\s+[A-Z][A-Z '"&-]{5,})</g)];
+  check(p.id, 'an ALL-CAPS numbered heading did not become a list item',
+    listified.length === 0, listified.length ? listified[0][1] : '');
+}
+
+// Renderer facts, isolated so a failure localises.
+{
+  const md = [
+    '**Immediate Actions:**',
+    '1. [ ] Schedule the follow-up appointment',
+    '2. [ ] Get lab orders and complete **baseline labs** within 48 hours',
+    '3. [ ] Request copies of all results, and keep them somewhere you will',
+    'find them again later',
+    '',
+    'A following paragraph, not a list item.',
+    '',
+    '### 1. IDENTIFYING THE ENEMY',
+    '',
+    '**1. ApoB (Apolipoprotein B)**',
+    '- **What it measures:** particle count',
+    '',
+    '> ### Quoted',
+    '> 1. first quoted step',
+    '> 2. second quoted step',
+    '',
+    'In 2026. Something happened. The ratio 3.5 is fine.',
+  ].join('\n');
+  const b = wrapInPrintHTML(md, { firstName: 'T' });
+  const body = b.slice(b.indexOf('report-content'));
+
+  check('-', 'ol: contiguous numbered lines become one ordered list',
+    /<ol>\n<li>\[ \] Schedule the follow-up appointment<\/li>/.test(body), '');
+  check('-', 'ol: a hard-wrapped continuation stays inside its <li>',
+    /keep them somewhere you will find them again later<\/li>/.test(body), '');
+  check('-', 'ol: bold inside a list item still renders',
+    /<li>[^<]*<strong>baseline labs<\/strong>/.test(body), '');
+  check('-', 'ol: a blank line closes the list',
+    /<\/ol>\n<p>A following paragraph/.test(body), '');
+  check('-', 'ol: an ALL-CAPS "### 1." heading stays a heading',
+    /<h3>1\. IDENTIFYING THE ENEMY<\/h3>/.test(body), '');
+  check('-', 'ol: a bolded "**1. x**" pseudo-heading is not listified',
+    /<strong>1\. ApoB \(Apolipoprotein B\)<\/strong>/.test(body) && !/<li>1\. ApoB/.test(body), '');
+  check('-', 'ol: an unordered list still renders as <ul>',
+    /<ul>\n<li>[^<]*<strong>What it measures:/.test(body), '');
+  check('-', 'ol: switching list type closes the previous list',
+    !/<ol>[\s\S]*?<li>[^<]*What it measures[\s\S]*?<\/ol>/.test(body), '');
+  check('-', 'ol: an ordered list works inside a blockquote',
+    /<blockquote[^>]*>[\s\S]*?<ol>[\s\S]*?first quoted step[\s\S]*?<\/blockquote>/.test(body), '');
+  // The prose line must be in a PARAGRAPH. The first version asserted
+  // !/<li>Something happened/, which a loose "any digit-dot" rule satisfied trivially
+  // because the item text would have started "In 2026." instead. Mutation M38
+  // survived on exactly that. Assert where the sentence LANDED, not how it starts.
+  check('-', 'ol: ordinary prose containing "2026." stays a paragraph',
+    /<p>In 2026\. Something happened\. The ratio 3\.5 is fine\.<\/p>/.test(body)
+      && !/<li>[^<]*Something happened/.test(body), '');
+}
+
+// --- The adaptation timeline may not promise outcomes. ----------------------
+// Report #11 read as a schedule of guaranteed results: "excellent energy, mental
+// clarity improves", "sleep improves, skin/hair improve", "Note health improvements".
+// That is the same class of unsupported benefit language already removed from the
+// food guide, and it survived because nothing asserted against it.
+//
+// Suppressed, not replaced with different promises: the section now says people vary
+// and routes the reader to their own tracker.
+{
+  const PROMISES = [
+    /health improvements/i,
+    /skin\s*\/?\s*hair improve/i,
+    /sleep improves/i,
+    /excellent energy/i,
+    /mental clarity improves/i,
+    /inflammation (?:drops|improves|reduces)/i,
+    /energy returns/i,
+    /the payoff is worth it/i,
+    /\bwill (?:improve|feel better|notice)\b/i,
+  ];
+  for (const p of PERSONAS) {
+    const timeline = rendered[p.id].sections?.[11] ?? '';
+    const source = timeline || rendered[p.id].markdown;
+    const scope = timeline || (source.match(/## Report #11[\s\S]*?(?=\n---\n|$)/) || [''])[0];
+    for (const re of PROMISES) {
+      const m = scope.match(re);
+      check(p.id, `timeline makes no promise: ${re.source.slice(0, 34)}`, !m, m ? m[0] : '');
+    }
+    // Suppressing must not have emptied the section: it still has to be useful.
+    check(p.id, 'the timeline still covers all four weeks',
+      /Days 1-3/.test(scope) && /Days 8-10/.test(scope) && /Days 15-21/.test(scope) && /Days 22-30/.test(scope), '');
+    check(p.id, 'the timeline says outcomes vary between people',
+      /vary|varies|some people|others/i.test(scope), '');
+    check(p.id, 'the timeline routes the reader to their own tracker',
+      /tracker/i.test(scope), '');
+    check(p.id, 'the timeline still routes electrolytes to Report #10',
+      /Report #10/.test(scope), '');
+    check(p.id, 'the timeline no longer tells the reader to push through or not cheat',
+      !/push through|don't cheat|dont cheat/i.test(scope), '');
+    check(p.id, 'the timeline uses no em dash', !scope.includes('\u2014'), '');
+  }
 }
 
 // --- Print CSS keeps the callout together. ----------------------------------
