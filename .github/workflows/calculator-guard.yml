@@ -47,6 +47,9 @@ on:
       - 'tests/kd-intake-authority.test.mjs'
       - 'tests/kd-upgrade-offer.test.mjs'
       - 'tests/kd-plan-email.test.mjs'
+      - 'tests/kd-schema-contract.test.mjs'
+      - 'tests/support/pg-schema-harness.mjs'
+      - 'supabase/migrations/**'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
@@ -90,6 +93,9 @@ on:
       - 'tests/kd-intake-authority.test.mjs'
       - 'tests/kd-upgrade-offer.test.mjs'
       - 'tests/kd-plan-email.test.mjs'
+      - 'tests/kd-schema-contract.test.mjs'
+      - 'tests/support/pg-schema-harness.mjs'
+      - 'supabase/migrations/**'
   workflow_dispatch:
 
 jobs:
@@ -102,6 +108,34 @@ jobs:
           node-version: 20
       - name: Golden macro regression test
         run: node tests/macro_parity/golden_test.mjs
+
+  # THE SCHEMA CONTRACT. Runs the real worker against a real PostgreSQL instance
+  # (PGlite, Postgres compiled to WebAssembly) whose schema is built from the
+  # checked-in migration files, and asserts on rows Postgres actually accepted.
+  #
+  # It exists because on 2026-09-09 the Audit 2B deploy took the calculator down:
+  # the client sends lifestyle_activity as a TDEE multiplier and the column accepts
+  # five words. Two thousand passing assertions could not catch it, because every one
+  # of them either mocked the database or compared the code against a JavaScript
+  # restatement of the constraint, and a restatement cannot disagree with itself.
+  #
+  # Its own job because it is the only suite needing node_modules. No Docker, no
+  # service container, and no production credentials.
+  schema-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # package-lock.json is gitignored in this repository, so `npm ci` cannot run
+      # here. Install only the one dependency this suite needs, at the version
+      # package.json pins, rather than the full devDependency set (which pulls
+      # Playwright and a Chromium download for no benefit).
+      - name: Install the schema-contract dependency
+        run: npm install --no-audit --no-fund --no-save "@electric-sql/pglite@$(node -p "require('./package.json').devDependencies['@electric-sql/pglite']")"
+      - name: KetoDial database schema contract
+        run: node tests/kd-schema-contract.test.mjs
 
   report-suites:
     runs-on: ubuntu-latest

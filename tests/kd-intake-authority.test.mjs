@@ -1023,7 +1023,7 @@ for (const c of MALFORMED_CASES) {
       check('N', `${trigger} watches ${p}`,
         new RegExp(`^\\s*- '${p.replace(/\//g, '\\/')}'\\s*$`, 'm').test(body), '');
     }
-    check('N', `${trigger} watches all four KD suites`,
+    check('N', `${trigger} watches all five KD suites`,
       /tests\/kd-report-safety\.test\.mjs/.test(body) &&
       /tests\/kd-intake-authority\.test\.mjs/.test(body) &&
       // Added 2026-09-08 with the conversion pass. It is the only suite that proves
@@ -1033,7 +1033,11 @@ for (const c of MALFORMED_CASES) {
       /tests\/kd-upgrade-offer\.test\.mjs/.test(body) &&
       // The free-results email. Auto-sent seconds after the first result, so it is
       // the highest-volume surface the renal gate has to hold on.
-      /tests\/kd-plan-email\.test\.mjs/.test(body), '');
+      /tests\/kd-plan-email\.test\.mjs/.test(body) &&
+      /tests\/kd-schema-contract\.test\.mjs/.test(body), '');
+    check('N', `${trigger} watches every migration, not just the two Audit 2B ones`,
+      /^\s*- 'supabase\/migrations\/\*\*'\s*$/m.test(body),
+      'a constraint added elsewhere would not re-run the schema contract test');
   }
   check('N', 'the report job still checks out submodules',
     /submodules:\s*true/.test(yml),
@@ -1044,6 +1048,24 @@ for (const c of MALFORMED_CASES) {
     /node tests\/kd-upgrade-offer\.test\.mjs/.test(yml), '');
   check('N', 'the free-results email suite is a gating step',
     /node tests\/kd-plan-email\.test\.mjs/.test(yml), '');
+  // The schema contract. The 2026-09-09 outage happened because nothing in CI ever
+  // performed a real INSERT, so a client-vs-schema vocabulary mismatch was invisible
+  // until production. If this stops gating, that blind spot reopens.
+  check('N', 'the database schema contract is a gating step',
+    /node tests\/kd-schema-contract\.test\.mjs/.test(yml), '');
+  // package-lock.json is gitignored here, so `npm ci` would fail on a missing
+  // lockfile before it ever reached a defect.
+  // Comment lines are stripped first: the job's own comment EXPLAINS why `npm ci`
+  // cannot be used here, and matching that would flag the explanation as the thing
+  // it warns against.
+  const ymlRuns = yml.split('\n').filter((l) => !/^\s*#/.test(l)).join('\n');
+  const schemaJob = ymlRuns.slice(ymlRuns.indexOf('schema-contract:'),
+                                 ymlRuns.indexOf('report-suites:'));
+  check('N', 'and CI installs the dependency it needs, without needing a lockfile',
+    /npm install[^\n]*pglite/.test(schemaJob) && !/npm ci/.test(schemaJob),
+    'the job would fail on tooling rather than on a defect: package-lock.json is gitignored');
+  check('N', 'the pinned version is the single source of truth',
+    /devDependencies\['@electric-sql\/pglite'\]/.test(yml), '');
 }
 
 // ===========================================================================
