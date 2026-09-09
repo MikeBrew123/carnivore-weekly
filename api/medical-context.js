@@ -377,7 +377,7 @@ export function buildMedicalContextBanner(ctx) {
     '>',
     '> This report was generated automatically from your questionnaire. It has not seen',
     '> your labs, it does not know your kidney function, and it is not a clinician.',
-    '> Where it gives numbers — calories, protein, electrolytes, lab ranges — treat them',
+    '> Where it gives numbers (calories, protein, electrolytes, lab ranges), treat them',
     '> as general education, not as targets somebody set for you.',
     '>',
     '> **Take this report to your doctor or pharmacist before you start, and let them',
@@ -408,8 +408,8 @@ export function buildMedicalContextBanner(ctx) {
   if (ctx.anticoagulant) {
     lines.push(
       '>',
-      '> You reported a blood thinner. Large changes in what you eat — organ meats and',
-      '> leafy greens in particular — can affect how some of these medications behave.',
+      '> You reported a blood thinner. Large changes in what you eat, organ meats and',
+      '> leafy greens in particular, can affect how some of these medications behave.',
       '> **Your meal plan has had those items left out of it**, and the plan as a whole',
       '> should still be reviewed with your prescriber or pharmacist before you start it,',
       '> along with whether your monitoring schedule should change.'
@@ -594,8 +594,8 @@ export function buildProteinTargetNote(ctx) {
   return [
     '> **If you have any kidney disease, do not use this script.** Protein intake with',
     '> reduced kidney function is a decision for your doctor or a renal dietitian. The',
-    '> protein target in this report was calculated from your body size, age and goal —',
-    '> it does not know your kidney function and it is not a target set for you. Take the',
+    '> protein target in this report was calculated from your body size, age and goal.',
+    '> It does not know your kidney function and it is not a target set for you. Take the',
     '> number to your clinician before you start, and let them tell you what it should be.'
   ].join('\n');
 }
@@ -613,8 +613,8 @@ export function buildMealPlanMedicalNote(ctx) {
   return [
     '> **A note on what is not in this plan.** You reported medication that can make',
     '> specific food choices clinically relevant, so this meal plan leaves out organ',
-    '> meats, including liver. That is not a judgement about whether you can eat them —',
-    '> it is that the amount, if any, is a decision for the person who prescribes and',
+    '> meats, including liver. That is not a judgement about whether you can eat them.',
+    '> The amount, if any, is a decision for the person who prescribes and',
     '> monitors your medication, and not one an automated plan should be making for you.',
     '> **Discuss specific dietary restrictions with your prescribing clinician or',
     '> pharmacist**, and take this plan with you.'
@@ -640,7 +640,7 @@ export function buildElectrolyteProtocol(ctx, { potassiumSource = 'protein' } = 
       '',
       'Sodium, potassium and fluid intake interact directly with heart, kidney, liver and',
       'blood pressure conditions, and with several of the most commonly prescribed',
-      'medications there are — diuretics, ACE inhibitors, ARBs and potassium-sparing drugs',
+      'medications there are (diuretics, ACE inhibitors, ARBs and potassium-sparing drugs)',
       'among them.',
       '',
       '**So this report does not give you sodium, potassium, fluid or supplement amounts.**',
@@ -652,14 +652,14 @@ export function buildElectrolyteProtocol(ctx, { potassiumSource = 'protein' } = 
       '',
       '- How much sodium should I be getting, and should I be adding any at all?',
       '- Is there an amount of fluid you want me to stay near, or stay under?',
-      '- **Before I take any potassium supplement or salt substitute** — is that safe for me?',
+      '- **Before I take any potassium supplement or salt substitute**, is that safe for me?',
       '  Most salt substitutes and "lite salt" products are potassium chloride, and several',
       '  common medications change how your body handles potassium.',
       '- Do you want to recheck my kidney function and electrolytes after a few weeks of a',
       '  diet change?',
       '- What should I watch for at home, and what should make me call you?',
       '',
-      '**Do not start, stop or change the dose of anything on your own** — that includes',
+      '**Do not start, stop or change the dose of anything on your own.** That includes',
       'over-the-counter salt, potassium and magnesium products.',
       '',
       '### If you feel unwell, do not treat it with salt',
@@ -689,7 +689,7 @@ export function buildElectrolyteProtocol(ctx, { potassiumSource = 'protein' } = 
     '',
     '- **Sodium:** 3-5 grams a day for most adults, up to 6 grams if you are training hard',
     '  or working in the heat. Spread it through the day rather than taking it all at once.',
-    '- **Potassium:** food first — meat covers most of it, and this diet is built on'
+    '- **Potassium:** food first. Meat covers most of it, and this diet is built on'
       + ` ${potassiumSource}. For reference, the adequate intake figures are 2,600 mg a day`,
     '  for adult women and 3,400 mg for adult men. Those are adequate intakes, not a bar you',
     '  have to clear, and falling a little short is not a deficiency.',
@@ -698,7 +698,7 @@ export function buildElectrolyteProtocol(ctx, { potassiumSource = 'protein' } = 
     '',
     '**On salt substitutes:** "Lite Salt" and similar products are potassium chloride. This',
     'report does not give potassium chloride dosing, and you should not start one without',
-    'asking your doctor — particularly if you are ever prescribed a blood pressure, heart or',
+    'asking your doctor, particularly if you are ever prescribed a blood pressure, heart or',
     'kidney medication.',
     '',
     '## Signs to Pay Attention To',
@@ -711,7 +711,7 @@ export function buildElectrolyteProtocol(ctx, { potassiumSource = 'protein' } = 
     'breath, **contact your doctor or seek urgent care.** Do not treat it by loading salt.',
     '',
     '**These figures assume you have no heart, kidney, liver or blood pressure condition and',
-    'take no medication. If that changes, they stop applying to you — ask your prescriber.**'
+    'take no medication. If that changes, they stop applying to you. Ask your prescriber.**'
   ].join('\n');
 }
 
