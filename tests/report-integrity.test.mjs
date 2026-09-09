@@ -185,11 +185,16 @@ const {
   __test_COUNT_ROUNDING_MAX_GRAMS_ERROR: MAX_ROUNDING_ERROR_G,
   __test_detectGoalConflict: detectGoalConflict,
   __test_ReportValidationError: ReportValidationError,
+  __test_baseFoodKey: baseFoodKey,
+  __test_distinctByBaseFood: distinctByBaseFood,
+  __test_foodDatabase: foodDatabase,
+  __test_buildSubstitutionGuide: buildSubstitutionGuide,
 } = api;
 
 for (const [name, fn] of Object.entries({
   buildReportData, calculateMacros, generateAllReports,
   generateFullMealPlan, generateGroceryListByWeek, resolveGoal, convertQuantity,
+  baseFoodKey, distinctByBaseFood, buildSubstitutionGuide,
 })) {
   if (typeof fn !== 'function') {
     console.error(`FATAL: api/calculator-api.js no longer exports ${name}.`);
@@ -227,7 +232,8 @@ try {
     // renderer agrees with this file; comparing it against the generator's own output
     // is what catches a renderer silently dropping a week.
     data.__plan = generateFullMealPlan(data);
-    rendered[p.id] = { data, sections, calendar: sections[3] || '', shopping: sections[4] || '' };
+    rendered[p.id] = { data, sections, calendar: sections[3] || '', shopping: sections[4] || '',
+                       foodGuide: sections[2] || '' };
   }
 } finally {
   for (const [k, fn] of quiet) console[k] = fn;
@@ -986,6 +992,156 @@ for (const p of PERSONAS) {
   const protErr = (MAX_ROUNDING_ERROR_G / 100) * 13;   // eggs: 13g protein per 100g
   check('-', 'I', `worst-case rounding costs <= 3.5g protein per portion (${protErr.toFixed(2)}g)`,
     protErr <= 3.5, `rounding can move a meal by ${protErr.toFixed(2)}g protein`);
+}
+
+// ---------------------------------------------------------------------------
+// GROUP L — one food may not be presented as two.
+//
+// Reported 2026-09-09: "Ground Beef 80/20 and grass fed ground beef are the same
+// things!" The food database lists a food once per quality grade, which is right for
+// a shopping list and wrong for any line that shows several foods together as if each
+// were different. generateDynamicFoodGuide sampled availableProteins.slice(0, 3), and
+// the first two carnivore rows are two grades of ground beef, so EVERY carnivore
+// report ever sold read "Option 1: Ground Beef (80/20) + Grass-fed Ground Beef".
+//
+// Both halves matter here. The rendered checks catch the symptom. The derivation
+// checks below catch it at the source, and the POSITIVE CONTROLS stop the cheapest
+// wrong fix from passing: collapsing everything to one item would silence the
+// duplicate assertions while destroying the variety the product sells.
+// ---------------------------------------------------------------------------
+{
+  // Pull "A + B + C" food lists out of the rendered eating-pattern options, and the
+  // comma list out of Budget Optimization. Read off the page, not off the generator.
+  const optionLines = (guide) =>
+    (guide.match(/^- \*\*Option \d+:\*\*.*$/gm) || [])
+      .map(line => line.replace(/^- \*\*Option \d+:\*\*\s*/, '').split(' + ').map(x => x.trim()));
+
+  const budgetFoods = (guide) => {
+    const m = guide.match(/## Budget Optimization\s*\n+([^\n]+)/);
+    if (!m || /premium options/i.test(m[1])) return [];
+    return m[1].split(',').map(x => x.trim()).filter(Boolean);
+  };
+
+  const substitutionFoods = (calendar) => {
+    const m = calendar.match(/If you lack ([^,]+), substitute with ([^\n]+)/);
+    if (!m) return [];
+    return [m[1].trim(), ...m[2].split(',').map(x => x.trim())].filter(Boolean);
+  };
+
+  const firstRepeat = (names) => {
+    const seen = new Map();
+    for (const n of names) {
+      const k = baseFoodKey(n);
+      if (seen.has(k)) return `${seen.get(k)} and ${n} are the same food (base "${k}")`;
+      seen.set(k, n);
+    }
+    return null;
+  };
+
+  for (const p of PERSONAS) {
+    const { foodGuide, calendar } = rendered[p.id];
+    if (!foodGuide) continue;
+
+    const opts = optionLines(foodGuide);
+    check(p.id, 'L', 'no eating-pattern option names one food twice',
+      opts.every(foods => firstRepeat(foods) === null),
+      (opts.map(firstRepeat).find(Boolean)) || '');
+
+    // Positive control. An option that lists two foods must genuinely list TWO, so a
+    // fix that deduped by collapsing the list cannot pass the assertion above.
+    check(p.id, 'L', 'multi-food options still name more than one food',
+      opts.length === 0 || opts.some(foods => foods.length >= 2),
+      'every rendered option collapsed to a single food');
+
+    check(p.id, 'L', 'budget picks are different foods',
+      firstRepeat(budgetFoods(foodGuide)) === null,
+      firstRepeat(budgetFoods(foodGuide)) || '');
+
+    const subs = substitutionFoods(calendar);
+    check(p.id, 'L', 'substitutions offer a different food than the one lacked',
+      firstRepeat(subs) === null, firstRepeat(subs) || '');
+  }
+
+  // --- The substitution rule, exercised directly. -------------------------
+  // Whether two grades of one food land adjacent in planProteins depends on the meal
+  // rotation, and no persona happens to produce it, so asserting only on rendered
+  // output left this rule unexercised (mutate.sh M17 survived a fully green suite).
+  // Feed it the ordering the rule exists for.
+  {
+    const sub = buildSubstitutionGuide(
+      ['Grass-fed Ground Beef', 'Ground Beef (80/20)', 'Ribeye Steak', 'NY Strip Steak', 'Chuck Steak'], false);
+    const line = (sub.match(/If you lack [^\n]*/) || [''])[0];
+    check('-', 'L', 'a substitution is never another grade of the food you lack',
+      !/substitute with Ground Beef \(80\/20\)/.test(line), line);
+    check('-', 'L', 'the substitution line still offers real alternatives',
+      /substitute with Ribeye Steak, NY Strip Steak, Chuck Steak/.test(line), line);
+
+    // Positive control: genuinely different foods must survive as alternatives.
+    const sub2 = buildSubstitutionGuide(['Ribeye Steak', 'Ground Lamb', 'Pork Chops'], false);
+    check('-', 'L', 'distinct foods are still offered as substitutes',
+      /If you lack Ribeye Steak, substitute with Ground Lamb, Pork Chops/.test(sub2), sub2);
+
+    // Degenerate input must not throw or invent a food.
+    check('-', 'L', 'a plan with one protein offers no false substitute',
+      !/If you lack/.test(buildSubstitutionGuide(['Ribeye Steak'], false)), '');
+    check('-', 'L', 'an empty plan still returns guidance',
+      buildSubstitutionGuide([], false).length > 0, '');
+  }
+
+  // --- Derivation, not rendering. -----------------------------------------
+  check('-', 'L', 'the two grades of ground beef share one base identity',
+    baseFoodKey('Ground Beef (80/20)') === baseFoodKey('Grass-fed Ground Beef'),
+    `"${baseFoodKey('Ground Beef (80/20)')}" vs "${baseFoodKey('Grass-fed Ground Beef')}"`);
+  check('-', 'L', 'the two grades of butter share one base identity',
+    baseFoodKey('Butter') === baseFoodKey('Grass-fed Butter'), '');
+  check('-', 'L', 'a food object is keyed the same as its bare name',
+    baseFoodKey({ name: 'Grass-fed Ground Beef' }) === baseFoodKey('Grass-fed Ground Beef'), '');
+  check('-', 'L', 'an explicit base field overrides the name',
+    baseFoodKey({ name: 'Anything At All', base: 'ribeye steak' }) === 'ribeye steak', '');
+  check('-', 'L', 'grade prefix and suffix are stripped together',
+    baseFoodKey('Grass-fed Ground Beef (80/20)') === 'ground beef',
+    `got "${baseFoodKey('Grass-fed Ground Beef (80/20)')}"`);
+
+  // Negative controls: different foods must STAY different. Without these, a
+  // normalizer that over-strips (or returns a constant) would satisfy every
+  // duplicate assertion in this group.
+  for (const [a, b] of [['Ribeye Steak', 'NY Strip Steak'], ['Beef Liver', 'Beef Heart'],
+                        ['Salmon Fillet (farmed)', 'Canned Salmon (in oil)'],
+                        ['Ground Beef (80/20)', 'Ground Lamb'], ['Butter', 'Beef Tallow']]) {
+    check('-', 'L', `"${a}" and "${b}" stay different foods`,
+      baseFoodKey(a) !== baseFoodKey(b), `both keyed "${baseFoodKey(a)}"`);
+  }
+
+  // The helper itself, against the real database rather than a hand-made list.
+  const carnivore = foodDatabase.proteins.filter(p => p.diet.some(d => d.toLowerCase() === 'carnivore'));
+  const deduped = distinctByBaseFood(carnivore);
+  // Named, not counted. The database holds exactly two same-food-different-grade
+  // pairs today; both are the reported bug's shape. Listing them means adding a third
+  // grade pair fails here with the new food's name, which is the moment to decide
+  // whether it really is the same food.
+  const droppedNames = carnivore.filter(p => !deduped.includes(p)).map(p => p.name).sort();
+  const EXPECTED_SECOND_GRADES = ['Grass-fed Ground Beef', 'Salmon Fillet (farmed)'];
+  check('-', 'L', 'distinctByBaseFood drops exactly the known second grades',
+    JSON.stringify(droppedNames) === JSON.stringify(EXPECTED_SECOND_GRADES),
+    `dropped [${droppedNames.join(', ')}], expected [${EXPECTED_SECOND_GRADES.join(', ')}]`);
+  check('-', 'L', 'distinctByBaseFood keeps the FIRST grade, so database order still decides',
+    deduped[0]?.name === carnivore[0]?.name,
+    `kept "${deduped[0]?.name}", database leads with "${carnivore[0]?.name}"`);
+  check('-', 'L', 'distinctByBaseFood output has no repeats',
+    new Set(deduped.map(baseFoodKey)).size === deduped.length, '');
+  check('-', 'L', 'distinctByBaseFood is not just a truncation',
+    deduped.length === carnivore.length - EXPECTED_SECOND_GRADES.length && deduped.length > 5,
+    `${deduped.length} of ${carnivore.length} survived`);
+  check('-', 'L', 'distinctByBaseFood tolerates an empty pool',
+    Array.isArray(distinctByBaseFood([])) && distinctByBaseFood([]).length === 0, '');
+
+  // Scope guard. The tier listing is where BOTH grades belong: they are two things a
+  // reader can buy. If a future edit routes the tier list through the deduper, the
+  // reader silently loses shopping options, so pin the intended asymmetry.
+  const carn = rendered['REPORTED']?.foodGuide || '';
+  check('-', 'L', 'the tier listing still shows both grades as buyable options',
+    carn.includes('Ground Beef (80/20)') && carn.includes('Grass-fed Ground Beef'),
+    'deduping leaked into the TIER 1 food list, which should show every grade');
 }
 
 // ---------------------------------------------------------------------------

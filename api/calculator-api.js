@@ -2273,6 +2273,55 @@ function shouldFilterOutFood(food, allergies, foodRestrictions) {
   return false;
 }
 
+// ---------------------------------------------------------------------------
+// BASE-FOOD IDENTITY
+// ---------------------------------------------------------------------------
+// The food database lists the same food more than once when it is sold at different
+// quality or preparation grades: "Ground Beef (80/20)" and "Grass-fed Ground Beef",
+// "Butter" and "Grass-fed Butter". As shopping options those are correctly two rows.
+// As a SET OF DISTINCT FOODS SHOWN TOGETHER they are one food, and printing both is
+// how a reader ends up being told to eat "Ground Beef (80/20) + Grass-fed Ground Beef"
+// in a single meal (reported 2026-09-09).
+//
+// The grade lives in the NAME, not in a column, so identity has to be derived from it.
+// A food may pin its own identity with an explicit `base` field when the name does not
+// carry it; the normalizer is the fallback, not the authority.
+//
+// SCOPE. This is for places that present several foods together as if each were a
+// different food: the eating-pattern options, the budget picks, the substitution
+// alternatives. It is deliberately NOT applied to the tier listings (where both grades
+// are legitimate things to buy) or to the meal-plan rotation (where the same food on
+// two different days is legitimate variety, and where portion macros are read off the
+// specific row).
+const FOOD_GRADE_PREFIXES = /^(grass[- ]?fed|pasture[d]?(?:[- ]raised)?|wild(?:[- ]caught)?|organic|free[- ]range|farmed|conventional)\s+/i;
+const FOOD_GRADE_SUFFIXES = /\s*\((?:\d{2}\/\d{1,2}|grass[- ]?fed|farmed|wild(?:[- ]caught)?|organic|in oil|in water|raw|cooked)\)\s*$/i;
+
+function baseFoodKey(food) {
+  const explicit = typeof food === 'object' && food !== null ? food.base : null;
+  if (explicit) return String(explicit).trim().toLowerCase();
+  const name = typeof food === 'string' ? food : (food?.name || '');
+  let key = String(name).trim();
+  // Suffix first: "Grass-fed Ground Beef (80/20)" must lose both ends.
+  let previous;
+  do { previous = key; key = key.replace(FOOD_GRADE_SUFFIXES, '').trim(); } while (key !== previous);
+  do { previous = key; key = key.replace(FOOD_GRADE_PREFIXES, '').trim(); } while (key !== previous);
+  return key.toLowerCase().replace(/\s+/g, ' ');
+}
+
+// Keep the first row for each base food, drop later grades of the same food. First
+// wins so the database's own ordering still decides which grade the reader is shown.
+function distinctByBaseFood(foods) {
+  const seen = new Set();
+  const out = [];
+  for (const food of foods || []) {
+    const key = baseFoodKey(food);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(food);
+  }
+  return out;
+}
+
 // ============================================================================
 // 3. FULL 30-DAY MEAL PLAN GENERATOR
 // ============================================================================
@@ -3914,6 +3963,39 @@ function getTemplateContent(templateName, dietOrData) {
 /**
  * Replace {{placeholder}} with actual user data
  */
+/**
+ * The "if you lack X, substitute with Y" line.
+ *
+ * Extracted from replacePlaceholders so the rule it enforces can be tested directly.
+ * It could not be before: whether two grades of one food land next to each other in
+ * planProteins depends on the meal rotation, so no fixture persona reliably exercised
+ * it and tests/mutate.sh M17 survived against a live suite. A protection nothing
+ * exercises is decoration.
+ *
+ * The rule: a substitution must be a DIFFERENT FOOD. "If you lack Grass-fed Ground
+ * Beef, substitute with Ground Beef (80/20)" is not a substitution, it is the same
+ * food at another grade (reported 2026-09-09).
+ */
+function buildSubstitutionGuide(planProteins, eggsInPlan) {
+  if (!planProteins || planProteins.length === 0) {
+    return '- Swap any protein in this plan for another you tolerate and enjoy.';
+  }
+  const [first, ...rest] = planProteins;
+  const alternatives = distinctByBaseFood(rest)
+    .filter(name => baseFoodKey(name) !== baseFoodKey(first))
+    .slice(0, 3);
+  const lines = [];
+  if (alternatives.length) {
+    lines.push(`- If you lack ${first}, substitute with ${alternatives.join(', ')}`);
+  }
+  lines.push('- Any protein in this plan can stand in for any other; match the portion size, not the cut');
+  if (planProteins.length > 4) {
+    lines.push(`- Your plan also uses ${planProteins.slice(4).join(', ')}, all interchangeable`);
+  }
+  if (eggsInPlan) lines.push('- Eggs can replace any protein meal if needed');
+  return lines.join('\n');
+}
+
 function replacePlaceholders(template, data) {
   let result = template;
 
@@ -4367,27 +4449,11 @@ function replacePlaceholders(template, data) {
       .map(i => i.name)
   )];
 
-  let substitutionGuide;
-  if (planProteins.length === 0) {
-    substitutionGuide = '- Swap any protein in this plan for another you tolerate and enjoy.';
-  } else {
-    const [first, ...rest] = planProteins;
-    const alternatives = rest.slice(0, 3);
-    const lines = [];
-    if (alternatives.length) {
-      lines.push(`- If you lack ${first}, substitute with ${alternatives.join(', ')}`);
-    }
-    lines.push('- Any protein in this plan can stand in for any other; match the portion size, not the cut');
-    if (planProteins.length > 4) {
-      lines.push(`- Your plan also uses ${planProteins.slice(4).join(', ')}, all interchangeable`);
-    }
-    const eggsInPlan = (fullMealPlan.weeks || [])
-      .flatMap(w => w.days || [])
-      .flatMap(d => d.items || [])
-      .some(i => i.category === 'Eggs');
-    if (eggsInPlan) lines.push('- Eggs can replace any protein meal if needed');
-    substitutionGuide = lines.join('\n');
-  }
+  const eggsInPlan = (fullMealPlan.weeks || [])
+    .flatMap(w => w.days || [])
+    .flatMap(d => d.items || [])
+    .some(i => i.category === 'Eggs');
+  const substitutionGuide = buildSubstitutionGuide(planProteins, eggsInPlan);
 
   result = result.replace(/\{\{substitutionGuide\}\}/g, substitutionGuide);
 
@@ -4580,8 +4646,10 @@ function generateDynamicFoodGuide(dietType, data) {
   }
 
   // Generate daily eating patterns
-  const proteinSamples = availableProteins.slice(0, 3);
-  const fatSample = availableFats.length > 0 ? availableFats[0].name : 'Butter';
+  // Distinct FOODS, not distinct database rows: without this the first two rows for
+  // carnivore are two grades of ground beef and Option 1 pairs a food with itself.
+  const proteinSamples = distinctByBaseFood(availableProteins).slice(0, 3);
+  const fatSample = distinctByBaseFood(availableFats)[0]?.name || 'Butter';
 
   let mealPatterns = '';
   if (standardizedDiet === 'Lion') {
@@ -4591,15 +4659,15 @@ function generateDynamicFoodGuide(dietType, data) {
   }
 
   // Generate budget optimization
-  const tightBudgetProteins = availableProteins.filter(p => p.cost.includes('tight')).slice(0, 2);
-  const moderateProteins = availableProteins.filter(p => p.cost.includes('moderate')).slice(0, 2);
+  const tightBudgetProteins = distinctByBaseFood(availableProteins.filter(p => p.cost.includes('tight'))).slice(0, 2);
+  const moderateProteins = distinctByBaseFood(availableProteins.filter(p => p.cost.includes('moderate'))).slice(0, 2);
 
   let budgetText = '';
   if (budget === 'tight') {
-    budgetText = tightBudgetProteins.map(p => p.name).join(', ') || availableProteins.slice(0, 2).map(p => p.name).join(', ');
+    budgetText = tightBudgetProteins.map(p => p.name).join(', ') || distinctByBaseFood(availableProteins).slice(0, 2).map(p => p.name).join(', ');
     budgetText += '\n\n**Cost:** $30-50/week';
   } else if (budget === 'moderate') {
-    budgetText = moderateProteins.map(p => p.name).join(', ') || availableProteins.slice(0, 2).map(p => p.name).join(', ');
+    budgetText = moderateProteins.map(p => p.name).join(', ') || distinctByBaseFood(availableProteins).slice(0, 2).map(p => p.name).join(', ');
     budgetText += '\n\n**Cost:** $50-80/week';
   } else {
     budgetText = 'Grass-fed/wild-caught premium options\n\n**Cost:** $80-150+/week';
@@ -7571,5 +7639,12 @@ export {
   renderIngredient as __test_renderIngredient,
   COUNT_ROUNDING_MAX_GRAMS_ERROR as __test_COUNT_ROUNDING_MAX_GRAMS_ERROR,
   convertQuantity as __test_convertQuantity,
-  GRAMS_PER_EGG as __test_GRAMS_PER_EGG
+  GRAMS_PER_EGG as __test_GRAMS_PER_EGG,
+  // Base-food identity. Exported so tests/report-integrity.test.mjs GROUP L can
+  // assert the derivation itself, not only that today's rendered output happens
+  // to look right.
+  baseFoodKey as __test_baseFoodKey,
+  distinctByBaseFood as __test_distinctByBaseFood,
+  foodDatabase as __test_foodDatabase,
+  buildSubstitutionGuide as __test_buildSubstitutionGuide
 };

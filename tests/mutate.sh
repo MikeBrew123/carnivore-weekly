@@ -135,6 +135,60 @@ assert s.count(old2)==1, s.count(old2)
 open('$MED','w').write(s.replace(old2,new2))
 "
 
+# --- GROUP L: one food may not be presented as two (reported 2026-09-09) ----------
+# M13-M18 break the fix from a different direction each time. M16 and M18 exist
+# because the two cheapest wrong "fixes" (collapse everything to one item / key
+# everything the same) would each silence the duplicate assertions while gutting the
+# report. A protection that only survives the obvious mutation is not a protection.
+
+mutate 13 "eating-pattern options sample raw database rows again (the original bug)" report-integrity "
+s=open('$API').read()
+old='const proteinSamples = distinctByBaseFood(availableProteins).slice(0, 3);'
+new='const proteinSamples = availableProteins.slice(0, 3);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 14 "baseFoodKey stops normalizing, so grades read as different foods" report-integrity "
+s=open('$API').read()
+old='  let key = String(name).trim();'
+new='  return String(name).trim().toLowerCase();'+chr(10)+old
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 15 "distinctByBaseFood becomes a pass-through" report-integrity "
+s=open('$API').read()
+old='function distinctByBaseFood(foods) {'
+new=old+chr(10)+'  return Array.from(foods || []);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 16 "distinctByBaseFood collapses everything to one food (dedupe by destroying variety)" report-integrity "
+s=open('$API').read()
+old='function distinctByBaseFood(foods) {'
+new=old+chr(10)+'  return Array.from(foods || []).slice(0, 1);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 17 "substitution guide offers another grade of the food you already lack" report-integrity "
+s=open('$API').read()
+old='  const alternatives = distinctByBaseFood(rest)'
+assert s.count(old)==1, s.count(old)
+i=s.index(old); j=s.index('.slice(0, 3);', i)+len('.slice(0, 3);')
+open('$API','w').write(s[:i]+'  const alternatives = rest.slice(0, 3);'+s[j:])
+"
+
+mutate 18 "baseFoodKey returns a constant, merging genuinely different foods" report-integrity "
+s=open('$API').read()
+old='  let key = String(name).trim();'
+new='  return chr39samechr39;'.replace('chr39',chr(39))+chr(10)+old
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
 echo
 echo "=== restored ==="
 restore
