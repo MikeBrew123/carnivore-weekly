@@ -20,12 +20,24 @@
 -- Doctor's Report is generated from. It must never appear in a URL.
 --
 -- WHAT THIS COLUMN IS. An opaque, random, single-purpose reference that appears
--- in the emailed link INSTEAD. It is read-only on its own: the only thing that
--- accepts it is POST /resume, which returns a bounded projection of the row and
--- the session token in the RESPONSE BODY, where no click tracker, analytics tag
--- or Referer header can see it. It is not accepted by PATCH /session, so it
--- cannot be substituted for the ordinary write credential, and the tokens carry
--- distinct prefixes (kdr_ vs kd_) so a mix-up is visible rather than silent.
+-- in the emailed link INSTEAD. Be precise about what it is: an expiring resume
+-- credential, NOT a read-only one. It cannot PATCH a session directly, but whoever
+-- holds it can POST /resume and exchange it for the authoritative session token,
+-- which can write. The only accurate claims are these two:
+--
+--   * the write-capable session_token never appears in a URL, in browser history,
+--     in a Referer header or in an analytics parameter; and
+--   * an inline script in <head>, above GA and Pinterest, strips `r` from the URL
+--     before either tag initializes, so unrelated page analytics never receive the
+--     resume credential either.
+--
+-- The prefixes differ (kdr_ vs kd_) so PATCH /session refuses this value outright
+-- rather than missing silently. That is a narrow property: it means the credential
+-- is not accepted DIRECTLY as a session token, not that it cannot confer writes.
+--
+-- Residual, tracked rather than claimed away: anyone who can read the email
+-- click-tracking logs holds an exchangeable credential until it expires. The
+-- 30-day reusable lifetime is a hardening item, not a safety argument.
 --
 -- It grants no report access and no payment entitlement; /report and /purchase
 -- are keyed on the Stripe session and unaffected by this column.

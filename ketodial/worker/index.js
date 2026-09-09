@@ -446,9 +446,11 @@ function buildPlanEmail(m, goal, p) {
     // and sending the reference to a page that does not need it would widen its
     // exposure for no reason.
     if (path) return `https://ketodial.com${path}?${q}`;
-    // `r` is the opaque kdr_ reference, never the session token. A plain query
+    // `r` is the kdr_ resume credential, never the session token. A plain query
     // parameter on purpose: click tracking rewrites the whole URL, so a fragment
-    // buys nothing here, and this value cannot write to anything on its own.
+    // bought nothing. This value is exchangeable for write access rather than
+    // read-only, which is why an inline script in <head> strips it from the URL
+    // before GA or Pinterest can report it.
     return p.resumeToken
       ? `https://ketodial.com/?${q}&r=${encodeURIComponent(p.resumeToken)}`
       : `https://ketodial.com/?${q}#calc`;
@@ -627,8 +629,9 @@ async function handleEmailPlan(request, env) {
           unsubUrl,
           suppressProtein,
           // Lets the buy button resume this exact session instead of dropping the
-          // reader back at an empty calculator. Opaque and read-only: the
-          // write-capable session token is never put in a link.
+          // reader back at an empty calculator. Exchangeable, not read-only: what
+          // this achieves is that the write-capable session token is never put in
+          // a link, not that the link is harmless.
           resumeToken,
         }),
         // Same tag shape as the CW welcome sender so the /webhook/resend
@@ -1085,11 +1088,16 @@ async function mintResumeToken(sessionToken, env) {
  * URL carrying `%23calc` inside the redirect: a fragment does not stay a fragment
  * once a provider rewrites the link.
  *
- * So the URL now carries only `kdr_...`, which cannot write anything. The session
- * token comes back in this RESPONSE BODY, which no click tracker, analytics tag or
- * Referer header ever sees. The exchange is POST deliberately: link prefetchers, mail
- * security scanners and click trackers issue GET, so none of them performs it merely
- * by following the link.
+ * So the URL carries `kdr_...` instead. Do not describe that as read-only: it cannot
+ * PATCH a session, but whoever holds it can call THIS endpoint and exchange it for
+ * the session token, which can write. The two things the design actually achieves are
+ * that the session token never appears in a URL, history, Referer or analytics
+ * parameter, and that an inline script in <head> strips `r` before GA or Pinterest
+ * initialize, so page analytics never receive the resume credential either.
+ *
+ * The exchange is POST deliberately: link prefetchers, mail security scanners and
+ * click trackers issue GET, so none of them performs it merely by following the link.
+ * A holder who deliberately POSTs it can still exchange it until it expires.
  *
  * WHAT COMES BACK IS A BOUNDED PROJECTION: the macros already printed in the email,
  * the goal, the kidney answer, and the server's own allowedProducts() list. No name,

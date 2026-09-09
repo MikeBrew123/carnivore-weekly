@@ -631,16 +631,20 @@ function checkoutSandbox({ kidney = 'no', stripeFails = false, createFails = fal
 // read window.location, and delivered email is rewritten through click tracking,
 // which turns a `#calc` target into a tracking URL carrying `%23calc` in the
 // redirect. Fragment placement bought nothing. What actually protects the row is
-// that the value in the URL cannot write.
+// that the URL never carries the session token, and that the resume credential it
+// does carry is stripped in <head> before any third-party tag can report it. The
+// resume credential is exchangeable for write access; it is not read-only.
 // ===========================================================================
 {
   const resume = js.slice(js.indexOf('function resumeFromEmail()'),
                           js.indexOf('resumeFromEmail();', js.indexOf('function resumeFromEmail()')));
   check('AG', 'the resume handler exists', resume.length > 0, '');
 
-  // Only the opaque reference is ever read out of the URL.
-  check('AG', 'the reference is read from the URL and shape-checked first',
-    /urlParams\.get\('r'\)/.test(resume) &&
+  // The URL read and the scrub now happen in the inline <head> script, above every
+  // third-party tag; GROUP AK pins that ordering. Here we only pin that the app
+  // consumes the captured value and re-checks its shape before using it.
+  check('AG', 'the captured reference is shape-checked before use',
+    /var ref=window\.__kdResumeRef/.test(resume) &&
     /\^kdr_\[0-9a-f\]\{16,96\}\$/.test(resume), resume.slice(0, 400));
   check('AG', 'nothing in the URL is treated as a session token',
     !/sessionToken\s*=\s*(ref|urlParams|hash)/.test(resume), resume);
@@ -660,8 +664,10 @@ function checkoutSandbox({ kidney = 'no', stripeFails = false, createFails = fal
   check('AG', 'the kidney chip is set from the server response, not the link',
     /d\.kidney_status/.test(resume), resume.slice(0, 600));
 
-  // Tidiness, not protection. The comment must not claim otherwise.
-  check('AG', 'the reference is scrubbed from history', /history\.replaceState/.test(resume), resume);
+  // The scrub moved to <head> so it lands before GA and Pinterest read the URL.
+  check('AG', 'the scrub happens in the head capture, not here',
+    /history\.replaceState/.test(html) && !/history\.replaceState/.test(resume),
+    'a scrub in ketodial.js runs long after the analytics tags have already reported');
   check('AG', 'and the code does not claim the fragment was ever a guarantee',
     !/never (?:sent to a server|reaches analytics)/i.test(js),
     'a comment is asserting a property the implementation does not provide');
@@ -742,12 +748,13 @@ function resumeSandbox({ kidney = 'no', resumeFails = false } = {}) {
     ' kidneyStatus, getToken:function(){return sessionToken;},' +
     ' getReady:function(){return sessionReady;}, getMacros:function(){return lastMacros;} };'
   );
-  // The region declares `var urlParams = new URLSearchParams(window.location.search)`
-  // itself, so the reference has to arrive the way the browser supplies it.
+  // The reference arrives the way the real page supplies it: captured by the inline
+  // <head> script and left in window.__kdResumeRef, with the URL ALREADY scrubbed.
   const REF = 'kdr_' + 'ab12cd34ef56'.repeat(2);
-  const win = { location: { search: '?utm_campaign=free_results&r=' + REF, pathname: '/' } };
+  const win = { location: { search: '?utm_campaign=free_results', pathname: '/' },
+                __kdResumeRef: REF };
   const scrubbed = [];
-  const hist = { replaceState: (a, b, u) => { scrubbed.push(u); win.location.search = ''; } };
+  const hist = { replaceState: (a, b, u) => { scrubbed.push(u); } };
   const freeResults = mk('#freeResults');
   const step2 = mk('#step2');
   const api = factory($, $all, fetchStub, (n) => '$' + n.toFixed(2), () => {}, () => {},
@@ -766,11 +773,18 @@ function resumeSandbox({ kidney = 'no', resumeFails = false } = {}) {
 {
   const s = resumeSandbox({ kidney: 'no' });
   s.api.resumeFromEmail();
+  // A crash is not a named failure. If the handler never reached the network — for
+  // instance because it went back to reading the live URL, which the head script has
+  // already scrubbed — say so here rather than dying on calls[0] below.
+  const exchange = s.calls.find(c => c.url.endsWith('/resume'));
+  check('AH', 'the resume exchange is actually attempted', !!exchange,
+    'nothing was sent: the captured reference was not picked up');
   check('AH', 'the exchange is a POST, not a GET',
-    s.calls.some(c => c.url.endsWith('/resume') && c.method === 'POST'),
+    !!exchange && exchange.method === 'POST',
     JSON.stringify(s.calls.map(c => `${c.method} ${c.url}`)));
-  check('AH', 'the opaque reference is what is sent, not a session token',
-    /^kdr_/.test(s.calls[0].body.resume_token), JSON.stringify(s.calls[0].body));
+  check('AH', 'the resume credential is what is sent, not a session token',
+    !!exchange && /^kdr_/.test(exchange.body.resume_token),
+    JSON.stringify(exchange && exchange.body));
 
   await new Promise(r => setTimeout(r, 0));
   await s.api.getReady();
@@ -797,9 +811,13 @@ function resumeSandbox({ kidney = 'no', resumeFails = false } = {}) {
     patch && patch.body.cooking_skill === 'beginner' && patch.body.budget === 'moderate', '');
   check('AH', 'and the profile is marked complete', patch && patch.body.step_completed === 2, '');
 
-  // Checkout must then be willing to proceed against that same row.
-  await s.api.writesSettled();
-  check('AH', 'writesSettled() resolves, so checkout proceeds on the resumed row', true, '');
+  // Checkout must then be willing to proceed against that same row. Asserted on the
+  // outcome, not by letting a rejection escape as an unhandled error: a crash is not
+  // a named failure.
+  let settled = false, settleErr = null;
+  try { await s.api.writesSettled(); settled = true; } catch (e) { settleErr = e.message; }
+  check('AH', 'writesSettled() resolves, so checkout proceeds on the resumed row',
+    settled, String(settleErr));
   check('AH', 'exactly one session row was ever addressed',
     new Set(s.calls.filter(c => c.body && c.body.token).map(c => c.body.token)).size === 1,
     JSON.stringify(s.calls.map(c => c.body && c.body.token)));
@@ -908,6 +926,132 @@ for (const kidney of ['yes', 'unsure']) {
     /setIfSent\('calculated_macros', b\.macros\)/.test(workerSrc), '');
 }
 
+// ===========================================================================
+// GROUP AK — THE RESUME CREDENTIAL IS STRIPPED BEFORE ANY THIRD-PARTY TAG RUNS.
+// ---------------------------------------------------------------------------
+// `kdr_...` is an EXCHANGEABLE credential, not a read-only one: it cannot PATCH a
+// session, but whoever holds it can POST /resume and get the session token, which
+// can. So it must not reach GA or Pinterest. Both initialize in <head>, and
+// ketodial.js loads at the end of the body, so the strip has to happen in an inline
+// script above them. This group pins that ORDER in the shipped document.
+// ===========================================================================
+{
+  // Positions of the executable scripts, in document order.
+  const at = (needle) => html.indexOf(needle);
+  const capture = at('window.__kdResumeRef=ref');
+  const scrub = html.indexOf('history.replaceState', capture);
+  const gaTag = at('googletagmanager.com/gtag/js');
+  // The executable call, not the comment above that explains why it matters.
+  const gaConfig = at("gtag('config',");
+  const pinterest = at("pintrk('load'");
+  // The actual script element, not the several comments that name the file.
+  const appJs = html.search(/<script[^>]*src="[^"]*ketodial\.js/);
+
+  check('AK', 'the capture exists in the document head', capture > -1, '');
+  check('AK', 'it scrubs the URL immediately after capturing', scrub > capture, `${capture}/${scrub}`);
+
+  check('AK', 'the capture runs BEFORE the GA script tag', capture < gaTag,
+    `capture at ${capture}, gtag.js at ${gaTag}`);
+  check('AK', 'the scrub completes BEFORE gtag config sends page_location',
+    scrub < gaConfig, `scrub at ${scrub}, gtag config at ${gaConfig}`);
+  check('AK', 'the scrub completes BEFORE the Pinterest tag loads',
+    scrub < pinterest, `scrub at ${scrub}, pintrk at ${pinterest}`);
+  check('AK', 'and long before ketodial.js, which used to do this far too late',
+    scrub < appJs, `scrub at ${scrub}, app at ${appJs}`);
+
+  // The capture must be synchronous. An async or deferred script would let the tags
+  // below it run first and the ordering above would prove nothing.
+  const head = html.slice(0, gaTag);
+  const captureTag = head.lastIndexOf('<script', capture);
+  const openTag = head.slice(captureTag, head.indexOf('>', captureTag) + 1);
+  check('AK', 'the capture script is synchronous and inline',
+    !/\basync\b|\bdefer\b|\bsrc=/.test(openTag), openTag);
+  check('AK', 'it is first-party inline code, not a third-party include',
+    !/https?:\/\//.test(openTag), openTag);
+
+  // Only `r` is removed; attribution survives.
+  const captureBlock = html.slice(captureTag, html.indexOf('</script>', captureTag));
+  // BOTH branches must delete it. An earlier version counted occurrences, so
+  // dropping the delete from the branch that actually retains the credential still
+  // passed on the strength of the malformed-value branch.
+  check('AK', 'the branch that RETAINS the reference also removes it from the URL',
+    /window\.__kdResumeRef=ref;\s*q\.delete\('r'\)/.test(captureBlock), captureBlock);
+  check('AK', 'the malformed-value branch removes it too',
+    /test\(ref\)\)\{\s*q\.delete\('r'\)/.test(captureBlock), captureBlock);
+  check('AK', 'and no UTM parameter is deleted', !/delete\('utm_/.test(captureBlock), captureBlock);
+  check('AK', 'the UTM parameters are preserved by rebuilding from the same object',
+    /q\.toString\(\)/.test(captureBlock), captureBlock);
+  check('AK', 'the reference is shape-checked before it is retained',
+    /\^kdr_\[0-9a-f\]\{16,96\}\$/.test(captureBlock), captureBlock);
+
+  // Nowhere durable.
+  for (const sink of ['localStorage', 'sessionStorage', 'document.cookie']) {
+    check('AK', `the capture never puts the credential in ${sink}`,
+      !captureBlock.includes(sink), captureBlock);
+  }
+
+  // And the app consumes it from the ephemeral holder rather than the URL.
+  const resume = js.slice(js.indexOf('function resumeFromEmail()'),
+                          js.indexOf('resumeFromEmail();', js.indexOf('function resumeFromEmail()')));
+  check('AK', 'resumeFromEmail reads the captured reference, not the live URL',
+    /var ref=window\.__kdResumeRef/.test(resume) && !/urlParams\.get\('r'\)/.test(resume),
+    resume.slice(0, 400));
+  check('AK', 'and clears it, so it lives only for this navigation',
+    /delete window\.__kdResumeRef|__kdResumeRef=undefined/.test(resume), resume.slice(0, 500));
+}
+
+// ===========================================================================
+// GROUP AL — THE CODE DOES NOT CLAIM A GUARANTEE IT DOES NOT PROVIDE.
+// ---------------------------------------------------------------------------
+// Twice now a comment in this feature asserted something false: first that a URL
+// fragment never reaches a server or analytics, then that the kdr_ credential is
+// read-only. Both were wrong, and both survived review because a comment is not
+// executable. This group makes the claim itself testable.
+// ===========================================================================
+{
+  const sources = {
+    'ketodial.js': js,
+    'index.html': html,
+    'worker/index.js': fs.readFileSync(path.join(REPO, 'ketodial', 'worker', 'index.js'), 'utf8'),
+    'resume migration': fs.readFileSync(path.join(REPO, 'supabase', 'migrations',
+      '20260909_kd_audit2b_resume_token.sql'), 'utf8'),
+  };
+  // Phrases that would be asserting the credential is harmless. Each is only a
+  // problem when it is a CLAIM; the corrected comments say "NOT read-only" and
+  // "Exchangeable, not read-only", so the negation has to be allowed through.
+  const claims = [
+    /(?<!NOT )(?<!not )\bis read-only\b/i,
+    /\bcannot write to anything\b/i,
+    /\bcannot write anything\b/i,
+    /\bunable to confer\b/i,
+    /\bharmless if seen\b/i,
+    /fragment[^.]{0,80}never (?:sent to a server|reaches analytics)/i,
+    /never (?:sent to a server|reaches analytics)[^.]{0,80}fragment/i,
+  ];
+  for (const [name, src] of Object.entries(sources)) {
+    // A phrase inside double quotes is being REPORTED, not asserted: the corrected
+    // comments quote the old false claim in order to say it was wrong. Blank those
+    // spans out so the audit flags assertions rather than history.
+    const asserted = src.replace(/"[^"\n]{0,200}"/g, '""');
+    for (const re of claims) {
+      const m = re.exec(asserted);
+      check('AL', `${name} does not claim ${re.source.slice(0, 34)}`, !m,
+        m ? asserted.slice(Math.max(0, m.index - 90), m.index + 90) : '');
+    }
+  }
+  // And it states the accurate model somewhere the next reader will find it.
+  check('AL', 'the exchangeable nature is written down',
+    /exchange it for the authoritative session/i.test(sources['worker/index.js']) &&
+    /possession lets the holder POST \/resume and\s*\* exchange it/i.test(js) === false
+      ? /exchange it for the authoritative session credential/i.test(js) ||
+        /POST \/resume and\s+\*\s+exchange it/i.test(js)
+      : true,
+    'no source explains that the credential is exchangeable for write access');
+  check('AL', 'the residual is recorded rather than argued away',
+    /click-tracking logs|click tracking logs/i.test(js) &&
+    /30-day/i.test(js), 'the 30-day reusable window is not acknowledged');
+}
+
 // ---------------------------------------------------------------------------
 if (failures.length) {
   console.log(`\n${failures.length} of ${checks} assertions FAILED\n`);
@@ -935,6 +1079,8 @@ const groups = {
   AH: 'a resumed session is a writable continuation of the original row',
   AI: 'the resumed offer still comes from the server',
   AJ: 'recomputing after a resume rewrites the same row',
+  AK: 'the resume credential is stripped before any third-party tag runs',
+  AL: 'the code does not claim a guarantee it does not provide',
 };
 for (const [k, v] of Object.entries(groups)) console.log(`PASS  ${k}  ${v}`);
 console.log(`\n${checks} assertions passed.`);

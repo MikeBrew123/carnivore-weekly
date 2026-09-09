@@ -177,7 +177,9 @@ for (const kidney of ['no', 'yes', 'unsure']) {
 // false: GA and the Pinterest tag run in <head> and had already read
 // window.location, and delivered email is rewritten through click tracking, which
 // turns a `#calc` target into a tracking URL carrying `%23calc` in the redirect.
-// The link now carries only the opaque kdr_ reference, which cannot write anything.
+// The link now carries the kdr_ resume credential instead. That is exchangeable for
+// write access, not read-only; what this group pins is narrower and true: the
+// session token itself is in no URL, and no health value is either.
 // ===========================================================================
 {
   const e = await deliver({ kidney: 'no' });
