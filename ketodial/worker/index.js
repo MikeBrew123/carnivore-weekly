@@ -141,8 +141,8 @@ export default {
     // optional profile afterwards; these two resolve a paid Stripe session back to
     // its authoritative row so that is possible without the browser having to carry
     // a session token across the Stripe redirect (it cannot — the page reloads).
-    if (url.pathname.startsWith('/resume/') && request.method === 'GET') {
-      return handleResume(decodeURIComponent(url.pathname.split('/resume/')[1] || ''), env);
+    if (url.pathname === '/resume' && request.method === 'POST') {
+      return handleResume(request, env);
     }
     if (url.pathname.startsWith('/purchase/') && request.method === 'GET') {
       return handlePurchaseStatus(url.pathname.split('/purchase/')[1], env);
@@ -271,6 +271,13 @@ async function handleSessionUpdate(request, env) {
       token = resolved.token;
     }
     if (!token) return jsonResponse(400, { error: 'Missing token' });
+    // A resume reference is NOT a write credential. It travels in an emailed URL,
+    // which means click tracking and analytics see it; the whole point of splitting
+    // the two is that seeing one must not confer the other. The prefixes differ so
+    // this is a refusal rather than a silent lookup miss.
+    if (/^kdr_/.test(String(token))) {
+      return jsonResponse(403, { error: 'resume_reference_is_not_a_session_token' });
+    }
     b.token = token;
 
     // "ANSWERED NOTHING" IS NOT "NEVER ASKED".
@@ -308,6 +315,22 @@ async function handleSessionUpdate(request, env) {
     setIfSent('previous_diets', b.previous_diets);
     setIfSent('dairy_tolerance', toStoredVocabulary('dairy_tolerance', b.dairy_tolerance));
     setIfSent('lifestyle_activity', b.lifestyle_activity);
+    // RECOMPUTING AFTER AN EMAIL RESUME MUST UPDATE THE ORIGINAL ROW.
+    // The resumed page holds a real session, so a customer who edits their stats and
+    // presses the results button again has to land on the row they came back to
+    // rather than opening a second one. These are the step-1 fields that path
+    // rewrites. The client was already the source of every one of them at row
+    // creation, so accepting them here widens no trust boundary — and intake.js
+    // still range-checks the macros before any report is generated from them.
+    setIfSent('goal', b.goal);
+    setIfSent('age', b.age);
+    setIfSent('sex', b.sex);
+    setIfSent('height_cm', b.height_cm);
+    setIfSent('weight_value', b.weight_value);
+    setIfSent('weight_unit', b.weight_unit);
+    setIfSent('lifestyle_activity', b.lifestyle_activity);
+    setIfSent('calculated_macros', b.macros);
+
     // A customer may go back and change this. Only the three real answers are
     // accepted; anything else leaves the stored value alone rather than clearing it.
     if (KIDNEY_ANSWERS.has(b.kidney_status)) updates.kidney_status = b.kidney_status;
@@ -420,11 +443,14 @@ function buildPlanEmail(m, goal, p) {
   const link = (content, path) => {
     const q = `utm_source=plan_email&utm_medium=email&utm_campaign=free_results&utm_content=${content}`;
     // Only the buy links resume a session. The recipe index has nothing to resume,
-    // and sending the token to a page that does not need it would widen its exposure
-    // for no reason.
+    // and sending the reference to a page that does not need it would widen its
+    // exposure for no reason.
     if (path) return `https://ketodial.com${path}?${q}`;
-    return p.token
-      ? `https://ketodial.com/?${q}#resume=${encodeURIComponent(p.token)}`
+    // `r` is the opaque kdr_ reference, never the session token. A plain query
+    // parameter on purpose: click tracking rewrites the whole URL, so a fragment
+    // buys nothing here, and this value cannot write to anything on its own.
+    return p.resumeToken
+      ? `https://ketodial.com/?${q}&r=${encodeURIComponent(p.resumeToken)}`
       : `https://ketodial.com/?${q}#calc`;
   };
 
@@ -578,6 +604,9 @@ async function handleEmailPlan(request, env) {
       }).catch(() => {});
     }
 
+    // Minted per send, so an old email's reference is superseded rather than shared.
+    const resumeToken = await mintResumeToken(b.token, env);
+
     const unsubUrl = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(email)}&site=kd`;
     const sendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -598,8 +627,9 @@ async function handleEmailPlan(request, env) {
           unsubUrl,
           suppressProtein,
           // Lets the buy button resume this exact session instead of dropping the
-          // reader back at an empty calculator. Travels in the URL fragment.
-          token: b.token || null,
+          // reader back at an empty calculator. Opaque and read-only: the
+          // write-capable session token is never put in a link.
+          resumeToken,
         }),
         // Same tag shape as the CW welcome sender so the /webhook/resend
         // open/click tracking can segment plan emails in drip_events.
@@ -1015,59 +1045,110 @@ function expandItems(items) {
  * than the 403.
  */
 /**
- * Resume an unpaid calculator session from the free-results email.
+ * Mint the opaque reference the free-results email carries.
  *
- * WHY THIS EXISTS. The email's buy button used to land on ketodial.com/#calc, i.e.
- * back at an empty form. A customer who had already given us their stats, read their
- * numbers and decided to buy was asked to do the whole calculator again to find the
- * checkout. That is the opposite of not making it hard to spend money.
+ * The row's own session_token is a WRITE credential — it PATCHes the intake the
+ * Doctor's Report is generated from — so it must never appear in a URL. This is
+ * what goes in the link instead: random, single-purpose, expiring, and useless for
+ * anything except POST /resume.
  *
- * WHAT IT DELIBERATELY IS NOT. It is not an entitlement. The response carries a
- * BOUNDED PROJECTION of the row — the macros already printed in the email, the goal,
- * and the kidney answer — and nothing else. No email address, no name, no conditions,
- * no medications, no payment fields. `allowed` is computed here by the same
- * allowedProducts() the checkout uses, so the page never decides for itself what a
- * resumed customer may buy, and a hand-edited URL cannot widen it: /checkout re-reads
- * the row and re-derives eligibility regardless of what the page did.
- *
- * THE TOKEN TRAVELS IN THE URL FRAGMENT, NOT THE QUERY STRING. Fragments are never
- * sent to a server, never appear in a Referer header and never reach the analytics or
- * Stripe scripts the landing page loads. The client scrubs it from history on arrival.
- * Bearer-token-in-a-link is the same model /purchase/<stripe_session_id> already uses.
+ * Returns null on any failure. A link that falls back to the plain calculator is a
+ * worse email; a link that carries a write credential is a worse product.
  */
-async function handleResume(token, env) {
-  if (!token || token.length < 8 || token.length > 128) {
-    return jsonResponse(400, { error: 'bad_reference' });
-  }
-  const row = await readSessionRow(token, env);
-  // Deliberately identical response for "no such token" and "unusable row": a probe
-  // learns nothing about which tokens exist.
+async function mintResumeToken(sessionToken, env) {
+  if (!sessionToken) return null;
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  const token = 'kdr_' + Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  try {
+    const res = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?session_token=eq.${encodeURIComponent(sessionToken)}`,
+      { method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+                   Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`, Prefer: 'return=minimal' },
+        body: JSON.stringify({ resume_token: token, resume_token_expires_at: expires }) });
+    return res.ok ? token : null;
+  } catch { return null; }
+}
+
+/**
+ * Exchange that reference for the session, from the free-results email.
+ *
+ * WHY POST, AND WHY THE LINK DOES NOT CARRY THE SESSION TOKEN.
+ * An earlier version put session_token itself in the link's fragment and claimed in
+ * a comment that a fragment "is never sent to a server and never reaches analytics".
+ * That was wrong twice over. GA's gtag('config') and the Pinterest tag both run in
+ * <head>, and GA4's automatic page_view sends page_location including the fragment,
+ * so both had already read it before ketodial.js could scrub it. And delivered email
+ * is rewritten through click tracking, which turned a `#calc` target into a tracking
+ * URL carrying `%23calc` inside the redirect: a fragment does not stay a fragment
+ * once a provider rewrites the link.
+ *
+ * So the URL now carries only `kdr_...`, which cannot write anything. The session
+ * token comes back in this RESPONSE BODY, which no click tracker, analytics tag or
+ * Referer header ever sees. The exchange is POST deliberately: link prefetchers, mail
+ * security scanners and click trackers issue GET, so none of them performs it merely
+ * by following the link.
+ *
+ * WHAT COMES BACK IS A BOUNDED PROJECTION: the macros already printed in the email,
+ * the goal, the kidney answer, and the server's own allowedProducts() list. No name,
+ * no email, no conditions, no medications, no payment fields.
+ *
+ * AND THE SUPPRESSED PROTEIN TARGET IS OMITTED, NOT HIDDEN. The page and the email
+ * both withhold it for a reader who answered yes or "I'm not sure". A JSON body
+ * carrying the number anyway is the same value leaking through another output
+ * surface, which is the defect class this audit exists to close.
+ */
+async function handleResume(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return jsonResponse(400, { error: 'bad_request' }); }
+  const token = String((body && body.resume_token) || '');
+  if (!/^kdr_[0-9a-f]{16,96}$/.test(token)) return jsonResponse(400, { error: 'bad_reference' });
+
+  let row = null;
+  try {
+    const res = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?resume_token=eq.${encodeURIComponent(token)}&limit=1`,
+      { headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+                   Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`, Accept: 'application/json' } });
+    if (res.ok) {
+      const rows = await res.json();
+      row = Array.isArray(rows) && rows.length ? rows[0] : null;
+    }
+  } catch { row = null; }
+
+  // Identical answer for "no such token", "expired" and "unusable row": a probe
+  // learns nothing about which references exist.
   if (!row) return jsonResponse(404, { error: 'not_found' });
+  const expiry = row.resume_token_expires_at ? Date.parse(row.resume_token_expires_at) : NaN;
+  if (!Number.isFinite(expiry) || expiry < Date.now()) return jsonResponse(404, { error: 'not_found' });
 
   const m = row.calculated_macros;
-  if (!m || !m.calories || !m.proteinG) return jsonResponse(404, { error: 'not_found' });
+  if (!m || !m.calories) return jsonResponse(404, { error: 'not_found' });
 
   // Absence is not a negative answer. Same fail-closed shape as everywhere else.
-  const kidney = row.kidney_status === 'no' ? 'no'
-               : (row.kidney_status === 'yes' || row.kidney_status === 'unsure') ? row.kidney_status
-               : null;
-  const ctx = deriveKdMedicalContext({
-    kidneyStatus: kidney || 'unsure',
-    conditions: [], medications: '',
-  });
+  const kidney = (row.kidney_status === 'no' || row.kidney_status === 'yes' || row.kidney_status === 'unsure')
+    ? row.kidney_status : null;
+  const ctx = deriveKdMedicalContext({ kidneyStatus: kidney || 'unsure', conditions: [], medications: '' });
+  const suppressProtein = !!ctx.restrictProteinTarget;
   const products = allowedProducts(ctx);
 
+  const macros = { calories: m.calories, fatG: m.fatG, carbG: m.carbG, tdee: m.tdee,
+                   deficitPct: m.deficitPct };
+  // Present only when this reader is allowed to have it. Not blanked, not zeroed,
+  // not replaced with a gentler figure: absent.
+  if (!suppressProtein) macros.proteinG = m.proteinG;
+
   return jsonResponse(200, {
-    token,
-    macros: {
-      calories: m.calories, fatG: m.fatG, proteinG: m.proteinG,
-      carbG: m.carbG, tdee: m.tdee, deficitPct: m.deficitPct,
-    },
+    // The write credential, delivered where no third party can read it.
+    session_token: row.session_token,
+    macros,
     goal: row.goal || null,
     kidney_status: kidney,
     // The authority for what this page may offer. Not a hint.
     allowed: products.allowed,
-    suppressProtein: !!ctx.restrictProteinTarget,
+    suppressProtein,
   });
 }
 

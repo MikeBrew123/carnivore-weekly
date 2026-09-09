@@ -57,6 +57,7 @@ if (start < 0 || end < 0 || end <= start) {
   process.exit(1);
 }
 const REGION = js.slice(start, end);
+const PRODUCT_REGION_FOR_RESUME = REGION;
 
 for (const needed of ['featuredOffer', 'renderUpgradeCard', 'productAvailable', 'PROTEIN_ANCHORED']) {
   check('U', `the extracted region still contains ${needed}()`, REGION.includes(needed),
@@ -622,44 +623,289 @@ function checkoutSandbox({ kidney = 'no', stripeFails = false, createFails = fal
 }
 
 // ===========================================================================
-// GROUP AG — THE EMAIL RESUME LINK CANNOT WIDEN WHAT IS ON OFFER.
+// GROUP AG — THE EMAIL LINK CARRIES NO WRITE CREDENTIAL, AND WIDENS NOTHING.
 // ---------------------------------------------------------------------------
-// The free-results email now carries a session reference so the buy button lands on
-// the offer instead of an empty calculator. That link must be a convenience and
-// nothing more: a resumed page still runs every product through productAvailable(),
-// and /checkout re-derives eligibility from the stored row regardless.
+// The first version put the row's own session_token in the link fragment and a
+// comment claimed a fragment never reaches a server or analytics. Both halves were
+// false: GA's gtag('config') and the Pinterest tag run in <head> and had already
+// read window.location, and delivered email is rewritten through click tracking,
+// which turns a `#calc` target into a tracking URL carrying `%23calc` in the
+// redirect. Fragment placement bought nothing. What actually protects the row is
+// that the value in the URL cannot write.
 // ===========================================================================
 {
   const resume = js.slice(js.indexOf('function resumeFromEmail()'),
-                          js.indexOf('/* ---------- SUCCESS'));
+                          js.indexOf('resumeFromEmail();', js.indexOf('function resumeFromEmail()')));
   check('AG', 'the resume handler exists', resume.length > 0, '');
 
-  // The kidney answer is taken from the server response, never from the URL.
-  check('AG', 'the kidney chip is set from the server response, not the link',
-    /d\.kidney_status/.test(resume) &&
-    !/location\.(search|href)[\s\S]{0,80}kidney/i.test(resume), resume.slice(0, 400));
+  // Only the opaque reference is ever read out of the URL.
+  check('AG', 'the reference is read from the URL and shape-checked first',
+    /urlParams\.get\('r'\)/.test(resume) &&
+    /\^kdr_\[0-9a-f\]\{16,96\}\$/.test(resume), resume.slice(0, 400));
+  check('AG', 'nothing in the URL is treated as a session token',
+    !/sessionToken\s*=\s*(ref|urlParams|hash)/.test(resume), resume);
 
-  // Every product the server offers is re-checked locally before selection.
+  // The write credential arrives in the response body instead.
+  check('AG', 'the session token comes from the exchange response',
+    /sessionToken=d\.session_token/.test(resume), resume);
+  check('AG', 'the exchange is a POST, so a prefetch or click tracker cannot spend it',
+    /API_BASE\+'\/resume',\{[\s\S]{0,60}method:'POST'/.test(resume), resume.slice(0, 800));
+
+  // Both gates on what a resumed page may select.
   check('AG', 'a resumed selection is re-checked against productAvailable()',
     /allowed\.indexOf\(k\)>-1&&productAvailable\(k\)/.test(resume),
     'the page would select whatever the response claimed');
   check('AG', 'the bundle path is gated too',
-    /allowed\.indexOf\('protocol'\)>-1&&productAvailable\('protocol'\)/.test(resume),
-    resume);
+    /allowed\.indexOf\('protocol'\)>-1&&productAvailable\('protocol'\)/.test(resume), resume);
+  check('AG', 'the kidney chip is set from the server response, not the link',
+    /d\.kidney_status/.test(resume), resume.slice(0, 600));
 
-  // The token is read from the fragment and removed immediately.
-  check('AG', 'the token is read from the fragment, not the query string',
-    /window\.location\.hash/.test(resume) && !/URLSearchParams[\s\S]{0,60}resume/.test(resume),
-    resume.slice(0, 300));
-  check('AG', 'and it is scrubbed from history on arrival',
-    /history\.replaceState/.test(resume), resume);
-  check('AG', 'the token is validated before it is used in a URL',
-    /\^#resume=\(\[A-Za-z0-9_-\]\{8,128\}\)\$/.test(resume), resume.slice(0, 300));
+  // Tidiness, not protection. The comment must not claim otherwise.
+  check('AG', 'the reference is scrubbed from history', /history\.replaceState/.test(resume), resume);
+  check('AG', 'and the code does not claim the fragment was ever a guarantee',
+    !/never (?:sent to a server|reaches analytics)/i.test(js),
+    'a comment is asserting a property the implementation does not provide');
 
-  // Nothing about the person is read out of the link.
+  // No health value is ever read out of the URL.
   check('AG', 'no health value is taken from the URL',
-    !/(conditions|medications|macros|proteinG|weight|height)\s*=\s*(urlParams|params|hash)/i.test(resume),
+    !/(conditions|medications|macros|proteinG|weight|height|kidney)\s*=\s*(urlParams|params|hash|ref)/i.test(resume),
     resume);
+}
+
+// ---------------------------------------------------------------------------
+// A resume sandbox: session plumbing + product machinery + the resume handler.
+// ---------------------------------------------------------------------------
+// GROUP AH proves the behaviour, not the wording. Three real slices of the shipped
+// ketodial.js are concatenated and executed: the session block (sessionToken,
+// sessionReady, pendingWrites, updateSession, writesSettled), the product block, and
+// resumeFromEmail(). Only the browser is faked.
+const SESSION_REGION = js.slice(js.indexOf("  var API_BASE='https"),
+                                js.indexOf('  function scrollToEl(el,extra){'));
+const RESUME_REGION = js.slice(js.indexOf('  function resumeFromEmail(){'),
+                               js.indexOf('  resumeFromEmail();'));
+for (const [name, region] of [['session', SESSION_REGION], ['resume', RESUME_REGION]]) {
+  check('AH', `the ${name} region was located`, region.length > 100, `${region.length} chars`);
+}
+
+function resumeSandbox({ kidney = 'no', resumeFails = false } = {}) {
+  const calls = [];
+  const els = {};
+  const mk = (id) => ({
+    id, dataset: {}, hidden: false, disabled: false, style: {}, textContent: '', innerHTML: '',
+    classList: { _s: new Set(), add(c) { this._s.add(c); }, remove(c) { this._s.delete(c); },
+                 contains(c) { return this._s.has(c); }, toggle(c, on) { on ? this.add(c) : this.remove(c); } },
+    querySelector: () => null, addEventListener() {}, click() {},
+  });
+  const get = (sel) => (els[sel] = els[sel] || mk(sel));
+  // The kidney chips have to behave like real ones: resume sets .on, and
+  // kidneyStatus() reads it back.
+  const chips = { no: mk('no'), yes: mk('yes'), unsure: mk('unsure') };
+  Object.entries(chips).forEach(([v, el]) => { el.dataset.val = v; });
+  const $ = (sel) => {
+    const m = /\[data-seg="kidney"\] \[data-val="(\w+)"\]/.exec(sel);
+    if (m) return chips[m[1]] || null;
+    if (sel === '[data-seg="kidney"] .on') return Object.values(chips).find(c => c.classList.contains('on')) || null;
+    return get(sel);
+  };
+  const $all = (sel) => (sel === '[data-seg="kidney"] .chip' ? Object.values(chips) : []);
+
+  const allowed = kidney === 'no'
+    ? ['doctor', 'meal', 'starter', 'essentials', 'protocol']
+    : ['doctor', 'starter'];
+  const macros = { calories: 2663, fatG: 207, carbG: 33, tdee: 3329, deficitPct: 20 };
+  if (kidney === 'no') macros.proteinG = 166;
+
+  const fetchStub = (url, opts = {}) => {
+    const u = String(url);
+    calls.push({ url: u, method: opts.method || 'GET',
+                 body: opts.body ? JSON.parse(opts.body) : null });
+    if (u.endsWith('/resume')) {
+      if (resumeFails) return Promise.resolve({ ok: false, json: () => Promise.resolve(null) });
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({
+        session_token: 'kd_originalrow0123456789abcd', macros, goal: 'lose',
+        kidney_status: kidney, allowed, suppressProtein: kidney !== 'no',
+      }) });
+    }
+    return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+  };
+
+  const factory = new Function(
+    '$', '$all', 'fetch', 'money', 'track', 'scrollToEl', 'animateGauge', 'window',
+    'history', 'freeResults', 'step2',
+    SESSION_REGION +
+    '\n var lastMacros=null;' +
+    '\n function kidneyStatus(){ var b=$(\'[data-seg="kidney"] .on\'); return b?b.dataset.val:""; }' +
+    '\n function proteinSuppressed(){ return kidneyStatus()!=="no"; }' +
+    '\n' + PRODUCT_REGION_FOR_RESUME +
+    '\n' + RESUME_REGION +
+    '\n return { resumeFromEmail, updateSession, writesSettled, selected, productAvailable,' +
+    ' kidneyStatus, getToken:function(){return sessionToken;},' +
+    ' getReady:function(){return sessionReady;}, getMacros:function(){return lastMacros;} };'
+  );
+  // The region declares `var urlParams = new URLSearchParams(window.location.search)`
+  // itself, so the reference has to arrive the way the browser supplies it.
+  const REF = 'kdr_' + 'ab12cd34ef56'.repeat(2);
+  const win = { location: { search: '?utm_campaign=free_results&r=' + REF, pathname: '/' } };
+  const scrubbed = [];
+  const hist = { replaceState: (a, b, u) => { scrubbed.push(u); win.location.search = ''; } };
+  const freeResults = mk('#freeResults');
+  const step2 = mk('#step2');
+  const api = factory($, $all, fetchStub, (n) => '$' + n.toFixed(2), () => {}, () => {},
+                      () => {}, win, hist, freeResults, step2);
+  return { api, calls, chips, freeResults, $, scrubbed, REF };
+}
+
+// ===========================================================================
+// GROUP AH — A RESUMED SESSION IS A WRITABLE CONTINUATION OF THE ORIGINAL ROW.
+// ---------------------------------------------------------------------------
+// updateSession() returns early unless sessionReady is set. The first resume set
+// only sessionToken, so every later profile save was a silent no-op: the customer
+// filled in their conditions and medications, the page looked like it saved, and
+// nothing reached the row the Doctor's Report is generated from.
+// ===========================================================================
+{
+  const s = resumeSandbox({ kidney: 'no' });
+  s.api.resumeFromEmail();
+  check('AH', 'the exchange is a POST, not a GET',
+    s.calls.some(c => c.url.endsWith('/resume') && c.method === 'POST'),
+    JSON.stringify(s.calls.map(c => `${c.method} ${c.url}`)));
+  check('AH', 'the opaque reference is what is sent, not a session token',
+    /^kdr_/.test(s.calls[0].body.resume_token), JSON.stringify(s.calls[0].body));
+
+  await new Promise(r => setTimeout(r, 0));
+  await s.api.getReady();
+
+  check('AH', 'the ORIGINAL row token is adopted',
+    s.api.getToken() === 'kd_originalrow0123456789abcd', String(s.api.getToken()));
+  check('AH', 'sessionReady is established, so writes are no longer discarded',
+    !!s.api.getReady(), 'updateSession() would return early and save nothing');
+  check('AH', 'the kidney chip is set from the server answer', s.chips.no.classList.contains('on'), '');
+
+  // The real profile save.
+  s.calls.length = 0;
+  await s.api.updateSession({ conditions: ['diabetes-t2'], medications: 'metformin 500mg',
+                              cooking_skill: 'beginner', budget: 'moderate', step_completed: 2 });
+  const patch = s.calls.find(c => c.url.endsWith('/session') && c.method === 'PATCH');
+  check('AH', 'the profile PATCH actually happens', !!patch,
+    JSON.stringify(s.calls.map(c => `${c.method} ${c.url}`)));
+  check('AH', 'it addresses the ORIGINAL session, not a new one',
+    patch && patch.body.token === 'kd_originalrow0123456789abcd', JSON.stringify(patch && patch.body));
+  check('AH', 'the conditions and medications are in the write',
+    patch && patch.body.conditions[0] === 'diabetes-t2' &&
+    patch.body.medications === 'metformin 500mg', JSON.stringify(patch && patch.body));
+  check('AH', 'so are the preferences',
+    patch && patch.body.cooking_skill === 'beginner' && patch.body.budget === 'moderate', '');
+  check('AH', 'and the profile is marked complete', patch && patch.body.step_completed === 2, '');
+
+  // Checkout must then be willing to proceed against that same row.
+  await s.api.writesSettled();
+  check('AH', 'writesSettled() resolves, so checkout proceeds on the resumed row', true, '');
+  check('AH', 'exactly one session row was ever addressed',
+    new Set(s.calls.filter(c => c.body && c.body.token).map(c => c.body.token)).size === 1,
+    JSON.stringify(s.calls.map(c => c.body && c.body.token)));
+  check('AH', 'no second session was created',
+    !s.calls.some(c => c.url.endsWith('/session') && c.method === 'POST'),
+    JSON.stringify(s.calls.map(c => `${c.method} ${c.url}`)));
+}
+
+// ===========================================================================
+// GROUP AI — THE RESUMED OFFER STILL COMES FROM THE SERVER.
+// ===========================================================================
+for (const kidney of ['yes', 'unsure']) {
+  const s = resumeSandbox({ kidney });
+  s.api.resumeFromEmail();
+  await new Promise(r => setTimeout(r, 0));
+  await s.api.getReady();
+
+  check('AI', `[${kidney}] the chip reflects the stored answer`,
+    s.chips[kidney].classList.contains('on') && !s.chips.no.classList.contains('on'), '');
+  check('AI', `[${kidney}] only the safe products are selected`,
+    [...s.api.selected].sort().join(',') === 'doctor,starter', [...s.api.selected].join(','));
+  check('AI', `[${kidney}] the meal plan is not purchasable on the resumed page`,
+    s.api.productAvailable('meal') === false, '');
+  check('AI', `[${kidney}] no protein target arrived to be rendered`,
+    !('proteinG' in (s.api.getMacros() || {})), JSON.stringify(s.api.getMacros()));
+}
+
+// A failed exchange must leave checkout refusing rather than racing an unknown row.
+{
+  const s = resumeSandbox({ resumeFails: true });
+  s.api.resumeFromEmail();
+  await new Promise(r => setTimeout(r, 0));
+  await s.api.getReady();
+  check('AI', 'a failed exchange adopts no token', !s.api.getToken(), String(s.api.getToken()));
+  let refused = false;
+  try { await s.api.writesSettled(); } catch { refused = true; }
+  check('AI', 'and checkout refuses rather than proceeding blind', refused, '');
+}
+
+// ===========================================================================
+// GROUP AJ — RECOMPUTING AFTER A RESUME REWRITES THE SAME ROW.
+// ---------------------------------------------------------------------------
+// A resumed page holds the authoritative session. Pressing the results button again
+// must PATCH that row, not POST a new one: a second row splits the intake, and the
+// half the Doctor's Report gets built from is then whichever half checkout happened
+// to reference. The branch itself is lifted out of the shipped file and executed.
+// ===========================================================================
+{
+  const from = js.indexOf('      if(resumedSession&&sessionToken){');
+  const marker = ".catch(function(e){console.warn('KD session create failed:',e);});";
+  const to = js.indexOf(marker, from) + marker.length;
+  // A crash is not a named failure. If the guard is gone, say which assertion
+  // noticed rather than dying in new Function() with a syntax error.
+  const located = from > -1 && to > from;
+  check('AJ', 'the resumed-recompute guard is present in the shipped file', located,
+    'if(resumedSession&&sessionToken) is missing, so a resumed recompute would open a second row');
+  const BRANCH = located ? js.slice(from, to) + '\n      }' : 'return { posts: posts, patches: patches };';
+
+  const runBranch = (resumed) => {
+    const posts = [], patches = [];
+    const d = { sex: 'female', age: 58, goal: 'lose', activity: 1.2, heightCm: 167.6,
+                weightLbs: 190, weightKg: 86.2 };
+    const fn = new Function(
+      'resumedSession', 'sessionToken', 'updateSession', 'fetch', 'API_BASE', 'd',
+      'lastMacros', 'kidneyStatus', 'emailField', 'utmData', 'document', 'window',
+      'posts', 'patches',
+      BRANCH + '\n return { posts: posts, patches: patches };'
+    );
+    return fn(
+      resumed, resumed ? 'kd_originalrow0123456789abcd' : null,
+      (payload) => { patches.push(payload); return Promise.resolve(); },
+      (url, opts) => { posts.push({ url: String(url), body: JSON.parse(opts.body) });
+                       return Promise.resolve({ json: () => Promise.resolve({ token: 'kd_brandnew' }) }); },
+      'https://api.test', d,
+      { calories: 2663, fatG: 207, proteinG: 166, carbG: 33, tdee: 3329 },
+      () => 'no', { value: 'x@example.invalid' },
+      { utm_source: null, utm_medium: null, utm_campaign: null, utm_content: null, utm_term: null },
+      { referrer: '' }, { innerWidth: 390 }, posts, patches);
+  };
+
+  const resumed = located ? runBranch(true) : { posts: [{ url: 'NOT RUN' }], patches: [] };
+  check('AJ', 'a resumed recompute creates NO new session',
+    resumed.posts.length === 0, JSON.stringify(resumed.posts.map(p => p.url)));
+  check('AJ', 'it PATCHes instead', resumed.patches.length === 1, String(resumed.patches.length));
+  check('AJ', 'and the PATCH carries the recomputed step-1 answers',
+    !!resumed.patches[0] && resumed.patches[0].goal === 'lose' &&
+    resumed.patches[0].age === 58 && resumed.patches[0].kidney_status === 'no' &&
+    resumed.patches[0].macros.calories === 2663,
+    JSON.stringify(resumed.patches[0]));
+
+  const fresh = located ? runBranch(false) : { posts: [], patches: [] };
+  check('AJ', 'a first-time visitor still creates a session',
+    fresh.posts.length === 1 && fresh.posts[0].url.endsWith('/session'),
+    JSON.stringify(fresh.posts.map(p => p.url)));
+  check('AJ', 'and does not PATCH one that does not exist yet',
+    fresh.patches.length === 0, String(fresh.patches.length));
+
+  // The worker has to accept those step-1 fields, or the PATCH silently drops them.
+  const workerSrc = fs.readFileSync(
+    path.join(REPO, 'ketodial', 'worker', 'index.js'), 'utf8');
+  for (const f of ['goal', 'age', 'sex', 'height_cm', 'weight_value', 'lifestyle_activity']) {
+    check('AJ', `PATCH /session accepts ${f}, so the recompute is not silently dropped`,
+      workerSrc.includes("setIfSent('" + f + "'"), '');
+  }
+  check('AJ', 'PATCH /session accepts the recomputed macros',
+    /setIfSent\('calculated_macros', b\.macros\)/.test(workerSrc), '');
 }
 
 // ---------------------------------------------------------------------------
@@ -686,6 +932,9 @@ const groups = {
   AE: 'every failure path gives the originating button back',
   AF: 'no promise of delivery the pay-first path cannot keep',
   AG: 'the email resume link cannot widen what is on offer',
+  AH: 'a resumed session is a writable continuation of the original row',
+  AI: 'the resumed offer still comes from the server',
+  AJ: 'recomputing after a resume rewrites the same row',
 };
 for (const [k, v] of Object.entries(groups)) console.log(`PASS  ${k}  ${v}`);
 console.log(`\n${checks} assertions passed.`);

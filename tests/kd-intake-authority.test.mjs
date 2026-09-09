@@ -976,6 +976,11 @@ for (const c of MALFORMED_CASES) {
     check('N', `${trigger} watches the Audit 2B migration`,
       /^\s*- 'supabase\/migrations\/20260908_kd_audit2b_kidney_status_and_delivery_marker\.sql'\s*$/m.test(body),
       'a migration-only change would bypass the safety suite that mutation-tests it');
+    // The resume-token columns. Same hole, same fix: the email link's credential
+    // model depends on this schema, so a migration-only edit must run the suites.
+    check('N', `${trigger} watches the resume-token migration`,
+      /^\s*- 'supabase\/migrations\/20260909_kd_audit2b_resume_token\.sql'\s*$/m.test(body),
+      'a migration-only change would bypass the suites that pin the credential split');
     for (const p of ['ketodial/worker/index.js', 'ketodial/worker/reports.js', 'ketodial/worker/intake.js']) {
       check('N', `${trigger} watches ${p}`,
         new RegExp(`^\\s*- '${p.replace(/\//g, '\\/')}'\\s*$`, 'm').test(body), '');

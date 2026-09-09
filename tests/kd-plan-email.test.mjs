@@ -34,7 +34,8 @@ function check(group, name, ok, detail) {
 const worker = (await import('file://' + WORKER_JS + '?planEmail=' + Date.now())).default;
 
 const MACROS = { calories: 2663, fatG: 207, proteinG: 166, carbG: 33, tdee: 3329, deficitPct: 20 };
-const TOKEN = 'kd_planemailtest0123456789abc';
+const SESSION_TOKEN = 'kd_planemailtest0123456789abc';
+const TOKEN = SESSION_TOKEN;
 
 /**
  * Send one free-results email and hand back exactly what Resend would have received.
@@ -46,6 +47,7 @@ async function deliver({ kidney, goal = 'lose', age = 58, activity = 1.2, token 
                          rowMissing = false } = {}) {
   const realFetch = globalThis.fetch;
   let sent = null;
+  let minted = null;
   globalThis.fetch = async (url, opts = {}) => {
     const u = String(url);
     if (u.includes('api.resend.com')) {
@@ -53,7 +55,15 @@ async function deliver({ kidney, goal = 'lose', age = 58, activity = 1.2, token 
       return { ok: true, json: async () => ({ id: 'stub' }) };
     }
     if (u.includes('calculator_sessions_v2')) {
-      if ((opts.method || 'GET') !== 'GET') return { ok: true, json: async () => [] };
+      // mintResumeToken PATCHes the row; capture what it minted so the assertions
+      // can compare the link against the real value rather than a pattern alone.
+      if ((opts.method || 'GET') !== 'GET') {
+        try {
+          const patch = JSON.parse(opts.body || '{}');
+          if (patch.resume_token) minted = patch.resume_token;
+        } catch { /* not a mint */ }
+        return { ok: true, json: async () => [] };
+      }
       if (rowMissing) return { ok: true, json: async () => [] };
       return { ok: true, json: async () => [{
         session_token: token, kidney_status: kidney, goal,
@@ -74,7 +84,7 @@ async function deliver({ kidney, goal = 'lose', age = 58, activity = 1.2, token 
   if (!sent) return null;
   const html = sent.html || '';
   return {
-    sent, html,
+    sent, html, minted,
     subject: sent.subject || '',
     // Visible copy only, with tags and attribute values removed, so an assertion
     // cannot be satisfied by a colour code or a URL.
@@ -160,37 +170,63 @@ for (const kidney of ['no', 'yes', 'unsure']) {
 }
 
 // ===========================================================================
-// GROUP EC — THE BUY BUTTON RESUMES THE SESSION.
+// GROUP EC — THE BUY BUTTON RESUMES, WITHOUT CARRYING A WRITE CREDENTIAL.
+// ---------------------------------------------------------------------------
+// The first version put the row's own session_token in the link's fragment and a
+// comment claimed a fragment never reaches a server or analytics. Both halves were
+// false: GA and the Pinterest tag run in <head> and had already read
+// window.location, and delivered email is rewritten through click tracking, which
+// turns a `#calc` target into a tracking URL carrying `%23calc` in the redirect.
+// The link now carries only the opaque kdr_ reference, which cannot write anything.
 // ===========================================================================
 {
   const e = await deliver({ kidney: 'no' });
   const cta = e.hrefs.find(h => h.includes('protocol_cta'));
   check('EC', 'the primary CTA has its own link', !!cta, e.hrefs.join('\n'));
-  check('EC', 'the CTA resumes the saved session rather than restarting the calculator',
-    cta.includes('#resume=' + TOKEN) && !cta.includes('#calc'), cta);
-  check('EC', 'the token travels in the FRAGMENT, never the query string',
-    cta.split('#')[0].indexOf(TOKEN) === -1, cta);
 
-  // Nothing about the person may ride in the URL.
+  check('EC', 'the CTA carries an opaque resume reference',
+    /[?&]r=kdr_[0-9a-f]{16,96}(&|$)/.test(cta), cta);
+
+  // THE POINT OF THE WHOLE DESIGN.
+  check('EC', 'the session token appears nowhere in the link',
+    !cta.includes(SESSION_TOKEN), cta);
+  check('EC', 'the session token appears nowhere in the entire email',
+    !e.html.includes(SESSION_TOKEN), 'a write credential is in the delivered HTML');
+  check('EC', 'and no link falls back to restarting the calculator',
+    !cta.includes('#calc'), cta);
+
+  // A minted reference is not a rename of the session token.
+  const ref = /[?&]r=(kdr_[0-9a-f]+)/.exec(cta)[1];
+  check('EC', 'the reference is not derived from the session token',
+    !ref.includes(SESSION_TOKEN.replace(/^kd_/, '')), ref);
+  check('EC', 'the reference is long enough to be unguessable',
+    ref.length >= 20, `${ref.length} chars`);
+  check('EC', 'the two credentials carry distinct prefixes',
+    ref.startsWith('kdr_') && SESSION_TOKEN.startsWith('kd_') && !SESSION_TOKEN.startsWith('kdr_'),
+    `${ref} vs ${SESSION_TOKEN}`);
+
+  // Click tracking rewrites the whole URL, so anything in it is visible to the
+  // tracker. Prove nothing sensitive is in it, fragment or query alike.
   for (const h of e.hrefs) {
-    const q = h.split('#')[0];
-    check('EC', `no health or intake data in ${q.slice(0, 60)}`,
-      !/kidney|condition|medication|protein|calor|weight|height|age=|email=/i.test(q) ||
-      /unsubscribe/i.test(q), q);
+    check('EC', `no health or intake data anywhere in ${h.slice(0, 56)}`,
+      !/kidney|condition|medication|protein|calor|weight|height|[?&]age=/i.test(h) ||
+      /unsubscribe/i.test(h), h);
+    check('EC', `no session token in ${h.slice(0, 56)}`,
+      !h.includes(SESSION_TOKEN), h);
   }
 
-  // Every buy link resumes; the recipe link does not need the token and must not
-  // carry it.
+  // The recipe index has nothing to resume and must not carry the reference.
   const recipes = e.hrefs.find(h => h.includes('/recipes/'));
-  check('EC', 'the recipe link goes to the recipe index', !!recipes && recipes.includes('/recipes/'),
-    String(recipes));
-  check('EC', 'the recipe link carries no session token', !recipes.includes(TOKEN), recipes);
+  check('EC', 'the recipe link goes to the recipe index',
+    !!recipes && recipes.includes('/recipes/'), String(recipes));
+  check('EC', 'the recipe link carries no resume reference',
+    !/[?&]r=kdr_/.test(recipes), recipes);
 
-  // With no token there is nothing to resume, and the link degrades honestly.
+  // With nothing to resume the link degrades honestly rather than inventing one.
   const noTok = await deliver({ kidney: 'no', token: '', rowMissing: true });
-  const fallback = noTok.hrefs.find(h => h.includes('protocol_cta') || h.includes('doctor_starter_cta'));
+  const fallback = noTok.hrefs.find(h => h.includes('protocol_cta'));
   check('EC', 'with no session to resume the CTA falls back to the calculator',
-    !fallback || fallback.includes('#calc'), String(fallback));
+    !fallback || (fallback.includes('#calc') && !/[?&]r=/.test(fallback)), String(fallback));
 }
 
 // ===========================================================================
@@ -227,8 +263,10 @@ for (const kidney of ['yes', 'unsure']) {
     offerAt < e.at('Use fat to stay full'), `offer at ${offerAt}`);
 
   const cta = e.hrefs.find(h => h.includes('doctor_starter_cta'));
-  check('ED', `[${kidney}] the CTA resumes the session`, !!cta && cta.includes('#resume=' + TOKEN),
-    String(cta));
+  check('ED', `[${kidney}] the CTA resumes via the opaque reference`,
+    !!cta && /[?&]r=kdr_[0-9a-f]{16,96}(&|$)/.test(cta) && !cta.includes('#calc'), String(cta));
+  check('ED', `[${kidney}] and carries no write credential`,
+    !!cta && !cta.includes(SESSION_TOKEN), String(cta));
   check('ED', `[${kidney}] no link asks for the protocol`,
     !e.hrefs.some(h => /protocol_cta/.test(h)), e.hrefs.join('\n'));
 }
@@ -292,10 +330,29 @@ for (const kidney of ['yes', 'unsure']) {
 }
 
 // ===========================================================================
-// GROUP EG — THE RESUME ENDPOINT IS A PROJECTION, NOT AN ENTITLEMENT.
+// GROUP EG — THE RESUME EXCHANGE: A PROJECTION, NOT AN ENTITLEMENT, AND NOT A
+//            SECOND COPY OF THE SUPPRESSED PROTEIN TARGET.
+// ---------------------------------------------------------------------------
+// The first version returned macros.proteinG for every session, so a reader whose
+// page and email both correctly withheld the number received it in API JSON. A
+// suppressed value cannot continue to leak through another output surface — that is
+// the whole rule, and this is where it was broken.
 // ===========================================================================
 {
-  const call = async (token, row) => {
+  const REF = 'kdr_' + 'ab12cd34ef56'.repeat(2);
+  const future = new Date(Date.now() + 20 * 24 * 3600 * 1000).toISOString();
+  const past = new Date(Date.now() - 1000).toISOString();
+
+  const ROW = (kidney, over = {}) => ({
+    session_token: SESSION_TOKEN, resume_token: REF, resume_token_expires_at: future,
+    kidney_status: kidney, goal: 'lose', calculated_macros: MACROS,
+    email: 'someone@example.invalid', first_name: 'Real Person',
+    conditions: ['diabetes-t2'], medications: 'metformin 500mg',
+    payment_status: 'completed', stripe_payment_intent_id: 'pi_secret_value',
+    ...over,
+  });
+
+  const post = async (body, row, method = 'POST') => {
     const realFetch = globalThis.fetch;
     globalThis.fetch = async (url) => {
       if (String(url).includes('calculator_sessions_v2')) {
@@ -304,57 +361,151 @@ for (const kidney of ['yes', 'unsure']) {
       throw new Error('unexpected ' + url);
     };
     try {
-      const res = await worker.fetch(new Request('https://kd.test/resume/' + token),
-        { SUPABASE_URL: 'https://stub.invalid', SUPABASE_SERVICE_ROLE_KEY: 'stub' });
-      return { status: res.status, body: await res.json() };
+      const res = await worker.fetch(new Request('https://kd.test/resume', {
+        method, headers: { 'Content-Type': 'application/json' },
+        body: method === 'POST' ? JSON.stringify(body) : undefined,
+      }), { SUPABASE_URL: 'https://stub.invalid', SUPABASE_SERVICE_ROLE_KEY: 'stub' });
+      let parsed = null;
+      try { parsed = await res.json(); } catch { /* not json */ }
+      return { status: res.status, body: parsed };
     } finally { globalThis.fetch = realFetch; }
   };
-  const ROW = (kidney) => ({
-    session_token: TOKEN, kidney_status: kidney, goal: 'lose', calculated_macros: MACROS,
-    email: 'someone@example.invalid', name: 'Real Person',
-    conditions: ['diabetes-t2'], medications: 'metformin 500mg',
-    payment_status: 'completed', stripe_payment_intent_id: 'pi_secret',
-  });
 
-  const no = await call(TOKEN, ROW('no'));
-  check('EG', 'a valid token returns the projection', no.status === 200, String(no.status));
-  check('EG', 'it returns the macros already printed in the email',
-    no.body.macros.calories === 2663 && no.body.macros.proteinG === 166, JSON.stringify(no.body.macros));
+  // ---- the protein target, per answer ------------------------------------
+  const no = await post({ resume_token: REF }, ROW('no'));
+  check('EG', 'a valid reference resolves', no.status === 200, String(no.status));
+  check('EG', '[no] the protein target IS returned', no.body.macros.proteinG === 166,
+    JSON.stringify(no.body.macros));
 
-  // The bounded part: nothing about the person beyond what the email already held.
-  const serialized = JSON.stringify(no.body);
-  for (const leak of ['someone@example.invalid', 'Real Person', 'diabetes-t2', 'metformin',
-                      'pi_secret', 'completed']) {
-    check('EG', `the projection does not leak ${leak}`, !serialized.includes(leak), serialized);
-  }
-
-  check('EG', 'the server states which products are allowed',
-    no.body.allowed.includes('protocol') && no.body.allowed.includes('meal'),
-    JSON.stringify(no.body.allowed));
-
-  for (const k of ['yes', 'unsure']) {
-    const r = await call(TOKEN, ROW(k));
-    check('EG', `[${k}] the server withholds the protein-anchored products`,
-      !r.body.allowed.includes('meal') && !r.body.allowed.includes('protocol') &&
-      !r.body.allowed.includes('essentials'), JSON.stringify(r.body.allowed));
-    check('EG', `[${k}] Doctor and Starter remain allowed`,
-      r.body.allowed.includes('doctor') && r.body.allowed.includes('starter'),
-      JSON.stringify(r.body.allowed));
-    check('EG', `[${k}] the projection says protein is suppressed`,
+  for (const kidney of ['yes', 'unsure']) {
+    const r = await post({ resume_token: REF }, ROW(kidney));
+    check('EG', `[${kidney}] proteinG is ABSENT from the projection`,
+      !('proteinG' in r.body.macros), JSON.stringify(r.body.macros));
+    check('EG', `[${kidney}] and it is not blanked, zeroed or softened either`,
+      !/166|"proteinG"/.test(JSON.stringify(r.body)), JSON.stringify(r.body));
+    check('EG', `[${kidney}] the projection says protein is suppressed`,
       r.body.suppressProtein === true, JSON.stringify(r.body));
   }
 
   // Absence is not a negative answer.
-  const unanswered = await call(TOKEN, ROW(null));
-  check('EG', 'an unanswered kidney question fails closed',
-    unanswered.body.kidney_status === null && unanswered.body.suppressProtein === true &&
-    !unanswered.body.allowed.includes('meal'), JSON.stringify(unanswered.body));
+  const unanswered = await post({ resume_token: REF }, ROW(null));
+  check('EG', '[unanswered] proteinG is ABSENT and the row fails closed',
+    !('proteinG' in unanswered.body.macros) && unanswered.body.suppressProtein === true &&
+    unanswered.body.kidney_status === null, JSON.stringify(unanswered.body));
 
-  const missing = await call('kd_nosuchtoken000000', null);
-  check('EG', 'an unknown token is a plain 404', missing.status === 404, String(missing.status));
-  const short = await call('x', null);
-  check('EG', 'a malformed reference is rejected before any lookup', short.status === 400,
-    String(short.status));
+  // Everything else in the projection is content the email already carried, so it is
+  // NOT withheld: fat, carbs, calories and TDEE are printed to a renal reader too.
+  const renal = await post({ resume_token: REF }, ROW('yes'));
+  check('EG', '[yes] the non-suppressed macros are still returned',
+    renal.body.macros.fatG === 207 && renal.body.macros.carbG === 33 &&
+    renal.body.macros.calories === 2663 && renal.body.macros.tdee === 3329,
+    JSON.stringify(renal.body.macros));
+
+  // ---- the bounded part ---------------------------------------------------
+  const serialized = JSON.stringify(no.body);
+  for (const leak of ['someone@example.invalid', 'Real Person', 'diabetes-t2', 'metformin',
+                      'pi_secret_value', 'payment_status']) {
+    check('EG', `the projection does not leak ${leak}`, !serialized.includes(leak), serialized);
+  }
+
+  // ---- what the page is allowed to sell -----------------------------------
+  check('EG', '[no] the server states the full product list',
+    no.body.allowed.includes('protocol') && no.body.allowed.includes('meal'),
+    JSON.stringify(no.body.allowed));
+  for (const kidney of ['yes', 'unsure']) {
+    const r = await post({ resume_token: REF }, ROW(kidney));
+    check('EG', `[${kidney}] the protein-anchored products are withheld`,
+      !r.body.allowed.includes('meal') && !r.body.allowed.includes('protocol') &&
+      !r.body.allowed.includes('essentials'), JSON.stringify(r.body.allowed));
+    check('EG', `[${kidney}] Doctor and Starter remain allowed`,
+      r.body.allowed.includes('doctor') && r.body.allowed.includes('starter'),
+      JSON.stringify(r.body.allowed));
+  }
+
+  // ---- the credential boundary --------------------------------------------
+  check('EG', 'the write credential comes back in the response BODY',
+    no.body.session_token === SESSION_TOKEN, JSON.stringify(no.body.session_token));
+
+  check('EG', 'the exchange is POST only, so a prefetch or click tracker cannot spend it',
+    (await post(null, ROW('no'), 'GET')).status === 404, '');
+
+  check('EG', 'an unknown reference is a plain 404',
+    (await post({ resume_token: 'kdr_' + '00'.repeat(12) }, null)).status === 404, '');
+  check('EG', 'a session token offered as a resume reference is refused',
+    (await post({ resume_token: SESSION_TOKEN }, ROW('no'))).status === 400, '');
+  check('EG', 'a malformed reference is rejected before any lookup',
+    (await post({ resume_token: 'kdr_zz' }, ROW('no'))).status === 400, '');
+  check('EG', 'an expired reference is refused, and says nothing about why',
+    (await post({ resume_token: REF }, ROW('no', { resume_token_expires_at: past }))).status === 404, '');
+  check('EG', 'a reference with no expiry recorded is refused rather than treated as eternal',
+    (await post({ resume_token: REF }, ROW('no', { resume_token_expires_at: null }))).status === 404, '');
+}
+
+// ===========================================================================
+// GROUP EH — A RESUME REFERENCE IS NOT A WRITE CREDENTIAL.
+// ---------------------------------------------------------------------------
+// It travels in an emailed URL, so click tracking and analytics see it. The whole
+// point of splitting the two is that seeing one must not confer the other.
+// ===========================================================================
+{
+  const patch = async (token) => {
+    const realFetch = globalThis.fetch;
+    let wrote = false;
+    globalThis.fetch = async (url, opts = {}) => {
+      if (String(url).includes('calculator_sessions_v2')) {
+        if ((opts.method || 'GET') !== 'GET') wrote = true;
+        return { ok: true, json: async () => [] };
+      }
+      throw new Error('unexpected ' + url);
+    };
+    try {
+      const res = await worker.fetch(new Request('https://kd.test/session', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, conditions: ['kidney'], medications: 'anything' }),
+      }), { SUPABASE_URL: 'https://stub.invalid', SUPABASE_SERVICE_ROLE_KEY: 'stub' });
+      return { status: res.status, wrote };
+    } finally { globalThis.fetch = realFetch; }
+  };
+
+  const asRef = await patch('kdr_' + 'ab12cd34ef56'.repeat(2));
+  check('EH', 'PATCH /session refuses a resume reference', asRef.status === 403,
+    String(asRef.status));
+  check('EH', '  ...and no write is attempted with it', asRef.wrote === false, '');
+
+  const asSession = await patch(SESSION_TOKEN);
+  check('EH', 'the real session token still writes', asSession.status === 200 && asSession.wrote,
+    `${asSession.status} wrote=${asSession.wrote}`);
+}
+
+// ===========================================================================
+// GROUP EI — THE SCHEMA THE CREDENTIAL SPLIT DEPENDS ON IS IN GIT.
+// ---------------------------------------------------------------------------
+// The 2026-09-08 lesson: production held columns the repository could not
+// reproduce. These two are committed the same day they are applied.
+// ===========================================================================
+{
+  const fsMod = await import('node:fs');
+  const sql = fsMod.readFileSync(
+    path.join(REPO, 'supabase', 'migrations', '20260909_kd_audit2b_resume_token.sql'), 'utf8');
+  check('EI', 'both columns are added idempotently',
+    /ADD COLUMN IF NOT EXISTS resume_token text/.test(sql) &&
+    /ADD COLUMN IF NOT EXISTS resume_token_expires_at timestamptz/.test(sql), '');
+  check('EI', 'the lookup contract is a unique index',
+    /CREATE UNIQUE INDEX IF NOT EXISTS/.test(sql), '');
+  check('EI', 'and it excludes the historical NULLs',
+    /WHERE resume_token IS NOT NULL/.test(sql), '');
+  check('EI', 'NOTHING is backfilled',
+    !/\bUPDATE\s+public\.calculator_sessions_v2\b/i.test(sql) &&
+    !/\bSET\s+resume_token\s*=/i.test(sql),
+    'historical rows would be given resume credentials that were never issued');
+  // Statements only. The prose above them says the words "renamed" and "re-typed"
+  // precisely because it is promising not to do them.
+  const statements = sql.replace(/^\s*--.*$/gm, '');
+  check('EI', 'nothing is dropped or re-typed',
+    !/DROP\s+(TABLE|COLUMN)|ALTER COLUMN|RENAME/i.test(statements), statements);
+  check('EI', 'the columns are documented for the next reader',
+    sql.includes('COMMENT ON COLUMN public.calculator_sessions_v2.resume_token ') &&
+    sql.includes('COMMENT ON COLUMN public.calculator_sessions_v2.resume_token_expires_at '), '');
 }
 
 // ---------------------------------------------------------------------------
@@ -374,7 +525,9 @@ const groups = {
   ED: 'renal yes and unsure: same position, safe offer',
   EE: '"I\'m not sure" is not a diagnosis',
   EF: 'sender, reply-to and tags',
-  EG: 'the resume endpoint is a projection, not an entitlement',
+  EG: 'the resume exchange withholds the suppressed protein target',
+  EH: 'a resume reference is not a write credential',
+  EI: 'the schema the credential split depends on is in git',
 };
 for (const [k, v] of Object.entries(groups)) console.log(`PASS  ${k}  ${v}`);
 console.log(`\n${checks} assertions passed.`);

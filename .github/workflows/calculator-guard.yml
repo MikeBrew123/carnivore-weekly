@@ -42,6 +42,7 @@ on:
       # at all, so none of those tests would have run. Same hole as the submodule
       # gitlink and the pull_request paths before it, for the third time.
       - 'supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql'
+      - 'supabase/migrations/20260909_kd_audit2b_resume_token.sql'
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
       - 'tests/kd-upgrade-offer.test.mjs'
@@ -84,6 +85,7 @@ on:
       # at all, so none of those tests would have run. Same hole as the submodule
       # gitlink and the pull_request paths before it, for the third time.
       - 'supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql'
+      - 'supabase/migrations/20260909_kd_audit2b_resume_token.sql'
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
       - 'tests/kd-upgrade-offer.test.mjs'
