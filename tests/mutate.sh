@@ -230,6 +230,23 @@ assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
+mutate 24 "meal-plan preamble dropped from the calendar" report-integrity "
+s=open('$API').read()
+old='## A Note Before You Start'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'## Removed Heading'))
+"
+
+mutate 25 "preamble moved after the plan it introduces" report-integrity "
+s=open('$API').read()
+i=s.index('## A Note Before You Start')
+j=s.index('## The Strategy', i)
+para=s[i:j]
+s2=s[:i]+s[j:]
+k=s2.index('{{mealCalendarWeeks}}')
+open('$API','w').write(s2[:k]+'{{mealCalendarWeeks}}'+chr(92)+'n'+chr(92)+'n'+para+s2[k+len('{{mealCalendarWeeks}}'):])
+"
+
 echo
 echo "=== restored ==="
 restore

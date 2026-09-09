@@ -1215,6 +1215,47 @@ for (const p of PERSONAS) {
 }
 
 // ---------------------------------------------------------------------------
+// GROUP N — the meal-plan preamble.
+//
+// Sarah's paragraph explaining WHY the calendar repeats, placed immediately before it
+// so the reader meets the repetition with a reason rather than as a disappointment.
+// The assertions here are about the boundaries it was written under, not its prose:
+// it must reach every reader, sit before the calendar, and never smuggle in a number
+// or a health claim.
+// ---------------------------------------------------------------------------
+{
+  for (const p of PERSONAS) {
+    const cal = rendered[p.id].calendar || '';
+    if (!cal) continue;
+
+    check(p.id, 'N', 'the calendar carries the repetition preamble',
+      /A Note Before You Start/.test(cal) && /Boring, here, is a feature/.test(cal),
+      'the preamble is missing from Report #3');
+
+    // Position: before the plan it introduces, not appended after it.
+    const note = cal.indexOf('A Note Before You Start');
+    const strategy = cal.indexOf('## The Strategy');
+    check(p.id, 'N', 'the preamble sits before the calendar, not after it',
+      note > -1 && strategy > -1 && note < strategy,
+      `preamble at ${note}, plan starts at ${strategy}`);
+
+    const para = note > -1 ? cal.slice(note, strategy > note ? strategy : note + 1200) : '';
+
+    check(p.id, 'N', 'the preamble introduces no calorie, protein or fat number',
+      !/\d+\s*(g\b|kcal|calories|mg)/i.test(para), para.match(/\d+\s*\w+/)?.[0] || '');
+    check(p.id, 'N', 'the preamble uses no em dash',
+      !para.includes('\u2014'), '');
+    check(p.id, 'N', 'the preamble makes no treat/heal/cure claim',
+      !/\b(treats?|heals?|cures?|repairs?|reverses?)\b/i.test(para), '');
+    check(p.id, 'N', 'the preamble does not hand-wave "trust your body"',
+      !/trust your body/i.test(para), '');
+    check(p.id, 'N', 'the preamble still names what to pay attention to',
+      /hunger/i.test(para) && /full/i.test(para) && /satisf/i.test(para) && /energy/i.test(para),
+      'the concrete signals were lost, leaving only vague encouragement');
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Report
 // ---------------------------------------------------------------------------
 const groups = [...new Set(pass.concat(failures.map(f => `${f.group} x`)).map(s => s[0]))].sort();
