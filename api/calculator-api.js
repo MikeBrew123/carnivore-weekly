@@ -3420,15 +3420,39 @@ async function generateAllReports(data, apiKey) {
     reports[11] = await loadAndCustomizeTemplate('timeline', data);
     console.log('<<< Section 11: Timeline - DONE, length:', reports[11]?.length || 'NULL');
 
-    // Section 12: Stall Breaker (Template)
-    console.log('>>> Section 12: Stall Breaker - STARTING');
-    reports[12] = await loadAndCustomizeTemplate('stallBreaker', data);
-    console.log('<<< Section 12: Stall Breaker - DONE, length:', reports[12]?.length || 'NULL');
+    // Section 12: Stall Breaker (Template) — FAT LOSS ONLY.
+    //
+    // "What to do if weight loss stalls" is a fat-loss intervention, and its remedies
+    // are "reduce added fat by 20%" and "track dairy and cut it by 50%". Printed under
+    // a maintenance goal it contradicts the reader's own target and pushes them toward
+    // a deficit they did not ask for. A 67-year-old maintenance customer at 120 lbs
+    // received exactly this on 2026-09-07 alongside a page-one "1,463 (maintenance)".
+    //
+    // SUPPRESS, DO NOT SUBSTITUTE. A goal-appropriate replacement would be new
+    // guidance nobody reviewed, so the section is omitted and the tracker moves up to
+    // take its number. Renumbering is safe because nothing cross-references #12 or
+    // #13; the only inline reference in any template points at Report #10.
+    const goalKey = resolveGoal(data).key;
+    if (goalKey === 'lose') {
+      console.log('>>> Section 12: Stall Breaker - STARTING');
+      reports[12] = await loadAndCustomizeTemplate('stallBreaker', data);
+      console.log('<<< Section 12: Stall Breaker - DONE, length:', reports[12]?.length || 'NULL');
 
-    // Section 13: Progress Tracker (Template)
-    console.log('>>> Section 13: Progress Tracker - STARTING');
-    reports[13] = await loadAndCustomizeTemplate('tracker', data);
-    console.log('<<< Section 13: Progress Tracker - DONE, length:', reports[13]?.length || 'NULL');
+      console.log('>>> Section 13: Progress Tracker - STARTING');
+      reports[13] = await loadAndCustomizeTemplate('tracker', data);
+      console.log('<<< Section 13: Progress Tracker - DONE, length:', reports[13]?.length || 'NULL');
+    } else {
+      console.log(`>>> Section 12: Stall Breaker SUPPRESSED (goal=${goalKey}); tracker renumbered to #12`);
+      const tracker = await loadAndCustomizeTemplate('tracker', data);
+      const renumbered = tracker.replace('## Report #13:', '## Report #12:');
+      if (renumbered === tracker) {
+        // The heading the renumber depends on has moved. Fail closed rather than ship
+        // a report whose sections jump from #11 to #13.
+        throw new Error('tracker template heading changed; section renumbering broke');
+      }
+      reports[12] = renumbered;
+      console.log('<<< Section 12: Progress Tracker (renumbered) - DONE, length:', reports[12]?.length || 'NULL');
+    }
 
     // THE RENDER-TIME CLAIM GATE. Reads back what was actually written, for every
     // section, before any of it can reach a reader.
@@ -3942,7 +3966,7 @@ function getTemplateContent(templateName, dietOrData) {
     // called without `data` for this template, so the placeholder is the seam.
     electrolytes: `## Report #10: The Electrolyte Protocol\n\n*Managing sodium, potassium, and magnesium on {{diet}}*\n\n{{medicalContextBanner}}\n\n## Why Electrolytes Matter\n\nOn {{diet}}, your body releases water and electrolytes more rapidly. This causes "keto flu" (headache, fatigue) in Week 1-2.\n\n{{electrolyteProtocol}}`,
 
-    timeline: `## Report #11: The Adaptation Timeline\n\n*What to expect week by week on {{diet}}*\n\n## Week 1: The Glycogen Depletion Phase\n\n**Days 1-3:** Water loss (3-7 lbs normal), stable energy\n**Days 4-7:** Transition trough, possible "keto flu", cravings peak\n**Action:** Eat normally and stay hydrated. For electrolytes, follow Report #10 — it is the section that knows what you told us about your health.\n\n## Week 2: The Difficult Week\n\n**Days 8-10:** Peak dip, worst energy, strong cravings\n**Days 11-14:** Turning point, energy returns, cravings subside\n**Action:** Push through. This is temporary. Don't cheat.\n\n## Week 3: The Breakthrough\n\n**Days 15-21:** Fat adaptation accelerating, consistent weight loss, excellent energy, mental clarity improves\n**Action:** Enjoy. Note health improvements.\n\n## Week 4: The New Normal\n\n**Days 22-30:** {{diet}} feels normal, stable energy, sleep improves, skin/hair improve\n**Action:** This is your new baseline. Track improvements.\n\n**The hardest part is Weeks 1-2. If you push through, the payoff is worth it.**`,
+    timeline: `## Report #11: The Adaptation Timeline\n\n*What to expect week by week on {{diet}}*\n\n## Week 1: The Glycogen Depletion Phase\n\n**Days 1-3:** Water loss (3-7 lbs normal), stable energy\n**Days 4-7:** Transition trough, possible "keto flu", cravings peak\n**Action:** Eat normally and stay hydrated. For electrolytes, follow Report #10 — it is the section that knows what you told us about your health.\n\n## Week 2: The Difficult Week\n\n**Days 8-10:** Peak dip, worst energy, strong cravings\n**Days 11-14:** Turning point, energy returns, cravings subside\n**Action:** Push through. This is temporary. Don't cheat.\n\n## Week 3: The Breakthrough\n\n**Days 15-21:** Fat adaptation accelerating, excellent energy, mental clarity improves\n**Action:** Enjoy. Note health improvements.\n\n## Week 4: The New Normal\n\n**Days 22-30:** {{diet}} feels normal, stable energy, sleep improves, skin/hair improve\n**Action:** This is your new baseline. Track improvements.\n\n**The hardest part is Weeks 1-2. If you push through, the payoff is worth it.**`,
 
     stallBreaker: (() => {
       const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
@@ -4710,7 +4734,7 @@ function generateDynamicFoodGuide(dietType, data) {
     ? '\n\n> **IMAGE FOR ILLUSTRATION:** Since you have a shellfish allergy, strictly follow the Tier lists below which exclude all shellfish.\n'
     : '';
 
-  return `## Report #2: Your ${title} Food Guide\n\n**Prepared for:** {{firstName}}\n**Diet Protocol:** ${title}\n**Date:** {{currentDate}}\n\n---\n\n## ${emoji} Your ${title} Food Pyramid\n\n![${title} Food Pyramid](${pyramidImageUrl})${shellfishDisclaimer}\n\n${tierContent}\n\n---\n\n${mealPatterns}\n\n---\n\n## Budget Optimization\n\n${budgetText}\n\n---\n\n## Week-by-Week Adaptation\n\n**Week 1:** Water loss (3-7 lbs), possible adjustment period\n**Week 2:** Energy may dip, stay consistent with electrolytes\n**Week 3:** Energy returns, mental clarity improves\n**Week 4:** New normal, healing benefits appear\n\n---\n\n**Your personalized guide respects your dietary preferences and restrictions.**`;
+  return `## Report #2: Your ${title} Food Guide\n\n**Prepared for:** {{firstName}}\n**Diet Protocol:** ${title}\n**Date:** {{currentDate}}\n\n---\n\n## ${emoji} Your ${title} Food Pyramid\n\n![${title} Food Pyramid](${pyramidImageUrl})${shellfishDisclaimer}\n\n${tierContent}\n\n---\n\n${mealPatterns}\n\n---\n\n## Budget Optimization\n\n${budgetText}\n\n---\n\n## Week-by-Week Adaptation\n\n**Week 1:** Water loss (3-7 lbs), possible adjustment period\n**Week 2:** Energy may dip, stay consistent with electrolytes\n**Week 3:** Energy returns, mental clarity improves\n**Week 4:** New normal, energy and routine settle\n\n---\n\n**Your personalized guide respects your dietary preferences and restrictions.**`;
 }
 
 // ============================================================================

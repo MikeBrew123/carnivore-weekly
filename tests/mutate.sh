@@ -189,6 +189,47 @@ assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
+# --- GROUP M: a one-goal section may not print under another goal ---------------
+mutate 19 "stall-breaker printed for every goal again (the reported contradiction)" report-integrity "
+s=open('$API').read()
+old='    const goalKey = resolveGoal(data).key;'+chr(10)+'    if (goalKey === '+chr(39)+'lose'+chr(39)+') {'
+new='    const goalKey = resolveGoal(data).key;'+chr(10)+'    if (true || goalKey === '+chr(39)+'lose'+chr(39)+') {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 20 "suppression drops the tracker instead of renumbering it" report-integrity "
+s=open('$API').read()
+old='      reports[12] = renumbered;'
+new='      void renumbered;'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 21 "tracker kept but not renumbered, so sections jump #11 to #13" report-integrity "
+s=open('$API').read()
+old=\"      const renumbered = tracker.replace('## Report #13:', '## Report #12:');\"
+new='      const renumbered = tracker;'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 22 "unconditional 'consistent weight loss' promise restored in the timeline" report-integrity "
+s=open('$API').read()
+old='**Days 15-21:** Fat adaptation accelerating, excellent energy'
+new='**Days 15-21:** Fat adaptation accelerating, consistent weight loss, excellent energy'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 23 "unsupported 'healing benefits appear' claim restored in the food guide" report-integrity "
+s=open('$API').read()
+old='**Week 4:** New normal, energy and routine settle'
+new='**Week 4:** New normal, healing benefits appear'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
 echo
 echo "=== restored ==="
 restore

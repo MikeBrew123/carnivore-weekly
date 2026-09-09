@@ -1062,6 +1062,9 @@ for (const p of PERSONAS) {
       firstRepeat(subs) === null, firstRepeat(subs) || '');
   }
 
+  // --- GROUP M lives here because it needs the same rendered corpus. ------
+  // (kept inside GROUP L's block for the rendered sections it already holds)
+
   // --- The substitution rule, exercised directly. -------------------------
   // Whether two grades of one food land adjacent in planProteins depends on the meal
   // rotation, and no persona happens to produce it, so asserting only on rendered
@@ -1142,6 +1145,73 @@ for (const p of PERSONAS) {
   check('-', 'L', 'the tier listing still shows both grades as buyable options',
     carn.includes('Ground Beef (80/20)') && carn.includes('Grass-fed Ground Beef'),
     'deduping leaked into the TIER 1 food list, which should show every grade');
+}
+
+// ---------------------------------------------------------------------------
+// GROUP M — a section that only applies to one goal may not be printed under
+// another.
+//
+// Report #12, "The Stall-Breaker Protocol", is a fat-loss intervention: its remedies
+// are "reduce added fat by 20%" and "track dairy for 3 days, reduce by 50%". It was
+// printed unconditionally. A 67-year-old maintenance customer at 120 lbs received it
+// on 2026-09-07 on the same document as a page-one "1,463 (maintenance)", which is
+// the report arguing with itself in the way she wrote in about.
+//
+// Suppressed, not substituted: writing a maintenance-flavoured stall protocol would
+// be new guidance nobody reviewed. The tracker takes the vacated number so the reader
+// never sees the sections jump from #11 to #13.
+// ---------------------------------------------------------------------------
+{
+  const sectionNumbers = (sections) => Object.keys(sections)
+    .map(Number).filter(n => sections[n]).sort((a, b) => a - b);
+
+  for (const p of PERSONAS) {
+    const { sections, data } = rendered[p.id];
+    if (!Object.keys(sections).length) continue;
+    const goal = resolveGoal(data).key;
+    const all = Object.values(sections).join('\n');
+
+    if (goal === 'lose') {
+      check(p.id, 'M', 'a fat-loss reader still gets the stall-breaker',
+        /Stall-Breaker Protocol/.test(all), 'the section vanished for the goal it exists for');
+    } else {
+      check(p.id, 'M', `no weight-loss stall protocol under goal "${goal}"`,
+        !/Stall-Breaker Protocol/.test(all), 'fat-loss stall protocol printed under a non-loss goal');
+      check(p.id, 'M', `no "reduce added fat" instruction under goal "${goal}"`,
+        !/Reduce added fat by 20%/i.test(all), 'a deficit instruction reached a non-loss reader');
+    }
+
+    // Contiguity, whichever branch ran. A gap reads as a missing section.
+    const nums = sectionNumbers(sections);
+    const contiguous = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
+    check(p.id, 'M', `report numbers are contiguous (${nums[0]}..${nums[nums.length - 1]})`,
+      contiguous, `sections jump: ${nums.join(',')}`);
+
+    // Every heading must match the key it is stored under, or the renumber silently
+    // half-applied and the page contradicts its own table of contents.
+    for (const n of nums) {
+      const m = String(sections[n]).match(/##\s*Report #(\d+):/);
+      if (!m) continue;
+      check(p.id, 'M', `section ${n} heading says Report #${n}`,
+        Number(m[1]) === n, `stored as ${n}, heading says #${m[1]}`);
+    }
+
+    // The tracker must survive in both branches. Suppressing the stall protocol by
+    // dropping the last section instead of renumbering would pass every check above.
+    check(p.id, 'M', 'the progress tracker is still in the report',
+      /Symptom & Progress Tracker|Symptom &amp; Progress Tracker/.test(all),
+      'the tracker was lost, not renumbered');
+  }
+
+  // Unconditional copy that promised an outcome regardless of goal.
+  for (const p of PERSONAS) {
+    const all = Object.values(rendered[p.id].sections || {}).join('\n');
+    if (!all) continue;
+    check(p.id, 'M', 'no unconditional "consistent weight loss" promise',
+      !/consistent weight loss/i.test(all), '');
+    check(p.id, 'M', 'no unsupported "healing benefits appear" claim',
+      !/healing benefits appear/i.test(all), '');
+  }
 }
 
 // ---------------------------------------------------------------------------

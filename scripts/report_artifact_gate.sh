@@ -51,7 +51,11 @@ else ok "substitutions are different foods"; fi
 
 echo "--- safety routing survives"
 present "prolapse"                 "the declared condition is disclosed, not dropped"
-present "not medical advice"       "medical disclaimer present"
+# Matches the real wording ("is not intended as medical advice"), not a guessed
+# phrase. The first version of this check looked for the literal "not medical advice"
+# and failed a report whose disclaimer was present and correct.
+if grep -qiE "not (intended as|constitute) medical advice|is not medical advice" "$TXT"; then
+  ok "medical disclaimer present"; else bad "medical disclaimer present"; fi
 
 echo "--- structure"
 for s in "Week 1 Shopping List" "Week 2 Shopping List" "Week 3 Shopping List" "Week 4 Shopping List"; do
