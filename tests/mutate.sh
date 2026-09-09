@@ -222,12 +222,12 @@ assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
-mutate 23 "unsupported 'healing benefits appear' claim restored in the food guide" report-integrity "
-s=open('$API').read()
-old='**Week 4:** New normal, energy and routine settle'
-new='**Week 4:** New normal, healing benefits appear'
+mutate 23 "unsupported healing claim reintroduced via the canonical adaptation outlook" report-render-markdown-leak "
+s=open('$MED').read()
+old='**Week 2:** Some people feel off during this stretch. Others do not.'
+new='**Week 2:** Healing benefits appear and energy returns.'
 assert s.count(old)==1, s.count(old)
-open('$API','w').write(s.replace(old,new))
+open('$MED','w').write(s.replace(old,new))
 "
 
 mutate 24 "meal-plan preamble dropped from the calendar" report-integrity "
@@ -388,6 +388,70 @@ seg=s[i:j]
 new=seg.replace(chr(92)+'n'+chr(92)+'n**Days', chr(92)+'n**Days').replace(chr(92)+'n'+chr(92)+'n**Action:**', chr(92)+'n**Action:**')
 assert new!=seg
 open('$API','w').write(s[:i]+new+s[j:])
+"
+
+# --- CONTENT: promised outcomes and cardiovascular advocacy (2026-09-09) ---------
+mutate 42 "food guide keeps its own adaptation promises instead of the canonical helper" report-render-markdown-leak "
+s=open('$API').read()
+old='## Week-by-Week Adaptation'+chr(92)+'n'+chr(92)+'n\${buildAdaptationOutlook()}'
+new='## Week-by-Week Adaptation'+chr(92)+'n'+chr(92)+'n**Week 3:** Energy returns, mental clarity improves'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 43 "the deterministic-outcome render gate is removed" report-render-markdown-leak "
+s=open('$API').read()
+old='      assertNoDeterministicOutcomes(\`Report #\${num}\`, body);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'      void body;'))
+"
+
+mutate 44 "the canonical outlook stops describing variation" report-render-markdown-leak "
+s=open('$MED').read()
+old='How people feel in the first week varies a lot.'
+new='Energy returns by the end of the first week.'
+assert s.count(old)==1, s.count(old)
+open('$MED','w').write(s.replace(old,new))
+"
+
+mutate 45 "CAC zero is presented as absence of disease again" report-render-markdown-leak "
+s=open('$API').read()
+old='A score of zero means no detectable calcium, which is reassuring but is not proof that there is no disease'
+new='A score of 0 means no disease regardless of LDL'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 46 "rising LDL-C is presented as outweighed by other markers" report-render-markdown-leak "
+s=open('$API').read()
+old='**What to do with a mixed result:**'
+new='**Key Insight:** your cardiovascular risk is likely IMPROVING, not worsening.'+chr(92)+'n'+chr(92)+'n**What to do with a mixed result:**'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 47 "particle size is offered as a replacement for LDL-C again" report-render-markdown-leak "
+s=open('$API').read()
+old='**Ask your doctor:** How do you read my LDL-C and non-HDL-C together'
+new='**Ask your doctor:** Can we focus on LDL particle size rather than LDL number? Also how do you read my LDL-C and non-HDL-C together'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 48 "the large-fluffy-LDL advocacy returns" report-render-markdown-leak "
+s=open('$API').read()
+old='If some of my markers improve but my LDL-C rises, how do you weigh that'
+new='can we discuss the research on large, fluffy LDL being protective, and how do you weigh that'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 49 "the lab table asserts outcomes as established again" report-render-markdown-leak "
+s=open('$API').read()
+old=\"| HDL | >40 | Sometimes higher | Interpretation is your doctor's |\"
+new='| HDL | >40 | Often ↑ | Protective factor |'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
 "
 
 echo

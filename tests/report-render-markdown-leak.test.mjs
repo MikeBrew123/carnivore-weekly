@@ -456,6 +456,148 @@ for (const p of PERSONAS) {
   check(p.id, 'the timeline still has four week sections', weeks.length === 4, `${weeks.length} weeks`);
 }
 
+// --- No section may promise an outcome, and no section may argue with a doctor.
+//
+// Report #11 was made observational on 2026-09-09 and the same promises survived in
+// two other places, because three different versions of "what happens week by week"
+// existed: the model wrote its own in Report #1 ("Energy often stabilizes. Digestion
+// typically simplifies."), Report #2 had a static four-line block ("Week 3: Energy
+// returns, mental clarity improves"), and Report #11 was the long form. That is what
+// three copies of one idea always does.
+//
+// Separately, the physician and lab guides coached the reader to defeat their
+// doctor's concern rather than to ask about it.
+{
+  const PROMISES = [
+    /energy (?:returns|stabili[sz]es|improves)/i,
+    /(?:mental )?clarity improves/i,
+    /digestion (?:improves|simplifies)/i,
+    /reduced bloating/i,
+    /bloating (?:improves|reduces)/i,
+    /(?:mood|gut comfort|sleep|skin|hair)[^.]{0,40}improve/i,
+    /\bnew normal\b/i,
+    /show meaningful improvement/i,
+    /(?:often|typically|usually) (?:stabili[sz]es|simplifies|improves)/i,
+    /healing benefits appear/i,
+    /consistent weight loss/i,
+  ];
+  // Claims corrected 2026-09-09 against the 2026 ACC/AHA multisociety dyslipidemia
+  // guideline (LDL-C and non-HDL-C remain treatment goals, ApoB refines risk
+  // selectively, CAC reclassifies risk and its targets are set BY CAC band) and
+  // against the evidence that a zero CAC carries low but NONZERO risk, with
+  // noncalcified plaque present in a minority of CAC=0 patients.
+  const FALSE_CLAIMS = [
+    [/score of 0 means no disease/i, 'CAC 0 presented as absence of disease'],
+    [/cardiovascular risk is likely IMPROVING/i, 'rising LDL-C presented as outweighed'],
+    [/LDL particle size rather than LDL number/i, 'particle size as a replacement for LDL-C'],
+    [/large,? fluffy LDL/i, 'large fluffy LDL advocacy'],
+    [/less atherogenic\)/i, 'particle-size advocacy restated'],
+    [/Why Standard LDL is Misleading/i, 'LDL-C framed as misleading'],
+    [/\bProtective factor\b/i, 'a marker asserted as protective'],
+    [/Expect improvement/i, 'an improvement asserted as expected'],
+    [/Likely improvements/i, 'improvements asserted as likely'],
+    [/\{\{diet\}\} (?:expectation|Target)/i, 'a per-diet expectation or personal target'],
+    [/excellent metabolic health/i, 'a lab value asserted as excellent health'],
+  ];
+
+  for (const p of PERSONAS) {
+    const all = Object.values(rendered[p.id].sections || {}).join('\n');
+    if (!all) continue;
+    for (const re of PROMISES) {
+      const m = all.match(re);
+      check(p.id, `no promised outcome: ${re.source.slice(0, 30)}`, !m, m ? m[0] : '');
+    }
+    for (const [re, why] of FALSE_CLAIMS) {
+      const m = all.match(re);
+      check(p.id, `no unsupported claim: ${why}`, !m, m ? m[0] : '');
+    }
+
+    // Suppressing must not have gutted the sections. Each must still be USEFUL.
+    check(p.id, 'the food guide still has an adaptation outlook',
+      /Week-by-Week Adaptation/.test(all) && /varies|vary|some people/i.test(all), '');
+    check(p.id, 'the adaptation outlook routes to the tracker',
+      /Report #12/.test(all), '');
+    check(p.id, 'the physician guide still names LDL-C as a treatment target',
+      /LDL-C and non-HDL-C are (?:still )?treatment targets/i.test(all), '');
+    check(p.id, 'the physician guide still explains what a zero CAC does not mean',
+      /no detectable calcium/i.test(all), '');
+    check(p.id, 'the lab guide still asks the doctor how they read the panel',
+      /How do you read my LDL-C and non-HDL-C together/i.test(all), '');
+    check(p.id, 'Lp\(a\) is mentioned so the reader can ask about it',
+      /Lp\(a\)/.test(all), '');
+    // The pelvic-health routing sentence lives in Report #1, which this fixture
+    // stubs, so assert the DETERMINISTIC safety surface instead: the banner echoes
+    // the reader's declared symptom back and routes medication decisions away from
+    // the report. The Report #1 routing is verified on the real regenerated report.
+    if (p.declares) {
+      check(p.id, 'the reader\'s declared symptom is still echoed back to them',
+        /Symptoms and concerns you reported:/.test(all), '');
+      check(p.id, 'the safety routing to a prescriber survived the content edits',
+        /Medication and treatment decisions belong/.test(all), '');
+    }
+  }
+
+  // One canonical adaptation helper, not three copies.
+  check('-', 'there is exactly one adaptation outlook helper',
+    typeof med.buildAdaptationOutlook === 'function', 'the canonical helper is gone');
+  const outlook = med.buildAdaptationOutlook();
+  check('-', 'the canonical outlook describes variation',
+    /varies|vary|some people/i.test(outlook), '');
+  check('-', 'the canonical outlook promises nothing',
+    !PROMISES.some(re => re.test(outlook)), '');
+  check('-', 'the canonical outlook points at the tracker', /Report #12/.test(outlook), '');
+  // Same density rule as Report #11: one paragraph per labelled row.
+  check('-', 'the canonical outlook separates its rows into blocks',
+    outlook.split('\n\n').filter(Boolean).length >= 4,
+    'the rows are joined by single newlines and will collapse into one paragraph');
+  for (const p of PERSONAS) {
+    const guide = rendered[p.id].sections?.[2] || '';
+    if (!guide) continue;
+    const htmlGuide = wrapInPrintHTML(guide, {});
+    const blocks = [...htmlGuide.matchAll(/<p>((?:(?!<\/p>)[\s\S])*)<\/p>/g)].map(m => m[1]);
+    const crowded = blocks.filter(b => (b.match(/<strong>Week[^<]*<\/strong>/g) || []).length > 1);
+    check(p.id, 'food guide adaptation rows are separate paragraphs', crowded.length === 0,
+      crowded.length ? crowded[0].replace(/<[^>]+>/g, ' ').slice(0, 100) : '');
+  }
+
+  // THE GATE'S REAL JOB: Report #1 is written by the model, so the static templates
+  // being clean proves nothing about it. Feed the generator a model response that
+  // promises outcomes and require generation to REFUSE. Without this the gate could
+  // be deleted and every assertion above would stay green, which is exactly what
+  // mutation M43 demonstrated.
+  {
+    const poisoned = 'Energy often stabilizes. Digestion typically simplifies. Many people notice reduced bloating and improved mental focus emerging.';
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (url) => String(url).includes('anthropic.com')
+      ? { ok: true, json: async () => ({ content: [{ text: poisoned }] }) }
+      : realFetch(url);
+    const form = { ...BASE, otherSymptoms: 'pelvic floor prolapse' };
+    const data = buildReportData({ id: 'poison', email: form.email, first_name: form.firstName,
+      last_name: form.lastName, diet_type: form.diet, form_data: form });
+    data.macros = calculateMacros(form);
+    let threw = null;
+    const q2 = ['log', 'info', 'warn', 'debug'].map(k => [k, console[k]]);
+    for (const [k] of q2) console[k] = () => {};
+    try { await generateAllReports(data, 'sk-fixture-not-a-real-key'); }
+    catch (e) { threw = e; }
+    finally { for (const [k, fn] of q2) console[k] = fn; globalThis.fetch = realFetch; }
+    check('-', 'a model section that promises outcomes is REFUSED, not rendered',
+      threw !== null && /promises an outcome/.test(String(threw && threw.message)),
+      threw ? String(threw.message).slice(0, 90) : 'generation succeeded with promised outcomes');
+  }
+
+  // The render-time gate must actually refuse, not just be present.
+  let refused = false;
+  try { med.assertNoDeterministicOutcomes('probe', 'By week three energy returns.'); }
+  catch { refused = true; }
+  check('-', 'the deterministic-outcome gate refuses a promise', refused,
+    'assertNoDeterministicOutcomes let a promise through');
+  let allowed = true;
+  try { med.assertNoDeterministicOutcomes('probe', 'Some people report steadier energy. HDL >40.'); }
+  catch { allowed = false; }
+  check('-', 'the gate allows observational wording and lab comparisons', allowed, '');
+}
+
 // --- Print CSS keeps the callout together. ----------------------------------
 {
   const html = rendered.REPORTED.html;

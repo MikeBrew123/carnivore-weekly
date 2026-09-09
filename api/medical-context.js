@@ -546,6 +546,77 @@ export function findUnfoundedClearance(text) {
   return hits;
 }
 
+/**
+ * THE canonical way this product talks about adaptation.
+ *
+ * Three different versions of "what happens week by week" existed and drifted:
+ * Report #1 wrote its own from the prompt ("Energy often stabilizes. Digestion
+ * typically simplifies."), Report #2 had a four line static block ("Week 3: Energy
+ * returns, mental clarity improves"), and Report #11 was the long form. Report #11
+ * was rewritten to be observational on 2026-09-09 and the other two kept promising
+ * outcomes, which is exactly the drift that having three versions guarantees.
+ *
+ * One helper now, and Report #2 uses it. Report #11 remains the long form and is the
+ * only place adaptation is described at length; everything else points at it rather
+ * than restating outcomes. Report #1 is model-written, so it is handled by a prompt
+ * rule and by assertNoDeterministicOutcomes() below, which reads the generated text
+ * back before a reader can see it.
+ *
+ * The rule this encodes: describe VARIATION and route the reader to their own record.
+ * Never state what the reader's body will do.
+ */
+export function buildAdaptationOutlook() {
+  return [
+    '**Week 1:** Early weight change is mostly water. How people feel in the first week varies a lot.',
+    '**Week 2:** Some people feel off during this stretch. Others do not.',
+    '**Weeks 3 and 4:** Some people report steadier energy or more predictable hunger. Plenty of people do not notice much yet, and that is normal.',
+    'Report #11 covers this week by week, and Report #12 is where you record what actually changed for you.',
+    // Blank line BETWEEN each row, so the renderer emits a paragraph per row. Joined
+    // with a single newline the rows collapse into one flowing block and the labels
+    // end up buried mid-sentence, which is the same density problem Report #11 had.
+  ].join('\n\n');
+}
+
+/**
+ * Deterministic outcome language, banned in every customer-facing section.
+ *
+ * These are phrasings that tell a reader what their body WILL do. The product may say
+ * what people report, and it may point at the reader's own tracker. It may not promise
+ * an outcome, because it cannot know one, and because a promise it fails to keep is
+ * the thing that makes someone distrust the safety sections too.
+ */
+export const DETERMINISTIC_OUTCOME_PATTERNS = [
+  /energy (?:returns|stabili[sz]es|improves|will improve)/i,
+  /(?:mental )?clarity (?:improves|returns|sharpens)/i,
+  /digestion (?:improves|simplifies|settles)/i,
+  /bloating (?:improves|reduces|decreases|disappears)/i,
+  /(?:mood|gut comfort|sleep|skin|hair)\s*(?:,[^.]{0,40})?\s*(?:improves?|improve)\b/i,
+  /reduced bloating/i,
+  /\bnew normal\b/i,
+  /healing benefits appear/i,
+  /consistent weight loss/i,
+  /(?:often|typically|usually) (?:stabili[sz]es|simplifies|improves)/i,
+  /show meaningful improvement/i,
+  /you will (?:feel|notice|see|have) /i,
+];
+
+/**
+ * Render-time gate. Same shape as assertNoUnfoundedClearance: read back what was
+ * actually written, for every section, before any of it can reach a reader. A prompt
+ * rule alone is a request; this is the part that holds.
+ */
+export function assertNoDeterministicOutcomes(sectionLabel, text) {
+  for (const re of DETERMINISTIC_OUTCOME_PATTERNS) {
+    const m = String(text || '').match(re);
+    if (m) {
+      throw new Error(
+        `${sectionLabel}: promises an outcome the report cannot know: "${m[0]}". ` +
+        'Describe variation and route the reader to Report #12 instead.'
+      );
+    }
+  }
+}
+
 export function assertNoUnfoundedClearance(sectionLabel, text) {
   const hits = findUnfoundedClearance(text);
   if (!hits.length) return;

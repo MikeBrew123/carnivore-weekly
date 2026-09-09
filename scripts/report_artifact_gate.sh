@@ -79,18 +79,29 @@ done
 # right after a page containing safety text is the page 13/14 failure.
 ORPHAN=$(python3 - "$LAYOUT" <<'PY'
 import sys, re
+# PRECISE, not heuristic. The first version flagged any page that opened in lower
+# case after a page containing safety text anywhere, which fires on ordinary prose
+# flowing across a break: it failed a correct report whose page 15 continued the
+# doctor pitch. A torn callout means a safety SENTENCE is split, so check exactly
+# that: every known safety sentence must appear whole on one page.
 pages = open(sys.argv[1], encoding='utf-8', errors='replace').read().split('\f')
-SAFETY = ('Take this report to your doctor', 'What you told us',
-          'Do not change, stop, skip or re-time', 'MEDICAL DISCLAIMER')
+norm = lambda t: re.sub(r'\s+', ' ', t)
+SENTENCES = [
+    'Take this report to your doctor or pharmacist before you start',
+    'Do not change, stop, skip or re-time any medication',
+    'Medication and treatment decisions belong',
+    'was generated automatically from your questionnaire',
+    'it does not know your kidney function, and it is not a clinician',
+    'What you told us, and what it means for this report',
+]
+whole = [norm(p) for p in pages]
+joined = norm(' '.join(pages))
 bad = []
-for i in range(1, len(pages)):
-    prev, cur = pages[i-1], pages[i]
-    if not any(s in prev for s in SAFETY):
-        continue
-    first = next((l.strip() for l in cur.splitlines() if l.strip()), '')
-    # A continuation line: starts lower-case, or with a conjunction/preposition.
-    if re.match(r'^(?:[a-z]|and\b|or\b|to\b|the\b|that\b|stop\b|them\b)', first):
-        bad.append(f'page {i+1} opens with "{first[:60]}"')
+for s in SENTENCES:
+    if s not in joined:
+        continue                      # not in this report at all, nothing to tear
+    if not any(s in p for p in whole):
+        bad.append(f'"{s[:52]}" is split across a page boundary')
 print('; '.join(bad))
 PY
 )
