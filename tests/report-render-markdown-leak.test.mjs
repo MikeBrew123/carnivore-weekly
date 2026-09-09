@@ -417,6 +417,45 @@ for (const p of PERSONAS) {
   }
 }
 
+// --- Timeline rows must be separate blocks, not one flowing paragraph. -------
+// Report #11's labelled rows were consecutive single-newline lines, so they
+// rendered as ONE paragraph with the labels buried mid-flow: "Days 1-3: ... Days
+// 4-7: ... Action: ...". The same newline collapse that ran the three "you
+// reported" rows together. Fixed in the TEMPLATE by separating the rows with blank
+// lines, not by teaching the renderer anything new.
+for (const p of PERSONAS) {
+  const { html } = rendered[p.id];
+  const body = html.slice(html.indexOf('report-content'));
+  const timeline = (body.match(/<h2>Report #11[\s\S]*?(?=<h2>Report #12|$)/) || [''])[0];
+  if (!timeline) { check(p.id, 'the adaptation timeline rendered at all', false, ''); continue; }
+
+  // Every labelled row opens its own block element.
+  for (const label of ['Days 1-3:', 'Days 4-7:', 'Days 8-10:', 'Days 11-14:',
+                       'Days 15-21:', 'Days 22-30:']) {
+    const re = new RegExp('<p><strong>' + label.replace(/[-:]/g, m => '\\' + m) + '<\\/strong>');
+    check(p.id, `timeline row "${label}" starts its own block`, re.test(timeline), '');
+  }
+  const actions = timeline.match(/<p><strong>Action:<\/strong>/g) || [];
+  check(p.id, 'every week\'s Action starts its own block', actions.length === 4,
+    `${actions.length} of 4 Action rows are their own paragraph`);
+
+  // The failure shape: two labels inside ONE block. Examine each block separately.
+  // A regex spanning [\s\S]*? between two labels happily crosses '</p><p>' and
+  // reports correct output as broken; that mistake has now been made three times in
+  // this file, so the rule is: split into blocks first, then count within a block.
+  const blocks = [...timeline.matchAll(/<p>((?:(?!<\/p>)[\s\S])*)<\/p>/g)].map(m => m[1]);
+  const crowded = blocks.filter(b =>
+    (b.match(/<strong>(?:Days [\d-]+|Action):<\/strong>/g) || []).length > 1);
+  check(p.id, 'no two timeline labels share one paragraph', crowded.length === 0,
+    crowded.length ? crowded[0].replace(/<[^>]+>/g, ' ').slice(0, 110) : '');
+
+  // Labels stay bold, and the four-week structure survives.
+  check(p.id, 'timeline labels are still bold',
+    /<strong>Days 1-3:<\/strong>/.test(timeline) && /<strong>Action:<\/strong>/.test(timeline), '');
+  const weeks = timeline.match(/<h2>Week \d: /g) || [];
+  check(p.id, 'the timeline still has four week sections', weeks.length === 4, `${weeks.length} weeks`);
+}
+
 // --- Print CSS keeps the callout together. ----------------------------------
 {
   const html = rendered.REPORTED.html;

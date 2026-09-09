@@ -380,6 +380,16 @@ assert new!=seg
 open('$API','w').write(s[:i]+new+s[j:])
 "
 
+mutate 41 "timeline rows collapse back into one flowing paragraph" report-render-markdown-leak "
+s=open('$API').read()
+i=s.index('timeline: \`## Report #11')
+j=s.index('\`,', s.index('Adaptation isn', i))
+seg=s[i:j]
+new=seg.replace(chr(92)+'n'+chr(92)+'n**Days', chr(92)+'n**Days').replace(chr(92)+'n'+chr(92)+'n**Action:**', chr(92)+'n**Action:**')
+assert new!=seg
+open('$API','w').write(s[:i]+new+s[j:])
+"
+
 echo
 echo "=== restored ==="
 restore
