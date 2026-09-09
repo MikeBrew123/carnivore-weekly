@@ -294,10 +294,10 @@ for (const answer of ['yes', 'unsure']) {
     !/Step 1 of 2/i.test(html), '');
   check('AA', 'no progress bar sits under the free result',
     !/class="continue-card"/.test(html) && !/class="prog"/.test(html), '');
-  check('AA', 'the profile prompt is labelled optional',
-    /Optional: make your reports fit you better/.test(html), '');
+  check('AA', 'the profile prompt offers both timings rather than one step order',
+    /Personalize your reports now or after checkout/.test(html), '');
   check('AA', 'the profile prompt says it is not required in order to buy',
-    /Not required to buy/.test(html), '');
+    /Not required before purchase/.test(html), '');
   check('AA', 'the prompt tells them they may do it after paying',
     /after you buy/i.test(html), '');
   check('AA', 'the picker intro sells the reports rather than shrugging',
@@ -356,6 +356,272 @@ for (const answer of ['yes', 'unsure']) {
 }
 
 // ---------------------------------------------------------------------------
+// A wider sandbox: the whole product + checkout region, executed.
+// ---------------------------------------------------------------------------
+// GROUP AD needs the REAL click path — the CTA handler that renderUpgradeCard()
+// attaches, beginCheckout(), busyButton() and startCheckout() — so the extraction
+// runs from `var PRODUCTS=` to the checkout-close wiring. Nothing about the busy
+// state is re-implemented here; the assertions observe the shipped code.
+const CK_END = js.indexOf('  // Close checkout modal');
+if (CK_END < 0 || CK_END <= start) {
+  console.error('FATAL: could not locate the checkout region in ketodial.js.');
+  process.exit(1);
+}
+const CHECKOUT_REGION = js.slice(start, CK_END);
+
+/** A DOM node stub that actually dispatches clicks, so a test can press a button. */
+function node(id) {
+  const el = {
+    id, dataset: {}, hidden: false, disabled: false, style: {},
+    _text: '', _html: '', _on: {},
+    classList: { _s: new Set(), add(c) { this._s.add(c); }, remove(c) { this._s.delete(c); },
+                 contains(c) { return this._s.has(c); }, toggle(c, on) { on ? this.add(c) : this.remove(c); } },
+    querySelector() { return null; },
+    addEventListener(ev, fn) { (el._on[ev] = el._on[ev] || []).push(fn); },
+    click() { (el._on.click || []).forEach(fn => fn.call(el, {})); },
+  };
+  Object.defineProperty(el, 'textContent', {
+    get() { return el._text; },
+    set(v) { el._text = String(v); el._html = String(v); },
+  });
+  Object.defineProperty(el, 'innerHTML', {
+    get() { return el._html; },
+    // Assigning innerHTML replaces children, so any button inside is a NEW element.
+    set(v) { el._html = String(v); el._text = String(v).replace(/<[^>]+>/g, ''); el._kids = {}; },
+  });
+  return el;
+}
+
+/**
+ * Build a live checkout sandbox. `stripe` decides what initEmbeddedCheckout does,
+ * which is how the failure path is exercised without special-casing anything.
+ */
+function checkoutSandbox({ kidney = 'no', stripeFails = false, createFails = false } = {}) {
+  const els = {};
+  const get = (sel) => (els[sel] = els[sel] || node(sel));
+  const card = get('#kdUpgradeCard');
+  const results = get('#freeResults');
+  results.classList.add('show');
+  const overlay = get('#checkoutOverlay');
+  const pickerBtn = get('#checkoutBtn');
+
+  // renderUpgradeCard writes innerHTML then looks the CTA up again, so the lookup
+  // has to return whatever the current render produced — a fresh element each time,
+  // exactly as in a browser.
+  let ctaGeneration = 0;
+  const $ = (sel) => {
+    if (sel === '#kdUpgradeCta' || sel === '#kdSeeAllReports') {
+      const key = sel + ':' + ctaGeneration;
+      if (!els[key]) {
+        els[key] = node(sel);
+        // Adopt the label the real renderUpgradeCard just wrote, so the assertions
+        // compare against the shipped copy rather than an empty string.
+        const m = new RegExp('id="' + sel.slice(1) + '"[^>]*>([^<]*)<').exec(card._html || '');
+        if (m) els[key].textContent = m[1].replace(/&amp;/g, '&');
+      }
+      return els[key];
+    }
+    return get(sel);
+  };
+  const $all = () => [];
+  const mounted = [];
+  const alerts = [];
+  const stripe = {
+    initEmbeddedCheckout: () => stripeFails
+      ? Promise.reject(new Error('stripe mount failed'))
+      : Promise.resolve({ mount: (t) => mounted.push(t), destroy: () => mounted.pop() }),
+  };
+  const g = {
+    Stripe: () => stripe,
+    fetch: () => Promise.resolve({ json: () => Promise.resolve(
+      createFails ? { error: 'no_session', message: 'could not create session' }
+                  : { clientSecret: 'cs_test_stub' }) }),
+    alert: (m) => alerts.push(String(m)),
+    console: { error() {}, warn() {}, log() {} },
+  };
+  const factory = new Function(
+    '$', '$all', 'money', 'track', 'kidneyStatus', 'proteinSuppressed', 'scrollToEl',
+    'updateSession', 'writesSettled', 'emailReq', 'nameReq', 'sessionToken',
+    'Stripe', 'fetch', 'alert', 'console', 'API_BASE',
+    'var embeddedCheckout=null, stripeInstance=null;\n' +
+    CHECKOUT_REGION +
+    '\n return { beginCheckout, startCheckout, busyButton, renderUpgradeCard, render, selected,' +
+    ' productAvailable, featuredOffer, closeOverlay:function(){ checkoutOverlay.classList.remove("show");' +
+    ' if(embeddedCheckout){ embeddedCheckout.destroy(); embeddedCheckout=null; } },' +
+    ' bumpCta:function(){} };'
+  );
+  const api = factory(
+    $, $all, (n) => '$' + n.toFixed(2), () => {}, () => kidney, () => kidney !== 'no',
+    () => {}, () => Promise.resolve(), () => Promise.resolve(),
+    { value: 'x@example.invalid' }, { value: 'Test' }, 'kd_stub_token',
+    g.Stripe, g.fetch, g.alert, g.console, 'https://api.test'
+  );
+  api.renderUpgradeCard();
+  return { api, $, card, overlay, pickerBtn, mounted, alerts,
+           cta: () => $('#kdUpgradeCta') };
+}
+
+// ===========================================================================
+// GROUP AD — THE FEATURED CTA SURVIVES A CHECKOUT THE CUSTOMER CLOSES.
+// ---------------------------------------------------------------------------
+// startCheckout() used to reset `checkoutBtn` — the PICKER's button — on both its
+// success and failure paths. The featured card's CTA is a different element, so it
+// stayed disabled and stuck on "Loading checkout…", and renderUpgradeCard() skips
+// repainting when the offer has not changed, so render() could not rescue it. Open
+// checkout, close it without paying, and the buy button was dead.
+// ===========================================================================
+{
+  const s = checkoutSandbox();
+  const cta = s.cta();
+  const original = cta.textContent;
+  check('AD', 'the CTA starts enabled with its price label',
+    cta.disabled === false && /Get the Full Protocol for \$10\.99/.test(original), original);
+
+  // 1 + 2. Click it; it must go busy.
+  cta.click();
+  check('AD', 'clicking the CTA puts it into a busy state',
+    cta.disabled === true && /Loading checkout/.test(cta.textContent), cta.textContent);
+
+  // 3. Let the promise chain run: session create, then Stripe mount.
+  await new Promise(r => setTimeout(r, 0));
+  await new Promise(r => setTimeout(r, 0));
+  await new Promise(r => setTimeout(r, 0));
+
+  check('AD', 'Stripe was actually mounted', s.mounted.length === 1, JSON.stringify(s.mounted));
+  check('AD', 'the overlay was opened', s.overlay.classList.contains('show'), '');
+
+  // 4. The ORIGINATING button is restored, with its real label.
+  check('AD', 'the featured CTA is enabled again after a successful mount',
+    cta.disabled === false, `disabled=${cta.disabled}`);
+  check('AD', 'and it carries its original label, not "Loading checkout…"',
+    cta.textContent === original, `${cta.textContent} != ${original}`);
+
+  // 5 + 6. Close checkout without paying. The CTA must still be usable.
+  s.api.closeOverlay();
+  check('AD', 'closing checkout leaves the featured CTA usable',
+    cta.disabled === false && cta.textContent === original, cta.textContent);
+  check('AD', 'the overlay is closed', !s.overlay.classList.contains('show'), '');
+
+  // 7 + 8. Click again; checkout opens again.
+  cta.click();
+  check('AD', 'a repeat click goes busy again', cta.disabled === true, '');
+  await new Promise(r => setTimeout(r, 0));
+  await new Promise(r => setTimeout(r, 0));
+  await new Promise(r => setTimeout(r, 0));
+  check('AD', 'checkout can be opened a second time', s.mounted.length === 1, JSON.stringify(s.mounted));
+  check('AD', 'and the CTA is restored again', cta.disabled === false && cta.textContent === original,
+    cta.textContent);
+  check('AD', 'no error was shown to the customer on the happy path',
+    s.alerts.length === 0, s.alerts.join(' | '));
+}
+
+// ===========================================================================
+// GROUP AE — EVERY FAILURE PATH GIVES THE ORIGINATING BUTTON BACK.
+// ===========================================================================
+{
+  // Stripe fails to mount.
+  const s = checkoutSandbox({ stripeFails: true });
+  const cta = s.cta();
+  const original = cta.textContent;
+  cta.click();
+  for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0));
+  check('AE', 'a failed Stripe mount re-enables the featured CTA', cta.disabled === false,
+    `disabled=${cta.disabled}`);
+  check('AE', 'a failed Stripe mount restores the original label',
+    cta.textContent === original, cta.textContent);
+  check('AE', 'the overlay is not left hanging open',
+    !s.overlay.classList.contains('show'), '');
+  check('AE', 'the customer is told', s.alerts.length === 1, s.alerts.join(' | '));
+
+  // The session could not be created at all.
+  const s2 = checkoutSandbox({ createFails: true });
+  const cta2 = s2.cta();
+  const original2 = cta2.textContent;
+  cta2.click();
+  for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0));
+  check('AE', 'a failed session create re-enables the featured CTA', cta2.disabled === false,
+    `disabled=${cta2.disabled}`);
+  check('AE', 'a failed session create restores the original label',
+    cta2.textContent === original2, cta2.textContent);
+  check('AE', 'nothing was mounted', s2.mounted.length === 0, '');
+
+  // The renal CTA is the same mechanism, not a special case.
+  const s3 = checkoutSandbox({ kidney: 'unsure' });
+  const cta3 = s3.cta();
+  const original3 = cta3.textContent;
+  check('AE', 'the renal CTA is the $9.98 one', /Get both reports for \$9\.98/.test(original3),
+    original3);
+  cta3.click();
+  for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0));
+  check('AE', 'the renal CTA is restored the same way',
+    cta3.disabled === false && cta3.textContent === original3, cta3.textContent);
+  check('AE', 'the renal purchase still carries only the safe products',
+    [...s3.api.selected].sort().join(',') === 'doctor,starter',
+    [...s3.api.selected].join(','));
+
+  // The picker's own button goes through the identical helper.
+  const s4 = checkoutSandbox();
+  s4.api.selected.clear(); s4.api.selected.add('doctor');
+  s4.pickerBtn.textContent = 'Continue to checkout · $5.99';
+  s4.api.beginCheckout(s4.pickerBtn);
+  check('AE', 'the picker button also goes busy', s4.pickerBtn.disabled === true, '');
+  for (let i = 0; i < 5; i++) await new Promise(r => setTimeout(r, 0));
+  check('AE', 'the picker button is restored by the same helper',
+    s4.pickerBtn.disabled === false, `disabled=${s4.pickerBtn.disabled}`);
+}
+
+// ===========================================================================
+// GROUP AF — NO PROMISE OF DELIVERY THE PAY-FIRST PATH CANNOT KEEP.
+// ---------------------------------------------------------------------------
+// The architecture deliberately lets a customer buy before completing the profile.
+// The webhook then sends the finish-profile email instead of reports. So "Instant
+// PDF delivery" and "yours straight away" were false for exactly the path that was
+// built on purpose, printed on the button that takes the money.
+// ===========================================================================
+{
+  const BAD = [
+    [/instant/i, 'instant'],
+    [/straight away/i, 'straight away'],
+    [/right away/i, 'right away'],
+    [/immediately/i, 'immediately'],
+    [/within (?:seconds|minutes)/i, 'within seconds/minutes'],
+    [/in seconds/i, 'in seconds'],
+  ];
+  for (const answer of ['no', 'yes', 'unsure']) {
+    const r = renderFor(answer);
+    for (const [re, label] of BAD) {
+      check('AF', `[${answer}] the featured card does not promise "${label}"`,
+        !re.test(r.text), r.text.slice(0, 260));
+    }
+    check('AF', `[${answer}] the trust row states when delivery happens`,
+      /Delivered after personalization/.test(r.text), r.text.slice(0, 260));
+    check('AF', `[${answer}] it still says one-time purchase and no subscription`,
+      /One-time purchase/.test(r.text) && /No subscription/.test(r.text), r.text);
+  }
+
+  // The same claim was printed twice more on the same purchase path.
+  check('AF', 'the picker trust row no longer promises instant delivery',
+    !/Instant PDF delivery/.test(html), '');
+  check('AF', 'nothing on the page offers an instant download of a paid report',
+    !/download them instantly/i.test(html), '');
+
+  // Optional BEFORE purchase; required before personalized reports exist.
+  check('AF', 'the profile card no longer calls itself simply optional',
+    !/Optional: make your reports fit you better/.test(html) &&
+    /Personalize your reports now or after checkout/.test(html), '');
+  check('AF', 'it says the details are needed before the reports are built',
+    /before we can build your personalized reports/i.test(html), '');
+  check('AF', 'it still says the profile is not required in order to buy',
+    /Not required before purchase/.test(html), '');
+  check('AF', 'and it still invites them to buy whenever they are ready',
+    /Buy whenever you're ready/.test(html), '');
+  check('AF', 'the profile form does not describe itself as mostly optional',
+    !/Most are optional/.test(html), '');
+  check('AF', 'the confirmation line no longer calls the profile optional details',
+    !/optional details/i.test(js), '');
+}
+
+// ---------------------------------------------------------------------------
 if (failures.length) {
   console.log(`\n${failures.length} of ${checks} assertions FAILED\n`);
   for (const f of failures) {
@@ -375,6 +641,9 @@ const groups = {
   AA: 'the "half finished" framing is gone',
   AB: 'checkout is one path, and needs no profile',
   AC: 'the new funnel is measurable, without PII',
+  AD: 'the featured CTA survives a checkout the customer closes',
+  AE: 'every failure path gives the originating button back',
+  AF: 'no promise of delivery the pay-first path cannot keep',
 };
 for (const [k, v] of Object.entries(groups)) console.log(`PASS  ${k}  ${v}`);
 console.log(`\n${checks} assertions passed.`);
