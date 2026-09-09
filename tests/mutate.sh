@@ -29,7 +29,7 @@ mutate() {
 }
 
 echo "=== baseline ==="
-for s in health-context-flow report-integrity report-safety; do
+for s in health-context-flow report-integrity report-safety report-render-markdown-leak; do
   run "$s" && echo "  green: $s" || { echo "  RED BEFORE MUTATING: $s"; fails=$((fails+1)); }
 done
 echo
@@ -247,10 +247,88 @@ k=s2.index('{{mealCalendarWeeks}}')
 open('$API','w').write(s2[:k]+'{{mealCalendarWeeks}}'+chr(92)+'n'+chr(92)+'n'+para+s2[k+len('{{mealCalendarWeeks}}'):])
 "
 
+# --- RAW MARKDOWN REACHING THE READER (reported 2026-09-09) ---------------------
+# M26-M33 are the eight ways this defect can come back. The suite they must break is
+# report-render-markdown-leak, which asserts on FINAL HTML. Every pre-existing suite
+# asserts on markdown, which is exactly why none of them caught the original.
+
+mutate 26 "customer helper output bypasses markdown parsing entirely" report-render-markdown-leak "
+s=open('$API').read()
+old='  let contentHTML = markdownToHTML(markdownContent);'
+new='  let contentHTML = chr60p+chr62+markdownContent+chr60+chr47+chr112+chr62;'.replace('chr60p','p'+chr(62)).replace('chr60',chr(60)).replace('chr62',chr(62)).replace('chr47',chr(47)).replace('chr112','p')
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'  let contentHTML = '+chr(39)+chr(60)+'p'+chr(62)+chr(39)+' + markdownContent + '+chr(39)+chr(60)+chr(47)+'p'+chr(62)+chr(39)+';'))
+"
+
+mutate 27 "quote markers retained on each quoted line" report-render-markdown-leak "
+s=open('$API').read()
+old='.replace(/^>[ \\\\t]?/, '+chr(39)+chr(39)+')'
+assert s.count(old)>=1, s.count(old)
+open('$API','w').write(s.replace(old,'',1))
+"
+
+mutate 28 "quoted heading parsing removed" report-render-markdown-leak "
+s=open('$API').read()
+old='function markdownToBlockHTML(markdown, depth = 0) {'
+new=old+chr(10)+'  if (depth > 0) return '+chr(39)+chr(60)+'p'+chr(62)+chr(39)+' + markdown + '+chr(39)+chr(60)+chr(47)+'p'+chr(62)+chr(39)+';'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 29 "quoted blank-line handling removed, so a quote becomes one run-on block" report-render-markdown-leak "
+s=open('$API').read()
+old='  const lines = markdown.split('+chr(39)+chr(92)+'n'+chr(39)+');'
+assert s.count(old)>=1, s.count(old)
+i=s.index('function markdownToBlockHTML')
+j=s.index(old, i)
+open('$API','w').write(s[:j]+'  const lines = markdown.split('+chr(39)+chr(92)+'n'+chr(39)+').filter(l => l.trim() !== '+chr(39)+'>'+chr(39)+');'+s[j+len(old):])
+"
+
+mutate 30 "multiline bold handling reduced to single-line" report-render-markdown-leak "
+s=open('$API').read()
+old='html = html.replace(/\\\\*\\\\*((?:(?!\\\\*\\\\*|<\\\\/p>|<\\\\/h[1-6]>|<\\\\/li>|<\\\\/td>)[\\\\s\\\\S])*?)\\\\*\\\\*/g, '
+assert s.count(old)==1, s.count(old)
+i=s.index(old); j=s.index(chr(10), i)
+new='html = html.replace(/\\\\*\\\\*([^*'+chr(92)+'n]+?)\\\\*\\\\*/g, '+chr(39)+'<strong>\$1</strong>'+chr(39)+');'
+open('$API','w').write(s[:i]+new+s[j:])
+"
+
+mutate 31 "every '>' character treated as a blockquote" report-render-markdown-leak "
+s=open('$API').read()
+old='else if (/^>/.test(line)) {'
+new='else if (line.includes('+chr(39)+'>'+chr(39)+')) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,new))
+"
+
+mutate 32 "safety component contents dropped" report-render-markdown-leak "
+s=open('$MED').read()
+old='export function buildMedicalContextBanner(ctx) {'
+new=old+chr(10)+'  return '+chr(39)+chr(39)+';'
+assert s.count(old)==1, s.count(old)
+open('$MED','w').write(s.replace(old,new))
+"
+
+mutate 33 "break-inside protection removed from the safety callout" report-render-markdown-leak "
+s=open('$API').read()
+old='      break-inside: avoid;'
+assert s.count(old)>=1, s.count(old)
+open('$API','w').write(s.replace(old,'      break-inside: auto;',1))
+"
+
+mutate 34 "underscore-run protection removed, so a signature blank opens a runaway italic" report-render-markdown-leak "
+s=open('$API').read()
+old='  html = html.replace(/_{3,}/g, (run) => {'
+assert s.count(old)==1, s.count(old)
+i=s.index('  const underscoreRuns = [];')
+j=s.index('  html = html.replace(/__((?:', i)
+open('$API','w').write(s[:i]+s[j:])
+"
+
 echo
 echo "=== restored ==="
 restore
-for s in health-context-flow report-integrity report-safety; do
+for s in health-context-flow report-integrity report-safety report-render-markdown-leak; do
   run "$s" && echo "  green: $s" || { echo "  STILL RED: $s"; fails=$((fails+1)); }
 done
 

@@ -3051,13 +3051,48 @@ function applyInlineFormatting(html) {
   // Images (must come before links)
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto; margin: 12pt 0;">');
 
-  // Bold
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+  // Bold.
+  //
+  // [\s\S] rather than '.' because '.' does not match a newline. The report's
+  // markdown is hard-wrapped at roughly 80 characters and bold phrases routinely
+  // straddle a line break, so with '.' they never matched and the customer was
+  // shown literal '**'. Found in a real paid report on 2026-09-09, where the
+  // worst case spanned a page break:
+  //
+  //   **Take this report to your doctor or pharmacist before you start, and let
+  //   them tell you which parts apply to you.**
+  //
+  // The negative lookahead stops one unbalanced '**' from swallowing everything
+  // up to the next one across a block boundary.
+  html = html.replace(/\*\*((?:(?!\*\*|<\/p>|<\/h[1-6]>|<\/li>|<\/td>)[\s\S])*?)\*\*/g, '<strong>$1</strong>');
+  // A RUN of underscores is a fill-in blank, not emphasis. The one-page physician
+  // handout ends with:
+  //
+  //   **Patient Signature:** ___________________________   **Date:** __________
+  //
+  // The `__` bold rule chewed through that run, emitted empty <strong></strong>
+  // pairs, and left one stray `_` behind. The `_italic_` rule below then paired that
+  // stray with an underscore thousands of characters later, opening an <em> that ran
+  // 7,823 characters: the whole of Section 8 and the Laboratory Reference Guide
+  // rendered in italics for the customer. Found by looking at page images of a real
+  // generated report on 2026-09-09, after the text-only checks had all passed.
+  //
+  // Protect the runs, do the emphasis, put them back. Restoring uses a function
+  // replacement so a `$` in the blank cannot be read as a capture reference.
+  const underscoreRuns = [];
+  html = html.replace(/_{3,}/g, (run) => {
+    underscoreRuns.push(run);
+    return `\u0000UNDERSCORERUN${underscoreRuns.length - 1}\u0000`;
+  });
+
+  html = html.replace(/__((?:(?!__|<\/p>|<\/h[1-6]>|<\/li>|<\/td>)[\s\S])*?)__/g, '<strong>$1</strong>');
 
   // Italic (but not inside bold)
   html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
   html = html.replace(/(?<!_)_([^_]+)_(?!_)/g, '<em>$1</em>');
+
+  // Blanks restored exactly as the reader must see them.
+  html = html.replace(/\u0000UNDERSCORERUN(\d+)\u0000/g, (_m, i) => underscoreRuns[Number(i)]);
 
   // Code
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -3069,9 +3104,24 @@ function applyInlineFormatting(html) {
 }
 
 /**
- * Convert markdown to HTML with proper section wrapping
+ * Convert markdown to HTML with proper section wrapping.
+ *
+ * Split out of markdownToHTML() on 2026-09-09 so that blockquotes can render their
+ * inner content recursively without applyInlineFormatting() running twice over the
+ * same text. Block structure is decided here; inline formatting runs exactly once,
+ * in markdownToHTML() below.
  */
-function markdownToHTML(markdown) {
+function markdownToBlockHTML(markdown, depth = 0) {
+  // Depth cap. Each blockquote level strips one '>' before recursing, so well
+  // formed input terminates on its own. The cap exists so that malformed input,
+  // or a future edit that stops stripping the prefix, degrades into slightly ugly
+  // output instead of blowing the worker's stack on a paid request. Found by
+  // mutation testing on 2026-09-09: removing the prefix strip turned a rendering
+  // bug into a RangeError.
+  if (depth > 8) {
+    return '<p>' + markdown + '</p>\n';
+  }
+
   const lines = markdown.split('\n');
   let html = '';
   let currentParagraph = [];
@@ -3099,6 +3149,46 @@ function markdownToHTML(markdown) {
       const level = line.match(/^#+/)[0].length;
       const title = line.replace(/^#+\s*/, '');
       html += `<h${level}>${escapeHTML(title)}</h${level}>\n`;
+    }
+    // Blockquote: a contiguous run of lines starting with '>'.
+    //
+    // buildMedicalSafetyRules() and buildProteinTargetNote() in
+    // api/medical-context.js emit every medical safety block as a markdown
+    // blockquote. Until 2026-09-09 there was no branch for them here, so those
+    // lines fell through to the paragraph case below and a paying customer saw
+    // literal '>' and '###' in the safety sections of a report. The '>' prefix
+    // also defeated the heading test above, so '> ### Heading' was not a heading.
+    //
+    // The quoted body is rendered by recursing, so headings, bold, lists and
+    // multiple paragraphs inside a quote take exactly the same code path they
+    // take anywhere else. Each level of recursion strips one '>', so nested
+    // quotes terminate.
+    else if (/^>/.test(line)) {
+      if (currentParagraph.length > 0) {
+        html += '<p>' + currentParagraph.join('\n') + '</p>\n';
+        currentParagraph = [];
+      }
+      if (inList) {
+        html += '</ul>\n';
+        inList = false;
+      }
+      if (inTable) {
+        html += '</table>\n';
+        inTable = false;
+      }
+
+      const quoted = [];
+      while (i < lines.length && /^>/.test(lines[i])) {
+        // Strip one '>' plus the single optional space after it. A bare '>' line
+        // becomes '', which separates paragraphs inside the quote.
+        quoted.push(lines[i].replace(/^>[ \t]?/, ''));
+        i++;
+      }
+      i--; // the for-loop increment would otherwise swallow the line after the quote
+
+      html += '<blockquote class="safety-callout">\n'
+        + markdownToBlockHTML(quoted.join('\n'), depth + 1)
+        + '</blockquote>\n';
     }
     // Horizontal rule
     else if (/^---+$/.test(line)) {
@@ -3171,15 +3261,29 @@ function markdownToHTML(markdown) {
     }
     // Regular paragraph
     else if (line.trim()) {
-      if (inList) {
-        html += '</ul>\n';
-        inList = false;
+      // Lazy continuation of a hard-wrapped list item.
+      //
+      // The report's markdown wraps at roughly 80 characters, so a long bullet
+      // runs onto the next line. Treated as a new paragraph it closed the list
+      // and left the remainder stranded at the margin, which is how Report #10's
+      // electrolyte bullets rendered as "Sodium: 3-5 grams a day for most adults,
+      // up to 6 grams if you are training hard" followed by an orphaned "or
+      // working in the heat." (found 2026-09-09 while reading a delivered PDF).
+      // A blank line still closes the list, so a genuine following paragraph is
+      // unaffected.
+      if (inList && html.endsWith('</li>\n')) {
+        html = html.slice(0, -'</li>\n'.length) + ' ' + escapeHTML(line.trim()) + '</li>\n';
+      } else {
+        if (inList) {
+          html += '</ul>\n';
+          inList = false;
+        }
+        if (inTable) {
+          html += '</table>\n';
+          inTable = false;
+        }
+        currentParagraph.push(line);
       }
-      if (inTable) {
-        html += '</table>\n';
-        inTable = false;
-      }
-      currentParagraph.push(line);
     }
   }
 
@@ -3190,8 +3294,15 @@ function markdownToHTML(markdown) {
   if (inList) html += '</ul>\n';
   if (inTable) html += '</table>\n';
 
-  html = applyInlineFormatting(html);
   return html;
+}
+
+/**
+ * Convert markdown to HTML: block structure first, then one inline pass over the
+ * whole document so nothing is formatted twice.
+ */
+function markdownToHTML(markdown) {
+  return applyInlineFormatting(markdownToBlockHTML(markdown));
 }
 
 /**
@@ -3223,6 +3334,40 @@ function wrapInPrintHTML(markdownContent, userData = {}) {
       padding: 8px;
       text-align: left;
     }
+
+    /* Medical safety callouts. These carry the disclaimer, the "what you told us"
+       summary, the kidney and medication warnings and the electrolyte suppression
+       note, so they have to read as a deliberate part of the document rather than
+       as leftover markup. Deliberately full body size: this report goes to readers
+       in their 50s, 60s and 70s, and the safety text is the last thing that should
+       ever shrink. */
+    blockquote.safety-callout {
+      margin: 1.6em 0;
+      padding: 16px 22px;
+      border-left: 4px solid #8c2f21;
+      background: #faf6f3;
+      border-radius: 4px;
+      font-size: 1em;
+      line-height: 1.65;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    blockquote.safety-callout > *:first-child { margin-top: 0; }
+    blockquote.safety-callout > *:last-child { margin-bottom: 0; }
+
+    blockquote.safety-callout h1,
+    blockquote.safety-callout h2,
+    blockquote.safety-callout h3,
+    blockquote.safety-callout h4 {
+      margin: 0 0 0.6em;
+      font-size: 1.05em;
+      line-height: 1.4;
+    }
+
+    blockquote.safety-callout p { margin: 0 0 0.85em; }
+    blockquote.safety-callout ul { margin: 0 0 0.85em; padding-left: 1.3em; }
+    blockquote.safety-callout strong { color: #6d2418; }
 
     .cover-page {
       text-align: center;
@@ -3619,7 +3764,11 @@ CONSISTENCY REQUIREMENTS:
 2. DO NOT infer or assume past diet success/failure unless stated
 3. DO NOT contradict information from other sections
 4. If uncertain about user history, use general language ("many people find...")
-5. Cross-check all claims against user profile data`;
+5. Cross-check all claims against user profile data
+
+HOUSE STYLE:
+6. Never use an em-dash. Use a comma, a period, parentheses or a rewrite instead.
+   This is a standing rule for everything this business publishes.`;
 
   // Build diet-specific food recommendations
   const diet = data.selectedProtocol || 'Carnivore';
@@ -3796,7 +3945,11 @@ CONSISTENCY REQUIREMENTS:
 2. DO NOT infer or assume past diet success/failure unless stated
 3. DO NOT contradict information from other sections
 4. If uncertain about user history, use general language ("many people find...")
-5. Cross-check all claims against user profile data`;
+5. Cross-check all claims against user profile data
+
+HOUSE STYLE:
+6. Never use an em-dash. Use a comma, a period, parentheses or a rewrite instead.
+   This is a standing rule for everything this business publishes.`;
 
   return `You are an expert behavioral psychologist and diet coach creating Obstacle Override Protocols.
 
@@ -3876,7 +4029,7 @@ function getTemplateContent(templateName, dietOrData) {
       const cookingFatExamples = isPescatarian
         ? 'butter, olive oil'
         : 'butter, tallow';
-      return `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n{{mealPlanMedicalNote}}\n\n## A Note Before You Start\nFair warning: this calendar is repetitive. Somewhere around week two you may look at it and think, this again? Yes. On purpose. Deciding what to eat all day is exhausting, and a short, predictable grocery list is one less thing to think about. Boring, here, is a feature.\n\nIt's a starting framework, not a rulebook. An anchor, not a ceiling. Especially in the first week or two, your appetite may not line up with the portions listed. Some days you'll want less. Some days you'll be genuinely hungry, and on those days, eat. Nobody gets a prize for going to bed hungry because a calendar said so.\n\nNotice your hunger before meals, your fullness after, whether you feel satisfied, and how your energy holds. If you consistently need more or less than the plan lists, that's what tells you how to adjust it.\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n**Note on Macros:** {{proteinPrecisionClaim}} Fat may vary ±20-30% based on protein choices—${fattyProteinExamples} naturally deliver more fat when portioned for protein. Adjust cooking fats (${cookingFatExamples}) up or down based on hunger and your body's response.\n\n{{mealCalendarWeeks}}\n\n## Substitution Guide\n{{substitutionGuide}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`;
+      return `## Report #3: Your Custom 30-Day Meal Calendar\n\n*Protocol: {{diet}} | Budget Level: {{budget}} | Focus: {{goal}}*\n\n{{mealPlanMedicalNote}}\n\n## A Note Before You Start\nFair warning: this calendar is repetitive. Somewhere around week two you may look at it and think, this again? Yes. On purpose. Deciding what to eat all day is exhausting, and a short, predictable grocery list is one less thing to think about. Boring, here, is a feature.\n\nIt's a starting framework, not a rulebook. An anchor, not a ceiling. Especially in the first week or two, your appetite may not line up with the portions listed. Some days you'll want less. Some days you'll be genuinely hungry, and on those days, eat. Nobody gets a prize for going to bed hungry because a calendar said so.\n\nNotice your hunger before meals, your fullness after, whether you feel satisfied, and how your energy holds. If you consistently need more or less than the plan lists, that's what tells you how to adjust it.\n\n## The Strategy\nThis plan rotates proteins for variety and simplicity. Cook proteins 2-3 times per week, mixing with different {{diet}}-appropriate options.\n\n**Note on Macros:** {{proteinPrecisionClaim}} Fat may vary ±20-30% based on protein choices, and ${fattyProteinExamples} naturally deliver more fat when portioned for protein. Adjust cooking fats (${cookingFatExamples}) up or down based on hunger and your body's response.\n\n{{mealCalendarWeeks}}\n\n## Substitution Guide\n{{substitutionGuide}}\n\n*This meal plan rotates proteins for variety while staying true to {{diet}}.* 🍽️`;
     })(),
 
     // Report #4: Weekly Shopping Lists
@@ -3966,7 +4119,7 @@ function getTemplateContent(templateName, dietOrData) {
     // called without `data` for this template, so the placeholder is the seam.
     electrolytes: `## Report #10: The Electrolyte Protocol\n\n*Managing sodium, potassium, and magnesium on {{diet}}*\n\n{{medicalContextBanner}}\n\n## Why Electrolytes Matter\n\nOn {{diet}}, your body releases water and electrolytes more rapidly. This causes "keto flu" (headache, fatigue) in Week 1-2.\n\n{{electrolyteProtocol}}`,
 
-    timeline: `## Report #11: The Adaptation Timeline\n\n*What to expect week by week on {{diet}}*\n\n## Week 1: The Glycogen Depletion Phase\n\n**Days 1-3:** Water loss (3-7 lbs normal), stable energy\n**Days 4-7:** Transition trough, possible "keto flu", cravings peak\n**Action:** Eat normally and stay hydrated. For electrolytes, follow Report #10 — it is the section that knows what you told us about your health.\n\n## Week 2: The Difficult Week\n\n**Days 8-10:** Peak dip, worst energy, strong cravings\n**Days 11-14:** Turning point, energy returns, cravings subside\n**Action:** Push through. This is temporary. Don't cheat.\n\n## Week 3: The Breakthrough\n\n**Days 15-21:** Fat adaptation accelerating, excellent energy, mental clarity improves\n**Action:** Enjoy. Note health improvements.\n\n## Week 4: The New Normal\n\n**Days 22-30:** {{diet}} feels normal, stable energy, sleep improves, skin/hair improve\n**Action:** This is your new baseline. Track improvements.\n\n**The hardest part is Weeks 1-2. If you push through, the payoff is worth it.**`,
+    timeline: `## Report #11: The Adaptation Timeline\n\n*What to expect week by week on {{diet}}*\n\n## Week 1: The Glycogen Depletion Phase\n\n**Days 1-3:** Water loss (3-7 lbs normal), stable energy\n**Days 4-7:** Transition trough, possible "keto flu", cravings peak\n**Action:** Eat normally and stay hydrated. For electrolytes, follow Report #10, the section that knows what you told us about your health.\n\n## Week 2: The Difficult Week\n\n**Days 8-10:** Peak dip, worst energy, strong cravings\n**Days 11-14:** Turning point, energy returns, cravings subside\n**Action:** Push through. This is temporary. Don't cheat.\n\n## Week 3: The Breakthrough\n\n**Days 15-21:** Fat adaptation accelerating, excellent energy, mental clarity improves\n**Action:** Enjoy. Note health improvements.\n\n## Week 4: The New Normal\n\n**Days 22-30:** {{diet}} feels normal, stable energy, sleep improves, skin/hair improve\n**Action:** This is your new baseline. Track improvements.\n\n**The hardest part is Weeks 1-2. If you push through, the payoff is worth it.**`,
 
     stallBreaker: (() => {
       const diet = (data.selectedProtocol || 'Carnivore').toLowerCase();
@@ -3975,7 +4128,7 @@ function getTemplateContent(templateName, dietOrData) {
       const plainProteinAdvice = isPescatarian ? 'Switch to plain fish and eggs' : 'Switch to plain meats and dairy';
       const processedFoodCheck = isPescatarian ? 'processed fish, supplements, condiments' : 'processed meats, supplements, condiments';
       const trustMessage = isPescatarian ? 'Trust Pescatarian' : 'Trust Carnivore';
-      return `## Report #12: The Stall-Breaker Protocol\n\n*What to do if weight loss stalls after Week 2*\n\n## Check These 4 Things (In Order)\n\n### 1. Real Stall or Normal Fluctuation?\n- It's been 7+ days with no weight loss?\n- You've been strict on {{diet}}?\n- You're drinking water and getting electrolytes?\n\nWait 10-14 days before making changes.\n\n### 2. Dairy Creep\nSmall amounts of cheese/cream add 1000+ calories.\n- Are you adding butter to everything? Using cream in coffee?\n- Solution: Track dairy for 3 days, reduce by 50%\n\n### 3. Too Much Fat\n{{diet}} is high-fat, but not unlimited.\n- How many grams of fat daily? Are you adding excessive cooking fat?\n- Solution: Reduce added fat by 20%, let ${naturalFatSource} be primary\n\n### 4. Hidden Carbs\n- Check labels on ${processedFoodCheck}\n- Solution: ${plainProteinAdvice}\n\n## Keep Going\n\nDon't quit {{diet}} • Don't add carbs • ${trustMessage}—stalls are temporary`;
+      return `## Report #12: The Stall-Breaker Protocol\n\n*What to do if weight loss stalls after Week 2*\n\n## Check These 4 Things (In Order)\n\n### 1. Real Stall or Normal Fluctuation?\n- It's been 7+ days with no weight loss?\n- You've been strict on {{diet}}?\n- You're drinking water and getting electrolytes?\n\nWait 10-14 days before making changes.\n\n### 2. Dairy Creep\nSmall amounts of cheese/cream add 1000+ calories.\n- Are you adding butter to everything? Using cream in coffee?\n- Solution: Track dairy for 3 days, reduce by 50%\n\n### 3. Too Much Fat\n{{diet}} is high-fat, but not unlimited.\n- How many grams of fat daily? Are you adding excessive cooking fat?\n- Solution: Reduce added fat by 20%, let ${naturalFatSource} be primary\n\n### 4. Hidden Carbs\n- Check labels on ${processedFoodCheck}\n- Solution: ${plainProteinAdvice}\n\n## Keep Going\n\nDon't quit {{diet}} • Don't add carbs • ${trustMessage}. Stalls are temporary`;
     })(),
 
     tracker: `## Report #13: 30-Day Symptom & Progress Tracker\n\n*Track what matters: How you FEEL, not just the scale*\n\n## How to Use This Tracker\n\n1. Weigh yourself (morning, after bathroom)\n2. Rate energy (1-10)\n3. Rate mood (1-10)\n4. Note digestion quality\n5. Track non-scale victories (NSVs)\n\n## Daily Tracker\n\n| Day | Weight | Energy | Mood | Digestion | NSVs |\n|-----|--------|--------|------|-----------|------|\n| 1 | ___ | ☐☐☐☐☐ | ☐☐☐☐☐ | Good/OK/Bad | |\n| 7 | ___ | ☐☐☐☐☐ | ☐☐☐☐☐ | Good/OK/Bad | |\n| 15 | ___ | ☐☐☐☐☐ | ☐☐☐☐☐ | Good/OK/Bad | |\n| 30 | ___ | ☐☐☐☐☐ | ☐☐☐☐☐ | Good/OK/Bad | |\n\n## Symptom Checklist\n\n| Symptom | Week 1 | Week 2 | Week 3 | Week 4 |\n|---------|--------|--------|--------|--------|\n| Brain fog | ☐ | ☐ | ☐ | ☐ |\n| Energy crashes | ☐ | ☐ | ☐ | ☐ |\n| Cravings | ☐ | ☐ | ☐ | ☐ |\n| Sleep quality | ☐ | ☐ | ☐ | ☐ |\n| Joint pain | ☐ | ☐ | ☐ | ☐ |\n| Bloating | ☐ | ☐ | ☐ | ☐ |\n| Mood | ☐ | ☐ | ☐ | ☐ |\n| Digestion | ☐ | ☐ | ☐ | ☐ |\n\n## End of 30 Days: Reflection\n\n**What improved the most?** _____________\n\n**What's still a challenge?** _____________\n\n**Continue {{diet}} past 30 days?** ☐ Yes ☐ Maybe ☐ No\n\n*Remember: This is YOUR data. Use it to make decisions about {{diet}}.*`
@@ -4074,7 +4227,22 @@ function replacePlaceholders(template, data) {
   result = result.replace(/\{\{firstName\}\} \{\{lastName\}\}/g, [data.firstName, data.lastName].filter(Boolean).join(' ') || 'Friend');
   result = result.replace(/\{\{firstName\}\}/g, data.firstName || 'Friend');
   result = result.replace(/\{\{lastName\}\}/g, data.lastName || '');
-  result = result.replace(/\{\{diet\}\}/g, data.selectedProtocol || 'Carnivore');
+  // Display capitalisation for the protocol name.
+  //
+  // Every template writes {{diet}} in heading and title-case positions:
+  // "{{diet}} Target" in the markers table, "Before Starting {{diet}}", and
+  // "**{{diet}} expectation:**". The fallback on this very line has always been the
+  // capitalised 'Carnivore', so the templates were authored expecting a capitalised
+  // value. The stored session value is lower case, which is why a real customer's
+  // report read "carnivore Target" and "Before Starting carnivore" (found
+  // 2026-09-09 while inspecting a delivered PDF).
+  //
+  // Capitalisation is applied for display only. calculateMacros() keeps its own
+  // lower-cased copy for protocol matching, so this cannot affect any calculation.
+  const dietDisplay = String(data.selectedProtocol || 'Carnivore')
+    .trim()
+    .replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1)) || 'Carnivore';
+  result = result.replace(/\{\{diet\}\}/g, () => dietDisplay);
   result = result.replace(/\{\{selectedProtocol\}\}/g, data.selectedProtocol || 'Carnivore');
   // Human label, never the raw enum. "Focus: gain" and "promising results for gain"
   // were both this line printing an internal token at the customer.
@@ -4208,7 +4376,7 @@ function replacePlaceholders(template, data) {
   // must not then be told, two sections later, that their protein target is precisely
   // calculated. Removing the claim, not softening the number.
   result = result.replace(/\{\{proteinPrecisionClaim\}\}/g, medicalContext.restrictProteinTarget
-    ? 'This plan is built around ordinary portions, not around a protein target set for you — you reported kidney disease, and your protein intake is a question for your doctor or a renal dietitian. Take this plan to them before you follow it.'
+    ? 'This plan is built around ordinary portions, not around a protein target set for you. You reported kidney disease, and your protein intake is a question for your doctor or a renal dietitian. Take this plan to them before you follow it.'
     : 'Your protein targets are precisely calculated.');
   result = result.replace(/\{\{mealPlanMedicalNote\}\}/g, () => buildMealPlanMedicalNote(medicalContext));
 
@@ -4224,7 +4392,7 @@ function replacePlaceholders(template, data) {
     // not a smaller number, because choosing a smaller number is the clinical
     // judgement this product is not entitled to make. See api/medical-context.js.
     const proteinDisplay = medicalContext.restrictProteinTarget
-      ? 'not set by this report — ask your doctor or renal dietitian'
+      ? 'not set by this report, ask your doctor or renal dietitian'
       : protein;
 
     result = result.replace(/\{\{macros\.calories\}\}/g, calories);
@@ -7651,6 +7819,7 @@ export {
   generateAllReports as __test_generateAllReports,
   calculateMacros as __test_calculateMacros,
   wrapInPrintHTML as __test_wrapInPrintHTML,
+  markdownToHTML as __test_markdownToHTML,
   // Exposed so tests/report-integrity.test.mjs can assert the derivation directly,
   // not just its rendered output: the grocery list must be a pure function of the
   // meal plan. See that file's GROUP D.

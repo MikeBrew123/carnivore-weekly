@@ -33,6 +33,70 @@ absent_cs "undefined"              "no undefined value rendered"
 absent_cs "\[object Object\]"      "no object stringified into the copy"
 absent_cs "NaN"                    "no NaN in a number"
 
+echo "--- raw markdown must not be customer-visible (2026-09-09)"
+# This gate PASSED a PDF whose safety sections printed literal '>', '###' and '**'.
+# It checked for unreplaced '{{' placeholders and never for markdown that survived
+# the renderer. A gate is only worth what it looks at.
+#
+# Deliberately NOT a blanket "no > anywhere" check: HDL >40, age >40 and CAC <50 are
+# legitimate medical reference values the reader needs. These check for markdown
+# SYNTAX, which is line-leading and space-delimited, not for the character.
+LAYOUT=$(mktemp); pdftotext -layout "$PDF" "$LAYOUT" 2>/dev/null
+
+n=$(grep -cE '^[[:space:]]*>' "$LAYOUT" || true)
+[ "$n" = "0" ] && ok "no line-leading markdown quote marker" \
+               || bad "line-leading quote markers visible on $n line(s)"
+
+n=$(grep -cE '(^|[[:space:]])#{1,6}[[:space:]]' "$LAYOUT" || true)
+[ "$n" = "0" ] && ok "no raw markdown heading marker" \
+               || bad "raw '###' heading markers visible on $n line(s)"
+
+n=$(grep -cE '\*\*' "$LAYOUT" || true)
+[ "$n" = "0" ] && ok "no raw markdown bold marker" \
+               || bad "raw '**' bold markers visible on $n line(s)"
+
+n=$(grep -cE '>[[:space:]]*>' "$LAYOUT" || true)
+[ "$n" = "0" ] && ok "no '> >' quote separator" \
+               || bad "'> >' separators visible on $n line(s)"
+
+# Known medical helper sentences must be clean prose, with no quote marker injected
+# mid-sentence. This is the specific shape the reader saw: "re-time any > medication".
+BROKEN=0
+for phrase in "Take this report to your doctor" "Do not change, stop, skip or re-time" \
+              "generated automatically from your questionnaire" "is not a clinician" \
+              "What you told us"; do
+  if grep -qF "$phrase" "$LAYOUT"; then
+    # pull the sentence and look for an injected marker inside it
+    if grep -A3 -F "$phrase" "$LAYOUT" | grep -qE '(^|[[:space:]])>([[:space:]]|$)'; then
+      bad "medical helper text has an injected '>' marker near: $phrase"; BROKEN=1
+    fi
+  fi
+done
+[ "$BROKEN" = "0" ] && ok "medical helper text carries no injected quote markers"
+
+# A safety callout must not be torn across a page. pdftotext -layout emits \f at a
+# page boundary; a page that OPENS mid-sentence (lower-case first word, no heading)
+# right after a page containing safety text is the page 13/14 failure.
+ORPHAN=$(python3 - "$LAYOUT" <<'PY'
+import sys, re
+pages = open(sys.argv[1], encoding='utf-8', errors='replace').read().split('\f')
+SAFETY = ('Take this report to your doctor', 'What you told us',
+          'Do not change, stop, skip or re-time', 'MEDICAL DISCLAIMER')
+bad = []
+for i in range(1, len(pages)):
+    prev, cur = pages[i-1], pages[i]
+    if not any(s in prev for s in SAFETY):
+        continue
+    first = next((l.strip() for l in cur.splitlines() if l.strip()), '')
+    # A continuation line: starts lower-case, or with a conjunction/preposition.
+    if re.match(r'^(?:[a-z]|and\b|or\b|to\b|the\b|that\b|stop\b|them\b)', first):
+        bad.append(f'page {i+1} opens with "{first[:60]}"')
+print('; '.join(bad))
+PY
+)
+[ -z "$ORPHAN" ] && ok "no safety callout split across a page boundary" \
+                 || bad "safety callout torn across pages: $ORPHAN"
+
 echo "--- goal coherence (the 2026-09-07 complaint)"
 present "maintenance"              "names the resolved goal"
 absent  "stall-breaker"            "no weight-loss stall protocol under a maintenance goal"
@@ -66,5 +130,5 @@ echo "    report sections present: ${SEQ}"
 
 echo
 if [ "$fails" -eq 0 ]; then echo "ARTIFACT GATE PASSED"; else echo "ARTIFACT GATE FAILED: $fails check(s)"; fi
-rm -f "$TXT"
+rm -f "$TXT" "$LAYOUT"
 exit "$fails"
