@@ -1539,6 +1539,15 @@ async function handleReportStatus(request, env, accessToken) {
   }
 }
 
+// What a reader is told when report generation fails for a reason they cannot act on.
+// Deliberately says nothing about WHY: the reasons are gate text, model corrections and
+// database errors. It states what is true and what they can do, and nothing else. It
+// promises no email, because nothing here sends one.
+const REPORT_GENERATION_FAILED_MESSAGE =
+  'We could not finish building your report. Your payment is safe and your answers ' +
+  'are saved. Please try again, and if it happens a second time use the feedback ' +
+  'button on the site so we can finish it for you.';
+
 /**
  * POST /api/v1/calculator/report/init
  * Initialize report generation with Claude API
@@ -1804,8 +1813,15 @@ async function handleReportInit(request, env) {
       },
     }, 200);
   } catch (err) {
-    console.error('handleReportInit error:', err);
-    return createErrorResponse('INTERNAL_ERROR', String(err), 500);
+    // The detail stays server side, where it is useful. It does not go to the reader.
+    //
+    // This returned `String(err)`, and the browser prints that message verbatim in the
+    // failure banner. A content-gate failure quotes the rejected report copy, names the
+    // gate, and explains what the model should have written instead; a persistence
+    // failure carries PostgREST internals. A paying customer read the first of those on
+    // 2026-09-09. None of it is theirs to see, and none of it helps them.
+    console.error('[handleReportInit] generation failed:', err && err.stack ? err.stack : String(err));
+    return createErrorResponse('INTERNAL_ERROR', REPORT_GENERATION_FAILED_MESSAGE, 500);
   }
 }
 
@@ -3512,6 +3528,46 @@ function assertReportInputsCoherent(data) {
   }
 }
 
+/**
+ * THE gate set for report copy. ONE list, used in both places that check text:
+ * the bounded retry around a model-written section, and the final read-back over
+ * every assembled section.
+ *
+ * They used to be two lists. `generateCheckedSection` checked two of the four, so a
+ * model-written Report #1 or #6 that tripped the other two was not re-asked: it fell
+ * through to final assembly and killed the whole generation for a customer who had
+ * already paid. Reproduced 2026-09-09 on a declared-kidney-disease persona, where
+ * Report #1 wrote "What protein amount is appropriate for your current kidney
+ * function" — a question for the reader's clinician, matched by the clearance gate,
+ * and one re-ask away from acceptable copy that never happened.
+ *
+ * Keeping one runner is the fix, not adding two calls in a second place: a fifth gate
+ * added here is enforced on both paths by construction, which is what stopped being
+ * true when the lists diverged. The order is the order the final loop already used.
+ *
+ * This changes NO gate's semantics. Each assertion is the same function, called with
+ * the same arguments, and the finished report is still validated section by section
+ * after assembly.
+ */
+function assertReportCopyIsClean(sectionLabel, text, ctx) {
+  // The claim-frame gate needs the reader's declared context; without it,
+  // findConditionClaimFrames() has no terms and returns [] — it passes everything,
+  // silently. A caller that forgets this argument would disable one gate of four with
+  // no throw and no log, which is the fail-open shape this whole fix is about. So the
+  // runner refuses to run rather than run at three quarters strength.
+  if (!ctx) {
+    throw new Error(`${sectionLabel}: no medical context passed to the report copy gate.`);
+  }
+  assertNoConditionClaimFrames(sectionLabel, text, ctx);
+  // Unconditional, and NOT keyed on ctx: a reader who declared nothing is the one
+  // this fires for. "You didn't report anything that requires modified guidance, so
+  // your targets are appropriate to follow" shipped on the default path, which means
+  // it was the sentence most readers saw.
+  assertNoUnfoundedClearance(sectionLabel, text);
+  assertNoDeterministicOutcomes(sectionLabel, text);
+  assertNoAdvocacy(sectionLabel, text);
+}
+
 async function generateAllReports(data, apiKey) {
   // Fail closed before a single section is written or a single token is spent.
   assertReportInputsCoherent(data);
@@ -3644,14 +3700,7 @@ async function generateAllReports(data, apiKey) {
     // sections too: if the model breaks rule 11, generation fails rather than shipping.
     const medCtx = deriveMedicalContext(data);
     for (const [num, body] of Object.entries(reports)) {
-      assertNoConditionClaimFrames(`Report #${num}`, body, medCtx);
-      // Unconditional, and NOT keyed on medCtx: a reader who declared nothing is the
-      // one this fires for. "You didn't report anything that requires modified
-      // guidance, so your targets are appropriate to follow" shipped on the default
-      // path, which means it was the sentence most readers saw.
-      assertNoUnfoundedClearance(`Report #${num}`, body);
-      assertNoDeterministicOutcomes(`Report #${num}`, body);
-      assertNoAdvocacy(`Report #${num}`, body);
+      assertReportCopyIsClean(`Report #${num}`, body, medCtx);
     }
 
     console.log('=== COMBINING SECTIONS ===');
@@ -3689,18 +3738,23 @@ async function generateAllReports(data, apiKey) {
  * still fails closed when the model will not comply. The retry is a convenience for
  * the customer; the gate is the thing that guarantees correctness.
  */
-async function generateCheckedSection(apiKey, systemPrompt, userPrompt, maxTokens, label) {
+async function generateCheckedSection(apiKey, systemPrompt, userPrompt, maxTokens, label, medCtx) {
   let lastError = null;
   for (let attempt = 1; attempt <= 3; attempt++) {
     const correction = lastError
       ? `\n\nYOUR PREVIOUS ATTEMPT WAS REJECTED: ${lastError}\n` +
         'Rewrite it without that. Describe what people report and what varies, never ' +
-        'what the reader will experience, and never argue a clinician out of a concern.'
+        'what the reader will experience, and never argue a clinician out of a concern. ' +
+        'Do not tell the reader that any number, target or plan is appropriate, safe, ' +
+        'suitable or fine for them, and never present this way of eating as treating, ' +
+        'addressing, healing or reversing anything they told us about.'
       : '';
     const text = await callClaudeAPI(apiKey, systemPrompt, userPrompt + correction, maxTokens);
     try {
-      assertNoDeterministicOutcomes(label, text);
-      assertNoAdvocacy(label, text);
+      // The SAME four gates the finished report is held to. A section that would fail
+      // at final assembly is re-asked here, where a retry still exists, instead of
+      // failing a paid generation outright.
+      assertReportCopyIsClean(label, text, medCtx);
       return text;
     } catch (err) {
       lastError = err.message;
@@ -3711,6 +3765,11 @@ async function generateCheckedSection(apiKey, systemPrompt, userPrompt, maxToken
 }
 
 async function generateAIReports(data, apiKey) {
+  // The condition-claim gate needs the reader's declared context to know which terms
+  // may not appear inside a treatment frame. Derived once, from the same function the
+  // final assembly gate uses, so the retry and the final check judge identically.
+  const medCtx = deriveMedicalContext(data);
+
   // Report #1: Executive Summary
   const summaryPrompt = buildExecutiveSummaryPrompt(data);
   const summary = await generateCheckedSection(
@@ -3718,7 +3777,8 @@ async function generateAIReports(data, apiKey) {
     buildExecutiveSummarySystemPrompt(data),
     summaryPrompt,
     2000,
-    'Report #1'
+    'Report #1',
+    medCtx
   );
 
   // Report #6: Obstacle Override Protocol
@@ -3728,7 +3788,8 @@ async function generateAIReports(data, apiKey) {
     buildObstacleProtocolSystemPrompt(data),
     obstaclePrompt,
     2500,
-    'Report #6'
+    'Report #6',
+    medCtx
   );
 
   return {
@@ -7893,6 +7954,9 @@ export {
   // Exposed so tests/report-integrity.test.mjs can assert the derivation directly,
   // not just its rendered output: the grocery list must be a pure function of the
   // meal plan. See that file's GROUP D.
+  generateAIReports as __test_generateAIReports,
+  assertReportCopyIsClean as __test_assertReportCopyIsClean,
+  REPORT_GENERATION_FAILED_MESSAGE as __test_REPORT_GENERATION_FAILED_MESSAGE,
   generateFullMealPlan as __test_generateFullMealPlan,
   generateGroceryListByWeek as __test_generateGroceryListByWeek,
   resolveGoal as __test_resolveGoal,

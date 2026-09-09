@@ -101,16 +101,16 @@ open('$API','w').write(s.replace(old,new))
 
 mutate 9 "render-time claim gate removed" health-context-flow "
 s=open('$API').read()
-old='      assertNoConditionClaimFrames(\`Report #\${num}\`, body, medCtx);'
-new='      void num; void body; void medCtx;'
+old='  assertNoConditionClaimFrames(sectionLabel, text, ctx);'
+new='  void ctx;'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
 mutate 10 "clearance gate removed from the generator" health-context-flow "
 s=open('$API').read()
-old='      assertNoUnfoundedClearance(\`Report #\${num}\`, body);'
-new='      void body;'
+old='  assertNoUnfoundedClearance(sectionLabel, text);'
+new='  void text;'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
@@ -399,11 +399,30 @@ assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
+# --- THE RETRY CALL SITE ITSELF (2026-09-09) -------------------------------------
+# M9/M10/M43/M50 mutate the shared runner, which disables a gate on BOTH the retry and
+# the finished-report check at once. Neither of them proves the RETRY call site still
+# exists, and reverting it to the two gates it used to check is exactly the defect this
+# fix closed: a model-written section that trips the other two dies without a re-ask.
+mutate 59 "the model-retry path drops back to two of the four gates" report-copy-gate-retry "
+s=open('$API').read()
+old='      assertReportCopyIsClean(label, text, medCtx);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'      assertNoDeterministicOutcomes(label, text);\n      assertNoAdvocacy(label, text);'))
+"
+
+mutate 60 "the customer is shown the raw generation error again" report-copy-gate-retry "
+s=open('$API').read()
+old=\"return createErrorResponse('INTERNAL_ERROR', REPORT_GENERATION_FAILED_MESSAGE, 500);\"
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,\"return createErrorResponse('INTERNAL_ERROR', String(err), 500);\"))
+"
+
 mutate 43 "the deterministic-outcome render gate is removed" report-render-markdown-leak "
 s=open('$API').read()
-old='      assertNoDeterministicOutcomes(\`Report #\${num}\`, body);'
+old='  assertNoDeterministicOutcomes(sectionLabel, text);'
 assert s.count(old)==1, s.count(old)
-open('$API','w').write(s.replace(old,'      void body;'))
+open('$API','w').write(s.replace(old,'  void text;'))
 "
 
 mutate 44 "the canonical outlook stops describing variation" report-render-markdown-leak "
@@ -457,9 +476,9 @@ open('$API','w').write(s.replace(old,new))
 # --- ADVOCACY vs PATIENT EDUCATION (reported 2026-09-09) -------------------------
 mutate 50 "the advocacy render gate is removed" report-render-markdown-leak "
 s=open('$API').read()
-old='      assertNoAdvocacy(\`Report #\${num}\`, body);'
+old='  assertNoAdvocacy(sectionLabel, text);'
 assert s.count(old)==1, s.count(old)
-open('$API','w').write(s.replace(old,'      void num;'))
+open('$API','w').write(s.replace(old,'  void sectionLabel;'))
 "
 
 mutate 51 "ApoB is sold as better than LDL again" report-render-markdown-leak "
