@@ -870,8 +870,11 @@ try {
     const text = mail.html.replace(/<[^>]+>/g, ' | ').replace(/&[a-z]+;/g, ' ')
       .replace(/(\s*\|\s*)+/g, ' | ').replace(/[^\S\n]+/g, ' ');
 
+    // Scoped to the VISIBLE text, not the raw HTML. Since 2026-09-08 the buy links
+    // carry a random session token, and a token that happened to contain "9999" made
+    // this assertion fail on a sentinel that was never rendered to anyone.
     check(G, 'macros come from the authoritative row, not the client',
-      /1,?650/.test(mail.html) && !/9,?999/.test(mail.html),
+      /1,?650/.test(text) && !/9,?999/.test(text),
       'the worker trusted client-supplied macros');
     check(G, 'replies go to the KetoDial catch-all, never a personal inbox',
       mail.replyTo === 'ketodial@carnivoreweekly.com', String(mail.replyTo));
@@ -900,7 +903,8 @@ try {
         !/Full Protocol/.test(text) && !/7-day meal plan/i.test(text),
         'the email upsells the product checkout would refuse to sell');
       check(G, 'the two deliverable reports are offered instead',
-        /doctor-ready report/i.test(text) && /starter kit/i.test(text), '');
+        /doctor\W{0,8}s report|doctor-ready report/i.test(text) &&
+        /starter kit/i.test(text), '');
       check(G, '  ...and the customer can still spend money', /9\.98/.test(text), '');
     }
   }

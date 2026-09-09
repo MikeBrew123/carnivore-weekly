@@ -45,6 +45,7 @@ on:
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
       - 'tests/kd-upgrade-offer.test.mjs'
+      - 'tests/kd-plan-email.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
@@ -86,6 +87,7 @@ on:
       - 'tests/kd-report-safety.test.mjs'
       - 'tests/kd-intake-authority.test.mjs'
       - 'tests/kd-upgrade-offer.test.mjs'
+      - 'tests/kd-plan-email.test.mjs'
   workflow_dispatch:
 
 jobs:
@@ -138,6 +140,17 @@ jobs:
       # and executes it, so it fails on behaviour rather than on wording.
       - name: KetoDial upgrade offer and result hierarchy
         run: node tests/kd-upgrade-offer.test.mjs
+
+      # The free-results email is auto-sent seconds after the first result, so it is
+      # the highest-volume surface KetoDial has. This suite drives the real
+      # POST /email-plan and asserts on the exact payload Resend would receive:
+      # subject, reply_to, tags and rendered HTML. It pins the renal suppression that
+      # already shipped (no protein figure, no meal plan, no Full Protocol, and
+      # "I'm not sure" never rendered as a diagnosis), the truthful fulfilment
+      # wording, and that the buy link resumes the saved session instead of dropping
+      # the reader back at an empty calculator.
+      - name: KetoDial free-results email
+        run: node tests/kd-plan-email.test.mjs
 
       - name: Report integrity regression
         run: node tests/report-integrity.test.mjs

@@ -980,14 +980,17 @@ for (const c of MALFORMED_CASES) {
       check('N', `${trigger} watches ${p}`,
         new RegExp(`^\\s*- '${p.replace(/\//g, '\\/')}'\\s*$`, 'm').test(body), '');
     }
-    check('N', `${trigger} watches all three KD suites`,
+    check('N', `${trigger} watches all four KD suites`,
       /tests\/kd-report-safety\.test\.mjs/.test(body) &&
       /tests\/kd-intake-authority\.test\.mjs/.test(body) &&
       // Added 2026-09-08 with the conversion pass. It is the only suite that proves
       // the immediate upgrade card derives its offer from productAvailable() rather
       // than from a second, hand-written product list — the precise way a Meal Plan
       // could get advertised to a renal customer again.
-      /tests\/kd-upgrade-offer\.test\.mjs/.test(body), '');
+      /tests\/kd-upgrade-offer\.test\.mjs/.test(body) &&
+      // The free-results email. Auto-sent seconds after the first result, so it is
+      // the highest-volume surface the renal gate has to hold on.
+      /tests\/kd-plan-email\.test\.mjs/.test(body), '');
   }
   check('N', 'the report job still checks out submodules',
     /submodules:\s*true/.test(yml),
@@ -996,6 +999,8 @@ for (const c of MALFORMED_CASES) {
     /node tests\/kd-intake-authority\.test\.mjs/.test(yml), '');
   check('N', 'the upgrade-offer suite is a gating step',
     /node tests\/kd-upgrade-offer\.test\.mjs/.test(yml), '');
+  check('N', 'the free-results email suite is a gating step',
+    /node tests\/kd-plan-email\.test\.mjs/.test(yml), '');
 }
 
 // ===========================================================================
@@ -1294,8 +1299,12 @@ for (const c of MALFORMED_CASES) {
     check('Q', 'suppressed: the meal-plan bundle is NOT advertised',
       !/Full Protocol/.test(shut) && !/7-day meal plan/i.test(shut),
       'the email upsells the product checkout would refuse to sell');
+    // Matches what the two reports ARE, not one phrasing of them. The copy moved to
+    // "A Doctor's Report for your next appointment" on 2026-09-08 and this assertion
+    // failed on the wording while the behaviour was correct.
     check('Q', 'suppressed: the two deliverable reports are offered instead',
-      /doctor-ready report/i.test(shut) && /starter kit/i.test(shut) && /9\.98/.test(shut), '');
+      /doctor\W{0,8}s report|doctor-ready report/i.test(shut) &&
+      /starter kit/i.test(shut) && /9\.98/.test(shut), '');
     check('Q', 'suppressed: fat and carbs are still given — only protein is withheld',
       /128 g/.test(shut) && /22 g/.test(shut), '');
   }

@@ -621,6 +621,47 @@ function checkoutSandbox({ kidney = 'no', stripeFails = false, createFails = fal
     !/optional details/i.test(js), '');
 }
 
+// ===========================================================================
+// GROUP AG — THE EMAIL RESUME LINK CANNOT WIDEN WHAT IS ON OFFER.
+// ---------------------------------------------------------------------------
+// The free-results email now carries a session reference so the buy button lands on
+// the offer instead of an empty calculator. That link must be a convenience and
+// nothing more: a resumed page still runs every product through productAvailable(),
+// and /checkout re-derives eligibility from the stored row regardless.
+// ===========================================================================
+{
+  const resume = js.slice(js.indexOf('function resumeFromEmail()'),
+                          js.indexOf('/* ---------- SUCCESS'));
+  check('AG', 'the resume handler exists', resume.length > 0, '');
+
+  // The kidney answer is taken from the server response, never from the URL.
+  check('AG', 'the kidney chip is set from the server response, not the link',
+    /d\.kidney_status/.test(resume) &&
+    !/location\.(search|href)[\s\S]{0,80}kidney/i.test(resume), resume.slice(0, 400));
+
+  // Every product the server offers is re-checked locally before selection.
+  check('AG', 'a resumed selection is re-checked against productAvailable()',
+    /allowed\.indexOf\(k\)>-1&&productAvailable\(k\)/.test(resume),
+    'the page would select whatever the response claimed');
+  check('AG', 'the bundle path is gated too',
+    /allowed\.indexOf\('protocol'\)>-1&&productAvailable\('protocol'\)/.test(resume),
+    resume);
+
+  // The token is read from the fragment and removed immediately.
+  check('AG', 'the token is read from the fragment, not the query string',
+    /window\.location\.hash/.test(resume) && !/URLSearchParams[\s\S]{0,60}resume/.test(resume),
+    resume.slice(0, 300));
+  check('AG', 'and it is scrubbed from history on arrival',
+    /history\.replaceState/.test(resume), resume);
+  check('AG', 'the token is validated before it is used in a URL',
+    /\^#resume=\(\[A-Za-z0-9_-\]\{8,128\}\)\$/.test(resume), resume.slice(0, 300));
+
+  // Nothing about the person is read out of the link.
+  check('AG', 'no health value is taken from the URL',
+    !/(conditions|medications|macros|proteinG|weight|height)\s*=\s*(urlParams|params|hash)/i.test(resume),
+    resume);
+}
+
 // ---------------------------------------------------------------------------
 if (failures.length) {
   console.log(`\n${failures.length} of ${checks} assertions FAILED\n`);
@@ -644,6 +685,7 @@ const groups = {
   AD: 'the featured CTA survives a checkout the customer closes',
   AE: 'every failure path gives the originating button back',
   AF: 'no promise of delivery the pay-first path cannot keep',
+  AG: 'the email resume link cannot widen what is on offer',
 };
 for (const [k, v] of Object.entries(groups)) console.log(`PASS  ${k}  ${v}`);
 console.log(`\n${checks} assertions passed.`);

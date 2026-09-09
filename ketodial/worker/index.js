@@ -141,6 +141,9 @@ export default {
     // optional profile afterwards; these two resolve a paid Stripe session back to
     // its authoritative row so that is possible without the browser having to carry
     // a session token across the Stripe redirect (it cannot — the page reloads).
+    if (url.pathname.startsWith('/resume/') && request.method === 'GET') {
+      return handleResume(decodeURIComponent(url.pathname.split('/resume/')[1] || ''), env);
+    }
     if (url.pathname.startsWith('/purchase/') && request.method === 'GET') {
       return handlePurchaseStatus(url.pathname.split('/purchase/')[1], env);
     }
@@ -341,7 +344,7 @@ async function handleSessionUpdate(request, env) {
 // ──────────────────────────────────────────────
 function buildPlanEmail(m, goal, p) {
   // p: optional personalization {age, sex, activity, newsletterOptIn, unsubUrl,
-  // suppressProtein}.
+  // suppressProtein, token}.
   // Every line is derived only from inputs the user actually gave us — the
   // "you told us X, so Y" framing is the point (Brew, 2026-08-30): make
   // answering questions feel worthwhile without asking any new ones for free.
@@ -353,38 +356,49 @@ function buildPlanEmail(m, goal, p) {
   // protein number first", copy explaining why we set their protein high, and an
   // upsell to the meal plan we had just refused to sell them.
   //
-  // Suppressed on one surface and still emitted on another is the exact defect class
-  // this whole audit has been closing. The email still goes — we do not stop the
-  // customer — but it carries no protein target and offers the two products that
-  // remain deliverable.
+  // ORDER MATTERS AS MUCH AS CONTENT (2026-09-08).
+  // The reader has finished the calculator, asked for this email and opened it. That
+  // is the highest-intent moment we get. The email used to spend it on four screens
+  // of free education and an outbound link to the recipe index, and only then
+  // mention that we sell anything. The offer now sits directly under the numbers,
+  // with one line of explanation; the education and the recipe link keep every word
+  // they had, below it.
   p = p || {};
   const suppressProtein = !!p.suppressProtein;
   const goalLabel = { lose: 'fat loss', gain: 'muscle gain', maintain: 'maintenance' }[goal] || 'your goal';
-  const valueLines = [];
+
+  // The single most relevant sentence goes above the offer. The rest go below it.
+  let leadLine = '';
+  const moreLines = [];
   if (suppressProtein) {
-    valueLines.push(`You told us about your kidney function, so this plan does not set you a protein target. How much protein is right for you depends on things a questionnaire cannot see, and picking a lower number would be the same clinical decision made quietly. <b>Ask your doctor or a renal dietitian what your protein intake should be.</b>`);
+    leadLine = `You told us about your kidney function, so this plan does not set you a protein target. How much protein is right for you depends on things a questionnaire cannot see, and picking a lower number would be the same clinical decision made quietly. <b>Ask your doctor or a renal dietitian what your protein intake should be.</b>`;
   } else if (goal === 'lose') {
-    valueLines.push(`You told us you want to lose weight, so we set your protein high on purpose. It protects your muscle while your calories run under your TDEE, so more of what comes off is fat.`);
-  } else if (!suppressProtein && goal === 'gain') {
-    valueLines.push(`You told us you want to gain, so we paired a high protein target with a small calorie surplus over your TDEE. That's enough to build muscle without turning into a bulk you'll have to diet off later.`);
-  } else if (!suppressProtein && goal === 'maintain') {
-    valueLines.push(`You told us you want to maintain, so your calories sit right at your TDEE. Carbs stay the lever: keep them under your target and your weight holds steady while your body runs on fat.`);
+    leadLine = `You told us you want to lose weight, so we set your protein high on purpose. It protects your muscle while your calories run under your TDEE, so more of what comes off is fat.`;
+  } else if (goal === 'gain') {
+    leadLine = `You told us you want to gain, so we paired a high protein target with a small calorie surplus over your TDEE. That's enough to build muscle without turning into a bulk you'll have to diet off later.`;
+  } else if (goal === 'maintain') {
+    leadLine = `You told us you want to maintain, so your calories sit right at your TDEE. Carbs stay the lever: keep them under your target and your weight holds steady while your body runs on fat.`;
   }
   // Explains why the protein target is HIGH — meaningless and unsafe when there is
   // no protein target.
   if (!suppressProtein && Number(p.age) >= 50) {
-    valueLines.push(`You told us your age, and past 50 the body needs more protein to hold onto muscle, so your target runs higher than the generic keto advice you'll see online.`);
+    moreLines.push(`You told us your age, and past 50 the body needs more protein to hold onto muscle, so your target runs higher than the generic keto advice you'll see online.`);
   }
   if (Number(p.activity) && Number(p.activity) <= 1.3) {
-    valueLines.push(`You told us your days are mostly low-activity right now, so we set your calorie line from your real routine, not an optimistic one, and that's exactly why it'll work.`);
+    moreLines.push(`You told us your days are mostly low-activity right now, so we set your calorie line from your real routine, not an optimistic one, and that's exactly why it'll work.`);
   } else if (Number(p.activity) >= 1.7) {
-    valueLines.push(`You told us you train hard, so your fat intake is set to carry those sessions while your carbs stay low enough to keep you in ketosis, even on heavy days.`);
+    moreLines.push(`You told us you train hard, so your fat intake is set to carry those sessions while your carbs stay low enough to keep you in ketosis, even on heavy days.`);
   }
-  const valueBlock = valueLines.length
-    ? `<div style="margin:0 28px 4px;padding:14px 18px;background:rgba(56,189,248,.05);border-left:3px solid #38bdf8;border-radius:0 10px 10px 0">` +
-      valueLines.map((l, i) => `<p style="margin:${i === valueLines.length - 1 ? '0' : '0 0 10px'};color:#bcd4e3;font-size:13.5px;line-height:1.6">${l}</p>`).join('') +
+  moreLines.push(suppressProtein
+    ? `Use fat to stay full and keep net carbs (total carbs minus fiber) under target. Take the protein question to your doctor or a renal dietitian before you change how you eat.`
+    : `Hit the protein number first, use fat to stay full, and keep net carbs (total carbs minus fiber) under target. Give it two weeks before you judge anything.`);
+
+  const panel = (lines, marginTop) => lines.length
+    ? `<div style="margin:${marginTop} 28px 4px;padding:14px 18px;background:rgba(56,189,248,.05);border-left:3px solid #38bdf8;border-radius:0 10px 10px 0">` +
+      lines.map((l, i) => `<p style="margin:${i === lines.length - 1 ? '0' : '0 0 10px'};color:#bcd4e3;font-size:13.5px;line-height:1.6">${l}</p>`).join('') +
       `</div>`
     : '';
+
   const newsletterLine = p.newsletterOptIn
     ? `<p style="margin:16px 0 0;color:#9fb8c9;font-size:12.5px;line-height:1.6">You're also on The Weekly Dial-In, one practical keto email a week, no hype, and you can leave anytime.</p>`
     : '';
@@ -394,6 +408,73 @@ function buildPlanEmail(m, goal, p) {
   const row = (k, v, color) =>
     `<tr><td style="padding:10px 14px;border-bottom:1px solid #1e3a52;color:#9fb8c9;font-size:13px">${k}</td>` +
     `<td style="padding:10px 14px;border-bottom:1px solid #1e3a52;color:${color || '#e2eef7'};font-size:15px;font-weight:700;text-align:right">${v}</td></tr>`;
+
+  /**
+   * Every outbound link. The session token rides in the URL FRAGMENT so it is never
+   * sent to a server, never lands in a Referer header and never reaches the analytics
+   * or Stripe scripts the page loads; the client scrubs it from history on arrival.
+   * utm_content names the PRODUCT that was clicked, never the health state that
+   * chose it, so nothing derived from the kidney answer leaves for external
+   * analytics under its own name.
+   */
+  const link = (content, path) => {
+    const q = `utm_source=plan_email&utm_medium=email&utm_campaign=free_results&utm_content=${content}`;
+    // Only the buy links resume a session. The recipe index has nothing to resume,
+    // and sending the token to a page that does not need it would widen its exposure
+    // for no reason.
+    if (path) return `https://ketodial.com${path}?${q}`;
+    return p.token
+      ? `https://ketodial.com/?${q}#resume=${encodeURIComponent(p.token)}`
+      : `https://ketodial.com/?${q}#calc`;
+  };
+
+  const bullet = (t) =>
+    `<tr><td style="padding:0 0 8px;color:#38bdf8;font-size:14px;vertical-align:top;width:18px">&#10003;</td>` +
+    `<td style="padding:0 0 8px;color:#dbeafe;font-size:14px;line-height:1.5">${t}</td></tr>`;
+
+  // TRUTHFUL FULFILMENT WORDING. A customer may buy before completing the
+  // personalization profile — that path is deliberate — and the webhook then sends
+  // the finish-profile email instead of reports. "Instant PDF delivery" was false
+  // for exactly the path we built on purpose.
+  const reassurance = `<p style="margin:12px 0 0;color:#8fb3c9;font-size:12px;line-height:1.5">One-time purchase &middot; Delivered after personalization &middot; No subscription</p>`;
+  const personalizationNote = `<p style="margin:10px 0 0;color:#8fb3c9;font-size:12px;line-height:1.55">Buy whenever you're ready. Before we build your personalized reports, we'll need a few details about your cooking style, budget, preferences and health context.</p>`;
+  const singleReports = `<p style="margin:14px 0 0;color:#6da6c9;font-size:12px;line-height:1.5">Only want one piece? <a href="${link('single_reports')}" style="color:#6da6c9;text-decoration:underline">Single reports start at $3.99.</a></p>`;
+
+  const offerBlock = suppressProtein
+    // The Full Protocol contains the protein-anchored meal plan, which this customer
+    // cannot be sold. Offer the two that remain deliverable. The meal plan is not
+    // named at all: describing what someone cannot have is still advertising it.
+    ? `<div style="margin:18px 28px 24px;padding:20px 22px;background:rgba(56,189,248,.08);border:1px solid #2b5f80;border-radius:14px">
+      <p style="margin:0 0 8px;color:#6da6c9;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">Your next step</p>
+      <p style="margin:0 0 10px;color:#fff;font-size:19px;font-weight:800;line-height:1.3">Get the reports we can personalize safely</p>
+      <p style="margin:0 0 14px;color:#bcd4e3;font-size:14px;line-height:1.6">Your numbers above tell you the targets. These two reports turn them into what to do next, and they are the ones we can build for you without setting a personalized protein target.</p>
+      <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:0 0 14px">
+        ${bullet('The Keto Starter Kit, walking you through your first 14 days')}
+        ${bullet('A Doctor&rsquo;s Report for your next appointment, with the labs to ask about and what to discuss')}
+      </table>
+      <p style="margin:0 0 14px;color:#fff;font-size:26px;font-weight:800;line-height:1">$9.98 <span style="font-size:13px;font-weight:600;color:#9fb8c9">for both</span></p>
+      <a href="${link('doctor_starter_cta')}" style="display:block;background:#38bdf8;color:#062234;font-weight:800;font-size:16px;padding:15px 20px;border-radius:12px;text-decoration:none;text-align:center">Get both reports for $9.98</a>
+      ${reassurance}
+      ${personalizationNote}
+      ${singleReports}
+    </div>`
+    : `<div style="margin:18px 28px 24px;padding:20px 22px;background:rgba(56,189,248,.08);border:1px solid #2b5f80;border-radius:14px">
+      <p style="margin:0 0 8px;color:#6da6c9;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">Your next step</p>
+      <p style="margin:0 0 10px;color:#fff;font-size:19px;font-weight:800;line-height:1.3">Want us to turn these numbers into your actual plan?</p>
+      <p style="margin:0 0 14px;color:#bcd4e3;font-size:14px;line-height:1.6">Your macros tell you the targets. The Full Protocol tells you what to eat, what to buy, how to get through the first two weeks, and gives you a summary you can take to your doctor.</p>
+      <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:0 0 14px">
+        ${bullet('A personalized 7-Day Meal Plan built around the numbers above')}
+        ${bullet('The grocery list for that week')}
+        ${bullet('The Keto Starter Kit, walking you through your first 14 days')}
+        ${bullet('A Doctor&rsquo;s Report for your next appointment')}
+      </table>
+      <p style="margin:0 0 14px;color:#fff;font-size:26px;font-weight:800;line-height:1">$10.99 <span style="font-size:13px;font-weight:600;color:#9fb8c9;text-decoration:line-through">$15.97</span> <span style="font-size:13px;font-weight:700;color:#6ee7b7">save $4.98</span></p>
+      <a href="${link('protocol_cta')}" style="display:block;background:#38bdf8;color:#062234;font-weight:800;font-size:16px;padding:15px 20px;border-radius:12px;text-decoration:none;text-align:center">Get my Full Protocol for $10.99</a>
+      ${reassurance}
+      ${personalizationNote}
+      ${singleReports}
+    </div>`;
+
   return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#e7edf3;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
 <div style="max-width:560px;margin:0 auto;padding:28px 16px">
   <div style="background:#0b1620;border-radius:16px;overflow:hidden">
@@ -413,25 +494,11 @@ function buildPlanEmail(m, goal, p) {
       ${row('Net carbs', `${m.carbG} g`)}
       ${row('Your TDEE (maintenance)', `${Number(m.tdee).toLocaleString()} kcal`)}
     </table>
-    ${valueBlock}
-    <div style="padding:20px 28px 26px">
-      <p style="margin:0 0 16px;color:#9fb8c9;font-size:13px;line-height:1.6">${suppressProtein
-        ? `Use fat to stay full and keep net carbs (total carbs minus fiber) under target. Take the protein question to your doctor or a renal dietitian before you change how you eat.`
-        : `Hit the protein number first, use fat to stay full, and keep net carbs (total carbs minus fiber) under target. Give it two weeks before you judge anything.`}</p>
-      <a href="https://ketodial.com/recipes/?utm_source=plan_email&utm_medium=email&utm_campaign=plan_delivery" style="display:inline-block;background:transparent;border:1px solid #38bdf8;color:#38bdf8;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;text-decoration:none">Browse keto recipes with these macros</a>
-    </div>
-    <div style="margin:0 28px 26px;padding:18px 20px;background:rgba(56,189,248,.07);border:1px solid #1e3a52;border-radius:12px">
-      <p style="margin:0 0 8px;color:#6da6c9;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700">Turn these numbers into a plan</p>
-      <p style="margin:0 0 10px;color:#bcd4e3;font-size:13px;line-height:1.6">These free numbers are the floor. The optional Step 3 details, your budget, how you like to cook, whether dairy agrees with you, are what turn the paid reports into a plan built for your actual kitchen.</p>
-      ${suppressProtein
-        // The Full Protocol contains the protein-anchored meal plan, which this
-        // customer cannot be sold. Offer the two that remain deliverable — $9.98,
-        // less than the bundle — rather than advertising a refusal.
-        ? `<p style="margin:0 0 14px;color:#bcd4e3;font-size:13px;line-height:1.6">Two of our reports are built for exactly your situation: a doctor-ready report you can hand over at your next appointment, and a starter kit that walks you through the first 14 days. $9.98 for both, one-time, yours to keep. We do not build you a meal plan, because that would mean setting the protein target we just told you belongs to your clinician.</p>
-      <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=safe_reports#calc" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 22px;border-radius:10px;text-decoration:none">See the two reports</a>`
-        : `<p style="margin:0 0 14px;color:#bcd4e3;font-size:13px;line-height:1.6">The Full Protocol is all three reports for $10.99: a 7-day meal plan built around your exact macros, a starter kit that walks you through the first 14 days, and a doctor-ready report you can hand over at your next appointment. One-time payment, no subscription, yours to keep.</p>
-      <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=protocol_upsell#calc" style="display:inline-block;background:#38bdf8;color:#062234;font-weight:700;font-size:14px;padding:11px 22px;border-radius:10px;text-decoration:none">Get the Full Protocol</a>`}
-      <p style="margin:12px 0 0;color:#6da6c9;font-size:12px;line-height:1.5">Only want one piece? <a href="https://ketodial.com/?utm_source=plan_email&utm_medium=email&utm_campaign=protocol_upsell#calc" style="color:#6da6c9;text-decoration:underline">Single reports start at $3.99.</a></p>
+    ${panel(leadLine ? [leadLine] : [], '14px')}
+    ${offerBlock}
+    ${panel(moreLines, '0')}
+    <div style="padding:16px 28px 26px">
+      <a href="${link('recipes', '/recipes/')}" style="display:inline-block;background:transparent;border:1px solid #38bdf8;color:#38bdf8;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;text-decoration:none">Browse keto recipes with these macros</a>
     </div>
   </div>
   ${newsletterLine}
@@ -530,12 +597,19 @@ async function handleEmailPlan(request, env) {
           newsletterOptIn: !!b.newsletter_opt_in,
           unsubUrl,
           suppressProtein,
+          // Lets the buy button resume this exact session instead of dropping the
+          // reader back at an empty calculator. Travels in the URL fragment.
+          token: b.token || null,
         }),
         // Same tag shape as the CW welcome sender so the /webhook/resend
         // open/click tracking can segment plan emails in drip_events.
         tags: [
           { name: 'email_type', value: 'plan' },
           { name: 'site', value: 'kd' },
+          // Which OFFER the email carried, so protocol and doctor+starter sends are
+          // separable in reporting. Names the product, not the health answer behind
+          // it: no kidney status leaves for external analytics under its own name.
+          { name: 'offer', value: suppressProtein ? 'doctor_starter' : 'protocol' },
         ],
       }),
     });
@@ -940,6 +1014,63 @@ function expandItems(items) {
  * 403s. Telling someone they own something they were deliberately not sold is worse
  * than the 403.
  */
+/**
+ * Resume an unpaid calculator session from the free-results email.
+ *
+ * WHY THIS EXISTS. The email's buy button used to land on ketodial.com/#calc, i.e.
+ * back at an empty form. A customer who had already given us their stats, read their
+ * numbers and decided to buy was asked to do the whole calculator again to find the
+ * checkout. That is the opposite of not making it hard to spend money.
+ *
+ * WHAT IT DELIBERATELY IS NOT. It is not an entitlement. The response carries a
+ * BOUNDED PROJECTION of the row — the macros already printed in the email, the goal,
+ * and the kidney answer — and nothing else. No email address, no name, no conditions,
+ * no medications, no payment fields. `allowed` is computed here by the same
+ * allowedProducts() the checkout uses, so the page never decides for itself what a
+ * resumed customer may buy, and a hand-edited URL cannot widen it: /checkout re-reads
+ * the row and re-derives eligibility regardless of what the page did.
+ *
+ * THE TOKEN TRAVELS IN THE URL FRAGMENT, NOT THE QUERY STRING. Fragments are never
+ * sent to a server, never appear in a Referer header and never reach the analytics or
+ * Stripe scripts the landing page loads. The client scrubs it from history on arrival.
+ * Bearer-token-in-a-link is the same model /purchase/<stripe_session_id> already uses.
+ */
+async function handleResume(token, env) {
+  if (!token || token.length < 8 || token.length > 128) {
+    return jsonResponse(400, { error: 'bad_reference' });
+  }
+  const row = await readSessionRow(token, env);
+  // Deliberately identical response for "no such token" and "unusable row": a probe
+  // learns nothing about which tokens exist.
+  if (!row) return jsonResponse(404, { error: 'not_found' });
+
+  const m = row.calculated_macros;
+  if (!m || !m.calories || !m.proteinG) return jsonResponse(404, { error: 'not_found' });
+
+  // Absence is not a negative answer. Same fail-closed shape as everywhere else.
+  const kidney = row.kidney_status === 'no' ? 'no'
+               : (row.kidney_status === 'yes' || row.kidney_status === 'unsure') ? row.kidney_status
+               : null;
+  const ctx = deriveKdMedicalContext({
+    kidneyStatus: kidney || 'unsure',
+    conditions: [], medications: '',
+  });
+  const products = allowedProducts(ctx);
+
+  return jsonResponse(200, {
+    token,
+    macros: {
+      calories: m.calories, fatG: m.fatG, proteinG: m.proteinG,
+      carbG: m.carbG, tdee: m.tdee, deficitPct: m.deficitPct,
+    },
+    goal: row.goal || null,
+    kidney_status: kidney,
+    // The authority for what this page may offer. Not a hint.
+    allowed: products.allowed,
+    suppressProtein: !!ctx.restrictProteinTarget,
+  });
+}
+
 async function handlePurchaseStatus(stripeSessionId, env) {
   const resolved = await resolvePaidCheckout(stripeSessionId, env);
   if (resolved.error) return jsonResponse(resolved.status, { error: resolved.error });
