@@ -404,6 +404,48 @@ open('$API','w').write(s.replace(old,new))
 # the finished-report check at once. Neither of them proves the RETRY call site still
 # exists, and reverting it to the two gates it used to check is exactly the defect this
 # fix closed: a model-written section that trips the other two dies without a re-ask.
+# --- RENAL MEAL-PLAN SUPPRESSION (blocker 3, 2026-09-09) -------------------------
+# The protein target is withheld in prose and the plan is anchored on it, so three
+# things have to hold at once: the generator refuses, the section builder does not
+# call the template, and every other section still renders without the plan. One
+# mutation each, because breaking any one of them ships the withheld number as food.
+mutate 64 "the anticoagulant banner describes a meal plan the renal reader never got" renal-meal-plan-suppression "
+s=open('$MED').read()
+old='    lines.push(...(ctx.restrictProteinTarget'
+assert s.count(old)==1, s.count(old)
+open('$MED','w').write(s.replace(old,'    lines.push(...(false'))
+"
+
+mutate 65 "the AI prompt tells the model the renal reader has a meal plan" renal-meal-plan-suppression "
+s=open('$MED').read()
+old='    notes.push(ctx.restrictProteinTarget'
+assert s.count(old)==1, s.count(old)
+open('$MED','w').write(s.replace(old,'    notes.push(false'))
+"
+
+mutate 61 "sections 3 and 4 go back to the quantitative templates for a renal reader" renal-meal-plan-suppression "
+s=open('$API').read()
+old='    const suppressQuantities = deriveMedicalContext(data).restrictProteinTarget;'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'    const suppressQuantities = false;'))
+"
+
+mutate 62 "the protein-anchored generator stops refusing" renal-meal-plan-suppression "
+s=open('$API').read()
+old='''  if (deriveMedicalContext(data).restrictProteinTarget) {
+    throw new Error('''
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'''  if (false) {
+    throw new Error('''))
+"
+
+mutate 63 "the renderer builds the plan again for a reader it is withheld from" renal-meal-plan-suppression "
+s=open('$API').read()
+old='  if (medicalContext.restrictProteinTarget) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'  if (false) {'))
+"
+
 mutate 59 "the model-retry path drops back to two of the four gates" report-copy-gate-retry "
 s=open('$API').read()
 old='      assertReportCopyIsClean(label, text, medCtx);'

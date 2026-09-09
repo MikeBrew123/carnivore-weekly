@@ -2407,7 +2407,88 @@ function assertRenderedPlanIsComplete(mealPlan, renderedDayNumbers) {
   }
 }
 
+/**
+ * What Reports #3 and #4 say when the meal plan is withheld.
+ *
+ * Written by Sarah (sarah-health-coach) on 2026-09-09 and used verbatim. The brief was
+ * narrow: say what is missing and why, acknowledge that the right amount depends on
+ * clinical information this questionnaire does not have, and send that decision to the
+ * reader's doctor or renal dietitian. No substitute figure, no renal diet, no claim
+ * that this way of eating suits kidney disease, no promised outcome. 111 words across
+ * both notices.
+ *
+ * "what you told us about your kidneys" is deliberate. A reader who answered that they
+ * are not sure about their kidney function gets the same suppression, and must not be
+ * handed a diagnosis they did not give us.
+ *
+ * The headings match the templates these replace, so the report keeps 13 sections in
+ * the same order. Nothing is renumbered.
+ */
+const RENAL_MEAL_CALENDAR_NOTICE =
+  'Because of what you told us about your kidneys, this report does not set a protein ' +
+  'target for you, so we are not printing a meal calendar with portion amounts. The ' +
+  'right amounts depend on clinical information this questionnaire does not have. ' +
+  '**Ask your doctor or a renal dietitian what your intake should be**, and build your ' +
+  'meals around their guidance.';
+
+const RENAL_GROCERY_LIST_NOTICE =
+  'This shopping list is built from the meal calendar, so without portion amounts ' +
+  'there are no quantities to buy. The rest of your report is unchanged. Once your ' +
+  'doctor or renal dietitian tells you what your intake should be, use their number to ' +
+  'work out how much to shop for.';
+
+/**
+ * The heading is taken FROM the template it replaces, not retyped beside it. A
+ * hardcoded copy agrees on the day it is written and silently disagrees the day
+ * someone renames the section, which is how a report ends up with two titles for the
+ * same thing. Same reasoning as the tracker renumber in generateAllReports: if the
+ * heading it depends on moves, fail rather than ship something malformed.
+ */
+function suppressedSection(templateName, expectedNumber, notice) {
+  const heading = String(getTemplateContent(templateName) || '').split('\n')[0];
+  if (!new RegExp(`^## Report #${expectedNumber}:`).test(heading)) {
+    throw new Error(
+      `suppressedSection: ${templateName} no longer starts with a "## Report #${expectedNumber}:" ` +
+      'heading, so the suppressed section would not match the one it replaces.'
+    );
+  }
+  return `${heading}\n\n${notice}`;
+}
+
+function buildSuppressedMealCalendarSection() {
+  return suppressedSection('mealCalendar', 3, RENAL_MEAL_CALENDAR_NOTICE);
+}
+
+function buildSuppressedGroceryListSection() {
+  return suppressedSection('shoppingList', 4, RENAL_GROCERY_LIST_NOTICE);
+}
+
 function generateFullMealPlan(data) {
+  // THE SUPPRESSION BOUNDARY. This plan is protein-anchored: portions are sized to
+  // hit data.macros.protein_grams, and the grocery list is derived from the portions.
+  // So for a reader whose protein target is withheld, the plan IS the withheld number,
+  // written as food. Hiding the figure in prose while the calendar tells them to cook
+  // 474 g of meat a day is not suppression, it is the same recommendation in a
+  // different unit. Verified 2026-09-09: a declared-CKD persona's day 1 was identical
+  // to the healthy baseline's, in the same report that says we set no protein target.
+  //
+  // Refusing HERE, rather than blanking the section afterwards, is the point: there is
+  // no path that can produce the quantities and then forget to hide one of them. The
+  // callers that must not reach this are gated before they call (replacePlaceholders
+  // and generateAllReports); this throw is what makes a future caller a build failure
+  // instead of a silent regression.
+  //
+  // SUPPRESS, DO NOT SUBSTITUTE: no reduced target, no alternate formula, no renal
+  // plan. Choosing a protein intake for reduced kidney function is a clinical
+  // decision, and api/medical-context.js is authoritative that the software stops
+  // rather than inventing a second number.
+  if (deriveMedicalContext(data).restrictProteinTarget) {
+    throw new Error(
+      'generateFullMealPlan: refusing to build a protein-anchored meal plan for a ' +
+      'reader whose protein target is withheld. Use the suppression notice instead.'
+    );
+  }
+
   console.log('=== MEAL PLAN DEBUG ===');
   console.log('dailyProtein:', data.dailyProtein);
   console.log('dailyFat:', data.dailyFat);
@@ -3605,14 +3686,24 @@ async function generateAllReports(data, apiKey) {
     reports[2] = await loadAndCustomizeTemplate('foodGuide', data);
     console.log('<<< Section 2: Food Guide - DONE, length:', reports[2]?.length || 'NULL');
 
-    // Section 3: Meal Calendar (Template)
-    console.log('>>> Section 3: Meal Calendar - STARTING');
-    reports[3] = await loadAndCustomizeTemplate('mealCalendar', data);
+    // Sections 3 and 4: the meal calendar and the grocery list derived from it.
+    //
+    // Both are quantitative and both are anchored on the protein target. When that
+    // target is withheld they are replaced by the suppression notices, and no plan is
+    // generated: see generateFullMealPlan(). The sections stay in place, with their
+    // own headings, so the report still has thirteen of them in the same order.
+    const suppressQuantities = deriveMedicalContext(data).restrictProteinTarget;
+
+    console.log('>>> Section 3: Meal Calendar - STARTING' + (suppressQuantities ? ' (SUPPRESSED)' : ''));
+    reports[3] = suppressQuantities
+      ? buildSuppressedMealCalendarSection()
+      : await loadAndCustomizeTemplate('mealCalendar', data);
     console.log('<<< Section 3: Meal Calendar - DONE, length:', reports[3]?.length || 'NULL');
 
-    // Section 4: Shopping List (Template)
-    console.log('>>> Section 4: Shopping List - STARTING');
-    reports[4] = await loadAndCustomizeTemplate('shoppingList', data);
+    console.log('>>> Section 4: Shopping List - STARTING' + (suppressQuantities ? ' (SUPPRESSED)' : ''));
+    reports[4] = suppressQuantities
+      ? buildSuppressedGroceryListSection()
+      : await loadAndCustomizeTemplate('shoppingList', data);
     console.log('<<< Section 4: Shopping List - DONE, length:', reports[4]?.length || 'NULL');
 
     // Section 5: Physician Consultation (Template)
@@ -4506,6 +4597,11 @@ function replacePlaceholders(template, data) {
   // A reader we have just told "this report does not set a protein target for you"
   // must not then be told, two sections later, that their protein target is precisely
   // calculated. Removing the claim, not softening the number.
+  // NOTE (2026-09-09): the restricted variant below is unreachable today. Its only
+  // consuming template is the meal calendar, and that section is replaced wholesale by
+  // the suppression notice for exactly the readers this branch is written for. Left in
+  // place rather than deleted, because it is the correct string if the calendar ever
+  // comes back for them; do not read it as something a renal customer receives.
   result = result.replace(/\{\{proteinPrecisionClaim\}\}/g, medicalContext.restrictProteinTarget
     ? 'This plan is built around ordinary portions, not around a protein target set for you. You reported kidney disease, and your protein intake is a question for your doctor or a renal dietitian. Take this plan to them before you follow it.'
     : 'Your protein targets are precisely calculated.');
@@ -4576,6 +4672,25 @@ function replacePlaceholders(template, data) {
 
   // Lab monitoring fallback (common labs to monitor)
   result = result.replace(/\{\{lab\}\}/g, 'lipid panel and inflammatory markers');
+
+  // Every template is rendered through this function, so the plan was built for all
+  // thirteen sections and rendered into the two that carry its placeholders. For a
+  // reader whose protein target is withheld it is not built at all: generateFullMealPlan
+  // throws by design, and Reports #3 and #4 are replaced upstream by the suppression
+  // notices. Skipping here is what lets the OTHER eleven sections generate normally,
+  // which is the whole point. The reader keeps the report they paid for.
+  if (medicalContext.restrictProteinTarget) {
+    // Defensive: these placeholders live only in the two suppressed sections, so
+    // nothing should be left to fill. Emptying them means a template that grew one
+    // later cannot ship a stray token or a quantity.
+    result = result
+      .replace(/\{\{mealCalendarWeeks\}\}/g, '')
+      .replace(/\{\{groceryWeeks\}\}/g, '')
+      .replace(/\{\{substitutionGuide\}\}/g, '')
+      .replace(/\{\{(?:breakfast|lunch|dinner)\d+\}\}/g, '')
+      .replace(/\{\{\w+\}\}/g, '');
+    return result;
+  }
 
   // Generate full 30-day meal plan using database-driven algorithm
   const fullMealPlan = generateFullMealPlan(data);
@@ -7958,6 +8073,8 @@ export {
   assertReportCopyIsClean as __test_assertReportCopyIsClean,
   REPORT_GENERATION_FAILED_MESSAGE as __test_REPORT_GENERATION_FAILED_MESSAGE,
   generateFullMealPlan as __test_generateFullMealPlan,
+  RENAL_MEAL_CALENDAR_NOTICE as __test_RENAL_MEAL_CALENDAR_NOTICE,
+  RENAL_GROCERY_LIST_NOTICE as __test_RENAL_GROCERY_LIST_NOTICE,
   generateGroceryListByWeek as __test_generateGroceryListByWeek,
   resolveGoal as __test_resolveGoal,
   detectGoalConflict as __test_detectGoalConflict,

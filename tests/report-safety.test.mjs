@@ -521,6 +521,54 @@ for (const p of PERSONAS) {
   const organRows = rows.filter(l => ORGAN_MEAT.test(l));
   const organShopping = shopping.filter(l => ORGAN_MEAT.test(l));
 
+  // A reader whose protein target is withheld receives NO meal plan at all, because
+  // the plan is anchored on that number: portions are sized to hit it and the grocery
+  // list is derived from the portions (blocker 3, 2026-09-09). Until then this reader
+  // got a calendar byte-identical to the healthy baseline's, 474 g of meat a day, in
+  // the same report that says it sets no protein target for them.
+  //
+  // So the organ-meat controls below do not apply here: there is no plan to schedule
+  // liver into and none to leave it out of. The anticoagulant protection they exist
+  // for is pinned by A10 and D11, which declare a blood thinner and NO kidney disease
+  // precisely so it cannot be keyed to the renal path.
+  if (p.expectNoProteinTarget) {
+    check(p.id, 'no meal-calendar day rows for a reader whose protein target is withheld',
+      rows.length === 0,
+      `${rows.length} day row(s) are still scheduled from the number the report refuses to state`);
+    check(p.id, 'the withheld calendar explains itself and routes to a clinician',
+      /does not set a protein target for you/i.test(sections[3] || '') &&
+      /renal dietitian/i.test(sections[3] || ''),
+      excerpt(sections[3] || '', /protein|kidney/i));
+    check(p.id, 'the grocery list carries no quantities to buy',
+      !/\*\s*\[\s*\]/.test(sections[4] || '') &&
+      !/\b\d+(?:\.\d+)?\s*(?:g|lb|lbs|oz)\b/i.test(sections[4] || ''),
+      excerpt(sections[4] || '', /\d/));
+    check(p.id, 'suppression did not turn into a portion of anything else',
+      !/\b\d+(?:\.\d+)?\s*(?:g|grams?|oz|ounces?|lb|lbs)\b/i.test(sections[3] || ''),
+      excerpt(sections[3] || '', /\d/));
+    if (p.expectNoOrganMeats) {
+      check(p.id, 'the report still does not name an acceptable amount of the omitted food',
+        !/\d+\s*(?:g|grams?|oz|ounces?)[^.\n]{0,30}liver/i.test(rendered[p.id].full) &&
+        !/liver[^.\n]{0,30}\d+\s*(?:g|grams?|oz|ounces?)/i.test(rendered[p.id].full),
+        excerpt(rendered[p.id].full, /liver/i));
+      // Report #2 still renders for this reader, so the shopping half of the
+      // over-correction guard is NOT made vacuous by the suppression. It stays.
+      check(p.id, 'the reader is still not sent shopping for organ meats',
+        organShopping.length === 0,
+        organShopping.length ? `still listed: ${organShopping.slice(0, 3).map(l => l.trim()).join(' / ')}` : '');
+      // The routing used to reach this reader through the meal-plan note in Report #3.
+      // That section no longer exists for them, so it has to arrive somewhere else, and
+      // the report must not describe a meal plan it did not give them.
+      const flat = rendered[p.id].full.replace(/\n>?\s*/g, ' ');
+      check(p.id, 'the food-and-medication question still routes to the prescriber',
+        /prescriber or pharmacist/i.test(flat), '');
+      check(p.id, 'the report does not claim a meal plan left items out when it gave no plan',
+        !/meal plan has had those items left out/i.test(flat),
+        excerpt(flat, /left out of it/i));
+    }
+    continue;
+  }
+
   check(p.id, 'the meal calendar was parsed (guards against a silently empty section)',
     rows.length >= 28, `found ${rows.length} day rows in report #3`);
 

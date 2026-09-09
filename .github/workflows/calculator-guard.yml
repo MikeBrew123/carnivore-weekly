@@ -54,6 +54,7 @@ on:
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
       - 'tests/report-copy-gate-retry.test.mjs'
+      - 'tests/renal-meal-plan-suppression.test.mjs'
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
@@ -71,6 +72,7 @@ on:
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
       - 'tests/report-copy-gate-retry.test.mjs'
+      - 'tests/renal-meal-plan-suppression.test.mjs'
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
@@ -206,6 +208,13 @@ jobs:
       # report outright (reproduced 2026-09-09, 1 run in 4 on a renal persona).
       - name: Report copy gate retry and customer-safe failure
         run: node tests/report-copy-gate-retry.test.mjs
+      # The 30-day calendar and the grocery list derived from it are anchored on the
+      # protein target. For a reader that target is withheld from, no plan is built at
+      # all and both sections carry a suppression notice instead: the number must not
+      # be hidden in prose and delivered as food. Healthy readers are unaffected, and
+      # this pins both halves.
+      - name: Renal meal-plan suppression
+        run: node tests/renal-meal-plan-suppression.test.mjs
       # Exactly one file may be a deployed report generator. Two dormant ones exist
       # in api/ and neither is authorized for deletion, so this reads the actual
       # deployment surface (wrangler configs, package mains, CI) and fails the build

@@ -16,7 +16,8 @@
     "test:deploy-tripwire": "node tests/deploy-tripwire.test.mjs",
     "test:goal-conflict": "node tests/goal-conflict-flow.test.mjs",
     "test:step4-state": "node tests/step4-state-updates.test.mjs",
-    "test:report-copy-gate": "node tests/report-copy-gate-retry.test.mjs"
+    "test:report-copy-gate": "node tests/report-copy-gate-retry.test.mjs",
+    "test:renal-suppression": "node tests/renal-meal-plan-suppression.test.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",

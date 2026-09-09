@@ -412,14 +412,30 @@ export function buildMedicalContextBanner(ctx) {
   }
 
   if (ctx.anticoagulant) {
-    lines.push(
-      '>',
-      '> You reported a blood thinner. Large changes in what you eat, organ meats and',
-      '> leafy greens in particular, can affect how some of these medications behave.',
-      '> **Your meal plan has had those items left out of it**, and the plan as a whole',
-      '> should still be reviewed with your prescriber or pharmacist before you start it,',
-      '> along with whether your monitoring schedule should change.'
-    );
+    // Two variants, and the difference is a fact about the document in the reader's
+    // hands. When the protein target is withheld, the meal plan is withheld with it
+    // (it is anchored on that number), so "your meal plan has had those items left
+    // out of it" describes a plan this reader does not have, and the food-and-
+    // medication routing that used to reach them through the meal-plan note in
+    // Report #3 no longer reaches them at all. The second variant is written by Sarah
+    // (2026-09-09) and used verbatim. Neither variant names a food as safe or unsafe,
+    // and neither states an amount: that is the prescriber's call in both cases.
+    lines.push('>');
+    lines.push(...(ctx.restrictProteinTarget
+      ? [
+        '> You reported a blood thinner. Large changes in what you eat, organ meats and',
+        '> leafy greens in particular, can affect how some of these medications behave.',
+        '> **This report does not schedule meals.** What that means for your food and',
+        '> medication, and whether your monitoring schedule should change, is a',
+        '> conversation for your prescriber or pharmacist.'
+      ]
+      : [
+        '> You reported a blood thinner. Large changes in what you eat, organ meats and',
+        '> leafy greens in particular, can affect how some of these medications behave.',
+        '> **Your meal plan has had those items left out of it**, and the plan as a whole',
+        '> should still be reviewed with your prescriber or pharmacist before you start it,',
+        '> along with whether your monitoring schedule should change.'
+      ]));
   }
 
   if (ctx.restrictProteinTarget) {
@@ -965,7 +981,16 @@ medications they did not report, and do not write as though they have any.
     notes.push('- A rate-control or beta-blocker medication was declared. Do not tell this reader to judge anything by heart rate or by how a symptom feels.');
   }
   if (ctx.anticoagulant) {
-    notes.push('- An anticoagulant or antiplatelet was declared. Their meal plan has had organ meats, including liver, REMOVED. Do not suggest they eat liver or other organ meats, do not suggest an amount of them that would be acceptable, and do not offer to add them back. If the omission comes up, say the amount is a question for their prescriber or pharmacist.');
+    // The premise differs, the instruction does not. A reader whose protein target is
+    // withheld receives no meal plan at all, so telling the model their plan "has had
+    // organ meats REMOVED" states a document that does not exist and invites Report #1
+    // or #6 to describe it to them. Same false premise the banner carried, in the one
+    // channel the banner fix could not reach: none of the four copy gates test for a
+    // claim about a section's contents. Everything after the premise is identical, so
+    // the prohibition and the prescriber routing are unchanged for both readers.
+    notes.push(ctx.restrictProteinTarget
+      ? '- An anticoagulant or antiplatelet was declared. This reader receives NO meal plan and NO food quantities of any kind. Do not suggest they eat liver or other organ meats, do not suggest an amount of them that would be acceptable, and do not describe a meal plan or its contents. If food and medication comes up, say it is a question for their prescriber or pharmacist.'
+      : '- An anticoagulant or antiplatelet was declared. Their meal plan has had organ meats, including liver, REMOVED. Do not suggest they eat liver or other organ meats, do not suggest an amount of them that would be acceptable, and do not offer to add them back. If the omission comes up, say the amount is a question for their prescriber or pharmacist.');
   }
   if (ctx.restrictProteinTarget) {
     notes.push('- Kidney disease was declared. Rule 9 is ACTIVE. Give this reader NO protein target, in grams, in grams per kilogram, as a percentage of calories, as a per-meal amount, or as a range. Do not state a lower or "safer" protein figure — state no figure. Send the protein question to their doctor or a renal dietitian.');
