@@ -64,8 +64,9 @@ const REPO = path.join(HERE, '..');
 const REPORTS_JS = path.join(REPO, 'ketodial', 'worker', 'reports.js');
 const INTAKE_HTML = path.join(REPO, 'ketodial', 'public', 'index.html');
 
-const { generateStarterKit, generateDoctorReport, generateMealPlan } =
+const { generateStarterKit, generateDoctorReport, generateMealPlan, deriveKdMedicalContext } =
   await import('file://' + REPORTS_JS);
+const { validateIntake } = await import('file://' + path.join(REPO, 'ketodial', 'worker', 'intake.js'));
 
 // ===========================================================================
 // THE PERSONAS
@@ -81,6 +82,11 @@ const { generateStarterKit, generateDoctorReport, generateMealPlan } =
 const BASE = {
   sex: 'female', age: 58, weightKg: 88, heightCm: 165,
   goal: 'lose', activity: 'sedentary',
+  // The early renal gate, asked once before the free protein result. Every persona
+  // states it explicitly: an absent answer now fails CLOSED, so a fixture that
+  // omitted it would be over-suppressed and every assertion below would pass for
+  // the wrong reason.
+  kidneyStatus: 'no',
   calories: 1650, fatG: 128, proteinG: 113, carbG: 25, tdee: 2060,
   dairy: 'Fine with dairy', cooking: 'Basic — I can follow a recipe',
   prepTime: '30 minutes', cookingFor: 'Two',
@@ -95,7 +101,7 @@ const PERSONAS = [
 
   { id: 'K2', name: 'Kidney disease / CKD, no medications',
     expectRestricted: true, expectRenal: true,
-    d: { ...BASE, conditions: ['kidney'], meds: '' } },
+    d: { ...BASE, kidneyStatus: 'yes', conditions: ['kidney'], meds: '' } },
 
   { id: 'A3', name: 'ACE inhibitor, no conditions declared',
     expectRestricted: true,
@@ -134,20 +140,76 @@ const PERSONAS = [
     expectRestricted: true,
     d: { ...BASE, conditions: [], meds: 'the little white ones, one in the morning and one at night' } },
 
-  // The live fail-open found while writing this suite. index.js stores the whole
-  // questionnaire as `JSON.stringify(formData).slice(0, 490)` in a Stripe metadata
-  // field, and handleReport() does `safeParseJSON(...) || {}`. A typical form is
-  // ~410 characters, so a customer who writes a couple of sentences in the free-text
-  // "biggest challenge" box truncates the JSON, it fails to parse, and the ENTIRE
-  // form becomes `{}` - conditions and medications included. That reader is not
-  // healthy, they are unknown, and this is what the report has to do about it.
-  //
-  // NOTE: this persona proves the WORKER fails closed. It does not fix the
-  // truncation, which is in ketodial/worker/index.js and needs the form stored
-  // somewhere other than a 500-character Stripe metadata field.
-  { id: 'T9', name: 'Form lost to Stripe metadata truncation (renders as {})',
-    expectRestricted: true,
-    d: {} },
+  // K10 exists because K2 declares kidney disease through the `kidney` slug alone.
+  // A protein fix keyed to that slug would leave every reader who typed it in free
+  // text unprotected, which is most of them.
+  // kidneyStatus stays 'no' HERE ON PURPOSE. K10 is the backstop persona: someone who
+  // answered No to a formal diagnosis and then typed CKD into the medications box.
+  // If the early question were the only signal, this reader would be unprotected.
+  { id: 'K10', name: 'Answered No to the early gate but declared CKD in free text',
+    expectRestricted: true, expectNoProteinTarget: true,
+    d: { ...BASE, kidneyStatus: 'no', conditions: [], meds: 'I see a nephrologist for CKD stage 3' } },
+
+  // "I'm not sure" is treated exactly as "yes". Asking a customer to rule out their
+  // own renal function is the one judgement this software is least entitled to ask for.
+  { id: 'U11', name: 'Answered "I\'m not sure" to the early gate',
+    expectRestricted: true, expectNoProteinTarget: true,
+    d: { ...BASE, kidneyStatus: 'unsure', conditions: [], meds: '' } },
+];
+
+// ---------------------------------------------------------------------------
+// NOT A PERSONA ANY MORE: the truncation case.
+//
+// This used to be persona T9, `d: {}`, and it asserted that a report rendered from
+// a lost questionnaire came out RESTRICTED. That was the best available answer while
+// the questionnaire lived in a 490-character Stripe metadata slice, because the
+// alternative was rendering it unrestricted.
+//
+// It was never a good answer. The electrolyte gate fired, but generateDoctorReport
+// never consulted the gate at all and simply substituted `wKg=75, hCm=170,
+// cal=1800`, printing BMI 26.0 for a customer whose BMI was 32.3 on a document
+// written to be handed to her physician. A suite asserting "renders restricted"
+// went green over the top of that.
+//
+// As of 2026-09-08 the authoritative questionnaire is in calculator_sessions_v2 and
+// an empty object is not something a generator may render AT ALL. So the expectation
+// inverts: these inputs must THROW. GROUP F below asserts it.
+// ---------------------------------------------------------------------------
+//
+// TWO LAYERS, AND THEY PROMISE DIFFERENT THINGS. Getting this wrong is how you write
+// a test that looks strict and is actually lying:
+//
+//   REQUEST LAYER (intake.js validateIntake, asserted in kd-intake-authority.test.mjs)
+//     The intake RECORD must be complete. Any missing required fact rejects the whole
+//     record before a generator is reached. This is the real gate.
+//
+//   GENERATOR LAYER (requireFacts, asserted below)
+//     Each generator refuses on the facts IT consumes. It is a backstop for a future
+//     caller that reaches a generator by some other route.
+//
+// A generator that never touches weightKg cannot fabricate weightKg, so demanding
+// that generateStarterKit refuse a missing weight would be theatre. `refusedBy`
+// records which generators genuinely consume each missing fact.
+const MUST_REFUSE = [
+  { id: 'R1', why: 'form entirely lost (the old truncation case)', d: {},
+    refusedBy: ['doctor', 'meal', 'starter'] },
+  { id: 'R2', why: 'macros lost, body facts intact',
+    d: { ...BASE, calories: undefined, proteinG: undefined, fatG: undefined, carbG: undefined },
+    refusedBy: ['doctor', 'meal', 'starter'] },
+  { id: 'R3', why: 'body facts lost, macros intact',
+    d: { ...BASE, weightKg: undefined, heightCm: undefined },
+    refusedBy: ['doctor'] },
+  { id: 'R4', why: 'protein target lost on its own',
+    d: { ...BASE, proteinG: undefined },
+    refusedBy: ['doctor', 'meal'] },
+  { id: 'R5', why: 'null rather than undefined',
+    d: { ...BASE, weightKg: null, calories: null },
+    refusedBy: ['doctor', 'meal'] },
+  // The early gate itself going missing. A safety question that was never recorded
+  // is not a negative answer, and no generator may proceed on one.
+  { id: 'R6', why: 'the early kidney answer was never recorded',
+    d: { ...BASE, kidneyStatus: undefined },
+    refusedBy: ['doctor', 'meal', 'starter'] },
 ];
 
 const BASELINE = 'H1';
@@ -294,7 +356,10 @@ for (const p of PERSONAS) {
 
   rendered[p.id] = {
     starterHtml: starter,
+    doctorHtml: doctor,
+    mealHtml: meal,
     allHtml: all,
+    mealText: toText(meal),
     starter: toText(starter),
     doctor: toText(doctor),
     all: toText(all),
@@ -408,6 +473,127 @@ for (const p of PERSONAS) {
   const doc = rendered.C5.doctor;
   check('C5', 'the physician handout states the reported heart condition',
     /Heart condition/i.test(doc), '');
+}
+
+// ===========================================================================
+// GROUP C2 - PROTEIN SUPPRESSION. Added 2026-09-08 (Audit 2B).
+// ---------------------------------------------------------------------------
+// `renal` was computed by deriveKdMedicalContext from the day it was written,
+// returned in the context object, and read by NOTHING. Carnivore Weekly treats an
+// undeclared protein target for a reader with kidney disease as a P0. KetoDial
+// computed the identical flag and then printed the customer's protein target in the
+// Doctor's Report and twice in the meal plan, on top of a seven-day plan that was
+// byte-identical to the healthy persona's.
+//
+// The rule is SUPPRESS, NOT SUBSTITUTE, and it has three parts, all asserted here:
+//   1. no protein figure anywhere, in any unit
+//   2. no SMALLER protein figure either - that is the same clinical decision, quieter
+//   3. no plan whose portions were sized from the figure we refused to state
+// ===========================================================================
+for (const p of PERSONAS.filter(x => x.expectNoProteinTarget)) {
+  const docHtml = rendered[p.id].doctorHtml;
+  const docText = rendered[p.id].doctor;
+  const mealHtml = rendered[p.id].mealHtml;
+  const mealText = rendered[p.id].mealText;
+  const allText = rendered[p.id].all;
+  const target = String(p.d.proteinG);
+
+  check(p.id, 'the gate actually raised restrictProteinTarget',
+    deriveKdMedicalContext(p.d).restrictProteinTarget === true,
+    'renal was detected but the protein switch did not follow it');
+
+  check(p.id, `their protein target (${target} g) appears NOWHERE in any document`,
+    !new RegExp(`\\b${target}\\s*(g|grams)\\b`, 'i').test(allText),
+    'the figure the report says it is not setting is printed somewhere in it');
+
+  check(p.id, 'no protein target in any unit: g, g/kg, %, or per meal',
+    !/\b\d{1,3}\s*(?:g|grams)\s*(?:of\s+)?protein\b/i.test(allText) &&
+    !/protein[^.]{0,40}?\b\d{1,3}\s*(?:g|grams)\b/i.test(allText) &&
+    !/\b\d(?:\.\d)?\s*g\s*\/\s*kg\b/i.test(allText),
+    'a protein amount survived in some other unit');
+
+  check(p.id, 'the Doctor\'s Report says plainly that no protein target was set',
+    /does not set a protein target|not set by this report/i.test(docText), '');
+
+  check(p.id, 'and says it will not give a lower number instead',
+    /lower or more cautious|not.{0,30}lower/i.test(docText), '');
+
+  // The macro panel is a closed system: energy, fat and carbohydrate state protein
+  // by subtraction. Blanking one row is not suppression.
+  check(p.id, 'the whole macro panel is withheld, not just the protein row',
+    !/class="macro-line"/.test(docHtml),
+    'calories + fat + carbs still print, so the protein figure is recoverable by arithmetic');
+
+  // The meal plan is protein-anchored twice over (minDensity, protScale). Hiding the
+  // number while the food still carries it is cosmetic safety.
+  check(p.id, 'no protein-anchored meal plan is generated at all',
+    !/class="wg"/.test(mealHtml) && /renal dietitian/i.test(mealText),
+    'the seven-day plan was still built from the suppressed protein target');
+
+  check(p.id, 'and the customer is told they can have the meal plan refunded',
+    /refund/i.test(mealText), '');
+}
+
+// ===========================================================================
+// GROUP F2 - NO REPORT WITHOUT AUTHORITATIVE INTAKE.
+// ---------------------------------------------------------------------------
+// The inversion described at MUST_REFUSE. Each of these inputs previously produced
+// a confident document about a body nobody had described. Each must now throw.
+// ===========================================================================
+/**
+ * The exact constants the generators used to substitute, per fact. These are the
+ * numbers that printed BMI 26.0 for an 88 kg customer. Each is only meaningful as
+ * evidence when that particular fact is missing from the intake under test.
+ */
+const OLD_FALLBACKS = {
+  calories: /\b1,?800\b/,
+  fatG: /\b140\s*g\b/,
+  proteinG: /\b113\s*g\b/,
+  carbG: /\b25\s*g\b/,
+  weightKg: /\b75(?:\.0)?\s*kg\b/,
+  heightCm: /\b170\s*cm\b/,
+};
+
+const GENERATORS = { doctor: generateDoctorReport, meal: generateMealPlan, starter: generateStarterKit };
+const GEN_LABEL = { doctor: "Doctor's Report", meal: 'meal plan', starter: 'starter kit' };
+
+for (const c of MUST_REFUSE) {
+  // 1. The request layer rejects the whole record, whatever any one generator needs.
+  let recordThrew = null;
+  try { validateIntake({ ...c.d, stepCompleted: 2 }); } catch (e) { recordThrew = e; }
+  check(c.id, `validateIntake rejects the whole record when ${c.why}`,
+    recordThrew !== null && recordThrew.name === 'IntakeError',
+    recordThrew ? `threw ${recordThrew.name}` : 'an incomplete intake record was accepted');
+
+  // 2. The generator layer refuses for every generator that consumes a lost fact.
+  for (const key of c.refusedBy) {
+    let threw = null, output = null;
+    try { output = GENERATORS[key]('Linda Test', c.d); } catch (e) { threw = e; }
+    check(c.id, `${GEN_LABEL[key]} refuses to render when ${c.why}`,
+      threw !== null && threw.name === 'IntakeError',
+      threw ? `threw ${threw.name}, expected IntakeError` :
+        `rendered ${output ? output.length : 0} characters from an intake it did not have`);
+  }
+
+  // 3. THE ORIGINAL DEFECT, stated directly: whatever happened, no document exists
+  //    that describes the 75 kg / 170 cm / 1800 kcal person nobody was.
+  //
+  //    Checked PER MISSING FACT, not as one blanket scan. BASE.proteinG is 113, which
+  //    is also the old proteinG fallback, so a blanket scan flags a customer's real
+  //    protein figure as fabricated the moment some unrelated fact goes missing. A
+  //    default is only evidence of fabrication for a fact that is actually absent.
+  for (const key of Object.keys(GENERATORS)) {
+    let html = null;
+    try { html = GENERATORS[key]('Linda Test', c.d); } catch { /* refusing is the pass */ }
+    if (html === null) continue;
+    const leaked = Object.entries(OLD_FALLBACKS)
+      .filter(([fact]) => c.d[fact] === undefined || c.d[fact] === null)
+      .filter(([, re]) => re.test(html))
+      .map(([fact]) => fact);
+    check(c.id, `${GEN_LABEL[key]} printed no substituted default when ${c.why}`,
+      leaked.length === 0,
+      leaked.length ? `rendered the old hardcoded fallback for: ${leaked.join(', ')}` : '');
+  }
 }
 
 // ===========================================================================

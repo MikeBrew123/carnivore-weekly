@@ -8,7 +8,9 @@
 #  2. Bundle build check — the calculator2 bundle only ever built on one
 #     laptop before this. This proves a clean clone still builds, so the page
 #     is never one dead node_modules away from being unshippable.
-#  3. Report suites (added 2026-09-08) — safety (medical gating) and integrity
+#  3. Report suites (added 2026-09-08) — safety (medical gating), authoritative
+#     intake (KetoDial: no paid report without a complete validated intake record)
+#     and integrity
 #     (the calendar and the shopping list must agree, and the list must be
 #     DERIVED from the calendar). Both existed as files anyone could forget to
 #     run; a customer found the divergence before we did. Now they gate.
@@ -24,9 +26,27 @@ on:
       - 'tests/macro_parity/**'
       - 'tests/report-safety.test.mjs'
       - 'tests/health-context-flow.test.mjs'
-      - 'tests/kd-report-safety.test.mjs'
-      - 'ketodial/worker/reports.js'
       - 'tests/report-integrity.test.mjs'
+      - 'ketodial/worker/index.js'
+      - 'ketodial/worker/reports.js'
+      - 'ketodial/worker/intake.js'
+      - 'ketodial/worker/wrangler.toml'
+      # The submodule GITLINK. ketodial/public is the live intake UI: the kidney
+      # safety question, and the option value= attributes that are an API contract
+      # with calculator_sessions_v2. A pointer bump changes what real customers
+      # submit, so it has to run the KD safety suite like any other source change.
+      - 'ketodial/public'
+      # The schema the safety code depends on. GROUP P mutation-tests this file —
+      # a backfill added here would give every legacy customer a kidney answer
+      # nobody gave — but a migration-only edit would not have triggered the guard
+      # at all, so none of those tests would have run. Same hole as the submodule
+      # gitlink and the pull_request paths before it, for the third time.
+      - 'supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql'
+      - 'supabase/migrations/20260909_kd_audit2b_resume_token.sql'
+      - 'tests/kd-report-safety.test.mjs'
+      - 'tests/kd-intake-authority.test.mjs'
+      - 'tests/kd-upgrade-offer.test.mjs'
+      - 'tests/kd-plan-email.test.mjs'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
@@ -49,6 +69,27 @@ on:
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
+      - '.github/workflows/calculator-guard.yml'
+      - 'ketodial/worker/index.js'
+      - 'ketodial/worker/reports.js'
+      - 'ketodial/worker/intake.js'
+      - 'ketodial/worker/wrangler.toml'
+      # The submodule GITLINK. ketodial/public is the live intake UI: the kidney
+      # safety question, and the option value= attributes that are an API contract
+      # with calculator_sessions_v2. A pointer bump changes what real customers
+      # submit, so it has to run the KD safety suite like any other source change.
+      - 'ketodial/public'
+      # The schema the safety code depends on. GROUP P mutation-tests this file —
+      # a backfill added here would give every legacy customer a kidney answer
+      # nobody gave — but a migration-only edit would not have triggered the guard
+      # at all, so none of those tests would have run. Same hole as the submodule
+      # gitlink and the pull_request paths before it, for the third time.
+      - 'supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql'
+      - 'supabase/migrations/20260909_kd_audit2b_resume_token.sql'
+      - 'tests/kd-report-safety.test.mjs'
+      - 'tests/kd-intake-authority.test.mjs'
+      - 'tests/kd-upgrade-offer.test.mjs'
+      - 'tests/kd-plan-email.test.mjs'
   workflow_dispatch:
 
 jobs:
@@ -83,6 +124,35 @@ jobs:
       # beside it. See the header of that file for the customer report behind it.
       - name: KetoDial report safety regression
         run: node tests/kd-report-safety.test.mjs
+      # A paid KetoDial report may only be written from a complete, validated,
+      # authoritative intake record. Guards the storage contract itself: Stripe
+      # metadata must never become the questionnaire store again, every
+      # missing/malformed/incomplete/unreferenced intake must fail closed, and the
+      # renal protein suppression must stay wired to the gate. Includes its own
+      # mutation harness — a green run here is checked, not assumed.
+      - name: KetoDial authoritative intake regression
+        run: node tests/kd-intake-authority.test.mjs
+
+      # The conversion pass of 2026-09-08 put a paid offer directly under the free
+      # macro result. That card must derive what it sells from the SAME
+      # productAvailable() the detailed picker uses — a hand-written product list
+      # there would be a second copy of the renal rule, free to drift, and it would
+      # advertise a Meal Plan the worker then declines at /checkout. This suite lifts
+      # the real featuredOffer()/renderUpgradeCard() out of the shipped ketodial.js
+      # and executes it, so it fails on behaviour rather than on wording.
+      - name: KetoDial upgrade offer and result hierarchy
+        run: node tests/kd-upgrade-offer.test.mjs
+
+      # The free-results email is auto-sent seconds after the first result, so it is
+      # the highest-volume surface KetoDial has. This suite drives the real
+      # POST /email-plan and asserts on the exact payload Resend would receive:
+      # subject, reply_to, tags and rendered HTML. It pins the renal suppression that
+      # already shipped (no protein figure, no meal plan, no Full Protocol, and
+      # "I'm not sure" never rendered as a diagnosis), the truthful fulfilment
+      # wording, and that the buy link resumes the saved session instead of dropping
+      # the reader back at an empty calculator.
+      - name: KetoDial free-results email
+        run: node tests/kd-plan-email.test.mjs
 
       - name: Report integrity regression
         run: node tests/report-integrity.test.mjs

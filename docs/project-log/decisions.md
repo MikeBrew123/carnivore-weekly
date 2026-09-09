@@ -828,3 +828,713 @@ This session then moved to an isolated worktree at `.claude/worktrees/safety-clo
 Traps found while isolating, both now in CLAUDE.md: submodules are not checked out in a new worktree (the
 KD suite failed 3 of 211 assertions for that reason alone, correctly), and a worktree's submodule follows
 the parent's committed gitlink, which was **ahead of** the main checkout's.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4: KetoDial authoritative intake (Stripe metadata is no longer a store)
+
+### What was wrong
+`ketodial/worker/index.js` carried the questionnaire to the report generators inside
+`metadata[form_data] = JSON.stringify(formData).slice(0, 490)`. Stripe caps a metadata value at
+500 characters; the fixed part of the KD form serialises to 307, leaving ~183 characters for every
+medication, condition slug and free-text answer. Past that the JSON was cut mid-object,
+`safeParseJSON(...) || {}` produced `{}`, and the generators substituted
+`cal=1800 fat=140 prot=113 carb=25 wKg=75 hCm=170`.
+
+Reproduced: 58F / 88 kg / 165 cm, 4 medications, 3 conditions, 97-char free text (534-char JSON)
+received a Doctor's Report stating **BMI 26.0 instead of 32.3**, "None reported" against her
+conditions, and no medications — on the one document in the product designed to be handed to a
+physician. Payload length tracks medical complexity, so the loss concentrated on exactly the
+readers the safety gate exists to protect.
+
+The 2026-09-08 closeout recorded this as "contained". That was true of the ELECTROLYTE gate only.
+`generateDoctorReport` and `generateMealPlan` never consulted the gate at all.
+
+### The end state
+`validated intake -> calculator_sessions_v2 (authoritative) -> Stripe metadata[session_token]
+(bounded 32-char reference) -> loadAuthoritativeIntake() + validateIntake() -> deriveKdMedicalContext()
+-> generators`
+
+The durable store already existed and was already being written; nothing read it at report time.
+This is a rewiring, not a new table. **Stripe metadata is a pointer, never a store.**
+
+- New `ketodial/worker/intake.js`: `normalizeIntake` (a rename, no `|| fallback` anywhere),
+  `validateIntake` (fails closed, names the missing facts), `requireFacts` (generator backstop),
+  `loadAuthoritativeIntake`.
+- Checkout validates the intake BEFORE creating the Stripe session. We do not take money for a
+  report we already know we cannot write; the customer is told to finish the questionnaire while
+  they can still do something about it.
+- Transient store failures are kept distinct from unusable intake. Collapsing them turns an outage
+  into a refused report, or a broken row into an infinite Stripe retry.
+
+### Three gaps found while wiring it
+1. `handleSessionUpdate` guarded every write with `if (b.medications)`. An empty answer is falsy, so
+   "takes no medications" was never written and the column stayed NULL — indistinguishable from a
+   lost answer. Live rows confirmed it. Now `!== undefined`. **"Answered nothing" is not "never asked."**
+2. `lifestyle_activity` is printed on the Doctor's Report and was never persisted.
+3. The KD meal plan is **protein-anchored**, not calorie-scaled (`minDensity = prot/cal` selects
+   meals, `protScale = prot/baseP` scales portions).
+
+### Renal protein suppression folded into the shared boundary
+`ctx.renal` had been computed since the gate was written and read by NOTHING. `restrictProteinTarget`
+now follows it, mirroring `api/medical-context.js` so the two products cannot drift again. All three
+generators pass through `deriveKdMedicalContext` — previously only `generateStarterKit` did.
+
+Because of (3), suppression could not be a display change:
+- The **whole macro panel** is withheld, not the protein row. Energy, fat and carbohydrate are a
+  closed system; blanking one term states it by subtraction.
+- **No protein-anchored plan is generated at all.** A renal customer receives a clinician-routing
+  document instead, which offers the meal plan refunded without their having to ask twice.
+
+### OPEN — BREW'S DECISION, NOT TAKEN HERE
+A declared-renal customer can still BUY the meal plan and will now receive a referral instead of a
+plan. Blocking that sale at checkout is a pricing/product call and was deliberately not made
+unilaterally. Options: block the meal-plan SKU on declared renal, warn before purchase, or leave the
+refund path as the answer.
+
+### Legacy
+`calculator_sessions_v2` held 20 KetoDial sessions and **0 paid** at the time of the change, so there
+was nothing to migrate. `payment_status` is only written when the webhook sees a token, so that count
+cannot PROVE no purchase ever happened. A paid Stripe session with no token, no row, or a row that
+fails validation therefore gets **422 and a support route, never a reconstructed report**. A complete
+historical row still generates normally.
+
+### Not done
+Production was NOT deployed. Both Cloudflare workers still deploy by hand
+(bead: no workflow deploys either worker), and `ketodial/public` is a separate Pages repo.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4b: the renal gate moves BEFORE the free result (Brew)
+
+### The rule
+**Do not make it hard for people to spend money.** Safety changes what we show and sell, not whether
+a customer can buy.
+
+### Why the first version was wrong
+The 2026-09-08 remediation put the renal gate at report generation. That was safe and badly placed:
+the customer answered no safety question, saw a personalized protein target on the free screen, paid,
+and *then* received a referral plus a refund offer. Safety arrived as an apology after the money moved.
+
+### What changed
+One question, asked once, on step 1 before the free protein result:
+
+> **One quick safety check.** Have you been diagnosed with kidney disease, told that your kidney
+> function is reduced, or are you on dialysis?  **No / Yes / I'm not sure**
+
+Not a medical questionnaire, and deliberately not "do you suspect" — we ask what a clinician has
+already told them, never for a self-diagnosis.
+
+| Answer | Free protein result | Products offered |
+|---|---|---|
+| No | personalized figure, normal flow | all five |
+| Yes | "Ask your doctor or renal dietitian" | Doctor's Report + Starter Kit |
+| I'm not sure | identical to Yes | Doctor's Report + Starter Kit |
+
+"I'm not sure" is treated as "Yes". The alternative is asking a customer to rule out their own renal
+function, which is the judgement this software is least entitled to ask for.
+
+### Safety changes the offer, not the ability to purchase
+Only the 7-Day Meal Plan is protein-anchored (`minDensity = prot/cal` selects meals, `protScale =
+prot/baseP` scales portions), so only it and the bundles containing it are withdrawn. The cards are
+removed from the picker, not greyed out behind a warning. No disabled button, no second health form,
+no scary banner. **Doctor's Report $5.99 + Starter Kit $3.99 = $9.98 against $10.99 for the Full
+Protocol they could not have received in full — nobody pays more for less**, so no new Stripe price
+is needed for a partial bundle.
+
+### One source of truth
+`calculator_sessions_v2.kidney_status` (`no|yes|unsure`, CHECK-constrained). A dedicated column, NOT
+the `conditions` array: writing the slug `kidney` would make the Doctor's Report assert a diagnosis
+for someone who answered "I'm not sure". **Suppression must not become diagnosis.** The answer is sent
+with the first `POST /session` and re-sent on change; it is required by `validateIntake`, so NULL
+(every pre-2026-09-08 session) fails closed rather than defaulting to No.
+
+The architecture is unchanged: validated data -> authoritative intake -> medical context -> allowed
+products -> Stripe reference -> report generation.
+
+### A hole the suite caught mid-change
+The early answer first fed `restrictProteinTarget` only. A customer answering Yes without also ticking
+the `kidney` condition chip had their protein withheld and was then handed the full sodium/potassium
+protocol. `cardioRenal` now includes `renal`. **A new signal has to reach every gate it is relevant to,
+not just the one it was added for**, and there is a mutation pinning it.
+
+### Honest limitation
+KetoDial's free protein figure is a flat 25% of calories, not a body-composition calculation. The page
+still shows calories, so the number remains recoverable by arithmetic by anyone who knows the 70/25/5
+split the page itself states. Closing that would mean withholding calories, which contradicts the
+normal-flow rule. The **paid** report has no such leak: the whole macro panel is withheld there.
+
+### Not done
+Production NOT deployed. The migration IS applied to Supabase (additive, nullable, no backfill).
+
+---
+
+## 2026-09-08 — AUDIT 2B #4c: real-interface proof, and the bug it found
+
+### The finding that justified the whole exercise
+**KetoDial's step-2 medical intake has NEVER been persisted.** Verified against the real table.
+
+`calculator_sessions_v2` is shared with Carnivore Weekly and carries CHECK constraints written for
+CW's answer vocabulary. KetoDial's step-2 `<select>` elements have **no `value` attributes**, so the
+browser submits the option TEXT. Every one violates a constraint, and one also exceeds varchar(20):
+
+| Field | KD sends | Shared table allows | Result |
+|---|---|---|---|
+| `dairy_tolerance` | "A little bothers me" | none / butter-only / some / full | 23514 |
+| `cooking_skill` | "Basic — I can follow a recipe" | beginner / intermediate / advanced | 22001 + 23514 |
+| `meal_prep_time` | "About 30 min/day" | minimal / some / lots | 23514 |
+| `family_situation` | "Just me" | solo / partner / family-with-kids / large-household | 23514 |
+| `budget` | "mod" / "flex" | tight / moderate / flexible | 23514 |
+
+PostgREST rejects the **whole PATCH**, so `conditions`, `medications`, `symptoms` and
+`step_completed = 2` die with it. `updateSession()` is fire-and-forget with `.catch(warn)`, so nobody
+saw it. Every live KD row shows exactly that damage: `step_completed=3` with the medical columns NULL.
+
+Survivable while nothing read the row. **Fatal the moment the row became authoritative:**
+`validateIntake` would have refused every customer and the checkout guard would have declined 100% of
+KetoDial purchases. Stubbed tests could not have found this — they stub the thing that was broken.
+
+### The fix: a vocabulary bridge, not a relaxation
+`toStoredVocabulary()` translates KD's option text into the shared table's vocabulary on write;
+`fromStoredVocabulary()` translates back on read. **CW's constraints are untouched.**
+
+The read half matters as much as the write half: `reports.js` decides dairy handling by substring
+("free", "strict", "little", "bother"), so storing the bare enum and handing it to the generator would
+silently change which meals a dairy-sensitive customer receives. Each enum maps back to a phrase that
+reproduces today's behaviour exactly, and the suite asserts the behaviour, not the strings.
+
+An unmappable preference is **omitted**, never allowed to fail the write. Losing a preference costs
+personalization; losing the write costs the customer's medications.
+
+Also: a rejected session update now logs `Session update REJECTED`. Silence is what let this run for months.
+
+### Which Supabase environment — stated plainly
+The 2026-09-08 `kidney_status` migration was applied to **`kwtdpvnjewtahuxjyltn` ("CarnivoreWeekly"),
+which is the PRODUCTION database.** It is the only Supabase project on the account; there is no
+staging. Saying "production was not deployed" in the same report was true of the workers and Pages and
+**misleading about the database**. The schema change is additive and nullable with no backfill, so it
+is not being reverted, but the audit history should record it accurately.
+
+A preview branch costs $0.01344/hour. That is spend, and spend is Brew's call, so the integration run
+used production with rows tagged `source='kd-audit2b-test'`, emails at the reserved `@audit2b.invalid`
+TLD, and cleanup that fails the run if anything survives. Verified afterwards: 0 tagged rows, 0 test
+emails, 0 probe rows, 20 real KD rows untouched.
+
+### Stripe
+**No Stripe object was created.** The only test key in the vault (`stripe.secret_key_test`, last
+rotated 2026-01-06) is EXPIRED — `/v1/balance` returns "Expired API Key provided" — and the Stripe MCP
+server is not authorized in this session. Using the LIVE key was rejected: a live-mode Checkout Session
+is a production artifact. The Stripe leg is proven at the HTTP boundary instead, asserting the exact
+bytes `handleCheckout` serializes. **Rotating the test key upgrades this to a true end-to-end with no
+code change.** `PRICE_MAP` is now env-overridable (`PRICE_MAP_JSON`) so test-mode prices can be used;
+production behaviour is unchanged when it is unset.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4d: the intake form's values are an API contract (Brew)
+
+Brew, on the vocabulary bridge: *"relying on visible copy like 'Basic - I can follow a recipe' as an
+API contract is brittle as hell. A copywriter should not be able to break your database."* Correct,
+and the bridge only contained the damage rather than removing the cause.
+
+Every step-2 `<option>` and chip in `ketodial/public/index.html` now carries an explicit `value=`, and
+those values are the shared table's own vocabulary. Verified in a real browser: the form submits
+`dairy=some, cooking=advanced, prep=lots, family=partner, budget=flexible`. No label text reaches the
+database at all any more.
+
+Two options collapse onto one value in each of dairy tolerance ("I love dairy" / "I tolerate it fine"
+→ `full`) and cooking skill ("Microwave only" / "Basic" → `beginner`), and prep time collapses "I
+batch on weekends" / "I love cooking" → `lots`. The shared constraint has fewer levels than KetoDial's
+copy. No behaviour is lost — nothing downstream distinguished those pairs — and widening a CW
+constraint to hold KetoDial's copy would be the wrong direction.
+
+**GROUP K in `tests/kd-intake-authority.test.mjs` is the actual fix.** It reads the shipped HTML and
+fails the build if any option lacks a `value=`, or carries one the CHECK constraints do not accept.
+Mutation-proved, and the polarity is the point:
+
+| Mutation | Result |
+|---|---|
+| a copywriter rewrites a LABEL | **stays green** — copy is free to change |
+| a `value=` attribute is stripped | **red** — "every option declares an explicit value=" |
+| an invented value (`weekend-batch`) | **red** — "every value is one the shared table accepts" |
+| budget chip reverted to `mod` | **red** — same |
+
+**The bridge stays**, now demoted to what it should be: a compatibility layer for sessions created
+before this deploy and for cached pages still submitting label text. That case has its own proof
+against the real constraints (integration GROUP 1b), because it is the only remaining reason to keep
+the code.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4e: second review, three blockers closed
+
+### 1. Purchase eligibility is not report eligibility
+`handleCheckout` reused the full report validator, which requires `step_completed >= 2`, conditions
+and medications. But `ketodial.js` moves the priced picker ABOVE the profile deliberately — its own
+comment says *"so prices are visible without completing the 12-field profile. The survey stays below
+as optional personalization"* — and the profile heading says *"Most are optional"*.
+
+So a customer who finished the calculator, answered the kidney question and wanted the Starter Kit was
+told to finish a questionnaire the product calls optional. **Safety changing the offer had become
+safety blocking the sale**, which is the opposite of the rule.
+
+Two boundaries now, as separate exported functions so a caller cannot pick the weaker one by accident:
+
+| | `validatePurchaseIntake` | `validateIntake` (report) |
+|---|---|---|
+| session is real, body + macros sane | ✓ | ✓ |
+| `kidney_status` explicit `no\|yes\|unsure` | ✓ | ✓ |
+| product allowed for that kidney state | ✓ (`allowedProducts`) | n/a |
+| `step_completed >= 2`, conditions, medications | **not required** | ✓ |
+
+A purchase outrunning the profile is fine — the customer finishes it and the report generates. A
+REPORT built from data nobody supplied is not, and that bar did not move. GROUP L asserts both halves,
+and pins that the report validator stays strictly stronger.
+
+**Related fabrication found while splitting them:** with `conditions`/`meds` absent the generators
+printed **"None reported"** — a claim about the customer, on a document for their physician, that
+nobody made. `d.conditions || []` is the `|| 75` of the medical section. New `requireDeclaredAnswers()`
+refuses undefined/null while still accepting `[]` and `''`, which are real answers.
+
+A buyer who has not finished the profile now gets *"One short step and your reports are ready"* with a
+link back, not *"your answers were lost"* — those are different situations and must read differently.
+
+**Save race removed.** `updateSession` returns a promise chain; checkout awaits it via `writesSettled()`
+and surfaces failure. Verified in a browser with a deliberately slow 600ms write and an immediate
+checkout click: checkout ran only after every dependent write landed. With a rejected write, checkout
+was blocked, the customer was told, and the button re-enabled.
+
+### 2. "I'm not sure" must never become a diagnosis in prose
+`kdProteinSuppressionNote()` and the meal-plan referral both said **"You told us about kidney
+disease"** to an `unsure` customer. False, and it puts a diagnosis in their mouth on a clinician-facing
+document — the exact failure the dedicated `kidney_status` column exists to prevent, surviving in the
+copy. `ctx.kidneyConditionDeclared` / `ctx.kidneyUnsureOnly` now split the wording while the
+suppression stays identical. The referral's summary table states the kidney check honestly
+("Answered 'I am not sure' — not a reported diagnosis"). Every other "kidney disease" string was
+already gated on a real declaration; all were re-checked.
+
+### 3. CI now runs on the live intake UI
+`ketodial/public` (the submodule gitlink) added to **both** `push.paths` and `pull_request.paths`.
+`submodules: true` kept. GROUP N reads the workflow and fails if either trigger loses the path.
+
+### Mutation results — all six detected
+| Mutation | Detected by |
+|---|---|
+| checkout back to the report validator | L: "checkout uses the purchase boundary" |
+| purchase stops requiring the kidney answer | L: "purchase is refused when the kidney answer is missing" |
+| report validator loosened to the purchase bar | C: "medical screen never submitted" |
+| `unsure` told it declared kidney disease | M: "is NOT described as having told us about kidney disease" |
+| generators may print "None reported" unasked | L: "the Doctor's Report refuses rather than printing 'None reported'" |
+| `ketodial/public` dropped from `pull_request` | N: "pull_request watches the ketodial/public submodule gitlink" |
+
+The kidney-answer mutation initially went **undetected**: the assertion used
+`err.missing.some(/kidney/i)`, which the plausibility check satisfied by reporting `kidneyStatus`, so
+deleting the requirement outright left it green. The assertion passed through a different mechanism
+than the one it was written to pin. Now asserts the exact code and the exact missing string.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4f: paid fulfilment made resumable (third review)
+
+Splitting purchase from report eligibility was right for conversion and **opened a paid-fulfilment
+P0 that I did not close.** A customer could pay after step 1; the webhook then ran the full report
+validator, found the profile incomplete, logged `NO REPORT SENT`, returned 200 to Stripe and **sent
+nothing at all**. The customer paid and heard silence.
+
+The recovery my own error page suggested did not work either. Stripe redirects to a freshly loaded
+page where `sessionToken` starts null and **nothing persists or restores it** — the Stripe
+`session_id` was used only for report links and analytics. So "go back and finish the profile" could
+not attach anything to the paid order.
+
+### The flow now
+```
+pay → profile complete   → deliver immediately (webhook, unchanged)
+pay → profile incomplete → "One short step to finish your reports" email, linked to THAT paid session
+                         → customer completes the profile against the original row
+                         → POST /fulfill delivers, and records that it did
+```
+Everything hangs off a mapping the server already had: **Stripe `session_id` → `metadata.session_token`
+→ `calculator_sessions_v2`**. The browser never carries the raw token across the redirect, and the
+token is deliberately **not** handed back to it — holding the Stripe session id already grants report
+access and does not need to grant more.
+
+- `PATCH /session` accepts `stripe_session_id` as an alternative key. It resolves **only for a PAID
+  session**, so an unpaid or unknown id cannot write to anyone's row.
+- `GET /purchase/:id` — what was actually bought, and whether delivery is possible yet.
+- `POST /fulfill` — delivers after late completion, **idempotent** via `reports_delivered_at`.
+- The webhook sends the finish-profile email instead of going silent.
+
+### New column
+`calculator_sessions_v2.reports_delivered_at` (additive, nullable, no backfill), applied to the
+**production** database — the only Supabase project on the account. It makes late delivery idempotent
+and makes a state the product never had before queryable:
+
+```sql
+SELECT session_token, email, paid_at FROM calculator_sessions_v2
+WHERE payment_status = 'completed' AND reports_delivered_at IS NULL;
+```
+
+### The two smaller bugs
+**The race fix had a hole.** Every successful PATCH did `lastWriteError=null`, and checkout itself
+queues `step_completed:3` — so a failed profile save could be erased by that later success before
+`writesSettled()` ever looked. Failures are now a sticky counter, cleared only by the profile submit,
+which is the retry of the thing that failed.
+
+**The success screen hardcoded all three reports.** A renal customer correctly prevented from *buying*
+the meal plan was still shown "Open 7-Day Meal Plan", which 403s. Telling someone they own something
+we deliberately did not sell them is worse than the 403 it leads to. The screen now renders from
+`GET /purchase/:id`, and shows PENDING rather than a dead link while the profile is unfinished.
+
+One `collectProfile()` now serves both the pre- and post-payment submits, so they cannot drift apart.
+
+### Mutation results — six, all detected
+webhook silence · `stripe_session_id` no longer resolving · unpaid id able to write · fulfilment
+losing idempotency · success screen hardcoding reports · write failure cleared by a later success.
+
+The unpaid-id mutation initially went **undetected**: the assertion scanned the whole file for
+`payment_status !== 'paid'` and matched `handleReport`'s identical guard in a different function. Same
+masking as the earlier kidney-answer case — an assertion passing through a mechanism it did not name.
+Both are now scoped to the function they are about. **That is twice; treat an unscoped source regex as
+a smell.**
+
+---
+
+## 2026-09-08 — AUDIT 2B #4g: delivery truthfulness, idempotency, DB vocabulary, schema in git
+
+### 1. A failed email was recorded as a delivery
+`sendReportEmail()` logged a non-2xx Resend response and returned normally, so both callers went on to
+write `reports_delivered_at` — permanently recording a delivery that never happened, on the one column
+that answers *who paid and got nothing*. `markDelivered()` swallowed a rejected PostgREST PATCH too, so
+a failed marker was indistinguishable from a written one.
+
+Sends now throw. Nothing is marked until Resend accepts. `/fulfill` returns **502 retryable**; the
+webhook returns **500** so Stripe retries. If the send succeeds but the marker fails, the customer keeps
+their reports and the log names the recovery — retrying is safe.
+
+### 2. Idempotency was only sequential
+`read → send → mark` lets two concurrent `/fulfill` calls both see NULL and both send. Resend
+`Idempotency-Key` now carries a **deterministic** key derived from the Stripe session —
+`kd-report/<id>` and `kd-finish/<id>` — so a retry is the same message. `reports_delivered_at` remains
+the durable application state. A random-per-attempt key would defeat the whole mechanism, so the keys
+are built in one place rather than at each call site.
+
+### 3. The webhook wrote Stripe's vocabulary into the database
+Stripe Checkout says `payment_status='paid'`; `calculator_sessions_v2` allows
+`pending|completed|failed|refunded`. **PostgREST rejected the entire writeback**, and the amount, the
+payment intent and both timestamps went with it — the same class as the step-2 defect, and invisible
+because the failure was logged and swallowed. Mapped to `completed`; the constraint was **not** widened
+to accommodate Stripe.
+
+`is_premium: true` was also dropped, and not by oversight: `premium_requires_payment` requires
+`is_premium=false OR (payment_status='completed' AND tier_id IS NOT NULL)`. `tier_id` is a Carnivore
+Weekly tier; KetoDial has no value for it, so `is_premium=true` is unsatisfiable and rejected the whole
+patch on its own. Leaving the column alone is honest; inventing a tier id to satisfy a constraint is not.
+
+Proven against the real table: `completed`, `amount_paid_cents`, `paid_at`, `payment_verified_at`,
+`stripe_payment_intent_id` and `step_completed=4` all land; `'paid'` and `is_premium=true` are both
+rejected.
+
+**The operational query was wrong too.** Unscoped it returned **6 Carnivore Weekly rows** from
+2026-07-05 onward — CW's worker never writes this column, so it is NULL for every historical CW
+purchase. Six customers nobody owes anything, presented as stuck fulfilments. Now scoped to
+`source = 'ketodial'`, with the partial index predicate rebuilt to match. KetoDial stuck fulfilments: **0**.
+
+### 4. A failed kidney write survived the profile checkpoint
+`stored=No → customer changes to Yes → that PATCH fails → profile submit clears the failure counter →
+profile PATCH succeeds WITHOUT the kidney answer → the server still believes No.` The customer would see
+suppression on screen while the row that decides what we sell said the opposite.
+
+`collectProfile()` now carries `kidney_status`, and failures are cleared **only after** the checkpoint
+has landed. Proven in a browser for the exact sequence, and against the real database for both `yes` and
+`unsure`: the row corrects, and product routing and report context both see the corrected answer.
+
+### 5. Schema is in the repository
+`supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql` — idempotent, verified
+as a genuine no-op by re-applying it to the already-migrated production database. No backfill: a default
+kidney answer would be a safety answer nobody gave.
+
+### Mutations — seven, all detected
+log-and-continue on Resend · marker swallowing a rejected PATCH · random idempotency key ·
+Stripe's vocabulary · `is_premium=true` · kidney answer dropped from the checkpoint · migration
+backfilling a health answer.
+
+The kidney one initially went undetected: the assertion sliced from `collectProfile` to end-of-file and
+matched the same expression in two later call sites. **Third occurrence of an unscoped source match
+passing through a mechanism it did not name.** All three are now scoped to the function they are about,
+and that is now a standing smell to check for.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4h: fifth review — submodule merge, migration CI trigger, idempotency window
+
+### My "zero file overlap" claim was wrong
+I compared parent-level filenames and never looked inside the moved gitlink. `origin/main @ 206920bd`
+advances `ketodial/public` to `5c1cab7`, and the submodule histories had diverged from `fa8d27c`: the
+audit branch **6 ahead, 1 behind**. Advancing the parent pointer alone would have silently dropped five
+migrated blog posts and their images.
+
+A real submodule merge was required, and the reviewer was right to insist on the order. One factual
+correction: `5c1cab7` touches `blog/index.html` (the blog listing) and blog assets, not the calculator
+`index.html`, so the merge was clean with **no file edited on both sides** — but it was still necessary.
+
+Done in the prescribed order: merge in the submodule repo (`07a2337`), verify both halves, push the
+submodule, update the parent gitlink, merge the parent, re-run everything. After the merge the five
+posts and their sitemap entries serve, and the calculator still carries the kidney question, suppresses
+the protein figure, withholds the meal plan and its bundles, keeps explicit option `value=` attributes,
+and sends `kidney_status` on session create.
+
+### The migration was not watched by CI — third instance of this hole
+`supabase/migrations/20260908_kd_audit2b_kidney_status_and_delivery_marker.sql` is safety-critical and
+GROUP P mutation-tests it, but `calculator-guard.yml` did not watch the path. A migration-only edit
+adding a backfill — giving every legacy customer a kidney answer nobody gave — could have landed with
+none of those tests running.
+
+Added to **both** triggers and pinned in GROUP N, mutation-verified by dropping it from each trigger in
+turn. That is the third time this exact hole has appeared: `pull_request` missing the KD paths, the
+`ketodial/public` gitlink, and now the migration. **A file that a test asserts against must be on the
+trigger list for the workflow that runs that test** — worth making a standing check rather than finding
+it a fourth time.
+
+### Idempotency claims corrected
+Resend retains an idempotency key for **24 hours**, not forever. The code said a resend was simply safe.
+Now stated accurately: the deterministic key is the short-window protection, `reports_delivered_at` is
+the durable one, and outside the window the database marker is what prevents a second send. The
+customer-facing retry message no longer promises "you will not receive duplicates".
+
+### Confirmed by the reviewer, recorded here
+The worker deliberately ignores an invalid or blank resumed `kidney_status` rather than clearing the
+stored value, so the post-payment Step 2 flow preserves the pre-payment answer. Checked and correct.
+
+---
+
+## 2026-09-08 — AUDIT 2B #4i: the free plan email was outside the gate
+
+### The miss
+The calculator auto-calls `/email-plan` seconds after the first free result. The page suppressed the
+protein figure for a reader who answered Yes or "I'm not sure" — and the email then carried it in the
+**subject line**, in a **Protein row**, in **"hit the protein number first"**, in copy explaining why we
+set their protein high, and in an **upsell to the meal plan checkout had just refused to sell them**.
+
+Same defect class as the meal plan sized from a withheld figure: suppressed on one surface, still
+emitted on another. I had flagged this email once as an unresolved risk, then mischaracterised it as
+Carnivore Weekly finding #3's class and let it drop. It is a KetoDial gate leak and it was in scope.
+
+### The fix
+`/email-plan` now loads the **authoritative session** and reads `kidney_status` from it. Anything that
+is not an explicit `no` suppresses, absence included — the same fail-closed shape as
+`deriveKdMedicalContext`.
+
+| | No | Yes / I'm not sure |
+|---|---|---|
+| email sent | yes | **yes** — we do not stop the customer |
+| subject | `… kcal · 118g protein · 22g net carbs` | `… kcal · 22g net carbs` |
+| protein row | `118 g` | `Ask your doctor or renal dietitian` |
+| fat / carbs / calories | shown | **still shown** — only protein is withheld |
+| "hit the protein number first" | present | replaced with fat/carb guidance + referral |
+| "we set your protein high" copy | present | absent |
+| offer | Full Protocol, $10.99 | Doctor + Starter, **$9.98** |
+
+Safety changes the offer, not the ability to buy.
+
+**Macros now come from the stored session, not the client.** The browser used to supply both the numbers
+and no context, which is why the email could not know about the gate. Reading the row fixes both at once.
+An integration test sends deliberately wrong client macros and asserts the stored ones are used.
+
+**Also fixed while in this function:** `reply_to` was `iambrew@gmail.com`. CLAUDE.md is explicit that
+KetoDial replies go to `ketodial@carnivoreweekly.com`. Now pinned by an assertion.
+
+### Mutations — six, all detected
+email ignoring the stored answer · protein row printed regardless · subject keeping the figure ·
+meal-plan bundle advertised to a suppressed reader · macros back to client-supplied · replies back to a
+personal inbox.
+
+GROUP Q **renders both variants of `buildPlanEmail` and asserts on the output**, rather than guessing at
+distances between strings in the source. The first version of the group did the latter and produced a
+false failure on a correct implementation.
+
+Two more masked assertions found and fixed: the macro-source check tested the *read* rather than the
+*assignment* and stayed green when the assignment was deleted; and the integration flattener collapsed
+the Fat row's "128 g" into the next row's "Protein" label and read it as a protein figure. That is the
+fifth and sixth. **An assertion must name the mechanism it depends on, and be scoped to it.**
+
+---
+
+## 2026-09-08 — AUDIT 2B: Stripe TEST end-to-end BLOCKED on a credential
+
+The final pre-production gate could not run. `stripe.secret_key_test` (last rotated 2026-01-06) returns
+`api_key_expired`, and the Stripe MCP server is not authorized in this session. **Rotating an API key is
+a Stripe Dashboard action behind Brew's login — I cannot do it.** The live key works and was deliberately
+not used: a live-mode Checkout Session is a production artifact.
+
+Everything that does not need the key is built and verified.
+
+### Three hardcoded production surfaces, not two
+The review named the live publishable key, the production API base and the hardcoded return URL. There
+is a **third** that would have been worse: `reportLinksFor()` and the webhook both built report links
+against `https://ketodial-api.iambrew.workers.dev`. A test purchase would have emailed links pointing at
+the **live worker**, and the run would have looked like it passed the parts that mattered.
+
+`RETURN_URL_BASE` and `REPORT_BASE_URL` are now configurable and **default to exactly the strings they
+replaced**. GROUP R asserts those defaults behaviourally — calling the functions with no env at all —
+and a mutation making the default a test URL fails the build. This is the only change made solely to
+enable the test, and it changes nothing when unset.
+
+### The harness
+`tests/harness/stripe-e2e.mjs` drives the worker's own handler with real Requests, real Supabase and
+real Stripe test objects. Rails: refuses anything but `sk_test_`, re-checks `livemode:false` against the
+account, tags every row `kd-audit2b-test` at `@audit2b.invalid` with cleanup that fails the run on a
+survivor, intercepts Resend unless `--live-email` (which then only permits `@audit2b.invalid`), and uses
+only Stripe's documented test tokens. Runs A(no) / B(yes) / C(unsure) / D(pay-first) plus the failure
+matrix. With the expired key it exits 2 with the exact rotation steps.
+
+### One honest limitation, stated not papered over
+Stripe **embedded** checkout is an iframe on `js.stripe.com` and cannot be driven from our page. The
+harness confirms the documented test card through Stripe's own API instead. The Checkout Session, the
+PaymentIntent and `payment_status` are all genuine test-mode objects — only the card *entry* is
+API-driven rather than typed into their iframe. A literal iframe pass is a manual step; the harness
+prints the URL.
+
+### Status
+**BLOCKED, not failed.** No code defect is known. Nothing has been merged or deployed, no live Stripe
+object exists, and no production customer row was touched.
+
+---
+
+## 2026-09-08 — AUDIT 2B: two webhook production defects, and an honest harness
+
+The sixth review rejected the harness and, in doing so, surfaced two **production**
+defects that no amount of harness work would have found.
+
+### 1. The webhook signature could be skipped entirely (security)
+```js
+if (env.STRIPE_WEBHOOK_SECRET && sig) { ...verify... }
+```
+A request that simply **omitted** the `stripe-signature` header skipped verification. Anyone able to
+POST to `/webhook` could forge a `checkout.session.completed` carrying any `session_token` and
+(a) write `payment_status` onto that customer's row and (b) trigger a report email to an address of
+their choosing. An unauthenticated write-and-send.
+
+Now fails closed on all three: missing secret → 500 and no processing; missing header → 400; invalid
+signature → 400. Verification is also wrapped so a malformed header or secret **rejects rather than
+throwing** — an exception escaping an unauthenticated endpoint is its own problem, and it was how the
+missing-secret mutation was "detected" (by crashing) before the fix.
+
+### 2. `checkout.session.completed` was treated as paid
+Stripe's delayed and asynchronous payment methods complete a Session **before the money arrives**, and
+report settlement later via `checkout.session.async_payment_succeeded`. The webhook wrote
+`payment_status='completed'` to Supabase and emailed paid reports on `completed` alone.
+
+One shared paid-session path now, entered only when `session.payment_status === 'paid'`:
+- `completed` + paid → process
+- `completed`, not paid → acknowledge, **no writeback, no delivery**
+- `async_payment_succeeded` → same path
+- `async_payment_failed` → acknowledged and logged; nothing to undo, because nothing was delivered
+
+### The harness was overclaiming
+`payTestSession()` retrieved the Session's PaymentIntent and confirmed it directly. **Stripe's Checkout
+API states a PaymentIntent belonging to a Checkout Session cannot be confirmed that way.** Removed, and
+not replaced with another shortcut: anything that merely makes `payment_status` look paid proves nothing
+about the path a customer takes.
+
+The matrix also went `checkout → fake payment → /fulfill`, stepping over the most important
+post-payment code. It now completes Checkout for real, then drives a **signed** event into `/webhook`,
+and asserts the payment writeback (`completed`, amount, `paid_at`, `payment_verified_at`, payment
+intent), delivery, and the marker. `/fulfill` is still tested, but only where it belongs — after a late
+profile completion.
+
+And the README promised a browser harness the script did not implement: no server, no patched
+calculator, `pk_test` printed but never used, `RETURN_URL_BASE` pointing at a port nothing listened on.
+It is real now — a server on 8797 serving the shipped calculator with `API_BASE` and `STRIPE_PK`
+rewritten **in memory**, `/api/*` proxied to this process's worker. `ketodial/public/` is never touched,
+and GROUP R pins that both constants remain rewritable **and** that the shipped file still carries the
+production values.
+
+**One manual card entry per run** is the only human step, stated plainly rather than faked.
+
+### Mutations — all four webhook ones detected on named assertions
+signature optional · missing secret trusted · completed treated as paid · `async_payment_succeeded` no
+longer fulfilling. The last two initially escaped: one asserted only a status code, satisfied by the
+event being silently ignored, and one was caught by a crash rather than an assertion. Both now observe
+the side effect (a database write) instead of the response shape. That is the seventh and eighth
+masked assertion in this branch.
+
+---
+
+## 2026-09-08 — AUDIT 2B: webhook replay window, secret rotation, and an honest pay page
+
+### Replay protection (production defect)
+`verifyWebhookSignature()` validated the HMAC and never looked at `t`. A valid payload plus signature
+captured once stayed valid **indefinitely** — the replay attack Stripe names explicitly. Stripe's own
+libraries default to a 300-second tolerance, and its retries carry a fresh timestamp and signature, so a
+genuine retry is never affected.
+
+Now: timestamp parsed as a number, non-numeric rejected, anything more than 300s from now rejected in
+either direction. Mutation-tested with a correctly signed 10-minute-old payload, a 6-minute one, and a
+far-future one — all rejected, none writing or emailing anything; a 2-minute-old event still accepted so
+real retries keep working.
+
+### Multiple v1 signatures (latent, would have broken a rotation)
+The parser did `parts[k] = v`, keeping only the **last** v1. Stripe emits one v1 per active signing
+secret, so **during a webhook-secret rotation the header carries several** and the one matching the
+current secret may not be last. Rotating the secret would have started rejecting genuine events. All v1
+values are collected now and any match is accepted; mutation-tested with the matching signature first,
+last, and absent. Comparison is constant-time-ish so a wrong signature leaks no timing.
+
+### One mutation that legitimately cannot be detected
+Removing the `/^\d+$/` timestamp shape check changes **no behaviour**: `'abc'` fails `Number.isFinite`,
+and `''`, `'-1'`, `'12.5'`, `'1e9'` all land outside the tolerance bound. The guard is defence in depth,
+kept because it states the intent where a reader sees it. That is recorded in the code rather than
+papered over with a contrived assertion — inventing a test that *appeared* to detect a no-op would be
+the masked-assertion problem in reverse.
+
+### The manual pay page was a dead link
+The harness printed `/?cs=<session>` and waited. The shipped calculator mounts embedded Checkout only
+inside `startCheckout()`, after **its own** `/checkout` call returns a clientSecret, and its URL handling
+reads only `session_id` and `finish`. Opening that link showed a page with nothing to pay into, and the
+harness would have polled to timeout.
+
+The harness now serves `/pay/<session>`, initialising `Stripe(pk_test)` and mounting embedded Checkout
+with the clientSecret of the session it created. **No production change was needed** — the worker
+already returns `clientSecret`. GROUP R pins that the calculator still does not consume `?cs`, so if that
+ever changes someone re-examines whether `/pay` is still required.
+
+### The finish-profile link was hardcoded
+`https://ketodial.com/?finish=…` meant the harness could not follow the one link that proves pay-first
+recovery without bouncing into the live site. It and the report error page's "back to the calculator"
+link now use `appBaseUrl(env)`, which defaults to exactly `https://ketodial.com`.
+
+### Filed, not gated
+Stripe event-ID deduplication (`carnivore-weekly` bead, P2). `reports_delivered_at` plus the
+deterministic Resend key already cover most of it; the uncovered case is a duplicate event arriving
+outside Resend's 24-hour window and before the marker is written.
+
+---
+
+## 2026-09-08 — AUDIT 2B: harness ready for the Stripe run; still waiting on the key
+
+Code review approved rotating the TEST key. **The key has not been rotated** — it is still
+`api_key_expired`, `last_rotated 2026-01-06` — and rotating it is a Stripe Dashboard action behind
+Brew's login. Nothing was run.
+
+Two items from the review are in, plus one bug found while implementing them.
+
+**`pk_test_` guard.** The harness validated the secret and not the publishable key. A stale or mistyped
+`pk` cannot create a live charge — the Session is made with the test secret — but it surfaces as a
+Stripe.js mode mismatch inside the iframe, minutes into a manual run, naming nothing useful. It now
+fails at startup.
+
+**Stripe CLI leg.** `--stripe-cli` routes run A's webhook through
+`stripe listen --forward-to localhost:8797/api/webhook`, verified against the secret the CLI prints, so
+at least one completed purchase is proven against Stripe's real event envelope and signing format
+rather than only our own HMAC. B, C and D keep the synthetic signature, which is what makes the replay,
+malformed and multi-signature cases deterministic. There is nothing to assert on the forwarded response
+— the CLI holds it — so the evidence is the payment writeback, which only the paid path performs.
+
+**A bug that would have made the CLI leg fail for the wrong reason.** The harness `/api/*` proxy
+hardcoded `Content-Type` and dropped every other incoming header, so `stripe-signature` would have been
+stripped from every forwarded event and each one rejected as unsigned. Fixed; headers are forwarded.
+
+**Ninth masked assertion.** The header-forwarding check asserted that `fwd.set(k, …)` existed, which was
+satisfied by iterating an empty object — the headers were still dropped and the test stayed green. It
+now names the source (`Object.entries(req.headers)`). Nine of these in this branch; every one was an
+assertion that did not name the mechanism it depended on.

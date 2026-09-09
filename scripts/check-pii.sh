@@ -26,7 +26,18 @@ EMAIL_RE='[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}'
 
 # Addresses that are allowed to appear. Anything here is ours, a fixture, or a
 # machine account. Keep this list tight: every entry is a hole in the guard.
-ALLOW_RE='@(carnivoreweekly\.com|carnivore-weekly\.com|ketodial\.com|test\.ketodial\.com|example\.com|example\.invalid|example\.co\.uk|test\.example\.com|email\.com|company\.com|domain\.com|test\.com|test\.ca|noway\.com|bot\.com|carnivore-demo\.com|e\.com|iambrew\.com|anthropic\.com|github\.com|users\.noreply\.github\.com|resend\.com|mail\.beehiiv\.com|sentry\.io|[A-Za-z0-9.-]*supabase\.(co|com)|[A-Za-z0-9.-]*\.iam\.gserviceaccount\.com)$|^(iambrew(\+[A-Za-z0-9._-]+)?|neq\.iambrew|email\.neq\.iambrew|googledrive-iambrew|assistantbrew)@gmail\.com$|^mbrew@telus\.net$|^(you|your|name|user|test|testuser(\+[A-Za-z0-9._-]+)?|someone|somebody|example|x|a|b|foo|bar)@'
+ALLOW_RE='@(carnivoreweekly\.com|carnivore-weekly\.com|ketodial\.com|test\.ketodial\.com|example\.com|example\.invalid|audit2b\.invalid|example\.co\.uk|test\.example\.com|email\.com|company\.com|domain\.com|test\.com|test\.ca|noway\.com|bot\.com|carnivore-demo\.com|e\.com|iambrew\.com|anthropic\.com|github\.com|users\.noreply\.github\.com|resend\.com|mail\.beehiiv\.com|sentry\.io|[A-Za-z0-9.-]*supabase\.(co|com)|[A-Za-z0-9.-]*\.iam\.gserviceaccount\.com)$|^(iambrew(\+[A-Za-z0-9._-]+)?|neq\.iambrew|email\.neq\.iambrew|googledrive-iambrew|assistantbrew)@gmail\.com$|^mbrew@telus\.net$|^(you|your|name|user|test|testuser(\+[A-Za-z0-9._-]+)?|someone|somebody|example|x|a|b|foo|bar)@'
+
+# audit2b.invalid was added 2026-09-08 for the Audit 2B integration fixtures, which
+# build addresses like `audit2b-${answer}@audit2b.invalid`. `.invalid` is reserved by
+# RFC 2606 and can never resolve or receive mail, so an address there is incapable of
+# belonging to a real person. Every Supabase row those fixtures create is also tagged
+# source='kd-audit2b-test' and deleted by the suite that made it.
+#
+# NOTE for whoever merges this: the pre-commit hook invokes this script by ABSOLUTE
+# path from the primary checkout, so this entry does not take effect for commits made
+# from a worktree until the branch lands on main. Fixtures written before then use
+# example.invalid, which was already allowlisted.
 
 # The scanner itself carries example addresses in its own allowlist.
 IGNORE_PATHS_REGEX='^(scripts/check-pii\.sh|docs/project-log/decisions\.md)$'
