@@ -1538,3 +1538,52 @@ stripped from every forwarded event and each one rejected as unsigned. Fixed; he
 satisfied by iterating an empty object — the headers were still dropped and the test stayed green. It
 now names the source (`Object.entries(req.headers)`). Nine of these in this branch; every one was an
 assertion that did not name the mechanism it depended on.
+
+## 2026-09-09 — Correcting a live paid report in place, keeping the customer's link
+
+**Decision.** When a paid report's content is wrong, the live `calculator_reports` row is
+updated in place and the previous content is preserved in `calculator_reports_archive`.
+The row is never deleted and never reissued with a new token.
+
+**Why in place, rather than a new row.** `handleReportContent` looks the report up by
+`access_token`, so the token IS the customer's link. `calculator_reports` has
+UNIQUE(session_id) and UNIQUE(access_token), so a second row for the same session is
+impossible. And `calculator_report_access_log.report_id` is an FK to
+`calculator_reports(id)` ON DELETE CASCADE, so delete-and-reinsert would silently
+destroy the access audit trail. Update in place is the only option that keeps the link
+and the history.
+
+**Why staging, rather than a direct PATCH.** A report is ~55KB of HTML. A two-step
+"insert the archive, then PATCH the row" leaves a window where the PATCH lands after a
+failed archive, which is unrecoverable content loss, and it is a full-object PATCH: the
+same class of call that wiped seven images off two Etsy listings on 2026-08-10. Instead
+the bytes are uploaded once into `calculator_report_staging`, verified by length and
+sha256 INSIDE the database, and promoted by ONE statement whose data-modifying CTEs all
+read the same snapshot, so the archive captures the pre-update content by construction.
+
+**Columns the promotion must not touch.** `access_count` and `last_accessed_at` are
+written by a concurrent PATCH in `handleReportContent`; writing them from the promotion
+would clobber a view landing mid-statement. `generation_start_at` and
+`generation_completed_at` are governed by the `generation_duration` CHECK (both NULL or
+both set and ordered), so setting one alone aborts the transaction. `id`, `session_id`,
+`email`, `access_token`, `created_at` and `expires_at` are the customer's contract.
+
+**What is not recoverable.** `updated_at` cannot be restored: a BEFORE UPDATE trigger
+forces `NOW()` on any change, and any customer view of the report moves it too, because
+the access_count PATCH is an update. In this case the original 2026-09-07 `updated_at`
+was already gone before the archive existed, moved by a verification fetch. The archive
+therefore records the true pre-promotion value, not the original one. Which version a
+customer actually read is also not recorded; `calculator_report_access_log` is not
+version-stamped. And nothing here reaches an inbox: a report already emailed is out of
+the database's reach.
+
+**Operational statements** (promotion, rollback, verification) are in this session's
+transcript and are reproducible from the archive. The rollback restores `report_html`
+from `calculator_reports_archive` by `(session_id, version_num)` and archives the
+displaced content first, so a rollback is itself reversible.
+
+**First application.** Session `6485172b`, report `6a8f272c`, archive version 1.
+Original 47,275 chars sha256 `4a8c316a…` preserved, also dumped to
+`.claude/backups/` because a copy that lives only in the database you are mutating is
+not a backup. Corrected 54,477 chars sha256 `b95de071…` promoted. Her token is unchanged
+and the endpoint serves the corrected report byte-identically.
