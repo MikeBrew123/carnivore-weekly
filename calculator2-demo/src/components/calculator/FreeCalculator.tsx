@@ -66,7 +66,7 @@ export default function FreeCalculator({ onCalculate }: FreeCalculatorProps) {
             🥩 Carnivore Macro Calculator
           </h1>
           <p className="text-lg text-[#666] font-['Merriweather']">
-            Get your personalized macros in minutes, emailed to you.
+            Get your personalized macros in minutes. Email required.
           </p>
         </div>
 

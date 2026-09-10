@@ -200,7 +200,7 @@ export default function Step1PhysicalStats({
           // and send_newsletter.py holds the weekly back until the series
           // finishes. The old copy mentioned only the weekly email, so the
           // starter series arrived unannounced (audit 2026-09-10).
-          helpText="We'll email your results here. Using the calculator also signs you up for free emails matched to the diet you choose, usually a short starter series followed by the related weekly newsletter. Unsubscribe anytime."
+          helpText="Enter your email to continue. Your results appear here in the calculator. Using it also signs you up for free emails matched to the diet you choose, usually a short starter series followed by the related weekly newsletter. Unsubscribe anytime."
         />
         {emailSuggestion && (
           <div

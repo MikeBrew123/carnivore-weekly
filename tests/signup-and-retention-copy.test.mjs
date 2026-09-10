@@ -75,13 +75,48 @@ check(
   offenders.join(' | ')
 );
 
+// The mirror of the above: having removed "no signup required", the batch must
+// not replace it with "emailed to you", which is equally untrue on CW. Paid
+// report delivery IS emailed, so lines about the paid report are not hits.
+const EMAILED_RESULTS = /\b(results?|macros|numbers)\b[^.]{0,40}\bemailed\b|\bemailed to you\b|\bemail your results\b|\bsend your results\b/i;
+const PAID_CONTEXT = /paid|purchase|\$29|protocol|report|receipt|order/i;
+const emailOffenders = [];
+for (const file of [...SHIPPED, 'data/blog_posts.json']) {
+  const src = await read(file);
+  if (!EMAILED_RESULTS.test(src)) continue;
+  if (!/calculator\.html|Step1PhysicalStats|calculator-cta|FreeCalculator/.test(src + file)) continue;
+  for (const line of src.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('<!--')) continue;
+    if (!EMAILED_RESULTS.test(line)) continue;
+    if (PAID_CONTEXT.test(line)) continue;  // paid-report delivery is emailed, and that is true
+    emailOffenders.push(`${file}: ${trimmed.slice(0, 90)}`);
+  }
+}
+check(
+  'no shipped calculator surface claims FREE results are emailed',
+  emailOffenders.length === 0,
+  emailOffenders.join(' | ')
+);
+
 const step1 = await read('calculator2-demo/src/components/calculator/steps/Step1PhysicalStats.tsx');
 const helpMatch = step1.match(/helpText="([^"]*email[^"]*)"/i);
 check('Step 1 has email helper text', !!helpMatch);
 
 if (helpMatch) {
   const help = helpMatch[1];
-  check('Step 1 says the results are emailed', /email your results|send your results/i.test(help), help);
+  // Carnivore Weekly does NOT email free results. /api/v1/calculator/email-report
+  // 404s REPORT_NOT_FOUND unless a PAID report row exists, subscribeCore only
+  // enrols in the newsletter and drip, and no CW drip template carries macros
+  // (day-1 says "No macros to track"). KetoDial has /email-plan; CW has no
+  // equivalent. This assertion used to REQUIRE the false claim, which made a
+  // truthfulness suite enforce an untruth (reviewer, 2026-09-10).
+  check('Step 1 does NOT claim free results are emailed',
+    !/email your results|send your results|results (are |will be )?emailed/i.test(help), help);
+  check('Step 1 says the email is what lets them continue',
+    /enter your email to continue|email to continue/i.test(help), help);
+  check('Step 1 says the results appear in the calculator',
+    /appear here|in the calculator|on this page/i.test(help), help);
   check('Step 1 discloses the starter email series', /starter series|starter email series/i.test(help), help);
   check('Step 1 says a regular email follows', /weekly|regular newsletter|newsletter/i.test(help), help);
   // Routing is diet-based and intentional: a CW visitor who picks keto or
