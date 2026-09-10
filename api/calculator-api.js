@@ -1980,8 +1980,11 @@ function buildReportData(session) {
  * Returns null when sellable, otherwise {code, message, validation}.
  */
 function checkTargetEligibility(formData) {
+  // Fails CLOSED: calculateMacros defaults a missing age to 30, so a crafted or
+  // legacy POST with age absent, null, 0 or "" would otherwise be priced as an
+  // adult. Anything that is not a real age of at least 18 is refused.
   const age = Number((formData || {}).age);
-  if (Number.isFinite(age) && age > 0 && age < 18) {
+  if (!Number.isFinite(age) || age < 18) {
     return {
       code: 'UNDER_18_NOT_SUPPORTED',
       message: 'This calculator is designed for adults 18 and over.',

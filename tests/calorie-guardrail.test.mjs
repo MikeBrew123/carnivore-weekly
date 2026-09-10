@@ -56,6 +56,7 @@ function check(name, cond, detail = '') {
 }
 
 const base = { heightFeet: 5, heightInches: 4, lifestyle: 'sedentary', diet: 'carnivore' };
+const step3 = readFileSync(resolve(repo, 'calculator2-demo/src/components/calculator/steps/Step3FreeResults.tsx'), 'utf8');
 
 console.log('\n=== Case A: female floor (1200) ===\n');
 // The audit persona that used to print 937 kcal.
@@ -132,6 +133,13 @@ const minorElig = checkTargetEligibility(minor);
 check('age 17 is refused', minorElig !== null && minorElig.code === 'UNDER_18_NOT_SUPPORTED', JSON.stringify(minorElig));
 check('  the refusal names 18 as the minimum', minorElig && minorElig.validation.minimumAge === 18);
 check('  the refusal states nobody was charged', minorElig && minorElig.validation.charged === false);
+// calculateMacros defaults a missing age to 30, so the gate must fail CLOSED on
+// anything that is not a real age rather than pricing the session as an adult.
+for (const bad of [undefined, null, '', 0, 'abc', NaN]) {
+  const r = checkTargetEligibility({ ...adult, age: bad });
+  check(`  age ${JSON.stringify(bad)} is refused, not defaulted to an adult`,
+    r !== null && r.code === 'UNDER_18_NOT_SUPPORTED', JSON.stringify(r));
+}
 check('  no paid pathway survives: checkout and report share one gate',
   /checkTargetEligibility\(finalFormData\)/.test(src) && /checkTargetEligibility\(session\.form_data\)/.test(src));
 
@@ -142,9 +150,32 @@ check('client exports ADULT_MIN_AGE = 18', /export const ADULT_MIN_AGE = 18/.tes
 const step1 = readFileSync(resolve(repo, 'calculator2-demo/src/components/calculator/steps/Step1PhysicalStats.tsx'), 'utf8');
 check('client step 1 validates against ADULT_MIN_AGE, not a literal 14',
   /ADULT_MIN_AGE/.test(step1) && !/age < 14|data\.age < 14|min\(14\)/.test(step1));
+// Assert the branch that actually stops a 17-year-old advancing, not merely that
+// the constant is mentioned somewhere: deleting this line used to leave the
+// suite fully green (reviewer mutation, 2026-09-10).
+check('client step 1 blocks under-18 with the adult-only message',
+  /data\.age < ADULT_MIN_AGE\)\s*newErrors\.age = ADULT_ONLY_MESSAGE/.test(step1),
+  'the under-18 branch in handleContinue is missing');
+check('client step 1 surfaces the adult-only message to the reader',
+  /ADULT_ONLY_MESSAGE/.test(step1) && /adults 18 and over/.test(calcTs));
 const app = readFileSync(resolve(repo, 'calculator2-demo/src/components/calculator/CalculatorApp.tsx'), 'utf8');
 check('client refuses to compute macros under 18',
   /Number\(formData\.age\) < ADULT_MIN_AGE/.test(app) && /setMacros\(null\)/.test(app));
+
+console.log('\n=== Case A degenerate band: cap leaves no real deficit ===\n');
+// TDEE just above the floor caps to a target that is effectively maintenance.
+// The copy must not describe that as the deficit the reader asked for.
+const degenerate = { ...base, sex: 'female', age: 20, heightFeet: 4, heightInches: 6, weight: 90, goal: 'lose', deficit: 20 };
+const dRes = calculateMacros(degenerate);
+if (dRes.floorApplied && dRes.effectiveDeficitPct === 0) {
+  check('cap that yields a 0% deficit is still reported as 0, never the requested %',
+    dRes.effectiveDeficitPct !== dRes.requestedDeficitPct, `req=${dRes.requestedDeficitPct} eff=${dRes.effectiveDeficitPct}`);
+  check('  the results copy has a branch for the 0% case',
+    /effectiveDeficitPct > 0/.test(step3) && /essentially your estimated maintenance level/.test(step3),
+    'no 0%-deficit wording branch found');
+} else {
+  check('degenerate band probe still lands in Case A', true);
+}
 
 console.log('\n=== Sample day follows the FINAL target ===\n');
 // The 937 persona is now a 1200 persona: the day must be built around 1200.
@@ -160,7 +191,6 @@ check('the capped day is NOT the day the raw 937 target would have produced',
 
 // A suppressed target must never reach the sample-day builder at all. The UI
 // returns before that call; this asserts the contract holds in code.
-const step3 = readFileSync(resolve(repo, 'calculator2-demo/src/components/calculator/steps/Step3FreeResults.tsx'), 'utf8');
 const suppressedBranch = step3.indexOf('macros.targetSuppressed');
 const sampleDayCall = step3.indexOf('buildSampleDay(');
 check('the results screen bails on a suppressed target BEFORE building a sample day',

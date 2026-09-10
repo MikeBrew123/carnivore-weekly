@@ -541,6 +541,32 @@ export default function CalculatorApp({
           return
         }
 
+        // The two eligibility refusals are permanent for this session's answers:
+        // we will not build a report from a suppressed calorie target, and we
+        // will not build one for a minor. Telling a paying customer to "try
+        // again" here would be a loop they can never win, so say what happened
+        // and put the refund in front of them. The server refuses at the payment
+        // boundary too, so reaching this state means they paid before the answers
+        // changed, or before this rule shipped.
+        if (
+          reportInitResponse.status === 422 &&
+          (reportError.code === 'CALORIE_TARGET_SUPPRESSED' || reportError.code === 'UNDER_18_NOT_SUPPORTED')
+        ) {
+          setIsGenerating(false)
+          setErrors({
+            submit: reportError.code === 'UNDER_18_NOT_SUPPORTED'
+              ? 'This calculator is designed for adults 18 and over, so we cannot build this '
+                + 'report. Retrying will not change that. Email support@carnivoreweekly.com and '
+                + 'we will refund you in full, same day.'
+              : 'We cannot build a self-guided plan from these numbers. Your estimated '
+                + 'maintenance calories are at or below the lower limit we use for automated '
+                + 'plans, so a target here needs a dietitian or your doctor rather than this '
+                + 'calculator. Retrying will not change that. Email support@carnivoreweekly.com '
+                + 'and we will refund you in full, same day.',
+          })
+          return
+        }
+
         throw new Error(reportError.message || `Report generation failed (${reportInitResponse.status})`)
       }
 
@@ -977,10 +1003,13 @@ export default function CalculatorApp({
               {isEmailingSent ? '✓ Email Sent!' : isEmailingReport ? '📧 Sending...' : '📧 Email My Report'}
             </button>
 
-            {/* The sales copy promises the report is theirs to keep, and it is —
-                but only once they have their own copy. This page's link is
-                time-limited (Terms: currently 48 hours), so say so here rather
-                than leaving it to the Terms (audit 2026-09-10). */}
+            {/* The sales copy promises the report is theirs to keep, and it is,
+                but only once they have their own copy. Deliberately no figure:
+                Terms and an earlier draft of this line both named a two-day
+                window while every code path writes expires_at 365 days out, so
+                the number was the one untrue thing in a truthfulness fix. State
+                that access is limited, and let the code stay the authority
+                (audit 2026-09-10). */}
             <p style={{
               fontSize: '13px',
               color: '#6b6b6b',
@@ -988,8 +1017,8 @@ export default function CalculatorApp({
               marginTop: '12px',
               maxWidth: '440px',
             }}>
-              This online copy stays open for a limited time (currently 48 hours).
-              Email or download it now and that copy is yours to keep for good.
+              This online copy is time-limited. Email or download it now and that copy is
+              yours to keep for good.
             </p>
 
             {isEmailingSent && (

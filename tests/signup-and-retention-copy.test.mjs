@@ -122,19 +122,28 @@ check(
   foreverOffenders.join(' | ')
 );
 
-// Terms remain the authority on the access window, and must still state it.
+// Terms remain the authority on the access window and must still say it is
+// limited. They must NOT name a figure the code does not implement: both Terms
+// and the delivery screen said "currently 48 hours" while every code path writes
+// expires_at 365 days out (calculator-api.js), so the one number in the batch's
+// own truthfulness fix was itself untrue.
+const app = await read('calculator2-demo/src/components/calculator/CalculatorApp.tsx');
 const terms = await read('public/terms.html');
+check('Terms still state that on-screen access is time-limited', /time-limited/i.test(terms));
+const api = await read('api/calculator-api.js');
+const claims48 = /48\s*hours/i.test(terms) || /48\s*hours/i.test(app);
+const implements48 = /48 \* 60 \* 60 \* 1000|48 \* 3600/.test(api);
 check(
-  'Terms still state the time-limited on-screen access window',
-  /time-limited/i.test(terms) && /48 hours/i.test(terms)
+  'no surface claims a 48-hour window while the code does not implement one',
+  !claims48 || implements48,
+  'terms/delivery copy names 48 hours but expires_at is not 48 hours'
 );
 
 // The delivery screen — where it actually matters — must say it too, rather
 // than leaving the reader to find it in the Terms after buying.
-const app = await read('calculator2-demo/src/components/calculator/CalculatorApp.tsx');
 check(
   'Delivery screen tells the buyer the online copy is time-limited',
-  /limited time \(currently 48 hours\)/i.test(app)
+  /online copy is time-limited/i.test(app)
 );
 check(
   'Delivery screen tells the buyer their saved copy is theirs to keep',

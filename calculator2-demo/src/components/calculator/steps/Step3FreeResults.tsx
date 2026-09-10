@@ -354,8 +354,9 @@ export default function Step3FreeResults({
             Your selected {macros.requestedDeficitPct}% deficit would put you below the lower
             limit we use for self-guided plans, so we've capped your target at{' '}
             <strong style={{ color: '#ffd700' }}>{macros.calories} calories a day</strong>.
-            That works out to about {macros.effectiveDeficitPct}% below your estimated
-            maintenance of {macros.tdee}, not the {macros.requestedDeficitPct}% you picked.
+            {macros.effectiveDeficitPct > 0
+              ? ` That works out to about ${macros.effectiveDeficitPct}% below your estimated maintenance of ${macros.tdee}, not the ${macros.requestedDeficitPct}% you picked.`
+              : ` That is essentially your estimated maintenance level of ${macros.tdee}, so this is not the ${macros.requestedDeficitPct}% deficit you picked and you should not expect it to behave like one.`}
           </p>
           <p style={{ ...bodyFont, fontSize: '16px', color: '#f5f5f5', lineHeight: 1.7, margin: 0 }}>
             Eating below this is something to work out with a doctor or registered dietitian

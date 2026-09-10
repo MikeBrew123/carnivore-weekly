@@ -252,7 +252,23 @@ export function calculateMacros(
   }
 
   console.log('[calculateMacros] Output - Calories:', calories, 'Protein:', protein, 'Fat:', fat, 'Carbs:', carbs)
-  return { calories: Math.round(calories), protein, fat, carbs, tdee: Math.round(tdee) }
+  // NOT guardrailed. This deprecated path has no `sex` argument, so it cannot
+  // pick the right self-service floor, and it applies none. The fields below
+  // exist only so the untouched components that still import this compile; they
+  // report "no floor, not suppressed" because this function genuinely does
+  // neither. Customer-facing output must come from calculateMacrosCanonical.
+  return {
+    calories: Math.round(calories),
+    protein,
+    fat,
+    carbs,
+    tdee: Math.round(tdee),
+    targetSuppressed: false,
+    selfServiceFloor: 0,
+    floorApplied: false,
+    requestedDeficitPct: deficit,
+    effectiveDeficitPct: deficit,
+  }
 }
 
 /**
