@@ -206,18 +206,124 @@ const KD_KNOWN_CONDITION_SLUGS = new Set([
   't2d', 'pre', 'bp', 'chol', 'thy', 'pcos', 'liver', 'gerd', 'ibs', 'kidney', 'heart',
 ]);
 
+// ---------------------------------------------------------------------------
+// HOW A FREE-TEXT TERM IS ALLOWED TO MATCH
+// ---------------------------------------------------------------------------
+// Every term below used to be tested with `blob.includes(term)`. That is a
+// character-sequence test, not a word test, and `adrenal` contains `renal`.
+//
+// A customer who answered NO to the kidney question, ticked no kidney condition,
+// and typed "hydrocortisone for adrenal insufficiency" into the medications box
+// was classified renal: protein target suppressed, meal plan and both bundles
+// removed from sale, and a Doctor's Report that opened by telling their physician
+// they had told us about kidney disease. Adrenal insufficiency is not a kidney
+// condition, and "adrenal fatigue" is a phrase this audience writes constantly.
+//
+// The fix is a matching RULE PER TERM, not a blocklist of unlucky words. Adding
+// `adrenal` to an exception list would leave `adrenaline`, `noradrenaline` and
+// `adrenalectomy` broken, and the next such word after that.
+//
+//   'anywhere' — plain substring, as before. For sequences no ordinary English
+//                word contains, and where a left boundary would LOSE a real
+//                signal: 'dialysis' must still catch "hemodialysis", 'nephro'
+//                must still catch "hydronephrosis".
+//   'prefix'   — must start a word; may continue. "renal disease", "renal
+//                impairment", "kidneys" match. "adrenal" does not.
+//   'token'    — must be a whole word. Acronyms only. "CKD", "ckd 3" and
+//                "CKD-4" match, because a digit or hyphen is not a letter.
+//
+// SCOPE. This blocker is the renal gate, so only the renal-family terms are
+// reclassified, and of those only `renal` changes behaviour at all: no English
+// word ends in "kidney", contains "ckd"/"esrd"/"egfr", and the three 'anywhere'
+// terms keep the exact rule they had. Every cardiac and blood-pressure term is
+// left on 'anywhere', byte-for-byte as before. Narrowing "heart" so it stops
+// matching "heartburn" is a real and separate question; it is not this one, and
+// over-suppressing an electrolyte protocol is the safe direction anyway.
+const KD_MATCH_ANYWHERE = 'anywhere';
+const KD_MATCH_PREFIX = 'prefix';
+const KD_MATCH_TOKEN = 'token';
+
+/**
+ * The renal family, and how each member may match. This is the single source of
+ * truth: it was written out twice inline before, once for `renal` and once for
+ * `kidneyConditionDeclared`, which is two places for the same rule to rot.
+ */
+const KD_RENAL_TERMS = [
+  ['kidney', KD_MATCH_PREFIX],
+  ['renal', KD_MATCH_PREFIX],
+  ['ckd', KD_MATCH_TOKEN],
+  ['esrd', KD_MATCH_TOKEN],
+  ['nephro', KD_MATCH_ANYWHERE],
+  ['dialysis', KD_MATCH_ANYWHERE],
+  ['glomerul', KD_MATCH_ANYWHERE],
+  ['egfr', KD_MATCH_TOKEN],
+];
+
 /**
  * Words that mean a cardiac, renal or blood-pressure problem, however the reader
  * happened to write it. Used ONLY to sharpen wording and to catch free text; the
  * safety decision above does not depend on this list matching anything.
  */
 const KD_CARDIO_RENAL_TERMS = [
-  'kidney', 'renal', 'ckd', 'esrd', 'nephro', 'nephritis', 'nephropathy',
-  'dialysis', 'glomerul', 'creatinine', 'egfr',
-  'heart', 'cardiac', 'cardio', 'chf', 'congestive', 'heart failure',
-  'afib', 'a-fib', 'atrial fibrillation', 'arrhythmia', 'pacemaker',
-  'hypertension', 'blood pressure', 'stroke', 'transplant', 'edema', 'oedema',
+  ...KD_RENAL_TERMS,
+  ['nephritis', KD_MATCH_ANYWHERE], ['nephropathy', KD_MATCH_ANYWHERE],
+  ['creatinine', KD_MATCH_ANYWHERE],
+  ['heart', KD_MATCH_ANYWHERE], ['cardiac', KD_MATCH_ANYWHERE],
+  ['cardio', KD_MATCH_ANYWHERE], ['chf', KD_MATCH_ANYWHERE],
+  ['congestive', KD_MATCH_ANYWHERE], ['heart failure', KD_MATCH_ANYWHERE],
+  ['afib', KD_MATCH_ANYWHERE], ['a-fib', KD_MATCH_ANYWHERE],
+  ['atrial fibrillation', KD_MATCH_ANYWHERE], ['arrhythmia', KD_MATCH_ANYWHERE],
+  ['pacemaker', KD_MATCH_ANYWHERE], ['hypertension', KD_MATCH_ANYWHERE],
+  ['blood pressure', KD_MATCH_ANYWHERE], ['stroke', KD_MATCH_ANYWHERE],
+  ['transplant', KD_MATCH_ANYWHERE], ['edema', KD_MATCH_ANYWHERE],
+  ['oedema', KD_MATCH_ANYWHERE],
 ];
+
+/** Regex-escape a literal term. The lists are ours, but a term may contain "-". */
+function kdEscapeTerm(t) {
+  return String(t).replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+}
+
+/**
+ * Compile one term into a test against the lowercased blob.
+ *
+ * A boundary here is "not a letter", deliberately, rather than \b. \b treats a
+ * digit as a word character, so "ckd3" — which a real customer writes — would
+ * fail a \b-anchored token match. \p{L} also means an accented spelling cannot
+ * sneak past the left boundary of `renal`.
+ */
+function kdCompileTerm([term, mode]) {
+  if (mode === KD_MATCH_ANYWHERE) {
+    return (blob) => blob.includes(term);
+  }
+  const right = mode === KD_MATCH_TOKEN ? '(?!\\p{L})' : '';
+  const re = new RegExp('(?<!\\p{L})' + kdEscapeTerm(term) + right, 'u');
+  return (blob) => re.test(blob);
+}
+
+/** Compiled once at module load, not per report. */
+const KD_RENAL_MATCHERS = KD_RENAL_TERMS.map(kdCompileTerm);
+const KD_CARDIO_RENAL_MATCHERS = KD_CARDIO_RENAL_TERMS.map(kdCompileTerm);
+
+/**
+ * Does this free text declare reduced kidney function?
+ *
+ * Exported so a regression test can drive the rule directly instead of only
+ * observing it through a whole generated report.
+ *
+ * @param {string} blob lowercased condition slugs, condition labels and the
+ *                      medications free text, joined
+ */
+export function kdTextDeclaresRenal(blob) {
+  const s = String(blob == null ? '' : blob).toLowerCase();
+  return KD_RENAL_MATCHERS.some(m => m(s));
+}
+
+/** The same question for the wider cardiac / renal / blood-pressure family. */
+function kdTextDeclaresCardioRenal(blob) {
+  const s = String(blob == null ? '' : blob).toLowerCase();
+  return KD_CARDIO_RENAL_MATCHERS.some(m => m(s));
+}
 
 function kdToList(value) {
   if (Array.isArray(value)) return value.filter(v => typeof v === 'string' && v.trim());
@@ -272,7 +378,7 @@ export function deriveKdMedicalContext(d) {
   const blob = [...declaredConditionSlugs, ...declaredConditionLabels, medsText]
     .join(' | ').toLowerCase();
   const cardioRenalSlug = declaredConditionSlugs.some(c => KD_RESTRICTING_CONDITION_SLUGS.has(c));
-  const cardioRenalText = KD_CARDIO_RENAL_TERMS.some(t => blob.includes(t));
+  const cardioRenalText = kdTextDeclaresCardioRenal(blob);
   // THE EARLY GATE (2026-09-08, Audit 2B). One question, asked once, BEFORE the free
   // protein result: "Have you been diagnosed with kidney disease, told that your
   // kidney function is reduced, or are you on dialysis?" -> no | yes | unsure.
@@ -303,8 +409,7 @@ export function deriveKdMedicalContext(d) {
   // formal diagnosis and then typed "my nephrologist" into the medications box.
   const renal = kidneyDeclared ||
     declaredConditionSlugs.includes('kidney') ||
-    ['kidney', 'renal', 'ckd', 'esrd', 'nephro', 'dialysis', 'glomerul', 'egfr']
-      .some(t => blob.includes(t));
+    kdTextDeclaresRenal(blob);
 
   // RENAL IS CARDIO-RENAL. Declared reduced kidney function restricts the electrolyte
   // protocol as well as the protein target — sodium, potassium and fluid are the
@@ -340,8 +445,7 @@ export function deriveKdMedicalContext(d) {
   const kidneyConditionDeclared =
     kidneyAnswer === 'yes' ||
     declaredConditionSlugs.includes('kidney') ||
-    ['kidney', 'renal', 'ckd', 'esrd', 'nephro', 'dialysis', 'glomerul', 'egfr']
-      .some(t => blob.includes(t));
+    kdTextDeclaresRenal(blob);
   const kidneyUnsureOnly = renal && !kidneyConditionDeclared;
 
   let restrictionReason = '';
