@@ -161,6 +161,26 @@ async function measure(id, width, { media } = {}) {
     }
     const pbOverflow = pb
       ? Math.round(pb.getBoundingClientRect().right - doc.clientWidth) : 0;
+    // A label that renders one letter per line is not readable, and the first
+    // draft of the mobile CSS did exactly that to the risk column of the
+    // medication considerations table. One line per pill, at every width.
+    const oneLine = (sel) => [...document.querySelectorAll(sel)].map((e) => {
+      const r = e.getBoundingClientRect();
+      const lh = parseFloat(getComputedStyle(e).lineHeight) || 16;
+      return { txt: (e.textContent || '').trim().slice(0, 24), lines: Math.round(r.height / lh) };
+    });
+    const riskLines = oneLine('.risk');
+    const numLines = oneLine('.sec-title .num');
+    // The referral documents put .sec straight inside .page and so were missed by
+    // every gutter rule. Their whole content is a safety refusal.
+    const bareSec = document.querySelector('.page > .sec');
+    let secGutter = null;
+    if (bareSec) {
+      const pg = bareSec.closest('.page').getBoundingClientRect();
+      const t = bareSec.querySelector('p') || bareSec;
+      const tr = t.getBoundingClientRect();
+      secGutter = { left: Math.round(tr.left - pg.left), right: Math.round(pg.right - tr.right) };
+    }
     const cols = (sel) => {
       const el = document.querySelector(sel);
       if (!el) return null;
@@ -171,7 +191,7 @@ async function measure(id, width, { media } = {}) {
       scroll: doc.scrollWidth,
       pageWidth: pages.length ? Math.round(pages[0].getBoundingClientRect().width) : null,
       pageCss: pages.length ? getComputedStyle(pages[0]).width : null,
-      overlapsHead, pbOverflow,
+      overlapsHead, pbOverflow, riskLines, numLines, secGutter,
       clipped: clipped.slice(0, 6),
       clippedCount: clipped.length,
       statCols: cols('.stat-grid.c4'),
@@ -231,6 +251,18 @@ for (const doc of DOCS) {
       r.overlapsHead === false);
     check('B', `${doc.id} @${width}: the print button stays inside the viewport`,
       r.pbOverflow <= 0, `${r.pbOverflow}px past the edge`);
+    for (const r2 of r.riskLines) {
+      check('C', `${doc.id} @${width}: the risk label "${r2.txt}" is on one line`,
+        r2.lines <= 1, `${r2.lines} lines`);
+    }
+    for (const n of r.numLines) {
+      check('C', `${doc.id} @${width}: the section number "${n.txt}" is on one line`,
+        n.lines <= 1, `${n.lines} lines`);
+    }
+    if (r.secGutter) {
+      check('C', `${doc.id} @${width}: the referral text is not touching the screen edge`,
+        r.secGutter.left >= 10 && r.secGutter.right >= 10, JSON.stringify(r.secGutter));
+    }
     check('B', `${doc.id} @${width}: nothing is clipped by the page edge`,
       r.clippedCount === 0,
       r.clipped.map(c => `${c.tag}.${c.cls} +${c.over}px "${c.text}"`).join(' | '));
@@ -368,6 +400,22 @@ const MUTATIONS = [
     expectPhoneOverflow: true, expectPrintBroken: false,
   },
   {
+    name: 'the table cells go back to eager wrapping and a fixed layout',
+    apply: (s) => s
+      .replace('  .dtable{font-size:12px}', '  .dtable{font-size:12px;table-layout:fixed}')
+      .replace('.gcat li,.tcard p,.food .fn,.stat .v{overflow-wrap:break-word}',
+        '.gcat li,.tcard p,.food .fn,.stat .v{overflow-wrap:anywhere}')
+      .replace('  .risk{white-space:nowrap}', ''),
+    expectRiskWrap: true,
+  },
+  {
+    name: 'the referral gutter rule is removed',
+    apply: (s) => s
+      .replace('  .page>.sec{padding-left:16px;padding-right:16px}', '')
+      .replace('  .page>.sec,.page>.rep-foot{padding-left:14px;padding-right:14px}', ''),
+    expectBareSecEdge: true,
+  },
+  {
     name: 'the screen rules lose their `screen` keyword and leak into print',
     apply: (s) => s.replace('@media screen and (max-width:860px){', '@media (max-width:860px){')
       .replace('@media screen and (max-width:400px){', '@media (max-width:400px){'),
@@ -400,6 +448,47 @@ for (const m of MUTATIONS) {
       getComputedStyle(document.querySelector('.rep-head')).padding);
     await ctx.close();
 
+    if (m.expectRiskWrap || m.expectBareSecEdge) {
+      const target = m.expectRiskWrap ? 'doctor-insulin' : 'meal-renal';
+      const d2 = target === 'doctor-insulin'
+        ? intake({ meds: 'Lantus insulin 24u, glipizide 5mg' }) : intake({ kidneyStatus: 'yes' });
+      const gen2 = target === 'doctor-insulin' ? mut.generateDoctorReport : mut.generateMealPlan;
+      fs.writeFileSync(path.join(mdir, `${target}.html`), gen2('Ann Whitfield', d2));
+      const c2 = await browser.newContext({ viewport: { width: 320, height: 1200 } });
+      const p2 = await c2.newPage();
+      await p2.goto('file://' + path.join(mdir, `${target}.html`));
+      await p2.waitForTimeout(140);
+      const probe = await p2.evaluate(() => {
+        // The LAST risk pills are the medication considerations column, which is
+        // the narrow one. The first is in the conditions table, whose longer
+        // label sits in a wider column and never broke, so probing that one
+        // reported success while the safety column was stacking letters.
+        const all = [...document.querySelectorAll('.risk')];
+        const risk = all[all.length - 1] || null;
+        const bare = document.querySelector('.page > .sec');
+        let gutter = null;
+        if (bare) {
+          const pg = bare.closest('.page').getBoundingClientRect();
+          const t = bare.querySelector('p') || bare;
+          gutter = Math.round(t.getBoundingClientRect().left - pg.left);
+        }
+        let lines = null;
+        if (risk) {
+          const r = risk.getBoundingClientRect();
+          lines = Math.round(r.height / (parseFloat(getComputedStyle(risk).lineHeight) || 16));
+        }
+        return { lines, gutter };
+      });
+      await c2.close();
+      if (m.expectRiskWrap) {
+        check('H', `group C catches: ${m.name}`, probe.lines > 1,
+          `risk pill rendered on ${probe.lines} line(s)`);
+      }
+      if (m.expectBareSecEdge) {
+        check('H', `group C catches: ${m.name}`, probe.gutter !== null && probe.gutter < 10,
+          `referral gutter ${probe.gutter}px`);
+      }
+    }
     if (m.expectPhoneOverflow) {
       check('H', `group A catches: ${m.name}`, screenW > 390 + OVERFLOW_SLACK,
         `scrollWidth ${screenW} at a 390px viewport`);

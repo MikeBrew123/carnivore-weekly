@@ -1173,14 +1173,37 @@ const SCREEN_CSS = `
   .supp-grid{grid-template-columns:1fr}
   .lede{font-size:16px}
 
-  /* Dense tables stay whole: smaller type, tighter cells, and cells that wrap. */
-  .dtable{font-size:12px;table-layout:fixed}
+  /* Dense tables stay whole: smaller type, tighter cells, and cells that wrap.
+     NOT table-layout:fixed, and NOT overflow-wrap:anywhere on the cells. Both
+     were in the first version of this block and between them they squeezed the
+     risk column to 27px and rendered the word "High" as four stacked letters in
+     the medication considerations table, which is safety content. "anywhere"
+     breaks eagerly to reach the narrowest possible box; "break-word" breaks only
+     when a word genuinely cannot fit, which is the behaviour wanted here.
+     (No backticks in here: this whole block is a template literal, and the first
+     draft of this comment closed it and broke the module at load.) */
+  .dtable{font-size:12px}
   .dtable th,.dtable td{padding:8px 9px}
+  /* A risk pill is a label, not prose. It never breaks. */
+  .risk{white-space:nowrap}
+  /* Nor does a section number: the min-width:0 below was splitting "03" into a
+     0 above a 3. */
+  .sec-title .num,.sec-eyebrow{white-space:nowrap}
+
+  /* THE REFERRAL DOCUMENTS HAVE NO .rep-body. generateRenalMealPlanReferral and
+     generateSglt2MealPlanReferral put .sec straight inside .page, so every
+     gutter rule in this file missed them and their text ran edge to edge on the
+     glass. These are the two documents whose entire content is a safety refusal,
+     so they are the last two that should be touching the screen edge. The child
+     combinator matches only them: everywhere else .sec sits inside .rep-body
+     and is already padded. */
+  .page>.sec{padding-left:16px;padding-right:16px}
+  .page>.rep-foot{padding-left:16px;padding-right:16px}
 
   /* Nothing may be pushed out of the page from the inside. */
   .page *{min-width:0}
   .rep-body,.sec,.callout,.dtable th,.dtable td,.meal .name,.meal .name small,
-  .gcat li,.tcard p,.food .fn,.stat .v{overflow-wrap:anywhere}
+  .gcat li,.tcard p,.food .fn,.stat .v{overflow-wrap:break-word}
 }
 
 /* The narrow phones, where two columns of anything stop working. */
@@ -1193,7 +1216,8 @@ const SCREEN_CSS = `
   .rep-foot{padding:11px 14px}
   .meal{padding:10px 14px}
   .dtable{font-size:11.5px}
-  .dtable th,.dtable td{padding:7px 7px}
+  .dtable th,.dtable td{padding:7px 6px}
+  .page>.sec,.page>.rep-foot{padding-left:14px;padding-right:14px}
 }
 `;
 
