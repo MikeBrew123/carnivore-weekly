@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { FormData } from '../../../types/form'
 import FormField from '../shared/FormField'
 import RadioGroup from '../shared/RadioGroup'
 import { imperialToCm } from '../../../lib/calculations'
 import { suggestEmailFix } from '../../../lib/emailSuggest'
 import { ADULT_MIN_AGE, ADULT_ONLY_MESSAGE } from '../../../lib/calculations'
+import { unitSystemOf, switchUnitSystem, cmToFeetInches, kgToLb } from '../../../lib/unitSystem'
+import type { UnitSystem } from '../../../lib/unitSystem'
 
 interface Step1PhysicalStatsProps {
   data: FormData
@@ -14,6 +16,16 @@ interface Step1PhysicalStatsProps {
   onSetErrors?: (errors: Record<string, string>) => void
   errors: Record<string, string>
 }
+
+// Every error key that belongs to the height group. "height" (nothing entered)
+// is not the name of any input, which is why it used to render nowhere and a
+// failed Continue looked like a dead button (mobile audit 2026-09-10).
+const HEIGHT_ERROR_KEYS = ['height', 'heightFeet', 'heightInches', 'heightCm']
+
+const UNIT_OPTIONS: { system: UnitSystem; label: string }[] = [
+  { system: 'imperial', label: 'ft / in' },
+  { system: 'metric', label: 'cm' },
+]
 
 export default function Step1PhysicalStats({
   data,
@@ -26,21 +38,46 @@ export default function Step1PhysicalStats({
   // Offered when the typed domain is one character off a common provider.
   // Advisory only: the user can ignore it and continue.
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null)
+  const formRef = useRef<HTMLDivElement>(null)
+
+  const unitSystem = unitSystemOf(data)
+  const isMetric = unitSystem === 'metric'
+  const heightError = HEIGHT_ERROR_KEYS.map((key) => errors[key]).find(Boolean)
 
   const handleInputChange = (field: string, value: any) => {
     // Any edit invalidates a standing suggestion, otherwise a stale
     // "did you mean" hangs around after the address is already fixed.
     if (field === 'email') setEmailSuggestion(null)
     const updated = { ...data, [field]: value }
-    // Auto-default inches to 0 when feet is set
-    if (field === 'heightFeet' && typeof updated.heightInches !== 'number') {
-      updated.heightInches = 0
-    }
     onDataChange(updated)
     // Clear error for this field if it has a value
     if (value !== '' && value !== undefined && value !== null && onFieldChange) {
       onFieldChange(field)
     }
+  }
+
+  // Removes several error keys in ONE write. onFieldChange drops a single key
+  // from the errors object captured at render, so two calls in one event would
+  // put the first key straight back.
+  const clearErrors = (keys: string[]) => {
+    if (!onSetErrors || !keys.some((key) => errors[key])) return
+    const next = { ...errors }
+    keys.forEach((key) => delete next[key])
+    onSetErrors(next)
+  }
+
+  const handleHeightChange = (patch: Record<string, unknown>, hasValue: boolean) => {
+    onDataChange({ ...data, ...patch } as FormData)
+    if (hasValue) clearErrors(HEIGHT_ERROR_KEYS)
+  }
+
+  const handleUnitSwitch = (target: UnitSystem) => {
+    // Re-selecting the active system does nothing. It used to wipe the height.
+    if (target === unitSystem) return
+    // Converts height and weight; see lib/unitSystem.ts.
+    onDataChange(switchUnitSystem(data, target))
+    // Any standing message names the other system's fields and units.
+    clearErrors([...HEIGHT_ERROR_KEYS, 'weight', 'weightKg'])
   }
 
   // Validate age on blur (range 18-99: the calculator is an adult product)
@@ -117,17 +154,60 @@ export default function Step1PhysicalStats({
   }
 
   const isHeightFeetValid = () => {
-    return data.heightFeet !== undefined && data.heightFeet !== '' && !errors.heightFeet
+    return data.heightFeet !== undefined && data.heightFeet !== '' && !errors.heightFeet && !errors.height
   }
 
   const isHeightInchesValid = () => {
     const inches = Number(data.heightInches)
-    return typeof data.heightInches === 'number' && inches >= 0 && inches <= 11 && !errors.heightInches
+    return typeof data.heightInches === 'number' && inches >= 0 && inches <= 11 && !errors.heightInches && !errors.height
   }
 
   const isHeightCmValid = () => {
     const cm = Number(data.heightCm)
-    return data.heightCm !== undefined && data.heightCm !== '' && cm >= 90 && cm <= 250 && !errors.heightCm
+    return data.heightCm !== undefined && data.heightCm !== '' && cm >= 90 && cm <= 250 && !errors.heightCm && !errors.height
+  }
+
+  // Red border, aria-invalid, and a pointer to the group's error message.
+  // The message itself renders once, under the whole height row.
+  const heightFieldA11y = (invalid: boolean) => ({
+    'aria-invalid': invalid || undefined,
+    'aria-describedby': heightError ? 'height-error' : undefined,
+    style: invalid ? { border: '1px solid #ef4444' } : undefined,
+  })
+
+  // Some webviews drop smooth programmatic scrolls (see CalculatorApp's
+  // scrollToAnchor). Snap only if nothing moved and the user has not scrolled.
+  const bringIntoView = (el: HTMLElement) => {
+    const startY = window.scrollY
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    setTimeout(() => {
+      const rect = el.getBoundingClientRect()
+      const offScreen = rect.top < 0 || rect.bottom > window.innerHeight
+      if (offScreen && Math.abs(window.scrollY - startY) < 4) el.scrollIntoView({ block: 'center' })
+    }, 700)
+  }
+
+  // Continue sits below the form, so a failed tap used to leave the first
+  // problem off-screen with nothing moving. Focus the first invalid control in
+  // screen order and bring it (with its message) into view.
+  const focusFirstError = (errs: Record<string, string>) => {
+    const root = formRef.current
+    if (!root) return
+    const heightFieldId = errs.heightInches && !errs.height ? 'heightInches' : isMetric ? 'heightCm' : 'heightFeet'
+    const order: { keys: string[]; selector: string; scrollId?: string }[] = [
+      { keys: ['email'], selector: '#email' },
+      { keys: ['sex'], selector: 'input[name="sex"]' },
+      { keys: ['age'], selector: '#age' },
+      { keys: HEIGHT_ERROR_KEYS, selector: `#${heightFieldId}`, scrollId: 'height-group' },
+      { keys: ['weight', 'weightKg'], selector: isMetric ? '#weightKg' : '#weight' },
+    ]
+    const first = order.find(({ keys }) => keys.some((key) => errs[key]))
+    const field = first && root.querySelector<HTMLElement>(first.selector)
+    if (!first || !field) return
+    field.focus({ preventScroll: true })
+    const target = (first.scrollId && root.querySelector<HTMLElement>(`#${first.scrollId}`)) || field
+    // After React paints the message, so it lands on screen with the field.
+    requestAnimationFrame(() => bringIntoView(target))
   }
 
   const handleContinue = () => {
@@ -136,36 +216,36 @@ export default function Step1PhysicalStats({
     // Validate required fields
     const newErrors: Record<string, string> = {}
 
-    if (!data.email) newErrors.email = 'Email is required to receive your results'
+    if (!data.email) newErrors.email = 'Email is required to continue'
     if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) newErrors.email = 'Please enter a valid email'
     if (!data.sex) newErrors.sex = 'Please select your sex'
     if (!data.age || data.age > 99) newErrors.age = 'Age must be between 18 and 99'
     else if (data.age < ADULT_MIN_AGE) newErrors.age = ADULT_ONLY_MESSAGE
-    if (!data.heightFeet && !data.heightCm) newErrors.height = 'Please enter your height'
-    if (data.heightFeet && typeof data.heightInches === 'number' && (data.heightInches < 0 || data.heightInches > 11)) {
+    // Height, checked against the system on screen. In metric mode the imperial
+    // fields are derived from cm, so checking them there reported errors against
+    // inputs the reader cannot see.
+    if (isMetric) {
+      if (!data.heightCm) newErrors.height = 'Please enter your height'
+      else if (data.heightCm < 90 || data.heightCm > 250) newErrors.heightCm = 'Height must be between 90 and 250 cm'
+    } else if (!data.heightFeet) {
+      newErrors.height = 'Please enter your height'
+    } else if (typeof data.heightInches === 'number' && (data.heightInches < 0 || data.heightInches > 11)) {
       newErrors.heightInches = 'Inches must be between 0 and 11'
     }
-    if (data.heightCm && (data.heightCm < 90 || data.heightCm > 250)) {
-      newErrors.heightCm = 'Height must be between 90 and 250 cm'
-    }
-    // Weight validation - depends on unit system. Metric mode is
-    // heightCm !== undefined (the toggle's 0 sentinel and a cleared field are
-    // both falsy but still metric — a truthiness check here used to show
-    // "lbs" errors under the kg field).
-    if (data.heightCm !== undefined) {
-      // Metric mode - validate kg
+    // Weight, in the unit on screen (metric mode includes the toggle's 0
+    // sentinel and a cleared cm field, both falsy but still metric)
+    if (isMetric) {
       if (!data.weightKg || data.weightKg < 36 || data.weightKg > 227) newErrors.weightKg = 'Weight must be between 36 and 227 kg'
     } else {
-      // Imperial mode - validate lbs
       if (!data.weight || data.weight < 80 || data.weight > 500) newErrors.weight = 'Weight must be between 80 and 500 lbs'
     }
 
     console.log('[Step1] Validation errors:', newErrors)
 
     if (Object.keys(newErrors).length > 0) {
-      // Validation failed - errors will be displayed
       console.log('[Step1] Validation failed, showing errors')
       onSetErrors?.(newErrors)
+      focusFirstError(newErrors)
       return
     }
 
@@ -174,7 +254,7 @@ export default function Step1PhysicalStats({
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10" ref={formRef}>
       <div className="mb-10">
         <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: '28px', color: '#ffd700', fontWeight: '600', marginBottom: '8px' }}>Let's Start with Your Basics</h2>
         <p style={{ fontFamily: "'Merriweather', Georgia, serif", fontSize: '18px', color: '#f5f5f5' }}>These measurements help us calculate your personalized macros.</p>
@@ -264,67 +344,65 @@ export default function Step1PhysicalStats({
         />
       </div>
 
-      {/* Height - Label and Unit Toggle inline */}
-      <div style={{ marginTop: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <label style={{
+      {/* Height: one group, so the unit control, the inputs and the error belong together */}
+      <div id="height-group" role="group" aria-labelledby="height-label" style={{ marginTop: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '12px' }}>
+          <span id="height-label" style={{
             fontFamily: "'Merriweather', Georgia, serif",
             fontSize: '16px',
             color: '#FFFFFF',
             fontWeight: '500',
           }}>
             Height<span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>
-          </label>
+          </span>
 
-          {/* Unit Toggle - inline with label */}
-          <div style={{ display: 'flex', gap: '4px' }}>
-            <button
-              type="button"
-              onClick={() => {
-                // ATOMIC RESET: Clear metric fields when switching to imperial
-                onDataChange({ ...data, heightCm: undefined, weightKg: undefined, heightFeet: undefined, heightInches: undefined })
-              }}
-              style={{
-                padding: '4px 10px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontWeight: '500',
-                fontFamily: "'Merriweather', Georgia, serif",
-                transition: 'all 0.2s',
-                border: 'none',
-                cursor: 'pointer',
-                backgroundColor: data.heightCm === undefined ? '#ffd700' : '#333',
-                color: data.heightCm === undefined ? '#1a1a1a' : '#888'
-              }}
-            >
-              ft / in
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                // ATOMIC RESET: Clear imperial fields when switching to metric
-                // Set heightCm to 0 (sentinel) to trigger metric mode, user must enter actual value
-                onDataChange({ ...data, heightFeet: undefined, heightInches: undefined, weight: undefined, heightCm: 0, weightKg: undefined })
-              }}
-              style={{
-                padding: '4px 10px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontWeight: '500',
-                fontFamily: "'Merriweather', Georgia, serif",
-                transition: 'all 0.2s',
-                border: 'none',
-                cursor: 'pointer',
-                backgroundColor: data.heightCm !== undefined ? '#ffd700' : '#333',
-                color: data.heightCm !== undefined ? '#1a1a1a' : '#888'
-              }}
-            >
-              cm
-            </button>
+          {/* Unit control: switches height AND weight, converting what was entered */}
+          <div
+            role="group"
+            aria-label="Measurement units"
+            style={{
+              display: 'inline-flex',
+              flexShrink: 0,
+              gap: '2px',
+              padding: '3px',
+              backgroundColor: '#0f0f0f',
+              border: '1px solid #333',
+              borderRadius: '10px',
+            }}
+          >
+            {UNIT_OPTIONS.map(({ system, label }) => {
+              const active = unitSystem === system
+              return (
+                <button
+                  key={system}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => handleUnitSwitch(system)}
+                  style={{
+                    minHeight: '44px',
+                    minWidth: '64px',
+                    padding: '0 16px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontFamily: "'Merriweather', Georgia, serif",
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    lineHeight: 1,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s, color 0.2s, box-shadow 0.2s',
+                    backgroundColor: active ? '#ffd700' : 'transparent',
+                    color: active ? '#1a120b' : '#d4d4d4',
+                    boxShadow: active ? '0 2px 8px rgba(255, 215, 0, 0.25)' : 'none',
+                  }}
+                >
+                  {label}
+                </button>
+              )
+            })}
           </div>
         </div>
 
-        {data.heightCm === undefined ? (
+        {!isMetric ? (
           // Imperial (Feet & Inches) - Side by side with inline styles
           <div style={{ display: 'flex', gap: '24px' }}>
             <div style={{ flex: 1 }}>
@@ -334,14 +412,21 @@ export default function Step1PhysicalStats({
                 type="number"
                 label="Feet"
                 value={data.heightFeet || ''}
-                onChange={(e) => handleInputChange('heightFeet', parseInt(e.target.value) || '')}
+                onChange={(e) => {
+                  const feet = parseInt(e.target.value) || ''
+                  // Inches default to 0 once feet is set, so "5 ft" alone is a height
+                  const patch = feet !== '' && typeof data.heightInches !== 'number'
+                    ? { heightFeet: feet, heightInches: 0 }
+                    : { heightFeet: feet }
+                  handleHeightChange(patch, feet !== '')
+                }}
                 onBlur={validateHeightFeet}
-                error={errors.heightFeet}
                 isValid={isHeightFeetValid()}
-                placeholder="5"
+                placeholder="ft"
                 min={3}
                 max={8}
                 required
+                {...heightFieldA11y(Boolean(errors.height || errors.heightFeet))}
               />
             </div>
             <div style={{ flex: 1 }}>
@@ -351,14 +436,14 @@ export default function Step1PhysicalStats({
                 type="number"
                 label="Inches"
                 value={data.heightInches ?? ''}
-                onChange={(e) => handleInputChange('heightInches', parseInt(e.target.value) || 0)}
+                onChange={(e) => handleHeightChange({ heightInches: parseInt(e.target.value) || 0 }, true)}
                 onBlur={validateHeightInches}
-                error={errors.heightInches}
                 isValid={isHeightInchesValid()}
-                placeholder="10"
+                placeholder="in"
                 min={0}
                 max={11}
                 required
+                {...heightFieldA11y(Boolean(errors.height || errors.heightInches))}
               />
             </div>
           </div>
@@ -377,37 +462,38 @@ export default function Step1PhysicalStats({
                 // calls clobber the cm value just typed (users could never
                 // enter metric height).
                 const cm = parseInt(e.target.value)
-                // 0 is the metric-mode-but-empty sentinel (same as the unit toggle)
-                const updated = { ...data, heightCm: cm || 0 }
-                if (cm) {
-                  // Auto-convert to imperial for internal use
-                  const totalInches = cm / 2.54
-                  updated.heightFeet = Math.floor(totalInches / 12)
-                  updated.heightInches = Math.round(totalInches % 12)
-                } else {
-                  // cm cleared — drop the derived imperial values too so
-                  // validation can't pass on stale height
-                  updated.heightFeet = undefined
-                  updated.heightInches = undefined
-                }
-                onDataChange(updated)
-                if (cm) onFieldChange?.('heightCm')
+                handleHeightChange(
+                  cm
+                    // Auto-convert to imperial for internal use
+                    ? { heightCm: cm, ...cmToFeetInches(cm) }
+                    // 0 is the metric-mode-but-empty sentinel (same as the unit
+                    // control). Drop the derived imperial values too so
+                    // validation can't pass on stale height.
+                    : { heightCm: 0, heightFeet: undefined, heightInches: undefined },
+                  Boolean(cm)
+                )
               }}
               onBlur={validateHeightCm}
-              error={errors.heightCm}
               isValid={isHeightCmValid()}
-              placeholder="178"
+              placeholder="cm"
               min={90}
               max={250}
               required
+              {...heightFieldA11y(Boolean(errors.height || errors.heightCm))}
             />
           </div>
+        )}
+
+        {heightError && (
+          <p id="height-error" className="text-red-500 text-sm mt-1.5" style={{ fontFamily: "'Merriweather', Georgia, serif" }}>
+            {heightError}
+          </p>
         )}
       </div>
 
       {/* Weight - switches between lbs/kg based on height unit */}
       <div style={{ maxWidth: '280px', marginTop: '8px' }}>
-        {data.heightCm === undefined ? (
+        {!isMetric ? (
           // Imperial - pounds
           <FormField
             id="weight"
@@ -419,7 +505,7 @@ export default function Step1PhysicalStats({
             onBlur={validateWeight}
             error={errors.weight}
             isValid={isWeightValid()}
-            placeholder="e.g., 200"
+            placeholder="lbs"
             min={80}
             max={500}
             required
@@ -440,13 +526,13 @@ export default function Step1PhysicalStats({
                 ...data,
                 weightKg: kg,
                 // Auto-convert to lbs for internal calculations
-                weight: kg ? Math.round(kg * 2.205) : undefined,
+                weight: kg ? kgToLb(kg) : undefined,
               })
               if (kg) onFieldChange?.('weightKg')
             }}
             error={errors.weightKg}
             isValid={isWeightKgValid()}
-            placeholder="e.g., 90"
+            placeholder="kg"
             min={36}
             max={227}
             required
