@@ -474,6 +474,10 @@ const KD_DIABETES_MED_TERMS = {
     ['synjardy', KD_MATCH_PREFIX], ['xigduo', KD_MATCH_PREFIX],
     ['invokamet', KD_MATCH_PREFIX], ['glyxambi', KD_MATCH_PREFIX],
     ['trijardy', KD_MATCH_PREFIX], ['qtern', KD_MATCH_PREFIX],
+    // Ertugliflozin and sotagliflozin combinations, whose brand names do not
+    // contain the class stem. Added after review found they failed open.
+    ['steglujan', KD_MATCH_PREFIX], ['segluromet', KD_MATCH_PREFIX],
+    ['inpefa', KD_MATCH_PREFIX], ['brenzavvy', KD_MATCH_PREFIX],
   ],
 };
 
@@ -834,8 +838,8 @@ export function kdHypoglycemiaCallout(ctx) {
         <span class="ct">Talk to your prescriber before you start</span>
         You told us you take insulin or a sulfonylurea. Cutting carbohydrate lowers blood glucose on
         its own, and a dose that suited your usual way of eating can then take you lower than
-        intended, which is a real risk of hypoglycemia. Your targets and your meal plan are in this
-        report and we have not changed them. <b>Take this report to the clinician who prescribes that
+        intended, which is a real risk of hypoglycemia. Your targets and your meal plan are unchanged
+        and we have not withheld them. <b>Take your reports to the clinician who prescribes that
         medication before you start</b>, and ask what glucose monitoring you should be doing and
         whether your dose needs to be adjusted for the change in how you eat.
       </div>`;
@@ -2279,6 +2283,8 @@ export function generateMealPlan(name, d) {
       <span style="margin-left:auto;font-size:12px;color:var(--ink-soft)">Designed around your weekly target, with lighter and heavier days for variety.</span>
     </div>
 
+    ${kdHypoglycemiaCallout(ctx)}
+
     <div class="week-glance">
       ${weekGlance}
     </div>
@@ -2468,6 +2474,8 @@ export function generateStarterKit(name, d) {
       </div>
     </section>
 
+    ${kdHypoglycemiaCallout(ctx)}
+
     <section class="sec avoid-break">
       <div class="sec-eyebrow">The golden rule</div>
       <div class="sec-title"><span class="num">02</span> ${ketoWithheld ? 'Your carb number is not in this kit' : 'Stay under your carb ceiling'}</div>
@@ -2646,7 +2654,9 @@ export function generateStarterKit(name, d) {
 
     <div class="callout" style="margin-top:18px">
       <span class="ct">How to read it</span>
-      Your daily ceiling is <b>${carb}g net carbs</b>. A whole day of green-column eating barely touches it — that's the point. One slice of bread or half a banana spends most of your day in a single bite, which is why the red column is "treats," not "never."
+      ${ketoWithheld
+        ? 'This page is a guide to which foods are low in carbohydrate, not a daily ceiling. Your ceiling is the number we have not set for you, so treat the green column as the safer end of the range and take the question of where your line sits to the clinician who prescribes your medication.'
+        : `Your daily ceiling is <b>${carb}g net carbs</b>. A whole day of green-column eating barely touches it — that's the point. One slice of bread or half a banana spends most of your day in a single bite, which is why the red column is "treats," not "never."`}
     </div>
   </div>
   ${pageFooter(`KetoDial Net-Carb Cheat Sheet <span class="dot">·</span> ${escHtml(name)}`, 'Values are typical per-serving estimates', 3, 4)}
@@ -2689,7 +2699,7 @@ export function generateStarterKit(name, d) {
       <ul class="checks">
         <li>${restricted ? `<b style="color:var(--ink)">Get your electrolyte plan from your doctor.</b> The keto flu is almost always a sodium problem, but what you should be taking is a decision for the clinician who manages your condition or your prescription — not for this kit. Ask before you start.` : `<b style="color:var(--ink)">Salt everything.</b> The keto flu is almost always a sodium problem. A cup of broth a day is cheap insurance.`}</li>
         <li><b style="color:var(--ink)">Eat fat to fullness, don't fear it.</b> Hunger is your gauge — you don't need to count every gram in week one.</li>
-        <li><b style="color:var(--ink)">Keep carbs under ${carb}g.</b> Lean on the green column. When in doubt, protein + fat + greens.</li>
+        <li>${ketoWithheld ? `<b style="color:var(--ink)">Your carb number comes from your prescriber.</b> Lean on the green column while you wait for it. When in doubt, protein + fat + greens.` : `<b style="color:var(--ink)">Keep carbs under ${carb}g.</b> Lean on the green column. When in doubt, protein + fat + greens.`}</li>
         <li>${restricted ? `<b style="color:var(--ink)">Ask about fluids too.</b> You flush a lot of water early on, and how much you should drink to replace it is part of the same conversation with your doctor.` : `<b style="color:var(--ink)">Drink more water than feels normal.</b> You're flushing a lot of it early on.`}</li>
         <li><b style="color:var(--ink)">Ignore the scale after day 3.</b> Early drops are water. Real fat loss shows up over weeks, not days.</li>
       </ul>

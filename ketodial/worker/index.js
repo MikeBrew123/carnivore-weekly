@@ -714,9 +714,20 @@ async function handleCheckout(request, env) {
         code: offer.reason,
         unavailable,
         available: offer.allowed,
-        message: 'Because you told us about your kidney function, KetoDial does not build a ' +
-                 'personalized protein-anchored meal plan for you. The other reports are ' +
-                 'unaffected — please refresh to see what is available.',
+        // THE MESSAGE FOLLOWS THE REASON. This string was hardcoded to the kidney
+        // case, which was true while that was the only reason a product could be
+        // withheld. It is not any more: a customer who answered NO to the kidney
+        // question and declared an SGLT2 inhibitor was told, in a browser alert,
+        // that they had told us about their kidney function. That is a health
+        // declaration they never made, which is the same failure as printing one
+        // in the report.
+        message: offer.reason === 'ketogenic_target_unavailable'
+          ? 'Because of a medication you told us about, KetoDial does not build a personalized ' +
+            'ketogenic meal plan for you. The other reports are unaffected — please refresh to ' +
+            'see what is available.'
+          : 'Because you told us about your kidney function, KetoDial does not build a ' +
+            'personalized protein-anchored meal plan for you. The other reports are ' +
+            'unaffected — please refresh to see what is available.',
       });
     }
 
@@ -1140,7 +1151,17 @@ async function handleResume(request, env) {
   // Absence is not a negative answer. Same fail-closed shape as everywhere else.
   const kidney = (row.kidney_status === 'no' || row.kidney_status === 'yes' || row.kidney_status === 'unsure')
     ? row.kidney_status : null;
-  const ctx = deriveKdMedicalContext({ kidneyStatus: kidney || 'unsure', conditions: [], medications: '' });
+  // `medications` was the wrong key: deriveKdMedicalContext reads `meds`, so this
+  // hand-built context could never have carried one. Harmless while it was always
+  // the empty string, and not harmless now that a medication decides what we are
+  // allowed to sell. A resumed row CAN hold medications, because the resend button
+  // mints a fresh resume token after the step-2 profile is filled in, so a returning
+  // SGLT2 customer was being offered a meal plan that checkout would then decline.
+  //
+  // This widens what the offer is computed FROM, not what the response returns:
+  // the projection below is unchanged and still carries no medication text.
+  const ctx = deriveKdMedicalContext({
+    kidneyStatus: kidney || 'unsure', conditions: [], meds: row.medications || '' });
   const suppressProtein = !!ctx.restrictProteinTarget;
   const products = allowedProducts(ctx);
 
