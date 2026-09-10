@@ -461,7 +461,10 @@ export default function Step3FreeResults({
         >
           {alreadyPaid ? 'Continue to Your Health Profile →' : 'Get My 30-Day Plan for $29'}
         </button>
-        <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0 }}>
+        {/* Trust and support lines on the $29 cards: 15px at 0.6 opacity, the same
+            colour as each card's body copy (about 5.9:1 here). They were 12px at 0.4
+            (about 3.3:1), readable pitch, unreadable reassurance (mobile audit 2026-09-10). */}
+        <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.6)', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>
           {alreadyPaid ? 'Already unlocked — no additional charge.' : "One-time purchase, no subscription. If it doesn't help, email us within 30 days for a full refund."}
         </p>
       </div>
@@ -482,7 +485,7 @@ export default function Step3FreeResults({
           <p style={{ ...goldHeading, fontSize: '18px', fontWeight: '700', margin: '0 0 6px 0' }}>
             What's in Your Custom {config.label} Plan
           </p>
-          <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.45)', fontSize: '12px', margin: '0 0 20px 0', lineHeight: '1.5' }}>
+          <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.6)', fontSize: '15px', margin: '0 0 20px 0', lineHeight: '1.5' }}>
             Built from your quiz answers. Here's what you'll get:
           </p>
 
@@ -556,7 +559,7 @@ export default function Step3FreeResults({
                 </div>
                 <span style={{ fontSize: '12px', color: 'rgba(255,215,0,0.5)' }}>🔒</span>
               </div>
-              <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: '6px 0 0 26px', lineHeight: '1.5' }}>
+              <p style={{ ...bodyFont, color: 'rgba(244,228,212,0.6)', fontSize: '15px', margin: '6px 0 0 26px', lineHeight: '1.5' }}>
                 {section.desc}
               </p>
             </div>
@@ -683,7 +686,7 @@ export default function Step3FreeResults({
           {/* Price + CTA */}
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
             <p style={{ color: '#ffd700', fontSize: '26px', fontWeight: '700', margin: '0 0 4px 0', fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.02em' }}>{alreadyPaid ? 'Already unlocked' : '$29, one time'}</p>
-            <p style={{ color: 'rgba(244,228,212,0.4)', fontSize: '12px', margin: 0, ...bodyFont }}>{alreadyPaid ? 'Your purchase covers this — continue below.' : 'No subscription · 30-day money-back guarantee'}</p>
+            <p style={{ color: 'rgba(244,228,212,0.6)', fontSize: '15px', lineHeight: '1.6', margin: 0, ...bodyFont }}>{alreadyPaid ? 'Your purchase covers this — continue below.' : 'No subscription · 30-day money-back guarantee'}</p>
           </div>
 
           <button
@@ -718,7 +721,7 @@ export default function Step3FreeResults({
 
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: '8px' }}>
             <span style={{ fontSize: '15px', flexShrink: 0, marginTop: '1px' }}>🛡️</span>
-            <p style={{ color: 'rgba(244,228,212,0.5)', fontSize: '12.5px', margin: 0, lineHeight: '1.55', ...bodyFont }}>
+            <p style={{ color: 'rgba(244,228,212,0.6)', fontSize: '15px', margin: 0, lineHeight: '1.55', ...bodyFont }}>
               Take a full 30 days to use it. If it doesn't help, one email gets you a complete refund, same day.
             </p>
           </div>
