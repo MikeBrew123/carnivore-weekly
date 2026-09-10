@@ -1683,71 +1683,349 @@ const MEAL_CSS = `
 // All macros verified against USDA FoodData Central
 // Base macros are for ~1800 cal/day, scaled proportionally to customer target
 // desc shows exact weights so customers can verify
+// ═══════════════════════════════════════════════════
+// THE EXECUTABLE MEAL
+// ═══════════════════════════════════════════════════
+//
+// Until 2026-09-10 a meal was a name, a `desc` STRING, and four macro numbers.
+// scaleMeal() multiplied the numbers and copied the string, so the plan told a
+// customer to cook "4 oz sirloin steak (113g) · 2 large eggs (100g) · 1 tbsp
+// butter (14g)" beside a macro column that had been scaled to 0.6x or 2.0x of
+// that plate. Measured on a real 890 kcal profile: the line above printed 265
+// kcal when the food as written is 442. Cooking the written week delivered
+// roughly 1,480 kcal against an 890 kcal target, which is not a rounding error,
+// it is the entire deficit the product sold.
+//
+// The fat knob made it worse. It appended text like "· −2 tbsp fat" to a dinner
+// containing one tablespoon of oil, and "· +9.5 tbsp butter" (about 133 g on one
+// plate) at the top of the range, because it was solving for exact calorie
+// equality against numbers no food had to honour.
+//
+// ONE REPRESENTATION. A meal is now a list of ingredients. The SAME data
+// produces the name, the written quantities, the meal macros, the day totals and
+// the grocery list, so there is no second copy to drift from the first.
+//
+// Scaling scales the FOOD. Quantities are scaled, rounded to something a person
+// can actually measure, and the macros are then computed FROM THE ROUNDED
+// QUANTITIES. That ordering is the whole fix: the printed macros are by
+// construction what the printed food delivers, so the two cannot disagree no
+// matter what the scale factor is.
+//
+// The cost is that a day no longer lands exactly on the calorie target, because
+// real food comes in eggs and half-tablespoons. That is the right trade and the
+// tolerance is asserted in tests/kd-meal-plan-executable.test.mjs.
+
+/**
+ * Every ingredient the plan can use, with macros per ONE unit of `unit`.
+ *
+ * Values are USDA-typical and carry the same figures the old per-meal comments
+ * used, so a scale of 1.0 lands close to the numbers this product has always
+ * printed. They are not laboratory values and do not need to be: the guarantee
+ * this file makes is that the written food and the printed macros agree with
+ * each other, not that either is accurate to the gram.
+ *
+ *   unit    what one unit is
+ *   g       one gram. `disp` says whether to show it as oz, cups or grams.
+ *   each    one countable thing: an egg, a tortilla, an olive, a lettuce cup
+ *   tbsp    one tablespoon
+ *   strip   one rasher of bacon
+ *   link    one sausage
+ *
+ *   step    the increment quantities are rounded to. A person can measure half a
+ *           tablespoon and a 5 g difference on a steak; they cannot measure 0.37
+ *           of an egg.
+ *   min     the smallest quantity worth printing. Below it the ingredient is
+ *           dropped rather than printed as a garnish-sized joke.
+ *   aisle   which grocery section it aggregates into.
+ *   buy     the shopper-facing unit the grocery list rounds to.
+ */
+const KD_ING = {
+  // ---- proteins -----------------------------------------------------------
+  egg:            { label: 'large egg', plural: 'large eggs', unit: 'each', g: 50, kcal: 70, f: 5, p: 6, c: 0.4, step: 1, min: 1, aisle: 'proteins', buy: 'dozen' },
+  bacon:          { label: 'strip bacon', plural: 'strips bacon', unit: 'strip', g: 14, kcal: 43, f: 3.3, p: 3, c: 0, step: 1, min: 1, aisle: 'proteins', buy: 'pack' },
+  sausage:        { label: 'pork sausage link', plural: 'pork sausage links', unit: 'link', g: 28, kcal: 98, f: 8, p: 6, c: 0.5, step: 1, min: 1, aisle: 'proteins', buy: 'pack' },
+  smoked_salmon:  { label: 'smoked salmon', unit: 'g', disp: 'oz', kcal: 1.17, f: 0.044, p: 0.186, c: 0, step: 5, min: 30, aisle: 'proteins', buy: 'lb' },
+  sirloin:        { label: 'sirloin steak', unit: 'g', disp: 'oz', kcal: 1.77, f: 0.071, p: 0.265, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  ribeye:         { label: 'ribeye steak', unit: 'g', disp: 'oz', kcal: 2.40, f: 0.159, p: 0.229, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  beef_strips:    { label: 'beef sirloin strips', unit: 'g', disp: 'oz', kcal: 1.76, f: 0.071, p: 0.271, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  ground_beef:    { label: 'ground beef 80/20', unit: 'g', disp: 'oz', kcal: 2.00, f: 0.129, p: 0.200, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  chicken_breast: { label: 'chicken breast', unit: 'g', disp: 'oz', kcal: 1.16, f: 0.026, p: 0.218, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  chicken_thigh:  { label: 'chicken thigh', unit: 'g', disp: 'oz', kcal: 1.90, f: 0.113, p: 0.197, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  chicken_thigh_skin: { label: 'skin-on chicken thighs', unit: 'g', disp: 'oz', kcal: 1.59, f: 0.099, p: 0.162, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  chicken_drumstick: { label: 'chicken drumsticks', unit: 'g', disp: 'oz', kcal: 1.72, f: 0.100, p: 0.185, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  pork_chop:      { label: 'bone-in pork chops', unit: 'g', disp: 'oz', kcal: 1.63, f: 0.099, p: 0.177, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  pork_shoulder:  { label: 'pork shoulder, pulled', unit: 'g', disp: 'oz', kcal: 2.11, f: 0.141, p: 0.194, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  pork_loin:      { label: 'pork loin', unit: 'g', disp: 'oz', kcal: 1.43, f: 0.077, p: 0.194, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  ground_turkey:  { label: 'ground turkey 85/15', unit: 'g', disp: 'oz', kcal: 1.71, f: 0.135, p: 0.171, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  salmon_fillet:  { label: 'salmon fillet', unit: 'g', disp: 'oz', kcal: 2.06, f: 0.129, p: 0.200, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  canned_salmon:  { label: 'canned salmon', unit: 'g', disp: 'oz', kcal: 1.18, f: 0.050, p: 0.200, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'can' },
+  cod:            { label: 'cod fillet', unit: 'g', disp: 'oz', kcal: 0.82, f: 0.006, p: 0.176, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  tuna:           { label: 'canned tuna', unit: 'g', disp: 'oz', kcal: 0.92, f: 0.007, p: 0.204, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'can' },
+  shrimp:         { label: 'shrimp', unit: 'g', disp: 'oz', kcal: 0.99, f: 0.018, p: 0.212, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  prosciutto:     { label: 'prosciutto', unit: 'g', disp: 'oz', kcal: 1.76, f: 0.106, p: 0.212, c: 0, step: 5, min: 25, aisle: 'proteins', buy: 'pack' },
+  deli_turkey:    { label: 'deli turkey', unit: 'g', disp: 'oz', kcal: 1.06, f: 0.012, p: 0.212, c: 0.024, step: 5, min: 25, aisle: 'proteins', buy: 'pack' },
+  jerky:          { label: 'beef jerky', unit: 'g', disp: 'oz', kcal: 2.86, f: 0.036, p: 0.464, c: 0.107, step: 5, min: 15, aisle: 'proteins', buy: 'pack' },
+  // ---- fats ---------------------------------------------------------------
+  butter:         { label: 'butter', unit: 'tbsp', g: 14, kcal: 102, f: 11.5, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'block' },
+  olive_oil:      { label: 'olive oil', unit: 'tbsp', g: 14, kcal: 119, f: 13.5, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'bottle' },
+  coconut_oil:    { label: 'coconut oil', unit: 'tbsp', g: 14, kcal: 121, f: 14, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'jar' },
+  sesame_oil:     { label: 'sesame oil', unit: 'tbsp', g: 14, kcal: 120, f: 13.6, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'bottle' },
+  mayo:           { label: 'olive-oil mayo', unit: 'tbsp', g: 14, kcal: 94, f: 10.5, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'jar' },
+  ranch:          { label: 'ranch', unit: 'tbsp', g: 15, kcal: 73, f: 7.7, p: 0.2, c: 0.6, step: 0.5, min: 0.5, aisle: 'fats', buy: 'bottle' },
+  avocado:        { label: 'avocado', unit: 'g', disp: 'avocado', kcal: 1.68, f: 0.147, p: 0.021, c: 0.029, step: 17, min: 34, aisle: 'produce', buy: 'each', eachG: 136 },
+  macadamia:      { label: 'macadamias', unit: 'g', disp: 'oz', kcal: 7.29, f: 0.75, p: 0.079, c: 0.071, step: 5, min: 10, aisle: 'fats', buy: 'bag' },
+  pecan:          { label: 'pecans', unit: 'g', disp: 'oz', kcal: 7.00, f: 0.71, p: 0.107, c: 0.036, step: 5, min: 10, aisle: 'fats', buy: 'bag' },
+  almond:         { label: 'almonds', unit: 'g', disp: 'oz', kcal: 5.86, f: 0.50, p: 0.214, c: 0.107, step: 5, min: 10, aisle: 'fats', buy: 'bag' },
+  olives:         { label: 'green olive', plural: 'green olives', unit: 'each', g: 4, kcal: 5.8, f: 0.5, p: 0, c: 0.2, step: 1, min: 2, aisle: 'fats', buy: 'jar' },
+  kalamata:       { label: 'kalamata olive', plural: 'kalamata olives', unit: 'each', g: 4, kcal: 5.8, f: 0.5, p: 0, c: 0.2, step: 1, min: 2, aisle: 'fats', buy: 'jar' },
+  cheddar:        { label: 'cheddar', unit: 'g', disp: 'oz', kcal: 4.04, f: 0.32, p: 0.250, c: 0.014, step: 5, min: 10, aisle: 'dairy', buy: 'block' },
+  blue_cheese:    { label: 'blue cheese', unit: 'g', disp: 'oz', kcal: 3.53, f: 0.29, p: 0.210, c: 0.020, step: 5, min: 10, aisle: 'dairy', buy: 'block' },
+  feta:           { label: 'feta', unit: 'g', disp: 'oz', kcal: 2.64, f: 0.21, p: 0.140, c: 0.040, step: 5, min: 10, aisle: 'dairy', buy: 'block' },
+  mozzarella:     { label: 'fresh mozzarella', unit: 'g', disp: 'oz', kcal: 2.80, f: 0.22, p: 0.200, c: 0.030, step: 5, min: 15, aisle: 'dairy', buy: 'ball' },
+  cream_cheese:   { label: 'cream cheese', unit: 'g', disp: 'oz', kcal: 3.46, f: 0.34, p: 0.060, c: 0.050, step: 5, min: 10, aisle: 'dairy', buy: 'tub' },
+  heavy_cream:    { label: 'heavy cream', unit: 'tbsp', g: 15, kcal: 50, f: 5.4, p: 0.4, c: 0.4, step: 0.5, min: 0.5, aisle: 'dairy', buy: 'carton' },
+  coconut_cream:  { label: 'coconut cream', unit: 'tbsp', g: 15, kcal: 50, f: 5.2, p: 0.5, c: 0.7, step: 0.5, min: 0.5, aisle: 'pantry', buy: 'can' },
+  // ---- produce ------------------------------------------------------------
+  romaine:        { label: 'romaine', unit: 'g', disp: 'cup', cupG: 47, kcal: 0.17, f: 0.003, p: 0.012, c: 0.017, step: 10, min: 20, aisle: 'produce', buy: 'bag' },
+  mixed_greens:   { label: 'mixed greens', unit: 'g', disp: 'cup', cupG: 30, kcal: 0.23, f: 0.004, p: 0.022, c: 0.023, step: 10, min: 20, aisle: 'produce', buy: 'bag' },
+  lettuce:        { label: 'shredded lettuce', unit: 'g', disp: 'cup', cupG: 47, kcal: 0.15, f: 0.002, p: 0.014, c: 0.015, step: 10, min: 20, aisle: 'produce', buy: 'head' },
+  spinach:        { label: 'spinach', unit: 'g', disp: 'cup', cupG: 30, kcal: 0.23, f: 0.004, p: 0.029, c: 0.014, step: 10, min: 20, aisle: 'produce', buy: 'bag' },
+  cucumber:       { label: 'cucumber', unit: 'g', disp: 'cup', cupG: 130, kcal: 0.15, f: 0.001, p: 0.007, c: 0.021, step: 10, min: 30, aisle: 'produce', buy: 'each', eachG: 300 },
+  zucchini:       { label: 'zucchini', unit: 'g', disp: 'each', eachG: 200, kcal: 0.17, f: 0.003, p: 0.012, c: 0.021, step: 25, min: 50, aisle: 'produce', buy: 'each' },
+  broccoli:       { label: 'broccoli', unit: 'g', disp: 'cup', cupG: 91, kcal: 0.34, f: 0.004, p: 0.028, c: 0.040, step: 10, min: 30, aisle: 'produce', buy: 'head' },
+  green_beans:    { label: 'green beans', unit: 'g', disp: 'cup', cupG: 100, kcal: 0.31, f: 0.001, p: 0.018, c: 0.049, step: 10, min: 30, aisle: 'produce', buy: 'bag' },
+  cabbage:        { label: 'shredded cabbage', unit: 'g', disp: 'cup', cupG: 75, kcal: 0.25, f: 0.001, p: 0.013, c: 0.036, step: 10, min: 30, aisle: 'produce', buy: 'head' },
+  mushroom:       { label: 'mushrooms', unit: 'g', disp: 'cup', cupG: 70, kcal: 0.22, f: 0.003, p: 0.031, c: 0.020, step: 10, min: 20, aisle: 'produce', buy: 'pack' },
+  asparagus:      { label: 'asparagus', unit: 'g', disp: 'cup', cupG: 134, kcal: 0.20, f: 0.001, p: 0.022, c: 0.021, step: 10, min: 30, aisle: 'produce', buy: 'bunch' },
+  coleslaw:       { label: 'coleslaw with olive-oil dressing', unit: 'g', disp: 'cup', cupG: 120, kcal: 0.50, f: 0.033, p: 0.008, c: 0.033, step: 10, min: 30, aisle: 'produce', buy: 'bag' },
+  lettuce_cup:    { label: 'butter lettuce cup', plural: 'butter lettuce cups', unit: 'each', g: 15, kcal: 2, f: 0, p: 0.2, c: 0.3, step: 1, min: 1, aisle: 'produce', buy: 'head' },
+  raspberries:    { label: 'raspberries', unit: 'g', disp: 'cup', cupG: 123, kcal: 0.52, f: 0.006, p: 0.012, c: 0.065, step: 5, min: 15, aisle: 'produce', buy: 'punnet' },
+  // ---- pantry -------------------------------------------------------------
+  almond_flour:   { label: 'almond flour', unit: 'tbsp', g: 7, kcal: 40, f: 3.5, p: 1.5, c: 0.5, step: 0.5, min: 0.5, aisle: 'pantry', buy: 'bag' },
+  tortilla:       { label: 'low-carb tortilla', plural: 'low-carb tortillas', unit: 'each', g: 38, kcal: 90, f: 4, p: 5, c: 3, step: 1, min: 1, aisle: 'pantry', buy: 'pack' },
+  dark_choc:      { label: 'square 90% dark chocolate', plural: 'squares 90% dark chocolate', unit: 'each', g: 10, kcal: 60, f: 5, p: 1, c: 2, step: 1, min: 1, aisle: 'pantry', buy: 'bar' },
+};
+
+/** Round to a step a person can actually measure, never below the useful minimum. */
+function kdRoundQty(key, qty) {
+  const ing = KD_ING[key];
+  const stepped = Math.round(qty / ing.step) * ing.step;
+  // Two decimals kills float dust from 0.5-steps; nothing here needs more.
+  return Math.round(stepped * 100) / 100;
+}
+
+/**
+ * The ingredient library, exposed so a test can re-derive every meal's macros
+ * from the quantities the customer was shown and compare. Exported rather than
+ * duplicated in the suite: a test that keeps its own copy of the numbers is
+ * checking itself, which is exactly how the printed macros drifted from the
+ * printed food in the first place.
+ */
+export const KD_ING_FOR_TEST = KD_ING;
+
+const KD_FRACTIONS = [[0.25, '¼'], [0.33, '⅓'], [0.5, '½'], [0.67, '⅔'], [0.75, '¾']];
+
+/** "1½", "¾", "3" — the way a recipe writes a number. */
+function kdFmtNumber(n) {
+  const whole = Math.floor(n);
+  const frac = Math.round((n - whole) * 100) / 100;
+  if (frac === 0) return String(whole);
+  const hit = KD_FRACTIONS.find(([v]) => Math.abs(v - frac) < 0.02);
+  if (!hit) return String(Math.round(n * 10) / 10);
+  return whole === 0 ? hit[1] : `${whole}${hit[1]}`;
+}
+
+/**
+ * Write one scaled ingredient the way the customer will read it.
+ *
+ * Weight is shown in the unit the shopper thinks in AND in grams, because a
+ * kitchen scale is the only way to make "6 oz" repeatable. Countable things stay
+ * countable: eggs are whole eggs.
+ */
+function kdFmtIngredient(key, qty) {
+  const ing = KD_ING[key];
+  if (ing.unit === 'each' || ing.unit === 'strip' || ing.unit === 'link') {
+    const label = qty === 1 ? ing.label : (ing.plural || ing.label);
+    return `${kdFmtNumber(qty)} ${label}${ing.g ? ` (${Math.round(qty * ing.g)}g)` : ''}`;
+  }
+  if (ing.unit === 'tbsp') {
+    return `${kdFmtNumber(qty)} tbsp ${ing.label} (${Math.round(qty * ing.g)}${ing.label.includes('oil') || ing.label.includes('cream') ? 'ml' : 'g'})`;
+  }
+  // unit === 'g'
+  if (ing.disp === 'oz') {
+    // Quarter-ounce precision under 4 oz. At half-ounce steps a 20 g portion of
+    // macadamias printed as "½ oz (20g)", and half an ounce is 14 g: the two
+    // halves of the same phrase disagreed, which is the defect in miniature.
+    const oz = qty / 28.35;
+    const grid = oz < 4 ? 4 : 2;
+    return `${kdFmtNumber(Math.round(oz * grid) / grid)} oz ${ing.label} (${Math.round(qty)}g)`;
+  }
+  if (ing.disp === 'cup') return `${kdFmtNumber(Math.round((qty / ing.cupG) * 4) / 4)} cup${qty / ing.cupG >= 1.9 ? 's' : ''} ${ing.label} (${Math.round(qty)}g)`;
+  if (ing.disp === 'avocado') return `${kdFmtNumber(Math.round((qty / 136) * 4) / 4)} avocado (${Math.round(qty)}g)`;
+  if (ing.disp === 'each') return `${kdFmtNumber(Math.round((qty / ing.eachG) * 2) / 2)} ${ing.label} (${Math.round(qty)}g)`;
+  return `${Math.round(qty)}g ${ing.label}`;
+}
+
+/**
+ * Turn a meal template plus a scale factor into the thing the customer receives.
+ *
+ * THE ORDER MATTERS AND IS THE WHOLE POINT: scale, then round to a measurable
+ * quantity, THEN compute the macros from what was rounded to. Doing it the other
+ * way round is how the printed numbers stopped describing the printed food.
+ *
+ * @returns {{name, ing: [key, qty][], desc: string, kcal, f, p, c}}
+ */
+function kdMaterializeMeal(tpl, scale) {
+  const ing = [];
+  for (const [key, baseQty] of tpl.ing) {
+    // The fat ceiling applies HERE too, not only in the adjuster. A snack scaled
+    // 4.5x put six tablespoons of cream on a bowl of raspberries, which no
+    // adjuster had touched. A ceiling that only some code paths respect is not a
+    // ceiling. Capping the quantity before the macros are summed keeps the two
+    // in step; the day simply lands a little lower, which the tolerance covers.
+    const raw = baseQty * scale;
+    const capped = KD_FAT_KEYS.includes(key) ? Math.min(raw, KD_FAT_MAX_TBSP) : raw;
+    const q = kdRoundQty(key, capped);
+    if (q >= KD_ING[key].min) ing.push([key, q]);
+  }
+  return kdFinishMeal(tpl, ing);
+}
+
+/** Sum a materialised ingredient list and render its description. */
+function kdFinishMeal(tpl, ing) {
+  let kcal = 0, f = 0, p = 0, c = 0;
+  for (const [key, q] of ing) {
+    const i = KD_ING[key];
+    kcal += i.kcal * q; f += i.f * q; p += i.p * q; c += i.c * q;
+  }
+  const parts = ing.map(([key, q]) => kdFmtIngredient(key, q));
+  if (tpl.garnish) parts.push(tpl.garnish);
+  return {
+    name: tpl.name,
+    ing,
+    desc: parts.join(' · '),
+    kcal: Math.round(kcal), f: Math.round(f), p: Math.round(p), c: Math.round(c),
+  };
+}
+
+/**
+ * Nudge a meal's added fat to close a calorie gap, in food rather than in text.
+ *
+ * The old knob appended a sentence: "· −2 tbsp fat" onto a dinner holding one
+ * tablespoon of oil, and "· +9.5 tbsp butter" at the top of the range. Both were
+ * instructions nobody could follow, and neither changed the ingredient list.
+ *
+ * This changes the QUANTITY of a fat already in the meal, within a range a person
+ * would actually cook, and never below zero. Nothing is ever subtracted in prose,
+ * because there is no prose: the number in the ingredient list is simply smaller.
+ *
+ * Bounds are deliberate. Six tablespoons on one plate is the ceiling, and if the
+ * gap is still open after that we accept the gap. A day that lands a little under
+ * target is a plan; a dinner carrying nine and a half tablespoons of butter is
+ * not, and the tolerance test exists so that trade is visible rather than assumed.
+ */
+const KD_FAT_KEYS = ['butter', 'olive_oil', 'coconut_oil', 'sesame_oil', 'mayo', 'heavy_cream', 'coconut_cream'];
+/**
+ * The most fat one plate may carry. Three tablespoons is a generous but real
+ * amount of butter on a steak; six was what the first attempt produced when it
+ * put the whole day's gap on the dinner, and nine and a half is what the version
+ * before that printed. The gap is spread across the day's meals instead, so no
+ * single plate absorbs it.
+ */
+const KD_FAT_MAX_TBSP = 4;
+
+function kdAdjustMealFat(tpl, ing, kcalGap) {
+  const idx = ing.findIndex(([k]) => KD_FAT_KEYS.includes(k));
+  if (idx === -1 || Math.abs(kcalGap) < 25) return { meal: kdFinishMeal(tpl, ing), used: 0 };
+  const [key, qty] = ing[idx];
+  const per = KD_ING[key].kcal;
+  const bounded = Math.max(0, Math.min(KD_FAT_MAX_TBSP, qty + kcalGap / per));
+  const rounded = kdRoundQty(key, bounded);
+  const next = ing.slice();
+  if (rounded < KD_ING[key].min) next.splice(idx, 1);
+  else next[idx] = [key, rounded];
+  return { meal: kdFinishMeal(tpl, next), used: (rounded - qty) * per };
+}
+
+/**
+ * Share one day's calorie gap across the meals that contain a fat, dinner first
+ * because that is where an extra spoon of butter reads as cooking rather than as
+ * an instruction. Each meal takes what it can within its own cap and passes the
+ * rest along; whatever is left over is left over, and the day tolerance covers it.
+ */
+function kdDistributeFat(entries, kcalGap) {
+  let remaining = kcalGap;
+  const out = new Map();
+  for (const { slot, tpl, meal } of entries) {
+    if (Math.abs(remaining) < 25) { out.set(slot, meal); continue; }
+    const share = kdAdjustMealFat(tpl, meal.ing, remaining);
+    remaining -= share.used;
+    out.set(slot, share.meal);
+  }
+  return out;
+}
+
+/**
+ * The meal templates. Each is a name, an ingredient list at 1.0 scale, and an
+ * optional garnish phrase carrying no macros and no quantity to scale.
+ *
+ * These are the SAME plates the plan has always used, restated as ingredients so
+ * the quantities can move. The `desc` strings they replace are gone: a written
+ * description that is not derived from the ingredient list is a second source of
+ * truth, and it is the one that was wrong.
+ */
 function getMealDatabase(noDairy) {
   return {
     breakfast: [
-      // 3 large eggs (210cal,15f,18p,1c) + 3 strips bacon/42g (129cal,10f,9p,0c) + ½ avocado/68g (114cal,10f,1p,2c) + 1 tbsp butter/14g (102cal,12f,0p,0c)
-      { name: 'Bacon &amp; avocado baked eggs', desc: '3 large eggs (150g) · 3 strips bacon (42g) · ½ avocado (68g) · 1 tbsp butter (14g)', kcal: 555, f: 47, p: 28, c: 3 },
-      // 4oz smoked salmon (132cal,5f,21p,0c) + 2oz cream cheese or ½ avocado + 1 cucumber (30g)
-      { name: `Smoked salmon &amp; ${noDairy ? 'avocado' : 'cream-cheese'} roll-ups`, desc: `4 oz smoked salmon (113g) · ${noDairy ? '½ avocado (68g)' : '2 oz cream cheese (57g)'} · ½ cucumber (100g)`, kcal: noDairy ? 276 : 329, f: noDairy ? 15 : 24, p: 23, c: noDairy ? 5 : 3 },
-      // 3 large eggs + 2 pork sausage links/56g (196cal,16f,12p,1c) + 1oz cheddar/28g (113cal,9f,7p,0c)
-      { name: `Sausage &amp; egg ${noDairy ? 'scramble' : 'muffins'}`, desc: `3 large eggs (150g) · 2 pork sausage links (56g) · ${noDairy ? '1 tbsp olive oil (14ml)' : '1 oz cheddar (28g)'}`, kcal: noDairy ? 526 : 519, f: noDairy ? 42 : 40, p: noDairy ? 33 : 37, c: 2 },
-      // 3 large eggs + 1 tbsp butter + 1oz cheese or 2 tbsp olive oil
-      { name: `${noDairy ? 'Herb &amp; mushroom' : 'Cheese &amp; herb'} omelette`, desc: `3 large eggs (150g) · 1 tbsp butter (14g) · ${noDairy ? '½ cup mushrooms (35g)' : '1 oz cheddar (28g)'} · herbs`, kcal: noDairy ? 340 : 425, f: noDairy ? 27 : 36, p: noDairy ? 20 : 25, c: noDairy ? 2 : 1 },
-      // 4oz sirloin (200cal,8f,30p,0c) + 2 large eggs (140cal,10f,12p,1c) + 1 tbsp butter
-      { name: 'Steak &amp; eggs', desc: '4 oz sirloin steak (113g) · 2 large eggs (100g) · 1 tbsp butter (14g)', kcal: 442, f: 30, p: 42, c: 1 },
-      // 2 large eggs + 2 tbsp almond flour/14g (80cal,7f,3p,1c) + 1 tbsp butter + 1 tbsp coconut oil/14g (121cal,14f,0p,0c)
-      { name: 'Keto pancakes + butter', desc: '2 large eggs (100g) · 2 tbsp almond flour (14g) · 1 tbsp coconut oil (14g) · 1 tbsp butter (14g)', kcal: 441, f: 39, p: 15, c: 2 },
-      // 2 large eggs + ½ avocado + 2 strips bacon
-      { name: 'Bacon &amp; egg plate', desc: '2 large eggs (100g) · ½ avocado (68g) · 2 strips bacon (28g) · 1 cup spinach (30g)', kcal: 400, f: 32, p: 22, c: 4 },
+      { name: 'Bacon &amp; avocado baked eggs', ing: [['egg', 3], ['bacon', 3], ['avocado', 68], ['butter', 1]] },
+      { name: `Smoked salmon &amp; ${noDairy ? 'avocado' : 'cream-cheese'} roll-ups`,
+        ing: [['smoked_salmon', 113], noDairy ? ['avocado', 68] : ['cream_cheese', 57], ['cucumber', 100]] },
+      { name: `Sausage &amp; egg ${noDairy ? 'scramble' : 'muffins'}`,
+        ing: [['egg', 3], ['sausage', 2], noDairy ? ['olive_oil', 1] : ['cheddar', 28]] },
+      { name: `${noDairy ? 'Herb &amp; mushroom' : 'Cheese &amp; herb'} omelette`,
+        ing: [['egg', 3], ['butter', 1], noDairy ? ['mushroom', 35] : ['cheddar', 28]], garnish: 'herbs' },
+      { name: 'Steak &amp; eggs', ing: [['sirloin', 113], ['egg', 2], ['butter', 1]] },
+      { name: 'Keto pancakes + butter', ing: [['egg', 2], ['almond_flour', 2], ['coconut_oil', 1], ['butter', 1]] },
+      { name: 'Bacon &amp; egg plate', ing: [['egg', 2], ['avocado', 68], ['bacon', 2], ['spinach', 30]] },
     ],
     lunch: [
-      // 5oz chicken breast (165cal,4f,31p,0c) + 2 cups romaine (16cal,0f,1p,2c) + 1 hard-boiled egg + 2 tbsp ranch or olive oil + 1oz cheese
-      { name: `Chicken Cobb salad`, desc: `5 oz grilled chicken breast (142g) · 2 cups romaine (94g) · 1 egg (50g) · ${noDairy ? '2 tbsp olive oil (28ml)' : '1 oz blue cheese (28g) · 2 tbsp ranch (30ml)'}`, kcal: noDairy ? 467 : 510, f: noDairy ? 30 : 33, p: noDairy ? 43 : 46, c: noDairy ? 3 : 4 },
-      // 5oz canned tuna (130cal,1f,29p,0c) + 2 tbsp mayo/28g (188cal,21f,0p,0c) + ½ avocado + lettuce
-      { name: 'Tuna-avocado lettuce boats', desc: '5 oz canned tuna (142g) · 2 tbsp olive-oil mayo (28g) · ½ avocado (68g) · 2 butter lettuce cups', kcal: 432, f: 32, p: 30, c: 4 },
-      // 5oz chicken thigh (270cal,16f,28p,0c) + 1 cup mixed greens + ½ cup cucumber + 2 tbsp olive oil + feta or olives
-      { name: 'Greek salad + grilled chicken', desc: `5 oz chicken thigh (142g) · 2 cups mixed greens (60g) · ½ cup cucumber (65g) · ${noDairy ? '10 kalamata olives (40g)' : '1 oz feta (28g)'} · 2 tbsp olive oil (28ml)`, kcal: noDairy ? 538 : 508, f: noDairy ? 40 : 36, p: 31, c: noDairy ? 5 : 3 },
-      // 6oz 80/20 ground beef (340cal,22f,34p,0c) + ½ avocado + 2 cups lettuce + 1 tbsp mayo
-      { name: 'Burger bowl, no bun', desc: '6 oz ground beef 80/20 (170g) · ½ avocado (68g) · 2 cups shredded lettuce (94g) · 1 tbsp mayo (14g)', kcal: 548, f: 42, p: 35, c: 4 },
-      // 6oz shrimp (168cal,3f,36p,0c) + ½ avocado + 1 tbsp olive oil + lime
-      { name: 'Shrimp avocado salad', desc: '6 oz shrimp (170g) · ½ avocado (68g) · 1 tbsp olive oil (14ml) · lime · 2 cups mixed greens (60g)', kcal: 402, f: 24, p: 38, c: 5 },
-      // 3oz prosciutto (150cal,9f,18p,0c) + 4oz mozzarella or avocado + basil + 1 tbsp olive oil
-      { name: `${noDairy ? 'Prosciutto &amp; avocado' : 'Caprese'} plate`, desc: `3 oz prosciutto (85g) · ${noDairy ? '1 avocado (136g)' : '4 oz fresh mozzarella (113g)'} · fresh basil · 1 tbsp olive oil (14ml)`, kcal: noDairy ? 458 : 530, f: noDairy ? 34 : 40, p: noDairy ? 20 : 34, c: noDairy ? 7 : 3 },
-      // 4oz chicken breast + 2 strips bacon + low-carb tortilla/38g (90cal,4f,5p,9c net ~3c) + 1 tbsp ranch or avocado
-      { name: `Chicken-bacon wrap`, desc: `4 oz chicken breast (113g) · 2 strips bacon (28g) · 1 low-carb tortilla (38g) · ${noDairy ? '¼ avocado (34g)' : '1 tbsp ranch (15ml)'}`, kcal: noDairy ? 392 : 403, f: noDairy ? 18 : 20, p: 42, c: 5 },
+      { name: 'Chicken Cobb salad',
+        ing: noDairy
+          ? [['chicken_breast', 142], ['romaine', 94], ['egg', 1], ['olive_oil', 2]]
+          : [['chicken_breast', 142], ['romaine', 94], ['egg', 1], ['blue_cheese', 28], ['ranch', 2]] },
+      { name: 'Tuna-avocado lettuce boats', ing: [['tuna', 142], ['mayo', 2], ['avocado', 68], ['lettuce_cup', 2]] },
+      { name: 'Greek salad + grilled chicken',
+        ing: [['chicken_thigh', 142], ['mixed_greens', 60], ['cucumber', 65],
+              noDairy ? ['kalamata', 10] : ['feta', 28], ['olive_oil', 2]] },
+      { name: 'Burger bowl, no bun', ing: [['ground_beef', 170], ['avocado', 68], ['lettuce', 94], ['mayo', 1]] },
+      { name: 'Shrimp avocado salad', ing: [['shrimp', 170], ['avocado', 68], ['olive_oil', 1], ['mixed_greens', 60]], garnish: 'lime' },
+      { name: `${noDairy ? 'Prosciutto &amp; avocado' : 'Caprese'} plate`,
+        ing: [['prosciutto', 85], noDairy ? ['avocado', 136] : ['mozzarella', 113], ['olive_oil', 1]], garnish: 'fresh basil' },
+      { name: 'Chicken-bacon wrap',
+        ing: [['chicken_breast', 113], ['bacon', 2], ['tortilla', 1], noDairy ? ['avocado', 34] : ['ranch', 1]] },
     ],
     dinner: [
-      // 8oz ribeye (544cal,36f,52p,0c) + 1 cup asparagus/134g (27cal,0f,3p,3c) + 1 tbsp butter
-      { name: 'Ribeye + garlic-butter asparagus', desc: '8 oz ribeye steak (227g) · 1 cup asparagus (134g) · 1 tbsp butter (14g)', kcal: 673, f: 48, p: 55, c: 3 },
-      // 2 bone-in pork chops/10oz total (460cal,28f,50p,0c) + 2 cups spinach/60g (14cal,0f,2p,1c) + 1 tbsp olive oil
-      { name: 'Pork chops + sautéed spinach', desc: '10 oz bone-in pork chops (283g) · 2 cups fresh spinach (60g) · 1 tbsp olive oil (14ml) · 2 cloves garlic', kcal: 594, f: 40, p: 52, c: 3 },
-      // 6oz salmon fillet (350cal,22f,34p,0c) + 2 cups spinach + 1 tbsp butter or olive oil
-      { name: `Salmon + ${noDairy ? 'garlic' : 'creamed'} spinach`, desc: `6 oz salmon fillet (170g) · 2 cups spinach (60g) · ${noDairy ? '1 tbsp olive oil (14ml)' : '1 tbsp butter (14g) · 2 tbsp heavy cream (30ml)'}`, kcal: noDairy ? 484 : 520, f: noDairy ? 34 : 38, p: 36, c: 2 },
-      // 10oz skin-on chicken thighs (450cal,28f,46p,0c) + 1 cup broccoli/91g (31cal,0f,3p,4c) + 1 tbsp olive oil
-      { name: 'Roast chicken thighs + broccoli', desc: '10 oz skin-on chicken thighs (283g) · 1 cup broccoli (91g) · 1 tbsp olive oil (14ml)', kcal: 601, f: 40, p: 49, c: 4 },
-      // 6oz beef sirloin strips (300cal,12f,46p,0c) + 1 medium zucchini/200g (34cal,1f,2p,4c) + 1 tbsp sesame oil
-      { name: 'Beef stir-fry, zucchini noodles', desc: '6 oz beef sirloin strips (170g) · 1 medium zucchini (200g) · 1 tbsp sesame oil (14ml) · ginger · soy sauce', kcal: 454, f: 25, p: 48, c: 6 },
-      // 6oz cod (140cal,1f,30p,0c) + 1 cup green beans/100g (31cal,0f,2p,5c) + 2 tbsp butter
-      { name: 'Lemon-butter cod + green beans', desc: '6 oz cod fillet (170g) · 1 cup green beans (100g) · 2 tbsp butter (28g)', kcal: 375, f: 25, p: 32, c: 5 },
-      // 8oz pulled pork shoulder (480cal,32f,44p,0c) + 1 cup coleslaw (60cal,4f,1p,4c no sugar)
-      { name: 'Slow-roast pork shoulder + slaw', desc: '8 oz pork shoulder, pulled (227g) · 1 cup coleslaw with olive-oil dressing (120g) · no sugar', kcal: 540, f: 36, p: 45, c: 4 },
+      { name: 'Ribeye + garlic-butter asparagus', ing: [['ribeye', 227], ['asparagus', 134], ['butter', 1]] },
+      { name: 'Pork chops + sautéed spinach', ing: [['pork_chop', 283], ['spinach', 60], ['olive_oil', 1]], garnish: '2 cloves garlic' },
+      { name: `Salmon + ${noDairy ? 'garlic' : 'creamed'} spinach`,
+        ing: noDairy
+          ? [['salmon_fillet', 170], ['spinach', 60], ['olive_oil', 1]]
+          : [['salmon_fillet', 170], ['spinach', 60], ['butter', 1], ['heavy_cream', 2]] },
+      { name: 'Roast chicken thighs + broccoli', ing: [['chicken_thigh_skin', 283], ['broccoli', 91], ['olive_oil', 1]] },
+      { name: 'Beef stir-fry, zucchini noodles', ing: [['beef_strips', 170], ['zucchini', 200], ['sesame_oil', 1]], garnish: 'ginger · soy sauce' },
+      { name: 'Lemon-butter cod + green beans', ing: [['cod', 170], ['green_beans', 100], ['butter', 2]] },
+      { name: 'Slow-roast pork shoulder + slaw', ing: [['pork_shoulder', 227], ['coleslaw', 120], ['olive_oil', 1]] },
     ],
     snack: [
-      // 1oz macadamias/28g (204cal,21f,2p,2c net)
-      { name: 'Macadamia nuts', desc: '1 oz (28g)', kcal: 204, f: 21, p: 2, c: 2 },
-      // 10 olives/40g (58cal,5f,0p,2c) + 1oz cheddar/28g (113cal,9f,7p,0c) or 1oz almonds
-      { name: `Olives &amp; ${noDairy ? 'almonds' : 'cheddar'}`, desc: `10 green olives (40g) · ${noDairy ? '1 oz almonds (28g)' : '1 oz cheddar (28g)'}`, kcal: noDairy ? 222 : 171, f: noDairy ? 19 : 14, p: noDairy ? 8 : 7, c: noDairy ? 4 : 2 },
-      // 1oz pecans/28g (196cal,20f,3p,1c net)
-      { name: 'Pecans', desc: '1 oz (28g)', kcal: 196, f: 20, p: 3, c: 1 },
-      // 2 large hard-boiled eggs (140cal,10f,12p,1c)
-      { name: 'Hard-boiled eggs ×2', desc: '2 large eggs (100g)', kcal: 140, f: 10, p: 12, c: 1 },
-      // 2 squares 90% dark chocolate/20g (120cal,10f,2p,4c net)
-      { name: 'Dark chocolate 90%', desc: '2 squares (20g)', kcal: 120, f: 10, p: 2, c: 4 },
-      // 1oz almonds/28g (164cal,14f,6p,3c net)
-      { name: 'Almonds', desc: '1 oz (28g)', kcal: 164, f: 14, p: 6, c: 3 },
-      // ¼ cup raspberries/31g (16cal,0f,0p,2c net) + 2 tbsp heavy cream/30ml (100cal,11f,1p,1c)
-      { name: `Berries &amp; ${noDairy ? 'coconut cream' : 'heavy cream'}`, desc: `¼ cup raspberries (31g) · 2 tbsp ${noDairy ? 'coconut cream' : 'heavy cream'} (30ml)`, kcal: 116, f: 11, p: 1, c: 3 },
+      { name: 'Macadamia nuts', ing: [['macadamia', 28]] },
+      { name: `Olives &amp; ${noDairy ? 'almonds' : 'cheddar'}`,
+        ing: [['olives', 10], noDairy ? ['almond', 28] : ['cheddar', 28]] },
+      { name: 'Pecans', ing: [['pecan', 28]] },
+      { name: 'Hard-boiled eggs', ing: [['egg', 2]] },
+      { name: 'Dark chocolate 90%', ing: [['dark_choc', 2]] },
+      { name: 'Almonds', ing: [['almond', 28]] },
+      { name: `Berries &amp; ${noDairy ? 'coconut cream' : 'heavy cream'}`,
+        ing: [['raspberries', 31], noDairy ? ['coconut_cream', 2] : ['heavy_cream', 2]] },
     ],
   };
 }
@@ -1755,44 +2033,59 @@ function getMealDatabase(noDairy) {
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function getBudgetDinners(noDairy) {
+  void noDairy;
   return [
-    { name: 'Ground beef &amp; broccoli bowl', desc: '8 oz ground beef 80/20 (227g) · 1 cup broccoli (91g) · 1 tbsp butter (14g)', kcal: 585, f: 40, p: 49, c: 4 },
-    { name: 'Chicken thighs + green beans', desc: '10 oz bone-in chicken thighs (283g) · 1 cup green beans (100g) · 1 tbsp olive oil (14ml)', kcal: 601, f: 40, p: 49, c: 4 },
-    { name: 'Pork loin + buttered cabbage', desc: '6 oz pork loin (170g) · 2 cups shredded cabbage (150g) · 2 tbsp butter (28g)', kcal: 452, f: 30, p: 40, c: 5 },
-    { name: 'Salmon patties + spinach', desc: '6 oz canned salmon (170g) · 1 large egg (50g) · 2 cups spinach (60g) · 1 tbsp olive oil (14ml)', kcal: 398, f: 24, p: 40, c: 2 },
-    { name: 'Roast drumsticks + zucchini', desc: '8 oz chicken drumsticks (227g) · 1 medium zucchini (200g) · 1 tbsp butter (14g)', kcal: 520, f: 33, p: 50, c: 4 },
-    { name: 'Turkey taco bowl, no shell', desc: '6 oz ground turkey 85/15 (170g) · 2 cups shredded lettuce (94g) · ¼ avocado (34g) · 1 tbsp olive oil (14ml)', kcal: 418, f: 29, p: 33, c: 4 },
-    { name: 'Slow-roast pork shoulder + slaw', desc: '8 oz pork shoulder, pulled (227g) · 1 cup coleslaw with olive-oil dressing (120g) · no sugar', kcal: 540, f: 36, p: 45, c: 4 },
+    { name: 'Ground beef &amp; broccoli bowl', ing: [['ground_beef', 227], ['broccoli', 91], ['butter', 1]] },
+    { name: 'Chicken thighs + green beans', ing: [['chicken_thigh_skin', 283], ['green_beans', 100], ['olive_oil', 1]] },
+    { name: 'Pork loin + buttered cabbage', ing: [['pork_loin', 170], ['cabbage', 150], ['butter', 2]] },
+    { name: 'Salmon patties + spinach', ing: [['canned_salmon', 170], ['egg', 1], ['spinach', 60], ['olive_oil', 1]] },
+    { name: 'Roast drumsticks + zucchini', ing: [['chicken_drumstick', 227], ['zucchini', 200], ['butter', 1]] },
+    { name: 'Turkey taco bowl, no shell', ing: [['ground_turkey', 170], ['lettuce', 94], ['avocado', 34], ['olive_oil', 1]] },
+    { name: 'Slow-roast pork shoulder + slaw', ing: [['pork_shoulder', 227], ['coleslaw', 120], ['olive_oil', 1]] },
   ];
 }
 
-// Fat-only add-on: 1 tbsp butter or olive oil (102-120 cal, 12-14f, 0p, 0c)
-const FAT_ADD = { kcal: 102, f: 12, p: 0, c: 0, unit: '1 tbsp butter (14g)' };
-// Lean protein snacks for when protein is short
+/** Lean protein snacks, for when the day is short on protein rather than energy. */
 const LEAN_SNACKS = [
-  { name: 'Hard-boiled eggs ×2', desc: '2 large eggs (100g)', kcal: 140, f: 10, p: 12, c: 1 },
-  { name: 'Turkey roll-ups', desc: '3 oz deli turkey (85g) · mustard', kcal: 90, f: 1, p: 18, c: 2 },
-  { name: 'Beef jerky', desc: '1 oz (28g)', kcal: 80, f: 1, p: 13, c: 3 },
+  { name: 'Hard-boiled eggs', ing: [['egg', 2]] },
+  { name: 'Turkey roll-ups', ing: [['deli_turkey', 85]], garnish: 'mustard' },
+  { name: 'Beef jerky', ing: [['jerky', 28]] },
 ];
 
-function scaleMeal(base, s) {
-  return { ...base, kcal: Math.round(base.kcal * s), f: Math.round(base.f * s), p: Math.round(base.p * s), c: Math.round(base.c * s) };
-}
+/**
+ * Build the seven days.
+ *
+ * Unchanged in shape from before: pick meals by protein density, scale the day to
+ * anchor protein, then close the calorie gap with fat and a snack. What changed is
+ * that every one of those steps now moves FOOD, and the macros printed on the page
+ * are summed from the food afterwards.
+ *
+ * DAY TOTALS NO LONGER LAND EXACTLY ON TARGET, and that is deliberate. Eggs come in
+ * ones and tablespoons in halves, so a day built from measurable quantities lands
+ * near the target rather than on it. tests/kd-meal-plan-executable.test.mjs pins
+ * how near: KD_DAY_KCAL_TOLERANCE either side, across the whole plausible range.
+ * The alternative is what this replaced, which hit the target exactly by printing
+ * numbers no plate had to honour.
+ */
+const KD_DAY_KCAL_TOLERANCE = 0.12;
+const KD_DAY_PROTEIN_TOLERANCE = 0.15;
 
-function buildMealPlanDays(d) {
+export function buildMealPlanDays(d) {
   // NO DEFAULTS. `prot` is not decoration here: it filters which meals are eligible
   // (minDensity, below) and scales every portion (protScale). A substituted 113 g
   // would silently reshape a real customer's week.
   requireFacts(d, ['calories', 'proteinG', 'carbG'], 'buildMealPlanDays');
   const cal = d.calories;
   const prot = d.proteinG;
-  const carb = d.carbG;
   const budget = d.budget || 'mod';
   const dairyPref = (d.dairy || '').toLowerCase();
   const noDairy = dairyPref.includes('free') || dairyPref.includes('none') || dairyPref.includes('strict');
   const lightDairy = noDairy || dairyPref.includes('light') || dairyPref.includes('little') || dairyPref.includes('bother');
   const db = getMealDatabase(lightDairy);
   const budgetDins = budget === 'tight' ? getBudgetDinners(lightDairy) : null;
+
+  /** A template's macros at scale 1, computed from its own ingredients. */
+  const base = (tpl) => kdMaterializeMeal(tpl, 1);
 
   // 1. Minimum protein density for template filtering
   const minDensity = prot / cal;
@@ -1803,8 +2096,8 @@ function buildMealPlanDays(d) {
       filtered = pool.filter(m => !premiumWords.some(w => m.name.toLowerCase().includes(w)));
       if (filtered.length < 3) filtered = pool;
     }
-    const ranked = filtered.slice().sort((a, b) => (b.p / b.kcal) - (a.p / a.kcal));
-    const good = ranked.filter(m => (m.p / m.kcal) >= minDensity * 0.65);
+    const ranked = filtered.slice().sort((a, b) => (base(b).p / base(b).kcal) - (base(a).p / base(a).kcal));
+    const good = ranked.filter(m => (base(m).p / base(m).kcal) >= minDensity * 0.65);
     return good.length >= 4 ? good : ranked.slice(0, Math.max(4, Math.ceil(filtered.length * 0.6)));
   }
   const isTight = budget === 'tight';
@@ -1814,76 +2107,117 @@ function buildMealPlanDays(d) {
 
   const days = [];
   for (let i = 0; i < 7; i++) {
-    const b = bPool[i % bPool.length];
-    const l = lPool[i % lPool.length];
-    const dn = dPool[i % dPool.length];
+    const bT = bPool[i % bPool.length];
+    const lT = lPool[i % lPool.length];
+    const dT = dPool[i % dPool.length];
 
-    // 2. Scale uniformly to anchor protein
-    const baseP = b.p + l.p + dn.p;
+    // 2. Scale the FOOD uniformly to anchor protein.
+    const baseP = base(bT).p + base(lT).p + base(dT).p;
     const protScale = baseP > 0 ? prot / baseP : 1;
-    const clamped = Math.max(0.6, Math.min(2.0, protScale));
+    const clamped = Math.max(0.45, Math.min(2.6, protScale));
 
-    const mB = { slot: 'Breakfast', ...scaleMeal(b, clamped) };
-    const mL = { slot: 'Lunch', ...scaleMeal(l, clamped) };
-    const mD = { slot: 'Dinner', ...scaleMeal(dn, clamped) };
-    const mainP = mB.p + mL.p + mD.p;
-    const mainKcal = mB.kcal + mL.kcal + mD.kcal;
+    const raw = [
+      { slot: 'Dinner', tpl: dT, meal: kdMaterializeMeal(dT, clamped) },
+      { slot: 'Breakfast', tpl: bT, meal: kdMaterializeMeal(bT, clamped) },
+      { slot: 'Lunch', tpl: lT, meal: kdMaterializeMeal(lT, clamped) },
+    ];
 
-    // 3. Fat knob: add/remove fat to hit calorie target
-    //    Half-tbsp increments (~51 kcal, 6g fat each) for finer control
-    const halfTbspKcal = 51;
-    const halfTbspF = 6;
+    // 3. Close the calorie gap by changing how much fat is in the food, spread
+    //    across the day's plates and leaving room for the snack. Expressed as a
+    //    quantity, never as an instruction to remove fat that is not there.
     const targetMainKcal = cal * 0.90;
-    const calGap = targetMainKcal - mainKcal;
-    const halfTbspAdj = Math.round(calGap / halfTbspKcal);
+    const gap = targetMainKcal - raw.reduce((a, r) => a + r.meal.kcal, 0);
+    const adjusted = kdDistributeFat(raw, gap);
+    const mB = { slot: 'Breakfast', ...adjusted.get('Breakfast') };
+    const mL = { slot: 'Lunch', ...adjusted.get('Lunch') };
+    const mD = { slot: 'Dinner', ...adjusted.get('Dinner') };
 
-    if (halfTbspAdj !== 0) {
-      mD.kcal += halfTbspAdj * halfTbspKcal;
-      mD.f += halfTbspAdj * halfTbspF;
-      const wholeTbsp = Math.abs(halfTbspAdj) / 2;
-      if (halfTbspAdj > 0) {
-        const label = wholeTbsp >= 1 ? (Number.isInteger(wholeTbsp) ? wholeTbsp : wholeTbsp.toFixed(1)) + ' tbsp' : '½ tbsp';
-        mD.desc += ` · +${label} butter`;
-      } else if (halfTbspAdj < 0) {
-        const label = wholeTbsp >= 1 ? (Number.isInteger(wholeTbsp) ? wholeTbsp : wholeTbsp.toFixed(1)) + ' tbsp' : '½ tbsp';
-        mD.desc += ` · −${label} fat`;
-      }
-      if (mD.f < 0) mD.f = 0;
-      if (mD.kcal < 100) mD.kcal = 100;
-    }
-
-    const adjustedMainKcal = mB.kcal + mL.kcal + mD.kcal;
-    const remainKcal = cal - adjustedMainKcal;
-    const remainP = prot - mainP;
-
-    // 4. Snack as final buffer — context-dependent selection
+    // 4. Snack as the final buffer, chosen for what the day is actually short of.
+    const remainKcal = cal - (mB.kcal + mL.kcal + mD.kcal);
+    const remainP = prot - (mB.p + mL.p + mD.p);
     let mS;
     if (remainP > 8) {
-      // Protein short → lean protein snack
       const lean = LEAN_SNACKS[i % LEAN_SNACKS.length];
-      const leanScale = Math.max(0.5, Math.min(3.0, remainP / lean.p));
-      mS = { slot: 'Snack', ...scaleMeal(lean, leanScale) };
-    } else if (remainKcal > 50) {
-      // Calories short, protein ok → fat-heavy snack (low protein density)
-      const fatSnacks = db.snack.filter(s => s.p <= 3);
+      const leanScale = Math.max(0.5, Math.min(4.0, remainP / Math.max(1, base(lean).p)));
+      mS = { slot: 'Snack', ...kdMaterializeMeal(lean, leanScale) };
+    } else if (remainKcal > 60) {
+      const fatSnacks = db.snack.filter(s => base(s).p <= 3);
       const sBase = fatSnacks.length > 0 ? fatSnacks[i % fatSnacks.length] : db.snack[i % db.snack.length];
-      const sScale = Math.max(0.3, Math.min(4.0, remainKcal / sBase.kcal));
-      mS = { slot: 'Snack', ...scaleMeal(sBase, sScale) };
+      const sScale = Math.max(0.3, Math.min(4.5, remainKcal / Math.max(1, base(sBase).kcal)));
+      mS = { slot: 'Snack', ...kdMaterializeMeal(sBase, sScale) };
     } else {
-      // At or over budget → minimal
-      mS = { slot: 'Snack', name: 'Celery + sea salt', desc: '3 stalks celery (90g)', kcal: 14, f: 0, p: 1, c: 2 };
+      mS = { slot: 'Snack', name: 'Celery + sea salt', ing: [], desc: '3 stalks celery (90g)', kcal: 14, f: 0, p: 1, c: 2 };
     }
 
     const meals = [mB, mL, mD, mS];
-    const totKcal = meals.reduce((a, m) => a + m.kcal, 0);
-    const totF = meals.reduce((a, m) => a + m.f, 0);
-    const totP = meals.reduce((a, m) => a + m.p, 0);
-    const totC = meals.reduce((a, m) => a + m.c, 0);
-
-    days.push({ dayNum: i + 1, dayName: DAY_NAMES[i], meals, totKcal, totF, totP, totC });
+    days.push({
+      dayNum: i + 1, dayName: DAY_NAMES[i], meals,
+      totKcal: meals.reduce((a, m) => a + m.kcal, 0),
+      totF: meals.reduce((a, m) => a + m.f, 0),
+      totP: meals.reduce((a, m) => a + m.p, 0),
+      totC: meals.reduce((a, m) => a + m.c, 0),
+    });
   }
   return days;
 }
+
+// ---------------------------------------------------------------------------
+// THE GROCERY LIST, DERIVED
+// ---------------------------------------------------------------------------
+// It used to be two hardcoded lists, one for a tight budget and one for everyone
+// else, printed under the heading "Your week's grocery list ... sized for one
+// person". It said 12 oz of steak whatever the plan called for, and it did not
+// move when the calorie target doubled. A customer at 3,200 kcal was told to buy
+// a third of the food their own plan asked them to cook.
+//
+// It is now summed from the seven days that were actually generated, then rounded
+// UP to something a shop sells. Rounding up on purpose: a list that leaves you
+// short on Thursday is worse than one that leaves a little in the fridge.
+
+/** Round a total up to a quantity a shop actually sells. */
+function kdShoppingQty(key, qty) {
+  const ing = KD_ING[key];
+  if (ing.buy === 'dozen') {
+    const dozens = Math.max(1, Math.ceil(qty / 12));
+    return `${qty <= 12 ? '1 dozen' : `${dozens} dozen`}`;
+  }
+  if (ing.unit === 'each' || ing.unit === 'strip' || ing.unit === 'link') {
+    return `${Math.ceil(qty)}`;
+  }
+  if (ing.unit === 'tbsp') {
+    const cups = qty / 16;
+    if (cups >= 0.75) return `${kdFmtNumber(Math.ceil(cups * 4) / 4)} cup`;
+    return `${Math.ceil(qty)} tbsp`;
+  }
+  // grams
+  if (ing.buy === 'each' && ing.eachG) return `${Math.max(1, Math.ceil(qty / ing.eachG))}`;
+  const lb = qty / 453.6;
+  if (lb >= 0.75) return `${kdFmtNumber(Math.ceil(lb * 4) / 4)} lb`;
+  const oz = qty / 28.35;
+  if (oz >= 1) return `${Math.ceil(oz)} oz`;
+  return `${Math.ceil(qty / 10) * 10}g`;
+}
+
+/** Aggregate every ingredient in the generated week, by aisle. */
+function kdBuildGroceryList(days) {
+  const totals = new Map();
+  for (const day of days) {
+    for (const meal of day.meals) {
+      for (const [key, qty] of (meal.ing || [])) {
+        totals.set(key, (totals.get(key) || 0) + qty);
+      }
+    }
+  }
+  const byAisle = { proteins: [], fats: [], produce: [], dairy: [], pantry: [] };
+  for (const [key, qty] of totals) {
+    const ing = KD_ING[key];
+    byAisle[ing.aisle].push([ing.plural || ing.label, kdShoppingQty(key, qty), qty]);
+  }
+  // Heaviest first, so the list reads like a trolley rather than an index.
+  for (const aisle of Object.keys(byAisle)) byAisle[aisle].sort((a, b) => b[2] - a[2]);
+  return byAisle;
+}
+
 
 function mealRow(m) {
   return `<div class="meal"><span class="slot">${m.slot}</span><span class="name">${m.name}<small>${m.desc}</small></span><span class="mm"><span class="kc">${m.kcal}</span><span class="fp"><b class="fF">F${m.f}</b> <b class="fP">P${m.p}</b> <b class="fC">C${m.c}</b></span></span></div>`;
@@ -1910,144 +2244,68 @@ function dayBlock(day) {
     </div>`;
 }
 
-function grocerySection(d) {
-  const dairyPrefGS = (d.dairy || '').toLowerCase();
-  const noDairyGS = dairyPrefGS.includes('free') || dairyPrefGS.includes('none') || dairyPrefGS.includes('strict');
-  const noDairy = noDairyGS || dairyPrefGS.includes('light') || dairyPrefGS.includes('little') || dairyPrefGS.includes('bother');
+/**
+ * The grocery list, summed from the seven days that were actually generated.
+ *
+ * Takes `days`, not `d`. That change of argument is the fix: the old version took
+ * the customer's preferences and printed one of two hardcoded lists, so it could
+ * not have reflected the plan even in principle.
+ */
+function grocerySection(d, days) {
   const budget = d.budget || 'mod';
-
-  const proteins = budget === 'tight' ? [
-    ['Ground beef 80/20', '2 lb'],
-    ['Chicken thighs &amp; drumsticks (bone-in)', '3 lb'],
-    ['Pork loin + shoulder', '2.5 lb'],
-    ['Canned salmon · canned tuna', '3 cans'],
-    ['Ground turkey 85/15', '1 lb'],
-    ['Bacon &amp; breakfast sausage', '1 pack ea'],
-    ['Eggs', '2.5 dozen'],
-  ] : [
-    ['Ribeye / sirloin steak', '12 oz'],
-    ['Chicken thighs (skin-on)', '2 lb'],
-    ['Salmon &amp; cod fillets', '1.5 lb'],
-    ['Pork chops + shoulder', '2.5 lb'],
-    ['Bacon &amp; breakfast sausage', '1 pack ea'],
-    ['Eggs', '2 dozen'],
-    ['Shrimp · canned tuna', 'as needed'],
-  ];
-
-  const fats = budget === 'tight' ? [
-    ['Olive oil (store brand)', '1 bottle'],
-    ['Butter', '1 block'],
-    ['Avocados', '4'],
-    ['Almonds or pecans', '1 bag'],
-    ['Olive-oil mayo', '1 jar'],
-  ] : [
-    ['Extra-virgin olive oil', '1 bottle'],
-    ['Grass-fed butter', '1 block'],
-    ['Avocados', '5'],
-    ['Macadamias · pecans · almonds', '1 bag ea'],
-    ['Olives', '1 jar'],
-    ['Olive-oil mayo', '1 jar'],
-  ];
-
-  const produce = [
-    ['Romaine · spinach · mixed greens', '3 bags'],
-    ['Asparagus · broccoli · green beans', '1 ea'],
-    ['Zucchini', '3'],
-    ['Cucumber · celery', '2 ea'],
-    ['Raspberries', '1 small'],
-    ['Garlic · lemon · fresh basil', '1 ea'],
-  ];
-
-  const pantry = noDairy
-    ? [
-        ['Coconut cream · almond milk', '1 ea'],
-        ['Almond flour', '1 bag'],
-        ['Chia seeds · unsweetened coconut milk', '1 ea'],
-        ['90% dark chocolate', '1 bar'],
-        ['Low-carb tortillas', '1 pack'],
-        ['Sesame oil · ginger', '1 ea'],
-      ]
-    : [
-        ['Cheddar · feta · mozzarella', 'light use'],
-        ['Cream cheese · heavy cream', '1 ea'],
-        ['Almond flour', '1 bag'],
-        ['Chia seeds · unsweetened coconut milk', '1 ea'],
-        ['90% dark chocolate', '1 bar'],
-        ['Low-carb tortillas', '1 pack'],
-      ];
+  const aisles = kdBuildGroceryList(days);
 
   function listItems(arr) {
-    return arr.map(([item, qty]) => `<li>${item} <span class="q">${qty}</span></li>`).join('\n          ');
+    return arr.length
+      ? arr.map(([item, qty]) => `<li>${item} <span class="q">${qty}</span></li>`).join('\n          ')
+      : '<li>Nothing this week <span class="q">—</span></li>';
   }
 
   const budgetTip = budget === 'tight'
     ? 'Ground beef for ribeye, chicken thighs over breasts, frozen fish and frozen spinach, and whole blocks of cheese cut down the bill the most — roughly <b>30–40%</b> versus the premium versions above, with identical macros.'
     : 'Buy in bulk where possible. Costco-size proteins and eggs save 30–40% vs grocery store prices, with identical macros.';
 
+  const pantryAndDairy = aisles.dairy.concat(aisles.pantry);
+
   return `<section class="sec">
       <div class="sec-eyebrow">Shop once</div>
       <div class="sec-title">Your week's grocery list</div>
-      <div class="sec-sub">Organized by aisle and sized for one person.${budget === 'tight' ? ' Budget-conscious swaps noted where they save the most.' : ''}</div>
+      <div class="sec-sub">Added up from the seven days above and rounded up to what a shop sells, for one person.${budget === 'tight' ? ' Budget-conscious swaps noted where they save the most.' : ''}</div>
     </section>
 
     <div class="grocery">
       <div class="gcat">
         <h4>Proteins</h4>
         <ul>
-          ${listItems(proteins)}
+          ${listItems(aisles.proteins)}
         </ul>
       </div>
       <div class="gcat">
         <h4>Fats &amp; oils</h4>
         <ul>
-          ${listItems(fats)}
+          ${listItems(aisles.fats)}
         </ul>
       </div>
       <div class="gcat">
         <h4>Produce</h4>
         <ul>
-          ${listItems(produce)}
+          ${listItems(aisles.produce)}
         </ul>
       </div>
       <div class="gcat">
-        <h4>${noDairy ? 'Pantry' : 'Dairy &amp; pantry'}</h4>
+        <h4>${aisles.dairy.length ? 'Dairy &amp; pantry' : 'Pantry'}</h4>
         <ul>
-          ${listItems(pantry)}
+          ${listItems(pantryAndDairy)}
         </ul>
       </div>
     </div>
 
-    <div class="callout" style="margin-top:24px">
+    <div class="callout" style="margin-top:16px">
       <span class="ct">${budget === 'tight' ? 'Tight-budget swaps' : 'Money-saving tip'}</span>
       ${budgetTip}
     </div>`;
 }
 
-/**
- * What a customer who declared kidney disease receives in place of the seven-day
- * plan they bought.
- *
- * This is PRODUCT ROUTING, not clinical guidance. It states what the plan would have
- * been built from, why that is not something this software may build, and who to ask
- * instead. It gives no protein figure, no portion size and no substitute target, and
- * it does not imply that a gentler version of the plan exists somewhere.
- *
- * It also tells them, in the first line, that they can have their money back. A
- * customer who paid for a meal plan and received a referral is owed that plainly and
- * without having to ask twice.
- */
-/**
- * What a reader who declared an SGLT2 inhibitor receives instead of the week of
- * meals they paid for.
- *
- * Deliberately a sibling of generateRenalMealPlanReferral rather than a shared
- * template with a reason slot: the renal page is a closed, separately tested
- * artifact, and threading a second reason through it would put every renal
- * customer's document at risk to save a few lines here.
- *
- * Copy by Sarah. It names the medication the customer reported and never names a
- * diagnosis, and it offers a refund before it offers anything else.
- */
 function generateSglt2MealPlanReferral(name, d, ctx) {
   const body = `
 <div class="page">
@@ -2332,7 +2590,7 @@ export function generateMealPlan(name, d) {
 <!-- ============ PAGE 4 — GROCERY ============ -->
 <div class="page">
   <div class="rep-body tight">
-    ${grocerySection(d)}
+    ${grocerySection(d, days)}
   </div>
   ${pageFooter(footLeft, '<a href="https://ketodial.com">ketodial.com</a>', 4, 4)}
 </div>`;
