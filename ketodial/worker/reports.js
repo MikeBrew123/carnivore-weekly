@@ -1803,14 +1803,64 @@ const KD_ING = {
   // ---- pantry -------------------------------------------------------------
   almond_flour:   { label: 'almond flour', unit: 'tbsp', g: 7, kcal: 40, f: 3.5, p: 1.5, c: 0.5, step: 0.5, min: 0.5, aisle: 'pantry', buy: 'bag' },
   tortilla:       { label: 'low-carb tortilla', plural: 'low-carb tortillas', unit: 'each', g: 38, kcal: 90, f: 4, p: 5, c: 3, step: 1, min: 1, aisle: 'pantry', buy: 'pack' },
+  celery:         { label: 'stalk celery', plural: 'stalks celery', unit: 'each', g: 30, kcal: 5, f: 0, p: 0.2, c: 0.5, step: 1, min: 1, aisle: 'produce', buy: 'bunch' },
   dark_choc:      { label: 'square 90% dark chocolate', plural: 'squares 90% dark chocolate', unit: 'each', g: 10, kcal: 60, f: 5, p: 1, c: 2, step: 1, min: 1, aisle: 'pantry', buy: 'bar' },
 };
+
+/**
+ * The increment a quantity is rounded to.
+ *
+ * For anything shown in cups, avocados or whole vegetables this is DERIVED from
+ * the display grid rather than set by hand. It has to be: the description prints
+ * both the unit and the grams, so if the rounding step and the display grid are
+ * different numbers the two halves of the same phrase disagree. "½ cup cucumber
+ * (50g)" was the result, and half a cup of cucumber is 65 g. Snapping the
+ * quantity to a quarter cup makes the printed grams the grams of that quarter
+ * cup, exactly, and the macros are then summed from the same figure.
+ *
+ * Weights shown in ounces keep their explicit 5 g step, because kdFmtIngredient
+ * already picks the ounce grid to suit the size of the portion.
+ */
+function kdStepFor(ing) {
+  // A quarter ounce. The 5 g step was not on the ounce grid either, so "4 oz
+  // ribeye steak (120g)" printed a unit worth 113 g. Weight is the number a
+  // customer with a scale actually follows, so the two must name one amount.
+  if (ing.disp === 'oz') return 28.35 / 4;
+  if (ing.disp === 'cup') return ing.cupG / 4;
+  if (ing.disp === 'avocado') return 136 / 4;
+  if (ing.disp === 'each' && ing.eachG) return ing.eachG / 2;
+  return ing.step;
+}
+
+/**
+ * The smallest quantity worth printing, also snapped to the display grid.
+ *
+ * A hand-set minimum in grams and a derived grid step are two numbers that can
+ * disagree: mushrooms carried min 20 g against a quarter-cup grid of 17.5 g, so
+ * a legitimate quarter cup sat just under its own floor. One quarter of the
+ * display unit is the floor for anything measured that way.
+ */
+function kdMinFor(ing) {
+  // ROUNDED THE SAME WAY THE QUANTITY IS. kdRoundQty snaps to two decimals and
+  // this did not, so a jerky portion of 21.26 g failed a floor of 21.2625 g by
+  // two and a half thousandths of a gram, the ingredient was dropped, the snack
+  // came out at zero calories and a 6,000 kcal day silently lost 1,000 of them.
+  // Two functions rounding the same grid differently is the same class of defect
+  // as two places holding the same meal.
+  const raw = ing.disp === 'oz' ? Math.ceil(ing.min / (28.35 / 4)) * (28.35 / 4)
+    : ing.disp === 'cup' ? ing.cupG / 4
+      : ing.disp === 'avocado' ? 136 / 4
+        : (ing.disp === 'each' && ing.eachG) ? ing.eachG / 2
+          : ing.min;
+  return Math.round(raw * 100) / 100;
+}
 
 /** Round to a step a person can actually measure, never below the useful minimum. */
 function kdRoundQty(key, qty) {
   const ing = KD_ING[key];
-  const stepped = Math.round(qty / ing.step) * ing.step;
-  // Two decimals kills float dust from 0.5-steps; nothing here needs more.
+  const step = kdStepFor(ing);
+  const stepped = Math.round(qty / step) * step;
+  // Two decimals kills float dust from half-steps; nothing here needs more.
   return Math.round(stepped * 100) / 100;
 }
 
@@ -1853,14 +1903,13 @@ function kdFmtIngredient(key, qty) {
   }
   // unit === 'g'
   if (ing.disp === 'oz') {
-    // Quarter-ounce precision under 4 oz. At half-ounce steps a 20 g portion of
-    // macadamias printed as "½ oz (20g)", and half an ounce is 14 g: the two
-    // halves of the same phrase disagreed, which is the defect in miniature.
-    const oz = qty / 28.35;
-    const grid = oz < 4 ? 4 : 2;
-    return `${kdFmtNumber(Math.round(oz * grid) / grid)} oz ${ing.label} (${Math.round(qty)}g)`;
+    // Quarter-ounce precision throughout, because that is the grid the quantity
+    // was rounded onto. At half ounces a 20 g portion of macadamias printed as
+    // "½ oz (20g)" and half an ounce is 14 g: the two halves of the same phrase
+    // disagreed, which is this whole blocker in miniature.
+    return `${kdFmtNumber(Math.round((qty / 28.35) * 4) / 4)} oz ${ing.label} (${Math.round(qty)}g)`;
   }
-  if (ing.disp === 'cup') return `${kdFmtNumber(Math.round((qty / ing.cupG) * 4) / 4)} cup${qty / ing.cupG >= 1.9 ? 's' : ''} ${ing.label} (${Math.round(qty)}g)`;
+  if (ing.disp === 'cup') return `${kdFmtNumber(Math.round((qty / ing.cupG) * 4) / 4)} cup${qty / ing.cupG > 1.001 ? 's' : ''} ${ing.label} (${Math.round(qty)}g)`;
   if (ing.disp === 'avocado') return `${kdFmtNumber(Math.round((qty / 136) * 4) / 4)} avocado (${Math.round(qty)}g)`;
   if (ing.disp === 'each') return `${kdFmtNumber(Math.round((qty / ing.eachG) * 2) / 2)} ${ing.label} (${Math.round(qty)}g)`;
   return `${Math.round(qty)}g ${ing.label}`;
@@ -1886,7 +1935,9 @@ function kdMaterializeMeal(tpl, scale) {
     const raw = baseQty * scale;
     const capped = KD_FAT_KEYS.includes(key) ? Math.min(raw, KD_FAT_MAX_TBSP) : raw;
     const q = kdRoundQty(key, capped);
-    if (q >= KD_ING[key].min) ing.push([key, q]);
+    // The minimum is snapped to the same grid, so a quantity can never be
+    // dropped for sitting a rounding error under a threshold off the grid.
+    if (q >= kdMinFor(KD_ING[key])) ing.push([key, q]);
   }
   return kdFinishMeal(tpl, ing);
 }
@@ -2067,6 +2118,13 @@ const LEAN_SNACKS = [
  * The alternative is what this replaced, which hit the target exactly by printing
  * numbers no plate had to honour.
  */
+/** How many snacks a day may carry, and how far one may be scaled. Three
+ *  ordinary snacks beat one impossible one. */
+const KD_MAX_SNACKS = 5;
+const KD_SNACK_MAX_SCALE = 3.0;
+/** The fallback when a day needs nothing more. Real ingredients, so it reaches
+ *  the grocery list like everything else does. */
+const KD_CELERY_SNACK = { name: 'Celery + sea salt', ing: [['celery', 3]] };
 const KD_DAY_KCAL_TOLERANCE = 0.12;
 const KD_DAY_PROTEIN_TOLERANCE = 0.15;
 
@@ -2114,7 +2172,12 @@ export function buildMealPlanDays(d) {
     // 2. Scale the FOOD uniformly to anchor protein.
     const baseP = base(bT).p + base(lT).p + base(dT).p;
     const protScale = baseP > 0 ? prot / baseP : 1;
-    const clamped = Math.max(0.45, Math.min(2.6, protScale));
+    // THE CEILING IS WHAT THE TOP OF THE RANGE COSTS. At 2.6 the three main
+    // meals froze at about 2,990 kcal however high the target went, so a 6,000
+    // kcal customer had 3,000 kcal of snacks to find and a page that promised a
+    // number the food never reached. 3.5 lets the plates grow instead. They get
+    // large, and they are supposed to: this is what 6,000 kcal looks like.
+    const clamped = Math.max(0.45, Math.min(3.5, protScale));
 
     const raw = [
       { slot: 'Dinner', tpl: dT, meal: kdMaterializeMeal(dT, clamped) },
@@ -2132,24 +2195,40 @@ export function buildMealPlanDays(d) {
     const mL = { slot: 'Lunch', ...adjusted.get('Lunch') };
     const mD = { slot: 'Dinner', ...adjusted.get('Dinner') };
 
-    // 4. Snack as the final buffer, chosen for what the day is actually short of.
-    const remainKcal = cal - (mB.kcal + mL.kcal + mD.kcal);
-    const remainP = prot - (mB.p + mL.p + mD.p);
-    let mS;
-    if (remainP > 8) {
-      const lean = LEAN_SNACKS[i % LEAN_SNACKS.length];
-      const leanScale = Math.max(0.5, Math.min(4.0, remainP / Math.max(1, base(lean).p)));
-      mS = { slot: 'Snack', ...kdMaterializeMeal(lean, leanScale) };
-    } else if (remainKcal > 60) {
-      const fatSnacks = db.snack.filter(s => base(s).p <= 3);
-      const sBase = fatSnacks.length > 0 ? fatSnacks[i % fatSnacks.length] : db.snack[i % db.snack.length];
-      const sScale = Math.max(0.3, Math.min(4.5, remainKcal / Math.max(1, base(sBase).kcal)));
-      mS = { slot: 'Snack', ...kdMaterializeMeal(sBase, sScale) };
-    } else {
-      mS = { slot: 'Snack', name: 'Celery + sea salt', ing: [], desc: '3 stalks celery (90g)', kcal: 14, f: 0, p: 1, c: 2 };
+    // 4. Snacks as the final buffer, chosen for what the day is actually short of.
+    //
+    // MORE THAN ONE, because one could not do it. A single snack scaled to close
+    // the gap hit its 4.5x ceiling and stopped: a 4,451 kcal customer, which the
+    // live calculator produces for a 130 kg athlete, was left 634 kcal short on
+    // one day and 1,361 short across the week, under a page that printed
+    // "TARGET 4,451 kcal/d" at the top. Scaling one snack further is not the
+    // answer either; nine squares of chocolate is not a snack. Two or three
+    // ordinary ones are.
+    let remainKcal = cal - (mB.kcal + mL.kcal + mD.kcal);
+    let remainP = prot - (mB.p + mL.p + mD.p);
+    const snacks = [];
+    const fatSnacks = db.snack.filter(s => base(s).p <= 3);
+    for (let n = 0; n < KD_MAX_SNACKS && (remainKcal > 60 || remainP > 8); n++) {
+      let tpl, scale;
+      if (remainP > 8) {
+        tpl = LEAN_SNACKS[(i + n) % LEAN_SNACKS.length];
+        scale = Math.max(0.5, Math.min(KD_SNACK_MAX_SCALE, remainP / Math.max(1, base(tpl).p)));
+      } else {
+        const pool = fatSnacks.length > 0 ? fatSnacks : db.snack;
+        tpl = pool[(i + n) % pool.length];
+        scale = Math.max(0.3, Math.min(KD_SNACK_MAX_SCALE, remainKcal / Math.max(1, base(tpl).kcal)));
+      }
+      const made = kdMaterializeMeal(tpl, scale);
+      if (made.kcal <= 0) break;
+      snacks.push({ slot: snacks.length === 0 ? 'Snack' : `Snack ${snacks.length + 1}`, ...made });
+      remainKcal -= made.kcal;
+      remainP -= made.p;
+    }
+    if (snacks.length === 0) {
+      snacks.push({ slot: 'Snack', ...kdMaterializeMeal(KD_CELERY_SNACK, 1) });
     }
 
-    const meals = [mB, mL, mD, mS];
+    const meals = [mB, mL, mD, ...snacks];
     days.push({
       dayNum: i + 1, dayName: DAY_NAMES[i], meals,
       totKcal: meals.reduce((a, m) => a + m.kcal, 0),

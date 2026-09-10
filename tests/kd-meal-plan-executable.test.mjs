@@ -73,21 +73,39 @@ function intake(cal, over = {}) {
 
 // The declared policy, asserted rather than assumed. Both were measured across
 // 800-3600 kcal and all three preference variants before being written down.
-const KCAL_TOLERANCE = 0.10;
-const PROTEIN_TOLERANCE = 0.16;
+// Measured across the whole supported range, 800-6000 kcal, four preference
+// variants, 5,852 generated days. Written down after measuring, not before.
+// Protein is the looser of the two and the binding case is the FLOOR, not the
+// ceiling: at 850 kcal the smallest printable portions already carry more
+// protein than the target asks for, and shrinking them further would print
+// amounts nobody can measure.
+const KCAL_TOLERANCE = 0.08;
+const PROTEIN_TOLERANCE = 0.18;
 /** A plate may carry a lot of fat on a ketogenic plan. It may not carry a stick. */
 const MAX_FAT_TBSP_PER_MEAL = 5;
 /** How closely the summed ingredients must reproduce the printed meal macros. */
 const MEAL_ROUNDING_SLACK = 2;
 
+// THE WHOLE SUPPORTED RANGE, not a comfortable slice of it.
+//
+// This list used to stop at 3,400 kcal. The first breach of the calorie promise
+// was at 3,685, about 285 kcal past the end of the sweep, and it got worse from
+// there: at 6,000 a day delivered 36% under the number printed at the top of the
+// customer's own page. intake.js bounds calories at [800, 6000] and the live
+// calculator reaches 4,451 for a 130 kg athlete, so every one of those is a
+// customer the product accepts. A suite that tests where the code is comfortable
+// is not testing the code.
 const LEVELS = [
-  ['low', 900], ['moderate-low', 1500], ['moderate', 1650], ['moderate-high', 1800],
-  ['high', 3000], ['very high', 3400],
+  ['floor', 800], ['low', 900], ['moderate-low', 1500], ['moderate', 1650],
+  ['moderate-high', 1800], ['upper-moderate', 2400], ['high', 3000],
+  ['very high', 3400], ['first-breach-was-here', 3700], ['athlete', 4451],
+  ['extreme', 5000], ['ceiling', 6000],
 ];
 const VARIANTS = [
   ['standard', {}],
   ['dairy-free', { dairy: 'strict dairy-free' }],
   ['tight budget', { budget: 'tight' }],
+  ['dairy-free + tight', { dairy: 'strict dairy-free', budget: 'tight' }],
 ];
 const FAT_KEYS = ['butter', 'olive_oil', 'coconut_oil', 'sesame_oil', 'mayo', 'heavy_cream', 'coconut_cream'];
 
@@ -187,8 +205,16 @@ for (const { label, days } of PLANS) {
     for (const meal of day.meals) {
       for (const [key, q] of (meal.ing || [])) {
         check('D', `${label} ${meal.slot}: ${key} quantity is positive`, q > 0, String(q));
-        check('D', `${label} ${meal.slot}: ${key} is at or above its printable minimum`,
-          q >= KD_ING_FOR_TEST[key].min, `${q} < ${KD_ING_FOR_TEST[key].min}`);
+        // The floor is one unit of whatever grid the ingredient is measured on,
+        // which for cups and whole vegetables is finer than the hand-set gram
+        // figure. Asserting a measurable, printable amount rather than restating
+        // the library's own constant back at it.
+        const grid = KD_ING_FOR_TEST[key].disp === 'cup' ? KD_ING_FOR_TEST[key].cupG / 4
+          : KD_ING_FOR_TEST[key].disp === 'avocado' ? 34
+            : KD_ING_FOR_TEST[key].disp === 'each' && KD_ING_FOR_TEST[key].eachG
+              ? KD_ING_FOR_TEST[key].eachG / 2 : KD_ING_FOR_TEST[key].min;
+        check('D', `${label} ${meal.slot}: ${key} is a measurable amount`,
+          q >= grid - 0.01, `${q} < ${grid}`);
       }
       check('D', `${label} ${meal.slot}: no "minus fat" instruction`,
         !/(^|\s)[−-]\s*\d|minus/i.test(meal.desc), meal.desc);
@@ -225,6 +251,15 @@ function groceryItems(html) {
   const low = groceryItems(generateMealPlan('Jane', intake(900)));
   const high = groceryItems(generateMealPlan('Jane', intake(3000)));
   check('F', 'the grocery list is not empty', low.length > 0);
+  // The fallback snack used to carry `ing: []`, so its celery was written on the
+  // plan and never on the list. Anything the week tells you to eat is something
+  // the week tells you to buy.
+  for (const { label, days } of PLANS) {
+    for (const day of days) for (const meal of day.meals) {
+      check('F', `${label} ${meal.slot}: every meal carries ingredients the list can see`,
+        Array.isArray(meal.ing) && meal.ing.length > 0, meal.desc);
+    }
+  }
   const lowMap = new Map(low), highMap = new Map(high);
   const shared = [...lowMap.keys()].filter(k => highMap.has(k));
   check('F', 'the two plans share ingredients to compare', shared.length >= 5);
@@ -299,6 +334,58 @@ function groceryItems(html) {
 }
 
 // ===========================================================================
+// GROUP J — the unit and the grams beside it describe the same amount
+// ===========================================================================
+//
+// Every quantity is printed twice, once in the unit a shopper thinks in and once
+// in grams. The ounce path was repaired for this during implementation; the cup,
+// avocado and whole-vegetable paths were not, and printed "½ cup cucumber (50g)"
+// when half a cup of cucumber is 65 g, and "¼ cup raspberries (20g)" when a
+// quarter cup is 31 g. Off by up to 54%.
+//
+// A customer measuring with cups and a customer measuring with a scale must end
+// up with the same plate, or one of them is not eating the macros we printed.
+{
+  const FRAC = { '¼': 0.25, '½': 0.5, '¾': 0.75, '⅓': 1 / 3, '⅔': 2 / 3 };
+  const asNumber = (t) => {
+    const m = t.match(/^(\d*)([¼½¾⅓⅔])?$/);
+    if (!m) return parseFloat(t);
+    return (m[1] ? parseInt(m[1], 10) : 0) + (m[2] ? FRAC[m[2]] : 0);
+  };
+  const byLabel = {};
+  for (const k of Object.keys(KD_ING_FOR_TEST)) byLabel[KD_ING_FOR_TEST[k].label] = KD_ING_FOR_TEST[k];
+  let checked = 0;
+  for (const { label, days } of PLANS) {
+    for (const day of days) for (const meal of day.meals) {
+      for (const part of meal.desc.split(' · ')) {
+        let m2 = part.match(/^([\d¼½¾⅓⅔]+) cups? ([a-z ]+?) \((\d+)g\)$/);
+        if (m2 && byLabel[m2[2]] && byLabel[m2[2]].cupG) {
+          checked++;
+          const implied = byLabel[m2[2]].cupG * asNumber(m2[1]);
+          check('J', `${label}: "${part}" — the cups and the grams agree`,
+            Math.abs(implied - Number(m2[3])) <= 1.5, `unit implies ${Math.round(implied)}g`);
+        }
+        m2 = part.match(/^([\d¼½¾]+) avocado \((\d+)g\)$/);
+        if (m2) {
+          checked++;
+          const implied = 136 * asNumber(m2[1]);
+          check('J', `${label}: "${part}" — the fraction and the grams agree`,
+            Math.abs(implied - Number(m2[2])) <= 1.5, `unit implies ${Math.round(implied)}g`);
+        }
+        m2 = part.match(/^([\d¼½¾]+) oz ([a-z0-9/ ]+?) \((\d+)g\)$/);
+        if (m2) {
+          checked++;
+          const implied = 28.35 * asNumber(m2[1]);
+          check('J', `${label}: "${part}" — the ounces and the grams agree`,
+            Math.abs(implied - Number(m2[3])) <= 1.5, `unit implies ${Math.round(implied)}g`);
+        }
+      }
+    }
+  }
+  check('J', 'enough dual-unit phrases were actually examined', checked > 200, String(checked));
+}
+
+// ===========================================================================
 // GROUP I — mutation
 // ===========================================================================
 const MUTATIONS = [
@@ -306,14 +393,15 @@ const MUTATIONS = [
     // The original defect exactly: portions frozen at base while the macro
     // numbers are multiplied. This is what scaleMeal() did.
     name: 'scaleMeal is back: macros scale, portions do not',
-    apply: (s) => s.replace(
-      '    const q = kdRoundQty(key, capped);\n    if (q >= KD_ING[key].min) ing.push([key, q]);\n  }\n  return kdFinishMeal(tpl, ing);',
-      `    const q = kdRoundQty(key, baseQty);
-    if (q >= KD_ING[key].min) ing.push([key, q]);
-  }
-  const m = kdFinishMeal(tpl, ing);
-  return { ...m, kcal: Math.round(m.kcal * scale), f: Math.round(m.f * scale),
-           p: Math.round(m.p * scale), c: Math.round(m.c * scale) };`),
+    apply: (s) => s
+      // freeze the portions at base scale ...
+      .replace('const q = kdRoundQty(key, capped);', 'const q = kdRoundQty(key, baseQty);')
+      // ... and multiply the macros afterwards, exactly as scaleMeal() did
+      .replace(
+        '  return kdFinishMeal(tpl, ing);\n}\n\n/** Sum a materialised',
+        '  const mm = kdFinishMeal(tpl, ing);\n'
+        + '  return { ...mm, kcal: Math.round(mm.kcal * scale), f: Math.round(mm.f * scale),\n'
+        + '           p: Math.round(mm.p * scale), c: Math.round(mm.c * scale) };\n}\n\n/** Sum a materialised'),
     caught: ['A', 'B'],
   },
   {
@@ -423,7 +511,7 @@ if (failures.length) {
   console.error('loosen an assertion to go green: that gap is what this blocker was.\n');
   process.exit(1);
 }
-console.log(`\nkd-meal-plan-executable: ${passed} passed, 0 failed  (groups A B C D E F G H I)\n`);
+console.log(`\nkd-meal-plan-executable: ${passed} passed, 0 failed  (groups A B C D E F G H I J)\n`);
 console.log(`Every printed macro is the sum of the printed food. Days land within`);
 console.log(`${KCAL_TOLERANCE * 100}% of the calorie target and ${PROTEIN_TOLERANCE * 100}% of protein, the grocery list is`);
 console.log(`added up from the week, and no plate carries more than ${MAX_FAT_TBSP_PER_MEAL} tbsp of fat.\n`);
