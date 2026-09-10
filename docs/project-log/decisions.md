@@ -1720,3 +1720,40 @@ meaningful because at that point the business funds the tools that improve it.
 The operative question is no longer "what should we build" but **"what gets us the next
 sale"**. New apps, new verticals and large refactors are off the table until the target is
 met consistently. Applies to Coach and to any further KD work.
+
+## 2026-09-10 — Six Command Deck answers (Brew, tapped 05:40 to 05:44 PDT)
+
+First deck taps since 2026-09-04. Answered six of eight pending items in four minutes, about
+70 minutes after the morning journal-loop email went out. Two items deliberately left pending.
+
+| Deck | Question | His answer |
+|---|---|---|
+| `0a4bcd0b` | KD says 4,000-7,000 mg sodium, CW says 3,000-5,000. Which is right? | align Keto Dial to 3,000-5,000 |
+| `743206bc` | 71 live posts carry em-dashes. Sample of 5 first? | yes, do the sample of 5 |
+| `bc5b446d` | Private issue tracker published in a public repo. Purge the public rows? | yes, purge it and draft me the ticket |
+| `85ae6bba` | `carnivoreweekly.com/desserts.html` sells keto dessert cards on the carnivore brand | move it to KetoDial with a forward |
+| `6188b0f5` | Add ketodial.com as a second sending domain? | more info needed: "yes, we are going to do this.. I just need some time to assist.. I don't think you can do it all with out me being available" |
+| `920ebe5a` | Resend hit 100% of its daily cap. Alarm, or pay $20/mo? | watch it with a 429 alarm, do not pay yet |
+
+**Still pending and NOT answered:** `2c27a5a9` (three fasting posts now publish no potassium
+dose, keep or revert) and `3ff9c1aa` (broken paid-report route).
+
+**`3ff9c1aa` IS MOOT AND MUST NOT BE RE-ASKED.** Measured live 2026-09-10 14:1x:
+`carnivoreweekly.com/calculator/report.html` now returns 404, not the 200 the question was
+written against. Commit `dfb7f510` ("chore: delete the orphaned report viewer page", 05:47 today)
+deleted `public/calculator/report.html`, and it is an ancestor of `origin/main`. The page was an
+orphan and is gone, so no customer can reach a broken page. Two dead references remain
+(`docs/tools/test/test-report-generation.js:121` and an entry in the `scripts/validate.py`
+exclusion list); the validator one is harmless because it only excludes a file that no longer
+exists.
+
+**Sodium, re-measured before acting:** exactly ONE wrong occurrence repo-wide,
+`data/drip-emails/kd/day-2.html` line 48. KetoDial's own blog pages already say 3,000 to 5,000
+(`ketodial/public/blog/keto-electrolytes-doses.html` 173/177, `keto-flu-electrolyte-fix.html` 198,
+`keto-stall-checklist.html` 204). So the day-2 welcome email contradicted the electrolyte guide it
+links to later in the same email. Narrower and sharper than the deck question stated.
+
+**The beads force-push is NOT covered by this approval and was deliberately held.** Rewriting
+published history would strand three live branches (`fix/revenue-readiness-batch1`,
+`review/kd-report-v1-candidate`, `chore/delete-orphan-report-page`, the last also on the remote).
+Purge rehearsed and the GitHub ticket drafted; the irreversible step waits for his line.
