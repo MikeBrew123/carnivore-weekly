@@ -781,3 +781,20 @@ decided. Grep for a second call into `foodDatabase` outside the meal planner. GR
 of the integrity fixture is the tripwire; D5 scans all of `api/` for a new offender.
 `api/generate-report.js` is a dormant duplicate still carrying the original design and
 is named in that test's KNOWN_DORMANT allowlist.
+
+## ISSUE-078 — Calculator Step 1: form filled in, Continue does nothing, no message
+🟢 FIXED (2026-09-10)
+Pattern: validation raised an error under a key no field renders. The unit toggle cleared
+height on every tap (even re-tapping the active "ft / in") and weight on every switch, and
+the resulting `height` error had no home on screen. Separately, metric heights like 182 cm
+were stored as 5 ft 12 in and failed an inches check against a field metric readers cannot
+see. Grey placeholders "5" and "10" made the emptied fields look filled.
+Attempts:
+- 2026-09-10: found by the mobile visual audit on production (375/390/430). Fix:
+  `calculator2-demo/src/lib/unitSystem.ts` converts instead of clearing, the active unit is
+  a no-op, height is validated per unit system, one message renders under the height row
+  (aria-describedby), focus and scroll go to the first invalid field, placeholders ft/in/cm.
+  Tests: `tests/step1-unit-toggle.test.mjs`, `tests/step1-units-and-errors.test.mjs`
+  (real browser, 4 widths). Mutation: restoring clear-on-toggle fails 9 node / 24 browser checks.
+If recurs: compare every `newErrors.<key>` in a step with what its JSX renders. An error key
+with no rendered home is a dead Continue button.
