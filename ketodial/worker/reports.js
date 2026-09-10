@@ -1092,6 +1092,111 @@ const PRINT_BUTTON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentCo
 // HTML SHELL
 // ─────────────────────────────────────────────────
 
+/**
+ * SCREEN LAYOUT FOR PHONES.
+ *
+ * The reports were built as documents: `.page` is 8.5in wide, the gutters are in
+ * inches, and the only media query in the file was `@media print`. On a 390px
+ * phone every paid report rendered 816px wide, so the reader saw 48% of the page
+ * and had to drag sideways for the other half of every line. Headings were cut
+ * mid-word and the four-cell patient snapshot showed two cells. The delivery
+ * email's only instruction is "click any report below to view it in your
+ * browser", and there is no attached PDF, so this is how most customers meet the
+ * thing they paid for.
+ *
+ * WHY THIS IS A SEPARATE CONSTANT, appended AFTER the per-report CSS in
+ * htmlShell rather than added to SHARED_CSS. Media queries do not raise
+ * specificity, so a `.meal` rule inside a query in SHARED_CSS would lose to the
+ * plain `.meal` rule that MEAL_CSS defines further down the stylesheet. Last
+ * wins, so these have to be last.
+ *
+ * `@media screen` on purpose: print is untouched and keeps the 8.5in document
+ * page, which the existing `@media print` block already handles. The browser
+ * report adapts, the printable report stays printable, and the mobile test
+ * asserts both.
+ *
+ * NOTHING IS HIDDEN. There is no `display:none` here and there must never be:
+ * `.page` carries `overflow:hidden`, so anything still too wide is CLIPPED
+ * rather than scrolled to, and a clipped renal referral or a clipped medication
+ * warning is the failure mode this whole audit exists to prevent. Everything
+ * below reflows, shrinks or wraps. `min-width:0` on grid and flex children is
+ * the load-bearing line: without it a grid child refuses to shrink below its
+ * content and pushes the page wide again from the inside.
+ */
+const SCREEN_CSS = `
+@media screen and (max-width:860px){
+  body{padding:0 0 28px}
+  .page{width:100%;max-width:100%;min-height:0;margin:0 0 12px;box-shadow:none;border-bottom:1px solid var(--line)}
+
+  /* On desktop the Save-as-PDF button floats in the margin beside the page. On a
+     phone there is no margin, so a fixed button lands on top of the report's own
+     header. It becomes an ordinary row above the document instead. */
+  .printbar{position:static;justify-content:flex-end;padding:10px 14px 0}
+
+  /* Inches are a print unit. On a 320px screen 0.6in of gutter each side eats
+     a third of the readable width. */
+  .rep-head{padding:20px 16px 18px}
+  .rep-body,.rep-body.tight{padding:18px 16px 16px}
+  .rep-foot{padding:12px 16px;flex-wrap:wrap;gap:4px;justify-content:flex-start;text-align:left}
+
+  .rep-head h1{font-size:24px;line-height:1.12}
+  .rh-top{margin-bottom:16px}
+  .rh-title-row{flex-direction:column;align-items:flex-start;gap:12px}
+  .rh-meta{text-align:left;flex:1 1 auto}
+  .rh-prepared{font-size:13px}
+
+  /* Multi-column layouts collapse. Two cells still read on a phone; four do not. */
+  .stat-grid.c4,.stat-grid.c3{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr;gap:16px}
+  .pt-row{grid-template-columns:1fr;gap:18px}
+  .intervention{grid-template-columns:1fr;gap:18px;padding:16px}
+  .minigauge{width:100%;max-width:190px;margin:0 auto}
+  .sign-block .sl{flex-direction:column;gap:22px}
+
+  /* The macro panel: keep the label, bar and value, just narrower. */
+  .ml{grid-template-columns:66px 1fr auto;gap:9px}
+  .ml .val{min-width:0;font-size:12px}
+  .ml .val small{display:block}
+
+  /* Meal plan */
+  .targets{gap:8px;padding:12px 14px}
+  .week-glance{grid-template-columns:repeat(4,1fr);gap:6px}
+  .day-head{flex-wrap:wrap;gap:6px;padding:10px 14px}
+  .meal{grid-template-columns:1fr;gap:3px;padding:11px 14px}
+  .meal .mm{justify-content:flex-start;flex-wrap:wrap;gap:8px;margin-top:2px}
+  .daytot{flex-wrap:wrap;gap:8px;padding:9px 14px}
+  .stackbar{width:100%;max-width:150px}
+  .grocery{grid-template-columns:1fr;gap:18px}
+
+  /* Starter kit */
+  .timeline,.elyte,.cheat{grid-template-columns:1fr;gap:12px}
+  .supp-grid{grid-template-columns:1fr}
+  .lede{font-size:16px}
+
+  /* Dense tables stay whole: smaller type, tighter cells, and cells that wrap. */
+  .dtable{font-size:12px;table-layout:fixed}
+  .dtable th,.dtable td{padding:8px 9px}
+
+  /* Nothing may be pushed out of the page from the inside. */
+  .page *{min-width:0}
+  .rep-body,.sec,.callout,.dtable th,.dtable td,.meal .name,.meal .name small,
+  .gcat li,.tcard p,.food .fn,.stat .v{overflow-wrap:anywhere}
+}
+
+/* The narrow phones, where two columns of anything stop working. */
+@media screen and (max-width:400px){
+  .stat-grid.c4,.stat-grid.c3,.stat-grid.c2{grid-template-columns:1fr}
+  .week-glance{grid-template-columns:repeat(3,1fr)}
+  .rep-head h1{font-size:21px}
+  .rep-head{padding:18px 14px 16px}
+  .rep-body,.rep-body.tight{padding:16px 14px 14px}
+  .rep-foot{padding:11px 14px}
+  .meal{padding:10px 14px}
+  .dtable{font-size:11.5px}
+  .dtable th,.dtable td{padding:7px 7px}
+}
+`;
+
 function htmlShell(title, extraCSS, bodyContent) {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1102,7 +1207,7 @@ function htmlShell(title, extraCSS, bodyContent) {
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,16..72,400;0,16..72,500;1,16..72,400&display=swap" rel="stylesheet" />
-<style>${SHARED_CSS}${extraCSS}</style>
+<style>${SHARED_CSS}${extraCSS}${SCREEN_CSS}</style>
 </head>
 <body>
 
