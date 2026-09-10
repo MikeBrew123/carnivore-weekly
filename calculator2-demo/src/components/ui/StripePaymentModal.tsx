@@ -416,7 +416,12 @@ export default function StripePaymentModal({
               color: '#6b7280',
               marginTop: '6px',
             }}>
-              We'll send your personalized protocol to this email.
+              {/* Sarah's approved line for the same claim on the health-profile screen,
+                  in the future tense because this one is shown before payment. Nothing
+                  sends the finished protocol; the reader presses Email My Report for
+                  that, and the automatic email is the return link. */}
+              We'll email your return link to this address. Nothing else is sent there
+              unless you press Email My Report.
             </p>
           </div>
 

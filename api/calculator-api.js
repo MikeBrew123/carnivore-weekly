@@ -1539,6 +1539,15 @@ async function handleReportStatus(request, env, accessToken) {
   }
 }
 
+// What a reader is told when report generation fails for a reason they cannot act on.
+// Deliberately says nothing about WHY: the reasons are gate text, model corrections and
+// database errors. It states what is true and what they can do, and nothing else. It
+// promises no email, because nothing here sends one.
+const REPORT_GENERATION_FAILED_MESSAGE =
+  'We could not finish building your report. Your payment is safe and your answers ' +
+  'are saved. Please try again, and if it happens a second time use the feedback ' +
+  'button on the site so we can finish it for you.';
+
 /**
  * POST /api/v1/calculator/report/init
  * Initialize report generation with Claude API
@@ -1804,8 +1813,15 @@ async function handleReportInit(request, env) {
       },
     }, 200);
   } catch (err) {
-    console.error('handleReportInit error:', err);
-    return createErrorResponse('INTERNAL_ERROR', String(err), 500);
+    // The detail stays server side, where it is useful. It does not go to the reader.
+    //
+    // This returned `String(err)`, and the browser prints that message verbatim in the
+    // failure banner. A content-gate failure quotes the rejected report copy, names the
+    // gate, and explains what the model should have written instead; a persistence
+    // failure carries PostgREST internals. A paying customer read the first of those on
+    // 2026-09-09. None of it is theirs to see, and none of it helps them.
+    console.error('[handleReportInit] generation failed:', err && err.stack ? err.stack : String(err));
+    return createErrorResponse('INTERNAL_ERROR', REPORT_GENERATION_FAILED_MESSAGE, 500);
   }
 }
 
@@ -2391,7 +2407,88 @@ function assertRenderedPlanIsComplete(mealPlan, renderedDayNumbers) {
   }
 }
 
+/**
+ * What Reports #3 and #4 say when the meal plan is withheld.
+ *
+ * Written by Sarah (sarah-health-coach) on 2026-09-09 and used verbatim. The brief was
+ * narrow: say what is missing and why, acknowledge that the right amount depends on
+ * clinical information this questionnaire does not have, and send that decision to the
+ * reader's doctor or renal dietitian. No substitute figure, no renal diet, no claim
+ * that this way of eating suits kidney disease, no promised outcome. 111 words across
+ * both notices.
+ *
+ * "what you told us about your kidneys" is deliberate. A reader who answered that they
+ * are not sure about their kidney function gets the same suppression, and must not be
+ * handed a diagnosis they did not give us.
+ *
+ * The headings match the templates these replace, so the report keeps 13 sections in
+ * the same order. Nothing is renumbered.
+ */
+const RENAL_MEAL_CALENDAR_NOTICE =
+  'Because of what you told us about your kidneys, this report does not set a protein ' +
+  'target for you, so we are not printing a meal calendar with portion amounts. The ' +
+  'right amounts depend on clinical information this questionnaire does not have. ' +
+  '**Ask your doctor or a renal dietitian what your intake should be**, and build your ' +
+  'meals around their guidance.';
+
+const RENAL_GROCERY_LIST_NOTICE =
+  'This shopping list is built from the meal calendar, so without portion amounts ' +
+  'there are no quantities to buy. The rest of your report is unchanged. Once your ' +
+  'doctor or renal dietitian tells you what your intake should be, use their number to ' +
+  'work out how much to shop for.';
+
+/**
+ * The heading is taken FROM the template it replaces, not retyped beside it. A
+ * hardcoded copy agrees on the day it is written and silently disagrees the day
+ * someone renames the section, which is how a report ends up with two titles for the
+ * same thing. Same reasoning as the tracker renumber in generateAllReports: if the
+ * heading it depends on moves, fail rather than ship something malformed.
+ */
+function suppressedSection(templateName, expectedNumber, notice) {
+  const heading = String(getTemplateContent(templateName) || '').split('\n')[0];
+  if (!new RegExp(`^## Report #${expectedNumber}:`).test(heading)) {
+    throw new Error(
+      `suppressedSection: ${templateName} no longer starts with a "## Report #${expectedNumber}:" ` +
+      'heading, so the suppressed section would not match the one it replaces.'
+    );
+  }
+  return `${heading}\n\n${notice}`;
+}
+
+function buildSuppressedMealCalendarSection() {
+  return suppressedSection('mealCalendar', 3, RENAL_MEAL_CALENDAR_NOTICE);
+}
+
+function buildSuppressedGroceryListSection() {
+  return suppressedSection('shoppingList', 4, RENAL_GROCERY_LIST_NOTICE);
+}
+
 function generateFullMealPlan(data) {
+  // THE SUPPRESSION BOUNDARY. This plan is protein-anchored: portions are sized to
+  // hit data.macros.protein_grams, and the grocery list is derived from the portions.
+  // So for a reader whose protein target is withheld, the plan IS the withheld number,
+  // written as food. Hiding the figure in prose while the calendar tells them to cook
+  // 474 g of meat a day is not suppression, it is the same recommendation in a
+  // different unit. Verified 2026-09-09: a declared-CKD persona's day 1 was identical
+  // to the healthy baseline's, in the same report that says we set no protein target.
+  //
+  // Refusing HERE, rather than blanking the section afterwards, is the point: there is
+  // no path that can produce the quantities and then forget to hide one of them. The
+  // callers that must not reach this are gated before they call (replacePlaceholders
+  // and generateAllReports); this throw is what makes a future caller a build failure
+  // instead of a silent regression.
+  //
+  // SUPPRESS, DO NOT SUBSTITUTE: no reduced target, no alternate formula, no renal
+  // plan. Choosing a protein intake for reduced kidney function is a clinical
+  // decision, and api/medical-context.js is authoritative that the software stops
+  // rather than inventing a second number.
+  if (deriveMedicalContext(data).restrictProteinTarget) {
+    throw new Error(
+      'generateFullMealPlan: refusing to build a protein-anchored meal plan for a ' +
+      'reader whose protein target is withheld. Use the suppression notice instead.'
+    );
+  }
+
   console.log('=== MEAL PLAN DEBUG ===');
   console.log('dailyProtein:', data.dailyProtein);
   console.log('dailyFat:', data.dailyFat);
@@ -3211,8 +3308,28 @@ function markdownToBlockHTML(markdown, depth = 0) {
         currentParagraph = [];
       }
       if (listTag) {
-        html += `</${listTag}>\n`;
-        listTag = null;
+        // A blank line BETWEEN numbered items does not end the list, it makes it a
+        // loose one, and markdown renders it as a single list. Closing it here opened
+        // a fresh <ol> for every item, and each one started at 1: a paying customer
+        // read "1. Make dinner your largest meal / 1. If you're hungry after dinner /
+        // 1. Clear the kitchen / 1. Identify the trigger" in Report #1, because the
+        // model writes its steps with blank lines between them.
+        //
+        // So look past the blank run before deciding. Another numbered item means the
+        // list is still going; anything else (prose, a heading, a table, a bullet)
+        // closes it exactly as before. Ordered lists only, deliberately: unordered
+        // lists behave the way they always have.
+        let nextContent = '';
+        for (let j = i + 1; j < lines.length; j++) {
+          if (lines[j].trim() === '') continue;
+          nextContent = lines[j];
+          break;
+        }
+        const listContinues = listTag === 'ol' && /^\d{1,3}\.\s+\S/.test(nextContent);
+        if (!listContinues) {
+          html += `</${listTag}>\n`;
+          listTag = null;
+        }
       }
       if (inTable) {
         html += '</table>\n';
@@ -3512,6 +3629,46 @@ function assertReportInputsCoherent(data) {
   }
 }
 
+/**
+ * THE gate set for report copy. ONE list, used in both places that check text:
+ * the bounded retry around a model-written section, and the final read-back over
+ * every assembled section.
+ *
+ * They used to be two lists. `generateCheckedSection` checked two of the four, so a
+ * model-written Report #1 or #6 that tripped the other two was not re-asked: it fell
+ * through to final assembly and killed the whole generation for a customer who had
+ * already paid. Reproduced 2026-09-09 on a declared-kidney-disease persona, where
+ * Report #1 wrote "What protein amount is appropriate for your current kidney
+ * function" — a question for the reader's clinician, matched by the clearance gate,
+ * and one re-ask away from acceptable copy that never happened.
+ *
+ * Keeping one runner is the fix, not adding two calls in a second place: a fifth gate
+ * added here is enforced on both paths by construction, which is what stopped being
+ * true when the lists diverged. The order is the order the final loop already used.
+ *
+ * This changes NO gate's semantics. Each assertion is the same function, called with
+ * the same arguments, and the finished report is still validated section by section
+ * after assembly.
+ */
+function assertReportCopyIsClean(sectionLabel, text, ctx) {
+  // The claim-frame gate needs the reader's declared context; without it,
+  // findConditionClaimFrames() has no terms and returns [] — it passes everything,
+  // silently. A caller that forgets this argument would disable one gate of four with
+  // no throw and no log, which is the fail-open shape this whole fix is about. So the
+  // runner refuses to run rather than run at three quarters strength.
+  if (!ctx) {
+    throw new Error(`${sectionLabel}: no medical context passed to the report copy gate.`);
+  }
+  assertNoConditionClaimFrames(sectionLabel, text, ctx);
+  // Unconditional, and NOT keyed on ctx: a reader who declared nothing is the one
+  // this fires for. "You didn't report anything that requires modified guidance, so
+  // your targets are appropriate to follow" shipped on the default path, which means
+  // it was the sentence most readers saw.
+  assertNoUnfoundedClearance(sectionLabel, text);
+  assertNoDeterministicOutcomes(sectionLabel, text);
+  assertNoAdvocacy(sectionLabel, text);
+}
+
 async function generateAllReports(data, apiKey) {
   // Fail closed before a single section is written or a single token is spent.
   assertReportInputsCoherent(data);
@@ -3549,14 +3706,24 @@ async function generateAllReports(data, apiKey) {
     reports[2] = await loadAndCustomizeTemplate('foodGuide', data);
     console.log('<<< Section 2: Food Guide - DONE, length:', reports[2]?.length || 'NULL');
 
-    // Section 3: Meal Calendar (Template)
-    console.log('>>> Section 3: Meal Calendar - STARTING');
-    reports[3] = await loadAndCustomizeTemplate('mealCalendar', data);
+    // Sections 3 and 4: the meal calendar and the grocery list derived from it.
+    //
+    // Both are quantitative and both are anchored on the protein target. When that
+    // target is withheld they are replaced by the suppression notices, and no plan is
+    // generated: see generateFullMealPlan(). The sections stay in place, with their
+    // own headings, so the report still has thirteen of them in the same order.
+    const suppressQuantities = deriveMedicalContext(data).restrictProteinTarget;
+
+    console.log('>>> Section 3: Meal Calendar - STARTING' + (suppressQuantities ? ' (SUPPRESSED)' : ''));
+    reports[3] = suppressQuantities
+      ? buildSuppressedMealCalendarSection()
+      : await loadAndCustomizeTemplate('mealCalendar', data);
     console.log('<<< Section 3: Meal Calendar - DONE, length:', reports[3]?.length || 'NULL');
 
-    // Section 4: Shopping List (Template)
-    console.log('>>> Section 4: Shopping List - STARTING');
-    reports[4] = await loadAndCustomizeTemplate('shoppingList', data);
+    console.log('>>> Section 4: Shopping List - STARTING' + (suppressQuantities ? ' (SUPPRESSED)' : ''));
+    reports[4] = suppressQuantities
+      ? buildSuppressedGroceryListSection()
+      : await loadAndCustomizeTemplate('shoppingList', data);
     console.log('<<< Section 4: Shopping List - DONE, length:', reports[4]?.length || 'NULL');
 
     // Section 5: Physician Consultation (Template)
@@ -3644,14 +3811,7 @@ async function generateAllReports(data, apiKey) {
     // sections too: if the model breaks rule 11, generation fails rather than shipping.
     const medCtx = deriveMedicalContext(data);
     for (const [num, body] of Object.entries(reports)) {
-      assertNoConditionClaimFrames(`Report #${num}`, body, medCtx);
-      // Unconditional, and NOT keyed on medCtx: a reader who declared nothing is the
-      // one this fires for. "You didn't report anything that requires modified
-      // guidance, so your targets are appropriate to follow" shipped on the default
-      // path, which means it was the sentence most readers saw.
-      assertNoUnfoundedClearance(`Report #${num}`, body);
-      assertNoDeterministicOutcomes(`Report #${num}`, body);
-      assertNoAdvocacy(`Report #${num}`, body);
+      assertReportCopyIsClean(`Report #${num}`, body, medCtx);
     }
 
     console.log('=== COMBINING SECTIONS ===');
@@ -3689,18 +3849,23 @@ async function generateAllReports(data, apiKey) {
  * still fails closed when the model will not comply. The retry is a convenience for
  * the customer; the gate is the thing that guarantees correctness.
  */
-async function generateCheckedSection(apiKey, systemPrompt, userPrompt, maxTokens, label) {
+async function generateCheckedSection(apiKey, systemPrompt, userPrompt, maxTokens, label, medCtx) {
   let lastError = null;
   for (let attempt = 1; attempt <= 3; attempt++) {
     const correction = lastError
       ? `\n\nYOUR PREVIOUS ATTEMPT WAS REJECTED: ${lastError}\n` +
         'Rewrite it without that. Describe what people report and what varies, never ' +
-        'what the reader will experience, and never argue a clinician out of a concern.'
+        'what the reader will experience, and never argue a clinician out of a concern. ' +
+        'Do not tell the reader that any number, target or plan is appropriate, safe, ' +
+        'suitable or fine for them, and never present this way of eating as treating, ' +
+        'addressing, healing or reversing anything they told us about.'
       : '';
     const text = await callClaudeAPI(apiKey, systemPrompt, userPrompt + correction, maxTokens);
     try {
-      assertNoDeterministicOutcomes(label, text);
-      assertNoAdvocacy(label, text);
+      // The SAME four gates the finished report is held to. A section that would fail
+      // at final assembly is re-asked here, where a retry still exists, instead of
+      // failing a paid generation outright.
+      assertReportCopyIsClean(label, text, medCtx);
       return text;
     } catch (err) {
       lastError = err.message;
@@ -3711,6 +3876,11 @@ async function generateCheckedSection(apiKey, systemPrompt, userPrompt, maxToken
 }
 
 async function generateAIReports(data, apiKey) {
+  // The condition-claim gate needs the reader's declared context to know which terms
+  // may not appear inside a treatment frame. Derived once, from the same function the
+  // final assembly gate uses, so the retry and the final check judge identically.
+  const medCtx = deriveMedicalContext(data);
+
   // Report #1: Executive Summary
   const summaryPrompt = buildExecutiveSummaryPrompt(data);
   const summary = await generateCheckedSection(
@@ -3718,7 +3888,8 @@ async function generateAIReports(data, apiKey) {
     buildExecutiveSummarySystemPrompt(data),
     summaryPrompt,
     2000,
-    'Report #1'
+    'Report #1',
+    medCtx
   );
 
   // Report #6: Obstacle Override Protocol
@@ -3728,7 +3899,8 @@ async function generateAIReports(data, apiKey) {
     buildObstacleProtocolSystemPrompt(data),
     obstaclePrompt,
     2500,
-    'Report #6'
+    'Report #6',
+    medCtx
   );
 
   return {
@@ -4445,6 +4617,11 @@ function replacePlaceholders(template, data) {
   // A reader we have just told "this report does not set a protein target for you"
   // must not then be told, two sections later, that their protein target is precisely
   // calculated. Removing the claim, not softening the number.
+  // NOTE (2026-09-09): the restricted variant below is unreachable today. Its only
+  // consuming template is the meal calendar, and that section is replaced wholesale by
+  // the suppression notice for exactly the readers this branch is written for. Left in
+  // place rather than deleted, because it is the correct string if the calendar ever
+  // comes back for them; do not read it as something a renal customer receives.
   result = result.replace(/\{\{proteinPrecisionClaim\}\}/g, medicalContext.restrictProteinTarget
     ? 'This plan is built around ordinary portions, not around a protein target set for you. You reported kidney disease, and your protein intake is a question for your doctor or a renal dietitian. Take this plan to them before you follow it.'
     : 'Your protein targets are precisely calculated.');
@@ -4515,6 +4692,25 @@ function replacePlaceholders(template, data) {
 
   // Lab monitoring fallback (common labs to monitor)
   result = result.replace(/\{\{lab\}\}/g, 'lipid panel and inflammatory markers');
+
+  // Every template is rendered through this function, so the plan was built for all
+  // thirteen sections and rendered into the two that carry its placeholders. For a
+  // reader whose protein target is withheld it is not built at all: generateFullMealPlan
+  // throws by design, and Reports #3 and #4 are replaced upstream by the suppression
+  // notices. Skipping here is what lets the OTHER eleven sections generate normally,
+  // which is the whole point. The reader keeps the report they paid for.
+  if (medicalContext.restrictProteinTarget) {
+    // Defensive: these placeholders live only in the two suppressed sections, so
+    // nothing should be left to fill. Emptying them means a template that grew one
+    // later cannot ship a stray token or a quantity.
+    result = result
+      .replace(/\{\{mealCalendarWeeks\}\}/g, '')
+      .replace(/\{\{groceryWeeks\}\}/g, '')
+      .replace(/\{\{substitutionGuide\}\}/g, '')
+      .replace(/\{\{(?:breakfast|lunch|dinner)\d+\}\}/g, '')
+      .replace(/\{\{\w+\}\}/g, '');
+    return result;
+  }
 
   // Generate full 30-day meal plan using database-driven algorithm
   const fullMealPlan = generateFullMealPlan(data);
@@ -4915,7 +5111,23 @@ function generateDynamicFoodGuide(dietType, data) {
 
   let mealPatterns = '';
   if (standardizedDiet === 'Lion') {
-    mealPatterns = `## Daily Eating Pattern\n\nLion Diet is typically **one meal per day (OMAD)**.\n\n- **One large meal:** 500-1500g ${proteinSamples[0]?.name || 'beef'} + salt\n- **Meal timing:** Whenever hungry\n- **Seasoning:** Salt only`;
+    // Lion is the one protocol whose eating pattern states an amount, and it is a
+    // static string rather than a calculated one: every Lion reader saw the same
+    // "500-1500g". For a reader whose protein target is withheld that is still a large
+    // daily meat quantity, printed two sections after we told them we are not setting
+    // one and are not printing portions. The number not being derived from their
+    // target does not make it a smaller contradiction to the reader holding it.
+    //
+    // Only the amount bullet changes. Meal timing and seasoning carry no intake
+    // guidance and are untouched, and no other protocol is affected: the else branch
+    // below lists food combinations without quantities.
+    //
+    // Copy by Sarah (sarah-health-coach), 2026-09-09, used verbatim.
+    const oneMealBullet = deriveMedicalContext(data).restrictProteinTarget
+      ? '- **One meal:** Because of what you told us about your kidneys, we are not ' +
+        'stating an amount here. Ask your doctor or a renal dietitian how much to eat.'
+      : `- **One large meal:** 500-1500g ${proteinSamples[0]?.name || 'beef'} + salt`;
+    mealPatterns = `## Daily Eating Pattern\n\nLion Diet is typically **one meal per day (OMAD)**.\n\n${oneMealBullet}\n- **Meal timing:** Whenever hungry\n- **Seasoning:** Salt only`;
   } else {
     mealPatterns = `## Daily Eating Patterns\n\n- **Option 1:** ${proteinSamples[0]?.name || 'Protein'} + ${proteinSamples[1]?.name || 'Protein'} + ${fatSample}\n- **Option 2:** ${proteinSamples[1]?.name || 'Protein'} + ${fatSample}\n- **Option 3:** ${proteinSamples[2]?.name || 'Protein'} + ${proteinSamples[0]?.name || 'Protein'} + ${fatSample}`;
   }
@@ -6951,6 +7163,256 @@ ${product.upsell}
   return createSuccessResponse({ received: true, shop_product: shopSlug, delivered });
 }
 
+/**
+ * THE WAY BACK FOR A PAID BUYER.
+ *
+ * The report is generated AFTER Step 4, and that is correct: it is written from the
+ * health profile, and the questionnaire asks for it after payment. So a webhook must
+ * NOT generate a report. What it must do is make sure the customer can get back.
+ *
+ * Before this, they could not. The browser remembers a payment for six hours and then
+ * deliberately clears it (a stale success screen used to strand repeat visitors), and
+ * nothing was sent from the server, while the post-payment screen told them their
+ * protocol was generating and to check their email for a download link. Both untrue.
+ * Someone who paid and closed the tab had no route back to an assessment they owned.
+ *
+ * The link is the SAME url Stripe already redirects to, carrying the assessment UUID
+ * the checkout was created with. Nothing new to resolve, nothing new to trust: the
+ * existing url-parameter path restores the paid session and drops them at Step 4.
+ *
+ * IDEMPOTENCY AND RETRY SAFETY, which pull in opposite directions.
+ *   - Stripe retries and duplicates must not send a second copy.
+ *   - A transient Resend failure must NOT be permanently swallowed by the fact that
+ *     the Stripe event was already recorded as processed.
+ * So the send is keyed on its OWN marker, not on the event row. The event row means
+ * "we have seen this event"; the marker means "this customer has their link". They are
+ * different facts and conflating them loses the email. The marker is written only
+ * after Resend accepts, so a failure leaves it absent and the next delivery of the
+ * same event (which arrives on the duplicate path) tries again.
+ *
+ * The marker lives in stripe_webhook_events under a synthetic, self-describing id
+ * rather than in a new column: the table already exists, already has UNIQUE
+ * (stripe_event_id), and needed no migration on a production database with no staging.
+ */
+/**
+ * CONFIRM THE ASSESSMENT IS PAID, and repair it if it is not.
+ *
+ * cw_assessment_sessions.payment_status is the authority: Step 4 refuses the paid flow
+ * on it (403 PAYMENT_REQUIRED), and the resume link is worthless without it. The
+ * webhook used to fire the PATCH and only log a failure, then carry on and record the
+ * event as processed. A transient failure there left a real buyer holding a link to an
+ * assessment the server still called pending, and the redelivery that could have fixed
+ * it only retried the email.
+ *
+ * So the writeback is confirmed rather than assumed, on first delivery AND on every
+ * duplicate, and the event is not acknowledged until it is.
+ *
+ * Two subtleties, both of which have bitten this codebase before:
+ *   - PostgREST answers 200 to a PATCH that matched NOTHING. "The request succeeded"
+ *     is not "the customer is paid", so the row is read back whenever the PATCH
+ *     matches no rows.
+ *   - Zero rows is the NORMAL case on a retry, because the filter only matches a
+ *     pending row and the first delivery already completed it. Already completed is
+ *     success, not an error.
+ *
+ * Returns { confirmed: true } or { failed: true, reason } — never a maybe.
+ */
+async function ensureAssessmentPaid(env, assessmentId, patchHeaders) {
+  const base = `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions`;
+  const id = encodeURIComponent(assessmentId);
+
+  const patch = await fetch(`${base}?id=eq.${id}&payment_status=eq.pending`, {
+    method: 'PATCH',
+    headers: { ...patchHeaders, 'Prefer': 'return=representation' },
+    body: JSON.stringify({ payment_status: 'completed', updated_at: new Date().toISOString() }),
+  });
+  if (!patch.ok) {
+    const detail = await patch.text().catch(() => '');
+    return { failed: true, reason: `assessment PATCH ${patch.status}: ${detail.slice(0, 200)}` };
+  }
+
+  const patched = await patch.json().catch(() => null);
+  if (Array.isArray(patched) && patched.length > 0 && patched[0].payment_status === 'completed') {
+    return { confirmed: true };
+  }
+
+  // Matched nothing. Read the row rather than guessing which reason it was.
+  const read = await fetch(`${base}?id=eq.${id}&select=id,payment_status`, { headers: patchHeaders });
+  if (!read.ok) return { failed: true, reason: `assessment read-back ${read.status}` };
+  const rows = await read.json().catch(() => null);
+  if (!Array.isArray(rows) || rows.length === 0) {
+    // A paid checkout whose assessment row is gone. Retrying will not conjure it, but
+    // acknowledging would file this customer under "handled" and nobody would look
+    // again. Stripe keeps redelivering, which is the loudest alarm available here.
+    return { failed: true, reason: `no assessment row for ${assessmentId}` };
+  }
+  const status = rows[0].payment_status;
+  if (status === 'completed' || status === 'success') return { confirmed: true, already: true };
+  return { failed: true, reason: `assessment is ${status}, not completed` };
+}
+
+const RESUME_LINK_BASE = 'https://carnivoreweekly.com/calculator.html';
+const resumeEmailMarkerId = checkoutSessionId => `cw-resume-email:${checkoutSessionId}`;
+
+function buildResumeLink(assessmentId) {
+  return `${RESUME_LINK_BASE}?payment=success&session_id=${encodeURIComponent(assessmentId)}#payment-success`;
+}
+
+/**
+ * Sarah (sarah-health-coach), 2026-09-09, used verbatim. It says the payment landed,
+ * says one step is left and what the report is built from, and says the link keeps
+ * working. It does NOT say a report exists, is being written, or will arrive by email,
+ * because none of those are true when it is sent.
+ */
+const RESUME_EMAIL_SUBJECT = 'Your payment went through. One step left.';
+
+function buildResumeEmailBody(resumeLink) {
+  const paragraphs = [
+    'Thanks, your payment went through.',
+    'There\'s one short step left before your report can be built: the health profile. ' +
+    'It asks about any conditions, medications and allergies, what you find hardest, and ' +
+    'how you like to cook. Your report is written from those answers, so it can\'t be put ' +
+    'together until you\'ve filled it in.',
+    'Use this link to go back to your paid assessment:',
+  ];
+  const closing = [
+    'The link works later too, so if now isn\'t a good time, come back when you have a few ' +
+    'quiet minutes. Your answers so far are saved.',
+    'If anything goes wrong, just reply to this email and I\'ll help.',
+  ];
+
+  const text = [...paragraphs, resumeLink, ...closing, 'Sarah', 'Carnivore Weekly'].join('\n\n');
+
+  const html =
+    '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Georgia,serif;' +
+    'font-size:16px;line-height:1.6;color:#1a120b;max-width:560px;margin:0 auto;padding:24px;">' +
+    paragraphs.map(p => `<p>${escapeHTML(p)}</p>`).join('') +
+    `<p style="margin:24px 0;"><a href="${resumeLink}" ` +
+    'style="background:#8b4513;color:#ffffff;padding:14px 28px;border-radius:8px;' +
+    'text-decoration:none;display:inline-block;font-weight:600;">Finish your health profile</a></p>' +
+    `<p style="font-size:14px;word-break:break-all;color:#5c4433;">${escapeHTML(resumeLink)}</p>` +
+    closing.map(p => `<p>${escapeHTML(p)}</p>`).join('') +
+    '<p style="margin-top:24px;">Sarah<br>Carnivore Weekly</p>' +
+    '</div>';
+
+  return { text, html };
+}
+
+async function sendResumeEmailIfOwed(env, obj) {
+  const assessmentId = obj?.client_reference_id || obj?.metadata?.assessment_session_id;
+  // Not a Carnivore Weekly report checkout. KetoDial, coach and shop checkouts reach
+  // this webhook too and carry no assessment reference.
+  if (!assessmentId) return { skipped: 'not-a-cw-report-checkout' };
+
+  // "Confirmed" means the money arrived. Stripe completes a Session for delayed and
+  // asynchronous payment methods before it settles, and "your payment went through"
+  // must not be sent for one of those.
+  if (obj.payment_status !== 'paid') return { skipped: `payment_status=${obj.payment_status}` };
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+    'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+  };
+  const markerId = resumeEmailMarkerId(obj.id);
+
+  const markerCheck = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/stripe_webhook_events?stripe_event_id=eq.${encodeURIComponent(markerId)}&select=id`,
+    { headers }
+  );
+  if (markerCheck.ok) {
+    const rows = await markerCheck.json().catch(() => []);
+    if (Array.isArray(rows) && rows.length > 0) return { skipped: 'already-sent' };
+  } else {
+    // Cannot prove it has not been sent. Sending anyway risks a duplicate; the retry
+    // path will pick it up when the database answers.
+    return { failed: true, reason: `marker lookup failed (${markerCheck.status})` };
+  }
+
+  const sessionLookup = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${encodeURIComponent(assessmentId)}&select=id,email`,
+    { headers }
+  );
+  if (!sessionLookup.ok) return { failed: true, reason: `session lookup failed (${sessionLookup.status})` };
+  const sessions = await sessionLookup.json().catch(() => []);
+  if (!Array.isArray(sessions) || sessions.length === 0) {
+    // No assessment to go back to. A link to a row that does not exist is worse than
+    // no link, and this is not a transient condition, so do not hold up the webhook.
+    console.warn(`[resume-email] no assessment row for ${assessmentId}; nothing to link to`);
+    return { skipped: 'assessment-not-found' };
+  }
+
+  const to = obj.customer_email || obj.customer_details?.email || obj.metadata?.email || sessions[0].email;
+  if (!to) return { skipped: 'no-buyer-email' };
+
+  if (!env.RESEND_API_KEY) return { failed: true, reason: 'RESEND_API_KEY not configured' };
+
+  const link = buildResumeLink(assessmentId);
+  const { text, html } = buildResumeEmailBody(link);
+
+  const send = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      // Deterministic, so a retry inside Resend's 24h window is the same message
+      // rather than a second one. The database marker is the durable half.
+      'Idempotency-Key': `cw-resume/${obj.id}`,
+    },
+    body: JSON.stringify({
+      from: 'Carnivore Weekly <reports@carnivoreweekly.com>',
+      to: [to],
+      reply_to: 'sarah@carnivoreweekly.com',
+      subject: RESUME_EMAIL_SUBJECT,
+      html,
+      text,
+    }),
+  });
+
+  if (!send.ok) {
+    const detail = await send.text().catch(() => '');
+    console.error(`[resume-email] Resend rejected the send (${send.status}): ${detail.slice(0, 300)}`);
+    // Retry only what retrying can fix. A 5xx, a rate limit or a network error is a bad
+    // minute at the provider and deserves the whole retry machinery. A plain 4xx is a
+    // rejection of THIS message, usually an address that will never accept mail, and
+    // answering Stripe with a 500 for that buys nothing: it just retries a doomed send
+    // for days and buries the real failures. Log it as owed and let the webhook finish.
+    // Permanent means "this message will never be accepted": Resend's validation
+    // errors for a malformed or undeliverable recipient. Everything else is worth
+    // retrying, including the ones that look like our fault. A rotated key (401), an
+    // unverified domain (403), a timeout (408) and a concurrent-idempotent-request
+    // (409) are all fixable or transient, and treating them as permanent would strand
+    // every buyer silently. Security review, 2026-09-09.
+    const retryable = !(send.status === 400 || send.status === 422);
+    if (!retryable) {
+      console.error(`[resume-email] NOT retrying: ${send.status} is a rejection of this message, ` +
+        `not a transient failure. Assessment ${assessmentId} has no resume link.`);
+      return { skipped: `resend-rejected-${send.status}` };
+    }
+    return { failed: true, reason: `resend ${send.status}` };
+  }
+
+  // Only now. A marker written before the send would turn one bad minute at the email
+  // provider into a customer who never hears from us again.
+  const mark = await fetch(`${env.SUPABASE_URL}/rest/v1/stripe_webhook_events`, {
+    method: 'POST',
+    headers: { ...headers, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({
+      stripe_event_id: markerId,
+      event_type: 'cw_resume_email_sent',
+      session_id: assessmentId,
+      amount_cents: 0,
+    }),
+  });
+  if (!mark.ok) {
+    // The customer HAS their link. Do not fail the webhook over the bookkeeping, and
+    // do not send again on a retry beyond what Resend's key already prevents.
+    console.error(`[resume-email] sent to the customer but the marker did not save (${mark.status})`);
+  }
+  console.log(`[resume-email] sent for assessment ${assessmentId}`);
+  return { sent: true };
+}
+
 async function handleStripeWebhook(request, env) {
   const signature = request.headers.get('stripe-signature');
   if (!signature) {
@@ -7018,6 +7480,35 @@ async function handleStripeWebhook(request, env) {
   const existing = await dedupCheck.json();
   if (Array.isArray(existing) && existing.length > 0) {
     console.log(`Webhook: duplicate event ${event.id}, skipping`);
+    // A duplicate is usually Stripe retrying something we did not answer cleanly. The
+    // event row says we have SEEN this event; it does not say the customer got their
+    // way back. If the resume email failed after the row was written, this is the only
+    // place it can be retried, so it is attempted here before acknowledging. It is
+    // keyed on its own marker, so a genuine duplicate sends nothing.
+    if (event.type === 'checkout.session.completed') {
+      const dupObj = event.data.object;
+      const dupAssessment = dupObj.client_reference_id || dupObj.metadata?.assessment_session_id;
+      // The event row proves we SAW this event, not that we finished it. The payment
+      // writeback may be exactly what failed last time, so confirm it before anything
+      // else and repair it if it is still pending: an email pointing at an assessment
+      // the server calls unpaid sends the customer into a 403 at Step 4.
+      // Deliberately the same condition the first delivery uses, which is "we have an
+      // assessment reference", not "Stripe says paid". Gating the repair more tightly
+      // than the original write is how a retry ends up refusing to fix the very row the
+      // first delivery created: the two paths have to agree on what a payment is.
+      if (dupAssessment) {
+        const paid = await ensureAssessmentPaid(env, dupAssessment, patchHeaders);
+        if (paid.failed) {
+          console.error(`Webhook: assessment still not confirmed paid on retry of ${event.id}: ${paid.reason}`);
+          return createErrorResponse('PAYMENT_WRITEBACK_UNCONFIRMED', 'Payment writeback not confirmed', 500);
+        }
+      }
+      const retry = await sendResumeEmailIfOwed(env, dupObj);
+      if (retry.failed) {
+        console.error(`Webhook: resume email still owed for ${event.id}: ${retry.reason}`);
+        return createErrorResponse('RESUME_EMAIL_FAILED', 'Resume email could not be sent', 500);
+      }
+    }
     return new Response(JSON.stringify({ received: true, duplicate: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -7066,12 +7557,9 @@ async function handleStripeWebhook(request, env) {
       ? `session_token=eq.${encodeURIComponent(calcToken)}`
       : (buyerEmail ? `email=eq.${encodeURIComponent(buyerEmail)}` : null);
 
-    const [assessmentRes, calcRes] = await Promise.all([
-      fetch(`${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}&payment_status=eq.pending`, {
-        method: 'PATCH',
-        headers: patchHeaders,
-        body: JSON.stringify({ payment_status: 'completed', updated_at: new Date().toISOString() }),
-      }),
+    const [paidState, calcRes] = await Promise.all([
+      // The authoritative writeback, confirmed rather than fired and hoped for.
+      ensureAssessmentPaid(env, sessionUUID, patchHeaders),
       calcFilter
         ? fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?${calcFilter}&payment_status=eq.pending`, {
             method: 'PATCH',
@@ -7086,11 +7574,18 @@ async function handleStripeWebhook(request, env) {
               paid_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             }),
+          }).catch(err => {
+            // Bookkeeping must not be able to abort fulfilment. A non-2xx was already
+            // handled below; a THROWN fetch (DNS, socket) would have rejected the
+            // Promise.all and taken the assessment result down with it.
+            console.warn('Webhook: calculator_sessions_v2 PATCH threw:', String(err).slice(0, 200));
+            return null;
           })
         : Promise.resolve(null),
     ]);
 
-    if (!assessmentRes.ok) console.warn('Webhook: cw_assessment_sessions PATCH failed:', await assessmentRes.text());
+    // calculator_sessions_v2 is funnel bookkeeping. It is logged and never allowed to
+    // hold up a customer's fulfilment, which is the opposite of the assessment row.
     let patchedCalcRows = [];
     if (!calcRes) {
       console.warn('Webhook: no session_token or email on checkout — calculator_sessions_v2 not synced');
@@ -7102,6 +7597,15 @@ async function handleStripeWebhook(request, env) {
       if (patchedCalcRows.length === 0) {
         console.warn(`Webhook: calculator_sessions_v2 PATCH matched 0 rows (${calcFilter}) — payment recorded on assessment only`);
       }
+    }
+
+    // Nothing past this point may run on an unconfirmed payment: not the analytics
+    // event, and above all not the email, which would hand the customer a link to an
+    // assessment Step 4 will refuse. 5xx so Stripe redelivers, and the duplicate path
+    // repairs it.
+    if (paidState.failed) {
+      console.error(`Webhook: payment writeback NOT confirmed for ${sessionUUID}: ${paidState.reason}`);
+      return createErrorResponse('PAYMENT_WRITEBACK_UNCONFIRMED', 'Payment writeback not confirmed', 500);
     }
 
     // Server-side GA4 purchase event via Measurement Protocol (fire-and-forget)
@@ -7127,7 +7631,25 @@ async function handleStripeWebhook(request, env) {
       }).catch(err => console.warn('GA4 Measurement Protocol error:', err));
     }
 
-    return new Response(JSON.stringify({ received: true, session_id: sessionUUID }), {
+    // THE WAY BACK. Not the report: the report is built from Step 4, which they have
+    // not reached yet, and generating one from what we hold would be a report written
+    // from half the questionnaire. This sends the link that lets them finish.
+    //
+    // Deliberately after the payment writeback and the GA4 event, both of which are
+    // done and durable by now. If the send fails we answer 500 so Stripe retries, and
+    // the retry arrives on the duplicate path above, which repeats only the email: the
+    // payment record is untouched and the purchase is not counted twice.
+    const resume = await sendResumeEmailIfOwed(env, obj);
+    if (resume.failed) {
+      console.error(`Webhook: resume email failed for ${sessionUUID}: ${resume.reason}`);
+      return createErrorResponse('RESUME_EMAIL_FAILED', 'Resume email could not be sent', 500);
+    }
+
+    return new Response(JSON.stringify({
+      received: true,
+      session_id: sessionUUID,
+      resume_email: resume.sent ? 'sent' : (resume.skipped || 'not-sent'),
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -7893,7 +8415,17 @@ export {
   // Exposed so tests/report-integrity.test.mjs can assert the derivation directly,
   // not just its rendered output: the grocery list must be a pure function of the
   // meal plan. See that file's GROUP D.
+  generateAIReports as __test_generateAIReports,
+  assertReportCopyIsClean as __test_assertReportCopyIsClean,
+  REPORT_GENERATION_FAILED_MESSAGE as __test_REPORT_GENERATION_FAILED_MESSAGE,
   generateFullMealPlan as __test_generateFullMealPlan,
+  sendResumeEmailIfOwed as __test_sendResumeEmailIfOwed,
+  ensureAssessmentPaid as __test_ensureAssessmentPaid,
+  buildResumeLink as __test_buildResumeLink,
+  buildResumeEmailBody as __test_buildResumeEmailBody,
+  RESUME_EMAIL_SUBJECT as __test_RESUME_EMAIL_SUBJECT,
+  RENAL_MEAL_CALENDAR_NOTICE as __test_RENAL_MEAL_CALENDAR_NOTICE,
+  RENAL_GROCERY_LIST_NOTICE as __test_RENAL_GROCERY_LIST_NOTICE,
   generateGroceryListByWeek as __test_generateGroceryListByWeek,
   resolveGoal as __test_resolveGoal,
   detectGoalConflict as __test_detectGoalConflict,

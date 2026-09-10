@@ -41,6 +41,69 @@ export default function App() {
           localStorage.setItem('stripeSessionId', assessmentId || '')
           localStorage.setItem('paymentStateSavedAt', String(Date.now()))
           console.log('[App] Payment params detected:', { payment, assessmentId })
+
+          // THE RETURN FROM THE EMAILED LINK.
+          //
+          // The link the webhook sends carries the assessment UUID, and it may be
+          // followed days later, on a different device, or in a browser whose payment
+          // state has aged out of the six-hour window and been cleared. In all of
+          // those the local store is empty, and the reader would see their paid
+          // assessment as a blank calculator.
+          //
+          // The row is the authority, so it is fetched and used as the BASE, with any
+          // value this browser actually holds kept on top: same-session returns are
+          // the fresher edit, a cold return has nothing to keep. Undefined fields are
+          // dropped by JSON.stringify on the way to Step 4, so an empty local field
+          // cannot overwrite a stored answer either way.
+          if (assessmentId && (payment === 'success' || payment === 'free')) {
+            try {
+              const res = await fetch(
+                `https://carnivore-report-api-production.iambrew.workers.dev/get-session?id=${encodeURIComponent(assessmentId)}`
+              )
+              if (res.ok) {
+                const saved = await res.json()
+                const store = useFormStore.getState()
+                if (saved?.form_data && typeof saved.form_data === 'object') {
+                  const merged: Record<string, unknown> = { ...saved.form_data }
+                  // Local values are kept ONLY when this browser's stored progress
+                  // belongs to the assessment the link names. The persisted form has no
+                  // expiry (the payment flag does), so without that test a later
+                  // abandoned run on the same browser, or a second person in the
+                  // household, would overwrite the paid row field by field and the
+                  // report would be built from the mixture. When they do not match, the
+                  // row is the authority and is taken whole.
+                  if (store.assessmentId === assessmentId) {
+                    for (const [k, v] of Object.entries(store.form || {})) {
+                      if (v === undefined || v === null || v === '') continue
+                      if (Array.isArray(v) && v.length === 0) continue  // an empty default, not an answer
+                      merged[k] = v
+                    }
+                  }
+                  // The session COLUMNS win over form_data for these two: the address
+                  // that reached Stripe is the one the resume email went to, and Step 4
+                  // tells the reader which address that was. The success screen used to
+                  // apply this overlay on its own; it now short-circuits because the
+                  // form is already restored, so it has to happen here or the screen
+                  // names an address we did not write to.
+                  if (saved.email) merged.email = saved.email
+                  if (saved.first_name) merged.firstName = saved.first_name
+                  store.setForm(merged as Partial<typeof store.form>)
+                }
+                // They paid; the row says so. Step 4 must not ask them to buy again.
+                if (saved?.payment_status === 'completed' || saved?.payment_status === 'success') {
+                  store.setIsPremium(true)
+                }
+                store.setAssessmentId(assessmentId)
+                console.log('[App] Restored paid assessment from the server')
+              } else {
+                console.warn('[App] Could not restore the paid assessment:', res.status)
+              }
+            } catch (err) {
+              // A failed restore must not block the screen. They still reach Step 4,
+              // and the server merges their answers into the row it already holds.
+              console.warn('[App] Restore request failed:', err)
+            }
+          }
         } else {
           // Check localStorage as fallback, but only within the TTL window.
           // Without this, any browser that ever completed a payment booted

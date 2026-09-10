@@ -115,7 +115,12 @@ export default function Step4HealthProfile({
           Tell us more about you
         </h2>
         <p style={{ color: '#666666' }}>
-          Your protocol will be sent to <strong style={{ color: '#d4a574' }}>{data.email}</strong>
+          {/* Sarah, 2026-09-09. The line this replaces promised that the finished
+              protocol would be sent to this address. Nothing performs that: the report
+              opens on screen, and the only email of it is the one the reader asks for
+              by pressing the button. */}
+          We emailed your return link to <strong style={{ color: '#d4a574' }}>{data.email}</strong>.
+          {' '}Nothing else is sent there unless you press Email My Report.
         </p>
       </div>
 

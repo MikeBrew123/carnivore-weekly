@@ -53,6 +53,12 @@ on:
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
+      - 'tests/report-copy-gate-retry.test.mjs'
+      - 'tests/renal-meal-plan-suppression.test.mjs'
+      - 'tests/paid-resume-email.test.mjs'
+      - 'tests/ordered-list-continuity.test.mjs'
+      - 'public/calculator.html'
+      - 'public/assets/calculator2/**'
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
@@ -69,6 +75,12 @@ on:
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
+      - 'tests/report-copy-gate-retry.test.mjs'
+      - 'tests/renal-meal-plan-suppression.test.mjs'
+      - 'tests/paid-resume-email.test.mjs'
+      - 'tests/ordered-list-continuity.test.mjs'
+      - 'public/calculator.html'
+      - 'public/assets/calculator2/**'
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
@@ -196,6 +208,32 @@ jobs:
       # questionnaire field that is not wired into the gate fails here.
       - name: Health-context data-flow regression
         run: node tests/health-context-flow.test.mjs
+      # The four content gates that hold report copy are ONE list, applied where a
+      # model-written section can still be re-asked and again to every finished
+      # section, and a generation failure reaches the customer as one sentence with
+      # no assertion text in it. Two of the four used to run only after assembly,
+      # where no retry exists, so a sampling that tripped either killed a paid
+      # report outright (reproduced 2026-09-09, 1 run in 4 on a renal persona).
+      - name: Report copy gate retry and customer-safe failure
+        run: node tests/report-copy-gate-retry.test.mjs
+      # The 30-day calendar and the grocery list derived from it are anchored on the
+      # protein target. For a reader that target is withheld from, no plan is built at
+      # all and both sections carry a suppression notice instead: the number must not
+      # be hidden in prose and delivered as food. Healthy readers are unaffected, and
+      # this pins both halves.
+      - name: Renal meal-plan suppression
+        run: node tests/renal-meal-plan-suppression.test.mjs
+      # A paid buyer who leaves before Step 4 gets a durable way back. Payment sends
+      # the resume link and generates nothing; one email per purchase; a transient
+      # Resend failure is retried rather than deduped into silence; and no screen
+      # promises a delivery that does not happen.
+      - name: Paid-report recovery and resume email
+        run: node tests/paid-resume-email.test.mjs
+      # A blank line between numbered steps used to close the list, so each item
+      # opened its own <ol> and the reader counted 1, 1, 1, 1 in a delivered PDF.
+      # The suites checked that <ol> tags existed and balanced, which they did.
+      - name: Ordered-list continuity in rendered reports
+        run: node tests/ordered-list-continuity.test.mjs
       # Exactly one file may be a deployed report generator. Two dormant ones exist
       # in api/ and neither is authorized for deletion, so this reads the actual
       # deployment surface (wrangler configs, package mains, CI) and fails the build

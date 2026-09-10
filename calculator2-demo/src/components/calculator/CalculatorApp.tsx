@@ -570,10 +570,14 @@ export default function CalculatorApp({
     } catch (error) {
       console.error('[Step4] Submission error:', error)
       setIsGenerating(false)
+      // Sarah, 2026-09-09, used verbatim apart from the error placeholder she was shown:
+      // the worker's message is now a customer-safe sentence of its own, so quoting it
+      // in brackets would print the same apology twice.
       setErrors({
-        submit: `We hit a problem generating your report (${error instanceof Error ? error.message : 'unknown error'}). ` +
-          `Your payment is safe and your answers are saved — click "Generate My Protocol" to try again. ` +
-          `A copy will also be emailed to you; if it doesn't arrive, reply to that email thread or use the site's feedback button.`,
+        submit: 'Something went wrong while building your report. Your payment is safe and ' +
+          'your answers are saved. Click "Generate My Protocol" to try again. If it still ' +
+          'won\'t build, the link we emailed you will bring you back to this page later, and ' +
+          'you can reply to that email and we\'ll help.',
       })
       // Bring the error into view — the generating screen scrolled to the top
       scrollToAnchor('step4-submit-error', 200)
@@ -612,7 +616,7 @@ export default function CalculatorApp({
             color: '#ffd700',
             marginBottom: '8px',
             fontFamily: "'Playfair Display', Georgia, serif",
-          }}>Payment Successful!</h1>
+          }}>Payment received. One step left.</h1>
 
           <p style={{
             fontSize: '16px',
@@ -622,7 +626,9 @@ export default function CalculatorApp({
           }}>
             {paymentState.paymentStatus === 'free'
               ? 'Your 100% discount coupon has been applied.'
-              : 'Your payment has been processed.'}
+              : 'Your payment went through. There\'s one short section to fill in, the health ' +
+                'profile, and your report is built from those answers. We\'ve also emailed you a ' +
+                'link back to this page, so you can come back later if now isn\'t a good time.'}
           </p>
 
           <div style={{
@@ -643,6 +649,10 @@ export default function CalculatorApp({
               fontFamily: "'Playfair Display', Georgia, serif",
             }}>What's Next?</h2>
 
+            {/* Sarah (sarah-health-coach), 2026-09-09, used verbatim. Every line of the
+                list this replaces was untrue: nothing was generating yet, no email was
+                sent automatically, and there was no download link to check for. The
+                report is built from Step 4, which is why Step 4 is the whole message. */}
             <ul style={{
               listStyle: 'none',
               padding: 0,
@@ -650,22 +660,17 @@ export default function CalculatorApp({
               fontFamily: "'Merriweather', Georgia, serif",
               fontSize: '14px',
             }}>
-              <li style={{ marginBottom: '12px', display: 'flex', gap: '12px' }}>
-                <span style={{ color: '#ffd700', fontWeight: 'bold' }}>✓</span>
-                <span>Your personalized protocol is being generated</span>
-              </li>
-              <li style={{ marginBottom: '12px', display: 'flex', gap: '12px' }}>
-                <span style={{ color: '#ffd700', fontWeight: 'bold' }}>✓</span>
-                <span>Check your email for your download link (may take 1-2 minutes)</span>
-              </li>
-              <li style={{ marginBottom: '12px', display: 'flex', gap: '12px' }}>
-                <span style={{ color: '#ffd700', fontWeight: 'bold' }}>✓</span>
-                <span>Your protocol includes meal plans, shopping lists, and personalized guidance</span>
-              </li>
-              <li style={{ display: 'flex', gap: '12px' }}>
-                <span style={{ color: '#ffd700', fontWeight: 'bold' }}>✓</span>
-                <span>Questions? Reply to your email or contact support</span>
-              </li>
+              {[
+                'Next: the health profile, a few short questions',
+                'Conditions, medications, allergies, cooking skill, biggest challenge',
+                'Your report is written from these answers',
+                'The emailed link brings you back whenever you\'re ready',
+              ].map((item, i, all) => (
+                <li key={item} style={{ marginBottom: i === all.length - 1 ? 0 : '12px', display: 'flex', gap: '12px' }}>
+                  <span style={{ color: '#ffd700', fontWeight: 'bold' }}>✓</span>
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -699,9 +704,12 @@ export default function CalculatorApp({
                   if (formData.email) {
                     advanceToStep4()
                   } else {
+                    // Sarah, 2026-09-09, used verbatim. The old middle sentence promised
+                    // an emailed report; what actually exists is the resume link.
                     setSuccessScreenError(
-                      'We could not find your session in this browser. Your payment went through and your report will be emailed to you. ' +
-                      'If it does not arrive within a few minutes, use the feedback button or reply to your receipt email.'
+                      'We could not find your saved answers in this browser. Your payment went through. ' +
+                      'When you paid, we emailed you a link that brings you back to this page, so open ' +
+                      'that email and use the link. You can reply to it for help.'
                     )
                   }
                   return
@@ -741,9 +749,11 @@ export default function CalculatorApp({
                 // Do NOT clear payment state here — keep the paid screen alive
                 // so the user can retry instead of seeing buy buttons again
                 console.error('[Success Page] Error fetching session:', error)
+                // Sarah, 2026-09-09, used verbatim.
                 setSuccessScreenError(
-                  'We hit a snag loading your saved answers. Your payment is safe — click the button to try again. ' +
-                  'Your report will also be emailed to you within a few minutes either way.'
+                  'We could not load your saved answers. Your payment is safe. Click the button to ' +
+                  'try again. If you would rather come back later, the link we emailed you when you ' +
+                  'paid still works.'
                 )
               }
             }}

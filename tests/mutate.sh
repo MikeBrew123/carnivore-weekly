@@ -101,16 +101,16 @@ open('$API','w').write(s.replace(old,new))
 
 mutate 9 "render-time claim gate removed" health-context-flow "
 s=open('$API').read()
-old='      assertNoConditionClaimFrames(\`Report #\${num}\`, body, medCtx);'
-new='      void num; void body; void medCtx;'
+old='  assertNoConditionClaimFrames(sectionLabel, text, ctx);'
+new='  void ctx;'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
 mutate 10 "clearance gate removed from the generator" health-context-flow "
 s=open('$API').read()
-old='      assertNoUnfoundedClearance(\`Report #\${num}\`, body);'
-new='      void body;'
+old='  assertNoUnfoundedClearance(sectionLabel, text);'
+new='  void text;'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
@@ -399,11 +399,150 @@ assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,new))
 "
 
+# --- THE RETRY CALL SITE ITSELF (2026-09-09) -------------------------------------
+# M9/M10/M43/M50 mutate the shared runner, which disables a gate on BOTH the retry and
+# the finished-report check at once. Neither of them proves the RETRY call site still
+# exists, and reverting it to the two gates it used to check is exactly the defect this
+# fix closed: a model-written section that trips the other two dies without a re-ask.
+# --- RENAL MEAL-PLAN SUPPRESSION (blocker 3, 2026-09-09) -------------------------
+# The protein target is withheld in prose and the plan is anchored on it, so three
+# things have to hold at once: the generator refuses, the section builder does not
+# call the template, and every other section still renders without the plan. One
+# mutation each, because breaking any one of them ships the withheld number as food.
+mutate 64 "the anticoagulant banner describes a meal plan the renal reader never got" renal-meal-plan-suppression "
+s=open('$MED').read()
+old='    lines.push(...(ctx.restrictProteinTarget'
+assert s.count(old)==1, s.count(old)
+open('$MED','w').write(s.replace(old,'    lines.push(...(false'))
+"
+
+mutate 65 "the AI prompt tells the model the renal reader has a meal plan" renal-meal-plan-suppression "
+s=open('$MED').read()
+old='    notes.push(ctx.restrictProteinTarget'
+assert s.count(old)==1, s.count(old)
+open('$MED','w').write(s.replace(old,'    notes.push(false'))
+"
+
+mutate 66 "the Lion food guide states a daily amount to a renal reader again" renal-meal-plan-suppression "
+s=open('$API').read()
+old='    const oneMealBullet = deriveMedicalContext(data).restrictProteinTarget'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'    const oneMealBullet = false'))
+"
+
+# --- PAID RECOVERY (blocker 1, 2026-09-09) --------------------------------------
+# Idempotency and retry safety pull against each other here, so each is mutated on its
+# own. The obvious implementation passes the duplicate test and loses the customer on
+# the retry one.
+mutate 74 "the assessment write loses its row filter" paid-resume-email "
+s=open('$API').read()
+old='?id=eq.' + chr(36) + '{id}&payment_status=eq.pending'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'?payment_status=eq.pending'))
+"
+
+mutate 71 "the duplicate path stops reconciling the payment writeback" paid-resume-email "
+s=open('$API').read()
+old='        const paid = await ensureAssessmentPaid(env, dupAssessment, patchHeaders);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'        const paid = { confirmed: true };'))
+"
+
+mutate 72 "a failed payment writeback is logged and stepped over, as it used to be" paid-resume-email "
+s=open('$API').read()
+old='    if (paidState.failed) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'    if (false) {'))
+"
+
+mutate 73 "a PATCH that matched no rows is taken as proof of payment" paid-resume-email "
+s=open('$API').read()
+old='  const read = await fetch('
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'  return { confirmed: true };\n  const read = await fetch('))
+"
+
+# --- ORDERED-LIST CONTINUITY (final verification, 2026-09-09) --------------------
+# The old behaviour: a blank line closed the list, so every numbered item opened its
+# own <ol> and the reader counted 1, 1, 1, 1.
+mutate 75 "a blank line closes a continuing ordered list again" ordered-list-continuity "
+s=open('$API').read()
+old='        const listContinues = listTag === '
+assert s.count(old)==1, s.count(old)
+i=s.index(old); j=s.index(chr(10), i)
+open('$API','w').write(s[:i] + '        const listContinues = false;' + s[j:])
+"
+
+mutate 67 "a duplicate event stops retrying an email that never went out" paid-resume-email "
+s=open('$API').read()
+old='      const retry = await sendResumeEmailIfOwed(env, dupObj);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'      const retry = { skipped: 1 };'))
+"
+
+mutate 68 "a failed send is recorded as delivered" paid-resume-email "
+s=open('$API').read()
+old='  if (!send.ok) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'  if (send.ok === null) {'))
+"
+
+mutate 69 "the settled-payment check is inverted" paid-resume-email "
+s=open('$API').read()
+old='obj.payment_status !== '
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'obj.payment_status === '))
+"
+
+mutate 70 "the delivery marker stops being consulted" paid-resume-email "
+s=open('$API').read()
+old='Array.isArray(rows) && rows.length > 0'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'Array.isArray(rows) && rows.length > 999'))
+"
+
+mutate 61 "sections 3 and 4 go back to the quantitative templates for a renal reader" renal-meal-plan-suppression "
+s=open('$API').read()
+old='    const suppressQuantities = deriveMedicalContext(data).restrictProteinTarget;'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'    const suppressQuantities = false;'))
+"
+
+mutate 62 "the protein-anchored generator stops refusing" renal-meal-plan-suppression "
+s=open('$API').read()
+old='''  if (deriveMedicalContext(data).restrictProteinTarget) {
+    throw new Error('''
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'''  if (false) {
+    throw new Error('''))
+"
+
+mutate 63 "the renderer builds the plan again for a reader it is withheld from" renal-meal-plan-suppression "
+s=open('$API').read()
+old='  if (medicalContext.restrictProteinTarget) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'  if (false) {'))
+"
+
+mutate 59 "the model-retry path drops back to two of the four gates" report-copy-gate-retry "
+s=open('$API').read()
+old='      assertReportCopyIsClean(label, text, medCtx);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'      assertNoDeterministicOutcomes(label, text);\n      assertNoAdvocacy(label, text);'))
+"
+
+mutate 60 "the customer is shown the raw generation error again" report-copy-gate-retry "
+s=open('$API').read()
+old=\"return createErrorResponse('INTERNAL_ERROR', REPORT_GENERATION_FAILED_MESSAGE, 500);\"
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,\"return createErrorResponse('INTERNAL_ERROR', String(err), 500);\"))
+"
+
 mutate 43 "the deterministic-outcome render gate is removed" report-render-markdown-leak "
 s=open('$API').read()
-old='      assertNoDeterministicOutcomes(\`Report #\${num}\`, body);'
+old='  assertNoDeterministicOutcomes(sectionLabel, text);'
 assert s.count(old)==1, s.count(old)
-open('$API','w').write(s.replace(old,'      void body;'))
+open('$API','w').write(s.replace(old,'  void text;'))
 "
 
 mutate 44 "the canonical outlook stops describing variation" report-render-markdown-leak "
@@ -457,9 +596,9 @@ open('$API','w').write(s.replace(old,new))
 # --- ADVOCACY vs PATIENT EDUCATION (reported 2026-09-09) -------------------------
 mutate 50 "the advocacy render gate is removed" report-render-markdown-leak "
 s=open('$API').read()
-old='      assertNoAdvocacy(\`Report #\${num}\`, body);'
+old='  assertNoAdvocacy(sectionLabel, text);'
 assert s.count(old)==1, s.count(old)
-open('$API','w').write(s.replace(old,'      void num;'))
+open('$API','w').write(s.replace(old,'  void sectionLabel;'))
 "
 
 mutate 51 "ApoB is sold as better than LDL again" report-render-markdown-leak "

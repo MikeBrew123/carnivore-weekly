@@ -390,7 +390,7 @@ export default function AssessmentSuccess() {
           transition={{ delay: 0.8 }}
           className="text-center text-gray-600 text-sm mt-8"
         >
-          Your report has been successfully generated. Check your email for a copy of this report.
+          Your report has been successfully generated.
         </motion.p>
       </motion.div>
     </div>

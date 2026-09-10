@@ -343,15 +343,27 @@ for (const persona of CLAIM_PERSONAS) {
   // SEAM: the detector must actually be called by the generator. A guard that works
   // perfectly and is never invoked is the same as no guard, and nothing else in this
   // file would notice its removal.
+  // The four content gates were centralised into assertReportCopyIsClean() on
+  // 2026-09-09 so the model-retry path and this finished-report check can never
+  // again hold text to different rules. The seam therefore runs through the runner,
+  // and both halves are pinned: the runner calls this gate, and generateAllReports
+  // applies the runner to every assembled section. Each slice is scoped to the
+  // function it names, because the same call now appears in two places and an
+  // unscoped match would be satisfied by the wrong one.
   const src = fs.readFileSync(API, 'utf8');
+  const runnerStart = src.indexOf('function assertReportCopyIsClean(');
+  const runnerEnd = src.indexOf('async function generateAllReports', runnerStart);
+  const runnerBody = runnerStart !== -1 && runnerEnd > runnerStart
+    ? src.slice(runnerStart, runnerEnd) : '';
   const genStart = src.indexOf('async function generateAllReports');
-  const genEnd = src.indexOf('async function generateAIReports');
+  const genEnd = src.indexOf('async function generateCheckedSection');
   const genBody = src.slice(genStart, genEnd > genStart ? genEnd : undefined);
-  check('G', 'generateAllReports calls the render-time claim gate on every section',
-    genStart !== -1 && /assertNoConditionClaimFrames\s*\(/.test(genBody),
-    'the guard is defined but generateAllReports never invokes it');
+  check('G', 'the shared gate runner calls the render-time claim gate',
+    /assertNoConditionClaimFrames\s*\(/.test(runnerBody),
+    'the guard is defined but the runner every section passes through never invokes it');
   check('G', 'the render-time gate runs over all sections, not one',
-    /for \(const \[num, body\] of Object\.entries\(reports\)\)[\s\S]{0,200}assertNoConditionClaimFrames/.test(genBody),
+    genStart !== -1 &&
+    /for \(const \[num, body\] of Object\.entries\(reports\)\)[\s\S]{0,200}assertReportCopyIsClean\s*\(/.test(genBody),
     'the guard is called but not across every rendered section');
 
   const PROVENANCE = 'Symptoms and concerns you reported: bladder prolapse, stage 2, diagnosed last year';
@@ -451,12 +463,18 @@ for (const persona of CLAIM_PERSONAS) {
 
   // SEAM: the generator must call it, on every section, for every reader.
   const srcH = fs.readFileSync(API, 'utf8');
+  const rStart = srcH.indexOf('function assertReportCopyIsClean(');
+  const rEnd = srcH.indexOf('async function generateAllReports', rStart);
+  const rBody = rStart !== -1 && rEnd > rStart ? srcH.slice(rStart, rEnd) : '';
   const gStart = srcH.indexOf('async function generateAllReports');
-  const gEnd = srcH.indexOf('async function generateAIReports');
+  const gEnd = srcH.indexOf('async function generateCheckedSection');
   const gBody = srcH.slice(gStart, gEnd > gStart ? gEnd : undefined);
-  check('H', 'generateAllReports calls the clearance gate',
-    /assertNoUnfoundedClearance\s*\(/.test(gBody),
-    'the clearance guard is defined but never invoked');
+  check('H', 'the shared gate runner calls the clearance gate',
+    /assertNoUnfoundedClearance\s*\(/.test(rBody),
+    'the clearance guard is defined but the runner never invokes it');
+  check('H', 'the clearance gate reaches every finished section',
+    /for \(const \[num, body\] of Object\.entries\(reports\)\)[\s\S]{0,200}assertReportCopyIsClean\s*\(/.test(gBody),
+    'the runner is not applied across every rendered section');
 }
 
 // ===========================================================================
