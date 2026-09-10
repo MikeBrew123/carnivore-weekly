@@ -56,6 +56,7 @@ on:
       - 'tests/report-copy-gate-retry.test.mjs'
       - 'tests/renal-meal-plan-suppression.test.mjs'
       - 'tests/paid-resume-email.test.mjs'
+      - 'tests/ordered-list-continuity.test.mjs'
       - 'public/calculator.html'
       - 'public/assets/calculator2/**'
       - 'api/goal-semantics.js'
@@ -77,6 +78,7 @@ on:
       - 'tests/report-copy-gate-retry.test.mjs'
       - 'tests/renal-meal-plan-suppression.test.mjs'
       - 'tests/paid-resume-email.test.mjs'
+      - 'tests/ordered-list-continuity.test.mjs'
       - 'public/calculator.html'
       - 'public/assets/calculator2/**'
       - 'api/goal-semantics.js'
@@ -227,6 +229,11 @@ jobs:
       # promises a delivery that does not happen.
       - name: Paid-report recovery and resume email
         run: node tests/paid-resume-email.test.mjs
+      # A blank line between numbered steps used to close the list, so each item
+      # opened its own <ol> and the reader counted 1, 1, 1, 1 in a delivered PDF.
+      # The suites checked that <ol> tags existed and balanced, which they did.
+      - name: Ordered-list continuity in rendered reports
+        run: node tests/ordered-list-continuity.test.mjs
       # Exactly one file may be a deployed report generator. Two dormant ones exist
       # in api/ and neither is authorized for deletion, so this reads the actual
       # deployment surface (wrangler configs, package mains, CI) and fails the build

@@ -3308,8 +3308,28 @@ function markdownToBlockHTML(markdown, depth = 0) {
         currentParagraph = [];
       }
       if (listTag) {
-        html += `</${listTag}>\n`;
-        listTag = null;
+        // A blank line BETWEEN numbered items does not end the list, it makes it a
+        // loose one, and markdown renders it as a single list. Closing it here opened
+        // a fresh <ol> for every item, and each one started at 1: a paying customer
+        // read "1. Make dinner your largest meal / 1. If you're hungry after dinner /
+        // 1. Clear the kitchen / 1. Identify the trigger" in Report #1, because the
+        // model writes its steps with blank lines between them.
+        //
+        // So look past the blank run before deciding. Another numbered item means the
+        // list is still going; anything else (prose, a heading, a table, a bullet)
+        // closes it exactly as before. Ordered lists only, deliberately: unordered
+        // lists behave the way they always have.
+        let nextContent = '';
+        for (let j = i + 1; j < lines.length; j++) {
+          if (lines[j].trim() === '') continue;
+          nextContent = lines[j];
+          break;
+        }
+        const listContinues = listTag === 'ol' && /^\d{1,3}\.\s+\S/.test(nextContent);
+        if (!listContinues) {
+          html += `</${listTag}>\n`;
+          listTag = null;
+        }
       }
       if (inTable) {
         html += '</table>\n';

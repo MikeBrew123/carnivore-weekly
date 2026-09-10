@@ -462,6 +462,17 @@ assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,'  return { confirmed: true };\n  const read = await fetch('))
 "
 
+# --- ORDERED-LIST CONTINUITY (final verification, 2026-09-09) --------------------
+# The old behaviour: a blank line closed the list, so every numbered item opened its
+# own <ol> and the reader counted 1, 1, 1, 1.
+mutate 75 "a blank line closes a continuing ordered list again" ordered-list-continuity "
+s=open('$API').read()
+old='        const listContinues = listTag === '
+assert s.count(old)==1, s.count(old)
+i=s.index(old); j=s.index(chr(10), i)
+open('$API','w').write(s[:i] + '        const listContinues = false;' + s[j:])
+"
+
 mutate 67 "a duplicate event stops retrying an email that never went out" paid-resume-email "
 s=open('$API').read()
 old='      const retry = await sendResumeEmailIfOwed(env, dupObj);'
