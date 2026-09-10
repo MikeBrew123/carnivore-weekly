@@ -131,12 +131,26 @@ const app = await read('calculator2-demo/src/components/calculator/CalculatorApp
 const terms = await read('public/terms.html');
 check('Terms still state that on-screen access is time-limited', /time-limited/i.test(terms));
 const api = await read('api/calculator-api.js');
-const claims48 = /48\s*hours/i.test(terms) || /48\s*hours/i.test(app);
-const implements48 = /48 \* 60 \* 60 \* 1000|48 \* 3600/.test(api);
+// Generalised: ANY stated window, not just the "48 hours" that was wrong once.
+// The code writes expires_at as N days; if the copy names a figure, it has to be
+// one the code actually implements.
+const WINDOW = /\b(\d+)\s*(hour|hours|day|days)\b/gi;
+const statedWindows = [];
+for (const [file, text] of [['terms.html', terms], ['delivery screen', app]]) {
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('{/*')) continue;
+    if (!/access|expire|available|open|copy|report link/i.test(line)) continue;
+    WINDOW.lastIndex = 0;
+    let m;
+    while ((m = WINDOW.exec(line))) statedWindows.push(`${file}: "${m[0]}"`);
+  }
+}
+const implementedDays = [...api.matchAll(/(\d+)\s*\*\s*24\s*\*\s*60\s*\*\s*60\s*\*\s*1000/g)].map((m) => m[1]);
 check(
-  'no surface claims a 48-hour window while the code does not implement one',
-  !claims48 || implements48,
-  'terms/delivery copy names 48 hours but expires_at is not 48 hours'
+  `no surface names a retention window the code does not implement (code writes ${implementedDays.join('/') || 'no'} day expiry)`,
+  statedWindows.every((w) => implementedDays.some((d) => w.includes(`${d} day`))),
+  statedWindows.join(' | ')
 );
 
 // The delivery screen — where it actually matters — must say it too, rather

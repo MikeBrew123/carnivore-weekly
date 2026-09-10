@@ -27,6 +27,14 @@ on:
       - 'tests/report-safety.test.mjs'
       - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
+      - 'api/sample-day.js'
+      - 'tests/calorie-guardrail.test.mjs'
+      - 'tests/sample-day-arithmetic.test.mjs'
+      - 'tests/signup-and-retention-copy.test.mjs'
+      - 'tests/payment-modal-dismiss.test.mjs'
+      - 'public/calculator.html'
+      - 'public/terms.html'
+      - 'public/js/calculator-cta.js'
       - 'ketodial/worker/index.js'
       - 'ketodial/worker/reports.js'
       - 'ketodial/worker/intake.js'
@@ -72,6 +80,14 @@ on:
       - 'tests/report-safety.test.mjs'
       - 'tests/health-context-flow.test.mjs'
       - 'tests/report-integrity.test.mjs'
+      - 'api/sample-day.js'
+      - 'tests/calorie-guardrail.test.mjs'
+      - 'tests/sample-day-arithmetic.test.mjs'
+      - 'tests/signup-and-retention-copy.test.mjs'
+      - 'tests/payment-modal-dismiss.test.mjs'
+      - 'public/calculator.html'
+      - 'public/terms.html'
+      - 'public/js/calculator-cta.js'
       - 'tests/deploy-tripwire.test.mjs'
       - 'tests/goal-conflict-flow.test.mjs'
       - 'tests/step4-state-updates.test.mjs'
@@ -244,6 +260,18 @@ jobs:
       # money while the customer's goal answers contradict each other.
       - name: Goal-conflict purchase-flow regression
         run: node tests/goal-conflict-flow.test.mjs
+      # The self-service fat-loss floor, the adult gate, and the rule that a
+      # suppressed target never reaches a sample day, a meal plan or a report.
+      - name: Calorie guardrail and adult gate
+        run: node tests/calorie-guardrail.test.mjs
+      # The free sample day must add up to the target it claims to serve, and no
+      # meal may collapse or shed the diet's anchor food.
+      - name: Sample-day arithmetic
+        run: node tests/sample-day-arithmetic.test.mjs
+      # Signup disclosure and report-retention wording must keep matching what
+      # the code actually does.
+      - name: Signup and retention copy
+        run: node tests/signup-and-retention-copy.test.mjs
 
   bundle-builds:
     runs-on: ubuntu-latest
@@ -261,6 +289,15 @@ jobs:
           npx vite build --outDir /tmp/calc2-ci-build --emptyOutDir
       - name: Client-vs-worker macro parity
         run: node tests/macro_parity/parity_test.mjs
+      # The P0 this batch fixed: dismissing the $29 modal used to leave an
+      # invisible full-screen overlay that swallowed every subsequent click,
+      # including the buy button. Runs here because it needs a real browser and
+      # the freshly built bundle this job already produces.
+      - name: Payment-modal dismissal
+        run: |
+          npm --prefix . install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          node tests/payment-modal-dismiss.test.mjs
       # Needs calculator2-demo/node_modules (react + esbuild), so it runs in this
       # job rather than the dependency-free one. Skips cleanly if they are absent.
       - name: Step 4 state-update regression

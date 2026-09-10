@@ -233,7 +233,10 @@ export default function CalculatorApp({
     // Adult product. A persisted session or a hand-edited store must not reach
     // a personalized target either, so the gate lives here and not only in the
     // Step 1 form. No pediatric substitute: nothing is calculated at all.
-    if (Number(formData.age) < ADULT_MIN_AGE) {
+    // Fails CLOSED like the server gate: NaN < 18 is false, so a non-numeric age
+    // in a rehydrated store would otherwise fall through to the compute branch.
+    const ageNum = Number(formData.age)
+    if (!Number.isFinite(ageNum) || ageNum < ADULT_MIN_AGE) {
       setMacros(null)
       return
     }

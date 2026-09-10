@@ -160,7 +160,13 @@ check('client step 1 surfaces the adult-only message to the reader',
   /ADULT_ONLY_MESSAGE/.test(step1) && /adults 18 and over/.test(calcTs));
 const app = readFileSync(resolve(repo, 'calculator2-demo/src/components/calculator/CalculatorApp.tsx'), 'utf8');
 check('client refuses to compute macros under 18',
-  /Number\(formData\.age\) < ADULT_MIN_AGE/.test(app) && /setMacros\(null\)/.test(app));
+  /ageNum < ADULT_MIN_AGE/.test(app) && /setMacros\(null\)/.test(app));
+// Must fail CLOSED like the server: NaN < 18 is false, so a bare comparison
+// would let a non-numeric age in a rehydrated store through to the compute
+// branch (reviewer, 2026-09-10).
+check('  the client age gate fails closed on a non-numeric age',
+  /!Number\.isFinite\(ageNum\)\s*\|\|\s*ageNum < ADULT_MIN_AGE/.test(app),
+  'client gate does not reject NaN');
 
 console.log('\n=== Case A degenerate band: cap leaves no real deficit ===\n');
 // TDEE just above the floor caps to a target that is effectively maintenance.
@@ -171,16 +177,40 @@ if (dRes.floorApplied && dRes.effectiveDeficitPct === 0) {
   check('cap that yields a 0% deficit is still reported as 0, never the requested %',
     dRes.effectiveDeficitPct !== dRes.requestedDeficitPct, `req=${dRes.requestedDeficitPct} eff=${dRes.effectiveDeficitPct}`);
   check('  the results copy has a branch for the 0% case',
-    /effectiveDeficitPct > 0/.test(step3) && /essentially your estimated maintenance level/.test(step3),
+    /effectiveDeficitPct === 0/.test(step3) && /essentially maintenance/.test(step3),
     'no 0%-deficit wording branch found');
 } else {
   check('degenerate band probe still lands in Case A', true);
 }
 
+// Rounding can put the achieved deficit back on the requested number: a 1597
+// TDEE capped to 1200 is 24.9%, which rounds to 25 and used to print "about 25%
+// below your maintenance, not the 25% you picked" (reviewer, 2026-09-10). The
+// copy must never contradict itself, so it leads with calories and only draws
+// the percentage contrast when the two actually differ.
+const collapsed = calculateMacros({ ...base, sex: 'female', age: 30, heightInches: 2, weight: 145, goal: 'lose', deficit: 25 });
+check('rounding can collapse the effective deficit onto the requested one',
+  collapsed.floorApplied && collapsed.effectiveDeficitPct === collapsed.requestedDeficitPct,
+  `req=${collapsed.requestedDeficitPct} eff=${collapsed.effectiveDeficitPct} tdee=${collapsed.tdee}`);
+check('  the copy only claims a different percentage when it IS different',
+  /effectiveDeficitPct === macros\.requestedDeficitPct/.test(step3),
+  'no equal-percentage branch: the sentence can contradict itself');
+check('  the cap is explained in calories, which cannot round into a contradiction',
+  /calories below your\s*\n?\s*estimated maintenance/.test(step3) || /calories below your/.test(step3));
+
 console.log('\n=== Sample day follows the FINAL target ===\n');
 // The 937 persona is now a 1200 persona: the day must be built around 1200.
 const cappedDay = buildSampleDay(getDietSampleDay('carnivore'), fRes.calories);
 check('sample day is built from the capped 1200 target', cappedDay.target === 1200);
+// Assert what the COMPONENT passes, not what this test passes. The previous
+// version only checked its own buildSampleDay call, so pointing the component
+// at a pre-cap number left the suite green (reviewer mutation, 2026-09-10).
+check('the component builds the sample day from macros.calories, the final target',
+  /buildSampleDay\(getDietSampleDay\(data\.diet\), macros\.calories\)/.test(step3),
+  'the component is not building from the final target');
+check('no pre-cap or raw deficit value is recomputed in the results screen',
+  !/tdee\s*\*\s*\(1\s*-/.test(step3) && !/requestedDeficitPct\s*\/\s*100/.test(step3),
+  'the results screen appears to recompute a raw target');
 const drift = Math.abs(cappedDay.total - 1200) / 1200;
 check(`sample day total is within 8% of the capped target (${cappedDay.total})`, drift <= 0.08, `drift=${(drift * 100).toFixed(1)}%`);
 check('sample day meals sum to the displayed total',
@@ -196,6 +226,13 @@ const sampleDayCall = step3.indexOf('buildSampleDay(');
 check('the results screen bails on a suppressed target BEFORE building a sample day',
   suppressedBranch > -1 && sampleDayCall > -1 && suppressedBranch < sampleDayCall,
   `suppressedAt=${suppressedBranch} sampleDayAt=${sampleDayCall}`);
+// Index comparison alone passes on `if (false && macros.targetSuppressed)`, so
+// assert the guard is a bare condition that returns (reviewer mutation).
+check('the suppression guard is a plain early return, not a disabled branch',
+  /if \(macros\.targetSuppressed\) \{/.test(step3) && /if \(macros\.targetSuppressed\)[\s\S]{0,4000}?\n    return \(/.test(step3),
+  'the suppressed branch is missing, altered, or does not return');
+check('no falsy short-circuit disables the suppression guard',
+  !/if \((?:false|0|null|undefined)\s*&&[^)]*targetSuppressed/.test(step3));
 
 console.log(`\n${failures === 0 ? 'All calorie-guardrail assertions passed.' : failures + ' FAILED'}\n`);
 if (failures > 0) process.exit(1);
