@@ -77,16 +77,26 @@ for (const diet of DIETS) {
       );
     }
 
-    // 5. No zero or nonsensical portions.
-    for (const m of day.meals) {
-      for (const i of m.items) {
+    // 5. A meal keeps the food it is supposed to be made of. Only the snack
+    //    may shed a supporting ingredient, and the diet's anchor food is never
+    //    dropped: trimming the beef jerky and serving cheese alone is not a
+    //    carnivore snack, and "1 tbsp Olive Oil" is not a keto meal.
+    const specs5 = getDietSampleDay(diet);
+    day.meals.forEach((meal, idx) => {
+      const spec = specs5[idx];
+      check(
+        `${p.name} @${p.target}: ${meal.label} keeps the diet's anchor food`,
+        meal.items[0].name === spec.items[0].name,
+        `${meal.description}`
+      );
+      if (meal.items.length < spec.items.length) {
         check(
-          `${p.name} @${p.target}: ${m.label} "${i.name}" portion is servable`,
-          i.qty > 0,
-          `qty=${i.qty}`
+          `${p.name} @${p.target}: only the snack may shed an ingredient (${meal.label})`,
+          /SNACK/i.test(meal.label),
+          `${meal.description}`
         );
       }
-    }
+    });
 
     // 6. No meal may collapse or balloon relative to its share of the day.
     //    The first attempt at this fix charged the whole day's rounding
@@ -113,15 +123,19 @@ for (const diet of DIETS) {
  * produced 1 oz. Spot profiles cannot find that; sweep the whole plausible
  * range instead.
  */
-console.log('Continuous sweep, 800-4000 kcal, every diet\n');
+console.log('Continuous sweep, 800-4000 kcal at 1-kcal steps, every diet\n');
 let worstDrift = 0;
 let worstAt = '';
 let collapsed = 0;
 let collapsedExample = '';
+let anchorLost = 0;
+let anchorExample = '';
+let mainTrimmed = 0;
+let trimExample = '';
 
 for (const diet of DIETS) {
   const specs = getDietSampleDay(diet);
-  for (let target = 800; target <= 4000; target += 10) {
+  for (let target = 800; target <= 4000; target += 1) {
     const day = buildSampleDay(specs, target);
 
     const drift = Math.abs(day.total - target) / target;
@@ -136,12 +150,22 @@ for (const diet of DIETS) {
       if (meal.calories !== Math.round(meal.items.reduce((s, i) => s + i.qty * i.calPerUnit, 0))) {
         collapsed++;
       }
+      if (meal.items[0].name !== specs[idx].items[0].name) {
+        anchorLost++;
+        if (!anchorExample) anchorExample = `${diet} @${target} ${meal.label}: "${meal.description}"`;
+      }
+      if (meal.items.length < specs[idx].items.length && !/SNACK/i.test(meal.label)) {
+        mainTrimmed++;
+        if (!trimExample) trimExample = `${diet} @${target} ${meal.label}: "${meal.description}"`;
+      }
     });
   }
 }
 
 check(`sweep: worst day drift within 8% (worst ${(worstDrift * 100).toFixed(1)}%)`, worstDrift <= 0.08, worstAt);
 check('sweep: no meal collapses or balloons against its share', collapsed === 0, collapsedExample);
+check('sweep: the diet anchor food is never dropped', anchorLost === 0, anchorExample);
+check('sweep: no main meal ever sheds an ingredient', mainTrimmed === 0, trimExample);
 console.log('');
 
 // Shares must sum to 1 for every diet, or the day cannot hit the target.

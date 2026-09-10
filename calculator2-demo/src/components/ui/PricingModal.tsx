@@ -340,7 +340,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     fontFamily: "'Merriweather', Georgia, serif",
                   }}>
                     <li style={{ marginBottom: '4px' }}>One-time purchase: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$29</span></li>
-                    <li>Download and keep your copy — no subscription</li>
+                    <li>Download and keep your copy, no subscription</li>
                   </ul>
                 </div>
                 <div>

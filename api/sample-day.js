@@ -23,10 +23,10 @@
  * tablespoon of butter (102 cal) is a large fraction of an afternoon meal and
  * pushes the day above the target it claims to hit.
  */
-const STEP = { egg: 1, strip: 1, oz: 1, lb: 0.1, tbsp: 0.5, tsp: 0.5, cup: 0.5 };
+const STEP = { egg: 1, strip: 1, oz: 0.5, lb: 0.1, tbsp: 0.5, tsp: 0.5, cup: 0.5 };
 
 /** Never print a portion smaller than this — "0 eggs" is not a meal. */
-const MIN_QTY = { egg: 1, strip: 1, oz: 1, lb: 0.1, tbsp: 0.5, tsp: 0.5, cup: 0.5 };
+const MIN_QTY = { egg: 1, strip: 1, oz: 0.5, lb: 0.1, tbsp: 0.5, tsp: 0.5, cup: 0.5 };
 
 function roundToStep(value, unit) {
   const step = STEP[unit];
@@ -102,16 +102,17 @@ export function buildMeal(spec, slotCalories) {
   // ground beef happened to round badly. Only trim once the full meal is more
   // than a third away from its allocation, which in practice means small
   // snack allocations where every ingredient has already hit its floor.
-  const full = candidates.find((c) => c.items.length === spec.items.length);
+  // The anchor is the diet's defining food and is never dropped: a carnivore
+  // snack that trims the beef jerky and serves cheese alone is worse than a
+  // small snack. Trimming is limited to the supporting ingredients, and only
+  // when the full list cannot fit the allocation at all.
+  const withAnchor = candidates.filter((c) => c.hasAnchor);
+  const full = withAnchor.find((c) => c.items.length === spec.items.length);
   const chosen = full && full.diff <= slotCalories * 0.33
     ? full
-    : candidates
+    : withAnchor
         .slice()
-        .sort((a, b) =>
-          a.diff - b.diff ||
-          Number(b.hasAnchor) - Number(a.hasAnchor) ||
-          b.items.length - a.items.length
-        )[0];
+        .sort((a, b) => a.diff - b.diff || b.items.length - a.items.length)[0];
 
   return {
     label: spec.label,
@@ -230,7 +231,7 @@ export const dietSampleDays = {
       { name: 'Butter', unit: 'tbsp', calPerUnit: 102, baseQty: 1 },
     ]},
     { label: 'DAILY SNACK', share: SHARES.snack, items: [
-      { name: 'Macadamia Nuts', unit: 'oz', calPerUnit: 204, baseQty: 1 },
+      { name: 'Macadamia Nuts', unit: 'oz', calPerUnit: 204, baseQty: 0.5 },
       { name: 'Hard Cheese', unit: 'oz', calPerUnit: 113, baseQty: 1 },
     ]},
   ],
@@ -252,7 +253,7 @@ export const dietSampleDays = {
       { name: 'Olive Oil', unit: 'tbsp', calPerUnit: 119, baseQty: 1 },
     ]},
     { label: 'DAILY SNACK', share: SHARES.snack, items: [
-      { name: 'Almonds', unit: 'oz', calPerUnit: 164, baseQty: 1 },
+      { name: 'Almonds', unit: 'oz', calPerUnit: 164, baseQty: 0.5 },
       { name: 'String Cheese', unit: 'oz', calPerUnit: 85, baseQty: 1 },
     ]},
   ],

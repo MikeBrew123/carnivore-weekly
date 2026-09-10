@@ -47,7 +47,7 @@ const SHIPPED = execSync(
 // after purchase, and is true.
 const NO_SIGNUP = /\bno\s+(signup|sign[-\s]?up)\b|\bno\s+email\s+(required|needed|gate)\b|\bwithout\s+signing\s+up\b/i;
 const offenders = [];
-for (const file of SHIPPED) {
+for (const file of [...SHIPPED, 'data/blog_posts.json']) {
   const src = await read(file);
   if (!NO_SIGNUP.test(src)) continue;
   // Only a problem when the same page routes the reader into the calculator.
@@ -91,21 +91,26 @@ check(
 
 console.log('\n=== Report retention ===\n');
 
-const SALES_SURFACES = [
-  'public/calculator.html',
-  'calculator2-demo/src/components/ui/PricingModal.tsx',
-  'calculator2-demo/src/components/calculator/steps/Step3FreeResults.tsx',
-  'calculator2-demo/src/components/ui/StripePaymentModal.tsx',
-];
-
-for (const file of SALES_SURFACES) {
+// Repo-wide, and including the blog source of truth. A four-file allowlist
+// here missed "One payment, one document, yours forever" on the calculator
+// guide post, which links straight to /calculator.html.
+// \b after "access" so "a permanent accessory" in a CGM post is not a hit.
+const FOREVER = /yours forever|lifetime access\b|permanent access\b|forever access\b/i;
+const foreverOffenders = [];
+for (const file of [...SHIPPED, 'data/blog_posts.json']) {
   const src = await read(file);
-  check(
-    `${file}: no "yours forever" / "lifetime access" claim`,
-    !/yours forever|lifetime access|permanent access|forever access/i.test(src),
-    'implies we host the report indefinitely'
-  );
+  if (!FOREVER.test(src)) continue;
+  for (const line of src.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('//') || trimmed.startsWith('*')) continue;
+    if (FOREVER.test(line)) foreverOffenders.push(`${file}: ${trimmed.slice(0, 90)}`);
+  }
 }
+check(
+  `no shipped surface promises the report is hosted forever (scanned ${SHIPPED.length + 1} files)`,
+  foreverOffenders.length === 0,
+  foreverOffenders.join(' | ')
+);
 
 // Terms remain the authority on the access window, and must still state it.
 const terms = await read('public/terms.html');
