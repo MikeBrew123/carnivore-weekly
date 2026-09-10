@@ -105,6 +105,29 @@ const ADRENAL_CASES = [
   'adrenal fatigue supplements',
   'fludrocortisone, hydrocortisone (adrenal)',
   'levothyroxine; hydrocortisone for adrenal insufficiency; vitamin d',
+  'adrenalitis',
+  'my adrenals',
+  'ashwagandha for adrenal support',
+  'peri-adrenal fat noted on scan',
+];
+
+/**
+ * The same gland, written the ways a word processor and a radiology report
+ * write it. Each of these reached the kidney gate before this suite existed.
+ *
+ *   suprarenal / supra-renal  the adrenal gland's other name
+ *   ad<U+00AD>renal          a soft hyphen, which Word inserts and nobody sees
+ *   ad<U+200B>renal          a zero-width space, from a PDF copy
+ *   ad-renal                 a line-wrapped "adrenal" pasted back together
+ */
+const ADRENAL_SPELLINGS = [
+  'suprarenal mass',
+  'levothyroxine, supra-renal gland removed 2015',
+  'ad-renal insufficiency',
+  'hydrocortisone for ad­renal insufficiency',
+  'ad​renal insufficiency',
+  'ad‑renal insufficiency',
+  'ad–renal insufficiency',
 ];
 
 /** The assertions that define the blocker. Re-run against the mutant in group G. */
@@ -130,6 +153,13 @@ for (const meds of ADRENAL_CASES) {
 check('A', 'the rule itself rejects the exact reported example',
   kdTextDeclaresRenal('hydrocortisone for adrenal insufficiency') === false);
 
+for (const meds of ADRENAL_SPELLINGS) {
+  const ctx = deriveKdMedicalContext(intake({ meds }));
+  check('A', `"${meds}" is not renal`, ctx.renal === false, `renal=${ctx.renal}`);
+  check('A', `"${meds}" is not recorded as a kidney diagnosis`,
+    ctx.kidneyConditionDeclared === false);
+}
+
 // ===========================================================================
 // GROUP B — genuine renal signals still detected
 // ===========================================================================
@@ -144,7 +174,17 @@ const RENAL_CASES = [
   'dialysis', 'hemodialysis three times a week', 'haemodialysis', 'peritoneal dialysis',
   'nephrologist', 'I see a nephrology clinic', 'diabetic nephropathy',
   'glomerulonephritis', 'hydronephrosis', 'eGFR 42', 'egfr is 38',
-  'pre-renal azotemia',
+  // Latin-prefixed compounds. Every prefix except ad- and supra- keeps the
+  // kidney meaning, so all of these must come through, closed up or dashed.
+  'pre-renal azotemia', 'prerenal azotemia', 'postrenal obstruction',
+  'post-renal obstruction', 'intrarenal reflux', 'extrarenal manifestations',
+  'perirenal cyst', 'peri-renal haematoma', 'pararenal',
+  // Fully hyphenated phrasing, which a dash-as-boundary rule would have lost.
+  'chronic-renal-failure', 'end-stage-renal-disease',
+  // Invisible characters from a word processor must not split a real term.
+  'kid­ney disease', 'chronic kid​ney disease',
+  // Not English. The gate reads characters, and these are what they read like.
+  'insuficiencia renal', 'enfermedad renal cronica',
 ];
 
 for (const meds of RENAL_CASES) {
@@ -295,47 +335,77 @@ const REFERRAL_HEADING = 'We have not built this plan';
 }
 
 // ===========================================================================
-// GROUP G — mutation: put the substring behaviour back and prove group A fails
+// GROUP G — mutation. Break each protection, watch a named assertion go red.
 // ===========================================================================
 //
-// The mutant flips the two boundary-aware match modes to plain substring, which
-// is exactly the pre-fix rule. Written to the OS temp directory, never the repo.
-{
+// Three protections, three mutations, run against copies in the OS temp
+// directory. The repository file is never written. A protection nobody has
+// broken on purpose is not known to protect anything.
+const MUTATIONS = [
+  {
+    name: 'match modes collapse back to plain substring (the original bug)',
+    apply: (s) => s
+      .replace("const KD_MATCH_PREFIX = 'prefix';", "const KD_MATCH_PREFIX = 'anywhere';")
+      .replace("const KD_MATCH_TOKEN = 'token';", "const KD_MATCH_TOKEN = 'anywhere';")
+      .replace("const KD_MATCH_STEM = 'stem';", "const KD_MATCH_STEM = 'anywhere';"),
+    breaks: ADRENAL_CASES.concat(ADRENAL_SPELLINGS),
+    losesRenal: [],
+  },
+  {
+    name: 'the adrenal-gland prefixes are forgotten',
+    apply: (s) => s.replace(
+      "const KD_ADRENAL_PREFIXES = ['ad', 'supra'];",
+      'const KD_ADRENAL_PREFIXES = [];'),
+    // Only the dashed spellings depend on this; the closed-up ones are held by
+    // the word-start rule. That difference is the point of separate mutations.
+    breaks: ADRENAL_SPELLINGS.filter(s => /[-‐-―]/.test(s)),
+    losesRenal: [],
+  },
+  {
+    name: 'invisible format characters are left in the text',
+    apply: (s) => s.replace(".replace(/\\p{Cf}/gu, '')", ''),
+    breaks: ADRENAL_SPELLINGS.filter(s => /\p{Cf}/u.test(s)),
+    // This strip is the only protection that works in BOTH directions: with it
+    // gone, a soft hyphen splits "adrenal" into a false positive AND splits
+    // "kidney" into a false negative. Naming both is the honest expectation.
+    losesRenal: RENAL_CASES.filter(s => /\p{Cf}/u.test(s)),
+  },
+];
+
+for (const m of MUTATIONS) {
   const src = fs.readFileSync(REPORTS, 'utf8');
-  const mutated = src
-    .replace("const KD_MATCH_PREFIX = 'prefix';", "const KD_MATCH_PREFIX = 'anywhere';")
-    .replace("const KD_MATCH_TOKEN = 'token';", "const KD_MATCH_TOKEN = 'anywhere';")
-    .replace("from './intake.js'", `from '${'file://' + INTAKE}'`);
-  check('G', 'the mutation actually applied',
-    mutated !== src && mutated.includes("const KD_MATCH_PREFIX = 'anywhere';"));
+  const mutated = m.apply(src).replace("from './intake.js'", `from '${'file://' + INTAKE}'`);
+  check('G', `mutation applied: ${m.name}`, mutated !== src);
+  check('G', `mutation is non-trivial: ${m.name}`, m.breaks.length > 0);
 
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kd-renal-mutant-'));
   const file = path.join(dir, 'reports.mutant.mjs');
   fs.writeFileSync(file, mutated);
   try {
-    const mutant = await import('file://' + file);
-    const wrong = adrenalExpectations(mutant.deriveKdMedicalContext);
-    check('G', 'the mutant reintroduces the bug', wrong.length > 0);
-    check('G', 'group A catches it on every adrenal case',
-      wrong.length === ADRENAL_CASES.length * 3,
-      `${wrong.length} broken assertions, expected ${ADRENAL_CASES.length * 3}`);
-    check('G', 'and specifically on the exact reported example',
-      wrong.some(w => w.startsWith('hydrocortisone for adrenal insufficiency: renal=true')));
-
-    // The same mutant must still pass group B, which proves group A is what
-    // catches this mutation rather than a suite-wide collapse.
-    const stillRenal = RENAL_CASES.every(meds =>
+    const mutant = await import('file://' + file + '?v=' + encodeURIComponent(m.name));
+    const nowRenal = m.breaks.filter(meds =>
       mutant.deriveKdMedicalContext(intake({ meds })).renal === true);
-    check('G', 'the mutant still detects genuine renal text, so group A is the discriminator',
-      stillRenal === true);
+    check('G', `caught: ${m.name}`, nowRenal.length === m.breaks.length,
+      `${nowRenal.length} of ${m.breaks.length} adrenal inputs went renal`);
 
-    // And the fixed module, run through the identical harness, is clean.
-    check('G', 'the shipped module passes the same harness',
-      adrenalExpectations(deriveKdMedicalContext).length === 0);
+    // The suite must DISCRIMINATE, not collapse. Every genuine renal signal the
+    // mutation is not expected to touch must still be detected, and every one it
+    // is expected to touch must actually go missing.
+    const lost = RENAL_CASES.filter(meds =>
+      mutant.deriveKdMedicalContext(intake({ meds })).renal !== true);
+    check('G', `only the named renal signals are lost under: ${m.name}`,
+      lost.length === m.losesRenal.length && m.losesRenal.every(s => lost.includes(s)),
+      `lost [${lost.join(' | ')}], expected [${m.losesRenal.join(' | ')}]`);
+    check('G', `group B is the discriminator for: ${m.name}`,
+      lost.length < RENAL_CASES.length);
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 }
+
+// And the shipped module, through the identical harness, is clean.
+check('G', 'the shipped module passes the mutation harness',
+  adrenalExpectations(deriveKdMedicalContext).length === 0);
 
 // ===========================================================================
 const groups = [...new Set(failures.map(f => f.group))].sort();

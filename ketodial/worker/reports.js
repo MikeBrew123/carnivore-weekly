@@ -227,21 +227,56 @@ const KD_KNOWN_CONDITION_SLUGS = new Set([
 //                word contains, and where a left boundary would LOSE a real
 //                signal: 'dialysis' must still catch "hemodialysis", 'nephro'
 //                must still catch "hydronephrosis".
-//   'prefix'   — must start a word; may continue. "renal disease", "renal
-//                impairment", "kidneys" match. "adrenal" does not.
+//   'prefix'   — must start a word; may continue. "kidneys", "kidney disease".
 //   'token'    — must be a whole word. Acronyms only. "CKD", "ckd 3" and
 //                "CKD-4" match, because a digit or hyphen is not a letter.
+//   'stem'     — 'prefix', minus the two prefixes that mean a different organ.
+//                Only `renal` needs this; see below.
 //
-// SCOPE. This blocker is the renal gate, so only the renal-family terms are
-// reclassified, and of those only `renal` changes behaviour at all: no English
-// word ends in "kidney", contains "ckd"/"esrd"/"egfr", and the three 'anywhere'
-// terms keep the exact rule they had. Every cardiac and blood-pressure term is
-// left on 'anywhere', byte-for-byte as before. Narrowing "heart" so it stops
-// matching "heartburn" is a real and separate question; it is not this one, and
-// over-suppressing an electrolyte protocol is the safe direction anyway.
+// WHY `renal` IS ITS OWN CASE. In medical English exactly two prefixes take
+// `renal` away from the kidney and give it to the gland sitting on top of it:
+// ad- (adrenal, adrenaline, adrenalectomy) and supra- (suprarenal). Every other
+// prefix keeps the kidney meaning — prerenal, postrenal, intrarenal, extrarenal,
+// perirenal, pararenal. So a plain word-start rule trades one error for another:
+// it fixes "adrenal" and breaks "prerenal".
+//
+// Both halves are handled, and they need different mechanisms because English
+// writes these two ways. Written closed up, the gland's prefixes are simply part
+// of the word, so word-start settles it: "adrenal" is out, and the kidney
+// compounds are added below as terms of their own. Written with a dash, word-
+// start no longer separates them, so `renal` additionally refuses the two gland
+// morphemes by name: "supra-renal" is out, while "pre-renal" and
+// "chronic-renal-failure" are in.
+//
+// Naming ad- and supra- is naming the entire set of prefixes that change the
+// organ, which is a fact about medical English rather than a list of unlucky
+// words. Blocking the literal "adrenal" instead would have left "adrenaline",
+// "noradrenaline" and "adrenalectomy" broken, and the next such word after that.
+//
+// SCOPE. Only the renal family is reclassified. No English word ends in
+// "kidney" or contains "ckd"/"esrd"/"egfr", and the three 'anywhere' terms keep
+// the exact rule they had, so `renal` is the only behaviour that moves. Every
+// cardiac and blood-pressure term is left on 'anywhere', byte-for-byte as
+// before. Narrowing "heart" so it stops matching "heartburn" is a real and
+// separate question; it is not this one, and over-suppressing an electrolyte
+// protocol is the safe direction anyway.
 const KD_MATCH_ANYWHERE = 'anywhere';
 const KD_MATCH_PREFIX = 'prefix';
 const KD_MATCH_TOKEN = 'token';
+const KD_MATCH_STEM = 'stem';
+
+/**
+ * Prefixes that leave `renal` meaning the kidney, written closed up. The dashed
+ * spellings need no entry: "pre-renal" already reaches `renal` at a word start.
+ */
+const KD_RENAL_PREFIXES = ['pre', 'post', 'intra', 'extra', 'peri', 'para'];
+
+/**
+ * The prefixes that move `renal` to the adrenal gland, as they appear when a
+ * writer dashes them. The closed-up spellings need no entry: "adrenal" and
+ * "suprarenal" already fail the word-start rule.
+ */
+const KD_ADRENAL_PREFIXES = ['ad', 'supra'];
 
 /**
  * The renal family, and how each member may match. This is the single source of
@@ -250,7 +285,8 @@ const KD_MATCH_TOKEN = 'token';
  */
 const KD_RENAL_TERMS = [
   ['kidney', KD_MATCH_PREFIX],
-  ['renal', KD_MATCH_PREFIX],
+  ['renal', KD_MATCH_STEM],
+  ...KD_RENAL_PREFIXES.map(p => [`${p}renal`, KD_MATCH_PREFIX]),
   ['ckd', KD_MATCH_TOKEN],
   ['esrd', KD_MATCH_TOKEN],
   ['nephro', KD_MATCH_ANYWHERE],
@@ -279,25 +315,42 @@ const KD_CARDIO_RENAL_TERMS = [
   ['oedema', KD_MATCH_ANYWHERE],
 ];
 
-/** Regex-escape a literal term. The lists are ours, but a term may contain "-". */
+/**
+ * Regex-escape a literal term. The lists are ours, but a term may contain "-".
+ *
+ * "-" is deliberately NOT in this set. It carries no meaning outside a character
+ * class, and under the `u` flag `\-` is not a permitted escape at all: including
+ * it threw "Invalid regular expression: /(?<![\p{L}\p{Pd}])pre\-renal/u" at
+ * module load, which would have taken every KetoDial report down with it.
+ */
 function kdEscapeTerm(t) {
-  return String(t).replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+  return String(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
- * Compile one term into a test against the lowercased blob.
+ * Compile one term into a test against the normalized blob.
  *
  * A boundary here is "not a letter", deliberately, rather than \b. \b treats a
  * digit as a word character, so "ckd3" — which a real customer writes — would
  * fail a \b-anchored token match. \p{L} also means an accented spelling cannot
- * sneak past the left boundary of `renal`.
+ * sneak past the left boundary.
+ *
+ * 'stem' adds one negative lookbehind per adrenal-gland prefix, which is what
+ * separates "supra-renal" (the gland) from "pre-renal" and
+ * "chronic-renal-failure" (the kidney). JavaScript allows a variable-length
+ * lookbehind, so this can be stated directly instead of being approximated by
+ * treating every dash as part of the word, which would have swallowed the
+ * genuine hyphenated phrasings along with the two bad ones.
  */
 function kdCompileTerm([term, mode]) {
   if (mode === KD_MATCH_ANYWHERE) {
     return (blob) => blob.includes(term);
   }
+  const notGland = mode === KD_MATCH_STEM
+    ? KD_ADRENAL_PREFIXES.map(p => `(?<!${p}\\p{Pd})`).join('')
+    : '';
   const right = mode === KD_MATCH_TOKEN ? '(?!\\p{L})' : '';
-  const re = new RegExp('(?<!\\p{L})' + kdEscapeTerm(term) + right, 'u');
+  const re = new RegExp('(?<!\\p{L})' + notGland + kdEscapeTerm(term) + right, 'u');
   return (blob) => re.test(blob);
 }
 
@@ -306,22 +359,37 @@ const KD_RENAL_MATCHERS = KD_RENAL_TERMS.map(kdCompileTerm);
 const KD_CARDIO_RENAL_MATCHERS = KD_CARDIO_RENAL_TERMS.map(kdCompileTerm);
 
 /**
+ * Lowercase, and drop characters that are not there.
+ *
+ * Unicode format characters (\p{Cf}: soft hyphen, zero-width space, zero-width
+ * joiner) are invisible, and a customer pasting from a Word document or a PDF
+ * brings them along without knowing. A soft hyphen sitting inside "ad<shy>renal"
+ * is not a word boundary to any reader, and it must not be one here either:
+ * left in, it splits the word and hands the fragment "renal" to the gate, which
+ * is the whole defect wearing a different hat. Stripping them first means the
+ * text is judged as it is read.
+ */
+function kdNormalizeBlob(blob) {
+  return String(blob == null ? '' : blob).toLowerCase().replace(/\p{Cf}/gu, '');
+}
+
+/**
  * Does this free text declare reduced kidney function?
  *
  * Exported so a regression test can drive the rule directly instead of only
  * observing it through a whole generated report.
  *
- * @param {string} blob lowercased condition slugs, condition labels and the
- *                      medications free text, joined
+ * @param {string} blob condition slugs, condition labels and the medications
+ *                      free text, joined
  */
 export function kdTextDeclaresRenal(blob) {
-  const s = String(blob == null ? '' : blob).toLowerCase();
+  const s = kdNormalizeBlob(blob);
   return KD_RENAL_MATCHERS.some(m => m(s));
 }
 
 /** The same question for the wider cardiac / renal / blood-pressure family. */
 function kdTextDeclaresCardioRenal(blob) {
-  const s = String(blob == null ? '' : blob).toLowerCase();
+  const s = kdNormalizeBlob(blob);
   return KD_CARDIO_RENAL_MATCHERS.some(m => m(s));
 }
 
