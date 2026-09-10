@@ -52,7 +52,12 @@
     cta = 'Build Your Meal Plan';
   }
 
-  // Build the CTA HTML — matches Carnivore Weekly brand
+  // Build the CTA HTML — matches Carnivore Weekly brand.
+  // The footer line must not claim that no signup is needed: the calculator
+  // blocks on an email address at step 1 and enrols it in the free email
+  // series. This CTA renders on every blog post, so a stale claim here is the
+  // site's most-seen untrue statement (audit 2026-09-10). Guarded by
+  // tests/signup-and-retention-copy.test.mjs.
   const ctaHTML = `
     <div class="cw-calculator-cta" style="
       background: linear-gradient(135deg, #1a1a1a 0%, #2c1810 100%);
@@ -115,7 +120,7 @@
           font-size: 0.8rem;
           margin: 16px 0 0 0;
           font-family: 'Source Sans 3', sans-serif;
-        ">Free results in 60 seconds · No signup required</p>
+        ">Free results in 60 seconds · Emailed to you · Unsubscribe anytime</p>
       </div>
     </div>
   `;

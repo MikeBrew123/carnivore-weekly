@@ -193,9 +193,14 @@ export default function StripePaymentModal({
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      // pointerEvents is animated alongside opacity so the overlay stops
+      // swallowing taps the instant the exit begins. Without it, an overlay that
+      // outlives its exit animation stays full-screen at opacity 0 with
+      // pointer-events:auto and silently eats every click on the page behind it,
+      // including the $29 CTA itself (audit 2026-09-10).
+      initial={{ opacity: 0, pointerEvents: 'none' }}
+      animate={{ opacity: 1, pointerEvents: 'auto' }}
+      exit={{ opacity: 0, pointerEvents: 'none' }}
       style={{
         position: 'fixed',
         inset: 0,

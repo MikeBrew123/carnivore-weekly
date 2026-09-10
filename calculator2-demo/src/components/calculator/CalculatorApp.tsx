@@ -17,7 +17,6 @@ declare global {
 }
 import StripePaymentModal from '../ui/StripePaymentModal'
 import { detectGoalConflict } from '../../../../api/goal-semantics.js'
-import { AnimatePresence } from 'framer-motion'
 import ReportGeneratingScreen from '../ui/ReportGeneratingScreen'
 
 interface CalculatorAppProps {
@@ -971,6 +970,21 @@ export default function CalculatorApp({
               {isEmailingSent ? '✓ Email Sent!' : isEmailingReport ? '📧 Sending...' : '📧 Email My Report'}
             </button>
 
+            {/* The sales copy promises the report is theirs to keep, and it is —
+                but only once they have their own copy. This page's link is
+                time-limited (Terms: currently 48 hours), so say so here rather
+                than leaving it to the Terms (audit 2026-09-10). */}
+            <p style={{
+              fontSize: '13px',
+              color: '#6b6b6b',
+              fontFamily: "'Merriweather', Georgia, serif",
+              marginTop: '12px',
+              maxWidth: '440px',
+            }}>
+              This online copy stays open for a limited time (currently 48 hours).
+              Email or download it now and that copy is yours to keep for good.
+            </p>
+
             {isEmailingSent && (
               <p style={{
                 fontSize: '13px',
@@ -1128,10 +1142,18 @@ export default function CalculatorApp({
         </div>
       </div>
 
-      {/* Stripe Payment Modal — direct from Step 3 CTA (no intermediate PricingModal) */}
-      <AnimatePresence>
-        {showPaymentModal && (
+      {/* Stripe Payment Modal — direct from Step 3 CTA (no intermediate PricingModal).
+          Deliberately NOT wrapped in <AnimatePresence>. Its exit animation ran to
+          opacity 0 but the node was never unmounted, leaving a full-screen
+          fixed overlay at z-index 10000 with pointer-events:auto that swallowed
+          every click on the page behind it — including the $29 CTA, so a
+          customer who opened the offer and closed it could not buy without
+          reloading (audit 2026-09-10, reproduced on mobile and desktop).
+          Plain conditional rendering makes the unmount deterministic; losing the
+          fade-out is a fair trade for a working checkout. */}
+      {showPaymentModal && (
           <StripePaymentModal
+            key="stripe-payment-modal"
             tierId="bundle"
             tierTitle="Complete Carnivore Protocol"
             tierPrice="$29"
@@ -1141,8 +1163,7 @@ export default function CalculatorApp({
             onSuccess={() => handlePaymentSuccess()}
             onCancel={() => setShowPaymentModal(false)}
           />
-        )}
-      </AnimatePresence>
+      )}
     </>
   )
 }

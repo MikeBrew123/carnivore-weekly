@@ -3,6 +3,8 @@ import { FormData, MacroResults } from '../../../types/form'
 import MacroPreview from '../../ui/MacroPreview'
 import MicroSurvey from '../../ui/MicroSurvey'
 import { useFormStore } from '../../../stores/formStore'
+// @ts-ignore — shared plain-JS module, same pattern as api/goal-semantics.js
+import { buildSampleDay, getDietSampleDay } from '../../../../../api/sample-day.js'
 
 declare global {
   interface Window {
@@ -39,62 +41,32 @@ const goalLabels: Record<string, string> = {
 // ── Diet-specific meal configurations ──
 const dietConfig: Record<string, {
   label: string
-  meal1: { description: string; calories: number }
-  meal2: { protein: string; calPerLb: number }
-  meal3: { description: string; calories: number; protein: number; fat: number }
-  meal4: { description: string; calories: number; protein: number; fat: number }
-  snack: { description: string; calories: number; protein: number; fat: number }
   troubleshooting: string
   socialProof: string
 }> = {
   'carnivore': {
     label: 'Carnivore',
-    meal1: { description: '4 Eggs + 0.5 lb Ground Beef (80/20)', calories: 750 },
-    meal2: { protein: 'Ribeye Steak', calPerLb: 1200 },
-    meal3: { description: '6 oz NY Strip + 2 tbsp Butter + Bone Broth', calories: 580, protein: 44, fat: 42 },
-    meal4: { description: '0.5 lb Ground Beef Patties + 3 Eggs + Tallow', calories: 680, protein: 52, fat: 48 },
-    snack: { description: 'Beef Jerky + Hard Cheese + Pork Rinds', calories: 320, protein: 28, fat: 22 },
     troubleshooting: 'Fixes for night sweats and digestive stalls',
     socialProof: 'carnivores'
   },
   'keto': {
     label: 'Keto',
-    meal1: { description: '3 Eggs + 1 Avocado + 2 oz Cheddar', calories: 620 },
-    meal2: { protein: 'Chicken Thighs (skin-on)', calPerLb: 950 },
-    meal3: { description: 'Grilled Chicken Thigh + Spinach Salad + Olive Oil Dressing', calories: 520, protein: 36, fat: 38 },
-    meal4: { description: 'Salmon Fillet + Roasted Broccoli + Butter', calories: 540, protein: 38, fat: 32 },
-    snack: { description: 'Macadamia Nuts + Hard Cheese', calories: 300, protein: 8, fat: 26 },
     troubleshooting: 'Strategies for keto flu and electrolyte balance',
     socialProof: 'keto dieters'
   },
   'lowcarb': {
     label: 'Low Carb',
-    meal1: { description: '3 Eggs + 4 oz Sausage + Sauteed Peppers', calories: 550 },
-    meal2: { protein: 'Pork Chops (bone-in)', calPerLb: 1090 },
-    meal3: { description: 'Turkey Burger Lettuce Wrap + Avocado + Side Salad', calories: 480, protein: 34, fat: 30 },
-    meal4: { description: 'Chicken Thighs + Roasted Zucchini + Olive Oil', calories: 520, protein: 38, fat: 32 },
-    snack: { description: 'Almonds + String Cheese', calories: 280, protein: 14, fat: 20 },
     troubleshooting: 'Managing carb cravings and energy dips',
     socialProof: 'low-carb followers'
   },
   'pescatarian': {
     label: 'Pescatarian',
-    meal1: { description: '3 Eggs + 4 oz Smoked Salmon + Capers', calories: 480 },
-    meal2: { protein: 'Wild Salmon Fillet', calPerLb: 1270 },
-    meal3: { description: 'Grilled Shrimp + Cauliflower Rice + Garlic Butter', calories: 420, protein: 38, fat: 22 },
-    meal4: { description: 'Seared Tuna Steak + Asparagus + Lemon Butter', calories: 380, protein: 44, fat: 16 },
-    snack: { description: 'Sardines + Cream Cheese', calories: 290, protein: 22, fat: 18 },
     troubleshooting: 'Optimizing Omega-3 ratios and mercury safety',
     socialProof: 'pescatarians'
   }
 }
 
 const getDietConfig = (diet: string) => dietConfig[diet] || dietConfig['carnivore']
-
-const getMeal2Amount = (totalCalories: number, meal1Calories: number, meal2CalPerLb: number) => {
-  const remainingCalories = totalCalories - meal1Calories
-  return (remainingCalories / meal2CalPerLb).toFixed(1)
-}
 
 // ── Shared styles ──
 const sectionCard = {
@@ -213,6 +185,9 @@ export default function Step3FreeResults({
   }
 
   const config = getDietConfig(data.diet)
+  // Every meal shown below is scaled to this target, and each meal's calories are
+  // derived from its own scaled ingredients. See api/sample-day.js for why.
+  const sampleDay = buildSampleDay(getDietSampleDay(data.diet), macros.calories)
 
   return (
     <div className="space-y-8">
@@ -492,47 +467,33 @@ export default function Step3FreeResults({
           Your Sample {config.label} Day
         </h3>
         <p style={{ fontSize: '14px', color: '#a0a0a0', marginBottom: '16px', ...bodyFont }}>
-          To hit your {macros.calories} calorie target:
+          A full day built to your {macros.calories} calorie target — {sampleDay.total} calories across {sampleDay.meals.length} meals:
         </p>
 
         {/* Meal 1 — visible */}
         <div style={{ marginBottom: '16px', paddingLeft: '16px', borderLeft: '3px solid #d4a574' }}>
-          <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>MEAL 1</p>
-          <p style={{ fontSize: '15px', color: '#f5f5f5', ...bodyFont }}>{config.meal1.description}</p>
-          <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', ...bodyFont }}>~{config.meal1.calories} calories</p>
+          <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>{sampleDay.meals[0].label}</p>
+          <p style={{ fontSize: '15px', color: '#f5f5f5', ...bodyFont }}>{sampleDay.meals[0].description}</p>
+          <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', ...bodyFont }}>~{sampleDay.meals[0].calories} calories</p>
         </div>
 
-        {/* Blurred meals — diet-aware */}
+        {/* Blurred meals — every one scaled to the same target as meal 1 */}
         <div ref={mealLockRef} style={{ position: 'relative', overflow: 'hidden', borderRadius: '8px', marginTop: '12px' }}>
           <div style={{ filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none' }}>
-            {/* Meal 2 */}
-            <div style={{ paddingLeft: '16px', borderLeft: '3px solid #d4a574', marginBottom: '16px' }}>
-              <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>MEAL 2</p>
-              <p style={{ fontSize: '15px', color: '#f5f5f5', ...bodyFont }}>
-                <strong style={{ color: '#ffd700' }}>{getMeal2Amount(macros.calories, config.meal1.calories, config.meal2.calPerLb)} lbs</strong> of {config.meal2.protein}
-              </p>
-              <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', ...bodyFont }}>
-                ~{macros.calories - config.meal1.calories} calories to reach your target
-              </p>
-            </div>
-            {/* Meal 3 */}
-            <div style={{ paddingLeft: '16px', borderLeft: '3px solid #d4a574', marginBottom: '16px' }}>
-              <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>MEAL 3 — AFTERNOON</p>
-              <p style={{ fontSize: '15px', color: '#f5f5f5', ...bodyFont }}>{config.meal3.description}</p>
-              <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', ...bodyFont }}>~{config.meal3.calories} calories | {config.meal3.protein}g protein | {config.meal3.fat}g fat</p>
-            </div>
-            {/* Meal 4 */}
-            <div style={{ paddingLeft: '16px', borderLeft: '3px solid #d4a574', marginBottom: '16px' }}>
-              <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>MEAL 4 — EVENING</p>
-              <p style={{ fontSize: '15px', color: '#f5f5f5', ...bodyFont }}>{config.meal4.description}</p>
-              <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', ...bodyFont }}>~{config.meal4.calories} calories | {config.meal4.protein}g protein | {config.meal4.fat}g fat</p>
-            </div>
-            {/* Snack */}
-            <div style={{ paddingLeft: '16px', borderLeft: '3px solid #d4a574' }}>
-              <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>DAILY SNACK</p>
-              <p style={{ fontSize: '15px', color: '#f5f5f5', ...bodyFont }}>{config.snack.description}</p>
-              <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', ...bodyFont }}>~{config.snack.calories} calories | {config.snack.protein}g protein | {config.snack.fat}g fat</p>
-            </div>
+            {sampleDay.meals.slice(1).map((meal: any, idx: number) => (
+              <div
+                key={meal.label}
+                style={{
+                  paddingLeft: '16px',
+                  borderLeft: '3px solid #d4a574',
+                  marginBottom: idx === sampleDay.meals.length - 2 ? 0 : '16px',
+                }}
+              >
+                <p style={{ fontSize: '13px', color: '#d4a574', fontWeight: '600', marginBottom: '4px', fontFamily: "'Playfair Display', Georgia, serif" }}>{meal.label}</p>
+                <p style={{ fontSize: '15px', color: '#f5f5f5', ...bodyFont }}>{meal.description}</p>
+                <p style={{ fontSize: '12px', color: '#666', marginTop: '4px', ...bodyFont }}>~{meal.calories} calories</p>
+              </div>
+            ))}
           </div>
 
           {/* Lock Overlay */}
@@ -553,7 +514,7 @@ export default function Step3FreeResults({
             <span style={{ fontSize: '28px', marginBottom: '8px' }}>🔒</span>
             <p style={{ color: '#ffd700', fontWeight: 600, fontSize: '16px', margin: 0 }}>Your full 30-day meal plan is ready</p>
             <p style={{ color: '#a3a3a3', fontSize: '13px', marginTop: '6px' }}>4 more {config.label.toLowerCase()} meals + snack timing + grocery lists — included in your plan</p>
-            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}>{alreadyPaid ? 'Already unlocked — tap to continue' : '$29 — Yours forever'}</p>
+            <p style={{ color: 'rgba(245, 158, 11, 0.7)', fontSize: '12px', marginTop: '4px' }}>{alreadyPaid ? 'Already unlocked — tap to continue' : '$29 — download and keep it'}</p>
           </div>
         </div>
       </div>
