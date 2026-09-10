@@ -55,6 +55,9 @@ on:
       - 'tests/step4-state-updates.test.mjs'
       - 'tests/report-copy-gate-retry.test.mjs'
       - 'tests/renal-meal-plan-suppression.test.mjs'
+      - 'tests/paid-resume-email.test.mjs'
+      - 'public/calculator.html'
+      - 'public/assets/calculator2/**'
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
@@ -73,6 +76,9 @@ on:
       - 'tests/step4-state-updates.test.mjs'
       - 'tests/report-copy-gate-retry.test.mjs'
       - 'tests/renal-meal-plan-suppression.test.mjs'
+      - 'tests/paid-resume-email.test.mjs'
+      - 'public/calculator.html'
+      - 'public/assets/calculator2/**'
       - 'api/goal-semantics.js'
       - 'api/wrangler.toml'
       - 'api/package.json'
@@ -215,6 +221,12 @@ jobs:
       # this pins both halves.
       - name: Renal meal-plan suppression
         run: node tests/renal-meal-plan-suppression.test.mjs
+      # A paid buyer who leaves before Step 4 gets a durable way back. Payment sends
+      # the resume link and generates nothing; one email per purchase; a transient
+      # Resend failure is retried rather than deduped into silence; and no screen
+      # promises a delivery that does not happen.
+      - name: Paid-report recovery and resume email
+        run: node tests/paid-resume-email.test.mjs
       # Exactly one file may be a deployed report generator. Two dormant ones exist
       # in api/ and neither is authorized for deletion, so this reads the actual
       # deployment surface (wrangler configs, package mains, CI) and fails the build

@@ -430,6 +430,38 @@ assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,'    const oneMealBullet = false'))
 "
 
+# --- PAID RECOVERY (blocker 1, 2026-09-09) --------------------------------------
+# Idempotency and retry safety pull against each other here, so each is mutated on its
+# own. The obvious implementation passes the duplicate test and loses the customer on
+# the retry one.
+mutate 67 "a duplicate event stops retrying an email that never went out" paid-resume-email "
+s=open('$API').read()
+old='      const retry = await sendResumeEmailIfOwed(env, event.data.object);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'      const retry = { skipped: 1 };'))
+"
+
+mutate 68 "a failed send is recorded as delivered" paid-resume-email "
+s=open('$API').read()
+old='  if (!send.ok) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'  if (send.ok === null) {'))
+"
+
+mutate 69 "the settled-payment check is inverted" paid-resume-email "
+s=open('$API').read()
+old='obj.payment_status !== '
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'obj.payment_status === '))
+"
+
+mutate 70 "the delivery marker stops being consulted" paid-resume-email "
+s=open('$API').read()
+old='Array.isArray(rows) && rows.length > 0'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'Array.isArray(rows) && rows.length > 999'))
+"
+
 mutate 61 "sections 3 and 4 go back to the quantitative templates for a renal reader" renal-meal-plan-suppression "
 s=open('$API').read()
 old='    const suppressQuantities = deriveMedicalContext(data).restrictProteinTarget;'

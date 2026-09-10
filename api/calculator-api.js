@@ -7143,6 +7143,199 @@ ${product.upsell}
   return createSuccessResponse({ received: true, shop_product: shopSlug, delivered });
 }
 
+/**
+ * THE WAY BACK FOR A PAID BUYER.
+ *
+ * The report is generated AFTER Step 4, and that is correct: it is written from the
+ * health profile, and the questionnaire asks for it after payment. So a webhook must
+ * NOT generate a report. What it must do is make sure the customer can get back.
+ *
+ * Before this, they could not. The browser remembers a payment for six hours and then
+ * deliberately clears it (a stale success screen used to strand repeat visitors), and
+ * nothing was sent from the server, while the post-payment screen told them their
+ * protocol was generating and to check their email for a download link. Both untrue.
+ * Someone who paid and closed the tab had no route back to an assessment they owned.
+ *
+ * The link is the SAME url Stripe already redirects to, carrying the assessment UUID
+ * the checkout was created with. Nothing new to resolve, nothing new to trust: the
+ * existing url-parameter path restores the paid session and drops them at Step 4.
+ *
+ * IDEMPOTENCY AND RETRY SAFETY, which pull in opposite directions.
+ *   - Stripe retries and duplicates must not send a second copy.
+ *   - A transient Resend failure must NOT be permanently swallowed by the fact that
+ *     the Stripe event was already recorded as processed.
+ * So the send is keyed on its OWN marker, not on the event row. The event row means
+ * "we have seen this event"; the marker means "this customer has their link". They are
+ * different facts and conflating them loses the email. The marker is written only
+ * after Resend accepts, so a failure leaves it absent and the next delivery of the
+ * same event (which arrives on the duplicate path) tries again.
+ *
+ * The marker lives in stripe_webhook_events under a synthetic, self-describing id
+ * rather than in a new column: the table already exists, already has UNIQUE
+ * (stripe_event_id), and needed no migration on a production database with no staging.
+ */
+const RESUME_LINK_BASE = 'https://carnivoreweekly.com/calculator.html';
+const resumeEmailMarkerId = checkoutSessionId => `cw-resume-email:${checkoutSessionId}`;
+
+function buildResumeLink(assessmentId) {
+  return `${RESUME_LINK_BASE}?payment=success&session_id=${encodeURIComponent(assessmentId)}#payment-success`;
+}
+
+/**
+ * Sarah (sarah-health-coach), 2026-09-09, used verbatim. It says the payment landed,
+ * says one step is left and what the report is built from, and says the link keeps
+ * working. It does NOT say a report exists, is being written, or will arrive by email,
+ * because none of those are true when it is sent.
+ */
+const RESUME_EMAIL_SUBJECT = 'Your payment went through. One step left.';
+
+function buildResumeEmailBody(resumeLink) {
+  const paragraphs = [
+    'Thanks, your payment went through.',
+    'There\'s one short step left before your report can be built: the health profile. ' +
+    'It asks about any conditions, medications and allergies, what you find hardest, and ' +
+    'how you like to cook. Your report is written from those answers, so it can\'t be put ' +
+    'together until you\'ve filled it in.',
+    'Use this link to go back to your paid assessment:',
+  ];
+  const closing = [
+    'The link works later too, so if now isn\'t a good time, come back when you have a few ' +
+    'quiet minutes. Your answers so far are saved.',
+    'If anything goes wrong, just reply to this email and I\'ll help.',
+  ];
+
+  const text = [...paragraphs, resumeLink, ...closing, 'Sarah', 'Carnivore Weekly'].join('\n\n');
+
+  const html =
+    '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Georgia,serif;' +
+    'font-size:16px;line-height:1.6;color:#1a120b;max-width:560px;margin:0 auto;padding:24px;">' +
+    paragraphs.map(p => `<p>${escapeHTML(p)}</p>`).join('') +
+    `<p style="margin:24px 0;"><a href="${resumeLink}" ` +
+    'style="background:#8b4513;color:#ffffff;padding:14px 28px;border-radius:8px;' +
+    'text-decoration:none;display:inline-block;font-weight:600;">Finish your health profile</a></p>' +
+    `<p style="font-size:14px;word-break:break-all;color:#5c4433;">${escapeHTML(resumeLink)}</p>` +
+    closing.map(p => `<p>${escapeHTML(p)}</p>`).join('') +
+    '<p style="margin-top:24px;">Sarah<br>Carnivore Weekly</p>' +
+    '</div>';
+
+  return { text, html };
+}
+
+async function sendResumeEmailIfOwed(env, obj) {
+  const assessmentId = obj?.client_reference_id || obj?.metadata?.assessment_session_id;
+  // Not a Carnivore Weekly report checkout. KetoDial, coach and shop checkouts reach
+  // this webhook too and carry no assessment reference.
+  if (!assessmentId) return { skipped: 'not-a-cw-report-checkout' };
+
+  // "Confirmed" means the money arrived. Stripe completes a Session for delayed and
+  // asynchronous payment methods before it settles, and "your payment went through"
+  // must not be sent for one of those.
+  if (obj.payment_status !== 'paid') return { skipped: `payment_status=${obj.payment_status}` };
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+    'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+  };
+  const markerId = resumeEmailMarkerId(obj.id);
+
+  const markerCheck = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/stripe_webhook_events?stripe_event_id=eq.${encodeURIComponent(markerId)}&select=id`,
+    { headers }
+  );
+  if (markerCheck.ok) {
+    const rows = await markerCheck.json().catch(() => []);
+    if (Array.isArray(rows) && rows.length > 0) return { skipped: 'already-sent' };
+  } else {
+    // Cannot prove it has not been sent. Sending anyway risks a duplicate; the retry
+    // path will pick it up when the database answers.
+    return { failed: true, reason: `marker lookup failed (${markerCheck.status})` };
+  }
+
+  const sessionLookup = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${encodeURIComponent(assessmentId)}&select=id,email`,
+    { headers }
+  );
+  if (!sessionLookup.ok) return { failed: true, reason: `session lookup failed (${sessionLookup.status})` };
+  const sessions = await sessionLookup.json().catch(() => []);
+  if (!Array.isArray(sessions) || sessions.length === 0) {
+    // No assessment to go back to. A link to a row that does not exist is worse than
+    // no link, and this is not a transient condition, so do not hold up the webhook.
+    console.warn(`[resume-email] no assessment row for ${assessmentId}; nothing to link to`);
+    return { skipped: 'assessment-not-found' };
+  }
+
+  const to = obj.customer_email || obj.customer_details?.email || obj.metadata?.email || sessions[0].email;
+  if (!to) return { skipped: 'no-buyer-email' };
+
+  if (!env.RESEND_API_KEY) return { failed: true, reason: 'RESEND_API_KEY not configured' };
+
+  const link = buildResumeLink(assessmentId);
+  const { text, html } = buildResumeEmailBody(link);
+
+  const send = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      // Deterministic, so a retry inside Resend's 24h window is the same message
+      // rather than a second one. The database marker is the durable half.
+      'Idempotency-Key': `cw-resume/${obj.id}`,
+    },
+    body: JSON.stringify({
+      from: 'Carnivore Weekly <reports@carnivoreweekly.com>',
+      to: [to],
+      reply_to: 'sarah@carnivoreweekly.com',
+      subject: RESUME_EMAIL_SUBJECT,
+      html,
+      text,
+    }),
+  });
+
+  if (!send.ok) {
+    const detail = await send.text().catch(() => '');
+    console.error(`[resume-email] Resend rejected the send (${send.status}): ${detail.slice(0, 300)}`);
+    // Retry only what retrying can fix. A 5xx, a rate limit or a network error is a bad
+    // minute at the provider and deserves the whole retry machinery. A plain 4xx is a
+    // rejection of THIS message, usually an address that will never accept mail, and
+    // answering Stripe with a 500 for that buys nothing: it just retries a doomed send
+    // for days and buries the real failures. Log it as owed and let the webhook finish.
+    // Permanent means "this message will never be accepted": Resend's validation
+    // errors for a malformed or undeliverable recipient. Everything else is worth
+    // retrying, including the ones that look like our fault. A rotated key (401), an
+    // unverified domain (403), a timeout (408) and a concurrent-idempotent-request
+    // (409) are all fixable or transient, and treating them as permanent would strand
+    // every buyer silently. Security review, 2026-09-09.
+    const retryable = !(send.status === 400 || send.status === 422);
+    if (!retryable) {
+      console.error(`[resume-email] NOT retrying: ${send.status} is a rejection of this message, ` +
+        `not a transient failure. Assessment ${assessmentId} has no resume link.`);
+      return { skipped: `resend-rejected-${send.status}` };
+    }
+    return { failed: true, reason: `resend ${send.status}` };
+  }
+
+  // Only now. A marker written before the send would turn one bad minute at the email
+  // provider into a customer who never hears from us again.
+  const mark = await fetch(`${env.SUPABASE_URL}/rest/v1/stripe_webhook_events`, {
+    method: 'POST',
+    headers: { ...headers, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({
+      stripe_event_id: markerId,
+      event_type: 'cw_resume_email_sent',
+      session_id: assessmentId,
+      amount_cents: 0,
+    }),
+  });
+  if (!mark.ok) {
+    // The customer HAS their link. Do not fail the webhook over the bookkeeping, and
+    // do not send again on a retry beyond what Resend's key already prevents.
+    console.error(`[resume-email] sent to the customer but the marker did not save (${mark.status})`);
+  }
+  console.log(`[resume-email] sent for assessment ${assessmentId}`);
+  return { sent: true };
+}
+
 async function handleStripeWebhook(request, env) {
   const signature = request.headers.get('stripe-signature');
   if (!signature) {
@@ -7210,6 +7403,18 @@ async function handleStripeWebhook(request, env) {
   const existing = await dedupCheck.json();
   if (Array.isArray(existing) && existing.length > 0) {
     console.log(`Webhook: duplicate event ${event.id}, skipping`);
+    // A duplicate is usually Stripe retrying something we did not answer cleanly. The
+    // event row says we have SEEN this event; it does not say the customer got their
+    // way back. If the resume email failed after the row was written, this is the only
+    // place it can be retried, so it is attempted here before acknowledging. It is
+    // keyed on its own marker, so a genuine duplicate sends nothing.
+    if (event.type === 'checkout.session.completed') {
+      const retry = await sendResumeEmailIfOwed(env, event.data.object);
+      if (retry.failed) {
+        console.error(`Webhook: resume email still owed for ${event.id}: ${retry.reason}`);
+        return createErrorResponse('RESUME_EMAIL_FAILED', 'Resume email could not be sent', 500);
+      }
+    }
     return new Response(JSON.stringify({ received: true, duplicate: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -7319,7 +7524,25 @@ async function handleStripeWebhook(request, env) {
       }).catch(err => console.warn('GA4 Measurement Protocol error:', err));
     }
 
-    return new Response(JSON.stringify({ received: true, session_id: sessionUUID }), {
+    // THE WAY BACK. Not the report: the report is built from Step 4, which they have
+    // not reached yet, and generating one from what we hold would be a report written
+    // from half the questionnaire. This sends the link that lets them finish.
+    //
+    // Deliberately after the payment writeback and the GA4 event, both of which are
+    // done and durable by now. If the send fails we answer 500 so Stripe retries, and
+    // the retry arrives on the duplicate path above, which repeats only the email: the
+    // payment record is untouched and the purchase is not counted twice.
+    const resume = await sendResumeEmailIfOwed(env, obj);
+    if (resume.failed) {
+      console.error(`Webhook: resume email failed for ${sessionUUID}: ${resume.reason}`);
+      return createErrorResponse('RESUME_EMAIL_FAILED', 'Resume email could not be sent', 500);
+    }
+
+    return new Response(JSON.stringify({
+      received: true,
+      session_id: sessionUUID,
+      resume_email: resume.sent ? 'sent' : (resume.skipped || 'not-sent'),
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -8089,6 +8312,10 @@ export {
   assertReportCopyIsClean as __test_assertReportCopyIsClean,
   REPORT_GENERATION_FAILED_MESSAGE as __test_REPORT_GENERATION_FAILED_MESSAGE,
   generateFullMealPlan as __test_generateFullMealPlan,
+  sendResumeEmailIfOwed as __test_sendResumeEmailIfOwed,
+  buildResumeLink as __test_buildResumeLink,
+  buildResumeEmailBody as __test_buildResumeEmailBody,
+  RESUME_EMAIL_SUBJECT as __test_RESUME_EMAIL_SUBJECT,
   RENAL_MEAL_CALENDAR_NOTICE as __test_RENAL_MEAL_CALENDAR_NOTICE,
   RENAL_GROCERY_LIST_NOTICE as __test_RENAL_GROCERY_LIST_NOTICE,
   generateGroceryListByWeek as __test_generateGroceryListByWeek,

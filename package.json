@@ -17,7 +17,9 @@
     "test:goal-conflict": "node tests/goal-conflict-flow.test.mjs",
     "test:step4-state": "node tests/step4-state-updates.test.mjs",
     "test:report-copy-gate": "node tests/report-copy-gate-retry.test.mjs",
-    "test:renal-suppression": "node tests/renal-meal-plan-suppression.test.mjs"
+    "test:renal-suppression": "node tests/renal-meal-plan-suppression.test.mjs",
+    "test:paid-resume": "node tests/paid-resume-email.test.mjs",
+    "test:resume-late-return": "node tests/resume-late-return.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
