@@ -173,15 +173,17 @@ console.log('\n=== Case A degenerate band: cap leaves no real deficit ===\n');
 // The copy must not describe that as the deficit the reader asked for.
 const degenerate = { ...base, sex: 'female', age: 20, heightFeet: 4, heightInches: 6, weight: 90, goal: 'lose', deficit: 20 };
 const dRes = calculateMacros(degenerate);
-if (dRes.floorApplied && dRes.effectiveDeficitPct === 0) {
-  check('cap that yields a 0% deficit is still reported as 0, never the requested %',
-    dRes.effectiveDeficitPct !== dRes.requestedDeficitPct, `req=${dRes.requestedDeficitPct} eff=${dRes.effectiveDeficitPct}`);
-  check('  the results copy has a branch for the 0% case',
-    /effectiveDeficitPct === 0/.test(step3) && /essentially maintenance/.test(step3),
-    'no 0%-deficit wording branch found');
-} else {
-  check('degenerate band probe still lands in Case A', true);
-}
+// No escape hatch: if the probe stops landing in the band, that is a failure to
+// investigate, not a green tick. A `check(..., true)` fallback here would hide
+// both assertions below, which is the defect class this suite already fixed twice.
+check('the degenerate probe still lands in a 0%-deficit cap',
+  dRes.floorApplied && dRes.effectiveDeficitPct === 0,
+  `floorApplied=${dRes.floorApplied} eff=${dRes.effectiveDeficitPct} tdee=${dRes.tdee}`);
+check('cap that yields a 0% deficit is still reported as 0, never the requested %',
+  dRes.effectiveDeficitPct !== dRes.requestedDeficitPct, `req=${dRes.requestedDeficitPct} eff=${dRes.effectiveDeficitPct}`);
+check('  the results copy has a branch for the 0% case',
+  /effectiveDeficitPct === 0/.test(step3) && /essentially maintenance/.test(step3),
+  'no 0%-deficit wording branch found');
 
 // Rounding can put the achieved deficit back on the requested number: a 1597
 // TDEE capped to 1200 is 24.9%, which rounds to 25 and used to print "about 25%
@@ -196,7 +198,11 @@ check('  the copy only claims a different percentage when it IS different',
   /effectiveDeficitPct === macros\.requestedDeficitPct/.test(step3),
   'no equal-percentage branch: the sentence can contradict itself');
 check('  the cap is explained in calories, which cannot round into a contradiction',
-  /calories below your\s*\n?\s*estimated maintenance/.test(step3) || /calories below your/.test(step3));
+  /macros\.tdee - \(macros\.calories \|\| 0\)/.test(step3) && /below your/.test(step3),
+  'the cap notice no longer leads with the calorie difference');
+check('  the calorie difference is pluralised',
+  /=== 1 \? 'calorie' : 'calories'/.test(step3),
+  '"1 calories below" is reachable at tdee === floor + 1');
 
 console.log('\n=== Sample day follows the FINAL target ===\n');
 // The 937 persona is now a 1200 persona: the day must be built around 1200.

@@ -1184,6 +1184,23 @@ async function handleInitiatePayment(request, env) {
       }
     }
 
+    // The same eligibility rules as the checkout boundary. This handler records
+    // an intent rather than charging, and the live client does not call it, but
+    // two payment-named doors enforcing different rule sets is exactly how the
+    // first fix stops applying (this handler's own goal-conflict comment above
+    // makes the argument). Adult-only, and nothing that depends on a target we
+    // refused to compute.
+    const initiateEligibility = checkTargetEligibility(initiateRow.form_data || initiateRow);
+    if (initiateEligibility) {
+      console.warn('[handleInitiatePayment] refusing payment initiation:', initiateEligibility.code);
+      return createErrorResponse(
+        initiateEligibility.code,
+        initiateEligibility.message,
+        422,
+        initiateEligibility.validation
+      );
+    }
+
     const paymentIntentId = `pi_${Math.random().toString(36).substring(2, 26)}`;
 
     // Update session

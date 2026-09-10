@@ -165,7 +165,7 @@ export default function StripePaymentModal({
         ) {
           throw new Error(
             body.code === 'UNDER_18_NOT_SUPPORTED'
-              ? 'This calculator is designed for adults 18 and over, so this plan is not available.'
+              ? 'This calculator is designed for adults 18 and over, so this plan is not available. You have not been charged.'
               : 'We cannot build a self-guided plan from these numbers. Your estimated maintenance '
                 + 'calories are at or below the lower limit we use for automated plans, so this needs '
                 + 'a dietitian or your doctor rather than this calculator. You have not been charged.'

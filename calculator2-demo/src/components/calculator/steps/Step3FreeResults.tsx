@@ -3,6 +3,7 @@ import { FormData, MacroResults } from '../../../types/form'
 import MacroPreview from '../../ui/MacroPreview'
 import MicroSurvey from '../../ui/MicroSurvey'
 import { useFormStore } from '../../../stores/formStore'
+import { ADULT_MIN_AGE, ADULT_ONLY_MESSAGE } from '../../../lib/calculations'
 // @ts-ignore — shared plain-JS module, same pattern as api/goal-semantics.js
 import { buildSampleDay, getDietSampleDay } from '../../../../../api/sample-day.js'
 
@@ -177,6 +178,28 @@ export default function Step3FreeResults({
   }, [])
 
   if (!macros) {
+    // A restored session with an under-18 age has its macros nulled by
+    // CalculatorApp, so this branch is also where a returning minor lands. It
+    // used to sit on "Loading your results..." forever with no way out.
+    const isMinor = Number(data.age) > 0 && Number(data.age) < ADULT_MIN_AGE
+    if (isMinor) {
+      return (
+        <div className="space-y-6">
+          <h2 className="text-2xl" style={{ ...goldHeading, fontWeight: '700', marginBottom: '8px' }}>
+            This calculator is for adults
+          </h2>
+          <p style={{ ...bodyFont, fontSize: '16px', color: '#f5f5f5', lineHeight: 1.7 }}>
+            {ADULT_ONLY_MESSAGE} We have not calculated a target from these answers.
+          </p>
+          <button
+            onClick={onBack}
+            style={{ background: 'none', border: 'none', color: '#ffd700', fontWeight: 600, cursor: 'pointer', padding: 0, textDecoration: 'underline', fontSize: '16px' }}
+          >
+            Go back and edit
+          </button>
+        </div>
+      )
+    }
     return (
       <div className="space-y-6">
         <p className="text-gray-600">Loading your results...</p>
@@ -354,7 +377,8 @@ export default function Step3FreeResults({
             Your selected {macros.requestedDeficitPct}% deficit would put you below the lower
             limit we use for self-guided plans, so we've capped your target at{' '}
             <strong style={{ color: '#ffd700' }}>{macros.calories} calories a day</strong>.
-            {' '}That is {Math.max(macros.tdee - (macros.calories || 0), 0)} calories below your
+            {' '}That is {Math.max(macros.tdee - (macros.calories || 0), 0)}{' '}
+            {Math.max(macros.tdee - (macros.calories || 0), 0) === 1 ? 'calorie' : 'calories'} below your
             estimated maintenance of {macros.tdee}
             {macros.effectiveDeficitPct === 0
               ? ', which is essentially maintenance, so do not expect it to behave like the deficit you picked.'

@@ -118,7 +118,7 @@ export default function Step4Contact({ onNext, onBack }: Step4ContactProps) {
         <div className="bg-[#0f0f0f] border border-[#333] rounded-lg p-4">
           <p className="text-xs text-[#999] font-['Merriweather'] leading-relaxed">
             Your information stays private. We use it solely to generate your personalized
-            report and won't share it with anyone. Your report will expire after 48 hours.
+            report and won't share it with anyone. Your report link is time-limited, so save or email yourself a copy.
           </p>
         </div>
 

@@ -37,10 +37,21 @@ console.log('\n=== Signup disclosure ===\n');
 // checked four hand-picked files and missed public/desserts.html, whose
 // sidebar said "Totally free, no signup" directly above a link into the
 // email-gated calculator.
+// 'public/**/*.html' matches only NESTED pages: it returns 273 files and none of
+// the 298 top-level ones, so calculator.html, desserts.html, index.html, terms
+// and privacy were never scanned while the output cheerfully reported hundreds
+// of files (reviewer, 2026-09-10). Both patterns, and both tsx depths.
 const SHIPPED = execSync(
-  "git ls-files 'public/**/*.html' 'public/js/*.js' 'calculator2-demo/src/**/*.tsx'",
+  "git ls-files 'public/*.html' 'public/**/*.html' 'public/js/*.js' "
+    + "'calculator2-demo/src/*.tsx' 'calculator2-demo/src/**/*.tsx'",
   { cwd: root('.'), encoding: 'utf8' }
 ).split('\n').filter(Boolean);
+
+// The scan is worthless if the glob silently stops matching. Assert the pages
+// this batch actually edited are in it.
+for (const must of ['public/calculator.html', 'public/desserts.html', 'public/terms.html', 'public/privacy.html', 'public/index.html']) {
+  check(`scan covers ${must}`, SHIPPED.includes(must), `SHIPPED has ${SHIPPED.length} files`);
+}
 
 // Deliberately narrow: the claim is "you will not have to give us an email".
 // Not "no email drip" on the paid blog FAQ, which is about delivery latency
@@ -136,11 +147,20 @@ const api = await read('api/calculator-api.js');
 // one the code actually implements.
 const WINDOW = /\b(\d+)\s*(hour|hours|day|days)\b/gi;
 const statedWindows = [];
-for (const [file, text] of [['terms.html', terms], ['delivery screen', app]]) {
+const windowSurfaces = [...SHIPPED.map((f) => [f, null]), ['delivery screen', app]];
+for (const [file, preloaded] of windowSurfaces) {
+  const text = preloaded !== null ? preloaded : await read(file);
   for (const line of text.split('\n')) {
     const trimmed = line.trim();
-    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('{/*')) continue;
-    if (!/access|expire|available|open|copy|report link/i.test(line)) continue;
+    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('{/*')
+        || trimmed.startsWith('<!--') || trimmed.startsWith('/*')) continue;
+    // Only lines that are actually about REPORT ACCESS. Without this the scan
+    // trips on refund windows ("30 days"), plan lengths, URL-encoded %20Days in
+    // blog slugs, and this batch's own code comments.
+    if (/%[0-9a-f]{2}/i.test(line)) continue;
+    if (/refund|money-back|guarantee|challenge|meal plan|protocol|within \d+ days/i.test(line)) continue;
+    if (!/\b(report|online copy|report link)\b/i.test(line)) continue;
+    if (!/\b(expire|expires|access|available|open|time-limited)\b/i.test(line)) continue;
     WINDOW.lastIndex = 0;
     let m;
     while ((m = WINDOW.exec(line))) statedWindows.push(`${file}: "${m[0]}"`);
