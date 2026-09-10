@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import StripePaymentModal from './StripePaymentModal'
 import Portal from './Portal'
@@ -341,7 +340,7 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
                     fontFamily: "'Merriweather', Georgia, serif",
                   }}>
                     <li style={{ marginBottom: '4px' }}>One-time purchase: <span style={{ color: '#ffd700', fontWeight: 'bold' }}>$29</span></li>
-                    <li>Yours forever — no subscription</li>
+                    <li>Download and keep your copy, no subscription</li>
                   </ul>
                 </div>
                 <div>
@@ -365,21 +364,21 @@ export default function PricingModal({ email, onEmailChange, formData, onClose, 
       </div>
       )}
 
-      {/* Stripe Payment Modal */}
-      <AnimatePresence>
-        {selectedTier && selectedOption && (
-          <StripePaymentModal
-            tierId={selectedTier}
-            tierTitle={selectedOption.title}
-            tierPrice={selectedOption.price}
-            email={email}
-            onEmailChange={onEmailChange}
-            formData={formData}
-            onSuccess={handlePaymentSuccess}
-            onCancel={handlePaymentCancel}
-          />
-        )}
-      </AnimatePresence>
+      {/* Stripe Payment Modal — see CalculatorApp: no <AnimatePresence>, because
+          its exit animation left the overlay mounted and click-swallowing. */}
+      {selectedTier && selectedOption && (
+        <StripePaymentModal
+          key={`stripe-payment-modal-${selectedTier}`}
+          tierId={selectedTier}
+          tierTitle={selectedOption.title}
+          tierPrice={selectedOption.price}
+          email={email}
+          onEmailChange={onEmailChange}
+          formData={formData}
+          onSuccess={handlePaymentSuccess}
+          onCancel={handlePaymentCancel}
+        />
+      )}
     </Portal>
   )
 }

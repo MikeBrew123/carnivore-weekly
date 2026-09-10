@@ -1184,6 +1184,23 @@ async function handleInitiatePayment(request, env) {
       }
     }
 
+    // The same eligibility rules as the checkout boundary. This handler records
+    // an intent rather than charging, and the live client does not call it, but
+    // two payment-named doors enforcing different rule sets is exactly how the
+    // first fix stops applying (this handler's own goal-conflict comment above
+    // makes the argument). Adult-only, and nothing that depends on a target we
+    // refused to compute.
+    const initiateEligibility = checkTargetEligibility(initiateRow.form_data || initiateRow);
+    if (initiateEligibility) {
+      console.warn('[handleInitiatePayment] refusing payment initiation:', initiateEligibility.code);
+      return createErrorResponse(
+        initiateEligibility.code,
+        initiateEligibility.message,
+        422,
+        initiateEligibility.validation
+      );
+    }
+
     const paymentIntentId = `pi_${Math.random().toString(36).substring(2, 26)}`;
 
     // Update session
@@ -1657,6 +1674,20 @@ async function handleReportInit(request, env) {
     console.log('FINAL selectedProtocol:', correctedData.selectedProtocol);
     console.log('============================');
 
+    // Same gate as the payment boundary, re-checked here: a session created
+    // before this rule shipped, or reached by a crafted POST, must not generate
+    // a report off a suppressed target or for a minor.
+    const reportEligibility = checkTargetEligibility(session.form_data);
+    if (reportEligibility) {
+      console.warn('[handleReportInit] refusing to generate:', reportEligibility.code);
+      return createErrorResponse(
+        reportEligibility.code,
+        reportEligibility.message,
+        422,
+        reportEligibility.validation
+      );
+    }
+
     // CRITICAL: Calculate macros from form data
     const macros = calculateMacros(session.form_data);
     correctedData.macros = macros;
@@ -1953,6 +1984,51 @@ function buildReportData(session) {
   };
 }
 
+/**
+ * Eligibility gate for anything that depends on a calorie target (2026-09-10).
+ *
+ * Two refusals, both upstream of money:
+ *  - the calculator is an adult product, so under 18 gets no target and no
+ *    paid pathway (no pediatric substitute, this is a refusal);
+ *  - when maintenance is at or below the self-service floor, calculateMacros
+ *    suppresses the target, and a suppressed value must not go on to size a
+ *    meal plan or a report. Suppress, never substitute.
+ *
+ * Returns null when sellable, otherwise {code, message, validation}.
+ */
+function checkTargetEligibility(formData) {
+  // Fails CLOSED: calculateMacros defaults a missing age to 30, so a crafted or
+  // legacy POST with age absent, null, 0 or "" would otherwise be priced as an
+  // adult. Anything that is not a real age of at least 18 is refused.
+  const age = Number((formData || {}).age);
+  if (!Number.isFinite(age) || age < 18) {
+    return {
+      code: 'UNDER_18_NOT_SUPPORTED',
+      message: 'This calculator is designed for adults 18 and over.',
+      validation: { field: 'age', minimumAge: 18, charged: false },
+    };
+  }
+
+  const macros = calculateMacros(formData || {});
+  if (macros && macros.targetSuppressed) {
+    return {
+      code: 'CALORIE_TARGET_SUPPRESSED',
+      message: 'We cannot generate a self-guided calorie target from these inputs. '
+        + 'Estimated maintenance is at or below the lower limit we use for self-guided plans, '
+        + 'so this needs a clinician or registered dietitian rather than an automated calculator.',
+      validation: {
+        field: 'calories',
+        reason: macros.suppressionReason,
+        selfServiceFloor: macros.selfServiceFloor,
+        estimatedMaintenance: macros.tdee,
+        charged: false,
+      },
+    };
+  }
+
+  return null;
+}
+
 function calculateMacros(formData) {
   // Handle undefined formData
   if (!formData) {
@@ -2014,6 +2090,35 @@ function calculateMacros(formData) {
   if (isLose) calories = tdee * (1 - deficitPct / 100);
   if (isGain) calories = tdee * (1 + deficitPct / 100);
 
+  // ── Self-service fat-loss calorie guardrail (Brew, 2026-09-10) ──────────────
+  // A PRODUCT bound on what this unattended calculator will print, not a
+  // universal medical safe minimum. Below it we stop guessing and route the
+  // reader to a clinician.
+  //
+  // Kept inline and identical on both sides on purpose: tests/macro_parity
+  // extracts this function standalone via new Function(), so it cannot import
+  // a shared module. Change one side, change the other, regenerate golden.json.
+  const selfServiceFloor = sex === 'female' ? 1200 : 1500;
+  let floorApplied = false;
+  let targetSuppressed = false;
+  let requestedDeficitPct = isLose ? deficitPct : 0;
+  let effectiveDeficitPct = requestedDeficitPct;
+
+  if (isLose) {
+    if (tdee <= selfServiceFloor) {
+      // Case B: maintenance is already at or under the floor, so there is no
+      // honest self-guided deficit to offer. Suppress rather than substitute —
+      // returning the floor here would be a deficit that is really a surplus.
+      targetSuppressed = true;
+      effectiveDeficitPct = 0;
+    } else if (calories < selfServiceFloor) {
+      // Case A: cap, and stop claiming the deficit they picked was achieved.
+      calories = selfServiceFloor;
+      floorApplied = true;
+      effectiveDeficitPct = Math.round(((tdee - selfServiceFloor) / tdee) * 100);
+    }
+  }
+
   let protein, fat, carbs;
 
   // All low-carb/animal-based diets use similar macro calculation
@@ -2074,11 +2179,31 @@ function calculateMacros(formData) {
   const calculatedCals = (protein * 4) + (fat * 9) + (carbs * 4);
   console.log('[calculateMacros] Calorie check: target=' + Math.round(calories) + ', calculated=' + calculatedCals + ', diff=' + (Math.round(calories) - calculatedCals));
 
-  const result = {
+  // A suppressed target must not leak a number that downstream code could treat
+  // as a calorie goal, so the macro fields go null rather than zero.
+  const result = targetSuppressed ? {
+    calories: null,
+    protein_grams: null,
+    fat_grams: null,
+    carbs_grams: null,
+    tdee: Math.round(tdee),
+    targetSuppressed: true,
+    suppressionReason: 'maintenance_at_or_below_self_service_floor',
+    selfServiceFloor,
+    floorApplied: false,
+    requestedDeficitPct,
+    effectiveDeficitPct: 0,
+  } : {
     calories: Math.round(calories),
     protein_grams: protein,
     fat_grams: fat,
     carbs_grams: carbs,
+    tdee: Math.round(tdee),
+    targetSuppressed: false,
+    selfServiceFloor,
+    floorApplied,
+    requestedDeficitPct,
+    effectiveDeficitPct,
   };
 
   console.log('[calculateMacros] Result:', {
@@ -5595,6 +5720,19 @@ async function handleCreateCheckout(request, env) {
     //
     // Failing here means no charge and no half-finished purchase to unwind, which is
     // the whole reason this moved upstream of the report generator.
+    // Adult-only, and no purchase of a product that depends on a target we
+    // deliberately refused to compute.
+    const checkoutEligibility = checkTargetEligibility(finalFormData);
+    if (checkoutEligibility) {
+      console.warn('[handleCreateCheckout] refusing checkout:', checkoutEligibility.code);
+      return createErrorResponse(
+        checkoutEligibility.code,
+        checkoutEligibility.message,
+        422,
+        checkoutEligibility.validation
+      );
+    }
+
     const checkoutGoalConflict = detectGoalConflict(finalFormData);
     if (checkoutGoalConflict.blocking) {
       console.warn('[handleCreateCheckout] refusing checkout:', checkoutGoalConflict.message);

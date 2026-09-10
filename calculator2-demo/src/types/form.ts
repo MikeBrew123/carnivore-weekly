@@ -73,11 +73,26 @@ export interface FormData {
 }
 
 export interface MacroResults {
-  calories: number
+  /**
+   * null when targetSuppressed is true. Never fall back to a number here: the
+   * whole point of suppression is that no calorie target exists to size a meal
+   * plan, a sample day or a report from.
+   */
+  calories: number | null
   tdee: number
-  protein: number
-  fat: number
-  carbs: number
+  protein: number | null
+  fat: number | null
+  carbs: number | null
+  /** True when maintenance is at or below the self-service floor. */
+  targetSuppressed: boolean
+  suppressionReason?: string
+  /** The product floor that applied to this profile (1200 female / 1500 male). */
+  selfServiceFloor: number
+  /** True when the requested deficit was capped up to the floor. */
+  floorApplied: boolean
+  requestedDeficitPct: number
+  /** What the displayed target actually represents. Never assume the requested %. */
+  effectiveDeficitPct: number
 }
 
 export interface SessionData {

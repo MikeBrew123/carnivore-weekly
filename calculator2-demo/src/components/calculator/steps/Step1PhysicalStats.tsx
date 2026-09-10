@@ -4,6 +4,7 @@ import FormField from '../shared/FormField'
 import RadioGroup from '../shared/RadioGroup'
 import { imperialToCm } from '../../../lib/calculations'
 import { suggestEmailFix } from '../../../lib/emailSuggest'
+import { ADULT_MIN_AGE, ADULT_ONLY_MESSAGE } from '../../../lib/calculations'
 
 interface Step1PhysicalStatsProps {
   data: FormData
@@ -42,11 +43,11 @@ export default function Step1PhysicalStats({
     }
   }
 
-  // Validate age on blur (range 14-99)
+  // Validate age on blur (range 18-99: the calculator is an adult product)
   const validateAge = () => {
     if (data.age !== undefined && data.age !== '') {
       const age = Number(data.age)
-      if (age < 14 || age > 99) {
+      if (age < ADULT_MIN_AGE || age > 99) {
         console.log('[Step1] Age validation failed on blur:', age)
       } else if (errors.age) {
         onFieldChange?.('age')
@@ -102,7 +103,7 @@ export default function Step1PhysicalStats({
   // Validation helpers for green glow state
   const isAgeValid = () => {
     const age = Number(data.age)
-    return data.age !== undefined && data.age !== '' && age >= 14 && age <= 99 && !errors.age
+    return data.age !== undefined && data.age !== '' && age >= ADULT_MIN_AGE && age <= 99 && !errors.age
   }
 
   const isWeightValid = () => {
@@ -138,7 +139,8 @@ export default function Step1PhysicalStats({
     if (!data.email) newErrors.email = 'Email is required to receive your results'
     if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) newErrors.email = 'Please enter a valid email'
     if (!data.sex) newErrors.sex = 'Please select your sex'
-    if (!data.age || data.age < 14 || data.age > 99) newErrors.age = 'Age must be between 14 and 99'
+    if (!data.age || data.age > 99) newErrors.age = 'Age must be between 18 and 99'
+    else if (data.age < ADULT_MIN_AGE) newErrors.age = ADULT_ONLY_MESSAGE
     if (!data.heightFeet && !data.heightCm) newErrors.height = 'Please enter your height'
     if (data.heightFeet && typeof data.heightInches === 'number' && (data.heightInches < 0 || data.heightInches > 11)) {
       newErrors.heightInches = 'Inches must be between 0 and 11'
@@ -193,7 +195,12 @@ export default function Step1PhysicalStats({
           error={errors.email}
           placeholder="you@email.com"
           required
-          helpText="We'll send your results here and add you to the free weekly Carnivore Weekly email. Unsubscribe anytime."
+          // Describes what actually happens: subscribeCore() enrols every
+          // calculator finisher in a 30-day starter series AND the weekly list,
+          // and send_newsletter.py holds the weekly back until the series
+          // finishes. The old copy mentioned only the weekly email, so the
+          // starter series arrived unannounced (audit 2026-09-10).
+          helpText="Enter your email to continue. Your results appear here in the calculator. Using it also signs you up for free emails matched to the diet you choose, usually a short starter series followed by the related weekly newsletter. Unsubscribe anytime."
         />
         {emailSuggestion && (
           <div
@@ -250,9 +257,10 @@ export default function Step1PhysicalStats({
           error={errors.age}
           isValid={isAgeValid()}
           placeholder="e.g., 35"
-          min={14}
+          min={ADULT_MIN_AGE}
           max={99}
           required
+          helpText="This calculator is designed for adults 18 and over."
         />
       </div>
 

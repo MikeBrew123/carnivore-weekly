@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { FormData, MacroResults } from '../../types/form'
-import { calculateMacrosCanonical } from '../../lib/calculations'
+import { calculateMacrosCanonical, ADULT_MIN_AGE } from '../../lib/calculations'
 import { useFormStore } from '../../stores/formStore'
 import { usePaymentState } from '../../hooks/usePaymentState'
 import ProgressIndicator from './ProgressIndicator'
@@ -17,7 +17,6 @@ declare global {
 }
 import StripePaymentModal from '../ui/StripePaymentModal'
 import { detectGoalConflict } from '../../../../api/goal-semantics.js'
-import { AnimatePresence } from 'framer-motion'
 import ReportGeneratingScreen from '../ui/ReportGeneratingScreen'
 
 interface CalculatorAppProps {
@@ -231,6 +230,16 @@ export default function CalculatorApp({
 
   // Calculate macros whenever step 1-2 data changes
   useEffect(() => {
+    // Adult product. A persisted session or a hand-edited store must not reach
+    // a personalized target either, so the gate lives here and not only in the
+    // Step 1 form. No pediatric substitute: nothing is calculated at all.
+    // Fails CLOSED like the server gate: NaN < 18 is false, so a non-numeric age
+    // in a rehydrated store would otherwise fall through to the compute branch.
+    const ageNum = Number(formData.age)
+    if (!Number.isFinite(ageNum) || ageNum < ADULT_MIN_AGE) {
+      setMacros(null)
+      return
+    }
     if (formData.sex && formData.age && formData.weight && (formData.heightFeet || formData.heightCm) && formData.lifestyle && formData.goal && formData.diet) {
       try {
         // Single source of truth: the same math that generates the paid
@@ -531,6 +540,32 @@ export default function CalculatorApp({
           requestAnimationFrame(() => {
             document.getElementById('goal-conflict-heading')
               ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          })
+          return
+        }
+
+        // The two eligibility refusals are permanent for this session's answers:
+        // we will not build a report from a suppressed calorie target, and we
+        // will not build one for a minor. Telling a paying customer to "try
+        // again" here would be a loop they can never win, so say what happened
+        // and put the refund in front of them. The server refuses at the payment
+        // boundary too, so reaching this state means they paid before the answers
+        // changed, or before this rule shipped.
+        if (
+          reportInitResponse.status === 422 &&
+          (reportError.code === 'CALORIE_TARGET_SUPPRESSED' || reportError.code === 'UNDER_18_NOT_SUPPORTED')
+        ) {
+          setIsGenerating(false)
+          setErrors({
+            submit: reportError.code === 'UNDER_18_NOT_SUPPORTED'
+              ? 'This calculator is designed for adults 18 and over, so we cannot build this '
+                + 'report. Retrying will not change that. Email support@carnivoreweekly.com and '
+                + 'we will refund you in full, same day.'
+              : 'We cannot build a self-guided plan from these numbers. Your estimated '
+                + 'maintenance calories are at or below the lower limit we use for automated '
+                + 'plans, so a target here needs a dietitian or your doctor rather than this '
+                + 'calculator. Retrying will not change that. Email support@carnivoreweekly.com '
+                + 'and we will refund you in full, same day.',
           })
           return
         }
@@ -971,6 +1006,24 @@ export default function CalculatorApp({
               {isEmailingSent ? '✓ Email Sent!' : isEmailingReport ? '📧 Sending...' : '📧 Email My Report'}
             </button>
 
+            {/* The sales copy promises the report is theirs to keep, and it is,
+                but only once they have their own copy. Deliberately no figure:
+                Terms and an earlier draft of this line both named a two-day
+                window while every code path writes expires_at 365 days out, so
+                the number was the one untrue thing in a truthfulness fix. State
+                that access is limited, and let the code stay the authority
+                (audit 2026-09-10). */}
+            <p style={{
+              fontSize: '13px',
+              color: '#6b6b6b',
+              fontFamily: "'Merriweather', Georgia, serif",
+              marginTop: '12px',
+              maxWidth: '440px',
+            }}>
+              This online copy is time-limited. Email or download it now and that copy is
+              yours to keep for good.
+            </p>
+
             {isEmailingSent && (
               <p style={{
                 fontSize: '13px',
@@ -1128,10 +1181,18 @@ export default function CalculatorApp({
         </div>
       </div>
 
-      {/* Stripe Payment Modal — direct from Step 3 CTA (no intermediate PricingModal) */}
-      <AnimatePresence>
-        {showPaymentModal && (
+      {/* Stripe Payment Modal — direct from Step 3 CTA (no intermediate PricingModal).
+          Deliberately NOT wrapped in <AnimatePresence>. Its exit animation ran to
+          opacity 0 but the node was never unmounted, leaving a full-screen
+          fixed overlay at z-index 10000 with pointer-events:auto that swallowed
+          every click on the page behind it — including the $29 CTA, so a
+          customer who opened the offer and closed it could not buy without
+          reloading (audit 2026-09-10, reproduced on mobile and desktop).
+          Plain conditional rendering makes the unmount deterministic; losing the
+          fade-out is a fair trade for a working checkout. */}
+      {showPaymentModal && (
           <StripePaymentModal
+            key="stripe-payment-modal"
             tierId="bundle"
             tierTitle="Complete Carnivore Protocol"
             tierPrice="$29"
@@ -1141,8 +1202,7 @@ export default function CalculatorApp({
             onSuccess={() => handlePaymentSuccess()}
             onCancel={() => setShowPaymentModal(false)}
           />
-        )}
-      </AnimatePresence>
+      )}
     </>
   )
 }

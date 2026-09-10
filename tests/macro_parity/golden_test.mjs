@@ -121,6 +121,26 @@ export function grid() {
     { sex: 'female', age: 57, heightFeet: 5, heightInches: 4, weight: 168, goal: 'lose', diet: 'carnivore', goalWeight: 'abc' },
   ];
   cases.push(...goalWeights);
+
+  // Self-service fat-loss floor (2026-09-10). All NEW cases: the floor only
+  // moves a target that was already under 1200 (female) / 1500 (male), so the
+  // pre-existing golden entries above must keep their calorie values.
+  const guardrail = [
+    // Case A, female: small sedentary profile whose 25% deficit lands under 1200.
+    { sex: 'female', age: 68, heightFeet: 5, heightInches: 0, weight: 130, lifestyle: 'sedentary', goal: 'lose', deficit: 25, diet: 'carnivore' },
+    { sex: 'female', age: 68, heightFeet: 5, heightInches: 0, weight: 130, lifestyle: 'sedentary', goal: 'lose', deficit: 10, diet: 'carnivore' },
+    // Case A, male: under the 1500 floor.
+    { sex: 'male', age: 72, heightFeet: 5, heightInches: 4, weight: 135, lifestyle: 'sedentary', goal: 'lose', deficit: 25, diet: 'carnivore' },
+    // Case B, suppression: maintenance itself at or below the floor.
+    { sex: 'female', age: 80, heightFeet: 4, heightInches: 10, weight: 95, lifestyle: 'sedentary', goal: 'lose', deficit: 10, diet: 'carnivore' },
+    { sex: 'male', age: 85, heightFeet: 5, heightInches: 0, weight: 105, lifestyle: 'sedentary', goal: 'lose', deficit: 10, diet: 'carnivore' },
+    // The floor must never touch maintenance or gain, however small the profile.
+    { sex: 'female', age: 80, heightFeet: 4, heightInches: 10, weight: 95, lifestyle: 'sedentary', goal: 'maintain', diet: 'carnivore' },
+    { sex: 'female', age: 80, heightFeet: 4, heightInches: 10, weight: 95, lifestyle: 'sedentary', goal: 'gain', deficit: 10, diet: 'carnivore' },
+    // Comfortably above the floor: must be completely unaffected.
+    { sex: 'female', age: 45, heightFeet: 5, heightInches: 6, weight: 190, lifestyle: 'moderate', goal: 'lose', deficit: 20, diet: 'carnivore' },
+  ];
+  cases.push(...guardrail);
   return cases;
 }
 

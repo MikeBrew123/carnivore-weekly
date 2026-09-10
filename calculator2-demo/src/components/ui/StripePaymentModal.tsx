@@ -154,7 +154,24 @@ export default function StripePaymentModal({
       })
 
       if (!response.ok) {
-        throw new Error(`Failed to create checkout: ${response.status}`)
+        // The payment boundary refuses a suppressed calorie target and anyone
+        // under 18. Those are permanent for these answers, so show the server's
+        // customer-safe sentence instead of "Failed to create checkout: 422",
+        // which reads like a transient glitch worth retrying. No money has moved.
+        const body = await response.json().catch(() => ({} as any))
+        if (
+          response.status === 422 &&
+          (body.code === 'CALORIE_TARGET_SUPPRESSED' || body.code === 'UNDER_18_NOT_SUPPORTED')
+        ) {
+          throw new Error(
+            body.code === 'UNDER_18_NOT_SUPPORTED'
+              ? 'This calculator is designed for adults 18 and over, so this plan is not available. You have not been charged.'
+              : 'We cannot build a self-guided plan from these numbers. Your estimated maintenance '
+                + 'calories are at or below the lower limit we use for automated plans, so this needs '
+                + 'a dietitian or your doctor rather than this calculator. You have not been charged.'
+          )
+        }
+        throw new Error(body.message || `Failed to create checkout: ${response.status}`)
       }
 
       const data = await response.json()
@@ -193,9 +210,15 @@ export default function StripePaymentModal({
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      // No exit variant: this modal is mounted conditionally, never inside
+      // <AnimatePresence>, because an exit animation that ran without
+      // unmounting left a full-screen overlay at opacity 0 with
+      // pointer-events:auto that swallowed every click on the page behind it,
+      // the $29 CTA included (audit 2026-09-10). React unmounts it instead.
+      // pointerEvents is still declared so the fade-in cannot catch a tap
+      // before the modal is actually visible.
+      initial={{ opacity: 0, pointerEvents: 'none' }}
+      animate={{ opacity: 1, pointerEvents: 'auto' }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -211,7 +234,6 @@ export default function StripePaymentModal({
       <motion.div
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.95, y: 20 }}
         style={{
           backgroundColor: 'white',
           borderRadius: '16px',

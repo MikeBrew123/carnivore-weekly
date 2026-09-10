@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 const step1Schema = z.object({
   sex: z.enum(['male', 'female']),
-  age: z.number().min(14).max(99),
+  age: z.number().min(18).max(99),
   heightUnit: z.enum(['feet-inches', 'cm']),
   heightFeet: z.number().min(3).max(8).optional(),
   heightInches: z.number().min(0).max(11).optional(),
