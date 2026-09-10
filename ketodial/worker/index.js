@@ -1474,6 +1474,13 @@ function targetsLine(d) {
     return 'inside your report \u2014 your protein target is a question for your doctor or a renal dietitian, ' +
            'so we have not set one for you.';
   }
+  // The report withholds every macronutrient target for a declared SGLT2 inhibitor.
+  // Emailing the same four numbers in the first line the customer reads would undo
+  // that before they opened the document, exactly as the protein line once did.
+  if (ctx.restrictKetogenicProtocol) {
+    return 'inside your report \u2014 we have not set your targets, because that is a question for the ' +
+           'clinician who prescribes your medication.';
+  }
   return `${d.calories} kcal \u00b7 ${d.fatG}g fat \u00b7 ${d.proteinG}g protein \u00b7 ${d.carbG}g net carbs`;
 }
 

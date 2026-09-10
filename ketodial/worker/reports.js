@@ -341,16 +341,31 @@ function kdEscapeTerm(t) {
  * lookbehind, so this can be stated directly instead of being approximated by
  * treating every dash as part of the word, which would have swallowed the
  * genuine hyphenated phrasings along with the two bad ones.
+ *
+ * `opts.notBefore` is the mirror image, a negative lookahead, and it exists for
+ * one word: "insulin resistance" is a description of metabolism, not a
+ * prescription. A reader who writes it is usually telling us why they are here,
+ * and treating it as declared insulin would put a hypoglycaemia warning in front
+ * of someone who takes nothing. Stems rather than whole words, so "resistant"
+ * and "sensitivity" are covered, and a dash or space between is allowed because
+ * "insulin-resistant" is how half of them write it.
  */
-function kdCompileTerm([term, mode]) {
-  if (mode === KD_MATCH_ANYWHERE) {
+function kdCompileTerm([term, mode, opts]) {
+  const notBefore = opts && opts.notBefore && opts.notBefore.length
+    ? `(?![\\s\\p{Pd}]*(?:${opts.notBefore.map(kdEscapeTerm).join('|')}))`
+    : '';
+  if (mode === KD_MATCH_ANYWHERE && !notBefore) {
     return (blob) => blob.includes(term);
   }
   const notGland = mode === KD_MATCH_STEM
     ? KD_ADRENAL_PREFIXES.map(p => `(?<!${p}\\p{Pd})`).join('')
     : '';
-  const right = mode === KD_MATCH_TOKEN ? '(?!\\p{L})' : '';
-  const re = new RegExp('(?<!\\p{L})' + notGland + kdEscapeTerm(term) + right, 'u');
+  // 'anywhere' means anywhere even when it carries a lookahead, so it keeps no
+  // left boundary. Silently promoting it to 'prefix' here would have changed
+  // what the term matches as a side effect of adding an exclusion to it.
+  const left = mode === KD_MATCH_ANYWHERE ? '' : '(?<!\\p{L})';
+  const right = (mode === KD_MATCH_TOKEN ? '(?!\\p{L})' : '') + notBefore;
+  const re = new RegExp(left + notGland + kdEscapeTerm(term) + right, 'u');
   return (blob) => re.test(blob);
 }
 
@@ -391,6 +406,125 @@ export function kdTextDeclaresRenal(blob) {
 function kdTextDeclaresCardioRenal(blob) {
   const s = kdNormalizeBlob(blob);
   return KD_CARDIO_RENAL_MATCHERS.some(m => m(s));
+}
+
+// ---------------------------------------------------------------------------
+// DIABETES MEDICATION CLASSES
+// ---------------------------------------------------------------------------
+// The Doctor's Report keyed its glycemic caution and its whole medication
+// considerations table off the condition CHIPS the customer ticked. The
+// medications box was stored, printed back verbatim, and never read.
+//
+// So a customer who ticked nothing and typed "Lantus insulin 24 units at night,
+// glipizide 5mg" received a personalized 18 g net carb target, a conditions
+// table reading "None reported, standard monitoring recommended", no mention of
+// hypoglycemia anywhere in the document, and a seven day meal plan built at that
+// carb level. The report already CONTAINED the right sentence about insulin and
+// sulfonylureas, sitting inside the Type 2 diabetes metadata where free text
+// could not reach it.
+//
+// The intake form has chips for t2d, pre, pcos, bp, heart, kidney, chol, thy and
+// liver. There is no Type 1 option, so a Type 1 diabetic can ONLY tell us about
+// their insulin in the free-text box.
+//
+// THREE CLASSES, BECAUSE THEY NEED DIFFERENT THINGS. This is deliberately not
+// "any declared medication suppresses the carb target": most medications have no
+// interaction with carbohydrate restriction, and blanketing them would be a
+// different product decision that nobody made. See the policy note above
+// kdDeriveMedicationRisk.
+//
+// Names are the common ones a customer actually writes. This is not a formulary,
+// and it does not try to be. `gliflozin` earns its place because it is the class
+// stem every SGLT2 generic ends in, so it catches the ones not listed by name.
+const KD_DIABETES_MED_TERMS = {
+  insulin: [
+    // "insulin resistance" is a metabolic description, not a prescription.
+    ['insulin', KD_MATCH_PREFIX, { notBefore: ['resistan', 'sensitiv'] }],
+    ['lantus', KD_MATCH_PREFIX], ['glargine', KD_MATCH_PREFIX],
+    ['basaglar', KD_MATCH_PREFIX], ['toujeo', KD_MATCH_PREFIX],
+    ['semglee', KD_MATCH_PREFIX], ['humalog', KD_MATCH_PREFIX],
+    ['lispro', KD_MATCH_PREFIX], ['admelog', KD_MATCH_PREFIX],
+    ['lyumjev', KD_MATCH_PREFIX], ['novolog', KD_MATCH_PREFIX],
+    ['novorapid', KD_MATCH_PREFIX], ['fiasp', KD_MATCH_PREFIX],
+    // TOKEN, not PREFIX: "aspartame" and "aspartate" are not insulin.
+    ['aspart', KD_MATCH_TOKEN],
+    ['tresiba', KD_MATCH_PREFIX], ['degludec', KD_MATCH_PREFIX],
+    ['levemir', KD_MATCH_PREFIX], ['detemir', KD_MATCH_PREFIX],
+    ['humulin', KD_MATCH_PREFIX], ['novolin', KD_MATCH_PREFIX],
+    ['apidra', KD_MATCH_PREFIX], ['glulisine', KD_MATCH_PREFIX],
+  ],
+  sulfonylurea: [
+    ['sulfonylurea', KD_MATCH_PREFIX], ['sulphonylurea', KD_MATCH_PREFIX],
+    ['glipizide', KD_MATCH_PREFIX], ['gliclazide', KD_MATCH_PREFIX],
+    ['glimepiride', KD_MATCH_PREFIX], ['glyburide', KD_MATCH_PREFIX],
+    ['glibenclamide', KD_MATCH_PREFIX],
+    ['amaryl', KD_MATCH_PREFIX], ['diamicron', KD_MATCH_PREFIX],
+    ['glucotrol', KD_MATCH_PREFIX], ['diabeta', KD_MATCH_PREFIX],
+    ['glynase', KD_MATCH_PREFIX], ['micronase', KD_MATCH_PREFIX],
+  ],
+  sglt2: [
+    // The class stem. Every generic in it ends this way, listed or not.
+    ['gliflozin', KD_MATCH_ANYWHERE],
+    ['sglt2', KD_MATCH_PREFIX], ['sglt-2', KD_MATCH_PREFIX],
+    ['jardiance', KD_MATCH_PREFIX], ['farxiga', KD_MATCH_PREFIX],
+    ['forxiga', KD_MATCH_PREFIX], ['invokana', KD_MATCH_PREFIX],
+    ['steglatro', KD_MATCH_PREFIX],
+    // Combination products. The generic name inside them is usually written too,
+    // but not always, and the brand is what is on the box.
+    ['synjardy', KD_MATCH_PREFIX], ['xigduo', KD_MATCH_PREFIX],
+    ['invokamet', KD_MATCH_PREFIX], ['glyxambi', KD_MATCH_PREFIX],
+    ['trijardy', KD_MATCH_PREFIX], ['qtern', KD_MATCH_PREFIX],
+  ],
+};
+
+const KD_DIABETES_MED_MATCHERS = Object.entries(KD_DIABETES_MED_TERMS)
+  .map(([cls, terms]) => [cls, terms.map(kdCompileTerm)]);
+
+/**
+ * THE CANONICAL MEDICATION-RISK SIGNAL.
+ *
+ * One derivation, read by every customer-facing decision that depends on it.
+ * Three regexes at three output sites is how the condition chips and the
+ * medications box drifted apart in the first place.
+ *
+ * THE POLICY THESE BOOLEANS CARRY, and why the two are not the same:
+ *
+ *   Insulin and sulfonylureas — the carb target STANDS. Cutting carbohydrate on
+ *   these drugs risks hypoglycemia, and the thing that needs a clinician's
+ *   judgement is the DOSE, which this software never touches and must not.
+ *   Low-carbohydrate eating is an accepted option in type 2 diabetes provided
+ *   medication is adjusted proactively, so withholding the number would not
+ *   remove the risk; it would only remove the document whose entire purpose is
+ *   to start that conversation with the prescriber. So: keep the number, state
+ *   the risk plainly, and route the dose decision where it belongs.
+ *
+ *   SGLT2 inhibitors — the targets are WITHHELD. Here the ketogenic pattern
+ *   itself is the hazard, not the dose. Carbohydrate restriction is a recognised
+ *   trigger for euglycemic diabetic ketoacidosis on these drugs, and the reason
+ *   monitoring copy is not an adequate answer is in the name: blood glucose can
+ *   read normal throughout, so the reader cannot watch for it. When the
+ *   recommendation is the thing that is unsafe, the recommendation stops. That
+ *   is the same rule the renal gate follows, and for the same reason.
+ *
+ * NEITHER IS A DIAGNOSIS. A medication is not a condition. Nothing here writes a
+ * condition slug, and the copy downstream says "you told us you take", never
+ * "your diabetes".
+ *
+ * @param {string} medsText the customer's medications free text
+ * @returns {{diabetesMedClasses: string[], highHypoglycemiaMedication: boolean,
+ *            sglt2Medication: boolean}}
+ */
+export function kdDeriveMedicationRisk(medsText) {
+  const blob = kdNormalizeBlob(medsText);
+  const diabetesMedClasses = kdIsNothing(blob)
+    ? []
+    : KD_DIABETES_MED_MATCHERS.filter(([, ms]) => ms.some(m => m(blob))).map(([cls]) => cls);
+  return {
+    diabetesMedClasses,
+    highHypoglycemiaMedication:
+      diabetesMedClasses.includes('insulin') || diabetesMedClasses.includes('sulfonylurea'),
+    sglt2Medication: diabetesMedClasses.includes('sglt2'),
+  };
 }
 
 function kdToList(value) {
@@ -516,6 +650,17 @@ export function deriveKdMedicalContext(d) {
     kdTextDeclaresRenal(blob);
   const kidneyUnsureOnly = renal && !kidneyConditionDeclared;
 
+  // THE MEDICATION SIGNAL, derived once and read by every gate below. Only the
+  // medications box feeds it: a condition chip is a condition, and inferring a
+  // prescription from one would be the mirror image of the diagnosis error.
+  const medRisk = kdDeriveMedicationRisk(hasDeclaredMedication ? medsText : '');
+
+  // The ketogenic targets themselves are withheld for a declared SGLT2 inhibitor.
+  // Same shape as restrictProteinTarget, same reason: the recommendation is what
+  // is unsafe, so the recommendation stops rather than shrinking. See the policy
+  // note on kdDeriveMedicationRisk.
+  const restrictKetogenicProtocol = medRisk.sglt2Medication;
+
   let restrictionReason = '';
   if (restrictElectrolyteProtocol) {
     const parts = [];
@@ -540,8 +685,10 @@ export function deriveKdMedicalContext(d) {
     kidneyAnswered,
     kidneyConditionDeclared,
     kidneyUnsureOnly,
+    ...medRisk,
     restrictElectrolyteProtocol,
     restrictProteinTarget,
+    restrictKetogenicProtocol,
     restrictionReason,
   };
 }
@@ -591,7 +738,14 @@ const KD_BUNDLE_CONTENTS = {
  */
 export function allowedProducts(ctx) {
   const ALL = ['doctor', 'meal', 'starter', 'essentials', 'protocol'];
-  if (!ctx || !ctx.restrictProteinTarget) {
+  // TWO REASONS, ONE CONSEQUENCE. A withheld protein target and a withheld
+  // ketogenic target both make the 7-Day Meal Plan undeliverable, because it is
+  // portioned to whichever number is missing. The reason is reported separately
+  // so the checkout message can say the true one.
+  const reason = ctx && ctx.restrictProteinTarget
+    ? 'personalized_protein_target_unavailable'
+    : (ctx && ctx.restrictKetogenicProtocol ? 'ketogenic_target_unavailable' : '');
+  if (!reason) {
     return { allowed: ALL, blocked: [], reason: '' };
   }
   const blocked = ALL.filter(item => {
@@ -601,7 +755,7 @@ export function allowedProducts(ctx) {
   return {
     allowed: ALL.filter(i => !blocked.includes(i)),
     blocked,
-    reason: 'personalized_protein_target_unavailable',
+    reason,
   };
 }
 
@@ -632,6 +786,98 @@ export function kdProteinSuppressionNote(ctx) {
 
 /** The phrase that replaces a protein figure wherever one would have been printed. */
 export const KD_PROTEIN_WITHHELD = 'Not set by this report — ask your doctor or renal dietitian';
+
+/**
+ * What replaces the macronutrient panel for a reader who declared an SGLT2
+ * inhibitor. Same shape and same rule as kdProteinSuppressionNote: it is a
+ * referral, not a smaller number, and it does not imply a figure is waiting
+ * elsewhere in the document.
+ *
+ * Copy by Sarah. Note what it does NOT say: it never calls the reader diabetic.
+ * The medication is the fact we were given; the diagnosis is not.
+ */
+export function kdKetogenicSuppressionNote(ctx) {
+  if (!ctx || !ctx.restrictKetogenicProtocol) return '';
+  return `<div class="callout warn" style="margin-top:16px">
+        <span class="ct">Your macronutrient targets are not in this report</span>
+        You told us you take an SGLT2 inhibitor. Ketogenic eating on this class of medication is a
+        recognized trigger for euglycemic diabetic ketoacidosis, and the part that matters most here
+        is that blood glucose can read normal while it happens, so it is not something you can watch
+        for yourself with a home glucose meter. Whether ketogenic targets are appropriate for you at
+        all, and what monitoring would need to be in place first, is a clinical judgment, and none of
+        what it rests on is in a questionnaire. So this report does not set your calories, fat,
+        protein or carbohydrate, and it deliberately does not give you a gentler, higher-carb version
+        instead, because choosing that number is the same clinical decision in a quieter voice.
+        <b>Take this report to the clinician who prescribes that medication and ask what is right for
+        you.</b>
+      </div>`;
+}
+
+/** The phrase that replaces a ketogenic figure wherever one would have been printed. */
+export const KD_KETOGENIC_WITHHELD =
+  'Not set by this report — ask the clinician who prescribes your SGLT2 inhibitor';
+
+/**
+ * What a reader who declared insulin or a sulfonylurea is told, alongside targets
+ * we have deliberately NOT withheld.
+ *
+ * The dose is the clinical decision here, not the carbohydrate figure, and the
+ * dose belongs to their prescriber. So the number stays and this says why that
+ * conversation has to happen first. It must read correctly whether or not they
+ * ticked a diabetes chip, because the whole defect was that a chip was required.
+ *
+ * Copy by Sarah.
+ */
+export function kdHypoglycemiaCallout(ctx) {
+  if (!ctx || !ctx.highHypoglycemiaMedication) return '';
+  return `<div class="callout warn" style="margin-top:16px">
+        <span class="ct">Talk to your prescriber before you start</span>
+        You told us you take insulin or a sulfonylurea. Cutting carbohydrate lowers blood glucose on
+        its own, and a dose that suited your usual way of eating can then take you lower than
+        intended, which is a real risk of hypoglycemia. Your targets and your meal plan are in this
+        report and we have not changed them. <b>Take this report to the clinician who prescribes that
+        medication before you start</b>, and ask what glucose monitoring you should be doing and
+        whether your dose needs to be adjusted for the change in how you eat.
+      </div>`;
+}
+
+/**
+ * Medication considerations for the physician, keyed on what the customer
+ * actually declared rather than on a condition chip they may not have ticked.
+ *
+ * The names deliberately match the rows already sitting inside
+ * CONDITION_INFO.t2d.meds. Those rows are hedged with "if applicable", which is
+ * the right register when a condition implies a medication might exist. When the
+ * medication itself was declared, hedging is wrong, so these are seeded into the
+ * table first and the existing de-duplication keeps them.
+ */
+const KD_MED_CLASS_CONSIDERATIONS = {
+  highHypoglycemiaMedication: {
+    name: 'Insulin / sulfonylureas',
+    sub: 'reported by patient',
+    note: 'Patient reports currently taking this class. Carbohydrate restriction lowers blood ' +
+      'glucose from the first day of the change, so hypoglycemia risk is highest in this group ' +
+      'and a pre-emptive dose review plus an agreed glucose monitoring plan are advised before ' +
+      'starting.',
+    risk: 'hi',
+  },
+  sglt2Medication: {
+    name: 'SGLT2 inhibitors',
+    sub: 'reported by patient',
+    note: "Patient reports currently taking this class, so this report's quantitative ketogenic " +
+      'targets have been withheld pending your review. Ketogenic eating with an SGLT2 inhibitor ' +
+      'is a recognized trigger for euglycemic diabetic ketoacidosis, which can occur with normal ' +
+      'blood glucose readings and so is not detectable by home glucose monitoring.',
+    risk: 'hi',
+  },
+};
+
+/** The declared-medication rows this reader's Doctor's Report must carry. */
+function kdMedicationConsiderations(ctx) {
+  return Object.entries(KD_MED_CLASS_CONSIDERATIONS)
+    .filter(([flag]) => ctx && ctx[flag])
+    .map(([, row]) => row);
+}
 
 function goalLabel(g) {
   const map = {
@@ -1079,6 +1325,10 @@ export function generateDoctorReport(name, d) {
   // gate at all. Every generator now passes through this one call.
   const ctx = deriveKdMedicalContext(d);
   const proteinWithheld = ctx.restrictProteinTarget;
+  // A declared SGLT2 inhibitor withholds the ketogenic targets themselves, so the
+  // panel empties for either reason, and the calorie gauge empties only for this one.
+  const ketoWithheld = ctx.restrictKetogenicProtocol;
+  const panelWithheld = proteinWithheld || ketoWithheld;
 
   const conditions = (d.conditions || []).filter(c => c !== 'none' && CONDITION_INFO[c]);
   const rawMeds = d.meds || 'None reported';
@@ -1156,6 +1406,14 @@ export function generateDoctorReport(name, d) {
 
   // Build medication considerations table — deduplicate
   const medMap = new Map();
+  // DECLARED MEDICATION FIRST. This table used to be built only from the condition
+  // chips, so a customer who ticked nothing and typed "Lantus insulin 24 units at
+  // night, glipizide 5mg" got no medication section at all — while the exact row
+  // their physician needed sat unreachable inside the Type 2 diabetes metadata.
+  // Seeding here means the section appears on the strength of the medication
+  // alone, and the de-duplication below then keeps this specific wording in
+  // preference to the "if applicable" version.
+  kdMedicationConsiderations(ctx).forEach(m => medMap.set(m.name, m));
   conditions.forEach(c => {
     (CONDITION_INFO[c].meds || []).forEach(m => {
       if (!medMap.has(m.name)) medMap.set(m.name, m);
@@ -1228,18 +1486,21 @@ export function generateDoctorReport(name, d) {
     <section class="sec avoid-break">
       <div class="sec-eyebrow">Section 2</div>
       <div class="sec-title"><span class="num">02</span> Proposed dietary intervention</div>
-      <div class="sec-sub">${proteinWithheld
+      <div class="sec-sub">${panelWithheld
         ? 'This section would normally set a macronutrient distribution. It does not, for the reason stated below.'
         : `A ketogenic macronutrient distribution${d.goal === 'lose' ? ' at a 20% caloric deficit from estimated maintenance' : d.goal === 'gain' ? ' at a 10% caloric surplus above maintenance' : ' at estimated maintenance'}. Protein set to approximately 25% of calories to support body composition during fat loss.`}</div>
       <div class="intervention">
-        ${proteinWithheld
+        ${panelWithheld
           // THE WHOLE PANEL GOES, NOT JUST THE PROTEIN ROW. Energy, fat, protein and
           // carbohydrate are one closed system: printing any three of them states the
           // fourth. Blanking the protein line while leaving calories, fat and carbs on
           // the page would let the reader recover the number by subtraction, which is
           // suppression in appearance only — the exact failure CLAUDE.md calls
           // cosmetic safety. So the macro panel is replaced, not edited.
-          ? kdProteinSuppressionNote(ctx)
+          //
+          // Two different reasons can empty it, and a reader can have both, so both
+          // notes render rather than one silently winning.
+          ? kdProteinSuppressionNote(ctx) + kdKetogenicSuppressionNote(ctx)
           : `<div class="macro-line">
           <div class="ml" style="margin-bottom:4px">
             <div class="nm">Energy</div>
@@ -1262,7 +1523,16 @@ export function generateDoctorReport(name, d) {
             <div class="val">${carb} g <small>· ${pct.carb}%</small></div>
           </div>
         </div>`}
-        <div class="minigauge">
+        ${ketoWithheld
+          // The gauge is a calorie target, and for this reader the calorie target is
+          // withheld along with the rest. Leaving the dial spinning next to a note
+          // saying we have not set your calories would be the number surviving its
+          // own suppression, which is the whole failure mode.
+          //
+          // It stays for the renal reader: energy is not the protein figure, and
+          // theirs is not withheld.
+          ? ''
+          : `<div class="minigauge">
           <svg viewBox="0 0 150 96" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
             <path d="M16 84 A 59 59 0 0 1 134 84" stroke="#e2e8f0" stroke-width="9" stroke-linecap="round"/>
             <path d="M16 84 A 59 59 0 0 1 110 30" stroke="#0ea5e9" stroke-width="9" stroke-linecap="round"/>
@@ -1271,8 +1541,9 @@ export function generateDoctorReport(name, d) {
           </svg>
           <div class="num" style="color:var(--ink);top:48%">${fmtNum(cal)}</div>
           <div class="lab" style="color:var(--ink-faint);top:48%;margin-top:20px">kcal / day</div>
-        </div>
+        </div>`}
       </div>
+      ${kdHypoglycemiaCallout(ctx)}
     </section>
 
     <!-- conditions & meds -->
@@ -1761,6 +2032,90 @@ function grocerySection(d) {
  * customer who paid for a meal plan and received a referral is owed that plainly and
  * without having to ask twice.
  */
+/**
+ * What a reader who declared an SGLT2 inhibitor receives instead of the week of
+ * meals they paid for.
+ *
+ * Deliberately a sibling of generateRenalMealPlanReferral rather than a shared
+ * template with a reason slot: the renal page is a closed, separately tested
+ * artifact, and threading a second reason through it would put every renal
+ * customer's document at risk to save a few lines here.
+ *
+ * Copy by Sarah. It names the medication the customer reported and never names a
+ * diagnosis, and it offers a refund before it offers anything else.
+ */
+function generateSglt2MealPlanReferral(name, d, ctx) {
+  const body = `
+<div class="page">
+  <header class="rep-head">
+    ${brandHeader('Personalized Plan')}
+    <div class="rh-title-row">
+      <div>
+        <div class="rh-eyebrow">7-Day Meal Plan</div>
+        <h1>We have not built this plan,<br /><span class="lt">and here is exactly why.</span></h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="sec">
+    <div class="sec-title"><span class="num">01</span> The short version</div>
+    <p>${escHtml(name)}, you told us you take an SGLT2 inhibitor. Every meal in this plan would have
+    been chosen and portioned to hold you at a ketogenic carbohydrate and calorie target. Ketogenic
+    eating on this class of medication is a recognized trigger for euglycemic diabetic ketoacidosis,
+    and the reason that matters here is that blood glucose can read normal while it is happening, so
+    a home glucose meter would not warn you. Whether those targets are appropriate for you, and what
+    monitoring would need to be in place first, is a clinical judgment. This is an automated
+    questionnaire. It has never seen your labs and there is no clinician in the loop.</p>
+
+    <p>So we have not set you ketogenic targets, and we have not built you a week of meals sized to
+    them. <b>We have also not quietly given you a gentler, higher-carb week instead.</b> That would
+    be the same clinical decision made more quietly, and it is not ours to make.</p>
+
+    <div class="callout warn" style="margin-top:16px">
+      <span class="ct">Your money back, no conversation required</span>
+      You paid for a meal plan and this is not one. Reply to your receipt, or email
+      <b>ketodial@carnivoreweekly.com</b>, and we will refund the meal plan. You do not have to
+      explain yourself and nothing else in your order is affected.
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-title"><span class="num">02</span> What to ask for instead</div>
+    <p>The person you want is the clinician who prescribes your SGLT2 inhibitor. Take this report
+    with you. Worth asking them:</p>
+    <ul>
+      <li>Is a low-carbohydrate or ketogenic way of eating reasonable for me at all while I am on this medication?</li>
+      <li>If it is, what carbohydrate level would you be comfortable with, and how gradually should I get there?</li>
+      <li>What should be checked before I change how I eat, and what should be rechecked afterward?</li>
+      <li>Since euglycemic ketoacidosis can happen with normal glucose readings, what symptoms should make me call you, and would ketone testing be useful for me?</li>
+      <li>Does anything else change the answer, such as my other medications, illness, a planned procedure, or alcohol?</li>
+    </ul>
+    <p><b>Do not start, stop or change any medication or supplement on your own</b>, and that
+    includes over-the-counter salt, potassium and magnesium products.</p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-title"><span class="num">03</span> What you did tell us</div>
+    <p>So the person you take this to does not have to start from nothing:</p>
+    <table class="dtable">
+      <thead><tr><th>You reported</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td><b>Conditions</b></td><td>${escHtml(ctx.declaredConditionLabels.join(', ') || 'None reported')}</td></tr>
+        <tr><td><b>Medications</b></td><td>${escHtml(ctx.medsText)}</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--ink-faint);margin-top:8px">Self-reported into an online
+    questionnaire and not verified. Please confirm against your own record.</p>
+  </section>
+
+  ${pageFooter(
+    `KetoDial 7-Day Meal Plan <span class="dot">·</span> ${escHtml(name)}`,
+    'Not medical advice — take this to the clinician who prescribes your medication', 1, 1)}
+</div>`;
+
+  return htmlShell('7-Day Meal Plan', MEAL_CSS, body);
+}
+
 function generateRenalMealPlanReferral(name, d, ctx) {
   const body = `
 <div class="page">
@@ -1857,6 +2212,14 @@ export function generateMealPlan(name, d) {
     // The plan is therefore not generated. This is a real product consequence and it
     // is flagged for Brew in docs/project-log/decisions.md, not hidden here.
     return generateRenalMealPlanReferral(name, d, ctx);
+  }
+  if (ctx.restrictKetogenicProtocol) {
+    // Every meal below is chosen and portioned to hold a ketogenic calorie and
+    // carbohydrate target. For a reader on an SGLT2 inhibitor that target is the
+    // hazard, so there is no version of this week that is not the recommendation we
+    // have just declined to make. Checked AFTER the renal gate so a reader who is
+    // both keeps the referral naming the condition they actually reported first.
+    return generateSglt2MealPlanReferral(name, d, ctx);
   }
 
   const cal = d.calories;
@@ -2020,6 +2383,11 @@ export function generateStarterKit(name, d) {
   // electrolyte protocol. Every quantity on page 2, plus the sodium/fluid
   // instructions scattered through pages 1 and 4, hang off it.
   const restricted = ctx.restrictElectrolyteProtocol;
+  // The carb ceiling on page 1 and the cheat sheet that serves it are the
+  // ketogenic prescription in another form, so a declared SGLT2 inhibitor empties
+  // them here too. The rest of the kit, what to expect and what to watch for,
+  // still belongs to this reader and is not withheld.
+  const ketoWithheld = ctx.restrictKetogenicProtocol;
   const meds = ctx.hasDeclaredMedication ? ctx.medsText : '';
   const conditions = ctx.declaredConditionSlugs;
   const symptoms = (d.symptoms || []).filter(s => s !== 'none');
@@ -2062,7 +2430,7 @@ export function generateStarterKit(name, d) {
       </div>
       <div class="rh-meta">
         <div class="row">FOR <b>${escHtml(name)}</b></div>
-        <div class="row">TARGET <b>${carb}g net carbs</b></div>
+        <div class="row">TARGET <b>${ketoWithheld ? 'Set by your clinician' : `${carb}g net carbs`}</b></div>
         <div class="row">START <b>Day 1, today</b></div>
       </div>
     </div>
@@ -2102,11 +2470,17 @@ export function generateStarterKit(name, d) {
 
     <section class="sec avoid-break">
       <div class="sec-eyebrow">The golden rule</div>
-      <div class="sec-title"><span class="num">02</span> Stay under your carb ceiling</div>
-      <div class="callout">
+      <div class="sec-title"><span class="num">02</span> ${ketoWithheld ? 'Your carb number is not in this kit' : 'Stay under your carb ceiling'}</div>
+      ${ketoWithheld
+        // The carb ceiling IS the ketogenic prescription. Printing it here while the
+        // Doctor's Report withholds it would be the same number arriving through a
+        // second door, which is exactly how the renal protein target used to survive
+        // its own suppression inside the meal plan.
+        ? kdKetogenicSuppressionNote(ctx)
+        : `<div class="callout">
         <span class="ct">Your number is ${carb}g net carbs per day</span>
         Net carbs = total carbs − fiber − sugar alcohols. Stay under this and ketosis takes care of itself. The cheat sheet on page 3 shows exactly which foods fit — keep it somewhere you'll see it.
-      </div>
+      </div>`}
     </section>
 
     ${topWatchOuts.length > 0 ? `<section class="sec avoid-break">
