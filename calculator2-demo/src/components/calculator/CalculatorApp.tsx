@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { FormData, MacroResults } from '../../types/form'
-import { calculateMacrosCanonical } from '../../lib/calculations'
+import { calculateMacrosCanonical, ADULT_MIN_AGE } from '../../lib/calculations'
 import { useFormStore } from '../../stores/formStore'
 import { usePaymentState } from '../../hooks/usePaymentState'
 import ProgressIndicator from './ProgressIndicator'
@@ -230,6 +230,13 @@ export default function CalculatorApp({
 
   // Calculate macros whenever step 1-2 data changes
   useEffect(() => {
+    // Adult product. A persisted session or a hand-edited store must not reach
+    // a personalized target either, so the gate lives here and not only in the
+    // Step 1 form. No pediatric substitute: nothing is calculated at all.
+    if (Number(formData.age) < ADULT_MIN_AGE) {
+      setMacros(null)
+      return
+    }
     if (formData.sex && formData.age && formData.weight && (formData.heightFeet || formData.heightCm) && formData.lifestyle && formData.goal && formData.diet) {
       try {
         // Single source of truth: the same math that generates the paid

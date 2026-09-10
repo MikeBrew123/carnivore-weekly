@@ -13,12 +13,31 @@
  * Do not add new callers.
  */
 
+/**
+ * The calculator is an adult product (Brew, 2026-09-10). Under 18 gets no
+ * personalized target, no macros and no paid pathway. We do not substitute a
+ * pediatric formula: this is a refusal, not a different calculation.
+ */
+export const ADULT_MIN_AGE = 18
+export const ADULT_ONLY_MESSAGE = 'This calculator is designed for adults 18 and over.'
+
 export interface CanonicalMacros {
-  calories: number
-  protein: number
-  fat: number
-  carbs: number
+  /** null when the target is suppressed — never a number to fall back on. */
+  calories: number | null
+  protein: number | null
+  fat: number | null
+  carbs: number | null
   tdee: number
+  /** True when maintenance is at or below the self-service floor: no deficit target. */
+  targetSuppressed: boolean
+  suppressionReason?: string
+  /** The product floor that applied to this profile (1200 female / 1500 male). */
+  selfServiceFloor: number
+  /** True when the requested deficit was capped up to the floor. */
+  floorApplied: boolean
+  requestedDeficitPct: number
+  /** What the displayed target actually represents. Never assume the requested %. */
+  effectiveDeficitPct: number
 }
 
 // Exact port of api/calculator-api.js calculateMacros (2026-08-30).
@@ -64,6 +83,34 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
   if (isLose) calories = tdee * (1 - deficitPct / 100)
   if (isGain) calories = tdee * (1 + deficitPct / 100)
 
+  // ── Self-service fat-loss calorie guardrail (Brew, 2026-09-10) ──────────────
+  // A PRODUCT bound on what this unattended calculator will print, not a
+  // universal medical safe minimum. Below it we stop guessing and route the
+  // reader to a clinician.
+  //
+  // Kept inline and identical to the worker on purpose: tests/macro_parity
+  // extracts the worker's copy standalone via new Function(), so neither side
+  // can import a shared module. Change one, change both, regenerate golden.json.
+  const selfServiceFloor = sex === 'female' ? 1200 : 1500
+  let floorApplied = false
+  let targetSuppressed = false
+  const requestedDeficitPct = isLose ? deficitPct : 0
+  let effectiveDeficitPct = requestedDeficitPct
+
+  if (isLose) {
+    if (tdee <= selfServiceFloor) {
+      // Case B: maintenance is already at or under the floor, so there is no
+      // honest self-guided deficit to offer. Suppress rather than substitute.
+      targetSuppressed = true
+      effectiveDeficitPct = 0
+    } else if (calories < selfServiceFloor) {
+      // Case A: cap, and stop claiming the deficit they picked was achieved.
+      calories = selfServiceFloor
+      floorApplied = true
+      effectiveDeficitPct = Math.round(((tdee - selfServiceFloor) / tdee) * 100)
+    }
+  }
+
   let protein: number, fat: number, carbs: number
   const isLowCarbDiet = ['carnivore', 'lion', 'pescatarian', 'keto', 'strict carnivore', 'lowcarb', 'low-carb', 'low carb'].includes(diet)
 
@@ -107,12 +154,35 @@ export function calculateMacrosCanonical(formData: Record<string, unknown>): Can
     carbs = Math.round((calories - proteinCals - fatCals) / 4)
   }
 
+  // A suppressed target must not leak a number downstream code could treat as a
+  // calorie goal, so the macro fields go null rather than zero.
+  if (targetSuppressed) {
+    return {
+      calories: null,
+      protein: null,
+      fat: null,
+      carbs: null,
+      tdee: Math.round(tdee),
+      targetSuppressed: true,
+      suppressionReason: 'maintenance_at_or_below_self_service_floor',
+      selfServiceFloor,
+      floorApplied: false,
+      requestedDeficitPct,
+      effectiveDeficitPct: 0,
+    }
+  }
+
   return {
     calories: Math.round(calories),
     protein,
     fat,
     carbs,
     tdee: Math.round(tdee),
+    targetSuppressed: false,
+    selfServiceFloor,
+    floorApplied,
+    requestedDeficitPct,
+    effectiveDeficitPct,
   }
 }
 

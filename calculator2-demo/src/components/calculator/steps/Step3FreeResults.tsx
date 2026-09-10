@@ -185,8 +185,66 @@ export default function Step3FreeResults({
   }
 
   const config = getDietConfig(data.diet)
+
+  // Maintenance is already at or below the floor this calculator will print, so
+  // there is no honest self-guided deficit to give. Everything downstream of a
+  // calorie target stops here: no sample day, no meal plan, no $29 offer. The
+  // house rule is suppress, never substitute — returning the floor would be a
+  // "deficit" that is really a surplus.
+  if (macros.targetSuppressed) {
+    return (
+      <div className="space-y-8">
+        <div id="free-results" style={{ position: 'relative', top: '-16px' }} />
+        <div>
+          <h2 className="text-2xl md:text-3xl" style={{ ...goldHeading, fontWeight: '700', marginBottom: '8px' }}>
+            Your Estimated Daily Needs
+          </h2>
+          <p style={{ ...bodyFont, fontSize: '16px', color: '#a0a0a0', marginBottom: '10px' }}>
+            Based on your profile and goals
+          </p>
+        </div>
+
+        <div style={sectionCard}>
+          <p style={{ ...bodyFont, fontSize: '14px', color: '#a0a0a0', margin: '0 0 6px' }}>
+            Estimated calories to maintain your current weight
+          </p>
+          <p style={{ ...goldHeading, fontSize: '40px', margin: 0, lineHeight: 1.1 }}>{macros.tdee}</p>
+          <p style={{ ...bodyFont, fontSize: '14px', color: '#a0a0a0', margin: '4px 0 0' }}>calories per day</p>
+        </div>
+
+        <div style={{ ...sectionCard, borderColor: '#d4a574' }}>
+          <h3 style={{ ...goldHeading, fontSize: '18px', margin: '0 0 12px' }}>
+            We can't build a fat-loss target from these numbers
+          </h3>
+          <p style={{ ...bodyFont, fontSize: '16px', color: '#f5f5f5', lineHeight: 1.7, margin: '0 0 12px' }}>
+            Your estimated maintenance is already at or below the lower limit we use for
+            self-guided plans ({macros.selfServiceFloor} calories a day). Subtracting from it
+            automatically would not give you a number worth following.
+          </p>
+          <p style={{ ...bodyFont, fontSize: '16px', color: '#f5f5f5', lineHeight: 1.7, margin: 0 }}>
+            A registered dietitian or your doctor can set a target for you properly, taking
+            your history and any medications into account. That is the right next step here,
+            and it is not something this calculator should guess at.
+          </p>
+        </div>
+
+        <p style={{ ...bodyFont, fontSize: '14px', color: '#a0a0a0' }}>
+          Wrong details?{' '}
+          <button
+            onClick={onBack}
+            style={{ background: 'none', border: 'none', color: '#ffd700', fontWeight: 600, cursor: 'pointer', padding: 0, textDecoration: 'underline', fontSize: '14px' }}
+          >
+            Go back and edit
+          </button>
+        </p>
+      </div>
+    )
+  }
+
   // Every meal shown below is scaled to this target, and each meal's calories are
   // derived from its own scaled ingredients. See api/sample-day.js for why.
+  // macros.calories is the FINAL target: if the floor capped it, the sample day
+  // is built around the capped number, never the raw one.
   const sampleDay = buildSampleDay(getDietSampleDay(data.diet), macros.calories)
 
   return (
@@ -286,6 +344,25 @@ export default function Step3FreeResults({
           SECTION 3: Macro Cards
           ════════════════════════════════════════════ */}
       <MacroPreview macros={macros} />
+
+      {/* The requested deficit would have gone under the floor, so the target was
+          capped. Say so plainly and stop showing the requested percentage as if
+          it had been achieved. Not a medical claim, and not the reader's fault. */}
+      {macros.floorApplied && (
+        <div style={{ ...sectionCard, borderColor: '#d4a574', padding: '20px 24px' }}>
+          <p style={{ ...bodyFont, fontSize: '16px', color: '#f5f5f5', lineHeight: 1.7, margin: '0 0 10px' }}>
+            Your selected {macros.requestedDeficitPct}% deficit would put you below the lower
+            limit we use for self-guided plans, so we've capped your target at{' '}
+            <strong style={{ color: '#ffd700' }}>{macros.calories} calories a day</strong>.
+            That works out to about {macros.effectiveDeficitPct}% below your estimated
+            maintenance of {macros.tdee}, not the {macros.requestedDeficitPct}% you picked.
+          </p>
+          <p style={{ ...bodyFont, fontSize: '16px', color: '#f5f5f5', lineHeight: 1.7, margin: 0 }}>
+            Eating below this is something to work out with a doctor or registered dietitian
+            rather than an automated calculator.
+          </p>
+        </div>
+      )}
 
       {/* ════════════════════════════════════════════
           SECTION 4: Value Bridge — right after macros

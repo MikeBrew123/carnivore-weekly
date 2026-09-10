@@ -73,6 +73,16 @@ if (helpMatch) {
   check('Step 1 says the results are emailed', /email your results|send your results/i.test(help), help);
   check('Step 1 discloses the starter email series', /starter series|starter email series/i.test(help), help);
   check('Step 1 says a regular email follows', /weekly|regular newsletter|newsletter/i.test(help), help);
+  // Routing is diet-based and intentional: a CW visitor who picks keto or
+  // low-carb is enrolled on KetoDial's list, and a pescatarian gets the
+  // newsletter with no starter series. The disclosure must not promise
+  // Carnivore Weekly branding it may not send, or a series it may not start.
+  check('Step 1 ties the emails to the diet chosen, not to CW branding',
+    /matched to the diet you choose/i.test(help), help);
+  check('Step 1 does not promise Carnivore Weekly branded email unconditionally',
+    !/Carnivore Weekly email|weekly Carnivore Weekly/i.test(help), help);
+  check('Step 1 hedges the starter series for the pescatarian branch',
+    /usually/i.test(help), help);
   check('Step 1 offers unsubscribe', /unsubscribe/i.test(help), help);
   check('Step 1 does not imply an account is created', !/create an account|sign up for an account/i.test(help), help);
 }

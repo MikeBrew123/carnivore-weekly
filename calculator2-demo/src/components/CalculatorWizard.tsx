@@ -17,7 +17,7 @@ import { MacroResults } from '../types/form'
 // Form validation schema - matches FormData interface
 const formSchema = z.object({
   sex: z.enum(['male', 'female']),
-  age: z.number().min(14).max(99),
+  age: z.number().min(18).max(99),
   heightFeet: z.number().optional(),
   heightInches: z.number().optional(),
   heightCm: z.number().optional(),
