@@ -1632,3 +1632,47 @@ and attributed 60% diabetes remission, metabolic syndrome reversal, superiority 
 and reduced inflammation to all three. A clinician would have caught it, at the patient's
 expense. Current direct evidence is nine human studies, mostly case reports and surveys, no
 RCTs, no hard endpoints (Nutrients, 2026).
+
+## 2026-09-10 — KetoDial diabetes medication safety policy (Blocker #1, paid report v1)
+
+**Two policies, not one.** `kdDeriveMedicationRisk()` in `ketodial/worker/reports.js` is the single
+derivation; every gate reads it.
+
+- **Insulin or sulfonylurea declared: the carb target and meal plan STAY.** Cutting carbohydrate
+  lowers blood glucose, and the thing that needs clinical judgement is the DOSE, which this product
+  never touches. Low-carbohydrate eating is an accepted option provided medication is adjusted
+  proactively, so withholding the number would not remove the risk, only the document whose purpose
+  is to start that conversation. All three reports now name the hypoglycemia risk and route dose and
+  monitoring to the prescriber, with no condition chip required.
+- **SGLT2 inhibitor declared: the ketogenic targets are WITHHELD.** Here the pattern itself is the
+  hazard: it is a recognised trigger for euglycemic diabetic ketoacidosis, and glucose can read
+  normal throughout, so monitoring copy is not an answer. Suppress, do not substitute. The meal plan
+  and both bundles are also withdrawn from sale, and the meal plan becomes a referral with a refund.
+
+**Deliberately NOT `hasDeclaredMedication => suppress`.** Most medications have no interaction with
+carbohydrate restriction. Metformin, GLP-1 and DPP-4 drugs are pinned as controls.
+
+**Named accepted residual risk.** Class detection is a term list, and CLAUDE.md's rule is that a
+keyword list must never decide whether it is safe to print a number. It does here, and the blunt
+"any declared medication" signal cannot be used instead without also suppressing insulin's targets,
+which the policy above deliberately keeps. So this is accepted, not solved:
+
+- SGLT2 brands whose names lack the `-gliflozin` stem fail open. `Steglujan`, `Segluromet`,
+  `Inpefa` and `Brenzavvy` were found by review and added; the next such brand will miss.
+- Misspellings (`Jardience`, `Farxega`, `empagliflozen`) fail open. No fuzzy matching was added:
+  it is a new mechanism with its own false-positive cost, and a false positive here fabricates a
+  health declaration.
+- Insulin has the same shape (`Soliqua`, `Xultophy`, `Ryzodeg`, `Afrezza` miss), but the
+  consequence there is a missing warning rather than a leaked number.
+
+**Out of scope and still open**, recorded so it is not mistaken for covered:
+
+- The FREE calculator gives a ketogenic carb target at step 1, before medications are collected at
+  step 2, and `handleEmailPlan` gates only on `kidney_status`. The "email me these updated numbers"
+  resend button is reachable after step 2, so it can send the four numbers to a customer whose paid
+  reports withhold them. Fixing only the resend is cosmetic: the numbers were already on screen.
+  The real question is when the calculator asks about medication, which is a product change.
+- `productAvailable()` in the `ketodial/public` frontend mirrors the protein gate only, so the
+  picker still offers the Meal Plan to an SGLT2 customer and checkout declines it. The decline
+  message is now branched so it no longer claims they declared kidney disease, but the mirror needs
+  a frontend change in the submodule.

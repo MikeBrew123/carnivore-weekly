@@ -206,18 +206,330 @@ const KD_KNOWN_CONDITION_SLUGS = new Set([
   't2d', 'pre', 'bp', 'chol', 'thy', 'pcos', 'liver', 'gerd', 'ibs', 'kidney', 'heart',
 ]);
 
+// ---------------------------------------------------------------------------
+// HOW A FREE-TEXT TERM IS ALLOWED TO MATCH
+// ---------------------------------------------------------------------------
+// Every term below used to be tested with `blob.includes(term)`. That is a
+// character-sequence test, not a word test, and `adrenal` contains `renal`.
+//
+// A customer who answered NO to the kidney question, ticked no kidney condition,
+// and typed "hydrocortisone for adrenal insufficiency" into the medications box
+// was classified renal: protein target suppressed, meal plan and both bundles
+// removed from sale, and a Doctor's Report that opened by telling their physician
+// they had told us about kidney disease. Adrenal insufficiency is not a kidney
+// condition, and "adrenal fatigue" is a phrase this audience writes constantly.
+//
+// The fix is a matching RULE PER TERM, not a blocklist of unlucky words. Adding
+// `adrenal` to an exception list would leave `adrenaline`, `noradrenaline` and
+// `adrenalectomy` broken, and the next such word after that.
+//
+//   'anywhere' — plain substring, as before. For sequences no ordinary English
+//                word contains, and where a left boundary would LOSE a real
+//                signal: 'dialysis' must still catch "hemodialysis", 'nephro'
+//                must still catch "hydronephrosis".
+//   'prefix'   — must start a word; may continue. "kidneys", "kidney disease".
+//   'token'    — must be a whole word. Acronyms only. "CKD", "ckd 3" and
+//                "CKD-4" match, because a digit or hyphen is not a letter.
+//   'stem'     — 'prefix', minus the two prefixes that mean a different organ.
+//                Only `renal` needs this; see below.
+//
+// WHY `renal` IS ITS OWN CASE. In medical English exactly two prefixes take
+// `renal` away from the kidney and give it to the gland sitting on top of it:
+// ad- (adrenal, adrenaline, adrenalectomy) and supra- (suprarenal). Every other
+// prefix keeps the kidney meaning — prerenal, postrenal, intrarenal, extrarenal,
+// perirenal, pararenal. So a plain word-start rule trades one error for another:
+// it fixes "adrenal" and breaks "prerenal".
+//
+// Both halves are handled, and they need different mechanisms because English
+// writes these two ways. Written closed up, the gland's prefixes are simply part
+// of the word, so word-start settles it: "adrenal" is out, and the kidney
+// compounds are added below as terms of their own. Written with a dash, word-
+// start no longer separates them, so `renal` additionally refuses the two gland
+// morphemes by name: "supra-renal" is out, while "pre-renal" and
+// "chronic-renal-failure" are in.
+//
+// Naming ad- and supra- is naming the entire set of prefixes that change the
+// organ, which is a fact about medical English rather than a list of unlucky
+// words. Blocking the literal "adrenal" instead would have left "adrenaline",
+// "noradrenaline" and "adrenalectomy" broken, and the next such word after that.
+//
+// SCOPE. Only the renal family is reclassified. No English word ends in
+// "kidney" or contains "ckd"/"esrd"/"egfr", and the three 'anywhere' terms keep
+// the exact rule they had, so `renal` is the only behaviour that moves. Every
+// cardiac and blood-pressure term is left on 'anywhere', byte-for-byte as
+// before. Narrowing "heart" so it stops matching "heartburn" is a real and
+// separate question; it is not this one, and over-suppressing an electrolyte
+// protocol is the safe direction anyway.
+const KD_MATCH_ANYWHERE = 'anywhere';
+const KD_MATCH_PREFIX = 'prefix';
+const KD_MATCH_TOKEN = 'token';
+const KD_MATCH_STEM = 'stem';
+
+/**
+ * Prefixes that leave `renal` meaning the kidney, written closed up. The dashed
+ * spellings need no entry: "pre-renal" already reaches `renal` at a word start.
+ */
+const KD_RENAL_PREFIXES = ['pre', 'post', 'intra', 'extra', 'peri', 'para'];
+
+/**
+ * The prefixes that move `renal` to the adrenal gland, as they appear when a
+ * writer dashes them. The closed-up spellings need no entry: "adrenal" and
+ * "suprarenal" already fail the word-start rule.
+ */
+const KD_ADRENAL_PREFIXES = ['ad', 'supra'];
+
+/**
+ * The renal family, and how each member may match. This is the single source of
+ * truth: it was written out twice inline before, once for `renal` and once for
+ * `kidneyConditionDeclared`, which is two places for the same rule to rot.
+ */
+const KD_RENAL_TERMS = [
+  ['kidney', KD_MATCH_PREFIX],
+  ['renal', KD_MATCH_STEM],
+  ...KD_RENAL_PREFIXES.map(p => [`${p}renal`, KD_MATCH_PREFIX]),
+  ['ckd', KD_MATCH_TOKEN],
+  ['esrd', KD_MATCH_TOKEN],
+  ['nephro', KD_MATCH_ANYWHERE],
+  ['dialysis', KD_MATCH_ANYWHERE],
+  ['glomerul', KD_MATCH_ANYWHERE],
+  ['egfr', KD_MATCH_TOKEN],
+];
+
 /**
  * Words that mean a cardiac, renal or blood-pressure problem, however the reader
  * happened to write it. Used ONLY to sharpen wording and to catch free text; the
  * safety decision above does not depend on this list matching anything.
  */
 const KD_CARDIO_RENAL_TERMS = [
-  'kidney', 'renal', 'ckd', 'esrd', 'nephro', 'nephritis', 'nephropathy',
-  'dialysis', 'glomerul', 'creatinine', 'egfr',
-  'heart', 'cardiac', 'cardio', 'chf', 'congestive', 'heart failure',
-  'afib', 'a-fib', 'atrial fibrillation', 'arrhythmia', 'pacemaker',
-  'hypertension', 'blood pressure', 'stroke', 'transplant', 'edema', 'oedema',
+  ...KD_RENAL_TERMS,
+  ['nephritis', KD_MATCH_ANYWHERE], ['nephropathy', KD_MATCH_ANYWHERE],
+  ['creatinine', KD_MATCH_ANYWHERE],
+  ['heart', KD_MATCH_ANYWHERE], ['cardiac', KD_MATCH_ANYWHERE],
+  ['cardio', KD_MATCH_ANYWHERE], ['chf', KD_MATCH_ANYWHERE],
+  ['congestive', KD_MATCH_ANYWHERE], ['heart failure', KD_MATCH_ANYWHERE],
+  ['afib', KD_MATCH_ANYWHERE], ['a-fib', KD_MATCH_ANYWHERE],
+  ['atrial fibrillation', KD_MATCH_ANYWHERE], ['arrhythmia', KD_MATCH_ANYWHERE],
+  ['pacemaker', KD_MATCH_ANYWHERE], ['hypertension', KD_MATCH_ANYWHERE],
+  ['blood pressure', KD_MATCH_ANYWHERE], ['stroke', KD_MATCH_ANYWHERE],
+  ['transplant', KD_MATCH_ANYWHERE], ['edema', KD_MATCH_ANYWHERE],
+  ['oedema', KD_MATCH_ANYWHERE],
 ];
+
+/**
+ * Regex-escape a literal term. The lists are ours, but a term may contain "-".
+ *
+ * "-" is deliberately NOT in this set. It carries no meaning outside a character
+ * class, and under the `u` flag `\-` is not a permitted escape at all: including
+ * it threw "Invalid regular expression: /(?<![\p{L}\p{Pd}])pre\-renal/u" at
+ * module load, which would have taken every KetoDial report down with it.
+ */
+function kdEscapeTerm(t) {
+  return String(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Compile one term into a test against the normalized blob.
+ *
+ * A boundary here is "not a letter", deliberately, rather than \b. \b treats a
+ * digit as a word character, so "ckd3" — which a real customer writes — would
+ * fail a \b-anchored token match. \p{L} also means an accented spelling cannot
+ * sneak past the left boundary.
+ *
+ * 'stem' adds one negative lookbehind per adrenal-gland prefix, which is what
+ * separates "supra-renal" (the gland) from "pre-renal" and
+ * "chronic-renal-failure" (the kidney). JavaScript allows a variable-length
+ * lookbehind, so this can be stated directly instead of being approximated by
+ * treating every dash as part of the word, which would have swallowed the
+ * genuine hyphenated phrasings along with the two bad ones.
+ *
+ * `opts.notBefore` is the mirror image, a negative lookahead, and it exists for
+ * one word: "insulin resistance" is a description of metabolism, not a
+ * prescription. A reader who writes it is usually telling us why they are here,
+ * and treating it as declared insulin would put a hypoglycaemia warning in front
+ * of someone who takes nothing. Stems rather than whole words, so "resistant"
+ * and "sensitivity" are covered, and a dash or space between is allowed because
+ * "insulin-resistant" is how half of them write it.
+ */
+function kdCompileTerm([term, mode, opts]) {
+  const notBefore = opts && opts.notBefore && opts.notBefore.length
+    ? `(?![\\s\\p{Pd}]*(?:${opts.notBefore.map(kdEscapeTerm).join('|')}))`
+    : '';
+  if (mode === KD_MATCH_ANYWHERE && !notBefore) {
+    return (blob) => blob.includes(term);
+  }
+  const notGland = mode === KD_MATCH_STEM
+    ? KD_ADRENAL_PREFIXES.map(p => `(?<!${p}\\p{Pd})`).join('')
+    : '';
+  // 'anywhere' means anywhere even when it carries a lookahead, so it keeps no
+  // left boundary. Silently promoting it to 'prefix' here would have changed
+  // what the term matches as a side effect of adding an exclusion to it.
+  const left = mode === KD_MATCH_ANYWHERE ? '' : '(?<!\\p{L})';
+  const right = (mode === KD_MATCH_TOKEN ? '(?!\\p{L})' : '') + notBefore;
+  const re = new RegExp(left + notGland + kdEscapeTerm(term) + right, 'u');
+  return (blob) => re.test(blob);
+}
+
+/** Compiled once at module load, not per report. */
+const KD_RENAL_MATCHERS = KD_RENAL_TERMS.map(kdCompileTerm);
+const KD_CARDIO_RENAL_MATCHERS = KD_CARDIO_RENAL_TERMS.map(kdCompileTerm);
+
+/**
+ * Lowercase, and drop characters that are not there.
+ *
+ * Unicode format characters (\p{Cf}: soft hyphen, zero-width space, zero-width
+ * joiner) are invisible, and a customer pasting from a Word document or a PDF
+ * brings them along without knowing. A soft hyphen sitting inside "ad<shy>renal"
+ * is not a word boundary to any reader, and it must not be one here either:
+ * left in, it splits the word and hands the fragment "renal" to the gate, which
+ * is the whole defect wearing a different hat. Stripping them first means the
+ * text is judged as it is read.
+ */
+function kdNormalizeBlob(blob) {
+  return String(blob == null ? '' : blob).toLowerCase().replace(/\p{Cf}/gu, '');
+}
+
+/**
+ * Does this free text declare reduced kidney function?
+ *
+ * Exported so a regression test can drive the rule directly instead of only
+ * observing it through a whole generated report.
+ *
+ * @param {string} blob condition slugs, condition labels and the medications
+ *                      free text, joined
+ */
+export function kdTextDeclaresRenal(blob) {
+  const s = kdNormalizeBlob(blob);
+  return KD_RENAL_MATCHERS.some(m => m(s));
+}
+
+/** The same question for the wider cardiac / renal / blood-pressure family. */
+function kdTextDeclaresCardioRenal(blob) {
+  const s = kdNormalizeBlob(blob);
+  return KD_CARDIO_RENAL_MATCHERS.some(m => m(s));
+}
+
+// ---------------------------------------------------------------------------
+// DIABETES MEDICATION CLASSES
+// ---------------------------------------------------------------------------
+// The Doctor's Report keyed its glycemic caution and its whole medication
+// considerations table off the condition CHIPS the customer ticked. The
+// medications box was stored, printed back verbatim, and never read.
+//
+// So a customer who ticked nothing and typed "Lantus insulin 24 units at night,
+// glipizide 5mg" received a personalized 18 g net carb target, a conditions
+// table reading "None reported, standard monitoring recommended", no mention of
+// hypoglycemia anywhere in the document, and a seven day meal plan built at that
+// carb level. The report already CONTAINED the right sentence about insulin and
+// sulfonylureas, sitting inside the Type 2 diabetes metadata where free text
+// could not reach it.
+//
+// The intake form has chips for t2d, pre, pcos, bp, heart, kidney, chol, thy and
+// liver. There is no Type 1 option, so a Type 1 diabetic can ONLY tell us about
+// their insulin in the free-text box.
+//
+// THREE CLASSES, BECAUSE THEY NEED DIFFERENT THINGS. This is deliberately not
+// "any declared medication suppresses the carb target": most medications have no
+// interaction with carbohydrate restriction, and blanketing them would be a
+// different product decision that nobody made. See the policy note above
+// kdDeriveMedicationRisk.
+//
+// Names are the common ones a customer actually writes. This is not a formulary,
+// and it does not try to be. `gliflozin` earns its place because it is the class
+// stem every SGLT2 generic ends in, so it catches the ones not listed by name.
+const KD_DIABETES_MED_TERMS = {
+  insulin: [
+    // "insulin resistance" is a metabolic description, not a prescription.
+    ['insulin', KD_MATCH_PREFIX, { notBefore: ['resistan', 'sensitiv'] }],
+    ['lantus', KD_MATCH_PREFIX], ['glargine', KD_MATCH_PREFIX],
+    ['basaglar', KD_MATCH_PREFIX], ['toujeo', KD_MATCH_PREFIX],
+    ['semglee', KD_MATCH_PREFIX], ['humalog', KD_MATCH_PREFIX],
+    ['lispro', KD_MATCH_PREFIX], ['admelog', KD_MATCH_PREFIX],
+    ['lyumjev', KD_MATCH_PREFIX], ['novolog', KD_MATCH_PREFIX],
+    ['novorapid', KD_MATCH_PREFIX], ['fiasp', KD_MATCH_PREFIX],
+    // TOKEN, not PREFIX: "aspartame" and "aspartate" are not insulin.
+    ['aspart', KD_MATCH_TOKEN],
+    ['tresiba', KD_MATCH_PREFIX], ['degludec', KD_MATCH_PREFIX],
+    ['levemir', KD_MATCH_PREFIX], ['detemir', KD_MATCH_PREFIX],
+    ['humulin', KD_MATCH_PREFIX], ['novolin', KD_MATCH_PREFIX],
+    ['apidra', KD_MATCH_PREFIX], ['glulisine', KD_MATCH_PREFIX],
+  ],
+  sulfonylurea: [
+    ['sulfonylurea', KD_MATCH_PREFIX], ['sulphonylurea', KD_MATCH_PREFIX],
+    ['glipizide', KD_MATCH_PREFIX], ['gliclazide', KD_MATCH_PREFIX],
+    ['glimepiride', KD_MATCH_PREFIX], ['glyburide', KD_MATCH_PREFIX],
+    ['glibenclamide', KD_MATCH_PREFIX],
+    ['amaryl', KD_MATCH_PREFIX], ['diamicron', KD_MATCH_PREFIX],
+    ['glucotrol', KD_MATCH_PREFIX], ['diabeta', KD_MATCH_PREFIX],
+    ['glynase', KD_MATCH_PREFIX], ['micronase', KD_MATCH_PREFIX],
+  ],
+  sglt2: [
+    // The class stem. Every generic in it ends this way, listed or not.
+    ['gliflozin', KD_MATCH_ANYWHERE],
+    ['sglt2', KD_MATCH_PREFIX], ['sglt-2', KD_MATCH_PREFIX],
+    ['jardiance', KD_MATCH_PREFIX], ['farxiga', KD_MATCH_PREFIX],
+    ['forxiga', KD_MATCH_PREFIX], ['invokana', KD_MATCH_PREFIX],
+    ['steglatro', KD_MATCH_PREFIX],
+    // Combination products. The generic name inside them is usually written too,
+    // but not always, and the brand is what is on the box.
+    ['synjardy', KD_MATCH_PREFIX], ['xigduo', KD_MATCH_PREFIX],
+    ['invokamet', KD_MATCH_PREFIX], ['glyxambi', KD_MATCH_PREFIX],
+    ['trijardy', KD_MATCH_PREFIX], ['qtern', KD_MATCH_PREFIX],
+    // Ertugliflozin and sotagliflozin combinations, whose brand names do not
+    // contain the class stem. Added after review found they failed open.
+    ['steglujan', KD_MATCH_PREFIX], ['segluromet', KD_MATCH_PREFIX],
+    ['inpefa', KD_MATCH_PREFIX], ['brenzavvy', KD_MATCH_PREFIX],
+  ],
+};
+
+const KD_DIABETES_MED_MATCHERS = Object.entries(KD_DIABETES_MED_TERMS)
+  .map(([cls, terms]) => [cls, terms.map(kdCompileTerm)]);
+
+/**
+ * THE CANONICAL MEDICATION-RISK SIGNAL.
+ *
+ * One derivation, read by every customer-facing decision that depends on it.
+ * Three regexes at three output sites is how the condition chips and the
+ * medications box drifted apart in the first place.
+ *
+ * THE POLICY THESE BOOLEANS CARRY, and why the two are not the same:
+ *
+ *   Insulin and sulfonylureas — the carb target STANDS. Cutting carbohydrate on
+ *   these drugs risks hypoglycemia, and the thing that needs a clinician's
+ *   judgement is the DOSE, which this software never touches and must not.
+ *   Low-carbohydrate eating is an accepted option in type 2 diabetes provided
+ *   medication is adjusted proactively, so withholding the number would not
+ *   remove the risk; it would only remove the document whose entire purpose is
+ *   to start that conversation with the prescriber. So: keep the number, state
+ *   the risk plainly, and route the dose decision where it belongs.
+ *
+ *   SGLT2 inhibitors — the targets are WITHHELD. Here the ketogenic pattern
+ *   itself is the hazard, not the dose. Carbohydrate restriction is a recognised
+ *   trigger for euglycemic diabetic ketoacidosis on these drugs, and the reason
+ *   monitoring copy is not an adequate answer is in the name: blood glucose can
+ *   read normal throughout, so the reader cannot watch for it. When the
+ *   recommendation is the thing that is unsafe, the recommendation stops. That
+ *   is the same rule the renal gate follows, and for the same reason.
+ *
+ * NEITHER IS A DIAGNOSIS. A medication is not a condition. Nothing here writes a
+ * condition slug, and the copy downstream says "you told us you take", never
+ * "your diabetes".
+ *
+ * @param {string} medsText the customer's medications free text
+ * @returns {{diabetesMedClasses: string[], highHypoglycemiaMedication: boolean,
+ *            sglt2Medication: boolean}}
+ */
+export function kdDeriveMedicationRisk(medsText) {
+  const blob = kdNormalizeBlob(medsText);
+  const diabetesMedClasses = kdIsNothing(blob)
+    ? []
+    : KD_DIABETES_MED_MATCHERS.filter(([, ms]) => ms.some(m => m(blob))).map(([cls]) => cls);
+  return {
+    diabetesMedClasses,
+    highHypoglycemiaMedication:
+      diabetesMedClasses.includes('insulin') || diabetesMedClasses.includes('sulfonylurea'),
+    sglt2Medication: diabetesMedClasses.includes('sglt2'),
+  };
+}
 
 function kdToList(value) {
   if (Array.isArray(value)) return value.filter(v => typeof v === 'string' && v.trim());
@@ -272,7 +584,7 @@ export function deriveKdMedicalContext(d) {
   const blob = [...declaredConditionSlugs, ...declaredConditionLabels, medsText]
     .join(' | ').toLowerCase();
   const cardioRenalSlug = declaredConditionSlugs.some(c => KD_RESTRICTING_CONDITION_SLUGS.has(c));
-  const cardioRenalText = KD_CARDIO_RENAL_TERMS.some(t => blob.includes(t));
+  const cardioRenalText = kdTextDeclaresCardioRenal(blob);
   // THE EARLY GATE (2026-09-08, Audit 2B). One question, asked once, BEFORE the free
   // protein result: "Have you been diagnosed with kidney disease, told that your
   // kidney function is reduced, or are you on dialysis?" -> no | yes | unsure.
@@ -303,8 +615,7 @@ export function deriveKdMedicalContext(d) {
   // formal diagnosis and then typed "my nephrologist" into the medications box.
   const renal = kidneyDeclared ||
     declaredConditionSlugs.includes('kidney') ||
-    ['kidney', 'renal', 'ckd', 'esrd', 'nephro', 'dialysis', 'glomerul', 'egfr']
-      .some(t => blob.includes(t));
+    kdTextDeclaresRenal(blob);
 
   // RENAL IS CARDIO-RENAL. Declared reduced kidney function restricts the electrolyte
   // protocol as well as the protein target — sodium, potassium and fluid are the
@@ -340,9 +651,19 @@ export function deriveKdMedicalContext(d) {
   const kidneyConditionDeclared =
     kidneyAnswer === 'yes' ||
     declaredConditionSlugs.includes('kidney') ||
-    ['kidney', 'renal', 'ckd', 'esrd', 'nephro', 'dialysis', 'glomerul', 'egfr']
-      .some(t => blob.includes(t));
+    kdTextDeclaresRenal(blob);
   const kidneyUnsureOnly = renal && !kidneyConditionDeclared;
+
+  // THE MEDICATION SIGNAL, derived once and read by every gate below. Only the
+  // medications box feeds it: a condition chip is a condition, and inferring a
+  // prescription from one would be the mirror image of the diagnosis error.
+  const medRisk = kdDeriveMedicationRisk(hasDeclaredMedication ? medsText : '');
+
+  // The ketogenic targets themselves are withheld for a declared SGLT2 inhibitor.
+  // Same shape as restrictProteinTarget, same reason: the recommendation is what
+  // is unsafe, so the recommendation stops rather than shrinking. See the policy
+  // note on kdDeriveMedicationRisk.
+  const restrictKetogenicProtocol = medRisk.sglt2Medication;
 
   let restrictionReason = '';
   if (restrictElectrolyteProtocol) {
@@ -368,8 +689,10 @@ export function deriveKdMedicalContext(d) {
     kidneyAnswered,
     kidneyConditionDeclared,
     kidneyUnsureOnly,
+    ...medRisk,
     restrictElectrolyteProtocol,
     restrictProteinTarget,
+    restrictKetogenicProtocol,
     restrictionReason,
   };
 }
@@ -419,7 +742,14 @@ const KD_BUNDLE_CONTENTS = {
  */
 export function allowedProducts(ctx) {
   const ALL = ['doctor', 'meal', 'starter', 'essentials', 'protocol'];
-  if (!ctx || !ctx.restrictProteinTarget) {
+  // TWO REASONS, ONE CONSEQUENCE. A withheld protein target and a withheld
+  // ketogenic target both make the 7-Day Meal Plan undeliverable, because it is
+  // portioned to whichever number is missing. The reason is reported separately
+  // so the checkout message can say the true one.
+  const reason = ctx && ctx.restrictProteinTarget
+    ? 'personalized_protein_target_unavailable'
+    : (ctx && ctx.restrictKetogenicProtocol ? 'ketogenic_target_unavailable' : '');
+  if (!reason) {
     return { allowed: ALL, blocked: [], reason: '' };
   }
   const blocked = ALL.filter(item => {
@@ -429,7 +759,7 @@ export function allowedProducts(ctx) {
   return {
     allowed: ALL.filter(i => !blocked.includes(i)),
     blocked,
-    reason: 'personalized_protein_target_unavailable',
+    reason,
   };
 }
 
@@ -460,6 +790,98 @@ export function kdProteinSuppressionNote(ctx) {
 
 /** The phrase that replaces a protein figure wherever one would have been printed. */
 export const KD_PROTEIN_WITHHELD = 'Not set by this report — ask your doctor or renal dietitian';
+
+/**
+ * What replaces the macronutrient panel for a reader who declared an SGLT2
+ * inhibitor. Same shape and same rule as kdProteinSuppressionNote: it is a
+ * referral, not a smaller number, and it does not imply a figure is waiting
+ * elsewhere in the document.
+ *
+ * Copy by Sarah. Note what it does NOT say: it never calls the reader diabetic.
+ * The medication is the fact we were given; the diagnosis is not.
+ */
+export function kdKetogenicSuppressionNote(ctx) {
+  if (!ctx || !ctx.restrictKetogenicProtocol) return '';
+  return `<div class="callout warn" style="margin-top:16px">
+        <span class="ct">Your macronutrient targets are not in this report</span>
+        You told us you take an SGLT2 inhibitor. Ketogenic eating on this class of medication is a
+        recognized trigger for euglycemic diabetic ketoacidosis, and the part that matters most here
+        is that blood glucose can read normal while it happens, so it is not something you can watch
+        for yourself with a home glucose meter. Whether ketogenic targets are appropriate for you at
+        all, and what monitoring would need to be in place first, is a clinical judgment, and none of
+        what it rests on is in a questionnaire. So this report does not set your calories, fat,
+        protein or carbohydrate, and it deliberately does not give you a gentler, higher-carb version
+        instead, because choosing that number is the same clinical decision in a quieter voice.
+        <b>Take this report to the clinician who prescribes that medication and ask what is right for
+        you.</b>
+      </div>`;
+}
+
+/** The phrase that replaces a ketogenic figure wherever one would have been printed. */
+export const KD_KETOGENIC_WITHHELD =
+  'Not set by this report — ask the clinician who prescribes your SGLT2 inhibitor';
+
+/**
+ * What a reader who declared insulin or a sulfonylurea is told, alongside targets
+ * we have deliberately NOT withheld.
+ *
+ * The dose is the clinical decision here, not the carbohydrate figure, and the
+ * dose belongs to their prescriber. So the number stays and this says why that
+ * conversation has to happen first. It must read correctly whether or not they
+ * ticked a diabetes chip, because the whole defect was that a chip was required.
+ *
+ * Copy by Sarah.
+ */
+export function kdHypoglycemiaCallout(ctx) {
+  if (!ctx || !ctx.highHypoglycemiaMedication) return '';
+  return `<div class="callout warn" style="margin-top:16px">
+        <span class="ct">Talk to your prescriber before you start</span>
+        You told us you take insulin or a sulfonylurea. Cutting carbohydrate lowers blood glucose on
+        its own, and a dose that suited your usual way of eating can then take you lower than
+        intended, which is a real risk of hypoglycemia. Your targets and your meal plan are unchanged
+        and we have not withheld them. <b>Take your reports to the clinician who prescribes that
+        medication before you start</b>, and ask what glucose monitoring you should be doing and
+        whether your dose needs to be adjusted for the change in how you eat.
+      </div>`;
+}
+
+/**
+ * Medication considerations for the physician, keyed on what the customer
+ * actually declared rather than on a condition chip they may not have ticked.
+ *
+ * The names deliberately match the rows already sitting inside
+ * CONDITION_INFO.t2d.meds. Those rows are hedged with "if applicable", which is
+ * the right register when a condition implies a medication might exist. When the
+ * medication itself was declared, hedging is wrong, so these are seeded into the
+ * table first and the existing de-duplication keeps them.
+ */
+const KD_MED_CLASS_CONSIDERATIONS = {
+  highHypoglycemiaMedication: {
+    name: 'Insulin / sulfonylureas',
+    sub: 'reported by patient',
+    note: 'Patient reports currently taking this class. Carbohydrate restriction lowers blood ' +
+      'glucose from the first day of the change, so hypoglycemia risk is highest in this group ' +
+      'and a pre-emptive dose review plus an agreed glucose monitoring plan are advised before ' +
+      'starting.',
+    risk: 'hi',
+  },
+  sglt2Medication: {
+    name: 'SGLT2 inhibitors',
+    sub: 'reported by patient',
+    note: "Patient reports currently taking this class, so this report's quantitative ketogenic " +
+      'targets have been withheld pending your review. Ketogenic eating with an SGLT2 inhibitor ' +
+      'is a recognized trigger for euglycemic diabetic ketoacidosis, which can occur with normal ' +
+      'blood glucose readings and so is not detectable by home glucose monitoring.',
+    risk: 'hi',
+  },
+};
+
+/** The declared-medication rows this reader's Doctor's Report must carry. */
+function kdMedicationConsiderations(ctx) {
+  return Object.entries(KD_MED_CLASS_CONSIDERATIONS)
+    .filter(([flag]) => ctx && ctx[flag])
+    .map(([, row]) => row);
+}
 
 function goalLabel(g) {
   const map = {
@@ -670,6 +1092,135 @@ const PRINT_BUTTON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentCo
 // HTML SHELL
 // ─────────────────────────────────────────────────
 
+/**
+ * SCREEN LAYOUT FOR PHONES.
+ *
+ * The reports were built as documents: `.page` is 8.5in wide, the gutters are in
+ * inches, and the only media query in the file was `@media print`. On a 390px
+ * phone every paid report rendered 816px wide, so the reader saw 48% of the page
+ * and had to drag sideways for the other half of every line. Headings were cut
+ * mid-word and the four-cell patient snapshot showed two cells. The delivery
+ * email's only instruction is "click any report below to view it in your
+ * browser", and there is no attached PDF, so this is how most customers meet the
+ * thing they paid for.
+ *
+ * WHY THIS IS A SEPARATE CONSTANT, appended AFTER the per-report CSS in
+ * htmlShell rather than added to SHARED_CSS. Media queries do not raise
+ * specificity, so a `.meal` rule inside a query in SHARED_CSS would lose to the
+ * plain `.meal` rule that MEAL_CSS defines further down the stylesheet. Last
+ * wins, so these have to be last.
+ *
+ * `@media screen` on purpose: print is untouched and keeps the 8.5in document
+ * page, which the existing `@media print` block already handles. The browser
+ * report adapts, the printable report stays printable, and the mobile test
+ * asserts both.
+ *
+ * NOTHING IS HIDDEN. There is no `display:none` here and there must never be:
+ * `.page` carries `overflow:hidden`, so anything still too wide is CLIPPED
+ * rather than scrolled to, and a clipped renal referral or a clipped medication
+ * warning is the failure mode this whole audit exists to prevent. Everything
+ * below reflows, shrinks or wraps. `min-width:0` on grid and flex children is
+ * the load-bearing line: without it a grid child refuses to shrink below its
+ * content and pushes the page wide again from the inside.
+ */
+const SCREEN_CSS = `
+@media screen and (max-width:860px){
+  body{padding:0 0 28px}
+  .page{width:100%;max-width:100%;min-height:0;margin:0 0 12px;box-shadow:none;border-bottom:1px solid var(--line)}
+
+  /* On desktop the Save-as-PDF button floats in the margin beside the page. On a
+     phone there is no margin, so a fixed button lands on top of the report's own
+     header. It becomes an ordinary row above the document instead. */
+  .printbar{position:static;justify-content:flex-end;padding:10px 14px 0}
+
+  /* Inches are a print unit. On a 320px screen 0.6in of gutter each side eats
+     a third of the readable width. */
+  .rep-head{padding:20px 16px 18px}
+  .rep-body,.rep-body.tight{padding:18px 16px 16px}
+  .rep-foot{padding:12px 16px;flex-wrap:wrap;gap:4px;justify-content:flex-start;text-align:left}
+
+  .rep-head h1{font-size:24px;line-height:1.12}
+  .rh-top{margin-bottom:16px}
+  .rh-title-row{flex-direction:column;align-items:flex-start;gap:12px}
+  .rh-meta{text-align:left;flex:1 1 auto}
+  .rh-prepared{font-size:13px}
+
+  /* Multi-column layouts collapse. Two cells still read on a phone; four do not. */
+  .stat-grid.c4,.stat-grid.c3{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr;gap:16px}
+  .pt-row{grid-template-columns:1fr;gap:18px}
+  .intervention{grid-template-columns:1fr;gap:18px;padding:16px}
+  .minigauge{width:100%;max-width:190px;margin:0 auto}
+  .sign-block .sl{flex-direction:column;gap:22px}
+
+  /* The macro panel: keep the label, bar and value, just narrower. */
+  .ml{grid-template-columns:66px 1fr auto;gap:9px}
+  .ml .val{min-width:0;font-size:12px}
+  .ml .val small{display:block}
+
+  /* Meal plan */
+  .targets{gap:8px;padding:12px 14px}
+  .week-glance{grid-template-columns:repeat(4,1fr);gap:6px}
+  .day-head{flex-wrap:wrap;gap:6px;padding:10px 14px}
+  .meal{grid-template-columns:1fr;gap:3px;padding:11px 14px}
+  .meal .mm{justify-content:flex-start;flex-wrap:wrap;gap:8px;margin-top:2px}
+  .daytot{flex-wrap:wrap;gap:8px;padding:9px 14px}
+  .stackbar{width:100%;max-width:150px}
+  .grocery{grid-template-columns:1fr;gap:18px}
+
+  /* Starter kit */
+  .timeline,.elyte,.cheat{grid-template-columns:1fr;gap:12px}
+  .supp-grid{grid-template-columns:1fr}
+  .lede{font-size:16px}
+
+  /* Dense tables stay whole: smaller type, tighter cells, and cells that wrap.
+     NOT table-layout:fixed, and NOT overflow-wrap:anywhere on the cells. Both
+     were in the first version of this block and between them they squeezed the
+     risk column to 27px and rendered the word "High" as four stacked letters in
+     the medication considerations table, which is safety content. "anywhere"
+     breaks eagerly to reach the narrowest possible box; "break-word" breaks only
+     when a word genuinely cannot fit, which is the behaviour wanted here.
+     (No backticks in here: this whole block is a template literal, and the first
+     draft of this comment closed it and broke the module at load.) */
+  .dtable{font-size:12px}
+  .dtable th,.dtable td{padding:8px 9px}
+  /* A risk pill is a label, not prose. It never breaks. */
+  .risk{white-space:nowrap}
+  /* Nor does a section number: the min-width:0 below was splitting "03" into a
+     0 above a 3. */
+  .sec-title .num,.sec-eyebrow{white-space:nowrap}
+
+  /* THE REFERRAL DOCUMENTS HAVE NO .rep-body. generateRenalMealPlanReferral and
+     generateSglt2MealPlanReferral put .sec straight inside .page, so every
+     gutter rule in this file missed them and their text ran edge to edge on the
+     glass. These are the two documents whose entire content is a safety refusal,
+     so they are the last two that should be touching the screen edge. The child
+     combinator matches only them: everywhere else .sec sits inside .rep-body
+     and is already padded. */
+  .page>.sec{padding-left:16px;padding-right:16px}
+  .page>.rep-foot{padding-left:16px;padding-right:16px}
+
+  /* Nothing may be pushed out of the page from the inside. */
+  .page *{min-width:0}
+  .rep-body,.sec,.callout,.dtable th,.dtable td,.meal .name,.meal .name small,
+  .gcat li,.tcard p,.food .fn,.stat .v{overflow-wrap:break-word}
+}
+
+/* The narrow phones, where two columns of anything stop working. */
+@media screen and (max-width:400px){
+  .stat-grid.c4,.stat-grid.c3,.stat-grid.c2{grid-template-columns:1fr}
+  .week-glance{grid-template-columns:repeat(3,1fr)}
+  .rep-head h1{font-size:21px}
+  .rep-head{padding:18px 14px 16px}
+  .rep-body,.rep-body.tight{padding:16px 14px 14px}
+  .rep-foot{padding:11px 14px}
+  .meal{padding:10px 14px}
+  .dtable{font-size:11.5px}
+  .dtable th,.dtable td{padding:7px 6px}
+  .page>.sec,.page>.rep-foot{padding-left:14px;padding-right:14px}
+}
+`;
+
 function htmlShell(title, extraCSS, bodyContent) {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -680,7 +1231,7 @@ function htmlShell(title, extraCSS, bodyContent) {
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,16..72,400;0,16..72,500;1,16..72,400&display=swap" rel="stylesheet" />
-<style>${SHARED_CSS}${extraCSS}</style>
+<style>${SHARED_CSS}${extraCSS}${SCREEN_CSS}</style>
 </head>
 <body>
 
@@ -907,6 +1458,10 @@ export function generateDoctorReport(name, d) {
   // gate at all. Every generator now passes through this one call.
   const ctx = deriveKdMedicalContext(d);
   const proteinWithheld = ctx.restrictProteinTarget;
+  // A declared SGLT2 inhibitor withholds the ketogenic targets themselves, so the
+  // panel empties for either reason, and the calorie gauge empties only for this one.
+  const ketoWithheld = ctx.restrictKetogenicProtocol;
+  const panelWithheld = proteinWithheld || ketoWithheld;
 
   const conditions = (d.conditions || []).filter(c => c !== 'none' && CONDITION_INFO[c]);
   const rawMeds = d.meds || 'None reported';
@@ -984,6 +1539,14 @@ export function generateDoctorReport(name, d) {
 
   // Build medication considerations table — deduplicate
   const medMap = new Map();
+  // DECLARED MEDICATION FIRST. This table used to be built only from the condition
+  // chips, so a customer who ticked nothing and typed "Lantus insulin 24 units at
+  // night, glipizide 5mg" got no medication section at all — while the exact row
+  // their physician needed sat unreachable inside the Type 2 diabetes metadata.
+  // Seeding here means the section appears on the strength of the medication
+  // alone, and the de-duplication below then keeps this specific wording in
+  // preference to the "if applicable" version.
+  kdMedicationConsiderations(ctx).forEach(m => medMap.set(m.name, m));
   conditions.forEach(c => {
     (CONDITION_INFO[c].meds || []).forEach(m => {
       if (!medMap.has(m.name)) medMap.set(m.name, m);
@@ -1056,18 +1619,21 @@ export function generateDoctorReport(name, d) {
     <section class="sec avoid-break">
       <div class="sec-eyebrow">Section 2</div>
       <div class="sec-title"><span class="num">02</span> Proposed dietary intervention</div>
-      <div class="sec-sub">${proteinWithheld
+      <div class="sec-sub">${panelWithheld
         ? 'This section would normally set a macronutrient distribution. It does not, for the reason stated below.'
         : `A ketogenic macronutrient distribution${d.goal === 'lose' ? ' at a 20% caloric deficit from estimated maintenance' : d.goal === 'gain' ? ' at a 10% caloric surplus above maintenance' : ' at estimated maintenance'}. Protein set to approximately 25% of calories to support body composition during fat loss.`}</div>
       <div class="intervention">
-        ${proteinWithheld
+        ${panelWithheld
           // THE WHOLE PANEL GOES, NOT JUST THE PROTEIN ROW. Energy, fat, protein and
           // carbohydrate are one closed system: printing any three of them states the
           // fourth. Blanking the protein line while leaving calories, fat and carbs on
           // the page would let the reader recover the number by subtraction, which is
           // suppression in appearance only — the exact failure CLAUDE.md calls
           // cosmetic safety. So the macro panel is replaced, not edited.
-          ? kdProteinSuppressionNote(ctx)
+          //
+          // Two different reasons can empty it, and a reader can have both, so both
+          // notes render rather than one silently winning.
+          ? kdProteinSuppressionNote(ctx) + kdKetogenicSuppressionNote(ctx)
           : `<div class="macro-line">
           <div class="ml" style="margin-bottom:4px">
             <div class="nm">Energy</div>
@@ -1090,7 +1656,16 @@ export function generateDoctorReport(name, d) {
             <div class="val">${carb} g <small>· ${pct.carb}%</small></div>
           </div>
         </div>`}
-        <div class="minigauge">
+        ${ketoWithheld
+          // The gauge is a calorie target, and for this reader the calorie target is
+          // withheld along with the rest. Leaving the dial spinning next to a note
+          // saying we have not set your calories would be the number surviving its
+          // own suppression, which is the whole failure mode.
+          //
+          // It stays for the renal reader: energy is not the protein figure, and
+          // theirs is not withheld.
+          ? ''
+          : `<div class="minigauge">
           <svg viewBox="0 0 150 96" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
             <path d="M16 84 A 59 59 0 0 1 134 84" stroke="#e2e8f0" stroke-width="9" stroke-linecap="round"/>
             <path d="M16 84 A 59 59 0 0 1 110 30" stroke="#0ea5e9" stroke-width="9" stroke-linecap="round"/>
@@ -1099,8 +1674,9 @@ export function generateDoctorReport(name, d) {
           </svg>
           <div class="num" style="color:var(--ink);top:48%">${fmtNum(cal)}</div>
           <div class="lab" style="color:var(--ink-faint);top:48%;margin-top:20px">kcal / day</div>
-        </div>
+        </div>`}
       </div>
+      ${kdHypoglycemiaCallout(ctx)}
     </section>
 
     <!-- conditions & meds -->
@@ -1236,71 +1812,400 @@ const MEAL_CSS = `
 // All macros verified against USDA FoodData Central
 // Base macros are for ~1800 cal/day, scaled proportionally to customer target
 // desc shows exact weights so customers can verify
+// ═══════════════════════════════════════════════════
+// THE EXECUTABLE MEAL
+// ═══════════════════════════════════════════════════
+//
+// Until 2026-09-10 a meal was a name, a `desc` STRING, and four macro numbers.
+// scaleMeal() multiplied the numbers and copied the string, so the plan told a
+// customer to cook "4 oz sirloin steak (113g) · 2 large eggs (100g) · 1 tbsp
+// butter (14g)" beside a macro column that had been scaled to 0.6x or 2.0x of
+// that plate. Measured on a real 890 kcal profile: the line above printed 265
+// kcal when the food as written is 442. Cooking the written week delivered
+// roughly 1,480 kcal against an 890 kcal target, which is not a rounding error,
+// it is the entire deficit the product sold.
+//
+// The fat knob made it worse. It appended text like "· −2 tbsp fat" to a dinner
+// containing one tablespoon of oil, and "· +9.5 tbsp butter" (about 133 g on one
+// plate) at the top of the range, because it was solving for exact calorie
+// equality against numbers no food had to honour.
+//
+// ONE REPRESENTATION. A meal is now a list of ingredients. The SAME data
+// produces the name, the written quantities, the meal macros, the day totals and
+// the grocery list, so there is no second copy to drift from the first.
+//
+// Scaling scales the FOOD. Quantities are scaled, rounded to something a person
+// can actually measure, and the macros are then computed FROM THE ROUNDED
+// QUANTITIES. That ordering is the whole fix: the printed macros are by
+// construction what the printed food delivers, so the two cannot disagree no
+// matter what the scale factor is.
+//
+// The cost is that a day no longer lands exactly on the calorie target, because
+// real food comes in eggs and half-tablespoons. That is the right trade and the
+// tolerance is asserted in tests/kd-meal-plan-executable.test.mjs.
+
+/**
+ * Every ingredient the plan can use, with macros per ONE unit of `unit`.
+ *
+ * Values are USDA-typical and carry the same figures the old per-meal comments
+ * used, so a scale of 1.0 lands close to the numbers this product has always
+ * printed. They are not laboratory values and do not need to be: the guarantee
+ * this file makes is that the written food and the printed macros agree with
+ * each other, not that either is accurate to the gram.
+ *
+ *   unit    what one unit is
+ *   g       one gram. `disp` says whether to show it as oz, cups or grams.
+ *   each    one countable thing: an egg, a tortilla, an olive, a lettuce cup
+ *   tbsp    one tablespoon
+ *   strip   one rasher of bacon
+ *   link    one sausage
+ *
+ *   step    the increment quantities are rounded to. A person can measure half a
+ *           tablespoon and a 5 g difference on a steak; they cannot measure 0.37
+ *           of an egg.
+ *   min     the smallest quantity worth printing. Below it the ingredient is
+ *           dropped rather than printed as a garnish-sized joke.
+ *   aisle   which grocery section it aggregates into.
+ *   buy     the shopper-facing unit the grocery list rounds to.
+ */
+const KD_ING = {
+  // ---- proteins -----------------------------------------------------------
+  egg:            { label: 'large egg', plural: 'large eggs', unit: 'each', g: 50, kcal: 70, f: 5, p: 6, c: 0.4, step: 1, min: 1, aisle: 'proteins', buy: 'dozen' },
+  bacon:          { label: 'strip bacon', plural: 'strips bacon', unit: 'strip', g: 14, kcal: 43, f: 3.3, p: 3, c: 0, step: 1, min: 1, aisle: 'proteins', buy: 'pack' },
+  sausage:        { label: 'pork sausage link', plural: 'pork sausage links', unit: 'link', g: 28, kcal: 98, f: 8, p: 6, c: 0.5, step: 1, min: 1, aisle: 'proteins', buy: 'pack' },
+  smoked_salmon:  { label: 'smoked salmon', unit: 'g', disp: 'oz', kcal: 1.17, f: 0.044, p: 0.186, c: 0, step: 5, min: 30, aisle: 'proteins', buy: 'lb' },
+  sirloin:        { label: 'sirloin steak', unit: 'g', disp: 'oz', kcal: 1.77, f: 0.071, p: 0.265, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  ribeye:         { label: 'ribeye steak', unit: 'g', disp: 'oz', kcal: 2.40, f: 0.159, p: 0.229, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  beef_strips:    { label: 'beef sirloin strips', unit: 'g', disp: 'oz', kcal: 1.76, f: 0.071, p: 0.271, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  ground_beef:    { label: 'ground beef 80/20', unit: 'g', disp: 'oz', kcal: 2.00, f: 0.129, p: 0.200, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  chicken_breast: { label: 'chicken breast', unit: 'g', disp: 'oz', kcal: 1.16, f: 0.026, p: 0.218, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  chicken_thigh:  { label: 'chicken thigh', unit: 'g', disp: 'oz', kcal: 1.90, f: 0.113, p: 0.197, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  chicken_thigh_skin: { label: 'skin-on chicken thighs', unit: 'g', disp: 'oz', kcal: 1.59, f: 0.099, p: 0.162, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  chicken_drumstick: { label: 'chicken drumsticks', unit: 'g', disp: 'oz', kcal: 1.72, f: 0.100, p: 0.185, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  pork_chop:      { label: 'bone-in pork chops', unit: 'g', disp: 'oz', kcal: 1.63, f: 0.099, p: 0.177, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  pork_shoulder:  { label: 'pork shoulder, pulled', unit: 'g', disp: 'oz', kcal: 2.11, f: 0.141, p: 0.194, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  pork_loin:      { label: 'pork loin', unit: 'g', disp: 'oz', kcal: 1.43, f: 0.077, p: 0.194, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  ground_turkey:  { label: 'ground turkey 85/15', unit: 'g', disp: 'oz', kcal: 1.71, f: 0.135, p: 0.171, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  salmon_fillet:  { label: 'salmon fillet', unit: 'g', disp: 'oz', kcal: 2.06, f: 0.129, p: 0.200, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  canned_salmon:  { label: 'canned salmon', unit: 'g', disp: 'oz', kcal: 1.18, f: 0.050, p: 0.200, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'can' },
+  cod:            { label: 'cod fillet', unit: 'g', disp: 'oz', kcal: 0.82, f: 0.006, p: 0.176, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  tuna:           { label: 'canned tuna', unit: 'g', disp: 'oz', kcal: 0.92, f: 0.007, p: 0.204, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'can' },
+  shrimp:         { label: 'shrimp', unit: 'g', disp: 'oz', kcal: 0.99, f: 0.018, p: 0.212, c: 0, step: 5, min: 40, aisle: 'proteins', buy: 'lb' },
+  prosciutto:     { label: 'prosciutto', unit: 'g', disp: 'oz', kcal: 1.76, f: 0.106, p: 0.212, c: 0, step: 5, min: 25, aisle: 'proteins', buy: 'pack' },
+  deli_turkey:    { label: 'deli turkey', unit: 'g', disp: 'oz', kcal: 1.06, f: 0.012, p: 0.212, c: 0.024, step: 5, min: 25, aisle: 'proteins', buy: 'pack' },
+  jerky:          { label: 'beef jerky', unit: 'g', disp: 'oz', kcal: 2.86, f: 0.036, p: 0.464, c: 0.107, step: 5, min: 15, aisle: 'proteins', buy: 'pack' },
+  // ---- fats ---------------------------------------------------------------
+  butter:         { label: 'butter', unit: 'tbsp', g: 14, kcal: 102, f: 11.5, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'block' },
+  olive_oil:      { label: 'olive oil', unit: 'tbsp', g: 14, kcal: 119, f: 13.5, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'bottle' },
+  coconut_oil:    { label: 'coconut oil', unit: 'tbsp', g: 14, kcal: 121, f: 14, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'jar' },
+  sesame_oil:     { label: 'sesame oil', unit: 'tbsp', g: 14, kcal: 120, f: 13.6, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'bottle' },
+  mayo:           { label: 'olive-oil mayo', unit: 'tbsp', g: 14, kcal: 94, f: 10.5, p: 0, c: 0, step: 0.5, min: 0.5, aisle: 'fats', buy: 'jar' },
+  ranch:          { label: 'ranch', unit: 'tbsp', g: 15, kcal: 73, f: 7.7, p: 0.2, c: 0.6, step: 0.5, min: 0.5, aisle: 'fats', buy: 'bottle' },
+  avocado:        { label: 'avocado', unit: 'g', disp: 'avocado', kcal: 1.68, f: 0.147, p: 0.021, c: 0.029, step: 17, min: 34, aisle: 'produce', buy: 'each', eachG: 136 },
+  macadamia:      { label: 'macadamias', unit: 'g', disp: 'oz', kcal: 7.29, f: 0.75, p: 0.079, c: 0.071, step: 5, min: 10, aisle: 'fats', buy: 'bag' },
+  pecan:          { label: 'pecans', unit: 'g', disp: 'oz', kcal: 7.00, f: 0.71, p: 0.107, c: 0.036, step: 5, min: 10, aisle: 'fats', buy: 'bag' },
+  almond:         { label: 'almonds', unit: 'g', disp: 'oz', kcal: 5.86, f: 0.50, p: 0.214, c: 0.107, step: 5, min: 10, aisle: 'fats', buy: 'bag' },
+  olives:         { label: 'green olive', plural: 'green olives', unit: 'each', g: 4, kcal: 5.8, f: 0.5, p: 0, c: 0.2, step: 1, min: 2, aisle: 'fats', buy: 'jar' },
+  kalamata:       { label: 'kalamata olive', plural: 'kalamata olives', unit: 'each', g: 4, kcal: 5.8, f: 0.5, p: 0, c: 0.2, step: 1, min: 2, aisle: 'fats', buy: 'jar' },
+  cheddar:        { label: 'cheddar', unit: 'g', disp: 'oz', kcal: 4.04, f: 0.32, p: 0.250, c: 0.014, step: 5, min: 10, aisle: 'dairy', buy: 'block' },
+  blue_cheese:    { label: 'blue cheese', unit: 'g', disp: 'oz', kcal: 3.53, f: 0.29, p: 0.210, c: 0.020, step: 5, min: 10, aisle: 'dairy', buy: 'block' },
+  feta:           { label: 'feta', unit: 'g', disp: 'oz', kcal: 2.64, f: 0.21, p: 0.140, c: 0.040, step: 5, min: 10, aisle: 'dairy', buy: 'block' },
+  mozzarella:     { label: 'fresh mozzarella', unit: 'g', disp: 'oz', kcal: 2.80, f: 0.22, p: 0.200, c: 0.030, step: 5, min: 15, aisle: 'dairy', buy: 'ball' },
+  cream_cheese:   { label: 'cream cheese', unit: 'g', disp: 'oz', kcal: 3.46, f: 0.34, p: 0.060, c: 0.050, step: 5, min: 10, aisle: 'dairy', buy: 'tub' },
+  heavy_cream:    { label: 'heavy cream', unit: 'tbsp', g: 15, kcal: 50, f: 5.4, p: 0.4, c: 0.4, step: 0.5, min: 0.5, aisle: 'dairy', buy: 'carton' },
+  coconut_cream:  { label: 'coconut cream', unit: 'tbsp', g: 15, kcal: 50, f: 5.2, p: 0.5, c: 0.7, step: 0.5, min: 0.5, aisle: 'pantry', buy: 'can' },
+  // ---- produce ------------------------------------------------------------
+  romaine:        { label: 'romaine', unit: 'g', disp: 'cup', cupG: 47, kcal: 0.17, f: 0.003, p: 0.012, c: 0.017, step: 10, min: 20, aisle: 'produce', buy: 'bag' },
+  mixed_greens:   { label: 'mixed greens', unit: 'g', disp: 'cup', cupG: 30, kcal: 0.23, f: 0.004, p: 0.022, c: 0.023, step: 10, min: 20, aisle: 'produce', buy: 'bag' },
+  lettuce:        { label: 'shredded lettuce', unit: 'g', disp: 'cup', cupG: 47, kcal: 0.15, f: 0.002, p: 0.014, c: 0.015, step: 10, min: 20, aisle: 'produce', buy: 'head' },
+  spinach:        { label: 'spinach', unit: 'g', disp: 'cup', cupG: 30, kcal: 0.23, f: 0.004, p: 0.029, c: 0.014, step: 10, min: 20, aisle: 'produce', buy: 'bag' },
+  cucumber:       { label: 'cucumber', unit: 'g', disp: 'cup', cupG: 130, kcal: 0.15, f: 0.001, p: 0.007, c: 0.021, step: 10, min: 30, aisle: 'produce', buy: 'each', eachG: 300 },
+  zucchini:       { label: 'zucchini', unit: 'g', disp: 'each', eachG: 200, kcal: 0.17, f: 0.003, p: 0.012, c: 0.021, step: 25, min: 50, aisle: 'produce', buy: 'each' },
+  broccoli:       { label: 'broccoli', unit: 'g', disp: 'cup', cupG: 91, kcal: 0.34, f: 0.004, p: 0.028, c: 0.040, step: 10, min: 30, aisle: 'produce', buy: 'head' },
+  green_beans:    { label: 'green beans', unit: 'g', disp: 'cup', cupG: 100, kcal: 0.31, f: 0.001, p: 0.018, c: 0.049, step: 10, min: 30, aisle: 'produce', buy: 'bag' },
+  cabbage:        { label: 'shredded cabbage', unit: 'g', disp: 'cup', cupG: 75, kcal: 0.25, f: 0.001, p: 0.013, c: 0.036, step: 10, min: 30, aisle: 'produce', buy: 'head' },
+  mushroom:       { label: 'mushrooms', unit: 'g', disp: 'cup', cupG: 70, kcal: 0.22, f: 0.003, p: 0.031, c: 0.020, step: 10, min: 20, aisle: 'produce', buy: 'pack' },
+  asparagus:      { label: 'asparagus', unit: 'g', disp: 'cup', cupG: 134, kcal: 0.20, f: 0.001, p: 0.022, c: 0.021, step: 10, min: 30, aisle: 'produce', buy: 'bunch' },
+  coleslaw:       { label: 'coleslaw with olive-oil dressing', unit: 'g', disp: 'cup', cupG: 120, kcal: 0.50, f: 0.033, p: 0.008, c: 0.033, step: 10, min: 30, aisle: 'produce', buy: 'bag' },
+  lettuce_cup:    { label: 'butter lettuce cup', plural: 'butter lettuce cups', unit: 'each', g: 15, kcal: 2, f: 0, p: 0.2, c: 0.3, step: 1, min: 1, aisle: 'produce', buy: 'head' },
+  raspberries:    { label: 'raspberries', unit: 'g', disp: 'cup', cupG: 123, kcal: 0.52, f: 0.006, p: 0.012, c: 0.065, step: 5, min: 15, aisle: 'produce', buy: 'punnet' },
+  // ---- pantry -------------------------------------------------------------
+  almond_flour:   { label: 'almond flour', unit: 'tbsp', g: 7, kcal: 40, f: 3.5, p: 1.5, c: 0.5, step: 0.5, min: 0.5, aisle: 'pantry', buy: 'bag' },
+  tortilla:       { label: 'low-carb tortilla', plural: 'low-carb tortillas', unit: 'each', g: 38, kcal: 90, f: 4, p: 5, c: 3, step: 1, min: 1, aisle: 'pantry', buy: 'pack' },
+  celery:         { label: 'stalk celery', plural: 'stalks celery', unit: 'each', g: 30, kcal: 5, f: 0, p: 0.2, c: 0.5, step: 1, min: 1, aisle: 'produce', buy: 'bunch' },
+  dark_choc:      { label: 'square 90% dark chocolate', plural: 'squares 90% dark chocolate', unit: 'each', g: 10, kcal: 60, f: 5, p: 1, c: 2, step: 1, min: 1, aisle: 'pantry', buy: 'bar' },
+};
+
+/**
+ * The increment a quantity is rounded to.
+ *
+ * For anything shown in cups, avocados or whole vegetables this is DERIVED from
+ * the display grid rather than set by hand. It has to be: the description prints
+ * both the unit and the grams, so if the rounding step and the display grid are
+ * different numbers the two halves of the same phrase disagree. "½ cup cucumber
+ * (50g)" was the result, and half a cup of cucumber is 65 g. Snapping the
+ * quantity to a quarter cup makes the printed grams the grams of that quarter
+ * cup, exactly, and the macros are then summed from the same figure.
+ *
+ * Weights shown in ounces keep their explicit 5 g step, because kdFmtIngredient
+ * already picks the ounce grid to suit the size of the portion.
+ */
+function kdStepFor(ing) {
+  // A quarter ounce. The 5 g step was not on the ounce grid either, so "4 oz
+  // ribeye steak (120g)" printed a unit worth 113 g. Weight is the number a
+  // customer with a scale actually follows, so the two must name one amount.
+  if (ing.disp === 'oz') return 28.35 / 4;
+  if (ing.disp === 'cup') return ing.cupG / 4;
+  if (ing.disp === 'avocado') return 136 / 4;
+  if (ing.disp === 'each' && ing.eachG) return ing.eachG / 2;
+  return ing.step;
+}
+
+/**
+ * The smallest quantity worth printing, also snapped to the display grid.
+ *
+ * A hand-set minimum in grams and a derived grid step are two numbers that can
+ * disagree: mushrooms carried min 20 g against a quarter-cup grid of 17.5 g, so
+ * a legitimate quarter cup sat just under its own floor. One quarter of the
+ * display unit is the floor for anything measured that way.
+ */
+function kdMinFor(ing) {
+  // ROUNDED THE SAME WAY THE QUANTITY IS. kdRoundQty snaps to two decimals and
+  // this did not, so a jerky portion of 21.26 g failed a floor of 21.2625 g by
+  // two and a half thousandths of a gram, the ingredient was dropped, the snack
+  // came out at zero calories and a 6,000 kcal day silently lost 1,000 of them.
+  // Two functions rounding the same grid differently is the same class of defect
+  // as two places holding the same meal.
+  const raw = ing.disp === 'oz' ? Math.ceil(ing.min / (28.35 / 4)) * (28.35 / 4)
+    : ing.disp === 'cup' ? ing.cupG / 4
+      : ing.disp === 'avocado' ? 136 / 4
+        : (ing.disp === 'each' && ing.eachG) ? ing.eachG / 2
+          : ing.min;
+  return Math.round(raw * 100) / 100;
+}
+
+/** Round to a step a person can actually measure, never below the useful minimum. */
+function kdRoundQty(key, qty) {
+  const ing = KD_ING[key];
+  const step = kdStepFor(ing);
+  const stepped = Math.round(qty / step) * step;
+  // Two decimals kills float dust from half-steps; nothing here needs more.
+  return Math.round(stepped * 100) / 100;
+}
+
+/**
+ * The ingredient library, exposed so a test can re-derive every meal's macros
+ * from the quantities the customer was shown and compare. Exported rather than
+ * duplicated in the suite: a test that keeps its own copy of the numbers is
+ * checking itself, which is exactly how the printed macros drifted from the
+ * printed food in the first place.
+ */
+export const KD_ING_FOR_TEST = KD_ING;
+
+const KD_FRACTIONS = [[0.25, '¼'], [0.33, '⅓'], [0.5, '½'], [0.67, '⅔'], [0.75, '¾']];
+
+/** "1½", "¾", "3" — the way a recipe writes a number. */
+function kdFmtNumber(n) {
+  const whole = Math.floor(n);
+  const frac = Math.round((n - whole) * 100) / 100;
+  if (frac === 0) return String(whole);
+  const hit = KD_FRACTIONS.find(([v]) => Math.abs(v - frac) < 0.02);
+  if (!hit) return String(Math.round(n * 10) / 10);
+  return whole === 0 ? hit[1] : `${whole}${hit[1]}`;
+}
+
+/**
+ * Write one scaled ingredient the way the customer will read it.
+ *
+ * Weight is shown in the unit the shopper thinks in AND in grams, because a
+ * kitchen scale is the only way to make "6 oz" repeatable. Countable things stay
+ * countable: eggs are whole eggs.
+ */
+function kdFmtIngredient(key, qty) {
+  const ing = KD_ING[key];
+  if (ing.unit === 'each' || ing.unit === 'strip' || ing.unit === 'link') {
+    const label = qty === 1 ? ing.label : (ing.plural || ing.label);
+    return `${kdFmtNumber(qty)} ${label}${ing.g ? ` (${Math.round(qty * ing.g)}g)` : ''}`;
+  }
+  if (ing.unit === 'tbsp') {
+    return `${kdFmtNumber(qty)} tbsp ${ing.label} (${Math.round(qty * ing.g)}${ing.label.includes('oil') || ing.label.includes('cream') ? 'ml' : 'g'})`;
+  }
+  // unit === 'g'
+  if (ing.disp === 'oz') {
+    // Quarter-ounce precision throughout, because that is the grid the quantity
+    // was rounded onto. At half ounces a 20 g portion of macadamias printed as
+    // "½ oz (20g)" and half an ounce is 14 g: the two halves of the same phrase
+    // disagreed, which is this whole blocker in miniature.
+    return `${kdFmtNumber(Math.round((qty / 28.35) * 4) / 4)} oz ${ing.label} (${Math.round(qty)}g)`;
+  }
+  if (ing.disp === 'cup') return `${kdFmtNumber(Math.round((qty / ing.cupG) * 4) / 4)} cup${qty / ing.cupG > 1.001 ? 's' : ''} ${ing.label} (${Math.round(qty)}g)`;
+  if (ing.disp === 'avocado') return `${kdFmtNumber(Math.round((qty / 136) * 4) / 4)} avocado (${Math.round(qty)}g)`;
+  if (ing.disp === 'each') return `${kdFmtNumber(Math.round((qty / ing.eachG) * 2) / 2)} ${ing.label} (${Math.round(qty)}g)`;
+  return `${Math.round(qty)}g ${ing.label}`;
+}
+
+/**
+ * Turn a meal template plus a scale factor into the thing the customer receives.
+ *
+ * THE ORDER MATTERS AND IS THE WHOLE POINT: scale, then round to a measurable
+ * quantity, THEN compute the macros from what was rounded to. Doing it the other
+ * way round is how the printed numbers stopped describing the printed food.
+ *
+ * @returns {{name, ing: [key, qty][], desc: string, kcal, f, p, c}}
+ */
+function kdMaterializeMeal(tpl, scale) {
+  const ing = [];
+  for (const [key, baseQty] of tpl.ing) {
+    // The fat ceiling applies HERE too, not only in the adjuster. A snack scaled
+    // 4.5x put six tablespoons of cream on a bowl of raspberries, which no
+    // adjuster had touched. A ceiling that only some code paths respect is not a
+    // ceiling. Capping the quantity before the macros are summed keeps the two
+    // in step; the day simply lands a little lower, which the tolerance covers.
+    const raw = baseQty * scale;
+    const capped = KD_FAT_KEYS.includes(key) ? Math.min(raw, KD_FAT_MAX_TBSP) : raw;
+    const q = kdRoundQty(key, capped);
+    // The minimum is snapped to the same grid, so a quantity can never be
+    // dropped for sitting a rounding error under a threshold off the grid.
+    if (q >= kdMinFor(KD_ING[key])) ing.push([key, q]);
+  }
+  return kdFinishMeal(tpl, ing);
+}
+
+/** Sum a materialised ingredient list and render its description. */
+function kdFinishMeal(tpl, ing) {
+  let kcal = 0, f = 0, p = 0, c = 0;
+  for (const [key, q] of ing) {
+    const i = KD_ING[key];
+    kcal += i.kcal * q; f += i.f * q; p += i.p * q; c += i.c * q;
+  }
+  const parts = ing.map(([key, q]) => kdFmtIngredient(key, q));
+  if (tpl.garnish) parts.push(tpl.garnish);
+  return {
+    name: tpl.name,
+    ing,
+    desc: parts.join(' · '),
+    kcal: Math.round(kcal), f: Math.round(f), p: Math.round(p), c: Math.round(c),
+  };
+}
+
+/**
+ * Nudge a meal's added fat to close a calorie gap, in food rather than in text.
+ *
+ * The old knob appended a sentence: "· −2 tbsp fat" onto a dinner holding one
+ * tablespoon of oil, and "· +9.5 tbsp butter" at the top of the range. Both were
+ * instructions nobody could follow, and neither changed the ingredient list.
+ *
+ * This changes the QUANTITY of a fat already in the meal, within a range a person
+ * would actually cook, and never below zero. Nothing is ever subtracted in prose,
+ * because there is no prose: the number in the ingredient list is simply smaller.
+ *
+ * Bounds are deliberate. Six tablespoons on one plate is the ceiling, and if the
+ * gap is still open after that we accept the gap. A day that lands a little under
+ * target is a plan; a dinner carrying nine and a half tablespoons of butter is
+ * not, and the tolerance test exists so that trade is visible rather than assumed.
+ */
+const KD_FAT_KEYS = ['butter', 'olive_oil', 'coconut_oil', 'sesame_oil', 'mayo', 'heavy_cream', 'coconut_cream'];
+/**
+ * The most fat one plate may carry. Three tablespoons is a generous but real
+ * amount of butter on a steak; six was what the first attempt produced when it
+ * put the whole day's gap on the dinner, and nine and a half is what the version
+ * before that printed. The gap is spread across the day's meals instead, so no
+ * single plate absorbs it.
+ */
+const KD_FAT_MAX_TBSP = 4;
+
+function kdAdjustMealFat(tpl, ing, kcalGap) {
+  const idx = ing.findIndex(([k]) => KD_FAT_KEYS.includes(k));
+  if (idx === -1 || Math.abs(kcalGap) < 25) return { meal: kdFinishMeal(tpl, ing), used: 0 };
+  const [key, qty] = ing[idx];
+  const per = KD_ING[key].kcal;
+  const bounded = Math.max(0, Math.min(KD_FAT_MAX_TBSP, qty + kcalGap / per));
+  const rounded = kdRoundQty(key, bounded);
+  const next = ing.slice();
+  if (rounded < KD_ING[key].min) next.splice(idx, 1);
+  else next[idx] = [key, rounded];
+  return { meal: kdFinishMeal(tpl, next), used: (rounded - qty) * per };
+}
+
+/**
+ * Share one day's calorie gap across the meals that contain a fat, dinner first
+ * because that is where an extra spoon of butter reads as cooking rather than as
+ * an instruction. Each meal takes what it can within its own cap and passes the
+ * rest along; whatever is left over is left over, and the day tolerance covers it.
+ */
+function kdDistributeFat(entries, kcalGap) {
+  let remaining = kcalGap;
+  const out = new Map();
+  for (const { slot, tpl, meal } of entries) {
+    if (Math.abs(remaining) < 25) { out.set(slot, meal); continue; }
+    const share = kdAdjustMealFat(tpl, meal.ing, remaining);
+    remaining -= share.used;
+    out.set(slot, share.meal);
+  }
+  return out;
+}
+
+/**
+ * The meal templates. Each is a name, an ingredient list at 1.0 scale, and an
+ * optional garnish phrase carrying no macros and no quantity to scale.
+ *
+ * These are the SAME plates the plan has always used, restated as ingredients so
+ * the quantities can move. The `desc` strings they replace are gone: a written
+ * description that is not derived from the ingredient list is a second source of
+ * truth, and it is the one that was wrong.
+ */
 function getMealDatabase(noDairy) {
   return {
     breakfast: [
-      // 3 large eggs (210cal,15f,18p,1c) + 3 strips bacon/42g (129cal,10f,9p,0c) + ½ avocado/68g (114cal,10f,1p,2c) + 1 tbsp butter/14g (102cal,12f,0p,0c)
-      { name: 'Bacon &amp; avocado baked eggs', desc: '3 large eggs (150g) · 3 strips bacon (42g) · ½ avocado (68g) · 1 tbsp butter (14g)', kcal: 555, f: 47, p: 28, c: 3 },
-      // 4oz smoked salmon (132cal,5f,21p,0c) + 2oz cream cheese or ½ avocado + 1 cucumber (30g)
-      { name: `Smoked salmon &amp; ${noDairy ? 'avocado' : 'cream-cheese'} roll-ups`, desc: `4 oz smoked salmon (113g) · ${noDairy ? '½ avocado (68g)' : '2 oz cream cheese (57g)'} · ½ cucumber (100g)`, kcal: noDairy ? 276 : 329, f: noDairy ? 15 : 24, p: 23, c: noDairy ? 5 : 3 },
-      // 3 large eggs + 2 pork sausage links/56g (196cal,16f,12p,1c) + 1oz cheddar/28g (113cal,9f,7p,0c)
-      { name: `Sausage &amp; egg ${noDairy ? 'scramble' : 'muffins'}`, desc: `3 large eggs (150g) · 2 pork sausage links (56g) · ${noDairy ? '1 tbsp olive oil (14ml)' : '1 oz cheddar (28g)'}`, kcal: noDairy ? 526 : 519, f: noDairy ? 42 : 40, p: noDairy ? 33 : 37, c: 2 },
-      // 3 large eggs + 1 tbsp butter + 1oz cheese or 2 tbsp olive oil
-      { name: `${noDairy ? 'Herb &amp; mushroom' : 'Cheese &amp; herb'} omelette`, desc: `3 large eggs (150g) · 1 tbsp butter (14g) · ${noDairy ? '½ cup mushrooms (35g)' : '1 oz cheddar (28g)'} · herbs`, kcal: noDairy ? 340 : 425, f: noDairy ? 27 : 36, p: noDairy ? 20 : 25, c: noDairy ? 2 : 1 },
-      // 4oz sirloin (200cal,8f,30p,0c) + 2 large eggs (140cal,10f,12p,1c) + 1 tbsp butter
-      { name: 'Steak &amp; eggs', desc: '4 oz sirloin steak (113g) · 2 large eggs (100g) · 1 tbsp butter (14g)', kcal: 442, f: 30, p: 42, c: 1 },
-      // 2 large eggs + 2 tbsp almond flour/14g (80cal,7f,3p,1c) + 1 tbsp butter + 1 tbsp coconut oil/14g (121cal,14f,0p,0c)
-      { name: 'Keto pancakes + butter', desc: '2 large eggs (100g) · 2 tbsp almond flour (14g) · 1 tbsp coconut oil (14g) · 1 tbsp butter (14g)', kcal: 441, f: 39, p: 15, c: 2 },
-      // 2 large eggs + ½ avocado + 2 strips bacon
-      { name: 'Bacon &amp; egg plate', desc: '2 large eggs (100g) · ½ avocado (68g) · 2 strips bacon (28g) · 1 cup spinach (30g)', kcal: 400, f: 32, p: 22, c: 4 },
+      { name: 'Bacon &amp; avocado baked eggs', ing: [['egg', 3], ['bacon', 3], ['avocado', 68], ['butter', 1]] },
+      { name: `Smoked salmon &amp; ${noDairy ? 'avocado' : 'cream-cheese'} roll-ups`,
+        ing: [['smoked_salmon', 113], noDairy ? ['avocado', 68] : ['cream_cheese', 57], ['cucumber', 100]] },
+      { name: `Sausage &amp; egg ${noDairy ? 'scramble' : 'muffins'}`,
+        ing: [['egg', 3], ['sausage', 2], noDairy ? ['olive_oil', 1] : ['cheddar', 28]] },
+      { name: `${noDairy ? 'Herb &amp; mushroom' : 'Cheese &amp; herb'} omelette`,
+        ing: [['egg', 3], ['butter', 1], noDairy ? ['mushroom', 35] : ['cheddar', 28]], garnish: 'herbs' },
+      { name: 'Steak &amp; eggs', ing: [['sirloin', 113], ['egg', 2], ['butter', 1]] },
+      { name: 'Keto pancakes + butter', ing: [['egg', 2], ['almond_flour', 2], ['coconut_oil', 1], ['butter', 1]] },
+      { name: 'Bacon &amp; egg plate', ing: [['egg', 2], ['avocado', 68], ['bacon', 2], ['spinach', 30]] },
     ],
     lunch: [
-      // 5oz chicken breast (165cal,4f,31p,0c) + 2 cups romaine (16cal,0f,1p,2c) + 1 hard-boiled egg + 2 tbsp ranch or olive oil + 1oz cheese
-      { name: `Chicken Cobb salad`, desc: `5 oz grilled chicken breast (142g) · 2 cups romaine (94g) · 1 egg (50g) · ${noDairy ? '2 tbsp olive oil (28ml)' : '1 oz blue cheese (28g) · 2 tbsp ranch (30ml)'}`, kcal: noDairy ? 467 : 510, f: noDairy ? 30 : 33, p: noDairy ? 43 : 46, c: noDairy ? 3 : 4 },
-      // 5oz canned tuna (130cal,1f,29p,0c) + 2 tbsp mayo/28g (188cal,21f,0p,0c) + ½ avocado + lettuce
-      { name: 'Tuna-avocado lettuce boats', desc: '5 oz canned tuna (142g) · 2 tbsp olive-oil mayo (28g) · ½ avocado (68g) · 2 butter lettuce cups', kcal: 432, f: 32, p: 30, c: 4 },
-      // 5oz chicken thigh (270cal,16f,28p,0c) + 1 cup mixed greens + ½ cup cucumber + 2 tbsp olive oil + feta or olives
-      { name: 'Greek salad + grilled chicken', desc: `5 oz chicken thigh (142g) · 2 cups mixed greens (60g) · ½ cup cucumber (65g) · ${noDairy ? '10 kalamata olives (40g)' : '1 oz feta (28g)'} · 2 tbsp olive oil (28ml)`, kcal: noDairy ? 538 : 508, f: noDairy ? 40 : 36, p: 31, c: noDairy ? 5 : 3 },
-      // 6oz 80/20 ground beef (340cal,22f,34p,0c) + ½ avocado + 2 cups lettuce + 1 tbsp mayo
-      { name: 'Burger bowl, no bun', desc: '6 oz ground beef 80/20 (170g) · ½ avocado (68g) · 2 cups shredded lettuce (94g) · 1 tbsp mayo (14g)', kcal: 548, f: 42, p: 35, c: 4 },
-      // 6oz shrimp (168cal,3f,36p,0c) + ½ avocado + 1 tbsp olive oil + lime
-      { name: 'Shrimp avocado salad', desc: '6 oz shrimp (170g) · ½ avocado (68g) · 1 tbsp olive oil (14ml) · lime · 2 cups mixed greens (60g)', kcal: 402, f: 24, p: 38, c: 5 },
-      // 3oz prosciutto (150cal,9f,18p,0c) + 4oz mozzarella or avocado + basil + 1 tbsp olive oil
-      { name: `${noDairy ? 'Prosciutto &amp; avocado' : 'Caprese'} plate`, desc: `3 oz prosciutto (85g) · ${noDairy ? '1 avocado (136g)' : '4 oz fresh mozzarella (113g)'} · fresh basil · 1 tbsp olive oil (14ml)`, kcal: noDairy ? 458 : 530, f: noDairy ? 34 : 40, p: noDairy ? 20 : 34, c: noDairy ? 7 : 3 },
-      // 4oz chicken breast + 2 strips bacon + low-carb tortilla/38g (90cal,4f,5p,9c net ~3c) + 1 tbsp ranch or avocado
-      { name: `Chicken-bacon wrap`, desc: `4 oz chicken breast (113g) · 2 strips bacon (28g) · 1 low-carb tortilla (38g) · ${noDairy ? '¼ avocado (34g)' : '1 tbsp ranch (15ml)'}`, kcal: noDairy ? 392 : 403, f: noDairy ? 18 : 20, p: 42, c: 5 },
+      { name: 'Chicken Cobb salad',
+        ing: noDairy
+          ? [['chicken_breast', 142], ['romaine', 94], ['egg', 1], ['olive_oil', 2]]
+          : [['chicken_breast', 142], ['romaine', 94], ['egg', 1], ['blue_cheese', 28], ['ranch', 2]] },
+      { name: 'Tuna-avocado lettuce boats', ing: [['tuna', 142], ['mayo', 2], ['avocado', 68], ['lettuce_cup', 2]] },
+      { name: 'Greek salad + grilled chicken',
+        ing: [['chicken_thigh', 142], ['mixed_greens', 60], ['cucumber', 65],
+              noDairy ? ['kalamata', 10] : ['feta', 28], ['olive_oil', 2]] },
+      { name: 'Burger bowl, no bun', ing: [['ground_beef', 170], ['avocado', 68], ['lettuce', 94], ['mayo', 1]] },
+      { name: 'Shrimp avocado salad', ing: [['shrimp', 170], ['avocado', 68], ['olive_oil', 1], ['mixed_greens', 60]], garnish: 'lime' },
+      { name: `${noDairy ? 'Prosciutto &amp; avocado' : 'Caprese'} plate`,
+        ing: [['prosciutto', 85], noDairy ? ['avocado', 136] : ['mozzarella', 113], ['olive_oil', 1]], garnish: 'fresh basil' },
+      { name: 'Chicken-bacon wrap',
+        ing: [['chicken_breast', 113], ['bacon', 2], ['tortilla', 1], noDairy ? ['avocado', 34] : ['ranch', 1]] },
     ],
     dinner: [
-      // 8oz ribeye (544cal,36f,52p,0c) + 1 cup asparagus/134g (27cal,0f,3p,3c) + 1 tbsp butter
-      { name: 'Ribeye + garlic-butter asparagus', desc: '8 oz ribeye steak (227g) · 1 cup asparagus (134g) · 1 tbsp butter (14g)', kcal: 673, f: 48, p: 55, c: 3 },
-      // 2 bone-in pork chops/10oz total (460cal,28f,50p,0c) + 2 cups spinach/60g (14cal,0f,2p,1c) + 1 tbsp olive oil
-      { name: 'Pork chops + sautéed spinach', desc: '10 oz bone-in pork chops (283g) · 2 cups fresh spinach (60g) · 1 tbsp olive oil (14ml) · 2 cloves garlic', kcal: 594, f: 40, p: 52, c: 3 },
-      // 6oz salmon fillet (350cal,22f,34p,0c) + 2 cups spinach + 1 tbsp butter or olive oil
-      { name: `Salmon + ${noDairy ? 'garlic' : 'creamed'} spinach`, desc: `6 oz salmon fillet (170g) · 2 cups spinach (60g) · ${noDairy ? '1 tbsp olive oil (14ml)' : '1 tbsp butter (14g) · 2 tbsp heavy cream (30ml)'}`, kcal: noDairy ? 484 : 520, f: noDairy ? 34 : 38, p: 36, c: 2 },
-      // 10oz skin-on chicken thighs (450cal,28f,46p,0c) + 1 cup broccoli/91g (31cal,0f,3p,4c) + 1 tbsp olive oil
-      { name: 'Roast chicken thighs + broccoli', desc: '10 oz skin-on chicken thighs (283g) · 1 cup broccoli (91g) · 1 tbsp olive oil (14ml)', kcal: 601, f: 40, p: 49, c: 4 },
-      // 6oz beef sirloin strips (300cal,12f,46p,0c) + 1 medium zucchini/200g (34cal,1f,2p,4c) + 1 tbsp sesame oil
-      { name: 'Beef stir-fry, zucchini noodles', desc: '6 oz beef sirloin strips (170g) · 1 medium zucchini (200g) · 1 tbsp sesame oil (14ml) · ginger · soy sauce', kcal: 454, f: 25, p: 48, c: 6 },
-      // 6oz cod (140cal,1f,30p,0c) + 1 cup green beans/100g (31cal,0f,2p,5c) + 2 tbsp butter
-      { name: 'Lemon-butter cod + green beans', desc: '6 oz cod fillet (170g) · 1 cup green beans (100g) · 2 tbsp butter (28g)', kcal: 375, f: 25, p: 32, c: 5 },
-      // 8oz pulled pork shoulder (480cal,32f,44p,0c) + 1 cup coleslaw (60cal,4f,1p,4c no sugar)
-      { name: 'Slow-roast pork shoulder + slaw', desc: '8 oz pork shoulder, pulled (227g) · 1 cup coleslaw with olive-oil dressing (120g) · no sugar', kcal: 540, f: 36, p: 45, c: 4 },
+      { name: 'Ribeye + garlic-butter asparagus', ing: [['ribeye', 227], ['asparagus', 134], ['butter', 1]] },
+      { name: 'Pork chops + sautéed spinach', ing: [['pork_chop', 283], ['spinach', 60], ['olive_oil', 1]], garnish: '2 cloves garlic' },
+      { name: `Salmon + ${noDairy ? 'garlic' : 'creamed'} spinach`,
+        ing: noDairy
+          ? [['salmon_fillet', 170], ['spinach', 60], ['olive_oil', 1]]
+          : [['salmon_fillet', 170], ['spinach', 60], ['butter', 1], ['heavy_cream', 2]] },
+      { name: 'Roast chicken thighs + broccoli', ing: [['chicken_thigh_skin', 283], ['broccoli', 91], ['olive_oil', 1]] },
+      { name: 'Beef stir-fry, zucchini noodles', ing: [['beef_strips', 170], ['zucchini', 200], ['sesame_oil', 1]], garnish: 'ginger · soy sauce' },
+      { name: 'Lemon-butter cod + green beans', ing: [['cod', 170], ['green_beans', 100], ['butter', 2]] },
+      { name: 'Slow-roast pork shoulder + slaw', ing: [['pork_shoulder', 227], ['coleslaw', 120], ['olive_oil', 1]] },
     ],
     snack: [
-      // 1oz macadamias/28g (204cal,21f,2p,2c net)
-      { name: 'Macadamia nuts', desc: '1 oz (28g)', kcal: 204, f: 21, p: 2, c: 2 },
-      // 10 olives/40g (58cal,5f,0p,2c) + 1oz cheddar/28g (113cal,9f,7p,0c) or 1oz almonds
-      { name: `Olives &amp; ${noDairy ? 'almonds' : 'cheddar'}`, desc: `10 green olives (40g) · ${noDairy ? '1 oz almonds (28g)' : '1 oz cheddar (28g)'}`, kcal: noDairy ? 222 : 171, f: noDairy ? 19 : 14, p: noDairy ? 8 : 7, c: noDairy ? 4 : 2 },
-      // 1oz pecans/28g (196cal,20f,3p,1c net)
-      { name: 'Pecans', desc: '1 oz (28g)', kcal: 196, f: 20, p: 3, c: 1 },
-      // 2 large hard-boiled eggs (140cal,10f,12p,1c)
-      { name: 'Hard-boiled eggs ×2', desc: '2 large eggs (100g)', kcal: 140, f: 10, p: 12, c: 1 },
-      // 2 squares 90% dark chocolate/20g (120cal,10f,2p,4c net)
-      { name: 'Dark chocolate 90%', desc: '2 squares (20g)', kcal: 120, f: 10, p: 2, c: 4 },
-      // 1oz almonds/28g (164cal,14f,6p,3c net)
-      { name: 'Almonds', desc: '1 oz (28g)', kcal: 164, f: 14, p: 6, c: 3 },
-      // ¼ cup raspberries/31g (16cal,0f,0p,2c net) + 2 tbsp heavy cream/30ml (100cal,11f,1p,1c)
-      { name: `Berries &amp; ${noDairy ? 'coconut cream' : 'heavy cream'}`, desc: `¼ cup raspberries (31g) · 2 tbsp ${noDairy ? 'coconut cream' : 'heavy cream'} (30ml)`, kcal: 116, f: 11, p: 1, c: 3 },
+      { name: 'Macadamia nuts', ing: [['macadamia', 28]] },
+      { name: `Olives &amp; ${noDairy ? 'almonds' : 'cheddar'}`,
+        ing: [['olives', 10], noDairy ? ['almond', 28] : ['cheddar', 28]] },
+      { name: 'Pecans', ing: [['pecan', 28]] },
+      { name: 'Hard-boiled eggs', ing: [['egg', 2]] },
+      { name: 'Dark chocolate 90%', ing: [['dark_choc', 2]] },
+      { name: 'Almonds', ing: [['almond', 28]] },
+      { name: `Berries &amp; ${noDairy ? 'coconut cream' : 'heavy cream'}`,
+        ing: [['raspberries', 31], noDairy ? ['coconut_cream', 2] : ['heavy_cream', 2]] },
     ],
   };
 }
@@ -1308,44 +2213,66 @@ function getMealDatabase(noDairy) {
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function getBudgetDinners(noDairy) {
+  void noDairy;
   return [
-    { name: 'Ground beef &amp; broccoli bowl', desc: '8 oz ground beef 80/20 (227g) · 1 cup broccoli (91g) · 1 tbsp butter (14g)', kcal: 585, f: 40, p: 49, c: 4 },
-    { name: 'Chicken thighs + green beans', desc: '10 oz bone-in chicken thighs (283g) · 1 cup green beans (100g) · 1 tbsp olive oil (14ml)', kcal: 601, f: 40, p: 49, c: 4 },
-    { name: 'Pork loin + buttered cabbage', desc: '6 oz pork loin (170g) · 2 cups shredded cabbage (150g) · 2 tbsp butter (28g)', kcal: 452, f: 30, p: 40, c: 5 },
-    { name: 'Salmon patties + spinach', desc: '6 oz canned salmon (170g) · 1 large egg (50g) · 2 cups spinach (60g) · 1 tbsp olive oil (14ml)', kcal: 398, f: 24, p: 40, c: 2 },
-    { name: 'Roast drumsticks + zucchini', desc: '8 oz chicken drumsticks (227g) · 1 medium zucchini (200g) · 1 tbsp butter (14g)', kcal: 520, f: 33, p: 50, c: 4 },
-    { name: 'Turkey taco bowl, no shell', desc: '6 oz ground turkey 85/15 (170g) · 2 cups shredded lettuce (94g) · ¼ avocado (34g) · 1 tbsp olive oil (14ml)', kcal: 418, f: 29, p: 33, c: 4 },
-    { name: 'Slow-roast pork shoulder + slaw', desc: '8 oz pork shoulder, pulled (227g) · 1 cup coleslaw with olive-oil dressing (120g) · no sugar', kcal: 540, f: 36, p: 45, c: 4 },
+    { name: 'Ground beef &amp; broccoli bowl', ing: [['ground_beef', 227], ['broccoli', 91], ['butter', 1]] },
+    { name: 'Chicken thighs + green beans', ing: [['chicken_thigh_skin', 283], ['green_beans', 100], ['olive_oil', 1]] },
+    { name: 'Pork loin + buttered cabbage', ing: [['pork_loin', 170], ['cabbage', 150], ['butter', 2]] },
+    { name: 'Salmon patties + spinach', ing: [['canned_salmon', 170], ['egg', 1], ['spinach', 60], ['olive_oil', 1]] },
+    { name: 'Roast drumsticks + zucchini', ing: [['chicken_drumstick', 227], ['zucchini', 200], ['butter', 1]] },
+    { name: 'Turkey taco bowl, no shell', ing: [['ground_turkey', 170], ['lettuce', 94], ['avocado', 34], ['olive_oil', 1]] },
+    { name: 'Slow-roast pork shoulder + slaw', ing: [['pork_shoulder', 227], ['coleslaw', 120], ['olive_oil', 1]] },
   ];
 }
 
-// Fat-only add-on: 1 tbsp butter or olive oil (102-120 cal, 12-14f, 0p, 0c)
-const FAT_ADD = { kcal: 102, f: 12, p: 0, c: 0, unit: '1 tbsp butter (14g)' };
-// Lean protein snacks for when protein is short
+/** Lean protein snacks, for when the day is short on protein rather than energy. */
 const LEAN_SNACKS = [
-  { name: 'Hard-boiled eggs ×2', desc: '2 large eggs (100g)', kcal: 140, f: 10, p: 12, c: 1 },
-  { name: 'Turkey roll-ups', desc: '3 oz deli turkey (85g) · mustard', kcal: 90, f: 1, p: 18, c: 2 },
-  { name: 'Beef jerky', desc: '1 oz (28g)', kcal: 80, f: 1, p: 13, c: 3 },
+  { name: 'Hard-boiled eggs', ing: [['egg', 2]] },
+  { name: 'Turkey roll-ups', ing: [['deli_turkey', 85]], garnish: 'mustard' },
+  { name: 'Beef jerky', ing: [['jerky', 28]] },
 ];
 
-function scaleMeal(base, s) {
-  return { ...base, kcal: Math.round(base.kcal * s), f: Math.round(base.f * s), p: Math.round(base.p * s), c: Math.round(base.c * s) };
-}
+/**
+ * Build the seven days.
+ *
+ * Unchanged in shape from before: pick meals by protein density, scale the day to
+ * anchor protein, then close the calorie gap with fat and a snack. What changed is
+ * that every one of those steps now moves FOOD, and the macros printed on the page
+ * are summed from the food afterwards.
+ *
+ * DAY TOTALS NO LONGER LAND EXACTLY ON TARGET, and that is deliberate. Eggs come in
+ * ones and tablespoons in halves, so a day built from measurable quantities lands
+ * near the target rather than on it. tests/kd-meal-plan-executable.test.mjs pins
+ * how near: KD_DAY_KCAL_TOLERANCE either side, across the whole plausible range.
+ * The alternative is what this replaced, which hit the target exactly by printing
+ * numbers no plate had to honour.
+ */
+/** How many snacks a day may carry, and how far one may be scaled. Three
+ *  ordinary snacks beat one impossible one. */
+const KD_MAX_SNACKS = 5;
+const KD_SNACK_MAX_SCALE = 3.0;
+/** The fallback when a day needs nothing more. Real ingredients, so it reaches
+ *  the grocery list like everything else does. */
+const KD_CELERY_SNACK = { name: 'Celery + sea salt', ing: [['celery', 3]] };
+const KD_DAY_KCAL_TOLERANCE = 0.12;
+const KD_DAY_PROTEIN_TOLERANCE = 0.15;
 
-function buildMealPlanDays(d) {
+export function buildMealPlanDays(d) {
   // NO DEFAULTS. `prot` is not decoration here: it filters which meals are eligible
   // (minDensity, below) and scales every portion (protScale). A substituted 113 g
   // would silently reshape a real customer's week.
   requireFacts(d, ['calories', 'proteinG', 'carbG'], 'buildMealPlanDays');
   const cal = d.calories;
   const prot = d.proteinG;
-  const carb = d.carbG;
   const budget = d.budget || 'mod';
   const dairyPref = (d.dairy || '').toLowerCase();
   const noDairy = dairyPref.includes('free') || dairyPref.includes('none') || dairyPref.includes('strict');
   const lightDairy = noDairy || dairyPref.includes('light') || dairyPref.includes('little') || dairyPref.includes('bother');
   const db = getMealDatabase(lightDairy);
   const budgetDins = budget === 'tight' ? getBudgetDinners(lightDairy) : null;
+
+  /** A template's macros at scale 1, computed from its own ingredients. */
+  const base = (tpl) => kdMaterializeMeal(tpl, 1);
 
   // 1. Minimum protein density for template filtering
   const minDensity = prot / cal;
@@ -1356,8 +2283,8 @@ function buildMealPlanDays(d) {
       filtered = pool.filter(m => !premiumWords.some(w => m.name.toLowerCase().includes(w)));
       if (filtered.length < 3) filtered = pool;
     }
-    const ranked = filtered.slice().sort((a, b) => (b.p / b.kcal) - (a.p / a.kcal));
-    const good = ranked.filter(m => (m.p / m.kcal) >= minDensity * 0.65);
+    const ranked = filtered.slice().sort((a, b) => (base(b).p / base(b).kcal) - (base(a).p / base(a).kcal));
+    const good = ranked.filter(m => (base(m).p / base(m).kcal) >= minDensity * 0.65);
     return good.length >= 4 ? good : ranked.slice(0, Math.max(4, Math.ceil(filtered.length * 0.6)));
   }
   const isTight = budget === 'tight';
@@ -1367,76 +2294,138 @@ function buildMealPlanDays(d) {
 
   const days = [];
   for (let i = 0; i < 7; i++) {
-    const b = bPool[i % bPool.length];
-    const l = lPool[i % lPool.length];
-    const dn = dPool[i % dPool.length];
+    const bT = bPool[i % bPool.length];
+    const lT = lPool[i % lPool.length];
+    const dT = dPool[i % dPool.length];
 
-    // 2. Scale uniformly to anchor protein
-    const baseP = b.p + l.p + dn.p;
+    // 2. Scale the FOOD uniformly to anchor protein.
+    const baseP = base(bT).p + base(lT).p + base(dT).p;
     const protScale = baseP > 0 ? prot / baseP : 1;
-    const clamped = Math.max(0.6, Math.min(2.0, protScale));
+    // THE CEILING IS WHAT THE TOP OF THE RANGE COSTS. At 2.6 the three main
+    // meals froze at about 2,990 kcal however high the target went, so a 6,000
+    // kcal customer had 3,000 kcal of snacks to find and a page that promised a
+    // number the food never reached. 3.5 lets the plates grow instead. They get
+    // large, and they are supposed to: this is what 6,000 kcal looks like.
+    const clamped = Math.max(0.45, Math.min(3.5, protScale));
 
-    const mB = { slot: 'Breakfast', ...scaleMeal(b, clamped) };
-    const mL = { slot: 'Lunch', ...scaleMeal(l, clamped) };
-    const mD = { slot: 'Dinner', ...scaleMeal(dn, clamped) };
-    const mainP = mB.p + mL.p + mD.p;
-    const mainKcal = mB.kcal + mL.kcal + mD.kcal;
+    const raw = [
+      { slot: 'Dinner', tpl: dT, meal: kdMaterializeMeal(dT, clamped) },
+      { slot: 'Breakfast', tpl: bT, meal: kdMaterializeMeal(bT, clamped) },
+      { slot: 'Lunch', tpl: lT, meal: kdMaterializeMeal(lT, clamped) },
+    ];
 
-    // 3. Fat knob: add/remove fat to hit calorie target
-    //    Half-tbsp increments (~51 kcal, 6g fat each) for finer control
-    const halfTbspKcal = 51;
-    const halfTbspF = 6;
+    // 3. Close the calorie gap by changing how much fat is in the food, spread
+    //    across the day's plates and leaving room for the snack. Expressed as a
+    //    quantity, never as an instruction to remove fat that is not there.
     const targetMainKcal = cal * 0.90;
-    const calGap = targetMainKcal - mainKcal;
-    const halfTbspAdj = Math.round(calGap / halfTbspKcal);
+    const gap = targetMainKcal - raw.reduce((a, r) => a + r.meal.kcal, 0);
+    const adjusted = kdDistributeFat(raw, gap);
+    const mB = { slot: 'Breakfast', ...adjusted.get('Breakfast') };
+    const mL = { slot: 'Lunch', ...adjusted.get('Lunch') };
+    const mD = { slot: 'Dinner', ...adjusted.get('Dinner') };
 
-    if (halfTbspAdj !== 0) {
-      mD.kcal += halfTbspAdj * halfTbspKcal;
-      mD.f += halfTbspAdj * halfTbspF;
-      const wholeTbsp = Math.abs(halfTbspAdj) / 2;
-      if (halfTbspAdj > 0) {
-        const label = wholeTbsp >= 1 ? (Number.isInteger(wholeTbsp) ? wholeTbsp : wholeTbsp.toFixed(1)) + ' tbsp' : '½ tbsp';
-        mD.desc += ` · +${label} butter`;
-      } else if (halfTbspAdj < 0) {
-        const label = wholeTbsp >= 1 ? (Number.isInteger(wholeTbsp) ? wholeTbsp : wholeTbsp.toFixed(1)) + ' tbsp' : '½ tbsp';
-        mD.desc += ` · −${label} fat`;
+    // 4. Snacks as the final buffer, chosen for what the day is actually short of.
+    //
+    // MORE THAN ONE, because one could not do it. A single snack scaled to close
+    // the gap hit its 4.5x ceiling and stopped: a 4,451 kcal customer, which the
+    // live calculator produces for a 130 kg athlete, was left 634 kcal short on
+    // one day and 1,361 short across the week, under a page that printed
+    // "TARGET 4,451 kcal/d" at the top. Scaling one snack further is not the
+    // answer either; nine squares of chocolate is not a snack. Two or three
+    // ordinary ones are.
+    let remainKcal = cal - (mB.kcal + mL.kcal + mD.kcal);
+    let remainP = prot - (mB.p + mL.p + mD.p);
+    const snacks = [];
+    const fatSnacks = db.snack.filter(s => base(s).p <= 3);
+    for (let n = 0; n < KD_MAX_SNACKS && (remainKcal > 60 || remainP > 8); n++) {
+      let tpl, scale;
+      if (remainP > 8) {
+        tpl = LEAN_SNACKS[(i + n) % LEAN_SNACKS.length];
+        scale = Math.max(0.5, Math.min(KD_SNACK_MAX_SCALE, remainP / Math.max(1, base(tpl).p)));
+      } else {
+        const pool = fatSnacks.length > 0 ? fatSnacks : db.snack;
+        tpl = pool[(i + n) % pool.length];
+        scale = Math.max(0.3, Math.min(KD_SNACK_MAX_SCALE, remainKcal / Math.max(1, base(tpl).kcal)));
       }
-      if (mD.f < 0) mD.f = 0;
-      if (mD.kcal < 100) mD.kcal = 100;
+      const made = kdMaterializeMeal(tpl, scale);
+      if (made.kcal <= 0) break;
+      snacks.push({ slot: snacks.length === 0 ? 'Snack' : `Snack ${snacks.length + 1}`, ...made });
+      remainKcal -= made.kcal;
+      remainP -= made.p;
+    }
+    if (snacks.length === 0) {
+      snacks.push({ slot: 'Snack', ...kdMaterializeMeal(KD_CELERY_SNACK, 1) });
     }
 
-    const adjustedMainKcal = mB.kcal + mL.kcal + mD.kcal;
-    const remainKcal = cal - adjustedMainKcal;
-    const remainP = prot - mainP;
-
-    // 4. Snack as final buffer — context-dependent selection
-    let mS;
-    if (remainP > 8) {
-      // Protein short → lean protein snack
-      const lean = LEAN_SNACKS[i % LEAN_SNACKS.length];
-      const leanScale = Math.max(0.5, Math.min(3.0, remainP / lean.p));
-      mS = { slot: 'Snack', ...scaleMeal(lean, leanScale) };
-    } else if (remainKcal > 50) {
-      // Calories short, protein ok → fat-heavy snack (low protein density)
-      const fatSnacks = db.snack.filter(s => s.p <= 3);
-      const sBase = fatSnacks.length > 0 ? fatSnacks[i % fatSnacks.length] : db.snack[i % db.snack.length];
-      const sScale = Math.max(0.3, Math.min(4.0, remainKcal / sBase.kcal));
-      mS = { slot: 'Snack', ...scaleMeal(sBase, sScale) };
-    } else {
-      // At or over budget → minimal
-      mS = { slot: 'Snack', name: 'Celery + sea salt', desc: '3 stalks celery (90g)', kcal: 14, f: 0, p: 1, c: 2 };
-    }
-
-    const meals = [mB, mL, mD, mS];
-    const totKcal = meals.reduce((a, m) => a + m.kcal, 0);
-    const totF = meals.reduce((a, m) => a + m.f, 0);
-    const totP = meals.reduce((a, m) => a + m.p, 0);
-    const totC = meals.reduce((a, m) => a + m.c, 0);
-
-    days.push({ dayNum: i + 1, dayName: DAY_NAMES[i], meals, totKcal, totF, totP, totC });
+    const meals = [mB, mL, mD, ...snacks];
+    days.push({
+      dayNum: i + 1, dayName: DAY_NAMES[i], meals,
+      totKcal: meals.reduce((a, m) => a + m.kcal, 0),
+      totF: meals.reduce((a, m) => a + m.f, 0),
+      totP: meals.reduce((a, m) => a + m.p, 0),
+      totC: meals.reduce((a, m) => a + m.c, 0),
+    });
   }
   return days;
 }
+
+// ---------------------------------------------------------------------------
+// THE GROCERY LIST, DERIVED
+// ---------------------------------------------------------------------------
+// It used to be two hardcoded lists, one for a tight budget and one for everyone
+// else, printed under the heading "Your week's grocery list ... sized for one
+// person". It said 12 oz of steak whatever the plan called for, and it did not
+// move when the calorie target doubled. A customer at 3,200 kcal was told to buy
+// a third of the food their own plan asked them to cook.
+//
+// It is now summed from the seven days that were actually generated, then rounded
+// UP to something a shop sells. Rounding up on purpose: a list that leaves you
+// short on Thursday is worse than one that leaves a little in the fridge.
+
+/** Round a total up to a quantity a shop actually sells. */
+function kdShoppingQty(key, qty) {
+  const ing = KD_ING[key];
+  if (ing.buy === 'dozen') {
+    const dozens = Math.max(1, Math.ceil(qty / 12));
+    return `${qty <= 12 ? '1 dozen' : `${dozens} dozen`}`;
+  }
+  if (ing.unit === 'each' || ing.unit === 'strip' || ing.unit === 'link') {
+    return `${Math.ceil(qty)}`;
+  }
+  if (ing.unit === 'tbsp') {
+    const cups = qty / 16;
+    if (cups >= 0.75) return `${kdFmtNumber(Math.ceil(cups * 4) / 4)} cup`;
+    return `${Math.ceil(qty)} tbsp`;
+  }
+  // grams
+  if (ing.buy === 'each' && ing.eachG) return `${Math.max(1, Math.ceil(qty / ing.eachG))}`;
+  const lb = qty / 453.6;
+  if (lb >= 0.75) return `${kdFmtNumber(Math.ceil(lb * 4) / 4)} lb`;
+  const oz = qty / 28.35;
+  if (oz >= 1) return `${Math.ceil(oz)} oz`;
+  return `${Math.ceil(qty / 10) * 10}g`;
+}
+
+/** Aggregate every ingredient in the generated week, by aisle. */
+function kdBuildGroceryList(days) {
+  const totals = new Map();
+  for (const day of days) {
+    for (const meal of day.meals) {
+      for (const [key, qty] of (meal.ing || [])) {
+        totals.set(key, (totals.get(key) || 0) + qty);
+      }
+    }
+  }
+  const byAisle = { proteins: [], fats: [], produce: [], dairy: [], pantry: [] };
+  for (const [key, qty] of totals) {
+    const ing = KD_ING[key];
+    byAisle[ing.aisle].push([ing.plural || ing.label, kdShoppingQty(key, qty), qty]);
+  }
+  // Heaviest first, so the list reads like a trolley rather than an index.
+  for (const aisle of Object.keys(byAisle)) byAisle[aisle].sort((a, b) => b[2] - a[2]);
+  return byAisle;
+}
+
 
 function mealRow(m) {
   return `<div class="meal"><span class="slot">${m.slot}</span><span class="name">${m.name}<small>${m.desc}</small></span><span class="mm"><span class="kc">${m.kcal}</span><span class="fp"><b class="fF">F${m.f}</b> <b class="fP">P${m.p}</b> <b class="fC">C${m.c}</b></span></span></div>`;
@@ -1463,132 +2452,140 @@ function dayBlock(day) {
     </div>`;
 }
 
-function grocerySection(d) {
-  const dairyPrefGS = (d.dairy || '').toLowerCase();
-  const noDairyGS = dairyPrefGS.includes('free') || dairyPrefGS.includes('none') || dairyPrefGS.includes('strict');
-  const noDairy = noDairyGS || dairyPrefGS.includes('light') || dairyPrefGS.includes('little') || dairyPrefGS.includes('bother');
+/**
+ * The grocery list, summed from the seven days that were actually generated.
+ *
+ * Takes `days`, not `d`. That change of argument is the fix: the old version took
+ * the customer's preferences and printed one of two hardcoded lists, so it could
+ * not have reflected the plan even in principle.
+ */
+function grocerySection(d, days) {
   const budget = d.budget || 'mod';
-
-  const proteins = budget === 'tight' ? [
-    ['Ground beef 80/20', '2 lb'],
-    ['Chicken thighs &amp; drumsticks (bone-in)', '3 lb'],
-    ['Pork loin + shoulder', '2.5 lb'],
-    ['Canned salmon · canned tuna', '3 cans'],
-    ['Ground turkey 85/15', '1 lb'],
-    ['Bacon &amp; breakfast sausage', '1 pack ea'],
-    ['Eggs', '2.5 dozen'],
-  ] : [
-    ['Ribeye / sirloin steak', '12 oz'],
-    ['Chicken thighs (skin-on)', '2 lb'],
-    ['Salmon &amp; cod fillets', '1.5 lb'],
-    ['Pork chops + shoulder', '2.5 lb'],
-    ['Bacon &amp; breakfast sausage', '1 pack ea'],
-    ['Eggs', '2 dozen'],
-    ['Shrimp · canned tuna', 'as needed'],
-  ];
-
-  const fats = budget === 'tight' ? [
-    ['Olive oil (store brand)', '1 bottle'],
-    ['Butter', '1 block'],
-    ['Avocados', '4'],
-    ['Almonds or pecans', '1 bag'],
-    ['Olive-oil mayo', '1 jar'],
-  ] : [
-    ['Extra-virgin olive oil', '1 bottle'],
-    ['Grass-fed butter', '1 block'],
-    ['Avocados', '5'],
-    ['Macadamias · pecans · almonds', '1 bag ea'],
-    ['Olives', '1 jar'],
-    ['Olive-oil mayo', '1 jar'],
-  ];
-
-  const produce = [
-    ['Romaine · spinach · mixed greens', '3 bags'],
-    ['Asparagus · broccoli · green beans', '1 ea'],
-    ['Zucchini', '3'],
-    ['Cucumber · celery', '2 ea'],
-    ['Raspberries', '1 small'],
-    ['Garlic · lemon · fresh basil', '1 ea'],
-  ];
-
-  const pantry = noDairy
-    ? [
-        ['Coconut cream · almond milk', '1 ea'],
-        ['Almond flour', '1 bag'],
-        ['Chia seeds · unsweetened coconut milk', '1 ea'],
-        ['90% dark chocolate', '1 bar'],
-        ['Low-carb tortillas', '1 pack'],
-        ['Sesame oil · ginger', '1 ea'],
-      ]
-    : [
-        ['Cheddar · feta · mozzarella', 'light use'],
-        ['Cream cheese · heavy cream', '1 ea'],
-        ['Almond flour', '1 bag'],
-        ['Chia seeds · unsweetened coconut milk', '1 ea'],
-        ['90% dark chocolate', '1 bar'],
-        ['Low-carb tortillas', '1 pack'],
-      ];
+  const aisles = kdBuildGroceryList(days);
 
   function listItems(arr) {
-    return arr.map(([item, qty]) => `<li>${item} <span class="q">${qty}</span></li>`).join('\n          ');
+    return arr.length
+      ? arr.map(([item, qty]) => `<li>${item} <span class="q">${qty}</span></li>`).join('\n          ')
+      : '<li>Nothing this week <span class="q">—</span></li>';
   }
 
   const budgetTip = budget === 'tight'
     ? 'Ground beef for ribeye, chicken thighs over breasts, frozen fish and frozen spinach, and whole blocks of cheese cut down the bill the most — roughly <b>30–40%</b> versus the premium versions above, with identical macros.'
     : 'Buy in bulk where possible. Costco-size proteins and eggs save 30–40% vs grocery store prices, with identical macros.';
 
+  const pantryAndDairy = aisles.dairy.concat(aisles.pantry);
+
   return `<section class="sec">
       <div class="sec-eyebrow">Shop once</div>
       <div class="sec-title">Your week's grocery list</div>
-      <div class="sec-sub">Organized by aisle and sized for one person.${budget === 'tight' ? ' Budget-conscious swaps noted where they save the most.' : ''}</div>
+      <div class="sec-sub">Added up from the seven days above and rounded up to what a shop sells, for one person.${budget === 'tight' ? ' Budget-conscious swaps noted where they save the most.' : ''}</div>
     </section>
 
     <div class="grocery">
       <div class="gcat">
         <h4>Proteins</h4>
         <ul>
-          ${listItems(proteins)}
+          ${listItems(aisles.proteins)}
         </ul>
       </div>
       <div class="gcat">
         <h4>Fats &amp; oils</h4>
         <ul>
-          ${listItems(fats)}
+          ${listItems(aisles.fats)}
         </ul>
       </div>
       <div class="gcat">
         <h4>Produce</h4>
         <ul>
-          ${listItems(produce)}
+          ${listItems(aisles.produce)}
         </ul>
       </div>
       <div class="gcat">
-        <h4>${noDairy ? 'Pantry' : 'Dairy &amp; pantry'}</h4>
+        <h4>${aisles.dairy.length ? 'Dairy &amp; pantry' : 'Pantry'}</h4>
         <ul>
-          ${listItems(pantry)}
+          ${listItems(pantryAndDairy)}
         </ul>
       </div>
     </div>
 
-    <div class="callout" style="margin-top:24px">
+    <div class="callout" style="margin-top:16px">
       <span class="ct">${budget === 'tight' ? 'Tight-budget swaps' : 'Money-saving tip'}</span>
       ${budgetTip}
     </div>`;
 }
 
-/**
- * What a customer who declared kidney disease receives in place of the seven-day
- * plan they bought.
- *
- * This is PRODUCT ROUTING, not clinical guidance. It states what the plan would have
- * been built from, why that is not something this software may build, and who to ask
- * instead. It gives no protein figure, no portion size and no substitute target, and
- * it does not imply that a gentler version of the plan exists somewhere.
- *
- * It also tells them, in the first line, that they can have their money back. A
- * customer who paid for a meal plan and received a referral is owed that plainly and
- * without having to ask twice.
- */
+function generateSglt2MealPlanReferral(name, d, ctx) {
+  const body = `
+<div class="page">
+  <header class="rep-head">
+    ${brandHeader('Personalized Plan')}
+    <div class="rh-title-row">
+      <div>
+        <div class="rh-eyebrow">7-Day Meal Plan</div>
+        <h1>We have not built this plan,<br /><span class="lt">and here is exactly why.</span></h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="sec">
+    <div class="sec-title"><span class="num">01</span> The short version</div>
+    <p>${escHtml(name)}, you told us you take an SGLT2 inhibitor. Every meal in this plan would have
+    been chosen and portioned to hold you at a ketogenic carbohydrate and calorie target. Ketogenic
+    eating on this class of medication is a recognized trigger for euglycemic diabetic ketoacidosis,
+    and the reason that matters here is that blood glucose can read normal while it is happening, so
+    a home glucose meter would not warn you. Whether those targets are appropriate for you, and what
+    monitoring would need to be in place first, is a clinical judgment. This is an automated
+    questionnaire. It has never seen your labs and there is no clinician in the loop.</p>
+
+    <p>So we have not set you ketogenic targets, and we have not built you a week of meals sized to
+    them. <b>We have also not quietly given you a gentler, higher-carb week instead.</b> That would
+    be the same clinical decision made more quietly, and it is not ours to make.</p>
+
+    <div class="callout warn" style="margin-top:16px">
+      <span class="ct">Your money back, no conversation required</span>
+      You paid for a meal plan and this is not one. Reply to your receipt, or email
+      <b>ketodial@carnivoreweekly.com</b>, and we will refund the meal plan. You do not have to
+      explain yourself and nothing else in your order is affected.
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-title"><span class="num">02</span> What to ask for instead</div>
+    <p>The person you want is the clinician who prescribes your SGLT2 inhibitor. Take this report
+    with you. Worth asking them:</p>
+    <ul>
+      <li>Is a low-carbohydrate or ketogenic way of eating reasonable for me at all while I am on this medication?</li>
+      <li>If it is, what carbohydrate level would you be comfortable with, and how gradually should I get there?</li>
+      <li>What should be checked before I change how I eat, and what should be rechecked afterward?</li>
+      <li>Since euglycemic ketoacidosis can happen with normal glucose readings, what symptoms should make me call you, and would ketone testing be useful for me?</li>
+      <li>Does anything else change the answer, such as my other medications, illness, a planned procedure, or alcohol?</li>
+    </ul>
+    <p><b>Do not start, stop or change any medication or supplement on your own</b>, and that
+    includes over-the-counter salt, potassium and magnesium products.</p>
+  </section>
+
+  <section class="sec">
+    <div class="sec-title"><span class="num">03</span> What you did tell us</div>
+    <p>So the person you take this to does not have to start from nothing:</p>
+    <table class="dtable">
+      <thead><tr><th>You reported</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td><b>Conditions</b></td><td>${escHtml(ctx.declaredConditionLabels.join(', ') || 'None reported')}</td></tr>
+        <tr><td><b>Medications</b></td><td>${escHtml(ctx.medsText)}</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--ink-faint);margin-top:8px">Self-reported into an online
+    questionnaire and not verified. Please confirm against your own record.</p>
+  </section>
+
+  ${pageFooter(
+    `KetoDial 7-Day Meal Plan <span class="dot">·</span> ${escHtml(name)}`,
+    'Not medical advice — take this to the clinician who prescribes your medication', 1, 1)}
+</div>`;
+
+  return htmlShell('7-Day Meal Plan', MEAL_CSS, body);
+}
+
 function generateRenalMealPlanReferral(name, d, ctx) {
   const body = `
 <div class="page">
@@ -1686,6 +2683,14 @@ export function generateMealPlan(name, d) {
     // is flagged for Brew in docs/project-log/decisions.md, not hidden here.
     return generateRenalMealPlanReferral(name, d, ctx);
   }
+  if (ctx.restrictKetogenicProtocol) {
+    // Every meal below is chosen and portioned to hold a ketogenic calorie and
+    // carbohydrate target. For a reader on an SGLT2 inhibitor that target is the
+    // hazard, so there is no version of this week that is not the recommendation we
+    // have just declined to make. Checked AFTER the renal gate so a reader who is
+    // both keeps the referral naming the condition they actually reported first.
+    return generateSglt2MealPlanReferral(name, d, ctx);
+  }
 
   const cal = d.calories;
   const fat = d.fatG;
@@ -1744,6 +2749,8 @@ export function generateMealPlan(name, d) {
       <span style="margin-left:auto;font-size:12px;color:var(--ink-soft)">Designed around your weekly target, with lighter and heavier days for variety.</span>
     </div>
 
+    ${kdHypoglycemiaCallout(ctx)}
+
     <div class="week-glance">
       ${weekGlance}
     </div>
@@ -1791,7 +2798,7 @@ export function generateMealPlan(name, d) {
 <!-- ============ PAGE 4 — GROCERY ============ -->
 <div class="page">
   <div class="rep-body tight">
-    ${grocerySection(d)}
+    ${grocerySection(d, days)}
   </div>
   ${pageFooter(footLeft, '<a href="https://ketodial.com">ketodial.com</a>', 4, 4)}
 </div>`;
@@ -1848,6 +2855,11 @@ export function generateStarterKit(name, d) {
   // electrolyte protocol. Every quantity on page 2, plus the sodium/fluid
   // instructions scattered through pages 1 and 4, hang off it.
   const restricted = ctx.restrictElectrolyteProtocol;
+  // The carb ceiling on page 1 and the cheat sheet that serves it are the
+  // ketogenic prescription in another form, so a declared SGLT2 inhibitor empties
+  // them here too. The rest of the kit, what to expect and what to watch for,
+  // still belongs to this reader and is not withheld.
+  const ketoWithheld = ctx.restrictKetogenicProtocol;
   const meds = ctx.hasDeclaredMedication ? ctx.medsText : '';
   const conditions = ctx.declaredConditionSlugs;
   const symptoms = (d.symptoms || []).filter(s => s !== 'none');
@@ -1890,7 +2902,7 @@ export function generateStarterKit(name, d) {
       </div>
       <div class="rh-meta">
         <div class="row">FOR <b>${escHtml(name)}</b></div>
-        <div class="row">TARGET <b>${carb}g net carbs</b></div>
+        <div class="row">TARGET <b>${ketoWithheld ? 'Set by your clinician' : `${carb}g net carbs`}</b></div>
         <div class="row">START <b>Day 1, today</b></div>
       </div>
     </div>
@@ -1928,13 +2940,21 @@ export function generateStarterKit(name, d) {
       </div>
     </section>
 
+    ${kdHypoglycemiaCallout(ctx)}
+
     <section class="sec avoid-break">
       <div class="sec-eyebrow">The golden rule</div>
-      <div class="sec-title"><span class="num">02</span> Stay under your carb ceiling</div>
-      <div class="callout">
+      <div class="sec-title"><span class="num">02</span> ${ketoWithheld ? 'Your carb number is not in this kit' : 'Stay under your carb ceiling'}</div>
+      ${ketoWithheld
+        // The carb ceiling IS the ketogenic prescription. Printing it here while the
+        // Doctor's Report withholds it would be the same number arriving through a
+        // second door, which is exactly how the renal protein target used to survive
+        // its own suppression inside the meal plan.
+        ? kdKetogenicSuppressionNote(ctx)
+        : `<div class="callout">
         <span class="ct">Your number is ${carb}g net carbs per day</span>
         Net carbs = total carbs − fiber − sugar alcohols. Stay under this and ketosis takes care of itself. The cheat sheet on page 3 shows exactly which foods fit — keep it somewhere you'll see it.
-      </div>
+      </div>`}
     </section>
 
     ${topWatchOuts.length > 0 ? `<section class="sec avoid-break">
@@ -2100,7 +3120,9 @@ export function generateStarterKit(name, d) {
 
     <div class="callout" style="margin-top:18px">
       <span class="ct">How to read it</span>
-      Your daily ceiling is <b>${carb}g net carbs</b>. A whole day of green-column eating barely touches it — that's the point. One slice of bread or half a banana spends most of your day in a single bite, which is why the red column is "treats," not "never."
+      ${ketoWithheld
+        ? 'This page is a guide to which foods are low in carbohydrate, not a daily ceiling. Your ceiling is the number we have not set for you, so treat the green column as the safer end of the range and take the question of where your line sits to the clinician who prescribes your medication.'
+        : `Your daily ceiling is <b>${carb}g net carbs</b>. A whole day of green-column eating barely touches it — that's the point. One slice of bread or half a banana spends most of your day in a single bite, which is why the red column is "treats," not "never."`}
     </div>
   </div>
   ${pageFooter(`KetoDial Net-Carb Cheat Sheet <span class="dot">·</span> ${escHtml(name)}`, 'Values are typical per-serving estimates', 3, 4)}
@@ -2143,7 +3165,7 @@ export function generateStarterKit(name, d) {
       <ul class="checks">
         <li>${restricted ? `<b style="color:var(--ink)">Get your electrolyte plan from your doctor.</b> The keto flu is almost always a sodium problem, but what you should be taking is a decision for the clinician who manages your condition or your prescription — not for this kit. Ask before you start.` : `<b style="color:var(--ink)">Salt everything.</b> The keto flu is almost always a sodium problem. A cup of broth a day is cheap insurance.`}</li>
         <li><b style="color:var(--ink)">Eat fat to fullness, don't fear it.</b> Hunger is your gauge — you don't need to count every gram in week one.</li>
-        <li><b style="color:var(--ink)">Keep carbs under ${carb}g.</b> Lean on the green column. When in doubt, protein + fat + greens.</li>
+        <li>${ketoWithheld ? `<b style="color:var(--ink)">Your carb number comes from your prescriber.</b> Lean on the green column while you wait for it. When in doubt, protein + fat + greens.` : `<b style="color:var(--ink)">Keep carbs under ${carb}g.</b> Lean on the green column. When in doubt, protein + fat + greens.`}</li>
         <li>${restricted ? `<b style="color:var(--ink)">Ask about fluids too.</b> You flush a lot of water early on, and how much you should drink to replace it is part of the same conversation with your doctor.` : `<b style="color:var(--ink)">Drink more water than feels normal.</b> You're flushing a lot of it early on.`}</li>
         <li><b style="color:var(--ink)">Ignore the scale after day 3.</b> Early drops are water. Real fat loss shows up over weeks, not days.</li>
       </ul>
