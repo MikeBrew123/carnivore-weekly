@@ -1676,3 +1676,47 @@ which the policy above deliberately keeps. So this is accepted, not solved:
   picker still offers the Meal Plan to an SGLT2 customer and checkout declines it. The decline
   message is now branched so it no longer claims they declared kidney disease, but the mirror needs
   a frontend change in the submodule.
+
+## 2026-09-10 — KetoDial paid report v1 is LIVE and frozen
+
+Released as PR #59, merge `ddf304fa`, worker `ketodial-api` version
+`99e89cb9-3c83-4ea3-8bac-94aeaea5f207` at 100%. Four launch blockers, each audited read-only,
+fixed in isolation, and signed off by a fresh reviewer against the exact final SHA.
+
+| Blocker | Closed at |
+|---|---|
+| Renal/adrenal classification | `b5a96493` |
+| High-risk diabetes medication safety | `a0d0c3c9` |
+| Executable meal portions, macros, grocery | `359bb41b` |
+| Responsive paid reports | `b914ee07` |
+
+**The method is the part worth keeping.** Freeze the definition of "good enough to launch"
+before looking, cap the blocker count, and send everything else to backlog on sight. Four
+blockers were found and four were fixed; copy polish, desktop gutters, free-calculator
+architecture, promo-code quirks, broader medication matching, Coach and new verticals were
+all left alone on purpose.
+
+**Reviewers must review the final SHA.** Three times a reviewer passed or failed a snapshot
+and the code moved afterwards. Each time the blocker was re-reviewed against the exact final
+commit before closing. A review of code that no longer exists is not a review.
+
+**Mutation-test the mutation test.** Several probes were themselves wrong and reported
+success: the first `.risk` in a document sits in a wider column that never broke, and a
+narrower media-query rule survived a mutation that removed only the wider one. A mutation
+that quietly proves nothing is worse than no mutation.
+
+**FROZEN. Do not reopen any of the four without a production failure that violates its DONE
+condition.** Residuals are recorded above (2026-09-10 medication policy entry) and filed as
+beads.
+
+## 2026-09-10 — Revenue mode (Brew)
+
+Banana Stand stops defaulting to "build more stuff". CW is live, KD is live, Etsy has products
+and proven demand, and there is traffic, an email list and transaction history.
+
+**Target: Banana Stand pays for Claude + ChatGPT every month.** Small enough to be real,
+meaningful because at that point the business funds the tools that improve it.
+
+The operative question is no longer "what should we build" but **"what gets us the next
+sale"**. New apps, new verticals and large refactors are off the table until the target is
+met consistently. Applies to Coach and to any further KD work.
