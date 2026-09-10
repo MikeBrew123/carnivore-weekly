@@ -304,3 +304,32 @@ Positions below default to the site's post-July-2026 editorial standard
 
   *Still not changed, deliberately.* data/drip-emails/kd/day-2.html still prints
   3,500 to 4,700 mg. It is a live send surface and remains Brew's call.
+
+- 2026-09-10: **The Etsy keto bundle PDF now matches its template.** Same approval
+  (Brew, 2026-09-07). The 2026-09-09 entry fixed
+  etsy/products/templates/keto-bundle-pages.html but noted the shipped artifact was
+  still wrong. Text extracted from the built PDFs confirmed it: the electrolyte
+  table on page 5 of keto-bundle-pages.pdf, and page 11 of the 14-page
+  keto-food-list-bundle.pdf that Etsy actually delivers, printed
+  "Potassium 3,500 - 4,700 mg". Both now print
+  "2,600 mg (women) / 3,400 mg (men)". No other PDF under etsy/products/pdfs/
+  carries a retired potassium figure; every other potassium mention in that
+  folder is qualitative (food sources, a tracker checkbox, a lab-panel list).
+
+  *There was no build script.* The May 31 artifacts were rendered by hand, which
+  is exactly how the template and the PDF drifted apart. etsy/build-keto-bundle.mjs
+  now renders the three component templates with Playwright and concatenates them
+  with pdfunite in the order Etsy ships. Run it from etsy/. Rebuilding the two
+  components this fix did not touch reproduced their extracted text byte for byte,
+  so the only unaccounted-for drift risk is gone.
+
+  *Dashes.* The rebuilt files also drop every em-dash and en-dash, per the standing
+  rule: two numeric ranges became hyphens, "0.7-1.0g" the same, two prose dashes
+  became a period and a colon, and the eat/limit/avoid footer now reads
+  "Not medical advice. Consult your doctor before starting any diet." Page counts
+  (3 / 3 / 8 / 14), page size, and page-5 rendering are unchanged otherwise.
+
+  *Not uploaded.* Brew's Etsy write cap is zero until 2026-09-12. The corrected
+  files sit in etsy/products/pdfs/ (gitignored since 2026-07-14, because they are
+  paid deliverables and this repo is public) and are ready for that window.
+  Uploading is a separate, deliberate act: etsy/upload-pdf-files.mjs.
