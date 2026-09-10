@@ -102,10 +102,19 @@ function signedRequest(event) {
  * A Supabase good enough to be honest about: the event table really does enforce its
  * unique id, so dedup and the delivery marker behave as they do in production.
  */
-function makeWorld({ resendStatus = 200, resendFailFirst = false, resendFailStatus = 502 } = {}) {
+function makeWorld({
+  resendStatus = 200, resendFailFirst = false, resendFailStatus = 502,
+  assessmentPatchFail = 0,        // how many assessment PATCHes fail before one works
+  assessmentMissing = false,      // the row is not there at all
+  assessmentStatus = 'pending',   // the row's starting state
+  assessmentReadFail = false,     // the read-back after a zero-row PATCH fails
+} = {}) {
   const world = {
     events: new Set(),            // stripe_event_id values, including the marker
-    assessment: { id: ASSESSMENT_ID, email: BUYER_EMAIL, payment_status: 'pending' },
+    assessment: assessmentMissing
+      ? null
+      : { id: ASSESSMENT_ID, email: BUYER_EMAIL, payment_status: assessmentStatus },
+    assessmentPatchAttempts: 0,
     resendCalls: [],
     calls: [],
     reportCalls: 0,
@@ -148,10 +157,41 @@ function makeWorld({ resendStatus = 200, resendFailFirst = false, resendFailStat
 
     if (u.includes('/rest/v1/cw_assessment_sessions')) {
       if (method === 'PATCH') {
+        world.assessmentPatchAttempts++;
+        // A transient database or network failure, the kind that used to be logged
+        // and stepped over.
+        if (world.assessmentPatchAttempts <= assessmentPatchFail) {
+          return { ok: false, status: 503, text: async () => 'service unavailable', json: async () => ({}) };
+        }
+        // PostgREST applies the filter and answers 200 with an EMPTY array when it
+        // matches nothing. Reproducing that is the point of this stub: "the request
+        // succeeded" and "the customer is paid" are different facts.
+        const wantsPending = u.includes('payment_status=eq.pending');
+        // A PATCH with no row filter, or the wrong one, would rewrite every pending
+        // assessment in the table. The stub refuses to pretend that matched this row.
+        const targetsThisRow = u.includes(`id=eq.${encodeURIComponent(ASSESSMENT_ID)}`);
+        if (!targetsThisRow) {
+          world.unscopedAssessmentWrites = (world.unscopedAssessmentWrites || 0) + 1;
+          return { ok: true, status: 200, json: async () => ([]), text: async () => '' };
+        }
+        if (!world.assessment || (wantsPending && world.assessment.payment_status !== 'pending')) {
+          return { ok: true, status: 200, json: async () => ([]), text: async () => '' };
+        }
         Object.assign(world.assessment, JSON.parse(opts.body || '{}'));
         return { ok: true, status: 200, json: async () => ([world.assessment]), text: async () => '' };
       }
-      return { ok: true, status: 200, json: async () => ([world.assessment]), text: async () => '' };
+      if (!u.includes(`id=eq.${encodeURIComponent(ASSESSMENT_ID)}`)) {
+        world.unscopedAssessmentReads = (world.unscopedAssessmentReads || 0) + 1;
+        return { ok: true, status: 200, json: async () => ([]), text: async () => '' };
+      }
+      // The read-back. It is the branch the whole design rests on, so it can fail here.
+      if (assessmentReadFail) {
+        return { ok: false, status: 500, text: async () => 'read failed', json: async () => ({}) };
+      }
+      return {
+        ok: true, status: 200, text: async () => '',
+        json: async () => (world.assessment ? [world.assessment] : []),
+      };
     }
 
     if (u.includes('/rest/v1/calculator_reports')) {
@@ -339,6 +379,106 @@ const post = async (event) => {
 }
 
 // ===========================================================================
+// GROUP E — the authoritative payment writeback, and repairing it on a retry.
+//
+// cw_assessment_sessions.payment_status is what Step 4 checks. The webhook used to
+// fire that PATCH, log a failure, and carry on with the event already recorded as
+// seen. A transient failure there handed a real buyer a link to an assessment the
+// server called pending, and Step 4 answered 403. The redelivery that could have
+// fixed it only retried the email.
+// ===========================================================================
+{
+  // --- first delivery, with the writeback failing transiently ---------------
+  const world = makeWorld({ assessmentPatchFail: 1 });
+  const event = checkoutEvent({}, 'evt_writeback_fails');
+  const first = await post(event);
+
+  check('E', 'a failed payment writeback is NOT acknowledged as fulfilled',
+    first.status >= 500, `HTTP ${first.status}`);
+  check('E', 'the assessment is still pending, and honestly so',
+    world.assessment.payment_status === 'pending', JSON.stringify(world.assessment));
+  check('E', 'NO resume email is sent for an assessment we cannot confirm is paid',
+    world.resendCalls.length === 0,
+    'the customer would get a link to an assessment Step 4 refuses');
+  check('E', 'and nothing was generated',
+    world.anthropicCalls === 0 && world.reportRowInserts === 0, '');
+
+  // --- Stripe redelivers the same event -------------------------------------
+  const retry = await post(event);
+  check('E', 'the retry is acknowledged once the writeback lands',
+    retry.status === 200, `HTTP ${retry.status}`);
+  check('E', 'the duplicate path REPAIRED the payment writeback',
+    world.assessment.payment_status === 'completed', JSON.stringify(world.assessment));
+  check('E', 'the assessment PATCH was genuinely re-attempted',
+    world.assessmentPatchAttempts >= 2, `${world.assessmentPatchAttempts} attempt(s)`);
+  check('E', 'exactly one resume email is sent across both deliveries',
+    world.resendCalls.length === 1, `${world.resendCalls.length} email(s)`);
+  check('E', 'still nothing generated',
+    world.anthropicCalls === 0 && world.reportRowInserts === 0, '');
+
+  // --- an already-completed assessment is success, not an error -------------
+  const done = makeWorld({ assessmentStatus: 'completed' });
+  const already = await post(checkoutEvent({}, 'evt_already_completed'));
+  check('E', 'an already-completed assessment passes idempotently',
+    already.status === 200, `HTTP ${already.status}`);
+  check('E', 'it stays completed',
+    done.assessment.payment_status === 'completed', JSON.stringify(done.assessment));
+  check('E', 'and the buyer still gets their link',
+    done.resendCalls.length === 1, `${done.resendCalls.length} email(s)`);
+
+  // A zero-row PATCH on a row that is NOT completed must not read as proof of
+  // payment. This is the case PostgREST's 200-on-no-match used to hide.
+  const wrongState = makeWorld({ assessmentStatus: 'refunded' });
+  const odd = await post(checkoutEvent({}, 'evt_unexpected_state'));
+  check('E', 'a zero-row PATCH against a non-completed row is not treated as paid',
+    odd.status >= 500, `HTTP ${odd.status}`);
+  check('E', 'and no email goes out for it',
+    wrongState.resendCalls.length === 0, '');
+
+  // --- the read-back itself fails -------------------------------------------
+  const blind = makeWorld({ assessmentStatus: 'completed', assessmentReadFail: true });
+  const unreadable = await post(checkoutEvent({}, 'evt_readback_fails'));
+  check('E', 'an unreadable row is not assumed paid',
+    unreadable.status >= 500, `HTTP ${unreadable.status}`);
+  check('E', 'and no email is sent on an unproven state',
+    blind.resendCalls.length === 0, '');
+
+  // --- the writes are scoped to this customer's row -------------------------
+  const scoped = makeWorld();
+  await post(checkoutEvent({}, 'evt_scoping'));
+  check('E', 'every assessment write and read names the row it is about',
+    !scoped.unscopedAssessmentWrites && !scoped.unscopedAssessmentReads,
+    `${scoped.unscopedAssessmentWrites || 0} unscoped write(s), ${scoped.unscopedAssessmentReads || 0} unscoped read(s)`);
+
+  // --- an assessment that cannot be confirmed at all ------------------------
+  const gone = makeWorld({ assessmentMissing: true });
+  const missing = await post(checkoutEvent({}, 'evt_assessment_missing'));
+  check('E', 'a missing assessment is NOT treated as successfully fulfilled',
+    missing.status >= 500, `HTTP ${missing.status}`);
+  check('E', 'no email is sent for an assessment that is not there',
+    gone.resendCalls.length === 0, '');
+  check('E', 'and nothing was generated',
+    gone.anthropicCalls === 0 && gone.reportRowInserts === 0, '');
+
+  // --- the funnel table is bookkeeping, not fulfilment ----------------------
+  const funnelBroken = makeWorld();
+  const realFetchForWorld = globalThis.fetch;
+  globalThis.fetch = async (url, opts = {}) => {
+    if (String(url).includes('/rest/v1/calculator_sessions_v2')) {
+      return { ok: false, status: 500, text: async () => 'funnel table down', json: async () => ({}) };
+    }
+    return realFetchForWorld(url, opts);
+  };
+  const funnelRes = await post(checkoutEvent({}, 'evt_funnel_down'));
+  globalThis.fetch = realFetchForWorld;
+  check('E', 'a calculator_sessions_v2 failure does not block fulfilment',
+    funnelRes.status === 200, `HTTP ${funnelRes.status}`);
+  check('E', 'the customer is still marked paid and still gets their link',
+    funnelBroken.assessment.payment_status === 'completed' && funnelBroken.resendCalls.length === 1,
+    JSON.stringify({ status: funnelBroken.assessment.payment_status, emails: funnelBroken.resendCalls.length }));
+}
+
+// ===========================================================================
 // GROUP F — the assessment the link points at still reaches the report path.
 // ===========================================================================
 {
@@ -443,7 +583,7 @@ if (failures.length) {
   console.log(`\npaid-resume-email: ${passed} passed, ${failures.length} FAILED`);
   process.exit(1);
 }
-console.log(`paid-resume-email: ${passed} passed, 0 failed  (groups A B C D F G)`);
+console.log(`paid-resume-email: ${passed} passed, 0 failed  (groups A B C D E F G)`);
 console.log('');
 console.log('Payment sends the way back, not the report. One email per purchase, a');
 console.log('failed send is retried rather than deduped into silence, and nothing on');

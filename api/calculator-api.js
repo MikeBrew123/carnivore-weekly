@@ -7174,6 +7174,63 @@ ${product.upsell}
  * rather than in a new column: the table already exists, already has UNIQUE
  * (stripe_event_id), and needed no migration on a production database with no staging.
  */
+/**
+ * CONFIRM THE ASSESSMENT IS PAID, and repair it if it is not.
+ *
+ * cw_assessment_sessions.payment_status is the authority: Step 4 refuses the paid flow
+ * on it (403 PAYMENT_REQUIRED), and the resume link is worthless without it. The
+ * webhook used to fire the PATCH and only log a failure, then carry on and record the
+ * event as processed. A transient failure there left a real buyer holding a link to an
+ * assessment the server still called pending, and the redelivery that could have fixed
+ * it only retried the email.
+ *
+ * So the writeback is confirmed rather than assumed, on first delivery AND on every
+ * duplicate, and the event is not acknowledged until it is.
+ *
+ * Two subtleties, both of which have bitten this codebase before:
+ *   - PostgREST answers 200 to a PATCH that matched NOTHING. "The request succeeded"
+ *     is not "the customer is paid", so the row is read back whenever the PATCH
+ *     matches no rows.
+ *   - Zero rows is the NORMAL case on a retry, because the filter only matches a
+ *     pending row and the first delivery already completed it. Already completed is
+ *     success, not an error.
+ *
+ * Returns { confirmed: true } or { failed: true, reason } — never a maybe.
+ */
+async function ensureAssessmentPaid(env, assessmentId, patchHeaders) {
+  const base = `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions`;
+  const id = encodeURIComponent(assessmentId);
+
+  const patch = await fetch(`${base}?id=eq.${id}&payment_status=eq.pending`, {
+    method: 'PATCH',
+    headers: { ...patchHeaders, 'Prefer': 'return=representation' },
+    body: JSON.stringify({ payment_status: 'completed', updated_at: new Date().toISOString() }),
+  });
+  if (!patch.ok) {
+    const detail = await patch.text().catch(() => '');
+    return { failed: true, reason: `assessment PATCH ${patch.status}: ${detail.slice(0, 200)}` };
+  }
+
+  const patched = await patch.json().catch(() => null);
+  if (Array.isArray(patched) && patched.length > 0 && patched[0].payment_status === 'completed') {
+    return { confirmed: true };
+  }
+
+  // Matched nothing. Read the row rather than guessing which reason it was.
+  const read = await fetch(`${base}?id=eq.${id}&select=id,payment_status`, { headers: patchHeaders });
+  if (!read.ok) return { failed: true, reason: `assessment read-back ${read.status}` };
+  const rows = await read.json().catch(() => null);
+  if (!Array.isArray(rows) || rows.length === 0) {
+    // A paid checkout whose assessment row is gone. Retrying will not conjure it, but
+    // acknowledging would file this customer under "handled" and nobody would look
+    // again. Stripe keeps redelivering, which is the loudest alarm available here.
+    return { failed: true, reason: `no assessment row for ${assessmentId}` };
+  }
+  const status = rows[0].payment_status;
+  if (status === 'completed' || status === 'success') return { confirmed: true, already: true };
+  return { failed: true, reason: `assessment is ${status}, not completed` };
+}
+
 const RESUME_LINK_BASE = 'https://carnivoreweekly.com/calculator.html';
 const resumeEmailMarkerId = checkoutSessionId => `cw-resume-email:${checkoutSessionId}`;
 
@@ -7409,7 +7466,24 @@ async function handleStripeWebhook(request, env) {
     // place it can be retried, so it is attempted here before acknowledging. It is
     // keyed on its own marker, so a genuine duplicate sends nothing.
     if (event.type === 'checkout.session.completed') {
-      const retry = await sendResumeEmailIfOwed(env, event.data.object);
+      const dupObj = event.data.object;
+      const dupAssessment = dupObj.client_reference_id || dupObj.metadata?.assessment_session_id;
+      // The event row proves we SAW this event, not that we finished it. The payment
+      // writeback may be exactly what failed last time, so confirm it before anything
+      // else and repair it if it is still pending: an email pointing at an assessment
+      // the server calls unpaid sends the customer into a 403 at Step 4.
+      // Deliberately the same condition the first delivery uses, which is "we have an
+      // assessment reference", not "Stripe says paid". Gating the repair more tightly
+      // than the original write is how a retry ends up refusing to fix the very row the
+      // first delivery created: the two paths have to agree on what a payment is.
+      if (dupAssessment) {
+        const paid = await ensureAssessmentPaid(env, dupAssessment, patchHeaders);
+        if (paid.failed) {
+          console.error(`Webhook: assessment still not confirmed paid on retry of ${event.id}: ${paid.reason}`);
+          return createErrorResponse('PAYMENT_WRITEBACK_UNCONFIRMED', 'Payment writeback not confirmed', 500);
+        }
+      }
+      const retry = await sendResumeEmailIfOwed(env, dupObj);
       if (retry.failed) {
         console.error(`Webhook: resume email still owed for ${event.id}: ${retry.reason}`);
         return createErrorResponse('RESUME_EMAIL_FAILED', 'Resume email could not be sent', 500);
@@ -7463,12 +7537,9 @@ async function handleStripeWebhook(request, env) {
       ? `session_token=eq.${encodeURIComponent(calcToken)}`
       : (buyerEmail ? `email=eq.${encodeURIComponent(buyerEmail)}` : null);
 
-    const [assessmentRes, calcRes] = await Promise.all([
-      fetch(`${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${sessionUUID}&payment_status=eq.pending`, {
-        method: 'PATCH',
-        headers: patchHeaders,
-        body: JSON.stringify({ payment_status: 'completed', updated_at: new Date().toISOString() }),
-      }),
+    const [paidState, calcRes] = await Promise.all([
+      // The authoritative writeback, confirmed rather than fired and hoped for.
+      ensureAssessmentPaid(env, sessionUUID, patchHeaders),
       calcFilter
         ? fetch(`${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?${calcFilter}&payment_status=eq.pending`, {
             method: 'PATCH',
@@ -7483,11 +7554,18 @@ async function handleStripeWebhook(request, env) {
               paid_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             }),
+          }).catch(err => {
+            // Bookkeeping must not be able to abort fulfilment. A non-2xx was already
+            // handled below; a THROWN fetch (DNS, socket) would have rejected the
+            // Promise.all and taken the assessment result down with it.
+            console.warn('Webhook: calculator_sessions_v2 PATCH threw:', String(err).slice(0, 200));
+            return null;
           })
         : Promise.resolve(null),
     ]);
 
-    if (!assessmentRes.ok) console.warn('Webhook: cw_assessment_sessions PATCH failed:', await assessmentRes.text());
+    // calculator_sessions_v2 is funnel bookkeeping. It is logged and never allowed to
+    // hold up a customer's fulfilment, which is the opposite of the assessment row.
     let patchedCalcRows = [];
     if (!calcRes) {
       console.warn('Webhook: no session_token or email on checkout — calculator_sessions_v2 not synced');
@@ -7499,6 +7577,15 @@ async function handleStripeWebhook(request, env) {
       if (patchedCalcRows.length === 0) {
         console.warn(`Webhook: calculator_sessions_v2 PATCH matched 0 rows (${calcFilter}) — payment recorded on assessment only`);
       }
+    }
+
+    // Nothing past this point may run on an unconfirmed payment: not the analytics
+    // event, and above all not the email, which would hand the customer a link to an
+    // assessment Step 4 will refuse. 5xx so Stripe redelivers, and the duplicate path
+    // repairs it.
+    if (paidState.failed) {
+      console.error(`Webhook: payment writeback NOT confirmed for ${sessionUUID}: ${paidState.reason}`);
+      return createErrorResponse('PAYMENT_WRITEBACK_UNCONFIRMED', 'Payment writeback not confirmed', 500);
     }
 
     // Server-side GA4 purchase event via Measurement Protocol (fire-and-forget)
@@ -8313,6 +8400,7 @@ export {
   REPORT_GENERATION_FAILED_MESSAGE as __test_REPORT_GENERATION_FAILED_MESSAGE,
   generateFullMealPlan as __test_generateFullMealPlan,
   sendResumeEmailIfOwed as __test_sendResumeEmailIfOwed,
+  ensureAssessmentPaid as __test_ensureAssessmentPaid,
   buildResumeLink as __test_buildResumeLink,
   buildResumeEmailBody as __test_buildResumeEmailBody,
   RESUME_EMAIL_SUBJECT as __test_RESUME_EMAIL_SUBJECT,

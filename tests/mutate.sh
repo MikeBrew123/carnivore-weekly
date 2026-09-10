@@ -434,9 +434,37 @@ open('$API','w').write(s.replace(old,'    const oneMealBullet = false'))
 # Idempotency and retry safety pull against each other here, so each is mutated on its
 # own. The obvious implementation passes the duplicate test and loses the customer on
 # the retry one.
+mutate 74 "the assessment write loses its row filter" paid-resume-email "
+s=open('$API').read()
+old='?id=eq.' + chr(36) + '{id}&payment_status=eq.pending'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'?payment_status=eq.pending'))
+"
+
+mutate 71 "the duplicate path stops reconciling the payment writeback" paid-resume-email "
+s=open('$API').read()
+old='        const paid = await ensureAssessmentPaid(env, dupAssessment, patchHeaders);'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'        const paid = { confirmed: true };'))
+"
+
+mutate 72 "a failed payment writeback is logged and stepped over, as it used to be" paid-resume-email "
+s=open('$API').read()
+old='    if (paidState.failed) {'
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'    if (false) {'))
+"
+
+mutate 73 "a PATCH that matched no rows is taken as proof of payment" paid-resume-email "
+s=open('$API').read()
+old='  const read = await fetch('
+assert s.count(old)==1, s.count(old)
+open('$API','w').write(s.replace(old,'  return { confirmed: true };\n  const read = await fetch('))
+"
+
 mutate 67 "a duplicate event stops retrying an email that never went out" paid-resume-email "
 s=open('$API').read()
-old='      const retry = await sendResumeEmailIfOwed(env, event.data.object);'
+old='      const retry = await sendResumeEmailIfOwed(env, dupObj);'
 assert s.count(old)==1, s.count(old)
 open('$API','w').write(s.replace(old,'      const retry = { skipped: 1 };'))
 "
