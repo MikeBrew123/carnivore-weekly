@@ -20,6 +20,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { existsSync, statSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
+import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(new URL('../public', import.meta.url)));
@@ -174,12 +175,16 @@ async function cycle(page, via) {
  */
 async function checkSources() {
   console.log('Source guard');
-  const callSites = [
-    '../calculator2-demo/src/components/calculator/CalculatorApp.tsx',
-    '../calculator2-demo/src/components/ui/PricingModal.tsx',
-  ];
+  // Discovered, not hardcoded: a third call site must be guarded too.
+  const repo = resolve(fileURLToPath(new URL('..', import.meta.url)));
+  const callSites = execSync(
+    "grep -rl '<StripePaymentModal' calculator2-demo/src --include=*.tsx",
+    { cwd: repo, encoding: 'utf8' }
+  ).split('\n').filter(Boolean);
+  check(`found ${callSites.length} StripePaymentModal call site(s)`, callSites.length >= 1);
+
   for (const rel of callSites) {
-    const path = resolve(fileURLToPath(new URL(rel, import.meta.url)));
+    const path = resolve(repo, rel);
     const src = await readFile(path, 'utf8');
     const name = rel.split('/').pop();
 
@@ -191,7 +196,7 @@ async function checkSources() {
 
     check(
       `${name}: renders StripePaymentModal without <AnimatePresence>`,
-      !/<AnimatePresence>[\s\S]{0,600}StripePaymentModal/.test(code),
+      !/<AnimatePresence[\s>][\s\S]{0,600}<StripePaymentModal/.test(code),
       'payment modal is wrapped in AnimatePresence again'
     );
     check(

@@ -467,7 +467,7 @@ export default function Step3FreeResults({
           Your Sample {config.label} Day
         </h3>
         <p style={{ fontSize: '14px', color: '#a0a0a0', marginBottom: '16px', ...bodyFont }}>
-          A full day built to your {macros.calories} calorie target — {sampleDay.total} calories across {sampleDay.meals.length} meals:
+          A full day built to your {macros.calories} calorie target. That is {sampleDay.total} calories across {sampleDay.meals.length} meals:
         </p>
 
         {/* Meal 1 — visible */}

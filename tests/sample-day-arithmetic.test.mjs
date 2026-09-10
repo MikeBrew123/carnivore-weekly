@@ -87,9 +87,62 @@ for (const diet of DIETS) {
         );
       }
     }
+
+    // 6. No meal may collapse or balloon relative to its share of the day.
+    //    The first attempt at this fix charged the whole day's rounding
+    //    residual to one anchor ingredient and printed "1 oz Ribeye Steak" as
+    //    a midday meal at a 1,300-calorie target, while the day total stayed
+    //    correct and every assertion above stayed green.
+    const specs = getDietSampleDay(diet);
+    day.meals.forEach((meal, idx) => {
+      const share = p.target * specs[idx].share;
+      check(
+        `${p.name} @${p.target}: ${meal.label} is a real portion of the day (${meal.calories} vs ~${Math.round(share)})`,
+        meal.calories >= share * 0.45 && meal.calories <= share * 1.8,
+        `${meal.description}`
+      );
+    });
   }
   console.log('');
 }
+
+/**
+ * Continuous sweep. The single worst defect in the first attempt at this fix
+ * lived at 1,300 kcal — between every profile the suite sampled — and was
+ * non-monotonic: 1,250 and 1,350 both produced a sane 2 oz steak while 1,300
+ * produced 1 oz. Spot profiles cannot find that; sweep the whole plausible
+ * range instead.
+ */
+console.log('Continuous sweep, 800-4000 kcal, every diet\n');
+let worstDrift = 0;
+let worstAt = '';
+let collapsed = 0;
+let collapsedExample = '';
+
+for (const diet of DIETS) {
+  const specs = getDietSampleDay(diet);
+  for (let target = 800; target <= 4000; target += 10) {
+    const day = buildSampleDay(specs, target);
+
+    const drift = Math.abs(day.total - target) / target;
+    if (drift > worstDrift) { worstDrift = drift; worstAt = `${diet} @${target} → ${day.total}`; }
+
+    day.meals.forEach((meal, idx) => {
+      const share = target * specs[idx].share;
+      if (meal.calories < share * 0.45 || meal.calories > share * 1.8) {
+        collapsed++;
+        if (!collapsedExample) collapsedExample = `${diet} @${target} ${meal.label}: "${meal.description}" = ${meal.calories} vs share ~${Math.round(share)}`;
+      }
+      if (meal.calories !== Math.round(meal.items.reduce((s, i) => s + i.qty * i.calPerUnit, 0))) {
+        collapsed++;
+      }
+    });
+  }
+}
+
+check(`sweep: worst day drift within 8% (worst ${(worstDrift * 100).toFixed(1)}%)`, worstDrift <= 0.08, worstAt);
+check('sweep: no meal collapses or balloons against its share', collapsed === 0, collapsedExample);
+console.log('');
 
 // Shares must sum to 1 for every diet, or the day cannot hit the target.
 for (const diet of DIETS) {

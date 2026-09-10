@@ -193,14 +193,15 @@ export default function StripePaymentModal({
 
   return (
     <motion.div
-      // pointerEvents is animated alongside opacity so the overlay stops
-      // swallowing taps the instant the exit begins. Without it, an overlay that
-      // outlives its exit animation stays full-screen at opacity 0 with
-      // pointer-events:auto and silently eats every click on the page behind it,
-      // including the $29 CTA itself (audit 2026-09-10).
+      // No exit variant: this modal is mounted conditionally, never inside
+      // <AnimatePresence>, because an exit animation that ran without
+      // unmounting left a full-screen overlay at opacity 0 with
+      // pointer-events:auto that swallowed every click on the page behind it,
+      // the $29 CTA included (audit 2026-09-10). React unmounts it instead.
+      // pointerEvents is still declared so the fade-in cannot catch a tap
+      // before the modal is actually visible.
       initial={{ opacity: 0, pointerEvents: 'none' }}
       animate={{ opacity: 1, pointerEvents: 'auto' }}
-      exit={{ opacity: 0, pointerEvents: 'none' }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -216,7 +217,6 @@ export default function StripePaymentModal({
       <motion.div
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.95, y: 20 }}
         style={{
           backgroundColor: 'white',
           borderRadius: '16px',

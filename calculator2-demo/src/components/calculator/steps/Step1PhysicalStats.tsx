@@ -198,7 +198,7 @@ export default function Step1PhysicalStats({
           // and send_newsletter.py holds the weekly back until the series
           // finishes. The old copy mentioned only the weekly email, so the
           // starter series arrived unannounced (audit 2026-09-10).
-          helpText="We'll email your results here. Using the calculator also starts our free starter email series, with our weekly email after that. Unsubscribe anytime."
+          helpText="We'll email your results here. Using the calculator also signs you up for our free emails, usually a short starter series and then our regular newsletter. Unsubscribe anytime."
         />
         {emailSuggestion && (
           <div

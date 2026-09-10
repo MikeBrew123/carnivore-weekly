@@ -17,6 +17,7 @@
  * Run: node tests/signup-and-retention-copy.test.mjs
  */
 import { readFile } from 'node:fs/promises';
+import { execSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -32,22 +33,36 @@ const read = (p) => readFile(root(p), 'utf8');
 
 console.log('\n=== Signup disclosure ===\n');
 
-// Surfaces that send a reader into the calculator, or describe it.
-const CALC_SURFACES = [
-  'public/js/calculator-cta.js',
-  'public/calculator.html',
-  'public/index.html',
-  'calculator2-demo/src/components/calculator/steps/Step1PhysicalStats.tsx',
-];
+// Every shipped page, not an allowlist. The first version of this guard
+// checked four hand-picked files and missed public/desserts.html, whose
+// sidebar said "Totally free, no signup" directly above a link into the
+// email-gated calculator.
+const SHIPPED = execSync(
+  "git ls-files 'public/**/*.html' 'public/js/*.js' 'calculator2-demo/src/**/*.tsx'",
+  { cwd: root('.'), encoding: 'utf8' }
+).split('\n').filter(Boolean);
 
-for (const file of CALC_SURFACES) {
+// Deliberately narrow: the claim is "you will not have to give us an email".
+// Not "no email drip" on the paid blog FAQ, which is about delivery latency
+// after purchase, and is true.
+const NO_SIGNUP = /\bno\s+(signup|sign[-\s]?up)\b|\bno\s+email\s+(required|needed|gate)\b|\bwithout\s+signing\s+up\b/i;
+const offenders = [];
+for (const file of SHIPPED) {
   const src = await read(file);
-  check(
-    `${file}: no "No signup required" claim`,
-    !/no\s+signup\s+required/i.test(src),
-    'the calculator requires an email at step 1'
-  );
+  if (!NO_SIGNUP.test(src)) continue;
+  // Only a problem when the same page routes the reader into the calculator.
+  if (!/calculator\.html|Step1PhysicalStats|calculator-cta/.test(src + file)) continue;
+  for (const line of src.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('<!--')) continue;
+    if (NO_SIGNUP.test(line)) offenders.push(`${file}: ${trimmed.slice(0, 90)}`);
+  }
 }
+check(
+  `no shipped calculator surface claims signup is not needed (scanned ${SHIPPED.length} files)`,
+  offenders.length === 0,
+  offenders.join(' | ')
+);
 
 const step1 = await read('calculator2-demo/src/components/calculator/steps/Step1PhysicalStats.tsx');
 const helpMatch = step1.match(/helpText="([^"]*email[^"]*)"/i);
@@ -56,8 +71,8 @@ check('Step 1 has email helper text', !!helpMatch);
 if (helpMatch) {
   const help = helpMatch[1];
   check('Step 1 says the results are emailed', /email your results|send your results/i.test(help), help);
-  check('Step 1 discloses the starter email series', /starter email series|starter series/i.test(help), help);
-  check('Step 1 says a regular email follows', /weekly email|weekly/i.test(help), help);
+  check('Step 1 discloses the starter email series', /starter series|starter email series/i.test(help), help);
+  check('Step 1 says a regular email follows', /weekly|regular newsletter|newsletter/i.test(help), help);
   check('Step 1 offers unsubscribe', /unsubscribe/i.test(help), help);
   check('Step 1 does not imply an account is created', !/create an account|sign up for an account/i.test(help), help);
 }

@@ -28,18 +28,6 @@
       "port": 3210
     },
     {
-      "name": "cw-static",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": [
-        "-m",
-        "http.server",
-        "8902",
-        "--directory",
-        "public"
-      ],
-      "port": 8902
-    },
-    {
       "name": "calculator2",
       "runtimeExecutable": "npm",
       "runtimeArgs": [
