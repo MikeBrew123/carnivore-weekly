@@ -56,8 +56,8 @@ keto-dessert-cards/
 | breakfast-ideas-content.md | Breakfast Ideas product content (separate product) |
 
 ## Landing Page
-- **URL:** carnivoreweekly.com/desserts
-- **File:** public/desserts.html
+- **URL:** ketodial.com/desserts.html (moved 2026-09-11, deck 85ae6bba). carnivoreweekly.com/desserts, printed on page-tools-final.png, forwards there and must stay forwarding
+- **File:** ketodial/public/desserts.html (public/desserts.html is now the forwarding stub, do not delete it)
 - **Tracking:** GA4 click events on every affiliate link
 
 ## Product Specs

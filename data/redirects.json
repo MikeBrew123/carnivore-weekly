@@ -1,7 +1,7 @@
 {
   "note": "Redirect rules. GitHub Pages ignores .htaccess so these are served as HTML meta-refresh files in public/.",
   "created": "2026-02-12",
-  "updated": "2026-09-08",
+  "updated": "2026-09-11",
   "redirects": [
     {
       "from": "blog/wiki.html",
@@ -263,6 +263,12 @@
       "to": "https://ketodial.com/blog/ketone-numbers-obsession.html",
       "added": "2026-09-08",
       "reason": "Post moved to KetoDial by Brew's ruling 2026-09-07: keto-first content belongs on KetoDial, not on Carnivore Weekly. Same treatment as low-carb-food-list.html."
+    },
+    {
+      "from": "desserts.html",
+      "to": "https://ketodial.com/desserts.html",
+      "added": "2026-09-11",
+      "reason": "Keto dessert cards buyer page moved to KetoDial by Brew's ruling (deck 85ae6bba, answered 2026-09-10): Carnivore Weekly does not promote sweet treats. GitHub Pages serves this stub for both /desserts and /desserts.html, which is the URL printed on the delivered page-tools-final.png. Same treatment as low-carb-food-list.html."
     }
   ]
 }
