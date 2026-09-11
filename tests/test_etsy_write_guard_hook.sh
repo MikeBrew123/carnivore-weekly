@@ -56,5 +56,59 @@ expect write httpie-put           "http PUT $E/listings/1 title=y"
 expect write wget-method          "wget --method=PUT $E/listings/1"
 expect write non-allowlisted      "node etsy/update-listings.mjs 1234567890"
 
+# --- ISSUE-080: naming a script is not running it ---
+expect read  cat-guard            "cat etsy/etsy-guard.mjs"
+expect read  cat-three-reported   "cat etsy/audit-reviews.mjs etsy/token.mjs etsy/etsy-guard.mjs"
+expect read  git-add              "git add etsy/update-listings.mjs"
+expect read  grep-n               "grep -n foo etsy/fix-images.mjs"
+expect read  grep-for-node-string "grep -rn \"node etsy/update-listings.mjs\" docs/"
+expect read  sed-n                "sed -n '1,40p' etsy/update-listings.mjs"
+expect read  wc-two               "wc -l etsy/fix-images.mjs etsy/update-listings.mjs"
+expect read  git-diff-pipe-head   "git diff etsy/update-listings.mjs | head -50"
+expect read  cd-etsy-git-diff     "cd etsy && git diff update-listings.mjs"
+expect read  grep-2to1-pipe-sort  "grep -n fetch etsy/fix-images.mjs 2>&1 | sort | uniq -c"
+expect read  run-ro-then-cat      "node etsy/recent-reviews.mjs --hours 25 && cat etsy/etsy-guard.mjs"
+expect read  git-commit-heredoc   "git add etsy/update-listings.mjs && git commit -m \"\$(cat <<'EOF'
+fix: node etsy/update-listings.mjs sends two fields
+
+Co-Authored-By: x
+EOF
+)\""
+
+# --- ISSUE-080: execution positions stay writes ---
+expect write node-run-with-id     "node etsy/update-listings.mjs 123456"
+expect write cd-etsy-node         "cd etsy && node update-listings.mjs"
+expect write env-prefix           "FOO=1 node etsy/fix-images.mjs"
+expect write dot-slash            "./etsy/fix-images.mjs"
+expect write node-flags-first     "node --env-file=.env -r dotenv/config etsy/fix-images.mjs"
+expect write npx-tsx              "npx tsx etsy/fix-images.mjs"
+expect write bun-run              "bun etsy/fix-images.mjs"
+expect write deno-run             "deno run -A etsy/fix-images.mjs"
+expect write time-wrapper         "time node etsy/fix-images.mjs"
+expect write read-then-run        "git add etsy/fix-images.mjs; node etsy/fix-images.mjs"
+expect write cat-pipe-node        "cat etsy/update-listings.mjs | node --input-type=module"
+expect write cat-2to1-pipe-node   "cat etsy/update-listings.mjs 2>&1 | node"
+expect write pipe-across-newline  "cat etsy/update-listings.mjs |
+node"
+expect write subshell-pipe-node   "(cat etsy/update-listings.mjs) | node"
+expect write cmd-subst-node       "node -e \"\$(cat etsy/update-listings.mjs)\""
+expect write proc-subst-node      "node <(cat etsy/update-listings.mjs)"
+expect write cmd-subst-two-stmts  "node -e \"\$(echo; cat etsy/update-listings.mjs)\""
+expect write cmd-subst-newline    "node -e \"\$(
+cat etsy/update-listings.mjs
+)\""
+expect write backtick-node        "echo \`node etsy/fix-images.mjs\`"
+expect write xargs-node           "echo etsy/update-listings.mjs | xargs node"
+expect write heredoc-import       "node --input-type=module <<'EOF'
+import './etsy/update-listings.mjs';
+EOF"
+expect write cat-heredoc-to-node  "cat <<'EOF' | node --input-type=module
+import './etsy/update-listings.mjs';
+EOF"
+expect write heredoc-unterminated "cat <<'EOF'
+node etsy/update-listings.mjs"
+expect write git-alias-exec       "git -c alias.x='!node etsy/update-listings.mjs' x"
+expect write rg-pre-node          "rg --pre node foo etsy/update-listings.mjs"
+
 echo "etsy-write-first-guard: $PASS passed, $FAIL failed"
 [ "$FAIL" = 0 ]

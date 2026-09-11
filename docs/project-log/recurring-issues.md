@@ -849,3 +849,16 @@ BEFORE blaming the actor or the token. A 403 with all subreddits failing identic
 return is a billing wall; a hang is ISSUE-075. Recovery: `git log --diff-filter=AM -- data/reddit-trends-<site>.json`,
 `git show <sha>:data/reddit-trends-<site>.json`, filter to created >= today-14d. Worth making the
 script fall back to the last pull by itself and label it, instead of writing an empty file.
+
+## ISSUE-082 — Etsy write hook blocked cat/grep/git on a script it only named
+🟢 FIXED (2026-09-11)
+Pattern: the hook counted every `*.mjs` mention as a run, so `cat etsy/etsy-guard.mjs`, `git add`,
+`grep -n`, `sed -n`, `wc` on any non-allowlisted etsy script were blocked as writes.
+Attempts:
+- 2026-09-11: `EXEC_PL` perl block splits the command into simple commands (; && || & | newline,
+  ( ) $( <( backticks; heredoc bodies attach to their opener). A mention is ignored only if its command
+  word is non-executing (cat, grep, sed, git, wc...), nothing downstream in its pipeline runs code,
+  and, with subshells/substitution present, nothing anywhere runs code. git -c/--exec/bisect and
+  rg --pre count as runs. Perl failure = every mention counts. HTTP rules 1-7 untouched.
+  Tests: 88. Mutation: 7 breakages plus the pre-fix hook each fail named assertions.
+If recurs: add the command as a case in the test file, then decide read vs write by whether it can run the file.

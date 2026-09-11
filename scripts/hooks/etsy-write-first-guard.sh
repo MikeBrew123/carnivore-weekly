@@ -1,7 +1,8 @@
 #!/bin/bash
 # PreToolUse (Bash) guard for Etsy writes. Fail closed.
 # Any Bash command that runs a script under etsy/ (or sends a write to openapi.etsy.com) is a
-# potential write unless the script is on the read-only allowlist. Writes require:
+# potential write unless the script is on the read-only allowlist. Naming a script as an argument to
+# cat/grep/sed/git etc. is not running it (EXEC_PL below); ambiguous positions count. Writes require:
 #   1. Live-Changes-Log.md modified in the last 30 min (row written BEFORE the call)
 #   2. node etsy/edit-cap.mjs <ids> exits 0 (rolling 7-day cap of 3 distinct listings);
 #      with no ids in the command, the window must have headroom (< 3 listings).
@@ -20,8 +21,70 @@ if ! echo "$CMD" | grep -qiE '(^|[^a-z])etsy/[A-Za-z0-9._-]+\.mjs|cd +[^;&|]*ets
 fi
 # Read-only allowlist (basenames). Anything else under etsy/ is treated as a write.
 RO='^(edit-cap|edit-cap\.test|dump-listing|fetch-listings|sales-summary|etsy-snapshot|recent-reviews|audit-[a-z-]+|verify-[a-z-]+|taxonomy-[a-z-]+|chart-swap-preflight|count-files|convert-food-lists|build-carnivore-red-chart|poll-replicate|screenshot-landscape|etsy-oauth|token)\.mjs$'
-SCRIPTS=$(echo "$CMD" | grep -oE '[A-Za-z0-9._-]+\.mjs' | sort -u)
 WRITE=0
+
+# Which .mjs files does the command RUN? A bare mention used to count, so `cat etsy/etsy-guard.mjs`
+# and `git add etsy/update-listings.mjs` were blocked as writes (2026-09-11, ISSUE-080). The command
+# is cut into simple commands on ; && || & | newline ( ) $( <( and backticks; heredoc bodies belong
+# to the command that opened them. A mention is ignored only when its command word is on the
+# non-executing list below AND nothing downstream in its pipeline runs code AND, if the command
+# uses subshells or substitution, no command anywhere in it runs code. Everything else counts,
+# including env prefixes (FOO=1 node), wrappers (time, env, xargs) and unknown words, so an
+# ambiguous invocation stays a write. Prints basenames. If perl fails, every mention counts.
+read -r -d '' EXEC_PL <<'PL'
+local $/; my $cmd = <STDIN>; $cmd = '' unless defined $cmd;
+$cmd =~ s/\\\n/ /g;
+my %NOEXEC = map { $_ => 1 } qw(cat head tail less more wc grep egrep fgrep rg sed diff cmp ls stat file git cp mv echo printf sort uniq cut tr nl shasum md5 cd pwd true test [);
+my $SEP = qr/\|\||&&|\|&|(?<![<>&])&(?![&>])|;;?|\||\$\(|[<>]\(|[()`]/;
+my $HD = qr/(?<!<)<<-?\s*(['"]?)([A-Za-z_][\w.-]*)\1/;
+my (@segs, @openers, @tags); my ($pipe, $nested) = (0, 0);
+my $seg = { text => '', pipe => 0 };
+my $close = sub {
+  my ($sep) = @_; push @segs, $seg;
+  if ($sep =~ /^\$\(|^[<>]\(|^[()`]$/) { $nested = 1 } elsif ($sep !~ /^\|&?$/) { $pipe++ }
+  $seg = { text => '', pipe => $pipe };
+};
+my @lines = split /\n/, $cmd, -1; my $i = 0;
+while ($i < @lines) {
+  my $line = $lines[$i++]; @openers = (); @tags = ();
+  while ($line =~ /\G((?:(?!$SEP).)*)($SEP)?/gcs) {
+    my ($t, $s) = ($1, $2); $seg->{text} .= $t;
+    while ($t =~ /$HD/g) { push @openers, $seg; push @tags, $2 }
+    last unless defined $s;
+    $close->($s);
+  }
+  $close->("\n") unless $line =~ /(?:\|&?|&&)\s*$/;   # a trailing | or && continues onto the next line
+  for my $k (0 .. $#tags) {   # heredoc bodies attach to their opener; unterminated = parse as commands
+    my ($found) = grep { $lines[$_] =~ /^\s*\Q$tags[$k]\E\s*$/ } $i .. $#lines;
+    last unless defined $found;
+    $openers[$k]{body} .= join("\n", @lines[$i .. $found - 1]) . "\n";
+    $i = $found + 1;
+  }
+}
+push @segs, $seg;
+my $noexec = sub {
+  my ($t) = @_;
+  return 1 if $t =~ /^[\s"'\\]*$/;   # stray quote or blank left by the split: no command
+  my ($w) = $t =~ /^\s*(\S+)/;
+  return 0 unless $NOEXEC{$w};
+  return 0 if $w eq 'git' && $t =~ /(?:^|\s)(?:-c|-x|-O|--exec|--extcmd|--open-files-in-pager|--upload-pack|--receive-pack|--config-env)(?:[\s=]|$)|\b(?:bisect|filter-branch|submodule|difftool|mergetool)\b/;
+  return 0 if $w eq 'rg' && $t =~ /--pre\b/;
+  return 0 if $w eq 'sort' && $t =~ /--compress-program/;
+  return 1;
+};
+my (%pipe_ok, %out); my $all_ok = 1;
+for my $s (@segs) {
+  $s->{ok} = $noexec->($s->{text});
+  $pipe_ok{$s->{pipe}} = 1 unless exists $pipe_ok{$s->{pipe}};
+  unless ($s->{ok}) { $pipe_ok{$s->{pipe}} = 0; $all_ok = 0 }
+}
+for my $s (@segs) {
+  next if $s->{ok} && $pipe_ok{$s->{pipe}} && (!$nested || $all_ok);
+  $out{$_} = 1 for ($s->{text} . "\n" . ($s->{body} // '')) =~ /[A-Za-z0-9._-]+\.mjs/g;
+}
+print "$_\n" for sort keys %out;
+PL
+SCRIPTS=$(printf '%s' "$CMD" | perl -e "$EXEC_PL") || SCRIPTS=$(echo "$CMD" | grep -oE '[A-Za-z0-9._-]+\.mjs' | sort -u)
 
 # HTTP write to openapi.etsy.com? Methods are matched only in a method context, never as a bare
 # substring: the old `grep -i 'PATCH|POST|PUT|DELETE'` blocked read-only `node --input-type=module`
