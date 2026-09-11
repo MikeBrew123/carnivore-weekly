@@ -798,3 +798,17 @@ Attempts:
   (real browser, 4 widths). Mutation: restoring clear-on-toggle fails 9 node / 24 browser checks.
 If recurs: compare every `newErrors.<key>` in a step with what its JSX renders. An error key
 with no rendered home is a dead Continue button.
+
+## ISSUE-079 — Etsy write hook blocked a read-only review fetch (`--input-type` contains "put")
+🟢 FIXED (2026-09-11)
+Pattern: `scripts/hooks/etsy-write-first-guard.sh` flagged any command with `openapi.etsy.com`
+AND a case-insensitive, unanchored `PATCH|POST|PUT|DELETE`. `node --input-type=module -e "fetch(...reviews)"`
+matched on "in-PUT-type", so writer-inbox-daily-check was blocked on every run.
+Attempts:
+- 2026-09-11: detection moved to a perl block that only reads methods in method context
+  (uppercase standalone word, `-X`/`--request`/`--method` value, `method:` key, `requests.request(`,
+  `.post(` helpers, curl/wget body flags, urllib `data=`). Any non-GET/HEAD or variable method is a
+  write; perl missing = write. Added read-only `etsy/recent-reviews.mjs` and pointed the task at it.
+  Tests: `tests/test_etsy_write_guard_hook.sh` (39). Mutation: old hook fails both input-type
+  cases; removing any rule fails a named assertion.
+If recurs: add the command as a case in the test file first, then fix the rule it hits.
