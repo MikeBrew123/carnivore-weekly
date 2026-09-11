@@ -277,6 +277,10 @@
         @media (max-width: 768px) {
             .calculator-hero {
                 padding: 40px 20px;
+                /* width:100% plus this padding made the hero 40px wider than the
+                   phone, and body overflow-x:hidden cut the right edge off the
+                   headline, subtitle and trust points (mobile audit 2026-09-10). */
+                box-sizing: border-box;
             }
 
             .calculator-hero .hero-title {
@@ -1628,8 +1632,36 @@
         var slot = document.getElementById('calculator-slot');
         if (!cta || !slot) return;
 
-        // Show CTA immediately — calculator is always below the fold on mobile
-        cta.style.display = 'block';
+        // Never park the button on the hero copy. It used to show immediately,
+        // and at 375px it sat on two of the three trust points on load (mobile
+        // audit 2026-09-10). It now shows once it clears the hero text, a short
+        // scroll at most, and every rule below still applies.
+        var heroText = document.querySelectorAll('.calculator-hero .hero-title, .calculator-hero .hero-subtitle, .calculator-hero .hero-feature');
+        var slotVisible = false;
+        var dismissed = false;  // tapped: stay hidden until the calculator is on screen
+        var ctaHeight = 0;
+
+        function coversHeroText() {
+            if (!ctaHeight) {
+                // Measure once, even while hidden, without a visible flash
+                cta.style.visibility = 'hidden';
+                cta.style.display = 'block';
+                ctaHeight = cta.offsetHeight;
+                cta.style.display = 'none';
+                cta.style.visibility = '';
+            }
+            var bottom = window.innerHeight - 20;   // the button's bottom:20px
+            var top = bottom - ctaHeight - 8;       // plus 8px of breathing room
+            for (var i = 0; i < heroText.length; i++) {
+                var r = heroText[i].getBoundingClientRect();
+                if (r.bottom > top && r.top < bottom) return true;
+            }
+            return false;
+        }
+
+        function update() {
+            cta.style.display = (slotVisible || dismissed || coversHeroText()) ? 'none' : 'block';
+        }
 
         // Hide when calculator scrolls into view. Threshold 0 (any pixel
         // visible), NOT a ratio — the slot is thousands of px tall on mobile,
@@ -1637,10 +1669,28 @@
         // threshold meant the CTA never hid.
         var observer = new IntersectionObserver(function(entries) {
             entries.forEach(function(entry) {
-                cta.style.display = entry.isIntersecting ? 'none' : 'block';
+                slotVisible = entry.isIntersecting;
+                if (slotVisible) dismissed = false;
             });
+            update();
         }, { threshold: 0 });
         observer.observe(slot);
+
+        var ticking = false;
+        function onScroll() {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function() { ticking = false; update(); });
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        // The hero also moves with no scroll at all: images above it load and
+        // web fonts swap in. Re-check whenever the page changes size, or the
+        // first decision goes stale and the button can land on the trust points.
+        if ('ResizeObserver' in window) new ResizeObserver(onScroll).observe(document.body);
+        window.addEventListener('load', onScroll);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(onScroll);
+        update();
 
         // Hide if payment modal opens (scoped to calculator to avoid browser extension false positives)
         var modalObserver = new MutationObserver(function() {
@@ -1653,6 +1703,7 @@
             // Hide immediately — the user asked to go to the calculator, so the
             // button has done its job (the observer re-shows it if they scroll
             // back above the calculator).
+            dismissed = true;
             cta.style.display = 'none';
             var target = document.getElementById('calculator-start') || slot;
             cwScrollWindowTo(target);
