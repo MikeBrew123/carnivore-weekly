@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  issues: write  # Resend quota alarm opens an issue (scripts/resend_quota_alert.sh)
 
 env:
   ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -83,6 +84,7 @@ jobs:
       # ── NEWSLETTERS (Sunday only — generate + send CW and KD) ──
 
       - name: "Step 6: Generate and send weekly newsletters"
+        id: newsletter
         if: github.event.schedule == '0 0 * * 0' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         env:
@@ -91,6 +93,18 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: python3 scripts/weekly_newsletter.py --site both
+
+      # Resend quota alarm (Brew, deck 920ebe5a, 2026-09-10). send_newsletter.py
+      # (run as a subprocess above, which inherits GITHUB_OUTPUT) records each
+      # quota refusal in Supabase email_send_refusals and sets this output.
+      # weekly_newsletter.py never exits non-zero, so without this a refused
+      # newsletter left the run green. Issue here; red run at the end of the job.
+      - name: Alert on Resend quota refusal (newsletter)
+        if: steps.newsletter.outputs.resend_quota_refused == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/resend_quota_alert.sh "${{ runner.temp }}/resend-quota-refusals.md" newsletter
 
       # ── REPORTS (non-fatal) ──
 
@@ -125,3 +139,12 @@ jobs:
               echo "push attempt $i failed, retrying..." && sleep 10
             done
           )
+
+      # Resend quota alarm, second channel: a red run, so GitHub's failed-run
+      # notification fires even if the issue is missed. Last step, so the
+      # commit and push above always happen first.
+      - name: Fail the run on Resend quota refusal
+        if: steps.newsletter.outputs.resend_quota_refused == 'true'
+        run: |
+          echo "::error::Resend refused newsletter sends over its quota. Records: Supabase email_send_refusals. Details: the open 'Resend quota refused email sends' issue."
+          exit 1

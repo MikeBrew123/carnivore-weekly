@@ -29,7 +29,12 @@ SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import send_guard  # noqa: E402
+import resend_quota  # noqa: E402
 from subscriber_hygiene import filter_mailable  # noqa: E402
+
+# email (lowercased) -> newsletter_subscribers.id, filled by get_subscribers().
+# Only used to name the subscriber in a Resend quota refusal record.
+SUBSCRIBER_IDS = {}
 
 SITES = {
     "cw": {
@@ -92,13 +97,16 @@ def get_subscribers(secrets, site):
             "Authorization": f"Bearer {key}",
         },
         params={
-            "select": "email",
+            "select": "id,email",
             "site": f"eq.{site}",
             "status": "eq.active",
         },
     )
     resp.raise_for_status()
-    emails = [row["email"] for row in resp.json()]
+    rows = resp.json()
+    emails = [row["email"] for row in rows]
+    # Kept only so a Resend quota refusal can name the subscriber by id.
+    SUBSCRIBER_IDS.update({row["email"].lower(): row.get("id") for row in rows})
 
     # Fixture guard (Brew, 2026-08-31, bounce review rule 2). Reserved and
     # fixture domains cannot belong to a real person, so mailing one is always
@@ -194,7 +202,8 @@ RESEND_SLEEP = 0.6        # stay under Resend's ~2 req/sec rate limit
 RESEND_MAX_RETRIES = 4
 
 
-def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subject, html, site):
+def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subject, html, site,
+                    secrets=None, template=None):
     results = []
     for email in to_emails:
         # Choke point (scripts/send_guard.py). The dry-run path returns long
@@ -225,13 +234,29 @@ def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subj
                 json=payload,
             )
             if resp.status_code == 429:
+                # A quota refusal (daily/monthly cap) does not clear in
+                # seconds. Stop retrying; it is recorded below.
+                if resend_quota.quota_error_name(429, resend_quota.response_body(resp)):
+                    break
                 backoff = RESEND_SLEEP * (2 ** attempt) + 1.0
                 print(f"  429 rate limited on {email}, retrying in {backoff:.1f}s")
                 time.sleep(backoff)
                 continue
             break
+        quota_name = resend_quota.quota_error_name(resp.status_code, resend_quota.response_body(resp))
         if resp.status_code == 200:
             results.append((email, "sent", resp.json().get("id", "")))
+        elif quota_name:
+            # Resend quota alarm (deck 920ebe5a): record for a hand re-send and
+            # flag the run. Nothing retries a newsletter send on its own.
+            resend_quota.record_refusal(
+                secrets, site=site, list_name="newsletter",
+                subscriber_id=SUBSCRIBER_IDS.get(email.lower()), email=email,
+                template=template or "newsletter", subject=subject,
+                error_name=quota_name, error_message=resp.text,
+                notes="Newsletter send refused over quota. Not queued anywhere: re-send by hand if wanted, then set resent_at.",
+            )
+            results.append((email, "failed", resend_quota.QuotaRefused(quota_name)))
         elif resp.status_code == 429:
             results.append((email, "failed", f"429 rate limited after {RESEND_MAX_RETRIES} attempts"))
         else:
@@ -298,6 +323,7 @@ def main():
     results = send_via_resend(
         resend_key, site["from_email"], site["from_name"],
         site["reply_to"], to_emails, subject, html, args.site,
+        secrets=secrets, template=f"newsletter/{date_slug}",
     )
 
     sent = sum(1 for _, status, _ in results if status == "sent")

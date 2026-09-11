@@ -109,6 +109,7 @@ PROHIBITED:
 - Drip: `scripts/send_drip.py --site cw|kd`, daily via `daily-publish.yml` (KD gated by the `KD_DRIP_ENABLED` repo variable). Templates `data/drip-emails/` and `data/drip-emails/kd/`. Newsletter: `scripts/generate_newsletter.py` then `scripts/send_newsletter.py --site cw|kd`.
 - **Never write drip copy claiming a deadline Stripe does not enforce.** Day-7/28 sends mint single-use 48h promo codes via `mint_promo_code()`; mint failure falls back to static `DRIP50` with no expiry claim.
 - **KD drip replies go to `ketodial@carnivoreweekly.com` (inbound catch-all → daily digest), never to iambrew@gmail.com.** KD promo copy says "enter code at checkout", never "auto-applies".
+- **Resend quota alarm (deck 920ebe5a, 2026-09-11).** Free tier, 100/day, do not upgrade without Brew. A 429 `daily_quota_exceeded`/`monthly_quota_exceeded` is never retried: `scripts/resend_quota.py` writes a row to Supabase `email_send_refusals` (hand re-send, then set `resent_at`), and the workflow opens a GitHub issue and turns the run red. Drip refusals retry on the next daily run by themselves; newsletter refusals do not. A `rate_limit_exceeded` 429 still backs off and retries. Test: `python3 tests/test_resend_quota_alarm.py`.
 - Never rich-text paste into an email editor. Never send a newsletter without `--test` first.
 Tables, endpoints, and event tracking: `docs/project-log/current-status.md`.
 

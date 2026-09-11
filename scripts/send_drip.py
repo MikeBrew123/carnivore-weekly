@@ -42,6 +42,7 @@ SECRETS_PATH = PROJECT_ROOT / "secrets" / "api-keys.json"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import send_guard  # noqa: E402
+import resend_quota  # noqa: E402
 from subscriber_hygiene import is_undeliverable_fixture  # noqa: E402
 
 TEST_EMAIL = "iambrew@gmail.com"
@@ -301,15 +302,22 @@ def send_email(resend_key, to, subject, html, tags=None, log=True):
             json=payload,
         )
         if resp.status_code == 429:
+            # A quota refusal (daily/monthly cap) does not clear in seconds.
+            # Stop here; main() records it and raises the alarm.
+            if resend_quota.quota_error_name(429, resend_quota.response_body(resp)):
+                break
             backoff = RESEND_SLEEP * (2 ** attempt) + 1.0
             print(f"  429 rate limited on {to}, retrying in {backoff:.1f}s")
             time.sleep(backoff)
             continue
         break
+    quota_name = resend_quota.quota_error_name(resp.status_code, resend_quota.response_body(resp))
     result = resp.json() if resp.status_code == 200 else resp.text
     if resp.status_code == 200 and log:
         email_id = result.get("id", "")
         log_drip_event(secrets_cache, to, subject, email_id, tags)
+    elif quota_name:
+        result = resend_quota.QuotaRefused(quota_name, resp.text)
     elif resp.status_code == 429:
         result = f"429 rate limited after {RESEND_MAX_RETRIES} attempts (not sent, not requeued)"
     time.sleep(RESEND_SLEEP)
@@ -485,6 +493,7 @@ def main():
     skipped_dup = 0
     skipped_new = 0
     graduated = 0
+    quota_refused = 0
     for sub in pending:
         next_day = sub["current_day"] + 1
         # 48h buffer before day-1 (Brew, 2026-08-30): KD signup triggers an
@@ -561,12 +570,25 @@ def main():
             sent += 1
             print(f"  ✅ Day {next_day} → {sub['email']}: {subject}")
         else:
+            if isinstance(detail, resend_quota.QuotaRefused):
+                # Resend quota alarm (deck 920ebe5a): durable record + alarm.
+                # No re-send here; current_day stays put, so tomorrow's run
+                # tries this day again exactly as it did before this change.
+                resend_quota.record_refusal(
+                    secrets, site=SITE, list_name="drip", subscriber_id=sub["id"],
+                    email=sub["email"], template=f"{CFG['sequence']}/day-{next_day}",
+                    subject=subject, error_name=detail.error_name, error_message=detail.message,
+                    notes="current_day not advanced: the next daily drip run tries this day again on its own. Hand-send only if that run also fails.",
+                )
+                quota_refused += 1
             failed.append((sub["email"], next_day, str(detail)[:90]))
             print(f"  ❌ Day {next_day} → {sub['email']}: {str(detail)[:80]}")
 
     summary = f"\nDone: {sent} sent, {graduated} graduated to weekly"
     if failed:
         summary += f", {len(failed)} FAILED"
+    if quota_refused:
+        summary += f" ({quota_refused} refused by the Resend quota, recorded in {resend_quota.TABLE})"
     if skipped_dup:
         summary += f", {skipped_dup} skipped (already sent today)"
     if skipped_new:
