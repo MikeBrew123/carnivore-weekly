@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useFormStore } from '../../stores/formStore'
 
 declare global {
@@ -33,6 +33,20 @@ interface StripePaymentModalProps {
   onCancel: () => void
 }
 
+// Only while this window is mounted. The calculator slot is its own stacking
+// context (z-index 1), so this modal's z-index cannot rise above page chrome
+// outside it, and the chat and menu buttons painted over the payment window
+// on phones (mobile audit 2026-09-10).
+const PAYMENT_OPEN_STYLES = `
+  .hamburger-menu-btn, #feedback-button, .feedback-fab, #mobile-calc-cta { visibility: hidden !important; }
+  .cw-pay-panel { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); }
+  .cw-pay-panel:focus { outline: none; }
+  .cw-pay-panel button:focus-visible, .cw-pay-panel input:focus-visible { outline: 3px solid #1a120b; outline-offset: 2px; }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+`
+
 export default function StripePaymentModal({
   tierId,
   tierTitle,
@@ -48,7 +62,15 @@ export default function StripePaymentModal({
   const [couponCode, setCouponCode] = useState('')
   const [discountApplied, setDiscountApplied] = useState<{ code: string; percent: number; amountOff: number } | null>(null)
   const [couponError, setCouponError] = useState('')
+  const [couponOpen, setCouponOpen] = useState(false)
   const { sessionToken } = useFormStore()
+
+  const panelRef = useRef<HTMLDivElement>(null)
+  const couponInputRef = useRef<HTMLInputElement>(null)
+  const processingRef = useRef(isProcessing)
+  processingRef.current = isProcessing
+  const cancelRef = useRef(onCancel)
+  cancelRef.current = onCancel
 
   useEffect(() => {
     console.log('[StripePaymentModal] Mounted for tier:', tierId, tierTitle)
@@ -68,6 +90,60 @@ export default function StripePaymentModal({
       })
     }
   }, [])
+
+  // Dialog behaviour: focus moves in, Tab stays in, Escape closes while idle,
+  // and focus returns to whatever opened the window. Focus lands on the panel
+  // rather than the email field, so a phone keyboard does not cover Pay.
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null
+    panelRef.current?.focus({ preventScroll: true })
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const panel = panelRef.current
+      if (!panel) return
+      if (e.key === 'Escape') {
+        if (!processingRef.current) {
+          e.preventDefault()
+          cancelRef.current()
+        }
+        return
+      }
+      if (e.key !== 'Tab') return
+      const focusable = Array.from(panel.querySelectorAll<HTMLElement>('button, input, a[href], [tabindex]:not([tabindex="-1"])'))
+        .filter((el) => !(el as HTMLButtonElement).disabled && el.getClientRects().length > 0)
+      if (focusable.length === 0) {
+        e.preventDefault()
+        panel.focus({ preventScroll: true })
+        return
+      }
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      const active = document.activeElement
+      const inside = !!active && panel.contains(active)
+      if (e.shiftKey) {
+        if (!inside || active === first || active === panel) {
+          e.preventDefault()
+          last.focus()
+        }
+      } else if (!inside || active === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      if (opener && opener !== document.body && document.contains(opener)) opener.focus({ preventScroll: true })
+    }
+  }, [])
+
+  // The coupon field stays tucked away until asked for. A code from the URL, or
+  // a standing coupon error, keeps it open so neither is ever hidden.
+  const couponExpanded = couponOpen || couponCode !== '' || couponError !== ''
+  useEffect(() => {
+    if (couponOpen) couponInputRef.current?.focus()
+  }, [couponOpen])
 
   const priceMap: Record<string, number> = {
     bundle: 2900,
@@ -208,6 +284,14 @@ export default function StripePaymentModal({
     }
   }
 
+  const rowStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '14px',
+    color: '#374151',
+    marginBottom: '2px',
+  }
+
   return (
     <motion.div
       // No exit variant: this modal is mounted conditionally, never inside
@@ -222,16 +306,22 @@ export default function StripePaymentModal({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 0.55)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 10000, // Above PricingModal (9999) and site header
-        padding: '16px',
+        padding: '12px',
         overflow: 'hidden',
       }}
     >
       <motion.div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="payment-modal-title"
+        tabIndex={-1}
+        className="cw-pay-panel"
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         style={{
@@ -239,8 +329,6 @@ export default function StripePaymentModal({
           borderRadius: '16px',
           width: '100%',
           maxWidth: '448px',
-          maxHeight: '80vh',
-          marginTop: '60px',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
           overflowY: 'auto',
           position: 'relative',
@@ -250,99 +338,110 @@ export default function StripePaymentModal({
         <div style={{
           background: 'linear-gradient(to right, #ffd700, rgba(255, 215, 0, 0.9))',
           color: '#1a120b',
-          padding: '24px',
+          padding: '16px 60px 16px 20px',
           position: 'relative',
         }}>
           <button
+            type="button"
             onClick={onCancel}
             disabled={isProcessing}
+            aria-label="Close payment window"
             style={{
               position: 'absolute',
-              top: '16px',
-              right: '16px',
-              fontSize: '24px',
+              top: '6px',
+              right: '6px',
+              width: '44px',
+              height: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '22px',
+              lineHeight: 1,
+              color: '#1a120b',
               backgroundColor: 'transparent',
               border: 'none',
+              borderRadius: '8px',
               cursor: 'pointer',
               opacity: isProcessing ? 0.5 : 1,
             }}
           >
             ✕
           </button>
-          <h2 style={{
-            fontSize: '24px',
+          <h2 id="payment-modal-title" style={{
+            fontSize: '22px',
             fontWeight: 'bold',
-            marginBottom: '4px',
+            lineHeight: 1.25,
+            margin: 0,
             fontFamily: "'Playfair Display', Georgia, serif",
             color: '#1a0d00',
           }}>Complete Payment</h2>
           <p style={{
             opacity: 0.8,
             fontSize: '14px',
+            margin: '2px 0 0 0',
             fontFamily: "'Merriweather', Georgia, serif",
           }}>Secure payment via Stripe</p>
         </div>
 
         {/* Content */}
         <div style={{
-          padding: '24px',
+          padding: '16px 20px 20px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '24px',
+          gap: '14px',
         }}>
           {/* Order Summary */}
           <div style={{
             backgroundColor: '#f3f4f6',
-            borderRadius: '8px',
-            padding: '16px',
+            borderRadius: '10px',
+            padding: '14px 16px',
             border: '1px solid #e5e7eb',
           }}>
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
-              marginBottom: '8px',
+              gap: '12px',
             }}>
               <div>
                 <p style={{
                   fontWeight: '600',
                   color: '#1a120b',
-                  fontSize: '14px',
+                  fontSize: '15px',
+                  lineHeight: 1.35,
+                  margin: 0,
                 }}>{tierTitle}</p>
                 <p style={{
-                  fontSize: '12px',
-                  color: '#6b7280',
-                  marginTop: '4px',
+                  fontSize: '13px',
+                  color: '#4b5563',
+                  margin: '2px 0 0 0',
                 }}>One-time purchase</p>
               </div>
-              <div style={{ textAlign: 'right' }}>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 {discountApplied && (
                   <p style={{
-                    fontSize: '12px',
-                    color: '#6b7280',
+                    fontSize: '13px',
+                    color: '#4b5563',
                     textDecoration: 'line-through',
-                    marginBottom: '2px',
+                    margin: '0 0 2px 0',
                   }}>${((priceMap[tierId] || 2900) / 100).toFixed(2)}</p>
                 )}
+                {/* Dark on the light card: gold here measured 1.27:1 */}
                 <p style={{
-                  fontSize: '18px',
+                  fontSize: '20px',
                   fontWeight: 'bold',
-                  color: '#ffd700',
+                  lineHeight: 1.2,
+                  color: '#1a120b',
+                  margin: 0,
                 }}>${(getDiscountedPrice() / 100).toFixed(2)}</p>
               </div>
             </div>
             <div style={{
               borderTop: '1px solid #d1d5db',
               paddingTop: '8px',
-              marginTop: '8px',
+              marginTop: '10px',
             }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '14px',
-                color: '#374151',
-                marginBottom: '4px',
-              }}>
+              <div style={rowStyle}>
                 <span>Subtotal</span>
                 <span style={{ fontWeight: '600' }}>${((priceMap[tierId] || 2900) / 100).toFixed(2)}</span>
               </div>
@@ -355,19 +454,13 @@ export default function StripePaymentModal({
                   color: '#166534',
                   padding: '6px 8px',
                   borderRadius: '4px',
-                  marginBottom: '4px',
+                  marginBottom: '2px',
                 }}>
                   <span>Discount ({discountApplied.code})</span>
                   <span style={{ fontWeight: '600' }}>-${(getDiscountCents() / 100).toFixed(2)}</span>
                 </div>
               )}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '14px',
-                color: '#374151',
-                marginBottom: '4px',
-              }}>
+              <div style={rowStyle}>
                 <span>Tax</span>
                 <span style={{ fontWeight: '600' }}>$0.00</span>
               </div>
@@ -377,9 +470,9 @@ export default function StripePaymentModal({
                 fontSize: '16px',
                 fontWeight: 'bold',
                 color: '#1a120b',
-                paddingTop: '8px',
+                paddingTop: '6px',
                 borderTop: '1px solid #d1d5db',
-                marginTop: '8px',
+                marginTop: '6px',
               }}>
                 <span>Total</span>
                 <span>${(getDiscountedPrice() / 100).toFixed(2)}</span>
@@ -387,56 +480,42 @@ export default function StripePaymentModal({
             </div>
           </div>
 
-          {/* Info Box */}
-          <div style={{
-            backgroundColor: '#dbeafe',
-            border: '1px solid #93c5fd',
-            borderRadius: '8px',
-            padding: '16px',
-          }}>
-            <p style={{
-              fontSize: '14px',
-              color: '#1e40af',
-            }}>
-              🔒 You'll be redirected to Stripe's secure checkout to complete your payment.
-            </p>
-          </div>
-
           {/* Email Section */}
-          <div style={{
-            backgroundColor: '#f3f4f6',
-            borderRadius: '8px',
-            padding: '16px',
-            border: '1px solid #e5e7eb',
-          }}>
-            <label style={{
+          <div>
+            <label htmlFor="payment-email" style={{
               display: 'block',
               fontSize: '14px',
               fontWeight: '600',
               color: '#1a120b',
-              marginBottom: '8px',
+              marginBottom: '6px',
             }}>Email Address *</label>
             <input
+              id="payment-email"
               type="email"
               value={email}
               onChange={(e) => onEmailChange(e.target.value)}
               placeholder="your@email.com"
               disabled={isProcessing}
+              aria-describedby="payment-email-help"
               style={{
                 width: '100%',
+                minHeight: '48px',
                 padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
+                borderRadius: '8px',
+                border: '1px solid #6b7280',
+                fontSize: '16px',
+                color: '#1a120b',
+                backgroundColor: '#ffffff',
                 fontFamily: "'Merriweather', Georgia, serif",
                 boxSizing: 'border-box',
                 opacity: isProcessing ? 0.5 : 1,
               }}
             />
-            <p style={{
-              fontSize: '12px',
-              color: '#6b7280',
-              marginTop: '6px',
+            <p id="payment-email-help" style={{
+              fontSize: '13px',
+              lineHeight: 1.45,
+              color: '#4b5563',
+              margin: '6px 0 0 0',
             }}>
               {/* Sarah's approved line for the same claim on the health-profile screen,
                   in the future tense because this one is shown before payment. Nothing
@@ -447,66 +526,95 @@ export default function StripePaymentModal({
             </p>
           </div>
 
-          {/* Coupon Code Section */}
+          {/* Coupon Code Section: a compact disclosure, not a permanent card */}
           {!discountApplied && (
-            <div style={{
-              backgroundColor: '#f3f4f6',
-              borderRadius: '8px',
-              padding: '16px',
-              border: '1px solid #e5e7eb',
-            }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#1a120b',
-                marginBottom: '12px',
-              }}>Have a coupon code?</label>
-              <div style={{
-                display: 'flex',
-                gap: '8px',
-              }}>
-                <input
-                  type="text"
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="Enter coupon code"
-                  disabled={isProcessing}
-                  style={{
-                    flex: 1,
-                    padding: '10px 12px',
-                    borderRadius: '6px',
-                    border: '1px solid #d1d5db',
-                    fontSize: '14px',
-                    fontFamily: "'Merriweather', Georgia, serif",
-                    opacity: isProcessing ? 0.5 : 1,
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={applyCoupon}
-                  disabled={isProcessing || !couponCode.trim()}
-                  style={{
-                    padding: '10px 16px',
-                    borderRadius: '6px',
-                    backgroundColor: '#ffd700',
-                    color: '#1a120b',
-                    border: 'none',
-                    fontWeight: '600',
-                    cursor: isProcessing || !couponCode.trim() ? 'not-allowed' : 'pointer',
-                    opacity: isProcessing || !couponCode.trim() ? 0.5 : 1,
-                    fontFamily: "'Playfair Display', Georgia, serif",
-                  }}
-                >
-                  Apply
-                </button>
-              </div>
-              {couponError && (
-                <p style={{
-                  fontSize: '13px',
-                  color: '#dc2626',
-                  marginTop: '8px',
-                }}>⚠️ {couponError}</p>
+            <div>
+              <button
+                type="button"
+                id="payment-coupon-toggle"
+                aria-expanded={couponExpanded}
+                aria-controls="payment-coupon-panel"
+                disabled={isProcessing}
+                onClick={() => {
+                  if (couponExpanded && !couponCode && !couponError) {
+                    setCouponOpen(false)
+                  } else {
+                    setCouponOpen(true)
+                    couponInputRef.current?.focus()
+                  }
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: '44px',
+                  padding: 0,
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#1a120b',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '3px',
+                  cursor: 'pointer',
+                  fontFamily: "'Merriweather', Georgia, serif",
+                }}
+              >Have a coupon code?</button>
+              {couponExpanded && (
+                <div id="payment-coupon-panel">
+                  <div style={{
+                    display: 'flex',
+                    gap: '8px',
+                  }}>
+                    <input
+                      ref={couponInputRef}
+                      id="payment-coupon"
+                      type="text"
+                      aria-labelledby="payment-coupon-toggle"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      placeholder="Enter coupon code"
+                      disabled={isProcessing}
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        minHeight: '44px',
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #6b7280',
+                        fontSize: '16px',
+                        color: '#1a120b',
+                        fontFamily: "'Merriweather', Georgia, serif",
+                        opacity: isProcessing ? 0.5 : 1,
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyCoupon}
+                      disabled={isProcessing || !couponCode.trim()}
+                      style={{
+                        minHeight: '44px',
+                        padding: '10px 16px',
+                        borderRadius: '8px',
+                        backgroundColor: '#ffd700',
+                        color: '#1a120b',
+                        border: 'none',
+                        fontWeight: '600',
+                        cursor: isProcessing || !couponCode.trim() ? 'not-allowed' : 'pointer',
+                        opacity: isProcessing || !couponCode.trim() ? 0.5 : 1,
+                        fontFamily: "'Playfair Display', Georgia, serif",
+                      }}
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {couponError && (
+                    <p role="alert" style={{
+                      fontSize: '13px',
+                      color: '#b91c1c',
+                      margin: '8px 0 0 0',
+                    }}>⚠️ {couponError}</p>
+                  )}
+                </div>
               )}
             </div>
           )}
@@ -516,20 +624,21 @@ export default function StripePaymentModal({
             <div style={{
               backgroundColor: '#dcfce7',
               borderRadius: '8px',
-              padding: '16px',
+              padding: '12px 14px',
               border: '1px solid #86efac',
             }}>
               <p style={{
                 fontSize: '14px',
                 fontWeight: '600',
                 color: '#166534',
+                margin: 0,
               }}>
                 ✓ Coupon applied: {discountApplied.code} ({discountApplied.percent > 0 ? `${discountApplied.percent}% off` : `$${(discountApplied.amountOff / 100).toFixed(0)} off`})
               </p>
               <p style={{
-                fontSize: '12px',
-                color: '#15803d',
-                marginTop: '4px',
+                fontSize: '13px',
+                color: '#166534',
+                margin: '4px 0 0 0',
               }}>
                 Discount: -${(getDiscountCents() / 100).toFixed(2)}
               </p>
@@ -538,28 +647,29 @@ export default function StripePaymentModal({
 
           {/* Error Message */}
           {error && (
-            <div style={{
+            <div role="alert" style={{
               backgroundColor: '#fee2e2',
               border: '1px solid #fca5a5',
               borderRadius: '8px',
-              padding: '16px',
+              padding: '12px 14px',
               textAlign: 'center',
             }}>
               <p style={{
                 fontSize: '14px',
                 fontWeight: '600',
                 color: '#991b1b',
+                margin: 0,
               }}>⚠️ {error}</p>
             </div>
           )}
 
           {/* Processing State */}
           {isProcessing && (
-            <div style={{
+            <div role="status" style={{
               backgroundColor: '#dbeafe',
               border: '1px solid #93c5fd',
               borderRadius: '8px',
-              padding: '16px',
+              padding: '12px 14px',
               textAlign: 'center',
             }}>
               <div style={{
@@ -575,28 +685,52 @@ export default function StripePaymentModal({
                 fontSize: '14px',
                 fontWeight: '600',
                 color: '#1a120b',
-                marginTop: '8px',
+                margin: '8px 0 0 0',
               }}>
                 Redirecting to Stripe...
               </p>
             </div>
           )}
 
-          {/* Payment Form */}
+          {/* Payment Form: Pay first and full width, Cancel quieter beneath it */}
           <form onSubmit={handlePayment} style={{
             display: 'flex',
-            gap: '12px',
+            flexDirection: 'column',
+            gap: '8px',
           }}>
+            <button
+              type="submit"
+              disabled={isProcessing}
+              style={{
+                width: '100%',
+                minHeight: '52px',
+                padding: '14px 16px',
+                borderRadius: '10px',
+                background: 'linear-gradient(to right, #ffd700, rgba(255, 215, 0, 0.9))',
+                color: '#1a120b',
+                fontSize: '18px',
+                fontWeight: '700',
+                border: 'none',
+                cursor: 'pointer',
+                opacity: isProcessing ? 0.5 : 1,
+                fontFamily: "'Playfair Display', Georgia, serif",
+                boxShadow: '0 4px 14px rgba(255, 215, 0, 0.3)',
+              }}
+            >
+              {isProcessing ? 'Redirecting...' : `Pay $${(getDiscountedPrice() / 100).toFixed(2)}`}
+            </button>
             <button
               type="button"
               onClick={onCancel}
               disabled={isProcessing}
               style={{
-                flex: 1,
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: '2px solid #ffd700',
+                width: '100%',
+                minHeight: '44px',
+                padding: '10px 16px',
+                borderRadius: '10px',
+                border: '1px solid #d1d5db',
                 color: '#1a120b',
+                fontSize: '15px',
                 fontWeight: '600',
                 backgroundColor: 'transparent',
                 cursor: 'pointer',
@@ -606,42 +740,31 @@ export default function StripePaymentModal({
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={isProcessing}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                borderRadius: '8px',
-                background: 'linear-gradient(to right, #ffd700, rgba(255, 215, 0, 0.9))',
-                color: '#1a120b',
-                fontWeight: '600',
-                border: 'none',
-                cursor: 'pointer',
-                opacity: isProcessing ? 0.5 : 1,
-                fontFamily: "'Playfair Display', Georgia, serif",
-              }}
-            >
-              {isProcessing ? 'Redirecting...' : `Pay $${(getDiscountedPrice() / 100).toFixed(2)}`}
-            </button>
           </form>
 
-          {/* Disclaimer */}
-          <p style={{
-            fontSize: '12px',
-            color: '#9ca3af',
-            textAlign: 'center',
-          }}>
-            💳 Payments are processed securely by Stripe. Your data is encrypted and protected.
-          </p>
+          {/* Stripe reassurance, right under the buttons it describes */}
+          <div style={{ textAlign: 'center' }}>
+            <p style={{
+              fontSize: '13px',
+              lineHeight: 1.45,
+              color: '#374151',
+              margin: 0,
+            }}>
+              🔒 You'll be redirected to Stripe's secure checkout to complete your payment.
+            </p>
+            <p style={{
+              fontSize: '13px',
+              lineHeight: 1.45,
+              color: '#4b5563',
+              margin: '4px 0 0 0',
+            }}>
+              💳 Payments are processed securely by Stripe. Your data is encrypted and protected.
+            </p>
+          </div>
         </div>
       </motion.div>
 
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      <style>{PAYMENT_OPEN_STYLES}</style>
     </motion.div>
   )
 }
