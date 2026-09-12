@@ -355,6 +355,73 @@
             min-height: auto !important;
         }
 
+        /* ============================================
+           DISCLAIMER PRESENTATION (2026-09-12)
+           The full medical disclaimer used to sit above the calculator and
+           was the first thing a visitor read. It now sits directly below the
+           calculator (#medical-disclaimer, wording unchanged); a single quiet
+           trust line stays above it. Nothing else about the calculator moved.
+           ============================================ */
+        .calc-trust-line {
+            max-width: 650px;
+            margin: 0 auto 16px auto;
+            text-align: center;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #5c4632;
+        }
+
+        .calc-trust-line a {
+            color: #8b4513;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .calc-disclaimer {
+            max-width: 650px;
+            margin: 32px auto 0 auto;
+            background: rgba(139, 69, 19, 0.06);
+            border: 1px solid #d4a574;
+            border-left: 5px solid #8b4513;
+            border-radius: 8px;
+            padding: 20px 24px;
+            box-sizing: border-box;
+            /* Clear the sticky header when the trust line jumps here */
+            scroll-margin-top: 90px;
+        }
+
+        .calc-disclaimer p {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 17px;
+            line-height: 1.7;
+            color: #33271d;
+        }
+
+        .calc-disclaimer strong {
+            color: #7a3d0f;
+        }
+
+        @media (max-width: 768px) {
+            .calc-trust-line {
+                font-size: 15px;
+                margin-bottom: 14px;
+                padding: 0 4px;
+            }
+
+            .calc-disclaimer {
+                margin-top: 24px;
+                padding: 16px 14px;
+                max-width: 100%;
+            }
+
+            .calc-disclaimer p {
+                font-size: 16px;
+                line-height: 1.65;
+            }
+        }
+
         /* Problem section with generous white space */
         .problem-section {
             background: rgba(44, 24, 16, 0.15);
@@ -1125,14 +1192,23 @@
 
                 <!-- BOMBPROOF CALCULATOR SLOT - Structurally independent from intro text -->
                 <div id="calculator-slot" class="calculator-slot">
-                    <!-- Medical Disclaimer (YMYL compliance) -->
-                    <div style="background: rgba(139, 69, 19, 0.06); border: 1px solid #d4a574; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 14px; line-height: 1.6; color: #666;">
-                        <strong style="color: #8b4513;">Disclaimer:</strong> This calculator and its reports are AI-assisted tools for education and entertainment only — not medical advice. We are not doctors or dietitians. Results are estimates, not personalized medical recommendations. If you take medication, have a medical condition, are pregnant, or have a history of disordered eating, consult a qualified healthcare provider before making dietary changes.
-                    </div>
+                    <!-- Lightweight trust cue only. The FULL disclaimer (same wording)
+                         now sits directly below the calculator at #medical-disclaimer. -->
+                    <p class="calc-trust-line">
+                        Educational tool, not medical advice.
+                        <a href="#medical-disclaimer">Read the full disclaimer</a>
+                    </p>
 
                     <!-- Calculator React App Mount Point -->
                     <div id="calculator-start"></div>
                     <div id="root"></div>
+
+                    <!-- Medical Disclaimer (YMYL compliance). Wording unchanged; moved
+                         below the calculator 2026-09-12 so the tool leads and the safety
+                         context follows the results. -->
+                    <aside id="medical-disclaimer" class="calc-disclaimer" aria-label="Medical disclaimer">
+                        <p><strong>Disclaimer:</strong> This calculator and its reports are AI-assisted tools for education and entertainment only — not medical advice. We are not doctors or dietitians. Results are estimates, not personalized medical recommendations. If you take medication, have a medical condition, are pregnant, or have a history of disordered eating, consult a qualified healthcare provider before making dietary changes.</p>
+                    </aside>
                 </div>
 
                 <!-- TEACHING BLOCKS — moved below the calculator 2026-08-05 (R1 reorder, docs/calculator-page-analysis-2026-08-03.md). Content unchanged. -->
