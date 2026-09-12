@@ -7157,6 +7157,236 @@ async function computeGoalHorizon(env, subscriberId, optionOrder) {
   };
 }
 
+/**
+ * ITEM 3B: THE LONGITUDINAL CHECK-IN TREND.
+ *
+ * "Here is how your own experience is changing" -- built ONLY from paired answers the
+ * same identified subscriber gave at two different points. A trend that is not both
+ * personal and paired is not a trend, it is a decoration, so every path that cannot
+ * find a real pair says so instead of showing one.
+ *
+ * DELIBERATELY NOT WIRED TO ANY ENDPOINT. A check-in token is a recording key that
+ * gets forwarded, quoted in replies and left in shared mailboxes. Returning somebody's
+ * energy, hunger and mood history to whoever holds it would turn that key into a
+ * dashboard credential, which is the one thing the identity design ruled out. This
+ * function is for the SENDER to call at send time, so the trend lands in the email --
+ * a channel that is already private -- and never behind a URL.
+ *
+ * NO MEDICAL INTERPRETATION. These are four self-reported feelings on a word scale.
+ * The engine reports movement along that scale and nothing else: no cause, no
+ * diagnosis, no claim that any diet produced the change.
+ */
+
+// The four frozen check-in series. Verified 2026-09-12: one version, one question_text
+// and one option set each, across all seven days on both sites.
+//
+// SCALES ARE RANK-BASED, NOT display_order-BASED. CW numbers its options from 1 and KD
+// from 0 -- same words, same sequence, different base. Ranking within the question
+// makes the two comparable and survives any future renumbering.
+const CHECKIN_TREND_SERIES = {
+  checkin_energy: { ordinal: true, higherIsBetter: true, label: 'energy' },
+  checkin_hunger: { ordinal: true, higherIsBetter: true, label: 'hunger' },
+  checkin_mood: { ordinal: true, higherIsBetter: true, label: 'mood' },
+  // Trending down / Holding steady / Up a bit / not-weighed.
+  // NOT ordinal and NOT valenced: whether "down" is good depends on the subscriber's
+  // goal, and the not-weighed option is a non-answer rather than a point on a scale.
+  // The engine reports movement and refuses to call it improvement.
+  checkin_weight: {
+    ordinal: false,
+    higherIsBetter: null,
+    label: 'weight trend',
+    nonAnswerPattern: /weigh/i,
+  },
+};
+
+const TREND_BASIS_VERSION = 'checkin-trend-v1';
+
+/** Stable signature of a question option set. Two questions are comparable only if
+ *  these match exactly: same count, same words, same sequence. A real check rather
+ *  than a trusted flag, because each (site, day) is its OWN question row and its
+ *  options can drift independently of any version number. */
+function optionSignature(options) {
+  return options
+    .slice()
+    .sort((a, b) => a.display_order - b.display_order)
+    .map((o) => o.option_text)
+    .join('␟');
+}
+
+const noTrend = (reason, extra = {}) => ({
+  basis_version: TREND_BASIS_VERSION,
+  trend_available: false,
+  reason,
+  ...extra,
+});
+
+/**
+ * Build the trend for one identified subscriber up to and including `currentDay`.
+ *
+ * Baseline is that subscriber's EARLIEST identified answer for the series on a day
+ * before currentDay. Anonymous rows are never eligible: they carry no subscriber_id,
+ * the 103 historical ones belong to browsers rather than to people, and treating one
+ * as somebody's baseline would invent a pairing that does not exist.
+ */
+async function computeCheckinTrend(env, subscriberId, site, currentDay) {
+  if (!subscriberId) return noTrend('not_identified');
+  if (!DRIP_SURVEY_SITES.includes(site)) return noTrend('invalid_site');
+  const day = parseDripSurveyDay(currentDay);
+  if (day === null) return noTrend('invalid_day');
+
+  const base = `${env.SUPABASE_URL}/rest/v1`;
+  const keys = Object.keys(CHECKIN_TREND_SERIES);
+
+  // Only this subscriber's own rows, and only this site's. subscriber_id is the whole
+  // guarantee that two different people can never be paired.
+  const res = await fetch(
+    `${base}/drip_survey_responses` +
+      `?subscriber_id=eq.${encodeURIComponent(subscriberId)}&site=eq.${encodeURIComponent(site)}` +
+      '&select=day,submitted_at,option_id,question_id' +
+      '&order=day.asc,submitted_at.asc&limit=500',
+    { headers: dripSurveyHeaders(env) }
+  );
+  if (!res.ok) return noTrend('response_lookup_failed');
+  const responses = await res.json();
+  if (!Array.isArray(responses) || !responses.length) return noTrend('no_identified_answers');
+
+  const qIds = [...new Set(responses.map((r) => r.question_id))];
+  const [qRes, oRes] = await Promise.all([
+    fetch(`${base}/drip_survey_questions?id=in.(${qIds.join(',')})&select=id,question_key,version,day,site`,
+      { headers: dripSurveyHeaders(env) }),
+    fetch(`${base}/drip_survey_options?question_id=in.(${qIds.join(',')})&select=id,question_id,option_text,display_order`,
+      { headers: dripSurveyHeaders(env) }),
+  ]);
+  if (!qRes.ok || !oRes.ok) return noTrend('question_lookup_failed');
+  const questions = new Map((await qRes.json()).map((q) => [q.id, q]));
+  const allOptions = await oRes.json();
+  const optionsByQuestion = new Map();
+  for (const o of allOptions) {
+    if (!optionsByQuestion.has(o.question_id)) optionsByQuestion.set(o.question_id, []);
+    optionsByQuestion.get(o.question_id).push(o);
+  }
+  const optionById = new Map(allOptions.map((o) => [o.id, o]));
+  const rankOf = (opt) => {
+    const opts = (optionsByQuestion.get(opt.question_id) || []).slice()
+      .sort((a, b) => a.display_order - b.display_order);
+    return opts.findIndex((o) => o.id === opt.id) + 1; // 1-based rank, base-independent
+  };
+
+  const series = {};
+  let anyPaired = false;
+
+  for (const key of keys) {
+    const cfg = CHECKIN_TREND_SERIES[key];
+    const mine = responses
+      .map((r) => ({ r, q: questions.get(r.question_id), o: optionById.get(r.option_id) }))
+      .filter((x) => x.q && x.o && x.q.question_key === key)
+      .sort((a, b) => a.q.day - b.q.day || String(a.r.submitted_at).localeCompare(String(b.r.submitted_at)));
+
+    const current = mine.filter((x) => x.q.day === day).pop();
+    const earlier = mine.filter((x) => x.q.day < day);
+    const baseline = earlier.length ? earlier[0] : null;
+
+    if (!current && !baseline) { series[key] = { measure: cfg.label, status: 'insufficient_data', reason: 'no_answers' }; continue; }
+    if (!baseline) { series[key] = { measure: cfg.label, status: 'insufficient_data', reason: 'no_baseline' }; continue; }
+    if (!current) { series[key] = { measure: cfg.label, status: 'insufficient_data', reason: 'no_current_answer' }; continue; }
+
+    // Version and option-set compatibility. Refuse rather than compare apples to
+    // oranges: if the words changed between the two asks, the scale changed with them.
+    if (baseline.q.version !== current.q.version) {
+      series[key] = { measure: cfg.label, status: 'insufficient_data', reason: 'incompatible_version',
+        baseline_version: baseline.q.version, current_version: current.q.version };
+      continue;
+    }
+    const sigA = optionSignature(optionsByQuestion.get(baseline.q.id) || []);
+    const sigB = optionSignature(optionsByQuestion.get(current.q.id) || []);
+    if (!sigA || sigA !== sigB) {
+      series[key] = { measure: cfg.label, status: 'insufficient_data', reason: 'incompatible_options' };
+      continue;
+    }
+
+    const baseLabel = baseline.o.option_text;
+    const currLabel = current.o.option_text;
+    const elapsedDays = current.q.day - baseline.q.day;
+
+    if (!cfg.ordinal) {
+      // Categorical. Report movement; do NOT call it improvement. Whether a downward
+      // weight trend is good depends on a goal this engine deliberately does not read.
+      const isNonAnswer = (t) => cfg.nonAnswerPattern && cfg.nonAnswerPattern.test(t);
+      if (isNonAnswer(baseLabel) || isNonAnswer(currLabel)) {
+        series[key] = { measure: cfg.label, status: 'insufficient_data', reason: 'not_measured' };
+        continue;
+      }
+      anyPaired = true;
+      series[key] = {
+        measure: cfg.label,
+        status: baseLabel === currLabel ? 'unchanged' : 'changed',
+        ordinal: false,
+        valence: null,
+        valence_reason: 'goal_dependent',
+        baseline_label: baseLabel,
+        current_label: currLabel,
+        baseline_day: baseline.q.day,
+        current_day: current.q.day,
+        elapsed_days: elapsedDays,
+        question_key: key,
+        question_version: current.q.version,
+      };
+      continue;
+    }
+
+    const baseRank = rankOf(baseline.o);
+    const currRank = rankOf(current.o);
+    const scaleMax = (optionsByQuestion.get(current.q.id) || []).length;
+    if (baseRank < 1 || currRank < 1) {
+      series[key] = { measure: cfg.label, status: 'insufficient_data', reason: 'unrankable_option' };
+      continue;
+    }
+
+    const step = currRank - baseRank;
+    const better = cfg.higherIsBetter ? step > 0 : step < 0;
+    const worse = cfg.higherIsBetter ? step < 0 : step > 0;
+    anyPaired = true;
+    series[key] = {
+      measure: cfg.label,
+      status: step === 0 ? 'unchanged' : (better ? 'improved' : (worse ? 'worsened' : 'unchanged')),
+      ordinal: true,
+      baseline_rank: baseRank,
+      current_rank: currRank,
+      scale_points: scaleMax,
+      step_change: step,
+      baseline_label: baseLabel,
+      current_label: currLabel,
+      baseline_day: baseline.q.day,
+      current_day: current.q.day,
+      elapsed_days: elapsedDays,
+      question_key: key,
+      question_version: current.q.version,
+    };
+  }
+
+  if (!anyPaired) {
+    // The headline reason is what the SENDER branches on, so it has to be the most
+    // actionable state rather than the most common one. "no_baseline" wins whenever
+    // any series has it: that is the mid-sequence subscriber who answered today but
+    // was never asked before identity shipped, and it is the case the writers need a
+    // second copy variant for. Series that were simply never asked are noise beside it.
+    const reasons = Object.values(series).map((x) => x.reason).filter(Boolean);
+    const distinct = [...new Set(reasons)];
+    const headline = reasons.includes('no_baseline')
+      ? 'no_baseline'
+      : (distinct.length === 1 ? distinct[0] : 'no_paired_observations');
+    return { ...noTrend(headline), series };
+  }
+
+  return {
+    basis_version: TREND_BASIS_VERSION,
+    trend_available: true,
+    reason: null,
+    current_day: day,
+    series,
+  };
+}
+
 async function handleDripSurveySubmit(request, env) {
   try {
     const body = await request.json();
@@ -8874,5 +9104,11 @@ export {
   computeGoalHorizon as __test_computeGoalHorizon,
   calculatorContextForSubscriber as __test_calculatorContextForSubscriber,
   GOAL_MAGNITUDE_BANDS as __test_GOAL_MAGNITUDE_BANDS,
-  HORIZON_BASIS_VERSION as __test_HORIZON_BASIS_VERSION
+  HORIZON_BASIS_VERSION as __test_HORIZON_BASIS_VERSION,
+  // Item 3B longitudinal trend. Exported for the SENDER and for tests; deliberately
+  // not reachable from any HTTP endpoint, so a forwarded token cannot read history.
+  computeCheckinTrend as __test_computeCheckinTrend,
+  CHECKIN_TREND_SERIES as __test_CHECKIN_TREND_SERIES,
+  TREND_BASIS_VERSION as __test_TREND_BASIS_VERSION,
+  optionSignature as __test_optionSignature
 };
