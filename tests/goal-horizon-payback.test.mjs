@@ -156,10 +156,18 @@ for (const site of ['cw', 'kd']) {
   const s2 = await computeGoalHorizon(env, small.id, 1); // up to 15 lb
   ok(s2.estimate_available && s2.min_weeks >= 1, 'smallest band never returns 0 weeks', `${s2.min_weeks}w`);
   ok(s2.max_weeks >= s2.min_weeks, 'max is never below min');
-  for (const b of BANDS) {
+  // NUMERIC bands only. The sixth option ("no specific number") is deliberately not a
+  // magnitude, so "every band produces weeks" was never the invariant -- it just looked
+  // like one while every band happened to be numeric.
+  for (const b of BANDS.filter((x) => x.numeric !== false)) {
     const r = await computeGoalHorizon(env, heavy.id, b.order);
     ok(Number.isFinite(r.min_weeks) && Number.isFinite(r.max_weeks) && r.min_weeks > 0,
        `band ${b.key} produces finite positive weeks`, `${r.min_weeks}-${r.max_weeks}`);
+  }
+  for (const b of BANDS.filter((x) => x.numeric === false)) {
+    const r = await computeGoalHorizon(env, heavy.id, b.order);
+    ok(r.estimate_available === false && r.min_weeks === undefined,
+       `non-numeric band ${b.key} correctly produces NO weeks`, JSON.stringify(r.min_weeks));
   }
   ok((await computeGoalHorizon(env, heavy.id, 99)).suppression_reason === 'unknown_goal_band', 'unknown band rejected');
 }

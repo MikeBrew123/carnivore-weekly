@@ -245,6 +245,126 @@ def supabase_insert(secrets, table, data):
     return resp
 
 
+# ===== Day-5 style personalised-interaction eligibility (Brew, 2026-09-12) =====
+# An email whose entire payoff is a calculation from the reader's calculator answers
+# should not be sent to somebody we cannot calculate for. They would get an invitation
+# to tap a button that can only ever return "sorry, no estimate".
+#
+# THIS IS INERT UNTIL THE INTERACTION IS ACTIVATED. A day only counts as personalised
+# when an ACTIVE goal_target question exists for that (site, day). goal_target ships
+# inactive, so today every day behaves exactly as it did before this code existed.
+# Activating the question is what switches the rule on, which keeps the two decisions
+# in one place instead of two.
+#
+# WHAT IS NOT AN ELIGIBILITY INPUT: age, medications, conditions, or anything else
+# sensitive. A 17-year-old and a reader on a diuretic still RECEIVE the email; their
+# estimate is suppressed later by the calculation, which is a different decision made
+# by different code. Send-level exclusion and calculation-level suppression are not the
+# same thing and must not collapse into each other.
+
+PERSONALISED_QUESTION_KEY = "goal_target"
+
+# Skip reasons. Each is recorded as its own drip_events row so a skipped subscriber is
+# visible in analytics rather than silently absent.
+SKIP_NO_CALC_ROW = "no_calculator_context"
+SKIP_INCOMPLETE = "incomplete_calculator_context"
+SKIP_GOAL_NOT_LOSS = "goal_not_weight_loss"
+
+
+def personalised_days(secrets):
+    """Which days carry an ACTIVE calculator-backed interaction, for this site.
+
+    One query per run, not per subscriber. An empty set means the rule is dormant,
+    which is the state today and the reason this change alters no live behaviour.
+    """
+    try:
+        rows = supabase_query(secrets, "drip_survey_questions", {
+            "select": "day",
+            "site": f"eq.{SITE}",
+            "question_key": f"eq.{PERSONALISED_QUESTION_KEY}",
+            "active": "eq.true",
+        })
+        return {r["day"] for r in rows}
+    except Exception as e:
+        # Fail OPEN: if we cannot tell, send. Silently skipping a real subscriber
+        # because a lookup failed is the worse error by a wide margin.
+        print(f"  ⚠️  could not read personalised days ({e}); sending normally")
+        return set()
+
+
+def calculator_context_for(secrets, email):
+    """The most recent calculator row for this address, matched CASE-INSENSITIVELY.
+
+    drip_subscribers is lowercased on insert; calculator_sessions_v2 stores the address
+    as the reader typed it, and 9 rows carry uppercase. An exact-equality match finds
+    0 of those 9 (measured in production 2026-09-12), which would look exactly like
+    "no calculator context" and skip a subscriber who has one.
+
+    PostgREST ilike treats * as a wildcard and % / _ are SQL wildcards, so an address
+    containing one falls back to exact equality. Losing one row beats matching a
+    stranger's.
+    """
+    safe = not any(ch in email for ch in "%_*")
+    try:
+        rows = supabase_query(secrets, "calculator_sessions_v2", {
+            "select": "weight_value,sex,goal,created_at",
+            "email": (f"ilike.{email}" if safe else f"eq.{email}"),
+            "order": "created_at.desc",
+            "limit": "1",
+        })
+        return rows[0] if rows else None
+    except Exception as e:
+        print(f"  ⚠️  calculator lookup failed ({e}); treating as eligible")
+        return {"_lookup_failed": True}
+
+
+def day5_eligibility(secrets, email):
+    """Returns (eligible: bool, reason: str|None).
+
+    Eligible means: we can link a calculator row AND it carries what this interaction
+    needs AND the reader actually said they want to lose weight.
+
+    A NULL goal is NOT a skip. "Never answered" is not the same as "said no": those
+    readers get the email and the calculation suppresses into the fallback state, which
+    is what the fallback is for.
+    """
+    calc = calculator_context_for(secrets, email)
+    if calc is None:
+        return False, SKIP_NO_CALC_ROW
+    if calc.get("_lookup_failed"):
+        return True, None  # fail open
+    if calc.get("weight_value") in (None, "") or not calc.get("sex"):
+        return False, SKIP_INCOMPLETE
+    goal = (calc.get("goal") or "").strip().lower()
+    # An explicit maintain/gain means the email's own premise is wrong for this reader.
+    # 37 of 125 active subscribers are in this state (measured 2026-09-12), so this is
+    # not an edge case. A null goal falls through and is sent.
+    if goal in ("maintain", "gain"):
+        return False, SKIP_GOAL_NOT_LOSS
+    return True, None
+
+
+def log_skip(secrets, email, day, reason, subject):
+    """A skipped send must be countable. Same table and shape as every other drip
+    event, so existing per-day analysis picks it up without a new framework:
+    event_type 'skipped', resend_id null (nullable), reason carried in tags beside the
+    drip_day tag the rest of the pipeline already reads."""
+    try:
+        supabase_insert(secrets, "drip_events", {
+            "email": email,
+            "event_type": "skipped",
+            "subject": subject,
+            "site": SITE,
+            "tags": json.dumps([
+                {"name": "drip_day", "value": str(day)},
+                {"name": "sequence", "value": CFG["sequence"]},
+                {"name": "skip_reason", "value": reason},
+            ]),
+        })
+    except Exception:
+        pass  # never let instrumentation break a send run
+
+
 def load_drip_email(day, variant=None):
     drip_dir = CFG["drip_dir"]
     path = drip_dir / (f"day-{day}-{variant}.html" if variant else f"day-{day}.html")
@@ -508,10 +628,18 @@ def main():
     print(f"Found {len(pending)} pending {SITE} subscriber(s)\n")
     now = datetime.now(timezone.utc).isoformat()
 
+    # Days carrying an ACTIVE calculator-backed interaction. Empty today, because
+    # goal_target ships inactive, so the eligibility rule below is dormant and this
+    # run behaves exactly as every previous run did.
+    personalised = personalised_days(secrets)
+    if personalised:
+        print(f"  personalised interaction active on day(s): {sorted(personalised)}")
+
     sent = 0
     failed = []
     skipped_dup = 0
     skipped_new = 0
+    skipped_ineligible = 0
     graduated = 0
     quota_refused = 0
     for sub in pending:
@@ -565,6 +693,22 @@ def main():
             print(f"  💤 {sub['email']} — day {next_day} is a quiet day, advanced without sending")
             continue
 
+        # Eligibility for a personalised day. Checked here, after the template exists
+        # and before anything is sent, so it can never turn a normal day into a skip.
+        if next_day in personalised:
+            eligible, skip_reason = day5_eligibility(secrets, sub["email"])
+            if not eligible:
+                if args.dry_run:
+                    print(f"  Would SKIP day {next_day} for {sub['email']}: {skip_reason}")
+                    continue
+                log_skip(secrets, sub["email"], next_day, skip_reason, subject)
+                supabase_update(secrets, "drip_subscribers", sub["id"], {
+                    "current_day": next_day,
+                })
+                skipped_ineligible += 1
+                print(f"  ⏭️  {sub['email']} — day {next_day} skipped ({skip_reason}), advanced without sending")
+                continue
+
         if args.dry_run:
             print(f"  Would send day {next_day} to {sub['email']}: {subject}")
             continue
@@ -615,6 +759,8 @@ def main():
         summary += f" ({quota_refused} refused by the Resend quota, recorded in {resend_quota.TABLE})"
     if skipped_dup:
         summary += f", {skipped_dup} skipped (already sent today)"
+    if skipped_ineligible:
+        summary += f", {skipped_ineligible} skipped (no usable calculator context for a personalised day)"
     if skipped_new:
         summary += f", {skipped_new} waiting on the 48h day-1 buffer"
     print(summary)

@@ -7001,6 +7001,11 @@ const GOAL_MAGNITUDE_BANDS = [
   { key: '30_to_50', order: 3, lbs: 40, openEnded: false },
   { key: '50_to_80', order: 4, lbs: 65, openEnded: false },
   { key: 'over_80',  order: 5, lbs: 80, openEnded: true  },
+  // NON-NUMERIC, and deliberately so. A reader with no target needs a truthful way to
+  // say that; without one they tap a band that is not true and corrupt the only field
+  // this question exists to collect. It is an answer, not an error: it records
+  // normally, runs no calculation, and invents no weight.
+  { key: 'no_specific_number', order: 6, lbs: null, openEnded: false, numeric: false },
 ];
 
 const HORIZON_BASIS_VERSION = 'goal-horizon-v1';
@@ -7082,6 +7087,13 @@ async function computeGoalHorizon(env, subscriberId, optionOrder) {
     goal_band_lbs: band.lbs,
     goal_band_open_ended: band.openEnded,
   };
+
+  // Answered "no specific number". Return before touching the calculator row at all:
+  // there is no magnitude to compute from, so reading their profile would be a
+  // pointless look at personal data. Distinct reason, not an error, band preserved.
+  if (band.numeric === false) {
+    return { ...base, ...suppressed('no_specific_goal') };
+  }
 
   const calc = subscriberId ? await calculatorContextForSubscriber(env, subscriberId) : null;
   // ~7% of subscribers (homepage and Etsy-bonus signups) have no calculator row. They
@@ -9104,6 +9116,7 @@ export {
   computeGoalHorizon as __test_computeGoalHorizon,
   calculatorContextForSubscriber as __test_calculatorContextForSubscriber,
   GOAL_MAGNITUDE_BANDS as __test_GOAL_MAGNITUDE_BANDS,
+  bandForOptionOrder as __test_bandForOptionOrder,
   HORIZON_BASIS_VERSION as __test_HORIZON_BASIS_VERSION,
   // Item 3B longitudinal trend. Exported for the SENDER and for tests; deliberately
   // not reachable from any HTTP endpoint, so a forwarded token cannot read history.
