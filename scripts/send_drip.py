@@ -258,11 +258,31 @@ def load_drip_email(day, variant=None):
     return subject, html
 
 
-def personalize(html, email):
+CHECKIN_URL_RE = re.compile(r'(https://[^"\'\s]*?journey-checkin\.html\?day=\d+)')
+
+
+def add_checkin_token(html, checkin_token):
+    """Append the subscriber's opaque check-in token to every check-in link.
+
+    Recording only. The token lets the worker attribute an answer to the person we
+    mailed, and the worker deliberately returns nothing about them, so a forwarded
+    link is worthless to whoever receives it. It is NOT the unsubscribe token: a
+    shared check-in link must never be able to unsubscribe somebody.
+
+    No email address, no name and no health value ever goes in this URL. A missing
+    token leaves the link exactly as the template wrote it and the answer is simply
+    recorded anonymously, which is what every send did before identity existed.
+    """
+    if not checkin_token:
+        return html
+    return CHECKIN_URL_RE.sub(lambda m: f"{m.group(1)}&t={checkin_token}", html)
+
+
+def personalize(html, email, checkin_token=None):
     """Substitute merge tags. {$unsubscribe} was previously sent literally (dead link)."""
     from urllib.parse import quote
     unsub = f"{UNSUB_URL}?email={quote(email)}{CFG['unsub_extra']}"
-    return html.replace("{$unsubscribe}", unsub)
+    return add_checkin_token(html.replace("{$unsubscribe}", unsub), checkin_token)
 
 
 RESEND_SLEEP = 0.6        # stay under Resend's ~2 req/sec rate limit
@@ -451,7 +471,7 @@ def main():
         return
 
     pending = supabase_query(secrets, "drip_subscribers", {
-        "select": "id,email,current_day,subscribed_at",
+        "select": "id,email,current_day,subscribed_at,checkin_token",
         "site": f"eq.{SITE}",
         "completed": "eq.false",
         "unsubscribed": "eq.false",
@@ -561,7 +581,11 @@ def main():
         ]
         stripe_key = (secrets.get("stripe") or {}).get("secret_key_live", "")
         html_merged = apply_promo(html, next_day, sub["email"], stripe_key)
-        ok, detail = send_email(resend_key, sub["email"], subject, personalize(html_merged, sub["email"]), tags=tags)
+        ok, detail = send_email(
+            resend_key, sub["email"], subject,
+            personalize(html_merged, sub["email"], sub.get("checkin_token")),
+            tags=tags,
+        )
         if ok:
             supabase_update(secrets, "drip_subscribers", sub["id"], {
                 "current_day": next_day,

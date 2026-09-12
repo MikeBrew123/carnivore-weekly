@@ -6933,6 +6933,46 @@ async function handleDripSurveyView(request, env) {
   }
 }
 
+/**
+ * Resolve a check-in token to the subscriber it belongs to. SERVER SIDE ONLY.
+ *
+ * THE TOKEN IS NOT A CREDENTIAL. It exists so an answer can be attributed to the
+ * person we mailed the link to, and for nothing else. It must never gate a read of
+ * weight, health conditions, medications, energy/hunger/mood history, an email
+ * address or any trend: a check-in link gets forwarded, quoted in replies and left
+ * in shared mailboxes, and whoever receives it must gain nothing by having it.
+ * That is why this returns the id and the site and deliberately selects no other
+ * column, and why nothing in the GET path accepts a token at all.
+ *
+ * Returns null on anything unexpected. Every caller falls back to anonymous rather
+ * than failing the submission: a reader whose token is stale, mangled by a mail
+ * client, or simply absent still gets to answer and still gets their payback.
+ */
+async function resolveCheckinToken(env, token, site) {
+  if (typeof token !== 'string') return null;
+  const clean = token.trim();
+  // Shape check before it reaches the database: 64 hex chars, as minted by
+  // encode(gen_random_bytes(32), 'hex'). Also keeps junk out of the query string.
+  if (!/^[a-f0-9]{64}$/i.test(clean)) return null;
+  try {
+    const res = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/drip_subscribers` +
+        `?checkin_token=eq.${encodeURIComponent(clean)}&select=id,site`,
+      { headers: dripSurveyHeaders(env) }
+    );
+    if (!res.ok) return null;
+    const rows = await res.json();
+    if (!Array.isArray(rows) || rows.length !== 1) return null;
+    // Cross-site guard: a CW token presented on a KD day links nothing. The same
+    // person can hold a row on both sites, and attributing a KD answer to their CW
+    // subscription would silently corrupt every longitudinal series built on it.
+    if (site && rows[0].site !== site) return null;
+    return rows[0];
+  } catch {
+    return null;
+  }
+}
+
 async function handleDripSurveySubmit(request, env) {
   try {
     const body = await request.json();
@@ -6995,17 +7035,42 @@ async function handleDripSurveySubmit(request, env) {
       }
     }
 
-    // Re-answer replaces: clear this fingerprint's rows for the day, then insert.
+    // Identity, resolved server side. The token never reaches the response row and
+    // never leaves this function; only the id it resolves to is stored. Unknown,
+    // malformed, absent or cross-site tokens resolve to null and the answer is
+    // recorded anonymously, exactly as it was before identity existed.
+    const subscriber = await resolveCheckinToken(env, body.token, site);
+    const subscriberId = subscriber ? subscriber.id : null;
+    const answeredVia = subscriberId
+      ? (body.answered_via === 'one_tap' ? 'one_tap' : 'page')
+      : null;
+
+    // Re-answer replaces. Two scopes, deliberately:
+    //   - fingerprint: the pre-existing behaviour, unchanged, and the only path that
+    //     can ever touch an anonymous row. Historical rows are never rewritten into
+    //     an identity; they are only replaced if that same browser answers again,
+    //     which is what it already did before this change.
+    //   - subscriber_id: so answering again from a different device replaces rather
+    //     than duplicates. Matches only rows this subscriber already owns, so it can
+    //     never reach somebody else's answer or an anonymous one.
     await fetch(
       `${base}/drip_survey_responses?${filter}&fingerprint=eq.${encodeURIComponent(fingerprint)}`,
       { method: 'DELETE', headers: dripSurveyHeaders(env, true) }
     );
+    if (subscriberId) {
+      await fetch(
+        `${base}/drip_survey_responses?${filter}&subscriber_id=eq.${encodeURIComponent(subscriberId)}`,
+        { method: 'DELETE', headers: dripSurveyHeaders(env, true) }
+      );
+    }
 
     const rows = optionIds.map((id) => ({
       question_id: validOptions.get(id),
       option_id: id,
       site, day, source, fingerprint,
       ip_address: ip || null,
+      subscriber_id: subscriberId,
+      answered_via: answeredVia,
     }));
     const insRes = await fetch(`${base}/drip_survey_responses`, {
       method: 'POST',
@@ -7014,8 +7079,17 @@ async function handleDripSurveySubmit(request, env) {
     });
     if (!insRes.ok && insRes.status !== 201) {
       const errText = await insRes.text();
-      console.error('[DripSurvey] insert failed:', insRes.status, errText);
-      return createErrorResponse('SURVEY_FAILED', 'Failed to save answer', 500);
+      // 23505 on the identified partial index means this subscriber already has
+      // exactly this answer: a double tap, or a mail client prefetching the link
+      // while the reader also clicks it. The recorded state is already what the
+      // caller asked for, so this is success, not failure. Reporting an error here
+      // would show a reader a scary message for having been slightly too quick.
+      if (insRes.status === 409 || errText.includes('23505')) {
+        console.log('[DripSurvey] duplicate submission absorbed (idempotent)');
+      } else {
+        console.error('[DripSurvey] insert failed:', insRes.status, errText);
+        return createErrorResponse('SURVEY_FAILED', 'Failed to save answer', 500);
+      }
     }
 
     const payload = await buildDripSurveyPayload(env, site, day);
@@ -8579,5 +8653,10 @@ export {
   baseFoodKey as __test_baseFoodKey,
   distinctByBaseFood as __test_distinctByBaseFood,
   foodDatabase as __test_foodDatabase,
-  buildSubstitutionGuide as __test_buildSubstitutionGuide
+  buildSubstitutionGuide as __test_buildSubstitutionGuide,
+  // Check-in identity. Exposed so tests/drip-checkin-identity.test.mjs can drive
+  // the real resolution and the real submit handler against the real database,
+  // rather than asserting on a reimplementation of them.
+  resolveCheckinToken as __test_resolveCheckinToken,
+  handleDripSurveySubmit as __test_handleDripSurveySubmit
 };
