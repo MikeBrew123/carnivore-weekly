@@ -1759,7 +1759,7 @@ published history would strand three live branches (`fix/revenue-readiness-batch
 `review/kd-report-v1-candidate`, `chore/delete-orphan-report-page`, the last also on the remote).
 Purge rehearsed and the GitHub ticket drafted; the irreversible step waits for his line.
 
-## 2026-09-12 — Etsy batch shipped: two titles and the keto bundle PDF
+## 2026-09-12: Etsy batch shipped, two titles and the keto bundle PDF
 
 Three listings written, 3 of 3 in the rolling 7 day window, every one read back from Etsy.
 
