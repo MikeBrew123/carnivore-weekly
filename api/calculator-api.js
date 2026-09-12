@@ -6973,6 +6973,190 @@ async function resolveCheckinToken(env, token, site) {
   }
 }
 
+/**
+ * ITEM 3A: THE GOAL-MAGNITUDE PAYBACK.
+ *
+ * The reader taps one band saying how much they hope to lose. We already hold their
+ * weight, sex, age, height and activity, so the one thing we cannot know is the
+ * magnitude -- and the one thing they cannot work out is how long that takes at their
+ * own numbers. So they supply the magnitude and we return the horizon. Asking for a
+ * target DATE instead would mean asking the reader to guess the thing we are better
+ * placed to compute, and then correcting them.
+ *
+ * NO SECOND FORMULA. Every calorie number comes from calculateMacros(), the same
+ * function the calculator and the paid report use, reached through the same
+ * checkTargetEligibility() gate. If that gate refuses, this refuses. The only maths
+ * added here is turning an energy deficit into elapsed time.
+ *
+ * SUPPRESS, NEVER SUBSTITUTE. Every path that cannot honestly produce a number
+ * returns a reason instead of a gentler estimate.
+ */
+
+// Pounds. All 413 calculator sessions to date are in lbs, so no unit logic.
+// Ordered to match drip_survey_options.display_order for the goal_target question,
+// which is how an option id resolves to a band. Keep the two in step.
+const GOAL_MAGNITUDE_BANDS = [
+  { key: 'up_to_15', order: 1, lbs: 10, openEnded: false },
+  { key: '15_to_30', order: 2, lbs: 22, openEnded: false },
+  { key: '30_to_50', order: 3, lbs: 40, openEnded: false },
+  { key: '50_to_80', order: 4, lbs: 65, openEnded: false },
+  { key: 'over_80',  order: 5, lbs: 80, openEnded: true  },
+];
+
+const HORIZON_BASIS_VERSION = 'goal-horizon-v1';
+const KCAL_PER_LB = 3500;
+// The linear 3500 kcal/lb rule is the optimistic bound: it ignores the fall in
+// maintenance as weight comes off, and it assumes perfect adherence. Neither holds,
+// so the slow bound applies a 0.75 efficiency haircut and the pair is reported as a
+// RANGE. A single date would be a promise we have no business making.
+const SLOW_EFFICIENCY = 0.75;
+// Past this, a week count stops being a plan and starts being a discouragement. The
+// numbers are still returned; the flag lets the writers choose the framing.
+const LONG_HORIZON_WEEKS = 104;
+
+function bandForOptionOrder(order) {
+  return GOAL_MAGNITUDE_BANDS.find((b) => b.order === order) || null;
+}
+
+const suppressed = (reason, extra = {}) => ({
+  basis_version: HORIZON_BASIS_VERSION,
+  has_calculator_context: false,
+  estimate_available: false,
+  suppression_reason: reason,
+  ...extra,
+});
+
+/**
+ * Look up the calculator row behind a subscriber. CASE-INSENSITIVE ON PURPOSE:
+ * drip_subscribers is lowercased on insert, calculator_sessions_v2 stores the address
+ * as the reader typed it, and 9 rows carry uppercase. An exact-equality join matches
+ * 0 of those 9. Verified in production 2026-09-12.
+ *
+ * Returns the fields calculateMacros needs and NOTHING else. The caller is reached by
+ * a check-in token, and a token must never become a way to read somebody's profile.
+ */
+async function calculatorContextForSubscriber(env, subscriberId) {
+  const subRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/drip_subscribers?id=eq.${encodeURIComponent(subscriberId)}&select=email,site`,
+    { headers: dripSurveyHeaders(env) }
+  );
+  if (!subRes.ok) return null;
+  const subs = await subRes.json();
+  if (!Array.isArray(subs) || subs.length !== 1) return null;
+
+  // PostgREST ilike treats * as a wildcard, and % and _ are SQL wildcards. An address
+  // containing one must not be able to widen the match to somebody else's row, so any
+  // address carrying a pattern metacharacter falls back to exact equality rather than
+  // matching loosely. Losing a row is acceptable; matching the wrong person is not.
+  const email = subs[0].email || '';
+  const safeForIlike = !/[%_*]/.test(email);
+  const filter = safeForIlike
+    ? `email=ilike.${encodeURIComponent(email)}`
+    : `email=eq.${encodeURIComponent(email)}`;
+
+  const calcRes = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/calculator_sessions_v2?${filter}` +
+      '&select=weight_value,height_feet,height_inches,height_cm,age,sex,goal,diet_type,' +
+      'lifestyle_activity,exercise_frequency,deficit_percentage,created_at' +
+      '&order=created_at.desc&limit=1',
+    { headers: dripSurveyHeaders(env) }
+  );
+  if (!calcRes.ok) return null;
+  const rows = await calcRes.json();
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
+}
+
+/**
+ * Derive the horizon for one subscriber and one band.
+ *
+ * Returns STRUCTURED DATA, never prose. Templates and writers decide how to say it;
+ * this decides only what is true. No guarantee language, no outcome claim, no date.
+ */
+async function computeGoalHorizon(env, subscriberId, optionOrder) {
+  const band = bandForOptionOrder(optionOrder);
+  if (!band) return suppressed('unknown_goal_band');
+
+  const base = {
+    basis_version: HORIZON_BASIS_VERSION,
+    goal_band: band.key,
+    goal_band_lbs: band.lbs,
+    goal_band_open_ended: band.openEnded,
+  };
+
+  const calc = subscriberId ? await calculatorContextForSubscriber(env, subscriberId) : null;
+  // ~7% of subscribers (homepage and Etsy-bonus signups) have no calculator row. They
+  // are NOT asked to recreate the calculator inside an email; they simply get no
+  // estimate, and the writers handle that state.
+  if (!calc) return { ...base, ...suppressed('no_calculator_context') };
+
+  const formData = {
+    weight: Number(calc.weight_value),
+    heightFeet: calc.height_feet,
+    heightInches: calc.height_inches,
+    heightCm: calc.height_cm,
+    age: Number(calc.age),
+    sex: calc.sex,
+    goal: calc.goal,
+    diet: calc.diet_type,
+    lifestyle: calc.lifestyle_activity,
+    exercise: calc.exercise_frequency,
+    deficit: calc.deficit_percentage,
+  };
+
+  if (!Number.isFinite(formData.weight) || formData.weight <= 0 || !calc.sex) {
+    return { ...base, ...suppressed('incomplete_calculator_context'), has_calculator_context: true };
+  }
+  // A horizon to a LOWER weight only means something for someone losing weight.
+  if (String(calc.goal || '').toLowerCase() !== 'lose') {
+    return { ...base, ...suppressed('goal_is_not_weight_loss'), has_calculator_context: true };
+  }
+
+  // The canonical gate. Under-18 and suppressed-target both refuse here, using the
+  // same rule the payment boundary and report generation use.
+  const ineligible = checkTargetEligibility(formData);
+  if (ineligible) {
+    return {
+      ...base,
+      ...suppressed(ineligible.code === 'UNDER_18_NOT_SUPPORTED'
+        ? 'under_18_not_supported'
+        : (ineligible.validation && ineligible.validation.reason) || 'calorie_target_suppressed'),
+      has_calculator_context: true,
+    };
+  }
+
+  const macros = calculateMacros(formData);
+  const dailyDeficit = Math.round(macros.tdee - macros.calories);
+  if (!Number.isFinite(dailyDeficit) || dailyDeficit <= 0) {
+    return { ...base, ...suppressed('no_effective_deficit'), has_calculator_context: true };
+  }
+
+  const weeksFast = (band.lbs * KCAL_PER_LB) / (dailyDeficit * 7);
+  const weeksSlow = weeksFast / SLOW_EFFICIENCY;
+  const minWeeks = Math.round(weeksFast);
+  const maxWeeks = Math.round(weeksSlow);
+
+  return {
+    ...base,
+    has_calculator_context: true,
+    estimate_available: true,
+    suppression_reason: null,
+    min_weeks: minWeeks,
+    max_weeks: maxWeeks,
+    min_months: Math.round((minWeeks / 4.345) * 10) / 10,
+    max_months: Math.round((maxWeeks / 4.345) * 10) / 10,
+    // The deficit ACTUALLY used, which is not always the one they picked: the
+    // self-service floor caps it, and effectiveDeficitPct is what survived.
+    daily_deficit_kcal: dailyDeficit,
+    requested_deficit_pct: macros.requestedDeficitPct,
+    effective_deficit_pct: macros.effectiveDeficitPct,
+    floor_applied: macros.floorApplied,
+    self_service_floor: macros.selfServiceFloor,
+    // Flags, not prose. The writers decide how a two-year horizon is framed.
+    long_horizon: maxWeeks > LONG_HORIZON_WEEKS,
+    open_ended_band: band.openEnded,
+  };
+}
+
 async function handleDripSurveySubmit(request, env) {
   try {
     const body = await request.json();
@@ -7007,7 +7191,7 @@ async function handleDripSurveySubmit(request, env) {
     // Validate every option belongs to an ACTIVE question on this (site, day),
     // and enforce max one selection for single-choice questions.
     const qRes = await fetch(
-      `${base}/drip_survey_questions?${filter}&active=eq.true&select=id,question_type`,
+      `${base}/drip_survey_questions?${filter}&active=eq.true&select=id,question_type,question_key`,
       { headers: dripSurveyHeaders(env) }
     );
     if (!qRes.ok) throw new Error(`questions query failed: ${qRes.status}`);
@@ -7016,11 +7200,14 @@ async function handleDripSurveySubmit(request, env) {
 
     const qIds = activeQuestions.map((q) => q.id);
     const oRes = await fetch(
-      `${base}/drip_survey_options?question_id=in.(${qIds.join(',')})&select=id,question_id`,
+      `${base}/drip_survey_options?question_id=in.(${qIds.join(',')})&select=id,question_id,display_order`,
       { headers: dripSurveyHeaders(env) }
     );
     if (!oRes.ok) throw new Error(`options query failed: ${oRes.status}`);
-    const validOptions = new Map((await oRes.json()).map((o) => [o.id, o.question_id]));
+    const optionRows = await oRes.json();
+    const validOptions = new Map(optionRows.map((o) => [o.id, o.question_id]));
+    // display_order is how an option id maps to a GOAL_MAGNITUDE_BANDS entry.
+    const optionOrderById = new Map(optionRows.map((o) => [o.id, o.display_order]));
     const typeByQuestion = new Map(activeQuestions.map((q) => [q.id, q.question_type]));
 
     const picksPerQuestion = new Map();
@@ -7093,7 +7280,30 @@ async function handleDripSurveySubmit(request, env) {
     }
 
     const payload = await buildDripSurveyPayload(env, site, day);
-    return new Response(JSON.stringify({ success: true, ...payload }), {
+
+    // Item 3A payback. Only when this submission actually answered goal_target AND a
+    // token resolved: the horizon is derived from the subscriber's own calculator row,
+    // so there is nothing to compute for an anonymous answer. Deliberately part of the
+    // POST response rather than a new endpoint -- a GET that returned this would be a
+    // token-gated read of derived personal data, which is the thing we ruled out.
+    let goalHorizon;
+    if (subscriberId) {
+      const goalQ = activeQuestions.find((q) => q.question_key === 'goal_target');
+      if (goalQ) {
+        const picked = optionIds.find((id) => validOptions.get(id) === goalQ.id);
+        if (picked) {
+          try {
+            goalHorizon = await computeGoalHorizon(env, subscriberId, optionOrderById.get(picked));
+          } catch (e) {
+            // A payback failure must never cost the reader their answer, which is
+            // already saved. They get the confirmation without the estimate.
+            console.error('[DripSurvey] goal horizon failed:', e);
+          }
+        }
+      }
+    }
+
+    return new Response(JSON.stringify({ success: true, ...payload, ...(goalHorizon ? { goal_horizon: goalHorizon } : {}) }), {
       status: 200, headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
@@ -8658,5 +8868,11 @@ export {
   // the real resolution and the real submit handler against the real database,
   // rather than asserting on a reimplementation of them.
   resolveCheckinToken as __test_resolveCheckinToken,
-  handleDripSurveySubmit as __test_handleDripSurveySubmit
+  handleDripSurveySubmit as __test_handleDripSurveySubmit,
+  // Item 3A goal-magnitude payback. Exported so the suite can drive the real
+  // derivation against real calculator rows instead of a reimplementation of it.
+  computeGoalHorizon as __test_computeGoalHorizon,
+  calculatorContextForSubscriber as __test_calculatorContextForSubscriber,
+  GOAL_MAGNITUDE_BANDS as __test_GOAL_MAGNITUDE_BANDS,
+  HORIZON_BASIS_VERSION as __test_HORIZON_BASIS_VERSION
 };
