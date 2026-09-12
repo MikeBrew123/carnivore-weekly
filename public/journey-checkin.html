@@ -267,6 +267,36 @@
             font-size: 0.98rem;
             line-height: 1.6;
         }
+        /* ---- Day 3 symptom payback (Sarah) --------------------------------
+           Cards, not essays. Rule 7: the intro plus the first full card must be
+           visible at 320px without scrolling, so nothing here gets generous
+           vertical padding. If the intro grows, the intro gets cut, not the card. */
+        .sym-intro p { margin: 0 0 8px 0; font-size: 0.96rem; line-height: 1.5; }
+        .sym-intro p:last-child { margin-bottom: 12px; }
+        /* Rule 7 headroom: the results card is a reading surface once answered, so it
+           does not need the generous padding the question state uses. */
+        #results .card { padding: 16px 14px; }
+        h1 { margin-bottom: 10px; }
+        .sym-card {
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--oxblood);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .sym-label { font-weight: 700; font-size: 1.02rem; margin: 0 0 8px 0; color: var(--oxblood); }
+        .sym-card p { margin: 0 0 8px 0; font-size: 0.98rem; line-height: 1.55; }
+        .sym-card p:last-child { margin-bottom: 0; }
+        .sym-step { border-top: 1px solid var(--border); padding-top: 8px; }
+        .sym-flag strong { color: var(--oxblood); }
+        .sym-compact { border-left-color: var(--border); }
+        .sym-safety {
+            border-top: 1px solid var(--border);
+            margin-top: 16px; padding-top: 14px; text-align: left;
+        }
+        .sym-safety p { font-size: 0.95rem; line-height: 1.55; margin: 0 0 10px 0; }
+        .sym-safety p:last-child { margin-bottom: 0; }
     </style>
 </head>
 <body>
@@ -302,6 +332,7 @@
 
         <section id="results" class="hidden">
             <div class="card">
+            <div id="symptom-payback" class="hidden sym-intro"></div>
             <div id="goal-horizon" class="hidden">
                 <!-- The range and its explanation are ONE unit. See .horizon-unit. -->
                 <div class="horizon-unit">
@@ -484,7 +515,155 @@
             show(wrap);
         }
 
+
+        // ---- Day 3: symptom payback (Sarah, 2026-09-12) --------------------------
+        // Copy is hers, verbatim. This renders it; it does not decide it.
+        //
+        // KEYED BY OPTION LABEL, NOT BY OPTION ID. The ids are different uuids on CW and
+        // KD, so keying on them would make this file unusable on the forked page. The
+        // eight labels are frozen (`symptoms_today` version 1) and are what the API
+        // already sends us. Sarah's implementation requirement 2 asks for this copy to
+        // live beside the option definitions in the database instead; that is the right
+        // home and it is not built. Until it is, this is the portable half-measure and
+        // it WILL drift from KD's copy of the page if somebody edits one and not the other.
+        //
+        // RULE 5 IS A RENDER RULE ONLY. The stored answer keeps every option the reader
+        // actually selected. This decides what to SHOW, never what to record.
+        var SYMPTOM_CARDS = {
+            'Headache': {
+                saltCard: true,
+                body: '<p>You already have the salt answer from yesterday, and it’s still the first thing to check. Here’s the part that catches people out: drinking a lot of plain water with no salt alongside it can make this kind of headache worse rather than better. And if your coffee went up or down this week, that’s a headache in its own right.</p>',
+                today: 'Salt your food properly, drink to thirst rather than to a target, and keep caffeine steady instead of changing it on top of everything else.',
+                saltClause: ' If you take blood pressure medication or water tablets, read the caveat at the bottom before you add salt.',
+                notAdaptation: 'A headache that’s the worst you’ve had, or that comes with vision changes, weakness, a stiff neck or a fever, is not a day 3 diet symptom. Get that looked at today.'
+            },
+            'Digestive changes': {
+                body: '<p>Yesterday I told you both directions are normal, and they are. What I didn’t tell you is what usually drives it, which is how fast your fat intake jumped. A big sudden increase in fat is the most common reason things loosen up in the first week, and bringing fat up over a week or two rather than all at once tends to be easier on people. Things slowing down is often just less volume going in, which is not the same as being constipated.</p>',
+                today: 'Keep fat roughly level from meal to meal rather than spiking it at one meal, and check you’re actually drinking.',
+                notAdaptation: 'Blood, severe pain, vomiting or a fever is not adaptation, and neither is this still going strong after two or three weeks. That gets a doctor rather than more patience. If you’ve had your gallbladder removed, fat tolerance is a specific and real issue for you and worth raising with them rather than pushing through.'
+            },
+            'Low energy': {
+                body: '<p>Yesterday covered the fuel switch. The layer underneath it is usually plainer than that: most people eat far less than they think in the first week, because the carbs came out and not much went in to replace them. The other common one is stacking changes. Plenty of people start eating this way and start skipping breakfast in the same week, which is two transitions at once and feels like one.</p>',
+                today: 'Eat three real meals, not two and a coffee. Leave any kind of fasting until this feels ordinary.',
+                notAdaptation: 'Energy that’s getting worse day over day rather than levelling off, or feeling dizzy when you stand up, is worth a phone call rather than a wait.'
+            },
+            'Sleep changes': {
+                saltCard: true,
+                body: '<p>Yesterday didn’t cover this one. Two fairly different things arrive under the same label. Wired at bedtime, or wide awake at 3am, is common early on and it often tracks with eating too little, eating too late, or being low on salt. The other version is sleeping less and feeling fine on it, which isn’t a problem that needs solving.</p>',
+                today: 'Move more of your food earlier in the day. And don’t patch a short night with extra caffeine, which is how one bad night becomes a fortnight of them.',
+                saltClause: ' If you take blood pressure medication or water tablets, read the caveat at the bottom before you add salt.',
+                notAdaptation: 'If sleep was already a problem for you before this week, or you take something to help you sleep, this is a conversation with your doctor rather than something to ride out.'
+            },
+            'Irritable': {
+                body: '<p>Yesterday didn’t cover this either, and it’s more common than people own up to. In the first week it usually tracks with how much you’ve eaten rather than with anything about your character. Snappy at 5pm after a small lunch is a fuel signal.</p>',
+                today: 'Eat a proper meal before you decide anything about how you feel. And tell whoever you live with what week you’re in, so they don’t take it personally.',
+                notAdaptation: 'Irritable is one thing. Low mood, or feeling hopeless, is a different thing and it is not something to wait out or explain away with a diet change. Talk to someone about that one.'
+            },
+            'Cravings': {
+                // No "Not adaptation" line on purpose. Cravings on day 3 are not a red
+                // flag, and inventing one would dilute the lines that matter.
+                body: '<p>Yesterday I called it habit rather than hunger, which is half the story. The other half is that you’re very likely under-eating. Cravings at 9pm after a light day are your body asking for food, not specifically for sugar.</p>',
+                today: 'Make your next meal bigger, with more fat in it, and eat it earlier than you did today. What we don’t do here is find you a substitute. Not fruit, not dark chocolate, not a sugar-free version of anything. A swap keeps the loop running. Protein, fat, salt and a bit of time are what actually close it.'
+            },
+            'Honestly, I feel great': {
+                body: '<p>Good, and it’s worth saying that isn’t luck. Feeling fine at this point usually means you’re eating enough and salting your food properly, which is most of what the first week actually asks of you.</p>'
+                    + '<p>One warning, because this is the specific way a good day 3 turns into a rough day 10. Feeling good is not a signal to eat less, skip meals, or start fasting. That is the most common way people talk themselves into the dip they were on track to avoid.</p>',
+                today: 'Write down what you actually ate today. Week 2 is far easier to steer when you know what your own good week looked like.'
+            },
+            'None of these': {
+                body: '<p>That’s the most common honest answer at this point and it’s a useful one. There’s nothing here to fix.</p>'
+                    + '<p>The thing worth watching isn’t symptoms, it’s food. No symptoms plus not eating enough is the combination that shows up later as flatness in week 2 rather than as discomfort in week 1.</p>',
+                today: 'Look back at what you ate and ask whether it was genuinely enough. If it wasn’t, that’s the only change to make.'
+            }
+        };
+
+        // Rule 1: fixed priority order. NOT tap order and NOT option id order. Ordered by
+        // how much the card matters if the reader only reads one, so the person who
+        // happens to tap cravings first does not get the least important card at the top.
+        var SYMPTOM_PRIORITY = ['Headache', 'Digestive changes', 'Low energy', 'Sleep changes', 'Irritable', 'Cravings'];
+        var SYMPTOM_NONE = ['Honestly, I feel great', 'None of these'];
+        var SYMPTOM_MAX_FULL = 3;   // Rule 2
+
+        var SYMPTOM_INTRO =
+            '<p><strong>Thanks. That’s recorded.</strong></p>'
+            + '<p>Here’s what each one you picked usually means at this stage, and the one thing I would change today. You already have the salt answer from yesterday, so these go a layer past it.</p>'
+            + '<p>Two honest notes first. Not everything that happens this week is caused by what you’re eating, and a tap can’t tell me which is which. And where something genuinely shouldn’t be waited out, I’ve said so inside the symptom rather than at the bottom of the page where nobody reads it.</p>';
+
+        var SYMPTOM_MANY =
+            '<p><strong>You picked several.</strong> That’s ordinary at this point, and they usually share two causes: not eating enough, and not enough salt. Start there before you change anything else.</p>';
+
+        var SYMPTOM_SAFETY =
+            '<p><strong>The salt caveat, because yesterday’s email didn’t give you one.</strong> If you take blood pressure medication or a diuretic, or you have kidney disease, “more salt” is not a free instruction for you. Ask your doctor what’s appropriate for you before you increase it. I’d rather flag that a day late than leave it unsaid.</p>'
+            + '<p>And the general version: if you take any medication or you’re managing a diagnosed condition, tell your doctor you’ve changed how you eat. Changing your food can change how a medication behaves, and that part isn’t mine to advise on.</p>'
+            + '<p>And if what you’re feeling isn’t on that list at all, reply to the email and tell me. There’s no box for it on this page, and I would rather hear it than have you pick the nearest thing instead.</p>'
+            + '<p>I’m a health coach, not your doctor. What’s above is what these things usually mean in the first week. It isn’t a diagnosis of what’s happening to you, and I can’t tell from a tap whether what you’re feeling is adaptation or something else entirely. If something feels wrong rather than uncomfortable, trust that and get it checked.</p>';
+
+        function symptomCardHTML(label, cfg, claimSalt) {
+            var h = '<div class="sym-card"><p class="sym-label">' + esc(label) + '</p>' + cfg.body;
+            // Rule 3: the salt caveat appears ONCE per page, on the highest-priority card
+            // that carries one. Repeating "more salt" three times on one screen is how the
+            // tap stops feeling worth making. Structured as a separate clause rather than
+            // stripped back out of the sentence afterwards.
+            var today = cfg.today + (claimSalt && cfg.saltClause ? cfg.saltClause : '');
+            if (today) h += '<p class="sym-step"><strong>Today:</strong> ' + today + '</p>';
+            if (cfg.notAdaptation) h += '<p class="sym-flag"><strong>Not adaptation:</strong> ' + cfg.notAdaptation + '</p>';
+            return h + '</div>';
+        }
+
+        function renderSymptomPayback(pickedLabels) {
+            var host = $('symptom-payback');
+            if (!host) return;
+            var symptoms = SYMPTOM_PRIORITY.filter(function (k) { return pickedLabels.indexOf(k) >= 0; });
+            var nones = SYMPTOM_NONE.filter(function (k) { return pickedLabels.indexOf(k) >= 0; });
+
+            // Rule 5. Any real symptom wins; 7 and 8 are ignored rather than rendered
+            // alongside a contradiction. Stored data is untouched by this.
+            var toShow;
+            if (symptoms.length) toShow = symptoms;
+            else if (nones.indexOf('Honestly, I feel great') >= 0) toShow = ['Honestly, I feel great'];
+            else if (nones.length) toShow = ['None of these'];
+            else toShow = [];
+
+            var html = SYMPTOM_INTRO;
+            if (symptoms.length >= 4) html += SYMPTOM_MANY;
+
+            var saltClaimed = false;
+            var full = toShow.slice(0, SYMPTOM_MAX_FULL);
+            full.forEach(function (label) {
+                var cfg = SYMPTOM_CARDS[label];
+                if (!cfg) return;
+                var claim = !!cfg.saltCard && !saltClaimed;
+                if (claim) saltClaimed = true;
+                html += symptomCardHTML(label, cfg, claim);
+            });
+
+            // Rule 2: selections 4+ become ONE compact block, never a toggle. A collapsed
+            // accordion on a page about symptoms reads as something being withheld.
+            var rest = toShow.slice(SYMPTOM_MAX_FULL);
+            if (rest.length) {
+                var names = rest.length === 1 ? esc(rest[0])
+                    : rest.slice(0, -1).map(esc).join(', ') + ' and ' + esc(rest[rest.length - 1]);
+                html += '<div class="sym-card sym-compact"><p><strong>You also picked ' + names + '.</strong> '
+                     + 'The short answer for both is the same as above: eat more than you think you need, salt your food, '
+                     + 'and give it until the end of the week before you change anything else. If you want the longer '
+                     + 'version for either one, reply to the email and say which.</p></div>';
+            }
+
+            // Rule 4: one safety block, once, on every state including 7 and 8.
+            html += '<div class="sym-safety">' + SYMPTOM_SAFETY + '</div>';
+            host.innerHTML = html;
+            show($('symptom-payback'));
+        }
+
         function renderResults(data, mine, answered) {
+            // Sarah's Rule 7: the intro plus the first card must be reachable without
+            // scrolling at 320px. Her intro is not what blocks it -- the PRE-ANSWER chrome
+            // is. The privacy disclosure and the trust row exist to inform a decision the
+            // reader has now made, so they come off the result view and stay on the
+            // question view, where consent actually happens.
+            var chrome = [$('privacy-disclosure'), document.querySelector('.trust-row')];
+            chrome.forEach(function (el) { if (el) hide(el); });
+
             var bars = $('results-bars');
             bars.innerHTML = '';
             var early = data.total_respondents < EARLY_THRESHOLD;
@@ -584,6 +763,17 @@
                     if (window.gtag) gtag('event', 'checkin_submit', { day: day, site: site });
                     renderResults(data, picked, true);
                     renderHorizon(data.goal_horizon);
+                    // Day 3: map the selected option ids back to their labels and
+                    // render Sarah's cards. Labels, not ids, so this works on both
+                    // forked pages. Only fires when symptoms_today was the question.
+                    (function () {
+                        var q = (state.questions || []).filter(function (x) { return x.key === 'symptoms_today'; })[0];
+                        if (!q) return;
+                        var byId = {};
+                        q.options.forEach(function (o) { byId[o.id] = o.text; });
+                        var labels = picked.map(function (id) { return byId[id]; }).filter(Boolean);
+                        if (labels.length) renderSymptomPayback(labels);
+                    })();
                 })
                 .catch(function () {
                     $('submit-btn').disabled = false;
@@ -604,6 +794,10 @@
         $('change-answer').addEventListener('click', function () {
             hide($('results'));
             hide($('goal-horizon'));
+            hide($('symptom-payback'));
+            // Back on the question view: the disclosure has a job again.
+            [$('privacy-disclosure'), document.querySelector('.trust-row')]
+                .forEach(function (el) { if (el) show(el); });
             var err = $('form-error');
             if (err) hide(err);
             show($('question-form'));
@@ -623,6 +817,7 @@
                     if (window.gtag) gtag('event', 'checkin_view_results', { day: day, site: site });
                     renderResults(data, [], false);
                     hide($('goal-horizon'));
+                    hide($('symptom-payback'));
                 });
         });
     })();
