@@ -26,9 +26,13 @@ shared across all of them). DNS for both is hosted at **GoDaddy**, not Cloudflar
 | Domain | Resend ID | Status | Sending | Receiving |
 |---|---|---|---|---|
 | carnivoreweekly.com | `f266a0f1-4f63-47fa-9297-de65deec9c5e` | verified | enabled | enabled (inbound catch-all) |
-| ketodial.com | `a0c9850a-f3c9-49b6-84be-ec50e131c616` | **pending DNS** (added 2026-09-12) | enabled | disabled |
+| ketodial.com | `a0c9850a-f3c9-49b6-84be-ec50e131c616` | **verified** 2026-09-12 | enabled | disabled |
 
-### ketodial.com: DNS records to add at GoDaddy
+Tracking differs between the two: carnivoreweekly.com has open and click tracking
+**on**; ketodial.com was created with both **off**. Turn them on before flipping KD over,
+or KD loses open/click stats.
+
+### ketodial.com: DNS records (added at GoDaddy 2026-09-12, verified)
 
 Add these four to the `ketodial.com` zone. Enter names **relative** to the domain
 (GoDaddy appends `.ketodial.com` itself, so do not type the full hostname). TTL: default/Auto.
@@ -47,7 +51,11 @@ DMARC needs no change: ketodial.com already carries GoDaddy's default
 `v=DMARC1; p=quarantine; adkim=r; aspf=r`. Relaxed alignment means the Resend DKIM
 signature aligns on its own.
 
-Then verify (propagation is usually minutes, allow up to an hour):
+All four went live at the nameserver within 30 seconds and Resend verified the domain
+shortly after. A `newsletter@ketodial.com` test send to iambrew@gmail.com returned
+`delivered` (id `c2c8f4c3-8eb5-4324-8f70-b25b1be0d703`).
+
+Re-verify if records ever change:
 
 ```bash
 KEY=$(python3 -c "import json;print(json.load(open('secrets/api-keys.json'))['resend']['key'])")
