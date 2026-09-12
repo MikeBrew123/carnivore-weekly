@@ -17,6 +17,8 @@ writeFileSync(LOG, `| Date | Where | What changed | Why | Undo |
 | 2026-08-19 07:00 PDT | carnivoreweekly.com blog | site copy only, no shop involvement | x | y |
 | 2026-08-18 07:00 PDT | Etsy listing 4550536874 | predates the cap, must not count | x | y |
 | 2026-08-21 07:00 PDT | Etsy shop announcement, no listing id here | unattributed | x | y |
+| 2026-08-21 06:00 PDT | carnivoreweekly.com/desserts page move | website only, every Etsy and Amazon link unchanged, no listing written | x | y |
+| 2026-08-20 06:00 PDT | carnivoreweekly.com blog post | an Etsy row filed under a website Where cell, but it names listing 4464217679 | x | y |
 `);
 
 const opts = { logPath: LOG };
@@ -27,6 +29,10 @@ const a = readWindow('2026-08-20', opts);
 ok(a.floor === '2026-08-19', `floor honours the in-force date (got ${a.floor})`);
 ok(!a.listings.has('4550536874'), 'row dated before the cap took force is not counted');
 ok(a.listings.size === 2, `two rows on one listing count once (got ${a.listings.size})`);
+ok(
+  (a.listings.get('4464217679') || []).length === 3,
+  'a row whose Where cell is not Etsy still counts when it names a listing id'
+);
 ok(a.exemptions.length === 1 && a.exemptions[0].deck === '12f2599a', 'cap-exempt row excluded and reported');
 ok(a.unattributed.length === 0, 'non-Etsy row ignored, future-dated row out of window');
 
@@ -43,6 +49,10 @@ ok(!threw && r.total === 2, 're-editing a listing already logged this window cos
 
 const d = readWindow('2026-08-21', opts);
 ok(d.unattributed.length === 1, 'Etsy row naming no listing id is flagged');
+ok(
+  !d.unattributed.some((u) => /desserts/.test(u.where)),
+  'a website row that only mentions Etsy in prose, naming no listing, does not eat a slot'
+);
 threw = false;
 try { assertEditCap(['4545921306'], '2026-08-21', opts); } catch { threw = true; }
 ok(threw, 'unattributed row counts as one listing, so a fourth is refused');

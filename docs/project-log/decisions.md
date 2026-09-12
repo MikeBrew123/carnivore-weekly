@@ -1758,3 +1758,48 @@ links to later in the same email. Narrower and sharper than the deck question st
 published history would strand three live branches (`fix/revenue-readiness-batch1`,
 `review/kd-report-v1-candidate`, `chore/delete-orphan-report-page`, the last also on the remote).
 Purge rehearsed and the GitHub ticket drafted; the irreversible step waits for his line.
+
+## 2026-09-12 — Etsy batch shipped: two titles and the keto bundle PDF
+
+Three listings written, 3 of 3 in the rolling 7 day window, every one read back from Etsy.
+
+| Listing | Field | Before | After |
+|---|---|---|---|
+| `4464217679` Carnivore Diet Food List | title only | `Carnivore Diet Food List Printable \| Zero Carb Allowed Foods Chart \| Beginner Grocery Guide \| Meat Only Cheat Sheet PDF Fridge Poster` (133) | `Carnivore Diet Food List Printable \| Zero Carb Allowed Foods Chart (PDF)` (72) |
+| `4514204763` Keto Grocery List Bundle | digital file only | `KetoFoodListBundle.pdf` file id 1499812494876, pre 09-10 build, page 11 printed the retired potassium range | rebuilt 14 page PDF, file id 1514299370882, page 11 prints 2,600 mg (women) / 3,400 mg (men) |
+| `4495049647` Keto Food Cheat Sheet | title only | `Keto Food Cheat Sheet Printable \| Low Carb Allowed Foods Chart \| High Fat Diet Kitchen Poster PDF` (97) | `Keto Food Cheat Sheet \| Low Carb Allowed Foods Chart (PDF)` (58) |
+
+Both titles are Etsy's own Search Visibility drafts from the batch 3 table of the 2026-08-22 audit,
+applied verbatim. Authority: deck `57b8897c` for the 09-12 title date, standing authority `82e7694e`,
+capped by `07de35c8`. Every write was preceded by a Live Changes Log row, preflighted against a
+pre-write dump, and verified by a read back that also proved price, tags, description, images, files,
+taxonomy and state did not move.
+
+**The two mis-selling tags on `4464217679` were NOT changed.** `carnivore meal prep` and
+`weight loss chart` are named in the 2026-09-03 diagnosis, but no dated record approves that specific
+tag change: deck `57b8897c` authorised the title and said so. Tags left byte-identical. Still open.
+
+**Held deliberately:** no price on any listing, no image (the `Seda & Sugary Drinks` hero typo on
+`4495049647` is still unapproved), no description, no ETSY50 bonus insert card anywhere (deck
+`fc47b609` is unanswered and the default is that it does not ship), nothing on `4495056564`.
+
+### Code change: the cap counter stopped charging a slot for website rows
+
+`etsy/edit-cap.mjs` counted any Live Changes Log row in the window that mentions Etsy and names no
+listing id as one listing. The 2026-09-11 desserts page move said "every Etsy and Amazon link
+unchanged" and therefore ate a slot for a change that wrote nothing to Etsy, leaving the counter at
+headroom 2 when the true headroom was 3.
+
+Verified three independent ways that zero Etsy listings were written between 09-06 and 09-12: the
+snapshot series shows no title and no price change on any of the 42 live listings on any day from
+09-07 to 09-12 (the 09-06 delta is only the 09-05 price writes landing), no Etsy write script or
+report in the repo is dated inside the window, and this file records none.
+
+The fix: a row that names no listing id counts only when its **Where** cell says the surface changed
+was Etsy. A row that names a listing id is still counted whatever its Where cell says, so the change
+narrows the guess and never the evidence. Self-test `etsy/edit-cap.test.mjs` now 13/13, and the hook
+suite `tests/test_etsy_write_guard_hook.sh` 39/39. The 2026-09-11 log row itself was not edited; a
+dated annotation was added above the table instead.
+
+The two write scripts were single use, run from a temp file in `etsy/` and deleted. Nothing else in
+the repo changed.

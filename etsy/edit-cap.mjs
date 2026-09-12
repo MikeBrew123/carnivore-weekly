@@ -81,18 +81,26 @@ export function readWindow(today = localISODate(new Date()), opts = {}) {
     const date = m[1];
     if (date < floor || date > today) continue;
 
+    const where = cells[2] || '';
     const body = cells.slice(2).join(' ');
-    if (!/etsy/i.test(body) && !/etsy/i.test(cells[2] || '')) continue;
+    if (!/etsy/i.test(body)) continue;
 
     const exempt = body.match(EXEMPT_RE);
     if (exempt) {
-      exemptions.push({ date, deck: exempt[1], where: cells[2] });
+      exemptions.push({ date, deck: exempt[1], where });
       continue;
     }
 
     const ids = [...new Set(body.match(LISTING_ID_RE) || [])];
     if (ids.length === 0) {
-      unattributed.push({ date, where: cells[2] });
+      // A row that names no listing id counts as one listing ONLY when its Where
+      // cell says the surface changed was Etsy. The Where cell is the surface; the
+      // What cell is prose and routinely mentions Etsy without touching it. The
+      // 2026-09-11 desserts page move said "every Etsy and Amazon link unchanged"
+      // and ate a slot for a change that wrote nothing to Etsy. Rows that DO name a
+      // listing id are still counted whatever the Where cell says, so this narrows
+      // only the guess, never the evidence.
+      if (/etsy/i.test(where)) unattributed.push({ date, where });
       continue;
     }
     for (const id of ids) {
