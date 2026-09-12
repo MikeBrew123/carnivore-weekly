@@ -18,6 +18,57 @@
 | N8N | `secrets/api-keys.json` | `n8n.api_key` |
 | All API keys | `secrets/api-keys.json` or Wrangler | Never in git |
 
+## Resend Sending Domains
+
+Both domains live on one Resend account (free tier: 3 sending domains, 100 emails/day
+shared across all of them). DNS for both is hosted at **GoDaddy**, not Cloudflare.
+
+| Domain | Resend ID | Status | Sending | Receiving |
+|---|---|---|---|---|
+| carnivoreweekly.com | `f266a0f1-4f63-47fa-9297-de65deec9c5e` | verified | enabled | enabled (inbound catch-all) |
+| ketodial.com | `a0c9850a-f3c9-49b6-84be-ec50e131c616` | **pending DNS** (added 2026-09-12) | enabled | disabled |
+
+### ketodial.com: DNS records to add at GoDaddy
+
+Add these four to the `ketodial.com` zone. Enter names **relative** to the domain
+(GoDaddy appends `.ketodial.com` itself, so do not type the full hostname). TTL: default/Auto.
+
+| Type | Name | Value | Priority |
+|---|---|---|---|
+| TXT | `resend._domainkey` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC5hUua+rvGts6dyv39ZLXDeOoaAQUfRTACAKUHYmImFQJwWcGgwhzD+oLZlpPOpjjf6fvwOVkKbRYK2gKGVGq0EQ3AQ4zWyItCPX6jIQSWz/CSnrfk8L5OlHyFS9dsA/LBRKRK5eMvx+WEEWeK/8DVmovAmiWxUNU0KGnJ4tIoOwIDAQAB` | |
+| MX | `send` | `feedback-smtp.us-east-1.amazonses.com` | 10 |
+| TXT | `send` | `v=spf1 include:amazonses.com ~all` | |
+| CNAME | `rsend` | `send.forge.rmta.net` | |
+
+**The MX record is on the `send` subdomain, not the root.** It does not touch
+`ketodial.com`'s root MX, so adding a real inbox on ketodial.com later stays possible.
+
+DMARC needs no change: ketodial.com already carries GoDaddy's default
+`v=DMARC1; p=quarantine; adkim=r; aspf=r`. Relaxed alignment means the Resend DKIM
+signature aligns on its own.
+
+Then verify (propagation is usually minutes, allow up to an hour):
+
+```bash
+KEY=$(python3 -c "import json;print(json.load(open('secrets/api-keys.json'))['resend']['key'])")
+curl -s -X POST -H "Authorization: Bearer $KEY" \
+  https://api.resend.com/domains/a0c9850a-f3c9-49b6-84be-ec50e131c616/verify
+```
+
+### Sending addresses (unchanged as of 2026-09-12)
+
+KD mail still sends from `@carnivoreweekly.com`. Verifying the domain above grants the
+*capability* to send from `@ketodial.com`; it changes no behaviour by itself. Flipping KD
+over is a deliberate, separate change to the `kd` entries in `scripts/send_drip.py` and
+`scripts/send_newsletter.py`, and needs Brew's go-ahead.
+
+Reply-to is the piece to think through before flipping: KD replies currently ride the
+`@carnivoreweekly.com` inbound catch-all, which feeds the writer-inbox ledger and the daily
+digest. A second inbox on `ketodial.com` needs Resend receiving enabled on that domain
+(root MX records) plus the ledger and digest taught about a second site. Sending from
+`@ketodial.com` while replying to `@carnivoreweekly.com` is valid and is the low-risk
+intermediate step.
+
 ## Supabase Setup
 
 Project ID: `kwtdpvnjewtahuxjyltn`
