@@ -53,7 +53,10 @@ signature aligns on its own.
 
 All four went live at the nameserver within 30 seconds and Resend verified the domain
 shortly after. A `newsletter@ketodial.com` test send to iambrew@gmail.com returned
-`delivered` (id `c2c8f4c3-8eb5-4324-8f70-b25b1be0d703`).
+`delivered` (id `c2c8f4c3-8eb5-4324-8f70-b25b1be0d703`) and Gmail's Show original
+confirmed **SPF PASS, DKIM PASS with domain `ketodial.com`, DMARC PASS**. The DKIM
+domain is the assertion that matters: it proves alignment on ketodial.com rather than
+on amazonses.com or carnivoreweekly.com, which is what carries the DMARC pass.
 
 Re-verify if records ever change:
 
