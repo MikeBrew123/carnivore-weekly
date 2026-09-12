@@ -517,10 +517,37 @@
             });
         }
 
+        // ---- One-tap answers from the email ------------------------------------
+        // The day-5 email presents the six bands as buttons and promises "one tap, and
+        // you'll see your answer on the next screen". That promise is only true if the
+        // link carries the answer AND we act on it, so `a` preselects the option and
+        // submits. Without this the six buttons are decorative and the reader has to
+        // choose all over again on arrival.
+        //
+        // Fails soft in every direction: an `a` that matches no option on this day
+        // leaves the ordinary form exactly as it was. A mail client that prefetches the
+        // link submits the same answer the reader is about to submit, and the server
+        // replaces rather than appends, so a prefetch plus a real tap is still one
+        // observation. Either way the reader can change it.
+        function applyOneTap(data) {
+            var wanted = (params.get('a') || '').trim();
+            if (!wanted) return false;
+            var input = document.querySelector('#questions input[value="' + wanted.replace(/"/g, '') + '"]');
+            if (!input) return false;
+            input.checked = true;
+            var label = input.closest('.opt');
+            if (label) label.classList.add('checked');
+            $('submit-btn').disabled = false;
+            if (typeof $('question-form').requestSubmit === 'function') $('question-form').requestSubmit();
+            else $('question-form').dispatchEvent(new Event('submit', { cancelable: true }));
+            return true;
+        }
+
         fetch(API + '?day=' + day + '&site=' + site)
             .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
             .then(function (data) {
                 renderQuestions(data);
+                applyOneTap(data);
                 // First-party view ping: completes the clicked→viewed→submitted funnel.
                 // Best-effort; fires only after a real question render (bots without JS never get here).
                 fetch(API + '/view', {
