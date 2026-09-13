@@ -20,7 +20,18 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
+      # submodules: true is load-bearing, not hygiene. KD's blog lives in the
+      # ketodial/public submodule, and weekly_newsletter.py finds KD posts by
+      # globbing ketodial/public/blog/*.html. Without the submodule that
+      # directory does not exist in CI, get_recent_kd_posts() returns [] at its
+      # `if not blog_dir.exists()` guard, and the run prints
+      #   "[KD] No KD posts published in the last 7 days. Skipping KD newsletter."
+      # then exits 0. That is why the KD weekly has never once been sent while
+      # every run reported success. CW was never affected: it reads
+      # data/blog_posts.json, which is in the main repo.
       - uses: actions/checkout@v5
+        with:
+          submodules: true
 
       - uses: actions/setup-python@v6
         with:
