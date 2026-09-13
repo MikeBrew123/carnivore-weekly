@@ -1974,7 +1974,8 @@ list because they are real registrable domains.
 
 **Health baseline at close, fixture-clean.** CW 7d 99.41% delivery / 0.59% bounce; CW 30d
 99.10% / 0.90%. KD 7d 97.39% / 2.61%; KD 30d 98.23% / 1.77%. **Zero spam complaints across
-1,596 deliveries, all time.** Resend suppression list holds 3 addresses, all correctly
+1,596 deliveries in the measured 30-day window** (2026-08-15 to 2026-09-13). Corrected
+2026-09-13: the closeout first said "all time", which the 30-day query never established. Resend suppression list holds 3 addresses, all correctly
 reflected in Supabase, no drift.
 
 **Resend native metrics cannot separate CW from KD** and this is structural, not a config
@@ -1994,3 +1995,36 @@ endpoint to accept POST and is missing everywhere including the drip. (3) Explic
 tags on CW sends that are currently attributed by from-address only; it works today but is
 convention, not declaration. (4) Alert thresholds on bounce and complaint rate if volume
 justifies them; at ~225 per weekly send with zero complaints, it does not yet.
+
+
+## 2026-09-13: abandoned-checkout recovery SENDING re-disabled (worker `dac87512`, main `790de892`)
+
+Brew's call, same day it was switched on. `CW_ABANDON_RECOVERY_ENABLED` goes
+`"true"` -> `"false"` in `[env.production].vars`. **Configuration only, one value, zero
+diff anywhere else.**
+
+**The reason is measurement contamination, not a fault in the feature.** The recovery
+link returns the reader to the ordinary Step 3 offer carrying no recovery-source
+attribution, so a conversion arriving that way is indistinguishable from an organic
+bridge-offer conversion. Sending now would fold recovery traffic into the active
+bridge cohort and there would be no way to separate them afterwards. The gate comes
+back on when recovery traffic can be attributed separately, not on a date.
+
+**Recording deliberately stays live.** The distinction matters and is structural, not a
+convention: the `checkout.session.expired` handler writes its `stripe_webhook_events`
+row on the ordinary event path, while the SEND is gated separately inside
+`sendAbandonRecoveryIfOwed` by a `!== 'true'` check that returns
+`skipped:'recovery-disabled'` BEFORE any database lookup and before the marker check.
+So the abandoner set keeps accumulating for the whole window the offer is dark, which
+is the entire point of having built the detector ahead of the email.
+`ABANDON_RECOVERY_EPOCH_MS`, the recovery code and the 83-assertion suite are untouched.
+
+**Zero sends had occurred, verified two ways before flipping, and this was the gate
+condition.** 0 `cw-abandon-email:` markers in `stripe_webhook_events` (2 `cw-resume`
+markers exist and are a different, legitimate path), and 0 emails matching the abandon
+subject `Your carnivore numbers are still saved` across 1,500 Resend sends back to
+2026-08-17. Independently, 0 `checkout.session.expired` rows had been recorded at all,
+so no reader had abandoned a checkout in the roughly seven hours the feature was live.
+Nothing was ever delivered on this path, so there is no customer-visible change and
+nothing to reconcile. Had a single marker existed the instruction was to stop and
+report rather than change state.
