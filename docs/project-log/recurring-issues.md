@@ -304,6 +304,18 @@ If recurs: Run `git ls-files --stage | grep 160000` to find all submodule entrie
 
 ---
 
+## ISSUE-081 — KD submodule working copy goes stale after a push from a worktree
+🟡 RECURRING — Last: 2026-09-12
+
+Pattern: pushing `ketodial/public` from a git worktree updates the KD repo and the parent gitlink, but the MAIN checkout's submodule working copy stays where it was. Files on disk in the main checkout are then pre-fix while the gitlink and the live site are correct. Symptom is a verification that reads stale bytes: a scan "finds" a defect that is already fixed, or worse, reports a page clean that is not.
+Attempts:
+- 2026-09-12 — First occurrence corrupted Sarah's Wave 2 KD enumeration; she caught it and re-derived from `git archive origin/main`. Fixed with `git submodule update --init ketodial/public` as Wave 2 step 0.
+- 2026-09-12 — RECURRED the same evening after the Wave 2 submodule push. The R6 guard flagged `8:00 PM: 400mg magnesium glycinate` on a page whose fix was already live; the main checkout was at `d1ad75ab` while the gitlink was `af8b64b7`, and `git -C ketodial/public show af8b64b` returned "invalid object name" because that checkout had never fetched it. Live site confirmed the fix was deployed.
+Prevention: after ANY submodule push made from a worktree, run `git submodule update --init ketodial/public` in the main checkout before running any scan, guard or verification that reads those files. Cheap tell: `git rev-parse HEAD:ketodial/public` vs `git -C ketodial/public rev-parse HEAD` must match.
+If recurs: consider a post-merge hook, or have the guard refuse to scan `ketodial/public` when the two SHAs disagree, which would turn a silent wrong answer into a loud one.
+
+---
+
 ## ISSUE-026 — KD blog posts rendered empty (content wiped by regeneration)
 🟢 FIXED — Last: 2026-06-15
 
