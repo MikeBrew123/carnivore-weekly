@@ -2,10 +2,17 @@
 """Resend quota alarm: record every quota refusal and raise the alarm.
 
 Why this exists (Brew, deck 920ebe5a, approved 2026-09-10: "watch it with a
-429 alarm, do not pay yet"). Resend's free tier caps the account at 100 emails
-a day. Sunday is the only day the newsletter and the drip both fire, and those
-Sundays have already gone over (128 on 2026-09-06). Resend has not enforced it
-yet. When it does, the refusal comes back as HTTP 429 with one of these names
+429 alarm, do not pay yet"). It was built against the free tier's 100/day cap,
+on Sundays where the newsletter and the drip both fire and went over (128 on
+2026-09-06).
+
+UPDATE 2026-09-13: Brew has since paid for Resend, so the 100/day free cap no
+longer applies and these refusals should be rare. Keep this module anyway. It
+keys off Resend's own 429 error names rather than a hardcoded daily count, so
+it stays correct on any plan and is still the thing that stops a silent
+half-sent newsletter if we outgrow the paid quota or a send goes wrong.
+
+The refusal comes back as HTTP 429 with one of these names
 (https://resend.com/docs/api-reference/errors):
 
     daily_quota_exceeded     "You have exceeded your daily email sending quota."
