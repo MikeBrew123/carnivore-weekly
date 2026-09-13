@@ -254,6 +254,14 @@ jobs:
       # the sale it was chasing.
       - name: Abandoned-checkout recovery
         run: node tests/abandoned-checkout-recovery.test.mjs
+      # Who is allowed to receive a paid report. The endpoint used to mail report_html
+      # to whatever address the request body named, with no owner check and no payment
+      # check, so a session UUID was enough to have a stranger's weight, medications
+      # and kidney status delivered to an attacker. Group B is that exact request,
+      # asserted to send nothing. Every denial also asserts zero sends, so a
+      # regression cannot pass by mailing first and erroring afterwards.
+      - name: Paid-report delivery authorization
+        run: node tests/report-email-authorization.test.mjs
       # A blank line between numbered steps used to close the list, so each item
       # opened its own <ol> and the reader counted 1, 1, 1, 1 in a delivered PDF.
       # The suites checked that <ol> tags existed and balanced, which they did.

@@ -1858,8 +1858,32 @@ async function handleReportInit(request, env) {
 
 /**
  * POST /api/v1/calculator/email-report
- * Email completed report to user
+ * Email a completed, PAID report to the address that bought it.
+ *
+ * AUTHORIZATION (added 2026-09-13 after an audit found this endpoint would mail a
+ * report anywhere). The old code took `session_id` and `email` from the request body
+ * and mailed report_html to whatever address was supplied, with no check that the
+ * address owned the session and no check that anyone had paid. A CW report carries
+ * the reader's weight, goals, medications and kidney status, so anyone holding a
+ * session UUID could have a stranger's health data delivered to themselves.
+ *
+ * Three things must now be true, and each one fails closed:
+ *   1. A report row exists for this assessment.
+ *   2. Its assessment session says payment_status = 'completed'.
+ *   3. The supplied address matches the address stored on the report row.
+ *
+ * Delivery then goes to the STORED address, never to the supplied one. The match in
+ * (3) is a second, independent control: even if it were ever loosened, the report
+ * still cannot be routed anywhere the buyer did not name at checkout.
+ *
+ * Verified against production before the change: all 10 report rows have
+ * calculator_reports.email equal to cw_assessment_sessions.email, all are
+ * payment_status='completed', and no script, admin tool or ops workflow calls this
+ * endpoint with an override address. The browser sends the session's own email, so
+ * no legitimate caller is affected.
  */
+const PAID_STATUS = 'completed';
+
 async function handleEmailReport(request, env) {
   try {
     if (!validateContentType(request)) {
@@ -1896,6 +1920,50 @@ async function handleEmailReport(request, env) {
 
     const report = reports[0];
 
+    // ---- AUTHORIZATION GATE -------------------------------------------------
+    // The canonical recipient. A report row cannot exist without it (the column is
+    // NOT NULL), so a blank one means the row is malformed and we refuse rather
+    // than guess. Everything below compares against this, never against the body.
+    const ownerEmail = String(report.email || '').trim().toLowerCase();
+    const requested = String(email).trim().toLowerCase();
+    if (!ownerEmail) {
+      console.error(`[Email Report] DENIED session=${session_id}: report row has no owner email`);
+      return createErrorResponse('NOT_AUTHORIZED', 'Report not available for this request', 403);
+    }
+
+    // The disclosure path that prompted this gate: a valid session id with somebody
+    // else's address in the body. Deliberately the same generic 403 as every other
+    // denial, so the response cannot be used to test whether a session id is real.
+    if (requested !== ownerEmail) {
+      console.warn(`[Email Report] DENIED session=${session_id}: requested address does not own this report`);
+      return createErrorResponse('NOT_AUTHORIZED', 'Report not available for this request', 403);
+    }
+
+    // Entitlement. The report row is written by report/init; payment lives on the
+    // assessment session, so it has to be read there. An unreadable answer is not
+    // permission: a lookup that fails is treated as unpaid.
+    const paidResponse = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${encodeURIComponent(session_id)}&select=payment_status`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    );
+    if (!paidResponse.ok) {
+      console.error(`[Email Report] DENIED session=${session_id}: entitlement lookup failed ${paidResponse.status}`);
+      return createErrorResponse('NOT_AUTHORIZED', 'Report not available for this request', 403);
+    }
+    const paidRows = await paidResponse.json().catch(() => []);
+    if (!Array.isArray(paidRows) || paidRows.length === 0
+        || paidRows[0].payment_status !== PAID_STATUS) {
+      console.warn(`[Email Report] DENIED session=${session_id}: payment_status=`
+        + `${paidRows?.[0]?.payment_status || 'no-session-row'}`);
+      return createErrorResponse('NOT_AUTHORIZED', 'Report not available for this request', 403);
+    }
+    // ---- END AUTHORIZATION GATE ---------------------------------------------
+
     // Check if report HTML exists
     if (!report.report_html || report.report_html.length < 100) {
       return createErrorResponse('REPORT_NOT_READY', 'Report has not been generated yet', 400);
@@ -1916,7 +1984,8 @@ async function handleEmailReport(request, env) {
       },
       body: JSON.stringify({
         from: 'Carnivore Weekly <reports@carnivoreweekly.com>',
-        to: [email],
+        // The stored owner, never the request body. See the authorization note above.
+        to: [ownerEmail],
         subject: 'Your Personalized Carnivore Protocol',
         html: report.report_html,
       }),
