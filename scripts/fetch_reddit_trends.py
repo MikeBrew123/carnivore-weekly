@@ -10,16 +10,39 @@ ISSUE-014. trudax/reddit-scraper-lite was tried first but returns no
 vote/comment fields. r/zerocarb is effectively dead — 0 posts/week as of
 2026-08-24 — so CW uses r/carnivorediet, r/carnivore, r/keto.)
 
+ONE SHARED PULL EVERY 14 DAYS (Brew, 2026-09-13). We were pulling three times
+a week (CW Sun+Wed, KD once) and burning the whole $5/month Apify free credit
+to do it, then hitting a hard 403 at the end of every billing cycle (ISSUE-080).
+That spend bought very little: the 2026-09-05 KD pull returned 37 threads, and
+a week later 20 were still inside the 14-day freshness window with only 2 ever
+comment-mined. We were buying the same data repeatedly and using a slice of it.
+
+So a run now SPENDS only if the existing snapshot is older than --max-age-days
+(default 14). Otherwise it reuses what is on disk and exits 0. When it does
+spend, it fetches the union of both sites' subreddits ONCE and writes BOTH
+site files, so whichever scheduled task runs first in a window pays for
+everyone and the rest are free. Callers keep passing --site unchanged.
+
+Paying for Apify instead would be $30/month. The free Reddit API is not an
+option: Reddit now requires explicit approval and treats our use as commercial
+(ISSUE-014, tested 2026-09-13).
+
 Usage:
     python3 scripts/fetch_reddit_trends.py --site cw
     python3 scripts/fetch_reddit_trends.py --site kd
+    python3 scripts/fetch_reddit_trends.py --site kd --force        # spend now
+    python3 scripts/fetch_reddit_trends.py --site kd --max-age-days 7
 
 Writes data/reddit-trends-{site}.json:
     {"site", "fetched_at", "window": "top posts of the last 7 days",
      "posts": [{title, subreddit, score, num_comments, created, url}]}
 
-Cost: ~$0.20/run (45 results at $0.004 + start fee) against Apify's
-free-tier monthly credit. Keep maxItems modest; posts only, no comments.
+A fetch that returns nothing NEVER overwrites a good snapshot. Losing the last
+good pull is worse than a stale one: on 2026-09-13 the recovered 2026-09-05
+pull is what the KD batch was written from.
+
+Cost: ~$0.30 per shared pull (6 subreddits), roughly $0.65/month at this
+cadence, against Apify's $5 free-tier monthly credit.
 """
 
 import argparse
@@ -35,7 +58,12 @@ SUBREDDITS = {
     'cw': ['carnivorediet', 'carnivore', 'keto', 'xxketo'],
     'kd': ['keto', 'lowcarb', 'ketorecipes', 'xxketo'],
 }
+# Fetched once per shared pull, then split back out per site. Order is stable
+# so the cheapest subs are not always the ones a partial failure drops.
+ALL_SUBREDDITS = ['carnivorediet', 'carnivore', 'keto', 'xxketo',
+                  'lowcarb', 'ketorecipes']
 MAX_ITEMS = 15  # per subreddit
+MAX_AGE_DAYS = 14  # reuse a snapshot younger than this instead of spending
 ACTOR = 'harshmaur~reddit-scraper'
 KEY_PATHS = [
     '/Users/mbrew/Developer/carnivore-weekly/secrets/api-keys.json',
@@ -55,10 +83,62 @@ def apify_token():
     sys.exit('No apify.api_key found in secrets files')
 
 
+def data_dir():
+    return os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+
+
+def out_path_for(site):
+    return os.path.join(data_dir(), f'reddit-trends-{site}.json')
+
+
+def snapshot_age_days(site):
+    """Age in days of the snapshot on disk, or None if there isn't a usable one.
+
+    A file with zero posts counts as unusable, so a previously failed run never
+    stops the next one from spending.
+    """
+    try:
+        with open(out_path_for(site)) as f:
+            snap = json.load(f)
+    except Exception:
+        return None
+    if not snap.get('posts'):
+        return None
+    try:
+        dt = datetime.datetime.fromisoformat(
+            snap['fetched_at'].replace('Z', '+00:00'))
+    except (KeyError, AttributeError, ValueError):
+        return None
+    return (datetime.datetime.now(datetime.timezone.utc) - dt).total_seconds() / 86400
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--site', choices=['cw', 'kd'], required=True)
+    ap.add_argument('--max-age-days', type=float, default=MAX_AGE_DAYS,
+                    help=f'reuse a snapshot younger than this (default {MAX_AGE_DAYS})')
+    ap.add_argument('--force', action='store_true',
+                    help='spend on a fresh pull even if the snapshot is young')
     args = ap.parse_args()
+
+    age = snapshot_age_days(args.site)
+    if not args.force and age is not None and age < args.max_age_days:
+        with open(out_path_for(args.site)) as f:
+            snap = json.load(f)
+        print(f'Reusing data/reddit-trends-{args.site}.json: {age:.1f} days old '
+              f'({len(snap["posts"])} posts), under the {args.max_age_days:g}-day '
+              f'cadence. No Apify spend.')
+        print('  Run with --force to pull anyway.')
+        for p in snap['posts'][:10]:
+            print(f"  {p['score']:>5}⬆ {p['num_comments']:>4}💬 "
+                  f"r/{p['subreddit']}: {p['title'][:90]}")
+        return
+
+    why = 'forced' if args.force else (
+        'no usable snapshot' if age is None else f'snapshot is {age:.1f} days old')
+    print(f'Shared pull ({why}): {len(ALL_SUBREDDITS)} subreddits, '
+          f'writing both site files.')
 
     # One call per subreddit: maxPostsCount is a TOTAL cap, and the actor
     # fills it from the first URL, starving the rest (seen 2026-08-24).
@@ -90,7 +170,7 @@ def main():
             return json.loads(resp.read())
 
     items = []
-    for sub in SUBREDDITS[args.site]:
+    for sub in ALL_SUBREDDITS:
         # The actor sometimes ignores searchTime and serves all-time top
         # posts (seen 2026-08-24: 12k-upvote posts from years back). Fresh
         # data is the entire point, so posts older than 14 days are dropped
@@ -141,32 +221,50 @@ def main():
     # under before/after photo posts. Fixed 2026-08-31.
     posts.sort(key=lambda p: (-p['num_comments'], -p['comment_to_score_ratio']))
 
-    out = {
-        'site': args.site,
-        'fetched_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        'window': 'top posts of the last 7 days',
-        'subreddits': SUBREDDITS[args.site],
-        'posts': posts,
-    }
-    data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
-    out_path = os.path.join(data_dir, f'reddit-trends-{args.site}.json')
-    with open(out_path, 'w') as f:
-        json.dump(out, f, indent=1)
+    # A pull that came back with nothing must not destroy a good snapshot.
+    # On 2026-09-13 every subreddit 403'd on the Apify quota wall, and the
+    # recovered previous pull is what that week's posts were written from.
+    if not posts:
+        print('FETCH RETURNED NOTHING. Existing snapshots left untouched.')
+        print('  Check the Apify quota first: /v2/users/me/limits, '
+              'current.monthlyUsageUsd vs plan.maxMonthlyUsageUsd (ISSUE-080).')
+        sys.exit(1)
 
-    # Longitudinal archive: one compact line per run so recurring pain
-    # points and rising topics are visible across weeks, not lost when the
-    # snapshot file is overwritten. Read it with any jsonl tooling.
-    hist_path = os.path.join(data_dir, 'reddit-trends-history.jsonl')
-    with open(hist_path, 'a') as f:
-        f.write(json.dumps({
-            'fetched_at': out['fetched_at'], 'site': args.site,
-            'posts': [{k: p[k] for k in ('title', 'subreddit', 'score',
-                                         'num_comments', 'created')}
-                      for p in posts],
-        }) + '\n')
+    fetched_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    hist_path = os.path.join(data_dir(), 'reddit-trends-history.jsonl')
 
-    print(f'{len(posts)} posts -> {out_path}')
-    for p in posts[:10]:
+    # One pull, both site files. Each site keeps only its own subreddits, so
+    # CW never sees r/ketorecipes and KD never sees r/carnivore.
+    for site, subs in SUBREDDITS.items():
+        wanted = set(subs)
+        site_posts = [p for p in posts if p['subreddit'].lower() in
+                      {s.lower() for s in wanted}]
+        out = {
+            'site': site,
+            'fetched_at': fetched_at,
+            'window': 'top posts of the last 7 days',
+            'subreddits': subs,
+            'shared_pull': True,
+            'posts': site_posts,
+        }
+        with open(out_path_for(site), 'w') as f:
+            json.dump(out, f, indent=1)
+
+        # Longitudinal archive: one compact line per site per run so recurring
+        # pain points and rising topics stay visible across pulls, not lost
+        # when the snapshot file is overwritten. Read it with any jsonl tooling.
+        with open(hist_path, 'a') as f:
+            f.write(json.dumps({
+                'fetched_at': fetched_at, 'site': site,
+                'posts': [{k: p[k] for k in ('title', 'subreddit', 'score',
+                                             'num_comments', 'created')}
+                          for p in site_posts],
+            }) + '\n')
+        print(f'{len(site_posts)} posts -> {out_path_for(site)}')
+
+    print(f'\nTop threads for --site {args.site}:')
+    for p in [p for p in posts
+              if p['subreddit'].lower() in {s.lower() for s in SUBREDDITS[args.site]}][:10]:
         print(f"  {p['score']:>5}⬆ {p['num_comments']:>4}💬 r/{p['subreddit']}: {p['title'][:90]}")
 
 
