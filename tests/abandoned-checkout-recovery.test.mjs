@@ -69,6 +69,12 @@ const OTHER_ASSESSMENT_ID = '99999999-8888-4777-8666-555555555555';
 const ABANDONER = 'left-the-checkout@example.invalid';
 const CHECKOUT_ID = 'cs_test_abandon_fixture';
 
+// The recovery epoch, read from the module rather than restated, so this suite cannot
+// drift away from the constant it is meant to pin.
+const { __test_ABANDON_RECOVERY_EPOCH_MS: EPOCH_MS } = worker;
+const AFTER_EPOCH = Math.floor((EPOCH_MS + 60_000) / 1000);   // a minute after go-live
+const BEFORE_EPOCH = Math.floor((EPOCH_MS - 60_000) / 1000);  // a minute before it
+
 /** An expired Checkout Session as Stripe sends it for a CW report that was never paid. */
 const expiredEvent = (overrides = {}, id = 'evt_abandon_1') => ({
   id,
@@ -82,6 +88,7 @@ const expiredEvent = (overrides = {}, id = 'evt_abandon_1') => ({
       currency: 'usd',
       payment_status: 'unpaid',
       status: 'expired',
+      created: AFTER_EPOCH,
       metadata: { assessment_session_id: ASSESSMENT_ID, email: ABANDONER },
       ...overrides,
     },
@@ -316,6 +323,47 @@ for (const [label, opts] of [
 }
 
 // ---------------------------------------------------------------------------
+// H2  Historical isolation: flipping the flag cannot reach backwards
+// ---------------------------------------------------------------------------
+{
+  const world = makeWorld();
+  const res = await post(expiredEvent({ created: BEFORE_EPOCH }), ON);
+  check('H2', 'a checkout created before the epoch is never emailed',
+    world.resendCalls.length === 0, `${world.resendCalls.length} sends`);
+  check('H2', 'and is still acknowledged', res.status === 200, `status ${res.status}`);
+  check('H2', 'and no marker is written', ![...world.events].some(e => e.startsWith('cw-abandon-email:')));
+}
+{
+  // The five known historical abandoners are months old. Any replay of one of their
+  // sessions lands here, whatever every other gate says.
+  const world = makeWorld();
+  const julySession = Math.floor(Date.parse('2026-07-09T12:00:00Z') / 1000);
+  await post(expiredEvent({ created: julySession }), ON);
+  check('H2', 'a July abandonment replayed today sends nothing', world.resendCalls.length === 0,
+    `${world.resendCalls.length} sends`);
+}
+{
+  // An event we cannot date is an event we cannot prove is new.
+  const world = makeWorld();
+  await post(expiredEvent({ created: undefined }), ON);
+  check('H2', 'a Session with no creation time is refused', world.resendCalls.length === 0,
+    `${world.resendCalls.length} sends`);
+}
+{
+  const world = makeWorld();
+  await post(expiredEvent({ created: AFTER_EPOCH }), ON);
+  check('H2', 'a checkout created after the epoch is still eligible',
+    world.resendCalls.length === 1, `${world.resendCalls.length} sends`);
+}
+{
+  const epoch = new Date(EPOCH_MS);
+  check('H2', 'the epoch is not in the past relative to the infrastructure go-live',
+    EPOCH_MS >= Date.parse('2026-09-13T15:27:00Z'), epoch.toISOString());
+  check('H2', 'the epoch excludes every pre-deployment abandonment',
+    EPOCH_MS > Date.parse('2026-09-13T00:00:00Z'), epoch.toISOString());
+}
+
+// ---------------------------------------------------------------------------
 // I  The copy
 // ---------------------------------------------------------------------------
 {
@@ -334,6 +382,18 @@ for (const [label, opts] of [
   check('I', 'the link is the resume link, not a checkout', link.includes('payment=resume') && !link.includes('stripe'));
   check('I', 'the subject promises nothing', !/free|%|now|last/i.test(ABANDON_SUBJECT), ABANDON_SUBJECT);
   check('I', 'no em dashes in customer copy', !text.includes('—') && !html.includes('—'));
+
+  // Sarah's two accuracy fixes. Both have a way of creeping back in a later edit.
+  check('I', 'it does not name the fat-loss-only stall section',
+    !/stall|scale stops moving|plateau/i.test(body));
+  check('I', 'it says the goal they picked drives the advice', /goal you picked/.test(body));
+  check('I', 'it discloses the medical suppression before they pay',
+    /replaced with a plain explanation/.test(body) && /talk\s+to yours/.test(body));
+  check('I', 'it promises a reply, not a repair', /i read this inbox myself/.test(body));
+  check('I', 'it does not promise to fix a payment problem',
+    !/i'll sort it out|i will sort it out|we'll fix|i'll fix/.test(body));
+  check('I', 'it states there is no follow-up sequence',
+    /won't hear from me about it again/.test(body));
 }
 
 // ---------------------------------------------------------------------------
@@ -373,6 +433,28 @@ for (const [label, opts] of [
   const src = fs.readFileSync(API, 'utf8');
   check('K', 'the expired event is subscribed', src.includes("'checkout.session.expired'"));
   check('K', 'the send is behind a flag', src.includes("env.CW_ABANDON_RECOVERY_ENABLED !== 'true'"));
+  check('K', 'the historical epoch is a hard constant', src.includes('ABANDON_RECOVERY_EPOCH_MS'));
+  // Scoped to the function body: `cw_assessment_sessions?id=eq.` also appears in
+  // unrelated helpers earlier in the file, so a whole-file indexOf proves nothing.
+  const fnStart = src.indexOf('async function sendAbandonRecoveryIfOwed');
+  const fnEnd = src.indexOf('\nasync function handleStripeWebhook');
+  const fn = src.slice(fnStart, fnEnd);
+  check('K', 'the epoch gate lives inside the send function', fn.includes('before-recovery-epoch'));
+  check('K', 'the epoch gate runs before any database lookup',
+    fn.indexOf('before-recovery-epoch') < fn.indexOf('cw_assessment_sessions?id=eq.'));
+  check('K', 'the epoch gate runs before the marker lookup',
+    fn.indexOf('before-recovery-epoch') < fn.indexOf('stripe_webhook_events?stripe_event_id=eq.'));
+
+  // The whole isolation argument rests on this: recovery is reachable ONLY from a live
+  // webhook event. No scheduled handler, no sweep, no backfill, so flipping the flag
+  // has nothing old to act on.
+  check('K', 'the worker exports no scheduled handler', !/\n\s*async scheduled\s*\(|\n\s*scheduled\s*\(/.test(src));
+  const callSites = (src.match(/await sendAbandonRecoveryIfOwed\(/g) || []).length;
+  check('K', 'recovery has exactly two call sites, both in the webhook', callSites === 2,
+    `${callSites} call sites`);
+  const webhookFn = src.slice(src.indexOf('async function handleStripeWebhook'));
+  check('K', 'both call sites are inside handleStripeWebhook',
+    (webhookFn.match(/await sendAbandonRecoveryIfOwed\(/g) || []).length === 2);
   check('K', 'payment_status is re-read before sending', src.includes("if (status === 'completed' || status === 'success') return { skipped: 'already-paid' }"));
   const app = fs.readFileSync(path.join(ROOT, 'calculator2-demo', 'src', 'App.tsx'), 'utf8');
   check('K', 'the front end restores a resume link', app.includes("payment === 'resume'"));
