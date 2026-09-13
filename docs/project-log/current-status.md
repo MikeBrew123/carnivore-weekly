@@ -1,6 +1,28 @@
 # Current Status
 
-**Last Updated:** 2026-09-12 (CW first-month drip redesign sprint closed; days 2, 3, 5 live and frozen)
+**Last Updated:** 2026-09-13 (Resend integration sprint CLOSED; KD weekly restored, report-email authz fixed, dashboard metrics reconciled)
+
+**2026-09-13 · Resend integration sprint is COMPLETE.** Main `eaa0a7c8`. Observability sprint, not a migration: no contacts, drips, sender domains, unsubscribe behaviour or email copy were moved or rewritten.
+
+| Area | State at close |
+|---|---|
+| Sending / webhook / suppression | **Operational, unchanged.** 8 send call sites; webhook verifies Svix HMAC, fails closed on missing secret, 5-min replay window, constant-time compare; suppression writes both tables site-scoped with a 3-consecutive-bounce rule and ContentRejected carve-out; both send paths honour it. Resend's suppression list (3 addresses) matches Supabase with no drift. |
+| CW/KD attribution | **Verified.** All 3 paid paths provably CW-only; brand discriminator is `calculator_sessions_v2.source` (`cw` / `ketodial`). My earlier `site=kd` misrouting flag was a FALSE ALARM (it belongs to `sendKetoDialWelcome`, a genuine KD email). Locked by `tests/brand-attribution-isolation.test.mjs`. No routing change needed. |
+| KD weekly newsletter | **Restored** (`c1cf4672`). Had NEVER sent: `weekly-update.yml` checked out without submodules, KD's blog is in the `ketodial/public` submodule, so post discovery returned `[]` and the job skipped KD silently on every green run. 70 active KD subscribers (67 mailable) were receiving nothing. |
+| `List-Unsubscribe` | **Now on newsletter sends**, both brands, routed `&site=cw` / `&site=kd`, reusing the exact body url. Verified absent on a real delivered CW issue before the fix. Resend injects nothing; the drip only had it because we declare it. Body link untouched. |
+| Dashboard email metrics | **Corrected and reconciled** (`bc67750b`). Was rendering CW 194.4% and KD 100.9% delivery. Attempts = `delivered + bounced` over distinct `resend_id`; reproduces Resend's native `sent` EXACTLY at 7d (459) and 30d (1,622). |
+| Fixture traffic | **Excluded consistently** from attempts, delivered, bounced, complained, opens and clicks, reusing `subscriber_hygiene.is_undeliverable_fixture` (the same rule the live send paths use). |
+
+**Health baseline at close (fixture-clean).** CW 7d 99.41% delivery / 0.59% bounce; CW 30d 99.10% / 0.90%. KD 7d 97.39% / 2.61%; KD 30d 98.23% / 1.77%. **Zero spam complaints across 1,596 deliveries, all time.**
+
+**P0 fixed in-sprint: paid report disclosure** (`520d8d01`, worker `a19e5933`). `handleEmailReport` mailed a paid report to any address in the request body with no owner check and no payment check. Now gated on report row + `payment_status='completed'` + address match, and delivery goes to the STORED address, never the supplied one. Smoke-tested live against a synthetic UNPAID fixture session so no send was possible.
+
+**Measurement rule going forward:** Resend native metrics for account-level deliverability truth and periodic reconciliation; `drip_events.site` for the CW/KD split (Resend structurally cannot split it, there is no tag dimension and 434 of 435 sends share one domain); **local `sent` is never used as a denominator again.**
+
+**No further Resend integration work is required.** Backlog only, none started: (1) migrate KD sender to `ketodial.com` after DMARC + deliberate warm-up (domain verified 2026-09-12 but has NO DMARC and zero sending history); (2) RFC 8058 `List-Unsubscribe-Post` (missing everywhere including the drip; needs the unsubscribe endpoint to accept POST); (3) explicit `site` tags on CW sends currently attributed by from-address only; (4) bounce/complaint alert thresholds if volume justifies them (not yet at ~225/send with zero complaints).
+
+**Watch next:** first legitimate KD weekly runs **Wednesday 2026-09-16 00:00 UTC** (Tue 17:00 PDT). Confirm the run log says `[KD] Found N recent posts` rather than the old skip line. KD weekly cadence stays coupled to KD blog publishing: exactly one post is currently inside the 7-day lookback for that run.
+
 
 **2026-09-12 · CW first-month drip redesign sprint is CLOSED. Days 2, 3 and 5 are live; days 3 and 5 are FROZEN PENDING REAL-USER DATA.** Main `826a8cc3`.
 
