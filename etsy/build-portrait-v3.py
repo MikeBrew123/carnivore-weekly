@@ -129,7 +129,7 @@ for i, diet in enumerate(diets):
           <div class="tips-text" style="border-left-color:{diet['hdr_bg']}">
             <ul class="mistakes-list">
               <li>Going too lean. Fat is your main fuel source, not protein.</li>
-              <li>Skipping salt. You need at least 2-3 tsp per day.</li>
+              <li>Skipping salt. Salt every meal until the food tastes right.</li>
               <li>Not eating enough. Eat until you're full every time.</li>
               <li>Stepping on the scale daily. Track weight monthly instead.</li>
               <li>Quitting at week 2. Give your body a full 30 days to adapt.</li>
@@ -147,7 +147,7 @@ for i, diet in enumerate(diets):
   <div class="qs-panel" style="border-color:{diet['border_color']}">
     <div class="qs-hdr" style="background:{diet['gradient']}">&#9889; Quick Start Guide</div>
     <div class="qs-row">
-      <div class="qs-cell"><strong>Electrolytes:</strong> 2-3 tsp salt/day · Magnesium via bone broth or glycinate 400mg · Potassium from meat &amp; broth</div>
+      <div class="qs-cell"><strong>Electrolytes:</strong> Salt generously, to taste · Bone broth, meat &amp; organs are your minerals · On meds, ask your doctor</div>
       <div class="qs-cell"><strong>Adaptation:</strong> Week 1-2 flu-like symptoms normal · Week 3-4 energy stabilizes · Month 2-3 mental clarity improves</div>
       <div class="qs-cell"><strong>Troubleshooting:</strong> Diarrhea wks 1-2 is normal · Low energy = eat more fat · Cravings = add more salt</div>
     </div>

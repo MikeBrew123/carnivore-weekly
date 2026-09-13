@@ -169,7 +169,7 @@ lion_sections = f'''
       <div class="sec-hdr lion-hdr">&#10060; Common Mistakes</div>
       <div class="sec-body tips-text"><ul class="mistakes-list">
 <li>Going too lean. Fat is your main fuel source, not protein.</li>
-<li>Skipping salt. You need at least 2-3 tsp per day.</li>
+<li>Skipping salt. Salt every meal until the food tastes right.</li>
 <li>Not eating enough. Eat until you're full every time.</li>
 <li>Stepping on the scale daily. Track weight monthly instead.</li>
 <li>Quitting at week 2. Give your body a full 30 days to adapt.</li>
@@ -486,7 +486,7 @@ html = f'''<!DOCTYPE html>
   <div class="tips-row">
     <div class="tip-cell">
       <strong>&#9889; Electrolytes</strong>
-      Sodium: 2-3 tsp salt/day in water or on food · Magnesium: bone broth or glycinate 400mg · Potassium: meat &amp; broth are natural sources — add lite salt if cramping · Signs you need more: headache, fatigue, cramps, dizziness
+      Sodium: salt your food to taste, and be generous about it · Magnesium: bone broth, liver and heart · Potassium: meat &amp; broth are genuinely your best sources · On heart, BP, kidney or diuretic meds, your doctor sets these numbers
     </div>
     <div class="tip-cell">
       <strong>&#9888; Troubleshooting</strong>
