@@ -343,3 +343,94 @@ For issues or questions:
 **Dashboard Status**: ✅ Core functionality complete, ready for local deployment
 
 **Last Updated**: January 1, 2026
+
+## Command Centre 2.0 (2026-09-13)
+
+`generate_command_center.py` now renders an executive decision layer above the
+existing monitoring report. Nothing was removed: every previous section lives
+in the collapsible **Forensic detail** region at the bottom of the page.
+
+| Layer | What it answers | Where the logic lives |
+|---|---|---|
+| Executive brief | status verdict + 3–6 plain sentences | `command_center_exec.build_executive` |
+| What changed | DoD and WoW, sample-size guarded | `build_changes` |
+| Revenue | yesterday / 7d / 30d / MTD, gross vs NET target | `build_revenue` |
+| Needs attention | operational problems only | `build_needs_attention` |
+| Do not overreact to | tiny denominators, crawler days, repeat events | `build_dont_overreact` |
+| Business scorecard | current vs previous comparable + trend | `scorecard_html` |
+| Paid funnel | GA4 sessions per event, stages tagged | `build_funnel` |
+| Currently measuring | protects a live experiment from early changes | `build_experiments` |
+| Signal vs noise | observed vs decision-useful sessions | `clean_traffic` |
+| Change correlation | project log + git vs metric movements | `parse_timeline` / `correlate` |
+| Data quality | per-source freshness and failure state | `build_data_quality` |
+
+### Rules the code enforces
+
+- **Sample size.** A percentage is suppressed when both periods sit under the
+  floor in `MIN_SAMPLE`. `1 → 3` renders as `+2, low sample — directional only`.
+- **Failed source ≠ zero.** Any fetcher returning `{'error': ...}` renders
+  "data unavailable"; it never becomes a 0 in a headline or a trend.
+- **Gross vs net.** The `$1,000/month` target is NET. MTD gross and MTD net are
+  shown on separate lines and progress is measured against the net figure. Net
+  here is gross minus Stripe refunds only — processor fees and COGS are not fed
+  in, and the page says so.
+- **Sessions, not event fires.** The funnel counts GA4 sessions containing each
+  event. On 2026-09-13 the bridge CTA showed 31 fires from 7 sessions.
+- **Stage honesty.** Every funnel stage is tagged `measured`, `inferred` or
+  `unavailable`. CTA controls that open the payment modal are drawn as
+  overlapping *contributors*, not as a stage above it, because the modal has
+  more than one entry point.
+- **Correlation is not cause.** A change must be at least 2 days old to be
+  offered as a co-movement, curated project-log entries outrank commit
+  subjects, and every statement carries the caveat.
+- **Read-only.** The dashboard observes. It never sends, deploys, publishes, or
+  writes to customer records.
+
+### Email metrics
+
+Unchanged from the 2026-09-13 repair and **must not be redefined without
+evidence of a defect**: attempts = distinct delivered + bounced; delivery and
+bounce over attempts; complaint and both unique rates over delivered; fixture
+addresses excluded from the whole production cohort first. The executive layer
+consumes that block verbatim.
+
+### Declaring an experiment
+
+Edit `dashboard/experiments.json`. Only the GA4 event pair lives there, because
+prose cannot name a denominator; the narrative of the change is picked up from
+`docs/project-log/decisions.md` automatically. Delete the entry when it ends.
+
+### Tests
+
+```
+python3 dashboard/test_command_center.py
+```
+
+44 tests. Each one pins a rule the previous version of the page broke.
+
+### Deploying to the NAS
+
+```
+python3 dashboard/generate_command_center.py --nas --email
+```
+
+Publishes to `http://100.117.74.5:8087/live/command-center.html` plus a dated
+archive copy, then emails the report. Requires Tailscale.
+
+The **Mac crontab at 03:40 PT is the only thing that runs the Command Center**:
+
+```
+40 3 * * * /opt/homebrew/bin/python3 .../dashboard/generate_command_center.py --nas --email
+```
+
+`.github/workflows/dashboard-update.yml` refreshes the Google Sheet only — it
+was deliberately taken off the Command Center on 2026-08-28 because the runner
+cannot route to the Tailscale-only NAS, and the repo is public, so a report
+holding subscriber emails and revenue must never be staged there as an
+artifact. That workflow does run `test_command_center.py`, so a regression in
+the executive layer fails CI even though the report itself is generated on the
+Mac.
+
+Nothing new needs to be installed for 2.0 — `command_center_exec.py` is pure
+standard library and sits next to the generator, so the existing cron line and
+NAS layout are unchanged.

@@ -1,0 +1,15 @@
+{
+  "_readme": "What is currently being measured. One entry per live experiment. Only the GA4 event pair lives here, because prose in docs/project-log/decisions.md cannot name a denominator; the narrative of the change is picked up automatically from the project log by parse_timeline(). DELETE an entry when the experiment concludes. min_sample is the number of denominator sessions required before the dashboard will let anyone call a result — below it the panel says KEEP MEASURING.",
+  "experiments": [
+    {
+      "name": "CW bridge offer revision",
+      "started": "2026-09-07",
+      "denominator_event": "calculator_offer_impression",
+      "denominator_label": "Paid offer seen (sessions)",
+      "numerator_event": "calculator_bridge_cta_click",
+      "numerator_label": "Bridge CTA engaged (sessions)",
+      "min_sample": 100,
+      "notes": "Offer impression fires at 50% card visibility. Do not change the bridge card, its copy, or the price while this reads KEEP MEASURING."
+    }
+  ]
+}
