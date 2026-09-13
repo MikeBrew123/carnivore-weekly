@@ -8167,6 +8167,28 @@ async function sendResumeEmailIfOwed(env, obj) {
  * One message, one link back to their own saved answers.
  * =========================================================================== */
 
+/**
+ * HISTORICAL ISOLATION. Recovery applies only to abandonments created after the
+ * recorder went live, and this constant is what makes that structural rather than
+ * circumstantial.
+ *
+ * The worker went live 2026-09-13 15:27 UTC and the Stripe endpoint was subscribed to
+ * `checkout.session.expired` moments later. This epoch is deliberately set LATER than
+ * both, at a round 16:00 UTC, so that it also excludes every checkout session created
+ * during the wiring verification. Anything older is refused on age alone.
+ *
+ * What this buys: flipping CW_ABANDON_RECOVERY_ENABLED cannot reach backwards. The five
+ * known historical abandoners, every pre-existing `pending` row, and any Stripe event
+ * from before today are all refused here even if something replays them, and even if
+ * every other gate were somehow satisfied. The cost is a roughly half-hour window today
+ * in which a genuine abandonment would be skipped, which is the right side to err on.
+ *
+ * Checked against the Checkout Session's OWN creation time, not the assessment row's.
+ * Somebody who filled in the calculator a fortnight ago, came back today and abandoned a
+ * fresh checkout is a new abandonment and must stay eligible.
+ */
+const ABANDON_RECOVERY_EPOCH_MS = Date.parse('2026-09-13T16:00:00Z');
+
 const abandonEmailMarkerId = checkoutSessionId => `cw-abandon-email:${checkoutSessionId}`;
 
 function buildRecoveryLink(assessmentId) {
@@ -8185,6 +8207,27 @@ function buildRecoveryLink(assessmentId) {
  */
 const ABANDON_EMAIL_SUBJECT = 'Your carnivore numbers are still saved';
 
+/**
+ * Sarah, 2026-09-13, reviewed as a real customer communication and used verbatim. The
+ * paragraph break before "One honest note" is the only editorial change to what she
+ * returned, and it moves no words.
+ *
+ * Two things she changed and why they must not drift back:
+ *
+ * 1. The offer no longer names a section. "The Stall-Breaker Protocol" is fat-loss only
+ *    and is deliberately withheld from maintenance and gaining readers, and a protein
+ *    restriction or kidney flag replaces BOTH the meal calendar and the grocery lists
+ *    with a medical notice. This email is sent before the health profile is asked, so
+ *    those answers are unknown at send time. It therefore describes the substance, ties
+ *    it to the goal we DO know they picked, and states the suppression plainly instead
+ *    of hiding it.
+ * 2. "I'll sort it out" is gone. The inbox is real and is read, so inviting a reply is
+ *    honest, but there is no support tooling, no refund path, and nothing was charged.
+ *    Promising a fixed outcome would cost more trust than the invitation earns.
+ *
+ * No discount, no deadline, no scarcity, no second email. "You won't hear from me about
+ * it again" is a fact the one-per-person marker enforces, not a reassurance.
+ */
 function buildAbandonEmailBody(recoveryLink, unsubscribeLink) {
   const paragraphs = [
     'You started the full plan the other day and didn\'t finish checking out. That\'s ' +
@@ -8193,12 +8236,20 @@ function buildAbandonEmailBody(recoveryLink, unsubscribeLink) {
     'link takes you back to your own results:',
   ];
   const closing = [
-    'If you were on the fence, the $29 adds the 30 days of meals portioned to your own ' +
-    'calorie and protein numbers, the grocery lists that match those meals week by week, ' +
-    'and the section on what to do when the scale stops moving. The macros you already ' +
-    'have stay free either way.',
-    'If it\'s not for you, no hard feelings, and you can ignore this. If something went ' +
-    'wrong at the payment screen, reply and tell me what you saw and I\'ll sort it out.',
+    'If you were on the fence, the $29 builds 30 days of meals around the calorie and ' +
+    'protein numbers you already have, adds grocery lists that match those meals week by ' +
+    'week, and keeps the advice pointed at the goal you picked rather than someone ' +
+    'else\'s.',
+    'One honest note before you decide: the report asks about your health first, and if ' +
+    'your answers are the kind of thing that needs a doctor rather than a meal plan, ' +
+    'those sections are replaced with a plain explanation and a recommendation to talk ' +
+    'to yours. I\'d rather you hear that from me now than find it after you\'ve paid. ' +
+    'The macros you already have stay free either way.',
+    'If it\'s not for you, no hard feelings. Ignore this and you won\'t hear from me ' +
+    'about it again.',
+    'If something went wrong at the payment screen, reply and tell me what you saw. I ' +
+    'read this inbox myself and I\'ll answer you. I can\'t always fix a payment problem ' +
+    'from my side, but I\'d rather know about it than not.',
   ];
 
   const text = [...paragraphs, recoveryLink, ...closing, 'Sarah', 'Carnivore Weekly',
@@ -8260,6 +8311,17 @@ async function sendAbandonRecoveryIfOwed(env, obj) {
   // The kill switch. Unset in production until the copy above is approved, so the
   // detector runs and the abandonment is recorded while nothing is sent.
   if (env.CW_ABANDON_RECOVERY_ENABLED !== 'true') return { skipped: 'recovery-disabled' };
+
+  // Historical isolation, evaluated before any lookup so it cannot be reasoned around.
+  // A Session with no creation time is refused too: an event we cannot date is an event
+  // we cannot prove is new.
+  const createdMs = typeof obj.created === 'number' ? obj.created * 1000 : null;
+  if (createdMs === null) return { skipped: 'no-session-created-at' };
+  if (createdMs < ABANDON_RECOVERY_EPOCH_MS) {
+    console.log(`[abandon-email] refusing ${obj.id}: checkout created ${new Date(createdMs).toISOString()}, ` +
+      `before the recovery epoch ${new Date(ABANDON_RECOVERY_EPOCH_MS).toISOString()}`);
+    return { skipped: 'before-recovery-epoch' };
+  }
 
   const headers = {
     'Content-Type': 'application/json',
@@ -9428,6 +9490,7 @@ export {
   buildAbandonEmailBody as __test_buildAbandonEmailBody,
   isEmailSuppressed as __test_isEmailSuppressed,
   ABANDON_EMAIL_SUBJECT as __test_ABANDON_EMAIL_SUBJECT,
+  ABANDON_RECOVERY_EPOCH_MS as __test_ABANDON_RECOVERY_EPOCH_MS,
   RENAL_MEAL_CALENDAR_NOTICE as __test_RENAL_MEAL_CALENDAR_NOTICE,
   RENAL_GROCERY_LIST_NOTICE as __test_RENAL_GROCERY_LIST_NOTICE,
   generateGroceryListByWeek as __test_generateGroceryListByWeek,

@@ -26,12 +26,14 @@ vars = { ENVIRONMENT = "development", SUPABASE_URL = "https://kwtdpvnjewtahuxjyl
 # - FRONTEND_URL: Frontend domain for CORS
 # - API_BASE_URL: API base URL
 #
-# Abandoned-checkout recovery (2026-09-13). NOT a secret, and deliberately NOT set
-# below: with it unset the worker records every `checkout.session.expired` and sends
-# nothing. Set CW_ABANDON_RECOVERY_ENABLED = "true" in [env.production].vars only
-# once Brew has approved the email copy in sendAbandonRecoveryIfOwed.
-# The Stripe endpoint must also be subscribed to `checkout.session.expired`, or the
-# worker never hears about an abandonment at all.
+# Abandoned-checkout recovery. NOT a secret. Recording has been live since
+# 2026-09-13 15:27 UTC; SENDING was switched on later the same day after Sarah
+# reviewed the copy. Set it back to "false" (or delete it) to stop sending, which
+# leaves recording untouched.
+# Two things hold this safe and both must stay: the Stripe endpoint stays subscribed
+# to `checkout.session.expired`, and ABANDON_RECOVERY_EPOCH_MS in calculator-api.js
+# keeps refusing any checkout created before the recorder went live, so turning the
+# flag on can never reach a historical abandoner.
 #
 # Etsy integration secrets:
 # - ETSY_CLIENT_ID: Etsy API key
@@ -60,7 +62,7 @@ id = "022b2eba60cb4e39bec97759109e7acf"
 
 # Production environment variables
 [env.production]
-vars = { ENVIRONMENT = "production", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", FRONTEND_URL = "https://carnivoreweekly.com", GA4_MEASUREMENT_ID = "G-NR4JVKW2JV" }
+vars = { ENVIRONMENT = "production", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", FRONTEND_URL = "https://carnivoreweekly.com", GA4_MEASUREMENT_ID = "G-NR4JVKW2JV", CW_ABANDON_RECOVERY_ENABLED = "true" }
 
 # Etsy PKCE state storage for production.
 # Without this the production Worker has no ETSY_AUTH_KV binding, and because
