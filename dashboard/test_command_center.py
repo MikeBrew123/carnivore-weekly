@@ -440,6 +440,76 @@ class Timeline(unittest.TestCase):
         self.assertEqual(X.correlate(tl, ch, TODAY), [])
 
 
+class Evidence(unittest.TestCase):
+    def test_tiers_track_the_sample_floor(self):
+        self.assertEqual(X.evidence(5, 'sessions'), 'thin')
+        self.assertEqual(X.evidence(50, 'sessions'), 'usable')
+        self.assertEqual(X.evidence(400, 'sessions'), 'solid')
+        self.assertEqual(X.evidence(None, 'sessions'), 'thin')
+
+    def test_every_delta_carries_an_evidence_tier(self):
+        c = X.delta('Purchases', 1, 3, base='purchases')
+        self.assertIn(c['evidence'], X.EVIDENCE_TIERS)
+        self.assertEqual(c['evidence'], 'thin')
+        self.assertEqual(c['floor'], X.MIN_SAMPLE['purchases'])
+
+
+class WhatMatters(unittest.TestCase):
+    empty = {'email_engagement': {}}
+
+    def base_changes(self):
+        return {'dod': [], 'wow': []}
+
+    def test_a_quiet_day_says_so_rather_than_inventing_work(self):
+        items = X.build_what_matters(self.empty, self.base_changes(), {},
+                                     {'unavailable': False, 'yesterday': {'net': 0, 'charges': 0},
+                                      'last_30d': {'net': 0}, 'purchases_30d': 0},
+                                     [], [], TODAY_ISO)
+        self.assertTrue(all('No action' in i['action'] for i in items))
+
+    def test_every_item_is_a_fact_interpretation_action_triple(self):
+        items = X.build_what_matters(
+            self.empty, self.base_changes(), {},
+            X.build_revenue(Revenue.rev, 1000.0, TODAY),
+            [{'severity': 'red', 'text': 'Queue empty', 'why': None}], [], TODAY_ISO)
+        for i in items:
+            self.assertTrue(i['fact'] and i['interpretation'] and i['action'])
+            self.assertIn(i['state'], ('action', 'watch', 'good'))
+
+    def test_amber_attention_is_not_mirrored_here(self):
+        items = X.build_what_matters(
+            self.empty, self.base_changes(), {}, {'unavailable': True},
+            [{'severity': 'amber', 'text': 'Pinterest queue empty', 'why': None}], [], TODAY_ISO)
+        self.assertNotIn('Pinterest queue empty', [i['fact'] for i in items])
+
+    def test_red_attention_leads(self):
+        items = X.build_what_matters(
+            self.empty, self.base_changes(), {}, {'unavailable': True},
+            [{'severity': 'red', 'text': 'Workflow failed', 'why': None}], [], TODAY_ISO)
+        self.assertEqual(items[0]['state'], 'action')
+        self.assertEqual(items[0]['fact'], 'Workflow failed')
+
+    def test_low_sample_movement_never_becomes_an_item(self):
+        ch = {'dod': [], 'wow': [X.delta('Purchases (7d)', 1, 3, base='purchases')]}
+        items = X.build_what_matters(self.empty, ch, {}, {'unavailable': True}, [], [], TODAY_ISO)
+        self.assertNotIn('Purchases (7d)', ' '.join(i['fact'] for i in items))
+
+    def test_capped_at_five(self):
+        att = [{'severity': 'red', 'text': f'Thing {i}', 'why': None} for i in range(9)]
+        self.assertLessEqual(
+            len(X.build_what_matters(self.empty, self.base_changes(), {}, {'unavailable': True},
+                                     att, [], TODAY_ISO)), 5)
+
+    def test_a_locked_experiment_produces_a_do_not_touch_action(self):
+        exps = X.build_experiments(Experiments.spec, Experiments().events(29, 6, 2), TODAY)
+        items = X.build_what_matters(self.empty, self.base_changes(), {}, {'unavailable': True},
+                                     [], exps, TODAY_ISO)
+        item = next(i for i in items if 'bridge' in i['fact'])
+        self.assertIn('do not change', item['action'].lower())
+        self.assertIn('6 engagements', item['fact'])
+        self.assertIn('2 purchases', item['fact'])
+
+
 class Renders(unittest.TestCase):
     """The generator must import and render without network access."""
 
@@ -470,11 +540,18 @@ class Renders(unittest.TestCase):
         d['correlations'] = []
         d['executive'] = X.build_executive(d, d['changes'], d['paid_funnel'], d['revenue_exec'],
                                            d['needs_attention'], TODAY_ISO)
+        d['what_matters'] = X.build_what_matters(d, d['changes'], d['paid_funnel'],
+                                                 d['revenue_exec'], d['needs_attention'], [],
+                                                 TODAY_ISO)
         html = G.render_html(d)
-        self.assertIn('Executive brief', html)
-        self.assertIn('Data unavailable', html)
-        self.assertNotIn('$0.00 gross', html, 'a Stripe failure must not render as zero revenue')
+        self.assertIn('What matters today', html)
+        # A failed source must read as unavailable everywhere it appears, and
+        # must never be rendered as a zero.
+        self.assertIn('Unavailable — timeout', html)
+        self.assertIn('This is not zero revenue', html)
+        self.assertIn('Traffic unavailable — not zero traffic', html)
         self.assertIn('not zero', html)
+        self.assertNotIn('$0.00', html, 'a Stripe failure must not render as zero revenue')
 
     def _full_data(self):
         """A healthy collect() result, built without any network call."""
@@ -543,7 +620,8 @@ class Renders(unittest.TestCase):
                  'calculator_payment_modal_opened': {'sessions': 9, 'events': 34, 'daily': []},
                  'begin_checkout': {'sessions': 3, 'events': 3, 'daily': []},
                  'purchase': {'sessions': 3, 'events': 5, 'daily': []}}},
-             'insights': []}
+             'insights': [], 'analysis': {'narrative': None, 'generated_by': 'rules',
+                                          'focus': 'x'}}
         d['data_quality'] = X.build_data_quality(d, d['meta']['generated_at'])
         d['timeline'] = []
         d['paid_funnel'] = X.build_funnel(d['offer_events'])
@@ -556,6 +634,9 @@ class Renders(unittest.TestCase):
         d['correlations'] = []
         d['executive'] = X.build_executive(d, d['changes'], d['paid_funnel'], d['revenue_exec'],
                                            d['needs_attention'], TODAY_ISO)
+        d['what_matters'] = X.build_what_matters(d, d['changes'], d['paid_funnel'],
+                                                 d['revenue_exec'], d['needs_attention'],
+                                                 d['experiments'], TODAY_ISO)
         return d
 
     def test_executive_layer_is_complete_when_the_model_returns_nothing(self):
@@ -569,9 +650,10 @@ class Renders(unittest.TestCase):
         self.assertGreaterEqual(len(ex['brief']), 3)
         self.assertTrue(ex['status_label'])
         self.assertTrue(ex['suggested_action'])
-        for marker in ('Executive brief', 'What changed', 'Business scorecard',
-                       'CW paid funnel', 'Signal vs noise', 'Data sources',
-                       'Cleaned trend sessions', 'Revenue'):
+        for marker in ('What matters today', 'Carnivore Weekly', 'KetoDial',
+                       'Paid funnel', 'Currently measuring', 'Signal vs noise',
+                       'Data health', 'Cleaned trend sessions', 'Revenue',
+                       'Needs attention', 'Change timeline'):
             self.assertIn(marker, html, f'{marker} must survive a null model narrative')
         self.assertIn('No AI review', html)
 
@@ -585,6 +667,35 @@ class Renders(unittest.TestCase):
         self.assertIn('unavailable', html)
         self.assertNotIn('% of the NET target', html)
         self.assertNotIn('human-like', html)
+
+    def test_no_always_100_percent_indicator_is_drawn(self):
+        """The brief's example of a useless element: a bar that is 100% by
+        definition and can never move."""
+        import generate_command_center as G
+        html = G.render_html(self._full_data())
+        self.assertNotIn('100% carried', html,
+                         'a definitional 100% carry-through must not be drawn')
+        self.assertIn('equal by definition', html)
+
+    def test_print_stylesheet_excludes_the_forensic_drawer(self):
+        import generate_command_center as G
+        html = G.render_html(self._full_data())
+        block = html[html.index('@media print'):]
+        block = block[:block.index('</style>')]
+        self.assertIn('.forensic{display:none!important}', block.replace(' ', ''))
+        for kept in ('.statebar', '.matter', '.score', '.exp-item'):
+            self.assertIn(kept, block)
+
+    def test_customer_addresses_never_reach_the_cockpit(self):
+        import generate_command_center as G
+        d = self._full_data()
+        d['mail']['human'] = [{'id': 'x', 'from': 'reader@example.com', 'to': 'a@b.c',
+                               'subject': 'a question', 'date': '2026-09-12'}]
+        d['mail']['inbound'] = d['mail']['human']
+        html = G.render_html(d)
+        cockpit = html[:html.index('<details class="forensic"')]
+        self.assertNotIn('reader@example.com', cockpit)
+        self.assertIn('Replies from readers', cockpit)
 
 
 if __name__ == '__main__':

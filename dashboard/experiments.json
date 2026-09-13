@@ -11,7 +11,9 @@
       "min_sample": 100,
       "notes": "Offer impression fires at 50% card visibility. Do not change the bridge card, its copy, or the price while this reads KEEP MEASURING. When it reads REVIEW ELIGIBLE, that is a prompt for Brew to look, not a result: judge it on purchases, not on CTA clicks.",
       "outcome_event": "purchase",
-      "outcome_label": "Purchases since start"
+      "outcome_label": "Purchases since start",
+      "checkout_event": "begin_checkout",
+      "checkout_label": "Checkouts since start"
     }
   ]
 }

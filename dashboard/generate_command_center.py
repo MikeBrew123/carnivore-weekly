@@ -1762,6 +1762,9 @@ def collect(use_model=True):
     data['executive'] = X.build_executive(data, data['changes'], data['paid_funnel'],
                                           data['revenue_exec'], data['needs_attention'],
                                           today_iso)
+    data['what_matters'] = X.build_what_matters(data, data['changes'], data['paid_funnel'],
+                                                data['revenue_exec'], data['needs_attention'],
+                                                data['experiments'], today_iso)
 
     data['insights'] = build_insights(data)
     data['analysis'] = {'narrative': None, 'generated_by': 'rules', 'focus': daily_focus()[0]}
@@ -1842,7 +1845,7 @@ def funnel_html(f, accent):
     if wk:
         wk_html = (f'<p class="muted small">This week: {wk.get("current", 0)} sessions vs '
                    f'{wk.get("previous", 0)} last week {trend_html(wk.get("change_pct"))}</p>')
-    return f'{note}<div class="funnel">{"".join(rows)}</div>{wk_html}'
+    return f'{note}<div class="funnel-legacy">{"".join(rows)}</div>{wk_html}'
 
 
 def bar_list(items, key='value', accent='#4ade80', max_items=6):
@@ -1860,9 +1863,10 @@ def bar_list(items, key='value', accent='#4ade80', max_items=6):
 
 
 def table(headers, rows):
+    # class="data" scopes the forensic tables away from the cockpit's own type.
     th = ''.join(f'<th>{esc(h)}</th>' for h in headers)
     trs = ''.join('<tr>' + ''.join(f'<td>{c}</td>' for c in r) + '</tr>' for r in rows)
-    return f'<table><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table>'
+    return f'<table class="data"><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table>'
 
 
 def traffic_card(label, t, accent):
@@ -2004,406 +2008,501 @@ def etsy_card(e):
 
 
 
-# ── Executive-layer rendering ────────────────────────────────────────
-# Facts, interpretation and action are rendered in visually distinct blocks on
-# purpose. A reader must never have to guess whether a line is a measurement or
-# a guess about a measurement.
+# ── Cockpit rendering ────────────────────────────────────────────────
+# Design brief (2026-09-13). This is an operator's cockpit, not a report.
+#
+# The organising idea is that these numbers are SMALL — 3 purchases, 29
+# impressions, 190 sessions — and the page's job is to stop a small number
+# being read as a big signal. So sample weight is drawn, not footnoted: every
+# figure carries a three-segment evidence mark, and a thin-evidence figure is
+# rendered dimmed with its percentage withheld. The page goes quiet where it
+# does not know.
+#
+# Type carries the same rule. MONO IS MEASUREMENT, SANS IS INTERPRETATION:
+# anything measured is set in the mono face, anything inferred is set in the
+# prose face, so a reader can tell fact from inference before reading a word.
+#
+# CW is identified by an ember rule, KD by a teal one, used only as 2px marks
+# and labels — never as a card fill, because colour here means state.
+#
+# Nothing decorative renders. In particular there is no bar for a funnel's
+# first stage, which is 100% by definition and can never change.
 
-STATUS_CLASS = {'green': 'st-green', 'blue': 'st-blue', 'amber': 'st-amber', 'red': 'st-red'}
+STATE_WORD = {'green': 'Healthy', 'blue': 'Watching',
+              'amber': 'Needs attention', 'red': 'Action required'}
+STATE_CLASS = {'green': 'ok', 'blue': 'info', 'amber': 'warn', 'red': 'crit'}
+ITEM_CLASS = {'good': 'ok', 'watch': 'warn', 'action': 'crit'}
+ITEM_WORD = {'good': 'Clear', 'watch': 'Watch', 'action': 'Act'}
 
 
-def chg_pill(c):
-    """One movement. A low-sample movement shows no percentage at all."""
+def ev_mark(tier, title=''):
+    """The signature element: three segments, filled to the evidence tier."""
+    fills = {'thin': 1, 'usable': 2, 'solid': 3}.get(tier, 1)
+    segs = ''.join(f'<i class="{"on" if k < fills else ""}"></i>' for k in range(3))
+    label = title or {'thin': 'Thin sample — direction only',
+                      'usable': 'Sample large enough to read',
+                      'solid': 'Solid sample'}.get(tier, '')
+    return f'<span class="ev ev-{tier}" title="{esc(label)}">{segs}</span>'
+
+
+def num(value, unit='count', tier='usable'):
+    """A measured figure. Dimmed when the evidence behind it is thin."""
+    if value is None:
+        return '<span class="n na">unavailable</span>'
+    if unit == 'money':
+        text = f'${value:,.2f}'
+    elif unit == 'pct':
+        text = f'{value:.1f}%'
+    else:
+        text = f'{value:,.0f}' if isinstance(value, (int, float)) else str(value)
+    return f'<span class="n {"faint" if tier == "thin" else ""}">{esc(text)}</span>'
+
+
+def delta_cell(c):
+    """Direction + percentage, or direction + absolute when the base is thin."""
     if not c:
-        return ''
-    arrow = {'up': '▲', 'down': '▼', 'flat': '■'}[c['direction']]
-    cls = {'up': 'up', 'down': 'down', 'flat': 'flat'}[c['direction']]
-    pct = (f'<span class="pct">{c["pct"]:+.0f}%</span>'
-           if c['pct'] is not None else '<span class="pct muted">—</span>')
-    note = f'<div class="chg-note">{esc(c["note"])}</div>' if c.get('note') else ''
-    return (f'<div class="chg {cls}">'
-            f'<div class="chg-label">{esc(c["label"])}</div>'
-            f'<div class="chg-vals"><span class="was">{esc(c["prev_fmt"])}</span>'
-            f'<span class="arrow">→</span><b>{esc(c["cur_fmt"])}</b>'
-            f'<span class="abs">{esc(c["abs_fmt"])}</span>{arrow} {pct}</div>'
-            f'{note}</div>')
+        return '<span class="d flat">—</span>'
+    arrow = {'up': '↑', 'down': '↓', 'flat': '→'}[c['direction']]
+    if c['pct'] is None:
+        return (f'<span class="d {c["direction"]} faint" title="Sample too small for a '
+                f'percentage">{arrow} {esc(c["abs_fmt"])}</span>')
+    return f'<span class="d {c["direction"]}">{arrow} {c["pct"]:+.0f}%</span>'
 
 
-def exec_html(d):
+# ── Top strip: business state ────────────────────────────────────────
+
+def statebar_html(d):
     ex = d.get('executive') or {}
-    if not ex:
-        return '<p class="muted">Executive summary unavailable.</p>'
-    cls = STATUS_CLASS.get(ex['status'], 'st-blue')
-    brief = ' '.join(esc(b) for b in ex.get('brief', []))
-    return (f'<div class="exec {cls}">'
-            f'<div class="exec-status">{ex["status_icon"]} {esc(ex["status_label"])}</div>'
-            f'<p class="exec-brief">{brief}</p></div>')
+    r = d.get('revenue_exec') or {}
+    ops = sum(1 for i in (d.get('needs_attention') or []) if i['severity'] == 'red')
+    exps = d.get('experiments') or []
+    cls = STATE_CLASS.get(ex.get('status', 'blue'), 'info')
+
+    def cell(label, value, sub='', extra=''):
+        sub_html = f'<span class="sb-sub">{sub}</span>' if sub else ''
+        return (f'<div class="sb-cell {extra}"><span class="sb-label">{esc(label)}</span>'
+                f'<span class="sb-val">{value}</span>{sub_html}</div>')
+
+    if r.get('unavailable'):
+        money = (cell('Yesterday', '<span class="n na">unavailable</span>')
+                 + cell('7 days', '<span class="n na">unavailable</span>')
+                 + cell('30 days', '<span class="n na">unavailable</span>')
+                 + cell('Purchases', '<span class="n na">unavailable</span>'))
+    else:
+        money = (cell('Yesterday', num(r['yesterday'].get('net', 0), 'money'), 'collected')
+                 + cell('7 days', num(r['last_7d'].get('net', 0), 'money'), 'collected')
+                 + cell('30 days', num(r['last_30d'].get('net', 0), 'money'), 'collected')
+                 + cell('Purchases', num(r['purchases_30d'], 'count',
+                                         X.evidence(r['purchases_30d'], 'purchases')), '30 days'))
+    if exps:
+        e = exps[0]
+        locked = 'KEEP MEASURING' in e['status']
+        exp_cell = cell('Measuring',
+                        f'<span class="n">{e["denominator"]}<span class="of">/{e["min_sample"]}'
+                        f'</span></span>',
+                        'review threshold' if locked else 'review eligible',
+                        'sb-exp' + (' locked' if locked else ''))
+    else:
+        exp_cell = cell('Measuring', '<span class="n na">none</span>')
+    ops_cell = cell('Operations',
+                    f'<span class="n {"bad" if ops else ""}">{ops}</span>',
+                    'failing' if ops else 'all green', 'sb-ops' + (' bad' if ops else ''))
+
+    return (f'<div class="statebar {cls}">'
+            f'<div class="sb-state"><span class="dot"></span>'
+            f'<span class="sb-state-word">{esc(STATE_WORD.get(ex.get("status", "blue")))}</span>'
+            f'<span class="sb-state-sub">Business state</span></div>'
+            f'<div class="sb-cells">{money}{exp_cell}{ops_cell}</div></div>')
 
 
-def interp_html(d):
-    ex = d.get('executive') or {}
-    cols = [
-        ('What this means', 'interp', ex.get('what_this_means'),
-         'Interpretation of the measurements above, not a measurement.'),
-        ("What I'd watch", 'watch', ex.get('what_id_watch'),
-         'Not yet actionable — confirm before moving on it.'),
-        ('Suggested next action', 'action', ex.get('suggested_action'), None),
-    ]
+# ── What matters today ───────────────────────────────────────────────
+
+def matters_html(d):
+    items = d.get('what_matters') or []
     out = ''
-    for title, css, items, sub in cols:
-        lis = ''.join(f'<li>{esc(i)}</li>' for i in (items or [])) or '<li class="muted">Nothing.</li>'
-        subtitle = f'<div class="col-sub">{esc(sub)}</div>' if sub else ''
-        out += (f'<div class="card col-{css}"><h3>{esc(title)}</h3>{subtitle}'
-                f'<ul class="plain">{lis}</ul></div>')
+    for it in items:
+        cls = ITEM_CLASS.get(it['state'], 'info')
+        noact = 'noact' if it['action'].lower().startswith('no action') else ''
+        out += (f'<article class="matter {cls}">'
+                f'<header><span class="chip {cls}">{esc(ITEM_WORD.get(it["state"], ""))}</span>'
+                f'<h3 class="fact">{esc(it["fact"])}</h3></header>'
+                f'<p class="interp">{esc(it["interpretation"])}</p>'
+                f'<p class="act {noact}">{esc(it["action"])}</p></article>')
     return out
 
 
-def changes_html(d):
-    ch = d.get('changes') or {}
-    dod = ''.join(chg_pill(c) for c in ch.get('dod', []))
-    wow = ''.join(chg_pill(c) for c in ch.get('wow', []))
-    levels = ''.join(
-        f'<div class="stat"><b>{l["value"]}</b><span>{esc(l["label"])}</span></div>'
-        for l in ch.get('yesterday_levels', []))
-    lv = (f'<h4>Yesterday ({esc(ch.get("yesterday_date") or "—")}) — levels, no stored prior day'
-          f'</h4><div class="statrow wrap">{levels}</div>') if levels else ''
-    return (f'<div class="card"><h3>Since yesterday</h3>'
-            f'<div class="chg-grid">{dod or "<p class=muted>No day-over-day pairs available.</p>"}</div>'
-            f'{lv}</div>'
-            f'<div class="card"><h3>Since last week <span class="muted small">'
-            f'(7 complete days vs the 7 before)</span></h3>'
-            f'<div class="chg-grid">{wow or "<p class=muted>No week-over-week pairs available.</p>"}</div></div>')
+# ── Scorecards ───────────────────────────────────────────────────────
+
+SCORE_GROUPS = ('Traffic', 'Audience', 'Buying intent', 'Revenue', 'Email')
 
 
-def revenue_exec_html(d):
-    """Three quantities, kept apart: gross, collected after refunds, and net
-    profit — which is not measured. There is no progress bar, because a bar
-    against an unknown numerator would be a picture of a number we do not have.
-    """
-    r = d.get('revenue_exec') or {}
-    if r.get('unavailable'):
-        return (f'<div class="card col-rev"><h3>💰 Revenue</h3>'
-                f'<p class="err">Data unavailable — {esc(r.get("reason"))}. '
-                f'This is not zero revenue.</p></div>')
-    aov = (f'${r["aov_30d"]:.2f}' if r.get('aov_30d') else '—')
-    aov_note = ('' if r.get('aov_reliable')
-                else f' <span class="muted small">({r["purchases_30d"]} sales — thin)</span>')
-    prods = ''.join(f'<div class="kv"><span>{esc(k)}</span><span>${v:,.2f}</span></div>'
-                    for k, v in sorted((r.get('by_product_30d') or {}).items(),
-                                       key=lambda x: -x[1]))
-    return (f'<div class="card col-rev"><h3>💰 Revenue</h3>'
-            f'<div class="statrow wrap">'
-            f'<div class="stat"><b>${r["yesterday"].get("net", 0):,.2f}</b><span>yesterday</span></div>'
-            f'<div class="stat"><b>${r["last_7d"].get("net", 0):,.2f}</b><span>7 days</span></div>'
-            f'<div class="stat"><b>${r["last_30d"].get("net", 0):,.2f}</b><span>30 days</span></div>'
-            f'<div class="stat"><b>{r["purchases_30d"]}</b><span>purchases 30d</span></div>'
-            f'<div class="stat"><b>{aov}{aov_note}</b><span>avg order</span></div></div>'
-            f'<p class="muted small">Amounts above are collected revenue after refunds.</p>'
-            f'<h4>Month to date</h4>'
-            f'<div class="kv"><span>Gross charged</span><span>${r["mtd_gross"]:,.2f}</span></div>'
-            f'<div class="kv"><span>Refunds</span><span>−${r["mtd_refunds"]:,.2f}</span></div>'
-            f'<div class="kv"><span><b>{esc(r["collected_label"])}</b></span>'
-            f'<span><b>${r["mtd_collected"]:,.2f}</b></span></div>'
-            f'<div class="kv"><span>Net profit</span>'
-            f'<span class="unknown">not measured</span></div>'
-            f'<div class="kv"><span>Target</span>'
-            f'<span>${r["target_net_profit"]:,.0f}/mo NET PROFIT</span></div>'
-            f'<div class="kv"><span>Progress toward target</span>'
-            f'<span class="unknown">unavailable</span></div>'
-            f'<p class="caveat">⚠ {esc(r["target_note"])}</p>'
-            f'<p class="muted small">{esc(r["collected_basis"])}</p>'
-            f'<h4>By product (30d)</h4>{prods or "<p class=muted small>No attributed sales.</p>"}'
-            f'</div>')
-
-
-def attention_html(d):
-    items = d.get('needs_attention') or []
-    if not items:
-        return ('<div class="card col-ok"><h3>🟢 Needs attention</h3>'
-                '<p>Nothing needs intervention today.</p>'
-                '<p class="muted small">Metrics being down is not, by itself, a problem. '
-                'This box stays empty unless something is actionable.</p></div>')
-    lis = ''
-    for it in items:
-        dot = '🔴' if it['severity'] == 'red' else '🟡'
-        why = f'<div class="col-sub">{esc(it["why"])}</div>' if it.get('why') else ''
-        lis += f'<li class="att {it["severity"]}">{dot} {esc(it["text"])}{why}</li>'
-    return (f'<div class="card col-att"><h3>Needs attention '
-            f'<span class="muted small">({len(items)})</span></h3>'
-            f'<ul class="plain">{lis}</ul></div>')
-
-
-def dont_overreact_html(d):
-    items = d.get('dont_overreact') or []
-    if not items:
-        return ''
-    lis = ''.join(f'<li>{esc(i)}</li>' for i in items)
-    return (f'<div class="card col-dno"><h3>🚧 Do not overreact to</h3>'
-            f'<ul class="plain">{lis}</ul></div>')
-
-
-def signal_html(d):
-    sig = d.get('signal') or {}
-    cards = ''
-    for site, label in (('cw', 'Carnivore Weekly'), ('kd', 'KetoDial')):
-        s = sig.get(site)
-        if not s:
-            cards += (f'<div class="card"><h3>{esc(label)}</h3>'
-                      f'<p class="err">Traffic data unavailable — not zero traffic.</p></div>')
-            continue
-        flag = ('<p class="caveat">⚠ Raw metric — known crawler distortion on '
-                + esc(', '.join(s['excluded_days'])) + '</p>') if s['contaminated'] else ''
-        base = (f'<div class="kv"><span>28-day baseline (median × 7)</span>'
-                f'<span>{s["baseline_28d_7d"]}</span></div>' if s.get('baseline_28d_7d') else '')
-        today = (f'<div class="kv"><span>Today so far (not comparable)</span>'
-                 f'<span>{s["today_so_far"]}</span></div>' if s.get('today_so_far') is not None else '')
-        cards += (f'<div class="card"><h3>{esc(label)}</h3>'
-                  f'<div class="kv"><span>Observed (GA4 as reported, 7d)</span>'
-                  f'<span>{s["observed_7d"]}</span></div>'
-                  f'<div class="kv"><span><b>Cleaned trend sessions</b> (7d)</span>'
-                  f'<span><b>{s["clean_7d"]}</b></span></div>{base}{today}{flag}'
-                  f'<div class="chg-grid">{chg_pill(s["delta"])}</div>'
-                  f'<p class="muted small">Method: {esc(s.get("method", ""))}</p></div>')
-    return cards
-
-
-def scorecard_html(d, site, label, accent):
-    """One compact business scorecard. Current, previous comparable, trend."""
+def scorecard_html(d, site, label, ident):
     rows = []
 
-    def row(name, cur, prev, unit='count', base='generic', invert=False, note=None):
-        c = X.delta(name, prev, cur, unit=unit, base=base, invert=invert, note=note)
-        rows.append((name, cur, prev, c, unit))
+    def add(group, name, cur, prev=None, unit='count', base='generic', chg=None, note=None):
+        c = chg if chg is not None else (
+            X.delta(name, prev, cur, unit=unit, base=base) if prev is not None else None)
+        tier = X.evidence(cur if unit != 'pct' else (prev or 0) and cur, base)
+        if unit == 'pct':
+            tier = 'usable'
+        rows.append({'group': group, 'name': name, 'cur': cur, 'prev': prev, 'unit': unit,
+                     'chg': c, 'tier': tier, 'note': note})
 
     sig = (d.get('signal') or {}).get(site)
     if sig:
-        rows.append(('Sessions (observed)', sig['observed_7d'], sig['observed_prev_7d'],
-                     X.delta('Sessions (observed)', sig['observed_prev_7d'],
-                             sig['observed_7d'], base='sessions'), 'count'))
-        row('Sessions (cleaned trend)', sig['clean_7d'], sig['clean_prev_7d'], base='sessions')
+        add('Traffic', 'Cleaned trend sessions', sig['clean_7d'], sig['clean_prev_7d'],
+            base='sessions')
     g = (d.get('search') or {}).get(site) or {}
     if g.get('current'):
-        row('Organic search clicks', g['current'].get('clicks'),
+        add('Traffic', 'Organic search clicks', g['current'].get('clicks'),
             g['previous'].get('clicks'), base='clicks')
     fw = ((d.get('funnels') or {}).get(f'calculator_{site}') or {}).get('week') or {}
     if fw:
-        row('Calculator starts', fw.get('current'), fw.get('previous'), base='calculator')
+        add('Audience', 'Calculator starts', fw.get('current'), fw.get('previous'),
+            base='calculator')
     nl = (d.get('funnels') or {}).get(f'newsletter_{site}') or {}
     if nl and not nl.get('error'):
-        row('Newsletter signups', nl.get('new_7d'), nl.get('new_prev_7d'))
+        add('Audience', 'Newsletter signups', nl.get('new_7d'), nl.get('new_prev_7d'))
+        add('Audience', 'List size', nl.get('active'), base='sessions')
     if site == 'cw':
         pf = d.get('paid_funnel') or {}
         st = {x['name']: x for x in pf.get('stages', [])} if not pf.get('error') else {}
-        for nm, key in (('Offer impressions (28d)', 'Paid offer seen'),
-                        ('CTA engagement (28d)', 'CTA engagement'),
-                        ('Checkout starts (28d)', 'Checkout started')):
+        for nm, key, bs in (('Paid offer seen', 'Paid offer seen', 'sessions'),
+                            ('Payment modal opened', 'Payment modal opened', 'purchases'),
+                            ('Checkouts started', 'Checkout started', 'purchases')):
             if key in st and st[key]['sessions'] is not None:
-                rows.append((nm, st[key]['sessions'], None, None, 'count'))
+                add('Buying intent', f'{nm} (28d)', st[key]['sessions'], base=bs,
+                    note='single window — no comparable prior period fetched')
     r = d.get('revenue_exec') or {}
     if site == 'cw' and not r.get('unavailable'):
-        rows.append(('Purchases (30d)', r['purchases_30d'], None, None, 'count'))
-        rows.append(('Collected revenue 7d', f'${r["last_7d"].get("net", 0):,.2f}',
-                     None, None, 'money'))
-        rows.append(('Collected revenue 30d', f'${r["last_30d"].get("net", 0):,.2f}',
-                     None, None, 'money'))
+        add('Revenue', 'Purchases (30d)', r['purchases_30d'], base='purchases',
+            note='single window')
+        add('Revenue', 'Collected after refunds (30d)', r['last_30d'].get('net'),
+            unit='money', base='revenue', note='single window')
     e = (d.get('email_engagement') or {}).get(site) or {}
     if e.get('attempts'):
         p = e.get('previous_7d') or {}
-        row('Email unique open rate', e.get('unique_open_rate_pct'),
-            p.get('unique_open_rate_pct'), unit='pct', base='email')
-        row('Email unique click rate', e.get('unique_click_rate_pct'),
-            p.get('unique_click_rate_pct'), unit='pct', base='email')
+        add('Email', 'Delivery rate', e.get('delivery_rate_pct'), unit='pct',
+            note=f'{e["attempts"]} attempts')
+        add('Email', 'Bounce rate', e.get('bounce_rate_pct'), unit='pct',
+            chg=X.delta('Bounce rate', p.get('bounce_rate_pct'), e.get('bounce_rate_pct'),
+                        unit='pct', base='email', invert=True))
+        add('Email', 'Unique open rate', e.get('unique_open_rate_pct'), unit='pct',
+            chg=X.delta('Unique open rate', p.get('unique_open_rate_pct'),
+                        e.get('unique_open_rate_pct'), unit='pct', base='email'))
+        add('Email', 'Unique click rate', e.get('unique_click_rate_pct'), unit='pct',
+            chg=X.delta('Unique click rate', p.get('unique_click_rate_pct'),
+                        e.get('unique_click_rate_pct'), unit='pct', base='email'))
 
     body = ''
-    for name, cur, prev, c, unit in rows:
-        cur_s = cur if isinstance(cur, str) else (
-            f'{cur:.1f}%' if unit == 'pct' and cur is not None else
-            ('—' if cur is None else f'{cur:,}'))
-        prev_s = ('—' if prev is None else
-                  (f'{prev:.1f}%' if unit == 'pct' else f'{prev:,}'))
-        if c:
-            arrow = {'up': '▲', 'down': '▼', 'flat': '■'}[c['direction']]
-            tr = (f'<span class="trend {c["direction"] if c["direction"] != "flat" else "flat"}">'
-                  f'{arrow} {c["pct"]:+.0f}%</span>' if c['pct'] is not None
-                  else f'<span class="trend flat">{arrow} {esc(c["abs_fmt"])}</span>')
-        else:
-            tr = '<span class="trend flat">—</span>'
-        body += (f'<tr><td>{esc(name)}</td><td class="num"><b>{cur_s}</b></td>'
-                 f'<td class="num muted">{prev_s}</td><td class="num">{tr}</td></tr>')
-    return (f'<div class="card"><h3 style="border-color:{accent}">{esc(label)}</h3>'
-            f'<table class="score"><tr><th>Metric</th><th class="num">Now</th>'
-            f'<th class="num">Prev</th><th class="num">Trend</th></tr>{body}</table>'
-            f'<p class="muted small">Weekly rows compare 7 complete days against the 7 before. '
-            f'Rows marked 28d/30d are single-window levels with no comparable prior period '
-            f'fetched.</p></div>')
+    for group in SCORE_GROUPS:
+        grows = [r_ for r_ in rows if r_['group'] == group]
+        if not grows:
+            continue
+        body += f'<tr class="grp"><th colspan="4">{esc(group)}</th></tr>'
+        for r_ in grows:
+            prev = ('—' if r_['prev'] is None else
+                    (f'{r_["prev"]:.1f}%' if r_['unit'] == 'pct' else f'{r_["prev"]:,.0f}'))
+            note = f'<span class="rnote">{esc(r_["note"])}</span>' if r_.get('note') else ''
+            body += (f'<tr><td class="mname">{esc(r_["name"])}{note}</td>'
+                     f'<td class="mnow">{num(r_["cur"], r_["unit"], r_["tier"])}</td>'
+                     f'<td class="mprev">{prev}</td>'
+                     f'<td class="mtrend">{delta_cell(r_["chg"])}'
+                     f'{ev_mark(r_["chg"]["evidence"] if r_["chg"] else r_["tier"])}</td></tr>')
+    return (f'<section class="card score site-{ident}">'
+            f'<h2 class="site-title"><span class="rule"></span>{esc(label)}</h2>'
+            f'<table><thead><tr><th>Metric</th><th class="mnow">Now</th>'
+            f'<th class="mprev">Prior</th><th class="mtrend">Change</th></tr></thead>'
+            f'<tbody>{body}</tbody></table>'
+            f'<p class="foot">Weekly rows compare 7 complete days with the 7 before. '
+            f'Rows marked single-window have no comparable prior period.</p></section>')
 
 
-STAGE_TAG = {'measured': ('tag-ok', 'measured'),
-             'inferred': ('tag-inf', 'inferred'),
-             'unavailable': ('tag-na', 'unavailable')}
+# ── Paid funnel: the drops are the information ───────────────────────
+
+STAGE_TAG = {'measured': ('m', 'measured'), 'inferred': ('i', 'inferred'),
+             'unavailable': ('u', 'unavailable')}
 
 
 def paid_funnel_html(d):
     pf = d.get('paid_funnel') or {}
     if pf.get('error'):
-        return (f'<div class="card"><h3>CW paid funnel</h3>'
-                f'<p class="err">Event data unavailable — {esc(pf["error"])}. '
-                f'No stages are shown rather than showing zeros.</p></div>')
+        return (f'<section class="card"><h2>Paid funnel</h2>'
+                f'<p class="na-msg">Event data unavailable — {esc(pf["error"])}. '
+                f'No stages are drawn rather than drawing zeros.</p></section>')
     stages = pf.get('stages', [])
-    top = max((s['sessions'] or 0) for s in stages) or 1
-    body = ''
-    for s in stages:
-        cls, word = STAGE_TAG.get(s['status'], ('tag-na', s['status']))
-        n = s['sessions']
-        width = (n / top * 100) if n else 0
-        conv = (f'{s["from_prev_pct"]}% of previous' if s.get('from_prev_pct') is not None
-                else 'first stage')
-        overall = (f' · {s["from_start_pct"]}% of starts' if s.get('from_start_pct') is not None
-                   else '')
-        rep = (f' · {s["events"]} raw events from {n} sessions ({s["repeat_ratio"]}× repeats)'
-               if s.get('repeat_ratio') and s['repeat_ratio'] >= 1.5 else '')
-        bad = ' impossible' if s.get('impossible') else ''
-        note = f'<div class="col-sub">{esc(s["note"])}</div>' if s.get('note') else ''
-        body += (f'<div class="fstage{bad}">'
-                 f'<div class="frow"><span>{esc(s["name"])} '
-                 f'<span class="tag {cls}">{word}</span></span>'
-                 f'<span class="fnum">{"—" if n is None else n}</span></div>'
-                 f'<div class="fbarwrap"><div class="fbar" style="width:{width:.1f}%;'
-                 f'background:var(--green)"></div></div>'
-                 f'<div class="col-sub">{conv}{overall}{rep}</div>{note}</div>')
+    leak_to = (pf.get('biggest_leak') or {}).get('to')
+    rows, prev = '', None
+    for idx, st in enumerate(stages):
+        cls, word = STAGE_TAG.get(st['status'], ('u', st['status']))
+        n = st['sessions']
+        # An inferred stage equals the one above it BY DEFINITION, so "−0 lost ·
+        # 100% carried" there is not a measurement and can never change. It is
+        # not drawn; the stage's own note explains the equality.
+        definitional = st['status'] == 'inferred'
+        # The drop BETWEEN stages is what a reader acts on, so it is drawn as
+        # its own row. A proportional bar per stage would collapse to nothing by
+        # the bottom of this funnel and would say less than the numbers do; the
+        # first stage's bar would also be 100% by definition and never move.
+        if prev is not None and n is not None and not definitional:
+            lost = prev - n
+            kept = (n / prev * 100) if prev else 0
+            hot = ' hot' if st['name'] == leak_to else ''
+            text = (f'−{lost:,} lost · {kept:.0f}% carried' if lost
+                    else 'no loss · everyone carried through')
+            rows += (f'<div class="drop{hot}"><span class="dline"></span>'
+                     f'<span class="dtext">{text}</span></div>')
+        elif definitional:
+            rows += ('<div class="drop def"><span class="dline"></span>'
+                     '<span class="dtext">equal by definition</span></div>')
+        note = f'<p class="snote">{esc(st["note"])}</p>' if st.get('note') else ''
+        rep = ''
+        if st.get('repeat_ratio') and st['repeat_ratio'] >= 1.5:
+            rep = (f'<span class="rnote">{st["events"]} fires from {n} sessions '
+                   f'({st["repeat_ratio"]}× repeat)</span>')
+        rows += (f'<div class="stage s-{cls}">'
+                 f'<div class="srow"><span class="sname">{esc(st["name"])}'
+                 f'<span class="tag t-{cls}">{word}</span></span>'
+                 f'<span class="sval">{num(n, "count", X.evidence(n, "sessions"))}</span></div>'
+                 f'{rep}{note}</div>')
+        if n is not None:
+            prev = n
     br = ''
     for b in pf.get('branches', []):
         n = b['sessions']
-        # Built with plain concatenation, not nested f-strings: PEP 701 nesting
-        # is a 3.12+ feature and CI pins python-version 3.11.
-        amount = 'unavailable' if n is None else f'{n} sessions'
+        amount = 'unavailable' if n is None else f'{n:,} sessions'
         if b.get('events'):
-            amount += ' · ' + str(b['events']) + ' clicks'
-        br += (f'<div class="kv"><span>{esc(b["name"])}</span>'
-               f'<span>{amount}</span></div>')
-    br_html = (f'<h4>CTA paths into the payment modal</h4>{br}'
-               f'<p class="col-sub">{esc(pf.get("branch_note", ""))}</p>') if br else ''
-    leak = pf.get('biggest_leak')
-    leak_html = (f'<p class="leak">Biggest drop-off: {esc(leak["text"])}</p>') if leak else ''
+            amount += ' · ' + f'{b["events"]:,}' + ' clicks'
+        br += (f'<div class="branch"><span>{esc(b["name"])}</span>'
+               f'<span class="n {"faint" if n is None else ""}">{amount}</span></div>')
     xc = pf.get('purchase_crosscheck') or {}
     xc_html = ''
     if xc:
-        agree = '✓ agrees with' if xc['agrees'] else '⚠ differs from'
-        xc_html = (f'<p class="muted small">Purchase stage {agree} Stripe: '
-                   f'GA4 {xc["ga4_sessions"]} sessions vs {xc["stripe_charges"]} charges '
-                   f'(30d Stripe window vs {pf.get("window_days")}d GA4 window).</p>')
-    return (f'<div class="card"><h3>CW paid funnel '
-            f'<span class="muted small">({pf.get("window_days")}d · sessions containing each event)'
-            f'</span></h3>{leak_html}{body}{xc_html}'
-            f'<p class="muted small">Denominator is SESSIONS, not event fires: one reader '
-            f'clicking a CTA four times is one engaged session. Every stage is tagged with how '
-            f'it is known. No stage is estimated into existence.</p></div>')
+        xc_html = (f'<p class="foot">Purchase stage vs Stripe: GA4 {xc["ga4_sessions"]} sessions, '
+                   f'Stripe {xc["stripe_charges"]} charges. Windows differ '
+                   f'({pf.get("window_days")}d GA4, 30d Stripe), so exact agreement is not '
+                   f'expected.</p>')
+    return (f'<section class="card funnel"><h2>Paid funnel'
+            f'<span class="h2sub">{pf.get("window_days")} days · sessions containing each event'
+            f'</span></h2>'
+            f'<div class="stages">{rows}</div>'
+            f'<h3 class="sub">Ways into the payment modal</h3>'
+            f'<p class="foot tight">These overlap and are not summed. The modal has more than '
+            f'one entry control, so they are intent signals, not a stage above it.</p>'
+            f'<div class="branches">{br}</div>{xc_html}'
+            f'<p class="foot">Sessions, not event fires: one reader clicking a CTA four times '
+            f'is one engaged session. Every stage says how it is known.</p></section>')
 
+
+# ── Currently measuring ──────────────────────────────────────────────
 
 def experiments_html(d):
-    """Shows the denominator, the engagement count AND the purchase count, so
-    a high engagement rate on zero purchases cannot read as success. The
-    threshold is presented as a review gate, never as a verdict.
-    """
     exps = d.get('experiments') or []
     if not exps:
-        return ('<div class="card"><h3>🔬 Currently measuring</h3>'
-                '<p class="muted">No experiment declared in dashboard/experiments.json.</p></div>')
+        return ('<section class="card exp"><h2>Currently measuring</h2>'
+                '<p class="na-msg">No experiment declared in dashboard/experiments.json.</p>'
+                '</section>')
     body = ''
     for e in exps:
         locked = 'KEEP MEASURING' in e['status']
-        cls = 'exp-lock' if locked else 'exp-read'
-        rate = f'{e["rate_pct"]}%' if e.get('rate_pct') is not None else '—'
-        notes = f'<p class="col-sub">{esc(e["notes"])}</p>' if e.get('notes') else ''
-        body += (f'<div class="exp {cls}"><b>{esc(e["name"])}</b>'
-                 f'<div class="col-sub">Started {esc(e["started"])} · day {e["days"]}</div>'
-                 f'<div class="kv"><span>{esc(e["denominator_label"])}</span>'
-                 f'<span>{e["denominator"] if e["denominator"] is not None else "—"}'
-                 f' / {e["min_sample"]} review threshold</span></div>'
-                 f'<div class="kv"><span>{esc(e["numerator_label"])}</span>'
-                 f'<span>{e["numerator"] if e["numerator"] is not None else "—"} ({rate})</span></div>'
-                 f'<div class="kv"><span>{esc(e["outcome_label"])}</span>'
-                 f'<span><b>{e["outcome"] if e["outcome"] is not None else "—"}</b></span></div>'
-                 f'<div class="exp-status">{esc(e["status"])}</div>'
-                 f'<div class="col-sub">{esc(e["verdict"])}</div>'
-                 f'<p class="caveat">{esc(e["threshold_meaning"])}</p>{notes}</div>')
-    return (f'<div class="card"><h3>🔬 Currently measuring</h3>{body}'
-            f'<p class="muted small">An experiment below its review threshold must not be '
-            f'changed by Brew or any agent. Reaching the threshold unlocks a review, not a '
-            f'conclusion — the decision is still a human one, made against the purchase count, '
-            f'not the engagement rate.</p></div>')
+        den, floor = e['denominator'] or 0, e['min_sample']
+        pct = min(100, den * 100 / floor) if floor else 0
+        # This bar is the one progress indicator on the page, and it earns its
+        # place: it moves every day and it gates a decision.
+        body += (f'<div class="exp-item {"locked" if locked else "eligible"}">'
+                 f'<div class="exp-head"><b>{esc(e["name"])}</b>'
+                 f'<span class="rnote">started {esc(e["started"])} · day {e["days"]}</span></div>'
+                 f'<div class="exp-grid">'
+                 f'<div><span class="k">Eligible impressions</span>'
+                 f'<span class="n big">{den:,}</span></div>'
+                 f'<div><span class="k">Engagements</span>'
+                 f'<span class="n big">{e["numerator"] if e["numerator"] is not None else "—"}</span></div>'
+                 f'<div><span class="k">Checkouts</span>'
+                 f'<span class="n big">{e["checkouts"] if e["checkouts"] is not None else "—"}</span></div>'
+                 f'<div><span class="k">Purchases</span>'
+                 f'<span class="n big">{e["outcome"] if e["outcome"] is not None else "—"}</span></div>'
+                 f'</div>'
+                 f'<div class="thr"><div class="thr-bar"><i style="width:{pct:.0f}%"></i></div>'
+                 f'<span class="rnote">{den:,} of {floor:,} minimum review threshold</span></div>'
+                 f'<p class="exp-status">{esc(e["status"])}</p>'
+                 f'<p class="interp">{esc(e["verdict"])}</p>'
+                 f'<p class="foot">{esc(e["threshold_meaning"])}</p>'
+                 + (f'<p class="foot">{esc(e["notes"])}</p>' if e.get('notes') else '')
+                 + '</div>')
+    return f'<section class="card exp"><h2>Currently measuring</h2>{body}</section>'
 
 
-def customer_signal_html(d):
-    """Counts and categories only. Addresses and message text stay below, in
-    the forensic table, and are never sent to the model digest."""
-    mail = d.get('mail') or {}
-    sig = mail.get('signal_7d') or {}
-    fb = d.get('feedback') or {}
-    if mail.get('error'):
-        return ('<div class="card"><h3>Customer signal</h3>'
-                '<p class="err">Inbound mail unavailable this run — not zero replies.</p></div>')
-    cats = ''.join(f'<div class="kv"><span>{esc(k)}</span><span>{v}</span></div>'
-                   for k, v in sorted((sig.get('categories') or {}).items(), key=lambda x: -x[1]))
-    return (f'<div class="card"><h3>📬 Customer signal <span class="muted small">(7d)</span></h3>'
-            f'<div class="statrow wrap">'
-            f'<div class="stat"><b>{sig.get("replies", 0)}</b><span>real customer replies</span></div>'
-            f'<div class="stat"><b>{fb.get("new_7d", 0)}</b><span>site feedback</span></div>'
-            f'<div class="stat"><b>{fb.get("unreviewed", 0)}</b><span>unreviewed</span></div>'
-            f'</div>{cats}'
-            f'<p class="muted small">Senders and message text are in the forensic section below, '
-            f'not here, and are never sent to the model.</p></div>')
+# ── Signal vs noise ──────────────────────────────────────────────────
 
+def signal_html(d):
+    sig = d.get('signal') or {}
+    rows = ''
+    for site, label, ident in (('cw', 'Carnivore Weekly', 'cw'), ('kd', 'KetoDial', 'kd')):
+        s = sig.get(site)
+        if not s:
+            rows += (f'<div class="sig site-{ident}"><h3><span class="rule"></span>'
+                     f'{esc(label)}</h3>'
+                     f'<p class="na-msg">Traffic unavailable — not zero traffic.</p></div>')
+            continue
+        reason = ('' if not s['contaminated'] else
+                  f'<p class="reason">{len(s["excluded_days"])} spike day(s) removed: '
+                  f'{esc(", ".join(s["excluded_days"]))}. Above 3× the 28-day median, which is '
+                  f'the crawler-burst signature.</p>')
+        gap = s['observed_7d'] - s['clean_7d']
+        rows += (f'<div class="sig site-{ident}"><h3><span class="rule"></span>{esc(label)}</h3>'
+                 f'<div class="sig-pair">'
+                 f'<div><span class="k">Observed (GA4 as reported)</span>'
+                 f'<span class="n big {"faint" if gap else ""}">{s["observed_7d"]:,}</span></div>'
+                 f'<div><span class="k">Excluding flagged spike days</span>'
+                 f'<span class="n big">{s["clean_7d"]:,}</span></div>'
+                 f'<div><span class="k">28-day daily median × 7</span>'
+                 f'<span class="n">{s["baseline_28d_7d"] or "—"}</span></div>'
+                 f'<div><span class="k">Today so far — not comparable</span>'
+                 f'<span class="n faint">{s["today_so_far"] if s["today_so_far"] is not None else "—"}</span></div>'
+                 f'</div>{reason}'
+                 f'<p class="foot">{esc(s.get("method", ""))}</p></div>')
+    return (f'<section class="card"><h2>Signal vs noise</h2><div class="sigs">{rows}</div>'
+            f'</section>')
+
+
+# ── Do not overreact / needs attention ───────────────────────────────
+
+def dont_overreact_html(d):
+    items = d.get('dont_overreact') or []
+    if not items:
+        return ''
+    lis = ''.join(f'<li>{esc(i)}</li>' for i in items[:3])
+    return (f'<section class="card dno"><h2>Do not overreact to</h2>'
+            f'<ul>{lis}</ul></section>')
+
+
+def attention_html(d):
+    items = d.get('needs_attention') or []
+    if not items:
+        return ('<section class="card att clear"><h2>Needs attention</h2>'
+                '<p class="clear-msg">Nothing is broken.</p>'
+                '<p class="foot">A metric being down does not appear here. Only operational '
+                'problems do.</p></section>')
+    lis = ''
+    for it in items:
+        cls = 'crit' if it['severity'] == 'red' else 'warn'
+        why = f'<span class="interp">{esc(it["why"])}</span>' if it.get('why') else ''
+        lis += f'<li class="{cls}"><span class="chip {cls}"></span>{esc(it["text"])}{why}</li>'
+    return (f'<section class="card att"><h2>Needs attention<span class="h2sub">'
+            f'{len(items)} item(s)</span></h2><ul>{lis}</ul></section>')
+
+
+# ── Change timeline ──────────────────────────────────────────────────
 
 def timeline_html(d):
     tl = d.get('timeline') or []
     cors = d.get('correlations') or []
-    cor_html = ''
+    body = ''
     for c in cors:
-        movs = ''.join(f'<li>{esc(m["metric"])}: {esc(m["movement"])}</li>'
+        src = {'decision': 'recorded decision', 'status': 'recorded status entry'}.get(
+            c.get('kind'), 'commit subject — a weaker signal than a recorded decision')
+        movs = ''.join(f'<li><span class="tl-metric">{esc(m["metric"])}</span>'
+                       f'<span class="n">{esc(m["movement"])}</span></li>'
                        for m in c['movements'])
-        others = (f' <span class="muted small">({c["other_candidates"]} other change(s) also '
-                  f'sit in this window)</span>' if c.get('other_candidates') else '')
-        src = ('a recorded project decision' if c.get('kind') == 'decision'
-               else 'a recorded status entry' if c.get('kind') == 'status'
-               else 'a commit subject, which is a weaker signal than a recorded decision')
-        cor_html += (f'<p class="col-sub">Nearest recorded change ({src}).</p>'
-                     f'<p class="small">In the {c["days_before"]} day(s) since '
-                     f'“{esc(c["change"])}” ({esc(c["change_date"])}){others}:</p>'
-                     f'<ul class="plain">{movs}</ul>'
-                     f'<p class="caveat">{esc(c["caveat"])}</p>')
+        others = (f'<span class="rnote">{c["other_candidates"]} other change(s) sit in this '
+                  f'window</span>' if c.get('other_candidates') else '')
+        body += (f'<div class="tl-event"><div class="tl-date">{esc(c["change_date"])}'
+                 f'<span class="rnote">{c["days_before"]}d ago</span></div>'
+                 f'<div class="tl-body"><b>{esc(c["change"])}</b>'
+                 f'<span class="rnote">{src}</span>{others}'
+                 f'<ul class="tl-moves">{movs}</ul>'
+                 f'<p class="caveat">{esc(c["caveat"])}</p></div></div>')
+    if not body:
+        body = ('<p class="na-msg">No metric moved enough, reliably enough, to pair with a '
+                'project change this run. Nothing is asserted rather than pairing something '
+                'weak.</p>')
     rows = ''.join(
-        f'<div class="kv"><span>{esc(e["date"])} · <span class="tag tag-{e["kind"]}">'
-        f'{e["kind"]}</span> {esc(e["title"])}</span></div>' for e in tl[:18])
-    co = (f'<h4>Possible co-movements</h4>{cor_html}' if cor_html
-          else '<p class="muted small">No metric moved enough, reliably enough, to pair with a '
-               'project change this run.</p>')
-    return (f'<div class="card"><h3>🗓️ Project changes (45 days)</h3>{co}'
-            f'<details><summary>{len(tl)} logged change(s)</summary>{rows}</details>'
-            f'<p class="muted small">Sourced from docs/project-log/decisions.md, '
-            f'current-status.md and git subjects. Proximity in time only.</p></div>')
+        f'<li><span class="tl-d">{esc(e["date"])}</span>'
+        f'<span class="tag t-{e["kind"]}">{e["kind"]}</span> {esc(e["title"])}</li>'
+        for e in tl[:20])
+    return (f'<section class="card"><h2>Change timeline<span class="h2sub">45 days</span></h2>'
+            f'{body}'
+            f'<details class="tl-all"><summary>{len(tl)} logged change(s)</summary>'
+            f'<ul class="tl-list">{rows}</ul></details>'
+            f'<p class="foot">Sourced from docs/project-log/decisions.md, current-status.md and '
+            f'git subjects. A change must be at least 2 days old to be paired with a weekly '
+            f'movement.</p></section>')
 
 
-DQ_DOT = {'ok': ('var(--green)', 'ok'), 'failed': ('var(--red)', 'FAILED'),
-          'missing': ('var(--amber)', 'missing'),
-          'not-configured': ('var(--muted)', 'not configured')}
+# ── Revenue ──────────────────────────────────────────────────────────
+
+def revenue_html(d):
+    r = d.get('revenue_exec') or {}
+    if r.get('unavailable'):
+        return (f'<section class="card"><h2>Revenue</h2>'
+                f'<p class="na-msg">Unavailable — {esc(r.get("reason"))}. '
+                f'This is not zero revenue.</p></section>')
+    aov = (f'${r["aov_30d"]:.2f}' if r.get('aov_30d') else '—')
+    prods = ''.join(f'<li><span>{esc(k)}</span><span class="n">${v:,.2f}</span></li>'
+                    for k, v in sorted((r.get('by_product_30d') or {}).items(),
+                                       key=lambda x: -x[1]))
+    return (f'<section class="card rev"><h2>Revenue<span class="h2sub">month to date</span></h2>'
+            f'<ul class="rev-lines">'
+            f'<li><span>Gross charged</span><span class="n">${r["mtd_gross"]:,.2f}</span></li>'
+            f'<li><span>Refunds</span><span class="n">−${r["mtd_refunds"]:,.2f}</span></li>'
+            f'<li class="strong"><span>Collected after refunds</span>'
+            f'<span class="n">${r["mtd_collected"]:,.2f}</span></li>'
+            f'<li><span>Net profit</span><span class="n na">not measured</span></li>'
+            f'<li><span>Target</span><span class="n">${r["target_net_profit"]:,.0f}/mo net profit'
+            f'</span></li>'
+            f'<li><span>Progress toward target</span>'
+            f'<span class="n na">unavailable</span></li></ul>'
+            f'<p class="caveat">{esc(r["target_note"])}</p>'
+            f'<div class="rev-side"><div><span class="k">Average order</span>'
+            f'<span class="n big">{aov}</span>'
+            f'<span class="rnote">{r["purchases_30d"]} sales in 30 days'
+            f'{"" if r["aov_reliable"] else " — too few to be stable"}</span></div></div>'
+            f'<h3 class="sub">By product, 30 days collected</h3><ul class="rev-lines">{prods}</ul>'
+            f'<p class="foot">{esc(r["collected_basis"])}</p></section>')
 
 
-def data_quality_html(d):
+# ── Customer signal / data health ────────────────────────────────────
+
+def customer_signal_html(d):
+    mail = d.get('mail') or {}
+    sig = mail.get('signal_7d') or {}
+    fb = d.get('feedback') or {}
+    if mail.get('error'):
+        return ('<section class="card"><h2>Customer signal</h2>'
+                '<p class="na-msg">Inbound mail unavailable — not zero replies.</p></section>')
+    cats = ''.join(f'<li><span>{esc(k)}</span><span class="n">{v}</span></li>'
+                   for k, v in sorted((sig.get('categories') or {}).items(), key=lambda x: -x[1]))
+    return (f'<section class="card"><h2>Customer signal<span class="h2sub">7 days</span></h2>'
+            f'<div class="cs-nums">'
+            f'<div><span class="k">Replies from readers</span>'
+            f'<span class="n big">{sig.get("replies", 0)}</span></div>'
+            f'<div><span class="k">Site feedback</span>'
+            f'<span class="n big">{fb.get("new_7d", 0)}</span></div>'
+            f'<div><span class="k">Unreviewed</span>'
+            f'<span class="n big">{fb.get("unreviewed", 0)}</span></div></div>'
+            f'<ul class="rev-lines">{cats}</ul>'
+            f'<p class="foot">Senders and message text stay in Forensic detail. Neither is sent '
+            f'to the model.</p></section>')
+
+
+DQ_WORD = {'ok': ('ok', 'current'), 'failed': ('crit', 'error'),
+           'missing': ('warn', 'unavailable'), 'not-configured': ('off', 'not configured')}
+
+
+def data_health_html(d):
     dq = d.get('data_quality') or {}
     items = ''
     for s in dq.get('sources', []):
-        color, word = DQ_DOT.get(s['state'], ('var(--amber)', s['state']))
-        detail = f' — {esc(s["detail"])}' if s.get('detail') else ''
-        items += (f'<span class="pulse-item"><i style="background:{color}"></i>'
-                  f'{esc(s["label"])} <span class="muted">({word}{detail})</span></span>')
+        cls, word = DQ_WORD.get(s['state'], ('warn', s['state']))
+        detail = f' <span class="rnote">{esc(s["detail"])}</span>' if s.get('detail') else ''
+        items += (f'<li class="{cls}"><span class="dot"></span>{esc(s["label"])}'
+                  f'<span class="dq-state">{word}</span>{detail}</li>')
     failed = dq.get('failed', 0)
-    banner = (f'<p class="caveat">⚠ {failed} source(s) failed this run. Their sections show '
-              f'nothing, never zero.</p>' if failed else '')
-    return (f'<div class="card"><h3>Data sources <span class="muted small">'
-            f'(last successful refresh {esc(dq.get("generated_at"))} PT)</span></h3>'
-            f'{banner}<p class="small pulse-row">{items}</p>'
-            f'<p class="muted small">{esc(dq.get("note", ""))}</p></div>')
+    banner = (f'<p class="caveat">{failed} source(s) failed. Their numbers are absent, '
+              f'not zero.</p>' if failed else '')
+    return (f'<footer class="datahealth"><h2>Data health<span class="h2sub">'
+            f'last refresh {esc(dq.get("generated_at"))} PT</span></h2>'
+            f'{banner}<ul>{items}</ul></footer>')
 
 
 def render_html(d):
@@ -2510,6 +2609,18 @@ def render_html(d):
                       if _is_done(r) and (r.get('date') or '') >= _fb_cutoff]
     fb_done_rows = [_fb_row(r) for r in fb_done_recent]
     fb_aged_off = sum(1 for r in fb_recent if _is_done(r)) - len(fb_done_rows)
+
+    completed_fb_html = ''
+    if fb_done_rows:
+        completed_fb_html = ('<details class="inner"><summary>' + str(len(fb_done_rows))
+                             + ' completed item(s), last 30 days</summary>'
+                             + table(['Date', 'From', 'Message', 'Status'], fb_done_rows)
+                             + '</details>')
+    aged_fb_html = ''
+    if fb_aged_off > 0:
+        aged_fb_html = ('<p class="muted small">' + str(fb_aged_off)
+                        + ' older completed item(s) aged off this view.</p>')
+
 
     mail = d.get('mail', {})
     # Reader mail rows carry a stable id and a Done control. Handled state lives
@@ -2644,282 +2755,567 @@ def render_html(d):
                 f'{trend_html(pct_change(nl.get("new_7d", 0), nl.get("new_prev_7d", 0)))}</div>')
 
     css = '''
-    :root{--bg:#0f1117;--card:#181b23;--card2:#1e222c;--text:#e8eaf0;--muted:#8b91a0;
-      --green:#4ade80;--blue:#60a5fa;--amber:#fbbf24;--red:#f87171;--line:#2a2f3a}
+    /* ── Command Centre cockpit ──────────────────────────────────────
+       Palette: a deep slate ground rather than black, so state colour has
+       somewhere quiet to sit. CW ember / KD teal are IDENTITY, used as 2px
+       rules and labels only. Green/amber/red are STATE and appear nowhere
+       decorative.
+       Type: mono is measurement, sans is interpretation. The split is load-
+       bearing — it tells a reader which lines are facts.                  */
+    :root{
+      --ink:#14161c; --surface:#1b1e26; --raised:#23262f; --line:#2c303a;
+      --line-soft:#22252d;
+      --text:#e9ecf2; --dim:#8d95a6; --faint:#5d6474;
+      --ok:#5ec97f; --warn:#e5a93c; --crit:#e5594f; --info:#7aa2f7;
+      --cw:#e8833a; --kd:#46b3a4;
+      --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+      --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+      --gap:14px;
+    }
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,'Segoe UI',Roboto,sans-serif;padding-bottom:60px}
-    header{position:sticky;top:0;background:var(--bg);
-      border-bottom:1px solid var(--line);padding:14px 24px;z-index:5;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-    header h1{font-size:19px}
-    header .upd{color:var(--muted);font-size:13px}
-    nav a{color:var(--muted);text-decoration:none;font-size:13px;margin-right:12px}
-    nav a:hover{color:var(--text)}
-    main{max-width:1200px;margin:0 auto;padding:24px}
-    section{margin-bottom:36px}
-    section>h2{font-size:16px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
-      margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
-    .card.dim{opacity:.65}
-    .card h3{font-size:15px;margin-bottom:10px;border-left:3px solid var(--muted);padding-left:8px}
-    .card h4{font-size:12px;color:var(--muted);text-transform:uppercase;margin:12px 0 6px}
-    .bignum{font-size:28px;font-weight:700;margin:4px 0}
-    .bignum .small{font-size:13px;font-weight:400}
-    .muted{color:var(--muted)} .small{font-size:13px}
-    .err{color:var(--amber);font-size:13px}
-    .live{color:var(--green);font-size:12px;font-weight:600;margin-left:8px}
-    .trend{font-size:12px;font-weight:700;padding:1px 6px;border-radius:8px}
-    .trend.up{color:var(--green);background:rgba(74,222,128,.12)}
-    .trend.down{color:var(--red);background:rgba(248,113,113,.12)}
-    .trend.flat{color:var(--muted)}
-    .spark{width:100%;height:48px;margin:6px 0}
-    table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
-    th{color:var(--muted);text-align:left;font-weight:600;padding:4px 8px 4px 0;border-bottom:1px solid var(--line)}
-    td{padding:5px 8px 5px 0;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-word}
-    details{margin-top:10px} summary{cursor:pointer;color:var(--muted);font-size:13px}
-    .kv{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0;border-bottom:1px solid var(--line)}
+    html{scroll-behavior:smooth}
+    body{background:var(--ink);color:var(--text);font:14px/1.55 var(--sans);
+      -webkit-font-smoothing:antialiased;padding-bottom:40px}
+    a{color:inherit}
+    :focus-visible{outline:2px solid var(--info);outline-offset:2px}
+    @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+    /* Measurement is mono. */
+    .n,.sb-val,.mnow,.mprev,.d,.sval,.dtext,.tl-d,td.mprev{font-family:var(--mono);
+      font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+    .n.big{font-size:24px;font-weight:600;letter-spacing:-.02em;display:block}
+    .n.faint{color:var(--faint)}
+    .n.na{color:var(--warn);font-style:italic;font-size:.86em}
+    .n.bad{color:var(--crit)}
+    .n .of{color:var(--faint);font-size:.72em}
+    .k{display:block;font:10.5px/1.4 var(--mono);text-transform:uppercase;
+      letter-spacing:.09em;color:var(--dim);margin-bottom:3px}
+    .rnote{display:block;font:10.5px/1.45 var(--mono);color:var(--faint);
+      letter-spacing:.02em;margin-top:2px}
+    .foot{font:11.5px/1.5 var(--sans);color:var(--faint);margin-top:10px}
+    .foot.tight{margin-top:2px;margin-bottom:8px}
+    .interp{font:13px/1.55 var(--sans);color:var(--dim)}
+    .caveat{font:11.5px/1.5 var(--sans);color:var(--warn);margin-top:8px}
+    .na-msg{font:13px/1.55 var(--sans);color:var(--warn)}
+
+    /* The signature: three segments, filled to the evidence tier. */
+    .ev{display:inline-flex;gap:1.5px;margin-left:7px;vertical-align:2px}
+    .ev i{width:4px;height:9px;border-radius:1px;background:var(--line);display:block}
+    .ev i.on{background:var(--dim)}
+    .ev-solid i.on{background:var(--ok)}
+    .ev-thin i.on{background:var(--faint)}
+
+    header.top{position:sticky;top:0;z-index:20;background:rgba(20,22,28,.94);
+      backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+      padding:10px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    header.top h1{font:600 14px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+    header.top .when{font:11px/1 var(--mono);color:var(--faint);margin-left:auto}
+    nav{display:flex;gap:14px;flex-wrap:wrap}
+    nav a{font:11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+      color:var(--dim);text-decoration:none;padding:3px 0;border-bottom:1px solid transparent}
+    nav a:hover{color:var(--text);border-bottom-color:var(--line)}
+
+    main{max-width:1560px;margin:0 auto;padding:20px 22px}
+
+    /* ── Top strip ── */
+    .statebar{display:flex;align-items:stretch;gap:0;border:1px solid var(--line);
+      border-radius:10px;background:var(--surface);overflow:hidden;margin-bottom:22px}
+    .sb-state{display:flex;flex-direction:column;justify-content:center;gap:2px;
+      padding:14px 20px;min-width:210px;border-right:1px solid var(--line);position:relative}
+    .sb-state::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+    .statebar.ok .sb-state::before{background:var(--ok)}
+    .statebar.info .sb-state::before{background:var(--info)}
+    .statebar.warn .sb-state::before{background:var(--warn)}
+    .statebar.crit .sb-state::before{background:var(--crit)}
+    .sb-state .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px}
+    .statebar.ok .dot{background:var(--ok)} .statebar.info .dot{background:var(--info)}
+    .statebar.warn .dot{background:var(--warn)} .statebar.crit .dot{background:var(--crit)}
+    .sb-state-word{font:600 17px/1.2 var(--sans);letter-spacing:-.01em}
+    .statebar.ok .sb-state-word{color:var(--ok)} .statebar.info .sb-state-word{color:var(--info)}
+    .statebar.warn .sb-state-word{color:var(--warn)} .statebar.crit .sb-state-word{color:var(--crit)}
+    .sb-state-sub{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+      color:var(--faint)}
+    .sb-cells{display:flex;flex:1;flex-wrap:wrap}
+    .sb-cell{flex:1;min-width:118px;padding:14px 18px;border-right:1px solid var(--line-soft);
+      display:flex;flex-direction:column;gap:2px}
+    .sb-cell:last-child{border-right:none}
+    .sb-label{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+      color:var(--dim)}
+    .sb-val{font-size:19px;font-weight:600;letter-spacing:-.02em}
+    .sb-sub{font:10px/1 var(--mono);color:var(--faint);text-transform:uppercase;
+      letter-spacing:.07em}
+    .sb-exp.locked .sb-sub{color:var(--warn)}
+    .sb-ops.bad{background:rgba(229,89,79,.08)}
+    .sb-ops.bad .sb-sub{color:var(--crit)}
+
+    /* ── Layout ── */
+    .cockpit{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);
+      gap:var(--gap);align-items:start;margin-bottom:var(--gap)}
+    .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);
+      margin-bottom:var(--gap)}
+    .row3{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);
+      gap:var(--gap);margin-bottom:var(--gap);align-items:start}
+    .stack{display:flex;flex-direction:column;gap:var(--gap)}
+
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+      padding:16px 18px}
+    .card h2{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;
+      color:var(--dim);margin-bottom:14px;display:flex;align-items:baseline;gap:10px}
+    .card h2 .h2sub{font-size:10px;color:var(--faint);letter-spacing:.06em;
+      text-transform:none;margin-left:auto}
+    h3.sub{font:10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+      color:var(--dim);margin:16px 0 6px}
+
+    /* ── What matters ── */
+    .matters{display:flex;flex-direction:column;gap:10px}
+    .matter{border:1px solid var(--line);border-left:3px solid var(--line);
+      border-radius:8px;padding:13px 15px;background:var(--raised)}
+    .matter.crit{border-left-color:var(--crit)}
+    .matter.warn{border-left-color:var(--warn)}
+    .matter.ok{border-left-color:var(--ok)}
+    .matter header{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px}
+    .chip{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+      padding:4px 7px;border-radius:4px;flex:none;margin-top:1px}
+    .chip.crit{background:rgba(229,89,79,.14);color:var(--crit)}
+    .chip.warn{background:rgba(229,169,60,.14);color:var(--warn)}
+    .chip.ok{background:rgba(94,201,127,.14);color:var(--ok)}
+    .fact{font:500 14px/1.5 var(--mono);letter-spacing:-.015em;color:var(--text)}
+    .matter .interp{margin-bottom:8px}
+    .act{font:12.5px/1.45 var(--sans);color:var(--text);padding-left:14px;position:relative}
+    .act::before{content:'▸';position:absolute;left:0;color:var(--ok)}
+    .act.noact{color:var(--faint)}
+    .act.noact::before{content:'·';color:var(--faint)}
+
+    /* ── Scorecards ── */
+    .site-title{display:flex;align-items:center;gap:9px;font:600 13px/1 var(--sans)!important;
+      text-transform:none!important;letter-spacing:-.01em!important;color:var(--text)!important}
+    .site-title .rule{width:3px;height:15px;border-radius:2px;display:block}
+    .site-cw .rule{background:var(--cw)} .site-kd .rule{background:var(--kd)}
+    .score table{width:100%;border-collapse:collapse}
+    .score th{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.09em;
+      color:var(--faint);text-align:left;padding:0 0 7px;font-weight:400;
+      border-bottom:1px solid var(--line)}
+    .score tr.grp th{padding:14px 0 5px;color:var(--dim);letter-spacing:.12em;
+      border-bottom:none;font-size:9.5px}
+    .score tr.grp:first-child th{padding-top:6px}
+    .score td{padding:5px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+    .score tbody tr:last-child td{border-bottom:none}
+    td.mname{font-size:12.5px;color:var(--text);padding-right:10px}
+    th.mnow,td.mnow,th.mprev,td.mprev,th.mtrend,td.mtrend{text-align:right;white-space:nowrap}
+    th.mnow{padding-left:12px} th.mprev{padding-left:12px} th.mtrend{padding-left:14px}
+    td.mnow{font-weight:600;width:1%;padding-left:10px}
+    td.mprev{color:var(--faint);width:1%;padding-left:12px;font-size:12px}
+    td.mtrend{width:1%;padding-left:14px}
+    .d{font-size:12px;font-weight:600}
+    .d.up{color:var(--ok)} .d.down{color:var(--crit)} .d.flat{color:var(--faint)}
+    .d.faint{color:var(--faint)!important;font-weight:400}
+
+    /* ── Funnel: the drops are the information ── */
+    .stages{display:flex;flex-direction:column}
+    .stage{padding:6px 0}
+    .srow{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+    .sname{font:13px/1.3 var(--sans);display:flex;align-items:center;gap:8px}
+    .sval{font-size:19px;font-weight:600}
+    .tag{font:9px/1 var(--mono);text-transform:uppercase;letter-spacing:.09em;
+      padding:3px 5px;border-radius:3px;border:1px solid var(--line);color:var(--dim)}
+    .tag.t-m{color:var(--ok);border-color:rgba(94,201,127,.3)}
+    .tag.t-i{color:var(--warn);border-color:rgba(229,169,60,.3)}
+    .tag.t-u{color:var(--faint)}
+    .tag.t-decision{color:var(--info);border-color:rgba(122,162,247,.3)}
+    .tag.t-status{color:var(--ok);border-color:rgba(94,201,127,.3)}
+    .tag.t-commit{color:var(--faint)}
+    .snote{font:11.5px/1.45 var(--sans);color:var(--faint);margin-top:2px;max-width:58ch}
+    .drop{display:flex;align-items:center;gap:10px;padding:2px 0 2px 2px}
+    .drop .dline{width:1px;height:16px;background:var(--line);display:block;margin-left:5px}
+    .drop .dtext{font-size:11px;color:var(--faint);letter-spacing:.02em}
+    .drop.hot .dline{background:var(--crit);width:2px}
+    .drop.hot .dtext{color:var(--crit)}
+    .drop.def .dline{background:repeating-linear-gradient(var(--line) 0 2px,transparent 2px 4px)}
+    .drop.def .dtext{color:var(--faint);font-style:italic}
+    .branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+    .branch{display:flex;flex-direction:column;gap:2px;font-size:12px;padding:8px 10px;
+      background:var(--raised);border-radius:6px;border:1px solid var(--line-soft)}
+    .branch>span:first-child{color:var(--dim);font-size:11px}
+
+    /* ── Experiment ── */
+    .exp-item{border:1px solid var(--line);border-radius:8px;padding:14px 15px;
+      background:var(--raised);border-top:2px solid var(--line)}
+    .exp-item.locked{border-top-color:var(--warn)}
+    .exp-item.eligible{border-top-color:var(--info)}
+    .exp-head{display:flex;flex-direction:column;margin-bottom:12px}
+    .exp-head b{font-size:14px}
+    .exp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+    .thr-bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:4px}
+    .thr-bar i{display:block;height:100%;background:var(--warn);border-radius:3px}
+    .eligible .thr-bar i{background:var(--info)}
+    .exp-status{font:600 12px/1.3 var(--mono);letter-spacing:.06em;margin:12px 0 5px}
+    .locked .exp-status{color:var(--warn)} .eligible .exp-status{color:var(--info)}
+
+    /* ── Signal ── */
+    .sigs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+    .sig h3{display:flex;align-items:center;gap:9px;font:600 13px/1 var(--sans);margin-bottom:10px}
+    .sig h3 .rule{width:3px;height:14px;border-radius:2px;display:block}
+    .sig-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .reason{font:11.5px/1.45 var(--sans);color:var(--warn);margin-top:10px}
+
+    /* ── Lists ── */
+    .dno ul,.att ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+    .dno li{font:12.5px/1.5 var(--sans);color:var(--dim);padding-left:15px;position:relative}
+    .dno li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;
+      border-radius:1px;background:var(--warn);opacity:.6}
+    .att li{font:12.5px/1.5 var(--sans);display:flex;gap:9px;align-items:flex-start;
+      flex-wrap:wrap}
+    .att li .chip{width:8px;height:8px;padding:0;border-radius:50%;margin-top:5px}
+    .att li .interp{flex-basis:100%;padding-left:17px;font-size:11.5px}
+    .att.clear .clear-msg{font:500 15px/1.4 var(--sans);color:var(--ok)}
+    .rev-lines{list-style:none}
+    .rev-lines li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;
+      font-size:12.5px;border-bottom:1px solid var(--line-soft)}
+    .rev-lines li:last-child{border-bottom:none}
+    .rev-lines li.strong{font-weight:600}
+    .rev-lines li.strong .n{color:var(--ok)}
+    .rev-side{margin-top:14px}
+    .cs-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+
+    /* ── Timeline ── */
+    .tl-event{display:flex;gap:16px;padding:2px 0 12px}
+    .tl-date{font:11px/1.4 var(--mono);color:var(--dim);min-width:82px;flex:none}
+    .tl-body b{font-size:13.5px;display:block;margin-bottom:2px}
+    .tl-moves{list-style:none;margin:9px 0 0;display:flex;flex-direction:column;gap:4px}
+    .tl-moves li{display:flex;justify-content:space-between;gap:14px;font-size:12.5px;
+      padding:4px 0;border-bottom:1px solid var(--line-soft)}
+    .tl-metric{color:var(--dim)}
+    .tl-all{margin-top:10px}
+    .tl-all summary{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
+      color:var(--dim);cursor:pointer;padding:7px 0}
+    .tl-list{list-style:none;max-height:280px;overflow-y:auto;margin-top:6px}
+    .tl-list li{font-size:12px;padding:5px 0;border-bottom:1px solid var(--line-soft);
+      display:flex;gap:9px;align-items:baseline}
+    .tl-d{color:var(--faint);flex:none;font-size:11px}
+
+    /* ── Data health ── */
+    .datahealth{border-top:1px solid var(--line);margin-top:6px;padding:16px 0 0}
+    .datahealth h2{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;
+      color:var(--dim);margin-bottom:12px;display:flex;gap:10px;align-items:baseline}
+    .datahealth h2 .h2sub{font-size:10px;color:var(--faint);text-transform:none;
+      letter-spacing:.04em}
+    .datahealth ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px 22px}
+    .datahealth li{font:11.5px/1.4 var(--mono);color:var(--dim);display:flex;
+      align-items:center;gap:6px}
+    .datahealth .dot{width:6px;height:6px;border-radius:50%;background:var(--faint);flex:none}
+    .datahealth li.ok .dot{background:var(--ok)}
+    .datahealth li.warn .dot{background:var(--warn)}
+    .datahealth li.crit .dot{background:var(--crit)}
+    .datahealth li.off .dot{background:var(--line)}
+    .dq-state{color:var(--faint);font-size:10.5px}
+    .datahealth li.crit .dq-state{color:var(--crit)}
+    .datahealth .rnote{display:inline;margin:0}
+
+    /* ── Forensic detail ── */
+    .forensic{margin-top:26px;border-top:1px solid var(--line);padding-top:8px}
+    .forensic>summary{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;
+      color:var(--dim);cursor:pointer;padding:14px 0;list-style:none;display:flex;
+      align-items:center;gap:8px}
+    .forensic>summary::-webkit-details-marker{display:none}
+    .forensic>summary::before{content:'+';font-size:14px;color:var(--faint)}
+    .forensic[open]>summary::before{content:'−'}
+    .forensic>summary:hover{color:var(--text)}
+    .tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line);
+      margin-bottom:16px}
+    .tabs button{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
+      background:none;border:none;color:var(--faint);padding:9px 13px;cursor:pointer;
+      border-bottom:2px solid transparent;margin-bottom:-1px}
+    .tabs button:hover{color:var(--text)}
+    .tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--cw)}
+    .panel[hidden]{display:none}
+    .panel h3{font:600 13px/1 var(--sans);margin:18px 0 10px}
+    .panel h3:first-child{margin-top:0}
+    .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--gap)}
+
+    /* legacy widgets retained inside Forensic detail */
+    .bignum{font:600 24px/1.2 var(--mono);margin:3px 0}
+    .bignum .small{font-size:12px;font-weight:400;color:var(--dim)}
+    .muted{color:var(--dim)} .small{font-size:12px}
+    .err{color:var(--warn);font-size:12px}
+    .live{color:var(--ok);font-size:11px;font-weight:600;margin-left:7px}
+    .trend{font:600 11px var(--mono);padding:1px 5px;border-radius:4px}
+    .trend.up{color:var(--ok)} .trend.down{color:var(--crit)} .trend.flat{color:var(--faint)}
+    .spark{width:100%;height:40px;margin:5px 0}
+    table.data{width:100%;border-collapse:collapse;font-size:12px;margin-top:7px}
+    table.data th{color:var(--faint);text-align:left;font-weight:400;padding:4px 8px 4px 0;
+      border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10.5px;
+      text-transform:uppercase;letter-spacing:.07em}
+    table.data td{padding:5px 8px 5px 0;border-bottom:1px solid var(--line-soft);
+      vertical-align:top;word-break:break-word}
+    details.inner{margin-top:9px}
+    details.inner summary{cursor:pointer;color:var(--dim);font-size:12px}
+    .kv{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:4px 0;
+      border-bottom:1px solid var(--line-soft)}
     .kv span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .statrow{display:flex;gap:22px;flex-wrap:wrap;margin:8px 0}
-    .stat b{display:block;font-size:22px}
-    .stat span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-    .funnel{margin:8px 0}
+    .statrow{display:flex;gap:20px;flex-wrap:wrap;margin:7px 0}
+    .stat b{display:block;font:600 19px/1.2 var(--mono)}
+    .stat span{display:block;font:10px/1.4 var(--mono);color:var(--faint);
+      text-transform:uppercase;letter-spacing:.07em}
+    .funnel-legacy .fstage{margin:6px 0;font-size:12.5px}
+    .fstage{margin:6px 0;font-size:12.5px}
+    .frow{display:flex;justify-content:space-between;gap:10px;margin-bottom:3px}
+    .fbarwrap{background:var(--raised);border-radius:5px;height:11px;overflow:hidden}
+    .fbar{height:100%;border-radius:5px;min-width:3px}
+    .fnum{text-align:right;white-space:nowrap;font-family:var(--mono)}
+    .bl{display:grid;grid-template-columns:105px 1fr 80px;gap:8px;align-items:center;
+      font-size:12px;margin:3px 0}
+    .bl-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bl-bar{background:var(--raised);border-radius:3px;height:10px;overflow:hidden;display:block}
+    .bl-bar i{display:block;height:100%;border-radius:3px}
+    .bl-num{text-align:right;color:var(--faint);font-family:var(--mono)}
+    ul.insights{list-style:none;display:flex;flex-direction:column;gap:7px}
+    .ins{padding:8px 11px;border-radius:6px;background:var(--raised);
+      border-left:3px solid var(--line);font-size:12.5px}
+    .ins.alert{border-left-color:var(--crit)} .ins.watch{border-left-color:var(--warn)}
+    .ins.good{border-left-color:var(--ok)} .ins.info{border-left-color:var(--info)}
+    .narrative{background:var(--raised);border:1px solid var(--line);
+      border-left:3px solid var(--info);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+    .narrative p{margin-bottom:9px;font-size:13px;color:var(--dim)}
+    .narrative .focus-label{color:var(--info);font:10px/1 var(--mono);font-weight:700;
+      text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+    .pulse-row{display:flex;gap:16px;flex-wrap:wrap}
+    .pulse-item{white-space:nowrap;font-size:12px}
+    .pulse-item i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
     td.mailact{width:1%;white-space:nowrap;text-align:right}
-    button.mdone,button.mundo{font:inherit;font-size:11px;cursor:pointer;padding:2px 8px;
-      border:1px solid var(--line,#ccc);border-radius:4px;background:transparent;color:inherit;opacity:.65}
+    button.mdone,button.mundo{font:11px var(--mono);cursor:pointer;padding:2px 7px;
+      border:1px solid var(--line);border-radius:4px;background:transparent;color:inherit;
+      opacity:.7}
     button.mdone:hover,button.mundo:hover{opacity:1}
     button.mdone[disabled],button.mundo[disabled]{opacity:.3;cursor:default}
-    .fstage{margin:7px 0;font-size:13px}
-    .frow{display:flex;justify-content:space-between;gap:10px;margin-bottom:3px}
-    .fbarwrap{background:var(--card2);border-radius:6px;height:14px;overflow:hidden}
-    .fbar{height:100%;border-radius:6px;min-width:3px}
-    .fnum{text-align:right;white-space:nowrap}
-    .bl{display:grid;grid-template-columns:110px 1fr 90px;gap:8px;align-items:center;font-size:13px;margin:3px 0}
-    .bl-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .bl-bar{background:var(--card2);border-radius:4px;height:12px;overflow:hidden;display:block}
-    .bl-bar i{display:block;height:100%;border-radius:4px}
-    .bl-num{text-align:right;color:var(--muted)}
-    ul.insights{list-style:none}
-    .ins{padding:9px 12px;border-radius:8px;margin-bottom:8px;background:var(--card);border:1px solid var(--line);font-size:14px}
-    .ins.alert{border-left:4px solid var(--red)}
-    .ins.watch{border-left:4px solid var(--amber)}
-    .ins.good{border-left:4px solid var(--green)}
-    .ins.info{border-left:4px solid var(--blue)}
-    .narrative{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--green);
-      border-radius:10px;padding:16px 18px;margin-bottom:16px}
-    .narrative p{margin-bottom:10px}
-    .narrative .focus-label{color:var(--green);font-size:11px;font-weight:700;
-      text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
-    .pulse-row{display:flex;gap:18px;flex-wrap:wrap}
-    .pulse-item{white-space:nowrap}
-    .pulse-item i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
-    .target{margin:10px 0}
-    .tbar{background:var(--card2);height:14px;border-radius:7px;overflow:hidden;margin-bottom:4px}
-    .tbar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#22c55e);border-radius:7px}
 
-    /* ── Executive layer ── */
-    .exec{border-radius:14px;padding:20px 22px;margin-bottom:18px;border:1px solid var(--line);
-      background:var(--card);border-left-width:6px}
-    .exec.st-green{border-left-color:var(--green)} .exec.st-blue{border-left-color:var(--blue)}
-    .exec.st-amber{border-left-color:var(--amber)} .exec.st-red{border-left-color:var(--red)}
-    .exec-status{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
-      margin-bottom:10px}
-    .exec.st-green .exec-status{color:var(--green)} .exec.st-blue .exec-status{color:var(--blue)}
-    .exec.st-amber .exec-status{color:var(--amber)} .exec.st-red .exec-status{color:var(--red)}
-    .exec-brief{font-size:17px;line-height:1.62;max-width:76ch}
-    .col-sub{color:var(--muted);font-size:12px;margin:2px 0 6px}
-    ul.plain{list-style:none} ul.plain li{padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
-    ul.plain li:last-child{border-bottom:none}
-    .col-interp{border-top:3px solid var(--blue)}
-    .col-watch{border-top:3px solid var(--amber)}
-    .col-action{border-top:3px solid var(--green)}
-    .col-rev{border-top:3px solid var(--green)}
-    .col-att{border-top:3px solid var(--red)}
-    .col-ok{border-top:3px solid var(--green)}
-    .col-dno{border-top:3px solid var(--amber);background:var(--card2)}
-    .chg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
-    .chg{background:var(--card2);border-radius:9px;padding:9px 11px;border-left:3px solid var(--muted)}
-    .chg.up{border-left-color:var(--green)} .chg.down{border-left-color:var(--red)}
-    .chg-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-    .chg-vals{font-size:15px;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:3px}
-    .chg-vals .was{color:var(--muted)} .chg-vals .arrow{color:var(--muted)}
-    .chg-vals .abs{color:var(--muted);font-size:12px}
-    .chg .pct{font-weight:700;font-size:13px}
-    .chg.up .pct{color:var(--green)} .chg.down .pct{color:var(--red)}
-    .chg-note{font-size:11.5px;color:var(--amber);margin-top:4px}
-    .caveat{color:var(--amber);font-size:12.5px;margin-top:8px;line-height:1.45}
-    .caveat-inline{color:var(--amber);font-size:12px}
-    .leak{background:rgba(248,113,113,.09);border-left:3px solid var(--red);padding:8px 10px;
-      border-radius:6px;font-size:13.5px;margin-bottom:10px}
-    .tag{font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;
-      border-radius:5px;font-weight:700;vertical-align:middle}
-    .tag-ok{background:rgba(74,222,128,.15);color:var(--green)}
-    .tag-inf{background:rgba(251,191,36,.15);color:var(--amber)}
-    .tag-na{background:rgba(139,145,160,.15);color:var(--muted)}
-    .tag-decision{background:rgba(96,165,250,.15);color:var(--blue)}
-    .tag-status{background:rgba(74,222,128,.15);color:var(--green)}
-    .tag-commit{background:rgba(139,145,160,.15);color:var(--muted)}
-    .fstage.impossible .fbar{background:var(--red)!important}
-    table.score td.num,table.score th.num{text-align:right}
-    table.score td{font-size:13.5px}
-    .att .col-sub{margin-left:22px}
-    .exp{background:var(--card2);border-radius:9px;padding:11px 13px;margin-bottom:10px;
-      border-left:3px solid var(--muted)}
-    .exp.exp-lock{border-left-color:var(--amber)} .exp.exp-read{border-left-color:var(--green)}
-    .exp-status{font-weight:800;font-size:12px;letter-spacing:.06em;margin-top:7px}
-    .exp-lock .exp-status{color:var(--amber)} .exp-read .exp-status{color:var(--blue)}
-    .exp.exp-read{border-left-color:var(--blue)}
-    .unknown{color:var(--amber);font-style:italic}
-    .forensic{margin-top:8px;border-top:1px solid var(--line);padding-top:18px}
-    .forensic>summary{font-size:15px;font-weight:700;cursor:pointer;color:var(--text);
-      padding:12px 0;list-style:none}
-    .forensic>summary::before{content:'▸ ';color:var(--muted)}
-    .forensic[open]>summary::before{content:'▾ '}
-    .statusbar{font-size:12px;font-weight:800;padding:3px 10px;border-radius:20px;
-      text-transform:uppercase;letter-spacing:.06em}
-    .statusbar.st-green{background:rgba(74,222,128,.15);color:var(--green)}
-    .statusbar.st-blue{background:rgba(96,165,250,.15);color:var(--blue)}
-    .statusbar.st-amber{background:rgba(251,191,36,.15);color:var(--amber)}
-    .statusbar.st-red{background:rgba(248,113,113,.15);color:var(--red)}
-    @media(max-width:640px){
-      .exec-brief{font-size:15.5px}
+    /* ── Responsive ── */
+    @media(max-width:1180px){
+      .cockpit{grid-template-columns:1fr}
+      .row3{grid-template-columns:1fr 1fr}
+      .row3>*:first-child{grid-column:1/-1}
+    }
+    @media(max-width:760px){
       main{padding:14px}
-      .chg-grid{grid-template-columns:1fr}
-      header{padding:10px 14px}
-      nav a{margin-right:10px;display:inline-block;padding:2px 0}
+      header.top{padding:9px 14px;gap:10px}
+      header.top .when{margin-left:0;flex-basis:100%}
+      .statebar{flex-direction:column}
+      .sb-state{border-right:none;border-bottom:1px solid var(--line);min-width:0}
+      .sb-cell{min-width:50%;flex-basis:50%;padding:11px 14px;
+        border-bottom:1px solid var(--line-soft)}
+      .row2,.row3{grid-template-columns:1fr}
+      .row3>*:first-child{grid-column:auto}
+      .exp-grid{grid-template-columns:repeat(2,1fr)}
+      .sig-pair{grid-template-columns:1fr 1fr}
+      .cs-nums{grid-template-columns:repeat(3,1fr)}
+      th.mprev,td.mprev{display:none}   /* prior column loses to width first */
+      .card h2 .h2sub{display:none}
+      td.mname{font-size:12px}
+      .fact{font-size:14px}
+      .tl-event{flex-direction:column;gap:4px}
+      .tabs{overflow-x:auto;flex-wrap:nowrap}
+    }
+
+    /* ── Print: an executive summary, not the forensic file ──
+       The mail table used to run off the page. Forensic detail is excluded
+       entirely unless the reader has opened it.                          */
+    @media print{
+      @page{margin:14mm}
+      body{background:#fff;color:#111;font-size:10.5pt;padding:0}
+      :root{--text:#111;--dim:#555;--faint:#777;--line:#ccc;--line-soft:#e4e4e4;
+        --surface:#fff;--raised:#fafafa;--ink:#fff}
+      header.top{position:static;background:#fff;border-bottom:2px solid #111;
+        backdrop-filter:none;padding:0 0 8px;margin-bottom:12px}
+      header.top .when{margin-left:auto}
+      nav,.tabs,.tl-all,details.inner{display:none!important}
+      main{padding:0;max-width:none}
+      .forensic{display:none!important}
+      /* Only the units that must stay whole are atomic. Keeping every card
+         atomic pushed a tall scorecard to its own page and left a mostly
+         blank sheet behind it. */
+      .card,.statebar{border-color:#ccc;background:#fff}
+      .statebar,.matter,.exp-item,.sig,.tl-event{break-inside:avoid;
+        page-break-inside:avoid}
+      .score tr{break-inside:avoid;page-break-inside:avoid}
+      .card{padding:10px 0;border:none;border-top:1px solid #ccc;border-radius:0;
+        margin-bottom:8px}
+      .statebar{border:1px solid #111;border-radius:0}
+      .cockpit,.row2,.row3{display:block}
+      .cockpit>*,.row2>*,.row3>*{margin-bottom:8px}
+      .score table{font-size:9.5pt}
+      .ev i{background:#ddd} .ev i.on{background:#555}
+      .n.faint,.d.faint{color:#777}
+      .sb-state-word,.statebar.ok .sb-state-word,.statebar.warn .sb-state-word,
+      .statebar.crit .sb-state-word,.statebar.info .sb-state-word{color:#111}
+      .matter{border:none;border-left:3px solid #111;padding:6px 0 6px 11px}
+      .chip{border:1px solid #999;background:#fff!important;color:#333!important}
+      .datahealth{border-top:1px solid #ccc}
+      a{text-decoration:none}
     }
     '''
+
+    tabs_js = """
+    <script>
+    (function(){
+      var bar=document.querySelector('.tabs'); if(!bar) return;
+      var btns=[].slice.call(bar.querySelectorAll('button'));
+      function show(id){
+        btns.forEach(function(b){
+          var on=b.dataset.tab===id;
+          b.setAttribute('aria-selected',on?'true':'false');
+          b.tabIndex=on?0:-1;
+          document.getElementById('panel-'+b.dataset.tab).hidden=!on;
+        });
+      }
+      bar.addEventListener('click',function(e){
+        var b=e.target.closest('button'); if(b) show(b.dataset.tab);
+      });
+      bar.addEventListener('keydown',function(e){
+        var i=btns.indexOf(document.activeElement); if(i<0) return;
+        if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+          e.preventDefault();
+          var n=btns[(i+(e.key==='ArrowRight'?1:btns.length-1))%btns.length];
+          n.focus(); show(n.dataset.tab);
+        }
+      });
+      show(btns[0].dataset.tab);
+    })();
+    </script>"""
 
     html = f'''<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Command Center — CW + KD</title><style>{css}</style></head>
+<title>Command Centre &#8212; CW + KD</title><style>{css}</style></head>
 <body>
-<header><h1>🎛️ Command Center</h1>
-<span class="statusbar {STATUS_CLASS.get((d.get('executive') or {}).get('status', 'blue'), 'st-blue')}">
-{(d.get('executive') or {}).get('status_icon', '')} {esc((d.get('executive') or {}).get('status_label', ''))}</span>
-<span class="upd">Updated {esc(d["meta"]["generated_at"])} PT</span>
-<nav><a href="#brief">Brief</a><a href="#changed">What changed</a><a href="#money">Revenue</a>
-<a href="#scorecard">Scorecard</a><a href="#funnel">Funnel</a><a href="#signal">Signal</a>
-<a href="#timeline">Timeline</a><a href="#quality">Data</a><a href="#forensic">Detail</a></nav></header>
+<header class="top">
+<h1>Command Centre</h1>
+<nav><a href="#today">Today</a><a href="#scorecards">Scorecards</a><a href="#funnel">Funnel</a>
+<a href="#measuring">Measuring</a><a href="#signal">Signal</a><a href="#timeline">Timeline</a>
+<a href="#health">Data</a><a href="#forensic">Detail</a></nav>
+<span class="when">{esc(d["meta"]["generated_at"])} PT</span>
+</header>
 <main>
 
-<section id="brief"><h2>Executive brief</h2>
-{exec_html(d)}
-<div class="grid">{interp_html(d)}</div>
-</section>
+{statebar_html(d)}
 
-<section id="changed"><h2>What changed</h2>
-<div class="grid">{changes_html(d)}</div>
-</section>
-
-<section id="money"><h2>Revenue &amp; what needs attention</h2>
-<div class="grid">
-{revenue_exec_html(d)}
-{attention_html(d)}
-{dont_overreact_html(d)}
-{customer_signal_html(d)}
-</div></section>
-
-<section id="scorecard"><h2>Business scorecard</h2>
-<div class="grid">
-{scorecard_html(d, 'cw', 'Carnivore Weekly', 'var(--green)')}
-{scorecard_html(d, 'kd', 'KetoDial', 'var(--blue)')}
-</div></section>
-
-<section id="funnel"><h2>Paid funnel &amp; active experiment</h2>
-<div class="grid">
-{paid_funnel_html(d)}
-{experiments_html(d)}
-</div></section>
-
-<section id="signal"><h2>Signal vs noise</h2>
-<div class="grid">{signal_html(d)}</div></section>
-
-<section id="timeline"><h2>Change correlation</h2>
-<div class="grid">{timeline_html(d)}</div></section>
-
-<section id="quality"><h2>Data quality</h2>
-<div class="grid">{data_quality_html(d)}</div></section>
-
-<details class="forensic" id="forensic"><summary>Forensic detail — every source, unchanged</summary>
-
-<section id="review"><h2>Plain-English Review <span class="small">(model opinion, separate from the deterministic brief above)</span></h2>
-{narrative_html}
-<ul class="insights">{ins_html or '<li class="ins info">No flags today — quiet week.</li>'}</ul>
-</section>
-
-<section id="pulse"><h2>Daily Pulse <span class="small">(yesterday · queues · automations)</span></h2>
-<div class="card">
-<h4>Yesterday ({esc(ydata.get('date') or '—')})</h4>
-{y_html or '<p class="muted small">Yesterday counts unavailable.</p>'}
-<h4>Content queues</h4>
-<p class="small">{queue_html or '<span class="muted">Queue files unreadable.</span>'}</p>
-<h4>Automation health</h4>
-<p class="small pulse-row">{auto_html or '<span class="muted">GitHub Actions status unavailable.</span>'}</p>
-{dec_html}
+<div class="cockpit" id="today">
+  <section class="card">
+    <h2>What matters today<span class="h2sub">fact &middot; interpretation &middot; action</span></h2>
+    <div class="matters">{matters_html(d)}</div>
+  </section>
+  <div class="stack">
+    {attention_html(d)}
+    {dont_overreact_html(d)}
+  </div>
 </div>
-</section>
 
-<section id="traffic"><h2>Traffic <span class="small">(GA4, 7 complete days vs the 7 before)</span></h2>
-<div class="grid">
-{traffic_card('Carnivore Weekly', d['traffic'].get('cw'), 'var(--green)')}
-{traffic_card('KetoDial', d['traffic'].get('kd'), 'var(--blue)')}
-</div></section>
+<div class="row2" id="scorecards">
+{scorecard_html(d, 'cw', 'Carnivore Weekly', 'cw')}
+{scorecard_html(d, 'kd', 'KetoDial', 'kd')}
+</div>
 
-<section id="search"><h2>Search — Google &amp; Bing</h2>
-<div class="grid">
-{search_card('Google · Carnivore Weekly', d['search'].get('cw'), 'var(--green)')}
-{search_card('Google · KetoDial', d['search'].get('kd'), 'var(--blue)')}
-{bing_card('Bing · Carnivore Weekly', d['search'].get('bing_cw'))}
-{bing_card('Bing · KetoDial', d['search'].get('bing_kd'))}
-</div></section>
+<div class="row3" id="funnel">
+{paid_funnel_html(d)}
+<div class="stack" id="measuring">{experiments_html(d)}</div>
+<div class="stack">{revenue_html(d)}</div>
+</div>
 
-<section id="funnels"><h2>Calculator states, drip, newsletter, coach</h2>
-<div class="grid">
-<div class="card"><h3 style="border-color:var(--green)">CW calculator states <span class="muted small">(30d)</span></h3>
-{funnel_html(f.get('calculator_cw'), 'var(--green)')}</div>
-<div class="card"><h3 style="border-color:var(--blue)">KD calculator states <span class="muted small">(30d)</span></h3>
-{funnel_html(f.get('calculator_kd'), 'var(--blue)')}</div>
-<div class="card"><h3 style="border-color:var(--green)">30-Day Drip (CW)</h3>{drip_cw_html or err_note(f, 'Funnels') or ''}</div>
-<div class="card"><h3 style="border-color:var(--blue)">30-Day Drip (KD)</h3>{drip_kd_html or err_note(f, 'Funnels') or ''}</div>
-<div class="card"><h3 style="border-color:var(--green)">Newsletter (CW)</h3><div class="statrow wrap">{nl_block(nl_cw)}</div></div>
-<div class="card"><h3 style="border-color:var(--blue)">Newsletter (KD)</h3><div class="statrow wrap">{nl_block(nl_kd)}</div></div>
+<div class="row2" id="signal">
+{signal_html(d)}
+{customer_signal_html(d)}
+</div>
+
+<div id="timeline">{timeline_html(d)}</div>
+
+<div id="health">{data_health_html(d)}</div>
+
+<details class="forensic" id="forensic">
+<summary>Forensic detail &#8212; every source, unchanged</summary>
+
+<div class="tabs" role="tablist">
+<button role="tab" data-tab="traffic">Traffic</button>
+<button role="tab" data-tab="search">Search</button>
+<button role="tab" data-tab="audience">Audience</button>
+<button role="tab" data-tab="email">Email</button>
+<button role="tab" data-tab="mail">Mail &amp; feedback</button>
+<button role="tab" data-tab="commerce">Revenue &amp; Etsy</button>
+<button role="tab" data-tab="ops">Operations</button>
+<button role="tab" data-tab="ai">Model narrative</button>
+</div>
+
+<div class="panel" id="panel-traffic" role="tabpanel">
+<div class="fgrid">
+{traffic_card('Carnivore Weekly', d['traffic'].get('cw'), 'var(--cw)')}
+{traffic_card('KetoDial', d['traffic'].get('kd'), 'var(--kd)')}
+</div></div>
+
+<div class="panel" id="panel-search" role="tabpanel" hidden>
+<div class="fgrid">
+{search_card('Google &middot; Carnivore Weekly', d['search'].get('cw'), 'var(--cw)')}
+{search_card('Google &middot; KetoDial', d['search'].get('kd'), 'var(--kd)')}
+{bing_card('Bing &middot; Carnivore Weekly', d['search'].get('bing_cw'))}
+{bing_card('Bing &middot; KetoDial', d['search'].get('bing_kd'))}
+</div></div>
+
+<div class="panel" id="panel-audience" role="tabpanel" hidden>
+<div class="fgrid">
+<div class="card"><h3>CW calculator states <span class="muted small">(30d)</span></h3>
+{funnel_html(f.get('calculator_cw'), 'var(--cw)')}</div>
+<div class="card"><h3>KD calculator states <span class="muted small">(30d)</span></h3>
+{funnel_html(f.get('calculator_kd'), 'var(--kd)')}</div>
+{demo_card('CW calculator demographics', d['demographics'].get('cw') if not d['demographics'].get('error') else d['demographics'], 'var(--cw)')}
+{demo_card('KD calculator demographics', d['demographics'].get('kd') if not d['demographics'].get('error') else d['demographics'], 'var(--kd)')}
+<div class="card"><h3>30-day drip (CW)</h3>{drip_cw_html or err_note(f, 'Funnels') or ''}</div>
+<div class="card"><h3>30-day drip (KD)</h3>{drip_kd_html or err_note(f, 'Funnels') or ''}</div>
+<div class="card"><h3>Newsletter (CW)</h3><div class="statrow">{nl_block(nl_cw)}</div></div>
+<div class="card"><h3>Newsletter (KD)</h3><div class="statrow">{nl_block(nl_kd)}</div></div>
 <div class="card"><h3>Coach (KD)</h3>{coach_html}</div>
-</div></section>
+</div></div>
 
-<section id="demographics"><h2>Calculator Demographics</h2>
-<div class="grid">
-{demo_card('CW Calculator', d['demographics'].get('cw') if not d['demographics'].get('error') else d['demographics'], 'var(--green)')}
-{demo_card('KD Calculator', d['demographics'].get('kd') if not d['demographics'].get('error') else d['demographics'], 'var(--blue)')}
-</div></section>
+<div class="panel" id="panel-email" role="tabpanel" hidden>
+<div class="card"><h3>Email engagement <span class="muted small">(drip + newsletter, 7d)</span></h3>
+{eng_html or err_note(eng, 'Engagement') or ''}</div></div>
 
-<section id="mail"><h2>Mail &amp; Feedback</h2>
-<div class="grid">
-<div class="card"><h3>Inbound Mail <span class="muted small">(@carnivoreweekly.com · {mail.get('inbound_7d', 0)} total this week)</span></h3>
+<div class="panel" id="panel-mail" role="tabpanel" hidden>
+<div class="fgrid">
+<div class="card"><h3>Inbound mail <span class="muted small">({mail.get('inbound_7d', 0)} this week)</span></h3>
 {mail_html}
 </div>
-<div class="card"><h3>Site Feedback <span class="muted small">({fb.get('new_7d', 0)} new this week · {fb.get('unreviewed', 0)} unreviewed · {fb.get('hidden_test', 0)} test entries hidden)</span></h3>
-{table(['Date', 'From', 'Message', 'Status'], fb_open_rows) if fb_open_rows else (err_note(fb, 'Feedback') or '<p class="muted">No open feedback — all caught up.</p>')}
-{f'<details><summary>{len(fb_done_rows)} completed item(s), last 30 days</summary>{table(["Date", "From", "Message", "Status"], fb_done_rows)}</details>' if fb_done_rows else ''}
-{f'<p class="muted small">{fb_aged_off} older completed item(s) aged off this view.</p>' if fb_aged_off > 0 else ''}
-</div>
-<div class="card"><h3>Email Engagement <span class="muted small">(drip + newsletter, 7d)</span></h3>
-{eng_html or err_note(eng, 'Engagement') or ''}</div>
-</div></section>
+<div class="card"><h3>Site feedback <span class="muted small">({fb.get('new_7d', 0)} new &middot; {fb.get('unreviewed', 0)} unreviewed &middot; {fb.get('hidden_test', 0)} test entries hidden)</span></h3>
+{table(['Date', 'From', 'Message', 'Status'], fb_open_rows) if fb_open_rows else (err_note(fb, 'Feedback') or '<p class="muted">No open feedback.</p>')}
+{completed_fb_html}
+{aged_fb_html}
+</div></div></div>
 
-<section id="revenue"><h2>Revenue detail</h2>
-<div class="card">{rev_html}</div></section>
+<div class="panel" id="panel-commerce" role="tabpanel" hidden>
+<div class="fgrid">
+<div class="card"><h3>Revenue detail</h3>{rev_html}</div>
+{etsy_card(d.get('etsy'))}
+</div></div>
 
-<section id="etsy"><h2>Etsy Shop <span class="small">(daily snapshot · reviews + conversion)</span></h2>
-<div class="grid">{etsy_card(d.get('etsy'))}</div></section>
+<div class="panel" id="panel-ops" role="tabpanel" hidden>
+<div class="card">
+<h3>Yesterday ({esc(ydata.get('date') or '—')})</h3>
+{y_html or '<p class="muted small">Yesterday counts unavailable.</p>'}
+<h3>Content queues</h3>
+<p class="small">{queue_html or '<span class="muted">Queue files unreadable.</span>'}</p>
+<h3>Automation health</h3>
+<p class="small pulse-row">{auto_html or '<span class="muted">GitHub Actions status unavailable.</span>'}</p>
+{dec_html}
+<h3>All rule-based flags</h3>
+<ul class="insights">{ins_html or '<li class="ins info">No flags today.</li>'}</ul>
+</div></div>
+
+<div class="panel" id="panel-ai" role="tabpanel" hidden>
+<div class="card"><h3>Model narrative <span class="muted small">(optional commentary &#8212; the
+cockpit above is computed deterministically and does not depend on it)</span></h3>
+{narrative_html}</div></div>
 
 </details>
 
-<p class="muted small">Generated by dashboard/generate_command_center.py · data in command-center-data.json ·
-auto-updates daily via GitHub Actions (dashboard-update.yml) · run manually any time:
-<code>python3 dashboard/generate_command_center.py</code></p>
-</main>{MAIL_SCRIPT}</body></html>'''
+<p class="foot">dashboard/generate_command_center.py &middot; data in command-center-data.json &middot;
+manual publish: <code>python3 dashboard/generate_command_center.py --nas</code></p>
+</main>{MAIL_SCRIPT}{tabs_js}</body></html>'''
     return html
 
 

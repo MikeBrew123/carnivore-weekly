@@ -42,6 +42,25 @@ MIN_SAMPLE = {
     'generic': 20,
 }
 
+# Evidence tiers. The dashboard's whole purpose is to stop a small number being
+# read as a big signal, so sample weight is a first-class property of every
+# figure rather than a footnote: 'thin' is rendered dimmed with no percentage,
+# 'usable' plainly, 'solid' at full weight.
+EVIDENCE_TIERS = ('thin', 'usable', 'solid')
+
+
+def evidence(value, base='generic'):
+    """Sample-confidence tier for a single figure."""
+    floor = MIN_SAMPLE.get(base, MIN_SAMPLE['generic'])
+    if value is None:
+        return 'thin'
+    if value >= floor * 4:
+        return 'solid'
+    if value >= floor:
+        return 'usable'
+    return 'thin'
+
+
 STATUS_RANK = {'green': 0, 'blue': 1, 'amber': 2, 'red': 3}
 STATUS_LABEL = {
     'green': ('🟢', 'Healthy'),
@@ -99,6 +118,9 @@ def delta(label, prev, cur, unit='count', base='generic', invert=False, note=Non
         'direction': direction,
         'reliable': reliable,
         'unit': unit,
+        'evidence': evidence(max(prev, cur) if unit != 'pct' else floor, base),
+        'base': base,
+        'floor': floor,
         'note': note or (None if reliable else 'Low sample — directional only.'),
     }
 
@@ -709,6 +731,7 @@ def build_experiments(specs, events, today, min_impressions=100):
 
         den = since(spec.get('denominator_event'))
         num = since(spec.get('numerator_event'))
+        checkouts = since(spec.get('checkout_event') or 'begin_checkout')
         purchases = since(spec.get('outcome_event') or 'purchase')
         floor = spec.get('min_sample', min_impressions)
         if den is None or num is None:
@@ -720,16 +743,19 @@ def build_experiments(specs, events, today, min_impressions=100):
         else:
             rate = round(num * 100 / den, 1) if den else 0
             status = 'REVIEW ELIGIBLE'
-            verdict = (f'{num} engagements and {purchases if purchases is not None else "—"} '
-                       f'purchases from {den} impressions over {days} days ({rate}% engagement). '
-                       f'The review threshold is met — that means look at it, not that it '
-                       f'worked. Crossing {floor} is not a result.')
+            verdict = (f'{num} engagements, '
+                       f'{checkouts if checkouts is not None else "—"} checkouts and '
+                       f'{purchases if purchases is not None else "—"} purchases from {den} '
+                       f'impressions over {days} days ({rate}% engagement). The review '
+                       f'threshold is met — that means look at it, not that it worked. '
+                       f'Crossing {floor} is not a result.')
         out.append({
             'name': spec.get('name', 'unnamed'), 'started': spec['started'], 'days': days,
             'denominator_label': spec.get('denominator_label', spec.get('denominator_event')),
             'numerator_label': spec.get('numerator_label', spec.get('numerator_event')),
+            'checkout_label': spec.get('checkout_label', 'Checkouts since start'),
             'outcome_label': spec.get('outcome_label', 'Purchases since start'),
-            'denominator': den, 'numerator': num, 'outcome': purchases,
+            'denominator': den, 'numerator': num, 'checkouts': checkouts, 'outcome': purchases,
             'min_sample': floor,
             'threshold_meaning': ('Minimum review threshold. Reaching it makes the result worth '
                                   'reading; it is not proof, not a winner, and not a decision.'),
@@ -738,6 +764,101 @@ def build_experiments(specs, events, today, min_impressions=100):
             'notes': spec.get('notes'),
         })
     return out
+
+
+def build_what_matters(d, changes, funnel, revenue, attention, experiments, today_iso, limit=5):
+    """The three to five things worth a minute this morning.
+
+    Every item is a triple and the triple is never collapsed: FACT is a
+    measurement and quotes its number, INTERPRETATION is why it might matter
+    and is allowed to be wrong, ACTION is either one thing to do or an explicit
+    "no action". Nothing reaches this list on the strength of a percentage
+    alone — a movement must be reliable, or it must be operational.
+
+    "Nothing requires intervention today" is a correct and complete answer.
+    This function will not manufacture work to fill the space.
+    """
+    items = []
+
+    def add(state, fact, interp, action, weight):
+        items.append({'state': state, 'fact': fact, 'interpretation': interp,
+                      'action': action, 'weight': weight})
+
+    # 1. Operational breakage outranks everything: it is the only class where
+    #    the action is unambiguous. Only RED is promoted here — amber items are
+    #    rendered in the Needs attention panel beside this one, and repeating
+    #    them would spend the most valuable space on the page saying the same
+    #    thing twice.
+    for it in attention:
+        if it['severity'] == 'red':
+            add('action', it['text'], it.get('why') or 'Automation and content pipelines fail '
+                'silently here; nothing else reports them.',
+                'Fix or acknowledge it today.', 0)
+
+    # 2. Money. Yesterday is the question Brew opens the page asking.
+    if revenue.get('unavailable'):
+        add('action', f'Revenue is unavailable — {revenue.get("reason")}.',
+            'A Stripe failure and a day with no sales look identical in a total, so the '
+            'dashboard refuses to show either as zero.',
+            'Re-run the dashboard before drawing any revenue conclusion.', 1)
+    else:
+        y = revenue['yesterday'].get('net', 0)
+        n = revenue['yesterday'].get('charges', 0)
+        if n:
+            add('good', f'Yesterday brought ${y:,.2f} from {n} purchase(s).',
+                f'Thirty-day collected revenue is ${revenue["last_30d"].get("net", 0):,.2f} '
+                f'from {revenue["purchases_30d"]} purchases. At that volume a single sale '
+                f'moves any percentage on this page.',
+                'No action — one day is not a trend at this volume.', 2)
+        else:
+            add('watch', 'No purchases yesterday.',
+                f'{revenue["purchases_30d"]} purchases in the last 30 days, so a zero day is '
+                f'the normal case, not a signal.',
+                'No action — keep measuring.', 4)
+
+    # 3. Where the funnel leaks. Strategically the most actionable thing here.
+    if funnel and not funnel.get('error') and funnel.get('biggest_leak'):
+        leak = funnel['biggest_leak']
+        add('watch', leak['text'],
+            'This is the largest absolute loss in the measurable purchase journey, so a fix '
+            'here has more leverage than anywhere below it.',
+            'No action today — the stages beneath it are too thin to tell you what a fix '
+            'would be worth.' if (funnel.get('stages') and
+                                  any((s['sessions'] or 0) < 20 and s['status'] == 'measured'
+                                      for s in funnel['stages'][-3:]))
+            else 'Worth investigating why this stage loses so many.', 2)
+
+    # 4. Reliable movements only. A big percentage on a thin base never gets here.
+    movers = sorted([c for c in changes.get('wow', [])
+                     if c and c['reliable'] and c['pct'] is not None and abs(c['pct']) >= 25],
+                    key=lambda c: -abs(c['pct']))
+    for c in movers[:2]:
+        direction = 'up' if c['pct'] > 0 else 'down'
+        add('watch' if direction == 'up' else 'action' if abs(c['pct']) >= 40 else 'watch',
+            f'{c["label"]}: {c["prev_fmt"]} → {c["cur_fmt"]} ({c["pct"]:+.0f}%).',
+            f'The sample is large enough to carry that percentage '
+            f'({c["floor"]}+ needed, {max(c["prev"], c["cur"]):,.0f} present), so the movement '
+            f'is real. Whether it persists is a different question.',
+            'No action — confirm it holds next week before changing anything.', 3)
+
+    # 5. A locked experiment is a standing instruction not to touch something.
+    for e in (experiments or []):
+        if 'KEEP MEASURING' in e['status']:
+            add('watch',
+                f'{e["name"]}: {e["denominator"]} of {e["min_sample"]} impressions, '
+                f'{e["numerator"]} engagements, {e["outcome"]} purchases.',
+                'Below the review threshold, so the engagement rate cannot be read yet — '
+                'and the threshold is a review gate, not a winner line.',
+                'No action — do not change the bridge card, its copy or the price.', 2)
+
+    order = {'action': 0, 'watch': 1, 'good': 2}
+    items.sort(key=lambda i: (i['weight'], order.get(i['state'], 9)))
+    if not items:
+        return [{'state': 'good', 'fact': 'Nothing requires intervention today.',
+                 'interpretation': 'No operational failure, no reliable adverse movement, and '
+                                   'no experiment ready to read.',
+                 'action': 'No action — keep measuring.', 'weight': 0}]
+    return items[:limit]
 
 
 # ── Executive brief ──────────────────────────────────────────────────

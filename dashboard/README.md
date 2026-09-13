@@ -346,23 +346,53 @@ For issues or questions:
 
 ## Command Centre 2.0 (2026-09-13)
 
-`generate_command_center.py` now renders an executive decision layer above the
-existing monitoring report. Nothing was removed: every previous section lives
-in the collapsible **Forensic detail** region at the bottom of the page.
+`generate_command_center.py` renders a single-screen operator cockpit. Nothing
+was removed: every previous section lives in the collapsible **Forensic detail**
+drawer, split across eight tabs.
 
-| Layer | What it answers | Where the logic lives |
+### The cockpit, top to bottom
+
+| Band | What it answers | Logic |
 |---|---|---|
-| Executive brief | status verdict + 3–6 plain sentences | `command_center_exec.build_executive` |
-| What changed | DoD and WoW, sample-size guarded | `build_changes` |
-| Revenue | yesterday / 7d / 30d / MTD, gross vs NET target | `build_revenue` |
-| Needs attention | operational problems only | `build_needs_attention` |
-| Do not overreact to | tiny denominators, crawler days, repeat events | `build_dont_overreact` |
-| Business scorecard | current vs previous comparable + trend | `scorecard_html` |
-| Paid funnel | GA4 sessions per event, stages tagged | `build_funnel` |
-| Currently measuring | protects a live experiment from early changes | `build_experiments` |
-| Signal vs noise | observed vs decision-useful sessions | `clean_traffic` |
-| Change correlation | project log + git vs metric movements | `parse_timeline` / `correlate` |
-| Data quality | per-source freshness and failure state | `build_data_quality` |
+| Business state strip | status, yesterday/7d/30d collected, purchases, experiment, ops failures | `build_executive` |
+| What matters today | the 3–5 things worth a minute, each FACT / INTERPRETATION / ACTION | `build_what_matters` |
+| Needs attention · Do not overreact to | what to act on; what to ignore | `build_needs_attention` / `build_dont_overreact` |
+| CW · KD scorecards | traffic, audience, buying intent, revenue, email — now, prior, direction, confidence | `scorecard_html` |
+| Paid funnel | the measurable purchase journey and where it drops | `build_funnel` |
+| Currently measuring | impressions, engagements, checkouts, purchases vs the review threshold | `build_experiments` |
+| Revenue | gross, refunds, collected; net profit not measured | `build_revenue` |
+| Signal vs noise | observed beside de-spiked, with the reason | `clean_traffic` |
+| Customer signal | reply counts and categories, no addresses | `fetch_mail` |
+| Change timeline | project changes beside movements, with the caveat | `parse_timeline` / `correlate` |
+| Data health | per-source current / stale / unavailable / error | `build_data_quality` |
+| Forensic detail | eight tabs of diagnostics, collapsed by default | — |
+
+### Visual system
+
+**Every element must be able to change in a way that affects a decision.** A
+funnel stage's first bar is 100% by definition, so no stage bars are drawn at
+all; the *drops between* stages are drawn instead, because that is what a
+reader acts on. An inferred stage's carry-through says `equal by definition`
+rather than a meaningless 100%. The only progress bar on the page is the
+experiment's review threshold, which moves daily and gates a decision.
+
+**The evidence meter** is the signature element. Every figure carries a
+three-segment sample-weight mark, and a thin-evidence figure is rendered dimmed
+with its percentage withheld. The page goes quiet where it does not know.
+
+**Mono is measurement, sans is interpretation.** Anything measured is set in
+the mono face; anything inferred is set in the prose face. The split is
+load-bearing — a reader can tell fact from inference before reading a word.
+
+**Colour.** A deep slate ground, so state has somewhere quiet to sit. Green,
+amber, red and blue mean state and appear nowhere decorative. CW is identified
+by an ember rule and KD by a teal one, used only as 2px marks and labels, never
+as a card fill.
+
+**Print.** `@media print` produces an executive summary on white: state strip,
+what matters, attention, scorecards, funnel, experiment, revenue, signal,
+timeline and data health. The forensic drawer and its tables — including the
+mail table that used to run off the page — are excluded entirely.
 
 ### Rules the code enforces
 
