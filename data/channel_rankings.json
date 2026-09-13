@@ -1,65 +1,65 @@
 {
-  "last_updated": "2026-09-09",
+  "last_updated": "2026-09-13",
   "leaderboard": [
     {
-      "name": "Shawn Baker MD",
+      "name": "KenDBerryMD",
       "rank": 1,
-      "appearances": 7,
-      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
-    },
-    {
-      "name": "Captain Carnivore",
-      "rank": 2,
-      "appearances": 1,
-      "channel_id": "UCDbCkyHd5afWkqGWngqk5gQ"
+      "appearances": 2,
+      "channel_id": "UCIma2WOQs1Mz2AuOt6wRSUw"
     },
     {
       "name": "Coach Carnivore Cam ",
-      "rank": 3,
+      "rank": 2,
       "appearances": 3,
       "channel_id": "UC3vywUwv6B-JB4jmdhZnX7A"
     },
     {
+      "name": "Shawn Baker MD",
+      "rank": 3,
+      "appearances": 7,
+      "channel_id": "UC5apkKkeZQXRSDbqSalG8CQ"
+    },
+    {
       "name": "Jenny Mitich",
       "rank": 4,
-      "appearances": 7,
+      "appearances": 8,
       "channel_id": "UCNpz0ec0jWJlFO7ptYdlAJw"
     },
     {
-      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
-      "rank": 5,
-      "appearances": 7,
-      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
-    },
-    {
-      "name": "Unnatural Vegan",
-      "rank": 6,
-      "appearances": 1,
-      "channel_id": "UCJBry7T2R1WeipWMBWKJ7Rg"
-    },
-    {
-      "name": "Ferrigno Freedom",
-      "rank": 7,
-      "appearances": 4,
-      "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
-    },
-    {
-      "name": "HomeSteadHow",
-      "rank": 8,
-      "appearances": 9,
-      "channel_id": "UCHXjZagCrWdnkkx1rlpuqVg"
-    },
-    {
       "name": "Carnivore Quest",
-      "rank": 9,
+      "rank": 5,
       "appearances": 6,
       "channel_id": "UCMXFshWv04QJPsjKMgtreFQ"
     },
     {
-      "name": "The Carnivore Way",
+      "name": "Tatiana Timofeyev",
+      "rank": 6,
+      "appearances": 7,
+      "channel_id": "UCiw2MH8alOMFFz6Gyll68BQ"
+    },
+    {
+      "name": "Ferrigno Freedom",
+      "rank": 7,
+      "appearances": 5,
+      "channel_id": "UC1ev_bT3u-m6b6BoN39h1Ow"
+    },
+    {
+      "name": "Dr. Tony Hampton - The Metabolic Health Doc",
+      "rank": 8,
+      "appearances": 8,
+      "channel_id": "UC3ymdZTdzHvpDEFhEXqQqpQ"
+    },
+    {
+      "name": "Emmathecarnivore",
+      "rank": 9,
+      "appearances": 10,
+      "channel_id": "UCbd6oeyqTJnjf0lvjXv2w1Q"
+    },
+    {
+      "name": "SHAPEFIXER",
       "rank": 10,
       "appearances": 1,
-      "channel_id": "UCJrkp6b3RCG86fpCxvjAYhA"
+      "channel_id": "UCM1Va_ObWwANw1lrnUSQ6bw"
     }
   ]
 }

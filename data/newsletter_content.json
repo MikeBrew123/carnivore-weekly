@@ -1,45 +1,45 @@
 {
-  "date": "2026-09-06",
-  "subject_line": "The swap keeping your sugar cravings alive",
-  "opening": "<p style='margin:0;'>Happy Sunday, friend. This week's community was on fire debating sweet swaps, lab results, and what to say when people tell you you've lost too much. We've got a lot to get into, and at least one answer in here might surprise you.</p>",
+  "date": "2026-09-13",
+  "subject_line": "Your labs changed. Your effort didn't. What gives?",
+  "opening": "<p style='margin:0;'>Hey, it's Chloe. This week we've got a story that's going to hit close to home for anyone who's done everything right and still got a number back that made them panic. Plus Marcus has a lunch fix for those of you eating sad cold meat at your desk, and Sarah's digging into something most people on carnivore completely overlook until it bites them. Let's get into it.</p>",
   "hero": {
-    "slug": "2026-09-05-kill-sugar-cravings-carnivore",
-    "title": "What Actually Kills Sugar Cravings on Carnivore",
+    "slug": "2026-09-08-sick-after-eating-meat-months-in",
+    "title": "Suddenly Sick After Eating Meat Months In",
     "writer": "Sarah",
-    "teaser": "Over 378 people jumped into the comments this week arguing about the best sweet swap on carnivore. Dark chocolate, berries, keto desserts, you name it, someone defended it. But Sarah's answer isn't about finding a better swap. It's about why the swap itself might be the thing keeping you stuck in the craving loop in the first place.",
-    "cta": "Read before your next craving hits"
+    "teaser": "Six solid months on carnivore. You've figured out your cuts, your timing, your portions. And then one day, the meat that used to feel amazing starts turning your stomach. It's confusing, and honestly a little scary. Sarah breaks down four common reasons this happens months in, and one of them isn't something you can tweak your way out of. You'll want to know which one before you just push through.",
+    "cta": "Read before your next meal"
   },
   "supporting": [
     {
-      "slug": "2026-09-04-high-ferritin-carnivore",
-      "title": "High Ferritin on Carnivore: Should You Worry?",
-      "teaser": "Your doctor circled a number on your labs and mentioned the beef, but Sarah says that flagged ferritin reading might not mean what your doctor thinks it means."
+      "slug": "2026-09-10-fat-to-protein-ratio-stalls-fat-loss",
+      "title": "The Fat to Protein Ratio That Stalls Fat Loss",
+      "teaser": "Marcus found the number that quietly drifts on most people, and it's not the one they're tracking."
     },
     {
-      "slug": "2026-09-02-when-people-say-too-thin",
-      "title": "When People Say You Look Too Thin",
-      "teaser": "You did the work, hit your goal, and now the people closest to you are worried, so Chloe gets honest about where those comments really come from."
+      "slug": "2026-09-09-potassium-on-carnivore",
+      "title": "Potassium on Carnivore: Why Pills Won't Cut It",
+      "teaser": "Sarah explains the legal reason your potassium tablet is basically useless, and where the real amount has to come from."
     },
     {
-      "slug": "2026-09-01-weight-loss-timeline-after-50",
-      "title": "Carnivore Weight Loss Timeline After 50",
-      "teaser": "Month one feels like progress, but Sarah says month two is where everything changes, and most people over 50 don't expect what comes next."
+      "slug": "2026-09-12-what-to-say-about-your-plate",
+      "title": "What to Say When They Ask About Your Plate",
+      "teaser": "Chloe's got a better script than 'well actually, insulin...' for the next time someone corners you at a party."
     }
   ],
   "community_pulse": [
     {
-      "question": "I've always been a sweets person and I'm brand new to carnivore. Berries and dark chocolate aren't cutting it. What actually works for cravings?",
-      "answer": "This one came up a lot this week, and it connects directly to Sarah's hero piece above. Many people find that sweet swaps keep the craving alive rather than quieting it. The fix isn't a better substitute, and Sarah breaks down exactly why in 'What Actually Kills Sugar Cravings on Carnivore.'"
+      "question": "I lost a lot of weight on carnivore, my blood sugar was doing great, and now a year and a half in my fasting glucose is creeping back up. I didn't change anything. What's happening?",
+      "answer": "This one genuinely needs a conversation with your doctor, not a forum. That said, many long-term carnivore members find that a rise in fasting glucose after significant weight loss can reflect a few different things, including a normal physiological adaptation some call 'glucose sparing,' where your body preserves glucose for the tissues that need it. It's also worth knowing that stopping a medication like metformin changes the picture significantly. Bring the full timeline to your doctor, including when you stopped the medication, and ask them to look at fasting insulin alongside glucose."
     },
     {
-      "question": "I skipped the rice at a work lunch and only ate the chicken, and suddenly everyone wanted to know why I eat that way. How do you handle the attention?",
-      "answer": "You're not alone. Community members report this kind of lunch-table moment happens constantly, especially in the first few months. A short, confident answer like 'I just feel better eating this way' tends to close the conversation faster than a full explanation ever does."
+      "question": "I'm worried that eating high-calorie foods like bacon, eggs, and ribeye will make it impossible to lose weight. How does anyone actually succeed on this eating enough fat?",
+      "answer": "It's one of the most common sticking points people bring up, and it makes total sense if you've been counting calories for years. Many people find that the hunger-regulating effect of protein and fat means they naturally eat less overall, without tracking every bite. The comparison to low-fat diets breaks down pretty fast once you're a few weeks in and realizing you're actually satisfied between meals."
     },
     {
-      "question": "My therapist told me I should never do keto because of my history with binge eating. Has anyone else been told that by a professional?",
-      "answer": "That's a hard thing to hear, especially when you're trying to make real changes. Many people with similar histories have found that working with a doctor or dietitian alongside their therapist, rather than choosing one or the other, opened more doors. It's worth getting more than one professional opinion before you decide."
+      "question": "My skin has been a disaster for years. Could changing what I eat actually make a difference?",
+      "answer": "Community members report this more than almost anything else, and it's one of the most motivating things to see. The timeline varies a lot, but many people share that skin changes, including acne clearing up, tend to show up somewhere in the first three to six months. Nobody can promise a specific outcome, but it's worth knowing you're not the only one who's experienced this, not by a long shot."
     }
   ],
-  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Notice what you reach for when a craving hits.</strong> This week, before you grab a sweet swap, pause for 60 seconds and ask whether you're actually hungry or just riding out a signal. Many people find the craving passes on its own with a glass of water and a small portion of protein. That single habit shift is what Sarah's article is really about.</p>",
-  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're looking at something most carnivores don't check until it's already a problem, and once you know what to watch for, you won't be able to unsee it.</p>"
+  "try_this_week": "<p style='margin:0;'><strong style='color:#1C1210;'>Track your protein grams for just three days, not calories, just protein.</strong> Marcus makes the case that most stalls come down to a fat-to-protein ratio that quietly drifted in the wrong direction. Pull out whatever you're eating on a typical day, look up the protein number, and see if it's actually where you think it is. Three days of data tells you more than a month of guessing.</p>",
+  "looking_ahead": "<p style='font-family:Verdana,Geneva,sans-serif;font-size:14px;color:#1C1210;line-height:1.6;'>Next week we're getting into something most carnivore resources skip entirely, and it explains why some people feel electric on this diet while others just feel okay. You won't want to miss it.</p>"
 }
