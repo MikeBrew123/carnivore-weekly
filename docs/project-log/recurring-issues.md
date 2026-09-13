@@ -173,7 +173,12 @@ If recurs: the architecture (scheduled task → bash → nested `claude` CLI) is
 Pattern: `reddit_collector.py` hits `https://www.reddit.com/r/{sub}/top.json` → `403 Client Error: Blocked` for all 5 subreddits. Reddit blocks unauthenticated/UA-spoofed JSON scrapes. Non-fatal (script continues; agent works from YouTube only) but Reddit signal is lost from the weekly update.
 Attempts:
 - 2026-05-31 — Observed during scheduled run. No fix applied (non-fatal, and run aborted at Step 3 anyway).
-If recurs: Reddit now requires OAuth for API access. Next angles: register a Reddit app for OAuth (client_id/secret), or route through an Apify Reddit actor (Apify MCP is available), or rotate user-agent/add auth headers.
+If recurs: route through an Apify Reddit actor (this is what `fetch_reddit_trends.py` does today).
+**The OAuth angle is CLOSED, do not spend a session on it (tested 2026-09-13).** Reddit's Responsible
+Builder Policy now says "you must request access and get explicit approval before accessing any Reddit
+data through our API", and app creation at /prefs/apps is refused outright. Self-serve is scoped to
+non-commercial use; commercial use needs explicit written approval and an enterprise conversation.
+Our use feeds a revenue site, so it is commercial. See bead carnivore-weekly-9kdl and ISSUE-080.
 
 ---
 
