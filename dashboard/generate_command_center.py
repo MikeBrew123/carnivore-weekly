@@ -19,9 +19,16 @@ Specifically:
   - Observed and decision-useful traffic are separate numbers. The crawler-spike
     detector already existed; its output is now shown rather than only used.
   - A failed API renders as "data unavailable", never as zero.
-  - Gross is never compared against the $1k NET target without naming the
-    mismatch, and "net" is labelled as net-of-refunds-only, since no cost feed
-    exists.
+  - Gross, collected-after-refunds and net profit are three different
+    quantities. The $1k/month target is NET PROFIT; no cost feed exists, so
+    profit is reported as NOT MEASURED and progress toward the target as
+    UNAVAILABLE. Collected revenue is never divided by the profit target.
+  - The de-spiked traffic figure is called "cleaned trend sessions", not
+    "human-like sessions": the method drops whole flagged days, and nothing
+    identifies a bot at the session level.
+  - An experiment's sample floor is a MINIMUM REVIEW THRESHOLD. Reaching it
+    unlocks a review, never a verdict, and purchases are always shown beside
+    engagement so a good-looking rate on zero sales cannot read as success.
   - The paid funnel is built from GA4 SESSIONS containing each event, not event
     fires, and every stage is tagged measured / inferred / unavailable. Stages
     that are not sequential (CTA paths into the payment modal) are drawn as
@@ -43,7 +50,7 @@ Pulls every data source into a single self-contained HTML page + JSON:
   - Calculator demographics per site (CW + KD, from calculator_sessions_v2)
   - Feedback (content_feedback) and inbound mail (Resend receiving + drip_events)
   - Email engagement (the repaired metrics above)
-  - Stripe revenue vs the $1k/month net target
+  - Stripe revenue: gross, collected after refunds, purchases, AOV
   - Project-change timeline from docs/project-log + git, for correlation
 
 Outputs:
@@ -1446,13 +1453,14 @@ def build_insights(d):
 
     rev = d.get('revenue', {})
     if rev.get('configured') and not rev.get('error'):
-        pace = rev.get('month_pace', 0)
-        if pace >= NET_TARGET_MONTHLY:
-            add('good', f'Revenue pacing at ${pace:.0f} gross this month — on track vs the $1k net target '
-                        f'(remember: target is NET of costs).')
-        else:
-            add('info', f'Revenue pacing ${pace:.0f} gross for the month vs the $1k/mo net target. '
-                        f'MTD net so far: ${rev["mtd"]["net"]:.2f}.')
+        # The $1k target is NET PROFIT and no cost feed exists, so a gross or a
+        # collected pace can never be described as "on track" against it. This
+        # rule used to do exactly that.
+        mtd = rev.get('mtd', {})
+        add('info', f'Revenue MTD: ${mtd.get("gross", 0):.2f} gross, '
+                    f'${mtd.get("net", 0):.2f} collected after refunds. Progress toward the '
+                    f'$1,000/mo NET PROFIT target is unavailable — profit is not measured, '
+                    f'because processor fees and COGS are not fed into this dashboard.')
 
     q = d.get('queues') or {}
     for site, label in [('cw', 'CW'), ('kd', 'KD')]:
@@ -1642,10 +1650,34 @@ def model_narrative(data, model=NARRATIVE_MODEL):
             'https://api.anthropic.com/v1/messages',
             headers={'x-api-key': api_key, 'anthropic-version': '2023-06-01',
                      'content-type': 'application/json'},
-            # max_tokens covers THINKING + text. The model emits a thinking block
-            # first, so a 700-token budget was being consumed before a single
-            # word of the review was written and the call returned silently
-            # empty (observed 2026-09-13). The review itself is under 220 words.
+            # WHAT CHANGED AND WHY (2026-09-13). Two things, both narrow:
+            #
+            # 1. max_tokens 700 -> 3000. max_tokens is a CAP on output, not a
+            #    purchase. claude-sonnet-5 emits a thinking block before its
+            #    text, and that block was consuming the whole 700-token budget,
+            #    so the call returned a single thinking block and no text at
+            #    all. The review itself is capped at 220 words by the prompt and
+            #    has never exceeded ~300 output tokens; the headroom is for the
+            #    thinking block, and unused headroom costs nothing. Billing is
+            #    per token actually produced. Measured cost per run (sonnet-5,
+            #    $3/Mtok in, $15/Mtok out): input ~11k tokens = $0.033, output
+            #    ~700 tokens including thinking = $0.011. About $0.044 a run,
+            #    ~$1.35 a month at one run a day. Before the fix a run cost
+            #    roughly the same and produced nothing, so this is a fix to
+            #    waste, not an increase in spend.
+            #
+            # 2. Parsing was NOT loosened. It still takes only type == 'text'
+            #    blocks, deliberately: a thinking block is not the review and
+            #    must never be shown as one. What was added is an explicit
+            #    empty-result branch that logs stop_reason and the block types
+            #    instead of returning None silently, which is how this hid.
+            #
+            # The narrative is OPTIONAL. Everything Brew reads first — the
+            # status verdict, the brief, what changed, needs attention, do not
+            # overreact — is computed by command_center_exec.py before this
+            # function is called and does not depend on it. If this returns
+            # None the page and the email are fully usable and simply carry no
+            # model opinion. Guarded by the --no-model test path.
             json={'model': model, 'max_tokens': 3000,
                   'messages': [{'role': 'user', 'content': prompt}]},
             timeout=180)
@@ -2044,13 +2076,15 @@ def changes_html(d):
 
 
 def revenue_exec_html(d):
+    """Three quantities, kept apart: gross, collected after refunds, and net
+    profit — which is not measured. There is no progress bar, because a bar
+    against an unknown numerator would be a picture of a number we do not have.
+    """
     r = d.get('revenue_exec') or {}
     if r.get('unavailable'):
-        return (f'<div class="card col-rev"><h3>Revenue</h3>'
+        return (f'<div class="card col-rev"><h3>💰 Revenue</h3>'
                 f'<p class="err">Data unavailable — {esc(r.get("reason"))}. '
                 f'This is not zero revenue.</p></div>')
-    pct = r.get('target_pct') or 0
-    bar = min(100, pct)
     aov = (f'${r["aov_30d"]:.2f}' if r.get('aov_30d') else '—')
     aov_note = ('' if r.get('aov_reliable')
                 else f' <span class="muted small">({r["purchases_30d"]} sales — thin)</span>')
@@ -2064,13 +2098,20 @@ def revenue_exec_html(d):
             f'<div class="stat"><b>${r["last_30d"].get("net", 0):,.2f}</b><span>30 days</span></div>'
             f'<div class="stat"><b>{r["purchases_30d"]}</b><span>purchases 30d</span></div>'
             f'<div class="stat"><b>{aov}{aov_note}</b><span>avg order</span></div></div>'
-            f'<h4>Month to date vs target</h4>'
-            f'<div class="kv"><span>MTD gross</span><span>${r["mtd_gross"]:,.2f}</span></div>'
-            f'<div class="kv"><span>MTD net (measured)</span><span>${r["mtd_net_measured"]:,.2f}</span></div>'
-            f'<div class="kv"><span>Net target</span><span>${r["target_net"]:,.0f}/mo</span></div>'
-            f'<div class="target"><div class="tbar"><i style="width:{bar}%"></i></div>'
-            f'<span class="small muted">{pct:.0f}% of the NET target</span></div>'
-            f'<p class="caveat">⚠ {esc(r["mismatch_note"])} Net here is {esc(r["net_basis"])}.</p>'
+            f'<p class="muted small">Amounts above are collected revenue after refunds.</p>'
+            f'<h4>Month to date</h4>'
+            f'<div class="kv"><span>Gross charged</span><span>${r["mtd_gross"]:,.2f}</span></div>'
+            f'<div class="kv"><span>Refunds</span><span>−${r["mtd_refunds"]:,.2f}</span></div>'
+            f'<div class="kv"><span><b>{esc(r["collected_label"])}</b></span>'
+            f'<span><b>${r["mtd_collected"]:,.2f}</b></span></div>'
+            f'<div class="kv"><span>Net profit</span>'
+            f'<span class="unknown">not measured</span></div>'
+            f'<div class="kv"><span>Target</span>'
+            f'<span>${r["target_net_profit"]:,.0f}/mo NET PROFIT</span></div>'
+            f'<div class="kv"><span>Progress toward target</span>'
+            f'<span class="unknown">unavailable</span></div>'
+            f'<p class="caveat">⚠ {esc(r["target_note"])}</p>'
+            f'<p class="muted small">{esc(r["collected_basis"])}</p>'
             f'<h4>By product (30d)</h4>{prods or "<p class=muted small>No attributed sales.</p>"}'
             f'</div>')
 
@@ -2119,9 +2160,10 @@ def signal_html(d):
         cards += (f'<div class="card"><h3>{esc(label)}</h3>'
                   f'<div class="kv"><span>Observed (GA4 as reported, 7d)</span>'
                   f'<span>{s["observed_7d"]}</span></div>'
-                  f'<div class="kv"><span><b>Decision-useful</b> (human-like, 7d)</span>'
+                  f'<div class="kv"><span><b>Cleaned trend sessions</b> (7d)</span>'
                   f'<span><b>{s["clean_7d"]}</b></span></div>{base}{today}{flag}'
-                  f'<div class="chg-grid">{chg_pill(s["delta"])}</div></div>')
+                  f'<div class="chg-grid">{chg_pill(s["delta"])}</div>'
+                  f'<p class="muted small">Method: {esc(s.get("method", ""))}</p></div>')
     return cards
 
 
@@ -2135,7 +2177,10 @@ def scorecard_html(d, site, label, accent):
 
     sig = (d.get('signal') or {}).get(site)
     if sig:
-        row('Human-like sessions', sig['clean_7d'], sig['clean_prev_7d'], base='sessions')
+        rows.append(('Sessions (observed)', sig['observed_7d'], sig['observed_prev_7d'],
+                     X.delta('Sessions (observed)', sig['observed_prev_7d'],
+                             sig['observed_7d'], base='sessions'), 'count'))
+        row('Sessions (cleaned trend)', sig['clean_7d'], sig['clean_prev_7d'], base='sessions')
     g = (d.get('search') or {}).get(site) or {}
     if g.get('current'):
         row('Organic search clicks', g['current'].get('clicks'),
@@ -2157,8 +2202,10 @@ def scorecard_html(d, site, label, accent):
     r = d.get('revenue_exec') or {}
     if site == 'cw' and not r.get('unavailable'):
         rows.append(('Purchases (30d)', r['purchases_30d'], None, None, 'count'))
-        rows.append(('Revenue 7d', f'${r["last_7d"].get("net", 0):,.2f}', None, None, 'money'))
-        rows.append(('Revenue 30d', f'${r["last_30d"].get("net", 0):,.2f}', None, None, 'money'))
+        rows.append(('Collected revenue 7d', f'${r["last_7d"].get("net", 0):,.2f}',
+                     None, None, 'money'))
+        rows.append(('Collected revenue 30d', f'${r["last_30d"].get("net", 0):,.2f}',
+                     None, None, 'money'))
     e = (d.get('email_engagement') or {}).get(site) or {}
     if e.get('attempts'):
         p = e.get('previous_7d') or {}
@@ -2227,9 +2274,13 @@ def paid_funnel_html(d):
     br = ''
     for b in pf.get('branches', []):
         n = b['sessions']
+        # Built with plain concatenation, not nested f-strings: PEP 701 nesting
+        # is a 3.12+ feature and CI pins python-version 3.11.
+        amount = 'unavailable' if n is None else f'{n} sessions'
+        if b.get('events'):
+            amount += ' · ' + str(b['events']) + ' clicks'
         br += (f'<div class="kv"><span>{esc(b["name"])}</span>'
-               f'<span>{"unavailable" if n is None else f"{n} sessions"}'
-               f'{f" · {b['events']} clicks" if b.get("events") else ""}</span></div>')
+               f'<span>{amount}</span></div>')
     br_html = (f'<h4>CTA paths into the payment modal</h4>{br}'
                f'<p class="col-sub">{esc(pf.get("branch_note", ""))}</p>') if br else ''
     leak = pf.get('biggest_leak')
@@ -2250,6 +2301,10 @@ def paid_funnel_html(d):
 
 
 def experiments_html(d):
+    """Shows the denominator, the engagement count AND the purchase count, so
+    a high engagement rate on zero purchases cannot read as success. The
+    threshold is presented as a review gate, never as a verdict.
+    """
     exps = d.get('experiments') or []
     if not exps:
         return ('<div class="card"><h3>🔬 Currently measuring</h3>'
@@ -2264,14 +2319,19 @@ def experiments_html(d):
                  f'<div class="col-sub">Started {esc(e["started"])} · day {e["days"]}</div>'
                  f'<div class="kv"><span>{esc(e["denominator_label"])}</span>'
                  f'<span>{e["denominator"] if e["denominator"] is not None else "—"}'
-                 f' / {e["min_sample"]} needed</span></div>'
+                 f' / {e["min_sample"]} review threshold</span></div>'
                  f'<div class="kv"><span>{esc(e["numerator_label"])}</span>'
                  f'<span>{e["numerator"] if e["numerator"] is not None else "—"} ({rate})</span></div>'
+                 f'<div class="kv"><span>{esc(e["outcome_label"])}</span>'
+                 f'<span><b>{e["outcome"] if e["outcome"] is not None else "—"}</b></span></div>'
                  f'<div class="exp-status">{esc(e["status"])}</div>'
-                 f'<div class="col-sub">{esc(e["verdict"])}</div>{notes}</div>')
+                 f'<div class="col-sub">{esc(e["verdict"])}</div>'
+                 f'<p class="caveat">{esc(e["threshold_meaning"])}</p>{notes}</div>')
     return (f'<div class="card"><h3>🔬 Currently measuring</h3>{body}'
-            f'<p class="muted small">A locked experiment must not be changed by Brew or any '
-            f'agent until it reads READABLE.</p></div>')
+            f'<p class="muted small">An experiment below its review threshold must not be '
+            f'changed by Brew or any agent. Reaching the threshold unlocks a review, not a '
+            f'conclusion — the decision is still a human one, made against the purchase count, '
+            f'not the engagement rate.</p></div>')
 
 
 def customer_signal_html(d):
@@ -2409,7 +2469,14 @@ def render_html(d):
     narrative = (d.get('analysis') or {}).get('narrative')
     gen_by = (d.get('analysis') or {}).get('generated_by', 'rules')
     focus = (d.get('analysis') or {}).get('focus')
-    narrative_html = ''
+    # An absent narrative is stated, not left as a silent gap: the model is an
+    # optional opinion and the deterministic executive layer above is complete
+    # without it. A blank space here used to look like a rendering fault.
+    narrative_html = ('<div class="narrative" style="border-left-color:var(--muted)">'
+                      '<p class="muted">No AI review this run — the model was skipped '
+                      '(--no-model) or returned nothing. Nothing above depends on it: the '
+                      'status, brief, what-changed, attention and do-not-overreact panels are '
+                      'computed deterministically from the metrics.</p></div>')
     if narrative:
         focus_tag = f'<p class="focus-label">Daily focus · {esc(focus)}</p>' if focus else ''
         paras = ''.join(f'<p>{esc(p.strip())}</p>' for p in narrative.split('\n') if p.strip())
@@ -2528,20 +2595,24 @@ def render_html(d):
     rev = d.get('revenue', {})
     rev_html = '<p class="muted">Stripe not configured.</p>'
     if rev.get('configured') and not rev.get('error'):
-        pace_pct = min(rev['month_pace'] * 100 / rev['target'], 100) if rev['target'] else 0
+        # No progress bar here either. "pace vs $1k/mo net-profit target (gross
+        # shown; costs not subtracted)" drew a bar whose numerator and
+        # denominator were different quantities, which is the thing this page
+        # is not allowed to do.
         rev_rows = [[esc(r['desc']), f'${r["amount"]:.2f}', esc(r['date']),
                      'refunded' if r['refunded'] else 'paid'] for r in rev.get('recent', [])]
-        rev_html = f'''
+        rev_html = f"""
         <div class="statrow">
-          <div class="stat"><b>${rev["last_7d"]["net"]:.2f}</b><span>net 7d</span></div>
-          <div class="stat"><b>${rev["last_30d"]["net"]:.2f}</b><span>net 30d</span></div>
-          <div class="stat"><b>${rev["mtd"]["net"]:.2f}</b><span>net MTD</span></div>
-          <div class="stat"><b>${rev["month_pace"]:.0f}</b><span>month pace</span></div>
+          <div class="stat"><b>${rev["last_7d"]["net"]:.2f}</b><span>collected 7d</span></div>
+          <div class="stat"><b>${rev["last_30d"]["net"]:.2f}</b><span>collected 30d</span></div>
+          <div class="stat"><b>${rev["mtd"]["gross"]:.2f}</b><span>gross MTD</span></div>
+          <div class="stat"><b>${rev["mtd"]["net"]:.2f}</b><span>collected MTD</span></div>
         </div>
-        <div class="target"><div class="tbar"><i style="width:{pace_pct:.0f}%"></i></div>
-        <span class="small muted">pace vs $1k/mo net-profit target (gross shown; costs not subtracted)</span></div>
-        {'<p class="small">By product (30d net): ' + ' · '.join(f'{esc(k)} <b>${v:.2f}</b>' for k, v in sorted(rev.get('by_product_30d', {}).items(), key=lambda kv: -kv[1])) + '</p>' if rev.get('by_product_30d') else ''}
-        <details><summary>Recent charges</summary>{table(['Charge', 'Amount', 'Date', 'Status'], rev_rows)}</details>'''
+        <p class="caveat">Collected = gross minus refunds. It is NOT profit: processor fees,
+        COGS and operating costs are not fed into this dashboard. The $1,000/month target is
+        NET PROFIT, so progress toward it is <b>unavailable</b> and no pace against it is shown.</p>
+        {'<p class="small">By product (30d collected): ' + ' · '.join(f'{esc(k)} <b>${v:.2f}</b>' for k, v in sorted(rev.get('by_product_30d', {}).items(), key=lambda kv: -kv[1])) + '</p>' if rev.get('by_product_30d') else ''}
+        <details><summary>Recent charges</summary>{table(['Charge', 'Amount', 'Date', 'Status'], rev_rows)}</details>"""
     elif rev.get('error'):
         rev_html = err_note(rev, 'Stripe')
 
@@ -2695,7 +2766,9 @@ def render_html(d):
       border-left:3px solid var(--muted)}
     .exp.exp-lock{border-left-color:var(--amber)} .exp.exp-read{border-left-color:var(--green)}
     .exp-status{font-weight:800;font-size:12px;letter-spacing:.06em;margin-top:7px}
-    .exp-lock .exp-status{color:var(--amber)} .exp-read .exp-status{color:var(--green)}
+    .exp-lock .exp-status{color:var(--amber)} .exp-read .exp-status{color:var(--blue)}
+    .exp.exp-read{border-left-color:var(--blue)}
+    .unknown{color:var(--amber);font-style:italic}
     .forensic{margin-top:8px;border-top:1px solid var(--line);padding-top:18px}
     .forensic>summary{font-size:15px;font-weight:700;cursor:pointer;color:var(--text);
       padding:12px 0;list-style:none}
@@ -2903,20 +2976,32 @@ def email_report(data, html, nas_ok=False):
     ex_color = {'green': '#16a34a', 'blue': '#2563eb', 'amber': '#d97706', 'red': '#dc2626'}
     exec_html_block = ''
     if ex:
+        # Plain concatenation throughout: no f-string nesting and no backslashes
+        # inside f-string expressions, both of which are 3.12+ only. CI pins 3.11.
+        accent = ex_color.get(ex.get('status'), '#2563eb')
         sentences = ' '.join(esc(b) for b in ex.get('brief', []))
-        acts = ''.join(f'<li>{esc(a)}</li>' for a in ex.get('suggested_action', []))
-        dno = ''.join(f'<li>{esc(a)}</li>' for a in (data.get('dont_overreact') or []))
-        exec_html_block = (
-            f'<div style="border:1px solid #e5e7eb;border-left:6px solid '
-            f'{ex_color.get(ex.get("status"), "#2563eb")};border-radius:10px;padding:14px 16px;'
-            f'margin:0 0 16px;background:#fafafa">'
-            f'<p style="margin:0 0 8px;font-size:12px;font-weight:800;text-transform:uppercase;'
-            f'letter-spacing:.08em;color:{ex_color.get(ex.get("status"), "#2563eb")}">'
-            f'{ex.get("status_icon", "")} {esc(ex.get("status_label", ""))}</p>'
-            f'<p style="margin:0 0 10px;font-size:15px;line-height:1.6">{sentences}</p>'
-            f'{f"<p style=\'margin:0 0 4px;font-size:12px;color:#555;font-weight:700\'>SUGGESTED ACTION</p><ul style=\'margin:0 0 10px;padding-left:18px;font-size:14px\'>{acts}</ul>" if acts else ""}'
-            f'{f"<p style=\'margin:0 0 4px;font-size:12px;color:#555;font-weight:700\'>DO NOT OVERREACT TO</p><ul style=\'margin:0;padding-left:18px;font-size:13px;color:#555\'>{dno}</ul>" if dno else ""}'
-            f'</div>')
+        parts = [
+            '<div style="border:1px solid #e5e7eb;border-left:6px solid ' + accent + ';'
+            'border-radius:10px;padding:14px 16px;margin:0 0 16px;background:#fafafa">',
+            '<p style="margin:0 0 8px;font-size:12px;font-weight:800;text-transform:uppercase;'
+            'letter-spacing:.08em;color:' + accent + '">'
+            + esc(ex.get('status_icon', '')) + ' ' + esc(ex.get('status_label', '')) + '</p>',
+            '<p style="margin:0 0 10px;font-size:15px;line-height:1.6">' + sentences + '</p>',
+        ]
+        acts = ''.join('<li>' + esc(a) + '</li>' for a in ex.get('suggested_action', []))
+        if acts:
+            parts.append('<p style="margin:0 0 4px;font-size:12px;color:#555;font-weight:700">'
+                         'SUGGESTED ACTION</p>'
+                         '<ul style="margin:0 0 10px;padding-left:18px;font-size:14px">'
+                         + acts + '</ul>')
+        dno = ''.join('<li>' + esc(a) + '</li>' for a in (data.get('dont_overreact') or []))
+        if dno:
+            parts.append('<p style="margin:0 0 4px;font-size:12px;color:#555;font-weight:700">'
+                         'DO NOT OVERREACT TO</p>'
+                         '<ul style="margin:0;padding-left:18px;font-size:13px;color:#555">'
+                         + dno + '</ul>')
+        parts.append('</div>')
+        exec_html_block = ''.join(parts)
 
     narrative = (data.get('analysis') or {}).get('narrative') or ''
     focus = (data.get('analysis') or {}).get('focus') or ''
@@ -2929,17 +3014,18 @@ def email_report(data, html, nas_ok=False):
     rev = data.get('revenue') or {}
     pace_html = ''
     if rev.get('configured') and not rev.get('error'):
-        # Gross and net are both shown, and the target is named as NET, because
-        # "$201 pace vs $1k target" compared two different quantities.
-        rx = data.get('revenue_exec') or {}
+        # Gross, collected and profit are three quantities. Profit is not
+        # measured, so no percentage of the target is shown — the previous
+        # "$201 pace vs $1k target" compared a gross pace against a profit goal.
         pace_html = (f'<p style="margin:0 0 12px;padding:8px 12px;background:#f0fdf4;'
                      f'border-left:4px solid #16a34a;border-radius:4px;font-size:14px">'
                      f'💰 MTD <b>${rev["mtd"]["gross"]:.2f}</b> gross · '
-                     f'<b>${rev["mtd"]["net"]:.2f}</b> net of refunds · '
-                     f'{rx.get("target_pct", 0):.0f}% of the <b>$1,000/mo NET</b> target · '
-                     f'{rev.get("days_left_in_month", "?")} days left. '
-                     f'<span style="color:#666;font-size:12px">Net here excludes processor fees '
-                     f'and COGS, which are not fed in.</span></p>')
+                     f'<b>${rev["mtd"]["net"]:.2f}</b> collected after refunds · '
+                     f'{rev.get("days_left_in_month", "?")} days left.<br>'
+                     f'<span style="color:#666;font-size:12px">Progress toward the '
+                     f'$1,000/mo <b>net profit</b> target is <b>unavailable</b> — no cost feed '
+                     f'exists, so profit is not measured. Collected revenue is an upper bound '
+                     f'on it, not a substitute.</span></p>')
 
     # Yesterday strip
     y = data.get('yesterday') or {}

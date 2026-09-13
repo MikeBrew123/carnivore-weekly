@@ -33,7 +33,7 @@ from datetime import date, datetime, timedelta, timezone
 # change is shown as "1 → 3 (+2). Low sample — directional only." and is never
 # allowed to set the page status or produce an action.
 MIN_SAMPLE = {
-    'sessions': 40,      # GA4 / human-like sessions
+    'sessions': 40,      # GA4 sessions (observed or de-spiked)
     'clicks': 25,        # GSC / Bing organic clicks
     'calculator': 10,    # calculator starts
     'purchases': 8,      # purchase counts
@@ -117,13 +117,24 @@ def complete_days(daily, today_iso):
 
 # ── Signal vs noise ──────────────────────────────────────────────────
 
-def clean_traffic(t, today_iso):
-    """Observed vs decision-useful sessions for one site.
+# What the cleaned number is, stated exactly, because the label has to match
+# the method. Whole flagged days are dropped. Nothing identifies a bot at the
+# session level, so this is NOT a count of humans and must never be called one.
+CLEANED_LABEL = 'Cleaned trend sessions'
+CLEANED_METHOD = ('whole days flagged by the 3x-median spike detector are excluded; '
+                  'no per-session bot identification is performed, so this is a '
+                  'de-spiked trend figure, not a count of humans')
 
-    Observed = what GA4 reports. Decision-useful = complete days only, with the
-    flagged crawler-spike days removed (the existing spike detector in
-    fetch_traffic is the source of that flag, unchanged). The two are never
-    blended into one headline number.
+
+def clean_traffic(t, today_iso):
+    """Observed sessions vs a de-spiked trend figure for one site.
+
+    Observed = what GA4 reports. Cleaned = complete days only, with entire
+    flagged crawler-spike days removed (the existing detector in fetch_traffic
+    is the source of that flag, unchanged). Removing a whole day is a blunt
+    instrument: it also discards that day's real readers, and it does nothing
+    about crawler traffic spread thinly across ordinary days. The two numbers
+    are never blended into one headline.
     """
     if not t or t.get('error'):
         return None
@@ -146,7 +157,8 @@ def clean_traffic(t, today_iso):
         'median_28d': med,
         'baseline_28d_7d': med * 7 if med else None,
         'today_so_far': (t.get('today') or {}).get('sessions'),
-        'delta': delta('Human-like sessions (7d)', cln_prev, cln_cur, base='sessions'),
+        'method': CLEANED_METHOD,
+        'delta': delta(f'{CLEANED_LABEL} (7d)', cln_prev, cln_cur, base='sessions'),
         'observed_delta': delta('GA4 sessions as reported (7d)', obs_prev, obs_cur, base='sessions'),
         'dod': delta('Sessions yesterday vs day before',
                      (_day(daily, -2) or {}).get('sessions'),
@@ -273,9 +285,23 @@ def build_funnel(events, window_days=28, stripe_purchases=None):
 
 
 # ── Revenue ──────────────────────────────────────────────────────────
-# Gross is measured. Net is measured only to the extent of refunds — there is
-# no cost feed, so "estimated net" is labelled an estimate and its basis is
-# printed. A gross figure is never compared against the net target.
+# Three distinct quantities, never conflated:
+#   gross              what Stripe charged
+#   after refunds      gross minus refunds. This is COLLECTED REVENUE. It is
+#                      NOT net profit — it has had no processor fee, no COGS
+#                      and no operating cost taken out of it.
+#   net profit         unknown. No cost feed exists, so it is reported as
+#                      UNAVAILABLE. The $1k/month target is a NET PROFIT
+#                      target, so progress against it is unavailable too.
+# The previous version divided collected revenue by the net-profit target and
+# printed a percentage. That number could not be right and is gone.
+NET_PROFIT_UNAVAILABLE = (
+    'Net profit is not measured. No cost feed exists for processor fees, COGS, '
+    'hosting or tooling, so the share of the $%.0f/month NET PROFIT target that '
+    'has been earned is unknown. Revenue after refunds is an upper bound on it, '
+    'never a substitute for it.')
+
+
 def build_revenue(rev, target, today):
     if not rev or not rev.get('configured') or rev.get('error'):
         return {'unavailable': True, 'reason': (rev or {}).get('error') or 'Stripe not configured'}
@@ -284,23 +310,28 @@ def build_revenue(rev, target, today):
     y = rev.get('yesterday', {})
     charges_30 = d30.get('charges', 0)
     aov = round(d30.get('gross', 0) / charges_30, 2) if charges_30 else None
-    days_elapsed = today.day
-    mtd_net = mtd.get('net', 0)
     return {
         'yesterday': y, 'last_7d': d7, 'last_30d': d30, 'mtd': mtd,
         'mtd_gross': mtd.get('gross', 0),
-        'mtd_net_measured': mtd_net,
-        'net_basis': 'gross minus Stripe refunds only — processor fees and COGS are not fed in, '
-                     'so true net is lower than this figure',
-        'target_net': target,
-        'target_pct': round(mtd_net * 100 / target, 1) if target else None,
-        'pace_net': round(mtd_net / days_elapsed * 30, 2) if days_elapsed else None,
+        'mtd_refunds': mtd.get('refunds', 0),
+        # Deliberately named 'collected', not 'net'. Nothing downstream may
+        # treat this as profit.
+        'mtd_collected': mtd.get('net', 0),
+        'collected_label': 'Revenue after refunds (collected)',
+        'collected_basis': 'gross minus Stripe refunds. Processor fees, COGS and operating '
+                           'costs are NOT deducted — this is money collected, not profit.',
+        'target_net_profit': target,
+        'net_profit_known': False,
+        'net_profit_mtd': None,
+        'target_pct': None,
+        'target_status': 'unavailable',
+        'target_note': NET_PROFIT_UNAVAILABLE % target,
+        'pace_collected': (round(mtd.get('net', 0) / today.day * 30, 2) if today.day else None),
+        'pace_label': 'Collected-revenue pace, not a profit pace',
         'aov_30d': aov,
         'aov_reliable': charges_30 >= MIN_SAMPLE['purchases'],
         'by_product_30d': rev.get('by_product_30d', {}),
         'purchases_30d': charges_30,
-        'mismatch_note': ('MTD gross and the $%.0f target are different quantities — the target is '
-                          'NET. Compare the net line, not the gross line.' % target),
     }
 
 
@@ -319,7 +350,7 @@ def build_changes(d, today):
             if ct['dod']:
                 dod.append(dict(ct['dod'], label=f'{lbl} sessions'))
             if ct['delta']:
-                wow.append(dict(ct['delta'], label=f'{lbl} human-like sessions (7d)'))
+                wow.append(dict(ct['delta'], label=f'{lbl} {CLEANED_LABEL.lower()} (7d)'))
         g = (d.get('search') or {}).get(site) or {}
         if g.get('current') and g.get('previous'):
             wow.append(delta(f'{lbl} organic clicks (7d)', g['previous'].get('clicks'),
@@ -648,11 +679,17 @@ def correlate(timeline, changes, today, min_age=2, max_age=14, limit=3):
 # ── Experiments ──────────────────────────────────────────────────────
 
 def build_experiments(specs, events, today, min_impressions=100):
-    """Protect a running experiment from being changed before it can be read.
+    """Protect a running experiment from being changed before it can be reviewed.
+
+    The threshold is a MINIMUM REVIEW THRESHOLD and nothing more. Reaching it
+    means the result is worth a human look; it does not mean the experiment
+    worked, failed, or has a winner, and this function never says so. Crossing
+    100 impressions on 6 engagements and 0 purchases is not evidence of
+    anything — so the engagement and purchase counts are always carried
+    alongside the denominator, and the verdict text stays descriptive.
 
     Each spec declares only what prose cannot: start date, and which GA4 event
-    is the denominator and which the numerator. The verdict is arithmetic —
-    below the declared minimum it says KEEP MEASURING, never 'it's working'.
+    is the denominator and which the numerator.
     """
     out = []
     by = (events or {}).get('by_event', {}) if events and not events.get('error') else {}
@@ -662,6 +699,7 @@ def build_experiments(specs, events, today, min_impressions=100):
         except Exception:
             continue
         days = (today - started).days
+
         def since(event_name):
             rec = by.get(event_name)
             if not rec:
@@ -671,22 +709,30 @@ def build_experiments(specs, events, today, min_impressions=100):
 
         den = since(spec.get('denominator_event'))
         num = since(spec.get('numerator_event'))
+        purchases = since(spec.get('outcome_event') or 'purchase')
         floor = spec.get('min_sample', min_impressions)
         if den is None or num is None:
             status, verdict = 'NO DATA', 'The declared events returned nothing for this window.'
         elif den < floor:
-            status = 'KEEP MEASURING — SAMPLE TOO SMALL'
-            verdict = (f'{den} of the {floor} sessions needed before this can be read. '
-                       f'Do not change the experiment yet.')
+            status = 'KEEP MEASURING — BELOW REVIEW THRESHOLD'
+            verdict = (f'{den} of the {floor} sessions needed before this is even worth '
+                       f'reviewing. Do not change the experiment yet.')
         else:
             rate = round(num * 100 / den, 1) if den else 0
-            status = 'READABLE'
-            verdict = f'{num}/{den} = {rate}% over {days} days. Enough sample to judge.'
+            status = 'REVIEW ELIGIBLE'
+            verdict = (f'{num} engagements and {purchases if purchases is not None else "—"} '
+                       f'purchases from {den} impressions over {days} days ({rate}% engagement). '
+                       f'The review threshold is met — that means look at it, not that it '
+                       f'worked. Crossing {floor} is not a result.')
         out.append({
             'name': spec.get('name', 'unnamed'), 'started': spec['started'], 'days': days,
             'denominator_label': spec.get('denominator_label', spec.get('denominator_event')),
             'numerator_label': spec.get('numerator_label', spec.get('numerator_event')),
-            'denominator': den, 'numerator': num, 'min_sample': floor,
+            'outcome_label': spec.get('outcome_label', 'Purchases since start'),
+            'denominator': den, 'numerator': num, 'outcome': purchases,
+            'min_sample': floor,
+            'threshold_meaning': ('Minimum review threshold. Reaching it makes the result worth '
+                                  'reading; it is not proof, not a winner, and not a decision.'),
             'status': status, 'verdict': verdict,
             'rate_pct': (round(num * 100 / den, 1) if (den and num is not None) else None),
             'notes': spec.get('notes'),
@@ -718,12 +764,14 @@ def build_executive(d, changes, funnel, revenue, attention, today_iso):
         word = ('softer than' if dl and dl['direction'] == 'down' and dl['reliable']
                 else 'ahead of' if dl and dl['direction'] == 'up' and dl['reliable']
                 else 'level with')
-        clean_note = (' after crawler-spike days are removed' if cw['contaminated'] else '')
+        clean_note = (' (whole flagged spike days excluded)' if cw['contaminated'] else '')
         brief.append(f'CW traffic is {word} last week: {cw["clean_prev_7d"]} → {cw["clean_7d"]} '
-                     f'human-like sessions{clean_note}.')
+                     f'sessions on the cleaned trend{clean_note}.')
         if cw['contaminated']:
             means.append(f'CW raw GA4 reports {cw["observed_7d"]} sessions this week; '
-                         f'{cw["clean_7d"]} survive crawler-spike exclusion. Use the second number.')
+                         f'{cw["clean_7d"]} remain once the flagged spike day(s) are dropped '
+                         f'whole. The cleaned figure is the better trend read, but dropping a '
+                         f'whole day also drops that day\'s real readers.')
     calc = next((c for c in changes['wow'] if c['label'] == 'CW calculator starts (7d)'), None)
     if calc:
         if calc['reliable'] and calc['pct'] is not None:
@@ -738,10 +786,11 @@ def build_executive(d, changes, funnel, revenue, attention, today_iso):
         brief.append('Revenue is unavailable this run — Stripe did not answer, which is not the '
                      'same as no sales.')
     else:
-        mtd_n, tgt = revenue['mtd_net_measured'], revenue['target_net']
+        tgt = revenue['target_net_profit']
         brief.append(f'Revenue month-to-date is ${revenue["mtd_gross"]:,.2f} gross, '
-                     f'${mtd_n:,.2f} after refunds, against a ${tgt:,.0f}/month NET target '
-                     f'({revenue["target_pct"]:.0f}% of it).')
+                     f'${revenue["mtd_collected"]:,.2f} collected after refunds. Progress '
+                     f'toward the ${tgt:,.0f}/month NET PROFIT target is unavailable: no cost '
+                     f'feed exists, so profit is not measured.')
         if revenue['purchases_30d'] < MIN_SAMPLE['purchases']:
             means.append(f'{revenue["purchases_30d"]} purchases in 30 days is too few for any '
                          f'conversion percentage on this page to be stable.')
@@ -761,7 +810,7 @@ def build_executive(d, changes, funnel, revenue, attention, today_iso):
                      f'{eng_cw["unique_open_rate_pct"]:.0f}% unique open rate.')
 
     if kd:
-        brief.append(f'KD remains small: {kd["clean_7d"]} human-like sessions this week '
+        brief.append(f'KD remains small: {kd["clean_7d"]} cleaned-trend sessions this week '
                      f'({kd["clean_prev_7d"]} last week).')
 
     if not attention:

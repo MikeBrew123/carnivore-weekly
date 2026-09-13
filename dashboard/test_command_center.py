@@ -8,7 +8,12 @@ a rule that was violated by the previous version of the page:
   - a percentage on a tiny base must not be printed
   - a failed API must never render as zero
   - a non-sequential funnel must not show a >100% transition
-  - gross must not be compared against a net target
+  - collected revenue must not be called profit, and progress toward a
+    net-profit target must read "unavailable" while no cost feed exists
+  - the de-spiked traffic figure must be named after its method, not called
+    "human-like"
+  - an experiment threshold must unlock a review, never declare a result
+  - the deterministic layer must be fully usable when the model returns nothing
   - a metric being down is not, by itself, "needs attention"
 """
 import os
@@ -77,6 +82,29 @@ class SignalVsNoise(unittest.TestCase):
         self.assertEqual(c['observed_7d'], 420)  # 300 spike + 6 × 20
         self.assertTrue(c['contaminated'])
         self.assertEqual(c['excluded_days'], ['2026-09-10'])
+
+    def test_cleaned_figure_is_named_after_its_method(self):
+        c = X.clean_traffic(self.t, TODAY_ISO)
+        self.assertEqual(X.CLEANED_LABEL, 'Cleaned trend sessions')
+        self.assertNotIn('human', X.CLEANED_LABEL.lower())
+        self.assertNotIn('human', c['delta']['label'].lower())
+        self.assertIn('whole days', c['method'])
+        self.assertIn('not a count of humans', c['method'])
+
+    def test_observed_is_kept_alongside_the_cleaned_figure(self):
+        c = X.clean_traffic(self.t, TODAY_ISO)
+        self.assertIn('observed_7d', c)
+        self.assertIn('observed_prev_7d', c)
+        self.assertNotEqual(c['observed_7d'], c['clean_7d'])
+
+    def test_no_executive_output_calls_sessions_human_like(self):
+        d = {'traffic': {'cw': self.t}, 'email_engagement': {}}
+        ch = X.build_changes(d, TODAY)
+        ex = X.build_executive(d, ch, {}, {'unavailable': True}, [], TODAY_ISO)
+        blob = ' '.join(ex['brief'] + ex['what_this_means']
+                        + [c['label'] for c in ch['wow'] + ch['dod']]).lower()
+        self.assertNotIn('human-like', blob)
+        self.assertNotIn('human like', blob)
 
     def test_unavailable_traffic_returns_none_not_zero(self):
         self.assertIsNone(X.clean_traffic({'error': 'GA4 timeout'}, TODAY_ISO))
@@ -149,21 +177,45 @@ class Funnel(unittest.TestCase):
 
 class Revenue(unittest.TestCase):
     rev = {'configured': True,
-           'yesterday': {'gross': 29.0, 'net': 29.0, 'charges': 1},
-           'last_7d': {'gross': 87.0, 'net': 87.0, 'charges': 3},
-           'last_30d': {'gross': 101.5, 'net': 101.5, 'charges': 4},
-           'mtd': {'gross': 201.0, 'net': 87.0, 'charges': 3},
+           'yesterday': {'gross': 29.0, 'net': 29.0, 'refunds': 0.0, 'charges': 1},
+           'last_7d': {'gross': 87.0, 'net': 87.0, 'refunds': 0.0, 'charges': 3},
+           'last_30d': {'gross': 101.5, 'net': 101.5, 'refunds': 0.0, 'charges': 4},
+           'mtd': {'gross': 201.0, 'net': 87.0, 'refunds': 114.0, 'charges': 3},
            'by_product_30d': {'CW calculator report': 101.5}}
 
-    def test_gross_and_net_stay_apart_and_the_mismatch_is_named(self):
+    def test_gross_refunds_and_collected_are_three_separate_lines(self):
         r = X.build_revenue(self.rev, 1000.0, TODAY)
         self.assertEqual(r['mtd_gross'], 201.0)
-        self.assertEqual(r['mtd_net_measured'], 87.0)
-        self.assertIn('NET', r['mismatch_note'])
-        self.assertEqual(r['target_pct'], 8.7, 'target progress must use the net figure')
+        self.assertEqual(r['mtd_refunds'], 114.0)
+        self.assertEqual(r['mtd_collected'], 87.0)
 
-    def test_net_basis_is_stated_because_costs_are_not_fed_in(self):
-        self.assertIn('refunds only', X.build_revenue(self.rev, 1000.0, TODAY)['net_basis'])
+    def test_collected_revenue_is_never_called_net_profit(self):
+        r = X.build_revenue(self.rev, 1000.0, TODAY)
+        self.assertNotIn('mtd_net_measured', r)
+        self.assertIn('collected', r['collected_label'].lower())
+        self.assertNotIn('profit', r['collected_label'].lower())
+        self.assertIn('not deducted', r['collected_basis'].lower().replace('are not', 'not'))
+
+    def test_net_profit_is_unavailable_not_estimated_from_refunds(self):
+        r = X.build_revenue(self.rev, 1000.0, TODAY)
+        self.assertFalse(r['net_profit_known'])
+        self.assertIsNone(r['net_profit_mtd'])
+        self.assertIsNone(r['target_pct'], 'no percentage of a profit target may be printed')
+        self.assertEqual(r['target_status'], 'unavailable')
+        self.assertIn('NET PROFIT', r['target_note'])
+
+    def test_any_pace_is_labelled_collected_not_profit(self):
+        r = X.build_revenue(self.rev, 1000.0, TODAY)
+        self.assertIn('not a profit pace', r['pace_label'])
+
+    def test_the_brief_says_profit_progress_is_unavailable(self):
+        r = X.build_revenue(self.rev, 1000.0, TODAY)
+        ex = X.build_executive({'email_engagement': {}}, {'dod': [], 'wow': []}, {}, r, [],
+                               TODAY_ISO)
+        line = next(b for b in ex['brief'] if 'Revenue month-to-date' in b)
+        self.assertIn('unavailable', line)
+        self.assertIn('NET PROFIT', line)
+        self.assertNotIn('% of it', line)
 
     def test_aov_on_four_sales_is_marked_thin(self):
         self.assertFalse(X.build_revenue(self.rev, 1000.0, TODAY)['aov_reliable'])
@@ -297,32 +349,56 @@ class Executive(unittest.TestCase):
 class Experiments(unittest.TestCase):
     spec = [{'name': 'CW bridge offer revision', 'started': '2026-09-07',
              'denominator_event': 'calculator_offer_impression',
-             'numerator_event': 'calculator_bridge_cta_click', 'min_sample': 100}]
+             'numerator_event': 'calculator_bridge_cta_click',
+             'outcome_event': 'purchase', 'min_sample': 100}]
 
-    def events(self, den, num):
-        return {'by_event': {
-            'calculator_offer_impression': {'daily': [
-                {'date': '2026-09-08', 'sessions': den, 'events': den}]},
-            'calculator_bridge_cta_click': {'daily': [
-                {'date': '2026-09-08', 'sessions': num, 'events': num}]}}}
+    def events(self, den, num, buys=0):
+        def series(n):
+            return {'daily': [{'date': '2026-09-08', 'sessions': n, 'events': n}]}
+        return {'by_event': {'calculator_offer_impression': series(den),
+                             'calculator_bridge_cta_click': series(num),
+                             'purchase': series(buys)}}
 
-    def test_small_sample_locks_the_experiment(self):
+    def test_below_threshold_locks_the_experiment(self):
         e = X.build_experiments(self.spec, self.events(37, 5), TODAY)[0]
         self.assertIn('KEEP MEASURING', e['status'])
+        self.assertIn('BELOW REVIEW THRESHOLD', e['status'])
         self.assertIn('Do not change', e['verdict'])
 
-    def test_adequate_sample_unlocks_it(self):
-        e = X.build_experiments(self.spec, self.events(140, 21), TODAY)[0]
-        self.assertEqual(e['status'], 'READABLE')
+    def test_reaching_the_threshold_unlocks_a_review_not_a_verdict(self):
+        e = X.build_experiments(self.spec, self.events(140, 21, buys=0), TODAY)[0]
+        # The STATUS is the line an agent is most likely to act on, so it must
+        # carry no verdict word at all, negated or otherwise.
+        self.assertEqual(e['status'], 'REVIEW ELIGIBLE')
+        for banned in ('winner', 'working', 'success', 'keep', 'change', 'proven', 'significant'):
+            self.assertNotIn(banned, e['status'].lower(),
+                             f'status must not contain the verdict word "{banned}"')
+        # The prose may use those words only to deny them.
+        prose = (e['verdict'] + ' ' + e['threshold_meaning']).lower()
+        self.assertIn('not that it worked', prose)
+        self.assertIn('not a result', prose)
+        self.assertIn('not proof', prose)
+        self.assertIn('not a winner', prose)
+        self.assertIn('not a decision', prose)
+
+    def test_purchase_count_is_always_shown_beside_the_denominator(self):
+        e = X.build_experiments(self.spec, self.events(140, 21, buys=0), TODAY)[0]
+        self.assertEqual(e['outcome'], 0)
+        self.assertEqual(e['denominator'], 140)
+        self.assertEqual(e['numerator'], 21)
         self.assertEqual(e['rate_pct'], 15.0)
+        self.assertIn('0 purchases', e['verdict'],
+                      'a 15% engagement rate on zero sales must show the zero')
+
+    def test_threshold_is_described_as_a_review_gate(self):
+        e = X.build_experiments(self.spec, self.events(140, 21, buys=2), TODAY)[0]
+        self.assertIn('not proof', e['threshold_meaning'])
+        self.assertIn('2 purchases', e['verdict'])
 
     def test_only_sessions_after_the_start_date_count(self):
-        ev = {'by_event': {
-            'calculator_offer_impression': {'daily': [
-                {'date': '2026-09-01', 'sessions': 500, 'events': 500},
-                {'date': '2026-09-08', 'sessions': 37, 'events': 37}]},
-            'calculator_bridge_cta_click': {'daily': [
-                {'date': '2026-09-08', 'sessions': 5, 'events': 5}]}}}
+        ev = self.events(37, 5)
+        ev['by_event']['calculator_offer_impression']['daily'].insert(
+            0, {'date': '2026-09-01', 'sessions': 500, 'events': 500})
         self.assertEqual(X.build_experiments(self.spec, ev, TODAY)[0]['denominator'], 37)
 
 
@@ -399,6 +475,116 @@ class Renders(unittest.TestCase):
         self.assertIn('Data unavailable', html)
         self.assertNotIn('$0.00 gross', html, 'a Stripe failure must not render as zero revenue')
         self.assertIn('not zero', html)
+
+    def _full_data(self):
+        """A healthy collect() result, built without any network call."""
+        rows = [(f'2026-08-{x:02d}', 30) for x in range(17, 32)]
+        rows += [(f'2026-09-{x:02d}', 30) for x in range(1, 13)]
+        def week(sess):
+            return {m: {'current': v, 'previous': v * 0.9, 'change_pct': 11.1}
+                    for m, v in (('sessions', sess), ('totalUsers', sess * 0.8),
+                                 ('newUsers', sess * 0.7), ('screenPageViews', sess * 1.6),
+                                 ('engagedSessions', sess * 0.6), ('bounceRate', 45.0))}
+
+        d = {'meta': {'generated_at': '2026-09-13 09:00', 'generated_date': TODAY_ISO,
+                      'version': 2},
+             'traffic': {'cw': {'daily': daily(rows), 'daily_median_28d': 30, 'spike_days': [],
+                                'today': {'sessions': 5, 'users': 4, 'pageviews': 9},
+                                'active_now': 1, 'week': week(210), 'sources_7d': [],
+                                'top_pages_7d': [], 'devices_7d': [], 'geo_90d': []},
+                         'kd': {'daily': daily([(f'2026-09-{x:02d}', 3) for x in range(1, 13)]),
+                                'daily_median_28d': 3, 'spike_days': [],
+                                'today': {'sessions': 0, 'users': 0, 'pageviews': 0},
+                                'active_now': 0, 'week': week(21), 'sources_7d': [],
+                                'top_pages_7d': [], 'devices_7d': [], 'geo_90d': []}},
+             'search': {'cw': {'current': {'clicks': 297, 'impressions': 9000, 'ctr': 3.3,
+                                           'position': 12.0},
+                               'previous': {'clicks': 214, 'impressions': 8000, 'ctr': 2.7,
+                                            'position': 13.0},
+                               'window': '2026-09-05 → 2026-09-11',
+                               'top_queries': [], 'top_pages': []},
+                        'kd': {'current': {'clicks': 5, 'impressions': 300, 'ctr': 1.7,
+                                           'position': 30.0},
+                               'previous': {'clicks': 4, 'impressions': 280, 'ctr': 1.4,
+                                            'position': 31.0},
+                               'window': '2026-09-05 → 2026-09-11',
+                               'top_queries': [], 'top_pages': []},
+                        'bing_cw': {'configured': True, 'clicks_7d': 83, 'clicks_prev_7d': 86,
+                                    'impressions_7d': 2356, 'impressions_prev_7d': 2745,
+                                    'top_queries': []},
+                        'bing_kd': {'configured': False}},
+             'funnels': {'calculator_cw': {'window': 'last 30 days', 'sequential': False,
+                                           'denominator': 148, 'note': 'parallel states',
+                                           'stages': [{'name': 'Sessions started', 'count': 148},
+                                                      {'name': 'Email captured', 'count': 148}],
+                                           'week': {'current': 52, 'previous': 30,
+                                                    'change_pct': 73.3}},
+                         'newsletter_cw': {'active': 300, 'new_7d': 35, 'new_prev_7d': 20,
+                                           'unsub_7d': 0}},
+             'demographics': {'cw': {}, 'kd': {}}, 'feedback': {'new_7d': 0, 'unreviewed': 0},
+             'mail': {'signal_7d': {'replies': 6, 'categories': {'support': 2}, 'basis': 'x'},
+                      'inbound_7d': 6, 'human': [], 'internal': [], 'reports': [], 'inbound': []},
+             'email_engagement': {'cw': {'attempts': 459, 'delivered': 457, 'bounced': 2,
+                                         'complained': 0, 'delivery_rate_pct': 99.56,
+                                         'bounce_rate_pct': 0.44, 'complaint_rate_pct': 0.0,
+                                         'unique_open_rate_pct': 51.4,
+                                         'unique_click_rate_pct': 8.4,
+                                         'previous_7d': {'unique_open_rate_pct': 47.8,
+                                                         'unique_click_rate_pct': 5.0}},
+                                  'fixture_filter_active': True},
+             'revenue': dict(Revenue.rev, days_left_in_month=17),
+             'etsy': {'absent': True}, 'queues': {'cw': {'ready': 10, 'runway_days': 9}},
+             'automation': {'workflows': []}, 'yesterday': {'date': '2026-09-12'},
+             'decisions': {'decisions': []},
+             'offer_events': {'window_days': 28, 'by_event': {
+                 'calculator_step1_viewed': {'sessions': 278, 'events': 335, 'daily': []},
+                 'calculator_free_results': {'sessions': 121, 'events': 144, 'daily': []},
+                 'calculator_offer_impression': {'sessions': 98, 'events': 146, 'daily': []},
+                 'calculator_payment_modal_opened': {'sessions': 9, 'events': 34, 'daily': []},
+                 'begin_checkout': {'sessions': 3, 'events': 3, 'daily': []},
+                 'purchase': {'sessions': 3, 'events': 5, 'daily': []}}},
+             'insights': []}
+        d['data_quality'] = X.build_data_quality(d, d['meta']['generated_at'])
+        d['timeline'] = []
+        d['paid_funnel'] = X.build_funnel(d['offer_events'])
+        d['revenue_exec'] = X.build_revenue(d['revenue'], 1000.0, TODAY)
+        d['changes'] = X.build_changes(d, TODAY)
+        d['signal'] = {s: X.clean_traffic(d['traffic'][s], TODAY_ISO) for s in ('cw', 'kd')}
+        d['experiments'] = []
+        d['needs_attention'] = X.build_needs_attention(d, d['changes'], TODAY)
+        d['dont_overreact'] = X.build_dont_overreact(d, d['changes'], d['paid_funnel'], TODAY_ISO)
+        d['correlations'] = []
+        d['executive'] = X.build_executive(d, d['changes'], d['paid_funnel'], d['revenue_exec'],
+                                           d['needs_attention'], TODAY_ISO)
+        return d
+
+    def test_executive_layer_is_complete_when_the_model_returns_nothing(self):
+        """--no-model, or any failed/empty model call, must lose nothing but
+        the opinion paragraph."""
+        import generate_command_center as G
+        d = self._full_data()
+        d['analysis'] = {'narrative': None, 'generated_by': 'rules', 'focus': 'Week in review'}
+        html = G.render_html(d)
+        ex = d['executive']
+        self.assertGreaterEqual(len(ex['brief']), 3)
+        self.assertTrue(ex['status_label'])
+        self.assertTrue(ex['suggested_action'])
+        for marker in ('Executive brief', 'What changed', 'Business scorecard',
+                       'CW paid funnel', 'Signal vs noise', 'Data sources',
+                       'Cleaned trend sessions', 'Revenue'):
+            self.assertIn(marker, html, f'{marker} must survive a null model narrative')
+        self.assertIn('No AI review', html)
+
+    def test_page_never_prints_a_percentage_of_the_net_profit_target(self):
+        import generate_command_center as G
+        html = G.render_html(dict(self._full_data(),
+                                  analysis={'narrative': None, 'generated_by': 'rules',
+                                            'focus': 'x'}))
+        self.assertIn('NET PROFIT', html)
+        self.assertIn('not measured', html)
+        self.assertIn('unavailable', html)
+        self.assertNotIn('% of the NET target', html)
+        self.assertNotIn('human-like', html)
 
 
 if __name__ == '__main__':

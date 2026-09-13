@@ -370,12 +370,27 @@ in the collapsible **Forensic detail** region at the bottom of the page.
   floor in `MIN_SAMPLE`. `1 → 3` renders as `+2, low sample — directional only`.
 - **Failed source ≠ zero.** Any fetcher returning `{'error': ...}` renders
   "data unavailable"; it never becomes a 0 in a headline or a trend.
-- **Gross vs net.** The `$1,000/month` target is NET. MTD gross and MTD net are
-  shown on separate lines and progress is measured against the net figure. Net
-  here is gross minus Stripe refunds only — processor fees and COGS are not fed
-  in, and the page says so.
+- **Gross, collected and profit are three quantities.** `gross` is what Stripe
+  charged. `collected after refunds` is gross minus refunds — money in the
+  account, **not profit**. `net profit` is **not measured**: no cost feed exists
+  for processor fees, COGS, hosting or tooling. The `$1,000/month` target is a
+  **net-profit** target, so progress toward it renders as **unavailable**, not
+  as a percentage estimated from refunds alone. There is deliberately no
+  progress bar — a bar against an unknown numerator would be a picture of a
+  number we do not have.
 - **Sessions, not event fires.** The funnel counts GA4 sessions containing each
   event. On 2026-09-13 the bridge CTA showed 31 fires from 7 sessions.
+- **The cleaned traffic figure is named after its method.** It is
+  `cleaned trend sessions`, not "human-like sessions": whole days flagged by the
+  3× median spike detector are dropped, and nothing identifies a bot at the
+  session level. Dropping a whole day also discards that day's real readers and
+  does nothing about crawler traffic spread thinly across ordinary days.
+  Observed sessions are always shown beside it.
+- **An experiment threshold is a review gate, not proof.** Below it, the panel
+  reads `KEEP MEASURING — BELOW REVIEW THRESHOLD` and the experiment must not be
+  touched. Reaching it reads `REVIEW ELIGIBLE`, which means look at it. It never
+  says change, keep, or winner. Purchases are shown beside engagement so a
+  healthy CTA rate on zero sales cannot read as success.
 - **Stage honesty.** Every funnel stage is tagged `measured`, `inferred` or
   `unavailable`. CTA controls that open the payment modal are drawn as
   overlapping *contributors*, not as a stage above it, because the modal has
@@ -400,19 +415,45 @@ Edit `dashboard/experiments.json`. Only the GA4 event pair lives there, because
 prose cannot name a denominator; the narrative of the change is picked up from
 `docs/project-log/decisions.md` automatically. Delete the entry when it ends.
 
+### The model narrative is optional
+
+`model_narrative()` is a labelled opinion beside the deterministic brief, not
+underneath it. Every executive output — status verdict, brief, what changed,
+needs attention, do not overreact, funnel, scorecard — is computed by
+`command_center_exec.py` *before* the model is called and does not depend on
+it. If the call fails, times out, or returns no text, the page and the email
+are fully usable and simply carry no opinion. `--no-model` exercises that path
+and is what the tests and any offline run use.
+
+The 2026-09-13 repair was: `max_tokens` 700 → 3000, because sonnet-5 emits a
+thinking block that was consuming the whole budget before a word of review was
+written; and an explicit empty-result branch that logs `stop_reason` and the
+block types instead of returning `None` silently. Parsing was **not** loosened —
+it still accepts only `type == 'text'` blocks, because a thinking block is not
+the review. Cost per run is about **$0.044** (~11k input, ~700 output including
+thinking), roughly **$1.35/month** at one run a day. Before the fix a run cost
+about the same and produced nothing, so this recovered waste rather than adding
+spend.
+
 ### Tests
 
 ```
 python3 dashboard/test_command_center.py
 ```
 
-44 tests. Each one pins a rule the previous version of the page broke.
+Each test pins a rule the previous version of the page broke.
 
 ### Deploying to the NAS
 
+**Manual publish** (no email — this is the command to run by hand):
+
 ```
-python3 dashboard/generate_command_center.py --nas --email
+python3 dashboard/generate_command_center.py --nas
 ```
+
+`--nas --email` is for the scheduled cron, or when an email send is explicitly
+wanted. Do not add `--email` to a manual run out of habit; it mails Brew every
+time.
 
 Publishes to `http://100.117.74.5:8087/live/command-center.html` plus a dated
 archive copy, then emails the report. Requires Tailscale.
