@@ -61,8 +61,24 @@ binding = "ETSY_AUTH_KV"
 id = "022b2eba60cb4e39bec97759109e7acf"
 
 # Production environment variables
+#
+# CW_ABANDON_RECOVERY_ENABLED = "false" (Brew, 2026-09-13, re-disabled for the
+# bridge measurement window). Abandonment RECORDING stays live: the
+# checkout.session.expired handler, the stripe_webhook_events row, the
+# historical epoch, the recovery code and its suite are all untouched. Only the
+# SEND is gated, by the `!== 'true'` check in sendAbandonRecoveryIfOwed, which
+# returns skipped:'recovery-disabled' before any database lookup.
+#
+# Why off: the recovery link returns the reader to the ordinary Step 3 offer
+# with no recovery-source attribution, so a recovery send would land those
+# conversions inside the active bridge-offer cohort and contaminate it. Turn it
+# back on when recovery traffic can be attributed separately.
+#
+# Verified zero sends before flipping: 0 `cw-abandon-email:` markers in
+# stripe_webhook_events, and 0 emails with the abandon subject across 1,500
+# Resend sends back to 2026-08-17. Nothing was ever delivered on this path.
 [env.production]
-vars = { ENVIRONMENT = "production", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", FRONTEND_URL = "https://carnivoreweekly.com", GA4_MEASUREMENT_ID = "G-NR4JVKW2JV", CW_ABANDON_RECOVERY_ENABLED = "true" }
+vars = { ENVIRONMENT = "production", SUPABASE_URL = "https://kwtdpvnjewtahuxjyltn.supabase.co", FRONTEND_URL = "https://carnivoreweekly.com", GA4_MEASUREMENT_ID = "G-NR4JVKW2JV", CW_ABANDON_RECOVERY_ENABLED = "false" }
 
 # Etsy PKCE state storage for production.
 # Without this the production Worker has no ETSY_AUTH_KV binding, and because
