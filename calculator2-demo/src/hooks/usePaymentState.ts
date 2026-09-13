@@ -60,9 +60,17 @@ export function usePaymentState({
 
         // Persist to localStorage, stamped with the time so a stale success
         // state from an earlier visit expires instead of showing forever.
-        if (urlPayment) localStorage.setItem('paymentStatus', urlPayment)
-        if (urlSessionId) localStorage.setItem('stripeSessionId', urlSessionId)
-        localStorage.setItem('paymentStateSavedAt', String(Date.now()))
+        //
+        // 'resume' (the abandoned-checkout recovery link) is left out on purpose. It
+        // survives a refresh in the URL itself, and storing it would arm the six-hour
+        // staleness sweep below, which clears the persisted calculator form. An
+        // abandoner who came back the next evening would find their restored answers
+        // wiped by a rule written for expired PAYMENTS. No payment happened here.
+        if (urlPayment !== 'resume') {
+          if (urlPayment) localStorage.setItem('paymentStatus', urlPayment)
+          if (urlSessionId) localStorage.setItem('stripeSessionId', urlSessionId)
+          localStorage.setItem('paymentStateSavedAt', String(Date.now()))
+        }
 
         // Mark as premium if payment succeeded
         if (urlPayment === 'success' || urlPayment === 'free') {

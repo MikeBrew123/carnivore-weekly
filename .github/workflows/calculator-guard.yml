@@ -64,6 +64,7 @@ on:
       - 'tests/report-copy-gate-retry.test.mjs'
       - 'tests/renal-meal-plan-suppression.test.mjs'
       - 'tests/paid-resume-email.test.mjs'
+      - 'tests/abandoned-checkout-recovery.test.mjs'
       - 'tests/ordered-list-continuity.test.mjs'
       - 'public/calculator.html'
       - 'public/assets/calculator2/**'
@@ -94,6 +95,7 @@ on:
       - 'tests/report-copy-gate-retry.test.mjs'
       - 'tests/renal-meal-plan-suppression.test.mjs'
       - 'tests/paid-resume-email.test.mjs'
+      - 'tests/abandoned-checkout-recovery.test.mjs'
       - 'tests/ordered-list-continuity.test.mjs'
       - 'public/calculator.html'
       - 'public/assets/calculator2/**'
@@ -245,6 +247,13 @@ jobs:
       # promises a delivery that does not happen.
       - name: Paid-report recovery and resume email
         run: node tests/paid-resume-email.test.mjs
+      # Someone who started a checkout and never paid. Every guard in that suite is
+      # about NOT sending: the kill switch, an unsubscribe, a bounce, a person who
+      # paid in a LATER session, and one email per person however many checkouts
+      # they abandon. A recovery email aimed at the wrong person costs more than
+      # the sale it was chasing.
+      - name: Abandoned-checkout recovery
+        run: node tests/abandoned-checkout-recovery.test.mjs
       # A blank line between numbered steps used to close the list, so each item
       # opened its own <ol> and the reader counted 1, 1, 1, 1 in a delivered PDF.
       # The suites checked that <ol> tags existed and balanced, which they did.
