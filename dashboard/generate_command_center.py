@@ -1,16 +1,57 @@
 #!/usr/bin/env python3
-"""
-Command Center — the one dashboard Brew always refers to.
+"""Command Center — the one dashboard Brew always refers to.
+
+Command Centre 2.0 (2026-09-13): an executive decision layer on top of the
+existing monitoring report. The page now answers, in about 60 seconds, how CW
+and KD are doing, what changed, why it might have changed, and whether anything
+needs doing. Every original section is still here, moved into the collapsible
+"Forensic detail" region underneath.
+
+The layer is built on one rule, and the rule is enforced in code, not by habit:
+
+    FACT            what the measurement says          (fetchers, unchanged)
+    INTERPRETATION  what it probably means             (command_center_exec.py)
+    ACTION          what, if anything, Brew should do  (needs_attention only)
+
+Specifically:
+  - A percentage is never printed on a base too small to carry it. "1 sale → 3
+    sales" shows "+2, low sample — directional only", never "+200%".
+  - Observed and decision-useful traffic are separate numbers. The crawler-spike
+    detector already existed; its output is now shown rather than only used.
+  - A failed API renders as "data unavailable", never as zero.
+  - Gross, collected-after-refunds and net profit are three different
+    quantities. The $1k/month target is NET PROFIT; no cost feed exists, so
+    profit is reported as NOT MEASURED and progress toward the target as
+    UNAVAILABLE. Collected revenue is never divided by the profit target.
+  - The de-spiked traffic figure is called "cleaned trend sessions", not
+    "human-like sessions": the method drops whole flagged days, and nothing
+    identifies a bot at the session level.
+  - An experiment's sample floor is a MINIMUM REVIEW THRESHOLD. Reaching it
+    unlocks a review, never a verdict, and purchases are always shown beside
+    engagement so a good-looking rate on zero sales cannot read as success.
+  - The paid funnel is built from GA4 SESSIONS containing each event, not event
+    fires, and every stage is tagged measured / inferred / unavailable. Stages
+    that are not sequential (CTA paths into the payment modal) are drawn as
+    contributors, not as a stage above it.
+  - A metric being down is not, by itself, "needs attention".
+
+Email metrics are NOT redefined anywhere in this file or in the executive layer.
+They are produced by compute_email_metrics() below to the definitions repaired
+on 2026-09-13 (attempts = delivered + bounced over distinct resend_id; delivery
+and bounce over attempts; complaint and both unique rates over delivered;
+fixtures excluded from the whole cohort before anything is counted).
 
 Pulls every data source into a single self-contained HTML page + JSON:
   - GA4 traffic (CW + KD properties, incl. realtime active users)
+  - GA4 paid-funnel events (step1 → free results → offer → modal → checkout)
   - Google Search Console (both sites, week-over-week)
   - Bing Webmaster Tools (when secrets/api-keys.json has bing.api_key)
-  - Funnels: calculator -> email capture -> completion -> paid; drip; newsletter; coach
+  - Calculator states, drip, newsletter, coach
   - Calculator demographics per site (CW + KD, from calculator_sessions_v2)
   - Feedback (content_feedback) and inbound mail (Resend receiving + drip_events)
-  - Email engagement (opens / clicks / bounces / complaints)
-  - Stripe revenue vs the $1k/month net target
+  - Email engagement (the repaired metrics above)
+  - Stripe revenue: gross, collected after refunds, purchases, AOV
+  - Project-change timeline from docs/project-log + git, for correlation
 
 Outputs:
   dashboard/command-center-data.json   (machine-readable, for future model runs)
@@ -18,14 +59,24 @@ Outputs:
 
 Run:            python3 dashboard/generate_command_center.py
 Skip AI review: python3 dashboard/generate_command_center.py --no-model
-Automated:      .github/workflows/dashboard-update.yml (daily 10:30 UTC) commits both files.
+Tests:          python3 dashboard/test_command_center.py
+Automated:      .github/workflows/dashboard-update.yml (daily 10:17 UTC, emails)
+                Mac crontab 03:40 PT runs --nas --email (publishes to the NAS)
 
 Maintenance notes for future (small-model) sessions:
-  - Every fetcher degrades gracefully: on error it returns {'error': ...} and the
-    HTML renders a "source unavailable" note instead of crashing the whole page.
-  - To add a section: write fetch_x() -> dict, add to collect(), add render block
-    in render_html(), and (optionally) rules in build_insights().
+  - Every fetcher degrades gracefully: on error it returns {'error': ...} and
+    the HTML renders "data unavailable" instead of a zero or a crash.
+  - To add a section: write fetch_x() -> dict, add to collect(), add a render
+    block in render_html(), and (optionally) a rule in build_insights().
+  - To add an executive rule: put the LOGIC in command_center_exec.py (pure,
+    testable) and only the markup here. Add a test in test_command_center.py.
+  - To declare a live experiment: edit dashboard/experiments.json. Delete the
+    entry when it concludes.
+  - This dashboard is READ-ONLY. It must never send email to subscribers,
+    change Stripe, modify Supabase customer records, deploy, or publish.
   - Do NOT print or embed secret values anywhere in the JSON/HTML.
+  - Customer email contents and addresses are never sent to the model; only the
+    aggregated counts in mail['signal_7d'] are.
 """
 
 import argparse
@@ -38,6 +89,9 @@ import tempfile
 import time
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import command_center_exec as X  # noqa: E402  (pure logic for the executive layer)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
@@ -264,8 +318,12 @@ def fetch_traffic(property_id):
     """Traffic block for one site. Week-over-week, today, realtime, 28d daily, sources, pages."""
     out = {}
     metrics = ['sessions', 'totalUsers', 'newUsers', 'screenPageViews', 'engagedSessions', 'bounceRate']
+    # Windows END YESTERDAY. The old ('7daysAgo','today') compared a partial
+    # current day against a complete prior week, which understates every
+    # current-week figure for most of the day. Today is reported separately as
+    # "today so far" and never enters a comparison.
     resp = ga4_run(property_id, [], metrics,
-                   [('7daysAgo', 'today'), ('14daysAgo', '8daysAgo')], order_desc_metric=False)
+                   [('7daysAgo', 'yesterday'), ('14daysAgo', '8daysAgo')], order_desc_metric=False)
     cur = [float(v.value) for v in resp.rows[0].metric_values] if resp.rows else [0] * 6
     prev = [float(v.value) for v in resp.rows[1].metric_values] if len(resp.rows) > 1 else [0] * 6
     out['week'] = {m: {'current': c, 'previous': p, 'change_pct': pct_change(c, p)}
@@ -334,6 +392,50 @@ def fetch_traffic(property_id):
                        'users': int(r.metric_values[1].value)}
                       for r in resp.rows]
     return out
+
+
+
+# Events behind the CW paid funnel. Verified present in the property on
+# 2026-09-13 (first-fired dates from dashboard/ga4_event_history.py):
+# step1_viewed 2026-07-10, free_results 2026-01-06, offer_impression 2026-08-01,
+# bridge_cta_click 2026-05-29, payment_modal_opened 2026-01-09,
+# begin_checkout 2026-05-29, purchase 2026-01-01.
+FUNNEL_EVENTS = ('calculator_step1_viewed', 'calculator_free_results',
+                 'calculator_offer_impression', 'calculator_bridge_cta_click',
+                 'calculator_payment_modal_opened', 'begin_checkout', 'purchase')
+
+
+def fetch_offer_events(property_id, days=28):
+    """Daily sessions-containing-event and raw event counts for the paid funnel.
+
+    SESSIONS is the funnel denominator, not eventCount. On 2026-09-13 the
+    bridge CTA showed 31 events from 7 sessions — quoting the event count would
+    have claimed four times the people who actually engaged.
+    """
+    from google.analytics.data_v1beta.types import (
+        DateRange, Dimension, Filter, FilterExpression, Metric, RunReportRequest)
+    f = FilterExpression(filter=Filter(field_name='eventName', string_filter=Filter.StringFilter(
+        match_type=Filter.StringFilter.MatchType.FULL_REGEXP, value='|'.join(FUNNEL_EVENTS))))
+    resp = ga4_client().run_report(RunReportRequest(
+        property=property_id,
+        dimensions=[Dimension(name='date'), Dimension(name='eventName')],
+        metrics=[Metric(name='eventCount'), Metric(name='sessions')],
+        date_ranges=[DateRange(start_date=f'{days}daysAgo', end_date='yesterday')],
+        dimension_filter=f, limit=20000))
+    by = {}
+    for r in resp.rows:
+        raw = r.dimension_values[0].value
+        day = f'{raw[:4]}-{raw[4:6]}-{raw[6:]}'
+        name = r.dimension_values[1].value
+        rec = by.setdefault(name, {'events': 0, 'sessions': 0, 'daily': []})
+        ev, se = int(r.metric_values[0].value), int(r.metric_values[1].value)
+        rec['events'] += ev
+        rec['sessions'] += se
+        rec['daily'].append({'date': day, 'events': ev, 'sessions': se})
+    for rec in by.values():
+        rec['daily'].sort(key=lambda x: x['date'])
+    return {'window_days': days, 'by_event': by,
+            'metric_note': 'sessions = GA4 sessions containing the event; events = raw fires'}
 
 
 # ── Google Search Console ────────────────────────────────────────────
@@ -488,8 +590,17 @@ def fetch_funnels():
         wk = supa_count('calculator_sessions_v2', f'source=eq.{src}&created_at=gte.{d7}&{CALC_TEST_FILTER}')
         wk_prev = supa_count('calculator_sessions_v2',
                              f'source=eq.{src}&created_at=gte.{d14}&created_at=lt.{d8}&{CALC_TEST_FILTER}')
+        # These are NOT sequential stages and must never be drawn as a funnel.
+        # Email is captured at step 1 (mandatory since 2026-06-29), so "email
+        # captured" routinely exceeds "reached step 3" — the old rendering
+        # produced 120 → 148 = 123%, a transition that cannot happen. They are
+        # states a session can be in, each shown against sessions started.
         out[f'calculator_{label}'] = {
             'window': 'last 30 days',
+            'sequential': False,
+            'denominator': started,
+            'note': ('Parallel states, not funnel stages: email is captured at step 1, '
+                     'so it is not downstream of step 3. Each share is of sessions started.'),
             'stages': [
                 {'name': 'Sessions started', 'count': started},
                 {'name': 'Reached step 3', 'count': completed},
@@ -514,6 +625,14 @@ def fetch_funnels():
             'new_7d': supa_count('drip_subscribers', f'{s}&subscribed_at=gte.{d7}'),
             'last_send': last_sent[0]['last_sent_at'] if last_sent else None,
         }
+        try:
+            ls = out[f'drip_{site}']['last_send']
+            out[f'drip_{site}']['stalled_days'] = round(
+                (datetime.now(timezone.utc)
+                 - datetime.fromisoformat(ls.replace('Z', '+00:00'))).total_seconds() / 86400, 1
+            ) if ls else None
+        except Exception:
+            out[f'drip_{site}']['stalled_days'] = None
 
     # Newsletter per site
     for site in ['cw', 'kd']:
@@ -666,6 +785,32 @@ def fetch_mail():
     d7 = iso_days_ago(7)
     out['inbound_7d'] = supa_count('drip_events', f'event_type=eq.email.received&created_at=gte.{d7}')
     out['human_7d'] = sum(1 for m in out['human'] if (m.get('date') or '') >= d7)
+    # Executive-level signal: counts and a coarse category from the SUBJECT LINE
+    # only. No sender address and no message body leaves this dict, so the
+    # summary can sit above the fold and can be handed to the model digest,
+    # while the addressed table stays in the forensic drill-down.
+    CATEGORY_HINTS = (
+        ('report issue', ('wrong', 'error', 'mistake', 'not match', 'issue', 'problem',
+                          'broken', 'missing', 'refund')),
+        ('product question', ('question', 'how do', 'how to', 'can i', 'does it', '?')),
+        ('positive feedback', ('thank', 'thanks', 'love', 'great', 'awesome', 'helped')),
+    )
+
+    def categorise(m):
+        subj = (m.get('subject') or '').lower()
+        for name, hints in CATEGORY_HINTS:
+            if any(h in subj for h in hints):
+                return name
+        return 'support'
+
+    cats = {}
+    for m in out['human']:
+        if (m.get('date') or '') >= d7:
+            c = categorise(m)
+            cats[c] = cats.get(c, 0) + 1
+    out['signal_7d'] = {'replies': out['human_7d'], 'categories': cats,
+                        'basis': 'category inferred from subject line only; '
+                                 'no address or message body is summarised here'}
     return out
 
 
@@ -869,11 +1014,18 @@ def fetch_revenue():
         by_product[lbl] = round(by_product.get(lbl, 0) + (c['amount'] - c.get('amount_refunded', 0)) / 100, 2)
 
     today_start = datetime(TODAY.year, TODAY.month, TODAY.day, tzinfo=timezone.utc).timestamp()
+    # Comparable windows, both complete: the 7 days ending last midnight against
+    # the 7 before those, and yesterday against the day before. Computed from the
+    # same 30-day charge list, so no extra API call and no estimation.
     return {
         'configured': True,
         'yesterday': window([c for c in ok
                              if today_start - 86400 <= c['created'] < today_start]),
+        'day_before': window([c for c in ok
+                              if today_start - 2 * 86400 <= c['created'] < today_start - 86400]),
         'last_7d': window([c for c in ok if c['created'] >= now_ts - 7 * 86400]),
+        'prev_7d': window([c for c in ok if now_ts - 14 * 86400 <= c['created']
+                           < now_ts - 7 * 86400]),
         'last_30d': window(ok),
         'mtd': window(mtd),
         'days_left_in_month': days_in_month - days_elapsed,
@@ -997,13 +1149,23 @@ def fetch_queues():
         with open(os.path.join(PROJECT_ROOT, 'data', 'blog_posts.json')) as fh:
             bp = json.load(fh)
         posts = bp.get('blog_posts', bp) if isinstance(bp, dict) else bp
+        cutoff = iso_days_ago(28)[:10]
         for site in ('cw', 'kd'):
             sp = [p for p in posts if p.get('site', 'cw') == site]
             pub = sorted(p.get('publish_date', '') for p in sp
                          if (p.get('status') == 'published' or p.get('published'))
                          and p.get('publish_date', '') <= TODAY.isoformat())
-            out[site] = {'ready': sum(1 for p in sp if p.get('status') == 'ready'),
-                         'last_published': pub[-1] if pub else None}
+            ready = sum(1 for p in sp if p.get('status') == 'ready')
+            # Runway only means something if we know the cadence. Measure it from
+            # the last 28 days of actual publications; if nothing published in
+            # that window, report the count and say the cadence is unknown.
+            recent = [d for d in pub if d >= cutoff]
+            per_day = len(recent) / 28 if recent else 0
+            out[site] = {'ready': ready,
+                         'last_published': pub[-1] if pub else None,
+                         'published_28d': len(recent),
+                         'cadence_per_week': round(per_day * 7, 1) if per_day else None,
+                         'runway_days': int(ready / per_day) if per_day else None}
     except Exception as e:
         out['error'] = str(e)[:200]
     try:
@@ -1053,6 +1215,21 @@ def load_open_decisions():
     aged = [i for i in decisions if i.get('age_days') is not None]
     oldest = max(aged, key=lambda i: i['age_days']) if aged else None
     return {'decisions': decisions, 'oldest': oldest}
+
+
+def load_experiments():
+    """dashboard/experiments.json — what is currently being measured.
+
+    Deliberately tiny and declarative. Prose in decisions.md cannot say which
+    GA4 event is the denominator, so that pair is declared here; everything
+    else about the change already lives in the project log and is picked up by
+    parse_timeline(). Delete an entry when the experiment concludes.
+    """
+    try:
+        with open(os.path.join(SCRIPT_DIR, 'experiments.json')) as fh:
+            return json.load(fh).get('experiments', [])
+    except Exception:
+        return []
 
 
 def _wow(block, key='sessions'):
@@ -1249,25 +1426,41 @@ def build_insights(d):
         add('info', f'{mail["human_7d"]} real inbound email(s) to @carnivoreweekly.com this week '
                     f'(automated DMARC/postmaster reports excluded) — listed below in Mail.')
 
-    eng = d.get('email_engagement', {})
-    if eng and not eng.get('error'):
-        if eng.get('complained', {}).get('current_7d', 0) > 0:
-            add('alert', f'{eng["complained"]["current_7d"]} spam complaint(s) this week — '
-                         f'protect sender reputation, review list quality.')
-        if eng.get('bounced', {}).get('current_7d', 0) >= 3:
-            add('watch', f'{eng["bounced"]["current_7d"]} email bounces this week.')
-        if eng.get('open_rate_pct') is not None and eng['open_rate_pct'] < 25:
-            add('watch', f'Email open rate is {eng["open_rate_pct"]}% (7d) — below the ~40% norm for this list.')
+    # Consumes the corrected per-site email block verbatim (attempts =
+    # delivered + bounced over distinct resend_id; complaint and both unique
+    # rates over delivered; fixtures excluded from the whole cohort first).
+    # These rules previously read eng['complained']['current_7d'], a shape that
+    # no longer exists, so none of them could fire.
+    eng = d.get('email_engagement', {}) or {}
+    for site, label in [('cw', 'CW'), ('kd', 'KD')]:
+        e = eng.get(site) or {}
+        if not e or e.get('error'):
+            continue
+        attempts = e.get('attempts', 0)
+        if e.get('complained', 0) > 0:
+            add('alert', f'{label}: {e["complained"]} spam complaint(s) this week '
+                         f'({e.get("complaint_rate_pct")}% of delivered) — protect sender '
+                         f'reputation, review list quality.')
+        if attempts >= 100 and (e.get('bounce_rate_pct') or 0) >= 5:
+            add('watch', f'{label} bounce rate {e["bounce_rate_pct"]}% of {attempts} attempts.')
+        if attempts >= 100 and e.get('unique_open_rate_pct') is not None \
+                and e['unique_open_rate_pct'] < 25:
+            add('watch', f'{label} unique open rate is {e["unique_open_rate_pct"]}% of '
+                         f'{e.get("delivered", 0)} delivered — below the ~40% norm for this list.')
+    if eng and eng.get('fixture_filter_active') is False:
+        add('watch', 'Email metrics ran WITHOUT the fixture filter — subscriber_hygiene could not '
+                     'be imported, so test traffic is inside these numbers.')
 
     rev = d.get('revenue', {})
     if rev.get('configured') and not rev.get('error'):
-        pace = rev.get('month_pace', 0)
-        if pace >= NET_TARGET_MONTHLY:
-            add('good', f'Revenue pacing at ${pace:.0f} gross this month — on track vs the $1k net target '
-                        f'(remember: target is NET of costs).')
-        else:
-            add('info', f'Revenue pacing ${pace:.0f} gross for the month vs the $1k/mo net target. '
-                        f'MTD net so far: ${rev["mtd"]["net"]:.2f}.')
+        # The $1k target is NET PROFIT and no cost feed exists, so a gross or a
+        # collected pace can never be described as "on track" against it. This
+        # rule used to do exactly that.
+        mtd = rev.get('mtd', {})
+        add('info', f'Revenue MTD: ${mtd.get("gross", 0):.2f} gross, '
+                    f'${mtd.get("net", 0):.2f} collected after refunds. Progress toward the '
+                    f'$1,000/mo NET PROFIT target is unavailable — profit is not measured, '
+                    f'because processor fees and COGS are not fed into this dashboard.')
 
     q = d.get('queues') or {}
     for site, label in [('cw', 'CW'), ('kd', 'KD')]:
@@ -1374,6 +1567,17 @@ def model_narrative(data, model=NARRATIVE_MODEL):
         'content_queues': data.get('queues'),
         'automation_health': data.get('automation'),
         'rule_based_flags': data.get('insights'),
+        # Command Centre 2.0: the deterministic layer is computed BEFORE this
+        # call and is what Brew reads first. Passing it in stops the model
+        # repeating the brief and lets it add only what rules cannot infer.
+        'paid_funnel_28d': data.get('paid_funnel'),
+        'deterministic_brief': (data.get('executive') or {}).get('brief'),
+        'needs_attention': data.get('needs_attention'),
+        'dont_overreact': data.get('dont_overreact'),
+        'project_changes_45d': [{'date': e['date'], 'title': e['title']}
+                                for e in (data.get('timeline') or [])[:12]],
+        'experiments': data.get('experiments'),
+        'customer_signal_7d': (data.get('mail') or {}).get('signal_7d'),
     }
     focus_name, focus_scope = daily_focus()
     if focus_scope:
@@ -1429,6 +1633,9 @@ def model_narrative(data, model=NARRATIVE_MODEL):
         "profit; CW calculator audience baseline is ~66% aged 45+, ~53% female, ~84% weight loss."
         f"{history_block}\n"
         f"Today's data (JSON):\n{json.dumps(digest, default=str)}\n\n"
+        "A deterministic brief, an attention list and a do-not-overreact list have ALREADY "
+        "been computed and are shown above yours on the page. Do not repeat them; add only "
+        "what a rule cannot infer. Never present an inference as a measurement.\n"
         "Note: in search data, LOWER average position is better (position 1 = top of Google). "
         "Sanity-check metrics before citing them: an open rate over 100% means multiple opens "
         "per send, not a healthy list signal — flag oddities instead of quoting them straight.\n"
@@ -1443,12 +1650,46 @@ def model_narrative(data, model=NARRATIVE_MODEL):
             'https://api.anthropic.com/v1/messages',
             headers={'x-api-key': api_key, 'anthropic-version': '2023-06-01',
                      'content-type': 'application/json'},
-            json={'model': model, 'max_tokens': 700,
+            # WHAT CHANGED AND WHY (2026-09-13). Two things, both narrow:
+            #
+            # 1. max_tokens 700 -> 3000. max_tokens is a CAP on output, not a
+            #    purchase. claude-sonnet-5 emits a thinking block before its
+            #    text, and that block was consuming the whole 700-token budget,
+            #    so the call returned a single thinking block and no text at
+            #    all. The review itself is capped at 220 words by the prompt and
+            #    has never exceeded ~300 output tokens; the headroom is for the
+            #    thinking block, and unused headroom costs nothing. Billing is
+            #    per token actually produced. Measured cost per run (sonnet-5,
+            #    $3/Mtok in, $15/Mtok out): input ~11k tokens = $0.033, output
+            #    ~700 tokens including thinking = $0.011. About $0.044 a run,
+            #    ~$1.35 a month at one run a day. Before the fix a run cost
+            #    roughly the same and produced nothing, so this is a fix to
+            #    waste, not an increase in spend.
+            #
+            # 2. Parsing was NOT loosened. It still takes only type == 'text'
+            #    blocks, deliberately: a thinking block is not the review and
+            #    must never be shown as one. What was added is an explicit
+            #    empty-result branch that logs stop_reason and the block types
+            #    instead of returning None silently, which is how this hid.
+            #
+            # The narrative is OPTIONAL. Everything Brew reads first — the
+            # status verdict, the brief, what changed, needs attention, do not
+            # overreact — is computed by command_center_exec.py before this
+            # function is called and does not depend on it. If this returns
+            # None the page and the email are fully usable and simply carry no
+            # model opinion. Guarded by the --no-model test path.
+            json={'model': model, 'max_tokens': 3000,
                   'messages': [{'role': 'user', 'content': prompt}]},
-            timeout=120)
+            timeout=180)
         resp.raise_for_status()
-        parts = resp.json().get('content', [])
+        payload = resp.json()
+        parts = payload.get('content', [])
         text = ' '.join(p.get('text', '') for p in parts if p.get('type') == 'text').strip()
+        if not text:
+            print(f'  Model narrative empty (stop_reason='
+                  f'{payload.get("stop_reason")}, blocks='
+                  f'{[p.get("type") for p in parts]}) — falling back to rules.')
+            return None
         lines = [ln for ln in text.splitlines() if not ln.strip().startswith('#')]
         return '\n'.join(lines).replace('**', '').strip() or None
     except Exception as e:
@@ -1498,7 +1739,32 @@ def collect(use_model=True):
     data['automation'] = guarded('Automation', fetch_automation_health)
     print('  Yesterday...')
     data['yesterday'] = guarded('Yesterday', fetch_yesterday)
+    print('  Paid-funnel events (GA4)...')
+    data['offer_events'] = guarded('Offer events', fetch_offer_events, CW_GA4)
     data['decisions'] = load_open_decisions()
+
+    # ── Executive layer (deterministic; see dashboard/command_center_exec.py) ──
+    today_iso = TODAY.isoformat()
+    data['data_quality'] = X.build_data_quality(data, NOW_STR)
+    data['timeline'] = X.parse_timeline(PROJECT_ROOT, days=45, today=TODAY)
+    data['paid_funnel'] = X.build_funnel(
+        data['offer_events'],
+        stripe_purchases=((data.get('revenue') or {}).get('last_30d') or {}).get('charges'))
+    data['revenue_exec'] = X.build_revenue(data.get('revenue'), NET_TARGET_MONTHLY, TODAY)
+    data['changes'] = X.build_changes(data, TODAY)
+    data['signal'] = {s: X.clean_traffic((data.get('traffic') or {}).get(s), today_iso)
+                      for s in ('cw', 'kd')}
+    data['experiments'] = X.build_experiments(load_experiments(), data['offer_events'], TODAY)
+    data['needs_attention'] = X.build_needs_attention(data, data['changes'], TODAY)
+    data['dont_overreact'] = X.build_dont_overreact(data, data['changes'],
+                                                    data['paid_funnel'], today_iso)
+    data['correlations'] = X.correlate(data['timeline'], data['changes'], TODAY)
+    data['executive'] = X.build_executive(data, data['changes'], data['paid_funnel'],
+                                          data['revenue_exec'], data['needs_attention'],
+                                          today_iso)
+    data['what_matters'] = X.build_what_matters(data, data['changes'], data['paid_funnel'],
+                                                data['revenue_exec'], data['needs_attention'],
+                                                data['experiments'], today_iso)
 
     data['insights'] = build_insights(data)
     data['analysis'] = {'narrative': None, 'generated_by': 'rules', 'focus': daily_focus()[0]}
@@ -1547,30 +1813,39 @@ def err_note(block, label):
 
 
 def funnel_html(f, accent):
+    """Renders the calculator block. When the block declares sequential=False
+    this draws STATES, each against sessions started, and prints no
+    stage-to-stage conversion at all — "120 reached step 3 → 148 email
+    captured = 123%" was a transition that cannot happen, because email is
+    captured at step 1 and is not downstream of step 3.
+    """
     if not f or f.get('error'):
         return err_note(f, 'Funnel') or '<p class="muted">No data.</p>'
     stages = f['stages']
-    # scale bars to the largest stage — stages aren't always monotonic
-    # (email is captured at step 1, so it can exceed "Reached step 3")
+    sequential = f.get('sequential', True)
     top = max(s['count'] for s in stages) or 1
-    first = stages[0]['count'] or 1
+    first = f.get('denominator') or stages[0]['count'] or 1
     rows = []
     prev_count = None
     for s in stages:
         width = max(s['count'] * 100 / top, 1.5)
         of_top = s['count'] * 100 / first
-        conv = f'{s["count"] * 100 / prev_count:.0f}% of prev' if prev_count else '100%'
+        if sequential and prev_count:
+            detail = f'{of_top:.0f}% · {s["count"] * 100 / prev_count:.0f}% of prev'
+        else:
+            detail = f'{of_top:.0f}% of sessions started'
         rows.append(
             f'<div class="fstage"><div class="frow"><span class="fname">{esc(s["name"])}</span>'
-            f'<span class="fnum">{s["count"]:,} <span class="muted">({of_top:.0f}% · {conv})</span></span></div>'
+            f'<span class="fnum">{s["count"]:,} <span class="muted">({detail})</span></span></div>'
             f'<div class="fbarwrap"><div class="fbar" style="width:{width:.1f}%;background:{accent}"></div></div></div>')
         prev_count = s['count'] if s['count'] else prev_count
+    note = f'<p class="col-sub">{esc(f["note"])}</p>' if f.get('note') else ''
     wk = f.get('week', {})
     wk_html = ''
     if wk:
         wk_html = (f'<p class="muted small">This week: {wk.get("current", 0)} sessions vs '
                    f'{wk.get("previous", 0)} last week {trend_html(wk.get("change_pct"))}</p>')
-    return f'<div class="funnel">{"".join(rows)}</div>{wk_html}'
+    return f'{note}<div class="funnel-legacy">{"".join(rows)}</div>{wk_html}'
 
 
 def bar_list(items, key='value', accent='#4ade80', max_items=6):
@@ -1588,9 +1863,10 @@ def bar_list(items, key='value', accent='#4ade80', max_items=6):
 
 
 def table(headers, rows):
+    # class="data" scopes the forensic tables away from the cockpit's own type.
     th = ''.join(f'<th>{esc(h)}</th>' for h in headers)
     trs = ''.join('<tr>' + ''.join(f'<td>{c}</td>' for c in r) + '</tr>' for r in rows)
-    return f'<table><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table>'
+    return f'<table class="data"><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table>'
 
 
 def traffic_card(label, t, accent):
@@ -1731,6 +2007,526 @@ def etsy_card(e):
     </div>'''
 
 
+
+# ── Cockpit rendering ────────────────────────────────────────────────
+# Design brief (2026-09-13). This is an operator's cockpit, not a report.
+#
+# The organising idea is that these numbers are SMALL — 3 purchases, 29
+# impressions, 190 sessions — and the page's job is to stop a small number
+# being read as a big signal. So sample weight is drawn, not footnoted: every
+# figure carries a three-segment evidence mark, and a thin-evidence figure is
+# rendered dimmed with its percentage withheld. The page goes quiet where it
+# does not know.
+#
+# Type carries the same rule. MONO IS MEASUREMENT, SANS IS INTERPRETATION:
+# anything measured is set in the mono face, anything inferred is set in the
+# prose face, so a reader can tell fact from inference before reading a word.
+#
+# CW is identified by an ember rule, KD by a teal one, used only as 2px marks
+# and labels — never as a card fill, because colour here means state.
+#
+# Nothing decorative renders. In particular there is no bar for a funnel's
+# first stage, which is 100% by definition and can never change.
+
+STATE_WORD = {'green': 'Healthy', 'blue': 'Watching',
+              'amber': 'Needs attention', 'red': 'Action required'}
+STATE_CLASS = {'green': 'ok', 'blue': 'info', 'amber': 'warn', 'red': 'crit'}
+ITEM_CLASS = {'good': 'ok', 'watch': 'warn', 'action': 'crit'}
+ITEM_WORD = {'good': 'Clear', 'watch': 'Watch', 'action': 'Act'}
+
+
+def ev_mark(tier, title=''):
+    """The signature element: three segments, filled to the evidence tier."""
+    fills = {'thin': 1, 'usable': 2, 'solid': 3}.get(tier, 1)
+    segs = ''.join(f'<i class="{"on" if k < fills else ""}"></i>' for k in range(3))
+    label = title or {'thin': 'Thin sample — direction only',
+                      'usable': 'Sample large enough to read',
+                      'solid': 'Solid sample'}.get(tier, '')
+    return f'<span class="ev ev-{tier}" title="{esc(label)}">{segs}</span>'
+
+
+def num(value, unit='count', tier='usable'):
+    """A measured figure. Dimmed when the evidence behind it is thin."""
+    if value is None:
+        return '<span class="n na">unavailable</span>'
+    if unit == 'money':
+        text = f'${value:,.2f}'
+    elif unit == 'pct':
+        text = f'{value:.1f}%'
+    else:
+        text = f'{value:,.0f}' if isinstance(value, (int, float)) else str(value)
+    return f'<span class="n {"faint" if tier == "thin" else ""}">{esc(text)}</span>'
+
+
+def delta_cell(c):
+    """Direction + percentage, or direction + absolute when the base is thin."""
+    if not c:
+        return '<span class="d flat">—</span>'
+    arrow = {'up': '↑', 'down': '↓', 'flat': '→'}[c['direction']]
+    if c['pct'] is None:
+        return (f'<span class="d {c["direction"]} faint" title="Sample too small for a '
+                f'percentage">{arrow} {esc(c["abs_fmt"])}</span>')
+    return f'<span class="d {c["direction"]}">{arrow} {c["pct"]:+.0f}%</span>'
+
+
+# ── Top strip: business state ────────────────────────────────────────
+
+def statebar_html(d):
+    ex = d.get('executive') or {}
+    r = d.get('revenue_exec') or {}
+    ops = sum(1 for i in (d.get('needs_attention') or []) if i['severity'] == 'red')
+    exps = d.get('experiments') or []
+    cls = STATE_CLASS.get(ex.get('status', 'blue'), 'info')
+
+    def cell(label, value, sub='', extra=''):
+        sub_html = f'<span class="sb-sub">{sub}</span>' if sub else ''
+        return (f'<div class="sb-cell {extra}"><span class="sb-label">{esc(label)}</span>'
+                f'<span class="sb-val">{value}</span>{sub_html}</div>')
+
+    if r.get('unavailable'):
+        money = (cell('Yesterday', '<span class="n na">unavailable</span>')
+                 + cell('7 days', '<span class="n na">unavailable</span>')
+                 + cell('30 days', '<span class="n na">unavailable</span>')
+                 + cell('Purchases', '<span class="n na">unavailable</span>'))
+    else:
+        money = (cell('Yesterday', num(r['yesterday'].get('net', 0), 'money'), 'collected')
+                 + cell('7 days', num(r['last_7d'].get('net', 0), 'money'), 'collected')
+                 + cell('30 days', num(r['last_30d'].get('net', 0), 'money'), 'collected')
+                 + cell('Purchases', num(r['purchases_30d'], 'count',
+                                         X.evidence(r['purchases_30d'], 'purchases')), '30 days'))
+    if exps:
+        e = exps[0]
+        if e.get('not_started'):
+            exp_cell = cell('Measuring', '<span class="n na">not started</span>',
+                            f'opens {esc(e["started"])}', 'sb-exp pending')
+        else:
+            locked = 'KEEP MEASURING' in e['status']
+            exp_cell = cell('Measuring',
+                            f'<span class="n">{e["denominator"]}<span class="of">'
+                            f'/{e["min_sample"]}</span></span>',
+                            'review threshold' if locked else 'review eligible',
+                            'sb-exp' + (' locked' if locked else ''))
+    else:
+        exp_cell = cell('Measuring', '<span class="n na">none</span>')
+    ops_cell = cell('Operations',
+                    f'<span class="n {"bad" if ops else ""}">{ops}</span>',
+                    'failing' if ops else 'all green', 'sb-ops' + (' bad' if ops else ''))
+
+    return (f'<div class="statebar {cls}">'
+            f'<div class="sb-state"><span class="dot"></span>'
+            f'<span class="sb-state-word">{esc(STATE_WORD.get(ex.get("status", "blue")))}</span>'
+            f'<span class="sb-state-sub">Business state</span></div>'
+            f'<div class="sb-cells">{money}{exp_cell}{ops_cell}</div></div>')
+
+
+# ── What matters today ───────────────────────────────────────────────
+
+def matters_html(d):
+    items = d.get('what_matters') or []
+    out = ''
+    for it in items:
+        cls = ITEM_CLASS.get(it['state'], 'info')
+        noact = 'noact' if it['action'].lower().startswith('no action') else ''
+        out += (f'<article class="matter {cls}">'
+                f'<header><span class="chip {cls}">{esc(ITEM_WORD.get(it["state"], ""))}</span>'
+                f'<h3 class="fact">{esc(it["fact"])}</h3></header>'
+                f'<p class="interp">{esc(it["interpretation"])}</p>'
+                f'<p class="act {noact}">{esc(it["action"])}</p></article>')
+    return out
+
+
+# ── Scorecards ───────────────────────────────────────────────────────
+
+SCORE_GROUPS = ('Traffic', 'Audience', 'Buying intent', 'Revenue', 'Email')
+
+
+def scorecard_html(d, site, label, ident):
+    rows = []
+
+    def add(group, name, cur, prev=None, unit='count', base='generic', chg=None, note=None):
+        c = chg if chg is not None else (
+            X.delta(name, prev, cur, unit=unit, base=base) if prev is not None else None)
+        tier = X.evidence(cur if unit != 'pct' else (prev or 0) and cur, base)
+        if unit == 'pct':
+            tier = 'usable'
+        rows.append({'group': group, 'name': name, 'cur': cur, 'prev': prev, 'unit': unit,
+                     'chg': c, 'tier': tier, 'note': note})
+
+    sig = (d.get('signal') or {}).get(site)
+    if sig:
+        add('Traffic', 'Cleaned trend sessions', sig['clean_7d'], sig['clean_prev_7d'],
+            base='sessions')
+    g = (d.get('search') or {}).get(site) or {}
+    if g.get('current'):
+        add('Traffic', 'Organic search clicks', g['current'].get('clicks'),
+            g['previous'].get('clicks'), base='clicks')
+    fw = ((d.get('funnels') or {}).get(f'calculator_{site}') or {}).get('week') or {}
+    if fw:
+        add('Audience', 'Calculator starts', fw.get('current'), fw.get('previous'),
+            base='calculator')
+    nl = (d.get('funnels') or {}).get(f'newsletter_{site}') or {}
+    if nl and not nl.get('error'):
+        add('Audience', 'Newsletter signups', nl.get('new_7d'), nl.get('new_prev_7d'))
+        add('Audience', 'List size', nl.get('active'), base='sessions')
+    if site == 'cw':
+        pf = d.get('paid_funnel') or {}
+        st = {x['name']: x for x in pf.get('stages', [])} if not pf.get('error') else {}
+        for nm, key, bs in (('Paid offer seen', 'Paid offer seen', 'sessions'),
+                            ('Payment modal opened', 'Payment modal opened', 'purchases'),
+                            ('Checkouts started', 'Checkout started', 'purchases')):
+            if key in st and st[key]['sessions'] is not None:
+                add('Buying intent', f'{nm} (28d)', st[key]['sessions'], base=bs,
+                    note='single window — no comparable prior period fetched')
+    r = d.get('revenue_exec') or {}
+    if site == 'cw' and not r.get('unavailable'):
+        add('Revenue', 'Purchases (30d)', r['purchases_30d'], base='purchases',
+            note='single window')
+        add('Revenue', 'Collected after refunds (30d)', r['last_30d'].get('net'),
+            unit='money', base='revenue', note='single window')
+    e = (d.get('email_engagement') or {}).get(site) or {}
+    if e.get('attempts'):
+        p = e.get('previous_7d') or {}
+        add('Email', 'Delivery rate', e.get('delivery_rate_pct'), unit='pct',
+            note=f'{e["attempts"]} attempts')
+        add('Email', 'Bounce rate', e.get('bounce_rate_pct'), unit='pct',
+            chg=X.delta('Bounce rate', p.get('bounce_rate_pct'), e.get('bounce_rate_pct'),
+                        unit='pct', base='email', invert=True))
+        add('Email', 'Unique open rate', e.get('unique_open_rate_pct'), unit='pct',
+            chg=X.delta('Unique open rate', p.get('unique_open_rate_pct'),
+                        e.get('unique_open_rate_pct'), unit='pct', base='email'))
+        add('Email', 'Unique click rate', e.get('unique_click_rate_pct'), unit='pct',
+            chg=X.delta('Unique click rate', p.get('unique_click_rate_pct'),
+                        e.get('unique_click_rate_pct'), unit='pct', base='email'))
+
+    body = ''
+    for group in SCORE_GROUPS:
+        grows = [r_ for r_ in rows if r_['group'] == group]
+        if not grows:
+            continue
+        body += f'<tr class="grp"><th colspan="4">{esc(group)}</th></tr>'
+        for r_ in grows:
+            prev = ('—' if r_['prev'] is None else
+                    (f'{r_["prev"]:.1f}%' if r_['unit'] == 'pct' else f'{r_["prev"]:,.0f}'))
+            note = f'<span class="rnote">{esc(r_["note"])}</span>' if r_.get('note') else ''
+            body += (f'<tr><td class="mname">{esc(r_["name"])}{note}</td>'
+                     f'<td class="mnow">{num(r_["cur"], r_["unit"], r_["tier"])}</td>'
+                     f'<td class="mprev">{prev}</td>'
+                     f'<td class="mtrend">{delta_cell(r_["chg"])}'
+                     f'{ev_mark(r_["chg"]["evidence"] if r_["chg"] else r_["tier"])}</td></tr>')
+    return (f'<section class="card score site-{ident}">'
+            f'<h2 class="site-title"><span class="rule"></span>{esc(label)}</h2>'
+            f'<table><thead><tr><th>Metric</th><th class="mnow">Now</th>'
+            f'<th class="mprev">Prior</th><th class="mtrend">Change</th></tr></thead>'
+            f'<tbody>{body}</tbody></table>'
+            f'<p class="foot">Weekly rows compare 7 complete days with the 7 before. '
+            f'Rows marked single-window have no comparable prior period.</p></section>')
+
+
+# ── Paid funnel: the drops are the information ───────────────────────
+
+STAGE_TAG = {'measured': ('m', 'measured'), 'inferred': ('i', 'inferred'),
+             'unavailable': ('u', 'unavailable')}
+
+
+def paid_funnel_html(d):
+    pf = d.get('paid_funnel') or {}
+    if pf.get('error'):
+        return (f'<section class="card"><h2>Paid funnel</h2>'
+                f'<p class="na-msg">Event data unavailable — {esc(pf["error"])}. '
+                f'No stages are drawn rather than drawing zeros.</p></section>')
+    stages = pf.get('stages', [])
+    leak_to = (pf.get('biggest_leak') or {}).get('to')
+    rows, prev = '', None
+    for idx, st in enumerate(stages):
+        cls, word = STAGE_TAG.get(st['status'], ('u', st['status']))
+        n = st['sessions']
+        # An inferred stage equals the one above it BY DEFINITION, so "−0 lost ·
+        # 100% carried" there is not a measurement and can never change. It is
+        # not drawn; the stage's own note explains the equality.
+        definitional = st['status'] == 'inferred'
+        # The drop BETWEEN stages is what a reader acts on, so it is drawn as
+        # its own row. A proportional bar per stage would collapse to nothing by
+        # the bottom of this funnel and would say less than the numbers do; the
+        # first stage's bar would also be 100% by definition and never move.
+        if prev is not None and n is not None and not definitional:
+            lost = prev - n
+            kept = (n / prev * 100) if prev else 0
+            hot = ' hot' if st['name'] == leak_to else ''
+            text = (f'−{lost:,} lost · {kept:.0f}% carried' if lost
+                    else 'no loss · everyone carried through')
+            rows += (f'<div class="drop{hot}"><span class="dline"></span>'
+                     f'<span class="dtext">{text}</span></div>')
+        elif definitional:
+            rows += ('<div class="drop def"><span class="dline"></span>'
+                     '<span class="dtext">equal by definition</span></div>')
+        note = f'<p class="snote">{esc(st["note"])}</p>' if st.get('note') else ''
+        rep = ''
+        if st.get('repeat_ratio') and st['repeat_ratio'] >= 1.5:
+            rep = (f'<span class="rnote">{st["events"]} fires from {n} sessions '
+                   f'({st["repeat_ratio"]}× repeat)</span>')
+        rows += (f'<div class="stage s-{cls}">'
+                 f'<div class="srow"><span class="sname">{esc(st["name"])}'
+                 f'<span class="tag t-{cls}">{word}</span></span>'
+                 f'<span class="sval">{num(n, "count", X.evidence(n, "sessions"))}</span></div>'
+                 f'{rep}{note}</div>')
+        if n is not None:
+            prev = n
+    br = ''
+    for b in pf.get('branches', []):
+        n = b['sessions']
+        amount = 'unavailable' if n is None else f'{n:,} sessions'
+        if b.get('events'):
+            amount += ' · ' + f'{b["events"]:,}' + ' clicks'
+        br += (f'<div class="branch"><span>{esc(b["name"])}</span>'
+               f'<span class="n {"faint" if n is None else ""}">{amount}</span></div>')
+    xc = pf.get('purchase_crosscheck') or {}
+    xc_html = ''
+    if xc:
+        xc_html = (f'<p class="foot">Purchase stage vs Stripe: GA4 {xc["ga4_sessions"]} sessions, '
+                   f'Stripe {xc["stripe_charges"]} charges. Windows differ '
+                   f'({pf.get("window_days")}d GA4, 30d Stripe), so exact agreement is not '
+                   f'expected.</p>')
+    return (f'<section class="card funnel"><h2>Paid funnel'
+            f'<span class="h2sub">{pf.get("window_days")} days · sessions containing each event'
+            f'</span></h2>'
+            f'<div class="stages">{rows}</div>'
+            f'<h3 class="sub">Ways into the payment modal</h3>'
+            f'<p class="foot tight">These overlap and are not summed. The modal has more than '
+            f'one entry control, so they are intent signals, not a stage above it.</p>'
+            f'<div class="branches">{br}</div>{xc_html}'
+            f'<p class="foot">Sessions, not event fires: one reader clicking a CTA four times '
+            f'is one engaged session. Every stage says how it is known.</p></section>')
+
+
+# ── Currently measuring ──────────────────────────────────────────────
+
+def experiments_html(d):
+    """Shows the two experiment events, then the same-window checkout and
+    purchase counts BELOW a divider that names them as unattributed. They are
+    never placed in the same row group as the impressions, because adjacency
+    alone would imply an attribution the instrumentation cannot support.
+    """
+    exps = d.get('experiments') or []
+    if not exps:
+        return ('<section class="card exp"><h2>Currently measuring</h2>'
+                '<p class="na-msg">No experiment declared in dashboard/experiments.json.</p>'
+                '</section>')
+    body = ''
+    for e in exps:
+        pending = e.get('not_started')
+        locked = 'KEEP MEASURING' in e['status']
+        state = 'pending' if pending else ('locked' if locked else 'eligible')
+        den, floor = e['denominator'] or 0, e['min_sample']
+        pct = min(100, den * 100 / floor) if floor else 0
+        shipped = (e.get('shipped') or '')[:10]
+        when = (f'shipped {shipped} · counted from {esc(e["started"])}' if shipped
+                else f'counted from {esc(e["started"])}')
+        day_line = ('window not open yet' if pending else f'day {e["days"]}')
+        thr = ('' if pending else
+               f'<div class="thr"><div class="thr-bar"><i style="width:{pct:.0f}%"></i></div>'
+               f'<span class="rnote">{den:,} of {floor:,} minimum review threshold</span></div>')
+        rationale = (f'<p class="foot">{esc(e["start_rationale"])}</p>'
+                     if e.get('start_rationale') else '')
+        body += (f'<div class="exp-item {state}">'
+                 f'<div class="exp-head"><b>{esc(e["name"])}</b>'
+                 f'<span class="rnote">{when} · {day_line}</span></div>'
+                 f'<div class="exp-grid two">'
+                 f'<div><span class="k">{esc(e["denominator_label"])}</span>'
+                 f'<span class="n big">{den:,}</span><span class="rnote">sessions</span></div>'
+                 f'<div><span class="k">{esc(e["numerator_label"])}</span>'
+                 f'<span class="n big">{e["numerator"] if e["numerator"] is not None else "—"}'
+                 f'</span><span class="rnote">sessions</span></div>'
+                 f'</div>{thr}'
+                 f'<p class="exp-status">{esc(e["status"])}</p>'
+                 f'<p class="interp">{esc(e["verdict"])}</p>'
+                 f'{rationale}'
+                 f'<div class="exp-unattr"><span class="k">Same window, not attributed</span>'
+                 f'<div class="exp-grid two">'
+                 f'<div><span class="kk">{esc(e["checkout_label"])}</span>'
+                 f'<span class="n">{e["checkouts"] if e["checkouts"] is not None else "—"}</span></div>'
+                 f'<div><span class="kk">{esc(e["outcome_label"])}</span>'
+                 f'<span class="n">{e["outcome"] if e["outcome"] is not None else "—"}</span></div>'
+                 f'</div>'
+                 f'<p class="caveat">{esc(e["attribution"])}</p></div>'
+                 f'<p class="foot">{esc(e["threshold_meaning"])}</p>'
+                 + (f'<p class="foot">{esc(e["notes"])}</p>' if e.get('notes') else '')
+                 + '</div>')
+    return f'<section class="card exp"><h2>Currently measuring</h2>{body}</section>'
+
+
+# ── Signal vs noise ──────────────────────────────────────────────────
+
+def signal_html(d):
+    sig = d.get('signal') or {}
+    rows = ''
+    for site, label, ident in (('cw', 'Carnivore Weekly', 'cw'), ('kd', 'KetoDial', 'kd')):
+        s = sig.get(site)
+        if not s:
+            rows += (f'<div class="sig site-{ident}"><h3><span class="rule"></span>'
+                     f'{esc(label)}</h3>'
+                     f'<p class="na-msg">Traffic unavailable — not zero traffic.</p></div>')
+            continue
+        reason = ('' if not s['contaminated'] else
+                  f'<p class="reason">{len(s["excluded_days"])} spike day(s) removed: '
+                  f'{esc(", ".join(s["excluded_days"]))}. Above 3× the 28-day median, which is '
+                  f'the crawler-burst signature.</p>')
+        gap = s['observed_7d'] - s['clean_7d']
+        rows += (f'<div class="sig site-{ident}"><h3><span class="rule"></span>{esc(label)}</h3>'
+                 f'<div class="sig-pair">'
+                 f'<div><span class="k">Observed (GA4 as reported)</span>'
+                 f'<span class="n big {"faint" if gap else ""}">{s["observed_7d"]:,}</span></div>'
+                 f'<div><span class="k">Excluding flagged spike days</span>'
+                 f'<span class="n big">{s["clean_7d"]:,}</span></div>'
+                 f'<div><span class="k">28-day daily median × 7</span>'
+                 f'<span class="n">{s["baseline_28d_7d"] or "—"}</span></div>'
+                 f'<div><span class="k">Today so far — not comparable</span>'
+                 f'<span class="n faint">{s["today_so_far"] if s["today_so_far"] is not None else "—"}</span></div>'
+                 f'</div>{reason}'
+                 f'<p class="foot">{esc(s.get("method", ""))}</p></div>')
+    return (f'<section class="card"><h2>Signal vs noise</h2><div class="sigs">{rows}</div>'
+            f'</section>')
+
+
+# ── Do not overreact / needs attention ───────────────────────────────
+
+def dont_overreact_html(d):
+    items = d.get('dont_overreact') or []
+    if not items:
+        return ''
+    lis = ''.join(f'<li>{esc(i)}</li>' for i in items[:3])
+    return (f'<section class="card dno"><h2>Do not overreact to</h2>'
+            f'<ul>{lis}</ul></section>')
+
+
+def attention_html(d):
+    items = d.get('needs_attention') or []
+    if not items:
+        return ('<section class="card att clear"><h2>Needs attention</h2>'
+                '<p class="clear-msg">Nothing is broken.</p>'
+                '<p class="foot">A metric being down does not appear here. Only operational '
+                'problems do.</p></section>')
+    lis = ''
+    for it in items:
+        cls = 'crit' if it['severity'] == 'red' else 'warn'
+        why = f'<span class="interp">{esc(it["why"])}</span>' if it.get('why') else ''
+        lis += f'<li class="{cls}"><span class="chip {cls}"></span>{esc(it["text"])}{why}</li>'
+    return (f'<section class="card att"><h2>Needs attention<span class="h2sub">'
+            f'{len(items)} item(s)</span></h2><ul>{lis}</ul></section>')
+
+
+# ── Change timeline ──────────────────────────────────────────────────
+
+def timeline_html(d):
+    tl = d.get('timeline') or []
+    cors = d.get('correlations') or []
+    body = ''
+    for c in cors:
+        src = {'decision': 'recorded decision', 'status': 'recorded status entry'}.get(
+            c.get('kind'), 'commit subject — a weaker signal than a recorded decision')
+        movs = ''.join(f'<li><span class="tl-metric">{esc(m["metric"])}</span>'
+                       f'<span class="n">{esc(m["movement"])}</span></li>'
+                       for m in c['movements'])
+        others = (f'<span class="rnote">{c["other_candidates"]} other change(s) sit in this '
+                  f'window</span>' if c.get('other_candidates') else '')
+        body += (f'<div class="tl-event"><div class="tl-date">{esc(c["change_date"])}'
+                 f'<span class="rnote">{c["days_before"]}d ago</span></div>'
+                 f'<div class="tl-body"><b>{esc(c["change"])}</b>'
+                 f'<span class="rnote">{src}</span>{others}'
+                 f'<ul class="tl-moves">{movs}</ul>'
+                 f'<p class="caveat">{esc(c["caveat"])}</p></div></div>')
+    if not body:
+        body = ('<p class="na-msg">No metric moved enough, reliably enough, to pair with a '
+                'project change this run. Nothing is asserted rather than pairing something '
+                'weak.</p>')
+    rows = ''.join(
+        f'<li><span class="tl-d">{esc(e["date"])}</span>'
+        f'<span class="tag t-{e["kind"]}">{e["kind"]}</span> {esc(e["title"])}</li>'
+        for e in tl[:20])
+    return (f'<section class="card"><h2>Change timeline<span class="h2sub">45 days</span></h2>'
+            f'{body}'
+            f'<details class="tl-all"><summary>{len(tl)} logged change(s)</summary>'
+            f'<ul class="tl-list">{rows}</ul></details>'
+            f'<p class="foot">Sourced from docs/project-log/decisions.md, current-status.md and '
+            f'git subjects. A change must be at least 2 days old to be paired with a weekly '
+            f'movement.</p></section>')
+
+
+# ── Revenue ──────────────────────────────────────────────────────────
+
+def revenue_html(d):
+    r = d.get('revenue_exec') or {}
+    if r.get('unavailable'):
+        return (f'<section class="card"><h2>Revenue</h2>'
+                f'<p class="na-msg">Unavailable — {esc(r.get("reason"))}. '
+                f'This is not zero revenue.</p></section>')
+    aov = (f'${r["aov_30d"]:.2f}' if r.get('aov_30d') else '—')
+    prods = ''.join(f'<li><span>{esc(k)}</span><span class="n">${v:,.2f}</span></li>'
+                    for k, v in sorted((r.get('by_product_30d') or {}).items(),
+                                       key=lambda x: -x[1]))
+    return (f'<section class="card rev"><h2>Revenue<span class="h2sub">month to date</span></h2>'
+            f'<ul class="rev-lines">'
+            f'<li><span>Gross charged</span><span class="n">${r["mtd_gross"]:,.2f}</span></li>'
+            f'<li><span>Refunds</span><span class="n">−${r["mtd_refunds"]:,.2f}</span></li>'
+            f'<li class="strong"><span>Collected after refunds</span>'
+            f'<span class="n">${r["mtd_collected"]:,.2f}</span></li>'
+            f'<li><span>Net profit</span><span class="n na">not measured</span></li>'
+            f'<li><span>Target</span><span class="n">${r["target_net_profit"]:,.0f}/mo net profit'
+            f'</span></li>'
+            f'<li><span>Progress toward target</span>'
+            f'<span class="n na">unavailable</span></li></ul>'
+            f'<p class="caveat">{esc(r["target_note"])}</p>'
+            f'<div class="rev-side"><div><span class="k">Average order</span>'
+            f'<span class="n big">{aov}</span>'
+            f'<span class="rnote">{r["purchases_30d"]} sales in 30 days'
+            f'{"" if r["aov_reliable"] else " — too few to be stable"}</span></div></div>'
+            f'<h3 class="sub">By product, 30 days collected</h3><ul class="rev-lines">{prods}</ul>'
+            f'<p class="foot">{esc(r["collected_basis"])}</p></section>')
+
+
+# ── Customer signal / data health ────────────────────────────────────
+
+def customer_signal_html(d):
+    mail = d.get('mail') or {}
+    sig = mail.get('signal_7d') or {}
+    fb = d.get('feedback') or {}
+    if mail.get('error'):
+        return ('<section class="card"><h2>Customer signal</h2>'
+                '<p class="na-msg">Inbound mail unavailable — not zero replies.</p></section>')
+    cats = ''.join(f'<li><span>{esc(k)}</span><span class="n">{v}</span></li>'
+                   for k, v in sorted((sig.get('categories') or {}).items(), key=lambda x: -x[1]))
+    return (f'<section class="card"><h2>Customer signal<span class="h2sub">7 days</span></h2>'
+            f'<div class="cs-nums">'
+            f'<div><span class="k">Replies from readers</span>'
+            f'<span class="n big">{sig.get("replies", 0)}</span></div>'
+            f'<div><span class="k">Site feedback</span>'
+            f'<span class="n big">{fb.get("new_7d", 0)}</span></div>'
+            f'<div><span class="k">Unreviewed</span>'
+            f'<span class="n big">{fb.get("unreviewed", 0)}</span></div></div>'
+            f'<ul class="rev-lines">{cats}</ul>'
+            f'<p class="foot">Senders and message text stay in Forensic detail. Neither is sent '
+            f'to the model.</p></section>')
+
+
+DQ_WORD = {'ok': ('ok', 'current'), 'failed': ('crit', 'error'),
+           'missing': ('warn', 'unavailable'), 'not-configured': ('off', 'not configured')}
+
+
+def data_health_html(d):
+    dq = d.get('data_quality') or {}
+    items = ''
+    for s in dq.get('sources', []):
+        cls, word = DQ_WORD.get(s['state'], ('warn', s['state']))
+        detail = f' <span class="rnote">{esc(s["detail"])}</span>' if s.get('detail') else ''
+        items += (f'<li class="{cls}"><span class="dot"></span>{esc(s["label"])}'
+                  f'<span class="dq-state">{word}</span>{detail}</li>')
+    failed = dq.get('failed', 0)
+    banner = (f'<p class="caveat">{failed} source(s) failed. Their numbers are absent, '
+              f'not zero.</p>' if failed else '')
+    return (f'<footer class="datahealth"><h2>Data health<span class="h2sub">'
+            f'last refresh {esc(dq.get("generated_at"))} PT</span></h2>'
+            f'{banner}<ul>{items}</ul></footer>')
+
+
 def render_html(d):
     ins_html = ''
     for i in d.get('insights', []):
@@ -1794,7 +2590,14 @@ def render_html(d):
     narrative = (d.get('analysis') or {}).get('narrative')
     gen_by = (d.get('analysis') or {}).get('generated_by', 'rules')
     focus = (d.get('analysis') or {}).get('focus')
-    narrative_html = ''
+    # An absent narrative is stated, not left as a silent gap: the model is an
+    # optional opinion and the deterministic executive layer above is complete
+    # without it. A blank space here used to look like a rendering fault.
+    narrative_html = ('<div class="narrative" style="border-left-color:var(--muted)">'
+                      '<p class="muted">No AI review this run — the model was skipped '
+                      '(--no-model) or returned nothing. Nothing above depends on it: the '
+                      'status, brief, what-changed, attention and do-not-overreact panels are '
+                      'computed deterministically from the metrics.</p></div>')
     if narrative:
         focus_tag = f'<p class="focus-label">Daily focus · {esc(focus)}</p>' if focus else ''
         paras = ''.join(f'<p>{esc(p.strip())}</p>' for p in narrative.split('\n') if p.strip())
@@ -1828,6 +2631,18 @@ def render_html(d):
                       if _is_done(r) and (r.get('date') or '') >= _fb_cutoff]
     fb_done_rows = [_fb_row(r) for r in fb_done_recent]
     fb_aged_off = sum(1 for r in fb_recent if _is_done(r)) - len(fb_done_rows)
+
+    completed_fb_html = ''
+    if fb_done_rows:
+        completed_fb_html = ('<details class="inner"><summary>' + str(len(fb_done_rows))
+                             + ' completed item(s), last 30 days</summary>'
+                             + table(['Date', 'From', 'Message', 'Status'], fb_done_rows)
+                             + '</details>')
+    aged_fb_html = ''
+    if fb_aged_off > 0:
+        aged_fb_html = ('<p class="muted small">' + str(fb_aged_off)
+                        + ' older completed item(s) aged off this view.</p>')
+
 
     mail = d.get('mail', {})
     # Reader mail rows carry a stable id and a Done control. Handled state lives
@@ -1913,20 +2728,24 @@ def render_html(d):
     rev = d.get('revenue', {})
     rev_html = '<p class="muted">Stripe not configured.</p>'
     if rev.get('configured') and not rev.get('error'):
-        pace_pct = min(rev['month_pace'] * 100 / rev['target'], 100) if rev['target'] else 0
+        # No progress bar here either. "pace vs $1k/mo net-profit target (gross
+        # shown; costs not subtracted)" drew a bar whose numerator and
+        # denominator were different quantities, which is the thing this page
+        # is not allowed to do.
         rev_rows = [[esc(r['desc']), f'${r["amount"]:.2f}', esc(r['date']),
                      'refunded' if r['refunded'] else 'paid'] for r in rev.get('recent', [])]
-        rev_html = f'''
+        rev_html = f"""
         <div class="statrow">
-          <div class="stat"><b>${rev["last_7d"]["net"]:.2f}</b><span>net 7d</span></div>
-          <div class="stat"><b>${rev["last_30d"]["net"]:.2f}</b><span>net 30d</span></div>
-          <div class="stat"><b>${rev["mtd"]["net"]:.2f}</b><span>net MTD</span></div>
-          <div class="stat"><b>${rev["month_pace"]:.0f}</b><span>month pace</span></div>
+          <div class="stat"><b>${rev["last_7d"]["net"]:.2f}</b><span>collected 7d</span></div>
+          <div class="stat"><b>${rev["last_30d"]["net"]:.2f}</b><span>collected 30d</span></div>
+          <div class="stat"><b>${rev["mtd"]["gross"]:.2f}</b><span>gross MTD</span></div>
+          <div class="stat"><b>${rev["mtd"]["net"]:.2f}</b><span>collected MTD</span></div>
         </div>
-        <div class="target"><div class="tbar"><i style="width:{pace_pct:.0f}%"></i></div>
-        <span class="small muted">pace vs $1k/mo net-profit target (gross shown; costs not subtracted)</span></div>
-        {'<p class="small">By product (30d net): ' + ' · '.join(f'{esc(k)} <b>${v:.2f}</b>' for k, v in sorted(rev.get('by_product_30d', {}).items(), key=lambda kv: -kv[1])) + '</p>' if rev.get('by_product_30d') else ''}
-        <details><summary>Recent charges</summary>{table(['Charge', 'Amount', 'Date', 'Status'], rev_rows)}</details>'''
+        <p class="caveat">Collected = gross minus refunds. It is NOT profit: processor fees,
+        COGS and operating costs are not fed into this dashboard. The $1,000/month target is
+        NET PROFIT, so progress toward it is <b>unavailable</b> and no pace against it is shown.</p>
+        {'<p class="small">By product (30d collected): ' + ' · '.join(f'{esc(k)} <b>${v:.2f}</b>' for k, v in sorted(rev.get('by_product_30d', {}).items(), key=lambda kv: -kv[1])) + '</p>' if rev.get('by_product_30d') else ''}
+        <details><summary>Recent charges</summary>{table(['Charge', 'Amount', 'Date', 'Status'], rev_rows)}</details>"""
     elif rev.get('error'):
         rev_html = err_note(rev, 'Stripe')
 
@@ -1958,165 +2777,574 @@ def render_html(d):
                 f'{trend_html(pct_change(nl.get("new_7d", 0), nl.get("new_prev_7d", 0)))}</div>')
 
     css = '''
-    :root{--bg:#0f1117;--card:#181b23;--card2:#1e222c;--text:#e8eaf0;--muted:#8b91a0;
-      --green:#4ade80;--blue:#60a5fa;--amber:#fbbf24;--red:#f87171;--line:#2a2f3a}
+    /* ── Command Centre cockpit ──────────────────────────────────────
+       Palette: a deep slate ground rather than black, so state colour has
+       somewhere quiet to sit. CW ember / KD teal are IDENTITY, used as 2px
+       rules and labels only. Green/amber/red are STATE and appear nowhere
+       decorative.
+       Type: mono is measurement, sans is interpretation. The split is load-
+       bearing — it tells a reader which lines are facts.                  */
+    :root{
+      --ink:#14161c; --surface:#1b1e26; --raised:#23262f; --line:#2c303a;
+      --line-soft:#22252d;
+      --text:#e9ecf2; --dim:#8d95a6; --faint:#5d6474;
+      --ok:#5ec97f; --warn:#e5a93c; --crit:#e5594f; --info:#7aa2f7;
+      --cw:#e8833a; --kd:#46b3a4;
+      --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+      --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+      --gap:14px;
+    }
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,'Segoe UI',Roboto,sans-serif;padding-bottom:60px}
-    header{position:sticky;top:0;background:var(--bg);
-      border-bottom:1px solid var(--line);padding:14px 24px;z-index:5;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-    header h1{font-size:19px}
-    header .upd{color:var(--muted);font-size:13px}
-    nav a{color:var(--muted);text-decoration:none;font-size:13px;margin-right:12px}
-    nav a:hover{color:var(--text)}
-    main{max-width:1200px;margin:0 auto;padding:24px}
-    section{margin-bottom:36px}
-    section>h2{font-size:16px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
-      margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
-    .card.dim{opacity:.65}
-    .card h3{font-size:15px;margin-bottom:10px;border-left:3px solid var(--muted);padding-left:8px}
-    .card h4{font-size:12px;color:var(--muted);text-transform:uppercase;margin:12px 0 6px}
-    .bignum{font-size:28px;font-weight:700;margin:4px 0}
-    .bignum .small{font-size:13px;font-weight:400}
-    .muted{color:var(--muted)} .small{font-size:13px}
-    .err{color:var(--amber);font-size:13px}
-    .live{color:var(--green);font-size:12px;font-weight:600;margin-left:8px}
-    .trend{font-size:12px;font-weight:700;padding:1px 6px;border-radius:8px}
-    .trend.up{color:var(--green);background:rgba(74,222,128,.12)}
-    .trend.down{color:var(--red);background:rgba(248,113,113,.12)}
-    .trend.flat{color:var(--muted)}
-    .spark{width:100%;height:48px;margin:6px 0}
-    table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
-    th{color:var(--muted);text-align:left;font-weight:600;padding:4px 8px 4px 0;border-bottom:1px solid var(--line)}
-    td{padding:5px 8px 5px 0;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-word}
-    details{margin-top:10px} summary{cursor:pointer;color:var(--muted);font-size:13px}
-    .kv{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0;border-bottom:1px solid var(--line)}
+    html{scroll-behavior:smooth}
+    body{background:var(--ink);color:var(--text);font:14px/1.55 var(--sans);
+      -webkit-font-smoothing:antialiased;padding-bottom:40px}
+    a{color:inherit}
+    :focus-visible{outline:2px solid var(--info);outline-offset:2px}
+    @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+    /* Measurement is mono. */
+    .n,.sb-val,.mnow,.mprev,.d,.sval,.dtext,.tl-d,td.mprev{font-family:var(--mono);
+      font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+    .n.big{font-size:24px;font-weight:600;letter-spacing:-.02em;display:block}
+    .n.faint{color:var(--faint)}
+    .n.na{color:var(--warn);font-style:italic;font-size:.86em}
+    .n.bad{color:var(--crit)}
+    .n .of{color:var(--faint);font-size:.72em}
+    .k{display:block;font:10.5px/1.4 var(--mono);text-transform:uppercase;
+      letter-spacing:.09em;color:var(--dim);margin-bottom:3px}
+    .rnote{display:block;font:10.5px/1.45 var(--mono);color:var(--faint);
+      letter-spacing:.02em;margin-top:2px}
+    .foot{font:11.5px/1.5 var(--sans);color:var(--faint);margin-top:10px}
+    .foot.tight{margin-top:2px;margin-bottom:8px}
+    .interp{font:13px/1.55 var(--sans);color:var(--dim)}
+    .caveat{font:11.5px/1.5 var(--sans);color:var(--warn);margin-top:8px}
+    .na-msg{font:13px/1.55 var(--sans);color:var(--warn)}
+
+    /* The signature: three segments, filled to the evidence tier. */
+    .ev{display:inline-flex;gap:1.5px;margin-left:7px;vertical-align:2px}
+    .ev i{width:4px;height:9px;border-radius:1px;background:var(--line);display:block}
+    .ev i.on{background:var(--dim)}
+    .ev-solid i.on{background:var(--ok)}
+    .ev-thin i.on{background:var(--faint)}
+
+    header.top{position:sticky;top:0;z-index:20;background:rgba(20,22,28,.94);
+      backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+      padding:10px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    header.top h1{font:600 14px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+    header.top .when{font:11px/1 var(--mono);color:var(--faint);margin-left:auto}
+    nav{display:flex;gap:14px;flex-wrap:wrap}
+    nav a{font:11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;
+      color:var(--dim);text-decoration:none;padding:3px 0;border-bottom:1px solid transparent}
+    nav a:hover{color:var(--text);border-bottom-color:var(--line)}
+
+    main{max-width:1560px;margin:0 auto;padding:20px 22px}
+
+    /* ── Top strip ── */
+    .statebar{display:flex;align-items:stretch;gap:0;border:1px solid var(--line);
+      border-radius:10px;background:var(--surface);overflow:hidden;margin-bottom:22px}
+    .sb-state{display:flex;flex-direction:column;justify-content:center;gap:2px;
+      padding:14px 20px;min-width:210px;border-right:1px solid var(--line);position:relative}
+    .sb-state::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+    .statebar.ok .sb-state::before{background:var(--ok)}
+    .statebar.info .sb-state::before{background:var(--info)}
+    .statebar.warn .sb-state::before{background:var(--warn)}
+    .statebar.crit .sb-state::before{background:var(--crit)}
+    .sb-state .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:7px}
+    .statebar.ok .dot{background:var(--ok)} .statebar.info .dot{background:var(--info)}
+    .statebar.warn .dot{background:var(--warn)} .statebar.crit .dot{background:var(--crit)}
+    .sb-state-word{font:600 17px/1.2 var(--sans);letter-spacing:-.01em}
+    .statebar.ok .sb-state-word{color:var(--ok)} .statebar.info .sb-state-word{color:var(--info)}
+    .statebar.warn .sb-state-word{color:var(--warn)} .statebar.crit .sb-state-word{color:var(--crit)}
+    .sb-state-sub{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+      color:var(--faint)}
+    .sb-cells{display:flex;flex:1;flex-wrap:wrap}
+    .sb-cell{flex:1;min-width:118px;padding:14px 18px;border-right:1px solid var(--line-soft);
+      display:flex;flex-direction:column;gap:2px}
+    .sb-cell:last-child{border-right:none}
+    .sb-label{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+      color:var(--dim)}
+    .sb-val{font-size:19px;font-weight:600;letter-spacing:-.02em}
+    .sb-sub{font:10px/1 var(--mono);color:var(--faint);text-transform:uppercase;
+      letter-spacing:.07em}
+    .sb-exp.locked .sb-sub{color:var(--warn)}
+    .sb-ops.bad{background:rgba(229,89,79,.08)}
+    .sb-ops.bad .sb-sub{color:var(--crit)}
+
+    /* ── Layout ── */
+    .cockpit{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);
+      gap:var(--gap);align-items:start;margin-bottom:var(--gap)}
+    .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap);
+      margin-bottom:var(--gap)}
+    .row3{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);
+      gap:var(--gap);margin-bottom:var(--gap);align-items:start}
+    .stack{display:flex;flex-direction:column;gap:var(--gap)}
+
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+      padding:16px 18px}
+    .card h2{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;
+      color:var(--dim);margin-bottom:14px;display:flex;align-items:baseline;gap:10px}
+    .card h2 .h2sub{font-size:10px;color:var(--faint);letter-spacing:.06em;
+      text-transform:none;margin-left:auto}
+    h3.sub{font:10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+      color:var(--dim);margin:16px 0 6px}
+
+    /* ── What matters ── */
+    .matters{display:flex;flex-direction:column;gap:10px}
+    .matter{border:1px solid var(--line);border-left:3px solid var(--line);
+      border-radius:8px;padding:13px 15px;background:var(--raised)}
+    .matter.crit{border-left-color:var(--crit)}
+    .matter.warn{border-left-color:var(--warn)}
+    .matter.ok{border-left-color:var(--ok)}
+    .matter header{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px}
+    .chip{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.1em;
+      padding:4px 7px;border-radius:4px;flex:none;margin-top:1px}
+    .chip.crit{background:rgba(229,89,79,.14);color:var(--crit)}
+    .chip.warn{background:rgba(229,169,60,.14);color:var(--warn)}
+    .chip.ok{background:rgba(94,201,127,.14);color:var(--ok)}
+    .fact{font:500 14px/1.5 var(--mono);letter-spacing:-.015em;color:var(--text)}
+    .matter .interp{margin-bottom:8px}
+    .act{font:12.5px/1.45 var(--sans);color:var(--text);padding-left:14px;position:relative}
+    .act::before{content:'▸';position:absolute;left:0;color:var(--ok)}
+    .act.noact{color:var(--faint)}
+    .act.noact::before{content:'·';color:var(--faint)}
+
+    /* ── Scorecards ── */
+    .site-title{display:flex;align-items:center;gap:9px;font:600 13px/1 var(--sans)!important;
+      text-transform:none!important;letter-spacing:-.01em!important;color:var(--text)!important}
+    .site-title .rule{width:3px;height:15px;border-radius:2px;display:block}
+    .site-cw .rule{background:var(--cw)} .site-kd .rule{background:var(--kd)}
+    .score table{width:100%;border-collapse:collapse}
+    .score th{font:10px/1 var(--mono);text-transform:uppercase;letter-spacing:.09em;
+      color:var(--faint);text-align:left;padding:0 0 7px;font-weight:400;
+      border-bottom:1px solid var(--line)}
+    .score tr.grp th{padding:14px 0 5px;color:var(--dim);letter-spacing:.12em;
+      border-bottom:none;font-size:9.5px}
+    .score tr.grp:first-child th{padding-top:6px}
+    .score td{padding:5px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+    .score tbody tr:last-child td{border-bottom:none}
+    td.mname{font-size:12.5px;color:var(--text);padding-right:10px}
+    th.mnow,td.mnow,th.mprev,td.mprev,th.mtrend,td.mtrend{text-align:right;white-space:nowrap}
+    th.mnow{padding-left:12px} th.mprev{padding-left:12px} th.mtrend{padding-left:14px}
+    td.mnow{font-weight:600;width:1%;padding-left:10px}
+    td.mprev{color:var(--faint);width:1%;padding-left:12px;font-size:12px}
+    td.mtrend{width:1%;padding-left:14px}
+    .d{font-size:12px;font-weight:600}
+    .d.up{color:var(--ok)} .d.down{color:var(--crit)} .d.flat{color:var(--faint)}
+    .d.faint{color:var(--faint)!important;font-weight:400}
+
+    /* ── Funnel: the drops are the information ── */
+    .stages{display:flex;flex-direction:column}
+    .stage{padding:6px 0}
+    .srow{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+    .sname{font:13px/1.3 var(--sans);display:flex;align-items:center;gap:8px}
+    .sval{font-size:19px;font-weight:600}
+    .tag{font:9px/1 var(--mono);text-transform:uppercase;letter-spacing:.09em;
+      padding:3px 5px;border-radius:3px;border:1px solid var(--line);color:var(--dim)}
+    .tag.t-m{color:var(--ok);border-color:rgba(94,201,127,.3)}
+    .tag.t-i{color:var(--warn);border-color:rgba(229,169,60,.3)}
+    .tag.t-u{color:var(--faint)}
+    .tag.t-decision{color:var(--info);border-color:rgba(122,162,247,.3)}
+    .tag.t-status{color:var(--ok);border-color:rgba(94,201,127,.3)}
+    .tag.t-commit{color:var(--faint)}
+    .snote{font:11.5px/1.45 var(--sans);color:var(--faint);margin-top:2px;max-width:58ch}
+    .drop{display:flex;align-items:center;gap:10px;padding:2px 0 2px 2px}
+    .drop .dline{width:1px;height:16px;background:var(--line);display:block;margin-left:5px}
+    .drop .dtext{font-size:11px;color:var(--faint);letter-spacing:.02em}
+    .drop.hot .dline{background:var(--crit);width:2px}
+    .drop.hot .dtext{color:var(--crit)}
+    .drop.def .dline{background:repeating-linear-gradient(var(--line) 0 2px,transparent 2px 4px)}
+    .drop.def .dtext{color:var(--faint);font-style:italic}
+    .branches{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+    .branch{display:flex;flex-direction:column;gap:2px;font-size:12px;padding:8px 10px;
+      background:var(--raised);border-radius:6px;border:1px solid var(--line-soft)}
+    .branch>span:first-child{color:var(--dim);font-size:11px}
+
+    /* ── Experiment ── */
+    .exp-item{border:1px solid var(--line);border-radius:8px;padding:14px 15px;
+      background:var(--raised);border-top:2px solid var(--line)}
+    .exp-item.locked{border-top-color:var(--warn)}
+    .exp-item.eligible{border-top-color:var(--info)}
+    .exp-item.pending{border-top-color:var(--dim)}
+    .pending .exp-status{color:var(--dim)}
+    .exp-head{display:flex;flex-direction:column;margin-bottom:12px}
+    .exp-head b{font-size:14px}
+    .exp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+    .exp-grid.two{grid-template-columns:repeat(2,1fr)}
+    .exp-unattr{margin-top:14px;padding-top:11px;border-top:1px dashed var(--line)}
+    .exp-unattr .exp-grid{margin:6px 0 0}
+    .exp-unattr .n{font-size:16px;font-weight:600;display:block}
+    .kk{display:block;font:11px/1.35 var(--sans);color:var(--dim);margin-bottom:2px}
+    .thr-bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:4px}
+    .thr-bar i{display:block;height:100%;background:var(--warn);border-radius:3px}
+    .eligible .thr-bar i{background:var(--info)}
+    .exp-status{font:600 12px/1.3 var(--mono);letter-spacing:.06em;margin:12px 0 5px}
+    .locked .exp-status{color:var(--warn)} .eligible .exp-status{color:var(--info)}
+
+    /* ── Signal ── */
+    .sigs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+    .sig h3{display:flex;align-items:center;gap:9px;font:600 13px/1 var(--sans);margin-bottom:10px}
+    .sig h3 .rule{width:3px;height:14px;border-radius:2px;display:block}
+    .sig-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .reason{font:11.5px/1.45 var(--sans);color:var(--warn);margin-top:10px}
+
+    /* ── Lists ── */
+    .dno ul,.att ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+    .dno li{font:12.5px/1.5 var(--sans);color:var(--dim);padding-left:15px;position:relative}
+    .dno li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;
+      border-radius:1px;background:var(--warn);opacity:.6}
+    .att li{font:12.5px/1.5 var(--sans);display:flex;gap:9px;align-items:flex-start;
+      flex-wrap:wrap}
+    .att li .chip{width:8px;height:8px;padding:0;border-radius:50%;margin-top:5px}
+    .att li .interp{flex-basis:100%;padding-left:17px;font-size:11.5px}
+    .att.clear .clear-msg{font:500 15px/1.4 var(--sans);color:var(--ok)}
+    .rev-lines{list-style:none}
+    .rev-lines li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;
+      font-size:12.5px;border-bottom:1px solid var(--line-soft)}
+    .rev-lines li:last-child{border-bottom:none}
+    .rev-lines li.strong{font-weight:600}
+    .rev-lines li.strong .n{color:var(--ok)}
+    .rev-side{margin-top:14px}
+    .cs-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+
+    /* ── Timeline ── */
+    .tl-event{display:flex;gap:16px;padding:2px 0 12px}
+    .tl-date{font:11px/1.4 var(--mono);color:var(--dim);min-width:82px;flex:none}
+    .tl-body b{font-size:13.5px;display:block;margin-bottom:2px}
+    .tl-moves{list-style:none;margin:9px 0 0;display:flex;flex-direction:column;gap:4px}
+    .tl-moves li{display:flex;justify-content:space-between;gap:14px;font-size:12.5px;
+      padding:4px 0;border-bottom:1px solid var(--line-soft)}
+    .tl-metric{color:var(--dim)}
+    .tl-all{margin-top:10px}
+    .tl-all summary{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
+      color:var(--dim);cursor:pointer;padding:7px 0}
+    .tl-list{list-style:none;max-height:280px;overflow-y:auto;margin-top:6px}
+    .tl-list li{font-size:12px;padding:5px 0;border-bottom:1px solid var(--line-soft);
+      display:flex;gap:9px;align-items:baseline}
+    .tl-d{color:var(--faint);flex:none;font-size:11px}
+
+    /* ── Data health ── */
+    .datahealth{border-top:1px solid var(--line);margin-top:6px;padding:16px 0 0}
+    .datahealth h2{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;
+      color:var(--dim);margin-bottom:12px;display:flex;gap:10px;align-items:baseline}
+    .datahealth h2 .h2sub{font-size:10px;color:var(--faint);text-transform:none;
+      letter-spacing:.04em}
+    .datahealth ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px 22px}
+    .datahealth li{font:11.5px/1.4 var(--mono);color:var(--dim);display:flex;
+      align-items:center;gap:6px}
+    .datahealth .dot{width:6px;height:6px;border-radius:50%;background:var(--faint);flex:none}
+    .datahealth li.ok .dot{background:var(--ok)}
+    .datahealth li.warn .dot{background:var(--warn)}
+    .datahealth li.crit .dot{background:var(--crit)}
+    .datahealth li.off .dot{background:var(--line)}
+    .dq-state{color:var(--faint);font-size:10.5px}
+    .datahealth li.crit .dq-state{color:var(--crit)}
+    .datahealth .rnote{display:inline;margin:0}
+
+    /* ── Forensic detail ── */
+    .forensic{margin-top:26px;border-top:1px solid var(--line);padding-top:8px}
+    .forensic>summary{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.12em;
+      color:var(--dim);cursor:pointer;padding:14px 0;list-style:none;display:flex;
+      align-items:center;gap:8px}
+    .forensic>summary::-webkit-details-marker{display:none}
+    .forensic>summary::before{content:'+';font-size:14px;color:var(--faint)}
+    .forensic[open]>summary::before{content:'−'}
+    .forensic>summary:hover{color:var(--text)}
+    .tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line);
+      margin-bottom:16px}
+    .tabs button{font:11px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;
+      background:none;border:none;color:var(--faint);padding:9px 13px;cursor:pointer;
+      border-bottom:2px solid transparent;margin-bottom:-1px}
+    .tabs button:hover{color:var(--text)}
+    .tabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--cw)}
+    .panel[hidden]{display:none}
+    .panel h3{font:600 13px/1 var(--sans);margin:18px 0 10px}
+    .panel h3:first-child{margin-top:0}
+    .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--gap)}
+
+    /* legacy widgets retained inside Forensic detail */
+    .bignum{font:600 24px/1.2 var(--mono);margin:3px 0}
+    .bignum .small{font-size:12px;font-weight:400;color:var(--dim)}
+    .muted{color:var(--dim)} .small{font-size:12px}
+    .err{color:var(--warn);font-size:12px}
+    .live{color:var(--ok);font-size:11px;font-weight:600;margin-left:7px}
+    .trend{font:600 11px var(--mono);padding:1px 5px;border-radius:4px}
+    .trend.up{color:var(--ok)} .trend.down{color:var(--crit)} .trend.flat{color:var(--faint)}
+    .spark{width:100%;height:40px;margin:5px 0}
+    table.data{width:100%;border-collapse:collapse;font-size:12px;margin-top:7px}
+    table.data th{color:var(--faint);text-align:left;font-weight:400;padding:4px 8px 4px 0;
+      border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10.5px;
+      text-transform:uppercase;letter-spacing:.07em}
+    table.data td{padding:5px 8px 5px 0;border-bottom:1px solid var(--line-soft);
+      vertical-align:top;word-break:break-word}
+    details.inner{margin-top:9px}
+    details.inner summary{cursor:pointer;color:var(--dim);font-size:12px}
+    .kv{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:4px 0;
+      border-bottom:1px solid var(--line-soft)}
     .kv span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .statrow{display:flex;gap:22px;flex-wrap:wrap;margin:8px 0}
-    .stat b{display:block;font-size:22px}
-    .stat span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-    .funnel{margin:8px 0}
+    .statrow{display:flex;gap:20px;flex-wrap:wrap;margin:7px 0}
+    .stat b{display:block;font:600 19px/1.2 var(--mono)}
+    .stat span{display:block;font:10px/1.4 var(--mono);color:var(--faint);
+      text-transform:uppercase;letter-spacing:.07em}
+    .funnel-legacy .fstage{margin:6px 0;font-size:12.5px}
+    .fstage{margin:6px 0;font-size:12.5px}
+    .frow{display:flex;justify-content:space-between;gap:10px;margin-bottom:3px}
+    .fbarwrap{background:var(--raised);border-radius:5px;height:11px;overflow:hidden}
+    .fbar{height:100%;border-radius:5px;min-width:3px}
+    .fnum{text-align:right;white-space:nowrap;font-family:var(--mono)}
+    .bl{display:grid;grid-template-columns:105px 1fr 80px;gap:8px;align-items:center;
+      font-size:12px;margin:3px 0}
+    .bl-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bl-bar{background:var(--raised);border-radius:3px;height:10px;overflow:hidden;display:block}
+    .bl-bar i{display:block;height:100%;border-radius:3px}
+    .bl-num{text-align:right;color:var(--faint);font-family:var(--mono)}
+    ul.insights{list-style:none;display:flex;flex-direction:column;gap:7px}
+    .ins{padding:8px 11px;border-radius:6px;background:var(--raised);
+      border-left:3px solid var(--line);font-size:12.5px}
+    .ins.alert{border-left-color:var(--crit)} .ins.watch{border-left-color:var(--warn)}
+    .ins.good{border-left-color:var(--ok)} .ins.info{border-left-color:var(--info)}
+    .narrative{background:var(--raised);border:1px solid var(--line);
+      border-left:3px solid var(--info);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+    .narrative p{margin-bottom:9px;font-size:13px;color:var(--dim)}
+    .narrative .focus-label{color:var(--info);font:10px/1 var(--mono);font-weight:700;
+      text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+    .pulse-row{display:flex;gap:16px;flex-wrap:wrap}
+    .pulse-item{white-space:nowrap;font-size:12px}
+    .pulse-item i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
     td.mailact{width:1%;white-space:nowrap;text-align:right}
-    button.mdone,button.mundo{font:inherit;font-size:11px;cursor:pointer;padding:2px 8px;
-      border:1px solid var(--line,#ccc);border-radius:4px;background:transparent;color:inherit;opacity:.65}
+    button.mdone,button.mundo{font:11px var(--mono);cursor:pointer;padding:2px 7px;
+      border:1px solid var(--line);border-radius:4px;background:transparent;color:inherit;
+      opacity:.7}
     button.mdone:hover,button.mundo:hover{opacity:1}
     button.mdone[disabled],button.mundo[disabled]{opacity:.3;cursor:default}
-    .fstage{margin:7px 0;font-size:13px}
-    .frow{display:flex;justify-content:space-between;gap:10px;margin-bottom:3px}
-    .fbarwrap{background:var(--card2);border-radius:6px;height:14px;overflow:hidden}
-    .fbar{height:100%;border-radius:6px;min-width:3px}
-    .fnum{text-align:right;white-space:nowrap}
-    .bl{display:grid;grid-template-columns:110px 1fr 90px;gap:8px;align-items:center;font-size:13px;margin:3px 0}
-    .bl-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .bl-bar{background:var(--card2);border-radius:4px;height:12px;overflow:hidden;display:block}
-    .bl-bar i{display:block;height:100%;border-radius:4px}
-    .bl-num{text-align:right;color:var(--muted)}
-    ul.insights{list-style:none}
-    .ins{padding:9px 12px;border-radius:8px;margin-bottom:8px;background:var(--card);border:1px solid var(--line);font-size:14px}
-    .ins.alert{border-left:4px solid var(--red)}
-    .ins.watch{border-left:4px solid var(--amber)}
-    .ins.good{border-left:4px solid var(--green)}
-    .ins.info{border-left:4px solid var(--blue)}
-    .narrative{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--green);
-      border-radius:10px;padding:16px 18px;margin-bottom:16px}
-    .narrative p{margin-bottom:10px}
-    .narrative .focus-label{color:var(--green);font-size:11px;font-weight:700;
-      text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
-    .pulse-row{display:flex;gap:18px;flex-wrap:wrap}
-    .pulse-item{white-space:nowrap}
-    .pulse-item i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
-    .target{margin:10px 0}
-    .tbar{background:var(--card2);height:14px;border-radius:7px;overflow:hidden;margin-bottom:4px}
-    .tbar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#22c55e);border-radius:7px}
+
+    /* ── Responsive ── */
+    @media(max-width:1180px){
+      .cockpit{grid-template-columns:1fr}
+      .row3{grid-template-columns:1fr 1fr}
+      .row3>*:first-child{grid-column:1/-1}
+    }
+    @media(max-width:760px){
+      main{padding:14px}
+      header.top{padding:9px 14px;gap:10px}
+      header.top .when{margin-left:0;flex-basis:100%}
+      .statebar{flex-direction:column}
+      .sb-state{border-right:none;border-bottom:1px solid var(--line);min-width:0}
+      .sb-cell{min-width:50%;flex-basis:50%;padding:11px 14px;
+        border-bottom:1px solid var(--line-soft)}
+      .row2,.row3{grid-template-columns:1fr}
+      .row3>*:first-child{grid-column:auto}
+      .exp-grid{grid-template-columns:repeat(2,1fr)}
+      .sig-pair{grid-template-columns:1fr 1fr}
+      .cs-nums{grid-template-columns:repeat(3,1fr)}
+      th.mprev,td.mprev{display:none}   /* prior column loses to width first */
+      .card h2 .h2sub{display:none}
+      td.mname{font-size:12px}
+      .fact{font-size:14px}
+      .tl-event{flex-direction:column;gap:4px}
+      .tabs{overflow-x:auto;flex-wrap:nowrap}
+    }
+
+    /* ── Print: an executive summary, not the forensic file ──
+       The mail table used to run off the page. Forensic detail is excluded
+       entirely unless the reader has opened it.                          */
+    @media print{
+      @page{margin:14mm}
+      body{background:#fff;color:#111;font-size:10.5pt;padding:0}
+      :root{--text:#111;--dim:#555;--faint:#777;--line:#ccc;--line-soft:#e4e4e4;
+        --surface:#fff;--raised:#fafafa;--ink:#fff}
+      header.top{position:static;background:#fff;border-bottom:2px solid #111;
+        backdrop-filter:none;padding:0 0 8px;margin-bottom:12px}
+      header.top .when{margin-left:auto}
+      nav,.tabs,.tl-all,details.inner{display:none!important}
+      main{padding:0;max-width:none}
+      .forensic{display:none!important}
+      /* Only the units that must stay whole are atomic. Keeping every card
+         atomic pushed a tall scorecard to its own page and left a mostly
+         blank sheet behind it. */
+      .card,.statebar{border-color:#ccc;background:#fff}
+      .statebar,.matter,.exp-item,.sig,.tl-event{break-inside:avoid;
+        page-break-inside:avoid}
+      .score tr{break-inside:avoid;page-break-inside:avoid}
+      .card{padding:10px 0;border:none;border-top:1px solid #ccc;border-radius:0;
+        margin-bottom:8px}
+      .statebar{border:1px solid #111;border-radius:0}
+      .cockpit,.row2,.row3{display:block}
+      .cockpit>*,.row2>*,.row3>*{margin-bottom:8px}
+      .score table{font-size:9.5pt}
+      .ev i{background:#ddd} .ev i.on{background:#555}
+      .n.faint,.d.faint{color:#777}
+      .sb-state-word,.statebar.ok .sb-state-word,.statebar.warn .sb-state-word,
+      .statebar.crit .sb-state-word,.statebar.info .sb-state-word{color:#111}
+      .matter{border:none;border-left:3px solid #111;padding:6px 0 6px 11px}
+      .chip{border:1px solid #999;background:#fff!important;color:#333!important}
+      .datahealth{border-top:1px solid #ccc}
+      a{text-decoration:none}
+    }
     '''
+
+    tabs_js = """
+    <script>
+    (function(){
+      var bar=document.querySelector('.tabs'); if(!bar) return;
+      var btns=[].slice.call(bar.querySelectorAll('button'));
+      function show(id){
+        btns.forEach(function(b){
+          var on=b.dataset.tab===id;
+          b.setAttribute('aria-selected',on?'true':'false');
+          b.tabIndex=on?0:-1;
+          document.getElementById('panel-'+b.dataset.tab).hidden=!on;
+        });
+      }
+      bar.addEventListener('click',function(e){
+        var b=e.target.closest('button'); if(b) show(b.dataset.tab);
+      });
+      bar.addEventListener('keydown',function(e){
+        var i=btns.indexOf(document.activeElement); if(i<0) return;
+        if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+          e.preventDefault();
+          var n=btns[(i+(e.key==='ArrowRight'?1:btns.length-1))%btns.length];
+          n.focus(); show(n.dataset.tab);
+        }
+      });
+      show(btns[0].dataset.tab);
+    })();
+    </script>"""
 
     html = f'''<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Command Center — CW + KD</title><style>{css}</style></head>
+<title>Command Centre &#8212; CW + KD</title><style>{css}</style></head>
 <body>
-<header><h1>🎛️ Command Center</h1><span class="upd">Updated {esc(d["meta"]["generated_at"])} PT</span>
-<nav><a href="#review">Review</a><a href="#pulse">Pulse</a><a href="#traffic">Traffic</a><a href="#search">Search</a>
-<a href="#funnels">Funnels</a><a href="#demographics">Demographics</a>
-<a href="#mail">Mail & Feedback</a><a href="#revenue">Revenue</a><a href="#etsy">Etsy</a></nav></header>
+<header class="top">
+<h1>Command Centre</h1>
+<nav><a href="#today">Today</a><a href="#scorecards">Scorecards</a><a href="#funnel">Funnel</a>
+<a href="#measuring">Measuring</a><a href="#signal">Signal</a><a href="#timeline">Timeline</a>
+<a href="#health">Data</a><a href="#forensic">Detail</a></nav>
+<span class="when">{esc(d["meta"]["generated_at"])} PT</span>
+</header>
 <main>
 
-<section id="review"><h2>Plain-English Review</h2>
-{narrative_html}
-<ul class="insights">{ins_html or '<li class="ins info">No flags today — quiet week.</li>'}</ul>
-</section>
+{statebar_html(d)}
 
-<section id="pulse"><h2>Daily Pulse <span class="small">(yesterday · queues · automations)</span></h2>
-<div class="card">
-<h4>Yesterday ({esc(ydata.get('date') or '—')})</h4>
-{y_html or '<p class="muted small">Yesterday counts unavailable.</p>'}
-<h4>Content queues</h4>
-<p class="small">{queue_html or '<span class="muted">Queue files unreadable.</span>'}</p>
-<h4>Automation health</h4>
-<p class="small pulse-row">{auto_html or '<span class="muted">GitHub Actions status unavailable.</span>'}</p>
-{dec_html}
+<div class="cockpit" id="today">
+  <section class="card">
+    <h2>What matters today<span class="h2sub">fact &middot; interpretation &middot; action</span></h2>
+    <div class="matters">{matters_html(d)}</div>
+  </section>
+  <div class="stack">
+    {attention_html(d)}
+    {dont_overreact_html(d)}
+  </div>
 </div>
-</section>
 
-<section id="traffic"><h2>Traffic <span class="small">(GA4, week vs prior week)</span></h2>
-<div class="grid">
-{traffic_card('Carnivore Weekly', d['traffic'].get('cw'), 'var(--green)')}
-{traffic_card('KetoDial', d['traffic'].get('kd'), 'var(--blue)')}
-</div></section>
+<div class="row2" id="scorecards">
+{scorecard_html(d, 'cw', 'Carnivore Weekly', 'cw')}
+{scorecard_html(d, 'kd', 'KetoDial', 'kd')}
+</div>
 
-<section id="search"><h2>Search — Google & Bing</h2>
-<div class="grid">
-{search_card('Google · Carnivore Weekly', d['search'].get('cw'), 'var(--green)')}
-{search_card('Google · KetoDial', d['search'].get('kd'), 'var(--blue)')}
-{bing_card('Bing · Carnivore Weekly', d['search'].get('bing_cw'))}
-{bing_card('Bing · KetoDial', d['search'].get('bing_kd'))}
-</div></section>
+<div class="row3" id="funnel">
+{paid_funnel_html(d)}
+<div class="stack" id="measuring">{experiments_html(d)}</div>
+<div class="stack">{revenue_html(d)}</div>
+</div>
 
-<section id="funnels"><h2>Funnels</h2>
-<div class="grid">
-<div class="card"><h3 style="border-color:var(--green)">CW Calculator → Paid <span class="muted small">(30d)</span></h3>
-{funnel_html(f.get('calculator_cw'), 'var(--green)')}</div>
-<div class="card"><h3 style="border-color:var(--blue)">KD Calculator → Paid <span class="muted small">(30d)</span></h3>
-{funnel_html(f.get('calculator_kd'), 'var(--blue)')}</div>
-<div class="card"><h3 style="border-color:var(--green)">30-Day Drip (CW)</h3>{drip_cw_html or err_note(f, 'Funnels') or ''}</div>
-<div class="card"><h3 style="border-color:var(--blue)">30-Day Drip (KD)</h3>{drip_kd_html or err_note(f, 'Funnels') or ''}</div>
-<div class="card"><h3 style="border-color:var(--green)">Newsletter (CW)</h3><div class="statrow wrap">{nl_block(nl_cw)}</div></div>
-<div class="card"><h3 style="border-color:var(--blue)">Newsletter (KD)</h3><div class="statrow wrap">{nl_block(nl_kd)}</div></div>
+<div class="row2" id="signal">
+{signal_html(d)}
+{customer_signal_html(d)}
+</div>
+
+<div id="timeline">{timeline_html(d)}</div>
+
+<div id="health">{data_health_html(d)}</div>
+
+<details class="forensic" id="forensic">
+<summary>Forensic detail &#8212; every source, unchanged</summary>
+
+<div class="tabs" role="tablist">
+<button role="tab" data-tab="traffic">Traffic</button>
+<button role="tab" data-tab="search">Search</button>
+<button role="tab" data-tab="audience">Audience</button>
+<button role="tab" data-tab="email">Email</button>
+<button role="tab" data-tab="mail">Mail &amp; feedback</button>
+<button role="tab" data-tab="commerce">Revenue &amp; Etsy</button>
+<button role="tab" data-tab="ops">Operations</button>
+<button role="tab" data-tab="ai">Model narrative</button>
+</div>
+
+<div class="panel" id="panel-traffic" role="tabpanel">
+<div class="fgrid">
+{traffic_card('Carnivore Weekly', d['traffic'].get('cw'), 'var(--cw)')}
+{traffic_card('KetoDial', d['traffic'].get('kd'), 'var(--kd)')}
+</div></div>
+
+<div class="panel" id="panel-search" role="tabpanel" hidden>
+<div class="fgrid">
+{search_card('Google &middot; Carnivore Weekly', d['search'].get('cw'), 'var(--cw)')}
+{search_card('Google &middot; KetoDial', d['search'].get('kd'), 'var(--kd)')}
+{bing_card('Bing &middot; Carnivore Weekly', d['search'].get('bing_cw'))}
+{bing_card('Bing &middot; KetoDial', d['search'].get('bing_kd'))}
+</div></div>
+
+<div class="panel" id="panel-audience" role="tabpanel" hidden>
+<div class="fgrid">
+<div class="card"><h3>CW calculator states <span class="muted small">(30d)</span></h3>
+{funnel_html(f.get('calculator_cw'), 'var(--cw)')}</div>
+<div class="card"><h3>KD calculator states <span class="muted small">(30d)</span></h3>
+{funnel_html(f.get('calculator_kd'), 'var(--kd)')}</div>
+{demo_card('CW calculator demographics', d['demographics'].get('cw') if not d['demographics'].get('error') else d['demographics'], 'var(--cw)')}
+{demo_card('KD calculator demographics', d['demographics'].get('kd') if not d['demographics'].get('error') else d['demographics'], 'var(--kd)')}
+<div class="card"><h3>30-day drip (CW)</h3>{drip_cw_html or err_note(f, 'Funnels') or ''}</div>
+<div class="card"><h3>30-day drip (KD)</h3>{drip_kd_html or err_note(f, 'Funnels') or ''}</div>
+<div class="card"><h3>Newsletter (CW)</h3><div class="statrow">{nl_block(nl_cw)}</div></div>
+<div class="card"><h3>Newsletter (KD)</h3><div class="statrow">{nl_block(nl_kd)}</div></div>
 <div class="card"><h3>Coach (KD)</h3>{coach_html}</div>
-</div></section>
+</div></div>
 
-<section id="demographics"><h2>Calculator Demographics</h2>
-<div class="grid">
-{demo_card('CW Calculator', d['demographics'].get('cw') if not d['demographics'].get('error') else d['demographics'], 'var(--green)')}
-{demo_card('KD Calculator', d['demographics'].get('kd') if not d['demographics'].get('error') else d['demographics'], 'var(--blue)')}
-</div></section>
+<div class="panel" id="panel-email" role="tabpanel" hidden>
+<div class="card"><h3>Email engagement <span class="muted small">(drip + newsletter, 7d)</span></h3>
+{eng_html or err_note(eng, 'Engagement') or ''}</div></div>
 
-<section id="mail"><h2>Mail & Feedback</h2>
-<div class="grid">
-<div class="card"><h3>Inbound Mail <span class="muted small">(@carnivoreweekly.com · {mail.get('inbound_7d', 0)} total this week)</span></h3>
+<div class="panel" id="panel-mail" role="tabpanel" hidden>
+<div class="fgrid">
+<div class="card"><h3>Inbound mail <span class="muted small">({mail.get('inbound_7d', 0)} this week)</span></h3>
 {mail_html}
 </div>
-<div class="card"><h3>Site Feedback <span class="muted small">({fb.get('new_7d', 0)} new this week · {fb.get('unreviewed', 0)} unreviewed · {fb.get('hidden_test', 0)} test entries hidden)</span></h3>
-{table(['Date', 'From', 'Message', 'Status'], fb_open_rows) if fb_open_rows else (err_note(fb, 'Feedback') or '<p class="muted">No open feedback — all caught up.</p>')}
-{f'<details><summary>{len(fb_done_rows)} completed item(s), last 30 days</summary>{table(["Date", "From", "Message", "Status"], fb_done_rows)}</details>' if fb_done_rows else ''}
-{f'<p class="muted small">{fb_aged_off} older completed item(s) aged off this view.</p>' if fb_aged_off > 0 else ''}
-</div>
-<div class="card"><h3>Email Engagement <span class="muted small">(drip + newsletter, 7d)</span></h3>
-{eng_html or err_note(eng, 'Engagement') or ''}</div>
-</div></section>
+<div class="card"><h3>Site feedback <span class="muted small">({fb.get('new_7d', 0)} new &middot; {fb.get('unreviewed', 0)} unreviewed &middot; {fb.get('hidden_test', 0)} test entries hidden)</span></h3>
+{table(['Date', 'From', 'Message', 'Status'], fb_open_rows) if fb_open_rows else (err_note(fb, 'Feedback') or '<p class="muted">No open feedback.</p>')}
+{completed_fb_html}
+{aged_fb_html}
+</div></div></div>
 
-<section id="revenue"><h2>Revenue</h2>
-<div class="card">{rev_html}</div></section>
+<div class="panel" id="panel-commerce" role="tabpanel" hidden>
+<div class="fgrid">
+<div class="card"><h3>Revenue detail</h3>{rev_html}</div>
+{etsy_card(d.get('etsy'))}
+</div></div>
 
-<section id="etsy"><h2>Etsy Shop <span class="small">(daily snapshot · reviews + conversion)</span></h2>
-<div class="grid">{etsy_card(d.get('etsy'))}</div></section>
+<div class="panel" id="panel-ops" role="tabpanel" hidden>
+<div class="card">
+<h3>Yesterday ({esc(ydata.get('date') or '—')})</h3>
+{y_html or '<p class="muted small">Yesterday counts unavailable.</p>'}
+<h3>Content queues</h3>
+<p class="small">{queue_html or '<span class="muted">Queue files unreadable.</span>'}</p>
+<h3>Automation health</h3>
+<p class="small pulse-row">{auto_html or '<span class="muted">GitHub Actions status unavailable.</span>'}</p>
+{dec_html}
+<h3>All rule-based flags</h3>
+<ul class="insights">{ins_html or '<li class="ins info">No flags today.</li>'}</ul>
+</div></div>
 
-<p class="muted small">Generated by dashboard/generate_command_center.py · data in command-center-data.json ·
-auto-updates daily via GitHub Actions (dashboard-update.yml) · run manually any time:
-<code>python3 dashboard/generate_command_center.py</code></p>
-</main>{MAIL_SCRIPT}</body></html>'''
+<div class="panel" id="panel-ai" role="tabpanel" hidden>
+<div class="card"><h3>Model narrative <span class="muted small">(optional commentary &#8212; the
+cockpit above is computed deterministically and does not depend on it)</span></h3>
+{narrative_html}</div></div>
+
+</details>
+
+<p class="foot">dashboard/generate_command_center.py &middot; data in command-center-data.json &middot;
+manual publish: <code>python3 dashboard/generate_command_center.py --nas</code></p>
+</main>{MAIL_SCRIPT}{tabs_js}</body></html>'''
     return html
 
 
@@ -2167,6 +3395,39 @@ def email_report(data, html, nas_ok=False):
         f'<li style="margin:6px 0;padding:8px 12px;background:#f6f7f9;border-left:4px solid '
         f'{sev_color.get(i["severity"], "#999")};border-radius:4px">{esc(i["text"])}</li>'
         for i in data.get('insights', []))
+    # Command Centre 2.0: the email opens with the same deterministic verdict
+    # the page opens with, so a phone read and a desktop read agree.
+    ex = data.get('executive') or {}
+    ex_color = {'green': '#16a34a', 'blue': '#2563eb', 'amber': '#d97706', 'red': '#dc2626'}
+    exec_html_block = ''
+    if ex:
+        # Plain concatenation throughout: no f-string nesting and no backslashes
+        # inside f-string expressions, both of which are 3.12+ only. CI pins 3.11.
+        accent = ex_color.get(ex.get('status'), '#2563eb')
+        sentences = ' '.join(esc(b) for b in ex.get('brief', []))
+        parts = [
+            '<div style="border:1px solid #e5e7eb;border-left:6px solid ' + accent + ';'
+            'border-radius:10px;padding:14px 16px;margin:0 0 16px;background:#fafafa">',
+            '<p style="margin:0 0 8px;font-size:12px;font-weight:800;text-transform:uppercase;'
+            'letter-spacing:.08em;color:' + accent + '">'
+            + esc(ex.get('status_icon', '')) + ' ' + esc(ex.get('status_label', '')) + '</p>',
+            '<p style="margin:0 0 10px;font-size:15px;line-height:1.6">' + sentences + '</p>',
+        ]
+        acts = ''.join('<li>' + esc(a) + '</li>' for a in ex.get('suggested_action', []))
+        if acts:
+            parts.append('<p style="margin:0 0 4px;font-size:12px;color:#555;font-weight:700">'
+                         'SUGGESTED ACTION</p>'
+                         '<ul style="margin:0 0 10px;padding-left:18px;font-size:14px">'
+                         + acts + '</ul>')
+        dno = ''.join('<li>' + esc(a) + '</li>' for a in (data.get('dont_overreact') or []))
+        if dno:
+            parts.append('<p style="margin:0 0 4px;font-size:12px;color:#555;font-weight:700">'
+                         'DO NOT OVERREACT TO</p>'
+                         '<ul style="margin:0;padding-left:18px;font-size:13px;color:#555">'
+                         + dno + '</ul>')
+        parts.append('</div>')
+        exec_html_block = ''.join(parts)
+
     narrative = (data.get('analysis') or {}).get('narrative') or ''
     focus = (data.get('analysis') or {}).get('focus') or ''
     focus_tag = (f'<p style="color:#16a34a;font-size:11px;font-weight:700;text-transform:uppercase;'
@@ -2178,10 +3439,18 @@ def email_report(data, html, nas_ok=False):
     rev = data.get('revenue') or {}
     pace_html = ''
     if rev.get('configured') and not rev.get('error'):
+        # Gross, collected and profit are three quantities. Profit is not
+        # measured, so no percentage of the target is shown — the previous
+        # "$201 pace vs $1k target" compared a gross pace against a profit goal.
         pace_html = (f'<p style="margin:0 0 12px;padding:8px 12px;background:#f0fdf4;'
                      f'border-left:4px solid #16a34a;border-radius:4px;font-size:14px">'
-                     f'💰 MTD net <b>${rev["mtd"]["net"]:.2f}</b> · pace <b>${rev["month_pace"]:.0f}</b> '
-                     f'vs $1k target · {rev.get("days_left_in_month", "?")} days left</p>')
+                     f'💰 MTD <b>${rev["mtd"]["gross"]:.2f}</b> gross · '
+                     f'<b>${rev["mtd"]["net"]:.2f}</b> collected after refunds · '
+                     f'{rev.get("days_left_in_month", "?")} days left.<br>'
+                     f'<span style="color:#666;font-size:12px">Progress toward the '
+                     f'$1,000/mo <b>net profit</b> target is <b>unavailable</b> — no cost feed '
+                     f'exists, so profit is not measured. Collected revenue is an upper bound '
+                     f'on it, not a substitute.</span></p>')
 
     # Yesterday strip
     y = data.get('yesterday') or {}
@@ -2253,6 +3522,7 @@ def email_report(data, html, nas_ok=False):
       margin:0 auto;color:#1a1a1a;font-size:15px;line-height:1.5">
       <h2 style="margin:0 0 4px">🎛️ Command Center — {esc(data['meta']['generated_date'])}</h2>
       {nas_html}
+      {exec_html_block}
       {focus_tag}{paras}
       {pace_html}{y_html}{pulse_html}{dec_html}
       <ul style="list-style:none;padding:0;margin:16px 0">{items}</ul>
@@ -2263,8 +3533,10 @@ def email_report(data, html, nas_ok=False):
         headers={'Authorization': f'Bearer {resend_key}', 'Content-Type': 'application/json'},
         json={'from': 'Command Center <newsletter@carnivoreweekly.com>',
               'to': ['iambrew@gmail.com'],
-              'subject': f'🎛️ Command Center — {data["meta"]["generated_date"]}'
-                         + (f' · {focus}' if focus else ''),
+              'subject': (f'{ex.get("status_icon", "🎛️")} Command Center — '
+                          f'{data["meta"]["generated_date"]}'
+                          + (f' · {ex["status_label"]}' if ex.get('status_label') else '')
+                          + (f' · {focus}' if focus else '')),
               'html': body,
               'attachments': [{'filename': f'command-center-{data["meta"]["generated_date"]}.html',
                                'content': base64.b64encode(html.encode()).decode()}]},

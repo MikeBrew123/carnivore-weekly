@@ -55,6 +55,13 @@ jobs:
         if: steps.gate.outputs.ready == 'true'
         run: pip install google-analytics-data google-api-python-client google-auth requests
 
+      # Command Centre 2.0 executive-layer rules (sample-size suppression, failed
+      # source never rendering as zero, funnel stage honesty, gross vs net).
+      # Pure standard library, no secrets, so it runs on every dispatch.
+      - name: Test Command Center executive layer
+        if: steps.gate.outputs.ready == 'true'
+        run: python3 dashboard/test_command_center.py
+
       - name: Write credential files
         if: steps.gate.outputs.ready == 'true'
         run: |
