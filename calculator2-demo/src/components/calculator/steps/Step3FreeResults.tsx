@@ -445,9 +445,17 @@ export default function Step3FreeResults({
 
         <button
           onClick={() => {
+            // Fires ONLY from the bridge card's primary CTA. The two other controls that call
+            // onUpgrade() already send their own distinct events (calculator_lock_overlay_click
+            // at the meal lock, calculator_upgrade_click on the final card), so a bridge click is
+            // unambiguous. `source` states that in the payload instead of leaving it implied by
+            // the event name, which is what the post-change measurement plan reads.
+            // Device segmentation is deliberately omitted: GA4's built-in deviceCategory already
+            // provides it, and there is no shared analytics helper here to borrow a field from.
             window.gtag?.('event', 'calculator_bridge_cta_click', {
               'event_category': 'calculator',
               'event_label': 'bridge_cta_clicked',
+              'source': 'bridge_offer',
               'diet_type': data.diet
             })
             onUpgrade()
