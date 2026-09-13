@@ -37,9 +37,17 @@ export default function App() {
           setStripeSessionId(assessmentId)
           // Persist to localStorage in case of re-renders, stamped with the
           // time so a stale success state from an earlier visit expires.
-          localStorage.setItem('paymentStatus', payment || '')
-          localStorage.setItem('stripeSessionId', assessmentId || '')
-          localStorage.setItem('paymentStateSavedAt', String(Date.now()))
+          //
+          // 'resume' is deliberately NOT persisted. It belongs to the abandoned-checkout
+          // recovery link, it survives a refresh in the URL itself, and writing it here
+          // would arm the six-hour staleness sweep below: an abandoner who clicked the
+          // link and came back the next evening would have their restored answers wiped
+          // by a rule written for expired PAYMENTS. No payment happened here.
+          if (payment !== 'resume') {
+            localStorage.setItem('paymentStatus', payment || '')
+            localStorage.setItem('stripeSessionId', assessmentId || '')
+            localStorage.setItem('paymentStateSavedAt', String(Date.now()))
+          }
           console.log('[App] Payment params detected:', { payment, assessmentId })
 
           // THE RETURN FROM THE EMAILED LINK.
@@ -55,7 +63,11 @@ export default function App() {
           // the fresher edit, a cold return has nothing to keep. Undefined fields are
           // dropped by JSON.stringify on the way to Step 4, so an empty local field
           // cannot overwrite a stored answer either way.
-          if (assessmentId && (payment === 'success' || payment === 'free')) {
+          // 'resume' is the abandoned-checkout recovery link. It restores the same way
+          // and claims nothing: isPremium below is set only when the ROW says the money
+          // arrived, and usePaymentState counts only 'success' and 'free' as a completed
+          // payment, so an abandoner lands on their own results with the offer intact.
+          if (assessmentId && (payment === 'success' || payment === 'free' || payment === 'resume')) {
             try {
               const res = await fetch(
                 `https://carnivore-report-api-production.iambrew.workers.dev/get-session?id=${encodeURIComponent(assessmentId)}`
@@ -94,7 +106,11 @@ export default function App() {
                   store.setIsPremium(true)
                 }
                 store.setAssessmentId(assessmentId)
-                console.log('[App] Restored paid assessment from the server')
+                // Put them back where they left off. Without this the restore is
+                // invisible: the answers are in the store but the screen is Step 1,
+                // and a recovery email that lands on a blank form recovers nobody.
+                if (payment === 'resume') store.setCurrentStep(3)
+                console.log(`[App] Restored assessment from the server (${payment})`)
               } else {
                 console.warn('[App] Could not restore the paid assessment:', res.status)
               }

@@ -26,6 +26,13 @@ vars = { ENVIRONMENT = "development", SUPABASE_URL = "https://kwtdpvnjewtahuxjyl
 # - FRONTEND_URL: Frontend domain for CORS
 # - API_BASE_URL: API base URL
 #
+# Abandoned-checkout recovery (2026-09-13). NOT a secret, and deliberately NOT set
+# below: with it unset the worker records every `checkout.session.expired` and sends
+# nothing. Set CW_ABANDON_RECOVERY_ENABLED = "true" in [env.production].vars only
+# once Brew has approved the email copy in sendAbandonRecoveryIfOwed.
+# The Stripe endpoint must also be subscribed to `checkout.session.expired`, or the
+# worker never hears about an abandonment at all.
+#
 # Etsy integration secrets:
 # - ETSY_CLIENT_ID: Etsy API key
 # - ETSY_CLIENT_SECRET: Etsy shared secret (not used in PKCE but good to have)

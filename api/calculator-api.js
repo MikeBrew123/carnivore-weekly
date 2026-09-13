@@ -8077,6 +8077,237 @@ async function sendResumeEmailIfOwed(env, obj) {
   return { sent: true };
 }
 
+
+/* ===========================================================================
+ * ABANDONED-CHECKOUT RECOVERY
+ * ---------------------------------------------------------------------------
+ * Someone opened the Stripe checkout for the $29 report and never paid. Stripe
+ * expires that Session (24h by default) and emits `checkout.session.expired`.
+ * That event is the ONLY durable notice we get: Stripe's own Sessions age out of
+ * the dashboard, which is why the 2026-07 manual recovery could not be repeated
+ * from Stripe data months later. Catching the event writes the abandonment into
+ * our own database at the moment it happens.
+ *
+ * The abandonment is recorded whether or not an email goes out. Recording is
+ * unconditional; SENDING is gated on CW_ABANDON_RECOVERY_ENABLED === 'true', so
+ * the detector can run in production and build a real abandoner set before a
+ * single recovery email is sent to anybody.
+ *
+ * Deliberately NOT here: no discount code (issuing one is Brew's call, and the
+ * 2026-07 coupon kSl0AsLw expired 2026-07-16), no deadline, no second email.
+ * One message, one link back to their own saved answers.
+ * =========================================================================== */
+
+const abandonEmailMarkerId = checkoutSessionId => `cw-abandon-email:${checkoutSessionId}`;
+
+function buildRecoveryLink(assessmentId) {
+  // `payment=resume` restores the saved answers WITHOUT claiming a payment: the
+  // restore branch in App.tsx sets isPremium only when the row itself says the
+  // money arrived, and usePaymentState treats only 'success' and 'free' as a
+  // completed payment. An abandoner lands back on their own results page.
+  return `${RESUME_LINK_BASE}?payment=resume&session_id=${encodeURIComponent(assessmentId)}`;
+}
+
+/**
+ * Sarah's voice. It says what happened, what is saved, and what the $29 adds, and
+ * it stops. No discount, no deadline, no count of bonuses, no second email. The
+ * three deliverables named here are the ones all three on-page offer surfaces
+ * agree on, so the email cannot promise something the page does not.
+ */
+const ABANDON_EMAIL_SUBJECT = 'Your carnivore numbers are still saved';
+
+function buildAbandonEmailBody(recoveryLink, unsubscribeLink) {
+  const paragraphs = [
+    'You started the full plan the other day and didn\'t finish checking out. That\'s ' +
+    'completely fine, and nothing was charged.',
+    'Your answers are still saved, so you don\'t have to fill anything in again. This ' +
+    'link takes you back to your own results:',
+  ];
+  const closing = [
+    'If you were on the fence, the $29 adds the 30 days of meals portioned to your own ' +
+    'calorie and protein numbers, the grocery lists that match those meals week by week, ' +
+    'and the section on what to do when the scale stops moving. The macros you already ' +
+    'have stay free either way.',
+    'If it\'s not for you, no hard feelings, and you can ignore this. If something went ' +
+    'wrong at the payment screen, reply and tell me what you saw and I\'ll sort it out.',
+  ];
+
+  const text = [...paragraphs, recoveryLink, ...closing, 'Sarah', 'Carnivore Weekly',
+    `Unsubscribe: ${unsubscribeLink}`].join('\n\n');
+
+  const html =
+    '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Georgia,serif;' +
+    'font-size:16px;line-height:1.6;color:#1a120b;max-width:560px;margin:0 auto;padding:24px;">' +
+    paragraphs.map(p => `<p>${escapeHTML(p)}</p>`).join('') +
+    `<p style="margin:24px 0;"><a href="${recoveryLink}" ` +
+    'style="background:#8b4513;color:#ffffff;padding:14px 28px;border-radius:8px;' +
+    'text-decoration:none;display:inline-block;font-weight:600;">Back to your results</a></p>' +
+    `<p style="font-size:14px;word-break:break-all;color:#5c4433;">${escapeHTML(recoveryLink)}</p>` +
+    closing.map(p => `<p>${escapeHTML(p)}</p>`).join('') +
+    '<p style="margin-top:24px;">Sarah<br>Carnivore Weekly</p>' +
+    `<p style="font-size:12px;color:#8a7a6a;margin-top:24px;"><a href="${unsubscribeLink}" ` +
+    'style="color:#8a7a6a;">Unsubscribe</a></p>' +
+    '</div>';
+
+  return { text, html };
+}
+
+/**
+ * Has this address asked us to stop, or proved undeliverable? The bounce handler
+ * writes both tables, and the unsubscribe endpoint writes both tables, so both are
+ * read here. A recovery email is a sales email: an unsubscribe outranks it.
+ * Site-scoped to 'cw' for the same reason the bounce handler is.
+ */
+async function isEmailSuppressed(env, email, headers) {
+  const scope = `email=eq.${encodeURIComponent(email)}&site=eq.cw`;
+  const [news, drip] = await Promise.all([
+    fetch(`${env.SUPABASE_URL}/rest/v1/newsletter_subscribers?${scope}&select=status`, { headers }),
+    fetch(`${env.SUPABASE_URL}/rest/v1/drip_subscribers?${scope}&select=unsubscribed,bounced_at`, { headers }),
+  ]);
+
+  // A lookup that did not answer is not permission. Treat an unreadable
+  // suppression list as suppressed: not sending costs one recovery email,
+  // sending costs a message to someone who told us to stop.
+  if (!news.ok || !drip.ok) return { suppressed: true, reason: 'suppression lookup failed' };
+
+  for (const row of await news.json().catch(() => [])) {
+    if (['unsubscribed', 'bounced', 'complained'].includes(row.status)) {
+      return { suppressed: true, reason: `newsletter status=${row.status}` };
+    }
+  }
+  for (const row of await drip.json().catch(() => [])) {
+    if (row.unsubscribed) return { suppressed: true, reason: 'drip unsubscribed' };
+    if (row.bounced_at) return { suppressed: true, reason: 'drip bounced' };
+  }
+  return { suppressed: false };
+}
+
+async function sendAbandonRecoveryIfOwed(env, obj) {
+  const assessmentId = obj?.client_reference_id || obj?.metadata?.assessment_session_id;
+  // KetoDial, coach and shop checkouts expire through this same webhook and carry
+  // no assessment reference. They are out of scope.
+  if (!assessmentId) return { skipped: 'not-a-cw-report-checkout' };
+
+  // The kill switch. Unset in production until the copy above is approved, so the
+  // detector runs and the abandonment is recorded while nothing is sent.
+  if (env.CW_ABANDON_RECOVERY_ENABLED !== 'true') return { skipped: 'recovery-disabled' };
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+    'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+  };
+  const markerId = abandonEmailMarkerId(obj.id);
+
+  const markerCheck = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/stripe_webhook_events?stripe_event_id=eq.${encodeURIComponent(markerId)}&select=id`,
+    { headers }
+  );
+  if (!markerCheck.ok) return { failed: true, reason: `marker lookup failed (${markerCheck.status})` };
+  const markerRows = await markerCheck.json().catch(() => []);
+  if (Array.isArray(markerRows) && markerRows.length > 0) return { skipped: 'already-sent' };
+
+  const sessionLookup = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?id=eq.${encodeURIComponent(assessmentId)}&select=id,email,payment_status`,
+    { headers }
+  );
+  if (!sessionLookup.ok) return { failed: true, reason: `session lookup failed (${sessionLookup.status})` };
+  const sessions = await sessionLookup.json().catch(() => []);
+  if (!Array.isArray(sessions) || sessions.length === 0) {
+    console.warn(`[abandon-email] no assessment row for ${assessmentId}; nothing to link to`);
+    return { skipped: 'assessment-not-found' };
+  }
+
+  // THE ONE THAT MATTERS. Abandoning session A and paying in session B is a normal
+  // sequence, and Stripe expires A afterwards. Telling a customer who has paid that
+  // they did not finish is worse than sending nothing at all, so the row is re-read
+  // here rather than trusted from the expired Session.
+  const status = sessions[0].payment_status;
+  if (status === 'completed' || status === 'success') return { skipped: 'already-paid' };
+
+  const to = obj.customer_email || obj.customer_details?.email || obj.metadata?.email || sessions[0].email;
+  if (!to) return { skipped: 'no-buyer-email' };
+
+  // One recovery email per person, ever, across every assessment they have started.
+  // Someone who abandons three checkouts is telling us something, and three emails
+  // is how a recovery play turns into nagging.
+  const priorSessions = await fetch(
+    `${env.SUPABASE_URL}/rest/v1/cw_assessment_sessions?email=eq.${encodeURIComponent(to)}&select=id&limit=50`,
+    { headers }
+  );
+  if (!priorSessions.ok) return { failed: true, reason: `prior-session lookup failed (${priorSessions.status})` };
+  const priorIds = (await priorSessions.json().catch(() => []))
+    .map(r => r.id)
+    .filter(id => typeof id === 'string' && /^[0-9a-f-]{36}$/i.test(id));
+  if (priorIds.length > 0) {
+    const priorMarkers = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/stripe_webhook_events?event_type=eq.cw_abandon_email_sent`
+      + `&session_id=in.(${priorIds.join(',')})&select=id&limit=1`,
+      { headers }
+    );
+    if (!priorMarkers.ok) return { failed: true, reason: `prior-marker lookup failed (${priorMarkers.status})` };
+    const prior = await priorMarkers.json().catch(() => []);
+    if (Array.isArray(prior) && prior.length > 0) return { skipped: 'already-recovered' };
+  }
+
+  const suppression = await isEmailSuppressed(env, to, headers);
+  if (suppression.suppressed) {
+    console.log(`[abandon-email] not sending to ${to}: ${suppression.reason}`);
+    return { skipped: `suppressed:${suppression.reason}` };
+  }
+
+  if (!env.RESEND_API_KEY) return { failed: true, reason: 'RESEND_API_KEY not configured' };
+
+  const link = buildRecoveryLink(assessmentId);
+  const unsub = `https://carnivore-report-api-production.iambrew.workers.dev/api/v1/unsubscribe?email=${encodeURIComponent(to)}&site=cw`;
+  const { text, html } = buildAbandonEmailBody(link, unsub);
+
+  const send = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      'Idempotency-Key': `cw-abandon/${obj.id}`,
+    },
+    body: JSON.stringify({
+      from: 'Carnivore Weekly <reports@carnivoreweekly.com>',
+      to: [to],
+      reply_to: 'sarah@carnivoreweekly.com',
+      subject: ABANDON_EMAIL_SUBJECT,
+      html,
+      text,
+    }),
+  });
+
+  if (!send.ok) {
+    const detail = await send.text().catch(() => '');
+    console.error(`[abandon-email] Resend rejected the send (${send.status}): ${detail.slice(0, 300)}`);
+    // Same split as the resume email: 400 and 422 are a rejection of THIS message and
+    // will never succeed, everything else is worth a retry. Unlike the resume email
+    // this is not owed to a paying customer, so a retryable failure is reported but
+    // the webhook is NOT failed: making Stripe redeliver an expiry event for days to
+    // chase a sales email is not a trade worth making.
+    const retryable = !(send.status === 400 || send.status === 422);
+    return { skipped: `resend-${send.status}`, retryable };
+  }
+
+  const mark = await fetch(`${env.SUPABASE_URL}/rest/v1/stripe_webhook_events`, {
+    method: 'POST',
+    headers: { ...headers, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({
+      stripe_event_id: markerId,
+      event_type: 'cw_abandon_email_sent',
+      session_id: assessmentId,
+      amount_cents: 0,
+    }),
+  });
+  if (!mark.ok) {
+    console.error(`[abandon-email] sent to the customer but the marker did not save (${mark.status})`);
+  }
+  console.log(`[abandon-email] sent for assessment ${assessmentId}`);
+  return { sent: true };
+}
+
 async function handleStripeWebhook(request, env) {
   const signature = request.headers.get('stripe-signature');
   if (!signature) {
@@ -8120,7 +8351,10 @@ async function handleStripeWebhook(request, env) {
 
   const event = JSON.parse(body);
 
-  const supportedEvents = ['checkout.session.completed', 'charge.refunded'];
+  // `checkout.session.expired` is the abandoned-checkout signal: Stripe expires a
+  // Session the buyer never paid (24h by default) and tells us once. It is the only
+  // durable notice, because Stripe's own Sessions age out of reach afterwards.
+  const supportedEvents = ['checkout.session.completed', 'checkout.session.expired', 'charge.refunded'];
   if (!supportedEvents.includes(event.type)) {
     return new Response(JSON.stringify({ received: true, ignored: true }), {
       status: 200,
@@ -8173,6 +8407,18 @@ async function handleStripeWebhook(request, env) {
         return createErrorResponse('RESUME_EMAIL_FAILED', 'Resume email could not be sent', 500);
       }
     }
+    // Same reasoning for an expired checkout. The event row proves we saw the
+    // expiry, not that the recovery decision was ever reached: the first attempt
+    // may have died on an unreadable database, and without this a 500 would buy
+    // a retry that this path then swallows. Keyed on its own marker, so a genuine
+    // duplicate sends nothing.
+    if (event.type === 'checkout.session.expired') {
+      const retry = await sendAbandonRecoveryIfOwed(env, event.data.object);
+      if (retry.failed) {
+        console.error(`Webhook: abandon recovery still undecided for ${event.id}: ${retry.reason}`);
+        return createErrorResponse('ABANDON_RECOVERY_UNDECIDED', 'Abandon recovery could not be decided', 500);
+      }
+    }
     return new Response(JSON.stringify({ received: true, duplicate: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -8191,6 +8437,26 @@ async function handleStripeWebhook(request, env) {
       amount_cents: obj.amount_total || obj.amount_refunded || 0,
     }),
   });
+
+  // ===== CHECKOUT EXPIRED (abandoned) =====
+  // The event row written just above IS the durable record of the abandonment, so the
+  // abandoner set survives whether or not anything is sent. The send is gated
+  // separately inside sendAbandonRecoveryIfOwed.
+  if (event.type === 'checkout.session.expired') {
+    const abandonedAssessment = obj.client_reference_id || obj.metadata?.assessment_session_id;
+    console.log(`Webhook: checkout expired${abandonedAssessment ? ` for assessment ${abandonedAssessment}` : ' (not a CW report checkout)'}`);
+    const recovery = await sendAbandonRecoveryIfOwed(env, obj);
+    if (recovery.failed) {
+      // A database that will not answer is the one case worth a Stripe retry: it is
+      // transient, and the alternative is losing this abandoner silently.
+      console.error(`Webhook: abandon recovery could not be decided for ${event.id}: ${recovery.reason}`);
+      return createErrorResponse('ABANDON_RECOVERY_UNDECIDED', 'Abandon recovery could not be decided', 500);
+    }
+    return new Response(JSON.stringify({ received: true, abandoned: true, recovery }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 
   // ===== CHECKOUT COMPLETED =====
   if (event.type === 'checkout.session.completed') {
@@ -9088,6 +9354,11 @@ export {
   buildResumeLink as __test_buildResumeLink,
   buildResumeEmailBody as __test_buildResumeEmailBody,
   RESUME_EMAIL_SUBJECT as __test_RESUME_EMAIL_SUBJECT,
+  sendAbandonRecoveryIfOwed as __test_sendAbandonRecoveryIfOwed,
+  buildRecoveryLink as __test_buildRecoveryLink,
+  buildAbandonEmailBody as __test_buildAbandonEmailBody,
+  isEmailSuppressed as __test_isEmailSuppressed,
+  ABANDON_EMAIL_SUBJECT as __test_ABANDON_EMAIL_SUBJECT,
   RENAL_MEAL_CALENDAR_NOTICE as __test_RENAL_MEAL_CALENDAR_NOTICE,
   RENAL_GROCERY_LIST_NOTICE as __test_RENAL_GROCERY_LIST_NOTICE,
   generateGroceryListByWeek as __test_generateGroceryListByWeek,
