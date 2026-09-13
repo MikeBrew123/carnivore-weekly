@@ -213,12 +213,31 @@ def send_via_resend(resend_key, from_email, from_name, reply_to, to_emails, subj
             results.append((email, "blocked", "dry-run"))
             continue
         personalized = personalize_html(html, email, site)
+        # Same List-Unsubscribe the drip has always sent (send_drip.py). The
+        # weekly went out without it: verified on a real delivered CW issue
+        # (2026-09-06), whose DKIM h= list was
+        #   From:To:Reply-To:Subject:Message-ID:Date:MIME-Version:Content-Type
+        # with no List-Unsubscribe anywhere. Resend does not add one; the drip
+        # has it only because we declare it. Without the header the mailbox
+        # provider shows no unsubscribe button and readers reach for "report
+        # spam" instead, which costs far more than an unsubscribe.
+        #
+        # Deliberately the SAME url personalize_html puts in the body, so the
+        # header and the visible link resolve identically and carry the right
+        # brand: &site=cw for CW, &site=kd for KD. The body link is untouched.
+        # RFC 8058 one-click (List-Unsubscribe-Post) is NOT added here: it needs
+        # the endpoint to accept POST, which is a separate change.
+        from urllib.parse import quote
+        unsub_url = f"{UNSUB_BASE}?email={quote(email)}&site={site}"
         payload = {
             "from": f"{from_name} <{from_email}>",
             "to": [email],
             "reply_to": reply_to,
             "subject": subject,
             "html": personalized,
+            "headers": {
+                "List-Unsubscribe": f"<{unsub_url}>",
+            },
         }
         # Resend allows ~2 requests/second. Without the throttle below this loop
         # blew straight through it and every 429 was filed as "failed" and the
