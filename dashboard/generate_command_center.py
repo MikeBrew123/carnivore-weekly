@@ -2096,12 +2096,16 @@ def statebar_html(d):
                                          X.evidence(r['purchases_30d'], 'purchases')), '30 days'))
     if exps:
         e = exps[0]
-        locked = 'KEEP MEASURING' in e['status']
-        exp_cell = cell('Measuring',
-                        f'<span class="n">{e["denominator"]}<span class="of">/{e["min_sample"]}'
-                        f'</span></span>',
-                        'review threshold' if locked else 'review eligible',
-                        'sb-exp' + (' locked' if locked else ''))
+        if e.get('not_started'):
+            exp_cell = cell('Measuring', '<span class="n na">not started</span>',
+                            f'opens {esc(e["started"])}', 'sb-exp pending')
+        else:
+            locked = 'KEEP MEASURING' in e['status']
+            exp_cell = cell('Measuring',
+                            f'<span class="n">{e["denominator"]}<span class="of">'
+                            f'/{e["min_sample"]}</span></span>',
+                            'review threshold' if locked else 'review eligible',
+                            'sb-exp' + (' locked' if locked else ''))
     else:
         exp_cell = cell('Measuring', '<span class="n na">none</span>')
     ops_cell = cell('Operations',
@@ -2297,6 +2301,11 @@ def paid_funnel_html(d):
 # ── Currently measuring ──────────────────────────────────────────────
 
 def experiments_html(d):
+    """Shows the two experiment events, then the same-window checkout and
+    purchase counts BELOW a divider that names them as unattributed. They are
+    never placed in the same row group as the impressions, because adjacency
+    alone would imply an attribution the instrumentation cannot support.
+    """
     exps = d.get('experiments') or []
     if not exps:
         return ('<section class="card exp"><h2>Currently measuring</h2>'
@@ -2304,28 +2313,41 @@ def experiments_html(d):
                 '</section>')
     body = ''
     for e in exps:
+        pending = e.get('not_started')
         locked = 'KEEP MEASURING' in e['status']
+        state = 'pending' if pending else ('locked' if locked else 'eligible')
         den, floor = e['denominator'] or 0, e['min_sample']
         pct = min(100, den * 100 / floor) if floor else 0
-        # This bar is the one progress indicator on the page, and it earns its
-        # place: it moves every day and it gates a decision.
-        body += (f'<div class="exp-item {"locked" if locked else "eligible"}">'
+        shipped = (e.get('shipped') or '')[:10]
+        when = (f'shipped {shipped} · counted from {esc(e["started"])}' if shipped
+                else f'counted from {esc(e["started"])}')
+        day_line = ('window not open yet' if pending else f'day {e["days"]}')
+        thr = ('' if pending else
+               f'<div class="thr"><div class="thr-bar"><i style="width:{pct:.0f}%"></i></div>'
+               f'<span class="rnote">{den:,} of {floor:,} minimum review threshold</span></div>')
+        rationale = (f'<p class="foot">{esc(e["start_rationale"])}</p>'
+                     if e.get('start_rationale') else '')
+        body += (f'<div class="exp-item {state}">'
                  f'<div class="exp-head"><b>{esc(e["name"])}</b>'
-                 f'<span class="rnote">started {esc(e["started"])} · day {e["days"]}</span></div>'
-                 f'<div class="exp-grid">'
-                 f'<div><span class="k">Eligible impressions</span>'
-                 f'<span class="n big">{den:,}</span></div>'
-                 f'<div><span class="k">Engagements</span>'
-                 f'<span class="n big">{e["numerator"] if e["numerator"] is not None else "—"}</span></div>'
-                 f'<div><span class="k">Checkouts</span>'
-                 f'<span class="n big">{e["checkouts"] if e["checkouts"] is not None else "—"}</span></div>'
-                 f'<div><span class="k">Purchases</span>'
-                 f'<span class="n big">{e["outcome"] if e["outcome"] is not None else "—"}</span></div>'
-                 f'</div>'
-                 f'<div class="thr"><div class="thr-bar"><i style="width:{pct:.0f}%"></i></div>'
-                 f'<span class="rnote">{den:,} of {floor:,} minimum review threshold</span></div>'
+                 f'<span class="rnote">{when} · {day_line}</span></div>'
+                 f'<div class="exp-grid two">'
+                 f'<div><span class="k">{esc(e["denominator_label"])}</span>'
+                 f'<span class="n big">{den:,}</span><span class="rnote">sessions</span></div>'
+                 f'<div><span class="k">{esc(e["numerator_label"])}</span>'
+                 f'<span class="n big">{e["numerator"] if e["numerator"] is not None else "—"}'
+                 f'</span><span class="rnote">sessions</span></div>'
+                 f'</div>{thr}'
                  f'<p class="exp-status">{esc(e["status"])}</p>'
                  f'<p class="interp">{esc(e["verdict"])}</p>'
+                 f'{rationale}'
+                 f'<div class="exp-unattr"><span class="k">Same window, not attributed</span>'
+                 f'<div class="exp-grid two">'
+                 f'<div><span class="kk">{esc(e["checkout_label"])}</span>'
+                 f'<span class="n">{e["checkouts"] if e["checkouts"] is not None else "—"}</span></div>'
+                 f'<div><span class="kk">{esc(e["outcome_label"])}</span>'
+                 f'<span class="n">{e["outcome"] if e["outcome"] is not None else "—"}</span></div>'
+                 f'</div>'
+                 f'<p class="caveat">{esc(e["attribution"])}</p></div>'
                  f'<p class="foot">{esc(e["threshold_meaning"])}</p>'
                  + (f'<p class="foot">{esc(e["notes"])}</p>' if e.get('notes') else '')
                  + '</div>')
@@ -2942,9 +2964,16 @@ def render_html(d):
       background:var(--raised);border-top:2px solid var(--line)}
     .exp-item.locked{border-top-color:var(--warn)}
     .exp-item.eligible{border-top-color:var(--info)}
+    .exp-item.pending{border-top-color:var(--dim)}
+    .pending .exp-status{color:var(--dim)}
     .exp-head{display:flex;flex-direction:column;margin-bottom:12px}
     .exp-head b{font-size:14px}
     .exp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+    .exp-grid.two{grid-template-columns:repeat(2,1fr)}
+    .exp-unattr{margin-top:14px;padding-top:11px;border-top:1px dashed var(--line)}
+    .exp-unattr .exp-grid{margin:6px 0 0}
+    .exp-unattr .n{font-size:16px;font-weight:600;display:block}
+    .kk{display:block;font:11px/1.35 var(--sans);color:var(--dim);margin-bottom:2px}
     .thr-bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:4px}
     .thr-bar i{display:block;height:100%;background:var(--warn);border-radius:3px}
     .eligible .thr-bar i{background:var(--info)}

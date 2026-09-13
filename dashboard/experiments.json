@@ -1,19 +1,22 @@
 {
-  "_readme": "What is currently being measured. One entry per live experiment. Only the GA4 event pair lives here, because prose in docs/project-log/decisions.md cannot name a denominator; the narrative of the change is picked up automatically from the project log by parse_timeline(). DELETE an entry when the experiment concludes. min_sample is a MINIMUM REVIEW THRESHOLD, not a proof threshold: below it the dashboard refuses to let anyone read the result at all, and reaching it only means the result is worth looking at. It never declares a winner, and the purchase count is always shown beside the engagement count so a healthy-looking rate on zero sales cannot be mistaken for success.",
+  "_readme": "What is currently being measured. One entry per live experiment. Only the GA4 event pair lives here, because prose in docs/project-log/decisions.md cannot name a denominator; the narrative of the change is picked up automatically from the project log by parse_timeline(). DELETE an entry when the experiment concludes.\n\n'started' MUST be the first FULL CALENDAR DAY after the change shipped, not the ship date. GA4 is aggregated here by day, not by timestamp, so a partial ship day mixes pre-change and post-change traffic into one bucket that cannot be separated. The ship day is recorded separately in 'shipped' for the audit trail and is never counted.\n\nmin_sample is a MINIMUM REVIEW THRESHOLD, not a proof threshold: below it the dashboard refuses to let anyone read the result, and reaching it only means the result is worth looking at. It never declares a winner.\n\ncheckout_event and outcome_event are counted over the SAME TIME WINDOW as the impressions. They are NOT attributed to the experiment: nothing here proves those sessions are the same sessions that saw the bridge offer. Do not relabel them as attributed without real session-intersection instrumentation.",
   "experiments": [
     {
       "name": "CW bridge offer revision",
-      "started": "2026-09-07",
+      "shipped": "2026-09-13T14:45:00Z",
+      "shipped_ref": "2cfd1792 (bundle 14:45 UTC); CTA source property 617c9abd, 14:57 UTC",
+      "started": "2026-09-14",
+      "start_rationale": "The revised bridge shipped mid-day on 2026-09-13, so that day's GA4 bucket mixes pre-revision and post-revision traffic. Daily aggregation cannot split it, so 09-13 is excluded entirely and the cohort begins on the first full calendar day, 09-14.",
       "denominator_event": "calculator_offer_impression",
-      "denominator_label": "Paid offer seen (sessions)",
+      "denominator_label": "Paid offer seen",
       "numerator_event": "calculator_bridge_cta_click",
-      "numerator_label": "Bridge CTA engaged (sessions)",
-      "min_sample": 100,
-      "notes": "Offer impression fires at 50% card visibility. Do not change the bridge card, its copy, or the price while this reads KEEP MEASURING. When it reads REVIEW ELIGIBLE, that is a prompt for Brew to look, not a result: judge it on purchases, not on CTA clicks.",
-      "outcome_event": "purchase",
-      "outcome_label": "Purchases since start",
+      "numerator_label": "Bridge CTA engaged",
       "checkout_event": "begin_checkout",
-      "checkout_label": "Checkouts since start"
+      "checkout_label": "Checkout sessions in same measurement window",
+      "outcome_event": "purchase",
+      "outcome_label": "Purchase sessions in same measurement window",
+      "min_sample": 100,
+      "notes": "Offer impression fires at 50% card visibility. Do not change the bridge card, its copy, or the price while this reads KEEP MEASURING. Checkout and purchase counts are window-level only and are not attributed to the bridge."
     }
   ]
 }

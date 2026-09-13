@@ -445,6 +445,27 @@ Edit `dashboard/experiments.json`. Only the GA4 event pair lives there, because
 prose cannot name a denominator; the narrative of the change is picked up from
 `docs/project-log/decisions.md` automatically. Delete the entry when it ends.
 
+**`started` is the first full calendar day AFTER the change shipped, never the
+ship date.** GA4 is aggregated here by day, so a mid-day ship mixes pre-change
+and post-change traffic into one bucket that cannot be split; that day is
+excluded outright rather than counted and caveated. Record the ship moment in
+`shipped` for the audit trail. If `started` is in the future the panel reads
+`NOT STARTED — WINDOW OPENS <date>` and shows no progress bar, rather than
+showing zeros as though they were a result.
+
+**Checkout and purchase counts are same-window totals, not attributed
+outcomes.** `build_experiments()` has no session-level intersection, so it
+cannot show that a checkout came from a session that saw the bridge offer. They
+render below a dashed divider headed *Same window, not attributed*, and the
+verdict never says "purchases from these impressions". Do not relabel them
+without real session-intersection instrumentation — which this task did not
+add.
+
+This was corrected on 2026-09-13: the entry had `started: 2026-09-07` while the
+revised bridge shipped at 14:45 UTC on 09-13 (`2cfd1792`, with the CTA source
+property in `617c9abd` at 14:57), so the 29 impressions / 6 engagements / 2
+purchases then on screen were not a valid cohort.
+
 ### The model narrative is optional
 
 `model_narrative()` is a labelled opinion beside the deterministic brief, not
@@ -486,7 +507,8 @@ wanted. Do not add `--email` to a manual run out of habit; it mails Brew every
 time.
 
 Publishes to `http://100.117.74.5:8087/live/command-center.html` plus a dated
-archive copy, then emails the report. Requires Tailscale.
+archive copy. It sends nothing — email happens only when `--email` is passed.
+Requires Tailscale.
 
 The **Mac crontab at 03:40 PT is the only thing that runs the Command Center**:
 

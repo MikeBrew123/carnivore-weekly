@@ -703,15 +703,24 @@ def correlate(timeline, changes, today, min_age=2, max_age=14, limit=3):
 def build_experiments(specs, events, today, min_impressions=100):
     """Protect a running experiment from being changed before it can be reviewed.
 
-    The threshold is a MINIMUM REVIEW THRESHOLD and nothing more. Reaching it
-    means the result is worth a human look; it does not mean the experiment
-    worked, failed, or has a winner, and this function never says so. Crossing
-    100 impressions on 6 engagements and 0 purchases is not evidence of
-    anything — so the engagement and purchase counts are always carried
-    alongside the denominator, and the verdict text stays descriptive.
+    THE START DATE. `started` is the first FULL CALENDAR DAY after the change
+    shipped, never the ship date. GA4 is aggregated here by day, so a mid-day
+    ship mixes pre-change and post-change traffic into one bucket that cannot
+    be separated; that day is excluded outright rather than being counted and
+    caveated. If `started` is still in the future the window has not opened and
+    the panel says so instead of showing zeros as if they were a result.
 
-    Each spec declares only what prose cannot: start date, and which GA4 event
-    is the denominator and which the numerator.
+    ATTRIBUTION. The denominator and numerator are the two events that define
+    the experiment. The checkout and purchase counts are counted over the SAME
+    TIME WINDOW and nothing more: this function has no session-level
+    intersection, so it cannot and does not claim those sessions saw the bridge
+    offer. They are labelled as same-window counts everywhere, and the verdict
+    never says "purchases FROM these impressions". Do not relabel them as
+    attributed without real session-intersection instrumentation.
+
+    THE THRESHOLD. A minimum review threshold, not a proof threshold. Reaching
+    it means the result is worth a human look; it is not a winner line, and
+    this function never declares one.
     """
     out = []
     by = (events or {}).get('by_event', {}) if events and not events.get('error') else {}
@@ -720,7 +729,8 @@ def build_experiments(specs, events, today, min_impressions=100):
             started = date.fromisoformat(spec['started'])
         except Exception:
             continue
-        days = (today - started).days
+        days = (today - started).days + 1        # inclusive count of measured days
+        not_open = started > today
 
         def since(event_name):
             rec = by.get(event_name)
@@ -729,12 +739,19 @@ def build_experiments(specs, events, today, min_impressions=100):
             return sum(r['sessions'] for r in rec.get('daily', [])
                        if r['date'] >= spec['started'])
 
-        den = since(spec.get('denominator_event'))
-        num = since(spec.get('numerator_event'))
-        checkouts = since(spec.get('checkout_event') or 'begin_checkout')
-        purchases = since(spec.get('outcome_event') or 'purchase')
+        den = 0 if not_open else since(spec.get('denominator_event'))
+        num = 0 if not_open else since(spec.get('numerator_event'))
+        checkouts = 0 if not_open else since(spec.get('checkout_event') or 'begin_checkout')
+        purchases = 0 if not_open else since(spec.get('outcome_event') or 'purchase')
         floor = spec.get('min_sample', min_impressions)
-        if den is None or num is None:
+
+        if not_open:
+            status = 'NOT STARTED — WINDOW OPENS ' + spec['started']
+            verdict = (f'The revised offer shipped on '
+                       f'{(spec.get("shipped") or "")[:10] or "the ship date"}, so that partial '
+                       f'day is excluded. Measurement begins {spec["started"]} and no session '
+                       f'has been counted yet.')
+        elif den is None or num is None:
             status, verdict = 'NO DATA', 'The declared events returned nothing for this window.'
         elif den < floor:
             status = 'KEEP MEASURING — BELOW REVIEW THRESHOLD'
@@ -743,22 +760,30 @@ def build_experiments(specs, events, today, min_impressions=100):
         else:
             rate = round(num * 100 / den, 1) if den else 0
             status = 'REVIEW ELIGIBLE'
-            verdict = (f'{num} engagements, '
-                       f'{checkouts if checkouts is not None else "—"} checkouts and '
-                       f'{purchases if purchases is not None else "—"} purchases from {den} '
-                       f'impressions over {days} days ({rate}% engagement). The review '
-                       f'threshold is met — that means look at it, not that it worked. '
-                       f'Crossing {floor} is not a result.')
+            verdict = (f'{num} of {den} sessions that saw the offer engaged the bridge CTA '
+                       f'({rate}%) over {days} day(s). The review threshold is met — that means '
+                       f'look at it, not that it worked. Crossing {floor} is not a result.')
         out.append({
-            'name': spec.get('name', 'unnamed'), 'started': spec['started'], 'days': days,
+            'name': spec.get('name', 'unnamed'),
+            'shipped': spec.get('shipped'),
+            'shipped_ref': spec.get('shipped_ref'),
+            'started': spec['started'],
+            'start_rationale': spec.get('start_rationale'),
+            'not_started': not_open,
+            'days': max(0, days),
             'denominator_label': spec.get('denominator_label', spec.get('denominator_event')),
             'numerator_label': spec.get('numerator_label', spec.get('numerator_event')),
-            'checkout_label': spec.get('checkout_label', 'Checkouts since start'),
-            'outcome_label': spec.get('outcome_label', 'Purchases since start'),
+            'checkout_label': spec.get('checkout_label',
+                                       'Checkout sessions in same measurement window'),
+            'outcome_label': spec.get('outcome_label',
+                                      'Purchase sessions in same measurement window'),
             'denominator': den, 'numerator': num, 'checkouts': checkouts, 'outcome': purchases,
             'min_sample': floor,
             'threshold_meaning': ('Minimum review threshold. Reaching it makes the result worth '
                                   'reading; it is not proof, not a winner, and not a decision.'),
+            'attribution': ('Checkout and purchase counts are SAME-WINDOW totals for the whole '
+                            'site, not outcomes attributed to this experiment. Nothing here '
+                            'proves those sessions saw the bridge offer.'),
             'status': status, 'verdict': verdict,
             'rate_pct': (round(num * 100 / den, 1) if (den and num is not None) else None),
             'notes': spec.get('notes'),
@@ -841,12 +866,23 @@ def build_what_matters(d, changes, funnel, revenue, attention, experiments, toda
             f'is real. Whether it persists is a different question.',
             'No action — confirm it holds next week before changing anything.', 3)
 
-    # 5. A locked experiment is a standing instruction not to touch something.
+    # 5. A locked or unopened experiment is a standing instruction not to touch
+    #    something. Checkout and purchase counts are deliberately NOT quoted
+    #    here: they are same-window site totals, and putting them in the same
+    #    sentence as the impressions would imply an attribution that does not
+    #    exist.
     for e in (experiments or []):
-        if 'KEEP MEASURING' in e['status']:
+        if e.get('not_started'):
             add('watch',
-                f'{e["name"]}: {e["denominator"]} of {e["min_sample"]} impressions, '
-                f'{e["numerator"]} engagements, {e["outcome"]} purchases.',
+                f'{e["name"]}: measurement has not started. Window opens {e["started"]}.',
+                f'The revision shipped part-way through {(e.get("shipped") or "")[:10]}, so that '
+                f'day mixes pre- and post-change traffic and is excluded. Any earlier number for '
+                f'this experiment was not a valid cohort.',
+                'No action — do not change the bridge card before the window opens.', 1)
+        elif 'KEEP MEASURING' in e['status']:
+            add('watch',
+                f'{e["name"]}: {e["numerator"]} of {e["denominator"]} sessions that saw the '
+                f'offer engaged the CTA, against a {e["min_sample"]}-session review threshold.',
                 'Below the review threshold, so the engagement rate cannot be read yet — '
                 'and the threshold is a review gate, not a winner line.',
                 'No action — do not change the bridge card, its copy or the price.', 2)

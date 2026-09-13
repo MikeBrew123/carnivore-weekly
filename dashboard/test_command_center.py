@@ -347,33 +347,119 @@ class Executive(unittest.TestCase):
 
 
 class Experiments(unittest.TestCase):
-    spec = [{'name': 'CW bridge offer revision', 'started': '2026-09-07',
+    """Window semantics and the attribution boundary.
+
+    Both pinned because both were wrong on 2026-09-13: the start date was the
+    day the bridge shipped rather than the first clean day after it, and the
+    checkout/purchase counts were being read as outcomes of the experiment when
+    they are only same-window site totals.
+    """
+
+    spec = [{'name': 'CW bridge offer revision',
+             'shipped': '2026-09-13T14:45:00Z',
+             'started': '2026-09-14',
+             'start_rationale': 'shipped mid-day 09-13, so that day is excluded',
              'denominator_event': 'calculator_offer_impression',
+             'denominator_label': 'Paid offer seen',
              'numerator_event': 'calculator_bridge_cta_click',
-             'outcome_event': 'purchase', 'min_sample': 100}]
+             'numerator_label': 'Bridge CTA engaged',
+             'checkout_event': 'begin_checkout',
+             'checkout_label': 'Checkout sessions in same measurement window',
+             'outcome_event': 'purchase',
+             'outcome_label': 'Purchase sessions in same measurement window',
+             'min_sample': 100}]
 
-    def events(self, den, num, buys=0):
-        def series(n):
-            return {'daily': [{'date': '2026-09-08', 'sessions': n, 'events': n}]}
-        return {'by_event': {'calculator_offer_impression': series(den),
-                             'calculator_bridge_cta_click': series(num),
-                             'purchase': series(buys)}}
+    def events(self, series):
+        """series: {event: [(date, sessions), ...]}"""
+        return {'by_event': {
+            ev: {'sessions': sum(n for _, n in rows), 'events': sum(n for _, n in rows),
+                 'daily': [{'date': dt, 'sessions': n, 'events': n} for dt, n in rows]}
+            for ev, rows in series.items()}}
 
+    def full(self, den, num, chk=0, buys=0, day='2026-09-15'):
+        return self.events({'calculator_offer_impression': [(day, den)],
+                            'calculator_bridge_cta_click': [(day, num)],
+                            'begin_checkout': [(day, chk)],
+                            'purchase': [(day, buys)]})
+
+    # ── window semantics ──
+    def test_a_future_start_is_reported_as_not_started_not_as_zeros(self):
+        e = X.build_experiments(self.spec, self.full(37, 5, 1, 2, day='2026-09-12'), TODAY)[0]
+        self.assertTrue(e['not_started'])
+        self.assertIn('NOT STARTED', e['status'])
+        self.assertIn('2026-09-14', e['status'])
+        self.assertEqual((e['denominator'], e['numerator'], e['checkouts'], e['outcome']),
+                         (0, 0, 0, 0))
+        self.assertEqual(e['days'], 0)
+
+    def test_the_ship_day_is_never_counted(self):
+        """The bridge shipped 14:45 UTC on 09-13, so GA4's 09-13 bucket mixes
+        pre- and post-change traffic and cannot be split by a daily rollup."""
+        later = date(2026, 9, 16)
+        ev = self.events({
+            'calculator_offer_impression': [('2026-09-13', 500), ('2026-09-14', 40),
+                                            ('2026-09-15', 30)],
+            'calculator_bridge_cta_click': [('2026-09-13', 90), ('2026-09-14', 4)],
+            'begin_checkout': [('2026-09-13', 9), ('2026-09-14', 1)],
+            'purchase': [('2026-09-13', 2), ('2026-09-14', 1)]})
+        e = X.build_experiments(self.spec, ev, later)[0]
+        self.assertEqual(e['denominator'], 70, '09-13 impressions must be excluded')
+        self.assertEqual(e['numerator'], 4)
+        self.assertEqual(e['checkouts'], 1)
+        self.assertEqual(e['outcome'], 1, "the ship day's sales are not experiment outcomes")
+
+    def test_measured_days_are_counted_inclusively_from_the_start(self):
+        e = X.build_experiments(self.spec, self.full(10, 1), date(2026, 9, 16))[0]
+        self.assertEqual(e['days'], 3)   # 14th, 15th, 16th
+
+    def test_the_ship_date_is_kept_for_audit_but_is_not_the_start(self):
+        e = X.build_experiments(self.spec, self.full(10, 1), date(2026, 9, 16))[0]
+        self.assertEqual(e['shipped'], '2026-09-13T14:45:00Z')
+        self.assertEqual(e['started'], '2026-09-14')
+        self.assertNotEqual(e['started'], e['shipped'][:10])
+        self.assertIn('excluded', e['start_rationale'])
+
+    # ── same window is not attribution ──
+    def test_checkout_and_purchase_carry_same_window_labels(self):
+        e = X.build_experiments(self.spec, self.full(140, 21, 3, 2), date(2026, 9, 20))[0]
+        self.assertIn('same measurement window', e['checkout_label'])
+        self.assertIn('same measurement window', e['outcome_label'])
+        self.assertIn('not outcomes attributed', e['attribution'])
+        self.assertIn('Nothing here proves those sessions saw the bridge offer',
+                      e['attribution'])
+
+    def test_the_verdict_never_claims_purchases_came_from_the_impressions(self):
+        e = X.build_experiments(self.spec, self.full(140, 21, 3, 2), date(2026, 9, 20))[0]
+        v = e['verdict'].lower()
+        self.assertNotIn('purchases from', v)
+        self.assertNotIn('checkouts from', v)
+        self.assertNotIn('purchases and', v)
+        # It may only relate the two events that actually define the experiment.
+        self.assertIn('engaged the bridge cta', v)
+        self.assertIn('sessions that saw the offer', v)
+
+    def test_what_matters_does_not_put_purchases_beside_the_impressions(self):
+        exps = X.build_experiments(self.spec, self.full(40, 6, 1, 2), date(2026, 9, 20))
+        items = X.build_what_matters({'email_engagement': {}}, {'dod': [], 'wow': []}, {},
+                                     {'unavailable': True}, [], exps, TODAY_ISO)
+        fact = next(i['fact'] for i in items if 'bridge' in i['fact'].lower())
+        self.assertIn('engaged the CTA', fact)
+        self.assertNotIn('purchase', fact.lower())
+        self.assertNotIn('checkout', fact.lower())
+
+    # ── threshold semantics, unchanged ──
     def test_below_threshold_locks_the_experiment(self):
-        e = X.build_experiments(self.spec, self.events(37, 5), TODAY)[0]
+        e = X.build_experiments(self.spec, self.full(37, 5), date(2026, 9, 20))[0]
         self.assertIn('KEEP MEASURING', e['status'])
         self.assertIn('BELOW REVIEW THRESHOLD', e['status'])
         self.assertIn('Do not change', e['verdict'])
 
     def test_reaching_the_threshold_unlocks_a_review_not_a_verdict(self):
-        e = X.build_experiments(self.spec, self.events(140, 21, buys=0), TODAY)[0]
-        # The STATUS is the line an agent is most likely to act on, so it must
-        # carry no verdict word at all, negated or otherwise.
+        e = X.build_experiments(self.spec, self.full(140, 21, 0, 0), date(2026, 9, 20))[0]
         self.assertEqual(e['status'], 'REVIEW ELIGIBLE')
         for banned in ('winner', 'working', 'success', 'keep', 'change', 'proven', 'significant'):
             self.assertNotIn(banned, e['status'].lower(),
                              f'status must not contain the verdict word "{banned}"')
-        # The prose may use those words only to deny them.
         prose = (e['verdict'] + ' ' + e['threshold_meaning']).lower()
         self.assertIn('not that it worked', prose)
         self.assertIn('not a result', prose)
@@ -381,25 +467,31 @@ class Experiments(unittest.TestCase):
         self.assertIn('not a winner', prose)
         self.assertIn('not a decision', prose)
 
-    def test_purchase_count_is_always_shown_beside_the_denominator(self):
-        e = X.build_experiments(self.spec, self.events(140, 21, buys=0), TODAY)[0]
+    def test_zero_purchases_are_still_shown(self):
+        e = X.build_experiments(self.spec, self.full(140, 21, 0, 0), date(2026, 9, 20))[0]
         self.assertEqual(e['outcome'], 0)
-        self.assertEqual(e['denominator'], 140)
-        self.assertEqual(e['numerator'], 21)
+        self.assertEqual(e['checkouts'], 0)
         self.assertEqual(e['rate_pct'], 15.0)
-        self.assertIn('0 purchases', e['verdict'],
-                      'a 15% engagement rate on zero sales must show the zero')
 
-    def test_threshold_is_described_as_a_review_gate(self):
-        e = X.build_experiments(self.spec, self.events(140, 21, buys=2), TODAY)[0]
-        self.assertIn('not proof', e['threshold_meaning'])
-        self.assertIn('2 purchases', e['verdict'])
+    def test_panel_separates_the_unattributed_counts_from_the_experiment_events(self):
+        import generate_command_center as G
+        exps = X.build_experiments(self.spec, self.full(140, 21, 3, 2), date(2026, 9, 20))
+        html = G.experiments_html({'experiments': exps})
+        head, _, tail = html.partition('exp-unattr')
+        self.assertIn('Paid offer seen', head)
+        self.assertIn('Bridge CTA engaged', head)
+        self.assertNotIn('same measurement window', head,
+                         'unattributed counts must sit below the divider')
+        self.assertIn('Checkout sessions in same measurement window', tail)
+        self.assertIn('Purchase sessions in same measurement window', tail)
+        self.assertIn('Same window, not attributed', html)
 
-    def test_only_sessions_after_the_start_date_count(self):
-        ev = self.events(37, 5)
-        ev['by_event']['calculator_offer_impression']['daily'].insert(
-            0, {'date': '2026-09-01', 'sessions': 500, 'events': 500})
-        self.assertEqual(X.build_experiments(self.spec, ev, TODAY)[0]['denominator'], 37)
+    def test_a_not_started_panel_shows_no_progress_bar(self):
+        import generate_command_center as G
+        exps = X.build_experiments(self.spec, self.full(9, 9, 9, 9, day='2026-09-12'), TODAY)
+        html = G.experiments_html({'experiments': exps})
+        self.assertNotIn('thr-bar', html)
+        self.assertIn('NOT STARTED', html)
 
 
 class Timeline(unittest.TestCase):
@@ -501,13 +593,23 @@ class WhatMatters(unittest.TestCase):
                                      att, [], TODAY_ISO)), 5)
 
     def test_a_locked_experiment_produces_a_do_not_touch_action(self):
-        exps = X.build_experiments(Experiments.spec, Experiments().events(29, 6, 2), TODAY)
+        exps = X.build_experiments(Experiments.spec, Experiments().full(29, 6, 1, 2),
+                                   date(2026, 9, 20))
         items = X.build_what_matters(self.empty, self.base_changes(), {}, {'unavailable': True},
                                      [], exps, TODAY_ISO)
         item = next(i for i in items if 'bridge' in i['fact'])
         self.assertIn('do not change', item['action'].lower())
-        self.assertIn('6 engagements', item['fact'])
-        self.assertIn('2 purchases', item['fact'])
+        self.assertIn('6 of 29', item['fact'])
+
+    def test_an_unopened_experiment_says_so_and_still_forbids_changes(self):
+        exps = X.build_experiments(Experiments.spec, Experiments().full(9, 9, day='2026-09-12'),
+                                   TODAY)
+        items = X.build_what_matters(self.empty, self.base_changes(), {}, {'unavailable': True},
+                                     [], exps, TODAY_ISO)
+        item = next(i for i in items if 'bridge' in i['fact'].lower())
+        self.assertIn('has not started', item['fact'])
+        self.assertIn('2026-09-14', item['fact'])
+        self.assertIn('do not change', item['action'].lower())
 
 
 class Renders(unittest.TestCase):
