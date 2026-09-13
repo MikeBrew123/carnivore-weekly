@@ -1889,3 +1889,108 @@ presence or absence of a `cw_abandon_email_sent` marker answers sent or not; and
 bought. The one thing NOT stored durably is the skip REASON: it is in the worker log
 while that lasts, and otherwise has to be reconstructed from the same durable state.
 That was judged acceptable against the instruction not to build a second tracker.
+
+## 2026-09-13: Resend integration sprint CLOSED (main `eaa0a7c8`)
+
+**Scope was observability, not migration**, and it stayed that way. The brief was to get
+operational value out of Resend now that it is a paid dependency, without duplicating
+integrations or moving working systems. Nothing was migrated: no contacts, no drips, no
+sender domains, no unsubscribe behaviour, no email copy. Three defects surfaced along the
+way and each was fixed as its own reviewed change rather than folded into the audit.
+
+**What the inventory found.** There is no Resend MCP in `.mcp.json`; access was API-key
+only via `secrets/api-keys.json`. A Resend MCP server did come online mid-sprint and was
+used for the metrics work, but no second integration was built. Sending is 8 raw
+`POST /emails` call sites. The webhook at `-production/webhook/resend` verifies Svix HMAC,
+fails closed on a missing secret, enforces a 5-minute replay window and compares in
+constant time. Suppression writes both `drip_subscribers.bounced_at` and
+`newsletter_subscribers.status`, site-scoped, with a 3-consecutive-bounce rule and a
+ContentRejected carve-out. Both send paths honour that state. All of it was already correct
+and needed no change.
+
+**CW/KD attribution is verified, and one earlier claim of mine was wrong.** I flagged
+`site=kd` inside the CW worker as suspected misrouting of paid CW traffic. It was a false
+alarm: that literal lives in `sendKetoDialWelcome`, a genuinely KD cross-sell email. All
+three paid paths are provably CW-only, established three ways: all 10 `calculator_reports`
+rows key to `cw_assessment_sessions` and none to the shared `calculator_sessions_v2`; the
+resume and abandon paths bail with `not-a-cw-report-checkout` without an assessment
+reference; and KD's paid plan email lives in a different worker entirely. The brand
+discriminator is `calculator_sessions_v2.source` (`cw` vs `ketodial`), not a site column.
+Locked in by `tests/brand-attribution-isolation.test.mjs`. **No routing change was needed.**
+
+**Three defects found and fixed, each its own commit.**
+
+1. *Report disclosure (P0, `520d8d01`).* `handleEmailReport` mailed a paid report to any
+address in the request body, for any session id, with no owner check and no payment check.
+CW reports carry weight, medications and kidney status, and session UUIDs travel in report
+links and referrers. Now three gates, each failing closed: a report row exists, its
+assessment says `payment_status='completed'`, and the supplied address matches the stored
+one. Delivery goes to the STORED address, never the supplied one, so the report cannot be
+routed anywhere the buyer did not name even if the match were later loosened. All denials
+return the same generic 403 so responses cannot probe whether a session id is real.
+Deployed as worker `a19e5933`, smoke-tested live against a synthetic UNPAID fixture session
+so no send was possible.
+
+2. *KD weekly had never been sent (`c1cf4672`).* 70 active KD subscribers had received
+nothing while every weekly run reported success. Not Resend, not the domain, not the KD
+code: `weekly-update.yml` checked out without submodules, KD's blog lives in the
+`ketodial/public` submodule, so `get_recent_kd_posts()` hit its `if not blog_dir.exists()`
+guard, returned `[]`, and the job printed "No KD posts published in the last 7 days" and
+exited 0. Confirmed in run `34734340795`. CW was never affected because it reads
+`data/blog_posts.json` from the main repo. Everything downstream was correct and simply
+never reached; two generated KD issues from June were sitting unsent in the submodule.
+
+3. *Dashboard email metrics (`bc67750b`).* The Command Center divided by the local `sent`
+event, which only `send_drip.py` writes while the webhook records `delivered` for every
+send path. On its own window it rendered CW 194.4% and KD 100.9% delivery. Open and click
+rates divided RAW EVENT counts by delivered (CW read 71.5% against a true 51.4%). Bounce
+and complaint rate were not computed at all.
+
+**`List-Unsubscribe` now ships on newsletter sends.** Verified on a real delivered CW issue
+(2026-09-06) that the weekly went out without it: the DKIM `h=` list was
+`From:To:Reply-To:Subject:Message-ID:Date:MIME-Version:Content-Type`. The drip has always
+had one. Controlled comparison on the same account, domain and IP pool proves **Resend
+injects nothing**; the drip has it only because we declare it. The header reuses the exact
+url `personalize_html` already puts in the body, so header and visible link agree and carry
+the right brand. The body link was not touched.
+
+**Dashboard metrics reconciled to Resend.** Attempts = `delivered + bounced` over distinct
+`resend_id`. Delivery and bounce over attempts; complaint rate over delivered (Google
+Postmaster / SES convention: only a delivered message can be reported as spam). Unique open
+and click by distinct `resend_id`, never raw events. Against Resend's native metrics API,
+attempts reproduces Resend's `sent` EXACTLY at 7d (459) and 30d (1,622), as do delivered,
+bounced, complained, unique opens and unique clicks. **Our webhook data was never wrong; only
+the dashboard's arithmetic was.**
+
+**Fixture exclusion is one rule, applied once.** The dashboard reuses
+`subscriber_hygiene.is_undeliverable_fixture`, the same function the live send paths use to
+refuse a test address, so the dashboard cohort and the mailable cohort cannot drift. It is
+applied to the whole cohort before anything is counted: attempts, delivered, bounced,
+complained, opens and clicks together. Excluding fixture bounces alone would flatter every
+rate, and a test asserts that specific trap. Correcting my own earlier estimate: KD's real
+30-day bounce rate is **1.77%** (5/283), not the 1.07% I first reported from an ad-hoc regex
+that also stripped `test.com` and `test123.com`. Those are deliberately NOT in the fixture
+list because they are real registrable domains.
+
+**Health baseline at close, fixture-clean.** CW 7d 99.41% delivery / 0.59% bounce; CW 30d
+99.10% / 0.90%. KD 7d 97.39% / 2.61%; KD 30d 98.23% / 1.77%. **Zero spam complaints across
+1,596 deliveries, all time.** Resend suppression list holds 3 addresses, all correctly
+reflected in Supabase, no drift.
+
+**Resend native metrics cannot separate CW from KD** and this is structural, not a config
+gap: the metrics API exposes only `period`, `domain`, `email` and `broadcast` dimensions,
+there is no tag dimension, and 434 of 435 sends are on `carnivoreweekly.com`. Brand split
+must come from `drip_events.site`, which is proven exact against Resend. The working
+division is therefore deliberate: **Resend for account-level deliverability truth and
+periodic reconciliation, `drip_events` for the brand split, and local `sent` never used
+again.**
+
+**No further Resend integration work is required.** Parked as backlog only, none started:
+(1) migrate KD sender identity to `ketodial.com` after DMARC and a deliberate warm-up plan.
+The domain is verified and sending-enabled as of 2026-09-12 but has NO DMARC record and zero
+sending history, and KD currently sends on `carnivoreweekly.com` where DMARC passes and the
+drip has real reputation. (2) RFC 8058 `List-Unsubscribe-Post`, which needs the unsubscribe
+endpoint to accept POST and is missing everywhere including the drip. (3) Explicit `site`
+tags on CW sends that are currently attributed by from-address only; it works today but is
+convention, not declaration. (4) Alert thresholds on bounce and complaint rate if volume
+justifies them; at ~225 per weekly send with zero complaints, it does not yet.
