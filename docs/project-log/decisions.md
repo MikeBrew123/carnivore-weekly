@@ -1845,3 +1845,47 @@ visibility threshold because the page was never scrolled that far. The bridge co
 untouched; two top-of-funnel counters are one higher than they should be. That any local dev
 session silently writes to the production property is a trap worth closing, and is filed as
 backlog, not fixed here.
+
+## 2026-09-13: recovery sending switched ON, with a hard historical cutoff
+
+Sarah reviewed the draft as a real customer communication and changed two things, both
+for accuracy rather than taste. The offer no longer names a section, because
+"The Stall-Breaker Protocol" is fat-loss only and a protein-restriction or kidney flag
+replaces BOTH the meal calendar and the grocery lists with a medical notice. This email
+is sent before the health profile is asked, so those answers are unknown at send time;
+it now describes the substance, ties it to the goal we DO know they picked, and states
+the suppression plainly instead of hiding it. And "I'll sort it out" is gone: the inbox
+is real and is read (Judith's thread 09-08/09-09, a supplement question 08-29), so
+inviting a reply is honest, but there is no support tooling, no refund path, and nothing
+was charged, so it now promises a reply rather than a repair.
+
+**Historical isolation is structural, not an argument.** `ABANDON_RECOVERY_EPOCH_MS`
+refuses any checkout session created before 2026-09-13 16:00 UTC, deliberately later
+than both the worker deploy (15:27) and the Stripe subscription, so it also excludes the
+wiring verification. The gate runs before any database lookup and before the marker
+check, and a Session with no creation time is refused too. It is checked against the
+SESSION's creation time, not the assessment row's, so somebody who filled the calculator
+a fortnight ago and abandoned a fresh checkout today stays eligible. Recovery is
+reachable only from the live webhook: two call sites, both inside `handleStripeWebhook`,
+no scheduled handler, no sweep, no backfill, all pinned by the suite. Proved live in
+production with the flag ON: a resend of the old verification event was refused with
+"checkout created 2026-09-13T15:29:00.000Z, before the recovery epoch
+2026-09-13T16:00:00.000Z" and sent nothing.
+
+`CW_ABANDON_RECOVERY_ENABLED = "true"` in `[env.production].vars`, worker version
+`5754ea7e-bedd-4e9f-b60b-adc6998ffe7d`. Zero recovery emails have been sent. The first
+will be driven by the next naturally occurring eligible expiry, which cannot be earlier
+than roughly 16:00 UTC on 2026-09-14, since a session must be created after the epoch and
+then take about a day to expire.
+
+The synthetic verification row `evt_1UFFL2EVDfkpGz8wNre6XZsv` was deleted, scoped by
+event id, session id and event type together. The table is back to its pre-verification
+baseline of 22 rows with 20 completed checkouts, and real history was not touched.
+
+**Observability uses what already exists, and no second tracking system was built.** The
+event row answers the expiration event id, the assessment, and the timestamp; the
+presence or absence of a `cw_abandon_email_sent` marker answers sent or not; and joining
+`session_id` to `cw_assessment_sessions.payment_status` answers whether they later
+bought. The one thing NOT stored durably is the skip REASON: it is in the worker log
+while that lasts, and otherwise has to be reconstructed from the same durable state.
+That was judged acceptable against the instruction not to build a second tracker.
