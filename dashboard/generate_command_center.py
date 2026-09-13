@@ -669,21 +669,144 @@ def fetch_mail():
     return out
 
 
+# ---------------------------------------------------------------------------
+# EMAIL METRICS
+# ---------------------------------------------------------------------------
+# Rewritten 2026-09-13. The old version divided by the local 'sent' event and
+# counted raw engagement events as if they were rates, which produced figures
+# that could not be true: CW 7d showed 339 delivered / 215 sent = 158% delivery.
+#
+# Why 'sent' was wrong: only send_drip.py writes a local 'sent' row, while the
+# Resend webhook writes 'delivered' for EVERY send path (newsletter, worker
+# transactional, coach). Over 30 days local 'sent' was 1,184 against Resend's
+# real 1,622, a 27% undercount, so it can never be a valid denominator.
+#
+# What replaces it: ATTEMPTS = delivered + bounced, counted over distinct
+# resend_id. Both come from the webhook, so both cover every send path.
+# Verified against Resend's native metrics API on 2026-09-13: attempts
+# reproduced Resend's `sent` EXACTLY at both 7d (459) and 30d (1,622), as did
+# delivered, bounced, complained, unique opens and unique clicks.
+#
+# 'Attempts' is deliberately NOT relabelled 'Sent' in the UI. It is a resolved
+# count of messages Resend reached a verdict on, not the number the API
+# accepted, and those differ while a message is still in flight.
+#
+# Denominators, and why they differ:
+#   delivery rate   = delivered / attempts   (share of attempts that landed)
+#   bounce rate     = bounced   / attempts   (share of attempts that failed)
+#   complaint rate  = complained / delivered (industry convention, matching
+#                     Google Postmaster and SES: only a message that actually
+#                     landed can be reported as spam, so bounces must not
+#                     dilute the denominator)
+#   unique open rate  = distinct resend_id with an 'opened'  event / delivered
+#   unique click rate = distinct resend_id with a 'clicked' event / delivered
+#
+# Opens and clicks MUST be de-duplicated by resend_id. One reader opening one
+# message four times is one opened message, not four. Raw event totals are
+# still exposed as opened_events / clicked_events for curiosity, but they are
+# never used as a rate.
+FIXTURE_EXCLUDED_NOTE = 'fixture/test addresses excluded (scripts/subscriber_hygiene.py)'
+
+
+def _load_fixture_filter():
+    """Reuse the project's single fixture rule. Never define a second list here.
+
+    subscriber_hygiene.is_undeliverable_fixture is the same function the live
+    send paths use to refuse a test address, so the dashboard cohort and the
+    mailable cohort can never drift apart. If the import fails the dashboard
+    still renders, but it says so rather than quietly reporting contaminated
+    numbers.
+    """
+    try:
+        scripts_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts')
+        if scripts_dir not in sys.path:
+            sys.path.insert(0, scripts_dir)
+        from subscriber_hygiene import is_undeliverable_fixture
+        return is_undeliverable_fixture, True
+    except Exception as e:
+        print(f'  [email-metrics] WARNING: fixture filter unavailable ({e}); '
+              f'metrics will include test traffic')
+        return (lambda _e: False), False
+
+
+def _fetch_events(start_iso, end_iso=None):
+    """Every drip_events row in a window, paged. select is narrow on purpose."""
+    rows, offset, page = [], 0, 1000
+    while True:
+        filters = f'created_at=gte.{start_iso}'
+        if end_iso:
+            filters += f'&created_at=lt.{end_iso}'
+        filters += f'&offset={offset}'
+        batch = supa_fetch('drip_events', select='email,event_type,resend_id,site',
+                           filters=filters, limit=page)
+        if not batch:
+            break
+        rows.extend(batch)
+        if len(batch) < page:
+            break
+        offset += page
+        if offset > 50000:   # runaway guard
+            break
+    return rows
+
+
+def compute_email_metrics(rows, is_fixture):
+    """Per-site production email metrics from raw drip_events rows.
+
+    The fixture filter is applied ONCE, to the whole cohort, before anything is
+    counted. Dropping fixture bounces while leaving their delivered and opened
+    events in the denominators would flatter every rate on the page.
+    """
+    out = {}
+    for site in ('cw', 'kd'):
+        site_rows = [r for r in rows if r.get('site') == site]
+        prod = [r for r in site_rows if not is_fixture(r.get('email'))]
+
+        def uniq(event):
+            return len({r['resend_id'] for r in prod
+                        if r.get('event_type') == event and r.get('resend_id')})
+
+        delivered = uniq('delivered')
+        bounced = uniq('bounced')
+        complained = uniq('complained')
+        attempts = delivered + bounced
+        opened_msgs = uniq('opened')
+        clicked_msgs = uniq('clicked')
+
+        def pct(n, d):
+            return round(n * 100 / d, 2) if d else None
+
+        out[site] = {
+            'attempts': attempts,
+            'delivered': delivered,
+            'bounced': bounced,
+            'complained': complained,
+            'unique_opened_messages': opened_msgs,
+            'unique_clicked_messages': clicked_msgs,
+            # Raw totals, kept visible but never used as a rate.
+            'opened_events': sum(1 for r in prod if r.get('event_type') == 'opened'),
+            'clicked_events': sum(1 for r in prod if r.get('event_type') == 'clicked'),
+            'fixture_events_excluded': len(site_rows) - len(prod),
+            'delivery_rate_pct': pct(delivered, attempts),
+            'bounce_rate_pct': pct(bounced, attempts),
+            'complaint_rate_pct': pct(complained, delivered),
+            'unique_open_rate_pct': pct(opened_msgs, delivered),
+            'unique_click_rate_pct': pct(clicked_msgs, delivered),
+        }
+    return out
+
+
 def fetch_email_engagement():
     d7, d8, d14 = iso_days_ago(7), iso_days_ago(8), iso_days_ago(14)
-    out = {}
-    for site in ['cw', 'kd']:
-        s = {}
-        for ev in ['sent', 'delivered', 'opened', 'clicked', 'bounced', 'complained']:
-            cur = supa_count('drip_events', f'site=eq.{site}&event_type=eq.{ev}&created_at=gte.{d7}')
-            prev = supa_count('drip_events',
-                              f'site=eq.{site}&event_type=eq.{ev}&created_at=gte.{d14}&created_at=lt.{d8}')
-            s[ev] = {'current_7d': cur, 'previous_7d': prev}
-        sent = s['sent']['current_7d'] or 0
-        delivered = s['delivered']['current_7d'] or 0
-        s['open_rate_pct'] = round(s['opened']['current_7d'] * 100 / delivered, 1) if delivered else None
-        s['click_rate_pct'] = round(s['clicked']['current_7d'] * 100 / delivered, 1) if delivered else None
-        s['delivery_rate_pct'] = round(delivered * 100 / sent, 1) if sent else None
+    is_fixture, fixture_ok = _load_fixture_filter()
+
+    cur = compute_email_metrics(_fetch_events(d7), is_fixture)
+    prev = compute_email_metrics(_fetch_events(d14, d8), is_fixture)
+
+    out = {'fixture_filter_active': fixture_ok, 'fixture_note': FIXTURE_EXCLUDED_NOTE}
+    for site in ('cw', 'kd'):
+        s = dict(cur[site])
+        s['previous_7d'] = prev[site]
         out[site] = s
     return out
 
@@ -1759,14 +1882,32 @@ def render_html(d):
             se = eng.get(esite, {})
             if not se:
                 continue
+            # 'Attempts' replaces the old 'Sent' tile. It is delivered + bounced
+            # over distinct resend_id, not the count the Resend API accepted.
+            # Opened/Clicked tiles now show UNIQUE MESSAGES, which is what the
+            # rates below divide by; the raw event totals sit in the footnote so
+            # the two can never be mistaken for each other again.
+            prev7 = se.get('previous_7d', {})
             cells = ''
-            for ev, name in [('sent', 'Sent'), ('delivered', 'Delivered'), ('opened', 'Opened'),
-                             ('clicked', 'Clicked'), ('bounced', 'Bounced'), ('complained', 'Complaints')]:
-                e = se.get(ev, {})
-                cells += (f'<div class="stat"><b>{e.get("current_7d", 0)}</b><span>{name} 7d</span>'
-                          f'{trend_html(pct_change(e.get("current_7d", 0), e.get("previous_7d", 0)))}</div>')
-            rates = (f'<p class="small muted">{elabel}: Delivery {se.get("delivery_rate_pct", "—")}% · '
-                     f'Open {se.get("open_rate_pct", "—")}% · Click {se.get("click_rate_pct", "—")}%</p>')
+            for key, name in [('attempts', 'Attempts'), ('delivered', 'Delivered'),
+                              ('unique_opened_messages', 'Opened (uniq)'),
+                              ('unique_clicked_messages', 'Clicked (uniq)'),
+                              ('bounced', 'Bounced'), ('complained', 'Complaints')]:
+                curv = se.get(key, 0) or 0
+                prevv = prev7.get(key, 0) or 0
+                cells += (f'<div class="stat"><b>{curv}</b><span>{name} 7d</span>'
+                          f'{trend_html(pct_change(curv, prevv))}</div>')
+            fmt = lambda v: f'{v}%' if v is not None else '—'
+            rates = (f'<p class="small muted">{elabel}: '
+                     f'Delivery {fmt(se.get("delivery_rate_pct"))} · '
+                     f'Bounce {fmt(se.get("bounce_rate_pct"))} · '
+                     f'Complaints {fmt(se.get("complaint_rate_pct"))} · '
+                     f'Unique open {fmt(se.get("unique_open_rate_pct"))} · '
+                     f'Unique click {fmt(se.get("unique_click_rate_pct"))}</p>'
+                     f'<p class="small muted">Attempts = delivered + bounced (distinct message ids). '
+                     f'Delivery and bounce over attempts; complaints and unique rates over delivered. '
+                     f'Raw events: {se.get("opened_events", 0)} opens, {se.get("clicked_events", 0)} clicks '
+                     f'(not used as rates). {se.get("fixture_events_excluded", 0)} fixture events excluded.</p>')
             eng_html += f'<p class="small muted"><b>{elabel}</b></p><div class="statrow wrap">{cells}</div>{rates}'
 
     rev = d.get('revenue', {})
