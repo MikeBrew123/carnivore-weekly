@@ -11,6 +11,7 @@ set -u
 LOG="/Users/mbrew/Documents/Brew-Vault/00-Core/Live-Changes-Log.md"
 ROOT="${CLAUDE_PROJECT_DIR:-/Users/mbrew/Developer/carnivore-weekly}"
 CLASSIFY=0; [ "${1:-}" = "--classify" ] && CLASSIFY=1
+CAPCHECK=0; [ "${1:-}" = "--cap-check" ] && CAPCHECK=1
 CMD=$(jq -r '.tool_input.command // ""' 2>/dev/null)
 [ -z "$CMD" ] && { [ "$CLASSIFY" = 1 ] && echo read; exit 0; }
 # Does the command touch Etsy at all?
@@ -50,21 +51,46 @@ printf '%s' "$CMD" | perl -e "$HTTP_WRITE_PL"; RC=$?
 [ "$RC" -ne 1 ] && WRITE=1
 for s in $SCRIPTS; do echo "$s" | grep -qE "$RO" || WRITE=1; done
 if [ "$CLASSIFY" = 1 ]; then [ "$WRITE" = 1 ] && echo write || echo read; exit 0; fi
-[ "$WRITE" = 0 ] && exit 0
-# 1. write-first
+if [ "$WRITE" = 0 ]; then [ "$CAPCHECK" = 1 ] && echo allow; exit 0; fi
+# 1. write-first. Skipped under --cap-check, which reports on the CAP branch alone and never
+# enforces, so the suite does not have to age or touch the real vault log to test the cap.
+if [ "$CAPCHECK" = 0 ]; then
 if [ ! -f "$LOG" ]; then echo "BLOCKED: Live Changes Log missing at $LOG. Fail closed; no Etsy write." >&2; exit 2; fi
 AGE=$(( $(date +%s) - $(stat -f %m "$LOG") ))
 if [ "$AGE" -gt 1800 ]; then
   echo "BLOCKED: Etsy write attempted but the Live Changes Log was last modified ${AGE}s ago. Write the row FIRST (date, listing id, what/why), then retry. Scripts: $SCRIPTS" >&2; exit 2
 fi
+fi
 # 2. cap
+# CLAUDE.md: a Live Changes Log row tagged [cap-exempt <deck>] dated TODAY lifts the cap, and
+# etsy/etsy-guard.mjs already honours it in process. This hook did not, so the documented escape
+# hatch was unreachable from a Bash call (found 2026-09-12). It now honours the same exemption.
+# Recognition is delegated entirely to edit-cap.mjs, which prints
+#   EXEMPT <YYYY-MM-DD> deck <hex>: "<row>" not counted
+# for each row its own [cap-exempt <6+ hex>] regex accepts. This script never parses the log and
+# never reimplements that regex, so a malformed row simply produces no EXEMPT line and stays
+# blocked. The date must equal today, matching etsy-guard.mjs's `e.date === w.today`.
+# This lifts the CAP only. The write-first rule above is NOT lifted: the row must still be written
+# before the call, which is the control that makes the exemption auditable in the first place.
+cap_exempt_today() { # $1 = edit-cap output
+  echo "$1" | grep -qE "^[[:space:]]*EXEMPT[[:space:]]+$(date +%F)[[:space:]]+deck[[:space:]]+[0-9a-fA-F]{6,}:"
+}
 IDS=$(echo "$CMD" | grep -oE '\b[0-9]{6,}\b' | sort -u | tr '\n' ' ')
 if [ -n "$IDS" ]; then
   OUT=$(cd "$ROOT" && node etsy/edit-cap.mjs $IDS 2>&1); RC=$?
-  if [ $RC -ne 0 ]; then echo "BLOCKED by Etsy edit cap: $OUT" >&2; exit 2; fi
+  if [ $RC -ne 0 ] && ! cap_exempt_today "$OUT"; then
+    [ "$CAPCHECK" = 1 ] && { echo block; exit 0; }
+    echo "BLOCKED by Etsy edit cap: $OUT" >&2; exit 2
+  fi
 else
-  OUT=$(cd "$ROOT" && node etsy/edit-cap.mjs 2>&1) || { echo "BLOCKED: edit-cap.mjs failed (fail closed): $OUT" >&2; exit 2; }
+  OUT=$(cd "$ROOT" && node etsy/edit-cap.mjs 2>&1) || {
+    [ "$CAPCHECK" = 1 ] && { echo block; exit 0; }
+    echo "BLOCKED: edit-cap.mjs failed (fail closed): $OUT" >&2; exit 2; }
   N=$(echo "$OUT" | sed -nE 's/^Listings edited in window: ([0-9]+).*/\1/p'); N=${N:-0}
-  if [ "$N" -ge 3 ]; then echo "BLOCKED: $N distinct listings already edited in the 7-day window and no listing id found in the command. Brew's word or wait for the window." >&2; exit 2; fi
+  if [ "$N" -ge 3 ] && ! cap_exempt_today "$OUT"; then
+    [ "$CAPCHECK" = 1 ] && { echo block; exit 0; }
+    echo "BLOCKED: $N distinct listings already edited in the 7-day window and no listing id found in the command. Brew's word or wait for the window." >&2; exit 2
+  fi
 fi
+[ "$CAPCHECK" = 1 ] && { echo allow; exit 0; }
 exit 0
